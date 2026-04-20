@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<!-- uc-mol-05-pill-family.html — UC-MOL-05 "Pill Semantics Family"
+     LaneShadow V2 · Copper · Molecule Design Mock · 2026-04-20
+     Molecules: LSTagPill / LSFilterChip / LSSuggestionChip / LSWeatherBadge
+     Authority: .spec/prds/v2/06-uc-mol.md §UC-MOL-05 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-MOL-05 — Pill Semantics Family — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — copied from uc-scr-01-idle.html spine
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:#FDFBF8; --paper-100:#F8F7F6; --paper-150:#F5F2EE; --paper-200:#F2EFED;
+  --paper-300:#EDE7E1; --paper-400:#E5DED9; --paper-500:#C9BDB3;
+  --ink-900:#1E1A16; --ink-800:#221810; --ink-700:#2D2218; --ink-600:#362A1F;
+  --ink-500:#3D3228; --ink-400:#49454F; --ink-300:#6B6460; --ink-200:#9CA3AF;
+  --ink-100:#CAC4D0; --ink-050:#F2EEE8;
+  --copper-700:#9E4A22; --copper-600:#B85A2C; --copper-500:#EE7C2B;
+  --copper-400:#F3A164; --copper-200:#F9D5B5; --copper-100:#FCE8D4;
+  --wx-clear:#E6A52A; --wx-clear-tint:#FBEFCF;
+  --wx-rain:#4A86BE; --wx-rain-tint:#DBEAF4;
+  --wx-wind:#6B7B8F; --wx-wind-tint:#E1E6EC;
+  --wx-storm:#5E3FAE; --wx-storm-tint:#E3DCF2;
+  --wx-hot:#C9423C; --wx-hot-tint:#F5D8D6;
+  --wx-cold:#3A8BE3; --wx-cold-tint:#D6E5F7;
+  --font-opinion:'Newsreader',Georgia,'Times New Roman',serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono','Menlo',monospace;
+
+  --surface-primary:var(--paper-100); --surface-card:var(--paper-50);
+  --surface-inset:var(--paper-200); --surface-glass:rgba(253,251,248,0.72);
+  --content-primary:var(--ink-900); --content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300); --content-subtle:var(--ink-200);
+  --content-onSignal:#FFFFFF;
+  --signal-default:var(--copper-500); --signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200); --signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400); --border-subtle:var(--paper-300); --border-strong:var(--paper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+}
+
+/* Dark override — applied per-swatch */
+.dark-swatch {
+  --surface-primary:var(--ink-800); --surface-card:var(--ink-700);
+  --surface-inset:var(--ink-600); --surface-glass:rgba(45,34,24,0.72);
+  --content-primary:var(--ink-050); --content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200); --content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12); --border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  background: var(--surface-primary);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ═══════════════════════════════════════════════════════════════════════ */
+.t-opinion-xl  { font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em; }
+.t-opinion-lg  { font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em; }
+.t-title-md    { font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em; }
+.t-body-md     { font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52; }
+.t-body-sm     { font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48; }
+.t-label-lg    { font-family:var(--font-ui);font-weight:500;font-size:11px;line-height:1.0;letter-spacing:0.08em;text-transform:uppercase; }
+.t-label-md    { font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase; }
+.t-label-sm    { font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase; }
+.t-instr-sm    { font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1; }
+.t-instr-xs    { font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCUMENT CHROME
+   ═══════════════════════════════════════════════════════════════════════ */
+body { font-family:var(--font-ui);color:var(--content-primary);background:var(--surface-primary);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden; }
+.wrap { max-width:1440px;margin:0 auto;padding:0 72px; }
+.doc-header { position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden; }
+.doc-header::before { content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none; }
+.doc-header>* { position:relative;z-index:1; }
+.doc-eyebrow { display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px; }
+.doc-eyebrow::before { content:"";width:28px;height:1px;background:var(--signal-default); }
+.doc-eyebrow-pill { display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em; }
+.doc-title { font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px; }
+.doc-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.doc-tagline { font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px; }
+.doc-meta-row { display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default); }
+.meta-item { display:flex;flex-direction:column;gap:6px; }
+.meta-label { font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary); }
+.meta-value { font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary); }
+.section { padding:96px 0;border-bottom:1px solid var(--border-default);position:relative; }
+.section:last-child { border-bottom:none; }
+.section-header { display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px; }
+.section-index { font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px; }
+.section-index::before { content:"";display:block;width:48px;height:1px;background:var(--signal-default); }
+.section-title { font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px; }
+.section-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.prose { font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px; }
+.prose+.prose { margin-top:20px; }
+.prose em { font-style:italic; }
+.prose strong { font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px; }
+.ac-cite { font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px; }
+.ac-cite::before { content:"☐";position:absolute;left:0;top:0;color:var(--border-strong); }
+.doc-footer { padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end; }
+.footer-mark { font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em; }
+.footer-mark em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.footer-mark span { display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300; }
+.footer-note { font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LAYOUT HELPERS
+   ═══════════════════════════════════════════════════════════════════════ */
+.mol-row { display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;padding-left:152px;margin-bottom:32px; }
+.mol-cell { display:flex;flex-direction:column;gap:8px;align-items:flex-start; }
+.mol-label { font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default); }
+.mol-sub { font-family:var(--font-ui);font-size:10px;color:var(--content-tertiary);line-height:1.5; }
+.group-head { padding-left:152px;margin-bottom:24px;margin-top:48px; }
+.group-head:first-child { margin-top:0; }
+.group-head h3 { font-family:var(--font-opinion);font-size:28px;font-weight:300;color:var(--content-secondary);letter-spacing:-0.015em; }
+.group-head h3 em { font-style:italic;color:var(--signal-default); }
+.mode-pair { display:flex;gap:32px;align-items:flex-start;padding-left:152px;margin-bottom:32px;flex-wrap:wrap; }
+.mode-col { display:flex;flex-direction:column;gap:12px; }
+.mode-col-label { font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--content-tertiary);margin-bottom:4px; }
+
+/* Dimensions table */
+.dim-table { padding-left:152px;display:grid;grid-template-columns:220px 100px 100px 140px 1fr;row-gap:0;column-gap:0; }
+.dim-table>div { padding:10px 14px;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:12px;color:var(--content-secondary); }
+.dim-table>div.head { font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px; }
+.dim-val { font-family:var(--font-instrument);color:var(--content-primary); }
+
+/* Motion table */
+.motion-table { padding-left:152px;display:grid;grid-template-columns:200px 1fr 2fr;row-gap:0;column-gap:28px; }
+.motion-table>div { padding:10px 0;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:13px; }
+.motion-recipe { font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px; }
+.motion-trigger { color:var(--content-primary);font-weight:500; }
+.motion-effect { color:var(--content-secondary); }
+
+/* Rationale */
+.rationale-grid { padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px; }
+.rationale-block h4 { font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px; }
+.rationale-block p { font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px; }
+.rationale-block ul { list-style:none; }
+.rationale-block li { padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle); }
+.rationale-block li::before { content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument); }
+.rationale-block li strong { font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSPill — shape primitive (referenced by all four molecules)
+   ═══════════════════════════════════════════════════════════════════════ */
+.ls-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--border-default);
+  white-space: nowrap;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.ls-pill.sm { height: 24px; padding: 0 8px; gap: 4px; }
+.ls-pill.md { height: 32px; padding: 0 12px; gap: 6px; }
+.ls-pill.lg { height: 40px; padding: 0 16px; gap: 8px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSTagPill — non-interactive info pill
+   ═══════════════════════════════════════════════════════════════════════ */
+.ls-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: var(--elev-chrome);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--content-secondary);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.dark-swatch .ls-tag-pill { border-color: rgba(242,238,232,0.12); }
+.ls-tag-pill .pin-icon { color: var(--signal-default); flex-shrink: 0; }
+.ls-tag-pill.mode-label {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+  padding: 5px 10px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSFilterChip — toggleable filter
+   ═══════════════════════════════════════════════════════════════════════ */
+.ls-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--content-secondary);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+  white-space: nowrap;
+}
+.ls-filter-chip.selected {
+  background: var(--signal-default);
+  border-color: var(--signal-default);
+  color: var(--content-onSignal);
+}
+.ls-filter-chip:active:not(.selected) {
+  background: var(--surface-inset);
+}
+.ls-filter-chip .check-icon { display: none; }
+.ls-filter-chip.selected .check-icon { display: inline; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSSuggestionChip — single-tap primer, height 32pt
+   ═══════════════════════════════════════════════════════════════════════ */
+.ls-sugg-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--content-primary);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+  white-space: nowrap;
+}
+.dark-swatch .ls-sugg-chip { border-color: rgba(242,238,232,0.12); }
+/* Primed state — copper tint after tap */
+.ls-sugg-chip.primed {
+  background: var(--signal-whisper);
+  border-color: var(--signal-tint);
+  color: var(--signal-default);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSWeatherBadge — all 6 conditions, sm + md sizes
+   ═══════════════════════════════════════════════════════════════════════ */
+.ls-wx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.ls-wx-badge.sm { height: 24px; padding: 0 8px; font-size: 9px; letter-spacing: 0.06em; gap: 3px; }
+.ls-wx-badge.md { height: 32px; padding: 0 12px; font-size: 10.5px; letter-spacing: 0.04em; gap: 4px; }
+
+/* Weather condition variants */
+.ls-wx-badge.clear  { background: var(--wx-clear-tint);  color: var(--wx-clear);  border-color: rgba(230,165,42,0.35); }
+.ls-wx-badge.rain   { background: var(--wx-rain-tint);   color: var(--wx-rain);   border-color: rgba(74,134,190,0.35); }
+.ls-wx-badge.wind   { background: var(--wx-wind-tint);   color: var(--wx-wind);   border-color: rgba(107,123,143,0.35); }
+.ls-wx-badge.storm  { background: var(--wx-storm-tint);  color: var(--wx-storm);  border-color: rgba(94,63,174,0.35); }
+.ls-wx-badge.hot    { background: var(--wx-hot-tint);    color: var(--wx-hot);    border-color: rgba(201,66,60,0.35); }
+.ls-wx-badge.cold   { background: var(--wx-cold-tint);   color: var(--wx-cold);   border-color: rgba(58,139,227,0.35); }
+
+/* Icons inline SVG replacement symbols */
+.wx-icon { font-size: 11px; line-height: 1; flex-shrink: 0; }
+.ls-wx-badge.sm .wx-icon { font-size: 9px; }
+
+/* Weather matrix grid */
+.wx-matrix { padding-left:152px;display:grid;grid-template-columns:repeat(6,auto);gap:12px 16px;align-items:center; }
+.wx-matrix-header { padding-left:152px;display:grid;grid-template-columns:repeat(6,auto);gap:12px 16px;margin-bottom:8px; }
+.wx-col-label { font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);text-align:left; }
+.wx-row-label { font-family:var(--font-ui);font-size:10px;color:var(--content-tertiary);text-align:right;white-space:nowrap; }
+.wx-matrix-sized { padding-left:152px;display:grid;grid-template-columns:60px repeat(6,auto);gap:12px 16px;align-items:center;margin-top:24px; }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-MOL-05</span><span class="doc-eyebrow-pill">● Molecules · Pill Semantics</span></div>
+    <h1 class="doc-title"><em>Pill</em><br>semantics.</h1>
+    <p class="doc-tagline">
+      Four semantic molecules composing LSPill: a non-interactive tag, a
+      toggleable filter chip, a single-tap suggestion primer, and a
+      weather-condition badge tinted from the Copper weather palette.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-MOL-05</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">06-uc-mol.md</div></div>
+      <div class="meta-item"><div class="meta-label">Composes</div><div class="meta-value">UC-ATM-06</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Four <em>meanings</em>, one <em>shape</em>.</h2>
+    </div>
+    <p class="prose">
+      The pill shape is neutral. Meaning is injected through semantic wrapper
+      molecules: <em>LSTagPill</em> informs without inviting interaction;
+      <em>LSFilterChip</em> toggles a query parameter; <em>LSSuggestionChip</em>
+      primes a prompt with a single tap; <em>LSWeatherBadge</em> communicates
+      condition through tinted color and a leading icon. All four compose
+      <strong>UC-ATM-06</strong> LSPill — the shape primitive — and never
+      recreate the pill radius inline.
+    </p>
+    <p class="prose">
+      Heights follow the three-tier dimension token: <strong>sm 24pt</strong>,
+      <strong>md 32pt</strong>, <strong>lg 40pt</strong>. SuggestionChip is
+      fixed at md (32pt) per spec. WeatherBadge ships sm and md.
+    </p>
+  </section>
+</div>
+
+<!-- §02 MOLECULE VARIANT MATRIX -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · The Molecules</div>
+      <h2 class="section-title">Full <em>variant matrix</em>.</h2>
+    </div>
+
+    <!-- LSTagPill -->
+    <div class="group-head"><h3><em>LSTagPill</em> — non-interactive info</h3></div>
+
+    <div style="padding-left:152px;margin-bottom:8px;">
+      <span class="mol-label" style="color:var(--content-tertiary);font-size:9px;letter-spacing:0.18em;">LIGHT MODE</span>
+    </div>
+    <div class="mol-row">
+      <div class="mol-cell">
+        <div class="mol-label">Location · sm</div>
+        <div class="ls-tag-pill" style="height:24px;padding:0 8px;font-size:9.5px;">
+          <svg class="pin-icon" width="10" height="10" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.79 0 2 1.79 2 4c0 3 4 8.5 4 8.5S10 7 10 4c0-2.21-1.79-4-4-4zm0 5.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor"/></svg>
+          Near Santa Cruz, CA
+        </div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Location · md</div>
+        <div class="ls-tag-pill">
+          <svg class="pin-icon" width="12" height="12" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.79 0 2 1.79 2 4c0 3 4 8.5 4 8.5S10 7 10 4c0-2.21-1.79-4-4-4zm0 5.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor"/></svg>
+          Near Santa Cruz, CA
+        </div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Mode · MANUAL</div>
+        <div class="ls-tag-pill mode-label">MANUAL</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Mode · AUTO</div>
+        <div class="ls-tag-pill mode-label">AUTO</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Generic tag</div>
+        <div class="ls-tag-pill">
+          <svg width="10" height="10" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          2h 30m
+        </div>
+      </div>
+    </div>
+
+    <div style="padding-left:152px;margin-bottom:8px;">
+      <span class="mol-label" style="color:var(--content-tertiary);font-size:9px;letter-spacing:0.18em;">DARK MODE</span>
+    </div>
+    <div class="mol-row">
+      <div class="mol-cell dark-swatch">
+        <div class="mol-label" style="color:var(--copper-400);">Location · md</div>
+        <div class="ls-tag-pill">
+          <svg class="pin-icon" width="12" height="12" viewBox="0 0 12 14" fill="none"><path d="M6 0C3.79 0 2 1.79 2 4c0 3 4 8.5 4 8.5S10 7 10 4c0-2.21-1.79-4-4-4zm0 5.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor"/></svg>
+          Near Santa Cruz, CA
+        </div>
+      </div>
+      <div class="mol-cell dark-swatch">
+        <div class="mol-label" style="color:var(--copper-400);">Mode · MANUAL</div>
+        <div class="ls-tag-pill mode-label">MANUAL</div>
+      </div>
+    </div>
+
+    <!-- LSFilterChip -->
+    <div class="group-head" style="margin-top:56px;"><h3><em>LSFilterChip</em> — toggleable filter</h3></div>
+
+    <div class="mol-row">
+      <div class="mol-cell">
+        <div class="mol-label">Unselected</div>
+        <div class="ls-filter-chip">Scenic</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Selected</div>
+        <div class="ls-filter-chip selected">
+          <svg class="check-icon" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Scenic
+        </div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Unselected</div>
+        <div class="ls-filter-chip">Twisty</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Selected</div>
+        <div class="ls-filter-chip selected">
+          <svg class="check-icon" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Twisty
+        </div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Unselected</div>
+        <div class="ls-filter-chip">Avoid Highway</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Selected</div>
+        <div class="ls-filter-chip selected">
+          <svg class="check-icon" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Avoid Highway
+        </div>
+      </div>
+    </div>
+    <div style="padding-left:152px;margin-bottom:8px;margin-top:16px;">
+      <span class="mol-label" style="color:var(--content-tertiary);font-size:9px;letter-spacing:0.18em;">DARK MODE</span>
+    </div>
+    <div class="mol-row">
+      <div class="mol-cell dark-swatch">
+        <div class="mol-label" style="color:var(--copper-400);">Unselected</div>
+        <div class="ls-filter-chip">Scenic</div>
+      </div>
+      <div class="mol-cell dark-swatch">
+        <div class="mol-label" style="color:var(--copper-400);">Selected</div>
+        <div class="ls-filter-chip selected">
+          <svg class="check-icon" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Scenic
+        </div>
+      </div>
+    </div>
+
+    <!-- LSSuggestionChip -->
+    <div class="group-head" style="margin-top:56px;"><h3><em>LSSuggestionChip</em> — single-tap primer</h3></div>
+
+    <div class="mol-row">
+      <div class="mol-cell">
+        <div class="mol-label">Default</div>
+        <div class="ls-sugg-chip">Twisty back roads</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Default</div>
+        <div class="ls-sugg-chip">Avoid highway</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Default</div>
+        <div class="ls-sugg-chip">Scenic coastal route</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Primed (post-tap)</div>
+        <div class="ls-sugg-chip primed">Twisty back roads</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">Primed (post-tap)</div>
+        <div class="ls-sugg-chip primed">Avoid highway</div>
+      </div>
+    </div>
+    <div style="padding-left:152px;margin-bottom:8px;margin-top:16px;">
+      <span class="mol-label" style="color:var(--content-tertiary);font-size:9px;letter-spacing:0.18em;">DARK MODE</span>
+    </div>
+    <div class="mol-row">
+      <div class="mol-cell dark-swatch">
+        <div class="mol-label" style="color:var(--copper-400);">Default</div>
+        <div class="ls-sugg-chip">Twisty back roads</div>
+      </div>
+      <div class="mol-cell dark-swatch">
+        <div class="mol-label" style="color:var(--copper-400);">Primed</div>
+        <div class="ls-sugg-chip primed">Avoid highway</div>
+      </div>
+    </div>
+
+    <!-- LSWeatherBadge -->
+    <div class="group-head" style="margin-top:56px;"><h3><em>LSWeatherBadge</em> — all 6 conditions × sm + md</h3></div>
+
+    <div style="padding-left:152px;display:grid;grid-template-columns:repeat(6,1fr);gap:16px;max-width:900px;margin-bottom:32px;">
+      <!-- Clear -->
+      <div class="mol-cell">
+        <div class="mol-label">Clear · sm</div>
+        <div class="ls-wx-badge clear sm">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="9" height="9"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/><line x1="1.76" y1="1.76" x2="2.82" y2="2.82"/><line x1="9.18" y1="9.18" x2="10.24" y2="10.24"/><line x1="1.76" y1="10.24" x2="2.82" y2="9.18"/><line x1="9.18" y1="2.82" x2="10.24" y2="1.76"/></g></svg>
+          Clear
+        </div>
+        <div class="mol-label" style="margin-top:8px;">Clear · md</div>
+        <div class="ls-wx-badge clear md">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/><line x1="1.76" y1="1.76" x2="2.82" y2="2.82"/><line x1="9.18" y1="9.18" x2="10.24" y2="10.24"/><line x1="1.76" y1="10.24" x2="2.82" y2="9.18"/><line x1="9.18" y1="2.82" x2="10.24" y2="1.76"/></g></svg>
+          Clear · 72F
+        </div>
+      </div>
+      <!-- Rain -->
+      <div class="mol-cell">
+        <div class="mol-label">Rain · sm</div>
+        <div class="ls-wx-badge rain sm">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="9" height="9"><path d="M2 7.5A3.5 3.5 0 0 1 5.5 2a3 3 0 0 1 5.5 1.5 2.5 2.5 0 0 1-1 4.5H4" stroke="currentColor" stroke-width="1.2" fill="none"/><line x1="4" y1="10" x2="3" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="9" x2="9" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Rain
+        </div>
+        <div class="mol-label" style="margin-top:8px;">Rain · md</div>
+        <div class="ls-wx-badge rain md">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M2 7.5A3.5 3.5 0 0 1 5.5 2a3 3 0 0 1 5.5 1.5 2.5 2.5 0 0 1-1 4.5H4" stroke="currentColor" stroke-width="1.2" fill="none"/><line x1="4" y1="10" x2="3" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="7" y1="10" x2="6" y2="12" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="10" y1="9" x2="9" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Rain 3pm
+        </div>
+      </div>
+      <!-- Wind -->
+      <div class="mol-cell">
+        <div class="mol-label">Wind · sm</div>
+        <div class="ls-wx-badge wind sm">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="9" height="9"><path d="M1 5h7a2 2 0 0 0 0-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M1 8h9a2 2 0 0 0 0-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M1 11h5a2 2 0 0 0 0-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Wind
+        </div>
+        <div class="mol-label" style="margin-top:8px;">Wind · md</div>
+        <div class="ls-wx-badge wind md">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M1 5h7a2 2 0 0 0 0-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M1 8h9a2 2 0 0 0 0-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M1 11h5a2 2 0 0 0 0-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Wind 18mph
+        </div>
+      </div>
+      <!-- Storm -->
+      <div class="mol-cell">
+        <div class="mol-label">Storm · sm</div>
+        <div class="ls-wx-badge storm sm">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="9" height="9"><path d="M2 7.5A3.5 3.5 0 0 1 5.5 2a3 3 0 0 1 5.5 1.5 2.5 2.5 0 0 1-1 4.5H4" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M6 8l-1 3h2l-1 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Storm
+        </div>
+        <div class="mol-label" style="margin-top:8px;">Storm · md</div>
+        <div class="ls-wx-badge storm md">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M2 7.5A3.5 3.5 0 0 1 5.5 2a3 3 0 0 1 5.5 1.5 2.5 2.5 0 0 1-1 4.5H4" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M6 8l-1 3h2l-1 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Storm 4pm
+        </div>
+      </div>
+      <!-- Hot -->
+      <div class="mol-cell">
+        <div class="mol-label">Hot · sm</div>
+        <div class="ls-wx-badge hot sm">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="9" height="9"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="9" y1="3" x2="11" y2="3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="9" y1="5" x2="10.5" y2="5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="9" y1="7" x2="11" y2="7" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Hot
+        </div>
+        <div class="mol-label" style="margin-top:8px;">Hot · md</div>
+        <div class="ls-wx-badge hot md">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="9" y1="3" x2="11" y2="3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="9" y1="5" x2="10.5" y2="5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="9" y1="7" x2="11" y2="7" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Hot · 94F
+        </div>
+      </div>
+      <!-- Cold -->
+      <div class="mol-cell">
+        <div class="mol-label">Cold · sm</div>
+        <div class="ls-wx-badge cold sm">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="9" height="9"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="9" y1="3" x2="11" y2="3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="9" y1="5" x2="10.5" y2="5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="9" y1="7" x2="11" y2="7" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Cold
+        </div>
+        <div class="mol-label" style="margin-top:8px;">Cold · md</div>
+        <div class="ls-wx-badge cold md">
+          <svg class="wx-icon" viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="9" y1="3" x2="11" y2="3" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="9" y1="5" x2="10.5" y2="5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="9" y1="7" x2="11" y2="7" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+          Cold · 38F
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES & VARIANTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States</div>
+      <h2 class="section-title">Pressed, <em>selected</em>, disabled.</h2>
+    </div>
+
+    <div class="mol-row">
+      <div class="mol-cell">
+        <div class="mol-label">FilterChip · Default</div>
+        <div class="ls-filter-chip">Mountain passes</div>
+        <div class="mol-sub">bg surface.card · border.default</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">FilterChip · Selected</div>
+        <div class="ls-filter-chip selected">
+          <svg class="check-icon" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Mountain passes
+        </div>
+        <div class="mol-sub">bg signal.default · color onSignal</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">FilterChip · Disabled</div>
+        <div class="ls-filter-chip" style="opacity:0.38;pointer-events:none;">Mountain passes</div>
+        <div class="mol-sub">opacity 0.38 · no interaction</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">SuggChip · Default</div>
+        <div class="ls-sugg-chip">Coastal loop</div>
+        <div class="mol-sub">bg surface.glass · border default</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">SuggChip · Primed</div>
+        <div class="ls-sugg-chip primed">Coastal loop</div>
+        <div class="mol-sub">bg signal.whisper · border signal.tint</div>
+      </div>
+      <div class="mol-cell">
+        <div class="mol-label">SuggChip · Disabled</div>
+        <div class="ls-sugg-chip" style="opacity:0.38;pointer-events:none;">Coastal loop</div>
+        <div class="mol-sub">opacity 0.38</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 ATOMIC COMPOSITION + DIMENSIONS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Composition</div>
+      <h2 class="section-title">Atoms <em>assembled</em>.</h2>
+    </div>
+
+    <div class="dim-table">
+      <div class="head">Molecule</div><div class="head">Height</div><div class="head">H-Padding</div><div class="head">Gap</div><div class="head">Composed From</div>
+      <div>LSTagPill</div><div class="dim-val">24–32pt</div><div class="dim-val">8–12pt</div><div class="dim-val">6pt</div><div>LSPill + LSIcon + LSText</div>
+      <div>LSFilterChip</div><div class="dim-val">32pt</div><div class="dim-val">14pt</div><div class="dim-val">6pt</div><div>LSPill + optional LSIcon + LSText</div>
+      <div>LSSuggestionChip</div><div class="dim-val">32pt (fixed)</div><div class="dim-val">14pt</div><div class="dim-val">—</div><div>LSPill + LSText</div>
+      <div>LSWeatherBadge · sm</div><div class="dim-val">24pt</div><div class="dim-val">8pt</div><div class="dim-val">3pt</div><div>LSPill + LSIcon(wx) + LSText</div>
+      <div>LSWeatherBadge · md</div><div class="dim-val">32pt</div><div class="dim-val">12pt</div><div class="dim-val">4pt</div><div>LSPill + LSIcon(wx) + LSText</div>
+      <div>LSPill (primitive)</div><div class="dim-val">sm 24 / md 32 / lg 40</div><div class="dim-val">sm 8 / md 12 / lg 16</div><div class="dim-val">4–8pt</div><div>UC-ATM-06 shape atom</div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">State <em>transitions</em>.</h2>
+    </div>
+
+    <div class="motion-table">
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);">Recipe</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);">Trigger</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);">Effect</div>
+      <div class="motion-recipe">chipToggle</div>
+      <div class="motion-trigger">FilterChip tap</div>
+      <div class="motion-effect">bg + color cross-fade 120ms ease; check icon fades in/out</div>
+      <div class="motion-recipe">suggPrime</div>
+      <div class="motion-trigger">SuggestionChip tap</div>
+      <div class="motion-effect">bg → signal.whisper + border → signal.tint, 120ms ease; then fills input field</div>
+      <div class="motion-recipe">chatOverlayEnter</div>
+      <div class="motion-trigger">Suggestion row appears above ChatInput</div>
+      <div class="motion-effect">translateY(8px)→0 + opacity 0→1, 220ms spring(stiffness:340, damping:28)</div>
+      <div class="motion-recipe">bestBadgeEnter</div>
+      <div class="motion-trigger">WeatherBadge mounts</div>
+      <div class="motion-effect">scale(0.82)→1 + opacity 0→1, 180ms spring</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE + AC -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Design <em>decisions</em>.</h2>
+    </div>
+
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Semantic not stylistic</h4>
+        <p>The four pill variants share the same border-radius token but carry
+        different interaction semantics. LSTagPill has no press handler;
+        LSFilterChip carries toggle state; LSSuggestionChip fires once then
+        primes; LSWeatherBadge is decorative. Separating these prevents
+        misuse — a filter chip cannot be accidentally treated as decorative.</p>
+        <ul>
+          <li><strong>border-radius</strong> 999px — token radius.pill from UC-TOK-03</li>
+          <li><strong>heights</strong> 24 / 32 / 40pt — sm/md/lg sizing tokens</li>
+          <li><strong>glass backing</strong> on TagPill + SuggChip — float above map layer</li>
+        </ul>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability — 06-uc-mol.md §UC-MOL-05</h4>
+        <ul>
+          <li><div class="ac-cite">LSTagPill renders glass surface + pin icon + label on both platforms</div></li>
+          <li><div class="ac-cite">LSFilterChip selected shows signal.default background; unselected shows surface.card</div></li>
+          <li><div class="ac-cite">LSSuggestionChip tap fires onTap exactly once; primed state shown post-tap</div></li>
+          <li><div class="ac-cite">LSWeatherBadge all 6 conditions × 2 sizes render correct tint + fg + border + icon</div></li>
+          <li><div class="ac-cite">All molecules compose from LSPill + LSIcon + LSText; raw shape implementations fail inspection</div></li>
+          <li><div class="ac-cite">Stories: Pill Semantics / Tag, Filter, Suggestion, Weather — all variants covered</div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>V2 · Copper · UC-MOL-05 · 2026-04-20</span></div>
+    <div class="footer-note">
+      Pill Semantics Family<br>
+      Authority: .spec/prds/v2/06-uc-mol.md §UC-MOL-05<br>
+      Composes: UC-ATM-06 LSPill
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<!-- uc-org-02-maplayer.html — UC-ORG-02 "LSMapLayer"
+     LaneShadow V2 · Copper · Navigator Organism Mock · 2026-04-20
+     Authority: .spec/prds/v2/07-uc-org.md §UC-ORG-02 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ORG-02 — LSMapLayer — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;--paper-200:#F2EFED;
+  --paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --status-warning:#C46F1B;
+  --font-opinion:'Newsreader',Georgia,serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);--surface-inset:var(--paper-200);
+  --surface-overlay:rgba(253,251,248,0.92);--surface-glass:rgba(253,251,248,0.72);
+  --surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);--map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);--content-onSignal:#FFF;
+  --signal-default:var(--copper-500);--signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);--border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+  --elev-sheet:0 -8px 32px -12px rgba(34,24,16,0.16),0 -2px 8px -2px rgba(34,24,16,0.08);
+  --elev-drawer:2px 0 16px rgba(34,24,16,0.14);
+}
+.mode-dark{
+  --surface-primary:var(--ink-800);--surface-card:var(--ink-700);--surface-inset:var(--ink-600);
+  --surface-overlay:rgba(45,34,24,0.92);--surface-glass:rgba(45,34,24,0.72);
+  --surface-scrim:rgba(10,6,3,0.50);--map-paper:#1B140E;
+  --map-contour:rgba(242,238,232,0.16);--map-contour-faint:rgba(242,238,232,0.07);
+  --content-primary:var(--ink-050);--content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200);--content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12);--border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  --elev-overlay:0 8px 24px rgba(0,0,0,0.42),0 2px 6px rgba(0,0,0,0.28);
+  --elev-chrome:0 1px 3px rgba(0,0,0,0.24),0 4px 14px rgba(0,0,0,0.28);
+  --elev-sheet:0 -8px 32px -12px rgba(0,0,0,0.50),0 -2px 8px -2px rgba(0,0,0,0.30);
+  --elev-drawer:2px 0 16px rgba(0,0,0,0.6);
+}
+
+/* TYPOGRAPHY */
+.t-opinion-xl{font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em;}
+.t-opinion-lg{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em;}
+.t-opinion-md{font-family:var(--font-opinion);font-weight:400;font-size:17px;line-height:1.32;}
+.t-title-lg{font-family:var(--font-ui);font-weight:600;font-size:17px;line-height:1.24;letter-spacing:-0.01em;}
+.t-title-md{font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em;}
+.t-body-md{font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52;}
+.t-body-sm{font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48;}
+.t-label-lg{font-family:var(--font-ui);font-weight:500;font-size:11px;line-height:1.0;letter-spacing:0.08em;text-transform:uppercase;}
+.t-label-md{font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase;}
+.t-label-sm{font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase;}
+.t-instr-md{font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-sm{font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-xs{font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1;}
+
+/* DOC CHROME */
+body{font-family:var(--font-ui);color:var(--content-primary);background:var(--surface-primary);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden;}
+.wrap{max-width:1440px;margin:0 auto;padding:0 72px;}
+.doc-header{position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden;}
+.doc-header::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none;}
+.doc-header>*{position:relative;z-index:1;}
+.doc-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px;}
+.doc-eyebrow::before{content:"";width:28px;height:1px;background:var(--signal-default);}
+.doc-eyebrow-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em;}
+.doc-title{font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px;}
+.doc-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.doc-tagline{font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px;}
+.doc-meta-row{display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default);}
+.meta-item{display:flex;flex-direction:column;gap:6px;}
+.meta-label{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);}
+.meta-value{font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary);}
+.section{padding:96px 0;border-bottom:1px solid var(--border-default);position:relative;}
+.section:last-child{border-bottom:none;}
+.section-header{display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px;}
+.section-index{font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.section-index::before{content:"";display:block;width:48px;height:1px;background:var(--signal-default);}
+.section-title{font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;}
+.section-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.prose{font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px;}
+.prose+.prose{margin-top:20px;}
+.prose em{font-style:italic;}
+.prose strong{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px;}
+.screens-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:56px 40px;align-items:start;padding-left:152px;}
+.screens-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.screen-cell{display:flex;flex-direction:column;gap:22px;}
+.screen-annotation{display:flex;flex-direction:column;gap:8px;max-width:280px;}
+.screen-num{font-family:var(--font-instrument);font-size:10.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);}
+.screen-name{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);}
+.screen-desc{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:14px;line-height:1.6;color:var(--content-secondary);}
+.ac-cite{font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px;}
+.ac-cite::before{content:"☐";position:absolute;left:0;top:0;color:var(--border-strong);}
+
+/* PHONE FRAME */
+.phone-frame{width:100%;max-width:282px;margin:0 auto;aspect-ratio:9/19.5;position:relative;border-radius:44px;background:#0F0A07;box-shadow:inset 0 0 0 1px #2A1F16,inset 0 0 0 2.5px #0F0A07,0 30px 70px -16px rgba(34,24,16,0.38),0 10px 24px -10px rgba(34,24,16,0.22);overflow:hidden;}
+.phone-screen{position:absolute;inset:3px;border-radius:41px;overflow:hidden;display:flex;flex-direction:column;background:var(--surface-primary);color:var(--content-primary);isolation:isolate;}
+.phone-di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#000;border-radius:14px;z-index:60;}
+.phone-hi{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:3px;z-index:60;background:rgba(0,0,0,0.38);}
+.mode-dark .phone-hi{background:rgba(255,255,255,0.30);}
+
+/* PAPER MAP (LSMap) */
+.pmap{position:absolute;inset:0;background:var(--map-paper);overflow:hidden;z-index:0;}
+.pmap::before{content:"";position:absolute;inset:-8px;background-image:linear-gradient(var(--map-contour-faint) 1px,transparent 1px),linear-gradient(90deg,var(--map-contour-faint) 1px,transparent 1px);background-size:28px 28px;opacity:0.55;pointer-events:none;}
+.pmap::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(34,24,16,0.08) 100%);pointer-events:none;}
+.mode-dark .pmap::after{background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(0,0,0,0.40) 100%);}
+.pmap-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+
+/* SCRIM (LSScrim, z-index 1) */
+.map-scrim{position:absolute;inset:0;background:var(--surface-scrim);z-index:1;pointer-events:none;}
+
+/* TOP OVERLAYS (z-index 2, positioned below topbar) */
+.top-overlay-slot{position:absolute;top:100px;left:12px;right:12px;z-index:2;}
+
+/* BOTTOM OVERLAYS (z-index 2, anchored above safe area) */
+.bottom-overlay-slot{position:absolute;bottom:16px;left:12px;right:12px;z-index:2;}
+
+/* BOTTOM SHEET (z-index 3) */
+.bottom-sheet-slot{position:absolute;left:0;right:0;bottom:0;z-index:3;}
+
+/* LEADING DRAWER (z-index 4) */
+.leading-drawer-slot{position:absolute;top:0;bottom:0;left:0;z-index:4;}
+
+/* TOP BAR (z-index 5) */
+.topbar-slot{position:absolute;top:46px;left:0;right:0;z-index:5;}
+
+/* Glass chrome chips */
+.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
+.mode-dark .chrome-chip{border-color:rgba(242,238,232,0.12);}
+.chrome-chip.circular{width:40px;height:40px;border-radius:50%;}
+.chrome-chip.pill{padding:0 14px;height:40px;border-radius:22px;display:flex;align-items:center;gap:6px;}
+.ls-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 14px 0;}
+
+/* Navigator message mini */
+.nav-msg-mini{background:var(--surface-glass);border:1px solid var(--signal-tint);border-top:2px solid var(--signal-default);backdrop-filter:blur(14px) saturate(1.2);border-radius:12px;padding:10px 12px;box-shadow:var(--elev-overlay);}
+.nav-msg-label{font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--signal-default);margin-bottom:3px;}
+.nav-msg-body{font-family:var(--font-opinion);font-size:11.5px;line-height:1.4;color:var(--content-primary);}
+
+/* Chat input mini */
+.chat-mini{height:46px;background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);backdrop-filter:blur(14px) saturate(1.2);border-radius:16px;display:flex;align-items:center;padding:0 6px 0 12px;gap:8px;box-shadow:var(--elev-chrome);}
+.mode-dark .chat-mini{border-color:rgba(242,238,232,0.12);}
+.chat-mini-field{flex:1;font-family:var(--font-ui);font-size:11px;color:var(--content-tertiary);}
+.chat-mini-send{width:36px;height:36px;background:var(--signal-default);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#FFF;flex-shrink:0;}
+
+/* Route sheet mini */
+.sheet-mini{background:var(--surface-card);border-radius:18px 18px 0 0;padding:8px 14px 14px;box-shadow:var(--elev-sheet);border-top:1px solid var(--border-subtle);}
+.sheet-handle-mini{width:30px;height:3.5px;background:var(--border-strong);border-radius:2px;margin:0 auto 8px;}
+.sheet-title-mini{font-family:var(--font-opinion);font-size:16px;line-height:1.2;color:var(--content-primary);margin-bottom:4px;}
+.sheet-sub-mini{font-family:var(--font-ui);font-size:10px;color:var(--content-secondary);}
+.sheet-actions-mini{display:flex;gap:6px;margin-top:8px;}
+.sheet-btn-mini{flex:1;padding:9px;border-radius:10px;font-family:var(--font-ui);font-weight:600;font-size:10px;display:flex;align-items:center;justify-content:center;gap:4px;}
+.sheet-btn-outline{border:1.5px solid var(--border-default);background:transparent;color:var(--content-primary);}
+.sheet-btn-primary{background:var(--signal-default);color:#FFF;border:none;flex:2;box-shadow:0 2px 8px rgba(238,124,43,0.3);}
+
+/* Sessions drawer mini */
+.drawer-mini{background:var(--surface-card);width:68%;height:100%;border-right:1px solid var(--border-default);box-shadow:var(--elev-drawer);display:flex;flex-direction:column;}
+.drawer-header-mini{padding:46px 12px 10px;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:flex-end;}
+.drawer-title-mini{font-family:var(--font-opinion);font-size:20px;line-height:1;}
+.drawer-row{padding:10px 12px 10px 14px;border-bottom:1px solid var(--border-subtle);position:relative;}
+.drawer-row.active{background:color-mix(in srgb, var(--surface-card) 94%, var(--signal-default));}
+.drawer-row.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--signal-default);}
+.drawer-row-name{font-family:var(--font-ui);font-weight:600;font-size:11px;color:var(--content-primary);}
+.drawer-row-prev{font-family:var(--font-opinion);font-style:italic;font-size:10px;color:var(--content-secondary);}
+
+/* Z-ORDER DIAGRAM */
+.zorder-diagram{padding-left:152px;margin-top:56px;}
+.z-stack{display:flex;flex-direction:column;gap:0;max-width:580px;}
+.z-layer{
+  display:flex;align-items:center;gap:16px;
+  padding:14px 20px;border-left:3px solid var(--border-default);
+  background:var(--surface-card);border-radius:0;
+  margin-bottom:1px;
+}
+.z-layer:first-child{border-radius:10px 10px 0 0;}
+.z-layer:last-child{border-radius:0 0 10px 10px;}
+.z-level{font-family:var(--font-instrument);font-size:13px;font-weight:600;color:var(--signal-default);min-width:28px;}
+.z-name{font-family:var(--font-ui);font-weight:600;font-size:14px;color:var(--content-primary);min-width:120px;}
+.z-desc{font-family:var(--font-ui);font-size:12px;color:var(--content-secondary);}
+.z-layer.z-top{border-left-color:var(--signal-default);}
+
+/* Cmp + rationale tables */
+.cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-left:152px;}
+.cmp-card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;}
+.cmp-tier-label{font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;color:var(--signal-default);text-transform:uppercase;margin-bottom:14px;display:block;}
+.cmp-item{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.cmp-item:last-child{border-bottom:none;}
+.cmp-name{font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);margin-bottom:4px;}
+.cmp-ref{font-family:var(--font-instrument);font-size:10px;color:var(--content-tertiary);line-height:1.4;}
+.dim-table{padding-left:152px;display:grid;grid-template-columns:220px 160px 1fr;row-gap:8px;column-gap:24px;font-family:var(--font-ui);font-size:13px;align-items:baseline;}
+.dim-table>div{padding:9px 0;border-bottom:1px solid var(--border-subtle);}
+.dim-name{font-weight:600;color:var(--content-primary);}
+.dim-val{font-family:var(--font-instrument);font-size:11.5px;color:var(--signal-default);}
+.dim-desc{color:var(--content-secondary);}
+.motion-table{padding-left:152px;display:grid;grid-template-columns:180px 1fr 2fr;row-gap:14px;column-gap:28px;font-family:var(--font-ui);font-size:13px;}
+.motion-table>div{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.motion-recipe{font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px;}
+.motion-trigger{color:var(--content-primary);font-weight:500;}
+.motion-effect{color:var(--content-secondary);}
+.rationale-grid{padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+.rationale-block h4{font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px;}
+.rationale-block p{font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px;}
+.rationale-block ul{list-style:none;}
+.rationale-block li{padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle);}
+.rationale-block li::before{content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument);}
+.rationale-block li strong{font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px;}
+.doc-footer{padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;}
+.footer-mark{font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;letter-spacing:-0.02em;}
+.footer-mark em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.footer-mark span{display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300;}
+.footer-note{font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-ORG-02</span><span class="doc-eyebrow-pill">● Organisms · Foundational</span></div>
+    <h1 class="doc-title">The <em>canvas</em><br>every screen shares.</h1>
+    <p class="doc-tagline">
+      One organism. Seven slots. All z-order, all safe-area, all overlay stacking
+      resolved once — so screens just pass pre-assembled content and let LSMapLayer
+      handle the geometry.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ORG-02</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">07-uc-org.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light (+ dark)</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">One layout, <em>zero repetition</em>.</h2>
+    </div>
+    <p class="prose">
+      <strong>LSMapLayer</strong> is the foundational canvas organism used on every
+      Navigator screen. It takes an <em>LSMap</em> atom and a set of named slots,
+      then handles all z-order stacking, safe-area padding, and overlay positioning
+      so screens never re-implement layout geometry. It is the single source of
+      truth for: map → scrim → overlays → sheet → drawer → top bar.
+    </p>
+    <p class="prose">
+      Each slot is optional. Screens that only need a map and a top bar pass just
+      those two. Screens that need a full drawer-over-scrim-over-map composition
+      pass all slots. The organism sorts them correctly regardless.
+    </p>
+  </section>
+</div>
+
+<!-- §02 STORIES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · Stories</div>
+      <h2 class="section-title">Seven <em>compositions</em>.</h2>
+    </div>
+
+    <div class="screens-grid" style="padding-left:152px;">
+
+      <!-- Story 1: Map Only -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 598" fill="none">
+                <path d="M40 300 Q100 240 138 200 Q180 160 220 180" stroke="var(--map-contour)" stroke-width="1.5" fill="none" opacity="0.6"/>
+                <path d="M30 350 Q90 310 150 280 Q200 250 250 260" stroke="var(--map-contour)" stroke-width="1" fill="none" opacity="0.4"/>
+              </svg>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.01</div>
+          <div class="screen-name">Map Only</div>
+          <div class="screen-desc">LSMap(mode:.preview) fills the entire phone-screen. No other slots populated.</div>
+        </div>
+      </div>
+
+      <!-- Story 2: Map + TopBar -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="topbar-slot">
+              <div class="ls-topbar">
+                <div class="chrome-chip circular">
+                  <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+                    <rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                    <rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                    <rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div class="chrome-chip pill">
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  <span class="t-label-sm">NEW</span>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.02</div>
+          <div class="screen-name">Map + TopBar</div>
+          <div class="screen-desc">LSTopBar at z-index 5, above everything. Map below. Matches Idle screen pattern.</div>
+        </div>
+      </div>
+
+      <!-- Story 3: Map + Top Overlay -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="top-overlay-slot">
+              <div class="nav-msg-mini">
+                <div class="nav-msg-label">The Navigator</div>
+                <div class="nav-msg-body">Here are three routes south through the coastal hills.</div>
+              </div>
+            </div>
+            <div class="topbar-slot">
+              <div class="ls-topbar">
+                <div class="chrome-chip circular">
+                  <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg>
+                </div>
+                <div class="chrome-chip pill"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="t-label-sm">NEW</span></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.03</div>
+          <div class="screen-name">Map + Top Overlay</div>
+          <div class="screen-desc">NavigatorMessage in topOverlays slot. Positioned below TopBar with safe-area padding.</div>
+        </div>
+      </div>
+
+      <!-- Story 4: Map + Bottom Overlay -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="bottom-overlay-slot">
+              <div class="chat-mini">
+                <div class="chat-mini-field">Where do you want to ride?</div>
+                <div class="chat-mini-send">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 14L14 8L2 2V7L10 8L2 9V14Z" fill="currentColor"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="topbar-slot">
+              <div class="ls-topbar">
+                <div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div>
+                <div class="chrome-chip pill"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="t-label-sm">NEW</span></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.04</div>
+          <div class="screen-name">Map + Bottom Overlay</div>
+          <div class="screen-desc">ChatInput in bottomOverlays. Anchored above bottom safe area at z-index 2.</div>
+        </div>
+      </div>
+
+      <!-- Story 5: Map + Scrim + Drawer -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="map-scrim"></div>
+            <div class="leading-drawer-slot">
+              <div class="drawer-mini">
+                <div class="drawer-header-mini">
+                  <div class="drawer-title-mini">Rides</div>
+                  <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--signal-default);border:1px solid var(--signal-default);border-radius:6px;padding:4px 7px;">+NEW</div>
+                </div>
+                <div style="padding:8px 12px 4px;font-family:var(--font-ui);font-size:8px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--content-tertiary);">This Week</div>
+                <div class="drawer-row active">
+                  <div class="drawer-row-name">Santa Cruz Loop</div>
+                  <div class="drawer-row-prev">Take 1 south to Davenport…</div>
+                </div>
+                <div class="drawer-row">
+                  <div class="drawer-row-name">Skyline to the Sea</div>
+                  <div class="drawer-row-prev">Best way to do 84 to 35…</div>
+                </div>
+                <div class="drawer-row">
+                  <div class="drawer-row-name">PCH Evening Run</div>
+                  <div class="drawer-row-prev">Sunset ride from Pacifica…</div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.05</div>
+          <div class="screen-name">Map + Scrim + Drawer</div>
+          <div class="screen-desc">LSScrim z-1, SessionsDrawer at z-4 above scrim. Matches SCR-05 Sessions pattern.</div>
+        </div>
+      </div>
+
+      <!-- Story 6: Map + Sheet -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 598" fill="none">
+                <path d="M60 220 Q100 190 140 170 Q180 150 220 165" stroke="var(--route-best)" stroke-width="4" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+              </svg>
+            </div>
+            <div class="topbar-slot">
+              <div class="ls-topbar">
+                <div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div>
+              </div>
+            </div>
+            <div class="bottom-sheet-slot">
+              <div class="sheet-mini">
+                <div class="sheet-handle-mini"></div>
+                <div class="sheet-title-mini">The Skyline Spine</div>
+                <div class="sheet-sub-mini">via Kings Mountain Rd · 47 mi</div>
+                <div class="sheet-actions-mini">
+                  <div class="sheet-btn-mini sheet-btn-outline">Save</div>
+                  <div class="sheet-btn-mini sheet-btn-primary">Ride this</div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.06</div>
+          <div class="screen-name">Map + Sheet</div>
+          <div class="screen-desc">RouteSheet at z-index 3, anchored bottom. TopBar still visible above sheet at z-5.</div>
+        </div>
+      </div>
+
+      <!-- Story 7: Full Stack -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 598" fill="none">
+                <path d="M60 220 Q100 190 140 170 Q180 150 220 165" stroke="var(--route-best)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="map-scrim" style="opacity:0.2;"></div>
+            <div class="top-overlay-slot" style="top:108px;">
+              <div class="nav-msg-mini">
+                <div class="nav-msg-label">The Navigator</div>
+                <div class="nav-msg-body">Best route selected.</div>
+              </div>
+            </div>
+            <div class="bottom-overlay-slot">
+              <div class="chat-mini">
+                <div class="chat-mini-field">Refine route…</div>
+                <div class="chat-mini-send"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M2 14L14 8L2 2V7L10 8L2 9V14Z" fill="currentColor"/></svg></div>
+              </div>
+            </div>
+            <div class="leading-drawer-slot" style="display:none;"></div><!-- hidden for full stack — drawer + sheet don't co-exist -->
+            <div class="bottom-sheet-slot">
+              <div class="sheet-mini">
+                <div class="sheet-handle-mini"></div>
+                <div class="sheet-title-mini">The Skyline Spine</div>
+                <div class="sheet-actions-mini">
+                  <div class="sheet-btn-mini sheet-btn-outline">Save</div>
+                  <div class="sheet-btn-mini sheet-btn-primary">Ride this</div>
+                </div>
+              </div>
+            </div>
+            <div class="topbar-slot">
+              <div class="ls-topbar">
+                <div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div>
+                <div class="chrome-chip pill"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="t-label-sm">NEW</span></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.07</div>
+          <div class="screen-name">Full Stack</div>
+          <div class="screen-desc">All slots populated: map + scrim + top/bottom overlays + sheet + top bar. Maximum composition story.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- Z-ORDER DIAGRAM -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02b · Z-Order</div>
+      <h2 class="section-title">Stack <em>contract</em>.</h2>
+    </div>
+    <div class="zorder-diagram">
+      <div class="z-stack">
+        <div class="z-layer z-top"><div class="z-level">5</div><div class="z-name">LSTopBar</div><div class="z-desc">Always above everything. Glass chips float over all content.</div></div>
+        <div class="z-layer"><div class="z-level">4</div><div class="z-name">leadingDrawer</div><div class="z-desc">SessionsDrawer covers scrim + overlays + sheet when open.</div></div>
+        <div class="z-layer"><div class="z-level">3</div><div class="z-name">bottomSheet</div><div class="z-desc">RouteSheet anchors to bottom, above overlays.</div></div>
+        <div class="z-layer"><div class="z-level">2</div><div class="z-name">topOverlays / bottomOverlays</div><div class="z-desc">NavigatorMessage (top), ChatInput (bottom). Same z-level; safe-area positions them apart.</div></div>
+        <div class="z-layer"><div class="z-level">1</div><div class="z-name">LSScrim</div><div class="z-desc">Warm-black 0.35 opacity scrim above map, below all overlays.</div></div>
+        <div class="z-layer"><div class="z-level">0</div><div class="z-name">LSMap</div><div class="z-desc">Full-bleed map canvas. Base layer. Always rendered first.</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States</div>
+      <h2 class="section-title">Slot <em>API</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="dim-name">map (required)</div><div class="dim-val">LSMap</div><div class="dim-desc">LSMap atom with camera, polylines, annotations — UC-ATM-11</div>
+      <div class="dim-name">scrim? (optional)</div><div class="dim-val">ScrimSpec</div><div class="dim-desc">LSScrim z-1, opacity 0.35 default — UC-ATM-09</div>
+      <div class="dim-name">topOverlays[]</div><div class="dim-val">GlassOverlaySlot[]</div><div class="dim-desc">z-2, top-aligned, padding below TopBar safe area</div>
+      <div class="dim-name">bottomOverlays[]</div><div class="dim-val">GlassOverlaySlot[]</div><div class="dim-desc">z-2, bottom-aligned, padding above bottom safe area (16pt)</div>
+      <div class="dim-name">leadingDrawer?</div><div class="dim-val">DrawerSpec</div><div class="dim-desc">z-4, left-anchored full-height panel, enter via sidebarSlideIn</div>
+      <div class="dim-name">bottomSheet?</div><div class="dim-val">BottomSheetSpec</div><div class="dim-desc">z-3, bottom-anchored sheet, detent .medium or .large</div>
+      <div class="dim-name">topBar?</div><div class="dim-val">LSTopBar</div><div class="dim-desc">z-5, top: 46pt, padding: 14pt — always above all other slots</div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 COMPOSITION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Composition</div>
+      <h2 class="section-title">Atoms <em>consumed</em>.</h2>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Atoms</span>
+        <div class="cmp-item"><div class="cmp-name">LSMap</div><div class="cmp-ref">UC-ATM-11 · multi-polyline map contract, camera fit, annotations</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSScrim</div><div class="cmp-ref">UC-ATM-09 · 0.35 opacity warm-black, z-1</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Organisms (slots)</span>
+        <div class="cmp-item"><div class="cmp-name">LSTopBar</div><div class="cmp-ref">UC-ORG-01 · topBar slot, z-5</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSNavigatorMessage</div><div class="cmp-ref">UC-ORG-03 · topOverlays slot, z-2</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSRouteSheet</div><div class="cmp-ref">UC-ORG-04 · bottomSheet slot, z-3</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSSessionsDrawer</div><div class="cmp-ref">UC-ORG-05 · leadingDrawer slot, z-4</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Layout Tokens</span>
+        <div class="cmp-item"><div class="cmp-name">spacing.3 = 12pt</div><div class="cmp-ref">Horizontal padding for overlays (left/right 12pt)</div></div>
+        <div class="cmp-item"><div class="cmp-name">bottom safe area</div><div class="cmp-ref">16pt bottom padding for bottomOverlays slot</div></div>
+        <div class="cmp-item"><div class="cmp-name">status bar offset</div><div class="cmp-ref">46pt top offset for TopBar slot</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Z-Index Contract</span>
+        <div class="cmp-item"><div class="cmp-name">map = 0</div><div class="cmp-ref">Base layer, always first</div></div>
+        <div class="cmp-item"><div class="cmp-name">scrim = 1</div><div class="cmp-ref">Above map, below overlays</div></div>
+        <div class="cmp-item"><div class="cmp-name">overlays = 2</div><div class="cmp-ref">Top and bottom overlay slots share z-level</div></div>
+        <div class="cmp-item"><div class="cmp-name">sheet = 3, drawer = 4, bar = 5</div><div class="cmp-ref">Sheet, drawer, top bar in ascending order</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Slot <em>entrances</em>.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="motion-recipe">sidebarSlideIn</div>
+      <div class="motion-trigger">leadingDrawer presents</div>
+      <div class="motion-effect">Drawer translates from -100% x to 0 with spring easing. Scrim fades in simultaneously.</div>
+      <div class="motion-recipe">chatOverlayEnter</div>
+      <div class="motion-trigger">topOverlay slot populated</div>
+      <div class="motion-effect">NavigatorMessage slides down from above + fades in. LSMapLayer owns the slot entry.</div>
+      <div class="motion-recipe">mapTapDismiss</div>
+      <div class="motion-trigger">Tap outside drawer/overlay</div>
+      <div class="motion-effect">Drawer slides out, scrim fades, overlays dismiss. LSMapLayer handles tap-through.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">One organism, <em>six screens</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design Decision</h4>
+        <p>Rather than each screen managing its own overlay stacking, LSMapLayer centralizes the z-order contract. This prevents drift — if one screen miscalculates a z-index, all screens suffer. With one organism, a single fix propagates everywhere.</p>
+        <p>Safe-area padding is similarly owned here. Screens pass content; LSMapLayer applies correct insets per platform safe area.</p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability — 07-uc-org.md §UC-ORG-02</h4>
+        <ul>
+          <li><strong>AC-1</strong> LSMapLayer(map, topBar) → full-screen map + TopBar at z-5</li>
+          <li><strong>AC-2</strong> topOverlays: [greeting] → overlay below TopBar with safe-area</li>
+          <li><strong>AC-3</strong> bottomOverlays: [ChatInput] → anchored above bottom safe area</li>
+          <li><strong>AC-4</strong> scrim: .init(opacity:0.35) → LSScrim at z-1</li>
+          <li><strong>AC-5</strong> leadingDrawer → sidebarSlideIn, above scrim</li>
+          <li><strong>AC-6</strong> bottomSheet detent .medium → z-3, above ChatInput overlay</li>
+          <li><strong>AC-7</strong> Stories: all 7 present (Map Only through Full Stack)</li>
+          <li><strong>AC-8</strong> iOS/Android tests verify z-order contract and safe-area padding</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>UC-ORG-02 · LSMapLayer · Foundational · Copper · 2026-04-20</span></div>
+    <p class="footer-note">Foundational organism. Every Navigator screen composes from this.<br>Z-order, safe-area, and slot positioning resolved once here.</p>
+  </footer>
+</div>
+
+</body>
+</html>

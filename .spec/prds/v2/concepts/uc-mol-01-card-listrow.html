@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<!-- uc-mol-01-card-listrow.html — UC-MOL-01 "Card + ListRow Molecules"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Molecules: LSContentCard · LSListRow
+     Authority: .spec/prds/v2/06-uc-mol.md §UC-MOL-01 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-MOL-01 — Card + ListRow — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — shared across all UC-MOL mocks.
+   Source of truth: uc-scr-01-idle.html · 04-uc-tok.md
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;
+  --paper-100: #F8F7F6;
+  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;
+  --paper-300: #EDE7E1;
+  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+  --ink-900:   #1E1A16;
+  --ink-800:   #221810;
+  --ink-700:   #2D2218;
+  --ink-600:   #362A1F;
+  --ink-500:   #3D3228;
+  --ink-400:   #49454F;
+  --ink-300:   #6B6460;
+  --ink-200:   #9CA3AF;
+  --ink-100:   #CAC4D0;
+  --ink-050:   #F2EEE8;
+  --copper-700: #9E4A22;
+  --copper-600: #B85A2C;
+  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;
+  --copper-200: #F9D5B5;
+  --copper-100: #FCE8D4;
+  --status-success:      #16A34A;
+  --status-success-tint: #DCFCE7;
+  --status-warning:      #C46F1B;
+  --status-warning-tint: #FEF3C7;
+  --status-error:        #DC2626;
+  --status-error-tint:   #FEE2E2;
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+
+:root {
+  --surface-primary:   var(--paper-100);
+  --surface-card:      var(--paper-50);
+  --surface-inset:     var(--paper-200);
+  --surface-overlay:   rgba(253,251,248,0.92);
+  --surface-glass:     rgba(253,251,248,0.72);
+  --surface-scrim:     rgba(34,24,16,0.35);
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --content-onSignal:  #FFFFFF;
+  --signal-default:    var(--copper-500);
+  --signal-pressed:    var(--copper-700);
+  --signal-tint:       var(--copper-200);
+  --signal-whisper:    var(--copper-100);
+  --border-default:    var(--paper-400);
+  --border-subtle:     var(--paper-300);
+  --border-strong:     var(--paper-500);
+  --border-focus:      var(--copper-500);
+  --action-primary:    var(--copper-500);
+  --action-ghost:      var(--paper-200);
+  --elev-overlay:      0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+
+  /* SPACING — 0/2/4/8/12/16/20/24/32/40/48/56/64 */
+  --sp-0:  0px;
+  --sp-1:  2px;
+  --sp-2:  4px;
+  --sp-3:  8px;
+  --sp-4:  12px;
+  --sp-5:  16px;
+  --sp-6:  20px;
+  --sp-7:  24px;
+  --sp-8:  32px;
+  --sp-9:  40px;
+  --sp-10: 48px;
+  --sp-11: 56px;
+  --sp-12: 64px;
+
+  /* RADIUS — xs/sm/md/lg/xl/pill */
+  --radius-xs:   2px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-pill: 999px;
+
+  /* SIZING — touch targets + icons */
+  --touch-target: 44px;
+  --touch-target-lg: 48px;
+  --icon-xs: 12px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --icon-xl: 32px;
+
+  /* ELEVATION */
+  --elevation-1: 0 1px 2px rgba(34,24,16,0.04);
+  --elevation-2: var(--elev-card);
+  --elevation-3: 0 4px 12px rgba(34,24,16,0.08), 0 2px 4px rgba(34,24,16,0.04);
+}
+
+/* ─── DOCUMENT CHROME ──────────────────────────────────────────────── */
+body {
+  font-family: var(--font-ui);
+  color: var(--content-primary);
+  background: var(--surface-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+
+.doc-header {
+  position: relative;
+  padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default);
+  overflow: hidden;
+}
+.doc-header::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-ui); font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--signal-default); margin-bottom: 28px;
+}
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default);
+  color: var(--signal-default); background: var(--signal-whisper);
+  font-size: 9.5px; letter-spacing: 0.14em;
+}
+.doc-title {
+  font-family: var(--font-opinion); font-size: 104px; font-weight: 300;
+  line-height: 0.94; letter-spacing: -0.035em;
+  color: var(--content-primary); margin-bottom: 32px; max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline {
+  font-family: var(--font-opinion); font-style: italic;
+  font-size: 22px; font-weight: 300;
+  color: var(--content-secondary); max-width: 640px; line-height: 1.55; margin-bottom: 56px;
+}
+.doc-meta-row {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 24px;
+  padding-top: 36px; border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-of-type { border-bottom: none; }
+.section-header { display: grid; grid-template-columns: 120px 1fr; align-items: baseline; gap: 32px; margin-bottom: 56px; }
+.section-index {
+  font-family: var(--font-instrument); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title {
+  font-family: var(--font-opinion); font-size: 52px; font-weight: 300;
+  letter-spacing: -0.025em; line-height: 1.04;
+  color: var(--content-primary); max-width: 900px;
+}
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.prose {
+  font-family: var(--font-opinion); font-weight: 300; font-size: 19px; line-height: 1.68;
+  color: var(--content-secondary); max-width: 720px; margin-left: 152px;
+}
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong {
+  font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default);
+  display: inline-block; padding: 2px 8px;
+  background: var(--signal-whisper); border: 1px solid var(--signal-tint);
+  border-radius: 4px; margin: 0 2px;
+}
+
+/* ── LAYOUT HELPERS ─────────────────────────────────────────────────── */
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  padding-left: 152px;
+  align-items: start;
+}
+.demo-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.demo-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.demo-cell { display: flex; flex-direction: column; gap: 16px; }
+.cell-label {
+  font-family: var(--font-instrument); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);
+}
+.cell-desc {
+  font-family: var(--font-ui); font-size: 11px; color: var(--content-tertiary);
+  line-height: 1.5;
+}
+.annotation-row {
+  display: flex; align-items: baseline; gap: 8px; margin-top: 4px;
+}
+.ann-token {
+  font-family: var(--font-instrument); font-size: 9.5px; color: var(--content-tertiary);
+  background: var(--surface-inset); border-radius: 3px; padding: 1px 5px;
+}
+.ann-val {
+  font-family: var(--font-instrument); font-size: 9.5px; color: var(--signal-default);
+}
+
+/* ── DIMENSIONS TABLE ───────────────────────────────────────────────── */
+.dim-table {
+  width: 100%; border-collapse: collapse; margin-left: 152px;
+  font-family: var(--font-ui); font-size: 12px;
+}
+.dim-table th {
+  font-weight: 600; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--content-tertiary); padding: 10px 16px; text-align: left;
+  border-bottom: 1px solid var(--border-default);
+}
+.dim-table td {
+  padding: 10px 16px; border-bottom: 1px solid var(--border-subtle);
+  color: var(--content-primary); vertical-align: top;
+}
+.dim-table tr:last-child td { border-bottom: none; }
+.dim-table .token { font-family: var(--font-instrument); font-size: 10.5px; color: var(--signal-default); }
+.dim-table .val   { font-family: var(--font-instrument); font-size: 10.5px; color: var(--content-secondary); }
+
+/* ── AC CITE ────────────────────────────────────────────────────────── */
+.ac-block {
+  margin-left: 152px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.ac-cite {
+  font-family: var(--font-ui); font-size: 10.5px; line-height: 1.55;
+  color: var(--content-tertiary); padding-left: 20px; position: relative;
+}
+.ac-cite::before {
+  content: "☐"; position: absolute; left: 0; top: 0; color: var(--border-strong);
+}
+
+/* ── FOOTER ─────────────────────────────────────────────────────────── */
+.doc-footer {
+  padding: 64px 0 80px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-wordmark {
+  font-family: var(--font-opinion); font-size: 28px; font-weight: 300;
+  letter-spacing: -0.02em; color: var(--content-primary);
+}
+.footer-wordmark em { font-style: italic; color: var(--signal-default); }
+.footer-meta {
+  font-family: var(--font-instrument); font-size: 11px; color: var(--content-tertiary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MOLECULE COMPONENTS — LSContentCard + LSListRow
+   All dimensions keyed to pinned token values.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── LSCard base (atom: UC-ATM-05) ──────────────────────────────────── */
+.ls-card {
+  background: var(--surface-card);         /* color.surface.card = #FDFBF8 */
+  border-radius: var(--radius-lg);         /* radius.lg = 14px */
+  box-shadow: var(--elevation-2);          /* elevation.2 */
+  border: 1px solid var(--border-default); /* 1px stroke */
+  overflow: hidden;
+}
+
+/* ── LSContentCard molecule ─────────────────────────────────────────── */
+.content-card { }
+
+.content-card__image-header {
+  width: 100%; height: 120px;
+  background: linear-gradient(135deg, var(--paper-300) 0%, var(--paper-200) 100%);
+  position: relative; overflow: hidden;
+}
+.content-card__image-header-inner {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--copper-200) 0%, var(--paper-300) 100%);
+  opacity: 0.7;
+}
+.content-card__image-label {
+  position: absolute; bottom: 8px; left: 12px;
+  font-family: var(--font-instrument); font-size: 8.5px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.85);
+}
+
+.content-card__body {
+  padding: var(--sp-4);  /* spacing.4 = 12px */
+}
+.content-card__title-row {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--sp-3); margin-bottom: var(--sp-2);
+}
+.content-card__title {
+  font-family: var(--font-ui); font-weight: 600; font-size: 14px;
+  line-height: 1.28; letter-spacing: -0.005em;
+  color: var(--content-primary);
+}
+.content-card__subtitle {
+  font-family: var(--font-ui); font-weight: 400; font-size: 12px;
+  line-height: 1.52; color: var(--content-secondary);
+  margin-bottom: var(--sp-2);
+}
+.content-card__meta {
+  display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap;
+  margin-bottom: var(--sp-3);
+}
+.content-card__meta-item {
+  font-family: var(--font-instrument); font-size: 10px; font-weight: 500;
+  color: var(--content-tertiary); letter-spacing: 0.04em;
+}
+.content-card__meta-dot {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: var(--border-strong); flex-shrink: 0;
+}
+.content-card__chip-row {
+  display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap;
+  margin-bottom: var(--sp-3);
+}
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: var(--radius-pill);
+  font-family: var(--font-ui); font-size: 10px; font-weight: 500;
+  background: var(--surface-inset); color: var(--content-secondary);
+  border: 1px solid var(--border-default);
+}
+.chip.signal {
+  background: var(--signal-whisper); color: var(--signal-default);
+  border-color: var(--signal-tint);
+}
+.content-card__footer {
+  padding: var(--sp-3) var(--sp-4); /* 8px top, 12px sides */
+  border-top: 1px solid var(--border-subtle);
+  display: flex; align-items: center; gap: var(--sp-3);
+  background: var(--surface-inset);
+}
+
+/* ── LSButton (atom: UC-ATM-02) — 44px height pinned ───────────────── */
+.ls-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 44px;                              /* sizing.touchTarget = 44px */
+  padding: 0 16px;
+  border-radius: var(--radius-md);          /* radius.md = 10px */
+  font-family: var(--font-ui); font-weight: 600; font-size: 13px;
+  letter-spacing: 0.01em; cursor: pointer;
+  border: none; transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.ls-btn--primary {
+  background: var(--signal-default); color: var(--content-onSignal);
+}
+.ls-btn--outline {
+  background: transparent; color: var(--signal-default);
+  border: 1.5px solid var(--signal-default);
+}
+.ls-btn--ghost {
+  background: var(--action-ghost); color: var(--content-primary);
+}
+.ls-btn--sm {
+  height: 32px; padding: 0 12px; font-size: 11.5px; border-radius: var(--radius-sm);
+}
+
+/* ── LSListRow molecule ─────────────────────────────────────────────── */
+.ls-list-row {
+  display: flex; align-items: center;
+  min-height: var(--touch-target);           /* sizing.touchTarget = 44px */
+  padding: var(--sp-2) var(--sp-4);         /* 4px vertical, 12px horizontal */
+  gap: var(--sp-3);                          /* spacing.3 = 8px leading/title gap */
+  background: var(--surface-card);
+  cursor: pointer; transition: background 0.12s;
+  position: relative;
+}
+.ls-list-row:hover,
+.ls-list-row--pressed {
+  background: var(--surface-inset);
+}
+.ls-list-row--no-press {
+  cursor: default;
+}
+.ls-list-row--no-press:hover { background: var(--surface-card); }
+.ls-list-row + .ls-list-row {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.ls-list-row__leading {
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+/* Icon in a list row: sizing.icon.md = 20px */
+.ls-list-row__icon {
+  width: 20px; height: 20px;
+  color: var(--content-secondary);
+}
+.ls-list-row__icon-container {
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  background: var(--surface-inset); border: 1px solid var(--border-default);
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Avatars: xs=20px, sm=24px, md=32px (atom: UC-ATM-04) */
+.ls-avatar {
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--copper-200), var(--paper-400));
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-ui); font-weight: 600;
+  color: var(--copper-700); flex-shrink: 0; overflow: hidden;
+}
+.ls-avatar--xs { width: 20px; height: 20px; font-size: 8px; }
+.ls-avatar--sm { width: 24px; height: 24px; font-size: 9px; }
+.ls-avatar--md { width: 32px; height: 32px; font-size: 11px; }
+
+.ls-list-row__content {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.ls-list-row__title {
+  font-family: var(--font-ui); font-weight: 500; font-size: 14px;
+  line-height: 1.3; color: var(--content-primary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ls-list-row__subtitle {
+  font-family: var(--font-ui); font-weight: 400; font-size: 11.5px;
+  line-height: 1.4; color: var(--content-secondary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ls-list-row__trailing {
+  flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+  color: var(--content-tertiary);
+}
+/* Chevron icon: 16px = sizing.icon.sm */
+.ls-chevron {
+  width: 16px; height: 16px; color: var(--content-subtle); flex-shrink: 0;
+}
+/* Toggle atom */
+.ls-toggle {
+  width: 42px; height: 24px; border-radius: 12px;
+  background: var(--border-default); position: relative;
+  transition: background 0.2s; cursor: pointer; flex-shrink: 0;
+}
+.ls-toggle--on { background: var(--signal-default); }
+.ls-toggle::after {
+  content: ""; position: absolute;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: white; top: 3px; left: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15); transition: left 0.2s;
+}
+.ls-toggle--on::after { left: 21px; }
+
+/* Grouped list in a card */
+.ls-list-group {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--elevation-2);
+  background: var(--surface-card);
+}
+.ls-list-group .ls-list-row:first-child { border-top: none; }
+
+/* ─── INLINE SVG ICON HELPERS ──────────────────────────────────────── */
+.icon-svg { display: inline-block; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.icon-md  { width: 20px; height: 20px; }
+.icon-sm  { width: 16px; height: 16px; }
+.icon-xs  { width: 12px; height: 12px; }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════════════════════ -->
+<header class="doc-header">
+  <div class="doc-eyebrow">
+    UC-MOL-01
+    <span class="doc-eyebrow-pill">Molecule Tier-A</span>
+  </div>
+  <h1 class="doc-title">Card &amp; <em>ListRow</em></h1>
+  <p class="doc-tagline">Structured content containers and interactive row patterns — composing atoms into the building blocks every organism depends on.</p>
+  <div class="doc-meta-row">
+    <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">2.0.0</span></div>
+    <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">2026-04-20</span></div>
+    <div class="meta-item"><span class="meta-label">UC ID</span><span class="meta-value">UC-MOL-01</span></div>
+    <div class="meta-item"><span class="meta-label">PRD Ref</span><span class="meta-value">06-uc-mol.md</span></div>
+    <div class="meta-item"><span class="meta-label">Surface</span><span class="meta-value">Light</span></div>
+    <div class="meta-item"><span class="meta-label">Theme</span><span class="meta-value">Copper</span></div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §01 PURPOSE
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§01</span>
+    <h2 class="section-title">Purpose &amp; <em>Atomic Composition</em></h2>
+  </div>
+  <p class="prose">
+    <strong>LSContentCard</strong> wraps <em>LSCard</em> (UC-ATM-05) with a structured slot schema — header, title, subtitle, metadata, action footer — giving organisms a single, consistent API for card-shaped content. <strong>LSListRow</strong> composes <em>LSAvatar</em> (UC-ATM-04), <em>LSIcon</em> (UC-ATM-10), and optionally <em>LSButton</em> (UC-ATM-02) into a horizontal interactive row that respects minimum touch-target sizing.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    Neither molecule hard-codes primitive values. Every color references a semantic token, every size references a dimension token. Organisms can render a ride card, a settings list, or a community feed row by composing these molecules — no raw <em>View</em> or <em>Box</em> with literal colors needed.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §02 THE MOLECULE — LSContentCard variants
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§02</span>
+    <h2 class="section-title"><em>LSContentCard</em> Variants</h2>
+  </div>
+
+  <div class="demo-grid" style="margin-bottom: 64px;">
+
+    <!-- Variant 1: Title Only -->
+    <div class="demo-cell">
+      <span class="cell-label">Title Only</span>
+      <div class="ls-card content-card" style="max-width: 280px;">
+        <div class="content-card__body">
+          <div class="content-card__title-row">
+            <span class="content-card__title">Highway 1 Coastal Loop</span>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">surface.card</span><span class="ann-val">#FDFBF8</span></div>
+      <div class="annotation-row"><span class="ann-token">radius.lg</span><span class="ann-val">14px</span></div>
+      <div class="annotation-row"><span class="ann-token">elevation.2</span><span class="ann-val">0 2px 6px …</span></div>
+      <div class="annotation-row"><span class="ann-token">padding</span><span class="ann-val">spacing.4 = 12px</span></div>
+    </div>
+
+    <!-- Variant 2: Title + Subtitle -->
+    <div class="demo-cell">
+      <span class="cell-label">Title + Subtitle</span>
+      <div class="ls-card content-card" style="max-width: 280px;">
+        <div class="content-card__body">
+          <div class="content-card__title-row">
+            <span class="content-card__title">Pacific Coast Highway</span>
+          </div>
+          <div class="content-card__subtitle">42 mi · 1h 12m · Scenic</div>
+          <div class="content-card__meta">
+            <span class="content-card__meta-item">3,200 ft gain</span>
+            <span class="content-card__meta-dot"></span>
+            <span class="content-card__meta-item">Last ridden Apr 12</span>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">title</span><span class="ann-val">ui.title.md 14px 600</span></div>
+      <div class="annotation-row"><span class="ann-token">subtitle</span><span class="ann-val">ui.body.md 12px 400</span></div>
+      <div class="annotation-row"><span class="ann-token">meta</span><span class="ann-val">instrument.sm 10px</span></div>
+    </div>
+
+    <!-- Variant 3: With Chip Row -->
+    <div class="demo-cell">
+      <span class="cell-label">Title + Subtitle + Chips</span>
+      <div class="ls-card content-card" style="max-width: 280px;">
+        <div class="content-card__body">
+          <div class="content-card__title-row">
+            <span class="content-card__title">Marin Headlands Sweep</span>
+          </div>
+          <div class="content-card__subtitle">28 mi · 54m · Twisty</div>
+          <div class="content-card__chip-row">
+            <span class="chip signal">Best Route</span>
+            <span class="chip">Twisty</span>
+            <span class="chip">Coastal</span>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">chip bg</span><span class="ann-val">signal.whisper #FCE8D4</span></div>
+      <div class="annotation-row"><span class="ann-token">chip radius</span><span class="ann-val">radius.pill 999px</span></div>
+    </div>
+
+    <!-- Variant 4: With Actions Footer -->
+    <div class="demo-cell">
+      <span class="cell-label">With Actions Footer</span>
+      <div class="ls-card content-card" style="max-width: 280px;">
+        <div class="content-card__body">
+          <div class="content-card__title-row">
+            <span class="content-card__title">Skyline Boulevard</span>
+          </div>
+          <div class="content-card__subtitle">19 mi · 38m · Mountain</div>
+          <div class="content-card__meta">
+            <span class="content-card__meta-item">1,800 ft gain</span>
+            <span class="content-card__meta-dot"></span>
+            <span class="content-card__meta-item">Saved</span>
+          </div>
+        </div>
+        <div class="content-card__footer">
+          <button class="ls-btn ls-btn--primary ls-btn--sm" style="flex:1;">Ride This</button>
+          <button class="ls-btn ls-btn--ghost ls-btn--sm">Save</button>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">btn height</span><span class="ann-val">32px (sm variant)</span></div>
+      <div class="annotation-row"><span class="ann-token">footer bg</span><span class="ann-val">surface.inset #F2EFED</span></div>
+    </div>
+
+    <!-- Variant 5: With Image Header -->
+    <div class="demo-cell">
+      <span class="cell-label">With Image Header</span>
+      <div class="ls-card content-card" style="max-width: 280px;">
+        <div class="content-card__image-header">
+          <div class="content-card__image-header-inner"></div>
+          <span class="content-card__image-label">Header Image Slot · 120px</span>
+        </div>
+        <div class="content-card__body">
+          <div class="content-card__title-row">
+            <span class="content-card__title">Big Sur Bluffs Ride</span>
+          </div>
+          <div class="content-card__subtitle">64 mi · 2h 10m · Epic</div>
+          <div class="content-card__chip-row">
+            <span class="chip signal">Best Route</span>
+            <span class="chip">Ocean View</span>
+          </div>
+        </div>
+        <div class="content-card__footer">
+          <button class="ls-btn ls-btn--primary ls-btn--sm" style="flex:1;">Open Route</button>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">header h</span><span class="ann-val">120px</span></div>
+      <div class="annotation-row"><span class="ann-token">overflow</span><span class="ann-val">hidden on ls-card</span></div>
+    </div>
+
+  </div>
+
+  <!-- LSListRow variants -->
+  <div class="section-header" style="margin-top: 64px;">
+    <span class="section-index">§02b</span>
+    <h2 class="section-title"><em>LSListRow</em> Variants</h2>
+  </div>
+
+  <div class="demo-grid cols-2" style="gap: 48px;">
+
+    <!-- Leading Icon variants -->
+    <div class="demo-cell">
+      <span class="cell-label">Leading Icon — Title Only</span>
+      <div class="ls-list-group" style="max-width: 320px;">
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-list-row__icon-container">
+              <svg class="icon-svg icon-sm" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Notifications</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-list-row__icon-container">
+              <svg class="icon-svg icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+            </div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Bluetooth Sensors</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-list-row__icon-container">
+              <svg class="icon-svg icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Profile</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">min-height</span><span class="ann-val">44px touchTarget</span></div>
+      <div class="annotation-row"><span class="ann-token">padding</span><span class="ann-val">4px v / 12px h (sp-2/sp-4)</span></div>
+      <div class="annotation-row"><span class="ann-token">gap</span><span class="ann-val">spacing.3 = 8px</span></div>
+      <div class="annotation-row"><span class="ann-token">icon container</span><span class="ann-val">32×32px</span></div>
+    </div>
+
+    <!-- Leading Avatar variants -->
+    <div class="demo-cell">
+      <span class="cell-label">Leading Avatar — Title + Subtitle</span>
+      <div class="ls-list-group" style="max-width: 320px;">
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-avatar ls-avatar--md">JR</div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Justin Rich</span>
+            <span class="ls-list-row__subtitle">Joined 2023 · 847 mi total</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-avatar ls-avatar--md">MK</div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Maya Kim</span>
+            <span class="ls-list-row__subtitle">Following · 1,240 mi total</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <button class="ls-btn ls-btn--outline ls-btn--sm">Follow</button>
+          </div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-avatar ls-avatar--sm" style="background: linear-gradient(135deg, #D3EDE0, #C9BDB3);">TS</div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Tom S.</span>
+            <span class="ls-list-row__subtitle">avatar--sm 24px variant</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <div class="ls-toggle ls-toggle--on"></div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">avatar-md</span><span class="ann-val">32px</span></div>
+      <div class="annotation-row"><span class="ann-token">avatar-sm</span><span class="ann-val">24px</span></div>
+      <div class="annotation-row"><span class="ann-token">avatar-xs</span><span class="ann-val">20px</span></div>
+      <div class="annotation-row"><span class="ann-token">toggle</span><span class="ann-val">42×24px</span></div>
+    </div>
+
+    <!-- Toggle + non-interactive variants -->
+    <div class="demo-cell">
+      <span class="cell-label">Trailing Toggle — Interactive vs Non-interactive</span>
+      <div class="ls-list-group" style="max-width: 320px;">
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-list-row__icon-container">
+              <svg class="icon-svg icon-sm" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Privacy Mode</span>
+            <span class="ls-list-row__subtitle">Hide location on social feed</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <div class="ls-toggle ls-toggle--on"></div>
+          </div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading">
+            <div class="ls-list-row__icon-container">
+              <svg class="icon-svg icon-sm" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+            </div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Auto-Pause</span>
+            <span class="ls-list-row__subtitle">Stop at red lights</span>
+          </div>
+          <div class="ls-list-row__trailing">
+            <div class="ls-toggle"></div>
+          </div>
+        </div>
+        <div class="ls-list-row ls-list-row--no-press" style="opacity: 0.5;">
+          <div class="ls-list-row__leading">
+            <div class="ls-list-row__icon-container">
+              <svg class="icon-svg icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            </div>
+          </div>
+          <div class="ls-list-row__content">
+            <span class="ls-list-row__title">Advanced Metrics</span>
+            <span class="ls-list-row__subtitle">Requires sensor pairing</span>
+          </div>
+          <div class="ls-list-row__trailing" style="font-family: var(--font-ui); font-size: 11px; color: var(--content-subtle);">Locked</div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">pressed bg</span><span class="ann-val">surface.inset #F2EFED</span></div>
+      <div class="annotation-row"><span class="ann-token">no-press</span><span class="ann-val">cursor:default, no hover</span></div>
+      <div class="annotation-row"><span class="ann-token">disabled</span><span class="ann-val">opacity 0.5</span></div>
+    </div>
+
+    <!-- 5-row list in a card (composition example) -->
+    <div class="demo-cell">
+      <span class="cell-label">Composition — 5-Row List in a Card</span>
+      <div class="ls-card" style="max-width: 320px; padding: 0; overflow: hidden;">
+        <div style="padding: 12px 12px 8px; border-bottom: 1px solid var(--border-subtle);">
+          <span style="font-family: var(--font-ui); font-weight: 600; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--content-tertiary);">Recent Routes</span>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--xs">H1</div></div>
+          <div class="ls-list-row__content"><span class="ls-list-row__title">Highway 1 South</span><span class="ls-list-row__subtitle">42 mi · 3 days ago</span></div>
+          <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--xs" style="background: linear-gradient(135deg,#DBEAF4,#B0C4D8);">MB</div></div>
+          <div class="ls-list-row__content"><span class="ls-list-row__title">Marin Backroads</span><span class="ls-list-row__subtitle">28 mi · 1 week ago</span></div>
+          <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--xs" style="background: linear-gradient(135deg,#DCFCE7,#BBF7D0);">SB</div></div>
+          <div class="ls-list-row__content"><span class="ls-list-row__title">Skyline Boulevard</span><span class="ls-list-row__subtitle">19 mi · 2 weeks ago</span></div>
+          <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--xs">BS</div></div>
+          <div class="ls-list-row__content"><span class="ls-list-row__title">Big Sur Cliffs</span><span class="ls-list-row__subtitle">64 mi · last month</span></div>
+          <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+        <div class="ls-list-row">
+          <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--xs" style="background: linear-gradient(135deg,#FEF3C7,#FDE68A);">NV</div></div>
+          <div class="ls-list-row__content"><span class="ls-list-row__title">Napa Valley Sweep</span><span class="ls-list-row__subtitle">51 mi · last month</span></div>
+          <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+      </div>
+      <span class="cell-desc">LSCard wrapping 5 LSListRows. Header uses label.sm uppercase. Rows separated by border.subtle (1px).</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §03 STATES & VARIANTS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§03</span>
+    <h2 class="section-title">States &amp; <em>Variants</em></h2>
+  </div>
+  <div class="demo-grid cols-4" style="margin-bottom: 0;">
+
+    <div class="demo-cell">
+      <span class="cell-label">Default</span>
+      <div class="ls-list-row ls-list-group" style="max-width: 260px; border-radius: var(--radius-lg);">
+        <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--md">JR</div></div>
+        <div class="ls-list-row__content"><span class="ls-list-row__title">Default Row</span><span class="ls-list-row__subtitle">Resting state</span></div>
+        <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">bg</span><span class="ann-val">surface.card</span></div>
+    </div>
+
+    <div class="demo-cell">
+      <span class="cell-label">Pressed</span>
+      <div class="ls-list-row ls-list-row--pressed ls-list-group" style="max-width: 260px; border-radius: var(--radius-lg);">
+        <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--md">JR</div></div>
+        <div class="ls-list-row__content"><span class="ls-list-row__title">Pressed Row</span><span class="ls-list-row__subtitle">Touch feedback</span></div>
+        <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">bg</span><span class="ann-val">surface.inset #F2EFED</span></div>
+    </div>
+
+    <div class="demo-cell">
+      <span class="cell-label">Disabled</span>
+      <div class="ls-list-row ls-list-row--no-press ls-list-group" style="max-width: 260px; border-radius: var(--radius-lg); opacity: 0.4;">
+        <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--md">JR</div></div>
+        <div class="ls-list-row__content"><span class="ls-list-row__title">Disabled Row</span><span class="ls-list-row__subtitle">opacity.disabled</span></div>
+        <div class="ls-list-row__trailing"><svg class="icon-svg ls-chevron" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">opacity</span><span class="ann-val">0.40 (opacity.disabled)</span></div>
+    </div>
+
+    <div class="demo-cell">
+      <span class="cell-label">Non-interactive</span>
+      <div class="ls-list-row ls-list-row--no-press ls-list-group" style="max-width: 260px; border-radius: var(--radius-lg);">
+        <div class="ls-list-row__leading"><div class="ls-avatar ls-avatar--md">RD</div></div>
+        <div class="ls-list-row__content"><span class="ls-list-row__title">Read-Only Row</span><span class="ls-list-row__subtitle">No onTap — no highlight</span></div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">cursor</span><span class="ann-val">default, no hover bg</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §04 ATOMIC COMPOSITION + DIMENSIONS TABLE
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§04</span>
+    <h2 class="section-title">Atomic Composition + <em>Dimensions</em></h2>
+  </div>
+  <table class="dim-table" style="max-width: 900px;">
+    <thead>
+      <tr>
+        <th>Atom / Property</th>
+        <th>Molecule Pattern</th>
+        <th>Token</th>
+        <th>Resolved Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>LSCard (UC-ATM-05)</td><td>LSContentCard container</td><td class="token">color.surface.card</td><td class="val">#FDFBF8</td></tr>
+      <tr><td>LSCard radius</td><td>LSContentCard corners</td><td class="token">radius.lg</td><td class="val">14px</td></tr>
+      <tr><td>LSCard elevation</td><td>LSContentCard shadow</td><td class="token">elevation.2</td><td class="val">0 2px 6px rgba(34,24,16,0.06)</td></tr>
+      <tr><td>LSCard padding</td><td>LSContentCard body</td><td class="token">spacing.4</td><td class="val">12px</td></tr>
+      <tr><td>LSCard border</td><td>LSContentCard stroke</td><td class="token">color.border.default</td><td class="val">#E5DED9 1px</td></tr>
+      <tr><td>Title typography</td><td>LSContentCard title row</td><td class="token">typography.ui.title.md</td><td class="val">Geist 14px 600</td></tr>
+      <tr><td>Subtitle typography</td><td>LSContentCard subtitle</td><td class="token">typography.ui.body.md</td><td class="val">Geist 12px 400</td></tr>
+      <tr><td>Meta typography</td><td>LSContentCard meta row</td><td class="token">typography.instrument.sm</td><td class="val">JetBrains Mono 10px 500</td></tr>
+      <tr><td>Footer bg</td><td>LSContentCard footer</td><td class="token">color.surface.inset</td><td class="val">#F2EFED</td></tr>
+      <tr><td>LSButton (UC-ATM-02)</td><td>LSContentCard action slot</td><td class="token">sizing.touchTarget</td><td class="val">44px height (32px sm)</td></tr>
+      <tr><td>LSListRow min-height</td><td>Touch target floor</td><td class="token">sizing.touchTarget</td><td class="val">44px</td></tr>
+      <tr><td>LSListRow padding-v</td><td>Vertical padding</td><td class="token">spacing.2</td><td class="val">4px</td></tr>
+      <tr><td>LSListRow gap</td><td>Leading/title gap</td><td class="token">spacing.3</td><td class="val">8px</td></tr>
+      <tr><td>LSListRow padding-h</td><td>Horizontal inset</td><td class="token">spacing.4</td><td class="val">12px</td></tr>
+      <tr><td>LSAvatar xs (UC-ATM-04)</td><td>Leading avatar</td><td class="token">sizing.avatar.xs</td><td class="val">20×20px</td></tr>
+      <tr><td>LSAvatar sm (UC-ATM-04)</td><td>Leading avatar</td><td class="token">sizing.avatar.sm</td><td class="val">24×24px</td></tr>
+      <tr><td>LSAvatar md (UC-ATM-04)</td><td>Leading avatar</td><td class="token">sizing.avatar.md</td><td class="val">32×32px</td></tr>
+      <tr><td>LSIcon in row (UC-ATM-10)</td><td>Leading icon</td><td class="token">sizing.icon.md</td><td class="val">20×20px</td></tr>
+      <tr><td>Chevron icon</td><td>Trailing navigation cue</td><td class="token">sizing.icon.sm</td><td class="val">16×16px</td></tr>
+      <tr><td>Row divider</td><td>Between rows</td><td class="token">color.border.subtle</td><td class="val">#EDE7E1 1px</td></tr>
+      <tr><td>Pressed state bg</td><td>Touch feedback</td><td class="token">color.surface.inset</td><td class="val">#F2EFED</td></tr>
+      <tr><td>Disabled opacity</td><td>Non-interactive</td><td class="token">opacity.disabled</td><td class="val">0.40</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §05 MOTION
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§05</span>
+    <h2 class="section-title"><em>Motion</em> Recipes</h2>
+  </div>
+  <p class="prose">
+    <strong>listRowPress</strong> — background transitions to <em>surface.inset</em> on touchDown, returns on touchUp. Duration: 120ms ease-out. No scale transform on list rows — scale is reserved for card promotion flows.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    <strong>cardEnter</strong> — cards entering a feed list animate with <em>opacity 0→1</em> + <em>translateY 8px→0</em>. Duration: 240ms cubic-bezier(0.22, 1, 0.36, 1). Stagger delay 40ms per item in a list. No spring physics at this tier — springs are reserved for organism-level navigation transitions.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    Toggle state change: background color transition 200ms ease-in-out. Thumb translate transition 200ms ease-in-out.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §06 RATIONALE + AC TRACEABILITY
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§06</span>
+    <h2 class="section-title">Rationale + <em>AC Traceability</em></h2>
+  </div>
+  <p class="prose">
+    <em>LSContentCard</em> was extracted because every Navigator organism — route results, saved rides, community cards — needed the same <em>surface.card + radius.lg + elevation.2</em> container but with different slot content. Coalescing into one molecule prevents organisms from each choosing their own radii or shadows and guarantees visual consistency across 8+ screens.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    <em>LSListRow</em> enforces the 44pt touch-target floor mandated by both Apple HIG and Material You. The leading/title gap of <em>spacing.3 (8px)</em> was chosen empirically: it gives icon-to-text breathing room without the leading content becoming detached from its label at small viewport widths.
+  </p>
+  <div class="ac-block" style="margin-top: 48px;">
+    <div class="ac-cite">Developer can render LSContentCard(title: "Route X", subtitle: "42 mi · 1h 12m") and see color.surface.card + radius.lg + elevation.2 + layout spacing from spacing.* tokens; title in typography.ui.title.md, subtitle in typography.ui.body.md. [06-uc-mol.md §UC-MOL-01]</div>
+    <div class="ac-cite">Developer can render LSListRow(leading: .avatar(...), title: "Name", subtitle: "Detail", trailing: .chevron) and see minimum height sizing.touchTarget, leading/title gap spacing.3, vertical padding spacing.2. [06-uc-mol.md §UC-MOL-01]</div>
+    <div class="ac-cite">Developer can tap an LSListRow with onTap and see the handler invoked exactly once; rows without onTap do not surface a pressed highlight. [06-uc-mol.md §UC-MOL-01]</div>
+    <div class="ac-cite">Developer can find stories: "Molecules / ContentCard" — With Image Header, Title Only, Title+Subtitle+Chips, With Actions. [06-uc-mol.md §UC-MOL-01]</div>
+    <div class="ac-cite">Developer can find stories: "Molecules / ListRow" — Leading Icon, Leading Avatar, With Subtitle, With Toggle, With Chevron, With Trailing Button. [06-uc-mol.md §UC-MOL-01]</div>
+    <div class="ac-cite">Tests assert the molecule uses atoms from UC-ATM-01 through UC-ATM-10 — raw Text/Box with literal colors fails snapshot/style inspection. [06-uc-mol.md §UC-MOL-01]</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════════════════════════ -->
+<footer class="doc-footer">
+  <div class="footer-wordmark">Lane<em>Shadow</em></div>
+  <div class="footer-meta">V2 · Copper · UC-MOL-01 · 2026-04-20</div>
+</footer>
+
+</div><!-- /.wrap -->
+</body>
+</html>

@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<!-- uc-mol-03-bottomsheet-toast-modal.html — UC-MOL-03 "BottomSheet + Toast + Modal"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Molecules: LSBottomSheet · LSToast · LSModal
+     Authority: .spec/prds/v2/06-uc-mol.md §UC-MOL-03 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-MOL-03 — BottomSheet + Toast + Modal — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;  --paper-100: #F8F7F6;  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;  --paper-300: #EDE7E1;  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+  --ink-900:   #1E1A16;  --ink-800: #221810;   --ink-700: #2D2218;
+  --ink-600:   #362A1F;  --ink-500: #3D3228;   --ink-400: #49454F;
+  --ink-300:   #6B6460;  --ink-200: #9CA3AF;   --ink-100: #CAC4D0;  --ink-050: #F2EEE8;
+  --copper-700: #9E4A22;  --copper-600: #B85A2C;  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;  --copper-200: #F9D5B5;  --copper-100: #FCE8D4;
+  --status-success:       #16A34A;
+  --status-success-tint:  #DCFCE7;
+  --status-warning:       #C46F1B;
+  --status-warning-tint:  #FEF3C7;
+  --status-error:         #DC2626;
+  --status-error-tint:    #FEE2E2;
+  --status-info:          #2563EB;
+  --status-info-tint:     #DBEAFE;
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+:root {
+  --surface-primary:   var(--paper-100);
+  --surface-card:      var(--paper-50);
+  --surface-inset:     var(--paper-200);
+  --surface-overlay:   rgba(253,251,248,0.92);
+  --surface-glass:     rgba(253,251,248,0.72);
+  --surface-scrim:     rgba(34,24,16,0.35);
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --content-onSignal:  #FFFFFF;
+  --signal-default:    var(--copper-500);
+  --signal-pressed:    var(--copper-700);
+  --signal-tint:       var(--copper-200);
+  --signal-whisper:    var(--copper-100);
+  --border-default:    var(--paper-400);
+  --border-subtle:     var(--paper-300);
+  --border-strong:     var(--paper-500);
+  --border-focus:      var(--copper-500);
+  --action-primary:    var(--copper-500);
+  --action-ghost:      var(--paper-200);
+  --elev-overlay:      0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+
+  /* SPACING */
+  --sp-2:  4px;  --sp-3:  8px;  --sp-4:  12px; --sp-5: 16px;
+  --sp-6:  20px; --sp-7:  24px; --sp-8:  32px; --sp-9: 40px;
+
+  /* RADIUS */
+  --radius-xs: 2px; --radius-sm: 6px; --radius-md: 10px;
+  --radius-lg: 14px; --radius-xl: 20px; --radius-pill: 999px;
+
+  /* SIZING */
+  --touch-target: 44px;
+  --icon-sm: 16px; --icon-md: 20px;
+
+  /* MOTION — cite recipe names */
+  --motion-enter-duration:   320ms;
+  --motion-dismiss-duration: 5000ms;
+  --motion-overlay-ease:     cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ─── DOCUMENT CHROME ──────────────────────────────────────────────── */
+body {
+  font-family: var(--font-ui); color: var(--content-primary);
+  background: var(--surface-primary); -webkit-font-smoothing: antialiased;
+  min-height: 100vh; line-height: 1.55; overflow-x: hidden;
+}
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+.doc-header {
+  position: relative; padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default); overflow: hidden;
+}
+.doc-header::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-ui); font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--signal-default); margin-bottom: 28px;
+}
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default); color: var(--signal-default);
+  background: var(--signal-whisper); font-size: 9.5px; letter-spacing: 0.14em;
+}
+.doc-title {
+  font-family: var(--font-opinion); font-size: 88px; font-weight: 300;
+  line-height: 0.94; letter-spacing: -0.035em; color: var(--content-primary);
+  margin-bottom: 32px; max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline {
+  font-family: var(--font-opinion); font-style: italic; font-size: 22px; font-weight: 300;
+  color: var(--content-secondary); max-width: 640px; line-height: 1.55; margin-bottom: 56px;
+}
+.doc-meta-row {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 24px;
+  padding-top: 36px; border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-of-type { border-bottom: none; }
+.section-header { display: grid; grid-template-columns: 120px 1fr; align-items: baseline; gap: 32px; margin-bottom: 56px; }
+.section-index {
+  font-family: var(--font-instrument); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title {
+  font-family: var(--font-opinion); font-size: 52px; font-weight: 300;
+  letter-spacing: -0.025em; line-height: 1.04; color: var(--content-primary); max-width: 900px;
+}
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.prose {
+  font-family: var(--font-opinion); font-weight: 300; font-size: 19px; line-height: 1.68;
+  color: var(--content-secondary); max-width: 720px; margin-left: 152px;
+}
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong {
+  font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default);
+  display: inline-block; padding: 2px 8px;
+  background: var(--signal-whisper); border: 1px solid var(--signal-tint);
+  border-radius: 4px; margin: 0 2px;
+}
+.demo-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 48px; padding-left: 152px; align-items: start;
+}
+.demo-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.demo-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.demo-cell { display: flex; flex-direction: column; gap: 16px; }
+.cell-label {
+  font-family: var(--font-instrument); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);
+}
+.cell-desc {
+  font-family: var(--font-ui); font-size: 11px; color: var(--content-tertiary); line-height: 1.5;
+}
+.annotation-row { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; }
+.ann-token { font-family: var(--font-instrument); font-size: 9.5px; color: var(--content-tertiary); background: var(--surface-inset); border-radius: 3px; padding: 1px 5px; }
+.ann-val   { font-family: var(--font-instrument); font-size: 9.5px; color: var(--signal-default); }
+.dim-table { width: 100%; border-collapse: collapse; margin-left: 152px; font-family: var(--font-ui); font-size: 12px; }
+.dim-table th { font-weight: 600; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border-default); }
+.dim-table td { padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); color: var(--content-primary); vertical-align: top; }
+.dim-table tr:last-child td { border-bottom: none; }
+.dim-table .token { font-family: var(--font-instrument); font-size: 10.5px; color: var(--signal-default); }
+.dim-table .val   { font-family: var(--font-instrument); font-size: 10.5px; color: var(--content-secondary); }
+.ac-block { margin-left: 152px; display: flex; flex-direction: column; gap: 10px; }
+.ac-cite { font-family: var(--font-ui); font-size: 10.5px; line-height: 1.55; color: var(--content-tertiary); padding-left: 20px; position: relative; }
+.ac-cite::before { content: "☐"; position: absolute; left: 0; top: 0; color: var(--border-strong); }
+.doc-footer { padding: 64px 0 80px; display: flex; align-items: center; justify-content: space-between; }
+.footer-wordmark { font-family: var(--font-opinion); font-size: 28px; font-weight: 300; letter-spacing: -0.02em; color: var(--content-primary); }
+.footer-wordmark em { font-style: italic; color: var(--signal-default); }
+.footer-meta { font-family: var(--font-instrument); font-size: 11px; color: var(--content-tertiary); }
+
+/* ─── PHONE FRAME ──────────────────────────────────────────────────── */
+.phone-frame {
+  width: 100%; max-width: 240px; margin: 0 auto;
+  aspect-ratio: 9/19.5; position: relative; border-radius: 40px;
+  background: #0F0A07;
+  box-shadow: inset 0 0 0 1px #2A1F16, inset 0 0 0 2px #0F0A07,
+    0 24px 56px -12px rgba(34,24,16,0.38), 0 8px 20px -8px rgba(34,24,16,0.22);
+  overflow: hidden;
+}
+.phone-screen {
+  position: absolute; inset: 2.5px; border-radius: 37px; overflow: hidden;
+  display: flex; flex-direction: column; background: var(--surface-primary);
+  color: var(--content-primary); isolation: isolate;
+}
+.phone-di {
+  position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+  width: 80px; height: 22px; background: #000; border-radius: 11px; z-index: 10;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MOLECULE COMPONENTS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── LSButton atom (UC-ATM-02) — needed in modal/sheet ────────────── */
+.ls-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 44px; padding: 0 16px; border-radius: var(--radius-md);
+  font-family: var(--font-ui); font-weight: 600; font-size: 13px;
+  letter-spacing: 0.01em; cursor: pointer; border: none;
+  transition: background 0.15s; white-space: nowrap; flex: 1;
+}
+.ls-btn--primary { background: var(--signal-default); color: #fff; }
+.ls-btn--ghost { background: var(--action-ghost); color: var(--content-primary); }
+.ls-btn--destructive { background: var(--status-error); color: #fff; }
+.ls-btn--outline {
+  background: transparent; color: var(--signal-default);
+  border: 1.5px solid var(--signal-default);
+}
+
+/* ── LSBottomSheet ──────────────────────────────────────────────────── */
+.sheet-context {
+  position: relative; overflow: hidden; border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default); box-shadow: var(--elev-overlay);
+  background: var(--surface-inset);
+}
+/* Scrim sits BEHIND the sheet as a full-area overlay */
+.sheet-scrim {
+  position: absolute; inset: 0;
+  background: var(--surface-scrim);              /* rgba(34,24,16,0.35) */
+  z-index: 1;
+  pointer-events: none;
+}
+.sheet-anchor {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  z-index: 2;                                    /* above scrim */
+}
+.ls-bottom-sheet {
+  background: var(--surface-overlay);              /* color.surface.overlay */
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;  /* radius.lg top corners */
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  border-bottom: none;
+}
+.sheet-handle-bar {
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px 0 8px;
+}
+.sheet-handle {
+  width: 36px;                    /* drag handle 36pt wide per spec */
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-subtle);  /* color.border.subtle */
+}
+.sheet-body {
+  padding: var(--sp-4);           /* spacing.4 = 12px */
+}
+
+/* ── LSToast ────────────────────────────────────────────────────────── */
+.ls-toast {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--elev-overlay);
+  font-family: var(--font-ui); font-weight: 500; font-size: 13px;
+  line-height: 1.4;
+  width: 100%; max-width: 320px;
+  border: 1px solid transparent;
+}
+.ls-toast--default {
+  background: var(--surface-card);
+  color: var(--content-primary);
+  border-color: var(--border-default);
+}
+.ls-toast--success {
+  background: var(--status-success-tint);     /* color.status.success.tint */
+  color: var(--status-success);
+  border-color: rgba(22,163,74,0.25);
+}
+.ls-toast--warning {
+  background: var(--status-warning-tint);     /* color.status.warning.tint */
+  color: var(--status-warning);
+  border-color: rgba(196,111,27,0.25);
+}
+.ls-toast--error {
+  background: var(--status-error-tint);       /* color.status.error.tint */
+  color: var(--status-error);
+  border-color: rgba(220,38,38,0.25);
+}
+.toast-icon {
+  width: 20px; height: 20px; flex-shrink: 0;
+}
+.toast-message { flex: 1; }
+.toast-dismiss {
+  width: 20px; height: 20px; border: none; background: none;
+  cursor: pointer; opacity: 0.55; color: inherit; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.toast-timer-bar {
+  height: 2px; border-radius: 1px; margin-top: 8px;
+  /* represents chatOverlayDismiss 5000ms countdown */
+}
+.timer-success { background: var(--status-success); width: 60%; }
+.timer-warning { background: var(--status-warning); width: 40%; }
+.timer-error   { background: var(--status-error); width: 25%; }
+.timer-default { background: var(--border-strong); width: 80%; }
+
+/* ── LSModal ────────────────────────────────────────────────────────── */
+.modal-backdrop {
+  position: relative;
+  background: var(--surface-scrim);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.ls-modal {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-overlay);
+  padding: var(--sp-7);             /* spacing.7 = 24px */
+  width: 100%; max-width: 280px;
+  border: 1px solid var(--border-default);
+}
+.modal-title {
+  font-family: var(--font-ui); font-weight: 600; font-size: 14px;
+  line-height: 1.28; letter-spacing: -0.005em;
+  color: var(--content-primary); margin-bottom: 8px;
+}
+.modal-body {
+  font-family: var(--font-ui); font-weight: 400; font-size: 12px;
+  line-height: 1.52; color: var(--content-secondary); margin-bottom: 20px;
+}
+.modal-actions {
+  display: flex; gap: 8px;
+}
+
+/* ── SVG icons ─────────────────────────────────────────────────────── */
+.icon-svg { display: inline-block; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ── DARK MODE OVERRIDES ────────────────────────────────────────────── */
+.mode-dark {
+  --surface-primary:   #1A1410;
+  --surface-card:      #2D2218;
+  --surface-inset:     #130E09;
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(0,0,0,0.55);
+  --content-primary:   #F2EEE8;
+  --content-secondary: #C9BDB3;
+  --content-tertiary:  #8A7E74;
+  --content-subtle:    #6B6460;
+  --border-default:    #3D3228;
+  --border-subtle:     #2D2218;
+  --border-strong:     #6B6460;
+  --action-ghost:      rgba(255,255,255,0.08);
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.20);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.16);
+}
+.mode-dark .doc-header::before {
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.12), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.08), transparent 50%);
+}
+.mode-dark .doc-header,
+.mode-dark .section { border-bottom-color: var(--border-default); }
+.mode-dark .doc-meta-row { border-top-color: var(--border-default); }
+.mode-dark .sheet-context {
+  border-color: var(--border-default);
+  background: var(--surface-inset);
+}
+.mode-dark .ls-bottom-sheet {
+  background: var(--surface-overlay);
+  border-color: var(--border-default);
+}
+.mode-dark .modal-backdrop {
+  background: var(--surface-scrim);
+}
+.mode-dark .ls-modal {
+  background: var(--surface-card);
+  border-color: var(--border-default);
+}
+.mode-dark .dim-table th { border-bottom-color: var(--border-default); color: var(--content-tertiary); }
+.mode-dark .dim-table td { border-bottom-color: var(--border-subtle); color: var(--content-primary); }
+.mode-dark .ls-toast--default {
+  background: var(--surface-card);
+  border-color: var(--border-default);
+  color: var(--content-primary);
+}
+.mode-dark .ann-token { background: rgba(255,255,255,0.06); }
+
+/* Dark mode demo section — isolated backgrounds */
+.dark-demo-section {
+  background: #1A1410;
+  color: var(--content-primary);
+  margin: 0 -72px;
+  padding: 0 72px;
+}
+.dark-demo-section .section { border-bottom-color: #3D3228; }
+.dark-demo-section .section-header { margin-bottom: 56px; }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════════════════════ -->
+<header class="doc-header">
+  <div class="doc-eyebrow">
+    UC-MOL-03
+    <span class="doc-eyebrow-pill">Molecule Tier-A</span>
+  </div>
+  <h1 class="doc-title">BottomSheet, <em>Toast</em> &amp; Modal</h1>
+  <p class="doc-tagline">Transient overlay molecules for contextual actions, feedback, and confirmation flows — using motion recipes for enter and dismiss.</p>
+  <div class="doc-meta-row">
+    <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">2.0.0</span></div>
+    <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">2026-04-20</span></div>
+    <div class="meta-item"><span class="meta-label">UC ID</span><span class="meta-value">UC-MOL-03</span></div>
+    <div class="meta-item"><span class="meta-label">PRD Ref</span><span class="meta-value">06-uc-mol.md</span></div>
+    <div class="meta-item"><span class="meta-label">Surface</span><span class="meta-value">Light + Dark + Scrim</span></div>
+    <div class="meta-item"><span class="meta-label">Theme</span><span class="meta-value">Copper</span></div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §01 PURPOSE
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§01</span>
+    <h2 class="section-title">Purpose &amp; <em>Atomic Composition</em></h2>
+  </div>
+  <p class="prose">
+    Three overlay molecules built from surface tokens and <em>LSButton</em> (UC-ATM-02). <strong>LSBottomSheet</strong> covers contextual action panels and detail drawers at three detent depths. <strong>LSToast</strong> delivers transient feedback using <em>color.status.*</em> semantics — no hard-coded colors. <strong>LSModal</strong> centers a card dialog for blocking confirmation flows.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    All three reference <em>motion.recipe.chatOverlayEnter</em> (320ms spring enter) and <em>motion.recipe.chatOverlayDismiss</em> (auto-dismiss at 5000ms) by name. Motion parameters are not inlined; they are resolved at runtime from the token system. Dark-mode surface tokens swap automatically via the <em>.mode-dark</em> override.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §02 THE MOLECULE — LSBottomSheet
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§02</span>
+    <h2 class="section-title"><em>LSBottomSheet</em> — Three Detents</h2>
+  </div>
+
+  <div class="demo-grid" style="margin-bottom: 64px; align-items: end;">
+
+    <!-- Detent: Small ~25% -->
+    <div class="demo-cell">
+      <span class="cell-label">Detent: Small (~25%)</span>
+      <div class="sheet-context" style="height: 320px;">
+        <!-- Simulated map content behind everything -->
+        <div style="position: absolute; inset: 0; background: var(--surface-inset);">
+          <div style="position: absolute; inset: 0; background: repeating-linear-gradient(45deg, var(--border-subtle) 0, var(--border-subtle) 1px, transparent 0, transparent 50%) center/14px 14px; opacity: 0.4;"></div>
+          <div style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); font-family: var(--font-instrument); font-size: 8px; color: var(--content-tertiary); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;">Map content behind scrim</div>
+        </div>
+        <!-- Full-area scrim overlay -->
+        <div class="sheet-scrim"></div>
+        <!-- Sheet anchored to bottom -->
+        <div class="sheet-anchor">
+          <div class="ls-bottom-sheet">
+            <div class="sheet-handle-bar">
+              <div class="sheet-handle"></div>
+            </div>
+            <div class="sheet-body">
+              <div style="font-family: var(--font-ui); font-weight: 600; font-size: 13px; color: var(--content-primary); margin-bottom: 6px;">Filter by Condition</div>
+              <div style="font-family: var(--font-ui); font-size: 11.5px; color: var(--content-secondary);">Drag up to expand</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">detent.small</span><span class="ann-val">~25% screen height</span></div>
+      <div class="annotation-row"><span class="ann-token">handle w</span><span class="ann-val">36pt wide</span></div>
+      <div class="annotation-row"><span class="ann-token">handle color</span><span class="ann-val">border.subtle #EDE7E1</span></div>
+      <div class="annotation-row"><span class="ann-token">top radius</span><span class="ann-val">radius.lg 14px</span></div>
+    </div>
+
+    <!-- Detent: Medium ~50% -->
+    <div class="demo-cell">
+      <span class="cell-label">Detent: Medium (~50%)</span>
+      <div class="sheet-context" style="height: 380px;">
+        <div style="position: absolute; inset: 0; background: var(--surface-inset);">
+          <div style="position: absolute; inset: 0; background: repeating-linear-gradient(45deg, var(--border-subtle) 0, var(--border-subtle) 1px, transparent 0, transparent 50%) center/14px 14px; opacity: 0.4;"></div>
+        </div>
+        <div class="sheet-scrim"></div>
+        <div class="sheet-anchor" style="height: 50%;">
+          <div class="ls-bottom-sheet" style="height: 100%;">
+            <div class="sheet-handle-bar">
+              <div class="sheet-handle"></div>
+            </div>
+            <div class="sheet-body">
+              <div style="font-family: var(--font-ui); font-weight: 600; font-size: 13px; color: var(--content-primary); margin-bottom: 8px;">Route Options</div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <div style="height: 36px; background: var(--surface-inset); border-radius: var(--radius-sm); border: 1px solid var(--border-default); display: flex; align-items: center; padding: 0 10px;">
+                  <span style="font-family: var(--font-ui); font-size: 12px; color: var(--content-secondary);">Avoid highways</span>
+                </div>
+                <div style="height: 36px; background: var(--surface-inset); border-radius: var(--radius-sm); border: 1px solid var(--border-default); display: flex; align-items: center; padding: 0 10px;">
+                  <span style="font-family: var(--font-ui); font-size: 12px; color: var(--content-secondary);">Prefer scenic routes</span>
+                </div>
+                <div style="height: 36px; background: var(--surface-inset); border-radius: var(--radius-sm); border: 1px solid var(--border-default); display: flex; align-items: center; padding: 0 10px;">
+                  <span style="font-family: var(--font-ui); font-size: 12px; color: var(--content-secondary);">Max distance: 80 mi</span>
+                </div>
+              </div>
+              <div style="margin-top: 12px; display: flex; gap: 8px;">
+                <button class="ls-btn ls-btn--primary" style="flex: 1; height: 40px; font-size: 12px;">Apply</button>
+                <button class="ls-btn ls-btn--ghost" style="flex: 1; height: 40px; font-size: 12px;">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">detent.medium</span><span class="ann-val">~50% screen height</span></div>
+      <div class="annotation-row"><span class="ann-token">surface</span><span class="ann-val">surface.overlay rgba(253,251,248,0.92)</span></div>
+      <div class="annotation-row"><span class="ann-token">btn height</span><span class="ann-val">40px (reduced in sheet)</span></div>
+    </div>
+
+    <!-- Detent: Large ~90% -->
+    <div class="demo-cell">
+      <span class="cell-label">Detent: Large (~90%)</span>
+      <div class="sheet-context" style="height: 420px;">
+        <div style="position: absolute; inset: 0; background: var(--surface-inset);">
+          <div style="position: absolute; inset: 0; background: repeating-linear-gradient(45deg, var(--border-subtle) 0, var(--border-subtle) 1px, transparent 0, transparent 50%) center/14px 14px; opacity: 0.4;"></div>
+        </div>
+        <div class="sheet-scrim"></div>
+        <div class="sheet-anchor" style="height: 88%;">
+          <div class="ls-bottom-sheet" style="height: 100%;">
+            <div class="sheet-handle-bar">
+              <div class="sheet-handle"></div>
+            </div>
+            <div class="sheet-body">
+              <div style="font-family: var(--font-ui); font-weight: 600; font-size: 13px; color: var(--content-primary); margin-bottom: 8px;">Waypoints</div>
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="height: 32px; background: var(--surface-inset); border-radius: var(--radius-sm); border: 1px solid var(--border-default); display: flex; align-items: center; padding: 0 10px; gap: 6px;">
+                  <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--signal-default); flex-shrink: 0;"></div>
+                  <span style="font-family: var(--font-ui); font-size: 11.5px; color: var(--content-secondary);">Santa Cruz, CA</span>
+                </div>
+                <div style="height: 32px; background: var(--surface-inset); border-radius: var(--radius-sm); border: 1px solid var(--border-default); display: flex; align-items: center; padding: 0 10px; gap: 6px;">
+                  <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--border-strong); flex-shrink: 0;"></div>
+                  <span style="font-family: var(--font-ui); font-size: 11.5px; color: var(--content-secondary);">Big Sur, CA</span>
+                </div>
+                <div style="height: 32px; background: var(--surface-inset); border-radius: var(--radius-sm); border: 1px solid var(--border-default); display: flex; align-items: center; padding: 0 10px; gap: 6px;">
+                  <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--border-strong); flex-shrink: 0;"></div>
+                  <span style="font-family: var(--font-ui); font-size: 11.5px; color: var(--content-secondary);">San Luis Obispo, CA</span>
+                </div>
+              </div>
+              <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-subtle);">
+                <span style="font-family: var(--font-ui); font-size: 10.5px; color: var(--content-tertiary);">+ Add waypoint</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">detent.large</span><span class="ann-val">~90% screen height</span></div>
+      <div class="annotation-row"><span class="ann-token">scrim</span><span class="ann-val">surface.scrim rgba(34,24,16,0.35)</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §02b LSToast variants
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§02b</span>
+    <h2 class="section-title"><em>LSToast</em> — Four Status Variants</h2>
+  </div>
+
+  <div class="demo-grid cols-2" style="margin-bottom: 0;">
+
+    <div class="demo-cell">
+      <span class="cell-label">Default</span>
+      <div>
+        <div class="ls-toast ls-toast--default">
+          <svg class="icon-svg toast-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span class="toast-message">Route saved to your library.</span>
+          <button class="toast-dismiss">
+            <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="timer-default" style="height: 2px; border-radius: 1px; margin-top: 4px; width: 80%; background: var(--border-strong);"></div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">bg</span><span class="ann-val">surface.card #FDFBF8</span></div>
+      <div class="annotation-row"><span class="ann-token">dismiss</span><span class="ann-val">5000ms (chatOverlayDismiss)</span></div>
+    </div>
+
+    <div class="demo-cell">
+      <span class="cell-label">Success</span>
+      <div>
+        <div class="ls-toast ls-toast--success">
+          <svg class="icon-svg toast-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <span class="toast-message">Ride recorded — 42 mi logged.</span>
+          <button class="toast-dismiss">
+            <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div style="height: 2px; border-radius: 1px; margin-top: 4px; width: 60%; background: var(--status-success);"></div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">bg</span><span class="ann-val">status.success.tint #DCFCE7</span></div>
+      <div class="annotation-row"><span class="ann-token">fg</span><span class="ann-val">status.success #16A34A</span></div>
+    </div>
+
+    <div class="demo-cell">
+      <span class="cell-label">Warning</span>
+      <div>
+        <div class="ls-toast ls-toast--warning">
+          <svg class="icon-svg toast-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span class="toast-message">Low storage — 2 GB remaining.</span>
+          <button class="toast-dismiss">
+            <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div style="height: 2px; border-radius: 1px; margin-top: 4px; width: 40%; background: var(--status-warning);"></div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">bg</span><span class="ann-val">status.warning.tint #FEF3C7</span></div>
+      <div class="annotation-row"><span class="ann-token">fg</span><span class="ann-val">status.warning #C46F1B</span></div>
+    </div>
+
+    <div class="demo-cell">
+      <span class="cell-label">Error</span>
+      <div>
+        <div class="ls-toast ls-toast--error">
+          <svg class="icon-svg toast-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <span class="toast-message">Failed to sync route data.</span>
+          <button class="toast-dismiss">
+            <svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div style="height: 2px; border-radius: 1px; margin-top: 4px; width: 25%; background: var(--status-error);"></div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">bg</span><span class="ann-val">status.error.tint #FEE2E2</span></div>
+      <div class="annotation-row"><span class="ann-token">fg</span><span class="ann-val">status.error #DC2626</span></div>
+    </div>
+
+  </div>
+  <p class="cell-desc" style="margin-left: 152px; margin-top: 20px;">
+    Progress bar beneath each toast simulates the chatOverlayDismiss 5000ms countdown. Width represents time remaining. Auto-dismiss fires after 5000ms; user can dismiss early via the X button.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §02c LSModal
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§02c</span>
+    <h2 class="section-title"><em>LSModal</em> — Center Card Dialog</h2>
+  </div>
+
+  <div class="demo-grid" style="margin-bottom: 0;">
+
+    <!-- Confirmation destructive -->
+    <div class="demo-cell">
+      <span class="cell-label">Destructive Confirmation</span>
+      <div class="modal-backdrop" style="min-height: 200px;">
+        <div class="ls-modal">
+          <div class="modal-title">Delete ride?</div>
+          <div class="modal-body">This action cannot be undone. The route and all recorded data will be permanently removed.</div>
+          <div class="modal-actions">
+            <button class="ls-btn ls-btn--ghost" style="height: 40px; font-size: 12px;">Cancel</button>
+            <button class="ls-btn ls-btn--destructive" style="height: 40px; font-size: 12px;">Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">title</span><span class="ann-val">ui.title.md Geist 14px 600</span></div>
+      <div class="annotation-row"><span class="ann-token">body</span><span class="ann-val">ui.body.md Geist 12px 400</span></div>
+      <div class="annotation-row"><span class="ann-token">backdrop</span><span class="ann-val">surface.scrim rgba(34,24,16,0.35)</span></div>
+      <div class="annotation-row"><span class="ann-token">card radius</span><span class="ann-val">radius.lg 14px</span></div>
+    </div>
+
+    <!-- Primary + ghost (non-destructive) -->
+    <div class="demo-cell">
+      <span class="cell-label">Primary + Ghost Actions</span>
+      <div class="modal-backdrop" style="min-height: 200px;">
+        <div class="ls-modal">
+          <div class="modal-title">Save route before leaving?</div>
+          <div class="modal-body">You have unsaved changes to this route. Save them now to continue where you left off.</div>
+          <div class="modal-actions">
+            <button class="ls-btn ls-btn--ghost" style="height: 40px; font-size: 12px;">Discard</button>
+            <button class="ls-btn ls-btn--primary" style="height: 40px; font-size: 12px;">Save</button>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">primary btn</span><span class="ann-val">signal.default #EE7C2B</span></div>
+      <div class="annotation-row"><span class="ann-token">ghost btn</span><span class="ann-val">action.ghost #F2EFED</span></div>
+      <div class="annotation-row"><span class="ann-token">padding</span><span class="ann-val">spacing.7 = 24px</span></div>
+    </div>
+
+    <!-- Title only / informational -->
+    <div class="demo-cell">
+      <span class="cell-label">Informational</span>
+      <div class="modal-backdrop" style="min-height: 200px;">
+        <div class="ls-modal">
+          <div class="modal-title">Offline map downloaded</div>
+          <div class="modal-body">The Central Coast region (1.2 GB) is available offline. You can manage downloads in Settings.</div>
+          <div class="modal-actions">
+            <button class="ls-btn ls-btn--primary" style="height: 40px; font-size: 12px; flex: 1;">Got it</button>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">shadow</span><span class="ann-val">elev.overlay</span></div>
+      <div class="annotation-row"><span class="ann-token">max-width</span><span class="ann-val">280px (mobile-first)</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §03 STATES & VARIANTS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§03</span>
+    <h2 class="section-title">States &amp; <em>Variants</em></h2>
+  </div>
+  <p class="prose">
+    All overlay molecules support a dark-mode surface swap via <em>.mode-dark</em>. In dark mode: <em>surface.overlay → rgba(45,34,24,0.92)</em>, <em>surface.card → ink-700 (#2D2218)</em>. Status toast colors remain unchanged — they are semantic and independent of the surface theme.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    <strong>LSBottomSheet</strong> dismiss on swipe-down: sheet translates off-screen bottom in 240ms, scrim fades out. <em>onDismiss</em> fires exactly once after the animation completes, not on gesture initiation.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §03b DARK MODE EXAMPLES
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="dark-demo-section">
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§03b</span>
+    <h2 class="section-title">Dark Mode — <em>Overlay Molecules</em></h2>
+  </div>
+  <p class="prose" style="color: var(--content-secondary);">
+    Dark surfaces swap via <em>.mode-dark</em> tokens. Scrim deepens to <strong>rgba(0,0,0,0.55)</strong>, sheet surface shifts to <strong>rgba(45,34,24,0.92)</strong>, and status toast tints remain semantically consistent.
+  </p>
+
+  <!-- Dark BottomSheet -->
+  <h3 style="margin-left: 152px; margin-top: 48px; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">LSBottomSheet — Dark</h3>
+  <div class="demo-grid" style="margin-bottom: 64px; align-items: end;">
+
+    <!-- Dark Small -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">Dark · Small (~25%)</span>
+      <div class="sheet-context mode-dark" style="height: 280px;">
+        <div style="position: absolute; inset: 0; background: #130E09;">
+          <div style="position: absolute; inset: 0; background: repeating-linear-gradient(45deg, #2D2218 0, #2D2218 1px, transparent 0, transparent 50%) center/14px 14px; opacity: 0.3;"></div>
+          <div style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); font-family: var(--font-instrument); font-size: 8px; color: #8A7E74; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;">Map content behind scrim</div>
+        </div>
+        <div class="sheet-scrim"></div>
+        <div class="sheet-anchor">
+          <div class="ls-bottom-sheet">
+            <div class="sheet-handle-bar"><div class="sheet-handle"></div></div>
+            <div class="sheet-body">
+              <div style="font-family: var(--font-ui); font-weight: 600; font-size: 13px; color: #F2EEE8; margin-bottom: 6px;">Filter by Condition</div>
+              <div style="font-family: var(--font-ui); font-size: 11.5px; color: #C9BDB3;">Drag up to expand</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">surface</span><span class="ann-val">rgba(45,34,24,0.92)</span></div>
+      <div class="annotation-row"><span class="ann-token">scrim</span><span class="ann-val">rgba(0,0,0,0.55)</span></div>
+    </div>
+
+    <!-- Dark Medium -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">Dark · Medium (~50%)</span>
+      <div class="sheet-context mode-dark" style="height: 340px;">
+        <div style="position: absolute; inset: 0; background: #130E09;">
+          <div style="position: absolute; inset: 0; background: repeating-linear-gradient(45deg, #2D2218 0, #2D2218 1px, transparent 0, transparent 50%) center/14px 14px; opacity: 0.3;"></div>
+        </div>
+        <div class="sheet-scrim"></div>
+        <div class="sheet-anchor" style="height: 50%;">
+          <div class="ls-bottom-sheet" style="height: 100%;">
+            <div class="sheet-handle-bar"><div class="sheet-handle"></div></div>
+            <div class="sheet-body">
+              <div style="font-family: var(--font-ui); font-weight: 600; font-size: 13px; color: #F2EEE8; margin-bottom: 8px;">Route Options</div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <div style="height: 36px; background: rgba(255,255,255,0.04); border-radius: var(--radius-sm); border: 1px solid #3D3228; display: flex; align-items: center; padding: 0 10px;">
+                  <span style="font-family: var(--font-ui); font-size: 12px; color: #C9BDB3;">Avoid highways</span>
+                </div>
+                <div style="height: 36px; background: rgba(255,255,255,0.04); border-radius: var(--radius-sm); border: 1px solid #3D3228; display: flex; align-items: center; padding: 0 10px;">
+                  <span style="font-family: var(--font-ui); font-size: 12px; color: #C9BDB3;">Prefer scenic routes</span>
+                </div>
+              </div>
+              <div style="margin-top: 12px; display: flex; gap: 8px;">
+                <button class="ls-btn ls-btn--primary" style="flex: 1; height: 40px; font-size: 12px;">Apply</button>
+                <button class="ls-btn ls-btn--ghost" style="flex: 1; height: 40px; font-size: 12px; background: rgba(255,255,255,0.08); color: #F2EEE8;">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">border</span><span class="ann-val">#3D3228 (border.default)</span></div>
+      <div class="annotation-row"><span class="ann-token">handle</span><span class="ann-val">#6B6460 (border.strong)</span></div>
+    </div>
+
+    <!-- Dark Large -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">Dark · Large (~90%)</span>
+      <div class="sheet-context mode-dark" style="height: 380px;">
+        <div style="position: absolute; inset: 0; background: #130E09;">
+          <div style="position: absolute; inset: 0; background: repeating-linear-gradient(45deg, #2D2218 0, #2D2218 1px, transparent 0, transparent 50%) center/14px 14px; opacity: 0.3;"></div>
+        </div>
+        <div class="sheet-scrim"></div>
+        <div class="sheet-anchor" style="height: 88%;">
+          <div class="ls-bottom-sheet" style="height: 100%;">
+            <div class="sheet-handle-bar"><div class="sheet-handle"></div></div>
+            <div class="sheet-body">
+              <div style="font-family: var(--font-ui); font-weight: 600; font-size: 13px; color: #F2EEE8; margin-bottom: 8px;">Waypoints</div>
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="height: 32px; background: rgba(255,255,255,0.04); border-radius: var(--radius-sm); border: 1px solid #3D3228; display: flex; align-items: center; padding: 0 10px; gap: 6px;">
+                  <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--signal-default); flex-shrink: 0;"></div>
+                  <span style="font-family: var(--font-ui); font-size: 11.5px; color: #C9BDB3;">Santa Cruz, CA</span>
+                </div>
+                <div style="height: 32px; background: rgba(255,255,255,0.04); border-radius: var(--radius-sm); border: 1px solid #3D3228; display: flex; align-items: center; padding: 0 10px; gap: 6px;">
+                  <div style="width: 8px; height: 8px; border-radius: 50%; background: #6B6460; flex-shrink: 0;"></div>
+                  <span style="font-family: var(--font-ui); font-size: 11.5px; color: #C9BDB3;">Big Sur, CA</span>
+                </div>
+                <div style="height: 32px; background: rgba(255,255,255,0.04); border-radius: var(--radius-sm); border: 1px solid #3D3228; display: flex; align-items: center; padding: 0 10px; gap: 6px;">
+                  <div style="width: 8px; height: 8px; border-radius: 50%; background: #6B6460; flex-shrink: 0;"></div>
+                  <span style="font-family: var(--font-ui); font-size: 11.5px; color: #C9BDB3;">San Luis Obispo, CA</span>
+                </div>
+              </div>
+              <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #2D2218;">
+                <span style="font-family: var(--font-ui); font-size: 10.5px; color: #8A7E74;">+ Add waypoint</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">text</span><span class="ann-val">#F2EEE8 (content.primary)</span></div>
+      <div class="annotation-row"><span class="ann-token">secondary</span><span class="ann-val">#C9BDB3 (content.secondary)</span></div>
+    </div>
+
+  </div>
+
+  <!-- Dark Toast + Modal row -->
+  <h3 style="margin-left: 152px; margin-bottom: 32px; font-family: var(--font-instrument); font-size: 10px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);">LSToast + LSModal — Dark</h3>
+  <div class="demo-grid cols-2" style="margin-bottom: 64px;">
+
+    <!-- Dark Toasts -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">Dark · Toast Variants</span>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div class="ls-toast ls-toast--default mode-dark" style="background: #2D2218; border-color: #3D3228; color: #F2EEE8;">
+          <svg class="icon-svg toast-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span class="toast-message">Route saved to your library.</span>
+          <button class="toast-dismiss"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div style="height: 2px; border-radius: 1px; width: 80%; background: #6B6460;"></div>
+
+        <div class="ls-toast ls-toast--success">
+          <svg class="icon-svg toast-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <span class="toast-message">Ride recorded — 42 mi logged.</span>
+          <button class="toast-dismiss"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div style="height: 2px; border-radius: 1px; width: 60%; background: var(--status-success);"></div>
+
+        <div class="ls-toast ls-toast--warning">
+          <svg class="icon-svg toast-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span class="toast-message">Low storage — 2 GB remaining.</span>
+          <button class="toast-dismiss"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div style="height: 2px; border-radius: 1px; width: 40%; background: var(--status-warning);"></div>
+
+        <div class="ls-toast ls-toast--error">
+          <svg class="icon-svg toast-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <span class="toast-message">Failed to sync route data.</span>
+          <button class="toast-dismiss"><svg class="icon-svg" width="14" height="14" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div style="height: 2px; border-radius: 1px; width: 25%; background: var(--status-error);"></div>
+      </div>
+      <div class="annotation-row" style="margin-top: 12px;"><span class="ann-token">default bg</span><span class="ann-val">#2D2218 (surface.card)</span></div>
+      <div class="annotation-row"><span class="ann-token">status toasts</span><span class="ann-val">unchanged — semantic tokens</span></div>
+    </div>
+
+    <!-- Dark Modals -->
+    <div class="demo-cell">
+      <span class="cell-label" style="color: var(--copper-400);">Dark · Modal Variants</span>
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <!-- Dark Destructive Modal -->
+        <div class="modal-backdrop mode-dark" style="min-height: 180px; background: rgba(0,0,0,0.55);">
+          <div class="ls-modal" style="background: #2D2218; border-color: #3D3228;">
+            <div class="modal-title" style="color: #F2EEE8;">Delete ride?</div>
+            <div class="modal-body" style="color: #C9BDB3;">This action cannot be undone. The route and all recorded data will be permanently removed.</div>
+            <div class="modal-actions">
+              <button class="ls-btn ls-btn--ghost" style="height: 40px; font-size: 12px; background: rgba(255,255,255,0.08); color: #F2EEE8;">Cancel</button>
+              <button class="ls-btn ls-btn--destructive" style="height: 40px; font-size: 12px;">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dark Primary Modal -->
+        <div class="modal-backdrop mode-dark" style="min-height: 180px; background: rgba(0,0,0,0.55);">
+          <div class="ls-modal" style="background: #2D2218; border-color: #3D3228;">
+            <div class="modal-title" style="color: #F2EEE8;">Save route before leaving?</div>
+            <div class="modal-body" style="color: #C9BDB3;">You have unsaved changes to this route. Save them now to continue where you left off.</div>
+            <div class="modal-actions">
+              <button class="ls-btn ls-btn--ghost" style="height: 40px; font-size: 12px; background: rgba(255,255,255,0.08); color: #F2EEE8;">Discard</button>
+              <button class="ls-btn ls-btn--primary" style="height: 40px; font-size: 12px;">Save</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="annotation-row" style="margin-top: 12px;"><span class="ann-token">modal bg</span><span class="ann-val">#2D2218 (ink.700)</span></div>
+      <div class="annotation-row"><span class="ann-token">scrim</span><span class="ann-val">rgba(0,0,0,0.55)</span></div>
+      <div class="annotation-row"><span class="ann-token">ghost btn</span><span class="ann-val">rgba(255,255,255,0.08)</span></div>
+    </div>
+
+  </div>
+</section>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §04 ATOMIC COMPOSITION + DIMENSIONS TABLE
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§04</span>
+    <h2 class="section-title">Atomic Composition + <em>Dimensions</em></h2>
+  </div>
+  <table class="dim-table" style="max-width: 960px;">
+    <thead>
+      <tr>
+        <th>Molecule</th>
+        <th>Property</th>
+        <th>Token</th>
+        <th>Resolved Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>LSBottomSheet</td><td>Surface background</td><td class="token">color.surface.overlay</td><td class="val">rgba(253,251,248,0.92)</td></tr>
+      <tr><td>LSBottomSheet</td><td>Top corners</td><td class="token">radius.lg</td><td class="val">14px (top-left + top-right only)</td></tr>
+      <tr><td>LSBottomSheet</td><td>Drag handle width</td><td class="token">— (fixed 36pt)</td><td class="val">36px</td></tr>
+      <tr><td>LSBottomSheet</td><td>Drag handle color</td><td class="token">color.border.subtle</td><td class="val">#EDE7E1</td></tr>
+      <tr><td>LSBottomSheet</td><td>Drag handle height</td><td class="token">— (fixed 4pt)</td><td class="val">4px, radius 2px</td></tr>
+      <tr><td>LSBottomSheet</td><td>Scrim</td><td class="token">color.surface.scrim</td><td class="val">rgba(34,24,16,0.35)</td></tr>
+      <tr><td>LSBottomSheet</td><td>Detent small</td><td class="token">detent.small</td><td class="val">~25% screen height</td></tr>
+      <tr><td>LSBottomSheet</td><td>Detent medium</td><td class="token">detent.medium</td><td class="val">~50% screen height</td></tr>
+      <tr><td>LSBottomSheet</td><td>Detent large</td><td class="token">detent.large</td><td class="val">~90% screen height</td></tr>
+      <tr><td>LSBottomSheet</td><td>Body padding</td><td class="token">spacing.4</td><td class="val">12px</td></tr>
+      <tr><td>LSToast</td><td>Default bg</td><td class="token">color.surface.card</td><td class="val">#FDFBF8</td></tr>
+      <tr><td>LSToast</td><td>Success bg</td><td class="token">color.status.success.tint</td><td class="val">#DCFCE7</td></tr>
+      <tr><td>LSToast</td><td>Warning bg</td><td class="token">color.status.warning.tint</td><td class="val">#FEF3C7</td></tr>
+      <tr><td>LSToast</td><td>Error bg</td><td class="token">color.status.error.tint</td><td class="val">#FEE2E2</td></tr>
+      <tr><td>LSToast</td><td>Icon size</td><td class="token">sizing.icon.md</td><td class="val">20×20px</td></tr>
+      <tr><td>LSToast</td><td>Auto-dismiss timer</td><td class="token">motion.recipe.chatOverlayDismiss</td><td class="val">5000ms</td></tr>
+      <tr><td>LSToast</td><td>Enter animation</td><td class="token">motion.recipe.chatOverlayEnter</td><td class="val">320ms spring</td></tr>
+      <tr><td>LSModal</td><td>Background</td><td class="token">color.surface.card</td><td class="val">#FDFBF8</td></tr>
+      <tr><td>LSModal</td><td>Corner radius</td><td class="token">radius.lg</td><td class="val">14px</td></tr>
+      <tr><td>LSModal</td><td>Padding</td><td class="token">spacing.7</td><td class="val">24px</td></tr>
+      <tr><td>LSModal</td><td>Title typography</td><td class="token">typography.ui.title.md</td><td class="val">Geist 14px 600</td></tr>
+      <tr><td>LSModal</td><td>Body typography</td><td class="token">typography.ui.body.md</td><td class="val">Geist 12px 400</td></tr>
+      <tr><td>LSModal</td><td>Action buttons (UC-ATM-02)</td><td class="token">sizing.touchTarget</td><td class="val">44px height</td></tr>
+      <tr><td>LSModal</td><td>Shadow</td><td class="token">elev.overlay</td><td class="val">0 8px 24px + 0 2px 6px</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §05 MOTION
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§05</span>
+    <h2 class="section-title"><em>Motion</em> Recipes</h2>
+  </div>
+  <p class="prose">
+    <strong>chatOverlayEnter</strong> — enter animation for all overlay molecules. Sheet slides up from translateY(100%) to 0; modal scales from 0.94 to 1.0 while fading opacity 0 to 1. Duration: 320ms, easing: cubic-bezier(0.22, 1, 0.36, 1) (spring feel without physics overhead). Scrim fades from 0 to target opacity simultaneously.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    <strong>chatOverlayDismiss</strong> — serves dual purpose: (1) auto-dismiss timer at 5000ms for LSToast; (2) exit animation recipe for all overlay molecules when manually dismissed. Exit: reverse of enter, 240ms ease-in. Swipe-to-dismiss on bottom sheet follows the gesture velocity — if velocity exceeds threshold the dismiss fires even if detent threshold was not crossed.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    <strong>phaseDotPulse</strong> (reference) — not used at this molecule tier but composed by UC-MOL-07. Listed here to distinguish from overlay recipes.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §06 RATIONALE + AC TRACEABILITY
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§06</span>
+    <h2 class="section-title">Rationale + <em>AC Traceability</em></h2>
+  </div>
+  <p class="prose">
+    <em>LSBottomSheet</em> uses three fixed detents rather than free-form drag because LaneShadow's map-first layouts need predictable anchor points. <em>Small</em> is a teaser peek; <em>medium</em> is the primary content area; <em>large</em> exposes full detail. The 36pt drag handle is fixed (not tokenized) because it is a platform convention, not a brand decision — changing it would undermine native feel.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    <em>LSToast</em> uses <em>color.status.*</em> semantic tokens so dark-mode tint swap is automatic. Hard-coding success green or warning amber directly would require a separate dark-mode override per toast variant.
+  </p>
+  <div class="ac-block" style="margin-top: 48px;">
+    <div class="ac-cite">Developer presents LSBottomSheet(detent: .medium) and sees color.surface.overlay, radius.lg top corners, 36pt-wide drag handle in color.border.subtle, enter animation referencing motion.recipe.chatOverlayEnter. [06-uc-mol.md §UC-MOL-03]</div>
+    <div class="ac-cite">Developer presents same on Android and sees identical values. [06-uc-mol.md §UC-MOL-03]</div>
+    <div class="ac-cite">Developer triggers LSToast.show(message: "Saved", variant: .success) and sees color.status.success background, auto-dismiss after 5000ms. [06-uc-mol.md §UC-MOL-03]</div>
+    <div class="ac-cite">Developer presents LSModal(title: "Delete ride?", body: "...", primary: .destructive("Delete"), secondary: .ghost("Cancel")) and sees center-anchored card with title typography.ui.title.md, body typography.ui.body.md, buttons from UC-ATM-02. [06-uc-mol.md §UC-MOL-03]</div>
+    <div class="ac-cite">Developer swipes down on LSBottomSheet and sees dismiss — onDismiss fires exactly once. [06-uc-mol.md §UC-MOL-03]</div>
+    <div class="ac-cite">Developer can find stories: "Molecules / BottomSheet" (small, medium, large), "Molecules / Toast" (default, success, warning, error), "Molecules / Modal" (destructive, primary+ghost, info). [06-uc-mol.md §UC-MOL-03]</div>
+    <div class="ac-cite">Developer toggles theme mode in any overlay molecule and sees correct dark-variant colors. [06-uc-mol.md §UC-MOL-03]</div>
+  </div>
+</section>
+
+<footer class="doc-footer">
+  <div class="footer-wordmark">Lane<em>Shadow</em></div>
+  <div class="footer-meta">V2 · Copper · UC-MOL-03 · 2026-04-20</div>
+</footer>
+
+</div><!-- /.wrap -->
+</body>
+</html>

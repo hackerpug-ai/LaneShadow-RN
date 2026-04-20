@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<!-- uc-org-06-route-card.html — UC-ORG-06 "LSRouteCard"
+     LaneShadow V2 · Copper · Navigator Organism Mock · 2026-04-20
+     Authority: .spec/prds/v2/07-uc-org.md §UC-ORG-06 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ORG-06 — LSRouteCard — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;--paper-200:#F2EFED;
+  --paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --status-warning:#C46F1B;
+  --font-opinion:'Newsreader',Georgia,serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);--surface-inset:var(--paper-200);
+  --surface-overlay:rgba(253,251,248,0.92);--surface-glass:rgba(253,251,248,0.72);
+  --surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);--map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);--content-onSignal:#FFF;
+  --signal-default:var(--copper-500);--signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);--border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+}
+.mode-dark{
+  --surface-primary:var(--ink-800);--surface-card:var(--ink-700);--surface-inset:var(--ink-600);
+  --surface-overlay:rgba(45,34,24,0.92);--surface-glass:rgba(45,34,24,0.72);
+  --surface-scrim:rgba(10,6,3,0.50);--map-paper:#1B140E;
+  --map-contour:rgba(242,238,232,0.16);--map-contour-faint:rgba(242,238,232,0.07);
+  --content-primary:var(--ink-050);--content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200);--content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12);--border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  --elev-overlay:0 8px 24px rgba(0,0,0,0.42),0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:0 1px 3px rgba(0,0,0,0.24),0 4px 14px rgba(0,0,0,0.28);
+}
+
+/* TYPOGRAPHY */
+.t-opinion-lg{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em;}
+.t-title-md{font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em;}
+.t-body-md{font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52;}
+.t-body-sm{font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48;}
+.t-label-md{font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase;}
+.t-label-sm{font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase;}
+.t-instr-md{font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-sm{font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1;}
+
+/* DOC CHROME */
+body{font-family:var(--font-ui);color:var(--content-primary);background:var(--surface-primary);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden;}
+.wrap{max-width:1440px;margin:0 auto;padding:0 72px;}
+.doc-header{position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden;}
+.doc-header::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none;}
+.doc-header>*{position:relative;z-index:1;}
+.doc-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px;}
+.doc-eyebrow::before{content:"";width:28px;height:1px;background:var(--signal-default);}
+.doc-eyebrow-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em;}
+.doc-title{font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px;}
+.doc-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.doc-tagline{font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px;}
+.doc-meta-row{display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default);}
+.meta-item{display:flex;flex-direction:column;gap:6px;}
+.meta-label{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);}
+.meta-value{font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary);}
+.section{padding:96px 0;border-bottom:1px solid var(--border-default);position:relative;}
+.section:last-child{border-bottom:none;}
+.section-header{display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px;}
+.section-index{font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.section-index::before{content:"";display:block;width:48px;height:1px;background:var(--signal-default);}
+.section-title{font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;}
+.section-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.prose{font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px;}
+.prose+.prose{margin-top:20px;}
+.prose em{font-style:italic;}
+.prose strong{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px;}
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:56px 40px;align-items:start;padding-left:152px;}
+.card-cell{display:flex;flex-direction:column;gap:22px;}
+.card-annotation{display:flex;flex-direction:column;gap:8px;}
+.card-num{font-family:var(--font-instrument);font-size:10.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);}
+.card-name{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);}
+.card-desc{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:14px;line-height:1.6;color:var(--content-secondary);}
+.ac-cite{font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px;}
+.ac-cite::before{content:"☐";position:absolute;left:0;top:0;color:var(--border-strong);}
+
+/* ═══════════ LSRouteCard (full card organism) ═══════════ */
+.ls-route-card{
+  background:var(--surface-card);
+  border:1px solid var(--border-default);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:var(--elev-card);
+  max-width:360px;
+}
+
+/* LSMap preview slot (top portion of card) */
+.route-card-map{
+  position:relative;
+  height:160px;
+  background:var(--map-paper);
+  overflow:hidden;
+}
+.route-card-map::before{
+  content:"";position:absolute;inset:-8px;
+  background-image:linear-gradient(var(--map-contour-faint) 1px,transparent 1px),linear-gradient(90deg,var(--map-contour-faint) 1px,transparent 1px);
+  background-size:24px 24px;opacity:0.55;
+}
+.route-card-map::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(to bottom,transparent 60%,rgba(34,24,16,0.06) 100%);
+}
+.mode-dark .route-card-map::after{background:linear-gradient(to bottom,transparent 60%,rgba(0,0,0,0.20) 100%);}
+.route-card-map svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+
+/* Start/End annotations */
+.rt-marker{position:absolute;z-index:4;}
+.rt-start{width:12px;height:12px;border-radius:50%;background:var(--signal-default);border:2px solid var(--surface-card);box-shadow:0 2px 5px rgba(238,124,43,0.45);}
+.rt-end{width:16px;height:16px;border-radius:50%;background:var(--surface-card);border:2px solid var(--signal-default);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(34,24,16,0.2);}
+.rt-end::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--signal-default);}
+
+/* Card info section */
+.route-card-info{padding:14px 16px 16px;}
+.route-card-title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px;}
+.route-card-title{
+  font-family:var(--font-ui);font-weight:600;font-size:14px;
+  line-height:1.28;letter-spacing:-0.005em;color:var(--content-primary);
+  flex:1;
+}
+.route-card-title.overflow{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.saved-icon{color:var(--signal-default);flex-shrink:0;}
+.route-card-sub{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--font-instrument);font-size:10px;font-weight:500;
+  color:var(--content-secondary);font-feature-settings:"tnum" 1;
+  margin-bottom:10px;
+}
+.sub-sep{width:1px;height:10px;background:var(--border-default);}
+.route-card-tags{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.tag-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 9px;border-radius:999px;
+  border:1px solid var(--border-default);
+  background:var(--surface-inset);
+  font-family:var(--font-ui);font-size:9.5px;font-weight:600;
+  letter-spacing:0.08em;color:var(--content-secondary);
+}
+.tag-pill.easy{border-color:rgba(77,132,112,0.35);background:rgba(77,132,112,0.1);color:#3A7060;}
+.tag-pill.moderate{border-color:rgba(196,111,27,0.3);background:rgba(238,124,43,0.08);color:var(--status-warning);}
+.tag-pill.hard{border-color:rgba(201,66,60,0.3);background:rgba(201,66,60,0.08);color:#C9423C;}
+
+/* Dark mode card overrides */
+.mode-dark .ls-route-card{border-color:rgba(242,238,232,0.12);}
+.mode-dark .tag-pill.easy{background:rgba(77,132,112,0.14);}
+.mode-dark .tag-pill.moderate{background:rgba(238,124,43,0.12);}
+
+/* Tables */
+.cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-left:152px;}
+.cmp-card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;}
+.cmp-tier-label{font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;color:var(--signal-default);text-transform:uppercase;margin-bottom:14px;display:block;}
+.cmp-item{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.cmp-item:last-child{border-bottom:none;}
+.cmp-name{font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);margin-bottom:4px;}
+.cmp-ref{font-family:var(--font-instrument);font-size:10px;color:var(--content-tertiary);line-height:1.4;}
+.dim-table{padding-left:152px;display:grid;grid-template-columns:220px 160px 1fr;row-gap:8px;column-gap:24px;font-family:var(--font-ui);font-size:13px;align-items:baseline;}
+.dim-table>div{padding:9px 0;border-bottom:1px solid var(--border-subtle);}
+.dim-name{font-weight:600;color:var(--content-primary);}
+.dim-val{font-family:var(--font-instrument);font-size:11.5px;color:var(--signal-default);}
+.dim-desc{color:var(--content-secondary);}
+.motion-table{padding-left:152px;display:grid;grid-template-columns:180px 1fr 2fr;row-gap:14px;column-gap:28px;font-family:var(--font-ui);font-size:13px;}
+.motion-table>div{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.motion-recipe{font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px;}
+.motion-trigger{color:var(--content-primary);font-weight:500;}
+.motion-effect{color:var(--content-secondary);}
+.rationale-grid{padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+.rationale-block h4{font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px;}
+.rationale-block p{font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px;}
+.rationale-block ul{list-style:none;}
+.rationale-block li{padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle);}
+.rationale-block li::before{content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument);}
+.rationale-block li strong{font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px;}
+.doc-footer{padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;}
+.footer-mark{font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;letter-spacing:-0.02em;}
+.footer-mark em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.footer-mark span{display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300;}
+.footer-note{font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-ORG-06</span><span class="doc-eyebrow-pill">● Organisms · Template</span></div>
+    <h1 class="doc-title">A route<br>on a <em>card</em>.</h1>
+    <p class="doc-tagline">
+      The full route-card organism. LSCard wrapper, LSMap preview with polyline auto-framed,
+      title, distance and time, difficulty tag, optional saved state.
+      Used in catalog views and as a domain composition reference.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ORG-06</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">07-uc-org.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light (+ dark)</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Domain <em>composition</em>.</h2>
+    </div>
+    <p class="prose">
+      <strong>LSRouteCard</strong> is the full route-card organism used in catalog
+      views, search results, and discovery surfaces. Unlike <em>LSRouteAttachmentCard</em>
+      (compact, UC-MOL-08), this card features an LSMap preview that renders the
+      route polyline auto-framed with cameraFit: .polyline(padding: .spacing3),
+      start/end annotations, and a full info row below.
+    </p>
+    <p class="prose">
+      The card's data model mirrors the <strong>routes</strong> read type in
+      server/convex/schema.ts — it never fetches independently.
+    </p>
+  </section>
+</div>
+
+<!-- §02 STORIES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · Stories</div>
+      <h2 class="section-title">Six <em>cards</em>.</h2>
+    </div>
+    <div class="cards-grid" style="padding-left:152px;">
+
+      <!-- S.01 Default -->
+      <div class="card-cell">
+        <div class="ls-route-card">
+          <div class="route-card-map">
+            <svg viewBox="0 0 360 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M40 120 Q80 90 120 75 Q165 58 210 62 Q255 66 300 52" stroke="var(--route-best)" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="drop-shadow(0 1px 4px rgba(238,124,43,0.4))"/>
+            </svg>
+            <div class="rt-marker" style="bottom:37px;left:35px;"><div class="rt-start"></div></div>
+            <div class="rt-marker" style="bottom:28px;right:50px;"><div class="rt-end"></div></div>
+          </div>
+          <div class="route-card-info">
+            <div class="route-card-title-row">
+              <div class="route-card-title">The Skyline Spine</div>
+            </div>
+            <div class="route-card-sub">
+              <span>47 mi</span><span class="sub-sep"></span><span>1h 22m</span>
+            </div>
+            <div class="route-card-tags">
+              <div class="tag-pill moderate">Moderate</div>
+              <div class="tag-pill" style="font-size:8.5px;letter-spacing:0.1em;">Paved</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-annotation">
+          <div class="card-num">S.01</div>
+          <div class="card-name">Default</div>
+          <div class="card-desc">LSCard wrapper, map preview, title ui.title.md, distance + time instrument.sm, moderate difficulty tag.</div>
+        </div>
+      </div>
+
+      <!-- S.02 Saved -->
+      <div class="card-cell">
+        <div class="ls-route-card">
+          <div class="route-card-map">
+            <svg viewBox="0 0 360 160" fill="none">
+              <path d="M40 120 Q80 90 120 75 Q165 58 210 62 Q255 66 300 52" stroke="var(--route-best)" stroke-width="3.5" fill="none" stroke-linecap="round" filter="drop-shadow(0 1px 4px rgba(238,124,43,0.4))"/>
+            </svg>
+            <div class="rt-marker" style="bottom:37px;left:35px;"><div class="rt-start"></div></div>
+            <div class="rt-marker" style="bottom:28px;right:50px;"><div class="rt-end"></div></div>
+          </div>
+          <div class="route-card-info">
+            <div class="route-card-title-row">
+              <div class="route-card-title">The Skyline Spine</div>
+              <div class="saved-icon">
+                <svg width="16" height="16" viewBox="0 0 18 18" fill="currentColor">
+                  <path d="M5 2H13C13.6 2 14 2.4 14 3V16L9 13L4 16V3C4 2.4 4.4 2 5 2Z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="route-card-sub">
+              <span>47 mi</span><span class="sub-sep"></span><span>1h 22m</span>
+            </div>
+            <div class="route-card-tags">
+              <div class="tag-pill moderate">Moderate</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-annotation">
+          <div class="card-num">S.02</div>
+          <div class="card-name">Saved</div>
+          <div class="card-desc">heartFill icon in signal copper appears in title row trailing. LSIcon(.heartFill) at signal.default color.</div>
+        </div>
+      </div>
+
+      <!-- S.03 Alt Variant (alt1 sage stroke) -->
+      <div class="card-cell">
+        <div class="ls-route-card">
+          <div class="route-card-map">
+            <svg viewBox="0 0 360 160" fill="none">
+              <path d="M40 115 Q85 100 130 90 Q175 80 215 85 Q255 90 305 75" stroke="var(--route-alt1)" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="8 5" opacity="0.9"/>
+            </svg>
+            <div class="rt-marker" style="bottom:32px;left:35px;"><div class="rt-start" style="background:var(--route-alt1);box-shadow:0 2px 5px rgba(77,132,112,0.45);"></div></div>
+            <div class="rt-marker" style="bottom:22px;right:48px;"><div class="rt-end" style="border-color:var(--route-alt1);"><div style="width:5px;height:5px;border-radius:50%;background:var(--route-alt1);"></div></div></div>
+          </div>
+          <div class="route-card-info">
+            <div class="route-card-title-row">
+              <div class="route-card-title">Old La Honda Road</div>
+            </div>
+            <div class="route-card-sub">
+              <span>38 mi</span><span class="sub-sep"></span><span>1h 05m</span>
+            </div>
+            <div class="route-card-tags">
+              <div class="tag-pill easy">Easy</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-annotation">
+          <div class="card-num">S.03</div>
+          <div class="card-name">Alt Variant</div>
+          <div class="card-desc">route.variant = .alt1 → polyline stroke resolves to color.route.alt1 sage-green. Dashed alt style.</div>
+        </div>
+      </div>
+
+      <!-- S.04 Long Title Overflow -->
+      <div class="card-cell">
+        <div class="ls-route-card">
+          <div class="route-card-map">
+            <svg viewBox="0 0 360 160" fill="none">
+              <path d="M40 120 Q80 85 140 70 Q200 55 260 60 Q300 63 320 55" stroke="var(--route-best)" stroke-width="3.5" fill="none" stroke-linecap="round" filter="drop-shadow(0 1px 4px rgba(238,124,43,0.4))"/>
+            </svg>
+            <div class="rt-marker" style="bottom:37px;left:35px;"><div class="rt-start"></div></div>
+            <div class="rt-marker" style="bottom:22px;right:35px;"><div class="rt-end"></div></div>
+          </div>
+          <div class="route-card-info">
+            <div class="route-card-title-row">
+              <div class="route-card-title overflow">The Pacific Coast Highway Long Haul South from San Francisco to Big Sur</div>
+            </div>
+            <div class="route-card-sub">
+              <span>142 mi</span><span class="sub-sep"></span><span>3h 45m</span>
+            </div>
+            <div class="route-card-tags">
+              <div class="tag-pill hard">Challenging</div>
+              <div class="tag-pill">Scenic</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-annotation">
+          <div class="card-num">S.04</div>
+          <div class="card-name">Long Title Overflow</div>
+          <div class="card-desc">Title truncates with ellipsis on one line. Multiple tags wrap if needed. Layout remains stable.</div>
+        </div>
+      </div>
+
+      <!-- S.05 Missing Optional Data -->
+      <div class="card-cell">
+        <div class="ls-route-card">
+          <div class="route-card-map" style="background:var(--map-paper);display:flex;align-items:center;justify-content:center;">
+            <div style="font-family:var(--font-ui);font-size:11px;color:var(--content-tertiary);text-align:center;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="display:block;margin:0 auto 6px;"><path d="M3 8L12 3L21 8V19L12 21L3 19V8Z" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.4"/><line x1="12" y1="3" x2="12" y2="21" stroke="currentColor" stroke-width="1" opacity="0.25"/><line x1="3" y1="8" x2="21" y2="8" stroke="currentColor" stroke-width="1" opacity="0.25"/></svg>
+              Map preview
+            </div>
+          </div>
+          <div class="route-card-info">
+            <div class="route-card-title-row">
+              <div class="route-card-title">Unnamed Route</div>
+            </div>
+            <div class="route-card-sub">
+              <span style="color:var(--content-tertiary);">— mi</span><span class="sub-sep"></span><span style="color:var(--content-tertiary);">—</span>
+            </div>
+            <div class="route-card-tags">
+              <div class="tag-pill" style="color:var(--content-subtle);">Unknown</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-annotation">
+          <div class="card-num">S.05</div>
+          <div class="card-name">Missing Optional Data</div>
+          <div class="card-desc">No polyline, no distance, no difficulty tag. Graceful fallback: placeholder map, em-dash values, Unknown tag.</div>
+        </div>
+      </div>
+
+      <!-- S.06 Dark Mode -->
+      <div class="card-cell">
+        <div class="mode-dark" style="border-radius:14px;overflow:hidden;">
+          <div class="ls-route-card">
+            <div class="route-card-map">
+              <svg viewBox="0 0 360 160" fill="none">
+                <path d="M40 120 Q80 90 120 75 Q165 58 210 62 Q255 66 300 52" stroke="var(--route-best)" stroke-width="3.5" fill="none" stroke-linecap="round" filter="drop-shadow(0 1px 4px rgba(238,124,43,0.4))"/>
+              </svg>
+              <div class="rt-marker" style="bottom:37px;left:35px;"><div class="rt-start"></div></div>
+              <div class="rt-marker" style="bottom:28px;right:50px;"><div class="rt-end"></div></div>
+            </div>
+            <div class="route-card-info">
+              <div class="route-card-title-row">
+                <div class="route-card-title">The Skyline Spine</div>
+                <div class="saved-icon">
+                  <svg width="16" height="16" viewBox="0 0 18 18" fill="currentColor"><path d="M5 2H13C13.6 2 14 2.4 14 3V16L9 13L4 16V3C4 2.4 4.4 2 5 2Z"/></svg>
+                </div>
+              </div>
+              <div class="route-card-sub">
+                <span>47 mi</span><span class="sub-sep"></span><span>1h 22m</span>
+              </div>
+              <div class="route-card-tags">
+                <div class="tag-pill moderate">Moderate</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-annotation">
+          <div class="card-num">S.06</div>
+          <div class="card-name">Dark Mode</div>
+          <div class="card-desc">Surface resolves to ink-700. Map paper to #1B140E. Copper polyline and badge remain vivid.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States</div>
+      <h2 class="section-title">Dimensions <em>table</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="dim-name">Card border-radius</div><div class="dim-val">14pt</div><div class="dim-desc">LSCard wrapper, all corners</div>
+      <div class="dim-name">Map preview height</div><div class="dim-val">160pt</div><div class="dim-desc">Fixed height, width fills card. cameraFit: .polyline(padding: spacing.3)</div>
+      <div class="dim-name">Info padding</div><div class="dim-val">14px 16px 16px</div><div class="dim-desc">Top 14, horizontal 16, bottom 16</div>
+      <div class="dim-name">Title typography</div><div class="dim-val">14px 600</div><div class="dim-desc">ui.title.md — single line, ellipsis overflow</div>
+      <div class="dim-name">Subtitle typography</div><div class="dim-val">10px JetBrains Mono</div><div class="dim-desc">instrument.sm — distance + time separated by 1px divider</div>
+      <div class="dim-name">Start annotation</div><div class="dim-val">12×12pt circle</div><div class="dim-desc">signal.default fill, 2px surface-card border</div>
+      <div class="dim-name">End annotation</div><div class="dim-val">16×16pt ring</div><div class="dim-desc">surface-card fill, 2px signal.default border, inner 5pt dot</div>
+      <div class="dim-name">heartFill icon</div><div class="dim-val">16×16pt</div><div class="dim-desc">LSIcon(.heartFill), color: signal.default when saved:true</div>
+      <div class="dim-name">Tag pill</div><div class="dim-val">4px 9px padding</div><div class="dim-desc">999px radius, 9.5px 600 label, tinted by difficulty</div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 COMPOSITION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Composition</div>
+      <h2 class="section-title">Atoms <em>consumed</em>.</h2>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Surfaces</span>
+        <div class="cmp-item"><div class="cmp-name">LSCard wrapper</div><div class="cmp-ref">UC-ATM-05 · surface-card bg, border-default, elev-card, 14pt radius</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Atoms</span>
+        <div class="cmp-item"><div class="cmp-name">LSMap(.preview)</div><div class="cmp-ref">UC-ATM-11 · polylines:[route.polyline], cameraFit:.polyline(spacing.3), start/end annotations</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSTagPill / LSChip</div><div class="cmp-ref">UC-ATM-06 · difficulty tag, tinted by easy/moderate/hard</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon(.heartFill)</div><div class="cmp-ref">UC-ATM-10 · saved state icon, signal.default when saved:true</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Typography</span>
+        <div class="cmp-item"><div class="cmp-name">typography.ui.title.md</div><div class="cmp-ref">14px 600 — route title, single line ellipsis</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.instrument.sm</div><div class="cmp-ref">10px JetBrains Mono — distance + estimated time</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.ui.label.md</div><div class="cmp-ref">9.5px 600 0.12em — difficulty tag label</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Route Variant Colors</span>
+        <div class="cmp-item"><div class="cmp-name">color.route.best</div><div class="cmp-ref">#EE7C2B — copper amber polyline + glow</div></div>
+        <div class="cmp-item"><div class="cmp-name">color.route.alt1</div><div class="cmp-ref">#4D8470 — sage-green alternate route</div></div>
+        <div class="cmp-item"><div class="cmp-name">color.route.alt2</div><div class="cmp-ref">#6B7B8F — slate third variant</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Card <em>appears</em>.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="motion-recipe">none (catalog default)</div>
+      <div class="motion-trigger">Card rendered in catalog list</div>
+      <div class="motion-effect">No entrance animation for catalog cards. They render in place. Scroll animation is handled by the list container, not the card.</div>
+      <div class="motion-recipe">routeDrawOn</div>
+      <div class="motion-trigger">Map preview finishes loading</div>
+      <div class="motion-effect">Polyline draws onto map preview with routeDrawOn recipe if map loads after card appearance. 280ms stroke-dashoffset animation.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Map first, <em>data second</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design Decision</h4>
+        <p>The map preview occupies the top 160pt of the card — more than half — because the route's shape and terrain are more legible as a visual preview than as stats. A rider scanning a catalog can immediately see whether a route winds through hills or follows a flat coastal highway.</p>
+        <p>The saved state uses LSIcon(.heartFill) rather than a bookmark because hearts communicate emotional connection — a saved ride is one the rider loved or wants to revisit, not just a to-do item.</p>
+        <p>Difficulty tags use tinted fills (green/amber/red) so cognitive scanning is pre-attentive. A rider can filter by difficulty without reading labels.</p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability — 07-uc-org.md §UC-ORG-06</h4>
+        <ul>
+          <li><strong>AC-1</strong> LSRouteCard(route: mockRoute1) → LSCard + LSMap preview + title/subtitle + difficulty tag + optional saved icon</li>
+          <li><strong>AC-2</strong> route.variant = .alt1 → polyline stroke resolves to color.route.alt1</li>
+          <li><strong>AC-3</strong> Stories: Default, Saved, Alt Variant, Long Title, Missing Optional Data, Dark Mode</li>
+          <li><strong>AC-4</strong> Data model mirrors routes read type in server/convex/schema.ts (type-level test)</li>
+          <li><strong>AC-5</strong> Organism does not reach out to Convex / networking / disk I/O</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>UC-ORG-06 · LSRouteCard · Copper · 2026-04-20</span></div>
+    <p class="footer-note">Full route-card organism. Consumes LSMap UC-ATM-11 multi-polyline contract.<br>Distinct from LSRouteAttachmentCard (UC-MOL-08) which is compact-only.</p>
+  </footer>
+</div>
+
+</body>
+</html>

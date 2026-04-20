@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<!-- uc-org-07-section-header.html — UC-ORG-07 "LSSectionHeader"
+     LaneShadow V2 · Copper · Navigator Organism Mock · 2026-04-20
+     Authority: .spec/prds/v2/07-uc-org.md §UC-ORG-07 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ORG-07 — LSSectionHeader — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;--paper-200:#F2EFED;
+  --paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --status-warning:#C46F1B;
+  --font-opinion:'Newsreader',Georgia,serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);--surface-inset:var(--paper-200);
+  --surface-overlay:rgba(253,251,248,0.92);--surface-glass:rgba(253,251,248,0.72);
+  --surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);--map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);--content-onSignal:#FFF;
+  --signal-default:var(--copper-500);--signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);--border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+  /* spacing tokens */
+  --spacing-1:4px;--spacing-2:8px;--spacing-3:12px;--spacing-4:16px;--spacing-5:20px;--spacing-6:24px;
+}
+.mode-dark{
+  --surface-primary:var(--ink-800);--surface-card:var(--ink-700);--surface-inset:var(--ink-600);
+  --surface-overlay:rgba(45,34,24,0.92);--surface-glass:rgba(45,34,24,0.72);
+  --surface-scrim:rgba(10,6,3,0.50);--map-paper:#1B140E;
+  --map-contour:rgba(242,238,232,0.16);--map-contour-faint:rgba(242,238,232,0.07);
+  --content-primary:var(--ink-050);--content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200);--content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12);--border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  --elev-overlay:0 8px 24px rgba(0,0,0,0.42),0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:0 1px 3px rgba(0,0,0,0.24),0 4px 14px rgba(0,0,0,0.28);
+}
+
+/* TYPOGRAPHY */
+.t-opinion-lg{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em;}
+.t-title-lg{font-family:var(--font-ui);font-weight:600;font-size:17px;line-height:1.24;letter-spacing:-0.01em;}
+.t-title-md{font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em;}
+.t-title-sm{font-family:var(--font-ui);font-weight:600;font-size:12px;line-height:1.28;}
+.t-body-md{font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52;}
+.t-body-sm{font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48;}
+.t-label-md{font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase;}
+.t-label-sm{font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase;}
+.t-instr-md{font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-sm{font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1;}
+
+/* DOC CHROME */
+body{font-family:var(--font-ui);color:var(--content-primary);background:var(--surface-primary);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden;}
+.wrap{max-width:1440px;margin:0 auto;padding:0 72px;}
+.doc-header{position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden;}
+.doc-header::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none;}
+.doc-header>*{position:relative;z-index:1;}
+.doc-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px;}
+.doc-eyebrow::before{content:"";width:28px;height:1px;background:var(--signal-default);}
+.doc-eyebrow-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em;}
+.doc-title{font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px;}
+.doc-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.doc-tagline{font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px;}
+.doc-meta-row{display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default);}
+.meta-item{display:flex;flex-direction:column;gap:6px;}
+.meta-label{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);}
+.meta-value{font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary);}
+.section{padding:96px 0;border-bottom:1px solid var(--border-default);position:relative;}
+.section:last-child{border-bottom:none;}
+.section-header{display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px;}
+.section-index{font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.section-index::before{content:"";display:block;width:48px;height:1px;background:var(--signal-default);}
+.section-title{font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;}
+.section-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.prose{font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px;}
+.prose+.prose{margin-top:20px;}
+.prose em{font-style:italic;}
+.prose strong{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px;}
+.ac-cite{font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px;}
+.ac-cite::before{content:"☐";position:absolute;left:0;top:0;color:var(--border-strong);}
+
+/* DEMO CONTEXT CARD — simulates a screen section with content below */
+.demo-context{
+  background:var(--surface-card);border:1px solid var(--border-default);
+  border-radius:16px;overflow:hidden;
+  box-shadow:var(--elev-card);max-width:380px;
+  padding-bottom:16px;
+}
+.demo-context.dark{background:var(--ink-700);}
+
+/* Content placeholder rows */
+.content-row{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;border-bottom:1px solid var(--border-subtle);
+}
+.content-row:last-child{border-bottom:none;}
+.content-thumb{width:40px;height:40px;border-radius:8px;background:var(--surface-inset);flex-shrink:0;}
+.content-lines{display:flex;flex-direction:column;gap:5px;flex:1;}
+.content-line-a{height:11px;border-radius:3px;background:var(--border-default);width:80%;}
+.content-line-b{height:9px;border-radius:3px;background:var(--border-subtle);width:55%;}
+
+/* ═══════════ LSSectionHeader organism ═══════════
+   Spec: title ui.title.md leading + optional "See all" link signal.default trailing
+         + inset spacing.3 (12pt) by default
+*/
+.ls-section-header{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:14px var(--spacing-4) 10px var(--spacing-3); /* default inset left = spacing.3 = 12px */
+}
+/* Custom inset variant */
+.ls-section-header.inset-4{padding-left:var(--spacing-4);}
+.ls-section-header.inset-2{padding-left:var(--spacing-2);}
+.ls-section-header.inset-0{padding-left:0;padding-right:0;}
+
+/* Title: ui.title.md = 14px 600 */
+.sh-title{
+  font-family:var(--font-ui);font-weight:600;font-size:14px;
+  line-height:1.28;letter-spacing:-0.005em;color:var(--content-primary);
+}
+/* Caps label variant: ui.label.sm = 8.5px 600 0.14em uppercase */
+.sh-title.caps{
+  font-size:8.5px;font-weight:600;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--content-tertiary);
+}
+/* See all link: ui.body.sm signal.default */
+.sh-see-all{
+  font-family:var(--font-ui);font-size:12px;font-weight:500;
+  color:var(--signal-default);
+  text-decoration:none;
+  display:flex;align-items:center;gap:3px;
+  flex-shrink:0;
+}
+.sh-see-all svg{opacity:0.8;}
+
+/* STORIES LAYOUT */
+.stories-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:56px 48px;align-items:start;padding-left:152px;
+}
+.story-cell{display:flex;flex-direction:column;gap:22px;}
+.story-annotation{display:flex;flex-direction:column;gap:8px;}
+.story-num{font-family:var(--font-instrument);font-size:10.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);}
+.story-name{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);}
+.story-desc{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:14px;line-height:1.6;color:var(--content-secondary);}
+
+/* Tables */
+.cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-left:152px;}
+.cmp-card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;}
+.cmp-tier-label{font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;color:var(--signal-default);text-transform:uppercase;margin-bottom:14px;display:block;}
+.cmp-item{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.cmp-item:last-child{border-bottom:none;}
+.cmp-name{font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);margin-bottom:4px;}
+.cmp-ref{font-family:var(--font-instrument);font-size:10px;color:var(--content-tertiary);line-height:1.4;}
+.dim-table{padding-left:152px;display:grid;grid-template-columns:220px 160px 1fr;row-gap:8px;column-gap:24px;font-family:var(--font-ui);font-size:13px;align-items:baseline;}
+.dim-table>div{padding:9px 0;border-bottom:1px solid var(--border-subtle);}
+.dim-name{font-weight:600;color:var(--content-primary);}
+.dim-val{font-family:var(--font-instrument);font-size:11.5px;color:var(--signal-default);}
+.dim-desc{color:var(--content-secondary);}
+.motion-table{padding-left:152px;display:grid;grid-template-columns:180px 1fr 2fr;row-gap:14px;column-gap:28px;font-family:var(--font-ui);font-size:13px;}
+.motion-table>div{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.motion-recipe{font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px;}
+.motion-trigger{color:var(--content-primary);font-weight:500;}
+.motion-effect{color:var(--content-secondary);}
+.rationale-grid{padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+.rationale-block h4{font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px;}
+.rationale-block p{font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px;}
+.rationale-block ul{list-style:none;}
+.rationale-block li{padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle);}
+.rationale-block li::before{content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument);}
+.rationale-block li strong{font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px;}
+.doc-footer{padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;}
+.footer-mark{font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;letter-spacing:-0.02em;}
+.footer-mark em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.footer-mark span{display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300;}
+.footer-note{font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-ORG-07</span><span class="doc-eyebrow-pill">● Organisms · Template</span></div>
+    <h1 class="doc-title">Group<br><em>headers</em>.</h1>
+    <p class="doc-tagline">
+      One organism. Three configurations. Title leading, optional "See all" trailing,
+      inset from spacing.3. Used by SessionsDrawer and catalog views everywhere a
+      named section begins.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ORG-07</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">07-uc-org.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light (+ dark)</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Named sections, <em>once</em>.</h2>
+    </div>
+    <p class="prose">
+      <strong>LSSectionHeader</strong> is the in-screen group title organism used
+      across SessionsDrawer, catalog views, and any screen that groups content into
+      named sections. It is the simplest organism in the tier — a title row with
+      an optional trailing "See all" link and a configurable leading inset.
+    </p>
+    <p class="prose">
+      By centralizing this pattern here, every screen that needs a section header
+      composes from the same organism rather than re-implementing its own title row.
+      Three slot configurations cover all known usage: title only, title + see all,
+      and caps label (no trailing, used inside drawers).
+    </p>
+  </section>
+</div>
+
+<!-- §02 STORIES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · Stories</div>
+      <h2 class="section-title">Five <em>configurations</em>.</h2>
+    </div>
+    <div class="stories-grid">
+
+      <!-- S.01 Title Only -->
+      <div class="story-cell">
+        <div class="demo-context">
+          <div class="ls-section-header">
+            <div class="sh-title">Nearby Routes</div>
+          </div>
+          <div class="content-row"><div class="content-thumb"></div><div class="content-lines"><div class="content-line-a"></div><div class="content-line-b"></div></div></div>
+          <div class="content-row"><div class="content-thumb"></div><div class="content-lines"><div class="content-line-a" style="width:70%;"></div><div class="content-line-b"></div></div></div>
+          <div class="content-row"><div class="content-thumb"></div><div class="content-lines"><div class="content-line-a" style="width:90%;"></div><div class="content-line-b"></div></div></div>
+        </div>
+        <div class="story-annotation">
+          <div class="story-num">S.01</div>
+          <div class="story-name">Title Only</div>
+          <div class="story-desc">trailing: .none. title in ui.title.md. inset: spacing.3 = 12pt. No see-all link rendered.</div>
+        </div>
+      </div>
+
+      <!-- S.02 Title + See All -->
+      <div class="story-cell">
+        <div class="demo-context">
+          <div class="ls-section-header">
+            <div class="sh-title">Nearby Routes</div>
+            <a class="sh-see-all" href="#">
+              See all
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+          <div class="content-row"><div class="content-thumb"></div><div class="content-lines"><div class="content-line-a"></div><div class="content-line-b"></div></div></div>
+          <div class="content-row"><div class="content-thumb"></div><div class="content-lines"><div class="content-line-a" style="width:65%;"></div><div class="content-line-b"></div></div></div>
+          <div class="content-row"><div class="content-thumb"></div><div class="content-lines"><div class="content-line-a" style="width:80%;"></div><div class="content-line-b"></div></div></div>
+        </div>
+        <div class="story-annotation">
+          <div class="story-num">S.02</div>
+          <div class="story-name">Title + See All</div>
+          <div class="story-desc">trailing: .link("See all", onTap). "See all" in signal.default + chevron R. onTap fires once per tap.</div>
+        </div>
+      </div>
+
+      <!-- S.03 Caps Label -->
+      <div class="story-cell">
+        <div class="demo-context">
+          <div class="ls-section-header">
+            <div class="sh-title caps">This Week</div>
+          </div>
+          <div class="content-row"><div class="content-thumb"></div><div class="content-lines"><div class="content-line-a"></div><div class="content-line-b"></div></div></div>
+          <div class="content-row"><div class="content-thumb"></div><div class="content-lines"><div class="content-line-a" style="width:72%;"></div><div class="content-line-b"></div></div></div>
+        </div>
+        <div class="story-annotation">
+          <div class="story-num">S.03</div>
+          <div class="story-name">Caps Label</div>
+          <div class="story-desc">title in ui.label.sm (8.5px 600 0.14em uppercase, content-tertiary). No trailing slot. Used inside drawers.</div>
+        </div>
+      </div>
+
+      <!-- S.04 Custom Inset -->
+      <div class="story-cell">
+        <div class="demo-context">
+          <!-- inset spacing.4 = 16px on left, demonstrating custom inset prop -->
+          <div class="ls-section-header inset-4">
+            <div class="sh-title">Saved Routes</div>
+            <a class="sh-see-all" href="#">
+              See all
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+          <div class="content-row"><div class="content-thumb"></div><div class="content-lines"><div class="content-line-a"></div><div class="content-line-b"></div></div></div>
+          <div class="content-row"><div class="content-thumb"></div><div class="content-lines"><div class="content-line-a" style="width:60%;"></div><div class="content-line-b"></div></div></div>
+          <div style="padding:8px 16px 4px;">
+            <!-- Another section with inset.0 demonstrating flush -->
+            <div class="ls-section-header inset-0" style="padding:6px 0 4px;">
+              <div class="sh-title caps">Last Month</div>
+            </div>
+          </div>
+          <div class="content-row"><div class="content-thumb"></div><div class="content-lines"><div class="content-line-a" style="width:75%;"></div><div class="content-line-b"></div></div></div>
+        </div>
+        <div class="story-annotation">
+          <div class="story-num">S.04</div>
+          <div class="story-name">Custom Inset</div>
+          <div class="story-desc">inset: spacing.4 (16pt) on Saved Routes header. Caps label "Last Month" with inset 0 (flush). Prop drives padding-left.</div>
+        </div>
+      </div>
+
+      <!-- S.05 Dark Mode -->
+      <div class="story-cell">
+        <div class="mode-dark demo-context" style="background:var(--ink-700);border-color:rgba(242,238,232,0.12);">
+          <div class="ls-section-header">
+            <div class="sh-title">Nearby Routes</div>
+            <a class="sh-see-all" href="#">
+              See all
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2L8 6L4 10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+          <div class="content-row" style="border-bottom-color:rgba(242,238,232,0.07);">
+            <div class="content-thumb" style="background:rgba(242,238,232,0.07);"></div>
+            <div class="content-lines">
+              <div class="content-line-a" style="background:rgba(242,238,232,0.12);width:80%;"></div>
+              <div class="content-line-b" style="background:rgba(242,238,232,0.07);width:55%;"></div>
+            </div>
+          </div>
+          <div class="content-row" style="border-bottom:none;">
+            <div class="content-thumb" style="background:rgba(242,238,232,0.07);"></div>
+            <div class="content-lines">
+              <div class="content-line-a" style="background:rgba(242,238,232,0.12);width:65%;"></div>
+              <div class="content-line-b" style="background:rgba(242,238,232,0.07);width:50%;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="story-annotation">
+          <div class="story-num">S.05</div>
+          <div class="story-name">Dark Mode</div>
+          <div class="story-desc">content-primary re-resolves to ink-050. signal.default copper See all remains on dark surface. No new colors.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States</div>
+      <h2 class="section-title">Props and <em>variants</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="dim-name">title (required)</div><div class="dim-val">String</div><div class="dim-desc">Displayed in ui.title.md (default) or ui.label.sm caps when caps variant</div>
+      <div class="dim-name">trailing (optional)</div><div class="dim-val">.none / .link(label, onTap)</div><div class="dim-desc">Default .none. .link renders "See all" in signal.default with chevron R</div>
+      <div class="dim-name">inset (optional)</div><div class="dim-val">SpacingToken = spacing.3</div><div class="dim-desc">Default 12pt. Custom values: spacing.2 (8pt), spacing.4 (16pt), or 0 (flush)</div>
+      <div class="dim-name">Title typography (default)</div><div class="dim-val">14px 600 -0.005em</div><div class="dim-desc">ui.title.md: Geist 600 14px, letter-spacing -0.005em, content-primary</div>
+      <div class="dim-name">Title typography (caps)</div><div class="dim-val">8.5px 600 0.14em upper</div><div class="dim-desc">ui.label.sm: Geist 600 8.5px, 0.14em tracking, uppercase, content-tertiary</div>
+      <div class="dim-name">See all typography</div><div class="dim-val">12px 500</div><div class="dim-desc">ui.body.sm weight 500, color: signal.default (copper)</div>
+      <div class="dim-name">Vertical padding</div><div class="dim-val">14px top / 10px bottom</div><div class="dim-desc">Consistent across all header variants</div>
+      <div class="dim-name">Horizontal padding right</div><div class="dim-val">spacing.4 = 16px</div><div class="dim-desc">Right edge always 16pt regardless of inset value</div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 COMPOSITION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Composition</div>
+      <h2 class="section-title">Atoms <em>consumed</em>.</h2>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Atoms</span>
+        <div class="cmp-item"><div class="cmp-name">LSText(title)</div><div class="cmp-ref">UC-ATM-01 · title in ui.title.md or ui.label.sm caps</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon(.chevronRight)</div><div class="cmp-ref">UC-ATM-10 · 12×12pt chevron on See all trailing link</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Spacing Tokens</span>
+        <div class="cmp-item"><div class="cmp-name">spacing.2 = 8px</div><div class="cmp-ref">Custom inset option: tighter inset</div></div>
+        <div class="cmp-item"><div class="cmp-name">spacing.3 = 12px</div><div class="cmp-ref">Default leading inset — matches uc-org.md spec</div></div>
+        <div class="cmp-item"><div class="cmp-name">spacing.4 = 16px</div><div class="cmp-ref">Custom inset option: standard screen margin</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Typography Tokens</span>
+        <div class="cmp-item"><div class="cmp-name">ui.title.md</div><div class="cmp-ref">14px Geist 600 — primary title variant</div></div>
+        <div class="cmp-item"><div class="cmp-name">ui.label.sm</div><div class="cmp-ref">8.5px 600 0.14em uppercase — caps label variant (drawers)</div></div>
+        <div class="cmp-item"><div class="cmp-name">ui.body.sm (500)</div><div class="cmp-ref">12px 500 signal.default — See all link text</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Consumers</span>
+        <div class="cmp-item"><div class="cmp-name">LSSessionsDrawer</div><div class="cmp-ref">UC-ORG-05 · section-label-row uses LSSectionHeader.caps("THIS WEEK")</div></div>
+        <div class="cmp-item"><div class="cmp-name">Catalog views</div><div class="cmp-ref">Route catalog, saved routes, search results — title + see all variant</div></div>
+        <div class="cmp-item"><div class="cmp-name">Discovery surfaces</div><div class="cmp-ref">Nearby Routes, Popular Today — title only or title + see all</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">No motion — <em>static chrome</em>.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="motion-recipe">none</div>
+      <div class="motion-trigger">Section header renders</div>
+      <div class="motion-effect">LSSectionHeader has no entrance animation. It renders in-place with its content. The containing screen or list owns any scroll or transition animations.</div>
+      <div class="motion-recipe">none</div>
+      <div class="motion-trigger">See all tap</div>
+      <div class="motion-effect">No animation on the header itself. onTap fires once; the navigation transition is handled by the caller screen's router. A subtle press state (opacity 0.7) can be applied by the button layer.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">One header, <em>everywhere</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design Decision</h4>
+        <p>Three title variants (title-only, title+see-all, caps-label) cover every known usage across the Navigator and catalog surfaces without requiring a separate component for each. The caps variant is specifically designed for drawer interiors where ALL-CAPS section labels feel appropriate (drawer sections are contextually grouped, not navigable).</p>
+        <p>The leading inset prop defaults to spacing.3 (12pt) — matching the app's standard content margin — but is overridable so screens with different grid margins can adapt without creating a new variant.</p>
+        <p>Signal copper for "See all" establishes a consistent tappable-link color. Riders learn copper = actionable text throughout the app.</p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability — 07-uc-org.md §UC-ORG-07</h4>
+        <ul>
+          <li><strong>AC-1</strong> LSSectionHeader(title: "Nearby Routes", trailing: .link("See all") { }) → title ui.title.md leading + signal "See all" trailing + spacing.3 inset</li>
+          <li><strong>AC-2</strong> LSSectionHeader(title: "THIS WEEK") → caps label, no trailing, inset spacing.3</li>
+          <li><strong>AC-3</strong> Tap "See all" → handler invoked exactly once</li>
+          <li><strong>AC-4</strong> Stories: Title Only, Title + See All, Caps Label, Custom Inset, Dark Mode</li>
+          <li><strong>AC-5</strong> iOS and Android tests verify organism composes only from atoms — no raw VStack/Column with literal colors</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>UC-ORG-07 · LSSectionHeader · Copper · 2026-04-20</span></div>
+    <p class="footer-note">Simplest organism in the tier. Three configurations; one component.<br>Used by LSSessionsDrawer (caps) and all catalog views (title + see all).</p>
+  </footer>
+</div>
+
+</body>
+</html>

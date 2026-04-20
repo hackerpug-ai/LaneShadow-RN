@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<!-- uc-mol-07-navigator-molecules.html — UC-MOL-07 "Navigator Molecules"
+     LaneShadow V2 · Copper · Molecule Design Mock · 2026-04-20
+     Molecules: LSPhaseIndicator / LSWeatherTimeline / LSInstrumentReadout
+     Authority: .spec/prds/v2/06-uc-mol.md §UC-MOL-07 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-MOL-07 — Navigator Molecules — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — copied from uc-scr-01-idle.html spine
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:#FDFBF8; --paper-100:#F8F7F6; --paper-150:#F5F2EE; --paper-200:#F2EFED;
+  --paper-300:#EDE7E1; --paper-400:#E5DED9; --paper-500:#C9BDB3;
+  --ink-900:#1E1A16; --ink-800:#221810; --ink-700:#2D2218; --ink-600:#362A1F;
+  --ink-500:#3D3228; --ink-400:#49454F; --ink-300:#6B6460; --ink-200:#9CA3AF;
+  --ink-100:#CAC4D0; --ink-050:#F2EEE8;
+  --copper-700:#9E4A22; --copper-600:#B85A2C; --copper-500:#EE7C2B;
+  --copper-400:#F3A164; --copper-200:#F9D5B5; --copper-100:#FCE8D4;
+  --wx-clear:#E6A52A; --wx-clear-tint:#FBEFCF;
+  --wx-rain:#4A86BE; --wx-rain-tint:#DBEAF4;
+  --wx-wind:#6B7B8F; --wx-wind-tint:#E1E6EC;
+  --wx-storm:#5E3FAE; --wx-storm-tint:#E3DCF2;
+  --wx-hot:#C9423C; --wx-hot-tint:#F5D8D6;
+  --wx-cold:#3A8BE3; --wx-cold-tint:#D6E5F7;
+  --status-success:#16A34A;
+  --font-opinion:'Newsreader',Georgia,'Times New Roman',serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono','Menlo',monospace;
+
+  --surface-primary:var(--paper-100); --surface-card:var(--paper-50);
+  --surface-inset:var(--paper-200); --surface-glass:rgba(253,251,248,0.72);
+  --content-primary:var(--ink-900); --content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300); --content-subtle:var(--ink-200);
+  --content-onSignal:#FFFFFF;
+  --signal-default:var(--copper-500); --signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200); --signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400); --border-subtle:var(--paper-300); --border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+}
+
+/* Dark override */
+.dark-panel {
+  --surface-primary:var(--ink-800); --surface-card:var(--ink-700);
+  --surface-inset:var(--ink-600); --surface-glass:rgba(45,34,24,0.72);
+  --content-primary:var(--ink-050); --content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200); --content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12); --border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  background: var(--surface-card);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ═══════════════════════════════════════════════════════════════════════ */
+.t-opinion-xl  { font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em; }
+.t-opinion-md  { font-family:var(--font-opinion);font-weight:400;font-size:17px;line-height:1.32;letter-spacing:0; }
+.t-title-md    { font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em; }
+.t-body-md     { font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52; }
+.t-body-sm     { font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48; }
+.t-label-lg    { font-family:var(--font-ui);font-weight:500;font-size:11px;line-height:1.0;letter-spacing:0.08em;text-transform:uppercase; }
+.t-label-md    { font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase; }
+.t-label-sm    { font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase; }
+.t-instr-lg    { font-family:var(--font-instrument);font-weight:500;font-size:18px;line-height:1.12;letter-spacing:-0.02em;font-feature-settings:"tnum" 1; }
+.t-instr-md    { font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;letter-spacing:-0.01em;font-feature-settings:"tnum" 1; }
+.t-instr-sm    { font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1; }
+.t-instr-xs    { font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCUMENT CHROME
+   ═══════════════════════════════════════════════════════════════════════ */
+body { font-family:var(--font-ui);color:var(--content-primary);background:var(--surface-primary);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden; }
+.wrap { max-width:1440px;margin:0 auto;padding:0 72px; }
+.doc-header { position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden; }
+.doc-header::before { content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none; }
+.doc-header>* { position:relative;z-index:1; }
+.doc-eyebrow { display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px; }
+.doc-eyebrow::before { content:"";width:28px;height:1px;background:var(--signal-default); }
+.doc-eyebrow-pill { display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em; }
+.doc-title { font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px; }
+.doc-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.doc-tagline { font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px; }
+.doc-meta-row { display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default); }
+.meta-item { display:flex;flex-direction:column;gap:6px; }
+.meta-label { font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary); }
+.meta-value { font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary); }
+.section { padding:96px 0;border-bottom:1px solid var(--border-default);position:relative; }
+.section:last-child { border-bottom:none; }
+.section-header { display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px; }
+.section-index { font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px; }
+.section-index::before { content:"";display:block;width:48px;height:1px;background:var(--signal-default); }
+.section-title { font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px; }
+.section-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.prose { font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px; }
+.prose+.prose { margin-top:20px; }
+.prose em { font-style:italic; }
+.prose strong { font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px; }
+.ac-cite { font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px; }
+.ac-cite::before { content:"☐";position:absolute;left:0;top:0;color:var(--border-strong); }
+.doc-footer { padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end; }
+.footer-mark { font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em; }
+.footer-mark em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.footer-mark span { display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300; }
+.footer-note { font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LAYOUT HELPERS
+   ═══════════════════════════════════════════════════════════════════════ */
+.mol-label { font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default); }
+.mol-sub { font-family:var(--font-ui);font-size:10px;color:var(--content-tertiary);line-height:1.5; }
+.group-head { padding-left:152px;margin-bottom:24px;margin-top:48px; }
+.group-head:first-child { margin-top:0; }
+.group-head h3 { font-family:var(--font-opinion);font-size:28px;font-weight:300;color:var(--content-secondary);letter-spacing:-0.015em; }
+.group-head h3 em { font-style:italic;color:var(--signal-default); }
+.mol-grid { display:flex;flex-wrap:wrap;gap:40px;padding-left:152px;align-items:flex-start; }
+.mol-card { display:flex;flex-direction:column;gap:12px; }
+.mol-card-label { font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default); }
+.mol-card-desc { font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);line-height:1.5;max-width:240px; }
+
+/* Dim table */
+.dim-table { padding-left:152px;display:grid;grid-template-columns:220px 100px 100px 140px 1fr;row-gap:0;column-gap:0; }
+.dim-table>div { padding:10px 14px;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:12px;color:var(--content-secondary); }
+.dim-table>div.head { font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px; }
+.dim-val { font-family:var(--font-instrument);color:var(--content-primary); }
+
+/* Motion table */
+.motion-table { padding-left:152px;display:grid;grid-template-columns:200px 1fr 2fr;row-gap:0;column-gap:28px; }
+.motion-table>div { padding:10px 0;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:13px; }
+.motion-recipe { font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px; }
+.motion-trigger { color:var(--content-primary);font-weight:500; }
+.motion-effect { color:var(--content-secondary); }
+
+/* Rationale */
+.rationale-grid { padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px; }
+.rationale-block h4 { font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px; }
+.rationale-block p { font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px; }
+.rationale-block ul { list-style:none; }
+.rationale-block li { padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle); }
+.rationale-block li::before { content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument); }
+.rationale-block li strong { font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSPhaseDot ATOM (production 10px; demo 16px for readability in doc)
+   ═══════════════════════════════════════════════════════════════════════ */
+@keyframes phaseDotPulse {
+  0%   { transform: scale(0.8); opacity: 0.6; }
+  50%  { transform: scale(1.6); opacity: 0.2; }
+  100% { transform: scale(0.8); opacity: 0.6; }
+}
+
+.ls-phase-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  display: inline-block;
+}
+.ls-phase-dot.pending {
+  background: var(--surface-card);
+  border: 1.5px solid var(--border-strong);
+}
+.ls-phase-dot.active {
+  background: var(--signal-default);
+}
+.ls-phase-dot.active::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1.5px solid var(--signal-default);
+  opacity: 0;
+  animation: phaseDotPulse 900ms ease-in-out infinite;
+}
+.ls-phase-dot.done {
+  background: var(--status-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ls-phase-dot.done::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 3px;
+  border-left: 1.5px solid #fff;
+  border-bottom: 1.5px solid #fff;
+  transform: rotate(-45deg) translate(0.5px, -0.5px);
+}
+
+/* Demo-size phase dot (20px for visual inspection) */
+.ls-phase-dot.demo {
+  width: 20px;
+  height: 20px;
+}
+.ls-phase-dot.demo.active::after { inset: -8px; border-width: 2px; }
+.ls-phase-dot.demo.done::after { width: 9px; height: 5.5px; border-left-width: 2px; border-bottom-width: 2px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSPhaseIndicator
+   ═══════════════════════════════════════════════════════════════════════ */
+.ls-phase-indicator {
+  background: var(--surface-card);
+  border: 1px solid var(--signal-tint);
+  border-top: 2px solid var(--signal-default);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--elev-overlay);
+  min-width: 240px;
+  max-width: 300px;
+}
+.dark-panel .ls-phase-indicator {
+  background: var(--surface-inset);
+  border-color: rgba(238,124,43,0.22);
+  border-top-color: var(--signal-default);
+}
+.phase-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.compass-chip {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--signal-whisper);
+  border: 1px solid var(--signal-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--signal-default);
+  flex-shrink: 0;
+}
+.phase-header-text {
+  font-family: var(--font-opinion);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--content-primary);
+  flex: 1;
+}
+.phase-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.phase-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.phase-step-label {
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  font-feature-settings: "tnum" 1;
+}
+.phase-step-label.state-pending { color: var(--content-tertiary); }
+.phase-step-label.state-active  { color: var(--content-primary); font-weight: 600; }
+.phase-step-label.state-done    { color: var(--content-secondary); text-decoration: line-through; }
+
+/* Pulse ring bounding callout */
+.pulse-callout {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.pulse-ring-label {
+  position: absolute;
+  left: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  color: var(--signal-default);
+  letter-spacing: 0.14em;
+}
+.pulse-ring-line {
+  position: absolute;
+  left: 26px;
+  top: 50%;
+  width: 8px;
+  height: 1px;
+  background: var(--signal-default);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSWeatherTimeline
+   ═══════════════════════════════════════════════════════════════════════ */
+.ls-wx-timeline {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--elev-card);
+  min-width: 320px;
+}
+.dark-panel .ls-wx-timeline {
+  border-color: var(--border-default);
+  background: var(--surface-inset);
+}
+.wx-timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.wx-timeline-title {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--content-primary);
+}
+.wx-timeline-range {
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  color: var(--content-tertiary);
+  font-feature-settings: "tnum" 1;
+}
+.wx-cells {
+  display: grid;
+  grid-template-columns: repeat(6,1fr);
+  gap: 4px;
+}
+.wx-cell {
+  padding: 6px 3px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid transparent;
+}
+.wx-cell .hour {
+  font-family: var(--font-ui);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--content-secondary);
+}
+.wx-cell .temp {
+  font-family: var(--font-instrument);
+  font-weight: 500;
+  font-size: 10px;
+  font-feature-settings: "tnum" 1;
+}
+.wx-cell .wx-icon-cell {
+  font-size: 11px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+.wx-cell.clear  { background: var(--wx-clear-tint);  border-color: rgba(230,165,42,0.33); }
+.wx-cell.rain   { background: var(--wx-rain-tint);   border-color: rgba(74,134,190,0.33); }
+.wx-cell.wind   { background: var(--wx-wind-tint);   border-color: rgba(107,123,143,0.33); }
+.wx-cell.storm  { background: var(--wx-storm-tint);  border-color: rgba(94,63,174,0.33); }
+.wx-cell.hot    { background: var(--wx-hot-tint);    border-color: rgba(201,66,60,0.33); }
+.wx-cell.cold   { background: var(--wx-cold-tint);   border-color: rgba(58,139,227,0.33); }
+.wx-cell.clear  .temp, .wx-cell.clear  .wx-icon-cell { color: var(--wx-clear); }
+.wx-cell.rain   .temp, .wx-cell.rain   .wx-icon-cell { color: var(--wx-rain); }
+.wx-cell.wind   .temp, .wx-cell.wind   .wx-icon-cell { color: var(--wx-wind); }
+.wx-cell.storm  .temp, .wx-cell.storm  .wx-icon-cell { color: var(--wx-storm); }
+.wx-cell.hot    .temp, .wx-cell.hot    .wx-icon-cell { color: var(--wx-hot); }
+.wx-cell.cold   .temp, .wx-cell.cold   .wx-icon-cell { color: var(--wx-cold); }
+
+/* SVG weather icon helpers */
+.wxi { display:block; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSInstrumentReadout
+   ═══════════════════════════════════════════════════════════════════════ */
+.ls-instrument-readout {
+  background: var(--surface-card);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--elev-card);
+}
+.dark-panel .ls-instrument-readout {
+  background: var(--surface-inset);
+}
+.instr-divider {
+  height: 1px;
+  background: var(--border-subtle);
+}
+.instrument-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 0;
+  padding: 10px 0;
+}
+.instrument-grid.cols-3 { grid-template-columns: repeat(3,1fr); }
+.instr-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px 12px;
+  border-right: 1px solid var(--border-subtle);
+}
+.instr-cell:last-child { border-right: none; }
+.instr-label {
+  font-family: var(--font-ui);
+  font-size: 7.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+.instr-value {
+  font-family: var(--font-instrument);
+  font-weight: 500;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  color: var(--content-primary);
+  font-feature-settings: "tnum" 1;
+  line-height: 1.1;
+}
+.instr-value.accent { color: var(--signal-default); }
+.instr-sub {
+  font-family: var(--font-ui);
+  font-size: 8.5px;
+  font-weight: 500;
+  color: var(--content-tertiary);
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-MOL-07</span><span class="doc-eyebrow-pill">● Molecules · Navigator</span></div>
+    <h1 class="doc-title">Navigator<br><em>molecules</em>.</h1>
+    <p class="doc-tagline">
+      Three domain-specific composites: LSPhaseIndicator tracks planning
+      progress with animated dots; LSWeatherTimeline renders six tinted
+      condition cells; LSInstrumentReadout lays out numeric metrics in
+      tabular mono type.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-MOL-07</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">06-uc-mol.md</div></div>
+      <div class="meta-item"><div class="meta-label">Composes</div><div class="meta-value">UC-ATM-07,08,10</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Three <em>domain</em> patterns, defined once.</h2>
+    </div>
+    <p class="prose">
+      These three molecules encode Navigator-specific domain structure so
+      that organisms (PlanningScreen, RouteDetailsScreen) do not re-implement
+      it. The phase indicator translates planning state to an animated
+      vertical list. The weather timeline encodes the color-coded time-of-day
+      forecast in a compact grid. The instrument readout aligns numeric
+      metrics in the tabular mono family.
+    </p>
+    <p class="prose">
+      All three compose exclusively from <strong>UC-ATM-07</strong>,
+      <strong>UC-ATM-08</strong>, <strong>UC-ATM-10</strong> atoms — no
+      raw typography or layout primitives with literal colors are permitted.
+    </p>
+  </section>
+</div>
+
+<!-- §02 THE MOLECULES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · The Molecules</div>
+      <h2 class="section-title">Full <em>variant matrix</em>.</h2>
+    </div>
+
+    <!-- ── LSPhaseIndicator ── -->
+    <div class="group-head"><h3><em>LSPhaseIndicator</em> — 5 progress states</h3></div>
+
+    <div class="mol-grid" style="align-items:flex-start;flex-wrap:wrap;">
+
+      <!-- Just started: 0 done -->
+      <div class="mol-card">
+        <div class="mol-card-label">Just started (0 done)</div>
+        <div class="ls-phase-indicator">
+          <div class="phase-head">
+            <div class="compass-chip">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 3.5v.5m0 6v.5M3.5 7h.5m6 0h.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/></svg>
+            </div>
+            <div class="phase-header-text">Let me think on that…</div>
+          </div>
+          <div class="phase-steps">
+            <div class="phase-step">
+              <div class="ls-phase-dot active" style="position:relative;">
+                <div style="position:absolute;inset:-5px;border-radius:50%;border:1.5px solid var(--signal-default);animation:phaseDotPulse 900ms ease-in-out infinite;opacity:0;"></div>
+              </div>
+              <div class="phase-step-label state-active">Understanding your request</div>
+            </div>
+            <div class="phase-step"><div class="ls-phase-dot pending"></div><div class="phase-step-label state-pending">Searching routes</div></div>
+            <div class="phase-step"><div class="ls-phase-dot pending"></div><div class="phase-step-label state-pending">Checking conditions</div></div>
+            <div class="phase-step"><div class="ls-phase-dot pending"></div><div class="phase-step-label state-pending">Scoring scenic value</div></div>
+            <div class="phase-step"><div class="ls-phase-dot pending"></div><div class="phase-step-label state-pending">Preparing results</div></div>
+          </div>
+        </div>
+        <div class="mol-card-desc">Active dot = ring pulse animation. Pending = hollow border.strong.</div>
+      </div>
+
+      <!-- 1 done, 1 active -->
+      <div class="mol-card">
+        <div class="mol-card-label">1 done, step 2 active</div>
+        <div class="ls-phase-indicator">
+          <div class="phase-head">
+            <div class="compass-chip">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 3.5v.5m0 6v.5M3.5 7h.5m6 0h.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/></svg>
+            </div>
+            <div class="phase-header-text">Searching available roads…</div>
+          </div>
+          <div class="phase-steps">
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done">Understanding your request</div></div>
+            <div class="phase-step">
+              <div class="ls-phase-dot active" style="position:relative;">
+                <div style="position:absolute;inset:-5px;border-radius:50%;border:1.5px solid var(--signal-default);animation:phaseDotPulse 900ms ease-in-out infinite;opacity:0;"></div>
+              </div>
+              <div class="phase-step-label state-active">Searching routes</div>
+            </div>
+            <div class="phase-step"><div class="ls-phase-dot pending"></div><div class="phase-step-label state-pending">Checking conditions</div></div>
+            <div class="phase-step"><div class="ls-phase-dot pending"></div><div class="phase-step-label state-pending">Scoring scenic value</div></div>
+            <div class="phase-step"><div class="ls-phase-dot pending"></div><div class="phase-step-label state-pending">Preparing results</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2 done, step 3 active -->
+      <div class="mol-card">
+        <div class="mol-card-label">2 done, step 3 active</div>
+        <div class="ls-phase-indicator">
+          <div class="phase-head">
+            <div class="compass-chip">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 3.5v.5m0 6v.5M3.5 7h.5m6 0h.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/></svg>
+            </div>
+            <div class="phase-header-text">Cross-referencing weather windows…</div>
+          </div>
+          <div class="phase-steps">
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done">Understanding your request</div></div>
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done">Searching routes</div></div>
+            <div class="phase-step">
+              <div class="ls-phase-dot active" style="position:relative;">
+                <div style="position:absolute;inset:-5px;border-radius:50%;border:1.5px solid var(--signal-default);animation:phaseDotPulse 900ms ease-in-out infinite;opacity:0;"></div>
+              </div>
+              <div class="phase-step-label state-active">Checking conditions</div>
+            </div>
+            <div class="phase-step"><div class="ls-phase-dot pending"></div><div class="phase-step-label state-pending">Scoring scenic value</div></div>
+            <div class="phase-step"><div class="ls-phase-dot pending"></div><div class="phase-step-label state-pending">Preparing results</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 done, step 4 active -->
+      <div class="mol-card">
+        <div class="mol-card-label">3 done, step 4 active</div>
+        <div class="ls-phase-indicator">
+          <div class="phase-head">
+            <div class="compass-chip">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 3.5v.5m0 6v.5M3.5 7h.5m6 0h.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/></svg>
+            </div>
+            <div class="phase-header-text">Scoring your scenic options…</div>
+          </div>
+          <div class="phase-steps">
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done">Understanding your request</div></div>
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done">Searching routes</div></div>
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done">Checking conditions</div></div>
+            <div class="phase-step">
+              <div class="ls-phase-dot active" style="position:relative;">
+                <div style="position:absolute;inset:-5px;border-radius:50%;border:1.5px solid var(--signal-default);animation:phaseDotPulse 900ms ease-in-out infinite;opacity:0;"></div>
+              </div>
+              <div class="phase-step-label state-active">Scoring scenic value</div>
+            </div>
+            <div class="phase-step"><div class="ls-phase-dot pending"></div><div class="phase-step-label state-pending">Preparing results</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All done -->
+      <div class="mol-card">
+        <div class="mol-card-label">All done</div>
+        <div class="ls-phase-indicator" style="border-top-color:var(--status-success);border-color:rgba(22,163,74,0.22);">
+          <div class="phase-head">
+            <div class="compass-chip" style="background:rgba(22,163,74,0.1);border-color:rgba(22,163,74,0.3);color:var(--status-success);">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l4 4 5-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="phase-header-text" style="color:var(--content-primary);">Here are three routes for you.</div>
+          </div>
+          <div class="phase-steps">
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done">Understanding your request</div></div>
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done">Searching routes</div></div>
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done">Checking conditions</div></div>
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done">Scoring scenic value</div></div>
+            <div class="phase-step"><div class="ls-phase-dot done"></div><div class="phase-step-label state-done">Preparing results</div></div>
+          </div>
+        </div>
+        <div class="mol-card-desc">All done: top border switches to status.success green.</div>
+      </div>
+
+    </div>
+
+    <!-- Pulse ring callout diagram -->
+    <div style="padding-left:152px;margin-top:40px;margin-bottom:8px;"><span class="mol-label">PULSE RING BOUNDING BOX CALLOUT</span></div>
+    <div style="padding-left:152px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;">
+      <div style="position:relative;width:80px;height:80px;display:flex;align-items:center;justify-content:center;">
+        <!-- outer ring at scale -->
+        <div style="position:absolute;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--signal-default);opacity:0.25;"></div>
+        <!-- inner dot 20px demo -->
+        <div class="ls-phase-dot active demo" style="animation:none;position:relative;">
+          <div style="position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--signal-default);animation:phaseDotPulse 900ms ease-in-out infinite;opacity:0;"></div>
+        </div>
+        <!-- callout lines -->
+        <div style="position:absolute;right:-60px;top:50%;width:52px;height:1px;background:var(--signal-default);transform:translateY(-50%);"></div>
+        <div style="position:absolute;left:50%;top:0;width:1px;height:10px;background:var(--signal-default);transform:translateX(-50%);"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-secondary);"><strong style="font-family:var(--font-instrument);color:var(--signal-default);font-size:10px;">dot core</strong> — 10pt diameter (production); 20pt demo</div>
+        <div style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-secondary);"><strong style="font-family:var(--font-instrument);color:var(--signal-default);font-size:10px;">pulse ring inset</strong> — -4pt (production): ring reaches 18pt total</div>
+        <div style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-secondary);"><strong style="font-family:var(--font-instrument);color:var(--signal-default);font-size:10px;">animation</strong> — phaseDotPulse 900ms ease-in-out infinite</div>
+        <div style="font-family:var(--font-ui);font-size:10.5px;color:var(--content-secondary);"><strong style="font-family:var(--font-instrument);color:var(--signal-default);font-size:10px;">keyframes</strong> — scale(0.8, opacity 0.6) → scale(1.6, opacity 0.2) → scale(0.8)</div>
+      </div>
+    </div>
+
+    <!-- ── LSWeatherTimeline ── -->
+    <div class="group-head" style="margin-top:64px;"><h3><em>LSWeatherTimeline</em> — 6-cell horizontal grid</h3></div>
+
+    <div class="mol-grid" style="flex-direction:column;gap:32px;">
+
+      <!-- All clear -->
+      <div class="mol-card" style="max-width:440px;">
+        <div class="mol-card-label">All Clear — 9 AM to 2 PM</div>
+        <div class="ls-wx-timeline">
+          <div class="wx-timeline-header">
+            <div class="wx-timeline-title">Weather along the way</div>
+            <div class="wx-timeline-range">9 AM — 2 PM</div>
+          </div>
+          <div class="wx-cells">
+            <div class="wx-cell clear"><div class="hour">9 AM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/><line x1="1.76" y1="1.76" x2="2.82" y2="2.82"/><line x1="9.18" y1="9.18" x2="10.24" y2="10.24"/><line x1="1.76" y1="10.24" x2="2.82" y2="9.18"/><line x1="9.18" y1="2.82" x2="10.24" y2="1.76"/></g></svg></div><div class="temp">68°</div></div>
+            <div class="wx-cell clear"><div class="hour">10 AM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">72°</div></div>
+            <div class="wx-cell clear"><div class="hour">11 AM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">75°</div></div>
+            <div class="wx-cell clear"><div class="hour">12 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">76°</div></div>
+            <div class="wx-cell clear"><div class="hour">1 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">78°</div></div>
+            <div class="wx-cell clear"><div class="hour">2 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">77°</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mixed: clear → wind → rain -->
+      <div class="mol-card" style="max-width:440px;">
+        <div class="mol-card-label">Mixed — Clear · Wind · Rain · 10 AM to 3 PM</div>
+        <div class="ls-wx-timeline">
+          <div class="wx-timeline-header">
+            <div class="wx-timeline-title">Weather along the way</div>
+            <div class="wx-timeline-range">10 AM — 3 PM</div>
+          </div>
+          <div class="wx-cells">
+            <div class="wx-cell clear"><div class="hour">10 AM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">70°</div></div>
+            <div class="wx-cell clear"><div class="hour">11 AM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">72°</div></div>
+            <div class="wx-cell wind"><div class="hour">12 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M1 4.5h7a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M1 7h9a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M1 9.5h5a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div><div class="temp">68°</div></div>
+            <div class="wx-cell wind"><div class="hour">1 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M1 4.5h7a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M1 7h9a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M1 9.5h5a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></div><div class="temp">65°</div></div>
+            <div class="wx-cell rain"><div class="hour">2 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/><line x1="3.5" y1="9.5" x2="3" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="9.5" x2="5.5" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="8.5" y1="9.5" x2="8" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div><div class="temp">61°</div></div>
+            <div class="wx-cell rain"><div class="hour">3 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/><line x1="3.5" y1="9.5" x2="3" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="9.5" x2="5.5" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="8.5" y1="9.5" x2="8" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div><div class="temp">59°</div></div>
+          </div>
+        </div>
+        <div class="mol-card-desc">Per-condition tinted bg + border; color from color.weather.*.default.</div>
+      </div>
+
+      <!-- Dark mode nighttime -->
+      <div class="mol-card" style="max-width:440px;">
+        <div class="mol-card-label">Dark Mode · Nighttime · 7 PM to 12 AM</div>
+        <div class="dark-panel" style="max-width:440px;">
+          <div class="ls-wx-timeline" style="background:var(--surface-card);">
+            <div class="wx-timeline-header">
+              <div class="wx-timeline-title">Weather along the way</div>
+              <div class="wx-timeline-range">7 PM — 12 AM</div>
+            </div>
+            <div class="wx-cells">
+              <div class="wx-cell clear"><div class="hour">7 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></div><div class="temp">62°</div></div>
+              <div class="wx-cell cold"><div class="hour">8 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div><div class="temp">58°</div></div>
+              <div class="wx-cell cold"><div class="hour">9 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div><div class="temp">54°</div></div>
+              <div class="wx-cell storm"><div class="hour">10 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/><path d="M6 8l-.8 2h1.6l-.8 2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div><div class="temp">51°</div></div>
+              <div class="wx-cell storm"><div class="hour">11 PM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/><path d="M6 8l-.8 2h1.6l-.8 2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div><div class="temp">50°</div></div>
+              <div class="wx-cell rain"><div class="hour">12 AM</div><div class="wx-icon-cell"><svg class="wxi" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/><line x1="3.5" y1="9.5" x2="3" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="9.5" x2="5.5" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></div><div class="temp">48°</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── LSInstrumentReadout ── -->
+    <div class="group-head" style="margin-top:64px;"><h3><em>LSInstrumentReadout</em> — 4-col and 3-col variants</h3></div>
+
+    <div class="mol-grid" style="flex-direction:column;gap:32px;">
+
+      <!-- 4-col: Dist/Time/Climb/Scenic -->
+      <div class="mol-card" style="max-width:520px;">
+        <div class="mol-card-label">4 metrics — DIST / TIME / CLIMB / SCENIC</div>
+        <div class="ls-instrument-readout">
+          <div class="instr-divider"></div>
+          <div class="instrument-grid">
+            <div class="instr-cell"><div class="instr-label">Dist</div><div class="instr-value">64 mi</div></div>
+            <div class="instr-cell"><div class="instr-label">Time</div><div class="instr-value">2h 10m</div></div>
+            <div class="instr-cell"><div class="instr-label">Climb</div><div class="instr-value">2,400<div class="instr-sub">ft gain</div></div></div>
+            <div class="instr-cell"><div class="instr-label">Scenic</div><div class="instr-value accent">9.2</div></div>
+          </div>
+          <div class="instr-divider"></div>
+        </div>
+        <div class="mol-card-desc">Top/bottom LSDivider. Scenic score in accent copper. Tabular mono alignment.</div>
+      </div>
+
+      <!-- 3-col variant -->
+      <div class="mol-card" style="max-width:390px;">
+        <div class="mol-card-label">3 metrics — DIST / TIME / CLIMB</div>
+        <div class="ls-instrument-readout">
+          <div class="instr-divider"></div>
+          <div class="instrument-grid cols-3">
+            <div class="instr-cell"><div class="instr-label">Dist</div><div class="instr-value">38 mi</div></div>
+            <div class="instr-cell"><div class="instr-label">Time</div><div class="instr-value">1h 24m</div></div>
+            <div class="instr-cell"><div class="instr-label">Climb</div><div class="instr-value">1,100<div class="instr-sub">ft gain</div></div></div>
+          </div>
+          <div class="instr-divider"></div>
+        </div>
+        <div class="mol-card-desc">3-column variant when metrics.count != 4.</div>
+      </div>
+
+      <!-- Dark mode 4-col -->
+      <div class="mol-card" style="max-width:520px;">
+        <div class="mol-card-label">4 metrics · Dark Mode</div>
+        <div class="dark-panel" style="max-width:520px;">
+          <div class="ls-instrument-readout">
+            <div class="instr-divider"></div>
+            <div class="instrument-grid">
+              <div class="instr-cell"><div class="instr-label">Dist</div><div class="instr-value">82 mi</div></div>
+              <div class="instr-cell"><div class="instr-label">Time</div><div class="instr-value">2h 55m</div></div>
+              <div class="instr-cell"><div class="instr-label">Climb</div><div class="instr-value">3,100<div class="instr-sub">ft gain</div></div></div>
+              <div class="instr-cell"><div class="instr-label">Scenic</div><div class="instr-value accent">8.7</div></div>
+            </div>
+            <div class="instr-divider"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES & VARIANTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States</div>
+      <h2 class="section-title">State <em>spectrum</em>.</h2>
+    </div>
+
+    <div style="padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:880px;">
+      <div>
+        <div class="mol-label" style="margin-bottom:12px;">PhaseIndicator states</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-family:var(--font-ui);font-size:12px;color:var(--content-secondary);">
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">just-started</strong> — step 1 active, 0 done</div>
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">1-done</strong> — step 2 active, 1 done with strikethrough</div>
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">2-done / 3-done</strong> — incremental progress</div>
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">all-done</strong> — top border + chip switch to status.success</div>
+          <div style="padding:8px 0;"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">all-pending</strong> — no active dot, all hollow, used in previews</div>
+        </div>
+      </div>
+      <div>
+        <div class="mol-label" style="margin-bottom:12px;">WeatherTimeline + InstrumentReadout</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-family:var(--font-ui);font-size:12px;color:var(--content-secondary);">
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">6-hours / mixed-weather / all-clear</strong> — three timeline variants</div>
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">4-metrics</strong> — default instrument grid</div>
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">3-metrics</strong> — N-column variant when count != 4</div>
+          <div style="padding:8px 0;"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">long-values</strong> — instrument wraps gracefully at narrow widths</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 ATOMIC COMPOSITION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Composition</div>
+      <h2 class="section-title">Atoms <em>assembled</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="head">Molecule / Part</div><div class="head">Height</div><div class="head">Width</div><div class="head">Atom Source</div><div class="head">Notes</div>
+      <div>LSPhaseIndicator</div><div class="dim-val">auto</div><div class="dim-val">min 240pt</div><div>UC-ATM-08 (dot), UC-ATM-10 (icons)</div><div>glass panel border signal.tint top 2px signal.default</div>
+      <div>LSPhaseDot</div><div class="dim-val">10pt (prod)</div><div class="dim-val">10pt</div><div>UC-ATM-08</div><div>pulse ring inset -4pt; border 1.5pt</div>
+      <div>Phase step label</div><div class="dim-val">auto</div><div class="dim-val">flex</div><div>UC-ATM-01</div><div>t-instr-sm · pending tertiary · active primary · done strikethrough</div>
+      <div>LSWeatherTimeline</div><div class="dim-val">auto</div><div class="dim-val">min 320pt</div><div>UC-ATM-07 (wx tints), UC-ATM-10 (icons)</div><div>6 cells, grid repeat(6,1fr), gap 4pt</div>
+      <div>wx-cell</div><div class="dim-val">~52pt</div><div class="dim-val">1fr</div><div>—</div><div>bg color.weather.*.tint; border color.weather.*.default 33% alpha; radius 6pt</div>
+      <div>LSInstrumentReadout</div><div class="dim-val">auto</div><div class="dim-val">flex</div><div>UC-ATM-01</div><div>top + bottom LSDivider; grid repeat(N,1fr); labels t-label-xs; values t-instr-lg</div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Animation <em>recipes</em>.</h2>
+    </div>
+
+    <div class="motion-table">
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);">Recipe</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);">Trigger</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);">Effect</div>
+      <div class="motion-recipe">phaseDotPulse</div>
+      <div class="motion-trigger">LSPhaseDot state = active</div>
+      <div class="motion-effect">ring: scale(0.8, opacity 0.6) → scale(1.6, opacity 0.2) → loop; 900ms ease-in-out infinite</div>
+      <div class="motion-recipe">phaseStepComplete</div>
+      <div class="motion-trigger">Step transitions active → done</div>
+      <div class="motion-effect">dot bg: signal → status.success cross-fade 260ms ease; label: opacity fades to 0.5, text-decoration strikethrough appears</div>
+      <div class="motion-recipe">chatOverlayEnter</div>
+      <div class="motion-trigger">LSPhaseIndicator mounts over map</div>
+      <div class="motion-effect">translateY(-8px)→0 + opacity 0→1, 220ms spring(stiffness:340, damping:28)</div>
+      <div class="motion-recipe">bestBadgeEnter</div>
+      <div class="motion-trigger">all-done state reached</div>
+      <div class="motion-effect">Top border cross-fades signal→success, 280ms ease; compass chip icon swap scale(0.8)→1 180ms</div>
+      <div class="motion-recipe">instrumentCellEnter</div>
+      <div class="motion-trigger">LSInstrumentReadout mounts</div>
+      <div class="motion-effect">Each cell staggered 30ms: opacity 0→1 + translateY(4px)→0, 180ms ease</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE + AC -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Design <em>decisions</em>.</h2>
+    </div>
+
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Mono type for numbers</h4>
+        <p>The instrument readout uses JetBrains Mono at t-instr-lg (18pt) for
+        values — tabular-numeral alignment ensures that scanning a column of
+        numbers at a glance is accurate. Labels in t-label-sm (8.5pt) uppercase
+        Geist give structure without competing with the values. Opinion italic
+        for route names in the phase header maintains the three-family
+        typographic identity in a single component.</p>
+        <ul>
+          <li><strong>phaseDotPulse</strong> 900ms — slower than UI micro-animations; signals "the system is working"</li>
+          <li><strong>wx-cell tint+border</strong> — each condition is perceptually distinct even in partial color blindness</li>
+          <li><strong>instr-cell border-right</strong> — visual separator uses border.subtle, not a gap, so values align in a continuous band</li>
+        </ul>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability — 06-uc-mol.md §UC-MOL-07</h4>
+        <ul>
+          <li><div class="ac-cite">LSPhaseIndicator renders compass chip + opinion-italic header + 5-step list with LSPhaseDot per step</div></li>
+          <li><div class="ac-cite">Active step shows phaseDotPulse ring animation; labels in mono type</div></li>
+          <li><div class="ac-cite">LSWeatherTimeline renders 6 cells per-condition tinted bg, weather icons, temperatures in mono</div></li>
+          <li><div class="ac-cite">LSInstrumentReadout renders 4-column grid (N-column when count!=4) with top/bottom LSDividers</div></li>
+          <li><div class="ac-cite">Stories: PhaseIndicator: Default, All Done, All Pending; WeatherTimeline: 6 Hours, Mixed, All Clear; InstrumentReadout: 4 Metrics, 3 Metrics, Long Values</div></li>
+          <li><div class="ac-cite">Tests verify composition from atoms only; raw typography with literal colors fails inspection</div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>V2 · Copper · UC-MOL-07 · 2026-04-20</span></div>
+    <div class="footer-note">
+      Navigator Molecules<br>
+      Authority: .spec/prds/v2/06-uc-mol.md §UC-MOL-07<br>
+      Composes: UC-ATM-07, UC-ATM-08, UC-ATM-10
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

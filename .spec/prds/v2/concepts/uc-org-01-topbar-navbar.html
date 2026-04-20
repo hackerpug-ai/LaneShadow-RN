@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<!-- uc-org-01-topbar-navbar.html — UC-ORG-01 "LSTopBar + LSNavBar"
+     LaneShadow V2 · Copper · Navigator Organism Mock · 2026-04-20
+     Authority: .spec/prds/v2/07-uc-org.md §UC-ORG-01 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ORG-01 — LSTopBar + LSNavBar — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — copied from uc-scr-01-idle.html style spine
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;--paper-200:#F2EFED;
+  --paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --status-warning:#C46F1B;--status-recording:#C9423C;
+  --font-opinion:'Newsreader',Georgia,serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);--surface-inset:var(--paper-200);
+  --surface-overlay:rgba(253,251,248,0.92);--surface-glass:rgba(253,251,248,0.72);
+  --surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);--map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);--content-onSignal:#FFF;
+  --signal-default:var(--copper-500);--signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);--border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --action-primary:var(--copper-500);--action-outline:transparent;--action-ghost:var(--paper-200);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+}
+.mode-dark{
+  --surface-primary:var(--ink-800);--surface-card:var(--ink-700);--surface-inset:var(--ink-600);
+  --surface-overlay:rgba(45,34,24,0.92);--surface-glass:rgba(45,34,24,0.72);
+  --surface-scrim:rgba(10,6,3,0.50);--map-paper:#1B140E;
+  --map-contour:rgba(242,238,232,0.16);--map-contour-faint:rgba(242,238,232,0.07);
+  --content-primary:var(--ink-050);--content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200);--content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12);--border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  --action-ghost:rgba(242,238,232,0.08);
+  --elev-overlay:0 8px 24px rgba(0,0,0,0.42),0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:0 1px 3px rgba(0,0,0,0.24),0 4px 14px rgba(0,0,0,0.28);
+}
+
+/* TYPOGRAPHY */
+.t-opinion-xl{font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em;}
+.t-opinion-lg{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em;}
+.t-opinion-md{font-family:var(--font-opinion);font-weight:400;font-size:17px;line-height:1.32;}
+.t-title-lg{font-family:var(--font-ui);font-weight:600;font-size:17px;line-height:1.24;letter-spacing:-0.01em;}
+.t-title-md{font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em;}
+.t-title-sm{font-family:var(--font-ui);font-weight:600;font-size:12px;line-height:1.28;}
+.t-body-md{font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52;}
+.t-body-sm{font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48;}
+.t-label-lg{font-family:var(--font-ui);font-weight:500;font-size:11px;line-height:1.0;letter-spacing:0.08em;text-transform:uppercase;}
+.t-label-md{font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase;}
+.t-label-sm{font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase;}
+.t-instr-lg{font-family:var(--font-instrument);font-weight:500;font-size:18px;line-height:1.12;letter-spacing:-0.02em;font-feature-settings:"tnum" 1;}
+.t-instr-md{font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;letter-spacing:-0.01em;font-feature-settings:"tnum" 1;}
+.t-instr-sm{font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-xs{font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1;}
+
+/* DOC CHROME */
+body{font-family:var(--font-ui);color:var(--content-primary);background:var(--surface-primary);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden;}
+.wrap{max-width:1440px;margin:0 auto;padding:0 72px;}
+.doc-header{position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden;}
+.doc-header::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none;}
+.doc-header>*{position:relative;z-index:1;}
+.doc-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px;}
+.doc-eyebrow::before{content:"";width:28px;height:1px;background:var(--signal-default);}
+.doc-eyebrow-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em;}
+.doc-title{font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px;}
+.doc-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.doc-tagline{font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px;}
+.doc-meta-row{display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default);}
+.meta-item{display:flex;flex-direction:column;gap:6px;}
+.meta-label{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);}
+.meta-value{font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary);}
+.section{padding:96px 0;border-bottom:1px solid var(--border-default);position:relative;}
+.section:last-child{border-bottom:none;}
+.section-header{display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px;}
+.section-index{font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.section-index::before{content:"";display:block;width:48px;height:1px;background:var(--signal-default);}
+.section-title{font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;}
+.section-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.prose{font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px;}
+.prose+.prose{margin-top:20px;}
+.prose em{font-style:italic;}
+.prose strong{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px;}
+.screens-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:56px 40px;align-items:start;padding-left:152px;}
+.screens-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.screens-grid.cols-5{grid-template-columns:repeat(5,1fr);}
+.screen-cell{display:flex;flex-direction:column;gap:22px;}
+.screen-annotation{display:flex;flex-direction:column;gap:8px;max-width:280px;}
+.screen-num{font-family:var(--font-instrument);font-size:10.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);}
+.screen-name{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);}
+.screen-desc{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:14px;line-height:1.6;color:var(--content-secondary);}
+.ac-cite{font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px;}
+.ac-cite::before{content:"☐";position:absolute;left:0;top:0;color:var(--border-strong);}
+
+/* PHONE FRAME */
+.phone-frame{width:100%;max-width:282px;margin:0 auto;aspect-ratio:9/19.5;position:relative;border-radius:44px;background:#0F0A07;box-shadow:inset 0 0 0 1px #2A1F16,inset 0 0 0 2.5px #0F0A07,0 30px 70px -16px rgba(34,24,16,0.38),0 10px 24px -10px rgba(34,24,16,0.22);overflow:hidden;}
+.phone-screen{position:absolute;inset:3px;border-radius:41px;overflow:hidden;display:flex;flex-direction:column;background:var(--surface-primary);color:var(--content-primary);isolation:isolate;}
+.phone-di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#000;border-radius:14px;z-index:60;}
+.phone-sb{display:flex;justify-content:space-between;align-items:center;padding:46px 22px 0;flex-shrink:0;z-index:10;position:relative;}
+.phone-sb .sb-time{font-family:var(--font-instrument);font-size:12px;font-weight:600;letter-spacing:-0.02em;color:var(--content-primary);}
+.phone-sb .sb-icons{display:flex;gap:5px;align-items:center;color:var(--content-primary);}
+.phone-hi{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:3px;z-index:60;background:rgba(0,0,0,0.38);}
+.mode-dark .phone-hi{background:rgba(255,255,255,0.30);}
+
+/* PAPER MAP */
+.pmap{position:absolute;inset:0;background:var(--map-paper);overflow:hidden;z-index:0;}
+.pmap::before{content:"";position:absolute;inset:-8px;background-image:linear-gradient(var(--map-contour-faint) 1px,transparent 1px),linear-gradient(90deg,var(--map-contour-faint) 1px,transparent 1px);background-size:28px 28px;opacity:0.55;pointer-events:none;}
+.pmap::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(34,24,16,0.08) 100%);pointer-events:none;}
+.mode-dark .pmap::after{background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(0,0,0,0.40) 100%);}
+
+/* ═══════════ LSTopBar ORGANISM ═══════════
+   Positions: absolute top:46px (below status bar), z-index 30.
+   Chips: 40×40 circular (hamburger) or 40h pill (NEW).
+   Both use LSGlassPanel.chrome (glass backdrop + blur).
+   Safe-area top padding: 14pt below the 46pt status bar offset = 60pt from phone top.
+*/
+.ls-topbar{
+  position:absolute;top:46px;left:0;right:0;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 14px 0;z-index:30;
+}
+.chrome-chip{
+  background:var(--surface-glass);
+  border:1px solid rgba(255,255,255,0.55);
+  box-shadow:var(--elev-chrome);
+  backdrop-filter:blur(14px) saturate(1.2);
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--content-primary);
+}
+.mode-dark .chrome-chip{border-color:rgba(242,238,232,0.12);}
+/* circular: 40×40pt, radius.md = 50% */
+.chrome-chip.circular{width:40px;height:40px;border-radius:50%;}
+/* pill: 40h, dynamic width, 22px radius */
+.chrome-chip.pill{padding:0 14px;height:40px;border-radius:22px;display:flex;align-items:center;gap:6px;}
+
+/* Title centered absolutely between chips */
+.topbar-title{
+  position:absolute;left:0;right:0;top:14px;
+  display:flex;justify-content:center;align-items:center;
+  pointer-events:none;padding-top:0;
+  font-family:var(--font-ui);font-weight:600;font-size:14px;
+  letter-spacing:-0.005em;color:var(--content-primary);
+}
+
+/* Recording chip variant — copper → red */
+.chrome-chip.record{
+  background:rgba(201,66,60,0.12);
+  border-color:rgba(201,66,60,0.4);
+}
+.chrome-chip.record .rec-dot{
+  width:6px;height:6px;border-radius:50%;background:#C9423C;
+  margin-right:4px;animation:rec-pulse 1.4s ease-in-out infinite;
+}
+@keyframes rec-pulse{0%,100%{opacity:1;}50%{opacity:0.45;}}
+
+/* ═══════════ LSNavBar ORGANISM (modal sheet toolbar) ═══════════ */
+.ls-navbar{
+  display:flex;align-items:center;gap:0;
+  background:var(--surface-card);
+  border-bottom:1px solid var(--border-default);
+  padding:12px 14px;
+  position:relative;
+  flex-shrink:0;
+}
+.nb-leading{display:flex;align-items:center;gap:6px;}
+.nb-title{
+  position:absolute;left:0;right:0;
+  display:flex;justify-content:center;align-items:center;pointer-events:none;
+  font-family:var(--font-ui);font-weight:600;font-size:14px;
+  letter-spacing:-0.005em;color:var(--content-primary);
+}
+.nb-trailing{margin-left:auto;display:flex;align-items:center;gap:6px;}
+.nb-icon-btn{
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--content-secondary);
+}
+.nb-back{
+  display:flex;align-items:center;gap:4px;
+  font-family:var(--font-ui);font-size:12px;font-weight:500;
+  color:var(--signal-default);
+}
+.nb-filter-row{
+  display:flex;gap:6px;padding:8px 14px 10px;overflow-x:auto;
+  background:var(--surface-card);border-bottom:1px solid var(--border-default);
+  scrollbar-width:none;
+}
+.nb-filter-row::-webkit-scrollbar{display:none;}
+.nb-filter-chip{
+  flex-shrink:0;padding:6px 12px;border-radius:999px;
+  border:1px solid var(--border-default);background:transparent;
+  font-family:var(--font-ui);font-size:11px;font-weight:500;
+  color:var(--content-secondary);
+}
+.nb-filter-chip.active{
+  background:var(--signal-whisper);border-color:var(--signal-tint);
+  color:var(--signal-default);font-weight:600;
+}
+.nb-search-row{
+  padding:8px 14px 10px;background:var(--surface-card);
+  border-bottom:1px solid var(--border-default);
+}
+.nb-search-input{
+  height:36px;background:var(--surface-inset);border:1px solid var(--border-default);
+  border-radius:10px;display:flex;align-items:center;gap:8px;padding:0 10px;
+  color:var(--content-tertiary);font-family:var(--font-ui);font-size:12px;
+}
+
+/* ═══════════ COMPONENT TABLE / ANNOTATION ═══════════ */
+.cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-left:152px;}
+.cmp-card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;}
+.cmp-tier-label{font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;color:var(--signal-default);text-transform:uppercase;margin-bottom:14px;display:block;}
+.cmp-item{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.cmp-item:last-child{border-bottom:none;}
+.cmp-name{font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);margin-bottom:4px;}
+.cmp-ref{font-family:var(--font-instrument);font-size:10px;color:var(--content-tertiary);line-height:1.4;}
+.dim-table{padding-left:152px;display:grid;grid-template-columns:200px 140px 1fr;row-gap:8px;column-gap:24px;font-family:var(--font-ui);font-size:13px;align-items:baseline;}
+.dim-table>div{padding:9px 0;border-bottom:1px solid var(--border-subtle);}
+.dim-name{font-weight:600;color:var(--content-primary);}
+.dim-val{font-family:var(--font-instrument);font-size:11.5px;color:var(--signal-default);}
+.dim-desc{color:var(--content-secondary);}
+.motion-table{padding-left:152px;display:grid;grid-template-columns:180px 1fr 2fr;row-gap:14px;column-gap:28px;font-family:var(--font-ui);font-size:13px;}
+.motion-table>div{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.motion-recipe{font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px;}
+.motion-trigger{color:var(--content-primary);font-weight:500;}
+.motion-effect{color:var(--content-secondary);}
+.rationale-grid{padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+.rationale-block h4{font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px;}
+.rationale-block p{font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px;}
+.rationale-block ul{list-style:none;}
+.rationale-block li{padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle);}
+.rationale-block li::before{content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument);}
+.rationale-block li strong{font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px;}
+.doc-footer{padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;}
+.footer-mark{font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;letter-spacing:-0.02em;}
+.footer-mark em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.footer-mark span{display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300;}
+.footer-note{font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300;}
+
+/* NAVBAR STANDALONE MOCK container */
+.navbar-mock{
+  background:var(--surface-card);border:1px solid var(--border-default);
+  border-radius:16px;overflow:hidden;max-width:320px;
+  box-shadow:var(--elev-card);
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-ORG-01</span><span class="doc-eyebrow-pill">● Organisms · Template</span></div>
+    <h1 class="doc-title">Chrome<br>that <em>floats</em>.</h1>
+    <p class="doc-tagline">
+      Two top-chrome organisms. LSTopBar rides above every Navigator screen,
+      glass-backed, invisible to the map below. LSNavBar anchors modal sheets
+      with back, title, and close.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ORG-01</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">07-uc-org.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light (+ dark)</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Glass <em>chrome</em> above the map.</h2>
+    </div>
+    <p class="prose">
+      <strong>LSTopBar</strong> is the primary top chrome organism used on every
+      Navigator screen — Idle, Planning, RouteResults, RouteDetails, and Error.
+      It floats above the map via <em>LSGlassPanel(.chrome)</em>, respecting the
+      status-bar safe area, and exposes three slots: a leading hamburger chip,
+      an optional centered title, and a trailing NEW chip. Both chips are 40pt
+      diameter circular or pill-height constructs backed by the same glass surface
+      so they read legibly against both light paper and dark night-mode maps.
+    </p>
+    <p class="prose">
+      <strong>LSNavBar</strong> is retained for modal-sheet and full-screen modal
+      contexts. It composes LSToolbar with an optional filter-chip row or search
+      slot. It does not appear on any Navigator map screen — it only surfaces
+      inside sheets and modals.
+    </p>
+  </section>
+</div>
+
+<!-- §02 STORIES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · Stories</div>
+      <h2 class="section-title"><em>LSTopBar</em> — five states.</h2>
+    </div>
+
+    <!-- LSTopBar Stories -->
+    <div class="screens-grid cols-5" style="padding-left:152px;">
+
+      <!-- Story 1: Default -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                  <rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                  <rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                </svg>
+              </div>
+              <div class="chrome-chip pill">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span class="t-label-md">NEW</span>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.01</div>
+          <div class="screen-name">Default</div>
+          <div class="screen-desc">Hamburger leading + NEW pill trailing. No title. Both glass-backed.</div>
+        </div>
+      </div>
+
+      <!-- Story 2: With Title -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                  <rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                  <rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                </svg>
+              </div>
+              <div class="topbar-title" style="font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);text-shadow:0 1px 8px var(--surface-glass);">Details</div>
+              <div class="chrome-chip pill">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span class="t-label-md">NEW</span>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.02</div>
+          <div class="screen-name">With Title</div>
+          <div class="screen-desc">Centered title in ui.title.md between the two chips. Title centered absolutely.</div>
+        </div>
+      </div>
+
+      <!-- Story 3: Hamburger Only -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                  <rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                  <rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                </svg>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.03</div>
+          <div class="screen-name">Hamburger Only</div>
+          <div class="screen-desc">Trailing slot empty. Used on screens where NEW is contextually absent.</div>
+        </div>
+      </div>
+
+      <!-- Story 4: Record Highlight -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                  <rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                  <rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                </svg>
+              </div>
+              <div class="chrome-chip pill record" style="color:#C9423C;">
+                <span class="rec-dot"></span>
+                <span style="font-family:var(--font-ui);font-weight:700;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;">REC</span>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.04</div>
+          <div class="screen-name">Record Highlight</div>
+          <div class="screen-desc">Trailing chip swapped to recording indicator. Pulsing red dot + REC label from color.status.recording.</div>
+        </div>
+      </div>
+
+      <!-- Story 5: Dark Mode -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                  <rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                  <rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/>
+                </svg>
+              </div>
+              <div class="chrome-chip pill">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <line x1="7" y1="2" x2="7" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <line x1="2" y1="7" x2="12" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span class="t-label-md">NEW</span>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.05</div>
+          <div class="screen-name">Dark Mode</div>
+          <div class="screen-desc">Glass tint + blur re-resolve against dark paper map. Border adopts ink-tinted alpha.</div>
+        </div>
+      </div>
+
+    </div><!-- /screens-grid -->
+
+    <!-- LSNavBar Stories -->
+    <div class="section-header" style="margin-top:96px;">
+      <div class="section-index">&nbsp;</div>
+      <h2 class="section-title"><em>LSNavBar</em> — three variants.</h2>
+    </div>
+    <div class="screens-grid cols-3" style="padding-left:152px;margin-top:0;">
+
+      <!-- NavBar: Back + Title + Close -->
+      <div class="screen-cell">
+        <div class="navbar-mock">
+          <div class="ls-navbar">
+            <div class="nb-leading">
+              <div class="nb-icon-btn" style="color:var(--signal-default);">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M11 4L6 9L11 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <span class="nb-back">Back</span>
+            </div>
+            <div class="nb-title">Filter</div>
+            <div class="nb-trailing">
+              <div class="nb-icon-btn">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <line x1="3" y1="3" x2="13" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <line x1="13" y1="3" x2="3" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">N.01</div>
+          <div class="screen-name">Back + Title + Close</div>
+          <div class="screen-desc">Standard modal toolbar. Back leading (signal-colored), centered title, close trailing.</div>
+        </div>
+      </div>
+
+      <!-- NavBar: Filter chip row -->
+      <div class="screen-cell">
+        <div class="navbar-mock">
+          <div class="ls-navbar">
+            <div class="nb-leading">
+              <div class="nb-icon-btn" style="color:var(--signal-default);">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M11 4L6 9L11 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="nb-title">Routes</div>
+            <div class="nb-trailing">
+              <div class="nb-icon-btn">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <line x1="3" y1="3" x2="13" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <line x1="13" y1="3" x2="3" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="nb-filter-row">
+            <div class="nb-filter-chip active">All</div>
+            <div class="nb-filter-chip">Scenic</div>
+            <div class="nb-filter-chip">Short</div>
+            <div class="nb-filter-chip">Saved</div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">N.02</div>
+          <div class="screen-name">Filter Chip Row</div>
+          <div class="screen-desc">Toolbar + scrollable filter-chip row below. Active chip tinted signal copper.</div>
+        </div>
+      </div>
+
+      <!-- NavBar: Search slot -->
+      <div class="screen-cell">
+        <div class="navbar-mock">
+          <div class="ls-navbar">
+            <div class="nb-leading">
+              <div class="nb-icon-btn" style="color:var(--signal-default);">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M11 4L6 9L11 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="nb-title">Search</div>
+            <div class="nb-trailing">
+              <div class="nb-icon-btn">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <line x1="3" y1="3" x2="13" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <line x1="13" y1="3" x2="3" y2="13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="nb-search-row">
+            <div class="nb-search-input">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.4"/>
+                <line x1="9" y1="9" x2="12" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+              <span>Search routes…</span>
+            </div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">N.03</div>
+          <div class="screen-name">Search Slot</div>
+          <div class="screen-desc">Toolbar + search input below. Inset background, border-radius 10pt.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES/VARIANTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States</div>
+      <h2 class="section-title">Chips, slots, <em>variants</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="dim-name">LSTopBar.hamburger</div><div class="dim-val">40×40pt circular</div><div class="dim-desc">LSGlassPanel.chrome, LSIcon(.menu), z-index 30, radius 50%</div>
+      <div class="dim-name">LSTopBar.newChip</div><div class="dim-val">40pt h × dynamic w</div><div class="dim-desc">LSGlassPanel.chrome pill, 22pt radius, .plus icon + "NEW" ui.label.md</div>
+      <div class="dim-name">LSTopBar.title</div><div class="dim-val">centered absolute</div><div class="dim-desc">ui.title.md (14pt 600), pointer-events:none, z-index below chips</div>
+      <div class="dim-name">LSTopBar safe-area top</div><div class="dim-val">46pt + 14pt = 60pt</div><div class="dim-desc">46pt status-bar offset + 14pt padding below it</div>
+      <div class="dim-name">LSTopBar z-index</div><div class="dim-val">30</div><div class="dim-desc">Above map (0), scrim (1), overlays (20), below sheet (40)</div>
+      <div class="dim-name">LSNavBar height</div><div class="dim-val">~56pt total</div><div class="dim-desc">12pt padding top+bottom, 34pt icon targets, surface.card bg</div>
+      <div class="dim-name">Record chip bg</div><div class="dim-val">rgba(201,66,60,0.12)</div><div class="dim-desc">color.status.recording at 12% alpha + red dot pulse animation</div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 COMPOSITION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Composition</div>
+      <h2 class="section-title">Atoms <em>consumed</em>.</h2>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Atoms</span>
+        <div class="cmp-item"><div class="cmp-name">LSGlassPanel(.chrome)</div><div class="cmp-ref">UC-ATM-05 · surface-glass bg, blur(14px), elev-chrome</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon(.menu)</div><div class="cmp-ref">UC-ATM-10 · 18×18 three-line hamburger</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon(.plus)</div><div class="cmp-ref">UC-ATM-10 · 14×14 cross for NEW chip</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon(.chevronL / .close)</div><div class="cmp-ref">UC-ATM-10 · NavBar back + close targets</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Molecules</span>
+        <div class="cmp-item"><div class="cmp-name">LSToolbar</div><div class="cmp-ref">UC-MOL-02 · base of LSNavBar, leading/trailing slots</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSButton(.outline)</div><div class="cmp-ref">UC-ATM-02 · filter chip pattern in NavBar</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Tokens</span>
+        <div class="cmp-item"><div class="cmp-name">surface-glass</div><div class="cmp-ref">rgba(253,251,248,0.72) light / rgba(45,34,24,0.72) dark</div></div>
+        <div class="cmp-item"><div class="cmp-name">elev-chrome</div><div class="cmp-ref">0 1px 3px …0.04, 0 4px 14px …0.06</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.ui.label.md</div><div class="cmp-ref">9.5px 600 0.12em uppercase — NEW label</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.ui.title.md</div><div class="cmp-ref">14px 600 — TopBar title + NavBar title</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Dimensions</span>
+        <div class="cmp-item"><div class="cmp-name">Chip diameter</div><div class="cmp-ref">40pt (circular) / 40pt h (pill)</div></div>
+        <div class="cmp-item"><div class="cmp-name">Top inset</div><div class="cmp-ref">60pt from screen top (46 + 14)</div></div>
+        <div class="cmp-item"><div class="cmp-name">Horizontal padding</div><div class="cmp-ref">14pt each side</div></div>
+        <div class="cmp-item"><div class="cmp-name">Blur</div><div class="cmp-ref">backdrop-filter: blur(14px) saturate(1.2)</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">No motion — <em>chrome persists</em>.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="motion-recipe">none</div>
+      <div class="motion-trigger">TopBar enter</div>
+      <div class="motion-effect">TopBar is always-present chrome; it does not animate in/out. The map content behind it changes; the bar remains fixed.</div>
+      <div class="motion-recipe">none</div>
+      <div class="motion-trigger">NavBar enter (modal)</div>
+      <div class="motion-effect">NavBar inherits the modal sheet's entrance animation (UC-MOL-03 LSBottomSheet / UIKit present); no separate recipe.</div>
+      <div class="motion-recipe">rec-pulse</div>
+      <div class="motion-trigger">Record chip active</div>
+      <div class="motion-effect">CSS keyframe 1.4s ease-in-out; red dot opacity 1 → 0.45 → 1 to signal active recording state.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE + AC -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Why <em>glass</em>, not solid.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design Decision</h4>
+        <p>Both chips use LSGlassPanel(.chrome) rather than a solid surface so the map remains readable at the edges of the screen. A solid bar would create a hard horizon; the glass chips float above the terrain without interrupting the spatial reading of the map.</p>
+        <p>The circular hamburger and pill NEW chip are differentiated by shape so riders can identify them without reading labels — circle means navigation history, pill with icon means new session.</p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability — 07-uc-org.md §UC-ORG-01</h4>
+        <ul>
+          <li><strong>AC-1</strong> LSTopBar(onMenuTap, onNewTap) → hamburger chip leading, NEW chip trailing, both LSGlassPanel.chrome</li>
+          <li><strong>AC-2</strong> LSTopBar(title: "Details", ...) → centered title between chips in ui.title.md</li>
+          <li><strong>AC-3</strong> onMenuTap / onNewTap fire once per tap</li>
+          <li><strong>AC-4</strong> Stories: Default, With Title, Hamburger Only, Record Highlight — all present</li>
+          <li><strong>AC-5</strong> LSNavBar(title, leading .back, trailing .close) → standard modal toolbar</li>
+          <li><strong>AC-6</strong> Light/dark toggle re-resolves glass tint + blur on both map styles</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>UC-ORG-01 · LSTopBar + LSNavBar · Copper · 2026-04-20</span></div>
+    <p class="footer-note">Organism tier. Composes only from ATM + MOL layers.<br>No raw colors. No inline dimensions outside the token system.</p>
+  </footer>
+</div>
+
+</body>
+</html>

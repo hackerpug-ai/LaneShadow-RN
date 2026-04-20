@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<!-- uc-mol-08-location-route.html — UC-MOL-08 "LocationContextBar + RouteAttachmentCard"
+     LaneShadow V2 · Copper · Molecule Design Mock · 2026-04-20
+     Molecules: LSLocationContextBar + LSRouteAttachmentCard
+     Authority: .spec/prds/v2/06-uc-mol.md §UC-MOL-08 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-MOL-08 — LocationContextBar + RouteAttachmentCard — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — copied from uc-scr-01-idle.html spine
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:#FDFBF8; --paper-100:#F8F7F6; --paper-150:#F5F2EE; --paper-200:#F2EFED;
+  --paper-300:#EDE7E1; --paper-400:#E5DED9; --paper-500:#C9BDB3;
+  --ink-900:#1E1A16; --ink-800:#221810; --ink-700:#2D2218; --ink-600:#362A1F;
+  --ink-500:#3D3228; --ink-400:#49454F; --ink-300:#6B6460; --ink-200:#9CA3AF;
+  --ink-100:#CAC4D0; --ink-050:#F2EEE8;
+  --copper-700:#9E4A22; --copper-600:#B85A2C; --copper-500:#EE7C2B;
+  --copper-400:#F3A164; --copper-200:#F9D5B5; --copper-100:#FCE8D4;
+  --route-best:#EE7C2B; --route-alt1:#4D8470; --route-alt2:#6B7B8F;
+  --wx-clear:#E6A52A; --wx-clear-tint:#FBEFCF;
+  --wx-rain:#4A86BE; --wx-rain-tint:#DBEAF4;
+  --wx-wind:#6B7B8F; --wx-wind-tint:#E1E6EC;
+  --font-opinion:'Newsreader',Georgia,'Times New Roman',serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono','Menlo',monospace;
+
+  --surface-primary:var(--paper-100); --surface-card:var(--paper-50);
+  --surface-inset:var(--paper-200); --surface-glass:rgba(253,251,248,0.72);
+  --content-primary:var(--ink-900); --content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300); --content-subtle:var(--ink-200);
+  --content-onSignal:#FFFFFF;
+  --signal-default:var(--copper-500); --signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200); --signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400); --border-subtle:var(--paper-300); --border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+}
+
+/* Dark override */
+.dark-panel {
+  --surface-primary:var(--ink-800); --surface-card:var(--ink-700);
+  --surface-inset:var(--ink-600); --surface-glass:rgba(45,34,24,0.72);
+  --content-primary:var(--ink-050); --content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200); --content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12); --border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  background: var(--surface-primary);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ═══════════════════════════════════════════════════════════════════════ */
+.t-opinion-xl  { font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em; }
+.t-opinion-lg  { font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em; }
+.t-title-md    { font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em; }
+.t-title-sm    { font-family:var(--font-ui);font-weight:600;font-size:12px;line-height:1.28; }
+.t-body-md     { font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52; }
+.t-body-sm     { font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48; }
+.t-label-lg    { font-family:var(--font-ui);font-weight:500;font-size:11px;line-height:1.0;letter-spacing:0.08em;text-transform:uppercase; }
+.t-label-md    { font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase; }
+.t-label-sm    { font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase; }
+.t-instr-lg    { font-family:var(--font-instrument);font-weight:500;font-size:18px;line-height:1.12;letter-spacing:-0.02em;font-feature-settings:"tnum" 1; }
+.t-instr-sm    { font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1; }
+.t-instr-xs    { font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCUMENT CHROME
+   ═══════════════════════════════════════════════════════════════════════ */
+body { font-family:var(--font-ui);color:var(--content-primary);background:var(--surface-primary);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden; }
+.wrap { max-width:1440px;margin:0 auto;padding:0 72px; }
+.doc-header { position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden; }
+.doc-header::before { content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none; }
+.doc-header>* { position:relative;z-index:1; }
+.doc-eyebrow { display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px; }
+.doc-eyebrow::before { content:"";width:28px;height:1px;background:var(--signal-default); }
+.doc-eyebrow-pill { display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em; }
+.doc-title { font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px; }
+.doc-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.doc-tagline { font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px; }
+.doc-meta-row { display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default); }
+.meta-item { display:flex;flex-direction:column;gap:6px; }
+.meta-label { font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary); }
+.meta-value { font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary); }
+.section { padding:96px 0;border-bottom:1px solid var(--border-default);position:relative; }
+.section:last-child { border-bottom:none; }
+.section-header { display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px; }
+.section-index { font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px; }
+.section-index::before { content:"";display:block;width:48px;height:1px;background:var(--signal-default); }
+.section-title { font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px; }
+.section-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.prose { font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px; }
+.prose+.prose { margin-top:20px; }
+.prose em { font-style:italic; }
+.prose strong { font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px; }
+.ac-cite { font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px; }
+.ac-cite::before { content:"☐";position:absolute;left:0;top:0;color:var(--border-strong); }
+.doc-footer { padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end; }
+.footer-mark { font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em; }
+.footer-mark em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.footer-mark span { display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300; }
+.footer-note { font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LAYOUT HELPERS
+   ═══════════════════════════════════════════════════════════════════════ */
+.mol-label { font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default); }
+.mol-sub { font-family:var(--font-ui);font-size:10px;color:var(--content-tertiary);line-height:1.5; }
+.group-head { padding-left:152px;margin-bottom:24px;margin-top:48px; }
+.group-head:first-child { margin-top:0; }
+.group-head h3 { font-family:var(--font-opinion);font-size:28px;font-weight:300;color:var(--content-secondary);letter-spacing:-0.015em; }
+.group-head h3 em { font-style:italic;color:var(--signal-default); }
+.mol-grid { display:flex;flex-wrap:wrap;gap:32px;padding-left:152px;align-items:flex-start; }
+.mol-card { display:flex;flex-direction:column;gap:10px; }
+.mol-card-label { font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default); }
+.mol-card-desc { font-family:var(--font-ui);font-size:10.5px;color:var(--content-tertiary);line-height:1.55;max-width:280px;margin-top:4px; }
+
+/* Dim table */
+.dim-table { padding-left:152px;display:grid;grid-template-columns:240px 80px 120px 140px 1fr;row-gap:0;column-gap:0; }
+.dim-table>div { padding:10px 14px;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:12px;color:var(--content-secondary); }
+.dim-table>div.head { font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px; }
+.dim-val { font-family:var(--font-instrument);color:var(--content-primary); }
+
+/* Motion table */
+.motion-table { padding-left:152px;display:grid;grid-template-columns:200px 1fr 2fr;row-gap:0;column-gap:28px; }
+.motion-table>div { padding:10px 0;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:13px; }
+.motion-recipe { font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px; }
+.motion-trigger { color:var(--content-primary);font-weight:500; }
+.motion-effect { color:var(--content-secondary); }
+
+/* Rationale */
+.rationale-grid { padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px; }
+.rationale-block h4 { font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px; }
+.rationale-block p { font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px; }
+.rationale-block ul { list-style:none; }
+.rationale-block li { padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle); }
+.rationale-block li::before { content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument); }
+.rationale-block li strong { font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSLocationContextBar
+   Matches uc-scr-01-idle .ls-location-bar + .tag-pill exactly
+   ═══════════════════════════════════════════════════════════════════════ */
+.ls-location-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4px;       /* spacing.2 horizontal per spec */
+}
+.ls-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: var(--elev-chrome);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--content-secondary);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: default;
+}
+.dark-panel .ls-tag-pill { border-color: rgba(242,238,232,0.12); }
+.ls-tag-pill .pin-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--signal-default); flex-shrink: 0; }
+.ls-tag-pill.mode-label {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.ls-tag-pill.mode-label:hover { background: var(--surface-inset); }
+
+/* Variant: non-glass surface (used outside of map layer) */
+.ls-tag-pill.surface {
+  background: var(--surface-card);
+  border-color: var(--border-default);
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.ls-tag-pill.surface .pin-dot { background: var(--signal-default); }
+
+/* Context bar wrapper for standalone demo */
+.ls-location-bar-demo {
+  background: var(--surface-glass);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 12px;
+  padding: 8px 4px;
+  box-shadow: var(--elev-chrome);
+  min-width: 320px;
+}
+.dark-panel .ls-location-bar-demo { border-color: rgba(242,238,232,0.12); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSRouteAttachmentCard
+   Matches uc-scr-03 .rt-card exactly — same dimensions, same tokens
+   ═══════════════════════════════════════════════════════════════════════ */
+.rt-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 9px 10px 9px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+  min-width: 260px;
+  max-width: 320px;
+}
+.rt-card:hover { box-shadow: var(--elev-card); }
+.rt-card.selected {
+  border-color: var(--signal-default);
+  background: color-mix(in srgb, var(--surface-card) 92%, var(--signal-default));
+}
+/* 3px leading variant stripe */
+.rt-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 0;
+}
+.rt-card.v-best::before  { background: var(--route-best); }
+.rt-card.v-alt1::before  { background: var(--route-alt1); }
+.rt-card.v-alt2::before  { background: var(--route-alt2); }
+
+/* Compact padding */
+.rt-card.compact { padding: 8px 10px 8px 13px; }
+
+/* ── Card head row ── */
+.rt-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.rt-best-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  background: var(--signal-default);
+  color: #FFF;
+  border-radius: 3px;
+  font-family: var(--font-ui);
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 5px rgba(238,124,43,0.4);
+  flex-shrink: 0;
+}
+.rt-card-title {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--content-primary);
+  flex: 1;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rt-card-title.long { white-space: normal; }
+
+/* ── Via subtitle ── */
+.rt-card-via {
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: 10px;
+  color: var(--content-secondary);
+  line-height: 1.3;
+  padding-left: 0;
+}
+
+/* ── Right-aligned weather badge ── */
+.rt-card-right {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+.wx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: var(--font-ui);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.wx-clear { background: var(--wx-clear-tint); color: var(--wx-clear); border: 1px solid rgba(230,165,42,0.33); }
+.wx-wind  { background: var(--wx-wind-tint);  color: var(--wx-wind);  border: 1px solid rgba(107,123,143,0.33); }
+.wx-rain  { background: var(--wx-rain-tint);  color: var(--wx-rain);  border: 1px solid rgba(74,134,190,0.33); }
+
+/* ── Metrics row ── */
+.rt-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+.rt-meta-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  color: var(--content-primary);
+  font-feature-settings: "tnum" 1;
+}
+.rt-meta-sep {
+  width: 1px;
+  height: 10px;
+  background: var(--border-default);
+}
+/* Scenic 5-dot meter */
+.rt-scenic-dots {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+.rt-scenic-dots .d {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--border-strong);
+}
+.rt-scenic-dots .d.f { background: var(--signal-default); }
+.rt-scenic-label {
+  font-family: var(--font-ui);
+  font-size: 7.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--content-tertiary);
+  text-transform: uppercase;
+}
+
+/* ── Favorite flag row ── */
+.rt-fav-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+.rt-fav-icon {
+  color: var(--signal-default);
+  flex-shrink: 0;
+}
+.rt-fav-label {
+  font-family: var(--font-ui);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--signal-default);
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-MOL-08</span><span class="doc-eyebrow-pill">● Molecules · Location + Route</span></div>
+    <h1 class="doc-title">Location<br>and <em>route</em>.</h1>
+    <p class="doc-tagline">
+      LSLocationContextBar: the two-pill row showing where you are and
+      whether location is auto or manually set. LSRouteAttachmentCard:
+      the compact card that carries a route into the Navigator chat,
+      with a 3px color-coded leading stripe.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-MOL-08</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">06-uc-mol.md</div></div>
+      <div class="meta-item"><div class="meta-label">Composes</div><div class="meta-value">UC-ATM-06,07,10</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Context <em>before</em> the prompt.</h2>
+    </div>
+    <p class="prose">
+      LSLocationContextBar slots above the suggestion row in LSChatInput,
+      surfacing two pieces of ambient context — your location and whether
+      it is derived automatically or set manually. Tapping the mode pill
+      fires <em>onModeChange</em>, allowing the user to override GPS.
+    </p>
+    <p class="prose">
+      LSRouteAttachmentCard is the Navigator's route result surface inside
+      chat messages and catalog views. The 3px leading stripe encodes the
+      route variant (best / alt1 / alt2) using the <strong>color.route.*</strong>
+      polyline palette. The best badge, scenic meter, weather badge, and
+      favorite flag compose from UC-ATM-07 and UC-ATM-10 atoms.
+    </p>
+  </section>
+</div>
+
+<!-- §02 THE MOLECULES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · The Molecules</div>
+      <h2 class="section-title">Full <em>variant matrix</em>.</h2>
+    </div>
+
+    <!-- ── LSLocationContextBar ── -->
+    <div class="group-head"><h3><em>LSLocationContextBar</em> — location + mode row</h3></div>
+
+    <div class="mol-grid" style="flex-direction:column;gap:24px;max-width:520px;">
+
+      <!-- Auto mode -->
+      <div class="mol-card" style="width:100%;">
+        <div class="mol-card-label">Auto mode</div>
+        <div class="ls-location-bar-demo">
+          <div class="ls-location-bar">
+            <div class="ls-tag-pill">
+              <div class="pin-dot"></div>
+              Near Santa Cruz, CA
+            </div>
+            <div class="ls-tag-pill mode-label">AUTO</div>
+          </div>
+        </div>
+        <div class="mol-card-desc">Leading: pin dot (signal.default) + location label. Trailing: AUTO mode chip. space-between.</div>
+      </div>
+
+      <!-- Manual mode -->
+      <div class="mol-card" style="width:100%;">
+        <div class="mol-card-label">Manual mode</div>
+        <div class="ls-location-bar-demo">
+          <div class="ls-location-bar">
+            <div class="ls-tag-pill">
+              <div class="pin-dot"></div>
+              Big Sur, CA
+            </div>
+            <div class="ls-tag-pill mode-label">MANUAL</div>
+          </div>
+        </div>
+        <div class="mol-card-desc">MANUAL: user overrode GPS. Mode pill tappable — fires onModeChange.</div>
+      </div>
+
+      <!-- Long location label -->
+      <div class="mol-card" style="width:100%;">
+        <div class="mol-card-label">Long location label</div>
+        <div class="ls-location-bar-demo">
+          <div class="ls-location-bar">
+            <div class="ls-tag-pill" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;">
+              <div class="pin-dot"></div>
+              <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Near Paso Robles Wine Country, CA</span>
+            </div>
+            <div class="ls-tag-pill mode-label">AUTO</div>
+          </div>
+        </div>
+        <div class="mol-card-desc">Leading pill truncates with ellipsis. Trailing mode pill always shows fully.</div>
+      </div>
+
+      <!-- Dark mode -->
+      <div class="mol-card" style="width:100%;">
+        <div class="mol-card-label">Dark mode · Manual</div>
+        <div class="dark-panel" style="width:400px;padding:16px;">
+          <div class="ls-location-bar">
+            <div class="ls-tag-pill">
+              <div class="pin-dot"></div>
+              Near Malibu, CA
+            </div>
+            <div class="ls-tag-pill mode-label">MANUAL</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── LSRouteAttachmentCard ── -->
+    <div class="group-head" style="margin-top:64px;"><h3><em>LSRouteAttachmentCard</em> — full variant matrix</h3></div>
+
+    <div class="mol-grid" style="flex-wrap:wrap;gap:24px;">
+
+      <!-- Best selected (full) -->
+      <div class="mol-card">
+        <div class="mol-card-label">Best · selected · full</div>
+        <div class="rt-card v-best selected">
+          <div class="rt-card-head">
+            <div class="rt-best-badge">
+              <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+              Best
+            </div>
+            <div class="rt-card-title">The Skyline Spine</div>
+          </div>
+          <div class="rt-card-via">via Hwy 9 · Saratoga Gap · Skyline Blvd</div>
+          <div class="rt-card-meta">
+            <div class="rt-meta-group">64 mi</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-meta-group">2h 10m</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-scenic-dots">
+              <div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div>
+            </div>
+            <div class="rt-scenic-label">Scenic</div>
+          </div>
+          <div class="rt-card-right">
+            <div class="wx-badge wx-clear">
+              <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="2" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="5" y1="0.5" x2="5" y2="1.8"/><line x1="5" y1="8.2" x2="5" y2="9.5"/><line x1="0.5" y1="5" x2="1.8" y2="5"/><line x1="8.2" y1="5" x2="9.5" y2="5"/></g></svg>
+              Clear
+            </div>
+          </div>
+        </div>
+        <div class="mol-card-desc">Best badge · selected border signal.default · all-filled scenic dots · weather badge. Leading stripe: route-best copper.</div>
+      </div>
+
+      <!-- Best compact -->
+      <div class="mol-card">
+        <div class="mol-card-label">Best · compact</div>
+        <div class="rt-card v-best compact">
+          <div class="rt-card-head">
+            <div class="rt-card-title">The Skyline Spine</div>
+          </div>
+          <div class="rt-card-via">via Hwy 9 · Skyline Blvd</div>
+          <div class="rt-card-meta">
+            <div class="rt-meta-group">64 mi</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-meta-group">2h 10m</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-scenic-dots">
+              <div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div>
+            </div>
+            <div class="rt-scenic-label">Scenic</div>
+          </div>
+        </div>
+        <div class="mol-card-desc">compact=true: no best badge, no weather badge, tighter padding 8/10px.</div>
+      </div>
+
+      <!-- Alt1 -->
+      <div class="mol-card">
+        <div class="mol-card-label">Alt 1 · unselected</div>
+        <div class="rt-card v-alt1">
+          <div class="rt-card-head">
+            <div class="rt-card-title">The Valley Loop</div>
+          </div>
+          <div class="rt-card-via">via Hwy 152 · Pacheco Pass</div>
+          <div class="rt-card-meta">
+            <div class="rt-meta-group">58 mi</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-meta-group">1h 55m</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-scenic-dots">
+              <div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d"></div><div class="d"></div>
+            </div>
+            <div class="rt-scenic-label">Scenic</div>
+          </div>
+          <div class="rt-card-right">
+            <div class="wx-badge wx-wind">
+              <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1 4h6a1.2 1.2 0 0 0 0-2.4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><path d="M1 6h7a1.2 1.2 0 0 0 0-2.4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+              Wind
+            </div>
+          </div>
+        </div>
+        <div class="mol-card-desc">alt1 stripe: route-alt1 sage-green. 3 scenic dots filled.</div>
+      </div>
+
+      <!-- Alt2 -->
+      <div class="mol-card">
+        <div class="mol-card-label">Alt 2 · unselected</div>
+        <div class="rt-card v-alt2">
+          <div class="rt-card-head">
+            <div class="rt-card-title">Coast Highway</div>
+          </div>
+          <div class="rt-card-via">via Hwy 1 · Devil's Slide</div>
+          <div class="rt-card-meta">
+            <div class="rt-meta-group">82 mi</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-meta-group">2h 48m</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-scenic-dots">
+              <div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d"></div>
+            </div>
+            <div class="rt-scenic-label">Scenic</div>
+          </div>
+          <div class="rt-card-right">
+            <div class="wx-badge wx-rain">
+              <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M2 6.5A2.5 2.5 0 0 1 4.5 2a2.2 2.2 0 0 1 4 1 1.8 1.8 0 0 1-.5 3.5H3" stroke="currentColor" stroke-width="1" fill="none"/><line x1="3" y1="8" x2="2.5" y2="9.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="5.5" y1="8" x2="5" y2="9.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+              Rain
+            </div>
+          </div>
+        </div>
+        <div class="mol-card-desc">alt2 stripe: route-alt2 slate. Rain badge. 4 scenic dots.</div>
+      </div>
+
+      <!-- Long title overflow -->
+      <div class="mol-card">
+        <div class="mol-card-label">Long title — overflow</div>
+        <div class="rt-card v-best" style="max-width:240px;">
+          <div class="rt-card-head">
+            <div class="rt-best-badge">
+              <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+              Best
+            </div>
+            <div class="rt-card-title">Santa Cruz Mountains to Silicon Valley via Hwy 9 Epic Descent</div>
+          </div>
+          <div class="rt-card-via">via Hwy 9 · Summit Rd · Skyline</div>
+          <div class="rt-card-meta">
+            <div class="rt-meta-group">72 mi</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-meta-group">2h 30m</div>
+          </div>
+        </div>
+        <div class="mol-card-desc">Title wraps gracefully; best badge stays on same flex row. No ellipsis truncation on title in full mode.</div>
+      </div>
+
+      <!-- With favorite flag -->
+      <div class="mol-card">
+        <div class="mol-card-label">With favorite flag</div>
+        <div class="rt-card v-best selected">
+          <div class="rt-card-head">
+            <div class="rt-best-badge">
+              <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+              Best
+            </div>
+            <div class="rt-card-title">The Skyline Spine</div>
+          </div>
+          <div class="rt-card-via">via Hwy 9 · Skyline Blvd</div>
+          <div class="rt-card-meta">
+            <div class="rt-meta-group">64 mi</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-meta-group">2h 10m</div>
+            <div class="rt-meta-sep"></div>
+            <div class="rt-scenic-dots">
+              <div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div>
+            </div>
+            <div class="rt-scenic-label">Scenic</div>
+          </div>
+          <div class="rt-fav-row">
+            <svg class="rt-fav-icon" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M6 10.5s-5-3.5-5-6.5a3 3 0 0 1 5-2.24A3 3 0 0 1 11 4c0 3-5 6.5-5 6.5z" fill="currentColor"/></svg>
+            <div class="rt-fav-label">Includes Sunset Climb</div>
+          </div>
+          <div class="rt-card-right">
+            <div class="wx-badge wx-clear">
+              <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="2" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="5" y1="0.5" x2="5" y2="1.8"/><line x1="5" y1="8.2" x2="5" y2="9.5"/><line x1="0.5" y1="5" x2="1.8" y2="5"/><line x1="8.2" y1="5" x2="9.5" y2="5"/></g></svg>
+              Clear
+            </div>
+          </div>
+        </div>
+        <div class="mol-card-desc">route.includesFavorite: heartFill icon + "INCLUDES SUNSET CLIMB" label in signal.default.</div>
+      </div>
+
+    </div>
+
+    <!-- Dark mode variants -->
+    <div style="padding-left:152px;margin-top:48px;margin-bottom:12px;">
+      <span class="mol-label" style="color:var(--content-tertiary);">DARK MODE VARIANTS</span>
+    </div>
+    <div class="mol-grid" style="flex-wrap:wrap;">
+      <div class="mol-card">
+        <div class="mol-card-label">Best · selected · dark</div>
+        <div class="dark-panel" style="padding:16px;width:320px;">
+          <div class="rt-card v-best selected">
+            <div class="rt-card-head">
+              <div class="rt-best-badge">
+                <svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+                Best
+              </div>
+              <div class="rt-card-title">The Skyline Spine</div>
+            </div>
+            <div class="rt-card-via">via Hwy 9 · Skyline Blvd</div>
+            <div class="rt-card-meta">
+              <div class="rt-meta-group">64 mi</div>
+              <div class="rt-meta-sep"></div>
+              <div class="rt-meta-group">2h 10m</div>
+              <div class="rt-meta-sep"></div>
+              <div class="rt-scenic-dots">
+                <div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div><div class="d f"></div>
+              </div>
+              <div class="rt-scenic-label">Scenic</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mol-card">
+        <div class="mol-card-label">Alt 1 · dark</div>
+        <div class="dark-panel" style="padding:16px;width:280px;">
+          <div class="rt-card v-alt1">
+            <div class="rt-card-head"><div class="rt-card-title">The Valley Loop</div></div>
+            <div class="rt-card-via">via Hwy 152 · Pacheco Pass</div>
+            <div class="rt-card-meta">
+              <div class="rt-meta-group">58 mi</div>
+              <div class="rt-meta-sep"></div>
+              <div class="rt-meta-group">1h 55m</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES & VARIANTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States</div>
+      <h2 class="section-title">Pressed, <em>selected</em>, disabled.</h2>
+    </div>
+
+    <div style="padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:880px;">
+      <div>
+        <div class="mol-label" style="margin-bottom:12px;">LocationContextBar states</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-family:var(--font-ui);font-size:12px;color:var(--content-secondary);">
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">Default (auto)</strong> — pin dot signal · AUTO mode chip</div>
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">Manual mode</strong> — MANUAL chip · tap fires onModeChange</div>
+          <div style="padding:8px 0;"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">Long label</strong> — leading pill truncates with ellipsis</div>
+        </div>
+      </div>
+      <div>
+        <div class="mol-label" style="margin-bottom:12px;">RouteAttachmentCard states</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-family:var(--font-ui);font-size:12px;color:var(--content-secondary);">
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">unselected</strong> — border.default</div>
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">selected</strong> — border signal.default + bg tint</div>
+          <div style="padding:8px 0;border-bottom:1px solid var(--border-subtle);"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">compact</strong> — no best badge, no weather badge, tighter pad</div>
+          <div style="padding:8px 0;"><strong style="font-family:var(--font-instrument);color:var(--content-primary);font-size:11px;">pressed</strong> — box-shadow elev-card on hover/press</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 ATOMIC COMPOSITION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Composition</div>
+      <h2 class="section-title">Atoms <em>assembled</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="head">Part</div><div class="head">Height</div><div class="head">Width</div><div class="head">Atom</div><div class="head">Notes</div>
+      <div>LSLocationContextBar</div><div class="dim-val">auto</div><div class="dim-val">100%</div><div>UC-ATM-06</div><div>space-between; padding spacing.2 (4pt each side)</div>
+      <div>Leading location pill</div><div class="dim-val">30pt</div><div class="dim-val">flex</div><div>UC-ATM-06</div><div>glass surface, pin-dot signal.default, truncates</div>
+      <div>Trailing mode pill</div><div class="dim-val">28pt</div><div class="dim-val">auto</div><div>UC-ATM-06</div><div>uppercase label, tappable, fires onModeChange</div>
+      <div>LSRouteAttachmentCard</div><div class="dim-val">auto</div><div class="dim-val">min 260pt</div><div>UC-ATM-07 (badges)</div><div>surface.card, radius.md (10pt), 3px leading stripe</div>
+      <div>Leading stripe</div><div class="dim-val">100%h</div><div class="dim-val">3px</div><div>—</div><div>color.route.best/alt1/alt2; absolute left edge</div>
+      <div>LSBestBadge</div><div class="dim-val">18pt</div><div class="dim-val">auto</div><div>UC-ATM-07</div><div>signal.default bg, star icon, shown when isBest && !compact</div>
+      <div>Title row</div><div class="dim-val">auto</div><div class="dim-val">flex</div><div>UC-ATM-01</div><div>t-title-md (12.5pt); overflow:hidden ellipsis in compact</div>
+      <div>Via subtitle</div><div class="dim-val">auto</div><div class="dim-val">100%</div><div>UC-ATM-01</div><div>t-body-sm (10pt), content.secondary</div>
+      <div>LSWeatherBadge (right)</div><div class="dim-val">22pt</div><div class="dim-val">auto</div><div>UC-ATM-07</div><div>absolute top-right 8pt; hidden when compact</div>
+      <div>Scenic dot meter (5 dots)</div><div class="dim-val">4pt dots</div><div class="dim-val">auto</div><div>—</div><div>filled=signal.default, hollow=border.strong; gap 2pt</div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Animation <em>recipes</em>.</h2>
+    </div>
+
+    <div class="motion-table">
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);">Recipe</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);">Trigger</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);">Effect</div>
+      <div class="motion-recipe">chatOverlayEnter</div>
+      <div class="motion-trigger">LocationContextBar mounts</div>
+      <div class="motion-effect">translateY(6px)→0 + opacity 0→1, 200ms ease; staggered 30ms after suggestion row</div>
+      <div class="motion-recipe">modeToggle</div>
+      <div class="motion-trigger">Mode pill tap: AUTO ↔ MANUAL</div>
+      <div class="motion-effect">Label cross-fades 140ms ease; brief scale(0.94)→1 on pill</div>
+      <div class="motion-recipe">bestBadgeEnter</div>
+      <div class="motion-trigger">LSBestBadge mounts with card</div>
+      <div class="motion-effect">scale(0.7)→1 + opacity 0→1, 180ms spring(stiffness:400, damping:26)</div>
+      <div class="motion-recipe">cardSelect</div>
+      <div class="motion-trigger">RouteAttachmentCard selected=true</div>
+      <div class="motion-effect">border-color transition 120ms ease; bg color-mix tint fades in 140ms</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE + AC -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Design <em>decisions</em>.</h2>
+    </div>
+
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>3px stripe encodes variant identity</h4>
+        <p>The leading stripe uses the same polyline palette as the map layer
+        — route.best copper, route.alt1 sage-green, route.alt2 slate. This
+        creates a persistent visual thread between the card in the chat stream
+        and the route drawn on the map, so the rider always knows which card
+        corresponds to which polyline without reading the title.</p>
+        <ul>
+          <li><strong>border-radius 10pt</strong> — matches UC-ATM-05 radius.md token</li>
+          <li><strong>3px stripe</strong> — thinner than a border, decorative not structural</li>
+          <li><strong>selected bg</strong> — color-mix(surface.card, signal.default, 8%) keeps legibility</li>
+          <li><strong>compact=true</strong> — no badges, tighter padding 8/10px for list contexts</li>
+        </ul>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability — 06-uc-mol.md §UC-MOL-08</h4>
+        <ul>
+          <li><div class="ac-cite">LSLocationContextBar renders two LSTagPills space-between; leading has signal.default pin icon</div></li>
+          <li><div class="ac-cite">Mode pill tap fires onModeChange exactly once</div></li>
+          <li><div class="ac-cite">LSRouteAttachmentCard selected: surface.card + radius.md + signal.default border + 3px leading stripe in color.route.best</div></li>
+          <li><div class="ac-cite">LSBestBadge shown when isBest && !compact; absent when compact=true</div></li>
+          <li><div class="ac-cite">LSWeatherBadge right-aligned when !compact; absent when compact</div></li>
+          <li><div class="ac-cite">Metrics row: mono distance + duration + 5-dot scenic meter + "SCENIC" label</div></li>
+          <li><div class="ac-cite">Leading stripe resolves to color.route.best / .alt1 / .alt2 per variant</div></li>
+          <li><div class="ac-cite">route.includesFavorite: heartFill icon + label row in signal.default</div></li>
+          <li><div class="ac-cite">Long title: wraps gracefully in full; truncates in compact</div></li>
+          <li><div class="ac-cite">Stories: LocationContextBar: Default (auto), Manual, Long Location. RouteAttachmentCard: Best Selected, Best Compact, Alt1, Alt2, With Favorite Flag, Long Title</div></li>
+          <li><div class="ac-cite">Tests verify both molecules compose from atoms only; raw layouts with literals fail inspection</div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>V2 · Copper · UC-MOL-08 · 2026-04-20</span></div>
+    <div class="footer-note">
+      LocationContextBar + RouteAttachmentCard<br>
+      Authority: .spec/prds/v2/06-uc-mol.md §UC-MOL-08<br>
+      Composes: UC-ATM-06, UC-ATM-07, UC-ATM-10
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

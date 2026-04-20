@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<!-- uc-mol-06-chatinput.html — UC-MOL-06 "LSChatInput"
+     LaneShadow V2 · Copper · Molecule Design Mock · 2026-04-20
+     Molecule: LSChatInput — bottom-anchored chat input row
+     Authority: .spec/prds/v2/06-uc-mol.md §UC-MOL-06 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-MOL-06 — LSChatInput — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — copied from uc-scr-01-idle.html spine
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:#FDFBF8; --paper-100:#F8F7F6; --paper-150:#F5F2EE; --paper-200:#F2EFED;
+  --paper-300:#EDE7E1; --paper-400:#E5DED9; --paper-500:#C9BDB3;
+  --ink-900:#1E1A16; --ink-800:#221810; --ink-700:#2D2218; --ink-600:#362A1F;
+  --ink-500:#3D3228; --ink-400:#49454F; --ink-300:#6B6460; --ink-200:#9CA3AF;
+  --ink-100:#CAC4D0; --ink-050:#F2EEE8;
+  --copper-700:#9E4A22; --copper-600:#B85A2C; --copper-500:#EE7C2B;
+  --copper-400:#F3A164; --copper-200:#F9D5B5; --copper-100:#FCE8D4;
+  --wx-clear:#E6A52A; --wx-clear-tint:#FBEFCF;
+  --wx-rain:#4A86BE; --wx-rain-tint:#DBEAF4;
+  --font-opinion:'Newsreader',Georgia,'Times New Roman',serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono','Menlo',monospace;
+
+  --surface-primary:var(--paper-100); --surface-card:var(--paper-50);
+  --surface-inset:var(--paper-200); --surface-glass:rgba(253,251,248,0.72);
+  --surface-overlay:rgba(253,251,248,0.92);
+  --content-primary:var(--ink-900); --content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300); --content-subtle:var(--ink-200);
+  --content-onSignal:#FFFFFF;
+  --signal-default:var(--copper-500); --signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200); --signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400); --border-subtle:var(--paper-300); --border-strong:var(--paper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+}
+
+/* Dark override */
+.dark-swatch {
+  --surface-primary:var(--ink-800); --surface-card:var(--ink-700);
+  --surface-inset:var(--ink-600); --surface-glass:rgba(45,34,24,0.72);
+  --surface-overlay:rgba(45,34,24,0.92);
+  --content-primary:var(--ink-050); --content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200); --content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12); --border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  background: var(--surface-primary);
+  border-radius: 16px;
+  padding: 32px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ═══════════════════════════════════════════════════════════════════════ */
+.t-opinion-xl  { font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em; }
+.t-opinion-lg  { font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em; }
+.t-title-md    { font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em; }
+.t-body-md     { font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52; }
+.t-body-sm     { font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48; }
+.t-label-lg    { font-family:var(--font-ui);font-weight:500;font-size:11px;line-height:1.0;letter-spacing:0.08em;text-transform:uppercase; }
+.t-label-md    { font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase; }
+.t-label-sm    { font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase; }
+.t-instr-sm    { font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCUMENT CHROME
+   ═══════════════════════════════════════════════════════════════════════ */
+body { font-family:var(--font-ui);color:var(--content-primary);background:var(--surface-primary);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden; }
+.wrap { max-width:1440px;margin:0 auto;padding:0 72px; }
+.doc-header { position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden; }
+.doc-header::before { content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none; }
+.doc-header>* { position:relative;z-index:1; }
+.doc-eyebrow { display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px; }
+.doc-eyebrow::before { content:"";width:28px;height:1px;background:var(--signal-default); }
+.doc-eyebrow-pill { display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em; }
+.doc-title { font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px; }
+.doc-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.doc-tagline { font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px; }
+.doc-meta-row { display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default); }
+.meta-item { display:flex;flex-direction:column;gap:6px; }
+.meta-label { font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary); }
+.meta-value { font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary); }
+.section { padding:96px 0;border-bottom:1px solid var(--border-default);position:relative; }
+.section:last-child { border-bottom:none; }
+.section-header { display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px; }
+.section-index { font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px; }
+.section-index::before { content:"";display:block;width:48px;height:1px;background:var(--signal-default); }
+.section-title { font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px; }
+.section-title em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.prose { font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px; }
+.prose+.prose { margin-top:20px; }
+.prose em { font-style:italic; }
+.prose strong { font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px; }
+.ac-cite { font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px; }
+.ac-cite::before { content:"☐";position:absolute;left:0;top:0;color:var(--border-strong); }
+.doc-footer { padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end; }
+.footer-mark { font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em; }
+.footer-mark em { font-style:italic;color:var(--signal-default);font-weight:400; }
+.footer-mark span { display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300; }
+.footer-note { font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LAYOUT HELPERS
+   ═══════════════════════════════════════════════════════════════════════ */
+.mol-label { font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default); }
+.mol-sub { font-family:var(--font-ui);font-size:10px;color:var(--content-tertiary);line-height:1.5; }
+.state-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:48px;padding-left:152px;align-items:start; }
+.state-grid.cols-2 { grid-template-columns:repeat(2,1fr); }
+.state-cell { display:flex;flex-direction:column;gap:12px; }
+.state-tag { font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:4px; }
+.state-desc { font-family:var(--font-ui);font-size:11px;color:var(--content-tertiary);line-height:1.5;margin-top:4px; }
+
+/* Annotation callout */
+.callout-box {
+  border: 1px solid var(--signal-tint);
+  background: var(--signal-whisper);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 32px;
+}
+.callout-box.full { grid-template-columns: 1fr; }
+.callout-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--signal-tint); }
+.callout-row:last-child { border-bottom: none; }
+.callout-key { font-family:var(--font-ui);font-size:10.5px;font-weight:500;color:var(--content-secondary); }
+.callout-val { font-family:var(--font-instrument);font-size:11px;color:var(--signal-default); }
+
+/* Dimensions table */
+.dim-table { padding-left:152px;display:grid;grid-template-columns:220px 100px 100px 140px 1fr;row-gap:0;column-gap:0; }
+.dim-table>div { padding:10px 14px;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:12px;color:var(--content-secondary); }
+.dim-table>div.head { font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);padding-bottom:8px; }
+.dim-val { font-family:var(--font-instrument);color:var(--content-primary); }
+
+/* Motion table */
+.motion-table { padding-left:152px;display:grid;grid-template-columns:220px 1fr 2fr;row-gap:0;column-gap:28px; }
+.motion-table>div { padding:10px 0;border-bottom:1px solid var(--border-subtle);font-family:var(--font-ui);font-size:13px; }
+.motion-recipe { font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px; }
+.motion-trigger { color:var(--content-primary);font-weight:500; }
+.motion-effect { color:var(--content-secondary); }
+
+/* Rationale */
+.rationale-grid { padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px; }
+.rationale-block h4 { font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px; }
+.rationale-block p { font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px; }
+.rationale-block ul { list-style:none; }
+.rationale-block li { padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle); }
+.rationale-block li::before { content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument); }
+.rationale-block li strong { font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSChatInput COMPONENT STYLES
+   Exactly matching uc-scr-01-idle.html .ls-chatinput dimensions
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* The anchor stack: location bar → suggestion row → input bar */
+.ls-chatinput-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Anchored: 12pt from bottom, 12pt from sides (shown in context cell) */
+}
+
+/* ── Location context bar (LSLocationContextBar) ── */
+.ls-location-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 4px;
+}
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: var(--elev-chrome);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--content-secondary);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.dark-swatch .tag-pill { border-color: rgba(242,238,232,0.12); }
+.tag-pill .pin-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--signal-default); flex-shrink: 0; }
+.tag-pill.mode-label {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+  padding: 5px 10px;
+}
+
+/* ── Suggestion chip row ── */
+.ls-sugg-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ls-sugg-row::-webkit-scrollbar { display: none; }
+.sugg-chip {
+  flex-shrink: 0;
+  padding: 9px 14px;
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--content-primary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.dark-swatch .sugg-chip { border-color: rgba(242,238,232,0.12); }
+
+/* ── Input bar — 54pt height, 18px radius (radius.xl) ── */
+.ls-chatinput {
+  height: 54px;
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-radius: 18px;                 /* radius.xl */
+  display: flex;
+  align-items: center;
+  padding: 0 6px 0 14px;              /* 14pt left / 6pt right per spec */
+  gap: 10px;
+  box-shadow: var(--elev-chrome);
+}
+.dark-swatch .ls-chatinput { border-color: rgba(242,238,232,0.12); }
+
+/* Disabled state */
+.ls-chatinput.is-disabled { opacity: 0.38; pointer-events: none; }
+.ls-chatinput-stack.is-disabled { opacity: 0.38; pointer-events: none; }
+
+/* Leading collapse button — 36pt circular ghost */
+.chat-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--content-secondary);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.chat-icon-btn:hover { background: var(--surface-inset); }
+
+/* Middle text field */
+.chat-field {
+  flex: 1;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--content-tertiary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+}
+.chat-field.has-value {
+  color: var(--content-primary);
+  font-weight: 500;
+}
+
+/* Trailing filter button — 42pt ghost */
+.chat-filter-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--content-secondary);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.chat-filter-btn:hover { background: var(--surface-inset); }
+
+/* Trailing send button — 42pt circular copper primary */
+.chat-send-btn {
+  width: 42px;
+  height: 42px;
+  background: var(--signal-default);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFF;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(238,124,43,0.38);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.chat-send-btn:hover { background: var(--signal-pressed); }
+
+/* Thinking spinner — 42pt, replaces trailing */
+.chat-spinner {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+.chat-spinner::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-default);
+  border-top-color: var(--signal-default);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes phaseDotPulse {
+  0%   { transform: scale(0.8); opacity: 0.6; }
+  50%  { transform: scale(1.4); opacity: 0.25; }
+  100% { transform: scale(0.8); opacity: 0.6; }
+}
+
+/* Phone frame for context renderings */
+.phone-frame {
+  width: 100%;
+  max-width: 240px;
+  aspect-ratio: 9/19.5;
+  position: relative;
+  border-radius: 44px;
+  background: #0F0A07;
+  box-shadow: inset 0 0 0 1px #2A1F16, inset 0 0 0 2.5px #0F0A07, 0 24px 56px -12px rgba(34,24,16,0.38);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.phone-screen {
+  position: absolute;
+  inset: 3px;
+  border-radius: 41px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-primary);
+  color: var(--content-primary);
+  isolation: isolate;
+}
+.phone-di { position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:24px;background:#000;border-radius:13px;z-index:60; }
+.phone-map {
+  flex: 1;
+  background: var(--paper-150);
+  position: relative;
+  overflow: hidden;
+}
+.phone-map::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  background-image: linear-gradient(rgba(73,69,79,0.10) 1px,transparent 1px),linear-gradient(90deg,rgba(73,69,79,0.10) 1px,transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.55;
+}
+.phone-hi { position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:96px;height:4px;border-radius:3px;z-index:60;background:rgba(0,0,0,0.28); }
+.phone-chatarea {
+  position: absolute;
+  bottom: 16px;
+  left: 10px;
+  right: 10px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* Compact sizes for inside phone frames */
+.phone-frame .ls-chatinput { height: 44px; padding: 0 5px 0 11px; gap: 7px; border-radius: 14px; }
+.phone-frame .chat-icon-btn { width: 29px; height: 29px; }
+.phone-frame .chat-filter-btn { width: 34px; height: 34px; }
+.phone-frame .chat-send-btn { width: 34px; height: 34px; }
+.phone-frame .chat-spinner { width: 34px; height: 34px; }
+.phone-frame .chat-field { font-size: 10px; }
+.phone-frame .sugg-chip { padding: 6px 10px; font-size: 9.5px; }
+.phone-frame .tag-pill { font-size: 8.5px; padding: 4px 8px; }
+.phone-frame .tag-pill.mode-label { font-size: 7.5px; padding: 4px 8px; }
+
+/* States grid for full doc section */
+.states-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px 40px;
+  padding-left: 152px;
+  align-items: start;
+}
+.state-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.state-name {
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--signal-default);
+}
+.state-note {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--content-tertiary);
+  line-height: 1.55;
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-MOL-06</span><span class="doc-eyebrow-pill">● Molecules · ChatInput · Load-bearing</span></div>
+    <h1 class="doc-title">The <em>input</em><br>bar.</h1>
+    <p class="doc-tagline">
+      LSChatInput: the pinned bottom-anchored query interface of every
+      Navigator screen. Glass panel backing, collapse and send/filter
+      affordances, stacked suggestion chips and location context.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-MOL-06</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">06-uc-mol.md</div></div>
+      <div class="meta-item"><div class="meta-label">Composes</div><div class="meta-value">UC-ATM-02,05,06</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">One bar, <em>five states</em>.</h2>
+    </div>
+    <p class="prose">
+      LSChatInput is the Navigator's primary interaction surface — pinned
+      12pt from the device bottom, 12pt from each side. It layers three
+      optional stacks from bottom to top: the <strong>input bar</strong>
+      (always present), an optional <strong>suggestion chip row</strong>,
+      and an optional <strong>LocationContextBar</strong>.
+    </p>
+    <p class="prose">
+      The input bar is backed by <em>LSGlassPanel.chrome</em> at 54pt
+      height with <strong>radius.xl (18pt)</strong>. Leading: a 36pt ghost
+      collapse button. Trailing: a 42pt circular copper send button when
+      value is non-empty, else a 42pt ghost filter button. Icons are 18–20pt.
+    </p>
+  </section>
+</div>
+
+<!-- §02 THE MOLECULE — FULL VARIANT MATRIX -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · The Molecule</div>
+      <h2 class="section-title">Five <em>rendered</em> states.</h2>
+    </div>
+
+    <!-- Five states in phone frames side by side -->
+    <div style="padding-left:152px;display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start;">
+
+      <!-- State 1: Default empty with suggestions + location -->
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
+        <div class="state-name">01 — Default</div>
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="phone-map"></div>
+            <div class="phone-chatarea">
+              <!-- Location bar -->
+              <div class="ls-location-bar">
+                <div class="tag-pill">
+                  <div class="pin-dot"></div>
+                  Near Santa Cruz, CA
+                </div>
+                <div class="tag-pill mode-label">AUTO</div>
+              </div>
+              <!-- Suggestion row -->
+              <div class="ls-sugg-row">
+                <div class="sugg-chip">Twisty back roads</div>
+                <div class="sugg-chip">Avoid highway</div>
+                <div class="sugg-chip">Scenic coastal</div>
+              </div>
+              <!-- Input bar: empty, filter button -->
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 4H4a2 2 0 0 0-2 2v8l3-3h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="chat-field">Plan a ride…</div>
+                <div class="chat-filter-btn">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><line x1="4" y1="6" x2="16" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="14" x2="12" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="state-note">Empty value · suggestions + location visible · filter icon trailing</div>
+      </div>
+
+      <!-- State 2: With text, send button visible -->
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
+        <div class="state-name">02 — With Text</div>
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="phone-map"></div>
+            <div class="phone-chatarea">
+              <div class="ls-sugg-row">
+                <div class="sugg-chip">Twisty back roads</div>
+                <div class="sugg-chip">Avoid highway</div>
+              </div>
+              <!-- Input bar: value present, send button -->
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 4H4a2 2 0 0 0-2 2v8l3-3h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="chat-field has-value">Twisty 3-hour loop near SLO</div>
+                <div class="chat-send-btn">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M17 10H4M10 4l6 6-6 6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="state-note">value non-empty · send button replaces filter · copper primary</div>
+      </div>
+
+      <!-- State 3: Thinking (spinner) -->
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
+        <div class="state-name">03 — Thinking</div>
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="phone-map"></div>
+            <div class="phone-chatarea">
+              <!-- Input bar: thinking, spinner -->
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn" style="opacity:0.38;">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 4H4a2 2 0 0 0-2 2v8l3-3h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="chat-field" style="font-style:italic;color:var(--content-tertiary);">Planning your ride…</div>
+                <div class="chat-spinner"></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="state-note">isThinking=true · spinner replaces trailing · input disabled · no suggestions</div>
+      </div>
+
+      <!-- State 4: Disabled -->
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
+        <div class="state-name">04 — Disabled</div>
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="phone-map"></div>
+            <div class="phone-chatarea">
+              <div class="ls-location-bar" style="opacity:0.38;">
+                <div class="tag-pill"><div class="pin-dot"></div>Near Santa Cruz, CA</div>
+                <div class="tag-pill mode-label">AUTO</div>
+              </div>
+              <div class="ls-sugg-row" style="opacity:0.38;">
+                <div class="sugg-chip">Twisty back roads</div>
+              </div>
+              <div class="ls-chatinput is-disabled">
+                <div class="chat-icon-btn">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 4H4a2 2 0 0 0-2 2v8l3-3h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="chat-field">Plan a ride…</div>
+                <div class="chat-filter-btn">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><line x1="4" y1="6" x2="16" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="14" x2="12" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="state-note">isEnabled=false · opacity.disabled (0.38) on all children · no callbacks</div>
+      </div>
+
+      <!-- State 5: Refining prompt (long placeholder) -->
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
+        <div class="state-name">05 — Refining</div>
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="phone-map"></div>
+            <div class="phone-chatarea">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 4H4a2 2 0 0 0-2 2v8l3-3h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="chat-field" style="font-style:italic;font-size:9px;">Refine: fewer highway miles, add twisty section near Big Sur…</div>
+                <div class="chat-send-btn">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M17 10H4M10 4l6 6-6 6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="state-note">Refining prompt — long placeholder text, send shown, no suggestions</div>
+      </div>
+
+    </div>
+
+    <!-- Dark mode variants -->
+    <div style="padding-left:152px;margin-top:56px;margin-bottom:12px;">
+      <span class="mol-label" style="color:var(--content-tertiary);">DARK MODE VARIANTS</span>
+    </div>
+    <div style="padding-left:152px;display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start;">
+
+      <!-- Dark default -->
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
+        <div class="state-name">Default · Dark</div>
+        <div class="dark-swatch" style="width:240px;">
+          <div class="ls-chatinput-stack">
+            <div class="ls-location-bar">
+              <div class="tag-pill"><div class="pin-dot"></div>Near Santa Cruz, CA</div>
+              <div class="tag-pill mode-label">AUTO</div>
+            </div>
+            <div class="ls-sugg-row">
+              <div class="sugg-chip">Twisty back roads</div>
+              <div class="sugg-chip">Coastal</div>
+            </div>
+            <div class="ls-chatinput">
+              <div class="chat-icon-btn">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 4H4a2 2 0 0 0-2 2v8l3-3h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="chat-field">Plan a ride…</div>
+              <div class="chat-filter-btn">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><line x1="4" y1="6" x2="16" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="6" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="14" x2="12" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dark with text -->
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:240px;">
+        <div class="state-name">With Text · Dark</div>
+        <div class="dark-swatch" style="width:240px;">
+          <div class="ls-chatinput-stack">
+            <div class="ls-chatinput">
+              <div class="chat-icon-btn">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 4H4a2 2 0 0 0-2 2v8l3-3h7a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="chat-field has-value">Sunset ridge loop</div>
+              <div class="chat-send-btn">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M17 10H4M10 4l6 6-6 6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES & DIMENSIONS CALLOUT -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States</div>
+      <h2 class="section-title"><em>Dimensions</em> breakdown.</h2>
+    </div>
+
+    <div style="padding-left:152px;max-width:820px;">
+      <div class="callout-box" style="grid-template-columns:1fr 1fr;">
+        <div>
+          <div class="callout-row"><span class="callout-key">Input bar height</span><span class="callout-val">54pt (sizing.component.inputHeight)</span></div>
+          <div class="callout-row"><span class="callout-key">Border radius</span><span class="callout-val">18pt (radius.xl)</span></div>
+          <div class="callout-row"><span class="callout-key">Horizontal padding left</span><span class="callout-val">14pt (spacing.4)</span></div>
+          <div class="callout-row"><span class="callout-key">Horizontal padding right</span><span class="callout-val">6pt (spacing.2)</span></div>
+          <div class="callout-row"><span class="callout-key">Anchor from bottom</span><span class="callout-val">12pt (spacing.3)</span></div>
+          <div class="callout-row"><span class="callout-key">Anchor from sides</span><span class="callout-val">12pt (spacing.3)</span></div>
+        </div>
+        <div>
+          <div class="callout-row"><span class="callout-key">Collapse button (leading)</span><span class="callout-val">36pt diameter · ghost</span></div>
+          <div class="callout-row"><span class="callout-key">Send button (trailing)</span><span class="callout-val">42pt diameter · primary copper</span></div>
+          <div class="callout-row"><span class="callout-key">Filter button (trailing)</span><span class="callout-val">42pt diameter · ghost</span></div>
+          <div class="callout-row"><span class="callout-key">Icon size inside buttons</span><span class="callout-val">18pt (sizing.icon.md)</span></div>
+          <div class="callout-row"><span class="callout-key">Stack gap</span><span class="callout-val">8pt (spacing.2)</span></div>
+          <div class="callout-row"><span class="callout-key">Sugg chip height</span><span class="callout-val">32pt (mol-spec md)</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 ATOMIC COMPOSITION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Composition</div>
+      <h2 class="section-title">Atoms <em>assembled</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="head">Layer</div><div class="head">Height</div><div class="head">Backing</div><div class="head">Atom</div><div class="head">Notes</div>
+      <div>Input bar</div><div class="dim-val">54pt</div><div class="dim-val">LSGlassPanel.chrome</div><div>UC-ATM-05</div><div>radius.xl, h-pad 14/6pt</div>
+      <div>Collapse button</div><div class="dim-val">36pt</div><div class="dim-val">ghost</div><div>UC-ATM-02</div><div>icon .collapse, 18pt</div>
+      <div>Send button</div><div class="dim-val">42pt</div><div class="dim-val">signal.default</div><div>UC-ATM-02</div><div>shown when value non-empty</div>
+      <div>Filter button</div><div class="dim-val">42pt</div><div class="dim-val">ghost</div><div>UC-ATM-02</div><div>shown when value empty</div>
+      <div>Suggestion chip row</div><div class="dim-val">32pt chips</div><div class="dim-val">optional above bar</div><div>UC-MOL-05</div><div>LSSuggestionChip list</div>
+      <div>LocationContextBar</div><div class="dim-val">auto</div><div class="dim-val">optional above chips</div><div>UC-MOL-08</div><div>two LSTagPills</div>
+      <div>LSSpinner</div><div class="dim-val">42pt container</div><div class="dim-val">replaces trailing</div><div>UC-ATM</div><div>isThinking=true</div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Enter and <em>state change</em>.</h2>
+    </div>
+
+    <div class="motion-table">
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);">Recipe</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);">Trigger</div>
+      <div class="head" style="font-family:var(--font-instrument);font-size:8.5px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--signal-default);border-bottom:2px solid var(--border-default);">Effect</div>
+      <div class="motion-recipe">chatOverlayEnter</div>
+      <div class="motion-trigger">ChatInput mounts / suggestions appear</div>
+      <div class="motion-effect">Stack slides up translateY(12px)→0, opacity 0→1, 220ms spring(stiffness:340, damping:28)</div>
+      <div class="motion-recipe">sendButtonReveal</div>
+      <div class="motion-trigger">value changes empty→non-empty</div>
+      <div class="motion-effect">Filter fades out, send scales in scale(0.7)→1 + opacity 0→1, 160ms ease</div>
+      <div class="motion-recipe">filterButtonReveal</div>
+      <div class="motion-trigger">value changes non-empty→empty</div>
+      <div class="motion-effect">Send fades out, filter scales in, 160ms ease</div>
+      <div class="motion-recipe">spinnerEnter</div>
+      <div class="motion-trigger">isThinking transitions true</div>
+      <div class="motion-effect">Trailing slot cross-fades to LSSpinner, 180ms ease; spinner rotates 700ms linear infinite</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE + AC -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Design <em>decisions</em>.</h2>
+    </div>
+
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Glass surface on map</h4>
+        <p>The input floats above the map layer. LSGlassPanel.chrome with
+        blur(14px) prevents the input from visually competing with map
+        features underneath. The border at rgba(255,255,255,0.55) gives
+        lift without a hard edge. Dark mode swaps to rgba ink-based glass.</p>
+        <ul>
+          <li><strong>54pt height</strong> matches sizing.component.inputHeight token</li>
+          <li><strong>42pt send</strong> exceeds accessibility minimum (44pt target via visual frame)</li>
+          <li><strong>36pt collapse</strong> — less prominent, same tap target via padding</li>
+        </ul>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability — 06-uc-mol.md §UC-MOL-06</h4>
+        <ul>
+          <li><div class="ac-cite">Input bar renders at height sizing.component.inputHeight (54pt), radius.xl, LSGlassPanel.chrome backing</div></li>
+          <li><div class="ac-cite">Trailing slot shows LSButton(.ghost, .sliders) when value empty; swaps to LSButton(.primary, .send) when non-empty</div></li>
+          <li><div class="ac-cite">Tapping send fires onSend(value); input clears to placeholder</div></li>
+          <li><div class="ac-cite">Tapping collapse fires onCollapse exactly once</div></li>
+          <li><div class="ac-cite">suggestions=[...] renders horizontal scrollable LSSuggestionChip row above input</div></li>
+          <li><div class="ac-cite">locationBadge renders LSLocationContextBar above suggestion row</div></li>
+          <li><div class="ac-cite">isThinking=true replaces trailing with LSSpinner; input submission disabled</div></li>
+          <li><div class="ac-cite">isEnabled=false applies opacity.disabled (0.38) to all children; no callbacks fire</div></li>
+          <li><div class="ac-cite">Stories: Default, With Text, Thinking, Disabled, Refining Prompt</div></li>
+          <li><div class="ac-cite">Tests verify composition from ATM atoms only; raw HStack/Row with literals fail inspection</div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>V2 · Copper · UC-MOL-06 · 2026-04-20</span></div>
+    <div class="footer-note">
+      LSChatInput — load-bearing<br>
+      Authority: .spec/prds/v2/06-uc-mol.md §UC-MOL-06<br>
+      Composes: UC-ATM-02, UC-ATM-05, UC-MOL-05, UC-MOL-08
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

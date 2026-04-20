@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<!-- uc-mol-02-toolbar-navheader.html — UC-MOL-02 "Toolbar + NavHeader Molecules"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Molecules: LSToolbar · LSNavHeader
+     Authority: .spec/prds/v2/06-uc-mol.md §UC-MOL-02 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-MOL-02 — Toolbar + NavHeader — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;  --paper-100: #F8F7F6;  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;  --paper-300: #EDE7E1;  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+  --ink-900:   #1E1A16;  --ink-800: #221810;    --ink-700: #2D2218;
+  --ink-600:   #362A1F;  --ink-500: #3D3228;    --ink-400: #49454F;
+  --ink-300:   #6B6460;  --ink-200: #9CA3AF;    --ink-100: #CAC4D0;  --ink-050: #F2EEE8;
+  --copper-700: #9E4A22;  --copper-600: #B85A2C;  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;  --copper-200: #F9D5B5;  --copper-100: #FCE8D4;
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+:root {
+  --surface-primary:   var(--paper-100);
+  --surface-card:      var(--paper-50);
+  --surface-inset:     var(--paper-200);
+  --surface-overlay:   rgba(253,251,248,0.92);
+  --surface-glass:     rgba(253,251,248,0.72);
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --content-onSignal:  #FFFFFF;
+  --signal-default:    var(--copper-500);
+  --signal-pressed:    var(--copper-700);
+  --signal-tint:       var(--copper-200);
+  --signal-whisper:    var(--copper-100);
+  --border-default:    var(--paper-400);
+  --border-subtle:     var(--paper-300);
+  --border-strong:     var(--paper-500);
+  --border-focus:      var(--copper-500);
+  --action-primary:    var(--copper-500);
+  --action-ghost:      var(--paper-200);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+
+  /* SPACING */
+  --sp-2:  4px;  --sp-3: 8px;  --sp-4: 12px;  --sp-5: 16px;
+  --sp-6:  20px; --sp-7: 24px; --sp-8: 32px;  --sp-9: 40px;
+  --sp-10: 48px; --sp-11: 56px;
+
+  /* RADIUS */
+  --radius-xs: 2px; --radius-sm: 6px; --radius-md: 10px;
+  --radius-lg: 14px; --radius-xl: 20px; --radius-pill: 999px;
+
+  /* SIZING */
+  --toolbar-height: 56px;   /* sizing.component.toolbarHeight */
+  --touch-target:   44px;   /* sizing.touchTarget */
+  --icon-sm: 16px; --icon-md: 20px; --icon-lg: 24px;
+  --status-bar-ios: 48px;   /* iOS Dynamic Island safe area */
+  --status-bar-android: 24px; /* Android status bar */
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DARK MODE — scope via .mode-dark wrapper
+   Tokens invert surface + content + border + elevation; copper signal holds.
+   ═══════════════════════════════════════════════════════════════════════ */
+.mode-dark {
+  --surface-primary:   var(--ink-800);   /* #221810 */
+  --surface-card:      var(--ink-700);   /* #2D2218 */
+  --surface-inset:     var(--ink-600);   /* #362A1F */
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+
+  --content-primary:   var(--ink-050);   /* #F2EEE8 */
+  --content-secondary: var(--ink-100);   /* #CAC4D0 */
+  --content-tertiary:  var(--ink-200);   /* #9CA3AF */
+  --content-subtle:    var(--ink-300);   /* #6B6460 */
+  --content-onSignal:  #FFFFFF;
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --signal-whisper:    rgba(238,124,43,0.14);
+  --signal-tint:       rgba(238,124,43,0.28);
+
+  --action-ghost:      rgba(242,238,232,0.08);
+
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
+/* ─── DOCUMENT CHROME ──────────────────────────────────────────────── */
+body {
+  font-family: var(--font-ui); color: var(--content-primary);
+  background: var(--surface-primary); -webkit-font-smoothing: antialiased;
+  min-height: 100vh; line-height: 1.55; overflow-x: hidden;
+}
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+.doc-header {
+  position: relative; padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default); overflow: hidden;
+}
+.doc-header::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-ui); font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--signal-default); margin-bottom: 28px;
+}
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default); color: var(--signal-default);
+  background: var(--signal-whisper); font-size: 9.5px; letter-spacing: 0.14em;
+}
+.doc-title {
+  font-family: var(--font-opinion); font-size: 104px; font-weight: 300;
+  line-height: 0.94; letter-spacing: -0.035em; color: var(--content-primary);
+  margin-bottom: 32px; max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline {
+  font-family: var(--font-opinion); font-style: italic; font-size: 22px; font-weight: 300;
+  color: var(--content-secondary); max-width: 640px; line-height: 1.55; margin-bottom: 56px;
+}
+.doc-meta-row {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 24px;
+  padding-top: 36px; border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-of-type { border-bottom: none; }
+.section-header { display: grid; grid-template-columns: 120px 1fr; align-items: baseline; gap: 32px; margin-bottom: 56px; }
+.section-index {
+  font-family: var(--font-instrument); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title {
+  font-family: var(--font-opinion); font-size: 52px; font-weight: 300;
+  letter-spacing: -0.025em; line-height: 1.04; color: var(--content-primary); max-width: 900px;
+}
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.prose {
+  font-family: var(--font-opinion); font-weight: 300; font-size: 19px; line-height: 1.68;
+  color: var(--content-secondary); max-width: 720px; margin-left: 152px;
+}
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong {
+  font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default);
+  display: inline-block; padding: 2px 8px;
+  background: var(--signal-whisper); border: 1px solid var(--signal-tint);
+  border-radius: 4px; margin: 0 2px;
+}
+.demo-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 48px; padding-left: 152px; align-items: start;
+}
+.demo-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.demo-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.demo-cell { display: flex; flex-direction: column; gap: 16px; }
+.cell-label {
+  font-family: var(--font-instrument); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);
+}
+.cell-desc {
+  font-family: var(--font-ui); font-size: 11px; color: var(--content-tertiary);
+  line-height: 1.5;
+}
+.annotation-row { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; }
+.ann-token { font-family: var(--font-instrument); font-size: 9.5px; color: var(--content-tertiary); background: var(--surface-inset); border-radius: 3px; padding: 1px 5px; }
+.ann-val   { font-family: var(--font-instrument); font-size: 9.5px; color: var(--signal-default); }
+.dim-table { width: 100%; border-collapse: collapse; margin-left: 152px; font-family: var(--font-ui); font-size: 12px; }
+.dim-table th { font-weight: 600; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border-default); }
+.dim-table td { padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); color: var(--content-primary); vertical-align: top; }
+.dim-table tr:last-child td { border-bottom: none; }
+.dim-table .token { font-family: var(--font-instrument); font-size: 10.5px; color: var(--signal-default); }
+.dim-table .val   { font-family: var(--font-instrument); font-size: 10.5px; color: var(--content-secondary); }
+.ac-block { margin-left: 152px; display: flex; flex-direction: column; gap: 10px; }
+.ac-cite { font-family: var(--font-ui); font-size: 10.5px; line-height: 1.55; color: var(--content-tertiary); padding-left: 20px; position: relative; }
+.ac-cite::before { content: "☐"; position: absolute; left: 0; top: 0; color: var(--border-strong); }
+.doc-footer { padding: 64px 0 80px; display: flex; align-items: center; justify-content: space-between; }
+.footer-wordmark { font-family: var(--font-opinion); font-size: 28px; font-weight: 300; letter-spacing: -0.02em; color: var(--content-primary); }
+.footer-wordmark em { font-style: italic; color: var(--signal-default); }
+.footer-meta { font-family: var(--font-instrument); font-size: 11px; color: var(--content-tertiary); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PHONE FRAME — for context renderings
+   ═══════════════════════════════════════════════════════════════════════ */
+.phone-frame {
+  width: 100%; max-width: 240px; margin: 0 auto;
+  aspect-ratio: 9/19.5; position: relative; border-radius: 40px;
+  background: #0F0A07;
+  box-shadow: inset 0 0 0 1px #2A1F16, inset 0 0 0 2px #0F0A07,
+    0 24px 56px -12px rgba(34,24,16,0.38), 0 8px 20px -8px rgba(34,24,16,0.22);
+  overflow: hidden;
+}
+.phone-screen {
+  position: absolute; inset: 2.5px; border-radius: 37px; overflow: hidden;
+  display: flex; flex-direction: column; background: var(--surface-primary);
+  color: var(--content-primary); isolation: isolate;
+}
+/* Dynamic Island (iOS) */
+.phone-di {
+  position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+  width: 80px; height: 22px; background: #000; border-radius: 11px; z-index: 10;
+}
+/* Punch-hole camera (Android) */
+.phone-punch {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  width: 12px; height: 12px; background: #111; border-radius: 50%; z-index: 10;
+}
+.phone-content { flex: 1; overflow: hidden; }
+
+/* ── Safe area annotations ─────────────────────────────────────────── */
+.safe-area-bar {
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-instrument); font-size: 7.5px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(238,124,43,0.7);
+}
+.safe-area-ios { height: 48px; background: rgba(238,124,43,0.04); border-bottom: 1px dashed rgba(238,124,43,0.2); }
+.safe-area-android { height: 24px; background: rgba(238,124,43,0.04); border-bottom: 1px dashed rgba(238,124,43,0.2); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MOLECULE COMPONENTS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Icon button atom (UC-ATM-02 ghost icon variant) ──────────────── */
+.icon-btn {
+  width: 44px; height: 44px;          /* touch target = sizing.touchTarget */
+  border-radius: var(--radius-md);
+  background: transparent; border: none;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--content-primary); cursor: pointer;
+  transition: background 0.14s;
+  flex-shrink: 0;
+}
+.icon-btn:hover { background: var(--action-ghost); }
+.icon-btn.signal { color: var(--signal-default); }
+.icon-svg { display: inline-block; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.icon-md  { width: 20px; height: 20px; } /* sizing.icon.md */
+.icon-sm  { width: 16px; height: 16px; } /* sizing.icon.sm */
+
+/* ── LSToolbar ─────────────────────────────────────────────────────── */
+.ls-toolbar {
+  height: var(--toolbar-height);       /* sizing.component.toolbarHeight = 56px */
+  background: var(--surface-primary);  /* color.surface.primary */
+  box-shadow: var(--elev-chrome);
+  display: flex; align-items: center;
+  padding: 0 4px;                      /* small h-padding so icon buttons don't clip */
+  gap: 0;
+  position: relative;
+  border-bottom: 1px solid var(--border-subtle);
+  width: 100%;
+}
+.toolbar-leading { display: flex; align-items: center; flex-shrink: 0; }
+.toolbar-title-area { flex: 1; display: flex; align-items: center; justify-content: center; }
+.toolbar-title {
+  font-family: var(--font-ui); font-weight: 600; font-size: 14px;
+  line-height: 1.28; letter-spacing: -0.005em;
+  color: var(--content-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 160px;
+}
+.toolbar-trailing { display: flex; align-items: center; flex-shrink: 0; gap: 0; }
+
+/* ── LSNavHeader — default (title in ui.title.md) ──────────────────── */
+.ls-nav-header--default {
+  height: var(--toolbar-height);       /* 56px */
+  background: var(--surface-primary);
+  border-bottom: 1px solid var(--border-default);
+  display: flex; align-items: center;
+  padding: 0 16px;
+  width: 100%;
+}
+.nav-header__title-default {
+  font-family: var(--font-ui); font-weight: 600; font-size: 14px;
+  line-height: 1.28; letter-spacing: -0.005em; color: var(--content-primary);
+}
+
+/* ── LSNavHeader — large-title (expanded) ──────────────────────────── */
+.ls-nav-header--large {
+  background: var(--surface-primary);
+  border-bottom: 1px solid var(--border-default);
+  padding: 12px 16px 16px;
+  width: 100%;
+}
+.nav-header__toolbar-row {
+  display: flex; align-items: center;
+  height: var(--toolbar-height);       /* 56px inner bar */
+  margin-bottom: 4px;
+}
+.nav-header__large-title {
+  font-family: var(--font-opinion);    /* typography.opinion.lg */
+  font-size: 22px; font-weight: 400;
+  line-height: 1.18; letter-spacing: -0.01em;
+  color: var(--content-primary);
+  padding: 0 2px;
+}
+
+/* ── LSNavHeader — large-title (collapsed to ui.title.md) ─────────── */
+.ls-nav-header--collapsed {
+  height: var(--toolbar-height);       /* 56px collapsed */
+  background: var(--surface-primary);
+  border-bottom: 1px solid var(--border-default);
+  display: flex; align-items: center;
+  padding: 0 16px;
+  width: 100%;
+  box-shadow: var(--elev-chrome);
+}
+.nav-header__title-collapsed {
+  flex: 1; text-align: center;
+  font-family: var(--font-ui); font-weight: 600; font-size: 14px;
+  line-height: 1.28; letter-spacing: -0.005em; color: var(--content-primary);
+}
+
+/* Platform annotation badge */
+.platform-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 8px; border-radius: var(--radius-pill);
+  font-family: var(--font-ui); font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.platform-badge.ios { background: rgba(0,122,255,0.08); color: #007AFF; }
+.platform-badge.android { background: rgba(61,159,110,0.10); color: #3D9F6E; }
+
+/* Scroll-state label */
+.state-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; border-radius: var(--radius-pill);
+  font-family: var(--font-instrument); font-size: 8.5px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--surface-inset); color: var(--content-tertiary);
+  border: 1px solid var(--border-default);
+}
+
+/* Safe-area diagram */
+.safe-area-diagram {
+  background: var(--surface-card); border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default); overflow: hidden;
+  width: 100%;
+}
+.safe-area-region {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 12px;
+  font-family: var(--font-instrument); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+}
+.safe-ios { height: 48px; background: rgba(238,124,43,0.06); color: var(--signal-default); border-bottom: 1px dashed rgba(238,124,43,0.3); }
+.safe-toolbar { height: 56px; background: rgba(34,24,16,0.02); color: var(--content-secondary); border-bottom: 1px solid var(--border-subtle); }
+.safe-android-status { height: 24px; background: rgba(61,159,110,0.06); color: #3D9F6E; border-bottom: 1px dashed rgba(61,159,110,0.3); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DARK STAGE — presentation wrapper that sets a dark backdrop so
+   components rendered via .mode-dark read correctly against the page.
+   ═══════════════════════════════════════════════════════════════════════ */
+.dark-stage {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(238,124,43,0.07), transparent 48%),
+    radial-gradient(circle at 88% 82%, rgba(184,90,44,0.05), transparent 52%),
+    #140E09;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(242,238,232,0.08);
+  padding: 28px 24px 32px;
+  box-shadow: 0 10px 30px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(242,238,232,0.04);
+  color: var(--ink-050);
+  position: relative;
+}
+.dark-stage::after {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(242,238,232,0.015) 0 1px, transparent 1px 80px);
+  pointer-events: none; border-radius: inherit;
+}
+.dark-stage > * { position: relative; z-index: 1; }
+.dark-stage .cell-desc { color: rgba(242,238,232,0.55); }
+.dark-stage .ann-token { background: rgba(242,238,232,0.06); color: rgba(242,238,232,0.55); }
+.dark-stage .ann-val { color: var(--copper-400); }
+.dark-stage .state-badge { background: rgba(242,238,232,0.05); color: var(--ink-100); border-color: rgba(242,238,232,0.12); }
+
+/* Mode indicator banner — shown above dark stages */
+.mode-banner {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 6px 14px 6px 10px; border-radius: var(--radius-pill);
+  background: #140E09; color: var(--ink-050);
+  font-family: var(--font-instrument); font-size: 9.5px; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  border: 1px solid rgba(242,238,232,0.12);
+  margin-left: 152px; margin-bottom: 28px;
+}
+.mode-banner::before {
+  content: ""; width: 10px; height: 10px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #F3A164 0%, #9E4A22 70%, #2D2218 100%);
+  box-shadow: 0 0 10px rgba(238,124,43,0.5), inset 0 0 2px rgba(0,0,0,0.4);
+}
+.mode-banner em {
+  font-family: var(--font-opinion); font-style: italic; font-size: 13px;
+  font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--copper-400);
+}
+
+/* Dark-stage grid gets the dark component frames */
+.dark-stage .component-frame {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  overflow: hidden;
+  box-shadow: var(--elev-card);
+}
+
+/* Safe area diagram — dark variant */
+.dark-stage .safe-area-diagram {
+  background: var(--surface-card);
+  border-color: var(--border-default);
+}
+
+/* Dimensions table dual-value column */
+.dim-table .val-pair { display: flex; flex-direction: column; gap: 2px; line-height: 1.3; }
+.dim-table .val-light { color: var(--content-primary); }
+.dim-table .val-dark  { color: var(--copper-400); }
+.dim-table .val-prefix {
+  font-family: var(--font-instrument); font-size: 8px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--content-tertiary);
+  margin-right: 6px;
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════════════════════ -->
+<header class="doc-header">
+  <div class="doc-eyebrow">
+    UC-MOL-02
+    <span class="doc-eyebrow-pill">Molecule Tier-A</span>
+  </div>
+  <h1 class="doc-title">Toolbar &amp; <em>NavHeader</em></h1>
+  <p class="doc-tagline">Top-of-screen navigation chrome — leading, title, and trailing slots over a token-driven surface with safe-area and platform-chrome awareness.</p>
+  <div class="doc-meta-row">
+    <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">2.0.0</span></div>
+    <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">2026-04-20</span></div>
+    <div class="meta-item"><span class="meta-label">UC ID</span><span class="meta-value">UC-MOL-02</span></div>
+    <div class="meta-item"><span class="meta-label">PRD Ref</span><span class="meta-value">06-uc-mol.md</span></div>
+    <div class="meta-item"><span class="meta-label">Surface</span><span class="meta-value">Light · Dark</span></div>
+    <div class="meta-item"><span class="meta-label">Theme</span><span class="meta-value">Copper</span></div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §01 PURPOSE
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§01</span>
+    <h2 class="section-title">Purpose &amp; <em>Atomic Composition</em></h2>
+  </div>
+  <p class="prose">
+    <strong>LSToolbar</strong> is the universal top navigation bar composing <em>LSButton</em> (UC-ATM-02) icon variants into leading and trailing slots, with a centered title rendered at <em>typography.ui.title.md</em>. Height is pinned to <em>sizing.component.toolbarHeight (56px)</em> — no organism may stretch or shrink it.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    <strong>LSNavHeader</strong> extends the concept with an optional <em>large-title</em> variant that renders the title in <em>typography.opinion.lg</em> (Newsreader 22px) when scrolled to top, collapsing to <em>typography.ui.title.md</em> on scroll. Both molecules consume surface and content tokens — never raw colors. Both respect platform safe areas: iOS Dynamic Island / notch adds <em>48pt</em> above the toolbar; Android WindowInsets adds <em>24pt</em>.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §02 THE MOLECULE — LSToolbar Variants
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§02</span>
+    <h2 class="section-title"><em>LSToolbar</em> Variants</h2>
+  </div>
+
+  <div class="demo-grid" style="margin-bottom: 72px;">
+
+    <!-- Variant 1: Back + Title + Action -->
+    <div class="demo-cell">
+      <span class="cell-label">Back + Title + Action</span>
+      <div style="background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-default); overflow: hidden; box-shadow: var(--elev-card);">
+        <div class="ls-toolbar">
+          <div class="toolbar-leading">
+            <button class="icon-btn" title="Back">
+              <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+          </div>
+          <div class="toolbar-title-area">
+            <span class="toolbar-title">Route Details</span>
+          </div>
+          <div class="toolbar-trailing">
+            <button class="icon-btn" title="More">
+              <svg class="icon-svg icon-md" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">height</span><span class="ann-val">56px toolbarHeight</span></div>
+      <div class="annotation-row"><span class="ann-token">bg</span><span class="ann-val">surface.primary #F8F7F6</span></div>
+      <div class="annotation-row"><span class="ann-token">icon size</span><span class="ann-val">sizing.icon.md 20px</span></div>
+      <div class="annotation-row"><span class="ann-token">icon btn</span><span class="ann-val">44×44px touch target</span></div>
+    </div>
+
+    <!-- Variant 2: Title Only -->
+    <div class="demo-cell">
+      <span class="cell-label">Title Only</span>
+      <div style="background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-default); overflow: hidden; box-shadow: var(--elev-card);">
+        <div class="ls-toolbar">
+          <div class="toolbar-leading" style="width: 44px;"></div>
+          <div class="toolbar-title-area">
+            <span class="toolbar-title">Discover</span>
+          </div>
+          <div class="toolbar-trailing" style="width: 44px;"></div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">leading</span><span class="ann-val">empty 44px spacer</span></div>
+      <div class="annotation-row"><span class="ann-token">title</span><span class="ann-val">centered ui.title.md</span></div>
+    </div>
+
+    <!-- Variant 3: Title + Two Actions -->
+    <div class="demo-cell">
+      <span class="cell-label">Title + Two Actions</span>
+      <div style="background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-default); overflow: hidden; box-shadow: var(--elev-card);">
+        <div class="ls-toolbar">
+          <div class="toolbar-leading">
+            <button class="icon-btn" title="Back">
+              <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+          </div>
+          <div class="toolbar-title-area">
+            <span class="toolbar-title">Plan Route</span>
+          </div>
+          <div class="toolbar-trailing">
+            <button class="icon-btn" title="Share">
+              <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+            </button>
+            <button class="icon-btn signal" title="Save">
+              <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">trailing</span><span class="ann-val">2 × 44px icon buttons</span></div>
+      <div class="annotation-row"><span class="ann-token">signal icon</span><span class="ann-val">color.signal.default</span></div>
+    </div>
+
+    <!-- Variant 4: No Back Button -->
+    <div class="demo-cell">
+      <span class="cell-label">No Back Button</span>
+      <div style="background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-default); overflow: hidden; box-shadow: var(--elev-card);">
+        <div class="ls-toolbar">
+          <div class="toolbar-title-area" style="justify-content: flex-start; padding-left: 12px;">
+            <span class="toolbar-title">LaneShadow</span>
+          </div>
+          <div class="toolbar-trailing">
+            <button class="icon-btn" title="Search">
+              <svg class="icon-svg icon-md" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </button>
+            <button class="icon-btn" title="Profile">
+              <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">leading</span><span class="ann-val">absent — title left-aligned</span></div>
+    </div>
+
+  </div>
+
+  <!-- LSNavHeader variants -->
+  <div class="section-header" style="margin-top: 64px;">
+    <span class="section-index">§02b</span>
+    <h2 class="section-title"><em>LSNavHeader</em> — Default + Large Title</h2>
+  </div>
+
+  <div class="demo-grid" style="margin-bottom: 64px;">
+
+    <!-- NavHeader Default -->
+    <div class="demo-cell">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+        <span class="cell-label">NavHeader — Default</span>
+        <span class="platform-badge ios">iOS</span>
+        <span class="platform-badge android">Android</span>
+      </div>
+      <div style="background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-default); overflow: hidden; box-shadow: var(--elev-card);">
+        <div class="ls-nav-header--default">
+          <span class="nav-header__title-default">Chat</span>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">title</span><span class="ann-val">ui.title.md Geist 14px 600</span></div>
+      <div class="annotation-row"><span class="ann-token">height</span><span class="ann-val">56px toolbarHeight</span></div>
+    </div>
+
+    <!-- NavHeader Large Title Expanded -->
+    <div class="demo-cell">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+        <span class="cell-label">Large Title — Expanded</span>
+        <span class="state-badge">Scroll top</span>
+      </div>
+      <div style="background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-default); overflow: hidden; box-shadow: var(--elev-card);">
+        <div class="ls-nav-header--large">
+          <div class="nav-header__toolbar-row">
+            <div style="width: 44px; flex-shrink: 0;"></div>
+            <div style="flex: 1;"></div>
+            <button class="icon-btn" title="Edit">
+              <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+          </div>
+          <div class="nav-header__large-title">Chat</div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">large title</span><span class="ann-val">opinion.lg Newsreader 22px</span></div>
+      <div class="annotation-row"><span class="ann-token">leading bar</span><span class="ann-val">56px row inside header</span></div>
+    </div>
+
+    <!-- NavHeader Large Title Collapsed -->
+    <div class="demo-cell">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+        <span class="cell-label">Large Title — Collapsed</span>
+        <span class="state-badge">Scrolled down</span>
+      </div>
+      <div style="background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-default); overflow: hidden; box-shadow: var(--elev-card);">
+        <div class="ls-nav-header--collapsed">
+          <div style="width: 44px; flex-shrink: 0;"></div>
+          <span class="nav-header__title-collapsed">Chat</span>
+          <button class="icon-btn" title="Edit">
+            <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">title</span><span class="ann-val">ui.title.md 14px centered</span></div>
+      <div class="annotation-row"><span class="ann-token">shadow</span><span class="ann-val">elev.chrome on scroll</span></div>
+    </div>
+
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────
+       §02c — DARK MODE : same molecule, inverted palette
+       ─────────────────────────────────────────────────────────────── -->
+  <div class="section-header" style="margin-top: 88px;">
+    <span class="section-index">§02c</span>
+    <h2 class="section-title"><em>Dark Mode</em> — Inverted Palette</h2>
+  </div>
+  <p class="prose">
+    Dark mode is a <strong>token swap</strong>, never a new component. Scoping <em>.mode-dark</em> on any ancestor flips <em>color.surface.*</em> to the warm ink ladder (<em>ink-800</em> primary, <em>ink-700</em> card, <em>ink-600</em> inset), lifts content to <em>ink-050 / ink-100 / ink-200</em>, and softens borders to translucent paper (<em>rgba(242,238,232,0.12)</em>). Copper signal <em>holds</em> — it is the brand constant across both themes.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    LSToolbar and LSNavHeader re-render identically: same 56px height, same typography scale, same icon-button geometry. Only <em>elev.chrome</em> and <em>action.ghost</em> shift to dark-appropriate values. The collapsed NavHeader's scroll shadow deepens to <em>0 1px 3px rgba(0,0,0,0.24) + 0 4px 14px rgba(0,0,0,0.28)</em> to remain legible against the warm ink surface.
+  </p>
+
+  <div class="mode-banner" style="margin-top: 40px;">
+    Mode <em>dark</em> · .mode-dark scope
+  </div>
+
+  <!-- Dark LSToolbar variants -->
+  <div class="mode-dark dark-stage" style="margin-left: 152px; margin-right: 0;">
+    <div style="font-family: var(--font-instrument); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--copper-400); margin-bottom: 24px;">
+      LSToolbar · Dark
+    </div>
+    <div class="demo-grid" style="padding-left: 0; grid-template-columns: repeat(4, 1fr); gap: 28px;">
+
+      <!-- Dark Variant 1: Back + Title + Action -->
+      <div class="demo-cell">
+        <span class="cell-label" style="color: var(--copper-400);">Back + Title + Action</span>
+        <div class="component-frame">
+          <div class="ls-toolbar">
+            <div class="toolbar-leading">
+              <button class="icon-btn" title="Back">
+                <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              </button>
+            </div>
+            <div class="toolbar-title-area">
+              <span class="toolbar-title">Route Details</span>
+            </div>
+            <div class="toolbar-trailing">
+              <button class="icon-btn" title="More">
+                <svg class="icon-svg icon-md" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="annotation-row"><span class="ann-token">bg</span><span class="ann-val">surface.primary #221810</span></div>
+        <div class="annotation-row"><span class="ann-token">title</span><span class="ann-val">content.primary ink-050</span></div>
+      </div>
+
+      <!-- Dark Variant 2: Title Only -->
+      <div class="demo-cell">
+        <span class="cell-label" style="color: var(--copper-400);">Title Only</span>
+        <div class="component-frame">
+          <div class="ls-toolbar">
+            <div class="toolbar-leading" style="width: 44px;"></div>
+            <div class="toolbar-title-area">
+              <span class="toolbar-title">Discover</span>
+            </div>
+            <div class="toolbar-trailing" style="width: 44px;"></div>
+          </div>
+        </div>
+        <div class="annotation-row"><span class="ann-token">title</span><span class="ann-val">centered ui.title.md</span></div>
+        <div class="annotation-row"><span class="ann-token">border</span><span class="ann-val">rgba(242,238,232,0.07)</span></div>
+      </div>
+
+      <!-- Dark Variant 3: Title + Two Actions -->
+      <div class="demo-cell">
+        <span class="cell-label" style="color: var(--copper-400);">Title + Two Actions</span>
+        <div class="component-frame">
+          <div class="ls-toolbar">
+            <div class="toolbar-leading">
+              <button class="icon-btn" title="Back">
+                <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              </button>
+            </div>
+            <div class="toolbar-title-area">
+              <span class="toolbar-title">Plan Route</span>
+            </div>
+            <div class="toolbar-trailing">
+              <button class="icon-btn" title="Share">
+                <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+              </button>
+              <button class="icon-btn signal" title="Save">
+                <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="annotation-row"><span class="ann-token">signal</span><span class="ann-val">holds — copper.500</span></div>
+        <div class="annotation-row"><span class="ann-token">hover</span><span class="ann-val">action.ghost rgba(.08)</span></div>
+      </div>
+
+      <!-- Dark Variant 4: No Back -->
+      <div class="demo-cell">
+        <span class="cell-label" style="color: var(--copper-400);">No Back Button</span>
+        <div class="component-frame">
+          <div class="ls-toolbar">
+            <div class="toolbar-title-area" style="justify-content: flex-start; padding-left: 12px;">
+              <span class="toolbar-title">LaneShadow</span>
+            </div>
+            <div class="toolbar-trailing">
+              <button class="icon-btn" title="Search">
+                <svg class="icon-svg icon-md" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              </button>
+              <button class="icon-btn" title="Profile">
+                <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="annotation-row"><span class="ann-token">wordmark</span><span class="ann-val">left-aligned ui.title.md</span></div>
+      </div>
+
+    </div>
+
+    <!-- Dark LSNavHeader variants -->
+    <div style="font-family: var(--font-instrument); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--copper-400); margin: 48px 0 24px;">
+      LSNavHeader · Dark
+    </div>
+    <div class="demo-grid" style="padding-left: 0; grid-template-columns: repeat(3, 1fr); gap: 36px;">
+
+      <!-- NavHeader Default (dark) -->
+      <div class="demo-cell">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          <span class="cell-label" style="color: var(--copper-400);">NavHeader — Default</span>
+          <span class="state-badge">Dark</span>
+        </div>
+        <div class="component-frame">
+          <div class="ls-nav-header--default">
+            <span class="nav-header__title-default">Chat</span>
+          </div>
+        </div>
+        <div class="annotation-row"><span class="ann-token">title</span><span class="ann-val">ink-050 · Geist 14px 600</span></div>
+      </div>
+
+      <!-- NavHeader Large — Expanded (dark) -->
+      <div class="demo-cell">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          <span class="cell-label" style="color: var(--copper-400);">Large Title — Expanded</span>
+          <span class="state-badge">Scroll top</span>
+        </div>
+        <div class="component-frame">
+          <div class="ls-nav-header--large">
+            <div class="nav-header__toolbar-row">
+              <div style="width: 44px; flex-shrink: 0;"></div>
+              <div style="flex: 1;"></div>
+              <button class="icon-btn" title="Edit">
+                <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+            </div>
+            <div class="nav-header__large-title">Chat</div>
+          </div>
+        </div>
+        <div class="annotation-row"><span class="ann-token">serif</span><span class="ann-val">opinion.lg · Newsreader 22</span></div>
+        <div class="annotation-row"><span class="ann-token">note</span><span class="ann-val">editorial tone holds in dark</span></div>
+      </div>
+
+      <!-- NavHeader Large — Collapsed (dark) -->
+      <div class="demo-cell">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+          <span class="cell-label" style="color: var(--copper-400);">Large Title — Collapsed</span>
+          <span class="state-badge">Scrolled</span>
+        </div>
+        <div class="component-frame">
+          <div class="ls-nav-header--collapsed">
+            <div style="width: 44px; flex-shrink: 0;"></div>
+            <span class="nav-header__title-collapsed">Chat</span>
+            <button class="icon-btn" title="Edit">
+              <svg class="icon-svg icon-md" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="annotation-row"><span class="ann-token">shadow</span><span class="ann-val">elev.chrome · deepened</span></div>
+        <div class="annotation-row"><span class="ann-token">border</span><span class="ann-val">translucent paper</span></div>
+      </div>
+
+    </div>
+
+    <!-- Dark phone context — iOS + Android -->
+    <div style="font-family: var(--font-instrument); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--copper-400); margin: 48px 0 24px;">
+      Platform chrome · Dark
+    </div>
+    <div class="demo-grid cols-2" style="padding-left: 0; gap: 32px; align-items: start;">
+
+      <!-- iOS Dark Phone -->
+      <div class="demo-cell">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <span class="cell-label" style="color: var(--copper-400);">iOS — Dynamic Island</span>
+          <span class="platform-badge ios">iOS</span>
+        </div>
+        <div class="phone-frame" style="max-width: 200px;">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div style="height: 48px; background: var(--surface-primary); flex-shrink: 0; border-bottom: 1px dashed rgba(238,124,43,0.28); display: flex; align-items: flex-end; padding: 0 12px 4px; justify-content: space-between;">
+              <span style="font-family: var(--font-instrument); font-size: 7px; color: var(--copper-400); letter-spacing: 0.1em; text-transform: uppercase;">48pt safe area</span>
+              <span style="font-family: var(--font-instrument); font-size: 7px; color: var(--content-tertiary);">9:41</span>
+            </div>
+            <div style="height: 56px; background: var(--surface-primary); flex-shrink: 0; display: flex; align-items: center; padding: 0 4px; border-bottom: 1px solid var(--border-subtle); box-shadow: var(--elev-chrome);">
+              <button class="icon-btn" style="width: 36px; height: 36px;" title="Back">
+                <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              </button>
+              <div style="flex:1; text-align: center;">
+                <span style="font-family: var(--font-ui); font-weight: 600; font-size: 11px; color: var(--content-primary);">Route Details</span>
+              </div>
+              <button class="icon-btn" style="width: 36px; height: 36px;" title="More">
+                <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </div>
+            <div style="flex:1; padding: 12px; background: var(--surface-inset); display: flex; flex-direction: column; gap: 6px;">
+              <div style="height: 8px; border-radius: 4px; background: rgba(242,238,232,0.18); width: 80%;"></div>
+              <div style="height: 8px; border-radius: 4px; background: rgba(242,238,232,0.10); width: 60%;"></div>
+              <div style="height: 8px; border-radius: 4px; background: rgba(242,238,232,0.10); width: 70%;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="annotation-row"><span class="ann-token">toolbar</span><span class="ann-val">ink-800 #221810</span></div>
+        <div class="annotation-row"><span class="ann-token">shadow</span><span class="ann-val">elev.chrome dark · 0.28</span></div>
+      </div>
+
+      <!-- Android Dark Phone -->
+      <div class="demo-cell">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <span class="cell-label" style="color: var(--copper-400);">Android — WindowInsets</span>
+          <span class="platform-badge android">Android</span>
+        </div>
+        <div class="phone-frame" style="max-width: 200px; border-radius: 28px;">
+          <div class="phone-screen" style="border-radius: 25px;">
+            <div class="phone-punch"></div>
+            <div style="height: 24px; background: var(--surface-primary); flex-shrink: 0; border-bottom: 1px dashed rgba(61,159,110,0.32); display: flex; align-items: center; padding: 0 12px; justify-content: space-between;">
+              <span style="font-family: var(--font-instrument); font-size: 7px; color: #7DD4A5; letter-spacing: 0.1em; text-transform: uppercase;">24pt WindowInset</span>
+              <span style="font-family: var(--font-instrument); font-size: 7px; color: var(--content-tertiary);">9:41</span>
+            </div>
+            <div style="height: 56px; background: var(--surface-primary); flex-shrink: 0; display: flex; align-items: center; padding: 0 4px; border-bottom: 1px solid var(--border-subtle);">
+              <button class="icon-btn" style="width: 36px; height: 36px;" title="Back">
+                <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              </button>
+              <div style="flex:1; text-align: center;">
+                <span style="font-family: var(--font-ui); font-weight: 600; font-size: 11px; color: var(--content-primary);">Route Details</span>
+              </div>
+              <button class="icon-btn" style="width: 36px; height: 36px;" title="More">
+                <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </div>
+            <div style="flex:1; padding: 12px; background: var(--surface-inset); display: flex; flex-direction: column; gap: 6px;">
+              <div style="height: 8px; border-radius: 4px; background: rgba(242,238,232,0.18); width: 80%;"></div>
+              <div style="height: 8px; border-radius: 4px; background: rgba(242,238,232,0.10); width: 60%;"></div>
+              <div style="height: 8px; border-radius: 4px; background: rgba(242,238,232,0.10); width: 70%;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="annotation-row"><span class="ann-token">M3 surface</span><span class="ann-val">dark elevated · ink-800</span></div>
+        <div class="annotation-row"><span class="ann-token">insets</span><span class="ann-val">WindowInsetsCompat.Type</span></div>
+      </div>
+
+    </div>
+
+    <!-- Dark safe-area diagram -->
+    <div style="font-family: var(--font-instrument); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--copper-400); margin: 48px 0 16px;">
+      Safe area diagram · Dark
+    </div>
+    <div style="max-width: 560px;">
+      <div class="safe-area-diagram">
+        <div class="safe-area-region safe-ios">
+          <span>iOS Dynamic Island / Notch — 48pt</span>
+          <span style="font-family: var(--font-instrument); font-size: 8px;">safeAreaInsets.top</span>
+        </div>
+        <div class="safe-area-region safe-toolbar" style="background: rgba(242,238,232,0.03); color: var(--content-secondary); border-bottom-color: var(--border-subtle);">
+          <span>LSToolbar — 56pt (both platforms)</span>
+          <span style="font-family: var(--font-instrument); font-size: 8px;">sizing.component.toolbarHeight</span>
+        </div>
+        <div class="safe-area-region safe-android-status" style="border-top: 1px dashed rgba(61,159,110,0.3);">
+          <span>Android WindowInsets.statusBars — 24pt</span>
+          <span style="font-family: var(--font-instrument); font-size: 8px;">WindowInsetsCompat.Type.statusBars()</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §03 STATES & VARIANTS + PLATFORM CHROME
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§03</span>
+    <h2 class="section-title">States, Platform Chrome &amp; <em>Safe Areas</em></h2>
+  </div>
+
+  <!-- Side-by-side iOS vs Android phone mocks -->
+  <div class="demo-grid cols-2" style="margin-bottom: 64px; align-items: start;">
+
+    <!-- iOS Phone Mock -->
+    <div class="demo-cell">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <span class="cell-label">iOS — Dynamic Island</span>
+        <span class="platform-badge ios">iOS</span>
+      </div>
+      <div class="phone-frame" style="max-width: 200px;">
+        <div class="phone-screen">
+          <div class="phone-di"></div>
+          <!-- iOS status bar 48pt safe area -->
+          <div style="height: 48px; background: var(--surface-primary); flex-shrink: 0; border-bottom: 1px dashed rgba(238,124,43,0.18); display: flex; align-items: flex-end; padding: 0 12px 4px; justify-content: space-between;">
+            <span style="font-family: var(--font-instrument); font-size: 7px; color: var(--signal-default); letter-spacing: 0.1em; text-transform: uppercase;">48pt safe area</span>
+            <span style="font-family: var(--font-instrument); font-size: 7px; color: var(--content-tertiary);">9:41</span>
+          </div>
+          <!-- Toolbar 56pt -->
+          <div style="height: 56px; background: var(--surface-primary); flex-shrink: 0; display: flex; align-items: center; padding: 0 4px; border-bottom: 1px solid var(--border-subtle); box-shadow: var(--elev-chrome);">
+            <button class="icon-btn" style="width: 36px; height: 36px;" title="Back">
+              <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <div style="flex:1; text-align: center;">
+              <span style="font-family: var(--font-ui); font-weight: 600; font-size: 11px;">Route Details</span>
+            </div>
+            <button class="icon-btn" style="width: 36px; height: 36px;" title="More">
+              <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            </button>
+          </div>
+          <!-- Screen content placeholder -->
+          <div style="flex:1; padding: 12px; background: var(--surface-inset); display: flex; flex-direction: column; gap: 6px;">
+            <div style="height: 8px; border-radius: 4px; background: var(--border-default); width: 80%;"></div>
+            <div style="height: 8px; border-radius: 4px; background: var(--border-subtle); width: 60%;"></div>
+            <div style="height: 8px; border-radius: 4px; background: var(--border-subtle); width: 70%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">status bar</span><span class="ann-val">48pt — Dynamic Island</span></div>
+      <div class="annotation-row"><span class="ann-token">toolbar</span><span class="ann-val">56pt toolbarHeight</span></div>
+    </div>
+
+    <!-- Android Phone Mock -->
+    <div class="demo-cell">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <span class="cell-label">Android — Punch-hole + WindowInsets</span>
+        <span class="platform-badge android">Android</span>
+      </div>
+      <div class="phone-frame" style="max-width: 200px; border-radius: 28px;">
+        <div class="phone-screen" style="border-radius: 25px;">
+          <div class="phone-punch"></div>
+          <!-- Android status bar 24pt -->
+          <div style="height: 24px; background: var(--surface-primary); flex-shrink: 0; border-bottom: 1px dashed rgba(61,159,110,0.25); display: flex; align-items: center; padding: 0 12px; justify-content: space-between;">
+            <span style="font-family: var(--font-instrument); font-size: 7px; color: #3D9F6E; letter-spacing: 0.1em; text-transform: uppercase;">24pt WindowInset</span>
+            <span style="font-family: var(--font-instrument); font-size: 7px; color: var(--content-tertiary);">9:41</span>
+          </div>
+          <!-- Toolbar 56pt -->
+          <div style="height: 56px; background: var(--surface-primary); flex-shrink: 0; display: flex; align-items: center; padding: 0 4px; border-bottom: 1px solid var(--border-subtle);">
+            <button class="icon-btn" style="width: 36px; height: 36px;" title="Back">
+              <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <div style="flex:1; text-align: center;">
+              <span style="font-family: var(--font-ui); font-weight: 600; font-size: 11px;">Route Details</span>
+            </div>
+            <button class="icon-btn" style="width: 36px; height: 36px;" title="More">
+              <svg class="icon-svg" width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            </button>
+          </div>
+          <!-- Screen content placeholder -->
+          <div style="flex:1; padding: 12px; background: var(--surface-inset); display: flex; flex-direction: column; gap: 6px;">
+            <div style="height: 8px; border-radius: 4px; background: var(--border-default); width: 80%;"></div>
+            <div style="height: 8px; border-radius: 4px; background: var(--border-subtle); width: 60%;"></div>
+            <div style="height: 8px; border-radius: 4px; background: var(--border-subtle); width: 70%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">status bar</span><span class="ann-val">24pt — WindowInsets</span></div>
+      <div class="annotation-row"><span class="ann-token">corner radius</span><span class="ann-val">smaller (device-relative)</span></div>
+    </div>
+
+  </div>
+
+  <!-- Safe area breakdown diagram -->
+  <div style="padding-left: 152px; max-width: 560px;">
+    <span class="cell-label" style="display: block; margin-bottom: 16px;">Safe Area Annotation Diagram</span>
+    <div class="safe-area-diagram">
+      <div class="safe-area-region safe-ios">
+        <span>iOS Dynamic Island / Notch — 48pt</span>
+        <span style="font-family: var(--font-instrument); font-size: 8px;">safeAreaInsets.top</span>
+      </div>
+      <div class="safe-area-region safe-toolbar">
+        <span>LSToolbar — 56pt (both platforms)</span>
+        <span style="font-family: var(--font-instrument); font-size: 8px;">sizing.component.toolbarHeight</span>
+      </div>
+      <div class="safe-area-region safe-android-status" style="border-top: 1px dashed rgba(61,159,110,0.3);">
+        <span>Android WindowInsets.statusBars — 24pt</span>
+        <span style="font-family: var(--font-instrument); font-size: 8px;">WindowInsetsCompat.Type.statusBars()</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §04 ATOMIC COMPOSITION + DIMENSIONS TABLE
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§04</span>
+    <h2 class="section-title">Atomic Composition + <em>Dimensions</em></h2>
+  </div>
+  <table class="dim-table" style="max-width: 900px;">
+    <thead>
+      <tr>
+        <th>Atom / Property</th>
+        <th>Molecule Pattern</th>
+        <th>Token</th>
+        <th>Resolved Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Toolbar height</td><td>LSToolbar + LSNavHeader</td><td class="token">sizing.component.toolbarHeight</td><td class="val">56px</td></tr>
+      <tr><td>Toolbar background</td><td>Surface fill</td><td class="token">color.surface.primary</td>
+        <td><div class="val-pair">
+          <span class="val"><span class="val-prefix">Light</span>#F8F7F6</span>
+          <span class="val val-dark"><span class="val-prefix">Dark</span>#221810 · ink-800</span>
+        </div></td></tr>
+      <tr><td>Card / inner surface</td><td>Wrapper, sheet, context fill</td><td class="token">color.surface.card</td>
+        <td><div class="val-pair">
+          <span class="val"><span class="val-prefix">Light</span>#FDFBF8</span>
+          <span class="val val-dark"><span class="val-prefix">Dark</span>#2D2218 · ink-700</span>
+        </div></td></tr>
+      <tr><td>Title typography</td><td>Default title slot</td><td class="token">typography.ui.title.md</td><td class="val">Geist 14px 600</td></tr>
+      <tr><td>Title color</td><td>Title fg</td><td class="token">color.content.primary</td>
+        <td><div class="val-pair">
+          <span class="val"><span class="val-prefix">Light</span>#1E1A16 · ink-900</span>
+          <span class="val val-dark"><span class="val-prefix">Dark</span>#F2EEE8 · ink-050</span>
+        </div></td></tr>
+      <tr><td>Secondary content</td><td>Caption, sub-label</td><td class="token">color.content.secondary</td>
+        <td><div class="val-pair">
+          <span class="val"><span class="val-prefix">Light</span>#49454F · ink-400</span>
+          <span class="val val-dark"><span class="val-prefix">Dark</span>#CAC4D0 · ink-100</span>
+        </div></td></tr>
+      <tr><td>Large title typography</td><td>LSNavHeader expanded</td><td class="token">typography.opinion.lg</td><td class="val">Newsreader 22px 400</td></tr>
+      <tr><td>Collapsed title typography</td><td>LSNavHeader scrolled</td><td class="token">typography.ui.title.md</td><td class="val">Geist 14px 600</td></tr>
+      <tr><td>LSButton icon variant (UC-ATM-02)</td><td>Leading back + trailing action</td><td class="token">sizing.touchTarget</td><td class="val">44×44px</td></tr>
+      <tr><td>Icon inside button</td><td>Back arrow, ellipsis, share</td><td class="token">sizing.icon.md</td><td class="val">20×20px</td></tr>
+      <tr><td>Toolbar border</td><td>Bottom stroke</td><td class="token">color.border.subtle</td>
+        <td><div class="val-pair">
+          <span class="val"><span class="val-prefix">Light</span>#EDE7E1 1px</span>
+          <span class="val val-dark"><span class="val-prefix">Dark</span>rgba(242,238,232,0.07)</span>
+        </div></td></tr>
+      <tr><td>Toolbar shadow</td><td>Elevation</td><td class="token">elev.chrome</td>
+        <td><div class="val-pair">
+          <span class="val"><span class="val-prefix">Light</span>0 1px 3px/.04 · 0 4px 14px/.06</span>
+          <span class="val val-dark"><span class="val-prefix">Dark</span>0 1px 3px/.24 · 0 4px 14px/.28</span>
+        </div></td></tr>
+      <tr><td>iOS safe area</td><td>Above toolbar</td><td class="token">safeAreaInsets.top (iOS)</td><td class="val">48pt Dynamic Island</td></tr>
+      <tr><td>Android status bar</td><td>Above toolbar</td><td class="token">WindowInsets.statusBars</td><td class="val">24pt</td></tr>
+      <tr><td>Icon button hover bg</td><td>LSButton ghost state</td><td class="token">color.action.ghost</td>
+        <td><div class="val-pair">
+          <span class="val"><span class="val-prefix">Light</span>#F2EFED · paper-200</span>
+          <span class="val val-dark"><span class="val-prefix">Dark</span>rgba(242,238,232,0.08)</span>
+        </div></td></tr>
+      <tr><td>Signal icon color</td><td>Active/saved action — holds across modes</td><td class="token">color.signal.default</td><td class="val">#EE7C2B copper.500</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §05 MOTION
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§05</span>
+    <h2 class="section-title"><em>Motion</em> Recipes</h2>
+  </div>
+  <p class="prose">
+    <strong>navHeaderCollapse</strong> — when scroll offset exceeds the large-title height, the title cross-fades from <em>typography.opinion.lg</em> to <em>typography.ui.title.md</em>. Transition: 200ms ease-in-out on opacity and a simultaneous 4px translateY. The toolbar shadow appears at scroll offset 1px: box-shadow transitions from 0 to <em>elev.chrome</em> in 150ms.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    <strong>toolbarEnter</strong> — on screen push the toolbar does not animate independently. The entire screen slides in via the navigator transition recipe (spring 400ms, damping 32). Icon tap: background flashes to <em>action.ghost</em> for 120ms, then releases.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §06 RATIONALE + AC TRACEABILITY
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§06</span>
+    <h2 class="section-title">Rationale + <em>AC Traceability</em></h2>
+  </div>
+  <p class="prose">
+    The 56px toolbar height is the only value in the system that is <em>not</em> derived from a spacing step. It was chosen empirically to match iOS HIG's 44pt navigation bar + 12pt comfortable breathing room, landing on a value that feels cohesive alongside a 44pt touch-target icon button. Locking it as <em>sizing.component.toolbarHeight</em> prevents screen-level code from ever rendering a 48px or 60px variant by accident.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    The <em>large-title</em> variant uses Newsreader (opinion typeface) rather than Geist because large headers are editorial moments — LaneShadow is a lifestyle product and the serif drop-in reinforces brand voice at section entry points.
+  </p>
+  <div class="ac-block" style="margin-top: 48px;">
+    <div class="ac-cite">Developer renders LSToolbar(leading: .back, title: "Details", trailing: .action(icon: .ellipsis)) and sees sizing.component.toolbarHeight, color.surface.primary background, title centered in typography.ui.title.md, back icon at sizing.icon.md. [06-uc-mol.md §UC-MOL-02]</div>
+    <div class="ac-cite">Developer renders LSNavHeader(variant: .largeTitle, title: "Chat") on iOS and sees typography.opinion.lg that collapses to typography.ui.title.md on scroll. [06-uc-mol.md §UC-MOL-02]</div>
+    <div class="ac-cite">Developer renders same LSNavHeader on Android and sees large-title variant render the same typography hierarchy static at display-size. [06-uc-mol.md §UC-MOL-02]</div>
+    <div class="ac-cite">Developer opens stories and verifies safe-area respect on iOS (safeAreaInsets.top 48pt), WindowInsets respect on Android (statusBars 24pt). [06-uc-mol.md §UC-MOL-02]</div>
+    <div class="ac-cite">Developer wraps either molecule in a dark-mode scope (color scheme = .dark / ThemeMode.dark) and verifies surface flips to color.surface.primary (#221810), content to color.content.primary (#F2EEE8 ink-050), borders to translucent paper, elev.chrome to dark shadow values — with zero per-component dark-mode logic in the molecule itself. [06-uc-mol.md §UC-MOL-02]</div>
+    <div class="ac-cite">Developer verifies copper signal (color.signal.default #EE7C2B) renders identically in light and dark — signal never flips, it is the brand anchor. [06-uc-mol.md §UC-MOL-02]</div>
+    <div class="ac-cite">Developer finds stories: Toolbar "Back + Title + Action", "Title Only", "Title + Two Actions", "No Back Button"; NavHeader "Default", "Large Title", "Large Title With Subtitle"; each with Light + Dark mode variants. [06-uc-mol.md §UC-MOL-02]</div>
+  </div>
+</section>
+
+<footer class="doc-footer">
+  <div class="footer-wordmark">Lane<em>Shadow</em></div>
+  <div class="footer-meta">V2 · Copper · UC-MOL-02 · 2026-04-20</div>
+</footer>
+
+</div><!-- /.wrap -->
+</body>
+</html>

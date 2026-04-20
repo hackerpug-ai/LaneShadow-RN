@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<!-- uc-mol-04-formfield-tabitem-emptystate.html — UC-MOL-04 "FormField + TabItem + EmptyState"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Molecules: LSFormField · LSTabItem · LSEmptyState
+     Authority: .spec/prds/v2/06-uc-mol.md §UC-MOL-04 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-MOL-04 — FormField + TabItem + EmptyState — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper-50:  #FDFBF8;  --paper-100: #F8F7F6;  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;  --paper-300: #EDE7E1;  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+  --ink-900:   #1E1A16;  --ink-800: #221810;   --ink-700: #2D2218;
+  --ink-600:   #362A1F;  --ink-500: #3D3228;   --ink-400: #49454F;
+  --ink-300:   #6B6460;  --ink-200: #9CA3AF;   --ink-100: #CAC4D0;  --ink-050: #F2EEE8;
+  --copper-700: #9E4A22;  --copper-600: #B85A2C;  --copper-500: #EE7C2B;
+  --copper-400: #F3A164;  --copper-200: #F9D5B5;  --copper-100: #FCE8D4;
+  --status-error:   #DC2626;
+  --status-error-tint: #FEE2E2;
+  --status-success: #16A34A;
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+:root {
+  --surface-primary:   var(--paper-100);
+  --surface-card:      var(--paper-50);
+  --surface-inset:     var(--paper-200);
+  --surface-overlay:   rgba(253,251,248,0.92);
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --content-onSignal:  #FFFFFF;
+  --content-error:     var(--status-error);   /* color.content.error */
+  --signal-default:    var(--copper-500);
+  --signal-pressed:    var(--copper-700);
+  --signal-tint:       var(--copper-200);
+  --signal-whisper:    var(--copper-100);
+  --border-default:    var(--paper-400);
+  --border-subtle:     var(--paper-300);
+  --border-strong:     var(--paper-500);
+  --border-focus:      var(--copper-500);
+  --action-primary:    var(--copper-500);
+  --action-ghost:      var(--paper-200);
+  --elev-overlay:      0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+
+  /* SPACING */
+  --sp-1: 2px;  --sp-2: 4px;  --sp-3: 8px;  --sp-4: 12px;
+  --sp-5: 16px; --sp-6: 20px; --sp-7: 24px; --sp-8: 32px; --sp-9: 40px;
+
+  /* RADIUS */
+  --radius-xs: 2px; --radius-sm: 6px; --radius-md: 10px;
+  --radius-lg: 14px; --radius-xl: 20px; --radius-pill: 999px;
+
+  /* SIZING */
+  --touch-target: 44px;
+  --input-height: 48px;   /* sizing.component.inputHeight */
+  --icon-sm: 16px; --icon-md: 20px; --icon-xl: 32px;
+}
+
+/* ─── DOCUMENT CHROME ──────────────────────────────────────────────── */
+body {
+  font-family: var(--font-ui); color: var(--content-primary);
+  background: var(--surface-primary); -webkit-font-smoothing: antialiased;
+  min-height: 100vh; line-height: 1.55; overflow-x: hidden;
+}
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+.doc-header {
+  position: relative; padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default); overflow: hidden;
+}
+.doc-header::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-ui); font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--signal-default); margin-bottom: 28px;
+}
+.doc-eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--signal-default); }
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default); color: var(--signal-default);
+  background: var(--signal-whisper); font-size: 9.5px; letter-spacing: 0.14em;
+}
+.doc-title {
+  font-family: var(--font-opinion); font-size: 88px; font-weight: 300;
+  line-height: 0.94; letter-spacing: -0.035em; color: var(--content-primary);
+  margin-bottom: 32px; max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.doc-tagline {
+  font-family: var(--font-opinion); font-style: italic; font-size: 22px; font-weight: 300;
+  color: var(--content-secondary); max-width: 640px; line-height: 1.55; margin-bottom: 56px;
+}
+.doc-meta-row {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 24px;
+  padding-top: 36px; border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label { font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--content-tertiary); }
+.meta-value { font-family: var(--font-instrument); font-size: 13px; font-weight: 500; color: var(--content-primary); }
+.section { padding: 96px 0; border-bottom: 1px solid var(--border-default); position: relative; }
+.section:last-of-type { border-bottom: none; }
+.section-header { display: grid; grid-template-columns: 120px 1fr; align-items: baseline; gap: 32px; margin-bottom: 56px; }
+.section-index {
+  font-family: var(--font-instrument); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; color: var(--signal-default); text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before { content: ""; display: block; width: 48px; height: 1px; background: var(--signal-default); }
+.section-title {
+  font-family: var(--font-opinion); font-size: 52px; font-weight: 300;
+  letter-spacing: -0.025em; line-height: 1.04; color: var(--content-primary); max-width: 900px;
+}
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.prose {
+  font-family: var(--font-opinion); font-weight: 300; font-size: 19px; line-height: 1.68;
+  color: var(--content-secondary); max-width: 720px; margin-left: 152px;
+}
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong {
+  font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--signal-default);
+  display: inline-block; padding: 2px 8px;
+  background: var(--signal-whisper); border: 1px solid var(--signal-tint);
+  border-radius: 4px; margin: 0 2px;
+}
+.demo-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 48px; padding-left: 152px; align-items: start;
+}
+.demo-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.demo-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.demo-cell { display: flex; flex-direction: column; gap: 16px; }
+.cell-label {
+  font-family: var(--font-instrument); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--signal-default);
+}
+.cell-desc {
+  font-family: var(--font-ui); font-size: 11px; color: var(--content-tertiary); line-height: 1.5;
+}
+.annotation-row { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; }
+.ann-token { font-family: var(--font-instrument); font-size: 9.5px; color: var(--content-tertiary); background: var(--surface-inset); border-radius: 3px; padding: 1px 5px; }
+.ann-val   { font-family: var(--font-instrument); font-size: 9.5px; color: var(--signal-default); }
+.dim-table { width: 100%; border-collapse: collapse; margin-left: 152px; font-family: var(--font-ui); font-size: 12px; }
+.dim-table th { font-weight: 600; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--content-tertiary); padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border-default); }
+.dim-table td { padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); color: var(--content-primary); vertical-align: top; }
+.dim-table tr:last-child td { border-bottom: none; }
+.dim-table .token { font-family: var(--font-instrument); font-size: 10.5px; color: var(--signal-default); }
+.dim-table .val   { font-family: var(--font-instrument); font-size: 10.5px; color: var(--content-secondary); }
+.ac-block { margin-left: 152px; display: flex; flex-direction: column; gap: 10px; }
+.ac-cite { font-family: var(--font-ui); font-size: 10.5px; line-height: 1.55; color: var(--content-tertiary); padding-left: 20px; position: relative; }
+.ac-cite::before { content: "☐"; position: absolute; left: 0; top: 0; color: var(--border-strong); }
+.doc-footer { padding: 64px 0 80px; display: flex; align-items: center; justify-content: space-between; }
+.footer-wordmark { font-family: var(--font-opinion); font-size: 28px; font-weight: 300; letter-spacing: -0.02em; color: var(--content-primary); }
+.footer-wordmark em { font-style: italic; color: var(--signal-default); }
+.footer-meta { font-family: var(--font-instrument); font-size: 11px; color: var(--content-tertiary); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MOLECULE COMPONENTS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── LSTextField atom (UC-ATM-03) — 48px height pinned ─────────────── */
+.ls-textfield {
+  height: var(--input-height);               /* sizing.component.inputHeight = 48px */
+  background: var(--surface-card);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 0 var(--sp-4);
+  font-family: var(--font-ui); font-weight: 400; font-size: 14px;
+  color: var(--content-primary);
+  outline: none; width: 100%;
+  transition: border-color 0.15s;
+  display: flex; align-items: center;
+}
+.ls-textfield::placeholder { color: var(--content-subtle); }
+.ls-textfield--focused {
+  border-color: var(--border-focus);         /* color.border.focus = copper-500 */
+  box-shadow: 0 0 0 3px var(--signal-whisper);
+}
+.ls-textfield--error {
+  border-color: var(--status-error);
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.08);
+}
+.ls-textfield--disabled {
+  background: var(--surface-inset);
+  color: var(--content-subtle);
+  cursor: not-allowed; opacity: 0.6;
+}
+
+/* For HTML demo, use div to simulate input appearance */
+.ls-textfield-mock {
+  height: var(--input-height);
+  background: var(--surface-card);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 0 var(--sp-4);
+  font-family: var(--font-ui); font-weight: 400; font-size: 14px;
+  color: var(--content-primary);
+  width: 100%;
+  display: flex; align-items: center;
+}
+.ls-textfield-mock.focused {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--signal-whisper);
+}
+.ls-textfield-mock.error {
+  border-color: var(--status-error);
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.08);
+}
+.ls-textfield-mock.disabled {
+  background: var(--surface-inset); color: var(--content-subtle); opacity: 0.6;
+}
+.ls-textfield-mock.placeholder { color: var(--content-subtle); }
+
+/* ── LSFormField molecule ────────────────────────────────────────────── */
+.ls-form-field {
+  display: flex; flex-direction: column;
+  gap: var(--sp-2);                          /* spacing.2 = 4px between stack items */
+  width: 100%;
+}
+.form-field__label {
+  font-family: var(--font-ui); font-weight: 600;
+  font-size: 9.5px; line-height: 1.0;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--content-secondary);           /* typography.ui.label.md */
+}
+.form-field__helper {
+  font-family: var(--font-ui); font-weight: 400;
+  font-size: 10.5px; line-height: 1.48;     /* typography.ui.body.sm */
+  color: var(--content-tertiary);
+}
+.form-field__error {
+  font-family: var(--font-ui); font-weight: 400;
+  font-size: 10.5px; line-height: 1.48;     /* typography.ui.body.sm */
+  color: var(--content-error);              /* color.content.error */
+  display: flex; align-items: center; gap: 4px;
+}
+.error-icon {
+  width: 12px; height: 12px; flex-shrink: 0;
+}
+
+/* 2-field form composition example */
+.form-stack {
+  display: flex; flex-direction: column;
+  gap: var(--sp-5);                          /* spacing.5 = 16px between form fields */
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--elev-card);
+  padding: var(--sp-6);                      /* spacing.6 = 20px */
+}
+
+/* ── LSTabItem molecule ──────────────────────────────────────────────── */
+.ls-tab-bar {
+  display: flex; align-items: stretch;
+  background: var(--surface-card);
+  border-top: 1px solid var(--border-default);
+  padding: 0; height: 56px;                  /* tab bar height = toolbarHeight */
+  box-shadow: 0 -1px 0 var(--border-default);
+}
+.ls-tab-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px; position: relative;
+  padding: 0 4px;
+  cursor: pointer;
+  transition: color 0.15s;
+  color: var(--content-tertiary);            /* unselected = color.content.tertiary */
+}
+.ls-tab-item--selected {
+  color: var(--signal-default);             /* selected = color.signal.default */
+}
+.tab-indicator {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  height: 2px; width: 24px;                 /* 2px bar in color.signal.default */
+  background: transparent; border-radius: 0 0 2px 2px;
+  transition: background 0.15s;
+}
+.ls-tab-item--selected .tab-indicator {
+  background: var(--signal-default);
+}
+.tab-icon {
+  width: 20px; height: 20px;               /* sizing.icon.md */
+  fill: none; stroke: currentColor; stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.tab-label {
+  font-family: var(--font-ui); font-weight: 600;
+  font-size: 9px; line-height: 1.0;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+
+/* ── LSEmptyState molecule ──────────────────────────────────────────── */
+.ls-empty-state {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center;
+  gap: var(--sp-4);                          /* spacing.4 = 12px between items */
+  padding: var(--sp-9);                      /* spacing.9 = 40px */
+}
+.empty-icon-slot {
+  width: 64px; height: 64px;                /* illustration slot */
+  border-radius: var(--radius-lg);
+  background: var(--surface-inset);
+  border: 1.5px solid var(--border-default);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.empty-icon-xl {
+  width: 32px; height: 32px;               /* sizing.icon.xl = 32pt */
+  fill: none; stroke: var(--content-subtle); stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.empty-illustration {
+  width: 80px; height: 80px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.empty-title {
+  font-family: var(--font-ui); font-weight: 600; font-size: 14px;
+  line-height: 1.28; letter-spacing: -0.005em;
+  color: var(--content-primary);            /* typography.ui.title.md */
+  max-width: 240px;
+}
+.empty-body {
+  font-family: var(--font-ui); font-weight: 400; font-size: 12px;
+  line-height: 1.52; color: var(--content-secondary);
+  max-width: 240px;                          /* typography.ui.body.md */
+}
+.ls-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 44px; padding: 0 20px; border-radius: var(--radius-md);
+  font-family: var(--font-ui); font-weight: 600; font-size: 13px;
+  letter-spacing: 0.01em; cursor: pointer; border: none;
+  transition: background 0.15s; white-space: nowrap;
+}
+.ls-btn--primary { background: var(--signal-default); color: #fff; }
+.ls-btn--ghost { background: var(--action-ghost); color: var(--content-primary); }
+.ls-btn--outline { background: transparent; color: var(--signal-default); border: 1.5px solid var(--signal-default); }
+
+/* Icon SVG helper */
+.icon-svg { display: inline-block; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.icon-md  { width: 20px; height: 20px; }
+.icon-sm  { width: 16px; height: 16px; }
+.icon-xs  { width: 12px; height: 12px; }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════════════════════ -->
+<header class="doc-header">
+  <div class="doc-eyebrow">
+    UC-MOL-04
+    <span class="doc-eyebrow-pill">Molecule Tier-A</span>
+  </div>
+  <h1 class="doc-title">FormField, <em>TabItem</em> &amp; EmptyState</h1>
+  <p class="doc-tagline">Composite patterns for data entry, navigation tabs, and empty-state layouts — composing atoms into the final three Tier-A molecules.</p>
+  <div class="doc-meta-row">
+    <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">2.0.0</span></div>
+    <div class="meta-item"><span class="meta-label">Date</span><span class="meta-value">2026-04-20</span></div>
+    <div class="meta-item"><span class="meta-label">UC ID</span><span class="meta-value">UC-MOL-04</span></div>
+    <div class="meta-item"><span class="meta-label">PRD Ref</span><span class="meta-value">06-uc-mol.md</span></div>
+    <div class="meta-item"><span class="meta-label">Surface</span><span class="meta-value">Light</span></div>
+    <div class="meta-item"><span class="meta-label">Theme</span><span class="meta-value">Copper</span></div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §01 PURPOSE
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§01</span>
+    <h2 class="section-title">Purpose &amp; <em>Atomic Composition</em></h2>
+  </div>
+  <p class="prose">
+    <strong>LSFormField</strong> wraps <em>LSTextField</em> (UC-ATM-03) with a label and helper/error text row, giving screens a single API for labeled inputs without re-implementing the label-input-error stack layout. <strong>LSTabItem</strong> composes <em>LSIcon</em> (UC-ATM-10) with a label and a 2px selected-indicator bar — one tab cell in a bottom navigation bar. <strong>LSEmptyState</strong> is a centered composition using an illustration slot (<em>sizing.icon.xl = 32pt</em>), title in <em>typography.ui.title.md</em>, body in <em>typography.ui.body.md</em>, and an <em>LSButton</em> (UC-ATM-02) primary action.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    All three molecules must compose through atoms exclusively. No raw <em>Text</em> with a literal color. No raw <em>Box</em> with a literal corner radius. Every value must trace back to a token.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §02 THE MOLECULE — LSFormField
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§02</span>
+    <h2 class="section-title"><em>LSFormField</em> States</h2>
+  </div>
+
+  <div class="demo-grid" style="margin-bottom: 64px;">
+
+    <!-- Default -->
+    <div class="demo-cell">
+      <span class="cell-label">Default</span>
+      <div class="ls-form-field">
+        <span class="form-field__label">Email Address</span>
+        <div class="ls-textfield-mock placeholder">you@example.com</div>
+        <span class="form-field__helper">Used for account notifications.</span>
+      </div>
+      <div class="annotation-row"><span class="ann-token">label</span><span class="ann-val">ui.label.md 9.5px 600 uppercase</span></div>
+      <div class="annotation-row"><span class="ann-token">input h</span><span class="ann-val">48px inputHeight</span></div>
+      <div class="annotation-row"><span class="ann-token">helper</span><span class="ann-val">ui.body.sm 10.5px content.tertiary</span></div>
+      <div class="annotation-row"><span class="ann-token">gap</span><span class="ann-val">spacing.2 = 4px between items</span></div>
+    </div>
+
+    <!-- Focused -->
+    <div class="demo-cell">
+      <span class="cell-label">Focused</span>
+      <div class="ls-form-field">
+        <span class="form-field__label">Email Address</span>
+        <div class="ls-textfield-mock focused">user@laneshadow.com</div>
+        <span class="form-field__helper">We will send a confirmation link.</span>
+      </div>
+      <div class="annotation-row"><span class="ann-token">border</span><span class="ann-val">border.focus #EE7C2B</span></div>
+      <div class="annotation-row"><span class="ann-token">ring</span><span class="ann-val">signal.whisper 3px spread</span></div>
+    </div>
+
+    <!-- Error -->
+    <div class="demo-cell">
+      <span class="cell-label">Error State</span>
+      <div class="ls-form-field">
+        <span class="form-field__label">Email Address</span>
+        <div class="ls-textfield-mock error">not-a-valid-email</div>
+        <span class="form-field__error">
+          <svg class="icon-svg error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Please enter a valid email address.
+        </span>
+      </div>
+      <div class="annotation-row"><span class="ann-token">border</span><span class="ann-val">status.error #DC2626</span></div>
+      <div class="annotation-row"><span class="ann-token">error text</span><span class="ann-val">ui.body.sm + color.content.error</span></div>
+      <div class="annotation-row"><span class="ann-token">error color</span><span class="ann-val">#DC2626</span></div>
+    </div>
+
+    <!-- Disabled -->
+    <div class="demo-cell">
+      <span class="cell-label">Disabled</span>
+      <div class="ls-form-field" style="opacity: 0.55;">
+        <span class="form-field__label">Username</span>
+        <div class="ls-textfield-mock disabled">rider_42</div>
+        <span class="form-field__helper">Username cannot be changed after registration.</span>
+      </div>
+      <div class="annotation-row"><span class="ann-token">opacity</span><span class="ann-val">opacity.disabled 0.40–0.55</span></div>
+      <div class="annotation-row"><span class="ann-token">bg</span><span class="ann-val">surface.inset #F2EFED</span></div>
+    </div>
+
+    <!-- With value (filled) -->
+    <div class="demo-cell">
+      <span class="cell-label">With Value (Filled)</span>
+      <div class="ls-form-field">
+        <span class="form-field__label">Display Name</span>
+        <div class="ls-textfield-mock">Justin Rich</div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">no helper</span><span class="ann-val">helper slot is optional</span></div>
+    </div>
+
+  </div>
+
+  <!-- 2-field form composition -->
+  <div style="padding-left: 152px; margin-top: 0;">
+    <span class="cell-label" style="display: block; margin-bottom: 20px;">Composition — 2-Field Form in a Card</span>
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 48px; max-width: 720px;">
+
+      <div class="demo-cell">
+        <span class="cell-label" style="font-size: 8.5px; color: var(--content-tertiary);">Account Setup — all fields valid</span>
+        <div class="form-stack">
+          <div class="ls-form-field">
+            <span class="form-field__label">Email</span>
+            <div class="ls-textfield-mock">user@laneshadow.com</div>
+          </div>
+          <div class="ls-form-field">
+            <span class="form-field__label">Password</span>
+            <div class="ls-textfield-mock">••••••••••••</div>
+            <span class="form-field__helper">Minimum 8 characters.</span>
+          </div>
+          <button class="ls-btn ls-btn--primary" style="width: 100%;">Create Account</button>
+        </div>
+        <div class="annotation-row"><span class="ann-token">form-stack gap</span><span class="ann-val">spacing.5 = 16px</span></div>
+        <div class="annotation-row"><span class="ann-token">card padding</span><span class="ann-val">spacing.6 = 20px</span></div>
+      </div>
+
+      <div class="demo-cell">
+        <span class="cell-label" style="font-size: 8.5px; color: var(--content-tertiary);">Account Setup — with error</span>
+        <div class="form-stack">
+          <div class="ls-form-field">
+            <span class="form-field__label">Email</span>
+            <div class="ls-textfield-mock error">not-valid</div>
+            <span class="form-field__error">
+              <svg class="icon-svg error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Enter a valid email.
+            </span>
+          </div>
+          <div class="ls-form-field">
+            <span class="form-field__label">Password</span>
+            <div class="ls-textfield-mock focused">pass</div>
+            <span class="form-field__error">
+              <svg class="icon-svg error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Too short — 8 characters minimum.
+            </span>
+          </div>
+          <button class="ls-btn ls-btn--primary" style="width: 100%; opacity: 0.5; cursor: not-allowed;">Create Account</button>
+        </div>
+        <div class="annotation-row"><span class="ann-token">submit btn</span><span class="ann-val">disabled when form invalid</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §02b LSTabItem
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§02b</span>
+    <h2 class="section-title"><em>LSTabItem</em> — 4-Tab Bottom Navigation</h2>
+  </div>
+
+  <div class="demo-grid cols-2" style="margin-bottom: 0;">
+
+    <!-- Full 4-tab bottom nav bar -->
+    <div class="demo-cell">
+      <span class="cell-label">4-Tab Bar — "Map" selected</span>
+      <div style="background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-default); overflow: hidden; box-shadow: var(--elev-card); max-width: 320px;">
+        <div class="ls-tab-bar">
+          <!-- Map — selected -->
+          <div class="ls-tab-item ls-tab-item--selected">
+            <div class="tab-indicator"></div>
+            <svg class="tab-icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+            <span class="tab-label">Map</span>
+          </div>
+          <!-- Discover — unselected -->
+          <div class="ls-tab-item">
+            <div class="tab-indicator"></div>
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <span class="tab-label">Discover</span>
+          </div>
+          <!-- Rides — unselected -->
+          <div class="ls-tab-item">
+            <div class="tab-indicator"></div>
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 8v4l3 3"/></svg>
+            <span class="tab-label">Rides</span>
+          </div>
+          <!-- Profile — unselected -->
+          <div class="ls-tab-item">
+            <div class="tab-indicator"></div>
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="tab-label">Profile</span>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">selected color</span><span class="ann-val">signal.default #EE7C2B</span></div>
+      <div class="annotation-row"><span class="ann-token">unselected color</span><span class="ann-val">content.tertiary #6B6460</span></div>
+      <div class="annotation-row"><span class="ann-token">indicator</span><span class="ann-val">2px bar signal.default</span></div>
+      <div class="annotation-row"><span class="ann-token">icon</span><span class="ann-val">sizing.icon.md 20×20px</span></div>
+      <div class="annotation-row"><span class="ann-token">bar height</span><span class="ann-val">56px</span></div>
+    </div>
+
+    <!-- Tab variants side by side -->
+    <div class="demo-cell">
+      <span class="cell-label">4-Tab Bar — "Discover" selected</span>
+      <div style="background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-default); overflow: hidden; box-shadow: var(--elev-card); max-width: 320px;">
+        <div class="ls-tab-bar">
+          <div class="ls-tab-item">
+            <div class="tab-indicator"></div>
+            <svg class="tab-icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+            <span class="tab-label">Map</span>
+          </div>
+          <div class="ls-tab-item ls-tab-item--selected">
+            <div class="tab-indicator"></div>
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <span class="tab-label">Discover</span>
+          </div>
+          <div class="ls-tab-item">
+            <div class="tab-indicator"></div>
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 8v4l3 3"/></svg>
+            <span class="tab-label">Rides</span>
+          </div>
+          <div class="ls-tab-item">
+            <div class="tab-indicator"></div>
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="tab-label">Profile</span>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">label</span><span class="ann-val">ui.label.sm 9px 600 uppercase</span></div>
+      <div class="annotation-row"><span class="ann-token">indicator w</span><span class="ann-val">24px centered</span></div>
+      <div class="annotation-row"><span class="ann-token">indicator pos</span><span class="ann-val">absolute top:0 of tab item</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §02c LSEmptyState
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§02c</span>
+    <h2 class="section-title"><em>LSEmptyState</em> — Three Variants</h2>
+  </div>
+
+  <div class="demo-grid" style="margin-bottom: 0;">
+
+    <!-- No Rides -->
+    <div class="demo-cell">
+      <span class="cell-label">No Rides</span>
+      <div style="background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-default); box-shadow: var(--elev-card);">
+        <div class="ls-empty-state">
+          <div class="empty-icon-slot">
+            <svg class="empty-icon-xl" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div class="empty-title">No rides yet</div>
+          <div class="empty-body">Record your first ride to see it here. Head out, tap record, and let LaneShadow log the adventure.</div>
+          <button class="ls-btn ls-btn--primary">Start a Ride</button>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">icon slot</span><span class="ann-val">64×64px framed</span></div>
+      <div class="annotation-row"><span class="ann-token">icon-xl inside</span><span class="ann-val">sizing.icon.xl 32×32px</span></div>
+      <div class="annotation-row"><span class="ann-token">title</span><span class="ann-val">ui.title.md 14px 600</span></div>
+      <div class="annotation-row"><span class="ann-token">body</span><span class="ann-val">ui.body.md 12px 400</span></div>
+      <div class="annotation-row"><span class="ann-token">gap</span><span class="ann-val">spacing.4 = 12px</span></div>
+      <div class="annotation-row"><span class="ann-token">btn height</span><span class="ann-val">44px (sizing.touchTarget)</span></div>
+    </div>
+
+    <!-- No Results (search) -->
+    <div class="demo-cell">
+      <span class="cell-label">No Results</span>
+      <div style="background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-default); box-shadow: var(--elev-card);">
+        <div class="ls-empty-state">
+          <div class="empty-icon-slot">
+            <svg class="empty-icon-xl" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+              <line x1="8" y1="11" x2="14" y2="11"/>
+            </svg>
+          </div>
+          <div class="empty-title">No routes found</div>
+          <div class="empty-body">Try adjusting your filters or search area. Shorter distance ranges or a different region may help.</div>
+          <div style="display: flex; gap: 8px;">
+            <button class="ls-btn ls-btn--ghost" style="padding: 0 14px; font-size: 12px;">Clear Filters</button>
+            <button class="ls-btn ls-btn--primary" style="padding: 0 14px; font-size: 12px;">Search Nearby</button>
+          </div>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">multi-action</span><span class="ann-val">ghost + primary pair</span></div>
+      <div class="annotation-row"><span class="ann-token">padding</span><span class="ann-val">spacing.9 = 40px</span></div>
+    </div>
+
+    <!-- Offline -->
+    <div class="demo-cell">
+      <span class="cell-label">Offline</span>
+      <div style="background: var(--surface-card); border-radius: var(--radius-lg); border: 1px solid var(--border-default); box-shadow: var(--elev-card);">
+        <div class="ls-empty-state">
+          <div class="empty-illustration" style="background: var(--surface-inset); border: 1.5px solid var(--border-default);">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--content-subtle)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="1" y1="1" x2="23" y2="23"/>
+              <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.56 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+              <line x1="12" y1="20" x2="12.01" y2="20"/>
+            </svg>
+          </div>
+          <div class="empty-title">You are offline</div>
+          <div class="empty-body">Connect to Wi-Fi or cellular data to access new routes and sync your rides. Downloaded regions are still available.</div>
+          <button class="ls-btn ls-btn--outline">View Offline Maps</button>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">illustration</span><span class="ann-val">80×80px framed slot</span></div>
+      <div class="annotation-row"><span class="ann-token">btn variant</span><span class="ann-val">outline (copper border)</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §03 STATES & VARIANTS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§03</span>
+    <h2 class="section-title">States &amp; <em>Variants</em></h2>
+  </div>
+  <div class="demo-grid cols-4" style="margin-bottom: 0;">
+
+    <div class="demo-cell">
+      <span class="cell-label">FormField default</span>
+      <div class="ls-form-field">
+        <span class="form-field__label">Route Name</span>
+        <div class="ls-textfield-mock placeholder">e.g., Big Sur Loop</div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">border</span><span class="ann-val">border.default #E5DED9</span></div>
+    </div>
+
+    <div class="demo-cell">
+      <span class="cell-label">FormField focused</span>
+      <div class="ls-form-field">
+        <span class="form-field__label">Route Name</span>
+        <div class="ls-textfield-mock focused">Big Sur Loop</div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">ring</span><span class="ann-val">3px signal.whisper</span></div>
+    </div>
+
+    <div class="demo-cell">
+      <span class="cell-label">FormField error</span>
+      <div class="ls-form-field">
+        <span class="form-field__label">Route Name</span>
+        <div class="ls-textfield-mock error"></div>
+        <span class="form-field__error">
+          <svg class="icon-svg error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Name is required.
+        </span>
+      </div>
+      <div class="annotation-row"><span class="ann-token">color</span><span class="ann-val">content.error #DC2626</span></div>
+    </div>
+
+    <div class="demo-cell">
+      <span class="cell-label">TabItem — single cell</span>
+      <div style="display: flex; gap: 12px; align-items: flex-end;">
+        <!-- Selected -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; color: var(--signal-default); padding: 8px 12px 6px;">
+          <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); height: 2px; width: 24px; background: var(--signal-default); border-radius: 0 0 2px 2px;"></div>
+          <svg class="tab-icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+          <span class="tab-label">Map</span>
+        </div>
+        <!-- Unselected -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; color: var(--content-tertiary); padding: 8px 12px 6px;">
+          <div style="position: absolute; top: 0; left: 50%; transform: translateX(-50%); height: 2px; width: 24px; background: transparent;"></div>
+          <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <span class="tab-label">Find</span>
+        </div>
+      </div>
+      <div class="annotation-row"><span class="ann-token">sel. icon color</span><span class="ann-val">signal.default</span></div>
+      <div class="annotation-row"><span class="ann-token">unsel. icon color</span><span class="ann-val">content.tertiary</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §04 ATOMIC COMPOSITION + DIMENSIONS TABLE
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§04</span>
+    <h2 class="section-title">Atomic Composition + <em>Dimensions</em></h2>
+  </div>
+  <table class="dim-table" style="max-width: 960px;">
+    <thead>
+      <tr>
+        <th>Molecule</th>
+        <th>Atom / Property</th>
+        <th>Token</th>
+        <th>Resolved Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>LSFormField</td><td>Label typography</td><td class="token">typography.ui.label.md</td><td class="val">Geist 9.5px 600 uppercase +0.12em</td></tr>
+      <tr><td>LSFormField</td><td>Input atom (UC-ATM-03)</td><td class="token">sizing.component.inputHeight</td><td class="val">48px</td></tr>
+      <tr><td>LSFormField</td><td>Input border default</td><td class="token">color.border.default</td><td class="val">#E5DED9 1.5px</td></tr>
+      <tr><td>LSFormField</td><td>Input border focused</td><td class="token">color.border.focus</td><td class="val">#EE7C2B 1.5px</td></tr>
+      <tr><td>LSFormField</td><td>Input focus ring</td><td class="token">color.signal.whisper</td><td class="val">3px spread rgba from #FCE8D4</td></tr>
+      <tr><td>LSFormField</td><td>Input border error</td><td class="token">color.status.error</td><td class="val">#DC2626 1.5px</td></tr>
+      <tr><td>LSFormField</td><td>Helper typography</td><td class="token">typography.ui.body.sm</td><td class="val">Geist 10.5px 400</td></tr>
+      <tr><td>LSFormField</td><td>Helper color</td><td class="token">color.content.tertiary</td><td class="val">#6B6460</td></tr>
+      <tr><td>LSFormField</td><td>Error typography</td><td class="token">typography.ui.body.sm</td><td class="val">Geist 10.5px 400</td></tr>
+      <tr><td>LSFormField</td><td>Error color</td><td class="token">color.content.error</td><td class="val">#DC2626</td></tr>
+      <tr><td>LSFormField</td><td>Stack gap</td><td class="token">spacing.2</td><td class="val">4px between label/input/helper</td></tr>
+      <tr><td>LSFormField</td><td>Disabled opacity</td><td class="token">opacity.disabled</td><td class="val">0.40</td></tr>
+      <tr><td>LSTabItem</td><td>Icon (UC-ATM-10)</td><td class="token">sizing.icon.md</td><td class="val">20×20px</td></tr>
+      <tr><td>LSTabItem</td><td>Selected icon + label color</td><td class="token">color.signal.default</td><td class="val">#EE7C2B</td></tr>
+      <tr><td>LSTabItem</td><td>Unselected color</td><td class="token">color.content.tertiary</td><td class="val">#6B6460</td></tr>
+      <tr><td>LSTabItem</td><td>Indicator bar height</td><td class="token">— (fixed 2pt)</td><td class="val">2px</td></tr>
+      <tr><td>LSTabItem</td><td>Indicator bar width</td><td class="token">— (fixed 24pt)</td><td class="val">24px centered</td></tr>
+      <tr><td>LSTabItem</td><td>Indicator bar color</td><td class="token">color.signal.default</td><td class="val">#EE7C2B</td></tr>
+      <tr><td>LSTabItem</td><td>Label typography</td><td class="token">typography.ui.label.sm</td><td class="val">Geist 9px 600 uppercase</td></tr>
+      <tr><td>LSTabItem</td><td>Tab bar height</td><td class="token">sizing.component.toolbarHeight</td><td class="val">56px</td></tr>
+      <tr><td>LSEmptyState</td><td>Icon xl (UC-ATM-10)</td><td class="token">sizing.icon.xl</td><td class="val">32×32px</td></tr>
+      <tr><td>LSEmptyState</td><td>Icon slot (framed)</td><td class="token">— (64pt framed)</td><td class="val">64×64px with radius.lg</td></tr>
+      <tr><td>LSEmptyState</td><td>Title typography</td><td class="token">typography.ui.title.md</td><td class="val">Geist 14px 600</td></tr>
+      <tr><td>LSEmptyState</td><td>Body typography</td><td class="token">typography.ui.body.md</td><td class="val">Geist 12px 400</td></tr>
+      <tr><td>LSEmptyState</td><td>Action button (UC-ATM-02)</td><td class="token">sizing.touchTarget</td><td class="val">44px height</td></tr>
+      <tr><td>LSEmptyState</td><td>Internal gap</td><td class="token">spacing.4</td><td class="val">12px between items</td></tr>
+      <tr><td>LSEmptyState</td><td>Padding</td><td class="token">spacing.9</td><td class="val">40px all sides</td></tr>
+      <tr><td>LSEmptyState</td><td>Body color</td><td class="token">color.content.secondary</td><td class="val">#49454F</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §05 MOTION
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§05</span>
+    <h2 class="section-title"><em>Motion</em> Recipes</h2>
+  </div>
+  <p class="prose">
+    <strong>tabSwitch</strong> — when the selected LSTabItem changes, the indicator bar slides horizontally. Duration 200ms, easing: ease-out. Icon + label color cross-fade simultaneously. No bounce — tabs are utility navigation, not expressive moments.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    <strong>formFieldError</strong> — when an error state appears, the error text animates in with opacity 0→1 + translateY(-2px)→0 in 160ms ease-out. The input border color transition is 120ms ease-in. No shake — shake patterns are disorienting on mobile.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    <strong>emptyStateEnter</strong> — when an empty state is revealed (e.g., after a filter removes all results), the icon and text stack fade in sequentially with 40ms stagger. Overall duration: 280ms. Icon first, then title, then body, then button.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     §06 RATIONALE + AC TRACEABILITY
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-header">
+    <span class="section-index">§06</span>
+    <h2 class="section-title">Rationale + <em>AC Traceability</em></h2>
+  </div>
+  <p class="prose">
+    <em>LSFormField</em> uses <em>spacing.2 (4px)</em> between label, input, and helper rather than the more common 8px gap because the visual grouping of label-to-input is intentionally tight — the label should read as a part of the input, not a separate element. Screens using multiple form fields use <em>spacing.5 (16px)</em> between fields.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    The 2px <em>LSTabItem</em> indicator bar at the top rather than bottom follows iOS convention (top indicators) rather than Material Design (bottom) — LaneShadow's primary platform is iOS. The bar is fixed at 24pt wide rather than full-cell to avoid harsh hard-edge movement during tab transitions.
+  </p>
+  <p class="prose" style="margin-top: 20px;">
+    <em>LSEmptyState</em> uses a framed 64pt slot for icons rather than bare floating icons because floating icons at 32pt look weightless and easy to miss. The frame adds presence without introducing a full illustration asset requirement.
+  </p>
+  <div class="ac-block" style="margin-top: 48px;">
+    <div class="ac-cite">Developer renders LSFormField(label: "Email", value: $email, placeholder: "you@example.com", error: emailError) and sees label in typography.ui.label.md, input from UC-ATM-03 at 48px, error text in typography.ui.body.sm + color.content.error when error != nil. [06-uc-mol.md §UC-MOL-04]</div>
+    <div class="ac-cite">Developer renders same on Android with identical styles. [06-uc-mol.md §UC-MOL-04]</div>
+    <div class="ac-cite">Developer renders LSTabItem(icon: .home, label: "Home", selected: true) and sees icon + label in color.signal.default when selected, color.content.tertiary otherwise — plus 2px selected-indicator bar in color.signal.default. [06-uc-mol.md §UC-MOL-04]</div>
+    <div class="ac-cite">Developer renders LSEmptyState(icon: .inbox, title: "No rides yet", body: "...", action: .primary("Get Started")) and sees centered layout with title typography.ui.title.md, body typography.ui.body.md, icon sizing.icon.xl, button from UC-ATM-02. [06-uc-mol.md §UC-MOL-04]</div>
+    <div class="ac-cite">Developer can tap a button in LSEmptyState and see action invoked once. [06-uc-mol.md §UC-MOL-04]</div>
+    <div class="ac-cite">Developer finds stories covering: FormField default/focused/error; TabItem selected/unselected; EmptyState with/without illustration for "no rides", "no results", "offline". [06-uc-mol.md §UC-MOL-04]</div>
+  </div>
+</section>
+
+<footer class="doc-footer">
+  <div class="footer-wordmark">Lane<em>Shadow</em></div>
+  <div class="footer-meta">V2 · Copper · UC-MOL-04 · 2026-04-20</div>
+</footer>
+
+</div><!-- /.wrap -->
+</body>
+</html>

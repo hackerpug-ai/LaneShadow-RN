@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<!-- uc-org-03-navigator-message-error-callout.html — UC-ORG-03
+     LaneShadow V2 · Copper · Navigator Organism Mock · 2026-04-20
+     Authority: .spec/prds/v2/07-uc-org.md §UC-ORG-03
+     Proportion reference: uc-scr-03-route-results.html (.nav-message)
+                           uc-scr-06-error.html (.err-callout) -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ORG-03 — LSNavigatorMessage + LSInlineErrorCallout — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;--paper-200:#F2EFED;
+  --paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --status-warning:#C46F1B;--status-warning-tint:#F8E0C3;
+  --font-opinion:'Newsreader',Georgia,serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);--surface-inset:var(--paper-200);
+  --surface-overlay:rgba(253,251,248,0.92);--surface-glass:rgba(253,251,248,0.72);
+  --surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);--map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);--content-onSignal:#FFF;
+  --signal-default:var(--copper-500);--signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);--border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+}
+.mode-dark{
+  --surface-primary:var(--ink-800);--surface-card:var(--ink-700);--surface-inset:var(--ink-600);
+  --surface-overlay:rgba(45,34,24,0.92);--surface-glass:rgba(45,34,24,0.72);
+  --surface-scrim:rgba(10,6,3,0.50);--map-paper:#1B140E;
+  --map-contour:rgba(242,238,232,0.16);--map-contour-faint:rgba(242,238,232,0.07);
+  --content-primary:var(--ink-050);--content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200);--content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12);--border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  --elev-overlay:0 8px 24px rgba(0,0,0,0.42),0 2px 6px rgba(0,0,0,0.28);
+  --elev-chrome:0 1px 3px rgba(0,0,0,0.24),0 4px 14px rgba(0,0,0,0.28);
+}
+
+/* TYPOGRAPHY */
+.t-opinion-xl{font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em;}
+.t-opinion-lg{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em;}
+.t-opinion-md{font-family:var(--font-opinion);font-weight:400;font-size:17px;line-height:1.32;}
+.t-title-md{font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em;}
+.t-body-md{font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52;}
+.t-body-sm{font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48;}
+.t-label-md{font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase;}
+.t-label-sm{font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase;}
+.t-instr-md{font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-sm{font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-xs{font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1;}
+
+/* DOC CHROME */
+body{font-family:var(--font-ui);color:var(--content-primary);background:var(--surface-primary);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden;}
+.wrap{max-width:1440px;margin:0 auto;padding:0 72px;}
+.doc-header{position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden;}
+.doc-header::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none;}
+.doc-header>*{position:relative;z-index:1;}
+.doc-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px;}
+.doc-eyebrow::before{content:"";width:28px;height:1px;background:var(--signal-default);}
+.doc-eyebrow-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em;}
+.doc-title{font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px;}
+.doc-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.doc-tagline{font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px;}
+.doc-meta-row{display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default);}
+.meta-item{display:flex;flex-direction:column;gap:6px;}
+.meta-label{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);}
+.meta-value{font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary);}
+.section{padding:96px 0;border-bottom:1px solid var(--border-default);position:relative;}
+.section:last-child{border-bottom:none;}
+.section-header{display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px;}
+.section-index{font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.section-index::before{content:"";display:block;width:48px;height:1px;background:var(--signal-default);}
+.section-title{font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;}
+.section-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.prose{font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px;}
+.prose+.prose{margin-top:20px;}
+.prose em{font-style:italic;}
+.prose strong{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px;}
+.screens-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:56px 40px;align-items:start;padding-left:152px;}
+.screens-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.screen-cell{display:flex;flex-direction:column;gap:22px;}
+.screen-annotation{display:flex;flex-direction:column;gap:8px;max-width:280px;}
+.screen-num{font-family:var(--font-instrument);font-size:10.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);}
+.screen-name{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);}
+.screen-desc{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:14px;line-height:1.6;color:var(--content-secondary);}
+.ac-cite{font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px;}
+.ac-cite::before{content:"☐";position:absolute;left:0;top:0;color:var(--border-strong);}
+
+/* PHONE FRAME */
+.phone-frame{width:100%;max-width:282px;margin:0 auto;aspect-ratio:9/19.5;position:relative;border-radius:44px;background:#0F0A07;box-shadow:inset 0 0 0 1px #2A1F16,inset 0 0 0 2.5px #0F0A07,0 30px 70px -16px rgba(34,24,16,0.38),0 10px 24px -10px rgba(34,24,16,0.22);overflow:hidden;}
+.phone-screen{position:absolute;inset:3px;border-radius:41px;overflow:hidden;display:flex;flex-direction:column;background:var(--surface-primary);color:var(--content-primary);isolation:isolate;}
+.phone-di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#000;border-radius:14px;z-index:60;}
+.phone-sb{display:flex;justify-content:space-between;align-items:center;padding:46px 22px 0;flex-shrink:0;z-index:10;position:relative;}
+.phone-sb .sb-time{font-family:var(--font-instrument);font-size:12px;font-weight:600;letter-spacing:-0.02em;}
+.phone-sb .sb-icons{display:flex;gap:5px;align-items:center;}
+.phone-hi{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:3px;z-index:60;background:rgba(0,0,0,0.38);}
+.mode-dark .phone-hi{background:rgba(255,255,255,0.30);}
+
+/* PAPER MAP */
+.pmap{position:absolute;inset:0;background:var(--map-paper);overflow:hidden;z-index:0;}
+.pmap::before{content:"";position:absolute;inset:-8px;background-image:linear-gradient(var(--map-contour-faint) 1px,transparent 1px),linear-gradient(90deg,var(--map-contour-faint) 1px,transparent 1px);background-size:28px 28px;opacity:0.55;pointer-events:none;}
+.pmap::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(34,24,16,0.08) 100%);pointer-events:none;}
+.mode-dark .pmap::after{background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(0,0,0,0.40) 100%);}
+
+/* TOP BAR */
+.ls-topbar{position:absolute;top:46px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:14px 14px 0;z-index:30;}
+.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
+.mode-dark .chrome-chip{border-color:rgba(242,238,232,0.12);}
+.chrome-chip.circular{width:40px;height:40px;border-radius:50%;}
+.chrome-chip.pill{padding:0 14px;height:40px;border-radius:22px;display:flex;align-items:center;gap:6px;}
+
+/* ═══════════ LSNavigatorMessage ═══════════
+   Matches uc-scr-03-route-results.html .nav-message exactly:
+   top:108px, left/right:14px, z-20, border-top:2px signal,
+   border:1px signal-tint, backdrop-filter:blur(16px), border-radius:14px,
+   padding:14px, box-shadow: elev-overlay
+*/
+.nav-message{
+  position:absolute;top:108px;left:14px;right:14px;z-index:20;
+  background:var(--surface-glass);
+  border:1px solid var(--signal-tint);
+  border-top:2px solid var(--signal-default);
+  backdrop-filter:blur(16px) saturate(1.2);
+  -webkit-backdrop-filter:blur(16px) saturate(1.2);
+  border-radius:14px;padding:14px 14px;box-shadow:var(--elev-overlay);
+}
+.nav-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;}
+.compass-chip{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--signal-whisper);border:1px solid var(--signal-tint);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--signal-default);flex-shrink:0;
+}
+.nav-head-text{flex:1;}
+.nav-head-label{
+  font-family:var(--font-ui);font-size:8.5px;font-weight:600;
+  letter-spacing:0.16em;text-transform:uppercase;color:var(--signal-default);
+  margin-bottom:3px;
+}
+.nav-head-body{
+  font-family:var(--font-opinion);font-weight:400;font-size:13.5px;
+  line-height:1.45;color:var(--content-primary);
+}
+.nav-head-actions{display:flex;gap:4px;flex-shrink:0;}
+.nav-action{
+  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;color:var(--content-tertiary);
+}
+.nav-action.active{color:var(--signal-default);}
+
+/* Attachment cards */
+.nav-attachments{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+.rt-card{
+  background:var(--surface-card);border:1px solid var(--border-default);
+  border-radius:10px;padding:9px 10px 9px 13px;
+  display:flex;flex-direction:column;gap:5px;position:relative;overflow:hidden;
+}
+.rt-card.selected{
+  border-color:var(--signal-default);
+  background:color-mix(in srgb, var(--surface-card) 92%, var(--signal-default));
+}
+.rt-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;}
+.rt-card.v-best::before{background:var(--route-best);}
+.rt-card.v-alt1::before{background:var(--route-alt1);}
+.rt-card.v-alt2::before{background:var(--route-alt2);}
+.rt-card-head{display:flex;align-items:center;gap:6px;}
+.rt-best-badge{
+  display:inline-flex;align-items:center;gap:3px;padding:2px 6px;
+  background:var(--signal-default);color:#FFF;border-radius:3px;
+  font-family:var(--font-ui);font-size:7.5px;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;
+  box-shadow:0 2px 5px rgba(238,124,43,0.4);
+}
+.rt-card-title{font-family:var(--font-ui);font-weight:600;font-size:12.5px;color:var(--content-primary);flex:1;line-height:1.2;}
+.rt-card-via{font-family:var(--font-ui);font-size:10px;color:var(--content-secondary);line-height:1.3;}
+.rt-card-meta{display:flex;align-items:center;gap:10px;margin-top:2px;}
+.rt-meta-group{display:flex;align-items:center;gap:3px;font-family:var(--font-instrument);font-size:10px;color:var(--content-primary);font-feature-settings:"tnum" 1;}
+.rt-meta-sep{width:1px;height:10px;background:var(--border-default);}
+
+/* Pinned state indicator */
+.nav-pinned-bar{
+  display:flex;align-items:center;gap:5px;
+  font-family:var(--font-ui);font-size:8px;font-weight:600;
+  letter-spacing:0.12em;text-transform:uppercase;color:var(--signal-default);
+  margin-top:8px;padding-top:8px;border-top:1px solid var(--signal-tint);
+}
+.pinned-dot{width:5px;height:5px;border-radius:50%;background:var(--signal-default);}
+
+/* ═══════════ LSInlineErrorCallout ═══════════
+   Matches uc-scr-06-error.html .err-callout exactly:
+   top:108px, left/right:14px, z-20,
+   border:1px rgba(196,111,27,0.24), border-top:2px status-warning,
+   backdrop-filter:blur(16px), border-radius:14px,
+   padding:14px 14px 12px, box-shadow: elev-overlay
+*/
+.err-callout{
+  position:absolute;top:108px;left:14px;right:14px;z-index:20;
+  background:var(--surface-glass);
+  border:1px solid rgba(196,111,27,0.24);
+  border-top:2px solid var(--status-warning);
+  backdrop-filter:blur(16px) saturate(1.2);
+  -webkit-backdrop-filter:blur(16px) saturate(1.2);
+  border-radius:14px;padding:14px 14px 12px;box-shadow:var(--elev-overlay);
+}
+.err-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;}
+.err-compass{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--status-warning-tint);border:1px solid rgba(196,111,27,0.3);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--status-warning);flex-shrink:0;
+}
+.err-head-text{flex:1;}
+.err-head-label{
+  font-family:var(--font-ui);font-size:8.5px;font-weight:600;
+  letter-spacing:0.16em;text-transform:uppercase;color:var(--status-warning);
+  margin-bottom:4px;display:flex;align-items:center;gap:5px;
+}
+.err-head-label::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--status-warning);}
+.err-head-body{
+  font-family:var(--font-opinion);font-weight:400;font-size:15px;
+  line-height:1.42;color:var(--content-primary);letter-spacing:-0.01em;
+}
+.err-detail{font-family:var(--font-ui);font-size:11.5px;line-height:1.5;color:var(--content-secondary);margin:8px 0 0;}
+.err-suggestions{
+  display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;
+  padding-top:10px;border-top:1px dashed rgba(196,111,27,0.22);
+}
+.err-sugg-chip{
+  padding:8px 12px;background:var(--surface-card);
+  border:1px solid var(--border-default);border-radius:999px;
+  font-family:var(--font-ui);font-size:11px;font-weight:500;
+  color:var(--content-primary);box-shadow:var(--elev-chrome);
+}
+.err-sugg-chip.primary{
+  background:var(--status-warning-tint);border-color:rgba(196,111,27,0.4);
+  color:var(--status-warning);font-weight:600;
+}
+
+/* Tables */
+.cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-left:152px;}
+.cmp-card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;}
+.cmp-tier-label{font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;color:var(--signal-default);text-transform:uppercase;margin-bottom:14px;display:block;}
+.cmp-item{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.cmp-item:last-child{border-bottom:none;}
+.cmp-name{font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);margin-bottom:4px;}
+.cmp-ref{font-family:var(--font-instrument);font-size:10px;color:var(--content-tertiary);line-height:1.4;}
+.dim-table{padding-left:152px;display:grid;grid-template-columns:220px 160px 1fr;row-gap:8px;column-gap:24px;font-family:var(--font-ui);font-size:13px;align-items:baseline;}
+.dim-table>div{padding:9px 0;border-bottom:1px solid var(--border-subtle);}
+.dim-name{font-weight:600;color:var(--content-primary);}
+.dim-val{font-family:var(--font-instrument);font-size:11.5px;color:var(--signal-default);}
+.dim-desc{color:var(--content-secondary);}
+.motion-table{padding-left:152px;display:grid;grid-template-columns:180px 1fr 2fr;row-gap:14px;column-gap:28px;font-family:var(--font-ui);font-size:13px;}
+.motion-table>div{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.motion-recipe{font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px;}
+.motion-trigger{color:var(--content-primary);font-weight:500;}
+.motion-effect{color:var(--content-secondary);}
+.rationale-grid{padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+.rationale-block h4{font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px;}
+.rationale-block p{font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px;}
+.rationale-block ul{list-style:none;}
+.rationale-block li{padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle);}
+.rationale-block li::before{content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument);}
+.rationale-block li strong{font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px;}
+.doc-footer{padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;}
+.footer-mark{font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;letter-spacing:-0.02em;}
+.footer-mark em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.footer-mark span{display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300;}
+.footer-note{font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-ORG-03</span><span class="doc-eyebrow-pill">● Organisms · Template</span></div>
+    <h1 class="doc-title">The Navigator<br><em>speaks</em>.</h1>
+    <p class="doc-tagline">
+      Two callout organisms. One for the Navigator's recommendations with attached
+      route cards. One for recoverable errors with suggestion chips. Both glass-backed,
+      top-border-accented, copper or warning tint.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ORG-03</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">07-uc-org.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light (+ dark)</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Voice of the <em>Navigator</em>.</h2>
+    </div>
+    <p class="prose">
+      <strong>LSNavigatorMessage</strong> is the branded AI callout used whenever the
+      Navigator produces a response with optional route attachments. A copper-tinted
+      compass chip identifies the speaker; the body is set in <em>Newsreader italic</em>
+      — opinion typography — to distinguish the Navigator's voice from the rider's UI.
+      Attachments stack below as compact LSRouteAttachmentCards, first card selected.
+    </p>
+    <p class="prose">
+      <strong>LSInlineErrorCallout</strong> is the recovery callout for the ErrorScreen.
+      It swaps the copper accent for a <strong>warning</strong> amber, adds an optional
+      detail line, and shows LSSuggestionChip rows so the rider can recover without
+      retyping a prompt.
+    </p>
+  </section>
+</div>
+
+<!-- §02 STORIES — LSNavigatorMessage -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · Stories</div>
+      <h2 class="section-title"><em>LSNavigatorMessage</em> — six states.</h2>
+    </div>
+    <div class="screens-grid" style="padding-left:152px;">
+
+      <!-- S.01 Message Only -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div>
+              </div>
+            <div class="nav-message">
+              <div class="nav-head">
+                <div class="compass-chip"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.5L9.5 8L8 11.5L6.5 8L8 4.5Z" fill="currentColor" opacity="0.7"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg></div>
+                <div class="nav-head-text">
+                  <div class="nav-head-label">The Navigator</div>
+                  <div class="nav-head-body">Highway 1 south is open. Recommend the coastal run — light traffic until Cambria.</div>
+                </div>
+                <div class="nav-head-actions">
+                  <div class="nav-action"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 2H12C12.6 2 13 2.4 13 3V14L8 11.5L3 14V3C3 2.4 3.4 2 4 2Z" stroke="currentColor" stroke-width="1.4"/></svg></div>
+                  <div class="nav-action"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="2" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="2" x2="2" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.01</div>
+          <div class="screen-name">Message Only</div>
+          <div class="screen-desc">Compass chip + THE NAVIGATOR label + body in Newsreader. Pin + close actions. No attachments.</div>
+        </div>
+      </div>
+
+      <!-- S.02 With One Attachment -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar"><div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div></div>
+            <div class="nav-message">
+              <div class="nav-head">
+                <div class="compass-chip"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg></div>
+                <div class="nav-head-text">
+                  <div class="nav-head-label">The Navigator</div>
+                  <div class="nav-head-body">One route through the hills looks good today.</div>
+                </div>
+                <div class="nav-head-actions">
+                  <div class="nav-action"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 2H12C12.6 2 13 2.4 13 3V14L8 11.5L3 14V3C3 2.4 3.4 2 4 2Z" stroke="currentColor" stroke-width="1.4"/></svg></div>
+                  <div class="nav-action"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="2" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="2" x2="2" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                </div>
+              </div>
+              <div class="nav-attachments">
+                <div class="rt-card v-best selected">
+                  <div class="rt-card-head"><span class="rt-best-badge">Best</span><span class="rt-card-title">The Skyline Spine</span></div>
+                  <div class="rt-card-via">via Kings Mountain Rd</div>
+                  <div class="rt-card-meta"><span class="rt-meta-group">47 mi</span><span class="rt-meta-sep"></span><span class="rt-meta-group">1h 22m</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.02</div>
+          <div class="screen-name">With One Attachment</div>
+          <div class="screen-desc">Single LSRouteAttachmentCard below body. First (and only) card selected:true with Best badge.</div>
+        </div>
+      </div>
+
+      <!-- S.03 With Three Attachments -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar"><div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div></div>
+            <div class="nav-message" style="top:100px;">
+              <div class="nav-head">
+                <div class="compass-chip"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg></div>
+                <div class="nav-head-text">
+                  <div class="nav-head-label">The Navigator</div>
+                  <div class="nav-head-body">Three options through the Santa Cruz mountains.</div>
+                </div>
+                <div class="nav-head-actions">
+                  <div class="nav-action active"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 2H12C12.6 2 13 2.4 13 3V14L8 11.5L3 14V3C3 2.4 3.4 2 4 2Z" fill="currentColor"/></svg></div>
+                  <div class="nav-action"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="2" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="2" x2="2" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                </div>
+              </div>
+              <div class="nav-attachments">
+                <div class="rt-card v-best selected">
+                  <div class="rt-card-head"><span class="rt-best-badge">Best</span><span class="rt-card-title">The Skyline Spine</span></div>
+                  <div class="rt-card-via">via Kings Mountain Rd</div>
+                  <div class="rt-card-meta"><span class="rt-meta-group">47 mi</span><span class="rt-meta-sep"></span><span class="rt-meta-group">1h 22m</span></div>
+                </div>
+                <div class="rt-card v-alt1">
+                  <div class="rt-card-head"><span class="rt-card-title">Old La Honda</span></div>
+                  <div class="rt-card-via">via Page Mill Rd</div>
+                  <div class="rt-card-meta"><span class="rt-meta-group">38 mi</span><span class="rt-meta-sep"></span><span class="rt-meta-group">1h 05m</span></div>
+                </div>
+                <div class="rt-card v-alt2">
+                  <div class="rt-card-head"><span class="rt-card-title">Coastal Connector</span></div>
+                  <div class="rt-card-via">via Hwy 1</div>
+                  <div class="rt-card-meta"><span class="rt-meta-group">52 mi</span><span class="rt-meta-sep"></span><span class="rt-meta-group">1h 35m</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.03</div>
+          <div class="screen-name">With Three Attachments</div>
+          <div class="screen-desc">Three cards stacked 6pt apart. First card selected:true. Alt1 sage, Alt2 slate stripe colors.</div>
+        </div>
+      </div>
+
+      <!-- S.04 Pinned -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar"><div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div></div>
+            <div class="nav-message">
+              <div class="nav-head">
+                <div class="compass-chip"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg></div>
+                <div class="nav-head-text">
+                  <div class="nav-head-label">The Navigator</div>
+                  <div class="nav-head-body">Take 280 south to 92 east, then Skyline. Best window closes at 3pm.</div>
+                </div>
+                <div class="nav-head-actions">
+                  <div class="nav-action active"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 2H12C12.6 2 13 2.4 13 3V14L8 11.5L3 14V3C3 2.4 3.4 2 4 2Z" fill="currentColor"/></svg></div>
+                  <div class="nav-action"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="2" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="2" x2="2" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                </div>
+              </div>
+              <div class="nav-pinned-bar"><span class="pinned-dot"></span>Pinned — will not auto-dismiss</div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.04</div>
+          <div class="screen-name">Pinned</div>
+          <div class="screen-desc">pinned:true state. Bookmark icon filled + signal-colored. Pinned label shown. Auto-dismiss disabled.</div>
+        </div>
+      </div>
+
+      <!-- S.05 Long Body -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar"><div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div></div>
+            <div class="nav-message" style="top:100px;">
+              <div class="nav-head">
+                <div class="compass-chip"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg></div>
+                <div class="nav-head-text">
+                  <div class="nav-head-label">The Navigator</div>
+                  <div class="nav-head-body">The coastal run looks good but there's a wind advisory above 2,000 feet on Skyline. If you want to avoid the exposed ridgeline, Old La Honda into Page Mill keeps you in the trees most of the way.</div>
+                </div>
+                <div class="nav-head-actions">
+                  <div class="nav-action"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 2H12C12.6 2 13 2.4 13 3V14L8 11.5L3 14V3C3 2.4 3.4 2 4 2Z" stroke="currentColor" stroke-width="1.4"/></svg></div>
+                  <div class="nav-action"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="2" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="2" x2="2" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.05</div>
+          <div class="screen-name">Long Body</div>
+          <div class="screen-desc">Multi-line opinion.md body. Container expands. Verify legibility and line-height at 13.5px/1.45.</div>
+        </div>
+      </div>
+
+      <!-- S.06 Dark Mode -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar"><div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div></div>
+            <div class="nav-message">
+              <div class="nav-head">
+                <div class="compass-chip"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg></div>
+                <div class="nav-head-text">
+                  <div class="nav-head-label">The Navigator</div>
+                  <div class="nav-head-body">Highway 1 south is open. Coastal run recommended.</div>
+                </div>
+                <div class="nav-head-actions">
+                  <div class="nav-action"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 2H12C12.6 2 13 2.4 13 3V14L8 11.5L3 14V3C3 2.4 3.4 2 4 2Z" stroke="currentColor" stroke-width="1.4"/></svg></div>
+                  <div class="nav-action"><svg width="12" height="12" viewBox="0 0 14 14" fill="none"><line x1="2" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="2" x2="2" y2="12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.06</div>
+          <div class="screen-name">Dark Mode</div>
+          <div class="screen-desc">Glass tint + text re-resolves against dark paper map. Border copper tint remains visible.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §02b — LSInlineErrorCallout Stories -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02b · Error Callout</div>
+      <h2 class="section-title"><em>LSInlineErrorCallout</em> — five states.</h2>
+    </div>
+    <div class="screens-grid" style="padding-left:152px;">
+
+      <!-- E.01 Error Only -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar"><div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div></div>
+            <div class="err-callout">
+              <div class="err-head">
+                <div class="err-compass"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg></div>
+                <div class="err-head-text">
+                  <div class="err-head-label">The Navigator</div>
+                  <div class="err-head-body">Couldn't stitch that route — segment through Lucia looked broken.</div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">E.01</div>
+          <div class="screen-name">Error Only</div>
+          <div class="screen-desc">Warning compass chip + THE NAVIGATOR label + error body in Newsreader. No detail or suggestions.</div>
+        </div>
+      </div>
+
+      <!-- E.02 With Detail -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar"><div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div></div>
+            <div class="err-callout">
+              <div class="err-head">
+                <div class="err-compass"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg></div>
+                <div class="err-head-text">
+                  <div class="err-head-label">The Navigator</div>
+                  <div class="err-head-body">Couldn't stitch that one together.</div>
+                </div>
+              </div>
+              <div class="err-detail">The segment through Lucia looked broken. Try a different end point or route inland via Carmel Valley Rd instead.</div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">E.02</div>
+          <div class="screen-name">With Detail</div>
+          <div class="screen-desc">detail prop shown in ui.body.sm / content-secondary below the main body. Adds recoverable context.</div>
+        </div>
+      </div>
+
+      <!-- E.03 With Suggestions -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar"><div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div></div>
+            <div class="err-callout">
+              <div class="err-head">
+                <div class="err-compass"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg></div>
+                <div class="err-head-text">
+                  <div class="err-head-label">The Navigator</div>
+                  <div class="err-head-body">Couldn't stitch that one together — the segment through Lucia looked broken.</div>
+                </div>
+              </div>
+              <div class="err-detail">Try a different end point, or route inland.</div>
+              <div class="err-suggestions">
+                <div class="err-sugg-chip primary">Try inland</div>
+                <div class="err-sugg-chip">End at Big Sur</div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">E.03</div>
+          <div class="screen-name">With Suggestions</div>
+          <div class="screen-desc">Horizontal LSSuggestionChip row below dashed divider. Primary chip tinted warning amber. onSuggestionTap fires once.</div>
+        </div>
+      </div>
+
+      <!-- E.04 Long Body + Suggestions -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar"><div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div></div>
+            <div class="err-callout" style="top:100px;">
+              <div class="err-head">
+                <div class="err-compass"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg></div>
+                <div class="err-head-text">
+                  <div class="err-head-label">The Navigator</div>
+                  <div class="err-head-body">Couldn't stitch that one together — the segment through Lucia looked broken. The road data shows a closure between mile marker 40 and 44.</div>
+                </div>
+              </div>
+              <div class="err-detail">Try a different end point, or let me route you inland via Carmel Valley Rd instead? The views are different but the road is spectacular.</div>
+              <div class="err-suggestions">
+                <div class="err-sugg-chip primary">Try inland via CVR</div>
+                <div class="err-sugg-chip">End at Big Sur</div>
+                <div class="err-sugg-chip">Avoid Lucia</div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">E.04</div>
+          <div class="screen-name">Long Body + Long Suggestions</div>
+          <div class="screen-desc">Long body + detail + three chips. Container expands vertically. Chips wrap if needed.</div>
+        </div>
+      </div>
+
+      <!-- E.05 Dark Mode -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="ls-topbar"><div class="chrome-chip circular"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4.5" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="8.25" width="14" height="1.5" rx="0.75" fill="currentColor"/><rect x="2" y="12" width="14" height="1.5" rx="0.75" fill="currentColor"/></svg></div></div>
+            <div class="err-callout">
+              <div class="err-head">
+                <div class="err-compass"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg></div>
+                <div class="err-head-text">
+                  <div class="err-head-label">The Navigator</div>
+                  <div class="err-head-body">Couldn't stitch that one together.</div>
+                </div>
+              </div>
+              <div class="err-suggestions">
+                <div class="err-sugg-chip primary">Try inland</div>
+                <div class="err-sugg-chip">End at Big Sur</div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">E.05</div>
+          <div class="screen-name">Dark Mode</div>
+          <div class="screen-desc">Warning amber border and chip tint remain legible on dark glass surface. Glass bg resolves to ink-tinted.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States</div>
+      <h2 class="section-title">Props and <em>variants</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="dim-name">NavMsg top position</div><div class="dim-val">108px from top</div><div class="dim-desc">Below TopBar (60pt) + 48pt clearance. Matches uc-scr-03 .nav-message top:108px</div>
+      <div class="dim-name">NavMsg horizontal</div><div class="dim-val">14px left + right</div><div class="dim-desc">14pt inset from phone screen edge each side</div>
+      <div class="dim-name">NavMsg padding</div><div class="dim-val">14px all</div><div class="dim-desc">Internal padding: 14pt top, right, bottom, left</div>
+      <div class="dim-name">Compass chip</div><div class="dim-val">24×24pt circular</div><div class="dim-desc">LSPill.sm, signal-whisper bg, signal-tint border, LSIcon.compass</div>
+      <div class="dim-name">Body typography</div><div class="dim-val">13.5px / 1.45</div><div class="dim-desc">Newsreader serif, font-weight 400, color: content-primary</div>
+      <div class="dim-name">Attachment spacing</div><div class="dim-val">6px gap</div><div class="dim-desc">spacing.1.5 between attachment cards</div>
+      <div class="dim-name">Error callout border-top</div><div class="dim-val">2px solid warning</div><div class="dim-desc">#C46F1B — matches uc-scr-06 .err-callout border-top</div>
+      <div class="dim-name">Auto-dismiss timer</div><div class="dim-val">5000ms</div><div class="dim-desc">chatOverlayDismiss fires after 5s when pinned:false</div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 COMPOSITION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Composition</div>
+      <h2 class="section-title">Atoms <em>consumed</em>.</h2>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Surfaces (ATM-05)</span>
+        <div class="cmp-item"><div class="cmp-name">LSGlassPanel(.callout(.signal))</div><div class="cmp-ref">NavMsg: glass bg, signal-tint border, 2px signal top-border</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSGlassPanel(.callout(.warning))</div><div class="cmp-ref">ErrorCallout: glass bg, warning border, 2px warning top</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Atoms</span>
+        <div class="cmp-item"><div class="cmp-name">LSPill(size:.sm)</div><div class="cmp-ref">UC-ATM-06 · Compass chip: 24pt circular, signal-tinted</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon(.compass)</div><div class="cmp-ref">UC-ATM-10 · compass icon inside chip</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon(.bookmarkFill / .bookmark)</div><div class="cmp-ref">UC-ATM-10 · pin action</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon(.close)</div><div class="cmp-ref">UC-ATM-10 · dismiss action</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Molecules</span>
+        <div class="cmp-item"><div class="cmp-name">LSRouteAttachmentCard</div><div class="cmp-ref">UC-MOL-08 · compact attachment card, first selected:true</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSSuggestionChip</div><div class="cmp-ref">UC-MOL · horizontal chips, onSuggestionTap callback</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Typography</span>
+        <div class="cmp-item"><div class="cmp-name">typography.ui.label.sm</div><div class="cmp-ref">8.5px 600 0.14em — "THE NAVIGATOR" header label</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.opinion.md</div><div class="cmp-ref">13.5px Newsreader 400 / 1.45 — body text</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.ui.body.sm</div><div class="cmp-ref">10.5px / 1.48 — error detail line, content-secondary</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Enter, persist, <em>dismiss</em>.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="motion-recipe">chatOverlayEnter</div>
+      <div class="motion-trigger">Navigator produces a message</div>
+      <div class="motion-effect">NavMsg slides down from y:-20 to y:0 + fades opacity 0→1. Spring easing, 280ms.</div>
+      <div class="motion-recipe">chatOverlayDismiss</div>
+      <div class="motion-trigger">5000ms elapsed, pinned:false</div>
+      <div class="motion-effect">NavMsg fades opacity 1→0 + slides up y:0 → y:-16. 220ms ease-out. Does not fire when pinned:true.</div>
+      <div class="motion-recipe">mapTapDismiss</div>
+      <div class="motion-trigger">Rider taps map area</div>
+      <div class="motion-effect">Same as chatOverlayDismiss but triggered immediately on map tap, not timer.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Opinion type, <em>glass surface</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design Decision</h4>
+        <p>The body uses Newsreader (opinion typography) to distinguish the Navigator's voice from UI chrome. Every other UI element uses Geist; when the Navigator speaks, the typeface shifts — making it unmistakably a <em>voice</em>, not a label.</p>
+        <p>The compass chip inside a tinted pill signals authorship without using an avatar or logo. It's minimal, brand-specific, and immediately scannable.</p>
+        <p>Error callouts use an amber warning accent instead of copper signal so riders recognize them as recoverable error states — different from recommendations.</p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability — 07-uc-org.md §UC-ORG-03</h4>
+        <ul>
+          <li><strong>AC-1</strong> NavMsg(body, attachments:[3], pinned:true) → glass callout, compass chip, three attachment cards, first selected, pin filled</li>
+          <li><strong>AC-2</strong> NavMsg(pinned:false) → auto-dismiss fires at 5000ms via chatOverlayDismiss</li>
+          <li><strong>AC-3</strong> onPin / onDismiss fire once per tap; pinned blocks auto-dismiss</li>
+          <li><strong>AC-4</strong> Stories: Message Only, One Attachment, Three Attachments, Pinned, Long Body, Dark Mode</li>
+          <li><strong>AC-5</strong> ErrorCallout(body, detail, suggestions:[2]) → warning glass, compass, body, detail, two chips</li>
+          <li><strong>AC-6</strong> onSuggestionTap fires exactly once with tapped chip</li>
+          <li><strong>AC-7</strong> Error stories: Error Only, With Detail, With Suggestions, Long Body + Long Suggestions, Dark Mode</li>
+          <li><strong>AC-8</strong> Both organisms compose only from MOL + ATM tiers; no raw VStack/Column with literal colors</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>UC-ORG-03 · LSNavigatorMessage + LSInlineErrorCallout · Copper · 2026-04-20</span></div>
+    <p class="footer-note">Proportions match uc-scr-03 .nav-message and uc-scr-06 .err-callout exactly.<br>Organism tier. No inline dimensions outside the token system.</p>
+  </footer>
+</div>
+
+</body>
+</html>

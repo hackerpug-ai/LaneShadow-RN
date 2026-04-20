@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<!-- uc-org-05-sessions-drawer.html — UC-ORG-05 "LSSessionsDrawer"
+     LaneShadow V2 · Copper · Navigator Organism Mock · 2026-04-20
+     Authority: .spec/prds/v2/07-uc-org.md §UC-ORG-05
+     Proportion reference: uc-scr-05-sessions.html (.sessions-drawer) -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-ORG-05 — LSSessionsDrawer — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;--paper-200:#F2EFED;
+  --paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --status-warning:#C46F1B;
+  --font-opinion:'Newsreader',Georgia,serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);--surface-inset:var(--paper-200);
+  --surface-overlay:rgba(253,251,248,0.92);--surface-glass:rgba(253,251,248,0.88);
+  --surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);--map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);--content-onSignal:#FFF;
+  --signal-default:var(--copper-500);--signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);--border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+  --elev-drawer:2px 0 16px rgba(34,24,16,0.14);
+}
+.mode-dark{
+  --surface-primary:var(--ink-800);--surface-card:var(--ink-700);--surface-inset:var(--ink-600);
+  --surface-overlay:rgba(45,34,24,0.92);--surface-glass:rgba(45,34,24,0.88);
+  --surface-scrim:rgba(10,6,3,0.50);--map-paper:#1B140E;
+  --map-contour:rgba(242,238,232,0.16);--map-contour-faint:rgba(242,238,232,0.07);
+  --content-primary:var(--ink-050);--content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200);--content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12);--border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  --elev-overlay:0 8px 24px rgba(0,0,0,0.42),0 2px 6px rgba(0,0,0,0.28);
+  --elev-chrome:0 1px 3px rgba(0,0,0,0.24),0 4px 14px rgba(0,0,0,0.28);
+  --elev-drawer:2px 0 16px rgba(0,0,0,0.6);
+}
+
+/* TYPOGRAPHY */
+.t-opinion-xl{font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em;}
+.t-opinion-lg{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em;}
+.t-title-lg{font-family:var(--font-ui);font-weight:600;font-size:17px;line-height:1.24;letter-spacing:-0.01em;}
+.t-title-md{font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em;}
+.t-body-md{font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52;}
+.t-body-sm{font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48;}
+.t-label-md{font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase;}
+.t-label-sm{font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase;}
+.t-instr-sm{font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-xs{font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1;}
+
+/* DOC CHROME */
+body{font-family:var(--font-ui);color:var(--content-primary);background:var(--surface-primary);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden;}
+.wrap{max-width:1440px;margin:0 auto;padding:0 72px;}
+.doc-header{position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden;}
+.doc-header::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none;}
+.doc-header>*{position:relative;z-index:1;}
+.doc-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px;}
+.doc-eyebrow::before{content:"";width:28px;height:1px;background:var(--signal-default);}
+.doc-eyebrow-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em;}
+.doc-title{font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px;}
+.doc-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.doc-tagline{font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px;}
+.doc-meta-row{display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default);}
+.meta-item{display:flex;flex-direction:column;gap:6px;}
+.meta-label{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);}
+.meta-value{font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary);}
+.section{padding:96px 0;border-bottom:1px solid var(--border-default);position:relative;}
+.section:last-child{border-bottom:none;}
+.section-header{display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px;}
+.section-index{font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.section-index::before{content:"";display:block;width:48px;height:1px;background:var(--signal-default);}
+.section-title{font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;}
+.section-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.prose{font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px;}
+.prose+.prose{margin-top:20px;}
+.prose em{font-style:italic;}
+.prose strong{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px;}
+.screens-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:56px 40px;align-items:start;padding-left:152px;}
+.screens-grid.cols-5{grid-template-columns:repeat(5,1fr);}
+.screen-cell{display:flex;flex-direction:column;gap:22px;}
+.screen-annotation{display:flex;flex-direction:column;gap:8px;max-width:280px;}
+.screen-num{font-family:var(--font-instrument);font-size:10.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);}
+.screen-name{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);}
+.screen-desc{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:14px;line-height:1.6;color:var(--content-secondary);}
+.ac-cite{font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px;}
+.ac-cite::before{content:"☐";position:absolute;left:0;top:0;color:var(--border-strong);}
+
+/* PHONE FRAME */
+.phone-frame{width:100%;max-width:282px;margin:0 auto;aspect-ratio:9/19.5;position:relative;border-radius:44px;background:#0F0A07;box-shadow:inset 0 0 0 1px #2A1F16,inset 0 0 0 2.5px #0F0A07,0 30px 70px -16px rgba(34,24,16,0.38),0 10px 24px -10px rgba(34,24,16,0.22);overflow:hidden;}
+.phone-screen{position:absolute;inset:3px;border-radius:41px;overflow:hidden;display:flex;flex-direction:column;background:var(--surface-primary);color:var(--content-primary);isolation:isolate;}
+.phone-di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#000;border-radius:14px;z-index:60;}
+.phone-hi{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:3px;z-index:60;background:rgba(0,0,0,0.38);}
+.mode-dark .phone-hi{background:rgba(255,255,255,0.30);}
+
+/* PAPER MAP + SCRIM */
+.pmap{position:absolute;inset:0;background:var(--map-paper);overflow:hidden;z-index:0;}
+.pmap::before{content:"";position:absolute;inset:-8px;background-image:linear-gradient(var(--map-contour-faint) 1px,transparent 1px),linear-gradient(90deg,var(--map-contour-faint) 1px,transparent 1px);background-size:28px 28px;opacity:0.55;pointer-events:none;}
+.map-scrim{position:absolute;inset:0;background:var(--surface-scrim);z-index:1;pointer-events:none;}
+
+/* ═══════════ LSSessionsDrawer
+   Matches uc-scr-05-sessions.html .sessions-drawer exactly:
+   position absolute, top/bottom 0, left 0,
+   width 82% (or proportional on phone), background surface-card,
+   border-right 1px border-default, box-shadow elev-drawer, z-index 30
+   312pt canonical width on 390pt iPhone = 80%
+*/
+.sessions-drawer{
+  position:absolute;top:0;bottom:0;left:0;
+  width:82%;
+  background:var(--surface-card);
+  border-right:1px solid var(--border-default);
+  box-shadow:var(--elev-drawer);
+  z-index:30;
+  display:flex;flex-direction:column;
+}
+
+/* Status bar inside drawer */
+.drawer-status-bar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:46px 16px 0;flex-shrink:0;
+  font-family:var(--font-instrument);font-size:12px;font-weight:600;
+  color:var(--content-primary);letter-spacing:-0.02em;
+}
+
+/* Header: "Rides" opinion.lg + NEW chip */
+.drawer-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:18px 16px 14px;flex-shrink:0;
+  border-bottom:1px solid var(--border-subtle);
+}
+.drawer-title{
+  font-family:var(--font-opinion);font-weight:400;font-size:28px;
+  line-height:1;letter-spacing:-0.02em;color:var(--content-primary);
+}
+.drawer-title em{font-style:italic;color:var(--signal-default);}
+
+/* NEW chip: outline button, signal-colored */
+.btn-new-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:7px 11px;border-radius:10px;
+  border:1px solid var(--signal-default);color:var(--signal-default);
+  background:transparent;font-family:var(--font-ui);font-weight:600;
+  font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+}
+
+/* Section label row */
+.section-label-row{
+  padding:14px 16px 6px;display:flex;
+  justify-content:space-between;align-items:baseline;
+  flex-shrink:0;
+}
+.section-label{
+  font-family:var(--font-ui);font-size:8.5px;font-weight:600;
+  letter-spacing:0.16em;text-transform:uppercase;color:var(--content-tertiary);
+}
+.section-count{font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);}
+
+/* Session list (scrollable) */
+.session-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+/* Session row */
+.session-row{
+  position:relative;
+  padding:12px 16px 12px 19px;
+  border-bottom:1px solid var(--border-subtle);
+  flex-shrink:0;
+}
+/* Active row: signal bg 5% + 3px left stripe */
+.session-row.active{
+  background:color-mix(in srgb, var(--surface-card) 94%, var(--signal-default));
+}
+.session-row.active::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;
+  width:3px;background:var(--signal-default);
+}
+/* Row contents */
+.session-title-row{
+  display:flex;justify-content:space-between;align-items:baseline;
+  gap:8px;margin-bottom:3px;
+}
+/* ui.label.lg = 11px 500 0.08em uppercase */
+.session-title{
+  font-family:var(--font-ui);font-weight:600;font-size:13.5px;
+  line-height:1.25;color:var(--content-primary);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;
+}
+/* instrument.sm = 10px JetBrains Mono */
+.session-when{
+  font-family:var(--font-instrument);font-size:9.5px;font-weight:500;
+  color:var(--content-tertiary);white-space:nowrap;flex-shrink:0;
+  font-feature-settings:"tnum" 1;
+}
+/* ui.body.sm preview: italic Newsreader */
+.session-preview{
+  font-family:var(--font-opinion);font-weight:300;font-style:italic;
+  font-size:12px;line-height:1.4;color:var(--content-secondary);
+  overflow:hidden;text-overflow:ellipsis;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;
+  margin-bottom:5px;
+}
+/* Meta footer: label.sm — signal when active, textSubtle when not */
+.session-meta{display:flex;align-items:center;gap:7px;}
+.session-meta-chip{
+  display:inline-flex;align-items:center;gap:3px;
+  font-family:var(--font-ui);font-size:8px;font-weight:600;
+  letter-spacing:0.1em;text-transform:uppercase;color:var(--content-tertiary);
+}
+.session-row.active .session-meta-chip.primary{color:var(--signal-default);}
+.session-meta-sep{width:3px;height:3px;border-radius:50%;background:var(--border-strong);}
+.variant-dot{width:8px;height:2px;border-radius:1px;}
+.variant-dot.best{background:var(--route-best);}
+.variant-dot.alt1{background:var(--route-alt1);}
+
+/* Empty state */
+.drawer-empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:32px 24px;gap:12px;text-align:center;
+}
+.drawer-empty-icon{
+  width:48px;height:48px;border-radius:50%;background:var(--surface-inset);
+  display:flex;align-items:center;justify-content:center;color:var(--content-tertiary);
+}
+.drawer-empty-label{font-family:var(--font-ui);font-size:12px;color:var(--content-tertiary);}
+
+/* Tables */
+.cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-left:152px;}
+.cmp-card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;}
+.cmp-tier-label{font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;color:var(--signal-default);text-transform:uppercase;margin-bottom:14px;display:block;}
+.cmp-item{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.cmp-item:last-child{border-bottom:none;}
+.cmp-name{font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);margin-bottom:4px;}
+.cmp-ref{font-family:var(--font-instrument);font-size:10px;color:var(--content-tertiary);line-height:1.4;}
+.dim-table{padding-left:152px;display:grid;grid-template-columns:220px 160px 1fr;row-gap:8px;column-gap:24px;font-family:var(--font-ui);font-size:13px;align-items:baseline;}
+.dim-table>div{padding:9px 0;border-bottom:1px solid var(--border-subtle);}
+.dim-name{font-weight:600;color:var(--content-primary);}
+.dim-val{font-family:var(--font-instrument);font-size:11.5px;color:var(--signal-default);}
+.dim-desc{color:var(--content-secondary);}
+.motion-table{padding-left:152px;display:grid;grid-template-columns:180px 1fr 2fr;row-gap:14px;column-gap:28px;font-family:var(--font-ui);font-size:13px;}
+.motion-table>div{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.motion-recipe{font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px;}
+.motion-trigger{color:var(--content-primary);font-weight:500;}
+.motion-effect{color:var(--content-secondary);}
+.rationale-grid{padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+.rationale-block h4{font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px;}
+.rationale-block p{font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px;}
+.rationale-block ul{list-style:none;}
+.rationale-block li{padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle);}
+.rationale-block li::before{content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument);}
+.rationale-block li strong{font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px;}
+.doc-footer{padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;}
+.footer-mark{font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;letter-spacing:-0.02em;}
+.footer-mark em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.footer-mark span{display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300;}
+.footer-note{font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-ORG-05</span><span class="doc-eyebrow-pill">● Organisms · Template</span></div>
+    <h1 class="doc-title">Rides<br>you've <em>ridden</em>.</h1>
+    <p class="doc-tagline">
+      A left-anchored conversation-history drawer. 312pt wide. Copper active stripe.
+      Sticky header, scrollable rows, every session one tap back to its route and conversation.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-ORG-05</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">07-uc-org.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Drawer + scrim</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Conversations, not <em>logs</em>.</h2>
+    </div>
+    <p class="prose">
+      <strong>LSSessionsDrawer</strong> is the left-anchored conversation-history panel
+      that slides over the dimmed map on SessionsScreen. It organizes sessions by recency,
+      marks the active session with a copper stripe, and lets riders tap to restore any
+      previous conversation complete with its map, route, and Navigator messages.
+    </p>
+    <p class="prose">
+      The drawer is always left-anchored — never bottom-modal — so the map behind it
+      remains partially visible. The scrim is intentionally lighter (0.35 opacity)
+      to keep spatial orientation while browsing.
+    </p>
+  </section>
+</div>
+
+<!-- §02 STORIES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · Stories</div>
+      <h2 class="section-title">Five <em>compositions</em>.</h2>
+    </div>
+    <div class="screens-grid cols-5" style="padding-left:152px;">
+
+      <!-- S.01 Default (5 sessions, 1 active) -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="map-scrim"></div>
+            <div class="sessions-drawer">
+              <div class="drawer-status-bar"><span>9:41</span><span style="display:flex;gap:4px;align-items:center;font-size:10px;"><span>&#9679;&#9679;&#9679;</span></span></div>
+              <div class="drawer-header">
+                <div class="drawer-title">Rides</div>
+                <div class="btn-new-chip"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>NEW</div>
+              </div>
+              <div class="section-label-row"><span class="section-label">This Week</span><span class="section-count">5</span></div>
+              <div class="session-list">
+                <div class="session-row active">
+                  <div class="session-title-row"><span class="session-title">Santa Cruz Loop</span><span class="session-when">Today</span></div>
+                  <div class="session-preview">Take 1 south to Davenport then back through the redwoods…</div>
+                  <div class="session-meta"><span class="session-meta-chip primary"><span class="variant-dot best"></span>Active</span></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">Skyline to the Sea</span><span class="session-when">Mon</span></div>
+                  <div class="session-preview">Best way to do 84 to 35 heading south into the park…</div>
+                  <div class="session-meta"><span class="session-meta-chip"><span class="variant-dot best"></span>3 routes</span></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">PCH Evening Run</span><span class="session-when">Sun</span></div>
+                  <div class="session-preview">Sunset ride from Pacifica down to Half Moon Bay…</div>
+                  <div class="session-meta"><span class="session-meta-chip"><span class="variant-dot alt1"></span>2 routes</span></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">Marin Headlands</span><span class="session-when">Sat</span></div>
+                  <div class="session-preview">Cross the bridge and head out to Hawk Hill at sunrise…</div>
+                  <div class="session-meta"><span class="session-meta-chip">1 route</span></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">Mt. Tam Summit</span><span class="session-when">Fri</span></div>
+                  <div class="session-preview">Looking for the cleanest line up Pan Toll…</div>
+                  <div class="session-meta"><span class="session-meta-chip">2 routes</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.01</div>
+          <div class="screen-name">Default</div>
+          <div class="screen-desc">5 sessions, Santa Cruz Loop active. Copper stripe + tinted bg on active row. Header + section label sticky.</div>
+        </div>
+      </div>
+
+      <!-- S.02 Empty State -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="map-scrim"></div>
+            <div class="sessions-drawer">
+              <div class="drawer-status-bar"><span>9:41</span><span style="font-size:10px;">&#9679;&#9679;&#9679;</span></div>
+              <div class="drawer-header">
+                <div class="drawer-title">Rides</div>
+                <div class="btn-new-chip"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>NEW</div>
+              </div>
+              <div class="drawer-empty">
+                <div class="drawer-empty-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12Z" stroke="currentColor" stroke-width="1.4"/><path d="M12 8V12L15 15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                </div>
+                <div class="drawer-empty-label">No rides yet. Tap NEW to start a conversation.</div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.02</div>
+          <div class="screen-name">Empty State</div>
+          <div class="screen-desc">No sessions. Empty state with icon + prompt to start a new conversation. Header + NEW button present.</div>
+        </div>
+      </div>
+
+      <!-- S.03 Long List (clipped scroll) -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="map-scrim"></div>
+            <div class="sessions-drawer">
+              <div class="drawer-status-bar"><span>9:41</span><span style="font-size:10px;">&#9679;&#9679;&#9679;</span></div>
+              <div class="drawer-header">
+                <div class="drawer-title">Rides</div>
+                <div class="btn-new-chip"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>NEW</div>
+              </div>
+              <div class="section-label-row"><span class="section-label">This Week</span><span class="section-count">12</span></div>
+              <div class="session-list">
+                <div class="session-row active">
+                  <div class="session-title-row"><span class="session-title">Santa Cruz Loop</span><span class="session-when">Today</span></div>
+                  <div class="session-preview">Take 1 south to Davenport…</div>
+                  <div class="session-meta"><span class="session-meta-chip primary">Active</span></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">Skyline to the Sea</span><span class="session-when">Mon</span></div>
+                  <div class="session-preview">84 to 35 heading south…</div>
+                  <div class="session-meta"><span class="session-meta-chip">3 routes</span></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">PCH Evening Run</span><span class="session-when">Sun</span></div>
+                  <div class="session-preview">Sunset ride from Pacifica…</div>
+                  <div class="session-meta"><span class="session-meta-chip">2 routes</span></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">Marin Headlands</span><span class="session-when">Sat</span></div>
+                  <div class="session-preview">Cross the bridge at sunrise…</div>
+                  <div class="session-meta"><span class="session-meta-chip">1 route</span></div>
+                </div>
+                <div class="session-row" style="opacity:0.5;">
+                  <div class="session-title-row"><span class="session-title">Mt. Tam Summit</span><span class="session-when">Fri</span></div>
+                  <div class="session-preview">Pan Toll to the top…</div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.03</div>
+          <div class="screen-name">Long List (20)</div>
+          <div class="screen-desc">20 sessions; list scrolls while header + section label stay sticky. Fade at bottom indicates more rows below.</div>
+        </div>
+      </div>
+
+      <!-- S.04 No Active -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="map-scrim"></div>
+            <div class="sessions-drawer">
+              <div class="drawer-status-bar"><span>9:41</span><span style="font-size:10px;">&#9679;&#9679;&#9679;</span></div>
+              <div class="drawer-header">
+                <div class="drawer-title">Rides</div>
+                <div class="btn-new-chip"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>NEW</div>
+              </div>
+              <div class="section-label-row"><span class="section-label">This Week</span><span class="section-count">4</span></div>
+              <div class="session-list">
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">Santa Cruz Loop</span><span class="session-when">Mon</span></div>
+                  <div class="session-preview">Take 1 south to Davenport…</div>
+                  <div class="session-meta"><span class="session-meta-chip">3 routes</span></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">Skyline to the Sea</span><span class="session-when">Sun</span></div>
+                  <div class="session-preview">84 to 35 heading south…</div>
+                  <div class="session-meta"><span class="session-meta-chip">2 routes</span></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">PCH Evening Run</span><span class="session-when">Sat</span></div>
+                  <div class="session-preview">Sunset ride Pacifica…</div>
+                  <div class="session-meta"><span class="session-meta-chip">1 route</span></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">Marin Headlands</span><span class="session-when">Fri</span></div>
+                  <div class="session-preview">Cross bridge at sunrise…</div>
+                  <div class="session-meta"><span class="session-meta-chip">2 routes</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.04</div>
+          <div class="screen-name">No Active Session</div>
+          <div class="screen-desc">activeSessionId: nil. No copper stripe or tinted background on any row. All rows default state.</div>
+        </div>
+      </div>
+
+      <!-- S.05 Dark Mode -->
+      <div class="screen-cell">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap"></div>
+            <div class="map-scrim"></div>
+            <div class="sessions-drawer">
+              <div class="drawer-status-bar"><span>9:41</span><span style="font-size:10px;">&#9679;&#9679;&#9679;</span></div>
+              <div class="drawer-header">
+                <div class="drawer-title">Rides</div>
+                <div class="btn-new-chip"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>NEW</div>
+              </div>
+              <div class="section-label-row"><span class="section-label">This Week</span><span class="section-count">3</span></div>
+              <div class="session-list">
+                <div class="session-row active">
+                  <div class="session-title-row"><span class="session-title">Santa Cruz Loop</span><span class="session-when">Today</span></div>
+                  <div class="session-preview">Take 1 south to Davenport…</div>
+                  <div class="session-meta"><span class="session-meta-chip primary">Active</span></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">Skyline to the Sea</span><span class="session-when">Mon</span></div>
+                  <div class="session-preview">84 to 35 heading south…</div>
+                  <div class="session-meta"><span class="session-meta-chip">2 routes</span></div>
+                </div>
+                <div class="session-row">
+                  <div class="session-title-row"><span class="session-title">PCH Evening Run</span><span class="session-when">Sun</span></div>
+                  <div class="session-preview">Sunset ride Pacifica…</div>
+                  <div class="session-meta"><span class="session-meta-chip">1 route</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S.05</div>
+          <div class="screen-name">Dark Mode</div>
+          <div class="screen-desc">Drawer resolves to ink-700 surface. Copper stripe remains vivid. All text tokens re-resolve on dark surface.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States</div>
+      <h2 class="section-title">Dimensions <em>table</em>.</h2>
+    </div>
+    <div class="dim-table">
+      <div class="dim-name">Drawer canonical width</div><div class="dim-val">312pt</div><div class="dim-desc">On 390pt iPhone = 80%. Matches uc-scr-05 82% width at 282px render.</div>
+      <div class="dim-name">Drawer height</div><div class="dim-val">full-height</div><div class="dim-desc">top:0, bottom:0 — fills entire phone screen height</div>
+      <div class="dim-name">Trailing border</div><div class="dim-val">1px border-default</div><div class="dim-desc">Separates drawer edge from map scrim layer</div>
+      <div class="dim-name">Shadow</div><div class="dim-val">elev-drawer</div><div class="dim-desc">2px 0 16px rgba(34,24,16,0.14) light / rgba(0,0,0,0.6) dark</div>
+      <div class="dim-name">Active stripe</div><div class="dim-val">3px left edge</div><div class="dim-desc">color.signal.default, position absolute, full row height</div>
+      <div class="dim-name">Active row bg</div><div class="dim-val">signal.default 5%</div><div class="dim-desc">color-mix: surface-card 94% / signal-default 6%</div>
+      <div class="dim-name">Row padding</div><div class="dim-val">12px 16px 12px 19px</div><div class="dim-desc">19px left to clear 3px stripe + 16px gap</div>
+      <div class="dim-name">Header padding</div><div class="dim-val">spacing.4 = 16px</div><div class="dim-desc">18px top, 16px horizontal, 14px bottom</div>
+      <div class="dim-name">Title typography</div><div class="dim-val">13.5px 600</div><div class="dim-desc">ui.label.lg variant — truncated with text-overflow: ellipsis</div>
+      <div class="dim-name">Preview typography</div><div class="dim-val">12px italic Newsreader</div><div class="dim-desc">ui.body.sm opinion variant — 1 line clamp</div>
+    </div>
+  </section>
+</div>
+
+<!-- §04 COMPOSITION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Composition</div>
+      <h2 class="section-title">Atoms <em>consumed</em>.</h2>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Surfaces</span>
+        <div class="cmp-item"><div class="cmp-name">LSGlassPanel(.chrome)</div><div class="cmp-ref">UC-ATM-05 · Drawer container: 312pt, full-height, elev-overlay</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSScrim (owned by LSMapLayer)</div><div class="cmp-ref">UC-ATM-09 · 0.35 opacity, z-1, behind drawer at z-4</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Organisms (context)</span>
+        <div class="cmp-item"><div class="cmp-name">LSMapLayer.leadingDrawer</div><div class="cmp-ref">UC-ORG-02 · Drawer lives in this slot at z-4; scrim at z-1</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSSectionHeader</div><div class="cmp-ref">UC-ORG-07 · Section label row "THIS WEEK" with count</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Atoms</span>
+        <div class="cmp-item"><div class="cmp-name">LSButton(.outline, .plus, "NEW")</div><div class="cmp-ref">UC-ATM-02 · trailing NEW chip in header, signal-colored</div></div>
+        <div class="cmp-item"><div class="cmp-name">active-stripe (3px div)</div><div class="cmp-ref">position absolute, left 0, full height, color.signal.default</div></div>
+      </div>
+      <div class="cmp-card">
+        <span class="cmp-tier-label">Typography</span>
+        <div class="cmp-item"><div class="cmp-name">typography.ui.title.lg</div><div class="cmp-ref">17px 600 — "Rides" header (drawer title uses opinion 28px)</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.instrument.sm</div><div class="cmp-ref">10px JetBrains Mono — "when" trailing label on session rows</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.ui.label.sm</div><div class="cmp-ref">8.5px 600 — meta footer, signal (active) or textSubtle</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Slide <em>in</em>, tap out.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="motion-recipe">sidebarSlideIn</div>
+      <div class="motion-trigger">leadingDrawer slot populated (hamburger tap)</div>
+      <div class="motion-effect">Drawer translates from x:-100% to x:0 with spring. Scrim fades from 0 to 0.35 simultaneously. Duration ~320ms.</div>
+      <div class="motion-recipe">sidebarSlideIn (reverse)</div>
+      <div class="motion-trigger">Swipe left or scrim tap</div>
+      <div class="motion-effect">Drawer translates x:0 to x:-100%. Scrim fades to 0. onDismiss fires once after animation completes.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">History, not<br>a <em>list</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design Decision</h4>
+        <p>Sessions are organized as conversations, not as "saved routes." A route is the output; the session is the negotiation. This distinction drives the preview text being the opening prompt (italic Newsreader) rather than a route stat.</p>
+        <p>The 3px copper stripe on the active row communicates "you are here" — the current session — without any label. The tinted background reinforces it but the stripe alone is sufficient even at small scale.</p>
+        <p>The drawer is always left-anchored because the map behind it stays visible on the right side. This keeps the rider spatially oriented while reviewing sessions.</p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC Traceability — 07-uc-org.md §UC-ORG-05</h4>
+        <ul>
+          <li><strong>AC-1</strong> LSSessionsDrawer(sessions: 5, activeSessionId: "santa-cruz-loop") → 312pt drawer, "Rides" header, NEW button, "THIS WEEK" label, 5 rows, active highlighted</li>
+          <li><strong>AC-2</strong> Tap session row → onSelect(session.id) fires once</li>
+          <li><strong>AC-3</strong> Tap NEW → onNew fires once</li>
+          <li><strong>AC-4</strong> Scroll list → header + section label stay sticky</li>
+          <li><strong>AC-5</strong> Stories: Default, Empty, Long List (20), No Active, Dark Mode</li>
+          <li><strong>AC-6</strong> Organism composes only from MOL + ATM tiers; no raw VStack/Column with literal colors</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>UC-ORG-05 · LSSessionsDrawer · Copper · 2026-04-20</span></div>
+    <p class="footer-note">Proportions match uc-scr-05-sessions.html .sessions-drawer exactly.<br>Width: 312pt canonical (82% at 382pt render). Stripe: 3px left edge signal copper.</p>
+  </footer>
+</div>
+
+</body>
+</html>
