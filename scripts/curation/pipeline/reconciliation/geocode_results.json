@@ -1,0 +1,283 @@
+{
+  "geocoded": [
+    {
+      "route_id": "rider-mag-01-dalton-highway",
+      "name": "Dalton Highway",
+      "state": "Alaska",
+      "lat": 65.8758964,
+      "lng": -149.7219335
+    },
+    {
+      "route_id": "rider-mag-07-pacific-coast-highway",
+      "name": "Pacific Coast Highway",
+      "state": "California",
+      "lat": 33.7894805,
+      "lng": -118.1893842
+    },
+    {
+      "route_id": "rider-mag-09-avenue-of-the-giants",
+      "name": "Avenue of the Giants",
+      "state": "California",
+      "lat": 40.2527851,
+      "lng": -123.8215035
+    },
+    {
+      "route_id": "rider-mag-10-million-dollar-highway",
+      "name": "Million Dollar Highway",
+      "state": "Colorado",
+      "lat": 38.0169247,
+      "lng": -107.6697812
+    },
+    {
+      "route_id": "rider-mag-11-mount-blue-sky-scenic-byway",
+      "name": "Mount Blue Sky Scenic Byway",
+      "state": "Colorado",
+      "lat": 39.7413737,
+      "lng": -105.5195399
+    },
+    {
+      "route_id": "rider-mag-13-salmon-river-scenic-byway",
+      "name": "Salmon River Scenic Byway",
+      "state": "Idaho",
+      "lat": 45.1786919,
+      "lng": -113.899299
+    },
+    {
+      "route_id": "rider-mag-14-route-66",
+      "name": "Route 66",
+      "state": "Illinois / Missouri / Oklahoma / Texas / New Mexico / Arizona / California",
+      "lat": 39.0841489,
+      "lng": -89.7341882
+    },
+    {
+      "route_id": "rider-mag-17-park-loop-road",
+      "name": "Park Loop Road",
+      "state": "Maine",
+      "lat": 44.3764352,
+      "lng": -68.2212014
+    },
+    {
+      "route_id": "rider-mag-19-copper-country-trail",
+      "name": "Copper Country Trail",
+      "state": "Michigan",
+      "lat": 47.1035853,
+      "lng": -88.5194033
+    },
+    {
+      "route_id": "rider-mag-20-tunnel-of-trees-scenic-heritage-route",
+      "name": "Tunnel of Trees Scenic Heritage Route",
+      "state": "Michigan",
+      "lat": 45.4429183,
+      "lng": -85.0441783
+    },
+    {
+      "route_id": "rider-mag-21-historic-bluff-country-scenic-byway",
+      "name": "Historic Bluff Country Scenic Byway",
+      "state": "Minnesota",
+      "lat": 43.8188089,
+      "lng": -91.2736874
+    },
+    {
+      "route_id": "rider-mag-24-going-to-the-sun-road",
+      "name": "Going-to-the-Sun Road",
+      "state": "Montana",
+      "lat": 48.495088,
+      "lng": -113.9812636
+    },
+    {
+      "route_id": "rider-mag-26-blue-ridge-parkway",
+      "name": "Blue Ridge Parkway",
+      "state": "North Carolina / Virginia",
+      "lat": 36.1477572,
+      "lng": -81.7150978
+    },
+    {
+      "route_id": "rider-mag-27-kancamagus-highway",
+      "name": "Kancamagus Highway",
+      "state": "New Hampshire",
+      "lat": 44.0512987,
+      "lng": -71.5688032
+    },
+    {
+      "route_id": "rider-mag-28-mount-washington-auto-road",
+      "name": "Mount Washington Auto Road",
+      "state": "New Hampshire",
+      "lat": 44.2844817,
+      "lng": -71.2764292
+    },
+    {
+      "route_id": "rider-mag-33-triple-nickel",
+      "name": "Triple Nickel",
+      "state": "Ohio",
+      "lat": 39.8973331,
+      "lng": -82.001775
+    },
+    {
+      "route_id": "rider-mag-36-pa-route-6",
+      "name": "PA Route 6",
+      "state": "Pennsylvania",
+      "lat": 40.3347567,
+      "lng": -79.7099211
+    },
+    {
+      "route_id": "rider-mag-37-iron-mountain-road",
+      "name": "Iron Mountain Road",
+      "state": "South Dakota",
+      "lat": 43.8466393,
+      "lng": -103.4022789
+    },
+    {
+      "route_id": "rider-mag-39-cherohala-skyway",
+      "name": "Cherohala Skyway",
+      "state": "Tennessee / North Carolina",
+      "lat": 35.3629584,
+      "lng": -84.2872546
+    },
+    {
+      "route_id": "rider-mag-40-texas-fm-170",
+      "name": "Texas FM 170",
+      "state": "Texas",
+      "lat": 33.1246527,
+      "lng": -96.6596901
+    },
+    {
+      "route_id": "rider-mag-41-twisted-sisters",
+      "name": "Twisted Sisters",
+      "state": "Texas",
+      "lat": 35.198944,
+      "lng": -101.7958551
+    },
+    {
+      "route_id": "rider-mag-42-utah-scenic-byway-12",
+      "name": "Utah Scenic Byway 12",
+      "state": "Utah",
+      "lat": 37.6267375,
+      "lng": -112.081469
+    },
+    {
+      "route_id": "rider-mag-43-skyline-drive",
+      "name": "Skyline Drive",
+      "state": "Virginia",
+      "lat": 36.9132779,
+      "lng": -76.2281734
+    },
+    {
+      "route_id": "rider-mag-45-vermont-route-100",
+      "name": "Vermont Route 100",
+      "state": "Vermont",
+      "lat": 44.4475932,
+      "lng": -72.7001711
+    },
+    {
+      "route_id": "rider-mag-48-coal-heritage-trail",
+      "name": "Coal Heritage Trail",
+      "state": "West Virginia",
+      "lat": 37.5789498,
+      "lng": -81.3779337
+    },
+    {
+      "route_id": "rider-mag-50-beartooth-highway",
+      "name": "Beartooth Highway",
+      "state": "Wyoming / Montana",
+      "lat": 44.9564547,
+      "lng": -109.4845648
+    }
+  ],
+  "failed": [
+    {
+      "route_id": "rider-mag-02-jasper-disaster-loop",
+      "name": "Jasper Disaster Loop",
+      "state": "Arkansas"
+    },
+    {
+      "route_id": "rider-mag-03-pig-trail-scenic-byway",
+      "name": "Pig Trail Scenic Byway",
+      "state": "Arkansas"
+    },
+    {
+      "route_id": "rider-mag-06-arizona-routes-89-89a",
+      "name": "Arizona Routes 89/89A",
+      "state": "Arizona"
+    },
+    {
+      "route_id": "rider-mag-08-serpent-to-the-sea",
+      "name": "Serpent to the Sea",
+      "state": "California"
+    },
+    {
+      "route_id": "rider-mag-12-georgia-triangle",
+      "name": "Georgia Triangle",
+      "state": "Georgia"
+    },
+    {
+      "route_id": "rider-mag-15-kentucky-coal-route",
+      "name": "Kentucky Coal Route",
+      "state": "Kentucky"
+    },
+    {
+      "route_id": "rider-mag-16-red-river-gorge-scenic-byway",
+      "name": "Red River Gorge Scenic Byway",
+      "state": "Kentucky"
+    },
+    {
+      "route_id": "rider-mag-22-great-river-road-national-scenic-byway",
+      "name": "Great River Road National Scenic Byway",
+      "state": "Minnesota / Wisconsin / Iowa / Illinois / Missouri / Kentucky / Tennessee / Arkansas / Mississippi / Louisiana"
+    },
+    {
+      "route_id": "rider-mag-25-north-carolina-route-28",
+      "name": "North Carolina Route 28",
+      "state": "North Carolina"
+    },
+    {
+      "route_id": "rider-mag-29-enchanted-circle-scenic-byway",
+      "name": "Enchanted Circle Scenic Byway",
+      "state": "New Mexico"
+    },
+    {
+      "route_id": "rider-mag-30-great-continental-divide-route",
+      "name": "Great Continental Divide Route",
+      "state": "New Mexico / Colorado / Wyoming / Idaho / Montana"
+    },
+    {
+      "route_id": "rider-mag-31-u-s-route-50-in-nevada",
+      "name": "U.S. Route 50 in Nevada",
+      "state": "Nevada"
+    },
+    {
+      "route_id": "rider-mag-32-upper-delaware-scenic-byway",
+      "name": "Upper Delaware Scenic Byway",
+      "state": "New York"
+    },
+    {
+      "route_id": "rider-mag-34-mount-hood-scenic-byway",
+      "name": "Mount Hood Scenic Byway",
+      "state": "Oregon"
+    },
+    {
+      "route_id": "rider-mag-38-tail-of-the-dragon",
+      "name": "Tail of the Dragon",
+      "state": "Tennessee / North Carolina"
+    },
+    {
+      "route_id": "rider-mag-44-back-of-the-dragon",
+      "name": "Back of the Dragon",
+      "state": "Virginia"
+    },
+    {
+      "route_id": "rider-mag-46-north-cascades-scenic-highway",
+      "name": "North Cascades Scenic Highway",
+      "state": "Washington"
+    },
+    {
+      "route_id": "rider-mag-47-door-county-coastal-byway",
+      "name": "Door County Coastal Byway",
+      "state": "Wisconsin"
+    },
+    {
+      "route_id": "rider-mag-49-u-s-route-33-in-west-virginia",
+      "name": "U.S. Route 33 in West Virginia",
+      "state": "West Virginia"
+    }
+  ]
+}
