@@ -9,11 +9,14 @@ import SwiftUI
  * Following RN wrapper API from react-native/components/ui/avatar.tsx
  * Matrix reference: .spec/prds/native-rewrite/matrices/ui/atoms/Avatar.md
  */
+// swiftlint:disable identifier_name
 public enum AvatarSize {
     case defaultSize // 40×40px (theme.size.avatarDefault)
     case lg // 64×64px (theme.size.avatarLg)
     case xl // 96×96px (theme.size.avatarXl)
 }
+
+// swiftlint:enable identifier_name
 
 // MARK: - Avatar Badge Variant Enum
 

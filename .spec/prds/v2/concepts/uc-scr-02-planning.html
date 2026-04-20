@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<!-- uc-scr-02-planning.html — UC-SCR-02 "PlanningScreen"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Surface: LIGHT (+ dark variant)
+     Authority: concepts/designs.html  ·  08-uc-scr.md §UC-SCR-02 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-SCR-02 — PlanningScreen — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════ COPPER TOKEN SYSTEM (shared) ═══════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;--paper-200:#F2EFED;
+  --paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --wx-clear:#E6A52A;--wx-clear-tint:#FBEFCF;
+  --wx-rain:#4A86BE;--wx-rain-tint:#DBEAF4;
+  --wx-wind:#6B7B8F;--wx-wind-tint:#E1E6EC;
+  --status-warning:#C46F1B;
+  --font-opinion:'Newsreader',Georgia,'Times New Roman',serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);--surface-inset:var(--paper-200);
+  --surface-overlay:rgba(253,251,248,0.92);--surface-glass:rgba(253,251,248,0.72);
+  --surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);--map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);--content-onSignal:#FFF;
+  --signal-default:var(--copper-500);--signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);--border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+}
+body { background: var(--surface-primary); color: var(--content-primary); }
+.mode-dark {
+  --surface-primary:var(--ink-800);--surface-card:var(--ink-700);--surface-inset:var(--ink-600);
+  --surface-overlay:rgba(45,34,24,0.92);--surface-glass:rgba(45,34,24,0.72);
+  --surface-scrim:rgba(10,6,3,0.50);--map-paper:#1B140E;
+  --map-contour:rgba(242,238,232,0.16);--map-contour-faint:rgba(242,238,232,0.07);
+  --content-primary:var(--ink-050);--content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200);--content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12);--border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  --elev-overlay:0 8px 24px rgba(0,0,0,0.42),0 2px 6px rgba(0,0,0,0.28);
+  --elev-chrome:0 1px 3px rgba(0,0,0,0.24),0 4px 14px rgba(0,0,0,0.28);
+}
+
+/* ═══════════ TYPOGRAPHY ═══════════ */
+.t-opinion-xl{font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em;}
+.t-opinion-lg{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em;}
+.t-opinion-md{font-family:var(--font-opinion);font-weight:400;font-size:17px;line-height:1.32;}
+.t-opinion-sm{font-family:var(--font-opinion);font-weight:400;font-size:14px;line-height:1.45;}
+.t-title-lg{font-family:var(--font-ui);font-weight:600;font-size:17px;line-height:1.24;letter-spacing:-0.01em;}
+.t-title-md{font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em;}
+.t-title-sm{font-family:var(--font-ui);font-weight:600;font-size:12px;line-height:1.28;}
+.t-body-md{font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52;}
+.t-body-sm{font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48;}
+.t-label-md{font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase;}
+.t-label-sm{font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase;}
+.t-instr-lg{font-family:var(--font-instrument);font-weight:500;font-size:18px;line-height:1.12;letter-spacing:-0.02em;font-feature-settings:"tnum" 1;}
+.t-instr-md{font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-sm{font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-xs{font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1;}
+
+/* ═══════════ DOC CHROME ═══════════ */
+body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden;}
+.wrap{max-width:1440px;margin:0 auto;padding:0 72px;}
+.doc-header{position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden;}
+.doc-header::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none;}
+.doc-header>*{position:relative;z-index:1;}
+.doc-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px;}
+.doc-eyebrow::before{content:"";width:28px;height:1px;background:var(--signal-default);}
+.doc-eyebrow-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em;}
+.doc-title{font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px;}
+.doc-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.doc-tagline{font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px;}
+.doc-meta-row{display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default);}
+.meta-item{display:flex;flex-direction:column;gap:6px;}
+.meta-label{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);}
+.meta-value{font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary);}
+
+.section{padding:96px 0;border-bottom:1px solid var(--border-default);position:relative;}
+.section:last-child{border-bottom:none;}
+.section-header{display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px;}
+.section-index{font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.section-index::before{content:"";display:block;width:48px;height:1px;background:var(--signal-default);}
+.section-title{font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;}
+.section-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.prose{font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px;}
+.prose+.prose{margin-top:20px;}
+.prose em{font-style:italic;}
+.prose strong{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px;}
+
+.screens-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:56px 40px;align-items:start;padding-left:152px;}
+.screens-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.screen-cell{display:flex;flex-direction:column;gap:22px;}
+.screen-annotation{display:flex;flex-direction:column;gap:8px;max-width:280px;}
+.screen-num{font-family:var(--font-instrument);font-size:10.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);}
+.screen-name{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);}
+.screen-desc{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:14px;line-height:1.6;color:var(--content-secondary);}
+.ac-cite{font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px;}
+.ac-cite::before{content:"☐";position:absolute;left:0;top:0;color:var(--border-strong);}
+
+/* ═══════════ PHONE FRAME ═══════════ */
+.phone-frame{width:100%;max-width:282px;margin:0 auto;aspect-ratio:9/19.5;position:relative;border-radius:44px;background:#0F0A07;box-shadow:inset 0 0 0 1px #2A1F16,inset 0 0 0 2.5px #0F0A07,0 30px 70px -16px rgba(34,24,16,0.38),0 10px 24px -10px rgba(34,24,16,0.22);overflow:hidden;}
+.phone-screen{position:absolute;inset:3px;border-radius:41px;overflow:hidden;display:flex;flex-direction:column;background:var(--surface-primary);color:var(--content-primary);isolation:isolate;}
+.phone-di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#000;border-radius:14px;z-index:60;}
+.phone-sb{display:flex;justify-content:space-between;align-items:center;padding:46px 22px 0;flex-shrink:0;z-index:10;position:relative;}
+.phone-sb .sb-time{font-family:var(--font-instrument);font-size:12px;font-weight:600;letter-spacing:-0.02em;color:var(--content-primary);}
+.phone-sb .sb-icons{display:flex;gap:5px;align-items:center;color:var(--content-primary);}
+.phone-sb .sb-icons svg{display:block;}
+.phone-hi{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:3px;z-index:60;background:rgba(0,0,0,0.38);}
+.mode-dark .phone-hi{background:rgba(255,255,255,0.30);}
+.phone-content{flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column;}
+
+/* ═══════════ PAPER MAP ═══════════ */
+.pmap{position:absolute;inset:0;background:var(--map-paper);overflow:hidden;z-index:0;}
+.pmap::before{content:"";position:absolute;inset:-8px;background-image:linear-gradient(var(--map-contour-faint) 1px,transparent 1px),linear-gradient(90deg,var(--map-contour-faint) 1px,transparent 1px);background-size:28px 28px;opacity:0.55;pointer-events:none;}
+.pmap::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(34,24,16,0.08) 100%);pointer-events:none;}
+.mode-dark .pmap::after{background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(0,0,0,0.40) 100%);}
+.pmap-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+
+/* ═══════════ CHROME ═══════════ */
+.ls-topbar{position:absolute;top:46px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:14px 14px 0;z-index:30;}
+.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
+.mode-dark .chrome-chip{border-color:rgba(242,238,232,0.12);}
+.chrome-chip.circular{width:40px;height:40px;border-radius:50%;}
+.chrome-chip.pill{padding:0 14px;height:40px;border-radius:22px;display:flex;align-items:center;gap:6px;}
+
+/* ═══════════ CHAT INPUT (thinking) ═══════════ */
+.ls-chatinput-anchor{position:absolute;bottom:16px;left:12px;right:12px;z-index:40;}
+.ls-chatinput{height:54px;background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);backdrop-filter:blur(14px) saturate(1.2);border-radius:18px;display:flex;align-items:center;padding:0 6px 0 14px;gap:10px;box-shadow:var(--elev-chrome);}
+.mode-dark .ls-chatinput{border-color:rgba(242,238,232,0.12);}
+.chat-icon-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--content-secondary);flex-shrink:0;}
+.chat-field{flex:1;font-family:var(--font-ui);font-size:13px;font-weight:500;color:var(--content-primary);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;line-height:1.4;}
+.chat-field .prompt-text{display:block;}
+.chat-spinner{width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;}
+.chat-spinner::before,.chat-spinner::after{content:"";position:absolute;border-radius:50%;border:2px solid var(--signal-default);}
+.chat-spinner::before{width:26px;height:26px;border-color:var(--signal-tint);border-top-color:var(--signal-default);animation:spin 0.9s linear infinite;}
+.chat-spinner::after{width:6px;height:6px;border:none;background:var(--signal-default);animation:pulse-dot 1.6s ease-in-out infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes pulse-dot{0%,100%{opacity:0.5;transform:scale(0.9);}50%{opacity:1;transform:scale(1.15);}}
+
+/* ═══════════ PHASE INDICATOR (top overlay) ═══════════ */
+.phase-card{position:absolute;top:108px;left:16px;right:16px;z-index:20;background:var(--surface-glass);border:1px solid var(--signal-tint);border-top:2px solid var(--signal-default);backdrop-filter:blur(16px) saturate(1.2);border-radius:14px;padding:14px 16px;box-shadow:var(--elev-overlay);}
+.phase-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.compass-chip{width:26px;height:26px;border-radius:50%;background:var(--signal-whisper);border:1px solid var(--signal-tint);display:flex;align-items:center;justify-content:center;color:var(--signal-default);flex-shrink:0;}
+.phase-head .label{font-family:var(--font-ui);font-size:8.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--signal-default);}
+.phase-head .title{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:16px;line-height:1.3;color:var(--content-primary);flex:1;}
+.phase-steps{display:flex;flex-direction:column;gap:11px;}
+.phase-step{display:flex;align-items:center;gap:10px;}
+.phase-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;position:relative;}
+.phase-dot.done{background:var(--signal-default);border:1px solid var(--signal-default);}
+.phase-dot.done::after{content:"";position:absolute;inset:2.5px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 12 10 18 20 6'/%3E%3C/svg%3E") center/contain no-repeat;}
+.phase-dot.active{background:var(--signal-default);box-shadow:0 0 0 3px var(--signal-tint),0 0 0 6px rgba(238,124,43,0);animation:phaseRing 0.9s ease-in-out infinite;}
+.phase-dot.pending{background:var(--surface-card);border:1.5px solid var(--border-strong);}
+@keyframes phaseRing{0%,100%{box-shadow:0 0 0 3px var(--signal-tint),0 0 0 3px rgba(238,124,43,0.2);}50%{box-shadow:0 0 0 5px rgba(238,124,43,0.12),0 0 0 10px rgba(238,124,43,0);}}
+.phase-label{font-family:var(--font-instrument);font-size:11px;line-height:1.3;}
+.phase-step.done .phase-label{color:var(--content-tertiary);text-decoration:line-through;text-decoration-color:var(--border-strong);}
+.phase-step.active .phase-label{color:var(--content-primary);font-weight:600;}
+.phase-step.pending .phase-label{color:var(--content-subtle);}
+
+/* ═══════════ SKETCHING POLYLINE (map overlay) ═══════════ */
+.sketch-overlay{position:absolute;inset:0;pointer-events:none;z-index:3;}
+.sketch-overlay path{fill:none;stroke:var(--signal-default);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:5 8;animation:sketchLoop 2s linear infinite;opacity:0.85;}
+@keyframes sketchLoop{to{stroke-dashoffset:-52;}}
+.sketch-head{position:absolute;width:9px;height:9px;background:var(--signal-default);border-radius:50%;box-shadow:0 0 0 3px rgba(238,124,43,0.25),0 0 10px rgba(238,124,43,0.4);animation:headBreathe 1.4s ease-in-out infinite;z-index:4;}
+@keyframes headBreathe{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.25);opacity:0.75;}}
+
+/* ═══════════ §04–§06 ═══════════ */
+.cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-left:152px;}
+.cmp-card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;}
+.cmp-tier-label{font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;color:var(--signal-default);text-transform:uppercase;margin-bottom:14px;display:block;}
+.cmp-item{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.cmp-item:last-child{border-bottom:none;}
+.cmp-name{font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);margin-bottom:4px;}
+.cmp-ref{font-family:var(--font-instrument);font-size:10px;color:var(--content-tertiary);line-height:1.4;}
+.motion-table{padding-left:152px;display:grid;grid-template-columns:160px 1fr 2fr;row-gap:14px;column-gap:28px;font-family:var(--font-ui);font-size:13px;}
+.motion-table>div{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.motion-recipe{font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px;}
+.motion-trigger{color:var(--content-primary);font-weight:500;}
+.motion-effect{color:var(--content-secondary);}
+.rationale-grid{padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+.rationale-block h4{font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px;}
+.rationale-block p{font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px;}
+.rationale-block ul{list-style:none;}
+.rationale-block li{padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle);}
+.rationale-block li::before{content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument);}
+.rationale-block li strong{font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px;}
+
+.doc-footer{padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;}
+.footer-mark{font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em;}
+.footer-mark em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.footer-mark span{display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300;}
+.footer-note{font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-SCR-02</span><span class="doc-eyebrow-pill">● Screens · Template</span></div>
+    <h1 class="doc-title">Let me <em>think</em><br>on that.</h1>
+    <p class="doc-tagline">
+      The Navigator is planning. A copper polyline sketches itself across the
+      paper, the phase indicator walks through five steps, and the rider's
+      prompt sits locked in the input bar with a spinner where the send
+      button used to be.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-SCR-02</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">08-uc-scr.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light (+ dark)</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Transparency is <em>non-negotiable</em> when a machine is choosing.</h2>
+    </div>
+    <p class="prose">
+      PlanningScreen is the inside of the Navigator's head. The rider has
+      asked for a ride; the system is now <em>scouting, drawing, weather-checking,
+      scoring, and scenic-ranking</em>. None of that happens behind a blank
+      spinner. The phase indicator — compass chip, italic headline, five
+      steps with a pulsing active ring — is a promise to the rider that the
+      thinking is legible.
+    </p>
+    <p class="prose">
+      The sketching polyline is the map doing the same job. Instead of a
+      static "loading" overlay, the paper shows the Navigator's pen moving —
+      a dashed copper stroke with a breathing leading dot, looping until the
+      result arrives. The rider knows roughly where the answer will land
+      before it lands.
+    </p>
+    <p class="prose">
+      The chat input is <strong>deliberately inert</strong>. Typing is disabled;
+      the send button is replaced by a spinner; the rider's prompt stays
+      visible so they can remember what they asked for. The only way out is
+      back, which pops the planning stack and returns to Idle.
+    </p>
+  </section>
+</div>
+
+<!-- §02 SCREENS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · Screens</div>
+      <h2 class="section-title">Five steps the Navigator <em>walks through</em>.</h2>
+    </div>
+
+    <div class="screens-grid">
+
+      <!-- S01 · SCOUTING (step 1 active) -->
+      <div class="screen-cell" id="uc-scr-02-s01-scouting">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 200 C 60 170, 120 240, 180 200 S 260 220, 320 180"/><path d="M -20 270 C 50 240, 120 310, 180 270 S 260 300, 320 260"/><path d="M -20 360 C 50 340, 110 390, 180 360 S 260 390, 320 350"/><path d="M -20 460 C 60 430, 120 490, 180 460 S 260 480, 320 430"/></g><g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none"><path d="M -20 170 C 60 160, 130 215, 180 170 S 260 195, 320 160"/><path d="M -20 310 C 60 290, 130 350, 180 310 S 260 335, 320 295"/><path d="M -20 410 C 60 390, 130 440, 180 410 S 260 430, 320 390"/></g><path d="M 230 -10 C 200 60, 240 140, 220 230 S 210 370, 250 470" stroke="rgba(74,134,190,0.35)" stroke-width="0.8" fill="none"/></svg>
+              <!-- start pin -->
+              <div style="position:absolute;left:22%;top:47%;width:11px;height:11px;border-radius:50%;background:var(--signal-default);border:2.5px solid var(--surface-card);box-shadow:0 2px 6px rgba(238,124,43,0.5);"></div>
+            </div>
+            <!-- Sketching polyline (scouting — just a stub growing) -->
+            <svg class="sketch-overlay" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><path d="M 60 310 C 85 300, 100 320, 115 330"/></svg>
+            <div class="sketch-head" style="left:42%;top:55%;"></div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <!-- Phase card -->
+            <div class="phase-card">
+              <div class="phase-head">
+                <div class="compass-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div>
+                  <div class="label">The Navigator</div>
+                  <div class="title">Let me think on that…</div>
+                </div>
+              </div>
+              <div class="phase-steps">
+                <div class="phase-step active"><span class="phase-dot active"></span><span class="phase-label">Scouting the region</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Drawing candidate routes</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Checking weather along paths</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Scoring scenic + twisty + time</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Picking the best three</span></div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field"><span class="prompt-text">Scenic 2-hour ride to Santa Cruz, avoid highways</span></div>
+                <div class="chat-spinner"></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:42</div><div class="sb-icons"><svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S01 · Scouting</div>
+          <div class="screen-name">Phase 1 · region scan</div>
+          <div class="screen-desc">
+            The moment after "send". A small stub has appeared on the map near the start pin; the sketching stroke pulses outward as the Navigator surveys candidate regions. Step 1 ring pulses; 2–5 wait.
+          </div>
+          <div class="ac-cite">LSPhaseIndicator shows 5 labeled steps, one active with pulsing ring.</div>
+          <div class="ac-cite">Chat input non-interactive, spinner in trailing slot.</div>
+        </div>
+      </div>
+
+      <!-- S02 · DRAWING ROUTES (step 2 active) -->
+      <div class="screen-cell" id="uc-scr-02-s02-drawing">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 200 C 60 170, 120 240, 180 200 S 260 220, 320 180"/><path d="M -20 270 C 50 240, 120 310, 180 270 S 260 300, 320 260"/><path d="M -20 360 C 50 340, 110 390, 180 360 S 260 390, 320 350"/><path d="M -20 460 C 60 430, 120 490, 180 460 S 260 480, 320 430"/></g><g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none"><path d="M -20 170 C 60 160, 130 215, 180 170 S 260 195, 320 160"/><path d="M -20 310 C 60 290, 130 350, 180 310 S 260 335, 320 295"/></g><path d="M 230 -10 C 200 60, 240 140, 220 230 S 210 370, 250 470" stroke="rgba(74,134,190,0.35)" stroke-width="0.8" fill="none"/></svg>
+              <div style="position:absolute;left:22%;top:47%;width:11px;height:11px;border-radius:50%;background:var(--signal-default);border:2.5px solid var(--surface-card);box-shadow:0 2px 6px rgba(238,124,43,0.5);"></div>
+            </div>
+
+            <!-- sketching polyline extended further -->
+            <svg class="sketch-overlay" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><path d="M 60 310 C 80 290, 105 320, 130 330 S 175 340, 200 320 S 230 295, 245 280"/></svg>
+            <div class="sketch-head" style="left:86%;top:48%;"></div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <div class="phase-card">
+              <div class="phase-head">
+                <div class="compass-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div>
+                  <div class="label">The Navigator</div>
+                  <div class="title">Three loops are forming…</div>
+                </div>
+              </div>
+              <div class="phase-steps">
+                <div class="phase-step done"><span class="phase-dot done"></span><span class="phase-label">Scouting the region</span></div>
+                <div class="phase-step active"><span class="phase-dot active"></span><span class="phase-label">Drawing candidate routes</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Checking weather along paths</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Scoring scenic + twisty + time</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Picking the best three</span></div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field"><span class="prompt-text">Scenic 2-hour ride to Santa Cruz, avoid highways</span></div>
+                <div class="chat-spinner"></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:42</div><div class="sb-icons"><svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S02 · Drawing</div>
+          <div class="screen-name">Phase 2 · candidate routes</div>
+          <div class="screen-desc">
+            Sketching stroke has extended across the paper; the phase title shifts from "Let me think on that…" to context-aware copy ("Three loops are forming…"). Step 1 marked done (copper check); step 2 pulses.
+          </div>
+          <div class="ac-cite">argTypes story control changes active phase; prior steps marked done.</div>
+        </div>
+      </div>
+
+      <!-- S03 · WEATHER CHECK (step 3 active) -->
+      <div class="screen-cell" id="uc-scr-02-s03-weather">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 200 C 60 170, 120 240, 180 200 S 260 220, 320 180"/><path d="M -20 270 C 50 240, 120 310, 180 270 S 260 300, 320 260"/><path d="M -20 360 C 50 340, 110 390, 180 360 S 260 390, 320 350"/><path d="M -20 460 C 60 430, 120 490, 180 460 S 260 480, 320 430"/></g><path d="M 230 -10 C 200 60, 240 140, 220 230 S 210 370, 250 470" stroke="rgba(74,134,190,0.35)" stroke-width="0.8" fill="none"/></svg>
+              <div style="position:absolute;left:22%;top:47%;width:11px;height:11px;border-radius:50%;background:var(--signal-default);border:2.5px solid var(--surface-card);box-shadow:0 2px 6px rgba(238,124,43,0.5);"></div>
+              <!-- weather icon sparkles along route -->
+              <div style="position:absolute;left:44%;top:42%;width:24px;height:24px;background:var(--wx-clear-tint);border:1px solid var(--wx-clear);border-radius:50%;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--wx-clear)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4" fill="var(--wx-clear)"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg></div>
+              <div style="position:absolute;left:70%;top:36%;width:22px;height:22px;background:var(--wx-wind-tint);border:1px solid var(--wx-wind);border-radius:50%;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--wx-wind)" stroke-width="1.8" stroke-linecap="round"><path d="M4 9h11a3 3 0 100-6M4 15h15a3 3 0 110 6"/></svg></div>
+            </div>
+
+            <svg class="sketch-overlay" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice" style="opacity:0.55;"><path d="M 60 310 C 80 290, 105 320, 130 330 S 175 340, 200 320 S 230 295, 245 280"/></svg>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <div class="phase-card">
+              <div class="phase-head">
+                <div class="compass-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div>
+                  <div class="label">The Navigator</div>
+                  <div class="title">Sun on one leg, wind on another…</div>
+                </div>
+              </div>
+              <div class="phase-steps">
+                <div class="phase-step done"><span class="phase-dot done"></span><span class="phase-label">Scouting the region</span></div>
+                <div class="phase-step done"><span class="phase-dot done"></span><span class="phase-label">Drawing candidate routes</span></div>
+                <div class="phase-step active"><span class="phase-dot active"></span><span class="phase-label">Checking weather along paths</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Scoring scenic + twisty + time</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Picking the best three</span></div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field"><span class="prompt-text">Scenic 2-hour ride to Santa Cruz, avoid highways</span></div>
+                <div class="chat-spinner"></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:42</div><div class="sb-icons"><svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S03 · Weather</div>
+          <div class="screen-name">Phase 3 · sun &amp; wind check</div>
+          <div class="screen-desc">
+            Weather condition icons (clear + wind) float over the draft stroke to indicate per-leg checks. The sketch dims to ~55% so weather reads clearly. Steps 1-2 done, 3 active, 4-5 pending.
+          </div>
+        </div>
+      </div>
+
+      <!-- S04 · SCORING (step 4 active) — DARK MODE -->
+      <div class="screen-cell" id="uc-scr-02-s04-scoring-dark">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 200 C 60 170, 120 240, 180 200 S 260 220, 320 180"/><path d="M -20 270 C 50 240, 120 310, 180 270 S 260 300, 320 260"/><path d="M -20 360 C 50 340, 110 390, 180 360 S 260 390, 320 350"/><path d="M -20 460 C 60 430, 120 490, 180 460 S 260 480, 320 430"/></g><path d="M 230 -10 C 200 60, 240 140, 220 230 S 210 370, 250 470" stroke="rgba(74,134,190,0.40)" stroke-width="0.8" fill="none"/></svg>
+              <div style="position:absolute;left:22%;top:47%;width:11px;height:11px;border-radius:50%;background:var(--signal-default);border:2.5px solid var(--surface-card);box-shadow:0 2px 6px rgba(238,124,43,0.5);"></div>
+              <!-- candidate polylines being scored -->
+              <svg style="position:absolute;inset:0;width:100%;height:100%;" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke-linecap="round"><path d="M 60 300 C 100 280, 140 320, 200 280 S 245 260, 260 250" stroke="var(--route-best)" stroke-width="2.5" opacity="0.9"/><path d="M 60 300 C 90 330, 140 350, 180 340 S 230 310, 255 310" stroke="var(--route-alt1)" stroke-width="2" opacity="0.55"/><path d="M 60 300 C 95 340, 160 410, 210 390 S 255 360, 265 340" stroke="var(--route-alt2)" stroke-width="2" opacity="0.45"/></g></svg>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <div class="phase-card">
+              <div class="phase-head">
+                <div class="compass-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div>
+                  <div class="label">The Navigator</div>
+                  <div class="title">Ranking by scenic + twist…</div>
+                </div>
+              </div>
+              <div class="phase-steps">
+                <div class="phase-step done"><span class="phase-dot done"></span><span class="phase-label">Scouting the region</span></div>
+                <div class="phase-step done"><span class="phase-dot done"></span><span class="phase-label">Drawing candidate routes</span></div>
+                <div class="phase-step done"><span class="phase-dot done"></span><span class="phase-label">Checking weather along paths</span></div>
+                <div class="phase-step active"><span class="phase-dot active"></span><span class="phase-label">Scoring scenic + twisty + time</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Picking the best three</span></div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field"><span class="prompt-text">Scenic 2-hour ride to Santa Cruz, avoid highways</span></div>
+                <div class="chat-spinner"></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">7:14 PM</div><div class="sb-icons"><svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S04 · Scoring · Dark</div>
+          <div class="screen-name">Phase 4 · three candidates ranked</div>
+          <div class="screen-desc">
+            Dark mode. Three candidate polylines now visible: best (copper, opacity 0.9), alt1 (sage), alt2 (slate). Opacity reflects current ranking confidence. The phase title becomes the thinking-state voice.
+          </div>
+          <div class="ac-cite">Light/dark token re-resolution. All surfaces re-render.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES & VARIANTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States &amp; Variants</div>
+      <h2 class="section-title">When thinking <em>takes too long</em>.</h2>
+    </div>
+    <div class="screens-grid cols-3">
+
+      <!-- V01 · SLOW PLANNING (&gt;4s — apology copy) -->
+      <div class="screen-cell" id="uc-scr-02-v01-slow">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 270 C 50 240, 120 310, 180 270 S 260 300, 320 260"/><path d="M -20 460 C 60 430, 120 490, 180 460 S 260 480, 320 430"/></g></svg>
+              <div style="position:absolute;left:22%;top:47%;width:11px;height:11px;border-radius:50%;background:var(--signal-default);border:2.5px solid var(--surface-card);"></div>
+            </div>
+            <svg class="sketch-overlay" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><path d="M 60 310 C 80 290, 105 320, 130 330 S 175 340, 200 320"/></svg>
+            <div class="sketch-head" style="left:72%;top:53%;"></div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+            <div class="phase-card">
+              <div class="phase-head">
+                <div class="compass-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div>
+                  <div class="label">The Navigator</div>
+                  <div class="title">This one's tricky — hang on…</div>
+                </div>
+              </div>
+              <div class="phase-steps">
+                <div class="phase-step done"><span class="phase-dot done"></span><span class="phase-label">Scouting the region</span></div>
+                <div class="phase-step active"><span class="phase-dot active"></span><span class="phase-label">Drawing candidate routes</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Checking weather along paths</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Scoring scenic + twisty + time</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Picking the best three</span></div>
+              </div>
+              <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border-default);font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:12.5px;color:var(--content-tertiary);line-height:1.5;">Complex geography — every candidate keeps touching the highway you asked me to avoid.</div>
+            </div>
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field"><span class="prompt-text">Scenic 2-hour ride, avoid Hwy 1 &amp; Hwy 17</span></div>
+                <div class="chat-spinner"></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:42</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V01 · Slow planning</div>
+          <div class="screen-name">&gt;4s apology copy</div>
+          <div class="screen-desc">
+            When the phase-stays-active timer crosses 4s, an inline explanation appears below the steps — not an error, just the Navigator being honest about why.
+          </div>
+        </div>
+      </div>
+
+      <!-- V02 · CANCELLED (tap back) -->
+      <div class="screen-cell" id="uc-scr-02-v02-cancelled">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 270 C 50 240, 120 310, 180 270 S 260 300, 320 260"/><path d="M -20 460 C 60 430, 120 490, 180 460 S 260 480, 320 430"/></g></svg>
+              <div style="position:absolute;left:22%;top:47%;width:11px;height:11px;border-radius:50%;background:var(--signal-default);border:2.5px solid var(--surface-card);"></div>
+            </div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+            <!-- dissolve state: phase card fading + confirm sheet rising -->
+            <div class="phase-card" style="opacity:0.35;">
+              <div class="phase-head">
+                <div class="compass-chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div>
+                  <div class="label">The Navigator</div>
+                  <div class="title">Let me think on that…</div>
+                </div>
+              </div>
+              <div class="phase-steps">
+                <div class="phase-step active"><span class="phase-dot active"></span><span class="phase-label">Drawing candidate routes</span></div>
+                <div class="phase-step pending"><span class="phase-dot pending"></span><span class="phase-label">Checking weather</span></div>
+              </div>
+            </div>
+            <div style="position:absolute;inset:0;background:var(--surface-scrim);z-index:35;"></div>
+            <div style="position:absolute;bottom:80px;left:16px;right:16px;background:var(--surface-card);border-radius:14px;padding:18px 18px;box-shadow:var(--elev-overlay);z-index:45;">
+              <div style="font-family:var(--font-opinion);font-size:18px;line-height:1.25;letter-spacing:-0.015em;margin-bottom:6px;">Cancel this plan?</div>
+              <div style="font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:13px;color:var(--content-secondary);line-height:1.5;margin-bottom:16px;">I've drawn one route already. You can back out now — but I'll toss what I have.</div>
+              <div style="display:flex;gap:8px;">
+                <div style="flex:1;padding:11px;border:1px solid var(--border-default);border-radius:10px;text-align:center;font-family:var(--font-ui);font-weight:500;font-size:11px;color:var(--content-secondary);">Keep thinking</div>
+                <div style="flex:1;padding:11px;background:var(--surface-inset);color:var(--content-primary);border-radius:10px;text-align:center;font-family:var(--font-ui);font-weight:600;font-size:11px;">Cancel plan</div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:42</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V02 · Cancel prompt</div>
+          <div class="screen-name">System-back during thinking</div>
+          <div class="screen-desc">
+            System-back gesture during planning triggers a confirm sheet. Phase card dims to 35%. "Keep thinking" resumes the stack; "Cancel plan" drops to Idle.
+          </div>
+        </div>
+      </div>
+
+      <!-- V03 · SINGLE-CANDIDATE (only one route found) -->
+      <div class="screen-cell" id="uc-scr-02-v03-single">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour)" stroke-width="0.9" fill="none"><path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/><path d="M -20 270 C 50 240, 120 310, 180 270 S 260 300, 320 260"/></g></svg>
+              <div style="position:absolute;left:22%;top:47%;width:11px;height:11px;border-radius:50%;background:var(--signal-default);border:2.5px solid var(--surface-card);"></div>
+            </div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+            <div class="phase-card">
+              <div class="phase-head">
+                <div class="compass-chip" style="background:rgba(196,111,27,0.12);border-color:var(--status-warning);color:var(--status-warning);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/></svg></div>
+                <div>
+                  <div class="label" style="color:var(--status-warning);">The Navigator</div>
+                  <div class="title">Only one road works for this ask.</div>
+                </div>
+              </div>
+              <div class="phase-steps">
+                <div class="phase-step done"><span class="phase-dot done"></span><span class="phase-label">Scouting the region</span></div>
+                <div class="phase-step done"><span class="phase-dot done"></span><span class="phase-label">Drawing candidate routes</span></div>
+                <div class="phase-step done"><span class="phase-dot done"></span><span class="phase-label">Checking weather along paths</span></div>
+                <div class="phase-step done"><span class="phase-dot done"></span><span class="phase-label">Scoring scenic + twisty + time</span></div>
+                <div class="phase-step active"><span class="phase-dot active"></span><span class="phase-label">Only 1 candidate — narrowing…</span></div>
+              </div>
+              <div style="margin-top:12px;padding:10px 12px;background:rgba(196,111,27,0.10);border:1px solid rgba(196,111,27,0.25);border-radius:8px;font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:12.5px;color:var(--content-primary);line-height:1.5;">The constraints leave only one viable loop. I'll show you what I found — feel free to relax an ask.</div>
+            </div>
+            <div class="ls-chatinput-anchor">
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field"><span class="prompt-text">Under 20 min, twisty, avoid all highways…</span></div>
+                <div class="chat-spinner"></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:42</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V03 · Single candidate</div>
+          <div class="screen-name">Over-constrained ask</div>
+          <div class="screen-desc">
+            When constraints leave &lt;3 candidates, the phase card shifts its accent to warning-copper, surfaces a tinted advisory block, and hints at relaxing an ask. Transitions to RouteResults with fewer than 3 attachments.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §04 COMPONENTS USED -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Components</div>
+      <h2 class="section-title">Composed from <em>atoms</em>, molecules, organisms.</h2>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Atoms · ATM</div>
+        <div class="cmp-item"><div class="cmp-name">LSMap</div><div class="cmp-ref">mode: .preview<br>+ sketching polyline overlay</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSSpinner</div><div class="cmp-ref">trailing slot in chat input<br>0.9s rotation</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSPhaseDot</div><div class="cmp-ref">UC-ATM · state:{done,active,pending}</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSGlassPanel</div><div class="cmp-ref">.callout(accent:.signal) phase card</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon</div><div class="cmp-ref">compass · menu · plus · mic · sun · wind</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Molecules · MOL</div>
+        <div class="cmp-item"><div class="cmp-name">LSPhaseIndicator</div><div class="cmp-ref">UC-MOL-07 · compass + header<br>+ 5 step list</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSChatInput</div><div class="cmp-ref">UC-MOL-06 · isThinking:true<br>spinner trailing</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSBottomSheet</div><div class="cmp-ref">UC-MOL-03 · cancel-plan confirm</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Organisms · ORG</div>
+        <div class="cmp-item"><div class="cmp-name">LSMapLayer</div><div class="cmp-ref">UC-ORG-02<br>topOverlays: [phaseIndicator]<br>bottomOverlays: [chatInput(thinking)]</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSTopBar</div><div class="cmp-ref">UC-ORG-01 · hamburger + NEW</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Tokens consumed</div>
+        <div class="cmp-item"><div class="cmp-name">color.signal.*</div><div class="cmp-ref">default · tint · whisper (phase ring)</div></div>
+        <div class="cmp-item"><div class="cmp-name">color.weather.*</div><div class="cmp-ref">clear.tint · wind.tint badges</div></div>
+        <div class="cmp-item"><div class="cmp-name">color.route.*</div><div class="cmp-ref">best/alt1/alt2 (S04 preview)</div></div>
+        <div class="cmp-item"><div class="cmp-name">motion.recipe.*</div><div class="cmp-ref">sketchPolylineLoop · phaseDotPulse</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.*</div><div class="cmp-ref">opinion.md · instrument.sm · label.sm</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Two recipes, <em>running concurrently</em>.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="motion-recipe">sketchPolylineLoop</div>
+      <div class="motion-trigger">Screen mount (Phase 1+)</div>
+      <div class="motion-effect">Map stroke, 2000ms linear loop. dashOffset animates negatively; a 2px leading dot breathes at 1.4s ease-in-out.</div>
+
+      <div class="motion-recipe">phaseDotPulse</div>
+      <div class="motion-trigger">Active phase dot</div>
+      <div class="motion-effect">900ms ease-in-out loop; ring scale 0→1.5×, opacity 0.4→0. Done dots show check; pending dots are inert.</div>
+
+      <div class="motion-recipe">chatOverlayEnter</div>
+      <div class="motion-trigger">Screen mount</div>
+      <div class="motion-effect">LSChatInput slides up from below in 300ms with thinking payload already mounted.</div>
+
+      <div class="motion-recipe">routeDrawOn</div>
+      <div class="motion-trigger">Phase 4 transition (preview)</div>
+      <div class="motion-effect">Candidate polylines begin drawing in preview; full recipe fires on UC-SCR-03 arrival.</div>
+
+      <div class="motion-recipe">—</div>
+      <div class="motion-trigger">System-back during thinking</div>
+      <div class="motion-effect">Scrim fades in 150ms; cancel sheet rises 250ms ease-out; phase card dims to 35%.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Why these <em>five steps</em>, not one.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design principles honored</h4>
+        <p>
+          Blank spinners <em>lie</em>. A route isn't arriving in 200ms; it's
+          being composed over 3–8 seconds of genuine reasoning. If the rider
+          has to wait, they deserve to know roughly where in the pipeline
+          their request is. The five steps aren't decorative — they map 1:1
+          to the Navigator's LangGraph node execution.
+        </p>
+        <p>
+          The sketching polyline is the <em>soul</em> of this screen. It
+          converts a technical progress signal into a legible, paper-map
+          metaphor. By the time the rider sees the final routes, their eye
+          already knows the shape of the answer.
+        </p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC traceability</h4>
+        <ul>
+          <li><strong>AC-01</strong> 5-step LSPhaseIndicator, one active w/ pulsing ring — S01–S04.</li>
+          <li><strong>AC-02</strong> iOS + Android identical.</li>
+          <li><strong>AC-03</strong> argTypes switches active phase — S01 through S04 demonstrate progression.</li>
+          <li><strong>AC-04</strong> Sketch references motion.recipe.sketchPolylineLoop by name.</li>
+          <li><strong>AC-05</strong> Chat input non-interactive; spinner replaces send.</li>
+          <li><strong>AC-06</strong> Light/dark re-renders — S04 dark variant.</li>
+          <li><strong>AC-07</strong> PlanningMockProvider injects prompt + phases.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>V2 · Copper · UC-SCR-02</span></div>
+    <div class="footer-note">
+      Every thinking second the Navigator doesn't narrate<br>
+      is a second the rider <em>decides</em> the machine isn't listening.
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

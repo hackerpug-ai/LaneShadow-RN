@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<!-- uc-scr-01-idle.html — UC-SCR-01 "IdleScreen"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Surface: LIGHT (dormant map + dark-mode variant in §03)
+     Authority: .spec/prds/v2/concepts/designs.html  ·  08-uc-scr.md §UC-SCR-01 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-SCR-01 — IdleScreen — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   COPPER TOKEN SYSTEM — shared across all UC-SCR mocks.
+   Source of truth: concepts/designs.html (Copper theme), 04-uc-tok.md.
+   Raw palette (:root) — semantic tokens (light default, .dark override).
+   ═══════════════════════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── RAW: WARM-PAPER NEUTRALS (day) ─────────────────────────────────── */
+  --paper-50:  #FDFBF8;   /* crispest paper, card fill                     */
+  --paper-100: #F8F7F6;   /* primary page bg                               */
+  --paper-150: #F5F2EE;   /* map paper base                                */
+  --paper-200: #F2EFED;   /* surface card / secondary                       */
+  --paper-300: #EDE7E1;   /* inset surface                                 */
+  --paper-400: #E5DED9;   /* border default                                */
+  --paper-500: #C9BDB3;   /* border strong, topo contour lines              */
+
+  /* ── RAW: WARM-INK NEUTRALS (night + text) ─────────────────────────── */
+  --ink-900:   #1E1A16;   /* primary ink, darkest text                     */
+  --ink-800:   #221810;   /* dark mode primary surface                     */
+  --ink-700:   #2D2218;   /* dark mode card                                */
+  --ink-600:   #362A1F;   /* dark mode elevated                            */
+  --ink-500:   #3D3228;   /* dark mode overlay                             */
+  --ink-400:   #49454F;   /* body muted, secondary text                     */
+  --ink-300:   #6B6460;   /* tertiary text, subdued label                   */
+  --ink-200:   #9CA3AF;   /* subtle, hint                                  */
+  --ink-100:   #CAC4D0;   /* dark-mode secondary text                      */
+  --ink-050:   #F2EEE8;   /* dark-mode primary text                        */
+
+  /* ── RAW: COPPER SIGNAL (accent pair) ──────────────────────────────── */
+  --copper-700: #9E4A22;   /* pressed                                       */
+  --copper-600: #B85A2C;   /* strong accent                                 */
+  --copper-500: #EE7C2B;   /* signal default                                */
+  --copper-400: #F3A164;   /* soft copper                                   */
+  --copper-200: #F9D5B5;   /* copper tint 22%                                */
+  --copper-100: #FCE8D4;   /* copper whisper                                */
+
+  /* ── RAW: ROUTE-VARIANT STROKES (polyline colors) ──────────────────── */
+  --route-best: #EE7C2B;   /* amber copper                                  */
+  --route-alt1: #4D8470;   /* sage-green                                    */
+  --route-alt2: #6B7B8F;   /* slate                                         */
+
+  /* ── RAW: WEATHER PALETTE (default / tint / on) ────────────────────── */
+  --wx-clear:       #E6A52A;
+  --wx-clear-tint:  #FBEFCF;
+  --wx-rain:        #4A86BE;
+  --wx-rain-tint:   #DBEAF4;
+  --wx-wind:        #6B7B8F;
+  --wx-wind-tint:   #E1E6EC;
+  --wx-storm:       #5E3FAE;
+  --wx-storm-tint:  #E3DCF2;
+  --wx-hot:         #C9423C;
+  --wx-hot-tint:    #F5D8D6;
+  --wx-cold:        #3A8BE3;
+  --wx-cold-tint:   #D6E5F7;
+
+  /* ── STATUS ───────────────────────────────────────────────────────── */
+  --status-warning: #C46F1B;
+
+  /* ── FONTS ────────────────────────────────────────────────────────── */
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SEMANTIC TOKENS — light mode defaults
+   Components consume these, never raw palette.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  --surface-primary:   var(--paper-100);
+  --surface-card:      var(--paper-50);
+  --surface-inset:     var(--paper-200);
+  --surface-overlay:   rgba(253,251,248,0.92);
+  --surface-glass:     rgba(253,251,248,0.72);
+  --surface-scrim:     rgba(34,24,16,0.35);
+  --map-paper:         var(--paper-150);
+  --map-contour:       rgba(73,69,79,0.22);
+  --map-contour-faint: rgba(73,69,79,0.10);
+
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --content-onSignal:  #FFFFFF;
+
+  --signal-default:    var(--copper-500);
+  --signal-pressed:    var(--copper-700);
+  --signal-tint:       var(--copper-200);
+  --signal-whisper:    var(--copper-100);
+
+  --border-default:    var(--paper-400);
+  --border-subtle:     var(--paper-300);
+  --border-strong:     var(--paper-500);
+  --border-focus:      var(--copper-500);
+
+  --action-primary:    var(--copper-500);
+  --action-outline:    transparent;
+  --action-ghost:      var(--paper-200);
+
+  --elev-overlay:      0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06);
+  --elev-card:         0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:       0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06);
+}
+
+/* Light theme body default */
+body { background: var(--surface-primary); color: var(--content-primary); }
+
+/* Per-frame dark-mode override — set .mode-dark on .phone-screen. */
+.mode-dark {
+  --surface-primary:   var(--ink-800);
+  --surface-card:      var(--ink-700);
+  --surface-inset:     var(--ink-600);
+  --surface-overlay:   rgba(45,34,24,0.92);
+  --surface-glass:     rgba(45,34,24,0.72);
+  --surface-scrim:     rgba(10,6,3,0.50);
+  --map-paper:         #1B140E;
+  --map-contour:       rgba(242,238,232,0.16);
+  --map-contour-faint: rgba(242,238,232,0.07);
+
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+
+  --border-default:    rgba(242,238,232,0.12);
+  --border-subtle:     rgba(242,238,232,0.07);
+  --border-strong:     rgba(242,238,232,0.22);
+
+  --action-ghost:      rgba(242,238,232,0.08);
+
+  --elev-overlay:      0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28);
+  --elev-card:         0 2px 6px rgba(0,0,0,0.24);
+  --elev-chrome:       0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TYPOGRAPHY ROLES — opinion / ui / instrument family scale.
+   Maps to typography.opinion.*, typography.ui.*, typography.instrument.*
+   declared in 04-uc-tok.md.
+   ═══════════════════════════════════════════════════════════════════════ */
+.t-opinion-xl  { font-family: var(--font-opinion); font-weight: 400; font-size: 30px; line-height: 1.12; letter-spacing: -0.015em; }
+.t-opinion-lg  { font-family: var(--font-opinion); font-weight: 400; font-size: 22px; line-height: 1.18; letter-spacing: -0.01em; }
+.t-opinion-md  { font-family: var(--font-opinion); font-weight: 400; font-size: 17px; line-height: 1.32; letter-spacing: 0; }
+.t-opinion-sm  { font-family: var(--font-opinion); font-weight: 400; font-size: 14px; line-height: 1.45; letter-spacing: 0; }
+
+.t-title-lg    { font-family: var(--font-ui); font-weight: 600; font-size: 17px; line-height: 1.24; letter-spacing: -0.01em; }
+.t-title-md    { font-family: var(--font-ui); font-weight: 600; font-size: 14px; line-height: 1.28; letter-spacing: -0.005em; }
+.t-title-sm    { font-family: var(--font-ui); font-weight: 600; font-size: 12px; line-height: 1.28; letter-spacing: 0; }
+.t-body-lg     { font-family: var(--font-ui); font-weight: 400; font-size: 14px; line-height: 1.48; }
+.t-body-md     { font-family: var(--font-ui); font-weight: 400; font-size: 12px; line-height: 1.52; }
+.t-body-sm     { font-family: var(--font-ui); font-weight: 400; font-size: 10.5px; line-height: 1.48; }
+.t-label-lg    { font-family: var(--font-ui); font-weight: 500; font-size: 11px; line-height: 1.0; letter-spacing: 0.08em; text-transform: uppercase; }
+.t-label-md    { font-family: var(--font-ui); font-weight: 600; font-size: 9.5px; line-height: 1.0; letter-spacing: 0.12em; text-transform: uppercase; }
+.t-label-sm    { font-family: var(--font-ui); font-weight: 600; font-size: 8.5px; line-height: 1.0; letter-spacing: 0.14em; text-transform: uppercase; }
+
+.t-instr-lg    { font-family: var(--font-instrument); font-weight: 500; font-size: 18px; line-height: 1.12; letter-spacing: -0.02em; font-feature-settings: "tnum" 1; }
+.t-instr-md    { font-family: var(--font-instrument); font-weight: 500; font-size: 13px; line-height: 1.2; letter-spacing: -0.01em; font-feature-settings: "tnum" 1; }
+.t-instr-sm    { font-family: var(--font-instrument); font-weight: 500; font-size: 10px; line-height: 1.2; letter-spacing: 0; font-feature-settings: "tnum" 1; }
+.t-instr-xs    { font-family: var(--font-instrument); font-weight: 500; font-size: 8.5px; line-height: 1.0; letter-spacing: 0; font-feature-settings: "tnum" 1; }
+
+em.opinion-ital { font-style: italic; font-weight: 400; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCUMENT CHROME — page-level scaffolding.
+   ═══════════════════════════════════════════════════════════════════════ */
+body {
+  font-family: var(--font-ui);
+  color: var(--content-primary);
+  background: var(--surface-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+
+.wrap { max-width: 1440px; margin: 0 auto; padding: 0 72px; }
+
+/* ── HEADER ────────────────────────────────────────────────────────── */
+.doc-header {
+  position: relative;
+  padding: 96px 0 72px;
+  border-bottom: 1px solid var(--border-default);
+  overflow: hidden;
+}
+.doc-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 8% 80%, rgba(238,124,43,0.08), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(184,90,44,0.05), transparent 50%);
+  pointer-events: none;
+}
+.doc-header > * { position: relative; z-index: 1; }
+
+.doc-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-ui);
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--signal-default);
+  margin-bottom: 28px;
+}
+.doc-eyebrow::before {
+  content: ""; width: 28px; height: 1px; background: var(--signal-default);
+}
+.doc-eyebrow-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--signal-default);
+  color: var(--signal-default);
+  background: var(--signal-whisper);
+  font-size: 9.5px; letter-spacing: 0.14em;
+}
+
+.doc-title {
+  font-family: var(--font-opinion);
+  font-size: 104px;
+  font-weight: 300;
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+  color: var(--content-primary);
+  margin-bottom: 32px;
+  max-width: 1000px;
+}
+.doc-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+
+.doc-tagline {
+  font-family: var(--font-opinion);
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--content-secondary);
+  max-width: 640px;
+  line-height: 1.55;
+  margin-bottom: 56px;
+}
+
+.doc-meta-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 24px;
+  padding-top: 36px;
+  border-top: 1px solid var(--border-default);
+}
+.meta-item { display: flex; flex-direction: column; gap: 6px; }
+.meta-label {
+  font-family: var(--font-ui);
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+.meta-value {
+  font-family: var(--font-instrument);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--content-primary);
+}
+
+/* ── SECTION ───────────────────────────────────────────────────────── */
+.section {
+  padding: 96px 0;
+  border-bottom: 1px solid var(--border-default);
+  position: relative;
+}
+.section:last-child { border-bottom: none; }
+
+.section-header {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: baseline;
+  gap: 32px;
+  margin-bottom: 56px;
+}
+.section-index {
+  font-family: var(--font-instrument);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: var(--signal-default);
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-index::before {
+  content: ""; display: block; width: 48px; height: 1px;
+  background: var(--signal-default);
+}
+.section-title {
+  font-family: var(--font-opinion);
+  font-size: 52px;
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+  color: var(--content-primary);
+  max-width: 900px;
+}
+.section-title em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+
+.prose {
+  font-family: var(--font-opinion);
+  font-weight: 300;
+  font-size: 19px;
+  line-height: 1.68;
+  color: var(--content-secondary);
+  max-width: 720px;
+  margin-left: 152px;
+}
+.prose + .prose { margin-top: 20px; }
+.prose em { font-style: italic; }
+.prose strong {
+  font-family: var(--font-ui);
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--signal-default);
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--signal-whisper);
+  border: 1px solid var(--signal-tint);
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+/* ── SCREENS GRID ──────────────────────────────────────────────────── */
+.screens-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 56px 40px;
+  align-items: start;
+  padding-left: 152px;
+}
+.screens-grid.cols-3 { grid-template-columns: repeat(3, 1fr); padding-left: 152px; }
+.screen-cell { display: flex; flex-direction: column; gap: 22px; }
+.screen-annotation { display: flex; flex-direction: column; gap: 8px; max-width: 280px; }
+.screen-num {
+  font-family: var(--font-instrument);
+  font-size: 10.5px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--signal-default);
+}
+.screen-name {
+  font-family: var(--font-opinion);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--content-primary);
+}
+.screen-desc {
+  font-family: var(--font-opinion);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--content-secondary);
+}
+.ac-cite {
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--content-tertiary);
+  padding-left: 18px;
+  position: relative;
+  margin-top: 4px;
+}
+.ac-cite::before {
+  content: "☐";
+  position: absolute; left: 0; top: 0;
+  color: var(--border-strong);
+}
+
+/* ══════════════ PHONE FRAME (shared across all mocks) ══════════════ */
+.phone-frame {
+  width: 100%;
+  max-width: 282px;
+  margin: 0 auto;
+  aspect-ratio: 9 / 19.5;
+  position: relative;
+  border-radius: 44px;
+  background: #0F0A07;
+  box-shadow:
+    inset 0 0 0 1px #2A1F16,
+    inset 0 0 0 2.5px #0F0A07,
+    0 30px 70px -16px rgba(34,24,16,0.38),
+    0 10px 24px -10px rgba(34,24,16,0.22);
+  overflow: hidden;
+}
+.phone-screen {
+  position: absolute;
+  inset: 3px;
+  border-radius: 41px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-primary);
+  color: var(--content-primary);
+  isolation: isolate;
+}
+.phone-di {
+  position: absolute;
+  top: 10px; left: 50%;
+  transform: translateX(-50%);
+  width: 96px; height: 26px;
+  background: #000;
+  border-radius: 14px;
+  z-index: 60;
+}
+.phone-sb {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 46px 22px 0;
+  flex-shrink: 0;
+  z-index: 10;
+  position: relative;
+}
+.phone-sb .sb-time {
+  font-family: var(--font-instrument);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--content-primary);
+}
+.phone-sb .sb-icons {
+  display: flex; gap: 5px; align-items: center;
+  color: var(--content-primary);
+}
+.phone-sb .sb-icons svg { display: block; }
+.phone-hi {
+  position: absolute; bottom: 7px; left: 50%;
+  transform: translateX(-50%);
+  width: 108px; height: 4px; border-radius: 3px;
+  z-index: 60;
+  background: rgba(0,0,0,0.38);
+}
+.mode-dark .phone-hi { background: rgba(255,255,255,0.30); }
+.phone-content {
+  flex: 1; position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+/* ══════════════ PAPER MAP BACKGROUND ══════════════ */
+/* The Copper map = warm paper with curved contour lines + a lat/lng grid
+   + a compass rose watermark. Drawn as SVG so it reads at every scale. */
+.pmap {
+  position: absolute; inset: 0;
+  background: var(--map-paper);
+  overflow: hidden;
+  z-index: 0;
+}
+.pmap::before {
+  content: "";
+  position: absolute;
+  inset: -8px -8px -8px -8px;
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.pmap::after {
+  /* warm vignette toward the bottom */
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(120% 60% at 50% 30%, transparent 40%, rgba(34,24,16,0.08) 100%);
+  pointer-events: none;
+}
+.mode-dark .pmap::after {
+  background: radial-gradient(120% 60% at 50% 30%, transparent 40%, rgba(0,0,0,0.40) 100%);
+}
+.pmap-svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+/* ══════════════ GLASS CHROME (LSGlassPanel) ══════════════ */
+.glass {
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.45);
+  box-shadow: var(--elev-chrome);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border-radius: 14px;
+}
+.mode-dark .glass { border-color: rgba(242,238,232,0.12); }
+
+.glass-callout {
+  background: var(--surface-glass);
+  border: 1px solid var(--signal-tint);
+  border-top: 2px solid var(--signal-default);
+  box-shadow: var(--elev-overlay);
+  border-radius: 14px;
+  backdrop-filter: blur(16px) saturate(1.2);
+}
+.glass-callout.accent-warn {
+  border-color: rgba(196,111,27,0.24);
+  border-top: 2px solid var(--status-warning);
+}
+
+/* ══════════════ TOP BAR (LSTopBar) ══════════════ */
+.ls-topbar {
+  position: absolute; top: 46px; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 14px 0;
+  z-index: 30;
+}
+.chrome-chip {
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  box-shadow: var(--elev-chrome);
+  backdrop-filter: blur(14px) saturate(1.2);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--content-primary);
+}
+.mode-dark .chrome-chip { border-color: rgba(242,238,232,0.12); }
+.chrome-chip.circular { width: 40px; height: 40px; border-radius: 50%; }
+.chrome-chip.pill {
+  padding: 0 14px; height: 40px; border-radius: 22px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* ══════════════ CHAT INPUT (LSChatInput bottom) ══════════════ */
+.ls-chatinput-anchor {
+  position: absolute; bottom: 16px; left: 12px; right: 12px;
+  z-index: 40;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.ls-location-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 4px;
+}
+.tag-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px;
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: var(--elev-chrome);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--content-secondary);
+  letter-spacing: 0.01em;
+}
+.mode-dark .tag-pill { border-color: rgba(242,238,232,0.12); }
+.tag-pill.mode-label {
+  color: var(--content-tertiary);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+}
+.tag-pill .pin-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--signal-default);
+}
+
+.ls-sugg-row {
+  display: flex; gap: 8px;
+  padding: 0 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ls-sugg-row::-webkit-scrollbar { display: none; }
+.sugg-chip {
+  flex-shrink: 0;
+  padding: 9px 14px;
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  backdrop-filter: blur(14px) saturate(1.2);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--content-primary);
+  box-shadow: var(--elev-chrome);
+  white-space: nowrap;
+}
+.mode-dark .sugg-chip { border-color: rgba(242,238,232,0.12); }
+.sugg-chip.primed {
+  background: var(--signal-whisper);
+  border-color: var(--signal-tint);
+  color: var(--signal-default);
+}
+
+.ls-chatinput {
+  height: 54px;
+  background: var(--surface-glass);
+  border: 1px solid rgba(255,255,255,0.55);
+  backdrop-filter: blur(14px) saturate(1.2);
+  border-radius: 18px;
+  display: flex; align-items: center;
+  padding: 0 6px 0 14px;
+  gap: 10px;
+  box-shadow: var(--elev-chrome);
+}
+.mode-dark .ls-chatinput { border-color: rgba(242,238,232,0.12); }
+.chat-icon-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--content-secondary);
+  flex-shrink: 0;
+}
+.chat-field {
+  flex: 1;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--content-tertiary);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.chat-field.has-value { color: var(--content-primary); font-weight: 500; }
+.chat-send-btn {
+  width: 42px; height: 42px;
+  background: var(--signal-default);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #FFF;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(238,124,43,0.38);
+}
+.chat-filter-btn {
+  width: 42px; height: 42px;
+  background: transparent;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--content-secondary);
+  flex-shrink: 0;
+}
+.chat-field .cursor {
+  display: inline-block;
+  width: 1.5px;
+  height: 16px;
+  vertical-align: text-bottom;
+  background: var(--signal-default);
+  margin-left: 1px;
+  animation: cursor-blink 1s steps(2) infinite;
+}
+@keyframes cursor-blink { 50% { opacity: 0; } }
+
+/* ══════════════ GREETING OVERLAY (Idle-specific composition) ══════ */
+.idle-greeting {
+  position: absolute; top: 108px; left: 16px; right: 16px;
+  z-index: 20;
+}
+.idle-greeting-meta {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--signal-default);
+  margin-bottom: 10px;
+}
+.idle-greeting-meta .dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--signal-default);
+  opacity: 0.5;
+}
+.idle-greeting-headline {
+  font-family: var(--font-opinion);
+  font-weight: 400;
+  font-size: 27px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--content-primary);
+  text-shadow: 0 1px 14px var(--surface-glass);
+}
+.idle-greeting-headline em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+
+/* Favorite map pins */
+.fav-pin {
+  position: absolute;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--signal-default);
+  border: 2.5px solid var(--surface-card);
+  box-shadow: 0 2px 6px rgba(238,124,43,0.44);
+  z-index: 5;
+}
+.fav-pin::after {
+  content: ""; position: absolute;
+  inset: -6px; border-radius: 50%;
+  border: 1px solid var(--signal-default);
+  opacity: 0.25;
+}
+.fav-pin.small { width: 9px; height: 9px; border-width: 1.8px; }
+
+/* ══════════════ §05 COMPONENT LIST BLOCKS ══════════════ */
+.cmp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding-left: 152px;
+}
+.cmp-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  padding: 20px 22px;
+}
+.cmp-tier-label {
+  font-family: var(--font-instrument);
+  font-size: 9px; font-weight: 500;
+  letter-spacing: 0.22em;
+  color: var(--signal-default);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: block;
+}
+.cmp-item {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.cmp-item:last-child { border-bottom: none; }
+.cmp-name {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--content-primary);
+  margin-bottom: 4px;
+}
+.cmp-ref {
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  color: var(--content-tertiary);
+  line-height: 1.4;
+}
+
+.motion-table {
+  padding-left: 152px;
+  display: grid;
+  grid-template-columns: 160px 1fr 2fr;
+  row-gap: 14px;
+  column-gap: 28px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+}
+.motion-table > div { padding: 10px 0; border-bottom: 1px solid var(--border-subtle); }
+.motion-recipe { font-family: var(--font-instrument); color: var(--signal-default); font-size: 11.5px; letter-spacing: 0.01em; }
+.motion-trigger { color: var(--content-primary); font-weight: 500; }
+.motion-effect { color: var(--content-secondary); }
+
+/* §06 rationale + refs block */
+.rationale-grid {
+  padding-left: 152px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+.rationale-block h4 {
+  font-family: var(--font-ui);
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--signal-default);
+  margin-bottom: 14px;
+}
+.rationale-block p {
+  font-family: var(--font-opinion);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--content-secondary);
+  margin-bottom: 10px;
+}
+.rationale-block ul { list-style: none; }
+.rationale-block li {
+  padding: 8px 0 8px 18px;
+  position: relative;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: var(--content-secondary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.rationale-block li::before {
+  content: "→";
+  position: absolute; left: 0; top: 8px;
+  color: var(--signal-default);
+  font-family: var(--font-instrument);
+}
+.rationale-block li strong {
+  font-family: var(--font-instrument);
+  color: var(--content-primary);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.01em;
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────────── */
+.doc-footer {
+  padding: 80px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: end;
+}
+.footer-mark {
+  font-family: var(--font-opinion);
+  font-size: 44px;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--content-primary);
+  letter-spacing: -0.02em;
+}
+.footer-mark em { font-style: italic; color: var(--signal-default); font-weight: 400; }
+.footer-mark span {
+  display: block;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--content-tertiary);
+  margin-top: 10px;
+  font-weight: 300;
+}
+.footer-note {
+  font-family: var(--font-opinion);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--content-tertiary);
+  text-align: right;
+  font-weight: 300;
+}
+
+/* ══════════════ MOTION — shared ══════════════ */
+@keyframes phaseDotPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(238,124,43,0.45); }
+  50%     { box-shadow: 0 0 0 8px rgba(238,124,43,0); }
+}
+@keyframes sketchPolylineLoop {
+  0%   { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -64; }
+}
+@keyframes routeDrawOn {
+  from { stroke-dashoffset: 1200; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes bestBadgeEnter {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.mod-phaseDotPulse { animation: phaseDotPulse 0.9s ease-in-out infinite; }
+.mod-sketch path   { stroke-dasharray: 4 8; animation: sketchPolylineLoop 2s linear infinite; }
+.mod-routeDrawOn path { stroke-dasharray: 1200; animation: routeDrawOn 1.2s ease-out forwards; }
+.mod-bestBadgeEnter { animation: bestBadgeEnter 300ms ease-out 400ms both; }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     HEADER
+     ═════════════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow">
+      <span>UC-SCR-01</span>
+      <span class="doc-eyebrow-pill">● Screens · Template</span>
+    </div>
+    <h1 class="doc-title">
+      Where are we riding<br><em>today</em>?
+    </h1>
+    <p class="doc-tagline">
+      The dormant-Navigator home. Warm paper-map canvas, a single opinion
+      asked of the rider, and the four ways the app will listen: voice, type,
+      suggestion, pin.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-SCR-01</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">08-uc-scr.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light (+ dark)</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     §01 PURPOSE
+     ═════════════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">
+        A map that <em>listens</em> — not a form that <em>asks</em>.
+      </h2>
+    </div>
+
+    <p class="prose">
+      IdleScreen is the first thing a rider sees when the Navigator is dormant.
+      There is no feed, no profile, no "tap to continue." The entire surface is
+      a warm paper topographic map with a single Newsreader-serif opinion
+      floating above it: <em>where are we riding today?</em> Every subsequent
+      screen is a refinement of that question.
+    </p>
+    <p class="prose">
+      The idle state has to accomplish three things without feeling crowded:
+      it must <strong>orient</strong> the rider (what day, what weather, what
+      region), <strong>invite conversation</strong> through a chat input with
+      four primed suggestion chips, and <strong>reveal</strong> nearby
+      favorites as copper pins without overwhelming the map. The Newsreader
+      italicization of <em>today</em> is the one rhetorical flourish — a
+      printed-page voice that signals the Navigator is authored, not
+      generated.
+    </p>
+    <p class="prose">
+      No polyline is drawn yet. No Navigator message is pinned. The rider
+      owns the cursor. Tapping a suggestion, typing, or opening the filter
+      sheet transitions the screen into PlanningScreen (UC-SCR-02).
+    </p>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     §02 SCREENS — 4-column primary grid
+     ═════════════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · Screens</div>
+      <h2 class="section-title">
+        Four states of <em>listening</em>.
+      </h2>
+    </div>
+
+    <div class="screens-grid">
+
+      <!-- ── S01 · DEFAULT (LIGHT) ─────────────────────────────────── -->
+      <div class="screen-cell" id="uc-scr-01-s01-default-light">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+
+            <!-- Paper map -->
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 190 C 60 160, 120 230, 180 190 S 260 210, 320 170"/>
+                  <path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/>
+                  <path d="M -20 330 C 50 310, 110 360, 180 330 S 260 360, 320 320"/>
+                  <path d="M -20 410 C 60 380, 120 440, 180 410 S 260 430, 320 380"/>
+                  <path d="M -20 490 C 60 460, 130 520, 180 490 S 260 510, 320 460"/>
+                </g>
+                <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
+                  <path d="M -20 165 C 60 150, 130 205, 180 165 S 260 185, 320 150"/>
+                  <path d="M -20 280 C 60 260, 130 320, 180 280 S 260 305, 320 265"/>
+                  <path d="M -20 360 C 60 340, 130 390, 180 360 S 260 385, 320 340"/>
+                  <path d="M -20 440 C 60 418, 130 478, 180 440 S 260 465, 320 420"/>
+                </g>
+                <!-- coastline hint -->
+                <path d="M 230 -10 C 200 60, 240 140, 220 230 S 210 370, 250 470 L 300 470 L 300 -10 Z" fill="rgba(74,134,190,0.05)" />
+                <path d="M 230 -10 C 200 60, 240 140, 220 230 S 210 370, 250 470" stroke="rgba(74,134,190,0.35)" stroke-width="0.8" fill="none"/>
+                <!-- route hint dots (favorites spread) -->
+              </svg>
+              <div class="fav-pin" style="left: 32%; top: 38%;"></div>
+              <div class="fav-pin small" style="left: 58%; top: 52%;"></div>
+              <div class="fav-pin small" style="left: 44%; top: 64%;"></div>
+            </div>
+
+            <!-- Top bar -->
+            <div class="ls-topbar">
+              <div class="chrome-chip circular">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+              </div>
+              <div class="chrome-chip pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                <span class="t-label-md" style="color: var(--content-primary);">New</span>
+              </div>
+            </div>
+
+            <!-- Greeting overlay -->
+            <div class="idle-greeting">
+              <div class="idle-greeting-meta">
+                <span>Friday</span><span class="dot"></span><span>68°F</span><span class="dot"></span><span>Clear</span>
+              </div>
+              <div class="idle-greeting-headline">
+                Where are we riding <em>today?</em>
+              </div>
+            </div>
+
+            <!-- Chat input anchor -->
+            <div class="ls-chatinput-anchor">
+              <div class="ls-location-bar">
+                <div class="tag-pill">
+                  <span class="pin-dot"></span>
+                  <span>Near Santa Cruz, CA</span>
+                </div>
+                <div class="tag-pill mode-label">Manual</div>
+              </div>
+              <div class="ls-sugg-row">
+                <div class="sugg-chip">Twisty back roads</div>
+                <div class="sugg-chip">Coastal cruise</div>
+                <div class="sugg-chip">Half-day loop</div>
+                <div class="sugg-chip">Mountain passes</div>
+              </div>
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg>
+                </div>
+                <div class="chat-field">Plan a ride from Near Santa Cruz…</div>
+                <div class="chat-filter-btn">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="phone-hi"></div>
+
+            <!-- Status bar above everything for ordering safety -->
+            <div class="phone-sb">
+              <div class="sb-time">9:41</div>
+              <div class="sb-icons">
+                <svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg>
+                <svg width="14" height="10" viewBox="0 0 14 10"><path d="M1 5 C 3 2, 11 2, 13 5 M3 6 C 4 4, 10 4, 11 6 M5.5 7 C 6 6, 8 6, 8.5 7" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="7" cy="8.5" r="0.9" fill="currentColor"/></svg>
+                <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S01 · Default · Light</div>
+          <div class="screen-name">Paper map &amp; the <em class="opinion-ital">today</em> question</div>
+          <div class="screen-desc">
+            The dormant state. Greeting set in Newsreader; four suggestions below the input; "Manual" tag indicates the location was resolved without GPS handshake. Pins mark saved favorites.
+          </div>
+          <div class="ac-cite">LSTopBar at top, greeting overlay under bar (label row + opinion-serif "today" italic).</div>
+          <div class="ac-cite">LSChatInput anchored at bottom with four suggestion chips and a location tag.</div>
+        </div>
+      </div>
+
+      <!-- ── S02 · TYPING (SEND SHOWN) ─────────────────────────────── -->
+      <div class="screen-cell" id="uc-scr-01-s02-typing-send">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 200 C 60 170, 120 240, 180 200 S 260 220, 320 180"/>
+                  <path d="M -20 270 C 50 240, 120 310, 180 270 S 260 300, 320 260"/>
+                  <path d="M -20 360 C 50 340, 110 390, 180 360 S 260 390, 320 350"/>
+                  <path d="M -20 460 C 60 430, 120 490, 180 460 S 260 480, 320 430"/>
+                </g>
+                <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
+                  <path d="M -20 170 C 60 160, 130 215, 180 170 S 260 195, 320 160"/>
+                  <path d="M -20 310 C 60 290, 130 350, 180 310 S 260 335, 320 295"/>
+                  <path d="M -20 410 C 60 390, 130 440, 180 410 S 260 430, 320 390"/>
+                </g>
+                <path d="M 230 -10 C 200 60, 240 140, 220 230 S 210 370, 250 470" stroke="rgba(74,134,190,0.35)" stroke-width="0.8" fill="none"/>
+              </svg>
+              <div class="fav-pin" style="left: 32%; top: 38%;"></div>
+              <div class="fav-pin small" style="left: 58%; top: 52%;"></div>
+              <div class="fav-pin small" style="left: 44%; top: 64%;"></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+              </div>
+              <div class="chrome-chip pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                <span class="t-label-md" style="color: var(--content-primary);">New</span>
+              </div>
+            </div>
+
+            <div class="idle-greeting">
+              <div class="idle-greeting-meta">
+                <span>Friday</span><span class="dot"></span><span>68°F</span><span class="dot"></span><span>Clear</span>
+              </div>
+              <div class="idle-greeting-headline">
+                Where are we riding <em>today?</em>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-location-bar">
+                <div class="tag-pill">
+                  <span class="pin-dot"></span>
+                  <span>Near Santa Cruz, CA</span>
+                </div>
+                <div class="tag-pill mode-label">Manual</div>
+              </div>
+              <div class="ls-sugg-row">
+                <div class="sugg-chip primed">Coastal cruise</div>
+                <div class="sugg-chip">Twisty back roads</div>
+                <div class="sugg-chip">Half-day loop</div>
+              </div>
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg>
+                </div>
+                <div class="chat-field has-value">Coastal cruise down Hwy 1<span class="cursor"></span></div>
+                <div class="chat-send-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l14-7-5 7 5 7z"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="phone-hi"></div>
+            <div class="phone-sb">
+              <div class="sb-time">9:42</div>
+              <div class="sb-icons">
+                <svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg>
+                <svg width="14" height="10" viewBox="0 0 14 10"><path d="M1 5 C 3 2, 11 2, 13 5 M3 6 C 4 4, 10 4, 11 6" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="7" cy="8.5" r="0.9" fill="currentColor"/></svg>
+                <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S02 · Typing · Send</div>
+          <div class="screen-name">Text entered, send reveals</div>
+          <div class="screen-desc">
+            Tapping a suggestion primes it (copper tint stripe) and fills the input. The trailing slot swaps from sliders to a copper-filled send button; the suggestion row compresses to the remaining primers.
+          </div>
+          <div class="ac-cite">Typing into the input swaps trailing icon from sliders to send.</div>
+          <div class="ac-cite">Tapping a suggestion chip fires onSuggestionTap; the mock updates the input value.</div>
+        </div>
+      </div>
+
+      <!-- ── S03 · DEFAULT (DARK) ──────────────────────────────────── -->
+      <div class="screen-cell" id="uc-scr-01-s03-default-dark">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 190 C 60 160, 120 230, 180 190 S 260 210, 320 170"/>
+                  <path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/>
+                  <path d="M -20 330 C 50 310, 110 360, 180 330 S 260 360, 320 320"/>
+                  <path d="M -20 410 C 60 380, 120 440, 180 410 S 260 430, 320 380"/>
+                  <path d="M -20 490 C 60 460, 130 520, 180 490 S 260 510, 320 460"/>
+                </g>
+                <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
+                  <path d="M -20 165 C 60 150, 130 205, 180 165 S 260 185, 320 150"/>
+                  <path d="M -20 280 C 60 260, 130 320, 180 280 S 260 305, 320 265"/>
+                  <path d="M -20 360 C 60 340, 130 390, 180 360 S 260 385, 320 340"/>
+                  <path d="M -20 440 C 60 418, 130 478, 180 440 S 260 465, 320 420"/>
+                </g>
+                <path d="M 230 -10 C 200 60, 240 140, 220 230 S 210 370, 250 470" stroke="rgba(74,134,190,0.40)" stroke-width="0.8" fill="none"/>
+              </svg>
+              <div class="fav-pin" style="left: 32%; top: 38%;"></div>
+              <div class="fav-pin small" style="left: 58%; top: 52%;"></div>
+              <div class="fav-pin small" style="left: 44%; top: 64%;"></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+              </div>
+              <div class="chrome-chip pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                <span class="t-label-md" style="color: var(--content-primary);">New</span>
+              </div>
+            </div>
+
+            <div class="idle-greeting">
+              <div class="idle-greeting-meta">
+                <span>Friday</span><span class="dot"></span><span>54°F</span><span class="dot"></span><span>Fog</span>
+              </div>
+              <div class="idle-greeting-headline">
+                Where are we riding <em>tonight?</em>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-location-bar">
+                <div class="tag-pill">
+                  <span class="pin-dot"></span>
+                  <span>Near Santa Cruz, CA</span>
+                </div>
+                <div class="tag-pill mode-label">Auto</div>
+              </div>
+              <div class="ls-sugg-row">
+                <div class="sugg-chip">Twisty back roads</div>
+                <div class="sugg-chip">Coastal cruise</div>
+                <div class="sugg-chip">Half-day loop</div>
+              </div>
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg>
+                </div>
+                <div class="chat-field">Plan a ride from Near Santa Cruz…</div>
+                <div class="chat-filter-btn">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="phone-hi"></div>
+            <div class="phone-sb">
+              <div class="sb-time">7:14 PM</div>
+              <div class="sb-icons">
+                <svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg>
+                <svg width="14" height="10" viewBox="0 0 14 10"><path d="M1 5 C 3 2, 11 2, 13 5 M3 6 C 4 4, 10 4, 11 6" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="7" cy="8.5" r="0.9" fill="currentColor"/></svg>
+                <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S03 · Default · Dark</div>
+          <div class="screen-name">Copper on ink — night mode</div>
+          <div class="screen-desc">
+            Every element re-resolves against warm-dark ink: paper becomes lamp-lit, contours invert to bone, glass chrome drops luminance, copper signal remains identical. "today" rewrites to "tonight" (Greeting.scope).
+          </div>
+          <div class="ac-cite">Toggling light/dark re-renders every element with the correct token resolution.</div>
+        </div>
+      </div>
+
+      <!-- ── S04 · FILTER SHEET PEEKING ─────────────────────────────── -->
+      <div class="screen-cell" id="uc-scr-01-s04-filter-sheet">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 200 C 60 170, 120 240, 180 200 S 260 220, 320 180"/>
+                  <path d="M -20 270 C 50 240, 120 310, 180 270 S 260 300, 320 260"/>
+                </g>
+              </svg>
+            </div>
+            <!-- scrim -->
+            <div style="position:absolute;inset:0;background:var(--surface-scrim);z-index:12;"></div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+              </div>
+              <div class="chrome-chip pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                <span class="t-label-md" style="color: var(--content-primary);">New</span>
+              </div>
+            </div>
+
+            <!-- Filter sheet peek -->
+            <div style="position:absolute;bottom:0;left:0;right:0;z-index:40;background:var(--surface-card);border-radius:20px 20px 0 0;padding:14px 18px 24px;box-shadow:var(--elev-overlay);">
+              <div style="width:36px;height:4px;background:var(--border-strong);border-radius:2px;margin:0 auto 14px;"></div>
+              <div style="font-family:var(--font-opinion);font-size:18px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);margin-bottom:4px;">Refine the ask</div>
+              <div style="font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:13px;color:var(--content-secondary);margin-bottom:16px;">What should the Navigator avoid, favor, or time for?</div>
+
+              <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--content-tertiary);margin-bottom:10px;">Duration</div>
+              <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+                <div class="sugg-chip">30 min</div>
+                <div class="sugg-chip primed">1 hour</div>
+                <div class="sugg-chip">2 hours</div>
+                <div class="sugg-chip">Half day</div>
+                <div class="sugg-chip">All day</div>
+              </div>
+
+              <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--content-tertiary);margin-bottom:10px;">Avoid</div>
+              <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;">
+                <div class="sugg-chip">Highways</div>
+                <div class="sugg-chip">Tolls</div>
+                <div class="sugg-chip">Gravel</div>
+              </div>
+
+              <div style="display:flex;gap:8px;">
+                <div style="flex:1;padding:11px;border:1px solid var(--border-default);border-radius:10px;text-align:center;font-family:var(--font-ui);font-weight:500;font-size:11px;color:var(--content-secondary);">Reset</div>
+                <div style="flex:2;padding:11px;background:var(--signal-default);color:#FFF;border-radius:10px;text-align:center;font-family:var(--font-ui);font-weight:600;font-size:11px;box-shadow:0 2px 10px rgba(238,124,43,0.32);">Apply — 1 hour · avoid none</div>
+              </div>
+            </div>
+
+            <div class="phone-hi"></div>
+            <div class="phone-sb">
+              <div class="sb-time">9:41</div>
+              <div class="sb-icons">
+                <svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg>
+                <svg width="14" height="10" viewBox="0 0 14 10"><path d="M1 5 C 3 2, 11 2, 13 5 M3 6 C 4 4, 10 4, 11 6" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="7" cy="8.5" r="0.9" fill="currentColor"/></svg>
+                <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S04 · Filter sheet</div>
+          <div class="screen-name">Refinement surface presented</div>
+          <div class="screen-desc">
+            Tapping the sliders icon opens the filter sheet at .medium detent. Chips compose from LSFilterChip (UC-MOL-05). Sheet scrim dims the map; dragging down dismisses without applying.
+          </div>
+          <div class="ac-cite">onFilter fires; LSBottomSheet presents at .medium with LSFilterChip row.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     §03 STATES & VARIANTS — edge cases
+     ═════════════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States &amp; Variants</div>
+      <h2 class="section-title">Edges &amp; <em>recoverable</em> states.</h2>
+    </div>
+
+    <div class="screens-grid cols-3">
+      <!-- ── V01 · NO LOCATION (manual entry required) ────────────── -->
+      <div class="screen-cell" id="uc-scr-01-v01-no-location">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/>
+                  <path d="M -20 410 C 60 380, 120 440, 180 410 S 260 430, 320 380"/>
+                </g>
+              </svg>
+            </div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+              </div>
+              <div class="chrome-chip pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                <span class="t-label-md" style="color: var(--content-primary);">New</span>
+              </div>
+            </div>
+
+            <div class="idle-greeting">
+              <div class="idle-greeting-meta">
+                <span>Friday</span><span class="dot"></span><span>Set a start</span>
+              </div>
+              <div class="idle-greeting-headline">
+                Where are we <em>starting</em> from?
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-location-bar">
+                <div class="tag-pill" style="border-color: var(--signal-tint); background: var(--signal-whisper);">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--signal-default)" stroke-width="2" stroke-linecap="round"><path d="M12 21s-8-9-8-13a8 8 0 1116 0c0 4-8 13-8 13z"/><circle cx="12" cy="8" r="2" fill="var(--signal-default)" stroke="none"/></svg>
+                  <span style="color: var(--signal-default); font-weight: 600;">Tap to set start</span>
+                </div>
+                <div class="tag-pill mode-label" style="opacity: 0.5;">Needed</div>
+              </div>
+              <div class="ls-chatinput" style="opacity: 0.55;">
+                <div class="chat-icon-btn">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg>
+                </div>
+                <div class="chat-field">Set a start point to begin…</div>
+                <div class="chat-filter-btn">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:41</div><div class="sb-icons"><svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V01 · No location</div>
+          <div class="screen-name">Permission not granted</div>
+          <div class="screen-desc">
+            When GPS is denied and no manual pin exists, the location tag is replaced by a copper-framed "Tap to set start" primer. Chat input is visually dimmed and non-interactive until resolved.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── V02 · NO FAVORITES ──────────────────────────────────── -->
+      <div class="screen-cell" id="uc-scr-01-v02-no-favorites">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 150 C 60 130, 120 190, 180 150 S 260 170, 320 130"/>
+                  <path d="M -20 260 C 50 230, 120 300, 180 260 S 260 290, 320 250"/>
+                  <path d="M -20 380 C 50 360, 110 410, 180 380 S 260 410, 320 370"/>
+                  <path d="M -20 480 C 60 450, 120 510, 180 480 S 260 500, 320 450"/>
+                </g>
+              </svg>
+            </div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+              </div>
+              <div class="chrome-chip pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                <span class="t-label-md" style="color: var(--content-primary);">New</span>
+              </div>
+            </div>
+            <div class="idle-greeting">
+              <div class="idle-greeting-meta">
+                <span>Friday</span><span class="dot"></span><span>68°F</span><span class="dot"></span><span>Clear</span>
+              </div>
+              <div class="idle-greeting-headline">
+                First ride? <em>Ask</em> me anything.
+              </div>
+            </div>
+            <div class="ls-chatinput-anchor">
+              <div class="ls-location-bar">
+                <div class="tag-pill">
+                  <span class="pin-dot"></span>
+                  <span>Near Santa Cruz, CA</span>
+                </div>
+                <div class="tag-pill mode-label">Manual</div>
+              </div>
+              <div class="ls-sugg-row">
+                <div class="sugg-chip">Short &amp; scenic</div>
+                <div class="sugg-chip">Learn the roads</div>
+                <div class="sugg-chip">Nearest coast</div>
+                <div class="sugg-chip">Easy loop</div>
+              </div>
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg>
+                </div>
+                <div class="chat-field">What kind of ride feels right today?</div>
+                <div class="chat-filter-btn">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:41</div><div class="sb-icons"><svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V02 · First-ride</div>
+          <div class="screen-name">No saved favorites yet</div>
+          <div class="screen-desc">
+            Empty favorites collection — no pins on the map. Suggestion chips swap to onboarding-grade primers ("Learn the roads", "Short &amp; scenic"). Greeting headline acknowledges the fresh state.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── V03 · WEATHER UNFIT (advisory inline) ──────────────── -->
+      <div class="screen-cell" id="uc-scr-01-v03-weather-advisory">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
+                  <path d="M -20 140 C 60 120, 120 180, 180 140 S 260 160, 320 120"/>
+                  <path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/>
+                  <path d="M -20 410 C 60 380, 120 440, 180 410 S 260 430, 320 380"/>
+                </g>
+                <!-- rain slashes -->
+                <g stroke="var(--wx-rain)" stroke-width="0.6" opacity="0.45">
+                  <line x1="30" y1="30" x2="25" y2="45"/>
+                  <line x1="80" y1="20" x2="75" y2="35"/>
+                  <line x1="140" y1="40" x2="135" y2="55"/>
+                  <line x1="200" y1="25" x2="195" y2="40"/>
+                  <line x1="60" y1="110" x2="55" y2="125"/>
+                  <line x1="170" y1="110" x2="165" y2="125"/>
+                  <line x1="100" y1="210" x2="95" y2="225"/>
+                  <line x1="220" y1="190" x2="215" y2="205"/>
+                  <line x1="40" y1="300" x2="35" y2="315"/>
+                  <line x1="200" y1="330" x2="195" y2="345"/>
+                </g>
+              </svg>
+            </div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+              </div>
+              <div class="chrome-chip pill">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                <span class="t-label-md" style="color: var(--content-primary);">New</span>
+              </div>
+            </div>
+
+            <div class="idle-greeting">
+              <div class="idle-greeting-meta" style="color: var(--status-warning);">
+                <span>Friday</span><span class="dot" style="background: var(--status-warning);"></span><span>54°F</span><span class="dot" style="background: var(--status-warning);"></span><span>Heavy rain</span>
+              </div>
+              <div class="idle-greeting-headline">
+                Not the <em>prettiest</em> day for it.
+              </div>
+              <div style="margin-top:14px;padding:12px 14px;background:var(--wx-rain-tint);border:1px solid rgba(74,134,190,0.32);border-left:3px solid var(--wx-rain);border-radius:10px;backdrop-filter:blur(10px);">
+                <div style="font-family:var(--font-ui);font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--wx-rain);margin-bottom:4px;">Weather advisory</div>
+                <div style="font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:13.5px;color:var(--content-primary);line-height:1.45;">I can still plan something, but shorter loops near home will beat anything with a pass today.</div>
+              </div>
+            </div>
+
+            <div class="ls-chatinput-anchor">
+              <div class="ls-location-bar">
+                <div class="tag-pill">
+                  <span class="pin-dot"></span>
+                  <span>Near Santa Cruz, CA</span>
+                </div>
+                <div class="tag-pill mode-label">Auto</div>
+              </div>
+              <div class="ls-sugg-row">
+                <div class="sugg-chip">Under 30 min</div>
+                <div class="sugg-chip">Stay near town</div>
+                <div class="sugg-chip">Cafés only</div>
+              </div>
+              <div class="ls-chatinput">
+                <div class="chat-icon-btn"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/></svg></div>
+                <div class="chat-field">Plan something short and dry…</div>
+                <div class="chat-filter-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/><line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/><line x1="14" y1="17" x2="20" y2="17"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:41</div><div class="sb-icons"><svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V03 · Weather advisory</div>
+          <div class="screen-name">Navigator sets expectations</div>
+          <div class="screen-desc">
+            When WeatherSummary.severity ≥ advisory, the greeting takes an opinion stance ("Not the prettiest day for it.") and a tinted advisory card appears. Suggestion chips shift to short/dry primers.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     §04 COMPONENTS USED
+     ═════════════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Components</div>
+      <h2 class="section-title">Composed from <em>atoms</em>, molecules, organisms.</h2>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Atoms · ATM</div>
+        <div class="cmp-item"><div class="cmp-name">LSMap</div><div class="cmp-ref">mode: .preview<br>showFavorites: true<br>style: Copper Studio</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSGlassPanel</div><div class="cmp-ref">variant: .chrome<br>surface.glass · blur 16px</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSPill</div><div class="cmp-ref">size: .sm · radius.pill</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSIcon</div><div class="cmp-ref">menu · plus · pin · send · sliders<br>stroke 1.5px</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSButton</div><div class="cmp-ref">.primary (send)<br>.ghost (collapse/filter)</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Molecules · MOL</div>
+        <div class="cmp-item"><div class="cmp-name">LSChatInput</div><div class="cmp-ref">UC-MOL-06 · bottom-anchor<br>+ suggestions · + locationBadge</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSLocationContextBar</div><div class="cmp-ref">UC-MOL-08 · pin + mode tags</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSSuggestionChip</div><div class="cmp-ref">UC-MOL-05 · .pill primer<br>4-chip row</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSTagPill</div><div class="cmp-ref">UC-MOL-05 · glass surface</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSBottomSheet</div><div class="cmp-ref">UC-MOL-03 · filter variant<br>.medium detent</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Organisms · ORG</div>
+        <div class="cmp-item"><div class="cmp-name">LSMapLayer</div><div class="cmp-ref">UC-ORG-02 · canvas<br>slots: topBar, top/bottomOverlays</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSTopBar</div><div class="cmp-ref">UC-ORG-01 · hamburger + NEW</div></div>
+        <div class="cmp-item"><div class="cmp-name">Greeting overlay</div><div class="cmp-ref">inline in UC-SCR-01<br>label row + opinion.xl headline</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Tokens consumed</div>
+        <div class="cmp-item"><div class="cmp-name">color.surface.*</div><div class="cmp-ref">primary · glass · scrim</div></div>
+        <div class="cmp-item"><div class="cmp-name">color.signal.*</div><div class="cmp-ref">default · tint · whisper</div></div>
+        <div class="cmp-item"><div class="cmp-name">typography.*</div><div class="cmp-ref">opinion.xl · ui.label.md · instrument.sm</div></div>
+        <div class="cmp-item"><div class="cmp-name">spacing · radius</div><div class="cmp-ref">spacing 2–4 · radius.xl chat · pill chips</div></div>
+        <div class="cmp-item"><div class="cmp-name">map.style.{light,dark}</div><div class="cmp-ref">Mapbox Studio Copper URLs</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     §05 MOTION & INTERACTION
+     ═════════════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Which recipes fire &amp; <em>when</em>.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="motion-recipe">chatOverlayEnter</div>
+      <div class="motion-trigger">Screen mount</div>
+      <div class="motion-effect">LSChatInput slides up from below, translateY −20→0, opacity 0→1, 300ms ease-out.</div>
+
+      <div class="motion-recipe">bestBadgeEnter</div>
+      <div class="motion-trigger">Greeting headline appears</div>
+      <div class="motion-effect">400ms delay, then translateY 4→0 + opacity 0→1 on "today" italic accent.</div>
+
+      <div class="motion-recipe">chatOverlayDismiss</div>
+      <div class="motion-trigger">Suggestion tap fills input</div>
+      <div class="motion-effect">Suggestion primes (copper tint), input field fades-to-value, 200ms linear.</div>
+
+      <div class="motion-recipe">mapTapDismiss</div>
+      <div class="motion-trigger">Tap on map outside chrome</div>
+      <div class="motion-effect">Top overlays fade 150ms linear; map remains interactive.</div>
+
+      <div class="motion-recipe">sidebarSlideIn</div>
+      <div class="motion-trigger">Hamburger tap (→ UC-SCR-05)</div>
+      <div class="motion-effect">250ms ease-out translateX −300→0 on SessionsDrawer; scrim fades in underneath.</div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     §06 RATIONALE & PRD REFERENCES
+     ═════════════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Why this <em>question</em>, this <em>silence</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design principles honored</h4>
+        <p>
+          The Idle screen is the product's tone-setter. Every choice — the
+          warm-paper ground, the Newsreader italic on <em>today</em>, the four
+          suggestion chips (not eight, not two) — exists to establish that the
+          Navigator <em>listens</em> rather than <em>interrogates</em>. A
+          feed-style home would've worked. It would've also killed the
+          character the product depends on.
+        </p>
+        <p>
+          The glass chrome (chat input, top-bar chips, tag pills) sits on top
+          of the map without ever fully covering it. The rider can always read
+          the landscape through the UI.
+        </p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC traceability</h4>
+        <ul>
+          <li><strong>AC-01</strong> S01 · Top bar + greeting overlay with italicized "today" + 4-chip LSChatInput + MANUAL tag.</li>
+          <li><strong>AC-02</strong> iOS + Android identical — mirrored in S01 &amp; S03 light/dark pairing.</li>
+          <li><strong>AC-03</strong> Suggestion tap fires onSuggestionTap — demonstrated in S02.</li>
+          <li><strong>AC-04</strong> Typing swaps sliders → send — demonstrated in S02.</li>
+          <li><strong>AC-05</strong> Hamburger tap fires presentSessions stub — covered in §05 motion table.</li>
+          <li><strong>AC-06</strong> Light/dark re-renders tokens — demonstrated S01 ↔ S03.</li>
+          <li><strong>AC-07</strong> No data-fetching logic; IdleMockProvider injects greeting/location/suggestions.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     FOOTER
+     ═════════════════════════════════════════════════════════════════ -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">
+      Lane<em>Shadow</em>
+      <span>V2 · Copper · UC-SCR-01</span>
+    </div>
+    <div class="footer-note">
+      The dormant state is <em>not</em> passive.<br>
+      It is the one moment where the Navigator's <em>voice</em> is the loudest thing on screen.
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>

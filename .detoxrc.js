@@ -12,15 +12,15 @@ module.exports = {
   apps: {
     'ios.debug': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/hummingbird.app',
+      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/LaneShadow.app',
       build:
-        'xcodebuild -workspace ios/hummingbird.xcworkspace -scheme hummingbird -configuration Debug -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 15,OS=17.5" -derivedDataPath ios/build',
+        'xcodebuild -workspace ios/LaneShadow.xcworkspace -scheme LaneShadow -configuration Debug -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 15,OS=17.5" -derivedDataPath ios/build',
     },
     'ios.release': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/hummingbird.app',
+      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/LaneShadow.app',
       build:
-        'xcodebuild -workspace ios/hummingbird.xcworkspace -scheme hummingbird -configuration Release -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 15,OS=17.5" -derivedDataPath ios/build',
+        'xcodebuild -workspace ios/LaneShadow.xcworkspace -scheme LaneShadow -configuration Release -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone 15,OS=17.5" -derivedDataPath ios/build',
     },
     'android.debug': {
       type: 'android.apk',

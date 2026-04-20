@@ -1,6 +1,6 @@
-# Hummingbird Design System - Constants & Theme
+# LaneShadow Design System - Constants & Theme
 
-This directory contains the centralized design tokens and theme configuration for the Hummingbird app.
+This directory contains the centralized design tokens and theme configuration for the LaneShadow app.
 
 ## Overview
 

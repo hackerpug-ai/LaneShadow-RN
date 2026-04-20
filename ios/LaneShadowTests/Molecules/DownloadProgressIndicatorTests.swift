@@ -25,7 +25,6 @@ import XCTest
  * - Accessibility labels
  */
 final class DownloadProgressIndicatorTests: XCTestCase {
-
     // MARK: - AC-1: Component renders in default state
 
     func testDownloadProgressIndicatorDefaultRendering() {

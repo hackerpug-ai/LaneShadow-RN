@@ -12,12 +12,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.semantics
 import com.laneshadow.theme.LocalLaneShadowTheme
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Icon
 import com.laneshadow.ui.components.atoms.Avatar
 import com.laneshadow.ui.components.atoms.AvatarBadge
 import com.laneshadow.ui.components.atoms.AvatarBadgeVariant
 import com.laneshadow.ui.components.atoms.AvatarSize
+import com.laneshadow.ui.components.atoms.Chip
 import com.laneshadow.ui.sandbox.model.SandboxStory
 import com.laneshadow.ui.sandbox.model.SandboxTier
 import com.laneshadow.ui.sandbox.registry.RnReferenceRegistry
@@ -26,6 +32,7 @@ object AppStories {
     val all: List<SandboxStory> =
         listOf(
             AvatarStory,
+            ChipStory,
             *RnReferenceRegistry.all
                 .sortedBy { it.id }
                 .map { scenario ->
@@ -136,6 +143,100 @@ private fun AvatarDemo() {
                     size = AvatarSize.Default,
                     initials = "XY",
                     badge = { AvatarBadge(variant = AvatarBadgeVariant.Danger) },
+                )
+            }
+        }
+    }
+}
+
+private val ChipStory = SandboxStory(
+    id = "chip-demo",
+    tier = SandboxTier.Atom,
+    component = "Chip",
+    name = "All Variants",
+    summary = "Demonstrates Chip component in selected and unselected states with and without icons",
+) {
+    ChipDemo()
+}
+
+@Composable
+private fun ChipDemo() {
+    val theme = LocalLaneShadowTheme.current
+
+    Surface(
+        color = theme.colors.background.default,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(theme.space.lg),
+            verticalArrangement = Arrangement.spacedBy(theme.space.lg),
+        ) {
+            Text(text = "Chip", style = theme.type.heading.md, color = theme.colors.onSurface.default)
+
+            Text(
+                text = "Selection states",
+                style = theme.type.title.sm,
+                color = theme.colors.onSurface.default,
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(theme.space.md),
+            ) {
+                Chip(
+                    label = "Selected",
+                    selected = true,
+                    onPress = {},
+                )
+                Chip(
+                    label = "Unselected",
+                    selected = false,
+                    onPress = {},
+                )
+            }
+
+            Text(
+                text = "With icons",
+                style = theme.type.title.sm,
+                color = theme.colors.onSurface.default,
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(theme.space.md),
+            ) {
+                Chip(
+                    label = "With Check",
+                    selected = true,
+                    onPress = {},
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    },
+                )
+                Chip(
+                    label = "No Icon",
+                    selected = false,
+                    onPress = {},
+                )
+            }
+
+            Text(
+                text = "Non-interactive",
+                style = theme.type.title.sm,
+                color = theme.colors.onSurface.default,
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(theme.space.md),
+            ) {
+                Chip(
+                    label = "Disabled",
+                    selected = false,
+                    onPress = null,
                 )
             }
         }

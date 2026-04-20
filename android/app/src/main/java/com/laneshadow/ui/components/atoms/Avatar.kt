@@ -97,6 +97,7 @@ enum class AvatarBadgeVariant {
 @Suppress("UNUSED_PARAMETER")
 @Composable
 fun Avatar(
+    modifier: Modifier = Modifier,
     size: AvatarSize = AvatarSize.Default,
     source: String? = null,
     initials: String? = null,
@@ -104,7 +105,6 @@ fun Avatar(
     showBorder: Boolean = false,
     showRing: Boolean = false,
     badge: @Composable (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
 
@@ -216,8 +216,8 @@ fun Avatar(
  */
 @Composable
 fun AvatarBadge(
-    variant: AvatarBadgeVariant = AvatarBadgeVariant.Default,
     modifier: Modifier = Modifier,
+    variant: AvatarBadgeVariant = AvatarBadgeVariant.Default,
     content: @Composable (() -> Unit)? = null,
 ) {
     val theme = LocalLaneShadowTheme.current

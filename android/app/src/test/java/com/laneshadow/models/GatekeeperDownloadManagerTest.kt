@@ -1,7 +1,6 @@
 package com.laneshadow.models
 
 import android.content.Context
-import android.content.SharedPreferences
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -9,102 +8,79 @@ import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
-import org.mockito.Mockito.atLeastOnce
+import java.io.File
 
 /**
  * Tests for GatekeeperDownloadManager
  *
  * Follows TDD: RED → GREEN → REFACTOR for each acceptance criterion
  *
- * Translation from: react-native/lib/model/gatekeeper.ts
+ * Translation from: react-native/lib/model/download-manager.ts
  */
 class GatekeeperDownloadManagerTest {
 
     @Mock
     private lateinit var mockContext: Context
 
-    @Mock
-    private lateinit var mockSharedPreferences: SharedPreferences
-
-    @Mock
-    private lateinit var mockEditor: SharedPreferences.Editor
+    private lateinit var mockDownloadDir: File
 
     private lateinit var checksumValidator: ChecksumValidator
 
-    private lateinit var checksumValidatorWrapper: ChecksumValidatorWrapper
+    private lateinit var testManager: GatekeeperDownloadManager
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        val checksumValidator = ChecksumValidator()
-        checksumValidatorWrapper = ChecksumValidatorWrapper(checksumValidator)
+        checksumValidator = ChecksumValidator()
 
-        // Setup SharedPreferences mocks
-        `when`(mockContext.getSharedPreferences(anyString(), anyInt())).thenReturn(mockSharedPreferences)
-        `when`(mockSharedPreferences.edit()).thenReturn(mockEditor)
-        `when`(mockEditor.putString(anyString(), anyString())).thenReturn(mockEditor)
-        `when`(mockEditor.putLong(anyString(), anyLong())).thenReturn(mockEditor)
-        `when`(mockEditor.remove(anyString())).thenReturn(mockEditor)
-        `when`(mockEditor.clear()).thenReturn(mockEditor)
+        // Create temp directory for tests
+        val tempDir = System.getProperty("java.io.tmpdir")
+        mockDownloadDir = File(tempDir, "test_models_${System.currentTimeMillis()}")
+        mockDownloadDir.mkdirs()
+
+        // Setup Context mock to return our test directory
+        `when`(mockContext.filesDir).thenReturn(mockDownloadDir)
     }
 
     // AC-1: Public API matches source
     @Test
     fun testPublicAPIMatchesSource() = runTest {
         // GIVEN: TypeScript source defines exported functions
-        // class ModelGatekeeper {
-        //   constructor(modelFilePath, expectedChecksum, checksumValidator)
-        //   async checkModelStatus(): Promise<ModelGatekeeperStatus>
-        //   async deleteCorruptedModel(): Promise<void>
-        //   async markSetupComplete(): Promise<void>
-        //   async isSetupMarkedComplete(): Promise<boolean>
-        //   async clearSetupCompleteFlag(): Promise<void>
-        //   async validateNavigation(targetRoute): Promise<boolean>
-        //   destroy(): void
+        // class GatekeeperDownloadManager {
+        //   constructor()
+        //   async startDownload(networkStatus?: NetworkStatus): Promise<void>
+        //   async getProgress(): Promise<ModelDownloadProgress | null>
+        //   async canResume(): Promise<boolean>
+        //   async cancelDownload(): Promise<void>
         // }
 
         // WHEN: Kotlin equivalents are called
-        val manager = GatekeeperDownloadManager(
-            context = mockContext,
-            modelFilePath = "/path/to/model",
-            expectedChecksum = "abc123",
-            checksumValidator = checksumValidatorWrapper
+        testManager = GatekeeperDownloadManager(
+            context = mockContext
         )
 
         // THEN: Function signatures match (names, parameters, return types)
-        // Verify class exists and has the correct methods by calling them
         // The fact that these compile and run proves the API exists
 
-        // Verify checkModelStatus exists and returns ModelGatekeeperStatus
-        val status = manager.checkModelStatus()
-        assertTrue("checkModelStatus should return ModelGatekeeperStatus",
-            status is ModelGatekeeperStatus)
-
-        // Verify deleteCorruptedModel is callable (suspend)
+        // Verify startDownload exists and is suspend (takes NetworkStatus?)
         try {
-            manager.deleteCorruptedModel()
+            testManager.startDownload(NetworkStatus(isConnected = true, type = "wifi"))
         } catch (e: Exception) {
-            // Expected for non-existent file, but proves method exists
+            // May fail without actual download infrastructure, but proves method exists
         }
 
-        // Verify markSetupComplete is callable (suspend)
-        manager.markSetupComplete()
+        // Verify getProgress returns ModelDownloadProgress or null
+        val progress = testManager.getProgress()
+        assertTrue("getProgress should return ModelDownloadProgress or null",
+            progress == null || progress is ModelDownloadProgress)
 
-        // Verify isSetupMarkedComplete returns Boolean
-        val isComplete = manager.isSetupMarkedComplete()
-        assertTrue("isSetupMarkedComplete should return Boolean",
-            isComplete is Boolean)
+        // Verify canResume returns Boolean
+        val canResume = testManager.canResume()
+        assertTrue("canResume should return Boolean",
+            canResume is Boolean)
 
-        // Verify clearSetupCompleteFlag is callable (suspend)
-        manager.clearSetupCompleteFlag()
-
-        // Verify validateNavigation takes String parameter and returns Boolean
-        val canNavigate = manager.validateNavigation("/test/route")
-        assertTrue("validateNavigation should return Boolean",
-            canNavigate is Boolean)
-
-        // Verify destroy is callable (non-suspend)
-        manager.destroy()
+        // Verify cancelDownload is callable (suspend)
+        testManager.cancelDownload()
     }
 
     // AC-2: Async operations use coroutines
@@ -114,38 +90,31 @@ class GatekeeperDownloadManagerTest {
         // WHEN: Kotlin equivalents are invoked
         // THEN: Functions are suspend functions with proper context
 
-        val manager = GatekeeperDownloadManager(
-            context = mockContext,
-            modelFilePath = "/path/to/model",
-            expectedChecksum = "abc123",
-            checksumValidator = checksumValidatorWrapper
+        testManager = GatekeeperDownloadManager(
+            context = mockContext
         )
 
         // Verify all suspend methods can be called from runTest
-        val status = manager.checkModelStatus()
-        assertNotNull("checkModelStatus should return ModelGatekeeperStatus", status)
-
-        val isSetupComplete = manager.isSetupMarkedComplete()
-        assertNotNull("isSetupMarkedComplete should return Boolean", isSetupComplete)
-
         // If we get here without exception, methods are properly suspend
-        // Test other void methods
-        manager.markSetupComplete()
-        manager.clearSetupCompleteFlag()
 
-        // Test deleteCorruptedModel with non-existent file (should not throw)
+        // Test getProgress
+        val progress = testManager.getProgress()
+        // getProgress can return null when no download is in progress
+        // Just verify it completes without exception
+
+        // Test canResume
+        val canResume = testManager.canResume()
+        assertNotNull("canResume should complete", canResume)
+
+        // Test cancelDownload
+        testManager.cancelDownload()
+
+        // Test startDownload (may fail without proper setup, but should be suspend)
         try {
-            manager.deleteCorruptedModel()
+            testManager.startDownload(NetworkStatus(isConnected = true, type = "wifi"))
         } catch (e: Exception) {
-            // Expected for non-existent file, but proves it's suspend
+            // Expected - proves it's suspend
         }
-
-        // Test validateNavigation
-        val canNavigate = manager.validateNavigation("/some/route")
-        assertNotNull("validateNavigation should return Boolean", canNavigate)
-
-        // Test destroy (non-suspend)
-        manager.destroy()
     }
 
     // AC-3: Storage abstractions work correctly
@@ -153,35 +122,26 @@ class GatekeeperDownloadManagerTest {
     fun testStorageAbstractions() = runTest {
         // GIVEN: Source uses AsyncStorage/secure storage
         // WHEN: Kotlin equivalents read/write data
-        // THEN: Data persists correctly using platform storage (SharedPreferences)
+        // THEN: Data persists correctly using platform storage (FileSystem)
 
-        // Test markSetupComplete writes to SharedPreferences
-        `when`(mockSharedPreferences.getString("laneshadow_model_setup_complete", null))
-            .thenReturn(null) // Initial state
-
-        val manager = GatekeeperDownloadManager(
-            context = mockContext,
-            modelFilePath = "/path/to/model",
-            expectedChecksum = "abc123",
-            checksumValidator = checksumValidatorWrapper
+        testManager = GatekeeperDownloadManager(
+            context = mockContext
         )
 
-        manager.markSetupComplete()
+        // Create a test file to simulate partial download
+        val testModelFile = File(mockDownloadDir, "models/qwen2.5-0.5b-instruct-q4_k_m.gguf")
+        testModelFile.parentFile?.mkdirs()
+        testModelFile.createNewFile()
 
-        // Verify SharedPreferences were accessed
-        verify(mockSharedPreferences, atLeastOnce()).edit()
-        verify(mockEditor, atLeastOnce()).putString(eq("laneshadow_model_setup_complete"), eq("true"))
+        // Test canResume detects existing file
+        val canResume = testManager.canResume()
+        assertTrue("canResume should return true when file exists", canResume)
 
-        // Test isSetupMarkedComplete reads from SharedPreferences
-        `when`(mockSharedPreferences.getString("laneshadow_model_setup_complete", null))
-            .thenReturn("true")
-        val isComplete = manager.isSetupMarkedComplete()
+        // Test cancelDownload cleans up the file
+        testManager.cancelDownload()
+        assertFalse("File should be deleted after cancel", testModelFile.exists())
 
-        assertTrue("isSetupMarkedComplete should return true", isComplete)
-
-        // Test clearSetupCompleteFlag removes from SharedPreferences
-        manager.clearSetupCompleteFlag()
-
-        verify(mockEditor, atLeastOnce()).remove("laneshadow_model_setup_complete")
+        // Clean up
+        mockDownloadDir.deleteRecursively()
     }
 }

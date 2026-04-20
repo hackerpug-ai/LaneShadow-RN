@@ -1,4 +1,4 @@
-# Token Value Mapping - Hummingbird Design System Update
+# Token Value Mapping - LaneShadow Design System Update
 
 This document maps semantic theme token keys to their values based on the HTML mocks in `/specs/mocks/`.
 

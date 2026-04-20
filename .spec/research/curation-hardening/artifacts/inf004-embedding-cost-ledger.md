@@ -1,19 +1,19 @@
 # INF-004 Embedding Cost Ledger
 
-**Generated**: 2026-04-15T20:41:09.551321
+**Generated**: 2026-04-20T10:07:53.452779
 **Model**: text-embedding-3-small
 
 ## Summary
 
-- **Total routes**: 1000
-- **Embedded**: 1000
+- **Total routes**: 5
+- **Embedded**: 5
 - **Skipped**: 0
-- **Batches**: 10
+- **Batches**: 1
 
 ## Cost
 
-- **Input tokens**: 13,593
-- **Total cost**: $0.0003
+- **Input tokens**: 72
+- **Total cost**: $0.0000
 
 ## Errors
 

@@ -1,4 +1,4 @@
-"""Normalize staging rows from all three sources to a common Route-shaped dict.
+"""Normalize staging rows from all sources to a common Route-shaped dict.
 
 Each source has slightly different field names. This module maps them to a
 canonical dict that the extractor and convex_push can consume.
@@ -97,7 +97,7 @@ def normalize_staging_row(row: dict[str, Any], source: str) -> dict[str, Any]:
 
     Args:
         row: Raw staging JSON dict
-        source: One of 'motorcycleroads' | 'bestbikingroads' | 'fhwa'
+        source: One of 'motorcycleroads' | 'bestbikingroads' | 'fhwa' | 'scenic_byways' | 'rider_mag'
 
     Returns:
         Dict with keys: route_id, name, state, source, description,
@@ -109,6 +109,8 @@ def normalize_staging_row(row: dict[str, Any], source: str) -> dict[str, Any]:
     """
     if source == "fhwa":
         return _normalize_fhwa(row)
+    elif source in ("scenic_byways", "rider_mag"):
+        return _normalize_passthrough(row, source)
     elif source in ("motorcycleroads", "bestbikingroads"):
         return _normalize_scraper(row, source)
     else:
@@ -126,6 +128,30 @@ def _normalize_fhwa(row: dict[str, Any]) -> dict[str, Any]:
         "name": row.get("name") or "",
         "state": _normalize_state(row.get("state")),
         "source": "fhwa",
+        "description": row.get("description"),
+        "length_miles": _safe_float(row.get("length_miles")),
+        "centroid_lat": _safe_float(row.get("centroid_lat")),
+        "centroid_lng": _safe_float(row.get("centroid_lng")),
+        "bounds_ne_lat": _safe_float(row.get("bounds_ne_lat")),
+        "bounds_ne_lng": _safe_float(row.get("bounds_ne_lng")),
+        "bounds_sw_lat": _safe_float(row.get("bounds_sw_lat")),
+        "bounds_sw_lng": _safe_float(row.get("bounds_sw_lng")),
+        "canonical_url": row.get("canonical_url"),
+        "source_url": row.get("source_url") or row.get("canonical_url"),
+        "rating": _safe_float(row.get("rating")),
+    }
+
+
+def _normalize_passthrough(row: dict[str, Any], source: str) -> dict[str, Any]:
+    """scenic_byways and rider_mag rows are already in Route shape."""
+    if not row.get("route_id"):
+        raise ValueError(f"{source} row missing route_id: {row}")
+
+    return {
+        "route_id": row["route_id"],
+        "name": row.get("name") or "",
+        "state": _normalize_state(row.get("state")),
+        "source": source,
         "description": row.get("description"),
         "length_miles": _safe_float(row.get("length_miles")),
         "centroid_lat": _safe_float(row.get("centroid_lat")),

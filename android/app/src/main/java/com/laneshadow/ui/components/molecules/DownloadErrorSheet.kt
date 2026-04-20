@@ -117,7 +117,7 @@ fun DownloadErrorSheet(
             // Retry Download button (default variant, lg size = 44dp, full width)
             Button(
                 variant = ButtonVariant.Default,
-                size = ButtonSize.Large,
+                size = ButtonSize.Lg,
                 text = "Retry Download",
                 onPress = onRetry,
                 modifier = Modifier

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains all shared TypeScript types for the Hummingbird project. All types are **inferred from the Convex schema** to ensure a single source of truth.
+This directory contains all shared TypeScript types for the LaneShadow project. All types are **inferred from the Convex schema** to ensure a single source of truth.
 
 ## Architecture
 

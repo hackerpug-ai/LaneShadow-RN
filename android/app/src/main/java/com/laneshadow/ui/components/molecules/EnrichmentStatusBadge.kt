@@ -104,15 +104,15 @@ private val STATUS_CONFIG: Map<EnrichmentStatus, StatusConfig> = mapOf(
  * Following RN wrapper API from react-native/components/enrichment/enrichment-status-badge.tsx
  *
  * @param status Current enrichment status (Draft, Partial, Complete, Failed)
- * @param size Compact size variant (Small or Medium, default: Small)
  * @param modifier Modifier for the component container
+ * @param size Compact size variant (Small or Medium, default: Small)
  * @param testID Optional test identifier for UI testing
  */
 @Composable
 fun EnrichmentStatusBadge(
     status: EnrichmentStatus,
-    size: EnrichmentStatusBadgeSize = EnrichmentStatusBadgeSize.Small,
     modifier: Modifier = Modifier,
+    size: EnrichmentStatusBadgeSize = EnrichmentStatusBadgeSize.Small,
     testID: String? = null,
 ) {
     val theme = LocalLaneShadowTheme.current

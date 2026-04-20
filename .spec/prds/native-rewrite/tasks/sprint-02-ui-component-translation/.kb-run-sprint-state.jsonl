@@ -1,426 +1,401 @@
-{"header": "sprint-02-ui-component-translation", "total_tasks": 399, "reconstructed": true, "timestamp": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-001-android-avatar", "status": "completed", "commit_sha": "85644c59", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-001-ios-avatar", "status": "completed", "commit_sha": "f9460107", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-002-android-badge", "status": "completed", "commit_sha": "196835f3", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-002-ios-badge", "status": "completed", "commit_sha": "e764edf4", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-003-android-bottomsheetinput", "status": "completed", "commit_sha": "ea7f71e7", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-003-ios-bottomsheetinput", "status": "completed", "commit_sha": "64f368b9", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-004-android-button", "status": "completed", "commit_sha": "ac515c62", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-004-ios-button", "status": "completed", "commit_sha": "c0de3d08", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-005-android-card", "status": "completed", "commit_sha": "344e4087", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-005-ios-card", "status": "completed", "commit_sha": "80132ad1", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-006-android-checkbox", "status": "completed", "commit_sha": "37fe1f20", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-006-ios-checkbox", "status": "completed", "commit_sha": "511f8ffc", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-007-ios-chip", "status": "completed", "commit_sha": "6e5a9ae5", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-008-android-collapsible", "status": "completed", "commit_sha": "4f1e9358", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-008-ios-collapsible", "status": "completed", "commit_sha": "0983e247", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-009-android-compassplusicon", "status": "completed", "commit_sha": "20972855", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-009-ios-compassplusicon", "status": "completed", "commit_sha": "39016ce7", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-010-android-deviationpolyline", "status": "completed", "commit_sha": "4fb3ef77", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-010-ios-deviationpolyline", "status": "completed", "commit_sha": "d10ab6d9", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-011-android-draghandle", "status": "completed", "commit_sha": "5cfcb35b", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-011-ios-draghandle", "status": "completed", "commit_sha": "c2096682", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-012-android-fab", "status": "completed", "commit_sha": "e89e9a2b", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-012-ios-fab", "status": "completed", "commit_sha": "2e29f4bf", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-014-android-iconsymbol", "status": "completed", "commit_sha": "16d57312", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-014-ios-iconsymbol", "status": "completed", "commit_sha": "d2775540", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-015-android-input", "status": "completed", "commit_sha": "318fb083", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-015-ios-input", "status": "completed", "commit_sha": "5da9ed9c", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-016-android-laneshadowlogo", "status": "completed", "commit_sha": "1be0cbc5", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-016-ios-laneshadowlogo", "status": "completed", "commit_sha": "824236d1", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-017-android-motorcycleplusicon", "status": "completed", "commit_sha": "f2e80bcd", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-017-ios-motorcycleplusicon", "status": "completed", "commit_sha": "383b2564", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-018-android-primarybutton", "status": "completed", "commit_sha": "b6169591", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-018-ios-primarybutton", "status": "completed", "commit_sha": "65b76c4c", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-019-android-progress", "status": "completed", "commit_sha": "b486c0ec", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-019-ios-progress", "status": "completed", "commit_sha": "e25c6bb8", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-020-android-routepolyline", "status": "completed", "commit_sha": "1dcb7f27", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-020-ios-routepolyline", "status": "completed", "commit_sha": "4777c0c2", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-021-android-routepolylinecomponent", "status": "completed", "commit_sha": "facb2f19", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-021-ios-routepolylinecomponent", "status": "completed", "commit_sha": "2ea32a08", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-022-android-separator", "status": "completed", "commit_sha": "e9904448", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-022-ios-separator", "status": "completed", "commit_sha": "633fa799", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-023-android-sheethandle", "status": "completed", "commit_sha": "1eb2029d", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-023-ios-sheethandle", "status": "completed", "commit_sha": "99e84e3a", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-024-android-skeleton", "status": "completed", "commit_sha": "58cd78ff", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-024-ios-skeleton", "status": "completed", "commit_sha": "bf37efbe", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-025-android-slider", "status": "completed", "commit_sha": "8f70c013", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-025-ios-slider", "status": "completed", "commit_sha": "59353984", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-026-android-switch", "status": "completed", "commit_sha": "744dbf8d", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-026-ios-switch", "status": "completed", "commit_sha": "09860e68", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-027-android-textarea", "status": "completed", "commit_sha": "b399b70e", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-027-ios-textarea", "status": "completed", "commit_sha": "88f1d99b", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-028-android-themedtext", "status": "completed", "commit_sha": "0243ba60", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-028-ios-themedtext", "status": "completed", "commit_sha": "882e6d6c", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-029-android-themedview", "status": "completed", "commit_sha": "c74f2dac", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-029-ios-themedview", "status": "completed", "commit_sha": "04fade03", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-030-android-toggle", "status": "completed", "commit_sha": "afcc81c9", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-030-ios-toggle", "status": "completed", "commit_sha": "192ef3e7", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-031-android-typingindicator", "status": "completed", "commit_sha": "ba9d4413", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-031-ios-typingindicator", "status": "completed", "commit_sha": "b271e6fb", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-032-android-appheader", "status": "completed", "commit_sha": "b367b03c", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-032-ios-appheader", "status": "completed", "commit_sha": "0246484f", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-033-android-authcard", "status": "completed", "commit_sha": "6f8f29fe", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-033-ios-authcard", "status": "completed", "commit_sha": "c4c6aff6", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-034-android-banner", "status": "completed", "commit_sha": "cdce6835", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-034-ios-banner", "status": "completed", "commit_sha": "1dceaab7", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-035-android-captioninput", "status": "completed", "commit_sha": "be8cf163", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-035-ios-captioninput", "status": "completed", "commit_sha": "a1b0c155", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-036-android-cardskeleton", "status": "completed", "commit_sha": "ce10329c", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-036-ios-cardskeleton", "status": "completed", "commit_sha": "ea335585", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-037-android-chattranscript", "status": "completed", "commit_sha": "8faa32dc", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-038-android-connectionbanner", "status": "completed", "commit_sha": "43927366", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-038-ios-connectionbanner", "status": "completed", "commit_sha": "253c1b6b", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-039-android-creativelabelfadein", "status": "completed", "commit_sha": "4fc34703", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-039-ios-creativelabelfadein", "status": "completed", "commit_sha": "0db8ed70", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-040-ios-daterangepicker", "status": "completed", "commit_sha": "2c7f033a", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-041-android-deleteconfirmationdialog", "status": "completed", "commit_sha": "473b2e48", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-041-ios-deleteconfirmationdialog", "status": "completed", "commit_sha": "00cb7b03", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-042-android-deletefavoritedialog", "status": "completed", "commit_sha": "08454546", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-042-ios-deletefavoritedialog", "status": "completed", "commit_sha": "c4d629b9", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-043-ios-deleteroutedialog", "status": "completed", "commit_sha": "8ea20657", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-044-android-departuretimeselector", "status": "completed", "commit_sha": "3f7c5ab7", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-044-ios-departuretimeselector", "status": "completed", "commit_sha": "caef213b", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-045-android-discoveryemptyoverlay", "status": "completed", "commit_sha": "43de3077", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-045-ios-discoveryemptyoverlay", "status": "completed", "commit_sha": "d6d7b824", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-046-android-discoveryfilterbar", "status": "completed", "commit_sha": "4d6ec000", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-046-ios-discoveryfilterbar", "status": "completed", "commit_sha": "7a69cb5c", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-047-android-discoveryloadingoverlay", "status": "completed", "commit_sha": "211d3ea6", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-047-ios-discoveryloadingoverlay", "status": "completed", "commit_sha": "dd40a318", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-048-android-discoverysorttoggle", "status": "completed", "commit_sha": "4fde01e7", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-048-ios-discoverysorttoggle", "status": "completed", "commit_sha": "aaf7be65", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-049-android-downloaderrorsheet", "status": "completed", "commit_sha": "ace11268", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-049-ios-downloaderrorsheet", "status": "completed", "commit_sha": "9aec12f9", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-050-android-downloadprogressbanner", "status": "completed", "commit_sha": "26e7008a", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-050-ios-downloadprogressbanner", "status": "completed", "commit_sha": "d8202352", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-051-android-downloadprogressindicator", "status": "completed", "commit_sha": "4a26d2f2", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-051-ios-downloadprogressindicator", "status": "completed", "commit_sha": "a46a6b0a", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-053-android-enrichmentstatusbadge", "status": "completed", "commit_sha": "75193508", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-053-ios-enrichmentstatusbadge", "status": "completed", "commit_sha": "3994229f", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-054-android-errormessage", "status": "completed", "commit_sha": "b4ae7936", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-054-ios-errormessage", "status": "completed", "commit_sha": "65988846", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-055-android-errortoast", "status": "completed", "commit_sha": "e6c6f537", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-055-ios-errortoast", "status": "completed", "commit_sha": "2bbebe4b", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-056-android-favoriteexclusionalert", "status": "completed", "commit_sha": "9e6dee57", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-056-ios-favoriteexclusionalert", "status": "completed", "commit_sha": "f1966526", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-058-android-favoritesinfosheet", "status": "completed", "commit_sha": "d3813a60", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-058-ios-favoritesinfosheet", "status": "completed", "commit_sha": "7809655d", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-059-android-floatingsearchinput", "status": "completed", "commit_sha": "97f74743", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-059-ios-floatingsearchinput", "status": "completed", "commit_sha": "04fcfcfa", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-060-android-header", "status": "completed", "commit_sha": "2eb4116d", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-061-ios-highlighttagsstagger", "status": "completed", "commit_sha": "86edb6bb", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-062-android-infotoast", "status": "completed", "commit_sha": "10c3e6ec", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-062-ios-infotoast", "status": "completed", "commit_sha": "3650c9bc", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-063-android-intentsearchsheet", "status": "completed", "commit_sha": "8cfb0c87", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-063-ios-intentsearchsheet", "status": "completed", "commit_sha": "602d0aee", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-064-android-intentsummarypill", "status": "completed", "commit_sha": "9e6437c1", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-064-ios-intentsummarypill", "status": "completed", "commit_sha": "663c0c53", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-065-android-keyboardavoidinginput", "status": "completed", "commit_sha": "845993d1", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-065-ios-keyboardavoidinginput", "status": "completed", "commit_sha": "9e67c729", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-066-android-labelskeleton", "status": "completed", "commit_sha": "ce3a131f", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-066-ios-labelskeleton", "status": "completed", "commit_sha": "177a001e", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-067-android-locationinput", "status": "completed", "commit_sha": "7ebcd68e", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-067-ios-locationinput", "status": "completed", "commit_sha": "e584f5a3", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-068-android-locationsearchcard", "status": "completed", "commit_sha": "b9877078", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-068-ios-locationsearchcard", "status": "completed", "commit_sha": "8ea32ff5", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-069-android-mapcontrols", "status": "completed", "commit_sha": "baaf05c3", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-069-ios-mapcontrols", "status": "completed", "commit_sha": "2fcb4c44", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-070-android-mapheaderoverlay", "status": "completed", "commit_sha": "e9fa7a6d", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-070-ios-mapheaderoverlay", "status": "completed", "commit_sha": "146ea869", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-071-android-mapplanningindicator", "status": "completed", "commit_sha": "e8a18654", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "UI-071-ios-mapplanningindicator", "status": "completed", "commit_sha": "30570810", "completed_at": "2026-04-20T00:57:00Z"}
-{"task_id": "MDL-001-atomic-write", "status": "pending", "task_num": 1, "component_type": "atom", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/MDL-001-atomic-write.md"}
-{"task_id": "MDL-002-auth-tokens", "status": "pending", "task_num": 2, "component_type": "model", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/MDL-002-auth-tokens.md"}
-{"task_id": "MDL-003-camera-quick", "status": "pending", "task_num": 3, "component_type": "model", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/MDL-003-camera-quick.md"}
-{"task_id": "MDL-004-checksum", "status": "pending", "task_num": 4, "component_type": "model", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/MDL-004-checksum.md"}
-{"task_id": "MDL-005-download-queue", "status": "pending", "task_num": 5, "component_type": "model", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/MDL-005-download-queue.md"}
-{"task_id": "MDL-006-gatekeeper-download-manager", "status": "pending", "task_num": 6, "component_type": "model", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/MDL-006-gatekeeper-download-manager.md"}
-{"task_id": "MDL-007-model-download", "status": "pending", "task_num": 7, "component_type": "model", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/MDL-007-model-download.md"}
-{"task_id": "MDL-008-model-manifest", "status": "pending", "task_num": 8, "component_type": "model", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/MDL-008-model-manifest.md"}
-{"task_id": "MDL-009-storage-utils", "status": "pending", "task_num": 9, "component_type": "model", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/MDL-009-storage-utils.md"}
-{"task_id": "MDL-010-weather-optimization", "status": "pending", "task_num": 10, "component_type": "model", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/MDL-010-weather-optimization.md"}
-{"task_id": "MDL-011-wifi-validator", "status": "pending", "task_num": 11, "component_type": "model", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/MDL-011-wifi-validator.md"}
-{"task_id": "UI-007-android-chip", "status": "pending", "task_num": 7, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-007-android-chip.md"}
-{"task_id": "UI-013-android-iconsymbol-ios", "status": "pending", "task_num": 13, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-013-android-iconsymbol-ios.md"}
-{"task_id": "UI-013-ios-iconsymbol-ios", "status": "pending", "task_num": 13, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-013-ios-iconsymbol-ios.md"}
-{"task_id": "UI-037-ios-chattranscript", "status": "pending", "task_num": 37, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-037-ios-chattranscript.md"}
-{"task_id": "UI-040-android-daterangepicker", "status": "pending", "task_num": 40, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-040-android-daterangepicker.md"}
-{"task_id": "UI-043-android-deleteroutedialog", "status": "pending", "task_num": 43, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-043-android-deleteroutedialog.md"}
-{"task_id": "UI-052-android-emptystate", "status": "pending", "task_num": 52, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-052-android-emptystate.md"}
-{"task_id": "UI-052-ios-emptystate", "status": "pending", "task_num": 52, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-052-ios-emptystate.md"}
-{"task_id": "UI-057-android-favoriteroadcard", "status": "pending", "task_num": 57, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-057-android-favoriteroadcard.md"}
-{"task_id": "UI-057-ios-favoriteroadcard", "status": "pending", "task_num": 57, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-057-ios-favoriteroadcard.md"}
-{"task_id": "UI-060-ios-header", "status": "pending", "task_num": 60, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-060-ios-header.md"}
-{"task_id": "UI-061-android-highlighttagsstagger", "status": "pending", "task_num": 61, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-061-android-highlighttagsstagger.md"}
-{"task_id": "UI-072-android-markdowntext", "status": "pending", "task_num": 72, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-072-android-markdowntext.md"}
-{"task_id": "UI-072-ios-markdowntext", "status": "pending", "task_num": 72, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-072-ios-markdowntext.md"}
-{"task_id": "UI-073-android-minimaloverlaywidget", "status": "pending", "task_num": 73, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-073-android-minimaloverlaywidget.md"}
-{"task_id": "UI-073-ios-minimaloverlaywidget", "status": "pending", "task_num": 73, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-073-ios-minimaloverlaywidget.md"}
-{"task_id": "UI-074-android-minimaloverlaywidgetpreview", "status": "pending", "task_num": 74, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-074-android-minimaloverlaywidgetpreview.md"}
-{"task_id": "UI-074-ios-minimaloverlaywidgetpreview", "status": "pending", "task_num": 74, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-074-ios-minimaloverlaywidgetpreview.md"}
-{"task_id": "UI-075-android-newsessionbutton", "status": "pending", "task_num": 75, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-075-android-newsessionbutton.md"}
-{"task_id": "UI-075-ios-newsessionbutton", "status": "pending", "task_num": 75, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-075-ios-newsessionbutton.md"}
-{"task_id": "UI-076-android-overlaypill", "status": "pending", "task_num": 76, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-076-android-overlaypill.md"}
-{"task_id": "UI-076-ios-overlaypill", "status": "pending", "task_num": 76, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-076-ios-overlaypill.md"}
-{"task_id": "UI-077-android-overlaytoggle", "status": "pending", "task_num": 77, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-077-android-overlaytoggle.md"}
-{"task_id": "UI-077-ios-overlaytoggle", "status": "pending", "task_num": 77, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-077-ios-overlaytoggle.md"}
-{"task_id": "UI-078-android-permissionnotification", "status": "pending", "task_num": 78, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-078-android-permissionnotification.md"}
-{"task_id": "UI-078-ios-permissionnotification", "status": "pending", "task_num": 78, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-078-ios-permissionnotification.md"}
-{"task_id": "UI-079-android-planfab", "status": "pending", "task_num": 79, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-079-android-planfab.md"}
-{"task_id": "UI-079-ios-planfab", "status": "pending", "task_num": 79, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-079-ios-planfab.md"}
-{"task_id": "UI-080-android-planningcard", "status": "pending", "task_num": 80, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-080-android-planningcard.md"}
-{"task_id": "UI-080-ios-planningcard", "status": "pending", "task_num": 80, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-080-ios-planningcard.md"}
-{"task_id": "UI-081-android-planningerrorsheet", "status": "pending", "task_num": 81, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-081-android-planningerrorsheet.md"}
-{"task_id": "UI-081-ios-planningerrorsheet", "status": "pending", "task_num": 81, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-081-ios-planningerrorsheet.md"}
-{"task_id": "UI-082-android-planningloading", "status": "pending", "task_num": 82, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-082-android-planningloading.md"}
-{"task_id": "UI-082-ios-planningloading", "status": "pending", "task_num": 82, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-082-ios-planningloading.md"}
-{"task_id": "UI-083-android-planningprogressindicator", "status": "pending", "task_num": 83, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-083-android-planningprogressindicator.md"}
-{"task_id": "UI-083-ios-planningprogressindicator", "status": "pending", "task_num": 83, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-083-ios-planningprogressindicator.md"}
-{"task_id": "UI-084-android-planningstatustab", "status": "pending", "task_num": 84, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-084-android-planningstatustab.md"}
-{"task_id": "UI-084-ios-planningstatustab", "status": "pending", "task_num": 84, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-084-ios-planningstatustab.md"}
-{"task_id": "UI-085-android-preferencesrow", "status": "pending", "task_num": 85, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-085-android-preferencesrow.md"}
-{"task_id": "UI-085-ios-preferencesrow", "status": "pending", "task_num": 85, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-085-ios-preferencesrow.md"}
-{"task_id": "UI-086-android-progressiveenhancementtoast", "status": "pending", "task_num": 86, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-086-android-progressiveenhancementtoast.md"}
-{"task_id": "UI-086-ios-progressiveenhancementtoast", "status": "pending", "task_num": 86, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-086-ios-progressiveenhancementtoast.md"}
-{"task_id": "UI-087-android-rainbadge", "status": "pending", "task_num": 87, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-087-android-rainbadge.md"}
-{"task_id": "UI-087-ios-rainbadge", "status": "pending", "task_num": 87, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-087-ios-rainbadge.md"}
-{"task_id": "UI-088-android-raintimingsummary", "status": "pending", "task_num": 88, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-088-android-raintimingsummary.md"}
-{"task_id": "UI-088-ios-raintimingsummary", "status": "pending", "task_num": 88, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-088-ios-raintimingsummary.md"}
-{"task_id": "UI-089-android-rationalereveal", "status": "pending", "task_num": 89, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-089-android-rationalereveal.md"}
-{"task_id": "UI-089-ios-rationalereveal", "status": "pending", "task_num": 89, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-089-ios-rationalereveal.md"}
-{"task_id": "UI-090-android-reasoningcard", "status": "pending", "task_num": 90, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-090-android-reasoningcard.md"}
-{"task_id": "UI-090-ios-reasoningcard", "status": "pending", "task_num": 90, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-090-ios-reasoningcard.md"}
-{"task_id": "UI-091-android-regionlistitem", "status": "pending", "task_num": 91, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-091-android-regionlistitem.md"}
-{"task_id": "UI-091-ios-regionlistitem", "status": "pending", "task_num": 91, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-091-ios-regionlistitem.md"}
-{"task_id": "UI-092-android-regionnamebottomsheet", "status": "pending", "task_num": 92, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-092-android-regionnamebottomsheet.md"}
-{"task_id": "UI-092-ios-regionnamebottomsheet", "status": "pending", "task_num": 92, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-092-ios-regionnamebottomsheet.md"}
-{"task_id": "UI-093-android-renameregionbottomsheet", "status": "pending", "task_num": 93, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-093-android-renameregionbottomsheet.md"}
-{"task_id": "UI-093-ios-renameregionbottomsheet", "status": "pending", "task_num": 93, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-093-ios-renameregionbottomsheet.md"}
-{"task_id": "UI-094-android-renameroutedialog", "status": "pending", "task_num": 94, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-094-android-renameroutedialog.md"}
-{"task_id": "UI-094-ios-renameroutedialog", "status": "pending", "task_num": 94, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-094-ios-renameroutedialog.md"}
-{"task_id": "UI-095-android-routeattachmentcard", "status": "pending", "task_num": 95, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-095-android-routeattachmentcard.md"}
-{"task_id": "UI-095-ios-routeattachmentcard", "status": "pending", "task_num": 95, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-095-ios-routeattachmentcard.md"}
-{"task_id": "UI-096-android-routebadge", "status": "pending", "task_num": 96, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-096-android-routebadge.md"}
-{"task_id": "UI-096-ios-routebadge", "status": "pending", "task_num": 96, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-096-ios-routebadge.md"}
-{"task_id": "UI-097-android-routelegtimeline", "status": "pending", "task_num": 97, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-097-android-routelegtimeline.md"}
-{"task_id": "UI-097-ios-routelegtimeline", "status": "pending", "task_num": 97, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-097-ios-routelegtimeline.md"}
-{"task_id": "UI-098-android-routeminimap", "status": "pending", "task_num": 98, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-098-android-routeminimap.md"}
-{"task_id": "UI-098-ios-routeminimap", "status": "pending", "task_num": 98, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-098-ios-routeminimap.md"}
-{"task_id": "UI-099-android-routeoptioncard-planning", "status": "pending", "task_num": 99, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-099-android-routeoptioncard-planning.md"}
-{"task_id": "UI-099-ios-routeoptioncard-planning", "status": "pending", "task_num": 99, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-099-ios-routeoptioncard-planning.md"}
-{"task_id": "UI-100-android-routeoptioncard", "status": "pending", "task_num": 100, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-100-android-routeoptioncard.md"}
-{"task_id": "UI-100-ios-routeoptioncard", "status": "pending", "task_num": 100, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-100-ios-routeoptioncard.md"}
-{"task_id": "UI-101-android-routepin", "status": "pending", "task_num": 101, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-101-android-routepin.md"}
-{"task_id": "UI-101-ios-routepin", "status": "pending", "task_num": 101, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-101-ios-routepin.md"}
-{"task_id": "UI-102-android-routethumbnail", "status": "pending", "task_num": 102, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-102-android-routethumbnail.md"}
-{"task_id": "UI-102-ios-routethumbnail", "status": "pending", "task_num": 102, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-102-ios-routethumbnail.md"}
-{"task_id": "UI-103-android-routingcard", "status": "pending", "task_num": 103, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-103-android-routingcard.md"}
-{"task_id": "UI-103-ios-routingcard", "status": "pending", "task_num": 103, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-103-ios-routingcard.md"}
-{"task_id": "UI-104-android-savedroutecard", "status": "pending", "task_num": 104, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-104-android-savedroutecard.md"}
-{"task_id": "UI-104-ios-savedroutecard", "status": "pending", "task_num": 104, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-104-ios-savedroutecard.md"}
-{"task_id": "UI-105-android-savefavoritesheet", "status": "pending", "task_num": 105, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-105-android-savefavoritesheet.md"}
-{"task_id": "UI-105-ios-savefavoritesheet", "status": "pending", "task_num": 105, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-105-ios-savefavoritesheet.md"}
-{"task_id": "UI-106-android-scenicbiassegmented", "status": "pending", "task_num": 106, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-106-android-scenicbiassegmented.md"}
-{"task_id": "UI-106-ios-scenicbiassegmented", "status": "pending", "task_num": 106, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-106-ios-scenicbiassegmented.md"}
-{"task_id": "UI-107-android-searchbar", "status": "pending", "task_num": 107, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-107-android-searchbar.md"}
-{"task_id": "UI-107-ios-searchbar", "status": "pending", "task_num": 107, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-107-ios-searchbar.md"}
-{"task_id": "UI-108-android-searchresultmarker", "status": "pending", "task_num": 108, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-108-android-searchresultmarker.md"}
-{"task_id": "UI-108-ios-searchresultmarker", "status": "pending", "task_num": 108, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-108-ios-searchresultmarker.md"}
-{"task_id": "UI-109-android-sectionheader", "status": "pending", "task_num": 109, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-109-android-sectionheader.md"}
-{"task_id": "UI-109-ios-sectionheader", "status": "pending", "task_num": 109, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-109-ios-sectionheader.md"}
-{"task_id": "UI-110-android-segmentdetailview", "status": "pending", "task_num": 110, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-110-android-segmentdetailview.md"}
-{"task_id": "UI-110-ios-segmentdetailview", "status": "pending", "task_num": 110, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-110-ios-segmentdetailview.md"}
-{"task_id": "UI-111-android-sessioncard", "status": "pending", "task_num": 111, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-111-android-sessioncard.md"}
-{"task_id": "UI-111-ios-sessioncard", "status": "pending", "task_num": 111, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-111-ios-sessioncard.md"}
-{"task_id": "UI-112-android-sessioncontextmenu", "status": "pending", "task_num": 112, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-112-android-sessioncontextmenu.md"}
-{"task_id": "UI-112-ios-sessioncontextmenu", "status": "pending", "task_num": 112, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-112-ios-sessioncontextmenu.md"}
-{"task_id": "UI-113-android-skeletonwrapper", "status": "pending", "task_num": 113, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-113-android-skeletonwrapper.md"}
-{"task_id": "UI-113-ios-skeletonwrapper", "status": "pending", "task_num": 113, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-113-ios-skeletonwrapper.md"}
-{"task_id": "UI-114-android-statefiltersheet", "status": "pending", "task_num": 114, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-114-android-statefiltersheet.md"}
-{"task_id": "UI-114-ios-statefiltersheet", "status": "pending", "task_num": 114, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-114-ios-statefiltersheet.md"}
-{"task_id": "UI-115-android-statelistitem", "status": "pending", "task_num": 115, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-115-android-statelistitem.md"}
-{"task_id": "UI-115-ios-statelistitem", "status": "pending", "task_num": 115, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-115-ios-statelistitem.md"}
-{"task_id": "UI-116-android-statrow", "status": "pending", "task_num": 116, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-116-android-statrow.md"}
-{"task_id": "UI-116-ios-statrow", "status": "pending", "task_num": 116, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-116-ios-statrow.md"}
-{"task_id": "UI-117-android-successtoast", "status": "pending", "task_num": 117, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-117-android-successtoast.md"}
-{"task_id": "UI-117-ios-successtoast", "status": "pending", "task_num": 117, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-117-ios-successtoast.md"}
-{"task_id": "UI-118-android-suggestionchips", "status": "pending", "task_num": 118, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-118-android-suggestionchips.md"}
-{"task_id": "UI-118-ios-suggestionchips", "status": "pending", "task_num": 118, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-118-ios-suggestionchips.md"}
-{"task_id": "UI-119-android-teachertabbar", "status": "pending", "task_num": 119, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-119-android-teachertabbar.md"}
-{"task_id": "UI-119-ios-teachertabbar", "status": "pending", "task_num": 119, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-119-ios-teachertabbar.md"}
-{"task_id": "UI-120-android-temperaturebadge", "status": "pending", "task_num": 120, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-120-android-temperaturebadge.md"}
-{"task_id": "UI-120-ios-temperaturebadge", "status": "pending", "task_num": 120, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-120-ios-temperaturebadge.md"}
-{"task_id": "UI-121-android-temprangesummary", "status": "pending", "task_num": 121, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-121-android-temprangesummary.md"}
-{"task_id": "UI-121-ios-temprangesummary", "status": "pending", "task_num": 121, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-121-ios-temprangesummary.md"}
-{"task_id": "UI-122-android-themepicker", "status": "pending", "task_num": 122, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-122-android-themepicker.md"}
-{"task_id": "UI-122-ios-themepicker", "status": "pending", "task_num": 122, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-122-ios-themepicker.md"}
-{"task_id": "UI-123-android-thinkingcard", "status": "pending", "task_num": 123, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-123-android-thinkingcard.md"}
-{"task_id": "UI-123-ios-thinkingcard", "status": "pending", "task_num": 123, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-123-ios-thinkingcard.md"}
-{"task_id": "UI-124-android-togglegroup", "status": "pending", "task_num": 124, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-124-android-togglegroup.md"}
-{"task_id": "UI-124-ios-togglegroup", "status": "pending", "task_num": 124, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-124-ios-togglegroup.md"}
-{"task_id": "UI-125-android-togglescontainer", "status": "pending", "task_num": 125, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-125-android-togglescontainer.md"}
-{"task_id": "UI-125-ios-togglescontainer", "status": "pending", "task_num": 125, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-125-ios-togglescontainer.md"}
-{"task_id": "UI-126-android-topographicbackground", "status": "pending", "task_num": 126, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-126-android-topographicbackground.md"}
-{"task_id": "UI-126-ios-topographicbackground", "status": "pending", "task_num": 126, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-126-ios-topographicbackground.md"}
-{"task_id": "UI-127-android-typingindicator", "status": "pending", "task_num": 127, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-127-android-typingindicator.md"}
-{"task_id": "UI-127-ios-typingindicator", "status": "pending", "task_num": 127, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-127-ios-typingindicator.md"}
-{"task_id": "UI-128-android-warningtoast", "status": "pending", "task_num": 128, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-128-android-warningtoast.md"}
-{"task_id": "UI-128-ios-warningtoast", "status": "pending", "task_num": 128, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-128-ios-warningtoast.md"}
-{"task_id": "UI-129-android-waypointcard", "status": "pending", "task_num": 129, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-129-android-waypointcard.md"}
-{"task_id": "UI-129-ios-waypointcard", "status": "pending", "task_num": 129, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-129-ios-waypointcard.md"}
-{"task_id": "UI-130-android-waypointmarker", "status": "pending", "task_num": 130, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-130-android-waypointmarker.md"}
-{"task_id": "UI-130-ios-waypointmarker", "status": "pending", "task_num": 130, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-130-ios-waypointmarker.md"}
-{"task_id": "UI-131-android-weatherbadgeskeleton", "status": "pending", "task_num": 131, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-131-android-weatherbadgeskeleton.md"}
-{"task_id": "UI-131-ios-weatherbadgeskeleton", "status": "pending", "task_num": 131, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-131-ios-weatherbadgeskeleton.md"}
-{"task_id": "UI-132-android-weathergauge", "status": "pending", "task_num": 132, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-132-android-weathergauge.md"}
-{"task_id": "UI-132-ios-weathergauge", "status": "pending", "task_num": 132, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-132-ios-weathergauge.md"}
-{"task_id": "UI-133-android-weatheroverlay", "status": "pending", "task_num": 133, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-133-android-weatheroverlay.md"}
-{"task_id": "UI-133-ios-weatheroverlay", "status": "pending", "task_num": 133, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-133-ios-weatheroverlay.md"}
-{"task_id": "UI-134-android-weatherpill", "status": "pending", "task_num": 134, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-134-android-weatherpill.md"}
-{"task_id": "UI-134-ios-weatherpill", "status": "pending", "task_num": 134, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-134-ios-weatherpill.md"}
-{"task_id": "UI-135-android-weatherpillsrow", "status": "pending", "task_num": 135, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-135-android-weatherpillsrow.md"}
-{"task_id": "UI-135-ios-weatherpillsrow", "status": "pending", "task_num": 135, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-135-ios-weatherpillsrow.md"}
-{"task_id": "UI-136-android-weatherstrip", "status": "pending", "task_num": 136, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-136-android-weatherstrip.md"}
-{"task_id": "UI-136-ios-weatherstrip", "status": "pending", "task_num": 136, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-136-ios-weatherstrip.md"}
-{"task_id": "UI-137-android-wheretobar", "status": "pending", "task_num": 137, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-137-android-wheretobar.md"}
-{"task_id": "UI-137-ios-wheretobar", "status": "pending", "task_num": 137, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-137-ios-wheretobar.md"}
-{"task_id": "UI-138-android-wifirequiredsheet", "status": "pending", "task_num": 138, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-138-android-wifirequiredsheet.md"}
-{"task_id": "UI-138-ios-wifirequiredsheet", "status": "pending", "task_num": 138, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-138-ios-wifirequiredsheet.md"}
-{"task_id": "UI-139-android-windbadge", "status": "pending", "task_num": 139, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-139-android-windbadge.md"}
-{"task_id": "UI-139-ios-windbadge", "status": "pending", "task_num": 139, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-139-ios-windbadge.md"}
-{"task_id": "UI-140-android-chatinput", "status": "pending", "task_num": 140, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-140-android-chatinput.md"}
-{"task_id": "UI-140-ios-chatinput", "status": "pending", "task_num": 140, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-140-ios-chatinput.md"}
-{"task_id": "UI-141-android-chattranscript", "status": "pending", "task_num": 141, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-141-android-chattranscript.md"}
-{"task_id": "UI-141-ios-chattranscript", "status": "pending", "task_num": 141, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-141-ios-chattranscript.md"}
-{"task_id": "UI-142-android-devmenu", "status": "pending", "task_num": 142, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-142-android-devmenu.md"}
-{"task_id": "UI-142-ios-devmenu", "status": "pending", "task_num": 142, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-142-ios-devmenu.md"}
-{"task_id": "UI-143-android-drawermenu", "status": "pending", "task_num": 143, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-143-android-drawermenu.md"}
-{"task_id": "UI-143-ios-drawermenu", "status": "pending", "task_num": 143, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-143-ios-drawermenu.md"}
-{"task_id": "UI-144-android-enrichedroutecard", "status": "pending", "task_num": 144, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-144-android-enrichedroutecard.md"}
-{"task_id": "UI-144-ios-enrichedroutecard", "status": "pending", "task_num": 144, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-144-ios-enrichedroutecard.md"}
-{"task_id": "UI-145-android-enrichmentprogressprovider", "status": "pending", "task_num": 145, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-145-android-enrichmentprogressprovider.md"}
-{"task_id": "UI-145-ios-enrichmentprogressprovider", "status": "pending", "task_num": 145, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-145-ios-enrichmentprogressprovider.md"}
-{"task_id": "UI-146-android-favoriteroadssection", "status": "pending", "task_num": 146, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-146-android-favoriteroadssection.md"}
-{"task_id": "UI-146-ios-favoriteroadssection", "status": "pending", "task_num": 146, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-146-ios-favoriteroadssection.md"}
-{"task_id": "UI-147-android-intentsearchsheet", "status": "pending", "task_num": 147, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-147-android-intentsearchsheet.md"}
-{"task_id": "UI-147-ios-intentsearchsheet", "status": "pending", "task_num": 147, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-147-ios-intentsearchsheet.md"}
-{"task_id": "UI-148-android-mapboxmapview", "status": "pending", "task_num": 148, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-148-android-mapboxmapview.md"}
-{"task_id": "UI-148-ios-mapboxmapview", "status": "pending", "task_num": 148, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-148-ios-mapboxmapview.md"}
-{"task_id": "UI-149-android-maptoaststack", "status": "pending", "task_num": 149, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-149-android-maptoaststack.md"}
-{"task_id": "UI-149-ios-maptoaststack", "status": "pending", "task_num": 149, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-149-ios-maptoaststack.md"}
-{"task_id": "UI-150-android-mapviewwrapper", "status": "pending", "task_num": 150, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-150-android-mapviewwrapper.md"}
-{"task_id": "UI-150-ios-mapviewwrapper", "status": "pending", "task_num": 150, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-150-ios-mapviewwrapper.md"}
-{"task_id": "UI-151-android-modelmanagersection", "status": "pending", "task_num": 151, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-151-android-modelmanagersection.md"}
-{"task_id": "UI-151-ios-modelmanagersection", "status": "pending", "task_num": 151, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-151-ios-modelmanagersection.md"}
-{"task_id": "UI-152-android-planningbottomsheet", "status": "pending", "task_num": 152, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-152-android-planningbottomsheet.md"}
-{"task_id": "UI-152-ios-planningbottomsheet", "status": "pending", "task_num": 152, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-152-ios-planningbottomsheet.md"}
-{"task_id": "UI-153-android-planridesheet", "status": "pending", "task_num": 153, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-153-android-planridesheet.md"}
-{"task_id": "UI-153-ios-planridesheet", "status": "pending", "task_num": 153, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-153-ios-planridesheet.md"}
-{"task_id": "UI-154-android-routedetailssheet", "status": "pending", "task_num": 154, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-154-android-routedetailssheet.md"}
-{"task_id": "UI-154-ios-routedetailssheet", "status": "pending", "task_num": 154, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-154-ios-routedetailssheet.md"}
-{"task_id": "UI-155-android-routedetailsskeleton", "status": "pending", "task_num": 155, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-155-android-routedetailsskeleton.md"}
-{"task_id": "UI-155-ios-routedetailsskeleton", "status": "pending", "task_num": 155, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-155-ios-routedetailsskeleton.md"}
-{"task_id": "UI-156-android-routedirectionssheet", "status": "pending", "task_num": 156, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-156-android-routedirectionssheet.md"}
-{"task_id": "UI-156-ios-routedirectionssheet", "status": "pending", "task_num": 156, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-156-ios-routedirectionssheet.md"}
-{"task_id": "UI-157-android-routeoptionssheet", "status": "pending", "task_num": 157, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-157-android-routeoptionssheet.md"}
-{"task_id": "UI-157-ios-routeoptionssheet", "status": "pending", "task_num": 157, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-157-ios-routeoptionssheet.md"}
-{"task_id": "UI-158-android-routetimeline", "status": "pending", "task_num": 158, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-158-android-routetimeline.md"}
-{"task_id": "UI-158-ios-routetimeline", "status": "pending", "task_num": 158, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-158-ios-routetimeline.md"}
-{"task_id": "UI-159-android-sessionsidebar", "status": "pending", "task_num": 159, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-159-android-sessionsidebar.md"}
-{"task_id": "UI-159-ios-sessionsidebar", "status": "pending", "task_num": 159, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-159-ios-sessionsidebar.md"}
-{"task_id": "UI-160-android-statefiltersheet", "status": "pending", "task_num": 160, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-160-android-statefiltersheet.md"}
-{"task_id": "UI-160-ios-statefiltersheet", "status": "pending", "task_num": 160, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-160-ios-statefiltersheet.md"}
-{"task_id": "UI-161-android-voiceassistantoverlay", "status": "pending", "task_num": 161, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-161-android-voiceassistantoverlay.md"}
-{"task_id": "UI-161-ios-voiceassistantoverlay", "status": "pending", "task_num": 161, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-161-ios-voiceassistantoverlay.md"}
-{"task_id": "UI-162-android-waypointlist", "status": "pending", "task_num": 162, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-162-android-waypointlist.md"}
-{"task_id": "UI-162-ios-waypointlist", "status": "pending", "task_num": 162, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-162-ios-waypointlist.md"}
-{"task_id": "UI-163-android-authscreenlayout", "status": "pending", "task_num": 163, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-163-android-authscreenlayout.md"}
-{"task_id": "UI-163-ios-authscreenlayout", "status": "pending", "task_num": 163, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-163-ios-authscreenlayout.md"}
-{"task_id": "UI-164-android-baseviewlayout", "status": "pending", "task_num": 164, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-164-android-baseviewlayout.md"}
-{"task_id": "UI-164-ios-baseviewlayout", "status": "pending", "task_num": 164, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-164-ios-baseviewlayout.md"}
-{"task_id": "UI-165-android-bottomactionsheet", "status": "pending", "task_num": 165, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-165-android-bottomactionsheet.md"}
-{"task_id": "UI-165-ios-bottomactionsheet", "status": "pending", "task_num": 165, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-165-ios-bottomactionsheet.md"}
-{"task_id": "UI-166-android-bottomnavigation", "status": "pending", "task_num": 166, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-166-android-bottomnavigation.md"}
-{"task_id": "UI-166-ios-bottomnavigation", "status": "pending", "task_num": 166, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-166-ios-bottomnavigation.md"}
-{"task_id": "UI-167-android-bottomsheetwrapper", "status": "pending", "task_num": 167, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-167-android-bottomsheetwrapper.md"}
-{"task_id": "UI-167-ios-bottomsheetwrapper", "status": "pending", "task_num": 167, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-167-ios-bottomsheetwrapper.md"}
-{"task_id": "UI-168-android-boundingboxoverlay", "status": "pending", "task_num": 168, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-168-android-boundingboxoverlay.md"}
-{"task_id": "UI-168-ios-boundingboxoverlay", "status": "pending", "task_num": 168, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-168-ios-boundingboxoverlay.md"}
-{"task_id": "UI-169-android-buttonusage", "status": "pending", "task_num": 169, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-169-android-buttonusage.md"}
-{"task_id": "UI-169-ios-buttonusage", "status": "pending", "task_num": 169, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-169-ios-buttonusage.md"}
-{"task_id": "UI-170-android-completionscreen", "status": "pending", "task_num": 170, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-170-android-completionscreen.md"}
-{"task_id": "UI-170-ios-completionscreen", "status": "pending", "task_num": 170, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-170-ios-completionscreen.md"}
-{"task_id": "UI-171-android-completionsummarycard", "status": "pending", "task_num": 171, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-171-android-completionsummarycard.md"}
-{"task_id": "UI-171-ios-completionsummarycard", "status": "pending", "task_num": 171, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-171-ios-completionsummarycard.md"}
-{"task_id": "UI-172-android-downloadprogressscreen", "status": "pending", "task_num": 172, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-172-android-downloadprogressscreen.md"}
-{"task_id": "UI-172-ios-downloadprogressscreen", "status": "pending", "task_num": 172, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-172-ios-downloadprogressscreen.md"}
-{"task_id": "UI-173-android-elevationprofilechart", "status": "pending", "task_num": 173, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-173-android-elevationprofilechart.md"}
-{"task_id": "UI-173-ios-elevationprofilechart", "status": "pending", "task_num": 173, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-173-ios-elevationprofilechart.md"}
-{"task_id": "UI-174-android-errorboundary", "status": "pending", "task_num": 174, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-174-android-errorboundary.md"}
-{"task_id": "UI-174-ios-errorboundary", "status": "pending", "task_num": 174, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-174-ios-errorboundary.md"}
-{"task_id": "UI-175-android-gatekeeperupgradeprompt", "status": "pending", "task_num": 175, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-175-android-gatekeeperupgradeprompt.md"}
-{"task_id": "UI-175-ios-gatekeeperupgradeprompt", "status": "pending", "task_num": 175, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-175-ios-gatekeeperupgradeprompt.md"}
-{"task_id": "UI-176-android-menulayout", "status": "pending", "task_num": 176, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-176-android-menulayout.md"}
-{"task_id": "UI-176-ios-menulayout", "status": "pending", "task_num": 176, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-176-ios-menulayout.md"}
-{"task_id": "UI-177-android-modeldownloadscreen", "status": "pending", "task_num": 177, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-177-android-modeldownloadscreen.md"}
-{"task_id": "UI-177-ios-modeldownloadscreen", "status": "pending", "task_num": 177, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-177-ios-modeldownloadscreen.md"}
-{"task_id": "UI-178-android-modelgatekeeperprovider", "status": "pending", "task_num": 178, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-178-android-modelgatekeeperprovider.md"}
-{"task_id": "UI-178-ios-modelgatekeeperprovider", "status": "pending", "task_num": 178, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-178-ios-modelgatekeeperprovider.md"}
-{"task_id": "UI-179-android-platformnotificationtemplate", "status": "pending", "task_num": 179, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-179-android-platformnotificationtemplate.md"}
-{"task_id": "UI-179-ios-platformnotificationtemplate", "status": "pending", "task_num": 179, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-179-ios-platformnotificationtemplate.md"}
-{"task_id": "UI-180-android-regionboundspreview", "status": "pending", "task_num": 180, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-180-android-regionboundspreview.md"}
-{"task_id": "UI-180-ios-regionboundspreview", "status": "pending", "task_num": 180, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-180-ios-regionboundspreview.md"}
-{"task_id": "UI-181-android-ridecompletionscreen", "status": "pending", "task_num": 181, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-181-android-ridecompletionscreen.md"}
-{"task_id": "UI-181-ios-ridecompletionscreen", "status": "pending", "task_num": 181, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-181-ios-ridecompletionscreen.md"}
-{"task_id": "UI-182-android-ridesharesheet", "status": "pending", "task_num": 182, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-182-android-ridesharesheet.md"}
-{"task_id": "UI-182-ios-ridesharesheet", "status": "pending", "task_num": 182, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-182-ios-ridesharesheet.md"}
-{"task_id": "UI-183-android-routecomparisonview", "status": "pending", "task_num": 183, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-183-android-routecomparisonview.md"}
-{"task_id": "UI-183-ios-routecomparisonview", "status": "pending", "task_num": 183, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-183-ios-routecomparisonview.md"}
-{"task_id": "UI-184-android-routediscoveryscreen", "status": "pending", "task_num": 184, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-184-android-routediscoveryscreen.md"}
-{"task_id": "UI-184-ios-routediscoveryscreen", "status": "pending", "task_num": 184, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-184-ios-routediscoveryscreen.md"}
-{"task_id": "UI-185-android-routeoptionsscreen", "status": "pending", "task_num": 185, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-185-android-routeoptionsscreen.md"}
-{"task_id": "UI-185-ios-routeoptionsscreen", "status": "pending", "task_num": 185, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-185-ios-routeoptionsscreen.md"}
-{"task_id": "UI-186-android-savedroutesscreen", "status": "pending", "task_num": 186, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-186-android-savedroutesscreen.md"}
-{"task_id": "UI-186-ios-savedroutesscreen", "status": "pending", "task_num": 186, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-186-ios-savedroutesscreen.md"}
-{"task_id": "UI-187-android-setuprequiredscreen", "status": "pending", "task_num": 187, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-187-android-setuprequiredscreen.md"}
-{"task_id": "UI-187-ios-setuprequiredscreen", "status": "pending", "task_num": 187, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-187-ios-setuprequiredscreen.md"}
-{"task_id": "UI-188-android-speedometer", "status": "pending", "task_num": 188, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-188-android-speedometer.md"}
-{"task_id": "UI-188-ios-speedometer", "status": "pending", "task_num": 188, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-188-ios-speedometer.md"}
-{"task_id": "UI-189-android-subpagelayout", "status": "pending", "task_num": 189, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-189-android-subpagelayout.md"}
-{"task_id": "UI-189-ios-subpagelayout", "status": "pending", "task_num": 189, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-189-ios-subpagelayout.md"}
-{"task_id": "UI-190-android-teachersimpleviewlayout", "status": "pending", "task_num": 190, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-190-android-teachersimpleviewlayout.md"}
-{"task_id": "UI-190-ios-teachersimpleviewlayout", "status": "pending", "task_num": 190, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-190-ios-teachersimpleviewlayout.md"}
-{"task_id": "UI-191-android-teachertabviewlayout", "status": "pending", "task_num": 191, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-191-android-teachertabviewlayout.md"}
-{"task_id": "UI-191-ios-teachertabviewlayout", "status": "pending", "task_num": 191, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-191-ios-teachertabviewlayout.md"}
-{"task_id": "UI-192-android-turninstructioncard", "status": "pending", "task_num": 192, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-192-android-turninstructioncard.md"}
-{"task_id": "UI-192-ios-turninstructioncard", "status": "pending", "task_num": 192, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-192-ios-turninstructioncard.md"}
-{"task_id": "UI-193-android-voicelisteningvisualizer", "status": "pending", "task_num": 193, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-193-android-voicelisteningvisualizer.md"}
-{"task_id": "UI-193-ios-voicelisteningvisualizer", "status": "pending", "task_num": 193, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-193-ios-voicelisteningvisualizer.md"}
-{"task_id": "UI-194-android-welcomescreen", "status": "pending", "task_num": 194, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-194-android-welcomescreen.md"}
-{"task_id": "UI-194-ios-welcomescreen", "status": "pending", "task_num": 194, "component_type": "unknown", "file_path": ".spec/prds/native-rewrite/tasks/sprint-02-ui-component-translation/UI-194-ios-welcomescreen.md"}
-{"task_id":"UI-072-android-markdowntext","status":"completed","commit_sha":"07f69d99","completed_at":"2026-04-20T01:05:00Z"}
-{"task_id":"UI-072-ios-markdowntext","status":"completed","commit_sha":"2c52cc85","completed_at":"2026-04-20T01:03:00Z"}
-{"task_id":"UI-073-android-minimaloverlaywidget","status":"completed","commit_sha":"07ea2056","completed_at":"2026-04-20T01:00:00Z"}
-{"task_id":"UI-073-ios-minimaloverlaywidget","status":"completed","commit_sha":"1b3634a6","completed_at":"2026-04-20T01:01:00Z"}
-{"task_id":"UI-074-ios-minimaloverlaywidgetpreview","status":"completed","commit_sha":"ffbd334d","completed_at":"2026-04-20T01:15:00Z"}
-{"task_id":"UI-075-android-newsessionbutton","status":"completed","commit_sha":"97fb825f","completed_at":"2026-04-20T01:16:00Z"}
-{"task_id":"UI-075-ios-newsessionbutton","status":"completed","commit_sha":"3cb861e4","completed_at":"2026-04-20T01:17:00Z"}
-{"task_id": "MDL-001-atomic-write", "status": "completed", "commit_sha": "a4a2570a25e3aa4cf938b8af8ea47df1229c429b", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "MDL-002-auth-tokens", "status": "completed", "commit_sha": "689df08f46b5170eccf1cafc204d21790e8cbe0d", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "MDL-003-camera-quick", "status": "completed", "commit_sha": "fb9aff727aeed9c5de00919b577bd35b2924e35e", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "MDL-004-checksum", "status": "completed", "commit_sha": "476d1570", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "MDL-005-download-queue", "status": "completed", "commit_sha": "f821e5d08ff9eea5134900a81acdca616eb0efa7", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "MDL-006-gatekeeper-download-manager", "status": "completed", "commit_sha": "0d5d9f9a", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "MDL-007-model-download", "status": "completed", "commit_sha": "4d92a730", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "MDL-008-model-manifest", "status": "completed", "commit_sha": "9a5302ba6083970bde32418bbb8a466966fc711f", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "MDL-009-storage-utils", "status": "completed", "commit_sha": "a272e06e", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "MDL-010-weather-optimization", "status": "completed", "commit_sha": "5f5e6a6eecbeb854fbba4e52003f75ad1837cbfe", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "MDL-011-wifi-validator", "status": "completed", "commit_sha": "2e1942ba", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "UI-007-android-chip", "status": "completed", "commit_sha": "686e583f70786e4a28f6ce070b8028ec65cbd78a", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "UI-013-android-iconsymbol-ios", "status": "completed", "commit_sha": "b1d1bce06ac33e51e7ab5377ae0de9c610b6baa6", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "UI-013-ios-iconsymbol-ios", "status": "completed", "commit_sha": "1834208b171c5040ae462227534a9d1e72a6fd49", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "UI-037-ios-chattranscript", "status": "completed", "commit_sha": "686e583f70786e4a28f6ce070b8028ec65cbd78a", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "UI-040-android-daterangepicker", "status": "completed", "commit_sha": "363845d931552d64ba62e0003ae6b76cf5e847c1", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "UI-043-android-deleteroutedialog", "status": "completed", "commit_sha": "2f8b9835c8406e1ae443a11000fc48d6792ace07", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "UI-052-android-emptystate", "status": "completed", "commit_sha": "268aa465256757f2476d2469b14abc5d6b1e49b5", "completed_at": "2026-04-19T23:30:00Z"}
-{"task_id": "UI-052-ios-emptystate", "status": "completed", "commit_sha": "56c3cef0", "completed_at": "2026-04-19T23:30:00Z"}
+{"header": "sprint-02-ui-component-translation", "total_tasks": 399, "timestamp": "2026-04-19T22:13:22.589273Z"}
+
+{"task_id": "MDL-001-atomic-write", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "a4a2570a25e3aa4cf938b8af8ea47df1229c429b", "blocked_by": []}
+{"task_id": "MDL-002-auth-tokens", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "7a59b37d81f77962cc42af7a5e16864481a212b35", "blocked_by": []}
+{"task_id": "MDL-003-camera-quick", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "abddd3811a1674e4562171a7e16864481a212b35", "blocked_by": []}
+{"task_id": "MDL-004-checksum", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "476d1570993ac1c1202764b9f2a4fa1ff1336d19", "blocked_by": []}
+{"task_id": "MDL-005-download-queue", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "f821e5d0b5d2e5a6b4c7d8e9f0a1b2c3d4e5f6a7", "blocked_by": []}
+{"task_id": "MDL-006-gatekeeper-download-manager", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "749c5f7cdedfb854615f7d557baf2b775ff448c1", "blocked_by": []}
+{"task_id": "MDL-007-model-download", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "4d92a7303d85e27f929decc5f67d6ac7561dce89", "blocked_by": []}
+{"task_id": "MDL-008-model-manifest", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "9a5302ba6083970bde32418bbb8a466966fc711f", "blocked_by": []}
+{"task_id": "MDL-009-storage-utils", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "a272e06ee562ae253f9fd5d5633d84e8cf45f92f", "blocked_by": []}
+{"task_id": "MDL-010-weather-optimization", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "5f5e6a6eecbeb854fbba4e52003f75ad1837cbfe", "blocked_by": []}
+{"task_id": "MDL-011-wifi-validator", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": "2e1942baca786c01b2d2db590821391c742f95a8", "blocked_by": []}
+{"task_id": "UI-001-android-avatar", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-001-ios-avatar", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-002-android-badge", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-002-ios-badge", "assignee": "swift-implementer", "status": "completed", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-003-android-bottomsheetinput", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-003-ios-bottomsheetinput", "assignee": "swift-implementer", "status": "completed", "commit_sha": "585d2308ec1c40fd37e63199aa37ca85ba781bb6", "blocked_by": []}
+{"task_id": "UI-004-android-button", "assignee": "kotlin-implementer", "status": "completed", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-004-ios-button", "assignee": "swift-implementer", "status": "completed", "commit_sha": "fd2d69bc", "blocked_by": []}
+{"task_id": "UI-005-android-card", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-005-ios-card", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-006-android-checkbox", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-006-ios-checkbox", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-007-android-chip", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-007-ios-chip", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-008-android-collapsible", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-008-ios-collapsible", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-009-android-compassplusicon", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-009-ios-compassplusicon", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-010-android-deviationpolyline", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-010-ios-deviationpolyline", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-011-android-draghandle", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-011-ios-draghandle", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-012-android-fab", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-012-ios-fab", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-013-android-iconsymbol-ios", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-013-ios-iconsymbol-ios", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-014-android-iconsymbol", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-014-ios-iconsymbol", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-015-android-input", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-015-ios-input", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-016-android-laneshadowlogo", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-016-ios-laneshadowlogo", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-017-android-motorcycleplusicon", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-017-ios-motorcycleplusicon", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-018-android-primarybutton", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-018-ios-primarybutton", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-019-android-progress", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-019-ios-progress", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-020-android-routepolyline", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-020-ios-routepolyline", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-021-android-routepolylinecomponent", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-021-ios-routepolylinecomponent", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-022-android-separator", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-022-ios-separator", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-023-android-sheethandle", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-023-ios-sheethandle", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-024-android-skeleton", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-024-ios-skeleton", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-025-android-slider", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-025-ios-slider", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-026-android-switch", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-026-ios-switch", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-027-android-textarea", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-027-ios-textarea", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-028-android-themedtext", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-028-ios-themedtext", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-029-android-themedview", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-029-ios-themedview", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-030-android-toggle", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-030-ios-toggle", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-031-android-typingindicator", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-031-ios-typingindicator", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-032-android-appheader", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-032-ios-appheader", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-033-android-authcard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-033-ios-authcard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-034-android-banner", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-034-ios-banner", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-035-android-captioninput", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-035-ios-captioninput", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-036-android-cardskeleton", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-036-ios-cardskeleton", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-037-android-chattranscript", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-037-ios-chattranscript", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-038-android-connectionbanner", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-038-ios-connectionbanner", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-039-android-creativelabelfadein", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-039-ios-creativelabelfadein", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-040-android-daterangepicker", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-040-ios-daterangepicker", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-041-android-deleteconfirmationdialog", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-041-ios-deleteconfirmationdialog", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-042-android-deletefavoritedialog", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-042-ios-deletefavoritedialog", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-043-android-deleteroutedialog", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-043-ios-deleteroutedialog", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-044-android-departuretimeselector", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-044-ios-departuretimeselector", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-045-android-discoveryemptyoverlay", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-045-ios-discoveryemptyoverlay", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-046-android-discoveryfilterbar", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-046-ios-discoveryfilterbar", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-047-android-discoveryloadingoverlay", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-047-ios-discoveryloadingoverlay", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-048-android-discoverysorttoggle", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-048-ios-discoverysorttoggle", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-049-android-downloaderrorsheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-049-ios-downloaderrorsheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-050-android-downloadprogressbanner", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-050-ios-downloadprogressbanner", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-051-android-downloadprogressindicator", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-051-ios-downloadprogressindicator", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-052-android-emptystate", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-052-ios-emptystate", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-053-android-enrichmentstatusbadge", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-053-ios-enrichmentstatusbadge", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-054-android-errormessage", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-054-ios-errormessage", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-055-android-errortoast", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-055-ios-errortoast", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-056-android-favoriteexclusionalert", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-056-ios-favoriteexclusionalert", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-057-android-favoriteroadcard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-057-ios-favoriteroadcard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-058-android-favoritesinfosheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-058-ios-favoritesinfosheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-059-android-floatingsearchinput", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-059-ios-floatingsearchinput", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-060-android-header", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-060-ios-header", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-061-android-highlighttagsstagger", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-061-ios-highlighttagsstagger", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-062-android-infotoast", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-062-ios-infotoast", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-063-android-intentsearchsheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-063-ios-intentsearchsheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-064-android-intentsummarypill", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-064-ios-intentsummarypill", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-065-android-keyboardavoidinginput", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-065-ios-keyboardavoidinginput", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-066-android-labelskeleton", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-066-ios-labelskeleton", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-067-android-locationinput", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-067-ios-locationinput", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-068-android-locationsearchcard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-068-ios-locationsearchcard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-069-android-mapcontrols", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-069-ios-mapcontrols", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-070-android-mapheaderoverlay", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-070-ios-mapheaderoverlay", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-071-android-mapplanningindicator", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-071-ios-mapplanningindicator", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-072-android-markdowntext", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-072-ios-markdowntext", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-073-android-minimaloverlaywidget", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-073-ios-minimaloverlaywidget", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-074-android-minimaloverlaywidgetpreview", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-074-ios-minimaloverlaywidgetpreview", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-075-android-newsessionbutton", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-075-ios-newsessionbutton", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-076-android-overlaypill", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-076-ios-overlaypill", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-077-android-overlaytoggle", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-077-ios-overlaytoggle", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-078-android-permissionnotification", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-078-ios-permissionnotification", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-079-android-planfab", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-079-ios-planfab", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-080-android-planningcard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-080-ios-planningcard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-081-android-planningerrorsheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-081-ios-planningerrorsheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-082-android-planningloading", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-082-ios-planningloading", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-083-android-planningprogressindicator", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-083-ios-planningprogressindicator", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-084-android-planningstatustab", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-084-ios-planningstatustab", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-085-android-preferencesrow", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-085-ios-preferencesrow", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-086-android-progressiveenhancementtoast", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-086-ios-progressiveenhancementtoast", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-087-android-rainbadge", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-087-ios-rainbadge", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-088-android-raintimingsummary", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-088-ios-raintimingsummary", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-089-android-rationalereveal", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-089-ios-rationalereveal", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-090-android-reasoningcard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-090-ios-reasoningcard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-091-android-regionlistitem", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-091-ios-regionlistitem", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-092-android-regionnamebottomsheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-092-ios-regionnamebottomsheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-093-android-renameregionbottomsheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-093-ios-renameregionbottomsheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-094-android-renameroutedialog", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-094-ios-renameroutedialog", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-095-android-routeattachmentcard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-095-ios-routeattachmentcard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-096-android-routebadge", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-096-ios-routebadge", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-097-android-routelegtimeline", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-097-ios-routelegtimeline", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-098-android-routeminimap", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-098-ios-routeminimap", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-099-android-routeoptioncard-planning", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-099-ios-routeoptioncard-planning", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-100-android-routeoptioncard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-100-ios-routeoptioncard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-101-android-routepin", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-101-ios-routepin", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-102-android-routethumbnail", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-102-ios-routethumbnail", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-103-android-routingcard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-103-ios-routingcard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-104-android-savedroutecard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-104-ios-savedroutecard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-105-android-savefavoritesheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-105-ios-savefavoritesheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-106-android-scenicbiassegmented", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-106-ios-scenicbiassegmented", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-107-android-searchbar", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-107-ios-searchbar", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-108-android-searchresultmarker", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-108-ios-searchresultmarker", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-109-android-sectionheader", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-109-ios-sectionheader", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-110-android-segmentdetailview", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-110-ios-segmentdetailview", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-111-android-sessioncard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-111-ios-sessioncard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-112-android-sessioncontextmenu", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-112-ios-sessioncontextmenu", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-113-android-skeletonwrapper", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-113-ios-skeletonwrapper", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-114-android-statefiltersheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-114-ios-statefiltersheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-115-android-statelistitem", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-115-ios-statelistitem", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-116-android-statrow", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-116-ios-statrow", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-117-android-successtoast", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-117-ios-successtoast", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-118-android-suggestionchips", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-118-ios-suggestionchips", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-119-android-teachertabbar", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-119-ios-teachertabbar", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-120-android-temperaturebadge", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-120-ios-temperaturebadge", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-121-android-temprangesummary", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-121-ios-temprangesummary", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-122-android-themepicker", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-122-ios-themepicker", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-123-android-thinkingcard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-123-ios-thinkingcard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-124-android-togglegroup", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-124-ios-togglegroup", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-125-android-togglescontainer", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-125-ios-togglescontainer", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-126-android-topographicbackground", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-126-ios-topographicbackground", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-127-android-typingindicator", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-127-ios-typingindicator", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-128-android-warningtoast", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-128-ios-warningtoast", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-129-android-waypointcard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-129-ios-waypointcard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-130-android-waypointmarker", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-130-ios-waypointmarker", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-131-android-weatherbadgeskeleton", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-131-ios-weatherbadgeskeleton", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-132-android-weathergauge", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-132-ios-weathergauge", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-133-android-weatheroverlay", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-133-ios-weatheroverlay", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-134-android-weatherpill", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-134-ios-weatherpill", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-135-android-weatherpillsrow", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-135-ios-weatherpillsrow", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-136-android-weatherstrip", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-136-ios-weatherstrip", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-137-android-wheretobar", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-137-ios-wheretobar", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-138-android-wifirequiredsheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-138-ios-wifirequiredsheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-139-android-windbadge", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-139-ios-windbadge", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-140-android-chatinput", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-140-ios-chatinput", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-141-android-chattranscript", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-141-ios-chattranscript", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-142-android-devmenu", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-142-ios-devmenu", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-143-android-drawermenu", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-143-ios-drawermenu", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-144-android-enrichedroutecard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-144-ios-enrichedroutecard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-145-android-enrichmentprogressprovider", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-145-ios-enrichmentprogressprovider", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-146-android-favoriteroadssection", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-146-ios-favoriteroadssection", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-147-android-intentsearchsheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-147-ios-intentsearchsheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-148-android-mapboxmapview", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-148-ios-mapboxmapview", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-149-android-maptoaststack", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-149-ios-maptoaststack", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-150-android-mapviewwrapper", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-150-ios-mapviewwrapper", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-151-android-modelmanagersection", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-151-ios-modelmanagersection", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-152-android-planningbottomsheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-152-ios-planningbottomsheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-153-android-planridesheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-153-ios-planridesheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-154-android-routedetailssheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-154-ios-routedetailssheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-155-android-routedetailsskeleton", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-155-ios-routedetailsskeleton", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-156-android-routedirectionssheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-156-ios-routedirectionssheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-157-android-routeoptionssheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-157-ios-routeoptionssheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-158-android-routetimeline", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-158-ios-routetimeline", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-159-android-sessionsidebar", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-159-ios-sessionsidebar", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-160-android-statefiltersheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-160-ios-statefiltersheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-161-android-voiceassistantoverlay", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-161-ios-voiceassistantoverlay", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-162-android-waypointlist", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-162-ios-waypointlist", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-163-android-authscreenlayout", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-163-ios-authscreenlayout", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-164-android-baseviewlayout", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-164-ios-baseviewlayout", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-165-android-bottomactionsheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-165-ios-bottomactionsheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-166-android-bottomnavigation", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-166-ios-bottomnavigation", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-167-android-bottomsheetwrapper", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-167-ios-bottomsheetwrapper", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-168-android-boundingboxoverlay", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-168-ios-boundingboxoverlay", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-169-android-buttonusage", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-169-ios-buttonusage", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-170-android-completionscreen", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-170-ios-completionscreen", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-171-android-completionsummarycard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-171-ios-completionsummarycard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-172-android-downloadprogressscreen", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-172-ios-downloadprogressscreen", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-173-android-elevationprofilechart", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-173-ios-elevationprofilechart", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-174-android-errorboundary", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-174-ios-errorboundary", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-175-android-gatekeeperupgradeprompt", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-175-ios-gatekeeperupgradeprompt", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-176-android-menulayout", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-176-ios-menulayout", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-177-android-modeldownloadscreen", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-177-ios-modeldownloadscreen", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-178-android-modelgatekeeperprovider", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-178-ios-modelgatekeeperprovider", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-179-android-platformnotificationtemplate", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-179-ios-platformnotificationtemplate", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-180-android-regionboundspreview", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-180-ios-regionboundspreview", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-181-android-ridecompletionscreen", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-181-ios-ridecompletionscreen", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-182-android-ridesharesheet", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-182-ios-ridesharesheet", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-183-android-routecomparisonview", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-183-ios-routecomparisonview", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-184-android-routediscoveryscreen", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-184-ios-routediscoveryscreen", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-185-android-routeoptionsscreen", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-185-ios-routeoptionsscreen", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-186-android-savedroutesscreen", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-186-ios-savedroutesscreen", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-187-android-setuprequiredscreen", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-187-ios-setuprequiredscreen", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-188-android-speedometer", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-188-ios-speedometer", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-189-android-subpagelayout", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-189-ios-subpagelayout", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-190-android-teachersimpleviewlayout", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-190-ios-teachersimpleviewlayout", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-191-android-teachertabviewlayout", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-191-ios-teachertabviewlayout", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-192-android-turninstructioncard", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-192-ios-turninstructioncard", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-193-android-voicelisteningvisualizer", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-193-ios-voicelisteningvisualizer", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-194-android-welcomescreen", "assignee": "kotlin-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}
+{"task_id": "UI-194-ios-welcomescreen", "assignee": "swift-implementer", "status": "pending", "commit_sha": null, "blocked_by": []}

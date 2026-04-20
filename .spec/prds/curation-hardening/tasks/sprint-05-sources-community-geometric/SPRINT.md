@@ -2,7 +2,6 @@
 
 **Sequence:** 5 / 12
 **Priority:** P1
-**Status:** Done (Closed 2026-04-18)
 **Original Estimated Effort:** 590 minutes (~10 hours)
 **Actual Outcome:** 2 tasks descoped by PRD revision, 1 task delivered under Sprint 4 ownership
 
@@ -111,3 +110,13 @@ This preserves the audit trail — the deletion is a real product decision, not 
 - Governing index: [INDEX.md](../INDEX.md)
 - PRD source-of-truth: [04-uc-src.md](../../04-uc-src.md)
 - Project context: [README.md](../../README.md)
+
+---
+
+## Task Detail Files
+
+Reopened 2026-04-20 for SRC-001 (Scenic Byways GIS) and SRC-006 (Rider Magazine 50 Best).
+Both implementations exist; tasks cover missing fixture data and test verification.
+
+- [SRC-001-scenic-byways-gis-fixture-data.md](SRC-001-scenic-byways-gis-fixture-data.md)
+- [SRC-006-rider-magazine-50-best-fixture-data.md](SRC-006-rider-magazine-50-best-fixture-data.md)

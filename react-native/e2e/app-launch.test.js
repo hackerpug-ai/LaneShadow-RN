@@ -1,13 +1,13 @@
 /**
  * Baseline E2E Test - App Launch
  *
- * Purpose: Verify that the Hummingbird app launches successfully
+ * Purpose: Verify that the LaneShadow app launches successfully
  * This is the simplest possible test to validate Detox setup
  *
  * Expected behavior:
  * - App launches without crashing
  * - App shows sign-in screen (default unauthenticated state)
- * - "Hummingbird" title is visible
+ * - "LaneShadow" title is visible
  * - Sign-in button is visible and tappable
  */
 
@@ -29,9 +29,9 @@ describe('App Launch (Baseline)', () => {
       .withTimeout(30000)
   })
 
-  it('should display the Hummingbird title', async () => {
+  it('should display the LaneShadow title', async () => {
     // Check that the app title is visible
-    await expect(element(by.text('Hummingbird'))).toBeVisible()
+    await expect(element(by.text('LaneShadow'))).toBeVisible()
   })
 
   it('should display the sign-in button', async () => {

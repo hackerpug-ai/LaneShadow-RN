@@ -25,14 +25,13 @@ import XCTest
  * - Accessibility labels
  */
 final class FavoriteExclusionAlertTests: XCTestCase {
-
     // MARK: - AC-1: Component renders in default state
 
     func testFavoriteExclusionAlertDefaultRendering() {
         // GIVEN: FavoriteExclusionAlert is created with excluded favorites
         let excludedFavorites = [
             LSExcludedFavorite(id: "1", name: "Pacific Coast Highway", reason: "Too far"),
-            LSExcludedFavorite(id: "2", name: "Mulholland Drive", reason: "Too far")
+            LSExcludedFavorite(id: "2", name: "Mulholland Drive", reason: "Too far"),
         ]
         var dismissed = false
         let alert = LSFavoriteExclusionAlert(
@@ -53,7 +52,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
     func testFavoriteExclusionAlertStylePropertiesMatchMatrix() {
         // GIVEN: Translation matrix defines layout, typography, colors
         let excludedFavorites = [
-            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far")
+            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far"),
         ]
         let alert = LSFavoriteExclusionAlert(
             excludedFavorites: excludedFavorites,
@@ -75,7 +74,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
         let favorites = [
             LSExcludedFavorite(id: "1", name: "Road One", reason: "Too far"),
             LSExcludedFavorite(id: "2", name: "Road Two", reason: "Too far"),
-            LSExcludedFavorite(id: "3", name: "Road Three", reason: "Too far")
+            LSExcludedFavorite(id: "3", name: "Road Three", reason: "Too far"),
         ]
 
         // WHEN: Formatting the list
@@ -92,7 +91,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
             LSExcludedFavorite(id: "2", name: "Road Two", reason: "Too far"),
             LSExcludedFavorite(id: "3", name: "Road Three", reason: "Too far"),
             LSExcludedFavorite(id: "4", name: "Road Four", reason: "Too far"),
-            LSExcludedFavorite(id: "5", name: "Road Five", reason: "Too far")
+            LSExcludedFavorite(id: "5", name: "Road Five", reason: "Too far"),
         ]
 
         // WHEN: Formatting the list
@@ -106,7 +105,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
         // GIVEN: Array of excluded favorites without names
         let favorites = [
             LSExcludedFavorite(id: "1", reason: "Too far"),
-            LSExcludedFavorite(id: "2", reason: "Too far")
+            LSExcludedFavorite(id: "2", reason: "Too far"),
         ]
 
         // WHEN: Formatting the list
@@ -122,7 +121,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
         // GIVEN: Alert is shown
         let expectation = XCTestExpectation(description: "Auto dismiss after 10 seconds")
         let excludedFavorites = [
-            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far")
+            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far"),
         ]
         var dismissed = false
         let alert = LSFavoriteExclusionAlert(
@@ -144,7 +143,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
     func testTapToDismiss() {
         // GIVEN: Alert is shown
         let excludedFavorites = [
-            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far")
+            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far"),
         ]
         var dismissCallCount = 0
         let alert = LSFavoriteExclusionAlert(
@@ -164,7 +163,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
     func testSessionTrackingPreventsDuplicateShows() {
         // GIVEN: Alert with session key has been shown once
         let excludedFavorites = [
-            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far")
+            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far"),
         ]
         let sessionKey = "test-session-123"
 
@@ -185,7 +184,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
     func testWarningThemedContainer() {
         // GIVEN: Alert component
         let excludedFavorites = [
-            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far")
+            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far"),
         ]
         let alert = LSFavoriteExclusionAlert(
             excludedFavorites: excludedFavorites,
@@ -205,7 +204,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
     func testInfoIconTextCloseButtonLayout() {
         // GIVEN: Alert component
         let excludedFavorites = [
-            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far")
+            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far"),
         ]
         let alert = LSFavoriteExclusionAlert(
             excludedFavorites: excludedFavorites,
@@ -225,7 +224,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
     func testTitleAndBodyText() {
         // GIVEN: Alert component
         let excludedFavorites = [
-            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far")
+            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far"),
         ]
         let alert = LSFavoriteExclusionAlert(
             excludedFavorites: excludedFavorites,
@@ -246,7 +245,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
     func testAllThemeTokensUsed() {
         // GIVEN: Alert component
         let excludedFavorites = [
-            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far")
+            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far"),
         ]
         let alert = LSFavoriteExclusionAlert(
             excludedFavorites: excludedFavorites,
@@ -269,7 +268,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
     func testAccessibilityLabels() {
         // GIVEN: Alert component
         let excludedFavorites = [
-            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far")
+            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far"),
         ]
         let alert = LSFavoriteExclusionAlert(
             excludedFavorites: excludedFavorites,
@@ -289,7 +288,7 @@ final class FavoriteExclusionAlertTests: XCTestCase {
     func testNotShownWhenIncludeFavoritesIsFalse() {
         // GIVEN: Alert with includeFavorites = false
         let excludedFavorites = [
-            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far")
+            LSExcludedFavorite(id: "1", name: "Test Road", reason: "Too far"),
         ]
         let alert = LSFavoriteExclusionAlert(
             excludedFavorites: excludedFavorites,

@@ -29,11 +29,11 @@ class ButtonTest {
      */
     @Test
     fun testAllButtonSizesRender() {
-        // Test Small size
+        // Test Sm size
         composeTestRule.setContent {
             CompositionLocalProvider(LocalLaneShadowTheme provides testTheme) {
                 Button(
-                    size = ButtonSize.Small,
+                    size = ButtonSize.Sm,
                     text = "Small",
                     onPress = {},
                 )
@@ -53,11 +53,11 @@ class ButtonTest {
         }
         composeTestRule.onNodeWithText("Default").assertIsDisplayed()
 
-        // Test Large size
+        // Test Lg size
         composeTestRule.setContent {
             CompositionLocalProvider(LocalLaneShadowTheme provides testTheme) {
                 Button(
-                    size = ButtonSize.Large,
+                    size = ButtonSize.Lg,
                     text = "Large",
                     onPress = {},
                 )

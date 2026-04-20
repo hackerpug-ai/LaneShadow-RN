@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<!-- uc-scr-04-route-details.html — UC-SCR-04 "RouteDetailsScreen"
+     LaneShadow V2 · Copper · Navigator Design Mock · 2026-04-20
+     Surface: LIGHT (+ dark variant)
+     Authority: concepts/designs.html · 08-uc-scr.md §UC-SCR-04 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-SCR-04 — RouteDetailsScreen — LaneShadow V2 · Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400;1,6..72,500;1,6..72,600&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --paper-50:#FDFBF8;--paper-100:#F8F7F6;--paper-150:#F5F2EE;--paper-200:#F2EFED;
+  --paper-300:#EDE7E1;--paper-400:#E5DED9;--paper-500:#C9BDB3;
+  --ink-900:#1E1A16;--ink-800:#221810;--ink-700:#2D2218;--ink-600:#362A1F;
+  --ink-500:#3D3228;--ink-400:#49454F;--ink-300:#6B6460;--ink-200:#9CA3AF;
+  --ink-100:#CAC4D0;--ink-050:#F2EEE8;
+  --copper-700:#9E4A22;--copper-600:#B85A2C;--copper-500:#EE7C2B;
+  --copper-400:#F3A164;--copper-200:#F9D5B5;--copper-100:#FCE8D4;
+  --route-best:#EE7C2B;--route-alt1:#4D8470;--route-alt2:#6B7B8F;
+  --wx-clear:#E6A52A;--wx-clear-tint:#FBEFCF;
+  --wx-rain:#4A86BE;--wx-rain-tint:#DBEAF4;
+  --wx-wind:#6B7B8F;--wx-wind-tint:#E1E6EC;
+  --wx-storm:#5E3FAE;--wx-storm-tint:#E3DCF2;
+  --wx-hot:#C9423C;--wx-hot-tint:#F5D8D6;
+  --wx-cold:#3A8BE3;--wx-cold-tint:#D6E5F7;
+  --status-warning:#C46F1B;
+  --font-opinion:'Newsreader',Georgia,serif;
+  --font-ui:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-instrument:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+
+  --surface-primary:var(--paper-100);--surface-card:var(--paper-50);--surface-inset:var(--paper-200);
+  --surface-overlay:rgba(253,251,248,0.92);--surface-glass:rgba(253,251,248,0.72);
+  --surface-scrim:rgba(34,24,16,0.35);
+  --map-paper:var(--paper-150);--map-contour:rgba(73,69,79,0.22);--map-contour-faint:rgba(73,69,79,0.10);
+  --content-primary:var(--ink-900);--content-secondary:var(--ink-400);
+  --content-tertiary:var(--ink-300);--content-subtle:var(--ink-200);--content-onSignal:#FFF;
+  --signal-default:var(--copper-500);--signal-pressed:var(--copper-700);
+  --signal-tint:var(--copper-200);--signal-whisper:var(--copper-100);
+  --border-default:var(--paper-400);--border-subtle:var(--paper-300);--border-strong:var(--paper-500);
+  --border-focus:var(--copper-500);
+  --elev-overlay:0 8px 24px rgba(34,24,16,0.10),0 2px 6px rgba(34,24,16,0.06);
+  --elev-chrome:0 1px 3px rgba(34,24,16,0.04),0 4px 14px rgba(34,24,16,0.06);
+  --elev-sheet:0 -8px 32px -12px rgba(34,24,16,0.16),0 -2px 8px -2px rgba(34,24,16,0.08);
+}
+body { background: var(--surface-primary); color: var(--content-primary); }
+.mode-dark {
+  --surface-primary:var(--ink-800);--surface-card:var(--ink-700);--surface-inset:var(--ink-600);
+  --surface-overlay:rgba(45,34,24,0.92);--surface-glass:rgba(45,34,24,0.72);
+  --surface-scrim:rgba(10,6,3,0.50);--map-paper:#1B140E;
+  --map-contour:rgba(242,238,232,0.16);--map-contour-faint:rgba(242,238,232,0.07);
+  --content-primary:var(--ink-050);--content-secondary:var(--ink-100);
+  --content-tertiary:var(--ink-200);--content-subtle:var(--ink-300);
+  --border-default:rgba(242,238,232,0.12);--border-subtle:rgba(242,238,232,0.07);
+  --border-strong:rgba(242,238,232,0.22);
+  --elev-overlay:0 8px 24px rgba(0,0,0,0.42),0 2px 6px rgba(0,0,0,0.28);
+  --elev-chrome:0 1px 3px rgba(0,0,0,0.24),0 4px 14px rgba(0,0,0,0.28);
+  --elev-sheet:0 -8px 32px -12px rgba(0,0,0,0.50),0 -2px 8px -2px rgba(0,0,0,0.30);
+}
+
+/* TYPOGRAPHY */
+.t-opinion-xl{font-family:var(--font-opinion);font-weight:400;font-size:30px;line-height:1.12;letter-spacing:-0.015em;}
+.t-opinion-lg{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-0.01em;}
+.t-opinion-md{font-family:var(--font-opinion);font-weight:400;font-size:17px;line-height:1.32;}
+.t-title-md{font-family:var(--font-ui);font-weight:600;font-size:14px;line-height:1.28;letter-spacing:-0.005em;}
+.t-body-md{font-family:var(--font-ui);font-weight:400;font-size:12px;line-height:1.52;}
+.t-body-sm{font-family:var(--font-ui);font-weight:400;font-size:10.5px;line-height:1.48;}
+.t-label-md{font-family:var(--font-ui);font-weight:600;font-size:9.5px;line-height:1.0;letter-spacing:0.12em;text-transform:uppercase;}
+.t-label-sm{font-family:var(--font-ui);font-weight:600;font-size:8.5px;line-height:1.0;letter-spacing:0.14em;text-transform:uppercase;}
+.t-instr-lg{font-family:var(--font-instrument);font-weight:500;font-size:18px;line-height:1.12;letter-spacing:-0.02em;font-feature-settings:"tnum" 1;}
+.t-instr-md{font-family:var(--font-instrument);font-weight:500;font-size:13px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-sm{font-family:var(--font-instrument);font-weight:500;font-size:10px;line-height:1.2;font-feature-settings:"tnum" 1;}
+.t-instr-xs{font-family:var(--font-instrument);font-weight:500;font-size:8.5px;line-height:1.0;font-feature-settings:"tnum" 1;}
+
+/* DOC CHROME */
+body{font-family:var(--font-ui);-webkit-font-smoothing:antialiased;min-height:100vh;line-height:1.55;overflow-x:hidden;}
+.wrap{max-width:1440px;margin:0 auto;padding:0 72px;}
+.doc-header{position:relative;padding:96px 0 72px;border-bottom:1px solid var(--border-default);overflow:hidden;}
+.doc-header::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 8% 80%,rgba(238,124,43,0.08),transparent 44%),radial-gradient(circle at 92% 12%,rgba(184,90,44,0.05),transparent 50%);pointer-events:none;}
+.doc-header>*{position:relative;z-index:1;}
+.doc-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:10.5px;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--signal-default);margin-bottom:28px;}
+.doc-eyebrow::before{content:"";width:28px;height:1px;background:var(--signal-default);}
+.doc-eyebrow-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--signal-default);color:var(--signal-default);background:var(--signal-whisper);font-size:9.5px;letter-spacing:0.14em;}
+.doc-title{font-family:var(--font-opinion);font-size:104px;font-weight:300;line-height:0.94;letter-spacing:-0.035em;margin-bottom:32px;max-width:1000px;}
+.doc-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.doc-tagline{font-family:var(--font-opinion);font-style:italic;font-size:22px;font-weight:300;color:var(--content-secondary);max-width:640px;line-height:1.55;margin-bottom:56px;}
+.doc-meta-row{display:grid;grid-template-columns:repeat(6,1fr);gap:24px;padding-top:36px;border-top:1px solid var(--border-default);}
+.meta-item{display:flex;flex-direction:column;gap:6px;}
+.meta-label{font-size:9px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--content-tertiary);}
+.meta-value{font-family:var(--font-instrument);font-size:13px;font-weight:500;color:var(--content-primary);}
+
+.section{padding:96px 0;border-bottom:1px solid var(--border-default);position:relative;}
+.section:last-child{border-bottom:none;}
+.section-header{display:grid;grid-template-columns:120px 1fr;align-items:baseline;gap:32px;margin-bottom:56px;}
+.section-index{font-family:var(--font-instrument);font-size:11px;font-weight:500;letter-spacing:0.14em;color:var(--signal-default);text-transform:uppercase;display:flex;align-items:center;gap:10px;}
+.section-index::before{content:"";display:block;width:48px;height:1px;background:var(--signal-default);}
+.section-title{font-family:var(--font-opinion);font-size:52px;font-weight:300;letter-spacing:-0.025em;line-height:1.04;max-width:900px;}
+.section-title em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.prose{font-family:var(--font-opinion);font-weight:300;font-size:19px;line-height:1.68;color:var(--content-secondary);max-width:720px;margin-left:152px;}
+.prose+.prose{margin-top:20px;}
+.prose em{font-style:italic;}
+.prose strong{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);display:inline-block;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);border-radius:4px;margin:0 2px;}
+
+.screens-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:56px 40px;align-items:start;padding-left:152px;}
+.screens-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.screen-cell{display:flex;flex-direction:column;gap:22px;}
+.screen-annotation{display:flex;flex-direction:column;gap:8px;max-width:280px;}
+.screen-num{font-family:var(--font-instrument);font-size:10.5px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--signal-default);}
+.screen-name{font-family:var(--font-opinion);font-weight:400;font-size:22px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);}
+.screen-desc{font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:14px;line-height:1.6;color:var(--content-secondary);}
+.ac-cite{font-family:var(--font-ui);font-size:10.5px;line-height:1.55;color:var(--content-tertiary);padding-left:18px;position:relative;margin-top:4px;}
+.ac-cite::before{content:"☐";position:absolute;left:0;top:0;color:var(--border-strong);}
+
+/* PHONE FRAME */
+.phone-frame{width:100%;max-width:282px;margin:0 auto;aspect-ratio:9/19.5;position:relative;border-radius:44px;background:#0F0A07;box-shadow:inset 0 0 0 1px #2A1F16,inset 0 0 0 2.5px #0F0A07,0 30px 70px -16px rgba(34,24,16,0.38),0 10px 24px -10px rgba(34,24,16,0.22);overflow:hidden;}
+.phone-screen{position:absolute;inset:3px;border-radius:41px;overflow:hidden;display:flex;flex-direction:column;background:var(--surface-primary);color:var(--content-primary);isolation:isolate;}
+.phone-di{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#000;border-radius:14px;z-index:60;}
+.phone-sb{display:flex;justify-content:space-between;align-items:center;padding:46px 22px 0;flex-shrink:0;z-index:10;position:relative;}
+.phone-sb .sb-time{font-family:var(--font-instrument);font-size:12px;font-weight:600;letter-spacing:-0.02em;color:var(--content-primary);}
+.phone-sb .sb-icons{display:flex;gap:5px;align-items:center;color:var(--content-primary);}
+.phone-hi{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:3px;z-index:60;background:rgba(0,0,0,0.38);}
+.mode-dark .phone-hi{background:rgba(255,255,255,0.30);}
+
+/* PAPER MAP */
+.pmap{position:absolute;inset:0;background:var(--map-paper);overflow:hidden;z-index:0;}
+.pmap::before{content:"";position:absolute;inset:-8px;background-image:linear-gradient(var(--map-contour-faint) 1px,transparent 1px),linear-gradient(90deg,var(--map-contour-faint) 1px,transparent 1px);background-size:28px 28px;opacity:0.55;pointer-events:none;}
+.pmap::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(34,24,16,0.08) 100%);pointer-events:none;}
+.mode-dark .pmap::after{background:radial-gradient(120% 60% at 50% 30%,transparent 40%,rgba(0,0,0,0.40) 100%);}
+.pmap-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+
+/* CHROME */
+.ls-topbar{position:absolute;top:46px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:14px 14px 0;z-index:30;}
+.chrome-chip{background:var(--surface-glass);border:1px solid rgba(255,255,255,0.55);box-shadow:var(--elev-chrome);backdrop-filter:blur(14px) saturate(1.2);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--content-primary);}
+.mode-dark .chrome-chip{border-color:rgba(242,238,232,0.12);}
+.chrome-chip.circular{width:40px;height:40px;border-radius:50%;}
+.chrome-chip.pill{padding:0 14px;height:40px;border-radius:22px;display:flex;align-items:center;gap:6px;}
+
+/* ROUTE POLYLINE (single) */
+.routes-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;}
+.route-best-solo{fill:none;stroke:var(--route-best);stroke-width:4px;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 6px rgba(238,124,43,0.4));}
+.rt-marker{position:absolute;z-index:4;}
+.rt-start{width:14px;height:14px;border-radius:50%;background:var(--signal-default);border:2.5px solid var(--surface-card);box-shadow:0 2px 6px rgba(238,124,43,0.45);}
+.rt-end{width:18px;height:18px;border-radius:50%;background:var(--surface-card);border:2.5px solid var(--signal-default);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(34,24,16,0.2);}
+.rt-end::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--signal-default);}
+
+/* ═══════════ ROUTE SHEET (bottom) ═══════════ */
+.route-sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface-card);border-radius:22px 22px 0 0;padding:10px 16px 18px;box-shadow:var(--elev-sheet);z-index:40;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--border-subtle);}
+.route-sheet.detent-medium{max-height:62%;}
+.route-sheet.detent-large{max-height:86%;}
+.sheet-handle{width:36px;height:4px;background:var(--border-strong);border-radius:2px;margin:0 auto 6px;}
+
+.sheet-head{display:flex;flex-direction:column;gap:4px;}
+.best-badge-row{display:flex;align-items:center;gap:6px;}
+.best-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;background:var(--signal-default);color:#FFF;border-radius:4px;font-family:var(--font-ui);font-size:8.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;box-shadow:0 2px 6px rgba(238,124,43,0.4);}
+.scenic-tag{font-family:var(--font-ui);font-size:8.5px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--content-tertiary);display:flex;gap:3px;align-items:center;}
+.scenic-tag .dot{width:3.5px;height:3.5px;border-radius:50%;background:var(--border-strong);}
+.scenic-tag .dot.f{background:var(--signal-default);}
+.sheet-title{font-family:var(--font-opinion);font-weight:400;font-size:20px;line-height:1.2;letter-spacing:-0.015em;color:var(--content-primary);margin-top:2px;}
+.sheet-via{font-family:var(--font-ui);font-weight:500;font-size:11px;color:var(--content-secondary);}
+
+/* Instrument readout */
+.instrument-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border-subtle);border-bottom:1px solid var(--border-subtle);padding:10px 0;}
+.instr-cell{display:flex;flex-direction:column;gap:3px;padding:0 6px;border-right:1px solid var(--border-subtle);}
+.instr-cell:last-child{border-right:none;}
+.instr-label{font-family:var(--font-ui);font-size:7.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--content-tertiary);}
+.instr-value{font-family:var(--font-instrument);font-weight:500;font-size:15px;letter-spacing:-0.02em;color:var(--content-primary);font-feature-settings:"tnum" 1;}
+.instr-sub{font-family:var(--font-ui);font-size:8.5px;font-weight:500;color:var(--content-tertiary);}
+
+/* Weather timeline */
+.wx-header{display:flex;justify-content:space-between;align-items:baseline;margin-top:4px;}
+.wx-head-label{font-family:var(--font-ui);font-weight:600;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--content-primary);}
+.wx-head-range{font-family:var(--font-instrument);font-size:9px;color:var(--content-tertiary);font-feature-settings:"tnum" 1;}
+.wx-cells{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;}
+.wx-cell{padding:6px 2px;border-radius:6px;display:flex;flex-direction:column;align-items:center;gap:2px;border:1px solid transparent;}
+.wx-cell.clear{background:var(--wx-clear-tint);border-color:rgba(230,165,42,0.33);}
+.wx-cell.wind{background:var(--wx-wind-tint);border-color:rgba(107,123,143,0.33);}
+.wx-cell.rain{background:var(--wx-rain-tint);border-color:rgba(74,134,190,0.33);}
+.wx-cell.storm{background:var(--wx-storm-tint);border-color:rgba(94,63,174,0.33);}
+.wx-cell .hour{font-family:var(--font-ui);font-size:8px;font-weight:600;letter-spacing:0.06em;color:var(--content-secondary);}
+.wx-cell .icon{font-size:10px;line-height:1;}
+.wx-cell .temp{font-family:var(--font-instrument);font-weight:500;font-size:10px;font-feature-settings:"tnum" 1;}
+.wx-cell.clear .temp,.wx-cell.clear .icon{color:var(--wx-clear);}
+.wx-cell.wind .temp,.wx-cell.wind .icon{color:var(--wx-wind);}
+.wx-cell.rain .temp,.wx-cell.rain .icon{color:var(--wx-rain);}
+.wx-cell.storm .temp,.wx-cell.storm .icon{color:var(--wx-storm);}
+
+/* Action row */
+.sheet-actions{display:flex;gap:8px;margin-top:2px;}
+.btn-outline{flex:1;padding:11px;border:1.5px solid var(--border-default);border-radius:12px;background:transparent;color:var(--content-primary);font-family:var(--font-ui);font-weight:500;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-primary{flex:2;padding:11px;background:var(--signal-default);color:#FFF;border-radius:12px;font-family:var(--font-ui);font-weight:600;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 3px 12px rgba(238,124,43,0.35);letter-spacing:0.01em;}
+
+/* §04–§06 */
+.cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding-left:152px;}
+.cmp-card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:12px;padding:20px 22px;}
+.cmp-tier-label{font-family:var(--font-instrument);font-size:9px;font-weight:500;letter-spacing:0.22em;color:var(--signal-default);text-transform:uppercase;margin-bottom:14px;display:block;}
+.cmp-item{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.cmp-item:last-child{border-bottom:none;}
+.cmp-name{font-family:var(--font-ui);font-weight:600;font-size:13px;color:var(--content-primary);margin-bottom:4px;}
+.cmp-ref{font-family:var(--font-instrument);font-size:10px;color:var(--content-tertiary);line-height:1.4;}
+.motion-table{padding-left:152px;display:grid;grid-template-columns:160px 1fr 2fr;row-gap:14px;column-gap:28px;font-family:var(--font-ui);font-size:13px;}
+.motion-table>div{padding:10px 0;border-bottom:1px solid var(--border-subtle);}
+.motion-recipe{font-family:var(--font-instrument);color:var(--signal-default);font-size:11.5px;}
+.motion-trigger{color:var(--content-primary);font-weight:500;}
+.motion-effect{color:var(--content-secondary);}
+.rationale-grid{padding-left:152px;display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+.rationale-block h4{font-family:var(--font-ui);font-size:10.5px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--signal-default);margin-bottom:14px;}
+.rationale-block p{font-family:var(--font-opinion);font-weight:300;font-size:15px;line-height:1.65;color:var(--content-secondary);margin-bottom:10px;}
+.rationale-block ul{list-style:none;}
+.rationale-block li{padding:8px 0 8px 18px;position:relative;font-family:var(--font-ui);font-size:12.5px;color:var(--content-secondary);border-bottom:1px solid var(--border-subtle);}
+.rationale-block li::before{content:"→";position:absolute;left:0;top:8px;color:var(--signal-default);font-family:var(--font-instrument);}
+.rationale-block li strong{font-family:var(--font-instrument);color:var(--content-primary);font-weight:500;font-size:11px;}
+.doc-footer{padding:80px 0;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:end;}
+.footer-mark{font-family:var(--font-opinion);font-size:44px;font-weight:300;line-height:1;color:var(--content-primary);letter-spacing:-0.02em;}
+.footer-mark em{font-style:italic;color:var(--signal-default);font-weight:400;}
+.footer-mark span{display:block;font-size:14px;font-style:italic;color:var(--content-tertiary);margin-top:10px;font-weight:300;}
+.footer-note{font-family:var(--font-opinion);font-style:italic;font-size:14px;line-height:1.7;color:var(--content-tertiary);text-align:right;font-weight:300;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="wrap">
+  <header class="doc-header">
+    <div class="doc-eyebrow"><span>UC-SCR-04</span><span class="doc-eyebrow-pill">● Screens · Template</span></div>
+    <h1 class="doc-title">The <em>instrument</em><br>panel.</h1>
+    <p class="doc-tagline">
+      Distance, time, climb, scenic score. Six hours of weather arranged in
+      tinted cells. A single polyline centered on the map, and two actions:
+      <em>save</em> or <em>ride this</em>. The decision screen.
+    </p>
+    <div class="doc-meta-row">
+      <div class="meta-item"><div class="meta-label">Version</div><div class="meta-value">2.0.0</div></div>
+      <div class="meta-item"><div class="meta-label">Date</div><div class="meta-value">2026-04-20</div></div>
+      <div class="meta-item"><div class="meta-label">Use Case</div><div class="meta-value">UC-SCR-04</div></div>
+      <div class="meta-item"><div class="meta-label">PRD Ref</div><div class="meta-value">08-uc-scr.md</div></div>
+      <div class="meta-item"><div class="meta-label">Surface</div><div class="meta-value">Light (+ dark)</div></div>
+      <div class="meta-item"><div class="meta-label">Theme</div><div class="meta-value">Copper</div></div>
+    </div>
+  </header>
+</div>
+
+<!-- §01 PURPOSE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§01 · Purpose</div>
+      <h2 class="section-title">Numbers in <em>mono</em>, prose in <em>serif</em>, decision in <em>copper</em>.</h2>
+    </div>
+    <p class="prose">
+      RouteDetailsScreen is the commitment surface. The rider has picked a
+      route; the map reduces to that single polyline framed with
+      <strong>spacing.4</strong> padding. Everything else is in the sheet:
+      the best badge as the Navigator's seal of approval, the Newsreader
+      title ("The Skyline Spine" — these are <em>names</em>, not paths), a
+      four-column instrument readout in JetBrains Mono, six cells of
+      per-hour weather, and a sticky action row.
+    </p>
+    <p class="prose">
+      The instrument readout is where the three typography families earn
+      their keep. <em>Opinion</em> names the route. <em>UI</em> labels the
+      fields ("DIST", "TIME"). <em>Instrument</em> carries the numbers
+      ("64 mi", "2h 10m") — tabular-aligned, copper-tinted when the metric
+      is a positive signal (scenic score), neutral otherwise. A rider
+      reading mid-glance can scan mono columns faster than sans labels.
+    </p>
+    <p class="prose">
+      The weather timeline is the sheet's second opinion. Six hours from
+      start to end, each cell tinted from the condition token
+      (<strong>color.weather.*.tint</strong>). If the weather changes
+      mid-ride, the sheet tells the rider <em>where</em> it changes, not
+      just that it does.
+    </p>
+  </section>
+</div>
+
+<!-- §02 SCREENS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§02 · Screens</div>
+      <h2 class="section-title">Large detent, <em>medium detent</em>, mixed weather, dark mode.</h2>
+    </div>
+    <div class="screens-grid">
+
+      <!-- S01 · DEFAULT LARGE -->
+      <div class="screen-cell" id="uc-scr-04-s01-large">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 120 C 60 100, 120 160, 180 120 S 260 140, 320 100"/>
+                  <path d="M -20 180 C 60 150, 120 220, 180 180 S 260 200, 320 160"/>
+                  <path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/>
+                </g>
+                <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
+                  <path d="M -20 150 C 60 140, 130 195, 180 150 S 260 175, 320 140"/>
+                  <path d="M -20 220 C 60 200, 130 260, 180 220 S 260 250, 320 205"/>
+                </g>
+              </svg>
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <path class="route-best-solo" d="M 30 230 C 60 170, 110 160, 150 140 S 210 160, 250 220"/>
+              </svg>
+              <div class="rt-marker rt-start" style="left:10%;top:38%;"></div>
+              <div class="rt-marker rt-end" style="left:88%;top:37%;"></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <!-- Route Sheet -->
+            <div class="route-sheet detent-large" style="height:62%;">
+              <div class="sheet-handle"></div>
+
+              <div class="sheet-head">
+                <div class="best-badge-row">
+                  <span class="best-badge">★ Best route</span>
+                  <span class="scenic-tag"><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span> 5 / 5 scenic</span>
+                </div>
+                <div class="sheet-title">The Skyline Spine</div>
+                <div class="sheet-via">via Hwy 35 → Hwy 9 · past Alice's</div>
+              </div>
+
+              <div class="instrument-grid">
+                <div class="instr-cell"><div class="instr-label">Dist</div><div class="instr-value">64</div><div class="instr-sub">miles</div></div>
+                <div class="instr-cell"><div class="instr-label">Time</div><div class="instr-value">2<span style="font-size:10px;opacity:0.65;">h</span>10</div><div class="instr-sub">mins</div></div>
+                <div class="instr-cell"><div class="instr-label">Climb</div><div class="instr-value">2,400</div><div class="instr-sub">ft</div></div>
+                <div class="instr-cell"><div class="instr-label">Scenic</div><div class="instr-value" style="color:var(--signal-default);">9.2</div><div class="instr-sub">of 10</div></div>
+              </div>
+
+              <div>
+                <div class="wx-header">
+                  <span class="wx-head-label">Weather along the way</span>
+                  <span class="wx-head-range">9 AM → 2 PM</span>
+                </div>
+                <div class="wx-cells" style="margin-top:8px;">
+                  <div class="wx-cell clear"><span class="hour">9A</span><span class="icon">☀</span><span class="temp">62°</span></div>
+                  <div class="wx-cell clear"><span class="hour">10</span><span class="icon">☀</span><span class="temp">64°</span></div>
+                  <div class="wx-cell clear"><span class="hour">11</span><span class="icon">☀</span><span class="temp">67°</span></div>
+                  <div class="wx-cell clear"><span class="hour">12</span><span class="icon">☀</span><span class="temp">71°</span></div>
+                  <div class="wx-cell clear"><span class="hour">1P</span><span class="icon">☀</span><span class="temp">73°</span></div>
+                  <div class="wx-cell clear"><span class="hour">2P</span><span class="icon">☀</span><span class="temp">71°</span></div>
+                </div>
+              </div>
+
+              <div class="sheet-actions">
+                <div class="btn-outline">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+                  Save
+                </div>
+                <div class="btn-primary">
+                  Ride this
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:44</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S01 · Large detent</div>
+          <div class="screen-name">Full sheet <em class="opinion-ital">exposed</em></div>
+          <div class="screen-desc">
+            The default presentation. Best badge + scenic dots at top; Newsreader title; mono instrument readout; six clear cells in the weather timeline; outline Save + primary "Ride this" action row.
+          </div>
+          <div class="ac-cite">Best badge, opinion-serif title, 4-column instrument readout.</div>
+          <div class="ac-cite">6-hour weather timeline with "Weather along the way" header.</div>
+          <div class="ac-cite">Sticky action row: outline Save + primary Ride this.</div>
+        </div>
+      </div>
+
+      <!-- S02 · MIXED WEATHER -->
+      <div class="screen-cell" id="uc-scr-04-s02-mixed-weather">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 120 C 60 100, 120 160, 180 120 S 260 140, 320 100"/>
+                  <path d="M -20 180 C 60 150, 120 220, 180 180 S 260 200, 320 160"/>
+                  <path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/>
+                </g>
+                <!-- rain zone on right half -->
+                <g stroke="var(--wx-rain)" stroke-width="0.5" opacity="0.4">
+                  <line x1="180" y1="30" x2="175" y2="45"/>
+                  <line x1="220" y1="40" x2="215" y2="55"/>
+                  <line x1="240" y1="70" x2="235" y2="85"/>
+                  <line x1="200" y1="100" x2="195" y2="115"/>
+                  <line x1="260" y1="130" x2="255" y2="145"/>
+                </g>
+              </svg>
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <path class="route-best-solo" d="M 30 230 C 60 170, 110 160, 150 140 S 210 160, 250 220"/>
+              </svg>
+              <div class="rt-marker rt-start" style="left:10%;top:38%;"></div>
+              <div class="rt-marker rt-end" style="left:88%;top:37%;"></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <div class="route-sheet detent-large" style="height:62%;">
+              <div class="sheet-handle"></div>
+              <div class="sheet-head">
+                <div class="best-badge-row">
+                  <span class="best-badge">★ Best route</span>
+                  <span class="scenic-tag"><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span><span class="dot"></span> 4 / 5 scenic</span>
+                </div>
+                <div class="sheet-title">Coast &amp; Ridge Loop</div>
+                <div class="sheet-via">via Hwy 1 → Panoramic</div>
+              </div>
+              <div class="instrument-grid">
+                <div class="instr-cell"><div class="instr-label">Dist</div><div class="instr-value">82</div><div class="instr-sub">miles</div></div>
+                <div class="instr-cell"><div class="instr-label">Time</div><div class="instr-value">2<span style="font-size:10px;opacity:0.65;">h</span>45</div><div class="instr-sub">mins</div></div>
+                <div class="instr-cell"><div class="instr-label">Climb</div><div class="instr-value">3,100</div><div class="instr-sub">ft</div></div>
+                <div class="instr-cell"><div class="instr-label">Scenic</div><div class="instr-value" style="color:var(--signal-default);">8.7</div><div class="instr-sub">of 10</div></div>
+              </div>
+              <div>
+                <div class="wx-header">
+                  <span class="wx-head-label">Weather along the way</span>
+                  <span class="wx-head-range">11 AM → 4 PM</span>
+                </div>
+                <div class="wx-cells" style="margin-top:8px;">
+                  <div class="wx-cell clear"><span class="hour">11A</span><span class="icon">☀</span><span class="temp">66°</span></div>
+                  <div class="wx-cell clear"><span class="hour">12</span><span class="icon">☀</span><span class="temp">68°</span></div>
+                  <div class="wx-cell wind"><span class="hour">1P</span><span class="icon">≋</span><span class="temp">65°</span></div>
+                  <div class="wx-cell wind"><span class="hour">2P</span><span class="icon">≋</span><span class="temp">62°</span></div>
+                  <div class="wx-cell rain"><span class="hour">3P</span><span class="icon">☂</span><span class="temp">58°</span></div>
+                  <div class="wx-cell rain"><span class="hour">4P</span><span class="icon">☂</span><span class="temp">56°</span></div>
+                </div>
+                <div style="font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:11px;color:var(--content-tertiary);line-height:1.5;margin-top:8px;">Rain picks up after Davenport — you'll want to beat it or embrace it.</div>
+              </div>
+              <div class="sheet-actions">
+                <div class="btn-outline"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>Save</div>
+                <div class="btn-primary">Ride this<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 6 15 12 9 18"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">10:58</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S02 · Mixed weather</div>
+          <div class="screen-name">Clear → wind → rain</div>
+          <div class="screen-desc">
+            Three conditions across six hours. Cells tint per condition (clear → wind → rain). An italic Newsreader narration follows the grid — the Navigator's opinion on the weather front.
+          </div>
+          <div class="ac-cite">Weather timeline includes at least one mixed-weather variant (clear/rain/wind).</div>
+        </div>
+      </div>
+
+      <!-- S03 · MEDIUM DETENT (dragged down) -->
+      <div class="screen-cell" id="uc-scr-04-s03-medium">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 120 C 60 100, 120 160, 180 120 S 260 140, 320 100"/>
+                  <path d="M -20 180 C 60 150, 120 220, 180 180 S 260 200, 320 160"/>
+                  <path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/>
+                  <path d="M -20 330 C 50 310, 110 370, 180 330 S 260 360, 320 320"/>
+                  <path d="M -20 400 C 60 370, 120 440, 180 400 S 260 420, 320 380"/>
+                </g>
+                <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
+                  <path d="M -20 150 C 60 140, 130 195, 180 150 S 260 175, 320 140"/>
+                  <path d="M -20 290 C 60 270, 130 330, 180 290 S 260 315, 320 275"/>
+                </g>
+              </svg>
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <path class="route-best-solo" d="M 30 230 C 60 170, 110 160, 150 140 S 210 160, 250 220"/>
+              </svg>
+              <div class="rt-marker rt-start" style="left:10%;top:38%;"></div>
+              <div class="rt-marker rt-end" style="left:88%;top:37%;"></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <div class="route-sheet detent-medium" style="height:38%;">
+              <div class="sheet-handle"></div>
+              <div class="sheet-head">
+                <div class="best-badge-row">
+                  <span class="best-badge">★ Best route</span>
+                  <span class="scenic-tag"><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span> 5 / 5 scenic</span>
+                </div>
+                <div class="sheet-title">The Skyline Spine</div>
+                <div class="sheet-via">via Hwy 35 → Hwy 9 · past Alice's</div>
+              </div>
+              <div class="instrument-grid">
+                <div class="instr-cell"><div class="instr-label">Dist</div><div class="instr-value">64</div><div class="instr-sub">miles</div></div>
+                <div class="instr-cell"><div class="instr-label">Time</div><div class="instr-value">2<span style="font-size:10px;opacity:0.65;">h</span>10</div><div class="instr-sub">mins</div></div>
+                <div class="instr-cell"><div class="instr-label">Climb</div><div class="instr-value">2,400</div><div class="instr-sub">ft</div></div>
+                <div class="instr-cell"><div class="instr-label">Scenic</div><div class="instr-value" style="color:var(--signal-default);">9.2</div><div class="instr-sub">of 10</div></div>
+              </div>
+              <div class="sheet-actions">
+                <div class="btn-outline"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>Save</div>
+                <div class="btn-primary">Ride this<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 6 15 12 9 18"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:44</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S03 · Medium detent</div>
+          <div class="screen-name">Sheet <em class="opinion-ital">dragged down</em></div>
+          <div class="screen-desc">
+            Rider dragged to inspect the map. The weather grid and scrollable body collapse below the fold; header, instrument readout, and action row remain. Dragging past the dismiss threshold fires onDismiss.
+          </div>
+          <div class="ac-cite">Drag changes detent; past dismiss threshold fires onDismiss.</div>
+        </div>
+      </div>
+
+      <!-- S04 · DARK MODE -->
+      <div class="screen-cell" id="uc-scr-04-s04-dark">
+        <div class="phone-frame">
+          <div class="phone-screen mode-dark">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+                  <path d="M -20 120 C 60 100, 120 160, 180 120 S 260 140, 320 100"/>
+                  <path d="M -20 180 C 60 150, 120 220, 180 180 S 260 200, 320 160"/>
+                  <path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/>
+                </g>
+              </svg>
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice">
+                <path class="route-best-solo" d="M 30 230 C 60 170, 110 160, 150 140 S 210 160, 250 220" style="filter:drop-shadow(0 0 10px rgba(238,124,43,0.5));"/>
+              </svg>
+              <div class="rt-marker rt-start" style="left:10%;top:38%;"></div>
+              <div class="rt-marker rt-end" style="left:88%;top:37%;"></div>
+            </div>
+
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+
+            <div class="route-sheet detent-large" style="height:62%;">
+              <div class="sheet-handle"></div>
+              <div class="sheet-head">
+                <div class="best-badge-row">
+                  <span class="best-badge">★ Best route</span>
+                  <span class="scenic-tag"><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span> 5 / 5 scenic</span>
+                </div>
+                <div class="sheet-title">Coast After Dark</div>
+                <div class="sheet-via">via Hwy 1 · Davenport exit</div>
+              </div>
+              <div class="instrument-grid">
+                <div class="instr-cell"><div class="instr-label">Dist</div><div class="instr-value">38</div><div class="instr-sub">miles</div></div>
+                <div class="instr-cell"><div class="instr-label">Time</div><div class="instr-value">1<span style="font-size:10px;opacity:0.65;">h</span>05</div><div class="instr-sub">mins</div></div>
+                <div class="instr-cell"><div class="instr-label">Climb</div><div class="instr-value">420</div><div class="instr-sub">ft</div></div>
+                <div class="instr-cell"><div class="instr-label">Scenic</div><div class="instr-value" style="color:var(--signal-default);">9.6</div><div class="instr-sub">of 10</div></div>
+              </div>
+              <div>
+                <div class="wx-header">
+                  <span class="wx-head-label">Weather along the way</span>
+                  <span class="wx-head-range">8 PM → 1 AM</span>
+                </div>
+                <div class="wx-cells" style="margin-top:8px;">
+                  <div class="wx-cell" style="background:rgba(107,123,143,0.15);border-color:rgba(107,123,143,0.3);"><span class="hour" style="color:var(--content-secondary);">8P</span><span class="icon" style="color:var(--content-secondary);">☾</span><span class="temp" style="color:var(--content-secondary);">54°</span></div>
+                  <div class="wx-cell" style="background:rgba(107,123,143,0.15);border-color:rgba(107,123,143,0.3);"><span class="hour" style="color:var(--content-secondary);">9P</span><span class="icon" style="color:var(--content-secondary);">☾</span><span class="temp" style="color:var(--content-secondary);">52°</span></div>
+                  <div class="wx-cell" style="background:rgba(107,123,143,0.15);border-color:rgba(107,123,143,0.3);"><span class="hour" style="color:var(--content-secondary);">10</span><span class="icon" style="color:var(--content-secondary);">☾</span><span class="temp" style="color:var(--content-secondary);">51°</span></div>
+                  <div class="wx-cell wind"><span class="hour">11</span><span class="icon">≋</span><span class="temp">49°</span></div>
+                  <div class="wx-cell wind"><span class="hour">12</span><span class="icon">≋</span><span class="temp">48°</span></div>
+                  <div class="wx-cell wind"><span class="hour">1A</span><span class="icon">≋</span><span class="temp">47°</span></div>
+                </div>
+              </div>
+              <div class="sheet-actions">
+                <div class="btn-outline"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>Save</div>
+                <div class="btn-primary">Ride this<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 6 15 12 9 18"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">8:02 PM</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">S04 · Dark mode</div>
+          <div class="screen-name">Night-ride sheet</div>
+          <div class="screen-desc">
+            Copper signal glows 10px against ink paper. Weather cells use moon icons for night hours; clear-night tint is a cooled neutral. The sheet otherwise mirrors the light-mode composition precisely.
+          </div>
+          <div class="ac-cite">Light/dark toggle re-renders every element correctly.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §03 STATES & VARIANTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§03 · States &amp; Variants</div>
+      <h2 class="section-title">Alt routes, <em>long names</em>, saved state.</h2>
+    </div>
+    <div class="screens-grid cols-3">
+
+      <!-- V01 · ALT ROUTE (no best badge) -->
+      <div class="screen-cell" id="uc-scr-04-v01-alt">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour)" stroke-width="0.9" fill="none"><path d="M -20 120 C 60 100, 120 160, 180 120 S 260 140, 320 100"/><path d="M -20 180 C 60 150, 120 220, 180 180 S 260 200, 320 160"/><path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/></g></svg>
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><path d="M 30 230 C 70 250, 110 240, 150 250 S 210 240, 250 230" style="fill:none;stroke:var(--route-alt1);stroke-width:4;stroke-linecap:round;filter:drop-shadow(0 2px 6px rgba(77,132,112,0.4));"/></svg>
+              <div class="rt-marker rt-start" style="left:10%;top:38%;"></div>
+              <div class="rt-marker rt-end" style="left:88%;top:38%;"></div>
+            </div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+            <div class="route-sheet detent-large" style="height:58%;">
+              <div class="sheet-handle"></div>
+              <div class="sheet-head">
+                <div class="best-badge-row">
+                  <span style="display:inline-flex;align-items:center;padding:3px 8px;background:var(--route-alt1);color:#FFF;border-radius:4px;font-family:var(--font-ui);font-size:8.5px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;">Alt 1</span>
+                  <span class="scenic-tag"><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span><span class="dot"></span><span class="dot"></span> 3 / 5 scenic</span>
+                </div>
+                <div class="sheet-title">Sun-Side Loop</div>
+                <div class="sheet-via">via Hwy 84 → inland</div>
+              </div>
+              <div class="instrument-grid">
+                <div class="instr-cell"><div class="instr-label">Dist</div><div class="instr-value">58</div><div class="instr-sub">miles</div></div>
+                <div class="instr-cell"><div class="instr-label">Time</div><div class="instr-value">1<span style="font-size:10px;opacity:0.65;">h</span>55</div><div class="instr-sub">mins</div></div>
+                <div class="instr-cell"><div class="instr-label">Climb</div><div class="instr-value">1,800</div><div class="instr-sub">ft</div></div>
+                <div class="instr-cell"><div class="instr-label">Scenic</div><div class="instr-value">7.4</div><div class="instr-sub">of 10</div></div>
+              </div>
+              <div>
+                <div class="wx-header">
+                  <span class="wx-head-label">Weather along the way</span>
+                  <span class="wx-head-range">10 AM → 2 PM</span>
+                </div>
+                <div class="wx-cells" style="margin-top:8px;">
+                  <div class="wx-cell clear"><span class="hour">10A</span><span class="icon">☀</span><span class="temp">68°</span></div>
+                  <div class="wx-cell clear"><span class="hour">11</span><span class="icon">☀</span><span class="temp">72°</span></div>
+                  <div class="wx-cell" style="background:var(--wx-hot-tint);border-color:rgba(201,66,60,0.3);"><span class="hour" style="color:var(--wx-hot);">12</span><span class="icon" style="color:var(--wx-hot);">☼</span><span class="temp" style="color:var(--wx-hot);">86°</span></div>
+                  <div class="wx-cell" style="background:var(--wx-hot-tint);border-color:rgba(201,66,60,0.3);"><span class="hour" style="color:var(--wx-hot);">1P</span><span class="icon" style="color:var(--wx-hot);">☼</span><span class="temp" style="color:var(--wx-hot);">91°</span></div>
+                  <div class="wx-cell" style="background:var(--wx-hot-tint);border-color:rgba(201,66,60,0.3);"><span class="hour" style="color:var(--wx-hot);">2P</span><span class="icon" style="color:var(--wx-hot);">☼</span><span class="temp" style="color:var(--wx-hot);">89°</span></div>
+                  <div class="wx-cell clear"><span class="hour">3P</span><span class="icon">☀</span><span class="temp">78°</span></div>
+                </div>
+              </div>
+              <div class="sheet-actions">
+                <div class="btn-outline"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>Save</div>
+                <div class="btn-primary">Ride this<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 6 15 12 9 18"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">10:00</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V01 · Alt route</div>
+          <div class="screen-name">No best badge + hot-weather cells</div>
+          <div class="screen-desc">
+            When the rider drilled into alt1, the best badge is replaced by an "Alt 1" chip in the variant sage color. Hot-weather cells use the terracotta color.weather.hot tint. Route polyline is rendered in alt1 sage.
+          </div>
+        </div>
+      </div>
+
+      <!-- V02 · SAVED (post-save state) -->
+      <div class="screen-cell" id="uc-scr-04-v02-saved">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour)" stroke-width="0.9" fill="none"><path d="M -20 120 C 60 100, 120 160, 180 120 S 260 140, 320 100"/><path d="M -20 180 C 60 150, 120 220, 180 180 S 260 200, 320 160"/><path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/></g></svg>
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><path class="route-best-solo" d="M 30 230 C 60 170, 110 160, 150 140 S 210 160, 250 220"/></svg>
+              <div class="rt-marker rt-start" style="left:10%;top:38%;"></div>
+              <div class="rt-marker rt-end" style="left:88%;top:37%;"></div>
+            </div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+            <!-- toast -->
+            <div style="position:absolute;top:108px;left:16px;right:16px;z-index:35;padding:11px 14px;background:var(--surface-glass);border:1px solid var(--signal-tint);border-left:3px solid var(--signal-default);border-radius:10px;box-shadow:var(--elev-chrome);backdrop-filter:blur(14px);display:flex;align-items:center;gap:10px;">
+              <div style="width:24px;height:24px;border-radius:50%;background:var(--signal-default);color:#FFF;display:flex;align-items:center;justify-content:center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="5 12 10 17 20 7"/></svg></div>
+              <div style="flex:1;">
+                <div style="font-family:var(--font-ui);font-weight:600;font-size:12px;color:var(--content-primary);">Saved to your rides</div>
+                <div style="font-family:var(--font-opinion);font-style:italic;font-weight:300;font-size:11px;color:var(--content-secondary);">I'll hold onto this one for later.</div>
+              </div>
+            </div>
+            <div class="route-sheet detent-large" style="height:58%;">
+              <div class="sheet-handle"></div>
+              <div class="sheet-head">
+                <div class="best-badge-row">
+                  <span class="best-badge">★ Best route</span>
+                  <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--signal-whisper);border:1px solid var(--signal-tint);color:var(--signal-default);border-radius:4px;font-family:var(--font-ui);font-size:8.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>Saved</span>
+                </div>
+                <div class="sheet-title">The Skyline Spine</div>
+                <div class="sheet-via">via Hwy 35 → Hwy 9 · past Alice's</div>
+              </div>
+              <div class="instrument-grid">
+                <div class="instr-cell"><div class="instr-label">Dist</div><div class="instr-value">64</div><div class="instr-sub">miles</div></div>
+                <div class="instr-cell"><div class="instr-label">Time</div><div class="instr-value">2<span style="font-size:10px;opacity:0.65;">h</span>10</div><div class="instr-sub">mins</div></div>
+                <div class="instr-cell"><div class="instr-label">Climb</div><div class="instr-value">2,400</div><div class="instr-sub">ft</div></div>
+                <div class="instr-cell"><div class="instr-label">Scenic</div><div class="instr-value" style="color:var(--signal-default);">9.2</div><div class="instr-sub">of 10</div></div>
+              </div>
+              <div class="sheet-actions">
+                <div class="btn-outline" style="border-color:var(--signal-tint);background:var(--signal-whisper);color:var(--signal-default);"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>Saved</div>
+                <div class="btn-primary">Ride this<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 6 15 12 9 18"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:44</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V02 · Saved state</div>
+          <div class="screen-name">After Save tap</div>
+          <div class="screen-desc">
+            Toast confirms; Save button flips to filled saved variant + copper-tinted; the header picks up a "Saved" pill next to the best badge. "Ride this" remains the primary action.
+          </div>
+        </div>
+      </div>
+
+      <!-- V03 · LONG TITLE (overflow) -->
+      <div class="screen-cell" id="uc-scr-04-v03-long-title">
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="phone-di"></div>
+            <div class="pmap">
+              <svg class="pmap-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><g stroke="var(--map-contour)" stroke-width="0.9" fill="none"><path d="M -20 120 C 60 100, 120 160, 180 120 S 260 140, 320 100"/><path d="M -20 250 C 50 220, 120 290, 180 250 S 260 280, 320 240"/></g></svg>
+              <svg class="routes-svg" viewBox="0 0 276 600" preserveAspectRatio="xMidYMid slice"><path class="route-best-solo" d="M 30 230 C 60 170, 110 160, 150 140 S 210 160, 250 220"/></svg>
+              <div class="rt-marker rt-start" style="left:10%;top:38%;"></div>
+              <div class="rt-marker rt-end" style="left:88%;top:37%;"></div>
+            </div>
+            <div class="ls-topbar">
+              <div class="chrome-chip circular"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div>
+              <div class="chrome-chip pill"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><span class="t-label-md" style="color:var(--content-primary);">New</span></div>
+            </div>
+            <div class="route-sheet detent-large" style="height:62%;">
+              <div class="sheet-handle"></div>
+              <div class="sheet-head">
+                <div class="best-badge-row">
+                  <span class="best-badge">★ Best route</span>
+                  <span class="scenic-tag"><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span><span class="dot f"></span><span class="dot"></span> 4 / 5 scenic</span>
+                </div>
+                <div class="sheet-title" style="line-height:1.1;">The Long-Way-Round Coastal<br>&amp; Ridge Loop via Alice's</div>
+                <div class="sheet-via">via Hwy 35 → La Honda → Tunitas → Hwy 1 → Davenport</div>
+              </div>
+              <div class="instrument-grid">
+                <div class="instr-cell"><div class="instr-label">Dist</div><div class="instr-value">112</div><div class="instr-sub">miles</div></div>
+                <div class="instr-cell"><div class="instr-label">Time</div><div class="instr-value">3<span style="font-size:10px;opacity:0.65;">h</span>45</div><div class="instr-sub">mins</div></div>
+                <div class="instr-cell"><div class="instr-label">Climb</div><div class="instr-value">5,200</div><div class="instr-sub">ft</div></div>
+                <div class="instr-cell"><div class="instr-label">Scenic</div><div class="instr-value" style="color:var(--signal-default);">8.9</div><div class="instr-sub">of 10</div></div>
+              </div>
+              <div>
+                <div class="wx-header">
+                  <span class="wx-head-label">Weather along the way</span>
+                  <span class="wx-head-range">9 AM → 2 PM</span>
+                </div>
+                <div class="wx-cells" style="margin-top:8px;">
+                  <div class="wx-cell clear"><span class="hour">9A</span><span class="icon">☀</span><span class="temp">60°</span></div>
+                  <div class="wx-cell clear"><span class="hour">10</span><span class="icon">☀</span><span class="temp">64°</span></div>
+                  <div class="wx-cell wind"><span class="hour">11</span><span class="icon">≋</span><span class="temp">66°</span></div>
+                  <div class="wx-cell wind"><span class="hour">12</span><span class="icon">≋</span><span class="temp">68°</span></div>
+                  <div class="wx-cell clear"><span class="hour">1P</span><span class="icon">☀</span><span class="temp">70°</span></div>
+                  <div class="wx-cell clear"><span class="hour">2P</span><span class="icon">☀</span><span class="temp">70°</span></div>
+                </div>
+              </div>
+              <div class="sheet-actions">
+                <div class="btn-outline"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>Save</div>
+                <div class="btn-primary">Ride this<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 6 15 12 9 18"/></svg></div>
+              </div>
+            </div>
+            <div class="phone-hi"></div>
+            <div class="phone-sb"><div class="sb-time">9:44</div><div class="sb-icons"><svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg></div></div>
+          </div>
+        </div>
+        <div class="screen-annotation">
+          <div class="screen-num">V03 · Long title</div>
+          <div class="screen-name">Title wraps to two lines</div>
+          <div class="screen-desc">
+            Long route names wrap cleanly at opinion.lg line-height. Via text also wraps; 4-column instrument readout holds even with 3-digit values. Actions row remains sticky at sheet bottom.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- §04 COMPONENTS -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§04 · Components</div>
+      <h2 class="section-title">A <em>single</em> organism, composed.</h2>
+    </div>
+    <div class="cmp-grid">
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Atoms · ATM</div>
+        <div class="cmp-item"><div class="cmp-name">LSMap</div><div class="cmp-ref">polylines: 1<br>cameraFit: .polyline(padding:.spacing4)</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSBestBadge</div><div class="cmp-ref">★ + "BEST ROUTE"<br>copper fill + drop shadow</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSDivider</div><div class="cmp-ref">top/bottom of instrument readout<br>border.subtle</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSButton</div><div class="cmp-ref">.outline (Save)<br>.primary (Ride this)</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Molecules · MOL</div>
+        <div class="cmp-item"><div class="cmp-name">LSInstrumentReadout</div><div class="cmp-ref">UC-MOL-07 · 4 cells<br>DIST · TIME · CLIMB · SCENIC</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSWeatherTimeline</div><div class="cmp-ref">UC-MOL-07 · 6 cells<br>tinted per color.weather.*.tint</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSBottomSheet</div><div class="cmp-ref">UC-MOL-03<br>detents: .medium, .large, .dismissed</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSToast</div><div class="cmp-ref">UC-MOL-03 · success variant<br>"Saved to your rides"</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Organisms · ORG</div>
+        <div class="cmp-item"><div class="cmp-name">LSRouteSheet</div><div class="cmp-ref">UC-ORG-04 · primary organism<br>header + readout + wx + actions</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSMapLayer</div><div class="cmp-ref">UC-ORG-02<br>bottomSheet: routeSheet</div></div>
+        <div class="cmp-item"><div class="cmp-name">LSTopBar</div><div class="cmp-ref">UC-ORG-01 · hamburger + NEW</div></div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-tier-label">Tokens consumed</div>
+        <div class="cmp-item"><div class="cmp-name">typography.instrument.*</div><div class="cmp-ref">lg (readout values)<br>sm (weather temps)</div></div>
+        <div class="cmp-item"><div class="cmp-name">color.weather.*</div><div class="cmp-ref">clear/wind/rain/storm/hot triplets<br>tint for cell bg</div></div>
+        <div class="cmp-item"><div class="cmp-name">color.route.best</div><div class="cmp-ref">single polyline 4px stroke</div></div>
+        <div class="cmp-item"><div class="cmp-name">elevation.overlay</div><div class="cmp-ref">sheet shadow tier</div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- §05 MOTION -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§05 · Motion</div>
+      <h2 class="section-title">Sheet rises, badge <em>arrives</em>, toast <em>lands</em>.</h2>
+    </div>
+    <div class="motion-table">
+      <div class="motion-recipe">— (sheet enter)</div>
+      <div class="motion-trigger">Screen mount</div>
+      <div class="motion-effect">LSBottomSheet at .large detent rises from below in 300ms ease-out. Map camera re-fits the single polyline with spacing.4 padding.</div>
+
+      <div class="motion-recipe">bestBadgeEnter</div>
+      <div class="motion-trigger">Sheet reaches .large</div>
+      <div class="motion-effect">Best badge translateY 4→0 + opacity 0→1, 300ms ease-out, 400ms after sheet settles.</div>
+
+      <div class="motion-recipe">— (sheet drag)</div>
+      <div class="motion-trigger">Drag handle vertical</div>
+      <div class="motion-effect">Detent morphs .large ↔ .medium live with drag; release snaps to nearest. Past dismiss threshold, onDismiss fires; parent re-presents.</div>
+
+      <div class="motion-recipe">— (save toast)</div>
+      <div class="motion-trigger">Save tap</div>
+      <div class="motion-effect">LSToast slides down from top in 250ms; auto-dismisses in 2.8s via chatOverlayDismiss timing.</div>
+
+      <div class="motion-recipe">mapTapDismiss</div>
+      <div class="motion-trigger">Map tap outside sheet</div>
+      <div class="motion-effect">Sheet dismisses; screen returns to RouteResults.</div>
+    </div>
+  </section>
+</div>
+
+<!-- §06 RATIONALE -->
+<div class="wrap">
+  <section class="section">
+    <div class="section-header">
+      <div class="section-index">§06 · Rationale</div>
+      <h2 class="section-title">Why <em>this much</em>, and not <em>more</em>.</h2>
+    </div>
+    <div class="rationale-grid">
+      <div class="rationale-block">
+        <h4>Design principles honored</h4>
+        <p>
+          A motorcycle rider making a commit decision doesn't want a wall of
+          text — they want the five numbers that matter plus enough weather
+          context to know whether the ride survives the afternoon. The
+          instrument readout in JetBrains Mono gives the page its
+          <em>dashboard</em> character without lapsing into a dashboard's
+          visual noise. The opinion-serif route name keeps the Navigator's
+          voice present even on the decision screen.
+        </p>
+        <p>
+          Save is outline. Ride this is primary. The 1:2 flex ratio isn't
+          an accident — the primary action is visually heavier because it
+          <em>is</em> the heavier action. Save is reversible; Ride is the
+          handoff.
+        </p>
+      </div>
+      <div class="rationale-block">
+        <h4>AC traceability</h4>
+        <ul>
+          <li><strong>AC-01</strong> Best badge, opinion title, 4-col instrument readout, 6-hr wx timeline, Save + Ride — S01.</li>
+          <li><strong>AC-02</strong> iOS + Android identical.</li>
+          <li><strong>AC-03</strong> Save and Ride callbacks fire; stub logs.</li>
+          <li><strong>AC-04</strong> Detent drag morphs sheet; dismiss threshold triggers onDismiss.</li>
+          <li><strong>AC-05</strong> Weather timeline renders per-condition tints; includes mixed-weather variant — S02.</li>
+          <li><strong>AC-06</strong> Light/dark re-renders — S04.</li>
+          <li><strong>AC-07</strong> RouteDetailsMockProvider injects route + 6 weather entries.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- FOOTER -->
+<div class="wrap">
+  <footer class="doc-footer">
+    <div class="footer-mark">Lane<em>Shadow</em><span>V2 · Copper · UC-SCR-04</span></div>
+    <div class="footer-note">
+      Numbers don't <em>argue</em>.<br>
+      But the rider deserves to see them.
+    </div>
+  </footer>
+</div>
+
+</body>
+</html>
