@@ -23,7 +23,6 @@ import XCTest
  * - Variant rendering (header, fab, text)
  */
 final class NewSessionButtonTests: XCTestCase {
-
     // MARK: - AC-1: Component renders in default state
 
     func testNewSessionButtonDefaultRendering() {

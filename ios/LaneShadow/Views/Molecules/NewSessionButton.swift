@@ -96,53 +96,53 @@ public struct LSNewSessionButton: View {
     private var iconSize: CGFloat {
         switch size {
         case .sm:
-            return 20
+            20
         case .lg:
-            return 28
+            28
         case .md:
-            return 24
+            24
         }
     }
 
     private var fontSize: CGFloat {
         switch size {
         case .sm:
-            return 13
+            13
         case .lg:
-            return 16
+            16
         case .md:
-            return 14
+            14
         }
     }
 
     private var padding: CGFloat {
         switch size {
         case .sm:
-            return theme.space.xs // 4
+            theme.space.xs // 4
         case .lg:
-            return theme.space.md // 8
+            theme.space.md // 8
         case .md:
-            return theme.space.sm // 6
+            theme.space.sm // 6
         }
     }
 
     private var fontWeight: Font.Weight {
         switch variant {
         case .text:
-            return .bold // 700
+            .bold // 700
         case .header, .fab:
-            return .semibold // 600
+            .semibold // 600
         }
     }
 
     private var spacing: CGFloat {
         switch variant {
         case .header:
-            return 6
+            6
         case .fab:
-            return 0
+            0
         case .text:
-            return 8
+            8
         }
     }
 
@@ -214,16 +214,14 @@ public struct LSNewSessionButton: View {
     // MARK: - FAB Content
 
     private var fabContent: some View {
-        let fabSize: CGFloat = {
-            switch size {
-            case .sm:
-                return 48
-            case .lg:
-                return 64
-            case .md:
-                return 56
-            }
-        }()
+        let fabSize: CGFloat = switch size {
+        case .sm:
+            48
+        case .lg:
+            64
+        case .md:
+            56
+        }
 
         return Button(action: {
             onPress?()
@@ -328,9 +326,9 @@ public struct LSNewSessionButton: View {
     private var computedAccessibilityLabel: String {
         switch variant {
         case .fab:
-            return "New session"
+            "New session"
         case .header, .text:
-            return "New \(label)"
+            "New \(label)"
         }
     }
 }

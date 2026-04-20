@@ -29,7 +29,6 @@ import XCTest
  * - Theme integration with semantic colors
  */
 final class MinimalOverlayWidgetPreviewTests: XCTestCase {
-
     // MARK: - AC-1: Component renders with all sections
 
     func testMinimalOverlayWidgetPreviewRendersWithAllSections() {

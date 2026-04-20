@@ -8,7 +8,7 @@ import SwiftUI
  *
  * Defines a demo scenario with different availability states
  */
-struct Scenario: Identifiable, Sendable {
+struct Scenario: Identifiable {
     let id = UUID()
     let name: String
     let description: String
@@ -151,7 +151,7 @@ public struct LSMinimalOverlayWidgetPreview: View {
                     )
 
                     // Selection badge
-                    if let activeOverlay = activeOverlay {
+                    if let activeOverlay {
                         Text("Active: \(activeOverlay.rawValue)")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(theme.colors.primary.default)
