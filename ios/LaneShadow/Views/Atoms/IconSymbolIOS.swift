@@ -96,7 +96,7 @@ public struct LSIconSymbolIOS: View {
         var baseImage = Image(systemName: mappedName)
 
         // Apply rendering mode first (before resizable)
-        if let renderingMode = renderingMode {
+        if let renderingMode {
             baseImage = baseImage.renderingMode(renderingMode)
         }
 

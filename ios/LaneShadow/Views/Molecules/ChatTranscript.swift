@@ -1,6 +1,36 @@
 import LaneShadowTheme
 import SwiftUI
 
+// MARK: - Array Helper
+
+extension Array {
+    var isNilOrEmpty: Bool {
+        isEmpty
+    }
+}
+
+extension Optional where Wrapped: Collection {
+    var isNilOrEmpty: Bool {
+        self?.isEmpty ?? true
+    }
+}
+
+// MARK: - View Conditional Helper
+
+extension View {
+    @ViewBuilder
+    func `if`(
+        _ condition: Bool,
+        transform: (Self) -> some View
+    ) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
+}
+
 // MARK: - Chat Message Role
 
 /**
@@ -201,88 +231,124 @@ public struct LSChatMessage: Identifiable, Sendable {
 // MARK: - Chat Transcript Component
 
 /**
- * Chat transcript molecule component
+ * Chat transcript organism component
  *
  * Displays a conversation as a series of right-aligned rider bubbles and
  * left-aligned agent messages, mirroring the ChatGPT/Claude conversation pattern.
  *
- * ## Design Tokens Used
+ * ## Design Tokens Used (from translation matrix)
  * - Colors:
  *   - Rider bubble background: `theme.colors.primary.default`
  *   - Rider text: `theme.colors.onPrimary.default`
  *   - Agent text: `theme.colors.onSurface.default`
  *   - Timestamp text: `theme.colors.onSurface.subtle`
+ *   - Agent glass background (transparent mode): `theme.colors.surface.default` with 0.85 opacity
  * - Layout:
- *   - Message spacing: 12pt gaps between messages
- *   - Bubble padding: 8pt internal padding
- *   - Corner radius: 16pt for message bubbles (4pt for bottom-right of rider bubbles)
+ *   - Message spacing: `theme.space.lg` (16pt) gaps between messages
+ *   - Bubble padding: `theme.space.md` (12pt) internal padding
+ *   - Corner radius: `theme.radius.xl` (16pt) for message bubbles, `theme.radius.sm` (4pt) for bottom-right of rider bubbles
+ *   - Content padding: `theme.space.lg` (16pt) around scroll content
  * - Typography:
- *   - Message text: body.md (14pt)
- *   - Timestamp text: label.sm (12pt)
+ *   - Rider message text: `theme.type.body.lg`
+ *   - Agent message text: `theme.type.body.md`
+ *   - Timestamp text: `theme.type.label.sm`
+ *   - Empty state text: `theme.type.body.md`
  *
  * ## Behavior
- * - Rider messages: right-aligned speech bubble with primary color background
- * - Agent messages: left-aligned, no bubble — plain text
- * - Timestamps: shown on first message or when >5min gap since previous message
- * - Auto-scrolls to bottom when messages are added
+ * - Rider messages: right-aligned speech bubble with primary color background and tight bottom-right corner
+ * - Agent messages: left-aligned, with optional glass container background in transparent mode
+ * - Timestamps: shown on first message OR when >5min gap since previous message OR on new calendar day
+ * - Auto-scrolls to bottom on mount and when new messages arrive (unless user scrolled away)
+ * - Route attachments render as separate rows below agent messages
+ * - Empty state shows centered icon and text when no messages
  *
  * ## Parameters
  * - messages: Array of chat messages to display
+ * - onRoutePress: Callback when user taps a route attachment (routeId, messageId) -> Void
+ * - onViewOnMap: Callback when user taps "View on Map" button
+ * - topInset: Extra top padding for overlay positioning (default: 0)
+ * - bottomInset: Extra bottom padding for input bar clearance (default: 0)
+ * - transparent: When true, background is transparent for map overlay mode (default: false)
+ * - onScrollBeginDrag: Callback when user begins scrolling
  * - isTyping: Whether to show a typing indicator at the bottom (default: false)
  */
 public struct LSChatTranscript: View {
     @Environment(\.theme) private var theme
+    @State private var userHasScrolled: Bool = false
 
     private let messages: [LSChatMessage]
+    private let onRoutePress: ((String, String) -> Void)?
+    private let onViewOnMap: (() -> Void)?
+    private let topInset: CGFloat
+    private let bottomInset: CGFloat
+    private let transparent: Bool
+    private let onScrollBeginDrag: (() -> Void)?
     private let isTyping: Bool
 
     public init(
         messages: [LSChatMessage],
+        onRoutePress: ((String, String) -> Void)? = nil,
+        onViewOnMap: (() -> Void)? = nil,
+        topInset: CGFloat = 0,
+        bottomInset: CGFloat = 0,
+        transparent: Bool = false,
+        onScrollBeginDrag: (() -> Void)? = nil,
         isTyping: Bool = false
     ) {
         self.messages = messages
+        self.onRoutePress = onRoutePress
+        self.onViewOnMap = onViewOnMap
+        self.topInset = topInset
+        self.bottomInset = bottomInset
+        self.transparent = transparent
+        self.onScrollBeginDrag = onScrollBeginDrag
         self.isTyping = isTyping
     }
 
     // MARK: - Body
 
     public var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(spacing: theme.space.md) {
-                    if messages.isEmpty {
-                        emptyState
-                    } else {
-                        ForEach(messages) { message in
-                            messageRow(for: message)
+        if messages.isEmpty {
+            emptyState
+        } else {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: theme.space.lg) {
+                        ForEach(Array(messages.enumerated()), id: \.element.id) { index, message in
+                            messageRow(for: message, at: index)
                         }
 
                         if isTyping {
                             typingIndicatorRow
                         }
                     }
+                    .padding(theme.space.lg)
+                    .padding(.top, theme.space.lg + topInset)
+                    .padding(.bottom, theme.space.lg + bottomInset)
                 }
-                .padding(theme.space.md)
-            }
-            .background(theme.colors.background.default)
-            .onChange(of: messages.count) { _, _ in
-                scrollToBottom(proxy: proxy)
-            }
-            .onAppear {
-                scrollToBottom(proxy: proxy)
+                .background(transparent ? Color.clear : theme.colors.background.default)
+                .scrollIndicators(.hidden)
+                .onChange(of: messages.map(\.id).joined(separator: ",")) { oldValue, newValue in
+                    // Only auto-scroll if new messages arrived (not just status updates)
+                    let hasNewMessages = oldValue != newValue && !messages.isEmpty
+                    if hasNewMessages, !userHasScrolled {
+                        scrollToBottom(proxy: proxy)
+                    }
+                }
+                .onAppear {
+                    scrollToBottom(proxy: proxy)
+                }
             }
         }
     }
 
     // MARK: - Message Row
 
-    private func messageRow(for message: LSChatMessage) -> some View {
-        VStack(alignment: message.role == .rider ? .trailing : .leading, spacing: 4) {
+    private func messageRow(for message: LSChatMessage, at index: Int) -> some View {
+        VStack(alignment: .leading, spacing: theme.space.lg) {
             // Timestamp divider (shown conditionally)
-            if let index = messages.firstIndex(where: { $0.id == message.id }),
-               shouldShowTimestamp(for: message, at: index)
-            {
-                timestampDivider(for: message)
+            if shouldShowTimestamp(for: message, at: index) {
+                timestampDivider(for: message, at: index)
             }
 
             // Message bubble or text
@@ -291,6 +357,10 @@ public struct LSChatTranscript: View {
                 riderBubble(for: message)
             case .agent:
                 agentMessage(for: message)
+                // Route attachments render as separate rows below agent messages
+                if !message.routeAttachments.isNilOrEmpty {
+                    routeAttachmentsRow(for: message)
+                }
             }
         }
     }
@@ -302,20 +372,21 @@ public struct LSChatTranscript: View {
             Spacer()
 
             Text(message.content)
-                .font(theme.type.body.md.font)
+                .font(theme.type.body.lg.font)
                 .foregroundStyle(theme.colors.onPrimary.default)
-                .padding(theme.space.sm)
+                .padding(theme.space.md)
                 .background(
                     RoundedRectangle(cornerRadius: theme.radius.xl)
                         .fill(theme.colors.primary.default)
                 )
-                .clipShape(RoundedRectangle(cornerRadius: theme.radius.xl))
-                .overlay(
-                    RoundedRectangle(cornerRadius: theme.radius.xl)
-                        .fill(theme.colors.primary.default)
-                        .frame(width: theme.radius.sm, height: theme.radius.sm),
-                    alignment: .bottomTrailing
-                )
+                .clipShape(RoundedCorner(
+                    topLeft: theme.radius.xl,
+                    bottomLeft: theme.radius.xl,
+                    topRight: theme.radius.xl,
+                    bottomRight: theme.radius.sm // Tight bottom-right corner for "sent" appearance
+                ))
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .padding(.trailing, UIScreen.main.bounds.width * 0.2) // 80% max width
         }
     }
 
@@ -328,25 +399,63 @@ public struct LSChatTranscript: View {
                 .font(.system(size: 8))
                 .foregroundStyle(theme.colors.onSurface.subtle)
 
-            MarkdownText(markdown: message.content)
+            VStack(alignment: .leading, spacing: 4) {
+                MarkdownText(markdown: message.content)
+                    .foregroundStyle(theme.colors.onSurface.default)
 
-            // Typing indicator for streaming messages
-            if message.status == .streaming {
-                LSTypingIndicator(size: .small)
+                // Typing indicator for streaming messages
+                if message.status == .streaming {
+                    LSTypingIndicator(size: .small)
+                        .padding(.leading, theme.space.xs)
+                }
             }
 
             Spacer()
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .if(transparent) { view in
+            view
+                .padding(.horizontal, theme.space.md)
+                .padding(.vertical, theme.space.sm)
+                .background(theme.colors.surface.default.opacity(0.85))
+                .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))
+        }
+    }
+
+    // MARK: - Route Attachments Row
+
+    private func routeAttachmentsRow(for message: LSChatMessage) -> some View {
+        HStack(spacing: theme.space.sm) {
+            ForEach(message.routeAttachments ?? [], id: \.id) { attachment in
+                RouteAttachmentCard(
+                    route: attachment,
+                    variant: .full,
+                    onPress: {
+                        onRoutePress?(attachment.id, message.id)
+                    }
+                )
+            }
+        }
+        .padding(.top, 4) // semantic.space.micro equivalent
     }
 
     // MARK: - Timestamp Divider
 
-    private func timestampDivider(for message: LSChatMessage) -> some View {
-        Text(formatTimestamp(message.timestamp))
+    private func timestampDivider(for message: LSChatMessage, at index: Int) -> some View {
+        let previous = index > 0 ? messages[index - 1] : nil
+        let isNewDay = !isNewDay(current: message.timestamp, previous: previous?.timestamp)
+
+        let label: String = if isNewDay || previous == nil {
+            "\(formatDayLabel(message.timestamp)) · \(formatMessageTime(message.timestamp))"
+        } else {
+            formatMessageTime(message.timestamp)
+        }
+
+        return Text(label)
             .font(theme.type.label.sm.font)
             .foregroundStyle(theme.colors.onSurface.subtle)
             .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.vertical, 4)
+            .padding(.vertical, 4) // semantic.space.micro equivalent
     }
 
     // MARK: - Typing Indicator Row
@@ -369,12 +478,15 @@ public struct LSChatTranscript: View {
     private var emptyState: some View {
         VStack(spacing: theme.space.md) {
             Image(systemName: "chat.bubble")
-                .font(.system(size: 40))
+                .font(.system(size: 40)) // semantic.icon.lg equivalent
                 .foregroundStyle(theme.colors.onSurface.subtle)
 
-            Text("Start a conversation")
+            Text("Start a conversation from the home screen")
                 .font(theme.type.body.md.font)
                 .foregroundStyle(theme.colors.onSurface.subtle)
+                .multilineTextAlignment(.center)
+                .padding(.top, theme.space.md)
+                .lineSpacing(22) // lineHeight from spec
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(32)
@@ -387,29 +499,132 @@ public struct LSChatTranscript: View {
         guard index > 0 else { return true }
 
         let previous = messages[index - 1]
-        let current = message.timestamp
-        let previousTime = previous.timestamp
-
-        // Show timestamp if more than 5 minutes have passed
-        let gap = current.timeIntervalSince(previousTime)
-        return gap > 5 * 60
+        return shouldShowTimestamp(current: message, previous: previous)
     }
 
-    private func formatTimestamp(_ date: Date) -> String {
+    private func shouldShowTimestamp(current: LSChatMessage, previous: LSChatMessage) -> Bool {
+        let curr = current.timestamp
+        let prev = previous.timestamp
+
+        // New calendar day
+        if isNewDay(current: curr, previous: prev) {
+            return true
+        }
+
+        // Gap > 5 minutes
+        let gapMs = curr.timeIntervalSince(prev)
+        return gapMs > 5 * 60
+    }
+
+    private func isNewDay(current: Date, previous: Date?) -> Bool {
+        guard let previous else { return true }
+
+        let calendar = Calendar.current
+        let currComponents = calendar.dateComponents([.year, .month, .day], from: current)
+        let prevComponents = calendar.dateComponents([.year, .month, .day], from: previous)
+
+        return currComponents.year != prevComponents.year ||
+            currComponents.month != prevComponents.month ||
+            currComponents.day != prevComponents.day
+    }
+
+    private func formatMessageTime(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm a"
+        return formatter.string(from: date)
+    }
+
+    private func formatDayLabel(_ date: Date) -> String {
+        let now = Date()
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: now)
+        let messageDay = calendar.startOfDay(for: date)
+        let diffDays = calendar.dateComponents([.day], from: messageDay, to: today).day ?? 0
+
+        if diffDays == 0 { return "Today" }
+        if diffDays == 1 { return "Yesterday" }
+        if diffDays < 7 {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE"
+            return formatter.string(from: date)
+        }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
         return formatter.string(from: date)
     }
 
     private func scrollToBottom(proxy: ScrollViewProxy) {
         guard !messages.isEmpty else { return }
 
-        // Use a slight delay to ensure layout is complete
+        // Use a short delay to ensure layout is complete (100ms from RN spec)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             withAnimation(.easeInOut(duration: 0.3)) {
                 proxy.scrollTo(messages.last?.id, anchor: .bottom)
             }
         }
+    }
+}
+
+// MARK: - RoundedCorner Shape
+
+/**
+ * Custom rounded corner shape for rider bubble with tight bottom-right corner
+ */
+struct RoundedCorner: Shape {
+    var topLeft: CGFloat = 0
+    var bottomLeft: CGFloat = 0
+    var topRight: CGFloat = 0
+    var bottomRight: CGFloat = 0
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+
+        let width = rect.width
+        let height = rect.height
+
+        // Top-left corner
+        path.move(to: CGPoint(x: 0, y: topLeft))
+        path.addArc(center: CGPoint(x: topLeft, y: topLeft),
+                    radius: topLeft,
+                    startAngle: .degrees(180),
+                    endAngle: .degrees(270),
+                    clockwise: false)
+
+        // Top edge to top-right corner
+        path.addLine(to: CGPoint(x: width - topRight, y: 0))
+
+        // Top-right corner
+        path.addArc(center: CGPoint(x: width - topRight, y: topRight),
+                    radius: topRight,
+                    startAngle: .degrees(270),
+                    endAngle: .degrees(0),
+                    clockwise: false)
+
+        // Right edge to bottom-right corner
+        path.addLine(to: CGPoint(x: width, y: height - bottomRight))
+
+        // Bottom-right corner (tight for "sent" appearance)
+        path.addArc(center: CGPoint(x: width - bottomRight, y: height - bottomRight),
+                    radius: bottomRight,
+                    startAngle: .degrees(0),
+                    endAngle: .degrees(90),
+                    clockwise: false)
+
+        // Bottom edge to bottom-left corner
+        path.addLine(to: CGPoint(x: bottomLeft, y: height))
+
+        // Bottom-left corner
+        path.addArc(center: CGPoint(x: bottomLeft, y: height - bottomLeft),
+                    radius: bottomLeft,
+                    startAngle: .degrees(90),
+                    endAngle: .degrees(180),
+                    clockwise: false)
+
+        // Left edge back to start
+        path.closeSubpath()
+
+        return path
     }
 }
 

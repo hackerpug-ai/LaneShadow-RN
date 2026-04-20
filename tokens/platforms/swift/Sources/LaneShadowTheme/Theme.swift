@@ -145,18 +145,21 @@ public struct ThemeMotion: Sendable {
 }
 
 public struct ThemeOpacity: Sendable {
-    public let step00: CGFloat
-    public let step01: CGFloat
-    public let step02: CGFloat
-    public let step03: CGFloat
-    public let step04: CGFloat
-    public let step05: CGFloat
-    public let step06: CGFloat
-    public let step07: CGFloat
-    public let step08: CGFloat
-    public let step09: CGFloat
-    public let step10: CGFloat
-    public let step11: CGFloat
+    // Semantic opacity values from semantic.tokens.json
+    public let disabled: CGFloat
+    public let overlay: CGFloat
+    public let shadow: CGFloat
+    public let shadowPrimary: CGFloat
+    public let actionIdle: CGFloat
+    public let actionPressed: CGFloat
+    public let border: CGFloat
+    public let container: CGFloat
+    public let pressed: CGFloat
+    public let pressedStrong: CGFloat
+    public let surface: CGFloat
+
+    // Numeric steps as dictionary for general access (0, 5, 10, ..., 100)
+    public let values: [String: CGFloat]
 }
 
 public struct ThemeShadow: Sendable {
@@ -412,19 +415,41 @@ private extension Theme {
 
     static func buildOpacity(from tokens: SemanticTokens) -> ThemeOpacity {
         let o = tokens.opacity
+
+        // Extract semantic named values
+        let disabled = CGFloat(o["disabled"]!.value)
+        let overlay = CGFloat(o["overlay"]!.value)
+        let shadow = CGFloat(o["shadow"]!.value)
+        let shadowPrimary = CGFloat(o["shadowPrimary"]!.value)
+        let actionIdle = CGFloat(o["actionIdle"]!.value)
+        let actionPressed = CGFloat(o["actionPressed"]!.value)
+        let border = CGFloat(o["border"]!.value)
+        let container = CGFloat(o["container"]!.value)
+        let pressed = CGFloat(o["pressed"]!.value)
+        let pressedStrong = CGFloat(o["pressedStrong"]!.value)
+        let surface = CGFloat(o["surface"]!.value)
+
+        // Build values dictionary for numeric step access
+        var values: [String: CGFloat] = [:]
+        for key in ["0", "5", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100"] {
+            if let token = o[key] {
+                values[key] = CGFloat(token.value)
+            }
+        }
+
         return ThemeOpacity(
-            step00: CGFloat(o["step00"]!.value),
-            step01: CGFloat(o["step01"]!.value),
-            step02: CGFloat(o["step02"]!.value),
-            step03: CGFloat(o["step03"]!.value),
-            step04: CGFloat(o["step04"]!.value),
-            step05: CGFloat(o["step05"]!.value),
-            step06: CGFloat(o["step06"]!.value),
-            step07: CGFloat(o["step07"]!.value),
-            step08: CGFloat(o["step08"]!.value),
-            step09: CGFloat(o["step09"]!.value),
-            step10: CGFloat(o["step10"]!.value),
-            step11: CGFloat(o["step11"]!.value)
+            disabled: disabled,
+            overlay: overlay,
+            shadow: shadow,
+            shadowPrimary: shadowPrimary,
+            actionIdle: actionIdle,
+            actionPressed: actionPressed,
+            border: border,
+            container: container,
+            pressed: pressed,
+            pressedStrong: pressedStrong,
+            surface: surface,
+            values: values
         )
     }
 

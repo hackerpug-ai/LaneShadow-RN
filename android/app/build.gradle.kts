@@ -96,6 +96,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation(project(":theme"))
     testImplementation("androidx.compose.ui:ui-test-junit4")
     testImplementation("androidx.test.ext:junit:1.2.1")
     testImplementation("androidx.test:core:1.5.0")

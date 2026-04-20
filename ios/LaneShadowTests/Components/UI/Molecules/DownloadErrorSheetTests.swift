@@ -1,7 +1,6 @@
 import LaneShadowTheme
 import SwiftUI
 import Testing
-
 @testable import LaneShadow
 
 // MARK: - DownloadErrorSheet Tests
@@ -18,19 +17,18 @@ import Testing
  * - AC-3: Component handles all states
  */
 struct DownloadErrorSheetTests {
-
     // MARK: - AC-1: Component renders in default state
 
     @Test("AC-1: DownloadErrorSheet renders with default state")
-    func testDownloadErrorSheetDefaultRendering() {
+    func downloadErrorSheetDefaultRendering() {
         // GIVEN: App is running and component is mounted
         // WHEN: DownloadErrorSheet is rendered with required props
         // THEN: Component displays matching RN wrapper defaults
 
         let sheet = LSDownloadErrorSheet(
             isVisible: true,
-            onRetry: { },
-            onClose: { }
+            onRetry: {},
+            onClose: {}
         )
 
         // Verify component exists and can be instantiated
@@ -40,7 +38,7 @@ struct DownloadErrorSheetTests {
     // MARK: - AC-2: All style properties match matrix
 
     @Test("AC-2: DownloadErrorSheet uses theme tokens for all styling")
-    func testDownloadErrorSheetStylePropertiesMatchMatrix() {
+    func downloadErrorSheetStylePropertiesMatchMatrix() {
         // GIVEN: Translation matrix defines layout, typography, colors
         // WHEN: Component is rendered in all variants
         // THEN: Measured values match matrix (height, padding, radius, font-size)
@@ -49,8 +47,8 @@ struct DownloadErrorSheetTests {
             isVisible: true,
             error: "Network connection failed",
             retryCount: 5,
-            onRetry: { },
-            onClose: { }
+            onRetry: {},
+            onClose: {}
         )
 
         // Verify component accepts all props and uses theme
@@ -60,7 +58,7 @@ struct DownloadErrorSheetTests {
     // MARK: - AC-3: Component handles all states
 
     @Test("AC-3: DownloadErrorSheet shows Contact Support after 3 retries")
-    func testDownloadErrorSheetStates() {
+    func downloadErrorSheetStates() {
         // GIVEN: Component supports states (hover, pressed, disabled, error, loading)
         // WHEN: Each state is triggered
         // THEN: Visual feedback matches RN wrapper behavior
@@ -69,16 +67,16 @@ struct DownloadErrorSheetTests {
         let sheetNoSupport = LSDownloadErrorSheet(
             isVisible: true,
             retryCount: 2,
-            onRetry: { },
-            onClose: { }
+            onRetry: {},
+            onClose: {}
         )
 
         // Test with retry count >= 3 (Contact Support SHOULD show)
         let sheetWithSupport = LSDownloadErrorSheet(
             isVisible: true,
             retryCount: 3,
-            onRetry: { },
-            onClose: { }
+            onRetry: {},
+            onClose: {}
         )
 
         // Verify both states can be created
@@ -87,26 +85,26 @@ struct DownloadErrorSheetTests {
     }
 
     @Test("AC-3: DownloadErrorSheet respects default error message")
-    func testDownloadErrorSheetDefaultErrorMessage() {
+    func downloadErrorSheetDefaultErrorMessage() {
         // Test that default error message is used when none provided
         let sheet = LSDownloadErrorSheet(
             isVisible: true,
-            onRetry: { },
-            onClose: { }
+            onRetry: {},
+            onClose: {}
         )
 
         #expect(sheet != nil)
     }
 
     @Test("AC-3: DownloadErrorSheet accepts custom error message")
-    func testDownloadErrorSheetCustomErrorMessage() {
+    func downloadErrorSheetCustomErrorMessage() {
         let customError = "Custom network error occurred"
 
         let sheet = LSDownloadErrorSheet(
             isVisible: true,
             error: customError,
-            onRetry: { },
-            onClose: { }
+            onRetry: {},
+            onClose: {}
         )
 
         #expect(sheet != nil)
