@@ -58,16 +58,6 @@ enum LaneShadowStories {
             ElevationStory()
         },
 
-        Story(
-            id: "tokens/icons/catalog",
-            tier: .atom,
-            component: "IconCatalog",
-            name: "Icon Set",
-            summary: "All 25 semantic icons from the token catalog"
-        ) { _ in
-            IconCatalogStory()
-        },
-
     ] + AtomsStories.all
 }
 
@@ -351,7 +341,12 @@ private struct ElevationStory: View {
         VStack(spacing: 4) {
             RoundedRectangle(cornerRadius: theme.radius.md)
                 .fill(theme.colors.surface.default)
-                .shadow(color: elevation.shadowColor, radius: elevation.radius, x: elevation.offsetX, y: elevation.offsetY)
+                .shadow(
+                    color: elevation.shadowColor,
+                    radius: elevation.radius,
+                    x: elevation.offsetX,
+                    y: elevation.offsetY
+                )
                 .frame(width: 56, height: 56)
                 .overlay(
                     RoundedRectangle(cornerRadius: theme.radius.md)
@@ -364,45 +359,3 @@ private struct ElevationStory: View {
     }
 }
 
-// MARK: - Icon Catalog Story
-
-private struct IconCatalogStory: View {
-    @Environment(\.theme) private var theme
-
-    private let iconNames = [
-        "bike", "bookmark", "bookmarkFill", "chevL", "chevR",
-        "clock", "close", "collapse", "compass", "edit",
-        "expand", "heart", "heartFill", "layers", "map",
-        "menu", "pin", "plus", "rain", "route",
-        "send", "share", "sliders", "sparkle", "star",
-        "starFill", "storm", "sun", "therm", "trash", "wind",
-    ]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: theme.space.md) {
-            Text("Icon Catalog (\(iconNames.count) icons)")
-                .font(theme.type.label.md.font)
-                .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
-
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: theme.space.md), count: 4), spacing: theme.space.sm) {
-                ForEach(iconNames, id: \.self) { name in
-                    HStack(spacing: theme.space.sm) {
-                        RoundedRectangle(cornerRadius: theme.radius.sm)
-                            .fill(theme.colors.accent.default.opacity(0.1))
-                            .overlay(
-                                Text(String(name.prefix(1)).uppercased())
-                                    .font(theme.type.label.md.font)
-                                    .foregroundStyle(theme.colors.accent.default)
-                            )
-                            .frame(width: 32, height: 32)
-                        Text(name)
-                            .font(theme.type.label.sm.font)
-                            .foregroundStyle(theme.colors.onSurface.default.opacity(0.7))
-                            .lineLimit(1)
-                    }
-                }
-            }
-        }
-        .padding(theme.space.lg)
-    }
-}

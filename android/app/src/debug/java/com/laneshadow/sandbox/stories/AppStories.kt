@@ -8,7 +8,7 @@ import com.nativesandbox.model.Story
 
 object AppStories {
     val all: List<Story> =
-        (InfrastructureStories.all.map { it.asNativeStory() } + AtomsStories.all)
+        (TokenSwatchStories.all + InfrastructureStories.all.map { it.asNativeStory() } + AtomsStories.all)
             .sortedBy(Story::id)
 }
 

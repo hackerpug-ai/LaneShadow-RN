@@ -610,6 +610,14 @@ const BUNDLED_JSON_SPM_OUTPUT = path.join(
   'Resources',
   'semantic.tokens.json',
 )
+const BUNDLED_JSON_ANDROID_OUTPUT = path.join(
+  PLATFORMS_DIR,
+  'kotlin',
+  'src',
+  'main',
+  'assets',
+  'semantic.tokens.json',
+)
 
 function dimToken(value: number): { $type: string; $value: number } {
   return { $type: 'dimension', $value: value }
@@ -1037,6 +1045,7 @@ async function main() {
   fs.mkdirSync(path.dirname(MAPBOX_OUTPUT), { recursive: true })
   fs.mkdirSync(path.dirname(BUNDLED_JSON_OUTPUT), { recursive: true })
   fs.mkdirSync(path.dirname(BUNDLED_JSON_SPM_OUTPUT), { recursive: true })
+  fs.mkdirSync(path.dirname(BUNDLED_JSON_ANDROID_OUTPUT), { recursive: true })
 
   // Emit Swift
   console.log('  📱 Emitting Swift tokens...')
@@ -1072,6 +1081,7 @@ async function main() {
   )
   fs.writeFileSync(BUNDLED_JSON_OUTPUT, bundledJsonStr)
   fs.writeFileSync(BUNDLED_JSON_SPM_OUTPUT, bundledJsonStr)
+  fs.writeFileSync(BUNDLED_JSON_ANDROID_OUTPUT, bundledJsonStr)
 
   // Format TS outputs with biome for consistent style
   try {
@@ -1093,6 +1103,7 @@ async function main() {
   console.log(`  - ${MAPBOX_OUTPUT}`)
   console.log(`  - ${BUNDLED_JSON_OUTPUT}`)
   console.log(`  - ${BUNDLED_JSON_SPM_OUTPUT}`)
+  console.log(`  - ${BUNDLED_JSON_ANDROID_OUTPUT}`)
 }
 
 // String extension for capitalize
