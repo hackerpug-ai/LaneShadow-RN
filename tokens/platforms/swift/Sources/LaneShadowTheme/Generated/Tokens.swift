@@ -2,921 +2,207 @@
 // input-hash: 685825c7
 
 import NativeTheme
+import CoreGraphics
 
 enum LaneShadowTheme {
   enum color {
     enum surface {
-      static let primary = ColorSet(
-        light: parseColorString("#F8F7F6"),
-        dark:  parseColorString("#221810")
-      )
-      static let card = ColorSet(
-        light: parseColorString("#FDFBF8"),
-        dark:  parseColorString("#2D2218")
-      )
-      static let inset = ColorSet(
-        light: parseColorString("#F2EFED"),
-        dark:  parseColorString("#362A1F")
-      )
-      static let overlay = ColorSet(
-        light: parseColorString("rgba(253,251,248,0.92)"),
-        dark:  parseColorString("rgba(45,34,24,0.92)")
-      )
-      static let glass = ColorSet(
-        light: parseColorString("rgba(253,251,248,0.72)"),
-        dark:  parseColorString("rgba(45,34,24,0.72)")
-      )
-      static let scrim = ColorSet(
-        light: parseColorString("rgba(34,24,16,0.35)"),
-        dark:  parseColorString("rgba(10,6,3,0.50)")
-      )
+      static let primary = dyn(parseColorString("#F8F7F6"), parseColorString("#221810"))
+      static let card = dyn(parseColorString("#FDFBF8"), parseColorString("#2D2218"))
+      static let inset = dyn(parseColorString("#F2EFED"), parseColorString("#362A1F"))
+      static let overlay = dyn(parseColorString("rgba(253,251,248,0.92)"), parseColorString("rgba(45,34,24,0.92)"))
+      static let glass = dyn(parseColorString("rgba(253,251,248,0.72)"), parseColorString("rgba(45,34,24,0.72)"))
+      static let scrim = dyn(parseColorString("rgba(34,24,16,0.35)"), parseColorString("rgba(10,6,3,0.50)"))
     }
     enum content {
-      static let primary = ColorSet(
-        light: parseColorString("#1E1A16"),
-        dark:  parseColorString("#F2EEE8")
-      )
-      static let secondary = ColorSet(
-        light: parseColorString("#49454F"),
-        dark:  parseColorString("#CAC4D0")
-      )
-      static let tertiary = ColorSet(
-        light: parseColorString("#6B6460"),
-        dark:  parseColorString("#9CA3AF")
-      )
-      static let subtle = ColorSet(
-        light: parseColorString("#9CA3AF"),
-        dark:  parseColorString("#6B6460")
-      )
-      static let onSignal = ColorSet(
-        light: parseColorString("#FFFFFF"),
-        dark:  parseColorString("#FFFFFF")
-      )
+      static let primary = dyn(parseColorString("#1E1A16"), parseColorString("#F2EEE8"))
+      static let secondary = dyn(parseColorString("#49454F"), parseColorString("#CAC4D0"))
+      static let tertiary = dyn(parseColorString("#6B6460"), parseColorString("#9CA3AF"))
+      static let subtle = dyn(parseColorString("#9CA3AF"), parseColorString("#6B6460"))
+      static let onSignal = dyn(parseColorString("#FFFFFF"), parseColorString("#FFFFFF"))
     }
     enum signal {
-      static let `default` = ColorSet(
-        light: parseColorString("#EE7C2B"),
-        dark:  parseColorString("#EE7C2B")
-      )
-      static let pressed = ColorSet(
-        light: parseColorString("#9E4A22"),
-        dark:  parseColorString("#9E4A22")
-      )
-      static let tint = ColorSet(
-        light: parseColorString("#F9D5B5"),
-        dark:  parseColorString("#F9D5B5")
-      )
-      static let whisper = ColorSet(
-        light: parseColorString("#FCE8D4"),
-        dark:  parseColorString("#FCE8D4")
-      )
+      static let `default` = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
+      static let pressed = dyn(parseColorString("#9E4A22"), parseColorString("#9E4A22"))
+      static let tint = dyn(parseColorString("#F9D5B5"), parseColorString("#F9D5B5"))
+      static let whisper = dyn(parseColorString("#FCE8D4"), parseColorString("#FCE8D4"))
     }
+    enum role {
     enum agent {
-      static let `default` = ColorSet(
-        light: parseColorString("#EE7C2B"),
-        dark:  parseColorString("#EE7C2B")
-      )
+      static let `default` = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
     }
     enum user {
-      static let `default` = ColorSet(
-        light: parseColorString("#F2EFED"),
-        dark:  parseColorString("#F2EFED")
-      )
+      static let `default` = dyn(parseColorString("#F2EFED"), parseColorString("#F2EFED"))
     }
     enum system {
-      static let `default` = ColorSet(
-        light: parseColorString("#E5DED9"),
-        dark:  parseColorString("#E5DED9")
-      )
+      static let `default` = dyn(parseColorString("#E5DED9"), parseColorString("#E5DED9"))
     }
+    }
+    enum weather {
     enum clear {
-      static let `default` = ColorSet(
-        light: parseColorString("#E6A52A"),
-        dark:  parseColorString("#E6A52A")
-      )
-      static let tint = ColorSet(
-        light: parseColorString("#FBEFCF"),
-        dark:  parseColorString("#FBEFCF")
-      )
+      static let `default` = dyn(parseColorString("#E6A52A"), parseColorString("#E6A52A"))
+      static let tint = dyn(parseColorString("#FBEFCF"), parseColorString("#FBEFCF"))
     }
     enum rain {
-      static let `default` = ColorSet(
-        light: parseColorString("#4A86BE"),
-        dark:  parseColorString("#4A86BE")
-      )
-      static let tint = ColorSet(
-        light: parseColorString("#DBEAF4"),
-        dark:  parseColorString("#DBEAF4")
-      )
+      static let `default` = dyn(parseColorString("#4A86BE"), parseColorString("#4A86BE"))
+      static let tint = dyn(parseColorString("#DBEAF4"), parseColorString("#DBEAF4"))
     }
     enum wind {
-      static let `default` = ColorSet(
-        light: parseColorString("#6B7B8F"),
-        dark:  parseColorString("#6B7B8F")
-      )
-      static let tint = ColorSet(
-        light: parseColorString("#E1E6EC"),
-        dark:  parseColorString("#E1E6EC")
-      )
+      static let `default` = dyn(parseColorString("#6B7B8F"), parseColorString("#6B7B8F"))
+      static let tint = dyn(parseColorString("#E1E6EC"), parseColorString("#E1E6EC"))
     }
     enum storm {
-      static let `default` = ColorSet(
-        light: parseColorString("#5E3FAE"),
-        dark:  parseColorString("#5E3FAE")
-      )
-      static let tint = ColorSet(
-        light: parseColorString("#E3DCF2"),
-        dark:  parseColorString("#E3DCF2")
-      )
+      static let `default` = dyn(parseColorString("#5E3FAE"), parseColorString("#5E3FAE"))
+      static let tint = dyn(parseColorString("#E3DCF2"), parseColorString("#E3DCF2"))
     }
     enum hot {
-      static let `default` = ColorSet(
-        light: parseColorString("#C9423C"),
-        dark:  parseColorString("#C9423C")
-      )
-      static let tint = ColorSet(
-        light: parseColorString("#F5D8D6"),
-        dark:  parseColorString("#F5D8D6")
-      )
+      static let `default` = dyn(parseColorString("#C9423C"), parseColorString("#C9423C"))
+      static let tint = dyn(parseColorString("#F5D8D6"), parseColorString("#F5D8D6"))
     }
     enum cold {
-      static let `default` = ColorSet(
-        light: parseColorString("#3A8BE3"),
-        dark:  parseColorString("#3A8BE3")
-      )
-      static let tint = ColorSet(
-        light: parseColorString("#D6E5F7"),
-        dark:  parseColorString("#D6E5F7")
-      )
+      static let `default` = dyn(parseColorString("#3A8BE3"), parseColorString("#3A8BE3"))
+      static let tint = dyn(parseColorString("#D6E5F7"), parseColorString("#D6E5F7"))
+    }
     }
     enum route {
-      static let best = ColorSet(
-        light: parseColorString("#EE7C2B"),
-        dark:  parseColorString("#EE7C2B")
-      )
-      static let alt1 = ColorSet(
-        light: parseColorString("#4D8470"),
-        dark:  parseColorString("#4D8470")
-      )
-      static let alt2 = ColorSet(
-        light: parseColorString("#6B7B8F"),
-        dark:  parseColorString("#6B7B8F")
-      )
+      static let best = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
+      static let alt1 = dyn(parseColorString("#4D8470"), parseColorString("#4D8470"))
+      static let alt2 = dyn(parseColorString("#6B7B8F"), parseColorString("#6B7B8F"))
     }
+    enum status {
     enum info {
-      static let `default` = ColorSet(
-        light: parseColorString("#3A8BE3"),
-        dark:  parseColorString("#3A8BE3")
-      )
+      static let `default` = dyn(parseColorString("#3A8BE3"), parseColorString("#3A8BE3"))
     }
     enum success {
-      static let `default` = ColorSet(
-        light: parseColorString("#4D8470"),
-        dark:  parseColorString("#4D8470")
-      )
+      static let `default` = dyn(parseColorString("#4D8470"), parseColorString("#4D8470"))
     }
     enum warning {
-      static let `default` = ColorSet(
-        light: parseColorString("#C46F1B"),
-        dark:  parseColorString("#C46F1B")
-      )
+      static let `default` = dyn(parseColorString("#C46F1B"), parseColorString("#C46F1B"))
     }
     enum error {
-      static let `default` = ColorSet(
-        light: parseColorString("#C9423C"),
-        dark:  parseColorString("#C9423C")
-      )
+      static let `default` = dyn(parseColorString("#C9423C"), parseColorString("#C9423C"))
+    }
     }
     enum border {
-      static let `default` = ColorSet(
-        light: parseColorString("#E5DED9"),
-        dark:  parseColorString("rgba(242,238,232,0.12)")
-      )
-      static let subtle = ColorSet(
-        light: parseColorString("#EDE7E1"),
-        dark:  parseColorString("rgba(242,238,232,0.07)")
-      )
-      static let strong = ColorSet(
-        light: parseColorString("#C9BDB3"),
-        dark:  parseColorString("rgba(242,238,232,0.22)")
-      )
-      static let focus = ColorSet(
-        light: parseColorString("#EE7C2B"),
-        dark:  parseColorString("#EE7C2B")
-      )
+      static let `default` = dyn(parseColorString("#E5DED9"), parseColorString("rgba(242,238,232,0.12)"))
+      static let subtle = dyn(parseColorString("#EDE7E1"), parseColorString("rgba(242,238,232,0.07)"))
+      static let strong = dyn(parseColorString("#C9BDB3"), parseColorString("rgba(242,238,232,0.22)"))
+      static let focus = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
     }
+    enum action {
     enum primary {
-      static let `default` = ColorSet(
-        light: parseColorString("#EE7C2B"),
-        dark:  parseColorString("#EE7C2B")
-      )
-      static let hover = ColorSet(
-        light: parseColorString("#F3A164"),
-        dark:  parseColorString("#F3A164")
-      )
-      static let pressed = ColorSet(
-        light: parseColorString("#9E4A22"),
-        dark:  parseColorString("#9E4A22")
-      )
+      static let `default` = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
+      static let hover = dyn(parseColorString("#F3A164"), parseColorString("#F3A164"))
+      static let pressed = dyn(parseColorString("#9E4A22"), parseColorString("#9E4A22"))
     }
     enum secondary {
-      static let `default` = ColorSet(
-        light: parseColorString("#FCE8D4"),
-        dark:  parseColorString("#FCE8D4")
-      )
-      static let hover = ColorSet(
-        light: parseColorString("#F9D5B5"),
-        dark:  parseColorString("#F9D5B5")
-      )
-      static let pressed = ColorSet(
-        light: parseColorString("#F3A164"),
-        dark:  parseColorString("#F3A164")
-      )
+      static let `default` = dyn(parseColorString("#FCE8D4"), parseColorString("#FCE8D4"))
+      static let hover = dyn(parseColorString("#F9D5B5"), parseColorString("#F9D5B5"))
+      static let pressed = dyn(parseColorString("#F3A164"), parseColorString("#F3A164"))
+    }
     }
   }
   enum typography {
-    static let opinion$comment = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
     static let opinionXl = TypographyStyle(
-      family: .newsreader,
-      weight: .regular,
-      size: 30, lineHeight: 1.12
+      fontSize: 30,
+      lineHeight: 33.6,
+      fontWeight: .light
     )
     static let opinionLg = TypographyStyle(
-      family: .newsreader,
-      weight: .regular,
-      size: 22, lineHeight: 1.18
+      fontSize: 22,
+      lineHeight: 25.96,
+      fontWeight: .light
     )
     static let opinionMd = TypographyStyle(
-      family: .newsreader,
-      weight: .regular,
-      size: 17, lineHeight: 1.32
+      fontSize: 17,
+      lineHeight: 22.44,
+      fontWeight: .light
     )
     static let opinionSm = TypographyStyle(
-      family: .newsreader,
-      weight: .regular,
-      size: 14, lineHeight: 1.45
-    )
-    static let ui$comment0 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment1 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment2 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment3 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment4 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment5 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment6 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment7 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment8 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment9 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment10 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment11 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment12 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment13 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment14 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment15 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment16 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment17 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment18 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment19 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment20 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment21 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment22 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment23 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment24 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment25 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment26 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment27 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment28 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment29 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment30 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment31 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment32 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment33 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment34 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment35 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment36 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment37 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment38 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment39 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment40 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment41 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment42 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment43 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment44 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment45 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment46 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment47 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment48 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment49 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment50 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment51 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment52 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment53 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment54 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment55 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment56 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment57 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment58 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment59 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment60 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment61 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment62 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment63 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment64 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment65 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment66 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment67 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment68 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment69 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment70 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment71 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment72 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment73 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment74 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment75 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment76 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment77 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment78 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment79 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment80 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment81 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment82 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment83 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment84 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment85 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment86 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment87 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment88 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment89 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment90 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment91 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment92 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment93 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment94 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment95 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment96 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment97 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment98 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment99 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment100 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment101 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment102 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment103 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment104 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment105 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment106 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment107 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment108 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment109 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment110 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment111 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment112 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
-    )
-    static let ui$comment113 = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
+      fontSize: 14,
+      lineHeight: 20.3,
+      fontWeight: .light
     )
     static let uiTitleLg = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: 17, lineHeight: 1.24
+      fontSize: 17,
+      lineHeight: 21.08,
+      fontWeight: .semibold
     )
     static let uiTitleMd = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: 14, lineHeight: 1.28
+      fontSize: 14,
+      lineHeight: 17.92,
+      fontWeight: .semibold
     )
     static let uiTitleSm = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: 12, lineHeight: 1.28
+      fontSize: 12,
+      lineHeight: 15.36,
+      fontWeight: .semibold
     )
     static let uiBodyLg = TypographyStyle(
-      family: .geist,
-      weight: .regular,
-      size: 14, lineHeight: 1.48
+      fontSize: 14,
+      lineHeight: 20.72,
+      fontWeight: .light
     )
     static let uiBodyMd = TypographyStyle(
-      family: .geist,
-      weight: .regular,
-      size: 12, lineHeight: 1.52
+      fontSize: 12,
+      lineHeight: 18.24,
+      fontWeight: .light
     )
     static let uiBodySm = TypographyStyle(
-      family: .geist,
-      weight: .regular,
-      size: 10.5, lineHeight: 1.48
+      fontSize: 10.5,
+      lineHeight: 15.54,
+      fontWeight: .light
     )
     static let uiLabelLg = TypographyStyle(
-      family: .geist,
-      weight: .medium,
-      size: 11, lineHeight: 1.00
+      fontSize: 11,
+      lineHeight: 11,
+      fontWeight: .medium
     )
     static let uiLabelMd = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: 9.5, lineHeight: 1.00
+      fontSize: 9.5,
+      lineHeight: 9.5,
+      fontWeight: .semibold
     )
     static let uiLabelSm = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: 8.5, lineHeight: 1.00
-    )
-    static let instrument$comment = TypographyStyle(
-      family: .geist,
-      weight: .semibold,
-      size: undefined, lineHeight: NaN
+      fontSize: 8.5,
+      lineHeight: 8.5,
+      fontWeight: .semibold
     )
     static let instrumentLg = TypographyStyle(
-      family: .jetbrainsmono,
-      weight: .medium,
-      size: 18, lineHeight: 1.12
+      fontSize: 18,
+      lineHeight: 20.16,
+      fontWeight: .medium
     )
     static let instrumentMd = TypographyStyle(
-      family: .jetbrainsmono,
-      weight: .medium,
-      size: 13, lineHeight: 1.20
+      fontSize: 13,
+      lineHeight: 15.6,
+      fontWeight: .medium
     )
     static let instrumentSm = TypographyStyle(
-      family: .jetbrainsmono,
-      weight: .medium,
-      size: 10, lineHeight: 1.20
+      fontSize: 10,
+      lineHeight: 12,
+      fontWeight: .medium
     )
     static let instrumentXs = TypographyStyle(
-      family: .jetbrainsmono,
-      weight: .medium,
-      size: 8.5, lineHeight: 1.00
+      fontSize: 8.5,
+      lineHeight: 8.5,
+      fontWeight: .medium
     )
   }
   enum spacing {
-    static let values: [Int: CGFloat] = [
-      0: 0,
-      1: 2,
-      2: 4,
-      3: 8,
-      4: 12,
-      5: 16,
-      6: 20,
-      7: 24,
-      8: 32,
-      9: 40,
-      10: 48,
-      11: 56,
-      12: 64,
-    ]
+    static let s0: CGFloat = 0
+    static let s1: CGFloat = 2
+    static let s2: CGFloat = 4
+    static let s3: CGFloat = 8
+    static let s4: CGFloat = 12
+    static let s5: CGFloat = 16
+    static let s6: CGFloat = 20
+    static let s7: CGFloat = 24
+    static let s8: CGFloat = 32
+    static let s9: CGFloat = 40
+    static let s10: CGFloat = 48
+    static let s11: CGFloat = 56
+    static let s12: CGFloat = 64
   }
   enum icon {
     enum name: String, CaseIterable {

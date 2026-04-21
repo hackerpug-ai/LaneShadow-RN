@@ -259,18 +259,15 @@ function emitSwift(
   lines.push(`// input-hash: ${inputHash}`)
   lines.push('')
   lines.push('import NativeTheme')
+  lines.push('import CoreGraphics')
   lines.push('')
   lines.push('enum LaneShadowTheme {')
 
-  // Colors
+  // Colors — emit as dynamic colors using dyn() + parseColorString()
   if (tokens.color) {
     lines.push('  enum color {')
 
-    // Helper to flatten color groups and handle nested structures
-    const processColorGroup = (groupName: string, group: Record<string, any>, parentPath = '') => {
-      const entries = Object.entries(group)
-
-      // First, separate leaf tokens from nested groups
+    const processColorGroup = (groupName: string, group: Record<string, any>) => {
       const leafTokens: Array<{ name: string; token: ColorToken }> = []
       const nestedGroups: Array<{ name: string; group: Record<string, any> }> = []
 
@@ -282,50 +279,20 @@ function emitSwift(
         }
       }
 
-      // If we have both leaf tokens and nested groups at the same level,
-      // we need to handle this specially
-      if (leafTokens.length > 0 && nestedGroups.length > 0) {
-        // This is a mixed group like "role" which has both direct tokens and nested groups
-        // Emit as an enum with nested enums
-        lines.push(`    enum ${groupName} {`)
+      lines.push(`    enum ${groupName} {`)
 
-        // Emit leaf tokens
-        for (const { name, token } of leafTokens) {
-          const swiftName = name === 'default' ? '`default`' : name
-          const light = parseColorString(token.light)
-          const dark = parseColorString(token.dark)
-          lines.push(`      static let ${swiftName} = ColorSet(`)
-          lines.push(`        light: parseColorString("${light}"),`)
-          lines.push(`        dark:  parseColorString("${dark}")`)
-          lines.push(`      )`)
-        }
-
-        // Recursively process nested groups
-        for (const { name: subName, group: subGroup } of nestedGroups) {
-          processColorGroup(subName, subGroup as Record<string, any>, groupName)
-        }
-
-        lines.push(`    }`)
-      } else if (leafTokens.length > 0 && nestedGroups.length === 0) {
-        // Simple flat group with only leaf tokens
-        lines.push(`    enum ${groupName} {`)
-        for (const { name, token } of leafTokens) {
-          const swiftName = name === 'default' ? '`default`' : name
-          const light = parseColorString(token.light)
-          const dark = parseColorString(token.dark)
-          lines.push(`      static let ${swiftName} = ColorSet(`)
-          lines.push(`        light: parseColorString("${light}"),`)
-          lines.push(`        dark:  parseColorString("${dark}")`)
-          lines.push(`      )`)
-        }
-        lines.push(`    }`)
-      } else if (leafTokens.length === 0 && nestedGroups.length > 0) {
-        // Only nested groups - this shouldn't happen with our color structure
-        // But handle it by recursing
-        for (const { name: subName, group: subGroup } of nestedGroups) {
-          processColorGroup(subName, subGroup as Record<string, any>, groupName)
-        }
+      for (const { name, token } of leafTokens) {
+        const swiftName = name === 'default' ? '`default`' : name
+        lines.push(
+          `      static let ${swiftName} = dyn(parseColorString("${token.light}"), parseColorString("${token.dark}"))`,
+        )
       }
+
+      for (const { name: subName, group: subGroup } of nestedGroups) {
+        processColorGroup(subName, subGroup as Record<string, any>)
+      }
+
+      lines.push(`    }`)
     }
 
     for (const [groupName, group] of Object.entries(tokens.color)) {
@@ -337,33 +304,49 @@ function emitSwift(
     lines.push('  }')
   }
 
-  // Typography
+  // Typography — use TypographyStyle(fontSize:lineHeight:fontWeight:)
   if (tokens.typography) {
     lines.push('  enum typography {')
 
     const emitTypographyToken = (name: string, token: TypographyToken) => {
-      const family = mapFontFamily(token.family)
       const weight = mapWeight(token.weight)
-      const lineHeightRatio = (token.lineHeight / token.size).toFixed(2)
+      const swiftWeight =
+        weight < 400
+          ? 'ultraLight'
+          : weight < 500
+            ? 'light'
+            : weight < 600
+              ? 'medium'
+              : weight < 700
+                ? 'semibold'
+                : weight < 800
+                  ? 'bold'
+                  : weight < 900
+                    ? 'heavy'
+                    : 'black'
 
       lines.push(`    static let ${name} = TypographyStyle(`)
-      lines.push(`      family: .${family.toLowerCase()},`)
-      lines.push(
-        `      weight: .${weight < 500 ? 'regular' : weight < 600 ? 'medium' : 'semibold'},`,
-      )
-      lines.push(`      size: ${token.size}, lineHeight: ${lineHeightRatio}`)
+      lines.push(`      fontSize: ${token.size},`)
+      lines.push(`      lineHeight: ${token.lineHeight},`)
+      lines.push(`      fontWeight: .${swiftWeight}`)
       lines.push(`    )`)
     }
 
     const typo = tokens.typography
+    const isToken = (v: any): v is TypographyToken =>
+      typeof v === 'object' && v !== null && typeof v.size === 'number'
+
     if (typo.opinion) {
       for (const [name, token] of Object.entries(typo.opinion)) {
+        if (name.startsWith('$') || !isToken(token)) continue
         emitTypographyToken(`opinion${name.charAt(0).toUpperCase() + name.slice(1)}`, token)
       }
     }
     if (typo.ui) {
       for (const [category, variants] of Object.entries(typo.ui)) {
+        if (category.startsWith('$') || typeof variants !== 'object' || !variants) continue
         for (const [size, token] of Object.entries(variants)) {
+          if (size.startsWith('$') || !isToken(token)) continue
           emitTypographyToken(
             `ui${category.charAt(0).toUpperCase() + category.slice(1)}${size.charAt(0).toUpperCase() + size.slice(1)}`,
             token,
@@ -373,6 +356,7 @@ function emitSwift(
     }
     if (typo.instrument) {
       for (const [name, token] of Object.entries(typo.instrument)) {
+        if (name.startsWith('$') || !isToken(token)) continue
         emitTypographyToken(`instrument${name.charAt(0).toUpperCase() + name.slice(1)}`, token)
       }
     }
@@ -380,18 +364,14 @@ function emitSwift(
     lines.push('  }')
   }
 
-  // Dimensions (spacing)
+  // Dimensions (spacing) — individual static lets to avoid complex dictionary literal
   if (tokens.dimensions?.spacing) {
     lines.push('  enum spacing {')
-    lines.push('    static let values: [Int: CGFloat] = [')
-
     for (const [key, value] of Object.entries(tokens.dimensions.spacing)) {
       if (value.$value !== undefined) {
-        lines.push(`      ${key}: ${value.$value},`)
+        lines.push(`    static let s${key}: CGFloat = ${value.$value}`)
       }
     }
-
-    lines.push('    ]')
     lines.push('  }')
   }
 
