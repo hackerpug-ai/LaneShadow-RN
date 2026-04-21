@@ -211,6 +211,22 @@ function parseColorString(color: string): string {
   return color
 }
 
+// Convert a color string to Kotlin Compose Color constructor arg
+function toKotlinColorArgs(color: string): string {
+  if (color.startsWith('#')) {
+    return color.replace('#', '0xFF')
+  }
+  const rgbaMatch = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/)
+  if (rgbaMatch) {
+    const r = (parseInt(rgbaMatch[1], 10) / 255).toFixed(3)
+    const g = (parseInt(rgbaMatch[2], 10) / 255).toFixed(3)
+    const b = (parseInt(rgbaMatch[3], 10) / 255).toFixed(3)
+    const a = rgbaMatch[4] ?? '1.0'
+    return `${r}f, ${g}f, ${b}f, ${a}f`
+  }
+  return color
+}
+
 // Map font family role to native font names
 function mapFontFamily(role: string): string {
   const map: Record<string, string> = {
@@ -430,9 +446,8 @@ function emitKotlin(
       for (const [name, value] of Object.entries(group)) {
         if (typeof value === 'object' && 'light' in value && 'dark' in value) {
           const colorToken = value as ColorToken
-          const lightHex = colorToken.light.replace('#', '0xFF')
-          const darkHex = colorToken.dark.replace('#', '0xFF')
-          lines.push(`      val ${name} = Color(${lightHex})`)
+          const lightArgs = toKotlinColorArgs(colorToken.light)
+          lines.push(`      val ${name} = Color(${lightArgs})`)
         } else if (typeof value === 'object') {
           emitColorGroup(name, value)
         }

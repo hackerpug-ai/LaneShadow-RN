@@ -11,9 +11,9 @@ object LaneShadowTheme {
       val primary = Color(0xFFF8F7F6)
       val card = Color(0xFFFDFBF8)
       val inset = Color(0xFFF2EFED)
-      val overlay = Color(rgba(253,251,248,0.92))
-      val glass = Color(rgba(253,251,248,0.72))
-      val scrim = Color(rgba(34,24,16,0.35))
+      val overlay = Color(0.992f, 0.984f, 0.973f, 0.92f)
+      val glass = Color(0.992f, 0.984f, 0.973f, 0.72f)
+      val scrim = Color(0.133f, 0.094f, 0.063f, 0.35f)
     }
     object Content {
       val primary = Color(0xFF1E1A16)
