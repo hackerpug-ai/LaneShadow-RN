@@ -21,13 +21,17 @@ function listJsonFiles(dir) {
     else if (entry.isFile() && full.endsWith('.json')) {
       // Skip non-DTCG token files — they have their own validators:
       // - typography.tokens.json → validate-typography.ts
-      // - colors.tokens.json → UC-TOK-02 (not yet implemented)
-      // - motion.tokens.json → UC-TOK-04 (not yet implemented)
-      // - dimensions.tokens.json → UC-TOK-03 (not yet implemented)
+      // - colors.tokens.json → validate-colors.js
+      // - motion.tokens.json → check-motion-refs.ts
+      // - dimensions.tokens.json → validate-dimensions.ts
+      // - icons.json → icons-check.ts
+      // - mapbox.tokens.json → custom format for Mapbox URLs
       if (full.endsWith('typography.tokens.json')) continue
       if (full.endsWith('colors.tokens.json')) continue
       if (full.endsWith('motion.tokens.json')) continue
       if (full.endsWith('dimensions.tokens.json')) continue
+      if (full.endsWith('icons.json')) continue
+      if (full.endsWith('mapbox.tokens.json')) continue
       out.push(full)
     }
   }

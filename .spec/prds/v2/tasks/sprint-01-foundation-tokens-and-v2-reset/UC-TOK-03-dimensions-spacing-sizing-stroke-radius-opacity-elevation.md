@@ -5,7 +5,10 @@ TASK: UC-TOK-03 - Dimensions — spacing / sizing / stroke / radius / opacity / 
 ================================================================================
 
 TASK_TYPE:  INFRA
-STATUS:     Backlog
+STATUS:     ✅ Completed
+COMPLETED:  2026-04-21T10:25:00Z
+COMMIT:     db5494ccf919294beb5833c423097803a85f7c44
+REVIEWER:   orchestrator-verified
 PRIORITY:   P0
 EFFORT:     M
 SPRINT:     [sprint-01-foundation-tokens-and-v2-reset](./SPRINT.md)

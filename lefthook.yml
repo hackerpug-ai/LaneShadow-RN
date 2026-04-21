@@ -12,6 +12,10 @@ pre-commit:
       glob: "tokens/semantic/**/*"
       run: pnpm tokens:sync-check
 
+    - name: icons:check
+      glob: "tokens/icons/**/*"
+      run: pnpm icons:check
+
     # TypeScript typecheck via tsgo (Go-based compiler, ~10x faster than tsc).
     # pnpm type-check still uses tsc for the benchmark baseline.
     - name: typecheck

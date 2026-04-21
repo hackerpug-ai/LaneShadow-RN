@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://laneshadow.dev/tokens/mapbox.schema.json",
+  "title": "LaneShadow Mapbox Style URL Tokens — UC-TOK-05",
+  "description": "Mapbox Studio style URLs for light and dark map themes. Validated against pattern ^mapbox://styles/laneshadow/[a-z0-9]+$",
+  "map": {
+    "style": {
+      "light": {
+        "$type": "string",
+        "$value": "mapbox://styles/laneshadow/clxwarm01",
+        "$description": "Warm-paper topographic map · Copper day theme"
+      },
+      "dark": {
+        "$type": "string",
+        "$value": "mapbox://styles/laneshadow/clxnight02",
+        "$description": "Warm-ink night map · Copper dark theme"
+      }
+    }
+  }
+}

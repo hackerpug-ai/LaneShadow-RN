@@ -5,7 +5,10 @@ TASK: UC-TOK-04 - Motion — recipes + primitive duration/easing
 ================================================================================
 
 TASK_TYPE:  INFRA
-STATUS:     Backlog
+STATUS:     ✅ Completed
+COMPLETED:  2026-04-21T10:25:00Z
+COMMIT:     781890c1d75fc0096fa2aa21c838d4fa45c565c8
+REVIEWER:   orchestrator-verified
 PRIORITY:   P0
 EFFORT:     L
 SPRINT:     [sprint-01-foundation-tokens-and-v2-reset](./SPRINT.md)
