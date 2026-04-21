@@ -11,8 +11,8 @@ data class SandboxLaunchRequest(
 )
 
 object SandboxIntentParser {
-    const val openSandboxExtraKey: String = "com.laneshadow.OPEN_SANDBOX"
-    const val storyIdExtraKey: String = "com.laneshadow.SANDBOX_STORY_ID"
+    const val openSandboxExtraKey: String = "com.laneshadow.extra.OPEN_SANDBOX"
+    const val storyIdExtraKey: String = "com.laneshadow.extra.SANDBOX_STORY_ID"
     private const val sandboxScheme: String = "app-sandbox"
     private const val sandboxHost: String = "sandbox"
 

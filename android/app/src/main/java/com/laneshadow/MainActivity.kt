@@ -17,7 +17,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.laneshadow.sandbox.SandboxRouter
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.theme.LocalLaneShadowTheme
 
@@ -28,8 +27,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         currentIntent = intent
         setContent {
-            if (SandboxRouter.shouldOpen(currentIntent)) {
-                SandboxRouter.Content(currentIntent)
+            val shouldShowSandbox = if (BuildConfig.DEBUG) {
+                SandboxChecker.shouldOpen(currentIntent)
+            } else {
+                false
+            }
+
+            if (shouldShowSandbox) {
+                if (BuildConfig.DEBUG) {
+                    SandboxChecker.Content(currentIntent)
+                }
             } else {
                 LaneShadowTheme {
                     LaneShadowAppContent(deploymentId = BuildConfig.CONVEX_DEPLOYMENT)
@@ -44,6 +51,7 @@ class MainActivity : ComponentActivity() {
         currentIntent = intent
     }
 }
+
 
 @Composable
 private fun LaneShadowAppContent(deploymentId: String) {
