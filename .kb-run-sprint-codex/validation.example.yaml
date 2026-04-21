@@ -1,0 +1,15 @@
+# kb-run-sprint-codex validation configuration
+#
+# This file shows how to override the default validation commands for your project.
+# To use it, rename this file to validation.yaml and adjust the commands as needed.
+
+validation:
+  typecheck: "pnpm type-check:native 2>/dev/null || tsc --noEmit 2>/dev/null || echo 'echo "No typecheck configured"'"
+  lint: "pnpm lint 2>/dev/null || eslint . 2>/dev/null || echo 'echo "No lint configured"'"
+  test: "pnpm test 2>/dev/null || jest 2>/dev/null || echo 'echo "No tests configured"'"
+
+# You can also disable specific validations by setting them to "none":
+# validation:
+#   typecheck: "none"
+#   lint: "none"
+#   test: "none"

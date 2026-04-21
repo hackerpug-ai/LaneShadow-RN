@@ -19,6 +19,11 @@
             "type": "command",
             "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/pre_tool_use_protect_state.py\"",
             "statusMessage": "Checking for state file mutations via shell"
+          },
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/pre_tool_use_protect_xcode.py\"",
+            "statusMessage": "Checking for .pbxproj / .xcodeproj mutations via shell"
           }
         ]
       },

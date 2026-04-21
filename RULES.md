@@ -45,9 +45,6 @@ When dispatching subagents for planning, review, or implementation, prefer these
 | `convex-planner` | Convex planning | Schemas, API endpoints, migration strategies |
 | `convex-implementer` | Convex implementation | Mutations, queries, migrations using TDD |
 | `convex-reviewer` | Convex review | API design, data integrity, migration safety |
-| `react-native-ui-planner` | RN planning | React Native baseline, Storybook, shared UI contracts, and Expo/mobile-specific patterns |
-| `react-native-ui-implementer` | RN implementation | React Native components, Storybook registries, shared token/sandbox contracts, and other RN-owned UI infrastructure |
-| `react-native-ui-reviewer` | RN review | RN UI quality, theme compliance, accessibility, Storybook parity, and shared RN-owned UI contracts |
 | `kotlin-planner` | Android planning | Kotlin/Compose architecture, Hilt DI, Room schemas, Material 3 |
 | `kotlin-implementer` | Android implementation | Kotlin/Compose code using TDD with Hilt, Room, Material 3 |
 | `kotlin-reviewer` | Android review | Compose patterns, coroutine safety, Hilt DI correctness, TDD quality |
@@ -110,6 +107,31 @@ Every platform must pass **lint, typecheck, and test** before committing.
 | **Android** (Kotlin/Compose) | `./gradlew detekt` | `null` | `./gradlew test` |
 
 Agents and reviewers must run all applicable checks for the platform they are working on. Do not skip or bypass failing checks.
+
+---
+
+## Multi-Agent Dispatch (iOS + Android)
+
+Background: holocron research doc `js74ct16xh8dq06zpcysqggd25858fac` — "Multi-Agent Orchestration for iOS (Xcode) + Android Studio Codebases."
+
+**Orchestrator rules (never negotiable):**
+
+1. **Orchestrator does not execute.** Decompose → delegate → validate → escalate. Never write Swift / Kotlin. Never run `xcodebuild` / `gradlew` / `simctl` / `adb` directly. Context pollution from "quick fixes" collapses the planning layer.
+2. **One specialist per platform per task.** Route by file scope:
+   - `ios/**` → iOS specialist (uses XcodeBuildMCP for closed-loop build/test)
+   - `android/**` → Android specialist (uses `./gradlew` + adb)
+   - Shared contracts → shared specialist
+   Never run two iOS specialists on the same feature — they will collide on simulator state.
+3. **Worktree + runtime isolation together.** Per parallel dispatch:
+   - `git worktree add .claude/worktrees/{task-id}` on branch `task/{task-id}`
+   - Reserve a dedicated **simulator UDID** (`xcrun simctl clone` from a golden template) per iOS task
+   - Reserve a dedicated **AVD + emulator port** (5554, 5556, …) per Android task
+   - Each specialist runs `source scripts/agent-worktree-env.sh` inside the worktree to get per-task `DERIVED_DATA_PATH` / `GRADLE_USER_HOME` / `SWIFTPM_CACHE_DIR`
+4. **Structured build evidence, not free text.** A specialist that commits `.swift` changes must have an `xcodebuild` or XcodeBuildMCP invocation in its transcript; `.kt` / `.gradle` changes require `./gradlew` or `adb`. Enforced by `.claude/hooks/subagent-build-evidence.py` (SubagentStop).
+5. **`.pbxproj` / `.xcodeproj` are human-only.** Blocked globally by `~/.claude/hooks/protect-xcode-project.py` (PreToolUse) and locally by `.codex/hooks/pre_tool_use_protect_xcode.py`. If a file must be added to an Xcode target, stop and ask the user.
+6. **Orchestrator merges, never the specialist.** After specialist commits and reviewer approves, orchestrator runs `git merge --no-ff` and then `git worktree remove` (never `--force`). If cleanup fails, preserve the worktree and escalate.
+
+**Humans own:** code signing, provisioning profiles, `.pbxproj` / target membership, App Store / Play Store submission, visual polish judgment.
 
 ---
 
