@@ -500,8 +500,8 @@ function emitTypeScript(
         if (typeof value === 'object' && 'light' in value && 'dark' in value) {
           const colorToken = value as ColorToken
           lines.push(`${padding}${name}: {`)
-          lines.push(`${padding}  light: "${colorToken.light}",`)
-          lines.push(`${padding}  dark: "${colorToken.dark}"`)
+          lines.push(`${padding}  light: '${colorToken.light}',`)
+          lines.push(`${padding}  dark: '${colorToken.dark}'`)
           lines.push(`${padding}},`)
         } else if (typeof value === 'object') {
           lines.push(`${padding}${name}: {`)
@@ -522,7 +522,7 @@ function emitTypeScript(
     const emitTypographyToken = (name: string, token: TypographyToken, indent: number) => {
       const padding = '  '.repeat(indent)
       lines.push(`${padding}${name}: {`)
-      lines.push(`${padding}  family: "${mapFontFamily(token.family)}",`)
+      lines.push(`${padding}  family: '${mapFontFamily(token.family)}',`)
       lines.push(`${padding}  weight: ${token.weight},`)
       lines.push(`${padding}  size: ${token.size},`)
       lines.push(`${padding}  lineHeight: ${(token.lineHeight / token.size).toFixed(2)}`)
@@ -564,15 +564,15 @@ function emitTypeScript(
     lines.push('  icon: {')
     lines.push('    name: [')
     for (const icon of icons) {
-      lines.push(`      "${icon}",`)
+      lines.push(`      '${icon}',`)
     }
     lines.push('    ]')
     lines.push('  },')
   }
 
-  lines.push('} as const;')
+  lines.push('} as const')
   lines.push('')
-  lines.push('export type Tokens = typeof tokens;')
+  lines.push('export type Tokens = typeof tokens')
 
   return lines.join('\n')
 }
@@ -591,13 +591,13 @@ function emitMapboxTS(tokens: SemanticTokens, inputHash: string): string {
 
   if (tokens.mapbox?.style) {
     const style = tokens.mapbox.style
-    lines.push(`  light: "${style.light.$value}", // ${style.light.$description}`)
-    lines.push(`  dark: "${style.dark.$value}", // ${style.dark.$description}`)
+    lines.push(`  light: '${style.light.$value}', // ${style.light.$description}`)
+    lines.push(`  dark: '${style.dark.$value}', // ${style.dark.$description}`)
   }
 
-  lines.push('} as const;')
+  lines.push('} as const')
   lines.push('')
-  lines.push('export type MapboxStyleUrls = typeof mapboxStyleUrls;')
+  lines.push('export type MapboxStyleUrls = typeof mapboxStyleUrls')
 
   return lines.join('\n')
 }
@@ -606,7 +606,7 @@ function emitMapboxTS(tokens: SemanticTokens, inputHash: string): string {
 // MAIN
 // ============================================================================
 
-function main() {
+async function main() {
   console.log('🔧 Generating platform tokens from semantic sources...')
 
   // Load inputs
@@ -647,6 +647,17 @@ function main() {
   console.log('  🗺️  Emitting Mapbox style URLs...')
   const mapbox = emitMapboxTS(tokens, inputHash)
   fs.writeFileSync(MAPBOX_OUTPUT, `${mapbox}\n`)
+
+  // Format TS outputs with biome for consistent style
+  try {
+    const { execSync } = await import('node:child_process')
+    execSync('pnpm exec biome format --write tokens/platforms/web/', {
+      cwd: ROOT,
+      stdio: 'pipe',
+    })
+  } catch {
+    // Biome not available — outputs are still valid, just may not match lint exactly
+  }
 
   console.log('✅ Token generation complete!')
   console.log('')
