@@ -6,6 +6,7 @@ import SwiftUI
 struct LaneShadowSandboxEntry: View {
     let selectedStoryId: String?
     @State private var activeStoryId: String?
+    @ObservedObject private var themeController = LaneShadowThemeController.shared
 
     init(selectedStoryId: String? = nil) {
         self.selectedStoryId = selectedStoryId
@@ -32,6 +33,7 @@ struct LaneShadowSandboxEntry: View {
         .onChange(of: selectedStoryId) { newValue in
             activeStoryId = newValue
         }
+        .preferredColorScheme(themeController.themeMode.preferredColorScheme)
     }
 }
 
@@ -109,6 +111,5 @@ private struct LaneShadowSandboxStoryDetail: View {
             }
         }
         .laneShadowTheme()
-        .preferredColorScheme(LaneShadowThemeController.shared.themeMode.preferredColorScheme)
     }
 }
