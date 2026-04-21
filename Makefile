@@ -187,10 +187,10 @@ android_sandbox: ## Launch Android app into NativeSandbox (debug builds only)
 	}
 	@echo "==> Building and installing LaneShadow (debug)..."
 	cd android && ./gradlew installDebug
-	@echo "==> Launching sandbox (extra: com.laneshadow.OPEN_SANDBOX=true)..."
+	@echo "==> Launching sandbox (extra: com.laneshadow.extra.OPEN_SANDBOX=true)..."
 	adb shell am start -W \
 		-n $(ANDROID_PACKAGE)/$(ANDROID_ACTIVITY) \
-		--ez com.laneshadow.OPEN_SANDBOX true
+		--ez com.laneshadow.extra.OPEN_SANDBOX true
 
 android_sandbox_story: ## Launch Android sandbox directly to one story (set STORY_ID=...)
 	@if [ -z "$(STORY_ID)" ]; then echo "ERROR: set STORY_ID=<tier/component/state>"; exit 1; fi
