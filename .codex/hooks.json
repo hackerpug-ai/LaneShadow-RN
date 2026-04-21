@@ -1,0 +1,50 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$(git rev-parse --show-toplevel)/.codex/hooks/kb-run-sprint-codex-session-start\"",
+            "statusMessage": "Initializing session state"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/pre_tool_use_protect_state.py\"",
+            "statusMessage": "Checking for state file mutations via shell"
+          }
+        ]
+      },
+      {
+        "_comment": "DORMANT: apply_patch matcher requires Codex #18295 (https://github.com/openai/codex/issues/18295). Once shipped, remove this comment and the hook will activate automatically.",
+        "matcher": "apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/pre_tool_use_protect_state_patch.py\"",
+            "statusMessage": "Checking for state file mutations via apply_patch"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$(git rev-parse --show-toplevel)/.codex/hooks/kb-run-sprint-codex-stop\"",
+            "timeout": 30,
+            "statusMessage": "Running validation checks"
+          }
+        ]
+      }
+    ]
+  }
+}

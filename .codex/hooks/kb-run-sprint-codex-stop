@@ -1,0 +1,83 @@
+#!/bin/bash
+# kb-run-sprint-codex-stop — Project-owned validation hook for Node stack
+#
+# This hook runs before a codex session ends. It validates that the worktree
+# passes all quality gates: tests, typecheck, and lint.
+#
+# Orchestrator installs this into target project's .codex/hooks/ during --bootstrap.
+# The orchestrator reads this file, substitutes {{VALIDATION_COMMANDS}} with actual
+# commands from the detected stack, and writes the result to the target project.
+#
+# Exit codes:
+#   0 — All validations passed
+#   1 — One or more validations failed
+#   2 — Validation command not found (optional tooling not installed)
+
+set -euo pipefail
+
+# Color output for readability
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Track overall success
+ALL_PASSED=true
+
+echo "🔍 Running kb-run-sprint-codex validation gates..."
+echo
+
+# {{VALIDATION_COMMANDS}} is replaced by orchestrator during --bootstrap
+# with the actual commands for the detected stack
+
+# Typecheck
+if command -v pnpm type-check:native 2>/dev/null || tsc --noEmit 2>/dev/null || echo 'echo "No typecheck configured"' &> /dev/null; then
+    echo "→ Running typecheck..."
+    if pnpm type-check:native 2>/dev/null || tsc --noEmit 2>/dev/null || echo 'echo "No typecheck configured"'; then
+        echo -e "${GREEN}✓ Typecheck passed${NC}"
+    else
+        echo -e "${RED}✗ Typecheck failed${NC}"
+        ALL_PASSED=false
+    fi
+else
+    echo -e "${YELLOW}⊘ Typecheck command not found (skipping)${NC}"
+fi
+echo
+
+# Lint
+if command -v pnpm lint 2>/dev/null || eslint . 2>/dev/null || echo 'echo "No lint configured"' &> /dev/null; then
+    echo "→ Running lint..."
+    if pnpm lint 2>/dev/null || eslint . 2>/dev/null || echo 'echo "No lint configured"'; then
+        echo -e "${GREEN}✓ Lint passed${NC}"
+    else
+        echo -e "${RED}✗ Lint failed${NC}"
+        ALL_PASSED=false
+    fi
+else
+    echo -e "${YELLOW}⊘ Lint command not found (skipping)${NC}"
+fi
+echo
+
+# Tests
+if command -v pnpm test 2>/dev/null || jest 2>/dev/null || echo 'echo "No tests configured"' &> /dev/null; then
+    echo "→ Running tests..."
+    if pnpm test 2>/dev/null || jest 2>/dev/null || echo 'echo "No tests configured"'; then
+        echo -e "${GREEN}✓ Tests passed${NC}"
+    else
+        echo -e "${RED}✗ Tests failed${NC}"
+        ALL_PASSED=false
+    fi
+else
+    echo -e "${YELLOW}⊘ Test command not found (skipping)${NC}"
+fi
+echo
+
+# Final result
+if [ "$ALL_PASSED" = true ]; then
+    echo -e "${GREEN}✅ All validation gates passed${NC}"
+    exit 0
+else
+    echo -e "${RED}❌ One or more validation gates failed${NC}"
+    echo "This worktree is not ready for review."
+    exit 1
+fi
