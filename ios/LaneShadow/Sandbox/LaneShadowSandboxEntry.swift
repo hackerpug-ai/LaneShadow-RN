@@ -109,5 +109,6 @@ private struct LaneShadowSandboxStoryDetail: View {
             }
         }
         .laneShadowTheme()
+        .preferredColorScheme(LaneShadowThemeController.shared.themeMode.preferredColorScheme)
     }
 }

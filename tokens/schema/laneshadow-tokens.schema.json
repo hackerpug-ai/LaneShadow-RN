@@ -435,7 +435,7 @@
         "fontWeight": { "$ref": "#/$defs/semanticFontWeightScale" },
         "hitSlop": { "$ref": "#/$defs/semanticDimensionScale" },
         "iconSize": { "$ref": "#/$defs/semanticDimensionScale" },
-        "shadow": { "$ref": "#/$defs/semanticShadow" },
+        "shadow": { "$ref": "#/$defs/semanticDimensionScale" },
         "size": { "$ref": "#/$defs/semanticDimensionScale" },
         "strokeWidth": { "$ref": "#/$defs/semanticDimensionScale" },
         "touchTarget": { "$ref": "#/$defs/semanticDimensionScale" }

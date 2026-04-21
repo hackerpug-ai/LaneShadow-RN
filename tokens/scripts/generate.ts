@@ -860,6 +860,7 @@ function emitBundledJSON(tokens: SemanticTokens): object {
       '3': elevationLevel(3),
       '4': elevationLevel(4),
       '5': elevationLevel(5),
+      '8': elevationLevel(8),
     },
     dark: {
       '0': elevationLevel(0),
@@ -957,21 +958,13 @@ function emitBundledJSON(tokens: SemanticTokens): object {
     xlarge: dimToken(v2IconSize.xl?.$value ?? 32),
   }
 
-  // --- SHADOW (nested offset/radius per semanticShadow schema) ---
-  const intTok = (value: number): { $type: string; $value: number } => ({
-    $type: 'dimension',
-    $value: Math.round(value),
-  })
-  const shadow = {
-    offset: {
-      menu: { width: intTok(0), height: intTok(4) },
-    },
-    radius: {
-      sm: intTok(4),
-      md: intTok(8),
-      menu: intTok(12),
-      primary: intTok(16),
-    },
+  // --- SHADOW (flat dimension tokens — matches Swift SemanticTokens.shadow: [String: DimensionToken]) ---
+  const shadow: Record<string, any> = {
+    xsmall: dimToken(2),
+    small: dimToken(4),
+    medium: dimToken(8),
+    large: dimToken(16),
+    xlarge: dimToken(24),
   }
 
   // --- SIZE (general component sizes) ---

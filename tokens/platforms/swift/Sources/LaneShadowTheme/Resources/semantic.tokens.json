@@ -981,6 +981,34 @@
             "$type": "dimension",
             "$value": 5
           }
+        },
+        "8": {
+          "shadowColor": {
+            "$type": "string",
+            "$value": "#000000"
+          },
+          "shadowOffset": {
+            "width": {
+              "$type": "dimension",
+              "$value": 0
+            },
+            "height": {
+              "$type": "dimension",
+              "$value": 8
+            }
+          },
+          "shadowOpacity": {
+            "$type": "dimension",
+            "$value": 0.39
+          },
+          "shadowRadius": {
+            "$type": "dimension",
+            "$value": 24
+          },
+          "elevation": {
+            "$type": "dimension",
+            "$value": 8
+          }
         }
       },
       "dark": {
@@ -1399,35 +1427,25 @@
       }
     },
     "shadow": {
-      "offset": {
-        "menu": {
-          "width": {
-            "$type": "dimension",
-            "$value": 0
-          },
-          "height": {
-            "$type": "dimension",
-            "$value": 4
-          }
-        }
+      "xsmall": {
+        "$type": "dimension",
+        "$value": 2
       },
-      "radius": {
-        "sm": {
-          "$type": "dimension",
-          "$value": 4
-        },
-        "md": {
-          "$type": "dimension",
-          "$value": 8
-        },
-        "menu": {
-          "$type": "dimension",
-          "$value": 12
-        },
-        "primary": {
-          "$type": "dimension",
-          "$value": 16
-        }
+      "small": {
+        "$type": "dimension",
+        "$value": 4
+      },
+      "medium": {
+        "$type": "dimension",
+        "$value": 8
+      },
+      "large": {
+        "$type": "dimension",
+        "$value": 16
+      },
+      "xlarge": {
+        "$type": "dimension",
+        "$value": 24
       }
     },
     "size": {

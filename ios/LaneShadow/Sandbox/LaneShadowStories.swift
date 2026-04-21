@@ -1,162 +1,408 @@
 import LaneShadowTheme
 import NativeSandbox
+import NativeTheme
 import SwiftUI
 
 @MainActor
 enum LaneShadowStories {
     static let all: [Story] = [
+        // MARK: - Token Swatch Stories
+
         Story(
-            id: "atoms/sandbox-host/hello-story",
+            id: "tokens/color-swatches/all",
             tier: .atom,
-            component: "SandboxHost",
-            name: "HelloStory",
-            summary: "react-native/stories/registry/ScenarioRegistry.stories.tsx#HelloStory"
+            component: "ColorTokens",
+            name: "All Colors",
+            summary: "Every semantic color swatch: surface, content, signal, action, border, domain"
         ) { _ in
-            SandboxTokenStoryView()
+            ColorSwatchStory()
         },
+
         Story(
-            id: "templates/sandbox-launch/default",
-            tier: .infrastructure,
-            component: "SandboxLaunch",
-            name: "Default",
-            summary: "react-native/stories/registry/ScenarioRegistry.stories.tsx#SandboxLaunchDefault"
+            id: "tokens/typography/all-families",
+            tier: .atom,
+            component: "TypographyTokens",
+            name: "All Families & Sizes",
+            summary: "Opinion (Newsreader), UI (Geist), Instrument (JetBrains Mono) — all size/weight variants"
         ) { _ in
-            InfrastructureStoryView(title: "SandboxLaunch configured")
+            TypographyStory()
         },
+
         Story(
-            id: "templates/lane-shadow-sandbox-entry/default",
-            tier: .infrastructure,
-            component: "LaneShadowSandboxEntry",
-            name: "Default",
-            summary: "react-native/stories/registry/ScenarioRegistry.stories.tsx#LaneShadowSandboxEntryDefault"
+            id: "tokens/spacing/rungs",
+            tier: .atom,
+            component: "SpacingTokens",
+            name: "Spacing Scale",
+            summary: "xs through 4xl — every spacing rung visualized"
         ) { _ in
-            InfrastructureStoryView(title: "SandboxRoot entry wired")
+            SpacingStory()
         },
+
         Story(
-            id: "templates/lane-shadow-stories/default",
-            tier: .infrastructure,
-            component: "LaneShadowStories",
-            name: "Default",
-            summary: "react-native/stories/registry/ScenarioRegistry.stories.tsx#LaneShadowStoriesDefault"
+            id: "tokens/radius/shapes",
+            tier: .atom,
+            component: "RadiusTokens",
+            name: "Corner Radii",
+            summary: "none through full — corner radius scale"
         ) { _ in
-            InfrastructureStoryView(title: "LaneShadowStories aggregator ready")
+            RadiusStory()
         },
+
         Story(
-            id: "molecules/catalog-navigation/default",
-            tier: .molecule,
-            component: "CatalogNavigation",
-            name: "Default",
-            summary: "react-native/stories/registry/ScenarioRegistry.stories.tsx#CatalogNavigationDefault"
+            id: "tokens/elevation/levels",
+            tier: .atom,
+            component: "ElevationTokens",
+            name: "Elevation Levels",
+            summary: "Level 0 through 8 — shadow depth progression"
         ) { _ in
-            CatalogNavigationStoryView(query: "")
+            ElevationStory()
         },
+
         Story(
-            id: "molecules/catalog-navigation/search-active",
-            tier: .molecule,
-            component: "CatalogNavigation",
-            name: "SearchActive",
-            summary: "react-native/stories/registry/ScenarioRegistry.stories.tsx#CatalogNavigationSearchActive"
+            id: "tokens/icons/catalog",
+            tier: .atom,
+            component: "IconCatalog",
+            name: "Icon Set",
+            summary: "All 25 semantic icons from the token catalog"
         ) { _ in
-            CatalogNavigationStoryView(query: "registry")
+            IconCatalogStory()
         },
-        Story(
-            id: "molecules/rn-reference-registry/default",
-            tier: .molecule,
-            component: "RNReferenceRegistry",
-            name: "Default",
-            summary: "react-native/stories/registry/ScenarioRegistry.stories.tsx#RNReferenceRegistryDefault"
-        ) { _ in
-            RNReferenceRegistryStoryView(isEmpty: false)
-        },
-        Story(
-            id: "molecules/rn-reference-registry/empty",
-            tier: .molecule,
-            component: "RNReferenceRegistry",
-            name: "Empty",
-            summary: "react-native/stories/registry/ScenarioRegistry.stories.tsx#RNReferenceRegistryEmpty"
-        ) { _ in
-            RNReferenceRegistryStoryView(isEmpty: true)
-        },
+
     ] + AtomsStories.all
-    // Note: MoleculesStories.all will be added once MoleculesStories.swift is added to Xcode project
 }
 
-private struct SandboxTokenStoryView: View {
+// MARK: - Color Swatch Story
+
+private struct ColorSwatchStory: View {
     @Environment(\.theme) private var theme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: theme.space.md) {
-            Text("Hello from LaneShadow!")
-                .font(theme.type.title.md.font)
-                .foregroundStyle(theme.colors.onSurface.default)
+        ScrollView {
+            VStack(alignment: .leading, spacing: theme.space.lg) {
+                section("Surface") {
+                    swatchRow("primary", theme.colors.surface.default)
+                    swatchRow("card", theme.colors.card.default)
+                    swatchRow("variant", theme.colors.surfaceVariant.default)
+                    swatchRow("background", theme.colors.background.default)
+                    swatchRow("muted", theme.colors.muted.default)
+                    swatchRow("input", theme.colors.input.default)
+                }
 
-            Text("Sandbox host bootstrap ready")
-                .font(theme.type.body.md.font)
-                .foregroundStyle(theme.colors.onSurface.default)
-        }
-        .padding(theme.space.lg)
-        .background(theme.colors.surface.default)
-    }
-}
+                section("Content") {
+                    swatchRow("onSurface", theme.colors.onSurface.default)
+                    swatchRow("onPrimary", theme.colors.onPrimary.default)
+                    swatchRow("onSecondary", theme.colors.onSecondary.default)
+                    swatchRow("secondary", theme.colors.secondary.default)
+                    swatchRow("tertiary", theme.colors.tertiary.default)
+                }
 
-private struct InfrastructureStoryView: View {
-    @Environment(\.theme) private var theme
+                section("Signal & Action") {
+                    swatchRow("primary (signal)", theme.colors.primary.default)
+                    swatchRow("accent", theme.colors.accent.default)
+                    swatchRow("secondaryContainer", theme.colors.secondaryContainer.default)
+                    swatchRow("warningContainer", theme.colors.warningContainer.default)
+                    swatchRow("onWarningContainer", theme.colors.onWarningContainer.default)
+                }
 
-    let title: String
+                section("Status") {
+                    swatchRow("info", theme.colors.info.default)
+                    swatchRow("success", theme.colors.success.default)
+                    swatchRow("warning", theme.colors.warning.default)
+                    swatchRow("danger", theme.colors.danger.default)
+                }
 
-    var body: some View {
-        Text(title)
-            .font(theme.type.body.md.font)
-            .foregroundStyle(theme.colors.onSurface.default)
+                section("Route") {
+                    swatchRow("routeSelected", theme.colors.routeSelected.default)
+                    swatchRow("routeAlternate", theme.colors.routeAlternate.default)
+                }
+
+                section("Border & Scrim") {
+                    swatchRow("border", theme.colors.border.default)
+                    swatchRow("divider", theme.colors.divider.default)
+                    swatchRow("ring", theme.colors.ring.default)
+                    swatchRow("scrim", theme.colors.scrim.default)
+                    swatchRow("popover", theme.colors.popover.default)
+                }
+
+                section("Domain") {
+                    swatchRow("orange", theme.domain.orange.default)
+                }
+            }
             .padding(theme.space.lg)
-            .background(theme.colors.surface.default)
+        }
+    }
+
+    private func section(_ title: String, @ViewBuilder content: @escaping () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: theme.space.sm) {
+            Text(title)
+                .font(theme.type.label.md.font)
+                .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
+            content()
+        }
+    }
+
+    private func swatchRow(_ name: String, _ color: Color) -> some View {
+        HStack(spacing: theme.space.md) {
+            RoundedRectangle(cornerRadius: theme.radius.sm)
+                .fill(color)
+                .frame(width: 40, height: 40)
+                .overlay(
+                    RoundedRectangle(cornerRadius: theme.radius.sm)
+                        .stroke(theme.colors.border.default, lineWidth: 0.5)
+                )
+            Text(name)
+                .font(theme.type.body.md.font)
+                .foregroundStyle(theme.colors.onSurface.default)
+            Spacer()
+        }
     }
 }
 
-private struct CatalogNavigationStoryView: View {
+// MARK: - Typography Story
+
+private struct TypographyStory: View {
     @Environment(\.theme) private var theme
 
-    let query: String
-
     var body: some View {
-        VStack(alignment: .leading, spacing: theme.space.md) {
-            Text("Catalog Navigation")
-                .font(theme.type.title.md.font)
-                .foregroundStyle(theme.colors.onSurface.default)
-                .accessibilityLabel("Catalog Navigation Header")
+        ScrollView {
+            VStack(alignment: .leading, spacing: theme.space.xl) {
+                familySection("Opinion — Newsreader", variants: [
+                    ("display.lg", theme.type.display.lg),
+                    ("display.md", theme.type.display.md),
+                    ("display.sm", theme.type.display.sm),
+                    ("heading.lg", theme.type.heading.lg),
+                    ("heading.md", theme.type.heading.md),
+                    ("heading.sm", theme.type.heading.sm),
+                ])
 
-            Text(query.isEmpty ? "Browse all tiers" : "Filtering by: \(query)")
-                .font(theme.type.body.md.font)
-                .foregroundStyle(theme.colors.onSurface.default)
-                .accessibilityLabel("Catalog Navigation State")
+                familySection("UI — Geist", variants: [
+                    ("title.lg", theme.type.title.lg),
+                    ("title.md", theme.type.title.md),
+                    ("title.sm", theme.type.title.sm),
+                    ("body.lg", theme.type.body.lg),
+                    ("body.md", theme.type.body.md),
+                    ("body.sm", theme.type.body.sm),
+                    ("label.lg", theme.type.label.lg),
+                    ("label.md", theme.type.label.md),
+                    ("label.sm", theme.type.label.sm),
+                ])
+
+                instrumentSection()
+            }
+            .padding(theme.space.lg)
         }
-        .padding(theme.space.lg)
-        .background(theme.colors.surfaceVariant.default)
-        .safeAreaPadding(theme.space.sm)
-        .animation(.default, value: query)
+    }
+
+    private func familySection(_ title: String, variants: [(String, TypographyStyle)]) -> some View {
+        VStack(alignment: .leading, spacing: theme.space.sm) {
+            Text(title)
+                .font(theme.type.label.md.font)
+                .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
+
+            ForEach(variants, id: \.0) { name, style in
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("The quick brown fox jumps over the lazy dog")
+                        .font(style.font)
+                        .foregroundStyle(theme.colors.onSurface.default)
+                    Text("\(name) — \(Int(style.fontSize))pt")
+                        .font(theme.type.label.sm.font)
+                        .foregroundStyle(theme.colors.onSurface.default.opacity(0.5))
+                }
+            }
+        }
+    }
+
+    private func instrumentSection() -> some View {
+        VStack(alignment: .leading, spacing: theme.space.sm) {
+            Text("Instrument — JetBrains Mono")
+                .font(theme.type.label.md.font)
+                .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("42.7 mi  ·  1,204 ft  ·  14:32")
+                    .font(.system(size: 18, weight: .medium, design: .monospaced))
+                    .foregroundStyle(theme.colors.onSurface.default)
+                Text("instrument.lg — 18pt / medium")
+                    .font(theme.type.label.sm.font)
+                    .foregroundStyle(theme.colors.onSurface.default.opacity(0.5))
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("3:42:15 PM  ·  68°F  ·  12 mph")
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .foregroundStyle(theme.colors.onSurface.default)
+                Text("instrument.md — 13pt / medium")
+                    .font(theme.type.label.sm.font)
+                    .foregroundStyle(theme.colors.onSurface.default.opacity(0.5))
+            }
+        }
     }
 }
 
-private struct RNReferenceRegistryStoryView: View {
+// MARK: - Spacing Story
+
+private struct SpacingStory: View {
     @Environment(\.theme) private var theme
 
-    let isEmpty: Bool
+    var body: some View {
+        VStack(alignment: .leading, spacing: theme.space.lg) {
+            Text("Spacing Scale (pt)")
+                .font(theme.type.label.md.font)
+                .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
+
+            spacingBar("xs", theme.space.xs)
+            spacingBar("sm", theme.space.sm)
+            spacingBar("md", theme.space.md)
+            spacingBar("lg", theme.space.lg)
+            spacingBar("xl", theme.space.xl)
+            spacingBar("xxl (2xl)", theme.space.xxl)
+            spacingBar("xxxl (3xl)", theme.space.xxxl)
+            spacingBar("xxxxl (4xl)", theme.space.xxxxl)
+        }
+        .padding(theme.space.lg)
+    }
+
+    private func spacingBar(_ label: String, _ value: CGFloat) -> some View {
+        HStack(spacing: theme.space.md) {
+            Text(label)
+                .font(theme.type.label.sm.font)
+                .foregroundStyle(theme.colors.onSurface.default)
+                .frame(width: 80, alignment: .trailing)
+
+            RoundedRectangle(cornerRadius: 2)
+                .fill(theme.colors.accent.default)
+                .frame(width: value, height: 12)
+
+            Text("\(Int(value))pt")
+                .font(theme.type.label.sm.font)
+                .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
+        }
+    }
+}
+
+// MARK: - Radius Story
+
+private struct RadiusStory: View {
+    @Environment(\.theme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: theme.space.lg) {
+            Text("Corner Radius Scale")
+                .font(theme.type.label.md.font)
+                .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
+
+            HStack(spacing: theme.space.md) {
+                radiusBox("none", theme.radius.none)
+                radiusBox("sm", theme.radius.sm)
+                radiusBox("md", theme.radius.md)
+                radiusBox("lg", theme.radius.lg)
+                radiusBox("xl", theme.radius.xl)
+                radiusBox("2xl", theme.radius.xxl)
+                radiusBox("full", theme.radius.full)
+            }
+        }
+        .padding(theme.space.lg)
+    }
+
+    private func radiusBox(_ label: String, _ value: CGFloat) -> some View {
+        VStack(spacing: 4) {
+            RoundedRectangle(cornerRadius: value)
+                .fill(theme.colors.accent.default.opacity(0.15))
+                .overlay(
+                    RoundedRectangle(cornerRadius: value)
+                        .stroke(theme.colors.accent.default, lineWidth: 1)
+                )
+                .frame(width: 48, height: 48)
+            Text(label)
+                .font(theme.type.label.sm.font)
+                .foregroundStyle(theme.colors.onSurface.default)
+            Text("\(Int(value))pt")
+                .font(theme.type.label.sm.font)
+                .foregroundStyle(theme.colors.onSurface.default.opacity(0.5))
+        }
+    }
+}
+
+// MARK: - Elevation Story
+
+private struct ElevationStory: View {
+    @Environment(\.theme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: theme.space.lg) {
+            Text("Elevation Levels")
+                .font(theme.type.label.md.font)
+                .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
+
+            HStack(spacing: theme.space.md) {
+                elevationCard("0", theme.elevation.level0)
+                elevationCard("1", theme.elevation.level1)
+                elevationCard("2", theme.elevation.level2)
+                elevationCard("3", theme.elevation.level3)
+                elevationCard("4", theme.elevation.level4)
+                elevationCard("5", theme.elevation.level5)
+                elevationCard("8", theme.elevation.level8)
+            }
+        }
+        .padding(theme.space.lg)
+    }
+
+    private func elevationCard(_ level: String, _ elevation: ElevationStyle) -> some View {
+        VStack(spacing: 4) {
+            RoundedRectangle(cornerRadius: theme.radius.md)
+                .fill(theme.colors.surface.default)
+                .shadow(color: elevation.shadowColor, radius: elevation.radius, x: elevation.offsetX, y: elevation.offsetY)
+                .frame(width: 56, height: 56)
+                .overlay(
+                    RoundedRectangle(cornerRadius: theme.radius.md)
+                        .stroke(theme.colors.border.default, lineWidth: 0.5)
+                )
+            Text("L\(level)")
+                .font(theme.type.label.sm.font)
+                .foregroundStyle(theme.colors.onSurface.default)
+        }
+    }
+}
+
+// MARK: - Icon Catalog Story
+
+private struct IconCatalogStory: View {
+    @Environment(\.theme) private var theme
+
+    private let iconNames = [
+        "bike", "bookmark", "bookmarkFill", "chevL", "chevR",
+        "clock", "close", "collapse", "compass", "edit",
+        "expand", "heart", "heartFill", "layers", "map",
+        "menu", "pin", "plus", "rain", "route",
+        "send", "share", "sliders", "sparkle", "star",
+        "starFill", "storm", "sun", "therm", "trash", "wind",
+    ]
 
     var body: some View {
         VStack(alignment: .leading, spacing: theme.space.md) {
-            Text("RN Reference Registry")
-                .font(theme.type.title.md.font)
-                .foregroundStyle(theme.colors.onSurface.default)
-                .accessibilityLabel("RN Reference Registry Header")
+            Text("Icon Catalog (\(iconNames.count) icons)")
+                .font(theme.type.label.md.font)
+                .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
 
-            Text(isEmpty ? "No RN references found" : "Showing deterministic RN reference labels")
-                .font(theme.type.body.md.font)
-                .foregroundStyle(theme.colors.onSurface.default)
-                .accessibilityLabel("RN Reference Registry State")
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: theme.space.md), count: 4), spacing: theme.space.sm) {
+                ForEach(iconNames, id: \.self) { name in
+                    HStack(spacing: theme.space.sm) {
+                        RoundedRectangle(cornerRadius: theme.radius.sm)
+                            .fill(theme.colors.accent.default.opacity(0.1))
+                            .overlay(
+                                Text(String(name.prefix(1)).uppercased())
+                                    .font(theme.type.label.md.font)
+                                    .foregroundStyle(theme.colors.accent.default)
+                            )
+                            .frame(width: 32, height: 32)
+                        Text(name)
+                            .font(theme.type.label.sm.font)
+                            .foregroundStyle(theme.colors.onSurface.default.opacity(0.7))
+                            .lineLimit(1)
+                    }
+                }
+            }
         }
         .padding(theme.space.lg)
-        .background(theme.colors.surface.default)
-        .safeAreaPadding(theme.space.sm)
-        .animation(.default, value: isEmpty)
     }
 }
