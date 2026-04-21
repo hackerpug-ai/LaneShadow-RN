@@ -1,0 +1,289 @@
+{
+  "$schema": "https://native-theme.dev/schema/common.schema.json",
+  "$comment": "UC-TOK-02 Color Semantics — LaneShadow V2 Copper Design System. Authority: .spec/prds/v2/concepts/uc-tok-02-colors.html",
+  "color": {
+    "surface": {
+      "primary": {
+        "light": "#F8F7F6",
+        "dark": "#221810",
+        "$comment": "Page background — paper-100 (light), ink-800 (dark)"
+      },
+      "card": {
+        "light": "#FDFBF8",
+        "dark": "#2D2218",
+        "$comment": "Card fill — paper-50 (light), ink-700 (dark)"
+      },
+      "inset": {
+        "light": "#F2EFED",
+        "dark": "#362A1F",
+        "$comment": "Inset surface — paper-200 (light), ink-600 (dark)"
+      },
+      "overlay": {
+        "light": "rgba(253,251,248,0.92)",
+        "dark": "rgba(45,34,24,0.92)",
+        "$comment": "Modal overlay — 92% alpha"
+      },
+      "glass": {
+        "light": "rgba(253,251,248,0.72)",
+        "dark": "rgba(45,34,24,0.72)",
+        "$comment": "Glass effect — 72% alpha"
+      },
+      "scrim": {
+        "light": "rgba(34,24,16,0.35)",
+        "dark": "rgba(10,6,3,0.50)",
+        "$comment": "Dismiss scrim — 35% (light), 50% (dark)"
+      }
+    },
+    "content": {
+      "primary": {
+        "light": "#1E1A16",
+        "dark": "#F2EEE8",
+        "$comment": "Primary text — ink-900 (light), ink-050 (dark)"
+      },
+      "secondary": {
+        "light": "#49454F",
+        "dark": "#CAC4D0",
+        "$comment": "Secondary text — ink-400 (light), ink-100 (dark)"
+      },
+      "tertiary": {
+        "light": "#6B6460",
+        "dark": "#9CA3AF",
+        "$comment": "Tertiary text — ink-300 (light), ink-200 (dark)"
+      },
+      "subtle": {
+        "light": "#9CA3AF",
+        "dark": "#6B6460",
+        "$comment": "Subtle text — ink-200 (light), ink-300 (dark)"
+      },
+      "onSignal": {
+        "light": "#FFFFFF",
+        "dark": "#FFFFFF",
+        "$comment": "Text on copper signal — pure white"
+      }
+    },
+    "signal": {
+      "default": {
+        "light": "#EE7C2B",
+        "dark": "#EE7C2B",
+        "$comment": "Brand accent — copper-500 (unchanged in dark)"
+      },
+      "pressed": {
+        "light": "#9E4A22",
+        "dark": "#9E4A22",
+        "$comment": "Pressed state — copper-700"
+      },
+      "tint": {
+        "light": "#F9D5B5",
+        "dark": "#F9D5B5",
+        "$comment": "Pill background — copper-200"
+      },
+      "whisper": {
+        "light": "#FCE8D4",
+        "dark": "#FCE8D4",
+        "$comment": "Ghost fill — copper-100"
+      }
+    },
+    "role": {
+      "agent": {
+        "default": {
+          "light": "#EE7C2B",
+          "dark": "#EE7C2B",
+          "$comment": "Navigator brand — copper signal"
+        }
+      },
+      "user": {
+        "default": {
+          "light": "#F2EFED",
+          "dark": "#F2EFED",
+          "$comment": "User bubble fill — paper-200"
+        }
+      },
+      "system": {
+        "default": {
+          "light": "#E5DED9",
+          "dark": "#E5DED9",
+          "$comment": "System notice — paper-400"
+        }
+      }
+    },
+    "weather": {
+      "clear": {
+        "default": {
+          "light": "#E6A52A",
+          "dark": "#E6A52A",
+          "$comment": "Clear weather — amber"
+        },
+        "tint": {
+          "light": "#FBEFCF",
+          "dark": "#FBEFCF",
+          "$comment": "Clear weather tint"
+        }
+      },
+      "rain": {
+        "default": {
+          "light": "#4A86BE",
+          "dark": "#4A86BE",
+          "$comment": "Rain weather — blue"
+        },
+        "tint": {
+          "light": "#DBEAF4",
+          "dark": "#DBEAF4",
+          "$comment": "Rain weather tint"
+        }
+      },
+      "wind": {
+        "default": {
+          "light": "#6B7B8F",
+          "dark": "#6B7B8F",
+          "$comment": "Wind weather — slate"
+        },
+        "tint": {
+          "light": "#E1E6EC",
+          "dark": "#E1E6EC",
+          "$comment": "Wind weather tint"
+        }
+      },
+      "storm": {
+        "default": {
+          "light": "#5E3FAE",
+          "dark": "#5E3FAE",
+          "$comment": "Storm weather — purple"
+        },
+        "tint": {
+          "light": "#E3DCF2",
+          "dark": "#E3DCF2",
+          "$comment": "Storm weather tint"
+        }
+      },
+      "hot": {
+        "default": {
+          "light": "#C9423C",
+          "dark": "#C9423C",
+          "$comment": "Hot weather — red"
+        },
+        "tint": {
+          "light": "#F5D8D6",
+          "dark": "#F5D8D6",
+          "$comment": "Hot weather tint"
+        }
+      },
+      "cold": {
+        "default": {
+          "light": "#3A8BE3",
+          "dark": "#3A8BE3",
+          "$comment": "Cold weather — blue"
+        },
+        "tint": {
+          "light": "#D6E5F7",
+          "dark": "#D6E5F7",
+          "$comment": "Cold weather tint"
+        }
+      }
+    },
+    "route": {
+      "best": {
+        "light": "#EE7C2B",
+        "dark": "#EE7C2B",
+        "$comment": "Best route polyline — copper signal"
+      },
+      "alt1": {
+        "light": "#4D8470",
+        "dark": "#4D8470",
+        "$comment": "Alt-1 route — sage green"
+      },
+      "alt2": {
+        "light": "#6B7B8F",
+        "dark": "#6B7B8F",
+        "$comment": "Alt-2 route — slate"
+      }
+    },
+    "status": {
+      "info": {
+        "default": {
+          "light": "#3A8BE3",
+          "dark": "#3A8BE3",
+          "$comment": "Info status — cold blue"
+        }
+      },
+      "success": {
+        "default": {
+          "light": "#4D8470",
+          "dark": "#4D8470",
+          "$comment": "Success status — sage green"
+        }
+      },
+      "warning": {
+        "default": {
+          "light": "#C46F1B",
+          "dark": "#C46F1B",
+          "$comment": "Warning status — copper-600 variant"
+        }
+      },
+      "error": {
+        "default": {
+          "light": "#C9423C",
+          "dark": "#C9423C",
+          "$comment": "Error status — hot red"
+        }
+      }
+    },
+    "border": {
+      "default": {
+        "light": "#E5DED9",
+        "dark": "rgba(242,238,232,0.12)",
+        "$comment": "Standard divider — paper-400 (light), 12% white-alpha (dark)"
+      },
+      "subtle": {
+        "light": "#EDE7E1",
+        "dark": "rgba(242,238,232,0.07)",
+        "$comment": "Inset border — paper-300 (light), 7% white-alpha (dark)"
+      },
+      "strong": {
+        "light": "#C9BDB3",
+        "dark": "rgba(242,238,232,0.22)",
+        "$comment": "Strong border — paper-500 (light), 22% white-alpha (dark)"
+      },
+      "focus": {
+        "light": "#EE7C2B",
+        "dark": "#EE7C2B",
+        "$comment": "Focus ring — copper signal"
+      }
+    },
+    "action": {
+      "primary": {
+        "default": {
+          "light": "#EE7C2B",
+          "dark": "#EE7C2B",
+          "$comment": "Primary action — copper signal"
+        },
+        "hover": {
+          "light": "#F3A164",
+          "dark": "#F3A164",
+          "$comment": "Primary action hover — copper-400"
+        },
+        "pressed": {
+          "light": "#9E4A22",
+          "dark": "#9E4A22",
+          "$comment": "Primary action pressed — copper-700"
+        }
+      },
+      "secondary": {
+        "default": {
+          "light": "#FCE8D4",
+          "dark": "#FCE8D4",
+          "$comment": "Secondary action — copper-100"
+        },
+        "hover": {
+          "light": "#F9D5B5",
+          "dark": "#F9D5B5",
+          "$comment": "Secondary action hover — copper-200"
+        },
+        "pressed": {
+          "light": "#F3A164",
+          "dark": "#F3A164",
+          "$comment": "Secondary action pressed — copper-400"
+        }
+      }
+    }
+  }
+}

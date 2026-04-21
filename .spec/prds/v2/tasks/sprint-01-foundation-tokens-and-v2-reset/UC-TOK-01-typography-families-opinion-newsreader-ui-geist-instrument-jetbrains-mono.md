@@ -9,7 +9,7 @@ STATUS:     Backlog
 PRIORITY:   P0
 EFFORT:     L
 SPRINT:     [sprint-01-foundation-tokens-and-v2-reset](./SPRINT.md)
-AGENT:      implementer=swift-planner + kotlin-planner (shared tooling) | reviewer=design-system-reviewer
+AGENT:      implementer=swift-implementer | reviewer=swift-reviewer
 ESTIMATE:   180 min
 
 RUNTIME_COMMANDS:

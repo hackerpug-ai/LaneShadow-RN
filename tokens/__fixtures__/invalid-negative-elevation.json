@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://laneshadow.dev/tokens/dimensions.schema.json",
+  "title": "LaneShadow Dimension Tokens — INVALID FIXTURE for AC-4",
+  "description": "Deliberately invalid fixture with negative elevation value. Must fail validation.",
+  "dimensions": {
+    "$comment": "This fixture deliberately violates AC-4 by using a negative elevation value",
+    "elevation": {
+      "card": {
+        "$type": "dimension",
+        "$value": -1,
+        "$description": "INVALID: negative elevation — should be rejected by validator"
+      }
+    }
+  }
+}

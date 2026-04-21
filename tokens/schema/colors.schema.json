@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "com.laneshadow.tokens.colors",
+  "title": "LaneShadow Color Semantics (UC-TOK-02)",
+  "type": "object",
+  "required": ["color"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "$comment": { "type": "string" },
+    "color": {
+      "type": "object",
+      "required": [
+        "surface",
+        "content",
+        "signal",
+        "role",
+        "weather",
+        "route",
+        "status",
+        "border",
+        "action"
+      ],
+      "properties": {
+        "surface": { "$ref": "#/$defs/semanticCategory" },
+        "content": { "$ref": "#/$defs/semanticCategory" },
+        "signal": { "$ref": "#/$defs/semanticCategory" },
+        "role": { "$ref": "#/$defs/roleCategory" },
+        "weather": { "$ref": "#/$defs/weatherCategory" },
+        "route": { "$ref": "#/$defs/routeCategory" },
+        "status": { "$ref": "#/$defs/statusCategory" },
+        "border": { "$ref": "#/$defs/semanticCategory" },
+        "action": { "$ref": "#/$defs/actionCategory" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "hexColor": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{3,8}$",
+      "description": "CSS-style hex color: #RGB, #RRGGBB, or #RRGGBBAA."
+    },
+    "rgbaColor": {
+      "type": "string",
+      "pattern": "^rgba?\\(\\s*\\d+(\\.\\d+)?\\s*,\\s*\\d+(\\.\\d+)?\\s*,\\s*\\d+(\\.\\d+)?\\s*(?:,\\s*\\d+(\\.\\d+)?\\s*)?\\)$",
+      "description": "CSS-style rgb()/rgba() color string."
+    },
+    "transparentColor": {
+      "enum": ["transparent", "clear"],
+      "description": "Fully-transparent color; resolves to alpha 0."
+    },
+    "colorValue": {
+      "anyOf": [
+        { "$ref": "#/$defs/hexColor" },
+        { "$ref": "#/$defs/rgbaColor" },
+        { "$ref": "#/$defs/transparentColor" }
+      ],
+      "description": "Any color string accepted by native-theme's parseColorString."
+    },
+    "colorSet": {
+      "type": "object",
+      "required": ["light", "dark"],
+      "properties": {
+        "light": { "$ref": "#/$defs/colorValue" },
+        "dark": { "$ref": "#/$defs/colorValue" },
+        "$comment": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "semanticCategory": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/colorSet" }
+    },
+    "roleCategory": {
+      "type": "object",
+      "required": ["agent", "user", "system"],
+      "properties": {
+        "agent": { "$ref": "#/$defs/roleSubcategory" },
+        "user": { "$ref": "#/$defs/roleSubcategory" },
+        "system": { "$ref": "#/$defs/roleSubcategory" }
+      },
+      "additionalProperties": false
+    },
+    "roleSubcategory": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/colorSet" }
+    },
+    "weatherCategory": {
+      "type": "object",
+      "required": ["clear", "rain", "wind", "storm", "hot", "cold"],
+      "properties": {
+        "clear": { "$ref": "#/$defs/weatherSubcategory" },
+        "rain": { "$ref": "#/$defs/weatherSubcategory" },
+        "wind": { "$ref": "#/$defs/weatherSubcategory" },
+        "storm": { "$ref": "#/$defs/weatherSubcategory" },
+        "hot": { "$ref": "#/$defs/weatherSubcategory" },
+        "cold": { "$ref": "#/$defs/weatherSubcategory" }
+      },
+      "additionalProperties": false
+    },
+    "weatherSubcategory": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/colorSet" }
+    },
+    "routeCategory": {
+      "type": "object",
+      "required": ["best", "alt1", "alt2"],
+      "properties": {
+        "best": { "$ref": "#/$defs/colorSet" },
+        "alt1": { "$ref": "#/$defs/colorSet" },
+        "alt2": { "$ref": "#/$defs/colorSet" }
+      },
+      "additionalProperties": false
+    },
+    "statusCategory": {
+      "type": "object",
+      "required": ["info", "success", "warning", "error"],
+      "properties": {
+        "info": { "$ref": "#/$defs/statusSubcategory" },
+        "success": { "$ref": "#/$defs/statusSubcategory" },
+        "warning": { "$ref": "#/$defs/statusSubcategory" },
+        "error": { "$ref": "#/$defs/statusSubcategory" }
+      },
+      "additionalProperties": false
+    },
+    "statusSubcategory": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/colorSet" }
+    },
+    "actionCategory": {
+      "type": "object",
+      "required": ["primary", "secondary"],
+      "properties": {
+        "primary": { "$ref": "#/$defs/actionSubcategory" },
+        "secondary": { "$ref": "#/$defs/actionSubcategory" }
+      },
+      "additionalProperties": false
+    },
+    "actionSubcategory": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/colorSet" }
+    }
+  }
+}

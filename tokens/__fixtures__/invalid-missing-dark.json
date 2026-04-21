@@ -1,0 +1,23 @@
+{
+  "$comment": "Negative fixture: deliberately missing dark values to test validation",
+  "color": {
+    "surface": {
+      "primary": {
+        "light": "#F8F7F6"
+      },
+      "card": {
+        "light": "#FDFBF8",
+        "dark": "#2D2218"
+      }
+    },
+    "content": {
+      "primary": {
+        "light": "#1E1A16",
+        "dark": "#F2EEE8"
+      },
+      "secondary": {
+        "light": "#49454F"
+      }
+    }
+  }
+}

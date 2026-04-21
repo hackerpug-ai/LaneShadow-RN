@@ -23,9 +23,11 @@ function listJsonFiles(dir) {
       // - typography.tokens.json → validate-typography.ts
       // - colors.tokens.json → UC-TOK-02 (not yet implemented)
       // - motion.tokens.json → UC-TOK-04 (not yet implemented)
+      // - dimensions.tokens.json → UC-TOK-03 (not yet implemented)
       if (full.endsWith('typography.tokens.json')) continue
       if (full.endsWith('colors.tokens.json')) continue
       if (full.endsWith('motion.tokens.json')) continue
+      if (full.endsWith('dimensions.tokens.json')) continue
       out.push(full)
     }
   }

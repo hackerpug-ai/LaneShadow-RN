@@ -1,0 +1,88 @@
+{
+  "motion": {
+    "duration": {
+      "instant": {
+        "$type": "duration",
+        "$value": 0
+      },
+      "fast": {
+        "$type": "duration",
+        "$value": 120
+      },
+      "standard": {
+        "$type": "duration",
+        "$value": 240
+      },
+      "slow": {
+        "$type": "duration",
+        "$value": 400
+      },
+      "deliberate": {
+        "$type": "duration",
+        "$value": 600
+      }
+    },
+    "easing": {
+      "standard": {
+        "$type": "cubicBezier",
+        "$value": [0.4, 0.0, 0.2, 1.0]
+      },
+      "emphasized": {
+        "$type": "cubicBezier",
+        "$value": [0.2, 0.0, 0.0, 1.0]
+      },
+      "decelerated": {
+        "$type": "cubicBezier",
+        "$value": [0.0, 0.0, 0.2, 1.0]
+      },
+      "accelerated": {
+        "$type": "cubicBezier",
+        "$value": [0.4, 0.0, 1.0, 1.0]
+      },
+      "linear": {
+        "$type": "cubicBezier",
+        "$value": [0.0, 0.0, 1.0, 1.0]
+      }
+    },
+    "chatOverlayEnter": {
+      "duration": "{motion.duration.standard}",
+      "easing": "{motion.easing.decelerated}",
+      "iteration": "once"
+    },
+    "chatOverlayDismiss": {
+      "duration": "{motion.duration.fast}",
+      "easing": "{motion.easing.linear}",
+      "iteration": "once"
+    },
+    "sidebarSlideIn": {
+      "duration": "{motion.duration.standard}",
+      "easing": "{motion.easing.decelerated}",
+      "iteration": "once"
+    },
+    "sketchPolylineLoop": {
+      "duration": "{motion.duration.deliberate}",
+      "easing": "{motion.easing.linear}",
+      "iteration": "loop"
+    },
+    "routeDrawOn": {
+      "duration": "{motion.duration.deliberate}",
+      "easing": "{motion.easing.decelerated}",
+      "iteration": "once"
+    },
+    "bestBadgeEnter": {
+      "duration": "{motion.duration.standard}",
+      "easing": "{motion.easing.emphasized}",
+      "iteration": "once"
+    },
+    "phaseDotPulse": {
+      "duration": "{motion.duration.slow}",
+      "easing": "{motion.easing.standard}",
+      "iteration": "loop"
+    },
+    "mapTapDismiss": {
+      "duration": "{motion.duration.fast}",
+      "easing": "{motion.easing.linear}",
+      "iteration": "once"
+    }
+  }
+}

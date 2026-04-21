@@ -109,6 +109,19 @@
           }
         }
       }
+    },
+    {
+      "includes": ["tokens/scripts/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off"
+          }
+        }
+      }
     }
   ],
   "assist": {

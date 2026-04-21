@@ -1,0 +1,270 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://laneshadow.dev/tokens/dimensions.schema.json",
+  "title": "LaneShadow Dimension Tokens — spacing/sizing/stroke/radius/opacity/elevation",
+  "description": "Semantic dimension tokens covering spacing scale 0-12, icon sizing xs-xl, stroke widths, border radius, opacity values, and elevation tiers. See UC-TOK-03.",
+  "dimensions": {
+    "$comment": "4px base grid — 13 rungs from 0px to 64px. All values are density-independent pixels (dp/pt).",
+    "spacing": {
+      "0": {
+        "$type": "dimension",
+        "$value": 0,
+        "$description": "zero / flush"
+      },
+      "1": {
+        "$type": "dimension",
+        "$value": 2,
+        "$description": "hairline gap"
+      },
+      "2": {
+        "$type": "dimension",
+        "$value": 4,
+        "$description": "icon nudge, tight pair"
+      },
+      "3": {
+        "$type": "dimension",
+        "$value": 8,
+        "$description": "standard gap, chip padding"
+      },
+      "4": {
+        "$type": "dimension",
+        "$value": 12,
+        "$description": "inset padding sm"
+      },
+      "5": {
+        "$type": "dimension",
+        "$value": 16,
+        "$description": "inset padding md, card gutter"
+      },
+      "6": {
+        "$type": "dimension",
+        "$value": 20,
+        "$description": "section gap sm"
+      },
+      "7": {
+        "$type": "dimension",
+        "$value": 24,
+        "$description": "row vertical rhythm"
+      },
+      "8": {
+        "$type": "dimension",
+        "$value": 32,
+        "$description": "card padding lg"
+      },
+      "9": {
+        "$type": "dimension",
+        "$value": 40,
+        "$description": "section gap md"
+      },
+      "10": {
+        "$type": "dimension",
+        "$value": 48,
+        "$description": "section gap lg"
+      },
+      "11": {
+        "$type": "dimension",
+        "$value": 56,
+        "$description": "toolbar height"
+      },
+      "12": {
+        "$type": "dimension",
+        "$value": 64,
+        "$description": "max spacing rung"
+      }
+    },
+    "sizing": {
+      "$comment": "Touch targets, icon frames, component heights, stroke widths",
+      "touchTarget": {
+        "ios": {
+          "$type": "dimension",
+          "$value": 44,
+          "$description": "iOS minimum touch target (HIG: 44pt)"
+        },
+        "android": {
+          "$type": "dimension",
+          "$value": 48,
+          "$description": "Android minimum touch target (Material: 48dp)"
+        }
+      },
+      "icon": {
+        "xs": {
+          "$type": "dimension",
+          "$value": 12,
+          "$description": "extra-small icon frame"
+        },
+        "sm": {
+          "$type": "dimension",
+          "$value": 16,
+          "$description": "small icon frame"
+        },
+        "md": {
+          "$type": "dimension",
+          "$value": 20,
+          "$description": "medium icon frame"
+        },
+        "lg": {
+          "$type": "dimension",
+          "$value": 24,
+          "$description": "large icon frame"
+        },
+        "xl": {
+          "$type": "dimension",
+          "$value": 32,
+          "$description": "extra-large icon frame"
+        }
+      },
+      "stroke": {
+        "sm": {
+          "$type": "dimension",
+          "$value": 1,
+          "$description": "border, divider, icon outline"
+        },
+        "md": {
+          "$type": "dimension",
+          "$value": 2,
+          "$description": "route polyline, emphasis border"
+        },
+        "lg": {
+          "$type": "dimension",
+          "$value": 3,
+          "$description": "best-route polyline (thick)"
+        }
+      },
+      "component": {
+        "buttonHeight": {
+          "$type": "dimension",
+          "$value": 44,
+          "$description": "LSButton primary height"
+        },
+        "inputHeight": {
+          "$type": "dimension",
+          "$value": 48,
+          "$description": "LSInput, LSChatInput height"
+        },
+        "toolbarHeight": {
+          "$type": "dimension",
+          "$value": 56,
+          "$description": "LSTopBar, LSTabBar height"
+        }
+      },
+      "pill": {
+        "sm": {
+          "$type": "dimension",
+          "$value": 24,
+          "$description": "pill component sm height"
+        },
+        "md": {
+          "$type": "dimension",
+          "$value": 32,
+          "$description": "pill component md height"
+        },
+        "lg": {
+          "$type": "dimension",
+          "$value": 40,
+          "$description": "pill component lg height"
+        }
+      },
+      "iconStroke": {
+        "width": {
+          "$type": "dimension",
+          "$value": 1.5,
+          "$description": "SVG icon stroke width — all sizes"
+        }
+      }
+    },
+    "radius": {
+      "$comment": "Seven border-radius values from 0px (none) to 999px (pill)",
+      "none": {
+        "$type": "dimension",
+        "$value": 0,
+        "$description": "sharp corners, no radius"
+      },
+      "xs": {
+        "$type": "dimension",
+        "$value": 2,
+        "$description": "extra-small radius"
+      },
+      "sm": {
+        "$type": "dimension",
+        "$value": 6,
+        "$description": "small radius"
+      },
+      "md": {
+        "$type": "dimension",
+        "$value": 10,
+        "$description": "medium radius"
+      },
+      "lg": {
+        "$type": "dimension",
+        "$value": 14,
+        "$description": "large radius"
+      },
+      "xl": {
+        "$type": "dimension",
+        "$value": 20,
+        "$description": "extra-large radius"
+      },
+      "pill": {
+        "$type": "dimension",
+        "$value": 999,
+        "$description": "fully rounded (pill shape)"
+      }
+    },
+    "opacity": {
+      "$comment": "Five semantic opacity values for overlays, disabled states, focus rings",
+      "focus": {
+        "$type": "opacity",
+        "$value": 0.12,
+        "$description": "focus ring overlay"
+      },
+      "disabled": {
+        "$type": "opacity",
+        "$value": 0.38,
+        "$description": "disabled element"
+      },
+      "overlay": {
+        "$type": "opacity",
+        "$value": 0.6,
+        "$description": "sheet / scrim"
+      },
+      "dim": {
+        "$type": "opacity",
+        "$value": 0.76,
+        "$description": "map dim under sheet"
+      },
+      "veil": {
+        "$type": "opacity",
+        "$value": 0.95,
+        "$description": "full modal background"
+      }
+    },
+    "elevation": {
+      "$comment": "Five tiers (0, 1, 2, 3, overlay) for surface hierarchy. Elevation values are non-negative integers representing z-index tiers.",
+      "0": {
+        "$type": "dimension",
+        "$value": 0,
+        "$description": "no elevation — flat surface with border only"
+      },
+      "1": {
+        "$type": "dimension",
+        "$value": 1,
+        "$description": "subtle shadow for raised elements"
+      },
+      "2": {
+        "$type": "dimension",
+        "$value": 2,
+        "$description": "card default elevation — LSCard"
+      },
+      "3": {
+        "$type": "dimension",
+        "$value": 3,
+        "$description": "stronger ambient shadow"
+      },
+      "overlay": {
+        "$type": "dimension",
+        "$value": 16,
+        "$description": "overlay elevation — LSGlassPanel, LSBottomSheet, LSSessionsDrawer ONLY"
+      }
+    }
+  }
+}
