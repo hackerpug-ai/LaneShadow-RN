@@ -1,6 +1,6 @@
 # INF-004 Embedding Cost Ledger
 
-**Generated**: 2026-04-14T19:18:09.161864
+**Generated**: 2026-04-20T15:58:00.519686
 **Model**: text-embedding-3-small
 
 ## Summary
