@@ -23,7 +23,7 @@
     "android:dev": "make android_dev",
     "android:start": "make android_start",
     "prepare": "lefthook install",
-    "tokens:validate": "node tokens/scripts/validate-contract.js",
+    "tokens:validate": "node tokens/scripts/validate-contract.js && pnpm tsx tokens/scripts/validate-typography.ts",
     "tokens:sync": "node ../native-theme/scripts/sync-bundled-json.js --config tokens/sync.config.json",
     "tokens:sync-check": "node ../native-theme/scripts/sync-bundled-json.js --config tokens/sync.config.json --check",
     "ui:diff": "pnpm tsx scripts/ui-diff/capture-rn.ts && pnpm tsx scripts/ui-diff/capture-android.ts && pnpm tsx scripts/ui-diff/capture-ios.ts && pnpm tsx scripts/ui-diff/compare.ts",

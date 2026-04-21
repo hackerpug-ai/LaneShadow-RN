@@ -18,7 +18,16 @@ function listJsonFiles(dir) {
     if (SKIP_DIRS.has(entry.name)) continue
     const full = path.join(dir, entry.name)
     if (entry.isDirectory()) out.push(...listJsonFiles(full))
-    else if (entry.isFile() && full.endsWith('.json')) out.push(full)
+    else if (entry.isFile() && full.endsWith('.json')) {
+      // Skip non-DTCG token files — they have their own validators:
+      // - typography.tokens.json → validate-typography.ts
+      // - colors.tokens.json → UC-TOK-02 (not yet implemented)
+      // - motion.tokens.json → UC-TOK-04 (not yet implemented)
+      if (full.endsWith('typography.tokens.json')) continue
+      if (full.endsWith('colors.tokens.json')) continue
+      if (full.endsWith('motion.tokens.json')) continue
+      out.push(full)
+    }
   }
   return out
 }

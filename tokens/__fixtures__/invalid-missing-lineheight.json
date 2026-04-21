@@ -1,0 +1,13 @@
+{
+  "$comment": "Negative test fixture for AC-4 — deliberately invalid typography token missing required lineHeight field.",
+  "typography": {
+    "opinion": {
+      "xl": {
+        "family": "opinion",
+        "size": 30,
+        "weight": "400",
+        "letterSpacing": -0.45
+      }
+    }
+  }
+}

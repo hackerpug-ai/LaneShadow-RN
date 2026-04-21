@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://laneshadow.dev/tokens/typography.schema.json",
+  "title": "LaneShadow Typography Tokens — Opinion/UI/Instrument families",
+  "description": "Semantic typography tokens for Navigator voice (opinion/Newsreader), application chrome (ui/Geist), and numeric readouts (instrument/JetBrains Mono). See UC-TOK-01.",
+  "typography": {
+    "$comment": "Three-family role system: opinion (Navigator voice), ui (chrome), instrument (numeric). Tokens map to TypographyStyle primitives in native-theme.",
+    "opinion": {
+      "$comment": "Newsreader serif — italic-capable, optical-size axis. Navigator voice for greetings, chat responses, section headings.",
+      "xl": {
+        "family": "opinion",
+        "size": 30,
+        "lineHeight": 33.6,
+        "weight": "400",
+        "letterSpacing": -0.45
+      },
+      "lg": {
+        "family": "opinion",
+        "size": 22,
+        "lineHeight": 25.96,
+        "weight": "400",
+        "letterSpacing": -0.22
+      },
+      "md": {
+        "family": "opinion",
+        "size": 17,
+        "lineHeight": 22.44,
+        "weight": "400",
+        "letterSpacing": 0
+      },
+      "sm": {
+        "family": "opinion",
+        "size": 14,
+        "lineHeight": 20.3,
+        "weight": "400",
+        "letterSpacing": 0
+      }
+    },
+    "ui": {
+      "$comment": "Geist sans-serif — clean, functional. Application chrome: screen titles, card titles, list rows, labels, metadata.",
+      "title": {
+        "lg": {
+          "family": "ui",
+          "size": 17,
+          "lineHeight": 21.08,
+          "weight": "600",
+          "letterSpacing": -0.17
+        },
+        "md": {
+          "family": "ui",
+          "size": 14,
+          "lineHeight": 17.92,
+          "weight": "600",
+          "letterSpacing": -0.07
+        },
+        "sm": {
+          "family": "ui",
+          "size": 12,
+          "lineHeight": 15.36,
+          "weight": "600",
+          "letterSpacing": 0
+        }
+      },
+      "body": {
+        "lg": {
+          "family": "ui",
+          "size": 14,
+          "lineHeight": 20.72,
+          "weight": "400",
+          "letterSpacing": 0
+        },
+        "md": {
+          "family": "ui",
+          "size": 12,
+          "lineHeight": 18.24,
+          "weight": "400",
+          "letterSpacing": 0
+        },
+        "sm": {
+          "family": "ui",
+          "size": 10.5,
+          "lineHeight": 15.54,
+          "weight": "400",
+          "letterSpacing": 0
+        }
+      },
+      "label": {
+        "lg": {
+          "family": "ui",
+          "size": 11,
+          "lineHeight": 11,
+          "weight": "500",
+          "letterSpacing": 0.88
+        },
+        "md": {
+          "family": "ui",
+          "size": 9.5,
+          "lineHeight": 9.5,
+          "weight": "600",
+          "letterSpacing": 1.14
+        },
+        "sm": {
+          "family": "ui",
+          "size": 8.5,
+          "lineHeight": 8.5,
+          "weight": "600",
+          "letterSpacing": 1.19
+        }
+      }
+    },
+    "instrument": {
+      "$comment": "JetBrains Mono — tabular lining numerics with tnum feature. Distance, duration, temperature, phase labels, timestamps.",
+      "lg": {
+        "family": "instrument",
+        "size": 18,
+        "lineHeight": 20.16,
+        "weight": "500",
+        "letterSpacing": -0.36
+      },
+      "md": {
+        "family": "instrument",
+        "size": 13,
+        "lineHeight": 15.6,
+        "weight": "500",
+        "letterSpacing": -0.13
+      },
+      "sm": {
+        "family": "instrument",
+        "size": 10,
+        "lineHeight": 12,
+        "weight": "500",
+        "letterSpacing": 0
+      },
+      "xs": {
+        "family": "instrument",
+        "size": 8.5,
+        "lineHeight": 8.5,
+        "weight": "500",
+        "letterSpacing": 0
+      }
+    }
+  }
+}

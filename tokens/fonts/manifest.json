@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://laneshadow.dev/tokens/fonts/manifest.schema.json",
+  "title": "LaneShadow Font Manifest — UC-TOK-01",
+  "description": "Font family metadata for Opinion (Newsreader), UI (Geist), and Instrument (JetBrains Mono). Downstream TOK-05 will bundle these as platform assets.",
+  "fonts": [
+    {
+      "family": "Newsreader",
+      "role": "opinion",
+      "type": "serif",
+      "source": "Google Fonts",
+      "weights": [400, 500, 600, 700],
+      "features": ["optical-size", "italic"],
+      "$comment": "Navigator voice — italic-capable optical-size serif for greetings, chat responses, section headings."
+    },
+    {
+      "family": "Geist",
+      "role": "ui",
+      "type": "sans-serif",
+      "source": "Vercel",
+      "weights": [400, 500, 600, 700],
+      "features": ["variable"],
+      "$comment": "Application chrome — clean geometric sans for screen titles, card titles, list rows, labels, metadata."
+    },
+    {
+      "family": "JetBrains Mono",
+      "role": "instrument",
+      "type": "monospace",
+      "source": "JetBrains",
+      "weights": [400, 500, 600],
+      "features": ["tabular-numerals", "tnum"],
+      "$comment": "Numeric readout — tabular lining numerics with tnum feature for distance, duration, temperature, timestamps."
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://laneshadow.dev/tokens/schema/typography.schema.json",
+  "title": "LaneShadow Typography Token Schema",
+  "description": "Validates typography.tokens.json against native-theme common.schema.json constraints. All numeric fields reference $defs from native-theme, and weight must match fontWeight enum.",
+  "type": "object",
+  "required": ["typography"],
+  "properties": {
+    "typography": { "$ref": "#/$defs/typographyRoot" },
+    "$schema": { "type": "string" },
+    "$id": { "type": "string" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "$comment": { "type": "string" }
+  },
+  "$defs": {
+    "fontFamily": {
+      "type": "string",
+      "enum": ["opinion", "ui", "instrument"],
+      "description": "Font family role — maps to actual font files via fonts/manifest.json"
+    },
+    "typographyStyle": {
+      "type": "object",
+      "required": ["family", "size", "lineHeight", "weight"],
+      "properties": {
+        "family": { "$ref": "#/$defs/fontFamily" },
+        "size": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Font size in density-independent pixels (matches native-theme dimension $def)"
+        },
+        "lineHeight": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Line height in density-independent pixels (matches native-theme dimension $def)"
+        },
+        "weight": {
+          "type": "string",
+          "enum": ["normal", "bold", "100", "200", "300", "400", "500", "600", "700", "800", "900"],
+          "description": "Font weight (matches native-theme fontWeight $def)"
+        },
+        "letterSpacing": {
+          "type": "number",
+          "description": "Letter spacing in pixels (negative values tighten, positive values loosen)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "opinionFamily": {
+      "type": "object",
+      "required": ["xl", "lg", "md", "sm"],
+      "properties": {
+        "xl": { "$ref": "#/$defs/typographyStyle" },
+        "lg": { "$ref": "#/$defs/typographyStyle" },
+        "md": { "$ref": "#/$defs/typographyStyle" },
+        "sm": { "$ref": "#/$defs/typographyStyle" },
+        "$comment": { "type": "string" }
+      }
+    },
+    "uiFamily": {
+      "type": "object",
+      "required": ["title", "body", "label"],
+      "properties": {
+        "title": {
+          "type": "object",
+          "required": ["lg", "md", "sm"],
+          "properties": {
+            "lg": { "$ref": "#/$defs/typographyStyle" },
+            "md": { "$ref": "#/$defs/typographyStyle" },
+            "sm": { "$ref": "#/$defs/typographyStyle" },
+            "$comment": { "type": "string" }
+          }
+        },
+        "body": {
+          "type": "object",
+          "required": ["lg", "md", "sm"],
+          "properties": {
+            "lg": { "$ref": "#/$defs/typographyStyle" },
+            "md": { "$ref": "#/$defs/typographyStyle" },
+            "sm": { "$ref": "#/$defs/typographyStyle" },
+            "$comment": { "type": "string" }
+          }
+        },
+        "label": {
+          "type": "object",
+          "required": ["lg", "md", "sm"],
+          "properties": {
+            "lg": { "$ref": "#/$defs/typographyStyle" },
+            "md": { "$ref": "#/$defs/typographyStyle" },
+            "sm": { "$ref": "#/$defs/typographyStyle" },
+            "$comment": { "type": "string" }
+          }
+        }
+      }
+    },
+    "instrumentFamily": {
+      "type": "object",
+      "required": ["lg", "md", "sm", "xs"],
+      "properties": {
+        "lg": { "$ref": "#/$defs/typographyStyle" },
+        "md": { "$ref": "#/$defs/typographyStyle" },
+        "sm": { "$ref": "#/$defs/typographyStyle" },
+        "xs": { "$ref": "#/$defs/typographyStyle" },
+        "$comment": { "type": "string" }
+      }
+    },
+    "typographyRoot": {
+      "type": "object",
+      "required": ["opinion", "ui", "instrument"],
+      "properties": {
+        "opinion": { "$ref": "#/$defs/opinionFamily" },
+        "ui": { "$ref": "#/$defs/uiFamily" },
+        "instrument": { "$ref": "#/$defs/instrumentFamily" },
+        "$comment": { "type": "string" }
+      }
+    }
+  }
+}
