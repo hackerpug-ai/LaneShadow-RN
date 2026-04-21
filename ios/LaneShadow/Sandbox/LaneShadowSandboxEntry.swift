@@ -3,22 +3,6 @@ import LaneShadowTheme
 import NativeSandbox
 import SwiftUI
 
-/// Theme controller for LaneShadow sandbox. Supports Auto/Light/Dark toggling
-/// via the sandbox's Appearance section.
-@MainActor
-public final class LaneShadowThemeController: ThemeController {
-    public static let shared = LaneShadowThemeController()
-
-    @Published private var mode: NativeSandbox.ThemeMode = .auto
-
-    public var themeMode: NativeSandbox.ThemeMode {
-        get { mode }
-        set { mode = newValue }
-    }
-
-    private init() {}
-}
-
 struct LaneShadowSandboxEntry: View {
     let selectedStoryId: String?
     @State private var activeStoryId: String?
@@ -39,7 +23,9 @@ struct LaneShadowSandboxEntry: View {
                 SandboxRoot(
                     stories: LaneShadowStories.all,
                     themeController: LaneShadowThemeController.shared,
-                    previewWrapper: themedPreview { $0.laneShadowTheme() }
+                    previewWrapper: { content in
+                        AnyView(content.laneShadowTheme())
+                    }
                 )
             }
         }
@@ -83,12 +69,11 @@ private struct LaneShadowSandboxStoryDetail: View {
                         .font(theme.type.label.sm.font.weight(.semibold))
                         .foregroundStyle(theme.colors.onSurface.default.opacity(0.72))
 
-                    themedPreview { $0.laneShadowTheme() }(
-                        AnyView(
-                            story.render(story.initialArgs)
-                                .padding(theme.space.lg)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        )
+                    AnyView(
+                        story.render(story.initialArgs)
+                            .padding(theme.space.lg)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .laneShadowTheme()
                     )
                     .frame(maxWidth: .infinity, minHeight: 200, alignment: .leading)
                     .background(theme.colors.surfaceVariant.default)
