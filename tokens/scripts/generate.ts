@@ -598,6 +598,426 @@ function emitMapboxTS(tokens: SemanticTokens, inputHash: string): string {
 }
 
 // ============================================================================
+// BUNDLED V1 JSON EMITTER (for Theme.swift runtime consumption)
+// ============================================================================
+
+const BUNDLED_JSON_OUTPUT = path.join(SEMANTIC_DIR, 'semantic.tokens.json')
+const BUNDLED_JSON_SPM_OUTPUT = path.join(
+  PLATFORMS_DIR,
+  'swift',
+  'Sources',
+  'LaneShadowTheme',
+  'Resources',
+  'semantic.tokens.json',
+)
+
+function dimToken(value: number): { $type: string; $value: number } {
+  return { $type: 'dimension', $value: value }
+}
+
+function strToken(value: string): { $type: string; $value: string } {
+  return { $type: 'string', $value: value }
+}
+
+function numToken(value: number): { $type: string; $value: number } {
+  return { $type: 'number', $value: value }
+}
+
+function easingToken(value: number[]): { $type: string; $value: number[] } {
+  return { $type: 'cubicBezier', $value: value }
+}
+
+function emitBundledJSON(tokens: SemanticTokens): object {
+  const v2Colors = tokens.color ?? {}
+  const v2Dims = tokens.dimensions ?? {}
+  const v2Motion = tokens.motion ?? {}
+  const v2Typo = tokens.typography ?? {}
+
+  // --- V2 COLOR FLATTENER ---
+  // Flatten nested V2 color categories to { "category.name": { light, dark } }
+  const flatColors: Record<string, { light: string; dark: string }> = {}
+  const flatten = (obj: Record<string, any>, prefix: string) => {
+    for (const [k, v] of Object.entries(obj)) {
+      if (k.startsWith('$')) continue
+      const key = prefix ? `${prefix}.${k}` : k
+      if (typeof v === 'object' && 'light' in v && 'dark' in v) {
+        flatColors[key] = v as { light: string; dark: string }
+      } else if (typeof v === 'object' && !Array.isArray(v)) {
+        flatten(v, key)
+      }
+    }
+  }
+  flatten(v2Colors as any, '')
+
+  // Helper: build ColorStatesDef from light/dark pair
+  const colorState = (
+    light: string,
+    dark: string,
+  ): { default: { $type: string; $value: string } } => ({
+    default: { $type: 'color', $value: light },
+  })
+
+  // Helper: build ColorStatesDef with hover/pressed from V2 action states
+  const colorStateWithStates = (
+    defLight: string,
+    defDark: string,
+    hoverLight?: string,
+    hoverDark?: string,
+    pressedLight?: string,
+    pressedDark?: string,
+  ) => {
+    const s: Record<string, any> = { default: { $type: 'color', $value: defLight } }
+    if (hoverLight) s.hover = { $type: 'color', $value: hoverLight }
+    if (pressedLight) s.pressed = { $type: 'color', $value: pressedLight }
+    return s
+  }
+
+  // Build light/dark color dicts
+  const lightColors: Record<string, any> = {}
+  const darkColors: Record<string, any> = {}
+
+  const addColor = (v1Key: string, v2Key: string, hoverV2Key?: string, pressedV2Key?: string) => {
+    const c = flatColors[v2Key]
+    if (!c) return
+    const hover = hoverV2Key ? flatColors[hoverV2Key] : undefined
+    const pressed = pressedV2Key ? flatColors[pressedV2Key] : undefined
+    lightColors[v1Key] = colorStateWithStates(
+      c.light,
+      c.dark,
+      hover?.light,
+      hover?.dark,
+      pressed?.light,
+      pressed?.dark,
+    )
+    darkColors[v1Key] = colorStateWithStates(
+      c.dark,
+      c.dark,
+      hover?.dark,
+      hover?.dark,
+      pressed?.dark,
+      pressed?.dark,
+    )
+  }
+
+  // Map V2 colors → V1 keys
+  addColor('primary', 'signal.default')
+  addColor('secondary', 'surface.inset')
+  addColor('tertiary', 'status.info.default')
+  addColor('success', 'status.success.default')
+  addColor('warning', 'status.warning.default')
+  addColor('warningContainer', 'signal.whisper')
+  addColor('onWarningContainer', 'content.primary')
+  addColor('danger', 'status.error.default')
+  addColor('info', 'status.info.default')
+  addColor('surface', 'surface.primary')
+  addColor('surfaceVariant', 'surface.card')
+  addColor('background', 'surface.primary')
+  addColor('onSurface', 'content.primary')
+  addColor('onPrimary', 'content.onSignal')
+  addColor('onSecondary', 'content.secondary')
+  addColor('secondaryContainer', 'signal.tint')
+  addColor('onSecondaryContainer', 'content.primary')
+  addColor('border', 'border.default')
+  addColor('input', 'surface.inset')
+  addColor('ring', 'border.focus')
+  addColor('card', 'surface.card')
+  addColor('popover', 'surface.card')
+  addColor('accent', 'action.primary.default', 'action.primary.hover', 'action.primary.pressed')
+  addColor('orange', 'signal.default')
+  addColor('muted', 'surface.inset')
+  addColor('divider', 'border.subtle')
+  addColor('scrim', 'surface.scrim')
+  addColor('routeSelected', 'route.best')
+  addColor('routeAlternate', 'route.alt1')
+
+  // Domain colors (location, waypoint, enrichment, deviation)
+  addColor('locationPoiFill', 'signal.default')
+  addColor('locationPoiRing', 'signal.pressed')
+  addColor('locationPoiMuted', 'signal.whisper')
+  addColor('locationPoiBg', 'surface.card')
+  addColor('waypointOnRoute', 'route.best')
+  addColor('waypointOffRoute', 'route.alt2')
+  addColor('waypointMixed', 'weather.clear.default')
+  addColor('enrichmentFast', 'weather.rain.default')
+  addColor('enrichmentExtended', 'weather.storm.default')
+  addColor('enrichmentCached', 'status.success.default')
+  addColor('deviationOriginalRoute', 'route.alt1')
+  addColor('deviationDetourPath', 'route.alt2')
+  addColor('deviationReconnectPoint', 'status.info.default')
+
+  // --- SPACE ---
+  const spacing = v2Dims.spacing ?? {}
+  const spaceMap: Record<string, string> = {
+    xs: '2',
+    sm: '3',
+    md: '4',
+    lg: '5',
+    xl: '7',
+    '2xl': '8',
+    '3xl': '10',
+    '4xl': '12',
+  }
+  const space: Record<string, any> = {}
+  for (const [v1Key, v2Key] of Object.entries(spaceMap)) {
+    const t = spacing[v2Key]
+    if (t) space[v1Key] = dimToken(t.$value)
+  }
+
+  // --- RADIUS ---
+  const v2Radius = v2Dims.radius ?? {}
+  const radius: Record<string, any> = {}
+  const radiusMap: Record<string, string> = {
+    none: 'none',
+    sm: 'sm',
+    md: 'md',
+    lg: 'lg',
+    xl: 'xl',
+  }
+  for (const [v1Key, v2Key] of Object.entries(radiusMap)) {
+    const t = v2Radius[v2Key]
+    if (t) radius[v1Key] = dimToken(t.$value)
+  }
+  radius['2xl'] = dimToken(32)
+  radius.full = dimToken(9999)
+
+  // --- TYPOGRAPHY (type) ---
+  // Schema requires integer values for fontSize and lineHeight
+  const intDimToken = (value: number): { $type: string; $value: number } => ({
+    $type: 'dimension',
+    $value: Math.round(value),
+  })
+
+  const typeStyle = (
+    token: TypographyToken,
+  ): {
+    fontSize: { $type: string; $value: number }
+    lineHeight: { $type: string; $value: number }
+    fontWeight: { $type: string; $value: string }
+  } => ({
+    fontSize: intDimToken(token.size),
+    lineHeight: intDimToken(token.lineHeight),
+    fontWeight: strToken(token.weight),
+  })
+
+  const typeVariants = (sm: TypographyToken, md: TypographyToken, lg: TypographyToken) => ({
+    sm: typeStyle(sm),
+    md: typeStyle(md),
+    lg: typeStyle(lg),
+  })
+
+  const type: Record<string, any> = {}
+  if (v2Typo.ui) {
+    if (v2Typo.ui.label) {
+      type.label = typeVariants(v2Typo.ui.label.sm, v2Typo.ui.label.md, v2Typo.ui.label.lg)
+    }
+    if (v2Typo.ui.body) {
+      type.body = typeVariants(v2Typo.ui.body.sm, v2Typo.ui.body.md, v2Typo.ui.body.lg)
+    }
+    if (v2Typo.ui.title) {
+      type.title = typeVariants(v2Typo.ui.title.sm, v2Typo.ui.title.md, v2Typo.ui.title.lg)
+    }
+  }
+  if (v2Typo.opinion) {
+    // heading: synthesize from opinion tokens
+    type.heading = typeVariants(v2Typo.opinion.sm, v2Typo.opinion.md, v2Typo.opinion.lg)
+    // display: synthesize from opinion tokens
+    type.display = typeVariants(v2Typo.opinion.md, v2Typo.opinion.lg, v2Typo.opinion.xl)
+  }
+
+  // --- ELEVATION ---
+  // V2 has numeric z-index values; V1 needs full shadow specs
+  // Synthesize shadow properties from elevation level
+  const elevationLevel = (level: number) => {
+    if (level === 0) {
+      return {
+        shadowColor: strToken('transparent'),
+        shadowOffset: {
+          width: dimToken(0),
+          height: dimToken(0),
+        },
+        shadowOpacity: dimToken(0),
+        shadowRadius: dimToken(0),
+        elevation: dimToken(0),
+      }
+    }
+    return {
+      shadowColor: strToken('#000000'),
+      shadowOffset: {
+        width: dimToken(0),
+        height: dimToken(level),
+      },
+      shadowOpacity: dimToken(0.15 + level * 0.03),
+      shadowRadius: dimToken(level * 3),
+      elevation: dimToken(level),
+    }
+  }
+
+  const elevation = {
+    light: {
+      '0': elevationLevel(0),
+      '1': elevationLevel(1),
+      '2': elevationLevel(2),
+      '3': elevationLevel(3),
+      '4': elevationLevel(4),
+      '5': elevationLevel(5),
+    },
+    dark: {
+      '0': elevationLevel(0),
+      '1': elevationLevel(1),
+      '2': elevationLevel(2),
+      '3': elevationLevel(3),
+      '4': elevationLevel(4),
+      '5': elevationLevel(5),
+      '8': elevationLevel(8),
+    },
+  }
+
+  // --- MOTION ---
+  const v2Durations = v2Motion.duration ?? {}
+  const v2Easings = v2Motion.easing ?? {}
+  const motion = {
+    duration: {
+      instant: dimToken(v2Durations.instant?.$value ?? 0),
+      fast: dimToken(v2Durations.fast?.$value ?? 120),
+      normal: dimToken(200),
+      slow: dimToken(v2Durations.slow?.$value ?? 300),
+      slower: dimToken(v2Durations.deliberate?.$value ?? 400),
+      fade: dimToken(300),
+      highlight: dimToken(500),
+    },
+    easing: {
+      standard: easingToken(v2Easings.standard?.$value ?? [0.4, 0, 0.2, 1]),
+      emphasized: easingToken(v2Easings.emphasized?.$value ?? [0.2, 0, 0, 1]),
+      decelerate: easingToken(v2Easings.decelerated?.$value ?? [0, 0, 0.2, 1]),
+      accelerate: easingToken(v2Easings.accelerated?.$value ?? [0.4, 0, 1, 1]),
+      sharp: easingToken([0.4, 0, 0.6, 1]),
+    },
+  }
+
+  // --- OPACITY ---
+  const v2Opacity = v2Dims.opacity ?? {}
+  const opacity: Record<string, any> = {
+    // Numeric steps
+    '0': numToken(0),
+    '5': numToken(0.05),
+    '10': numToken(0.1),
+    '20': numToken(0.2),
+    '30': numToken(0.3),
+    '40': numToken(0.4),
+    '50': numToken(0.5),
+    '60': numToken(0.6),
+    '70': numToken(0.7),
+    '80': numToken(0.8),
+    '90': numToken(0.9),
+    '100': numToken(1),
+    // Semantic names
+    disabled: numToken(v2Opacity.disabled?.$value ?? 0.5),
+    overlay: numToken(v2Opacity.overlay?.$value ?? 0.5),
+    shadow: numToken(0.15),
+    shadowPrimary: numToken(0.4),
+    actionIdle: numToken(0.2),
+    actionPressed: numToken(0.3),
+    border: numToken(0.3),
+    container: numToken(0.15),
+    pressed: numToken(0.7),
+    pressedStrong: numToken(0.8),
+    surface: numToken(0.85),
+  }
+
+  // --- BORDER WIDTH ---
+  const v2Stroke = v2Dims.sizing?.stroke ?? {}
+  const borderWidth: Record<string, any> = {
+    hairline: dimToken(0.5),
+    thin: dimToken(v2Stroke.sm?.$value ?? 1),
+    normal: dimToken(v2Stroke.md?.$value ?? 2),
+    thick: dimToken(v2Stroke.lg?.$value ?? 3),
+  }
+
+  // --- CONTROL ---
+  const control: Record<string, any> = {
+    minHeight: dimToken(v2Dims.sizing?.component?.buttonHeight?.$value ?? 44),
+    minTouchTarget: dimToken(v2Dims.sizing?.touchTarget?.ios?.$value ?? 44),
+  }
+
+  // --- HIT SLOP ---
+  const hitSlop: Record<string, any> = {
+    all: dimToken(4),
+    small: dimToken(4),
+    medium: dimToken(8),
+    large: dimToken(12),
+  }
+
+  // --- ICON SIZE ---
+  const v2IconSize = v2Dims.sizing?.icon ?? {}
+  const iconSize: Record<string, any> = {
+    xsmall: dimToken(v2IconSize.xs?.$value ?? 12),
+    small: dimToken(v2IconSize.sm?.$value ?? 16),
+    medium: dimToken(v2IconSize.md?.$value ?? 20),
+    large: dimToken(v2IconSize.lg?.$value ?? 24),
+    xlarge: dimToken(v2IconSize.xl?.$value ?? 32),
+  }
+
+  // --- SHADOW (nested offset/radius per semanticShadow schema) ---
+  const intTok = (value: number): { $type: string; $value: number } => ({
+    $type: 'dimension',
+    $value: Math.round(value),
+  })
+  const shadow = {
+    offset: {
+      menu: { width: intTok(0), height: intTok(4) },
+    },
+    radius: {
+      sm: intTok(4),
+      md: intTok(8),
+      menu: intTok(12),
+      primary: intTok(16),
+    },
+  }
+
+  // --- SIZE (general component sizes) ---
+  const size: Record<string, any> = {
+    xsmall: dimToken(16),
+    small: dimToken(24),
+    medium: dimToken(32),
+    large: dimToken(48),
+    xlarge: dimToken(64),
+  }
+
+  // --- STROKE WIDTH ---
+  const strokeWidth: Record<string, any> = {
+    hairline: dimToken(0.5),
+    thin: dimToken(1),
+    normal: dimToken(1.5),
+    thick: dimToken(2),
+  }
+
+  // --- TOUCH TARGET ---
+  const touchTarget: Record<string, any> = {
+    minTouchTarget: dimToken(v2Dims.sizing?.touchTarget?.ios?.$value ?? 44),
+  }
+
+  return {
+    semantic: {
+      color: { light: lightColors, dark: darkColors },
+      space,
+      radius,
+      type,
+      elevation,
+      motion,
+      opacity,
+      borderWidth,
+      control,
+      hitSlop,
+      iconSize,
+      shadow,
+      size,
+      strokeWidth,
+      touchTarget,
+    },
+  }
+}
+
+// ============================================================================
 // MAIN
 // ============================================================================
 
@@ -622,6 +1042,8 @@ async function main() {
   fs.mkdirSync(path.dirname(KOTLIN_OUTPUT), { recursive: true })
   fs.mkdirSync(path.dirname(TS_OUTPUT), { recursive: true })
   fs.mkdirSync(path.dirname(MAPBOX_OUTPUT), { recursive: true })
+  fs.mkdirSync(path.dirname(BUNDLED_JSON_OUTPUT), { recursive: true })
+  fs.mkdirSync(path.dirname(BUNDLED_JSON_SPM_OUTPUT), { recursive: true })
 
   // Emit Swift
   console.log('  📱 Emitting Swift tokens...')
@@ -643,6 +1065,21 @@ async function main() {
   const mapbox = emitMapboxTS(tokens, inputHash)
   fs.writeFileSync(MAPBOX_OUTPUT, `${mapbox}\n`)
 
+  // Emit bundled V1 JSON for Theme.swift runtime
+  console.log('  📋 Emitting bundled V1 JSON for native runtime...')
+  const bundledJson = emitBundledJSON(tokens)
+  let bundledJsonStr = `${JSON.stringify(bundledJson, null, 2)}\n`
+  // Collapse short numeric arrays (e.g. cubic-bezier values) to single lines for biome compliance
+  bundledJsonStr = bundledJsonStr.replace(
+    /\[\n\s+(\d+\.?\d*)(,\n\s+(\d+\.?\d*)){1,5}\n\s+\]/g,
+    (match) => {
+      const nums = [...match.matchAll(/\d+\.?\d*/g)].map((m) => m[0])
+      return `[${nums.join(', ')}]`
+    },
+  )
+  fs.writeFileSync(BUNDLED_JSON_OUTPUT, bundledJsonStr)
+  fs.writeFileSync(BUNDLED_JSON_SPM_OUTPUT, bundledJsonStr)
+
   // Format TS outputs with biome for consistent style
   try {
     const { execSync } = await import('node:child_process')
@@ -661,6 +1098,8 @@ async function main() {
   console.log(`  - ${KOTLIN_OUTPUT}`)
   console.log(`  - ${TS_OUTPUT}`)
   console.log(`  - ${MAPBOX_OUTPUT}`)
+  console.log(`  - ${BUNDLED_JSON_OUTPUT}`)
+  console.log(`  - ${BUNDLED_JSON_SPM_OUTPUT}`)
 }
 
 // String extension for capitalize
