@@ -150,7 +150,8 @@ ios_test: ## Run iOS unit tests
 	cd ios && xcodebuild test -project LaneShadow.xcodeproj -scheme LaneShadow \
 		-derivedDataPath build/DerivedData \
 		-destination "id=$$SIMULATOR_ID" \
-		-only-testing:LaneShadowTests
+		-only-testing:LaneShadowTests \
+		-only-testing:LaneShadowUITests
 
 # ── Android (Kotlin/Compose) ─────────────────────────
 

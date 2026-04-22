@@ -37,10 +37,20 @@
 		EC3256F36680A0F854EF8761 /* SandboxLaunchConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8199CF3904E8BB400B1581B /* SandboxLaunchConfig.swift */; };
 		INFOTOASTBUILD19DA81322E4 /* InfoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = INFOTOAST19DA81322E4 /* InfoToast.swift */; };
 		INFOTOASTTESTSBUILD19DA81322E4 /* InfoToastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = INFOTOASTTESTS19DA81322E4 /* InfoToastTests.swift */; };
+		UI00BUILDFILE01 /* LaneShadowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00FILEREF01 /* LaneShadowUITests.swift */; };
+		UI00BUILDFILE02 /* AppLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = UI00FILEREF02 /* AppLauncher.swift */; };
+		UI00BUILDFILE03 /* LaneShadow.app in Frameworks */ = {isa = PBXBuildFile; fileRef = C40B550C00DF5E8EB169537B /* LaneShadow.app */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		756AB40C25F70D41A0A91407 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8195E2F6510082D0036AB4FF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B7E51DDBAE69A0395EFCA6F1;
+			remoteInfo = LaneShadow;
+		};
+		UI00PROXY01 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8195E2F6510082D0036AB4FF /* Project object */;
 			proxyType = 1;
@@ -77,6 +87,9 @@
 		F63BA6A7BEA5A3BD86CC9941 /* EmptyState.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EmptyState.swift; path = LaneShadow/Views/Molecules/EmptyState.swift; sourceTree = "<group>"; };
 		INFOTOAST19DA81322E4 /* InfoToast.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaneShadow/Views/Molecules/InfoToast.swift; sourceTree = "<group>"; };
 		INFOTOASTTESTS19DA81322E4 /* InfoToastTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LaneShadowTests/Molecules/InfoToastTests.swift; sourceTree = "<group>"; };
+		UI00FILEREF01 /* LaneShadowUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowUITests.swift; path = LaneShadowUITests/LaneShadowUITests.swift; sourceTree = "<group>"; };
+		UI00FILEREF02 /* AppLauncher.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppLauncher.swift; path = LaneShadowUITests/Helpers/AppLauncher.swift; sourceTree = "<group>"; };
+		UI00PRODUCT01 /* LaneShadowUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LaneShadowUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +111,14 @@
 			files = (
 				9CBE1C1BAFE71A86A9369501 /* LaneShadow.app in Frameworks */,
 				AABBCCDD00000000CAFE0004 /* LaneShadowTheme in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		UI00FRAMEWORKS01 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				UI00BUILDFILE03 /* LaneShadow.app in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				C8F2429BC9B2805FC918C04A /* Products */,
+				UI00GROUP02 /* LaneShadowUITests */,
 				3358ABF0E9A0A26A2DC29ABF /* Frameworks */,
 				2E6DE740AB1D3CC3AAFDAD66 /* LaneShadow */,
 				EDE941005FEE4271A0B6705D /* LaneShadowTests */,
@@ -217,6 +239,7 @@
 			children = (
 				C40B550C00DF5E8EB169537B /* LaneShadow.app */,
 				EA2218D2E4024A3E89BBD26A /* LaneShadowTests.xctest */,
+				UI00PRODUCT01 /* LaneShadowUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -264,6 +287,23 @@
 				F2D8422CC809A6C6F9E33663 /* Foundation.framework */,
 			);
 			name = iOS;
+			sourceTree = "<group>";
+		};
+		UI00GROUP01 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				UI00FILEREF02 /* AppLauncher.swift */,
+			);
+			name = Helpers;
+			sourceTree = "<group>";
+		};
+		UI00GROUP02 /* LaneShadowUITests */ = {
+			isa = PBXGroup;
+			children = (
+				UI00FILEREF01 /* LaneShadowUITests.swift */,
+				UI00GROUP01 /* Helpers */,
+			);
+			name = LaneShadowUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -314,6 +354,26 @@
 			productReference = EA2218D2E4024A3E89BBD26A /* LaneShadowTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		UI00TARGET01 /* LaneShadowUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = UI00CFGLIST01 /* Build configuration list for PBXNativeTarget "LaneShadowUITests" */;
+			buildPhases = (
+				UI00SOURCES01 /* Sources */,
+				UI00FRAMEWORKS01 /* Frameworks */,
+				UI00RESOURCES01 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				UI00TARGDEP01 /* PBXTargetDependency */,
+			);
+			name = LaneShadowUITests;
+			packageProductDependencies = (
+			);
+			productName = LaneShadowUITests;
+			productReference = UI00PRODUCT01 /* LaneShadowUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -360,6 +420,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F780BFCEBB8A4EB489C6E8D9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		UI00RESOURCES01 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -428,6 +495,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		UI00SOURCES01 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				UI00BUILDFILE01 /* LaneShadowUITests.swift in Sources */,
+				UI00BUILDFILE02 /* AppLauncher.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -436,6 +512,11 @@
 			name = LaneShadow;
 			target = B7E51DDBAE69A0395EFCA6F1 /* LaneShadow */;
 			targetProxy = 756AB40C25F70D41A0A91407 /* PBXContainerItemProxy */;
+		};
+		UI00TARGDEP01 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B7E51DDBAE69A0395EFCA6F1 /* LaneShadow */;
+			targetProxy = UI00PROXY01 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -636,6 +717,41 @@
 			};
 			name = Release;
 		};
+		UI00CFGDEBUG01 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app.ui-tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = LaneShadow;
+			};
+			name = Debug;
+		};
+		UI00CFGREL01 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app.ui-tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = LaneShadow;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -662,6 +778,15 @@
 			buildConfigurations = (
 				D6A7BE3AC444853DFD9FAA61 /* Debug */,
 				726610CA216E57A1143F06A4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		UI00CFGLIST01 /* Build configuration list for PBXNativeTarget "LaneShadowUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				UI00CFGDEBUG01 /* Debug */,
+				UI00CFGREL01 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
