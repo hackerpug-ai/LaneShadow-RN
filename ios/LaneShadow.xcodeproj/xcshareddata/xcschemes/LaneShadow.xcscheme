@@ -1,111 +1,47 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Scheme
-   LastUpgradeVersion = "1600"
-   version = "1.3">
-   <BuildAction
-      parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES">
+<?xml version='1.0' encoding='UTF-8'?>
+<Scheme LastUpgradeVersion="1600" version="1.3">
+   <BuildAction parallelizeBuildables="YES" buildImplicitDependencies="YES">
       <BuildActionEntries>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B7E51DDBAE69A0395EFCA6F1"
-               BuildableName = "LaneShadow.app"
-               BlueprintName = "LaneShadow"
-               ReferencedContainer = "container:LaneShadow.xcodeproj">
+         <BuildActionEntry buildForTesting="YES" buildForRunning="YES" buildForProfiling="YES" buildForArchiving="YES" buildForAnalyzing="YES">
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="B7E51DDBAE69A0395EFCA6F1" BuildableName="LaneShadow.app" BlueprintName="LaneShadow" ReferencedContainer="container:LaneShadow.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "NO"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D4D1C503A6F94EC6A21B28A4"
-               BuildableName = "LaneShadowTests.xctest"
-               BlueprintName = "LaneShadowTests"
-               ReferencedContainer = "container:LaneShadow.xcodeproj">
-            </BuildableReference>
+         <BuildActionEntry buildForTesting="YES" buildForRunning="NO" buildForProfiling="NO" buildForArchiving="NO" buildForAnalyzing="NO">
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="UI00TARGET01" BuildableName="LaneShadowUITests.xctest" BlueprintName="LaneShadowUITests" ReferencedContainer="container:LaneShadow.xcodeproj" />
+         </BuildActionEntry>
+         <BuildActionEntry buildForTesting="YES" buildForRunning="NO" buildForProfiling="NO" buildForArchiving="NO" buildForAnalyzing="NO">
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="D4D1C503A6F94EC6A21B28A4" BuildableName="LaneShadowTests.xctest" BlueprintName="LaneShadowTests" ReferencedContainer="container:LaneShadow.xcodeproj" />
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
-   <TestAction
-      buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+   <TestAction buildConfiguration="Debug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv="YES">
       <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B7E51DDBAE69A0395EFCA6F1"
-            BuildableName = "LaneShadow.app"
-            BlueprintName = "LaneShadow"
-            ReferencedContainer = "container:LaneShadow.xcodeproj">
+         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="B7E51DDBAE69A0395EFCA6F1" BuildableName="LaneShadow.app" BlueprintName="LaneShadow" ReferencedContainer="container:LaneShadow.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D4D1C503A6F94EC6A21B28A4"
-               BuildableName = "LaneShadowTests.xctest"
-               BlueprintName = "LaneShadowTests"
-               ReferencedContainer = "container:LaneShadow.xcodeproj">
-            </BuildableReference>
+         <TestableReference skipped="NO">
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="UI00TARGET01" BuildableName="LaneShadowUITests.xctest" BlueprintName="LaneShadowUITests" ReferencedContainer="container:LaneShadow.xcodeproj" />
+         </TestableReference>
+         <TestableReference skipped="NO">
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="D4D1C503A6F94EC6A21B28A4" BuildableName="LaneShadowTests.xctest" BlueprintName="LaneShadowTests" ReferencedContainer="container:LaneShadow.xcodeproj" />
          </TestableReference>
       </Testables>
    </TestAction>
-   <LaunchAction
-      buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      launchStyle = "0"
-      useCustomWorkingDirectory = "NO"
-      ignoresPersistentStateOnLaunch = "NO"
-      debugDocumentVersioning = "YES"
-      debugServiceExtension = "internal"
-      allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B7E51DDBAE69A0395EFCA6F1"
-            BuildableName = "LaneShadow.app"
-            BlueprintName = "LaneShadow"
-            ReferencedContainer = "container:LaneShadow.xcodeproj">
+   <LaunchAction buildConfiguration="Debug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB" launchStyle="0" useCustomWorkingDirectory="NO" ignoresPersistentStateOnLaunch="NO" debugDocumentVersioning="YES" debugServiceExtension="internal" allowLocationSimulation="YES">
+      <BuildableProductRunnable runnableDebuggingMode="0">
+         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="B7E51DDBAE69A0395EFCA6F1" BuildableName="LaneShadow.app" BlueprintName="LaneShadow" ReferencedContainer="container:LaneShadow.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
-   <ProfileAction
-      buildConfiguration = "Release"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      savedToolIdentifier = ""
-      useCustomWorkingDirectory = "NO"
-      debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B7E51DDBAE69A0395EFCA6F1"
-            BuildableName = "LaneShadow.app"
-            BlueprintName = "LaneShadow"
-            ReferencedContainer = "container:LaneShadow.xcodeproj">
+   <ProfileAction buildConfiguration="Release" shouldUseLaunchSchemeArgsEnv="YES" savedToolIdentifier="" useCustomWorkingDirectory="NO" debugDocumentVersioning="YES">
+      <BuildableProductRunnable runnableDebuggingMode="0">
+         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="B7E51DDBAE69A0395EFCA6F1" BuildableName="LaneShadow.app" BlueprintName="LaneShadow" ReferencedContainer="container:LaneShadow.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
-   <AnalyzeAction
-      buildConfiguration = "Debug">
+   <AnalyzeAction buildConfiguration="Debug">
    </AnalyzeAction>
-   <ArchiveAction
-      buildConfiguration = "Release"
-      revealArchiveInOrganizer = "YES">
+   <ArchiveAction buildConfiguration="Release" revealArchiveInOrganizer="YES">
    </ArchiveAction>
 </Scheme>

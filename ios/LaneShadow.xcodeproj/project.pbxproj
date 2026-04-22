@@ -406,6 +406,7 @@
 			targets = (
 				B7E51DDBAE69A0395EFCA6F1 /* LaneShadow */,
 				D4D1C503A6F94EC6A21B28A4 /* LaneShadowTests */,
+				UI00TARGET01 /* LaneShadowUITests */,
 			);
 		};
 /* End PBXProject section */
