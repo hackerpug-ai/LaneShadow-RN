@@ -1,13 +1,12 @@
 package com.laneshadow.ui.components.molecules
 
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -79,7 +78,7 @@ fun InfoToast(
                 ) {
                     // Info icon
                     Icon(
-                        imageVector = Icons.Default.Info,
+                        imageVector = Glyphs.Default.Info,
                         contentDescription = "Info icon",
                         tint = contentColor,
                         modifier = Modifier.size(20.dp),
@@ -102,7 +101,7 @@ fun InfoToast(
                         },
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+                            imageVector = Glyphs.Default.Close,
                             contentDescription = "Close",
                             tint = contentColor,
                             modifier = Modifier.size(20.dp),

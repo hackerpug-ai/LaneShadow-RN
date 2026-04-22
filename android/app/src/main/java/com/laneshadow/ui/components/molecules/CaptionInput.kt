@@ -1,5 +1,7 @@
 package com.laneshadow.ui.components.molecules
 
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
@@ -13,10 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -172,7 +170,7 @@ fun CaptionInput(
                             },
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Email, // Using @ symbol fallback
+                            imageVector = Glyphs.Default.Email, // Using @ symbol fallback
                             contentDescription = "Mentions",
                             tint = theme.colors.muted.default,
                         )
@@ -189,7 +187,7 @@ fun CaptionInput(
                             },
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Star, // Using auto-fix fallback
+                            imageVector = Glyphs.Default.Star, // Using auto-fix fallback
                             contentDescription = "AI assist",
                             tint = theme.colors.muted.default,
                         )
@@ -212,7 +210,7 @@ fun CaptionInput(
                             },
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Send,
+                            imageVector = Glyphs.AutoMirrored.Filled.Send,
                             contentDescription = "Send",
                             tint = theme.colors.onPrimary.default,
                         )

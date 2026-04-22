@@ -1,0 +1,87 @@
+{
+  "verdict": "NEEDS_FIXES",
+  "confidence": "HIGH",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "location": "android/app/src/main/java/com/laneshadow/ui/atoms/TypographyVariant.kt:20",
+      "evidence": "TypographyVariant.Opinion.Xl resolves to theme.type.display.lg, and the theme model exposes only type.* TextStyles without fontFamily; this does not resolve typography.opinion.xl / Newsreader, and the same pattern affects UI and Instrument variants.",
+      "fix": "Generate or expose the UC-TOK-01 typography families on LaneShadowThemeValues and map variants to typography.opinion.*, typography.ui.*, and typography.instrument.* TextStyles with the correct FontFamily, size, lineHeight, weight, letterSpacing, and tabular numeric settings."
+    },
+    {
+      "severity": "HIGH",
+      "location": "android/app/src/test/java/com/laneshadow/ui/atoms/LSTextTest.kt:14",
+      "evidence": "The primary AC tests opinion_xl_resolves_newsreader_token, ui_body_md_resolves_geist_token, and instrument_lg_resolves_mono_token are annotated @Ignore, so the required behavioral coverage is skipped while Gradle still reports success.",
+      "fix": "Remove @Ignore and make the tests assert the actual token family, size, lineHeight, weight, and relevant font attributes after implementing the token-backed typography mapping."
+    },
+    {
+      "severity": "HIGH",
+      "location": "android/app/src/main/java/com/laneshadow/ui/atoms/ContentColor.kt:16",
+      "evidence": "ContentColor.resolve(theme) suppresses UNUSED_PARAMETER and ignores the passed LaneShadowThemeValues, returning static generated LaneShadowTheme.color.Content values. This cannot satisfy the required light + dark theme resolution through the active theme.",
+      "fix": "Add content color roles to the active theme values or generated dark-aware theme surface, then resolve ContentColor from the provided current theme for both light and dark modes."
+    },
+    {
+      "severity": "HIGH",
+      "location": "validation output",
+      "evidence": "Required gates are missing: connectedDebugAndroidTest was not run, detekt was not run, and assembleRelease plus unzip com.nativesandbox check was not run. The provided instrumentation command only compiled android tests.",
+      "fix": "Run and pass cd android && ./gradlew :app:connectedDebugAndroidTest, cd android && ./gradlew detekt, and cd android && ./gradlew :app:assembleRelease followed by the APK com.nativesandbox count gate."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "AC-1",
+      "satisfied": false,
+      "evidence": "LSTextTest.opinion_xl_resolves_newsreader_token is @Ignore; TypographyVariant.Opinion.Xl maps to theme.type.display.lg, not typography.opinion.xl / Newsreader.",
+      "remediation": "Implement token-backed opinion typography and enable the test."
+    },
+    {
+      "id": "AC-2",
+      "satisfied": false,
+      "evidence": "LSTextTest.ui_body_md_resolves_geist_token is @Ignore; TypographyVariant.Ui.Body.Md maps to theme.type.body.md without a Geist family assertion or family-backed TextStyle.",
+      "remediation": "Implement token-backed UI typography and enable the test."
+    },
+    {
+      "id": "AC-3",
+      "satisfied": false,
+      "evidence": "LSTextTest.instrument_lg_resolves_mono_token is @Ignore; TypographyVariant.Instrument.Lg synthesizes theme.type.title.lg.copy(fontWeight = theme.type.label.lg.fontWeight), not typography.instrument.lg / JetBrains Mono.",
+      "remediation": "Implement token-backed instrument typography and enable the test."
+    },
+    {
+      "id": "AC-4",
+      "satisfied": false,
+      "evidence": "LSTextInstrumentationTest.kt exists, but validation output shows only :app:compileDebugAndroidTestKotlin, not :app:connectedDebugAndroidTest execution.",
+      "remediation": "Run the required connectedDebugAndroidTest gate and provide passing output."
+    },
+    {
+      "id": "AC-5",
+      "satisfied": false,
+      "evidence": "ContentColor.resolve ignores LaneShadowThemeValues and returns static generated color values, so active light/dark color.content.* resolution is not proven.",
+      "remediation": "Resolve ContentColor from the active theme for light and dark variants and add/assert both modes."
+    },
+    {
+      "id": "AC-6",
+      "satisfied": true,
+      "evidence": "LSText signature uses color: ContentColor = ContentColor.Primary and no raw Color parameter; provided unit validation includes color_param_rejects_raw_Color.",
+      "remediation": null
+    },
+    {
+      "id": "AC-7",
+      "satisfied": true,
+      "evidence": "LSTextStories.kt defines id atoms.text.swatch with ComponentTier.Atom, and AtomsStories.all includes LSTextStories.all.",
+      "remediation": null
+    },
+    {
+      "id": "AC-8",
+      "satisfied": true,
+      "evidence": "LSText.kt contains no FontFamily.Serif/SansSerif/Monospace/Default, Color(0x...), Material Icons, or Icons.Filled/Outlined references.",
+      "remediation": null
+    },
+    {
+      "id": "AC-9",
+      "satisfied": false,
+      "evidence": "No assembleRelease and APK unzip com.nativesandbox count output was provided.",
+      "remediation": "Run the release APK gate and confirm the com.nativesandbox entry count is 0."
+    }
+  ],
+  "summary": "NEEDS_FIXES: the primary typography requirements are not implemented or tested because family tests are ignored and variants map to legacy type.* styles; content color theme resolution and required validation gates are also incomplete."
+}

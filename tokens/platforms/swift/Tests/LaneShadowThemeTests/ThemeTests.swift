@@ -8,18 +8,27 @@ final class ThemeTests: XCTestCase {
         XCTAssertNotNil(theme.colors.primary.default)
         XCTAssertNotNil(theme.colors.surface.default)
         XCTAssertEqual(theme.space.md, 12)
-        XCTAssertEqual(theme.radius.md, 8)
-        XCTAssertEqual(theme.type.body.md.fontSize, 16)
+        XCTAssertEqual(theme.radius.md, 10)
+        XCTAssertEqual(theme.type.body.md.fontSize, 12)
         XCTAssertNotNil(theme.elevation.level1)
         XCTAssertNotNil(theme.domain.waypointOnRoute.default)
     }
 
     func testColorSetExposesStateVariants() {
-        let primary = Theme.shared.colors.primary
-        XCTAssertNotNil(primary.default)
-        XCTAssertNotNil(primary.hover)
-        XCTAssertNotNil(primary.pressed)
-        XCTAssertNotNil(primary.disabled)
+        let accent = Theme.shared.colors.accent
+        XCTAssertNotNil(accent.default)
+        XCTAssertNotNil(accent.hover)
+        XCTAssertNotNil(accent.pressed)
+        XCTAssertNil(accent.disabled)
+    }
+
+    func testGeneratedIconCatalogExposesPathSpecs() {
+        XCTAssertEqual(IconName.allCases.count, 31)
+
+        let specs = IconCatalog.pathSpecs(for: .bike)
+        XCTAssertFalse(specs.isEmpty)
+        XCTAssertTrue(specs.allSatisfy { !$0.pathData.isEmpty })
+        XCTAssertTrue(specs.contains { $0.stroke })
     }
 
     func testEnvironmentDefaultIsSharedTheme() {

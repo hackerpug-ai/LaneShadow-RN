@@ -1,5 +1,7 @@
 package com.laneshadow.ui.components.molecules
 
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,13 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,7 +69,7 @@ fun MapControls(
 
                 if (onRecenter != null) {
                     ControlButton(
-                        icon = Icons.Filled.Star,
+                        icon = Glyphs.Filled.Star,
                         label = if (showLabels) "Recenter" else null,
                         onPress = onRecenter,
                         theme = theme,
@@ -85,7 +80,7 @@ fun MapControls(
 
                 if (onClear != null) {
                     ControlButton(
-                        icon = Icons.Filled.Clear,
+                        icon = Glyphs.Filled.Clear,
                         label = if (showLabels) "Layers" else null,
                         onPress = onClear,
                         theme = theme,
@@ -96,7 +91,7 @@ fun MapControls(
 
                 if (hasRouteToSave && onSaveRoute != null) {
                     ControlButton(
-                        icon = Icons.Filled.Favorite,
+                        icon = Glyphs.Filled.Favorite,
                         label = if (showLabels) "Save" else null,
                         onPress = onSaveRoute,
                         theme = theme,
@@ -114,12 +109,12 @@ fun MapControls(
 
                 when (mode) {
                     MapControlsMode.MAP -> {
-                        toggleIcon = Icons.Filled.Email
+                        toggleIcon = Glyphs.Filled.Email
                         toggleLabel = if (showLabels) "Chat" else null
                         toggleA11y = "Open chat"
                     }
                     MapControlsMode.CHAT -> {
-                        toggleIcon = Icons.Filled.Check
+                        toggleIcon = Glyphs.Filled.Check
                         toggleLabel = if (showLabels) "Map" else null
                         toggleA11y = "Back to map"
                     }
@@ -162,7 +157,7 @@ private fun ZoomCluster(
             verticalArrangement = Arrangement.spacedBy(0.dp),
         ) {
             ControlButton(
-                icon = Icons.Filled.Add,
+                icon = Glyphs.Filled.Add,
                 label = if (showLabels) "Zoom" else null,
                 onPress = onZoomIn ?: {},
                 theme = theme,
@@ -181,7 +176,7 @@ private fun ZoomCluster(
             )
 
             ControlButton(
-                icon = Icons.Filled.Clear,
+                icon = Glyphs.Filled.Clear,
                 label = if (showLabels) "Zoom" else null,
                 onPress = onZoomOut ?: {},
                 theme = theme,

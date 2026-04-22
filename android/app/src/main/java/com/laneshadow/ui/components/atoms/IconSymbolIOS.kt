@@ -1,37 +1,7 @@
 package com.laneshadow.ui.components.atoms
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.ThumbUp
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -105,59 +75,59 @@ fun IconSymbolIOS(
 private fun mapNameToMaterialIcon(name: String): ImageVector {
     return when (name.lowercase()) {
         // Common action icons
-        "check", "checkmark", "done" -> Icons.Filled.Check
-        "close", "x", "cancel" -> Icons.Filled.Close
-        "add", "plus" -> Icons.Filled.Add
-        "delete", "trash" -> Icons.Filled.Delete
-        "edit", "pencil" -> Icons.Filled.Edit
-        "refresh", "reload" -> Icons.Filled.Refresh
-        "search", "find" -> Icons.Filled.Search
-        "settings", "gear" -> Icons.Filled.Settings
-        "home", "house" -> Icons.Filled.Home
-        "menu", "hamburger" -> Icons.Filled.Menu
-        "more", "ellipsis" -> Icons.Filled.MoreVert
-        "info", "information" -> Icons.Filled.Info
-        "send" -> Icons.Filled.Send
+        "check", "checkmark", "done" -> Glyphs.Filled.Check
+        "close", "x", "cancel" -> Glyphs.Filled.Close
+        "add", "plus" -> Glyphs.Filled.Add
+        "delete", "trash" -> Glyphs.Filled.Delete
+        "edit", "pencil" -> Glyphs.Filled.Edit
+        "refresh", "reload" -> Glyphs.Filled.Refresh
+        "search", "find" -> Glyphs.Filled.Search
+        "settings", "gear" -> Glyphs.Filled.Settings
+        "home", "house" -> Glyphs.Filled.Home
+        "menu", "hamburger" -> Glyphs.Filled.Menu
+        "more", "ellipsis" -> Glyphs.Filled.MoreVert
+        "info", "information" -> Glyphs.Filled.Info
+        "send" -> Glyphs.Filled.Send
 
         // Navigation icons
-        "arrow-back", "back" -> Icons.AutoMirrored.Filled.ArrowBack
-        "arrow-up", "up", "arrow-upward" -> Icons.AutoMirrored.Filled.KeyboardArrowRight
-        "arrow-down", "down", "arrow-downward" -> Icons.AutoMirrored.Filled.List
-        "chevron-left" -> Icons.AutoMirrored.Filled.KeyboardArrowLeft
-        "chevron-right" -> Icons.AutoMirrored.Filled.KeyboardArrowRight
-        "chevron-up" -> Icons.AutoMirrored.Filled.KeyboardArrowLeft
-        "chevron-down" -> Icons.AutoMirrored.Filled.KeyboardArrowRight
+        "arrow-back", "back" -> Glyphs.AutoMirrored.Filled.ArrowBack
+        "arrow-up", "up", "arrow-upward" -> Glyphs.AutoMirrored.Filled.KeyboardArrowRight
+        "arrow-down", "down", "arrow-downward" -> Glyphs.AutoMirrored.Filled.List
+        "chevron-left" -> Glyphs.AutoMirrored.Filled.KeyboardArrowLeft
+        "chevron-right" -> Glyphs.AutoMirrored.Filled.KeyboardArrowRight
+        "chevron-up" -> Glyphs.AutoMirrored.Filled.KeyboardArrowLeft
+        "chevron-down" -> Glyphs.AutoMirrored.Filled.KeyboardArrowRight
 
         // Feedback icons
-        "star", "favorite", "heart", "like" -> Icons.Filled.Star
-        "thumb-up", "thumbs-up" -> Icons.Filled.ThumbUp
+        "star", "favorite", "heart", "like" -> Glyphs.Filled.Star
+        "thumb-up", "thumbs-up" -> Glyphs.Filled.ThumbUp
 
         // Communication icons
-        "mail", "email", "message" -> Icons.Filled.Email
-        "phone", "call" -> Icons.Filled.Call
-        "share" -> Icons.Filled.Share
+        "mail", "email", "message" -> Glyphs.Filled.Email
+        "phone", "call" -> Glyphs.Filled.Call
+        "share" -> Glyphs.Filled.Share
 
         // Media icons
-        "play" -> Icons.Filled.PlayArrow
+        "play" -> Glyphs.Filled.PlayArrow
 
         // User icons
-        "person", "user", "profile" -> Icons.Filled.Person
-        "account", "avatar" -> Icons.Filled.AccountCircle
+        "person", "user", "profile" -> Glyphs.Filled.Person
+        "account", "avatar" -> Glyphs.Filled.AccountCircle
 
         // Security icons
-        "lock", "locked" -> Icons.Filled.Lock
+        "lock", "locked" -> Glyphs.Filled.Lock
 
         // Location icons
-        "location", "map", "pin", "place" -> Icons.Filled.Place
-        "navigation", "directions" -> Icons.Filled.LocationOn
+        "location", "map", "pin", "place" -> Glyphs.Filled.Place
+        "navigation", "directions" -> Glyphs.Filled.LocationOn
 
         // Time icons
-        "calendar", "date", "date-range" -> Icons.Filled.DateRange
+        "calendar", "date", "date-range" -> Glyphs.Filled.DateRange
 
         // Status icons
-        "check-circle", "success" -> Icons.Filled.CheckCircle
+        "check-circle", "success" -> Glyphs.Filled.CheckCircle
 
         // Default fallback
-        else -> Icons.Filled.Star
+        else -> Glyphs.Filled.Star
     }
 }

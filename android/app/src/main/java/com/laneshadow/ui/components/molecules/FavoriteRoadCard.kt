@@ -1,5 +1,7 @@
 package com.laneshadow.ui.components.molecules
 
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -9,8 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -193,7 +193,7 @@ fun FavoriteRoadCard(
                     .padding(8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Delete,
+                    imageVector = Glyphs.Default.Delete,
                     contentDescription = null, // Set by semantics
                     tint = theme.colors.danger.default,
                     modifier = Modifier

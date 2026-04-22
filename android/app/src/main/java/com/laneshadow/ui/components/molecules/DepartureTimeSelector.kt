@@ -1,5 +1,7 @@
 package com.laneshadow.ui.components.molecules
 
+import com.laneshadow.ui.atoms.Glyphs
+
 import android.text.format.DateFormat
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -8,8 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -269,7 +269,7 @@ fun DepartureTimeSelector(
 
                 // Chevron icon
                 Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
+                    imageVector = Glyphs.Default.ArrowDropDown,
                     contentDescription = null,
                     tint = theme.colors.primary.default,
                     modifier = Modifier.semantics {

@@ -4,6 +4,11 @@
 package com.laneshadow.theme.generated
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 object LaneShadowTheme {
   object color {
@@ -101,6 +106,153 @@ object LaneShadowTheme {
       val hover = Color(0xFFF9D5B5)
       val pressed = Color(0xFFF3A164)
     }
+    }
+  }
+  object typography {
+    object opinion {
+      val xl = TextStyle(
+        fontSize = 30.sp,
+        lineHeight = 33.6.sp,
+        fontWeight = FontWeight.Normal,
+        letterSpacing = -0.45.sp,
+        fontFamily = FontFamily.Serif,
+      )
+      val lg = TextStyle(
+        fontSize = 22.sp,
+        lineHeight = 25.96.sp,
+        fontWeight = FontWeight.Normal,
+        letterSpacing = -0.22.sp,
+        fontFamily = FontFamily.Serif,
+      )
+      val md = TextStyle(
+        fontSize = 17.sp,
+        lineHeight = 22.44.sp,
+        fontWeight = FontWeight.Normal,
+        letterSpacing = 0.sp,
+        fontFamily = FontFamily.Serif,
+      )
+      val sm = TextStyle(
+        fontSize = 14.sp,
+        lineHeight = 20.3.sp,
+        fontWeight = FontWeight.Normal,
+        letterSpacing = 0.sp,
+        fontFamily = FontFamily.Serif,
+      )
+    }
+    object ui {
+    object title {
+      val lg = TextStyle(
+        fontSize = 17.sp,
+        lineHeight = 21.08.sp,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = -0.17.sp,
+        fontFamily = FontFamily.SansSerif,
+      )
+      val md = TextStyle(
+        fontSize = 14.sp,
+        lineHeight = 17.92.sp,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = -0.07.sp,
+        fontFamily = FontFamily.SansSerif,
+      )
+      val sm = TextStyle(
+        fontSize = 12.sp,
+        lineHeight = 15.36.sp,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 0.sp,
+        fontFamily = FontFamily.SansSerif,
+      )
+    }
+    object body {
+      val lg = TextStyle(
+        fontSize = 14.sp,
+        lineHeight = 20.72.sp,
+        fontWeight = FontWeight.Normal,
+        letterSpacing = 0.sp,
+        fontFamily = FontFamily.SansSerif,
+      )
+      val md = TextStyle(
+        fontSize = 12.sp,
+        lineHeight = 18.24.sp,
+        fontWeight = FontWeight.Normal,
+        letterSpacing = 0.sp,
+        fontFamily = FontFamily.SansSerif,
+      )
+      val sm = TextStyle(
+        fontSize = 10.5.sp,
+        lineHeight = 15.54.sp,
+        fontWeight = FontWeight.Normal,
+        letterSpacing = 0.sp,
+        fontFamily = FontFamily.SansSerif,
+      )
+    }
+    object label {
+      val lg = TextStyle(
+        fontSize = 11.sp,
+        lineHeight = 11.sp,
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.88.sp,
+        fontFamily = FontFamily.SansSerif,
+      )
+      val md = TextStyle(
+        fontSize = 9.5.sp,
+        lineHeight = 9.5.sp,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 1.14.sp,
+        fontFamily = FontFamily.SansSerif,
+      )
+      val sm = TextStyle(
+        fontSize = 8.5.sp,
+        lineHeight = 8.5.sp,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 1.19.sp,
+        fontFamily = FontFamily.SansSerif,
+      )
+    }
+    }
+    object instrument {
+      val lg = TextStyle(
+        fontSize = 18.sp,
+        lineHeight = 20.16.sp,
+        fontWeight = FontWeight.Medium,
+        letterSpacing = -0.36.sp,
+        fontFamily = FontFamily.Monospace,
+      )
+      val md = TextStyle(
+        fontSize = 13.sp,
+        lineHeight = 15.6.sp,
+        fontWeight = FontWeight.Medium,
+        letterSpacing = -0.13.sp,
+        fontFamily = FontFamily.Monospace,
+      )
+      val sm = TextStyle(
+        fontSize = 10.sp,
+        lineHeight = 12.sp,
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.sp,
+        fontFamily = FontFamily.Monospace,
+      )
+      val xs = TextStyle(
+        fontSize = 8.5.sp,
+        lineHeight = 8.5.sp,
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.sp,
+        fontFamily = FontFamily.Monospace,
+      )
+    }
+  }
+  object sizing {
+    object icon {
+      val xs = 12.dp
+      val sm = 16.dp
+      val md = 20.dp
+      val lg = 24.dp
+      val xl = 32.dp
+    }
+  }
+  object icon {
+    object stroke {
+      val width = 1.5.dp
     }
   }
   enum class IconName(val value: String) {

@@ -1,13 +1,12 @@
 package com.laneshadow.ui.components.molecules
 
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -79,7 +78,7 @@ fun ErrorToast(
                 ) {
                     // Error icon
                     Icon(
-                        imageVector = Icons.Default.Warning,
+                        imageVector = Glyphs.Default.Warning,
                         contentDescription = "Error icon",
                         tint = contentColor,
                         modifier = Modifier.size(20.dp),
@@ -102,7 +101,7 @@ fun ErrorToast(
                         },
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+                            imageVector = Glyphs.Default.Close,
                             contentDescription = "Close",
                             tint = contentColor,
                             modifier = Modifier.size(20.dp),

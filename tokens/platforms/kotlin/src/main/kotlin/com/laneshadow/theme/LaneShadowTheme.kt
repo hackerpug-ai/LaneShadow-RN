@@ -10,12 +10,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 
 data class LaneShadowSpace(
     val xs: Dp,
@@ -88,6 +90,78 @@ data class LaneShadowType(
     val display: LaneShadowTypeScale,
 )
 
+data class LaneShadowOpinionTypography(
+    val xl: TextStyle = GeneratedTokens.typography.opinion.xl,
+    val lg: TextStyle = GeneratedTokens.typography.opinion.lg,
+    val md: TextStyle = GeneratedTokens.typography.opinion.md,
+    val sm: TextStyle = GeneratedTokens.typography.opinion.sm,
+)
+
+data class LaneShadowUiTitleTypography(
+    val lg: TextStyle = GeneratedTokens.typography.ui.title.lg,
+    val md: TextStyle = GeneratedTokens.typography.ui.title.md,
+    val sm: TextStyle = GeneratedTokens.typography.ui.title.sm,
+)
+
+data class LaneShadowUiBodyTypography(
+    val lg: TextStyle = GeneratedTokens.typography.ui.body.lg,
+    val md: TextStyle = GeneratedTokens.typography.ui.body.md,
+    val sm: TextStyle = GeneratedTokens.typography.ui.body.sm,
+)
+
+data class LaneShadowUiLabelTypography(
+    val lg: TextStyle = GeneratedTokens.typography.ui.label.lg,
+    val md: TextStyle = GeneratedTokens.typography.ui.label.md,
+    val sm: TextStyle = GeneratedTokens.typography.ui.label.sm,
+)
+
+data class LaneShadowUiTypography(
+    val title: LaneShadowUiTitleTypography = LaneShadowUiTitleTypography(),
+    val body: LaneShadowUiBodyTypography = LaneShadowUiBodyTypography(),
+    val label: LaneShadowUiLabelTypography = LaneShadowUiLabelTypography(),
+)
+
+data class LaneShadowInstrumentTypography(
+    val lg: TextStyle = GeneratedTokens.typography.instrument.lg,
+    val md: TextStyle = GeneratedTokens.typography.instrument.md,
+    val sm: TextStyle = GeneratedTokens.typography.instrument.sm,
+    val xs: TextStyle = GeneratedTokens.typography.instrument.xs,
+)
+
+data class LaneShadowTypography(
+    val opinion: LaneShadowOpinionTypography = LaneShadowOpinionTypography(),
+    val ui: LaneShadowUiTypography = LaneShadowUiTypography(),
+    val instrument: LaneShadowInstrumentTypography = LaneShadowInstrumentTypography(),
+)
+
+data class LaneShadowContentColors(
+    val primary: Color,
+    val secondary: Color,
+    val tertiary: Color,
+    val subtle: Color,
+    val onSignal: Color,
+)
+
+data class LaneShadowIconSizing(
+    val xs: Dp = GeneratedTokens.sizing.icon.xs,
+    val sm: Dp = GeneratedTokens.sizing.icon.sm,
+    val md: Dp = GeneratedTokens.sizing.icon.md,
+    val lg: Dp = GeneratedTokens.sizing.icon.lg,
+    val xl: Dp = GeneratedTokens.sizing.icon.xl,
+)
+
+data class LaneShadowSizing(
+    val icon: LaneShadowIconSizing = LaneShadowIconSizing(),
+)
+
+data class LaneShadowIconStroke(
+    val width: Dp = GeneratedTokens.icon.stroke.width,
+)
+
+data class LaneShadowIconTokens(
+    val stroke: LaneShadowIconStroke = LaneShadowIconStroke(),
+)
+
 data class LaneShadowThemeValues(
     val colors: LaneShadowColors,
     val space: LaneShadowSpace,
@@ -97,6 +171,10 @@ data class LaneShadowThemeValues(
     val motion: LaneShadowMotion,
     val opacity: LaneShadowOpacity,
     val domain: DomainColors,
+    val typography: LaneShadowTypography = LaneShadowTypography(),
+    val content: LaneShadowContentColors = contentValues(colors),
+    val sizing: LaneShadowSizing = LaneShadowSizing(),
+    val icon: LaneShadowIconTokens = LaneShadowIconTokens(),
 )
 
 val LocalLaneShadowTheme: ProvidableCompositionLocal<LaneShadowThemeValues> =
@@ -210,6 +288,15 @@ internal fun typeValues(tokens: SemanticTokens): LaneShadowType {
     )
 }
 
+internal fun contentValues(colors: LaneShadowColors): LaneShadowContentColors =
+    LaneShadowContentColors(
+        primary = colors.onSurface.default,
+        secondary = colors.onSecondary.default,
+        tertiary = colors.tertiary.default,
+        subtle = colors.muted.default,
+        onSignal = colors.onPrimary.default,
+    )
+
 internal fun materialColorScheme(colors: LaneShadowColors, dark: Boolean): ColorScheme {
     val base = if (dark) darkColorScheme() else lightColorScheme()
     return base.copy(
@@ -229,16 +316,19 @@ internal fun materialColorScheme(colors: LaneShadowColors, dark: Boolean): Color
 
 /** Build LaneShadowThemeValues from a decoded SemanticTokens DTO. Pure; unit-testable. */
 fun laneShadowThemeValues(tokens: SemanticTokens, darkTheme: Boolean): LaneShadowThemeValues =
-    LaneShadowThemeValues(
-        colors = LaneShadowColors.from(tokens, darkTheme),
-        space = spaceValues(tokens),
-        radius = radiusValues(tokens),
-        type = typeValues(tokens),
-        elevation = elevationValues(tokens),
-        motion = motionValues(tokens),
-        opacity = opacityValues(tokens),
-        domain = DomainColors.from(tokens, darkTheme),
-    )
+    LaneShadowColors.from(tokens, darkTheme).let { colors ->
+        LaneShadowThemeValues(
+            colors = colors,
+            space = spaceValues(tokens),
+            radius = radiusValues(tokens),
+            type = typeValues(tokens),
+            elevation = elevationValues(tokens),
+            motion = motionValues(tokens),
+            opacity = opacityValues(tokens),
+            domain = DomainColors.from(tokens, darkTheme),
+            content = contentValues(colors),
+        )
+    }
 
 @Composable
 fun LaneShadowTheme(

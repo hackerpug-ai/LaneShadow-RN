@@ -242,6 +242,88 @@ function mapWeight(weight: string): number {
   return parseInt(weight, 10)
 }
 
+interface SvgPathSpec {
+  pathData: string
+  fill: boolean
+  stroke: boolean
+}
+
+function attr(source: string, name: string): string | undefined {
+  return source.match(new RegExp(`${name}="([^"]+)"`))?.[1]
+}
+
+function hasPaint(value: string | undefined, fallback: string | undefined): boolean {
+  const resolved = value ?? fallback
+  return !!resolved && resolved !== 'none' && resolved !== '#00000000'
+}
+
+function pointsToPath(points: string, close: boolean): string {
+  const nums = [...points.matchAll(/-?\d+(?:\.\d+)?/g)].map((m) => m[0])
+  const pairs: Array<[string, string]> = []
+  for (let i = 0; i < nums.length - 1; i += 2) {
+    pairs.push([nums[i], nums[i + 1]])
+  }
+  if (pairs.length === 0) {
+    return ''
+  }
+  const [first, ...rest] = pairs
+  const commands = [`M${first[0]} ${first[1]}`, ...rest.map(([px, py]) => `L${px} ${py}`)]
+  if (close) commands.push('Z')
+  return commands.join(' ')
+}
+
+function numberAttr(source: string, name: string): number | undefined {
+  const value = attr(source, name)
+  if (value === undefined) return undefined
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : undefined
+}
+
+function svgPathSpecs(icon: string): SvgPathSpec[] {
+  const source = fs.readFileSync(path.join(ICONS_DIR, `${icon}.svg`), 'utf-8')
+  const rootTag = source.match(/<svg\b[^>]*>/)?.[0] ?? ''
+  const rootFill = attr(rootTag, 'fill')
+  const rootStroke = attr(rootTag, 'stroke')
+  const specs: SvgPathSpec[] = []
+  const elementPattern = /<(path|line|circle|polygon|polyline)\b([^>]*)\/?>/g
+
+  for (const match of source.matchAll(elementPattern)) {
+    const element = match[1]
+    const attrs = match[2]
+    const fill = hasPaint(attr(attrs, 'fill'), rootFill)
+    const stroke = hasPaint(attr(attrs, 'stroke'), rootStroke)
+    let pathData: string | undefined
+
+    if (element === 'path') {
+      pathData = attr(attrs, 'd')
+    } else if (element === 'line') {
+      const x1 = attr(attrs, 'x1')
+      const y1 = attr(attrs, 'y1')
+      const x2 = attr(attrs, 'x2')
+      const y2 = attr(attrs, 'y2')
+      if (x1 && y1 && x2 && y2) {
+        pathData = `M${x1} ${y1} L${x2} ${y2}`
+      }
+    } else if (element === 'circle') {
+      const cx = numberAttr(attrs, 'cx')
+      const cy = numberAttr(attrs, 'cy')
+      const r = numberAttr(attrs, 'r')
+      if (cx !== undefined && cy !== undefined && r !== undefined) {
+        pathData = `M${cx - r} ${cy} A${r} ${r} 0 1 0 ${cx + r} ${cy} A${r} ${r} 0 1 0 ${cx - r} ${cy}`
+      }
+    } else if (element === 'polygon' || element === 'polyline') {
+      const points = attr(attrs, 'points')
+      if (points) pathData = pointsToPath(points, element === 'polygon')
+    }
+
+    if (pathData && (fill || stroke)) {
+      specs.push({ pathData, fill, stroke })
+    }
+  }
+
+  return specs
+}
+
 // ============================================================================
 // SWIFT EMITTER
 // ============================================================================
@@ -261,6 +343,47 @@ function emitSwift(
   lines.push('import NativeTheme')
   lines.push('import CoreGraphics')
   lines.push('')
+
+  if (icons.length > 0) {
+    lines.push('public enum IconName: String, CaseIterable, Hashable, Sendable {')
+    for (const icon of icons) {
+      const camelCase = icon.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+      lines.push(`  case ${camelCase} = "${icon}"`)
+    }
+    lines.push('}')
+    lines.push('')
+    lines.push('public struct IconPathSpec: Sendable {')
+    lines.push('  public let pathData: String')
+    lines.push('  public let fill: Bool')
+    lines.push('  public let stroke: Bool')
+    lines.push('  public init(pathData: String, fill: Bool, stroke: Bool) {')
+    lines.push('    self.pathData = pathData')
+    lines.push('    self.fill = fill')
+    lines.push('    self.stroke = stroke')
+    lines.push('  }')
+    lines.push('}')
+    lines.push('')
+    lines.push('public enum IconCatalog {')
+    lines.push('  public static func pathSpecs(for name: IconName) -> [IconPathSpec] {')
+    lines.push('    switch name {')
+    for (const icon of icons) {
+      const camelCase = icon.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+      const specs = svgPathSpecs(icon)
+      lines.push(`    case .${camelCase}:`)
+      lines.push('      return [')
+      for (const spec of specs) {
+        lines.push(
+          `        IconPathSpec(pathData: ${JSON.stringify(spec.pathData)}, fill: ${spec.fill ? 'true' : 'false'}, stroke: ${spec.stroke ? 'true' : 'false'}),`,
+        )
+      }
+      lines.push('      ]')
+    }
+    lines.push('    }')
+    lines.push('  }')
+    lines.push('}')
+    lines.push('')
+  }
+
   lines.push('enum LaneShadowTheme {')
 
   // Colors — emit as dynamic colors using dyn() + parseColorString()
@@ -413,6 +536,11 @@ function emitKotlin(
   lines.push('package com.laneshadow.theme.generated')
   lines.push('')
   lines.push('import androidx.compose.ui.graphics.Color')
+  lines.push('import androidx.compose.ui.text.TextStyle')
+  lines.push('import androidx.compose.ui.text.font.FontFamily')
+  lines.push('import androidx.compose.ui.text.font.FontWeight')
+  lines.push('import androidx.compose.ui.unit.dp')
+  lines.push('import androidx.compose.ui.unit.sp')
   lines.push('')
   lines.push('object LaneShadowTheme {')
 
@@ -442,6 +570,104 @@ function emitKotlin(
       }
     }
 
+    lines.push('  }')
+  }
+
+  // Typography
+  if (tokens.typography) {
+    lines.push('  object typography {')
+
+    const emitTypographyToken = (name: string, token: TypographyToken) => {
+      const weight = mapWeight(token.weight)
+      const family =
+        token.family === 'opinion'
+          ? 'FontFamily.Serif'
+          : token.family === 'instrument'
+            ? 'FontFamily.Monospace'
+            : 'FontFamily.SansSerif'
+      const kotlinWeight =
+        weight < 200
+          ? 'Thin'
+          : weight < 300
+            ? 'ExtraLight'
+            : weight < 400
+              ? 'Light'
+              : weight < 500
+                ? 'Normal'
+                : weight < 600
+                  ? 'Medium'
+                  : weight < 700
+                    ? 'SemiBold'
+                    : weight < 800
+                      ? 'Bold'
+                      : weight < 900
+                        ? 'ExtraBold'
+                        : 'Black'
+
+      lines.push(`      val ${name} = TextStyle(`)
+      lines.push(`        fontSize = ${token.size}.sp,`)
+      lines.push(`        lineHeight = ${token.lineHeight}.sp,`)
+      lines.push(`        fontWeight = FontWeight.${kotlinWeight},`)
+      lines.push(`        letterSpacing = ${token.letterSpacing}.sp,`)
+      lines.push(`        fontFamily = ${family},`)
+      lines.push('      )')
+    }
+
+    const typo = tokens.typography
+    const isToken = (v: any): v is TypographyToken =>
+      typeof v === 'object' && v !== null && typeof v.size === 'number'
+
+    if (typo.opinion) {
+      lines.push('    object opinion {')
+      for (const [name, token] of Object.entries(typo.opinion)) {
+        if (name.startsWith('$') || !isToken(token)) continue
+        emitTypographyToken(name, token)
+      }
+      lines.push('    }')
+    }
+    if (typo.ui) {
+      lines.push('    object ui {')
+      for (const [category, variants] of Object.entries(typo.ui)) {
+        if (category.startsWith('$') || typeof variants !== 'object' || !variants) continue
+        lines.push(`    object ${category} {`)
+        for (const [size, token] of Object.entries(variants)) {
+          if (size.startsWith('$') || !isToken(token)) continue
+          emitTypographyToken(size, token)
+        }
+        lines.push('    }')
+      }
+      lines.push('    }')
+    }
+    if (typo.instrument) {
+      lines.push('    object instrument {')
+      for (const [name, token] of Object.entries(typo.instrument)) {
+        if (name.startsWith('$') || !isToken(token)) continue
+        emitTypographyToken(name, token)
+      }
+      lines.push('    }')
+    }
+
+    lines.push('  }')
+  }
+
+  // Dimensions required by native atom contracts.
+  if (tokens.dimensions?.sizing?.icon || tokens.dimensions?.sizing?.iconStroke) {
+    const iconSize = tokens.dimensions.sizing.icon ?? {}
+    const iconStroke = tokens.dimensions.sizing.iconStroke ?? {}
+    lines.push('  object sizing {')
+    lines.push('    object icon {')
+    for (const key of ['xs', 'sm', 'md', 'lg', 'xl']) {
+      const token = iconSize[key]
+      if (token?.$value !== undefined) {
+        lines.push(`      val ${key} = ${token.$value}.dp`)
+      }
+    }
+    lines.push('    }')
+    lines.push('  }')
+    lines.push('  object icon {')
+    lines.push('    object stroke {')
+    lines.push(`      val width = ${iconStroke.width?.$value ?? 1.5}.dp`)
+    lines.push('    }')
     lines.push('  }')
   }
 
@@ -1051,6 +1277,15 @@ async function main() {
   console.log('  📱 Emitting Swift tokens...')
   const swift = emitSwift(tokens, icons, fonts, inputHash)
   fs.writeFileSync(SWIFT_OUTPUT, `${swift}\n`)
+  try {
+    const { execFileSync } = await import('node:child_process')
+    execFileSync('swiftformat', [SWIFT_OUTPUT], {
+      cwd: ROOT,
+      stdio: 'pipe',
+    })
+  } catch {
+    // SwiftFormat not available — output remains valid, but hooks may reformat it later.
+  }
 
   // Emit Kotlin
   console.log('  🤖 Emitting Kotlin tokens...')

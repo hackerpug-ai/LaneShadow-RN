@@ -1,16 +1,7 @@
 package com.laneshadow.ui.components.atoms
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -29,20 +20,20 @@ import androidx.compose.ui.unit.dp
  * Icon name to Material Design icon mapping
  *
  * Maps common MaterialCommunityIcons glyph names to their Material Icons equivalents.
- * Fallback to Icons.Default.Info for unmapped names (no Help icon available).
+ * Fallback to Glyphs.Default.Info for unmapped names (no Help icon available).
  */
 private fun iconByName(name: String): ImageVector = when (name.lowercase()) {
-    "home" -> Icons.Default.Home
-    "settings" -> Icons.Default.Settings
-    "search" -> Icons.Default.Search
-    "heart" -> Icons.Default.Favorite
-    "star" -> Icons.Default.Star
-    "map" -> Icons.Default.Info // Fallback: no Map icon in default set
-    "person" -> Icons.Default.Person
-    "close" -> Icons.Default.Close
-    "menu" -> Icons.Default.Menu
-    "arrow-left" -> Icons.Default.ArrowBack
-    else -> Icons.Default.Info // Fallback: no Help icon in default set
+    "home" -> Glyphs.Default.Home
+    "settings" -> Glyphs.Default.Settings
+    "search" -> Glyphs.Default.Search
+    "heart" -> Glyphs.Default.Favorite
+    "star" -> Glyphs.Default.Star
+    "map" -> Glyphs.Default.Info // Fallback: no Map icon in default set
+    "person" -> Glyphs.Default.Person
+    "close" -> Glyphs.Default.Close
+    "menu" -> Glyphs.Default.Menu
+    "arrow-left" -> Glyphs.Default.ArrowBack
+    else -> Glyphs.Default.Info // Fallback: no Help icon in default set
 }
 
 /**

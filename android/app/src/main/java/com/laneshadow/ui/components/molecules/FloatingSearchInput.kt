@@ -1,5 +1,7 @@
 package com.laneshadow.ui.components.molecules
 
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -11,9 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -104,7 +103,7 @@ fun FloatingSearchInput(
             ) {
                 // Search icon
                 Icon(
-                    imageVector = Icons.Default.Search,
+                    imageVector = Glyphs.Default.Search,
                     contentDescription = "Search",
                     tint = theme.colors.onSurface.default.copy(alpha = 0.6f),
                     modifier = Modifier.size(theme.space.xl),
@@ -167,7 +166,7 @@ fun FloatingSearchInput(
                                 modifier = Modifier.size(ICON_SIZE + theme.space.xs),
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Close,
+                                    imageVector = Glyphs.Default.Close,
                                     contentDescription = "Cancel loading",
                                     tint = theme.colors.onSurface.default,
                                     modifier = Modifier.size(ICON_SIZE),
@@ -181,7 +180,7 @@ fun FloatingSearchInput(
                             modifier = Modifier.size(ICON_SIZE + theme.space.xs),
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Close,
+                                imageVector = Glyphs.Default.Close,
                                 contentDescription = "Clear search",
                                 tint = theme.colors.onSurface.default,
                                 modifier = Modifier.size(ICON_SIZE),

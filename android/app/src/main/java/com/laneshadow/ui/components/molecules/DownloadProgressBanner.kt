@@ -1,5 +1,7 @@
 package com.laneshadow.ui.components.molecules
 
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,8 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -159,7 +159,7 @@ fun DownloadProgressBanner(
                             .size(24.dp),
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+                            imageVector = Glyphs.Default.Close,
                             contentDescription = "Dismiss",
                             tint = theme.colors.onSurface.default.copy(
                                 alpha = 0.6f

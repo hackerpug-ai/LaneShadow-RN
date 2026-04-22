@@ -1,5 +1,7 @@
 package com.laneshadow.ui.components.molecules
 
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -25,9 +27,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Create
 import com.laneshadow.theme.LocalLaneShadowTheme
 
 /**
@@ -264,7 +263,7 @@ private fun FabVariant(
         enabled = !disabled,
     ) {
         Icon(
-            imageVector = Icons.Default.Add,
+            imageVector = Glyphs.Default.Add,
             contentDescription = "New session",
             tint = iconColor,
             modifier = Modifier.size(sizeConfig.iconSize),
@@ -322,7 +321,7 @@ private fun TextVariant(
     ) {
             // Use Create icon as closest to "plus-circle-outline"
             Icon(
-                imageVector = Icons.Default.Create,
+                imageVector = Glyphs.Default.Create,
                 contentDescription = null,
                 tint = iconColor,
                 modifier = Modifier.size(sizeConfig.iconSize),
@@ -386,7 +385,7 @@ private fun HeaderVariant(
     ) {
             // Use Create icon as closest to "plus-circle-outline"
             Icon(
-                imageVector = Icons.Default.Create,
+                imageVector = Glyphs.Default.Create,
                 contentDescription = null,
                 tint = iconColor,
                 modifier = Modifier.size(sizeConfig.iconSize),

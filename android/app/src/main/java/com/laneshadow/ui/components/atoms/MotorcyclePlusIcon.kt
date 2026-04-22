@@ -1,11 +1,11 @@
 package com.laneshadow.ui.components.atoms
 
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -78,7 +78,7 @@ fun MotorcyclePlusIcon(
 
         // Plus badge overlay at bottom-right
         Icon(
-            imageVector = Icons.Filled.AddCircle,
+            imageVector = Glyphs.Filled.AddCircle,
             contentDescription = null, // Handled by parent Box
             modifier = Modifier
                 .size(overlaySize)

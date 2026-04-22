@@ -1,0 +1,72 @@
+{
+  "status": "changes_requested",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "android/app/src/main/java/com/laneshadow/ui/atoms/ContentColor.kt",
+      "line": 18,
+      "title": "ContentColor does not resolve through color.content.*",
+      "detail": "AC-5 requires ContentColor.Secondary to resolve to theme.color.content.secondary. The implementation maps Secondary to theme.colors.secondary.default, Tertiary to theme.colors.tertiary.default, and Subtle to theme.colors.muted.default, which are accent/background tokens rather than content foreground tokens."
+    },
+    {
+      "severity": "high",
+      "file": "android/app/src/main/java/com/laneshadow/ui/atoms/TypographyVariant.kt",
+      "line": 20,
+      "title": "Typography variants are aliased to generic theme.type tokens instead of required family-specific tokens",
+      "detail": "AC-1 through AC-3 require typography.opinion.xl, typography.ui.body.md, and typography.instrument.lg with Newsreader/Geist/JetBrains Mono. The implementation maps Opinion.Xl to theme.type.display.lg and Instrument.Lg to theme.type.title.lg.copy(fontWeight = theme.type.label.lg.fontWeight), so it does not directly resolve the required typography.opinion.* or typography.instrument.* tokens and does not prove the required font families."
+    },
+    {
+      "severity": "medium",
+      "file": "android/app/src/test/java/com/laneshadow/ui/atoms/LSTextTest.kt",
+      "line": 13,
+      "title": "Unit tests are targeted but assert the implementation aliases rather than the acceptance criteria",
+      "detail": "The tests compare variants to the same generic token paths used by the implementation and do not assert fontFamily for Newsreader, Geist, or JetBrains Mono. The ContentColor test asserts theme.colors.secondary.default, matching the implementation but contradicting AC-5's content.secondary requirement."
+    },
+    {
+      "severity": "medium",
+      "file": "android/app/src/androidTest/java/com/laneshadow/ui/atoms/LSTextInstrumentationTest.kt",
+      "line": 17,
+      "title": "Font-scale instrumentation test does not render LSText",
+      "detail": "AC-4 requires rendered LSText pixel size to scale under LocalDensity/fontScale. This test only converts the resolved TextStyle fontSize with Density and never composes or measures LSText in a host view, so it does not validate the rendered atom behavior."
+    }
+  ],
+  "validation": {
+    "read": [
+      "~/Projects/brain/docs/ROOT-CONTEXT.md",
+      "RULES.md",
+      ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-01-android-typography-atoms-lstext-android-compose.md",
+      ".spec/prds/v2/05-uc-atm.md",
+      ".spec/prds/v2/concepts/uc-atm-01-text.html"
+    ],
+    "diff_scope": {
+      "base_sha": "4978042b4c34f09638cc6ae813a58a549eb8aaf2",
+      "implementation_commit": "79bf8e4dc2b6d30f8b4c670cbe23d629930f2ebf",
+      "changed_files": [
+        "android/app/src/androidTest/java/com/laneshadow/ui/atoms/LSTextInstrumentationTest.kt",
+        "android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt",
+        "android/app/src/debug/java/com/laneshadow/sandbox/stories/LSTextStories.kt",
+        "android/app/src/main/java/com/laneshadow/ui/atoms/ContentColor.kt",
+        "android/app/src/main/java/com/laneshadow/ui/atoms/LSText.kt",
+        "android/app/src/main/java/com/laneshadow/ui/atoms/TypographyVariant.kt",
+        "android/app/src/test/java/com/laneshadow/ui/atoms/LSTextTest.kt"
+      ],
+      "scope_result": "within allowed Android paths; actual aggregator is plural AtomsStories.kt"
+    },
+    "cheap_gates": {
+      "story_registration": "pass: LSTextStories.kt contains atoms.text.swatch and AtomsStories.all uses LSTextStories.all",
+      "dead_singular_aggregator": "pass: no AtomStories object/file references found; only AtomsStories is used by AppStories",
+      "lstext_forbidden_literals": "pass: LSText.kt has no FontFamily.*, Color(0x), Material Icons, or Icons.Filled/Outlined matches",
+      "release_atom_sandbox_imports": "pass: android/app/src/main/java/com/laneshadow/ui/atoms has no native-sandbox/debug/story imports",
+      "git_status": "clean output except sandbox-caused macOS xcrun_db cache warnings"
+    },
+    "gradle": {
+      "focused_unit_test": "not run",
+      "reason": "read-only sandbox; Gradle would write build and cache outputs, so it was not reasonable under the required read-only validation constraint"
+    },
+    "instrumentation_device_blocker": "connectedDebugAndroidTest was not run; it requires Android device/emulator access and writeable Gradle/build outputs outside this read-only review sandbox"
+  },
+  "residual_risk": [
+    "Release APK com.nativesandbox count was not rebuilt or inspected because assembleRelease writes build outputs.",
+    "Generated theme implementation was not regenerated in this read-only sandbox; review is based on source mappings and task/concept requirements."
+  ]
+}

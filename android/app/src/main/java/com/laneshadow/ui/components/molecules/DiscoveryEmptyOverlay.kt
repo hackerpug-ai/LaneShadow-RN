@@ -1,10 +1,10 @@
 package com.laneshadow.ui.components.molecules
 
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,7 +67,7 @@ fun DiscoveryEmptyOverlay(
         contentAlignment = Alignment.Center,
     ) {
         EmptyState(
-            icon = Icons.Default.Search,
+            icon = Glyphs.Default.Search,
             headline = message,
             body = suggestion,
             ctaLabel = ctaLabel,

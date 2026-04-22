@@ -1,0 +1,75 @@
+{
+  "status": "changes_requested",
+  "findings": [
+    {
+      "severity": "high",
+      "file": "ios/LaneShadow/Views/Atoms/LSIcon.swift",
+      "line": 4,
+      "issue": "LSIcon defines a new app-local IconName enum instead of consuming the generated design-owned catalog enum from LaneShadowTheme. The generated catalog already exists at tokens/platforms/swift/Sources/LaneShadowTheme/Generated/Tokens.swift:207 as Tokens.icon.name.",
+      "impact": "This breaks the core scope of UC-ATM-10: downstream callers are typed against a parallel enum, not the generated catalog owned by UC-TOK-05."
+    },
+    {
+      "severity": "high",
+      "file": "ios/LaneShadow/Views/Atoms/LSIcon.swift",
+      "line": 122,
+      "issue": "The renderer hand-authors all glyphs as Swift Path/Canvas code instead of rendering assets from the generated design-owned SVG catalog.",
+      "impact": "Violates the task constraints: catalog comes from UC-TOK-05, missing icons must be added upstream, and LSIcon must render typed glyphs from the design-owned SVG catalog. There is no generic/hash fallback or SF Symbol fallback in the changed file, but it is still not using the catalog."
+    },
+    {
+      "severity": "high",
+      "file": "ios/LaneShadow/Sandbox/LaneShadowStories.swift",
+      "line": 61,
+      "issue": "LaneShadowStories.all appends LSIconStories.all, but this file also declares a private placeholder LSIconStories at line 65. That local placeholder returns Text(\"LSIcon catalog\") and Text(\"LSIcon color overrides\") at lines 74 and 84, so the real stories in ios/LaneShadow/Sandbox/Stories/LSIconStories.swift are not what the aggregator registers.",
+      "impact": "AC-6 is not satisfied: the registered stories have the required ids but do not render the catalog or color override story implementations."
+    },
+    {
+      "severity": "high",
+      "file": "ios/LaneShadow.xcodeproj/project.pbxproj",
+      "line": 486,
+      "issue": "The new Swift files are not present in the explicit Xcode source build phases. rg found no references to LSIcon.swift, IconSize.swift, LSIconStories.swift, LSIconTests.swift, or LSIconTypeSafetyTests.swift in the project file; the test sources list at lines 486-497 and app sources list at lines 500-526 include only existing files.",
+      "impact": "The implementation and tests are not compiled by the Xcode project as currently committed. The no-.xcodeproj diff constraint is satisfied, but the task cannot be validated as an integrated iOS implementation without target membership being handled."
+    },
+    {
+      "severity": "medium",
+      "file": "ios/LaneShadow/Views/Atoms/LSIcon.swift",
+      "line": 73,
+      "issue": "The public initializer uses color: IconContentColor = .primary rather than the task-specified typed content color API color: ContentColor = .primary.",
+      "impact": "Raw Color is not exposed, but the public API does not match the required ContentColor contract."
+    },
+    {
+      "severity": "medium",
+      "file": "ios/LaneShadowTests/Atoms/LSIconTypeSafetyTests.swift",
+      "line": 20,
+      "issue": "The raw Color rejection check is only a commented-out line, not an executable compile-fail gate. LSIconTests.swift also makes catalog coverage tautological through hasDrawable(for:) returning IconName.allCases.contains(name).",
+      "impact": "AC-4 and catalog basics are not meaningfully covered, even before considering that the new test files are not in the Xcode project."
+    }
+  ],
+  "validation": {
+    "docs_read": [
+      "~/Projects/brain/docs/ROOT-CONTEXT.md",
+      "RULES.md",
+      ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-10-ios-icon-atom-lsicon-design-owned-svg-catalog-ios-swiftui.md"
+    ],
+    "diff_files": [
+      "ios/LaneShadow/Sandbox/LaneShadowStories.swift",
+      "ios/LaneShadow/Sandbox/Stories/LSIconStories.swift",
+      "ios/LaneShadow/Views/Atoms/IconSize.swift",
+      "ios/LaneShadow/Views/Atoms/LSIcon.swift",
+      "ios/LaneShadowTests/Atoms/LSIconTests.swift",
+      "ios/LaneShadowTests/Atoms/LSIconTypeSafetyTests.swift"
+    ],
+    "scope_check": "pass: committed diff contains only SCOPE.writeAllowed files and no .kb-run*, .xcodeproj, token, Android, native-theme, or native-sandbox files",
+    "changed_file_sf_symbol_grep": "pass: no genericCatalogPath, Image(systemName:), UIImage(systemName:), or systemName: matches in changed files",
+    "project_wide_sf_symbol_grep": "fail/residual: existing out-of-scope SF Symbol references remain across ios/LaneShadow; changed files did not add them",
+    "story_id_grep": "partial: atoms.icon.catalog, atoms.icon.colorOverrides, and LSIconStories.all are present, but aggregator resolves to the private placeholder stories in LaneShadowStories.swift",
+    "literal_stroke_size_color_grep": "pass: no lineWidth: 1.5, numeric frame(width: ...), or Color.red/green/etc literals in LSIcon.swift",
+    "pnpm_icons_check": "not_validated: failed because node_modules is missing and tsx was not found",
+    "git_status": "dirty: .kb-run-sprint-codex/.state.json.sha256 is modified outside the implementation commit",
+    "git_diff_check": "pass with macOS xcrun cache warnings caused by read-only temp cache restrictions"
+  },
+  "residual_risk": [
+    "Full xcodebuild, XCTest, and swiftformat gates were not run in this read-only review; the Xcode project currently does not include the new implementation/test files anyway.",
+    "The broader ios/LaneShadow SF Symbol grep still fails on pre-existing files; per instruction this is reported as residual/out-of-scope rather than an implementation defect.",
+    "pnpm icons:check could not run because dependencies are not installed in this worktree."
+  ]
+}

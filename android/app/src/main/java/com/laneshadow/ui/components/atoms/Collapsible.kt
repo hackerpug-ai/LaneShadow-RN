@@ -1,5 +1,7 @@
 package com.laneshadow.ui.components.atoms
 
+import com.laneshadow.ui.atoms.Glyphs
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,8 +9,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -103,7 +103,7 @@ fun Collapsible(
 
                 // Chevron icon that rotates based on isOpen state
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    imageVector = Glyphs.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = if (isOpen) {
                         "Collapse $title"
                     } else {
