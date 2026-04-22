@@ -124,12 +124,15 @@ targets:
       - path: LaneShadow/Sandbox/LaneShadowSandboxEntry.swift
       - path: LaneShadow/Sandbox/LaneShadowStories.swift
       - path: LaneShadow/Sandbox/Stories/AtomsStories.swift
+      - path: LaneShadow/Sandbox/Stories/LSButtonStories.swift
       - path: LaneShadow/Sandbox/Stories/LSIconStories.swift
       - path: LaneShadow/Sandbox/Stories/LSPillStories.swift
       - path: LaneShadow/Sandbox/Stories/LSTextStories.swift
       - path: LaneShadow/Sandbox/Stories/MoleculesStories.swift
       - path: LaneShadow/Views/Atoms
         type: syncedFolder
+        excludes:
+          - Button.swift
       # Legacy molecule files are not yet build-clean as a folder. Keep only
       # the files that were already target members until that layer is migrated.
       - path: LaneShadow/Views/Molecules/EmptyState.swift
