@@ -20,16 +20,6 @@ public struct TypographyVariant: Equatable, Sendable {
     public let size: Size
     private let themeStyle: @Sendable (Theme) -> TypographyStyle
 
-    private init(
-        category: Category,
-        size: Size,
-        themeStyle: @escaping @Sendable (Theme) -> TypographyStyle
-    ) {
-        self.category = category
-        self.size = size
-        self.themeStyle = themeStyle
-    }
-
     public var style: TypographyStyle {
         style(in: .shared)
     }
