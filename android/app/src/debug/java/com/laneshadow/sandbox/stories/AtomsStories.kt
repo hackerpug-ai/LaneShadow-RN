@@ -64,6 +64,5 @@ import com.nativesandbox.model.Story
  * Reference each component's STYLE PROPERTIES MATRIX file for required variants.
  */
 object AtomsStories {
-    val all: List<Story> = emptyList()
-    // Sprint 2: Add atom stories here following the pattern above
+    val all: List<Story> = LSTextStories.all
 }
