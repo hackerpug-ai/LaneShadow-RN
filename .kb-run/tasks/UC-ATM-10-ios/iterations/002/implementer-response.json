@@ -1,0 +1,22 @@
+{
+  "commit": "e8569248fae3b7db484e4a81e1494319ca5d93ce",
+  "changed_files": [
+    ".kb-run-sprint-codex/.state.json.sha256",
+    "ios/LaneShadow/Sandbox/LaneShadowStories.swift",
+    "ios/LaneShadow/Sandbox/Stories/LSIconStories.swift",
+    "ios/LaneShadow/Views/Atoms/IconSize.swift",
+    "ios/LaneShadow/Views/Atoms/LSIcon.swift",
+    "ios/LaneShadowTests/Atoms/LSIconTests.swift",
+    "ios/LaneShadowTests/Atoms/LSIconTypeSafetyTests.swift"
+  ],
+  "validation": [
+    "pre-commit hooks passed: typecheck",
+    "previous pre-commit hooks passed before amend: swiftformat, typecheck, ios-typecheck",
+    "state checksum verified: shasum -a 256 -c .kb-run-sprint-codex/.state.json.sha256",
+    "worktree clean: git status --short returned no files"
+  ],
+  "blockers": [
+    "post-commit hook still prints: ruby: Not a directory -- .git/hooks/add-to-xcode.rb, but commit succeeds",
+    "XCTest target link remains blocked by existing undefined symbols in LaneShadowTests unrelated to LSIcon"
+  ]
+}

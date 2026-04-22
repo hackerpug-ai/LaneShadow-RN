@@ -1,0 +1,52 @@
+{
+  "commit": "f3101409a2e0cbb8e764d28c4018dce915d81019",
+  "changed_files": [
+    "android/app/src/main/java/com/laneshadow/ui/atoms/LSIcon.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/IconSize.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/IconColor.kt",
+    "android/app/src/main/res/drawable/ic_*.xml",
+    "android/app/src/debug/java/com/laneshadow/sandbox/stories/LSIconStories.kt",
+    "android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt",
+    "android/app/src/test/java/com/laneshadow/ui/atoms/IconSizeTest.kt",
+    "android/app/src/test/java/com/laneshadow/ui/atoms/LSIconTypeSafetyTest.kt",
+    "android/app/src/androidTest/java/com/laneshadow/ui/atoms/LSIconInstrumentationTest.kt",
+    "android/app/src/androidTest/java/com/laneshadow/ui/atoms/LSIconCatalogInstrumentationTest.kt"
+  ],
+  "validation": [
+    {
+      "command": "cd android && ./gradlew :app:compileDebugKotlin",
+      "result": "passed"
+    },
+    {
+      "command": "cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.atoms.IconSizeTest --tests com.laneshadow.ui.atoms.LSIconTypeSafetyTest",
+      "result": "passed"
+    },
+    {
+      "command": "pnpm icons:check",
+      "result": "passed; 31 icons present"
+    },
+    {
+      "command": "story id grep for atoms.icon.catalog and atoms.icon.colorOverrides",
+      "result": "passed"
+    },
+    {
+      "command": "cd android && ./gradlew :app:assembleRelease",
+      "result": "passed"
+    },
+    {
+      "command": "unzip -l android/app/build/outputs/apk/release/app-release-unsigned.apk | grep -c com.nativesandbox",
+      "result": "passed; output 0"
+    },
+    {
+      "command": "git commit",
+      "result": "passed normal hooks; android-typecheck and type-check:native passed"
+    }
+  ],
+  "blockers": [
+    "cd android && ./gradlew :app:connectedDebugAndroidTest failed: No connected devices.",
+    "cd android && ./gradlew detekt failed: task 'detekt' not found.",
+    "cd android && ./gradlew :app:testDebugUnitTest full suite failed in pre-existing non-LSIcon tests; LSIcon focused unit tests passed.",
+    "Material Icons grep still fails in out-of-scope existing android/app/src/main/java/com/laneshadow/ui/components/** files; task scope did not permit editing those files."
+  ],
+  "worktree_clean": true
+}

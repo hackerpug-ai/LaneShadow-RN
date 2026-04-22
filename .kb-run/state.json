@@ -1,0 +1,347 @@
+{
+  "sprint_id": "sprint-02-atoms-foundation-primitives",
+  "sprint_dir": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives",
+  "started_at": "2026-04-22T15:51:43.323Z",
+  "mode": "kb-run-global-direct-codex-exec",
+  "completed_verification": {
+    "completed_on_main": {
+      "UC-ATM-01-ios": "66a1dfc4",
+      "UC-ATM-06-ios": "7b44a079"
+    },
+    "unmerged_not_counted_complete": {
+      "UC-ATM-02-ios": "4a996f04 (off-history, not ancestor of main)",
+      "UC-ATM-02-android": "b9cb264d (off-history, not ancestor of main)",
+      "UC-ATM-03-ios": "898c4b7f (off-history, not ancestor of main)",
+      "UC-ATM-03-android": "63df8b92 (off-history, not ancestor of main)",
+      "UC-ATM-04-ios": "89adf155 on kb-run/UC-ATM-01-ios, unmerged/misnamed branch"
+    }
+  },
+  "tasks": {
+    "UC-ATM-01-android": {
+      "title": "UC-ATM-01-android",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-01-android-typography-atoms-lstext-android-compose.md",
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-android"],
+      "status": "implementing",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": "/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-01-android",
+      "worktree_branch": "kb-run/UC-ATM-01-android",
+      "iterations": [
+        {
+          "number": 1,
+          "start_commit": "4978042b4c34f09638cc6ae813a58a549eb8aaf2",
+          "implementer_response": ".kb-run/tasks/UC-ATM-01-android/iterations/001/implementer-response.json",
+          "verdict": null
+        }
+      ]
+    },
+    "UC-ATM-01-ios": {
+      "title": "UC-ATM-01-ios",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-01-ios-typography-atoms-lstext-ios-swiftui.md",
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-ios"],
+      "status": "completed_on_main",
+      "completed_commit": "66a1dfc4",
+      "unmerged_evidence": null,
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-02-android": {
+      "title": "UC-ATM-02-android",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-02-android-button-atom-all-variants-states-android-compose.md",
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-android", "UC-ATM-01-android", "UC-ATM-10-android"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": "b9cb264d (off-history, not ancestor of main)",
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-02-ios": {
+      "title": "UC-ATM-02-ios",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-02-ios-button-atom-all-variants-states-ios-swiftui.md",
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "wave": null,
+      "depends_on": ["UC-ATM-10-ios"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": "4a996f04 (off-history, not ancestor of main)",
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-03-android": {
+      "title": "UC-ATM-03-android",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-03-android-input-atoms-lstextfield-lstextarea-android-compose.md",
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-android", "UC-ATM-01-android", "UC-ATM-10-android"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": "63df8b92 (off-history, not ancestor of main)",
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-03-ios": {
+      "title": "UC-ATM-03-ios",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-03-ios-input-atoms-lstextfield-lstextarea-ios-swiftui.md",
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "wave": null,
+      "depends_on": ["UC-ATM-01-ios", "UC-ATM-10-ios"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": "898c4b7f (off-history, not ancestor of main)",
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-04-android": {
+      "title": "UC-ATM-04-android",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-04-android-base-display-atoms-avatar-divider-spinner-android-compose.md",
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-android", "UC-ATM-01-android"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-04-ios": {
+      "title": "UC-ATM-04-ios",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-04-ios-base-display-atoms-avatar-divider-spinner-ios-swiftui.md",
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "wave": null,
+      "depends_on": ["UC-ATM-01-ios"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": "89adf155 on kb-run/UC-ATM-01-ios, unmerged/misnamed branch",
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-05-android": {
+      "title": "UC-ATM-05-android",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-05-android-surface-trio-lscard-lspanel-lsglasspanel-android-compose.md",
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-android"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-05-ios": {
+      "title": "UC-ATM-05-ios",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-05-ios-surface-trio-lscard-lspanel-lsglasspanel-ios-swiftui.md",
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "wave": null,
+      "depends_on": [],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-06-android": {
+      "title": "UC-ATM-06-android",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-06-android-pill-atom-lspill-android-compose.md",
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-android"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-06-ios": {
+      "title": "UC-ATM-06-ios",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-06-ios-pill-atom-lspill-ios-swiftui.md",
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-ios"],
+      "status": "completed_on_main",
+      "completed_commit": "7b44a079",
+      "unmerged_evidence": null,
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-07-android": {
+      "title": "UC-ATM-07-android",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-07-android-badge-atom-lsbadge-lsbestbadge-android-compose.md",
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "wave": null,
+      "depends_on": ["UC-ATM-06-android", "UC-ATM-10-android", "UC-SBX-00-android"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-07-ios": {
+      "title": "UC-ATM-07-ios",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-07-ios-badge-atom-lsbadge-lsbestbadge-ios-swiftui.md",
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "wave": null,
+      "depends_on": ["UC-ATM-06-ios", "UC-ATM-10-ios", "UC-SBX-00-ios"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-08-android": {
+      "title": "UC-ATM-08-android",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-08-android-phasedot-atom-lsphasedot-android-compose.md",
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-android"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-08-ios": {
+      "title": "UC-ATM-08-ios",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-08-ios-phasedot-atom-lsphasedot-ios-swiftui.md",
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-ios"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-09-android": {
+      "title": "UC-ATM-09-android",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-09-android-scrim-atom-lsscrim-android-compose.md",
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-android"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-09-ios": {
+      "title": "UC-ATM-09-ios",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-09-ios-scrim-atom-lsscrim-ios-swiftui.md",
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-ios"],
+      "status": "pending",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": null,
+      "worktree_branch": null,
+      "iterations": []
+    },
+    "UC-ATM-10-android": {
+      "title": "UC-ATM-10-android",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-10-android-icon-atom-lsicon-design-owned-svg-catalog-android-compose.md",
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-android"],
+      "status": "implementing",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": "/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-10-android",
+      "worktree_branch": "kb-run/UC-ATM-10-android",
+      "iterations": [
+        {
+          "number": 1,
+          "start_commit": "4978042b4c34f09638cc6ae813a58a549eb8aaf2",
+          "implementer_response": ".kb-run/tasks/UC-ATM-10-android/iterations/001/implementer-response.json",
+          "verdict": null
+        }
+      ]
+    },
+    "UC-ATM-10-ios": {
+      "title": "UC-ATM-10-ios",
+      "file": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-10-ios-icon-atom-lsicon-design-owned-svg-catalog-ios-swiftui.md",
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "wave": null,
+      "depends_on": ["UC-SBX-00-ios"],
+      "status": "implementing",
+      "completed_commit": null,
+      "unmerged_evidence": null,
+      "worktree_path": "/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-10-ios",
+      "worktree_branch": "kb-run/UC-ATM-10-ios",
+      "iterations": [
+        {
+          "number": 1,
+          "start_commit": "4978042b4c34f09638cc6ae813a58a549eb8aaf2",
+          "implementer_response": ".kb-run/tasks/UC-ATM-10-ios/iterations/001/implementer-response.json",
+          "verdict": null
+        }
+      ]
+    }
+  },
+  "active_processes": {
+    "UC-ATM-10-ios": {
+      "role": "implementer",
+      "tool_session_id": 68734,
+      "codex_session_id": "019db5e5-2890-7b20-a697-88cf4c22853d",
+      "iteration": 1,
+      "started_at": "2026-04-22T15:53:31.691Z"
+    },
+    "UC-ATM-01-android": {
+      "role": "implementer",
+      "tool_session_id": 9788,
+      "codex_session_id": "019db5e5-2890-7531-84c8-7e7cd5d1cfd8",
+      "iteration": 1,
+      "started_at": "2026-04-22T15:53:31.692Z"
+    },
+    "UC-ATM-10-android": {
+      "role": "implementer",
+      "tool_session_id": 96947,
+      "codex_session_id": "019db5e5-2890-7a43-9765-4b52ee4f71e5",
+      "iteration": 1,
+      "started_at": "2026-04-22T15:53:31.692Z"
+    }
+  },
+  "reaped_processes": {},
+  "base_for_wave_001": "4978042b4c34f09638cc6ae813a58a549eb8aaf2"
+}

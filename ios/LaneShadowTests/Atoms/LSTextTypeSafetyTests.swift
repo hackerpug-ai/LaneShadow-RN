@@ -1,4 +1,6 @@
+import LaneShadowTheme
 import XCTest
+@testable import LaneShadow
 
 final class LSTextTypeSafetyTests: XCTestCase {
     func test_lstext_color_param_uses_content_color_enum() {

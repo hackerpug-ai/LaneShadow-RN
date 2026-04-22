@@ -1,0 +1,27 @@
+{
+  "commit": "79bf8e4dc2b6d30f8b4c670cbe23d629930f2ebf",
+  "changed_files": [
+    "android/app/src/main/java/com/laneshadow/ui/atoms/LSText.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/TypographyVariant.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/ContentColor.kt",
+    "android/app/src/debug/java/com/laneshadow/sandbox/stories/LSTextStories.kt",
+    "android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt",
+    "android/app/src/test/java/com/laneshadow/ui/atoms/LSTextTest.kt",
+    "android/app/src/androidTest/java/com/laneshadow/ui/atoms/LSTextInstrumentationTest.kt"
+  ],
+  "validation": [
+    "PASS: normal git commit hooks ran without --no-verify",
+    "PASS: pre-commit typecheck: pnpm type-check:native",
+    "PASS: pre-commit android-typecheck: cd android && ./gradlew :app:compileDebugKotlin",
+    "PASS: cd android && ./gradlew :app:testDebugUnitTest --tests \"com.laneshadow.ui.atoms.LSTextTest\"",
+    "PASS: story registration grep for atoms.text.swatch and LSTextStories in AtomsStories.kt",
+    "PASS: forbidden literal grep in LSText.kt",
+    "PASS: release APK check on actual output app-release-unsigned.apk, com.nativesandbox count=0",
+    "BLOCKED: cd android && ./gradlew :app:connectedDebugAndroidTest failed with No connected devices",
+    "BLOCKED: cd android && ./gradlew detekt failed because task detekt is not configured"
+  ],
+  "worktree_clean": true,
+  "blockers": [
+    "Generated theme API does not expose UC-ATM font family names or color.content.* directly; LSText resolves through LocalLaneShadowTheme token styles/colors available in this branch."
+  ]
+}
