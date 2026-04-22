@@ -25,13 +25,13 @@ public struct TypographyVariant: Equatable, Sendable {
     public let family: Family
     public let size: Size
     public let uiRole: UIRole?
-    private let themeStyle: @Sendable (Theme) -> TypographyStyle
+    private let themeStyle: @Sendable (Theme) -> LaneShadowTypographyStyle
 
     private init(
         family: Family,
         size: Size,
         uiRole: UIRole? = nil,
-        themeStyle: @escaping @Sendable (Theme) -> TypographyStyle
+        themeStyle: @escaping @Sendable (Theme) -> LaneShadowTypographyStyle
     ) {
         self.family = family
         self.size = size
@@ -39,11 +39,11 @@ public struct TypographyVariant: Equatable, Sendable {
         self.themeStyle = themeStyle
     }
 
-    public var style: TypographyStyle {
+    public var style: LaneShadowTypographyStyle {
         style(in: .shared)
     }
 
-    public func style(in theme: Theme) -> TypographyStyle {
+    public func style(in theme: Theme) -> LaneShadowTypographyStyle {
         themeStyle(theme)
     }
 
@@ -56,10 +56,10 @@ public struct TypographyVariant: Equatable, Sendable {
     public static let instrument = InstrumentVariants()
 
     public struct OpinionVariants: Sendable {
-        public let sm = TypographyVariant(family: .opinion, size: .sm) { $0.type.heading.sm }
-        public let md = TypographyVariant(family: .opinion, size: .md) { $0.type.heading.md }
-        public let lg = TypographyVariant(family: .opinion, size: .lg) { $0.type.heading.lg }
-        public let xl = TypographyVariant(family: .opinion, size: .xl) { $0.type.display.lg }
+        public let sm = TypographyVariant(family: .opinion, size: .sm) { $0.typography.opinion.sm }
+        public let md = TypographyVariant(family: .opinion, size: .md) { $0.typography.opinion.md }
+        public let lg = TypographyVariant(family: .opinion, size: .lg) { $0.typography.opinion.lg }
+        public let xl = TypographyVariant(family: .opinion, size: .xl) { $0.typography.opinion.xl }
     }
 
     public struct UIVariants: Sendable {
@@ -95,25 +95,25 @@ public struct TypographyVariant: Equatable, Sendable {
 
         private func style(for size: Size, in theme: Theme) -> TypographyStyle {
             switch (role, size) {
-            case (.title, .sm): theme.type.title.sm
-            case (.title, .md): theme.type.title.md
-            case (.title, .lg): theme.type.title.lg
-            case (.body, .sm): theme.type.body.sm
-            case (.body, .md): theme.type.body.md
-            case (.body, .lg): theme.type.body.lg
-            case (.label, .sm): theme.type.label.sm
-            case (.label, .md): theme.type.label.md
-            case (.label, .lg): theme.type.label.lg
-            default: theme.type.body.md
+            case (.title, .sm): theme.typography.ui.title.sm
+            case (.title, .md): theme.typography.ui.title.md
+            case (.title, .lg): theme.typography.ui.title.lg
+            case (.body, .sm): theme.typography.ui.body.sm
+            case (.body, .md): theme.typography.ui.body.md
+            case (.body, .lg): theme.typography.ui.body.lg
+            case (.label, .sm): theme.typography.ui.label.sm
+            case (.label, .md): theme.typography.ui.label.md
+            case (.label, .lg): theme.typography.ui.label.lg
+            default: theme.typography.ui.body.md
             }
         }
     }
 
     public struct InstrumentVariants: Sendable {
-        public let xs = TypographyVariant(family: .instrument, size: .xs) { $0.type.label.sm }
-        public let sm = TypographyVariant(family: .instrument, size: .sm) { $0.type.label.md }
-        public let md = TypographyVariant(family: .instrument, size: .md) { $0.type.body.md }
-        public let lg = TypographyVariant(family: .instrument, size: .lg) { $0.type.body.lg }
+        public let xs = TypographyVariant(family: .instrument, size: .xs) { $0.typography.instrument.xs }
+        public let sm = TypographyVariant(family: .instrument, size: .sm) { $0.typography.instrument.sm }
+        public let md = TypographyVariant(family: .instrument, size: .md) { $0.typography.instrument.md }
+        public let lg = TypographyVariant(family: .instrument, size: .lg) { $0.typography.instrument.lg }
     }
 
     public static let allOpinion: [TypographyVariant] = [
