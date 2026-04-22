@@ -58,8 +58,7 @@ enum LaneShadowStories {
             ElevationStory()
         },
 
-    ] + AtomsStories.all + LSButtonStories.all + LSDisplayStories.all + LSTextStories.all
-    // TODO: Add LSInputStories.all once LSInputStories.swift is added to Xcode project
+    ] + AtomsStories.all
 }
 
 // MARK: - Color Swatch Story

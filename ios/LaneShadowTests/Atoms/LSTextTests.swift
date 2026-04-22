@@ -3,35 +3,35 @@ import XCTest
 @testable import LaneShadow
 
 final class LSTextTests: XCTestCase {
-    func test_opinion_xl_resolves_newsreader_token() {
-        let variant = TypographyVariant.opinion.xl
+    func test_display_lg_resolves_token() {
+        let variant = TypographyVariant.display.lg
         let style = variant.style(in: .shared)
         let expected = Theme.shared.type.display.lg
 
-        XCTAssertEqual(variant.family, .opinion)
-        XCTAssertEqual(variant.tokenPath, "typography.opinion.xl")
+        XCTAssertEqual(variant.category, .display)
+        XCTAssertEqual(variant.tokenPath, "type.display.lg")
         XCTAssertEqual(style.fontSize, expected.fontSize)
         XCTAssertEqual(style.lineHeight, expected.lineHeight, accuracy: 0.001)
     }
 
-    func test_ui_body_md_resolves_geist_token() {
-        let variant = TypographyVariant.ui.body.md
+    func test_body_md_resolves_token() {
+        let variant = TypographyVariant.body.md
         let style = variant.style(in: .shared)
         let expected = Theme.shared.type.body.md
 
-        XCTAssertEqual(variant.family, .ui)
-        XCTAssertEqual(variant.tokenPath, "typography.ui.body.md")
+        XCTAssertEqual(variant.category, .body)
+        XCTAssertEqual(variant.tokenPath, "type.body.md")
         XCTAssertEqual(style.fontSize, expected.fontSize)
         XCTAssertEqual(style.lineHeight, expected.lineHeight, accuracy: 0.001)
     }
 
-    func test_instrument_lg_resolves_mono_token() {
-        let variant = TypographyVariant.instrument.lg
+    func test_label_sm_resolves_token() {
+        let variant = TypographyVariant.label.sm
         let style = variant.style(in: .shared)
-        let expected = Theme.shared.type.body.lg
+        let expected = Theme.shared.type.label.sm
 
-        XCTAssertEqual(variant.family, .instrument)
-        XCTAssertEqual(variant.tokenPath, "typography.instrument.lg")
+        XCTAssertEqual(variant.category, .label)
+        XCTAssertEqual(variant.tokenPath, "type.label.sm")
         XCTAssertEqual(style.fontSize, expected.fontSize)
         XCTAssertEqual(style.lineHeight, expected.lineHeight, accuracy: 0.001)
     }

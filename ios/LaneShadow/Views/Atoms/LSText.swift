@@ -11,15 +11,15 @@ public enum ContentColor: CaseIterable, Sendable {
     public func resolved(in theme: Theme) -> Color {
         switch self {
         case .primary:
-            theme.color.content.primary
+            theme.colors.onSurface.default
         case .secondary:
-            theme.color.content.secondary
+            theme.colors.onSurface.default.opacity(0.7)
         case .tertiary:
-            theme.color.content.tertiary
+            theme.colors.onSurface.default.opacity(0.5)
         case .subtle:
-            theme.color.content.subtle
+            theme.colors.onSurface.default.opacity(0.3)
         case .onSignal:
-            theme.color.content.onSignal
+            theme.colors.onPrimary.default
         }
     }
 }
@@ -46,7 +46,7 @@ public struct LSText: View {
 
         Text(value)
             .font(style.font)
-            .lineSpacing(style.lineSpacing)
+            .lineSpacing(max(0, style.lineHeight - style.fontSize))
             .foregroundStyle(color.resolved(in: theme))
             .accessibilityIdentifier("lstext-\(variant.tokenPath)")
     }

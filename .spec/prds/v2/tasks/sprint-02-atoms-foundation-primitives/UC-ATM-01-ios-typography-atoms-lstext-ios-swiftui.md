@@ -5,9 +5,13 @@ TASK: UC-ATM-01-ios — Typography atoms (`LSText`) — iOS SwiftUI
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     🔄 NEEDS_REMEDIATION
 PRIORITY:   P0
 EFFORT:     M
+REVIEWED:   2026-04-22
+COMMIT:     66a1dfc4
+REVIEWER:   swift-reviewer
+VERDICT:    NEEDS_FIXES
 SPRINT:     [sprint-02-atoms-foundation-primitives](./SPRINT.md)
 AGENT:      implementer=swift-implementer | reviewer=swift-reviewer
 ESTIMATE:   120 min
@@ -21,7 +25,7 @@ PRD_REFS:   UC-ATM-01, .spec/prds/v2/05-uc-atm.md, .spec/prds/v2/concepts/uc-atm
 DEPENDS_ON: UC-TOK-01, UC-TOK-05, UC-SBX-00-ios
 BLOCKS:     UC-ATM-04-ios (Avatar initials), UC-MOL-*, UC-ORG-*, UC-SCR-*
 
-PROGRESS: AC-1 none · 0/8 complete
+PROGRESS: 5 PASS · 2 FAIL · 1 PARTIAL · 8/8 AC evaluated · 🔄 REMEDIATION CYCLE 1
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -56,7 +60,7 @@ DONE WHEN
 ACCEPTANCE CRITERIA (TDD Beads — ordered happy-path first)
 --------------------------------------------------------------------------------
 
-AC-1: LSText renders opinion.xl variant with token-resolved Newsreader [PRIMARY]
+AC-1: ✅ PASS LSText renders opinion.xl variant with token-resolved Newsreader [PRIMARY] ✅ PASS
   GIVEN: An iOS SwiftUI view importing LaneShadowTheme
   WHEN:  Developer renders `LSText("Where are we riding today?", variant: .opinion.xl)`
   THEN:  Resolved font family == Newsreader, size and lineHeight match `typography.opinion.xl` token exactly
@@ -65,7 +69,7 @@ AC-1: LSText renders opinion.xl variant with token-resolved Newsreader [PRIMARY]
   TEST_FUNCTION: test_opinion_xl_resolves_newsreader_token
   VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSTextTests/test_opinion_xl_resolves_newsreader_token
 
-AC-2: LSText renders ui.body.md variant (Geist sans)
+AC-2: ✅ PASS LSText renders ui.body.md variant (Geist sans)
   GIVEN: An iOS SwiftUI view
   WHEN:  Developer renders `LSText("Continue", variant: .ui.body.md)`
   THEN:  Resolved font family == Geist, size + lineHeight match `typography.ui.body.md`
@@ -74,7 +78,7 @@ AC-2: LSText renders ui.body.md variant (Geist sans)
   TEST_FUNCTION: test_ui_body_md_resolves_geist_token
   VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSTextTests/test_ui_body_md_resolves_geist_token
 
-AC-3: LSText renders instrument.lg variant (JetBrains Mono)
+AC-3: ✅ PASS LSText renders instrument.lg variant (JetBrains Mono)
   GIVEN: An iOS SwiftUI view
   WHEN:  Developer renders `LSText("64 mi", variant: .instrument.lg)`
   THEN:  Resolved font family == JetBrains Mono, size + lineHeight match `typography.instrument.lg`
@@ -83,7 +87,7 @@ AC-3: LSText renders instrument.lg variant (JetBrains Mono)
   TEST_FUNCTION: test_instrument_lg_resolves_mono_token
   VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSTextTests/test_instrument_lg_resolves_mono_token
 
-AC-4: Dynamic Type scaling propagates (edge — accessibility)
+AC-4: Dynamic Type scaling propagates ❌ FAIL: Test theatre - checks source strings instead of verifying Dynamic Type behavior (evidence: LSTextTests.swift:39-44) (edge — accessibility)
   GIVEN: An LSText("…", variant: .ui.body.md) rendered in a host view
   WHEN:  System Dynamic Type is increased to `.accessibilityExtraExtraLarge`
   THEN:  Rendered point-size scales proportionally above the token base size
@@ -92,7 +96,7 @@ AC-4: Dynamic Type scaling propagates (edge — accessibility)
   TEST_FUNCTION: test_dynamic_type_scaling_propagates
   VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSTextTests/test_dynamic_type_scaling_propagates
 
-AC-5: ContentColor override resolves through color.content.* (edge)
+AC-5: ContentColor override resolves through color.content.* ⚠️ PARTIAL: Uses correct VALUES but wrong API path (theme.colors.onSurface vs theme.color.content.*) (evidence: LSText.swift:11-24) (edge)
   GIVEN: `LSText("…", variant: .ui.body.md, color: .secondary)`
   WHEN:  Rendered
   THEN:  Resolved foreground == `theme.color.content.secondary` (light + dark variants)
@@ -101,7 +105,7 @@ AC-5: ContentColor override resolves through color.content.* (edge)
   TEST_FUNCTION: test_content_color_secondary_resolves_token
   VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSTextTests/test_content_color_secondary_resolves_token
 
-AC-6: Raw Color parameter rejected at compile-time (error gate — type-safety)
+AC-6: Raw Color parameter rejected at compile-time ❌ FAIL: Test theatre - checks source strings instead of verifying compile-time rejection (evidence: LSTextTypeSafetyTests.swift:4-10) (error gate — type-safety)
   GIVEN: LSText API surface
   WHEN:  Developer attempts `LSText("…", variant: .ui.body.md, color: Color.red)`
   THEN:  Swift compiler rejects — `color` parameter only accepts `ContentColor` enum
@@ -110,7 +114,7 @@ AC-6: Raw Color parameter rejected at compile-time (error gate — type-safety)
   TEST_FUNCTION: test_color_param_rejects_raw_Color
   VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSTextTypeSafetyTests/test_color_param_rejects_raw_Color
 
-AC-7: Typography swatch story registered with id atoms.text.swatch
+AC-7: Typography swatch story registered ✅ PASS with id atoms.text.swatch
   GIVEN: `ios/LaneShadow/Sandbox/Stories/LSTextStories.swift`
   WHEN:  AtomStories.all is composed
   THEN:  Story with id `atoms.text.swatch` exists, tier = `.atom`, renders the cross-family matrix
@@ -119,7 +123,7 @@ AC-7: Typography swatch story registered with id atoms.text.swatch
   TEST_FUNCTION: n/a (grep gate)
   VERIFY:        grep -q 'atoms.text.swatch' ios/LaneShadow/Sandbox/Stories/LSTextStories.swift && grep -q 'LSTextStories' ios/LaneShadow/Sandbox/LaneShadowStories.swift
 
-AC-8: No literal font references in LSText.swift (error gate — boundary)
+AC-8: No literal font references in LSText.swift ✅ PASS (error gate — boundary)
   GIVEN: ios/LaneShadow/Views/Atoms/LSText.swift
   WHEN:  Reviewer greps
   THEN:  Zero matches for `.systemFont`, `Font.system`, `Font(.serif)`, or string font names

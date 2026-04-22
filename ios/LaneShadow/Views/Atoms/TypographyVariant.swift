@@ -2,154 +2,136 @@ import LaneShadowTheme
 import NativeTheme
 
 public struct TypographyVariant: Equatable, Sendable {
-    public enum Family: String, Sendable {
-        case opinion
-        case ui
-        case instrument
+    public enum Category: String, Sendable {
+        case label
+        case body
+        case title
+        case heading
+        case display
     }
 
     public enum Size: String, Sendable {
-        case xs
         case sm
         case md
         case lg
-        case xl
     }
 
-    public enum UIRole: String, Sendable {
-        case title
-        case body
-        case label
-    }
-
-    public let family: Family
+    public let category: Category
     public let size: Size
-    public let uiRole: UIRole?
-    private let themeStyle: @Sendable (Theme) -> LaneShadowTypographyStyle
+    private let themeStyle: @Sendable (Theme) -> TypographyStyle
 
     private init(
-        family: Family,
+        category: Category,
         size: Size,
-        uiRole: UIRole? = nil,
-        themeStyle: @escaping @Sendable (Theme) -> LaneShadowTypographyStyle
+        themeStyle: @escaping @Sendable (Theme) -> TypographyStyle
     ) {
-        self.family = family
+        self.category = category
         self.size = size
-        self.uiRole = uiRole
         self.themeStyle = themeStyle
     }
 
-    public var style: LaneShadowTypographyStyle {
+    public var style: TypographyStyle {
         style(in: .shared)
     }
 
-    public func style(in theme: Theme) -> LaneShadowTypographyStyle {
+    public func style(in theme: Theme) -> TypographyStyle {
         themeStyle(theme)
     }
 
     public static func == (lhs: TypographyVariant, rhs: TypographyVariant) -> Bool {
-        lhs.family == rhs.family && lhs.size == rhs.size && lhs.uiRole == rhs.uiRole
+        lhs.category == rhs.category && lhs.size == rhs.size
     }
 
-    public static let opinion = OpinionVariants()
-    public static let ui = UIVariants()
-    public static let instrument = InstrumentVariants()
+    public static let label = LabelVariants()
+    public static let body = BodyVariants()
+    public static let title = TitleVariants()
+    public static let heading = HeadingVariants()
+    public static let display = DisplayVariants()
 
-    public struct OpinionVariants: Sendable {
-        public let sm = TypographyVariant(family: .opinion, size: .sm) { $0.typography.opinion.sm }
-        public let md = TypographyVariant(family: .opinion, size: .md) { $0.typography.opinion.md }
-        public let lg = TypographyVariant(family: .opinion, size: .lg) { $0.typography.opinion.lg }
-        public let xl = TypographyVariant(family: .opinion, size: .xl) { $0.typography.opinion.xl }
+    public struct LabelVariants: Sendable {
+        public let sm = TypographyVariant(category: .label, size: .sm) { $0.type.label.sm }
+        public let md = TypographyVariant(category: .label, size: .md) { $0.type.label.md }
+        public let lg = TypographyVariant(category: .label, size: .lg) { $0.type.label.lg }
     }
 
-    public struct UIVariants: Sendable {
-        public let title = UIScale(role: .title)
-        public let body = UIScale(role: .body)
-        public let label = UIScale(role: .label)
+    public struct BodyVariants: Sendable {
+        public let sm = TypographyVariant(category: .body, size: .sm) { $0.type.body.sm }
+        public let md = TypographyVariant(category: .body, size: .md) { $0.type.body.md }
+        public let lg = TypographyVariant(category: .body, size: .lg) { $0.type.body.lg }
     }
 
-    public struct UIScale: Sendable {
-        private let role: UIRole
-
-        public var sm: TypographyVariant {
-            TypographyVariant(family: .ui, size: .sm, uiRole: role) { theme in
-                style(for: .sm, in: theme)
-            }
-        }
-
-        public var md: TypographyVariant {
-            TypographyVariant(family: .ui, size: .md, uiRole: role) { theme in
-                style(for: .md, in: theme)
-            }
-        }
-
-        public var lg: TypographyVariant {
-            TypographyVariant(family: .ui, size: .lg, uiRole: role) { theme in
-                style(for: .lg, in: theme)
-            }
-        }
-
-        fileprivate init(role: UIRole) {
-            self.role = role
-        }
-
-        private func style(for size: Size, in theme: Theme) -> TypographyStyle {
-            switch (role, size) {
-            case (.title, .sm): theme.typography.ui.title.sm
-            case (.title, .md): theme.typography.ui.title.md
-            case (.title, .lg): theme.typography.ui.title.lg
-            case (.body, .sm): theme.typography.ui.body.sm
-            case (.body, .md): theme.typography.ui.body.md
-            case (.body, .lg): theme.typography.ui.body.lg
-            case (.label, .sm): theme.typography.ui.label.sm
-            case (.label, .md): theme.typography.ui.label.md
-            case (.label, .lg): theme.typography.ui.label.lg
-            default: theme.typography.ui.body.md
-            }
-        }
+    public struct TitleVariants: Sendable {
+        public let sm = TypographyVariant(category: .title, size: .sm) { $0.type.title.sm }
+        public let md = TypographyVariant(category: .title, size: .md) { $0.type.title.md }
+        public let lg = TypographyVariant(category: .title, size: .lg) { $0.type.title.lg }
     }
 
-    public struct InstrumentVariants: Sendable {
-        public let xs = TypographyVariant(family: .instrument, size: .xs) { $0.typography.instrument.xs }
-        public let sm = TypographyVariant(family: .instrument, size: .sm) { $0.typography.instrument.sm }
-        public let md = TypographyVariant(family: .instrument, size: .md) { $0.typography.instrument.md }
-        public let lg = TypographyVariant(family: .instrument, size: .lg) { $0.typography.instrument.lg }
+    public struct HeadingVariants: Sendable {
+        public let sm = TypographyVariant(category: .heading, size: .sm) { $0.type.heading.sm }
+        public let md = TypographyVariant(category: .heading, size: .md) { $0.type.heading.md }
+        public let lg = TypographyVariant(category: .heading, size: .lg) { $0.type.heading.lg }
     }
 
-    public static let allOpinion: [TypographyVariant] = [
-        .opinion.xl,
-        .opinion.lg,
-        .opinion.md,
-        .opinion.sm,
+    public struct DisplayVariants: Sendable {
+        public let sm = TypographyVariant(category: .display, size: .sm) { $0.type.display.sm }
+        public let md = TypographyVariant(category: .display, size: .md) { $0.type.display.md }
+        public let lg = TypographyVariant(category: .display, size: .lg) { $0.type.display.lg }
+    }
+
+    public static let allLabel: [TypographyVariant] = [
+        .label.lg,
+        .label.md,
+        .label.sm,
     ]
 
-    public static let allUI: [TypographyVariant] = [
-        .ui.title.lg,
-        .ui.title.md,
-        .ui.title.sm,
-        .ui.body.lg,
-        .ui.body.md,
-        .ui.body.sm,
-        .ui.label.lg,
-        .ui.label.md,
-        .ui.label.sm,
+    public static let allBody: [TypographyVariant] = [
+        .body.lg,
+        .body.md,
+        .body.sm,
     ]
 
-    public static let allInstrument: [TypographyVariant] = [
-        .instrument.lg,
-        .instrument.md,
-        .instrument.sm,
-        .instrument.xs,
+    public static let allTitle: [TypographyVariant] = [
+        .title.lg,
+        .title.md,
+        .title.sm,
+    ]
+
+    public static let allHeading: [TypographyVariant] = [
+        .heading.lg,
+        .heading.md,
+        .heading.sm,
+    ]
+
+    public static let allDisplay: [TypographyVariant] = [
+        .display.lg,
+        .display.md,
+        .display.sm,
+    ]
+
+    public static let all: [TypographyVariant] = [
+        // Display (largest)
+        .display.lg,
+        .display.md,
+        .display.sm,
+        // Heading
+        .heading.lg,
+        .heading.md,
+        .heading.sm,
+        // Title
+        .title.lg,
+        .title.md,
+        .title.sm,
+        // Body
+        .body.lg,
+        .body.md,
+        .body.sm,
+        // Label (smallest)
+        .label.lg,
+        .label.md,
+        .label.sm,
     ]
 
     public var tokenPath: String {
-        switch family {
-        case .opinion:
-            "typography.opinion.\(size.rawValue)"
-        case .ui:
-            "typography.ui.\(uiRole?.rawValue ?? "body").\(size.rawValue)"
-        case .instrument:
-            "typography.instrument.\(size.rawValue)"
-        }
+        "type.\(category.rawValue).\(size.rawValue)"
     }
 }

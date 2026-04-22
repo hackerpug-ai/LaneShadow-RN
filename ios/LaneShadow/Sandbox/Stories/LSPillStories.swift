@@ -13,7 +13,7 @@ enum LSPillStories {
             summary: "Pill component at small size (24pt height)"
         ) { _ in
             LSPill(size: .sm) {
-                LSText("Small", variant: .ui.label.sm)
+                LSText("Small", variant: .label.sm)
             }
         },
 
@@ -25,7 +25,7 @@ enum LSPillStories {
             summary: "Pill component at medium size (32pt height)"
         ) { _ in
             LSPill(size: .md) {
-                LSText("Medium", variant: .ui.label.sm)
+                LSText("Medium", variant: .label.sm)
             }
         },
 
@@ -37,7 +37,7 @@ enum LSPillStories {
             summary: "Pill component at large size (40pt height)"
         ) { _ in
             LSPill(size: .lg) {
-                LSText("Large", variant: .ui.label.md)
+                LSText("Large", variant: .label.md)
             }
         },
 
@@ -52,7 +52,7 @@ enum LSPillStories {
                 HStack(spacing: 4) {
                     Image(systemName: "checkmark")
                         .font(.system(size: 12))
-                    LSText("Complete", variant: .ui.label.sm)
+                    LSText("Complete", variant: .label.sm)
                 }
             }
         },

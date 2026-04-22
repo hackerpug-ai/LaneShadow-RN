@@ -16,11 +16,11 @@ public enum PillSize: Sendable {
     func height(in theme: Theme) -> CGFloat {
         switch self {
         case .sm:
-            return 24 // sizing.pill.sm
+            24 // sizing.pill.sm
         case .md:
-            return 32 // sizing.pill.md
+            32 // sizing.pill.md
         case .lg:
-            return 40 // sizing.pill.lg
+            40 // sizing.pill.lg
         }
     }
 }

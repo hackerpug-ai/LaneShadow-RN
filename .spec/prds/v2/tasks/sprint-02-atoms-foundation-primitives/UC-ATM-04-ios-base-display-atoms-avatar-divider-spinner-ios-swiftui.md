@@ -5,9 +5,13 @@ TASK: UC-ATM-04-ios — Base display atoms (`LSAvatar` + `LSDivider` + `LSSpinne
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     🔄 NEEDS_REMEDIATION
 PRIORITY:   P0
 EFFORT:     M
+REVIEWED:   2026-04-22
+COMMIT:     89adf155
+REVIEWER:   swift-reviewer
+VERDICT:    NEEDS_FIXES
 SPRINT:     [sprint-02-atoms-foundation-primitives](./SPRINT.md)
 AGENT:      implementer=swift-implementer | reviewer=swift-reviewer
 ESTIMATE:   120 min
@@ -21,7 +25,7 @@ PRD_REFS:   UC-ATM-04, .spec/prds/v2/05-uc-atm.md, .spec/prds/v2/concepts/uc-atm
 DEPENDS_ON: UC-TOK-01, UC-TOK-02, UC-TOK-03, UC-TOK-05, UC-ATM-01-ios (LSText for initials)
 BLOCKS:     UC-MOL-* (profile chips, lists, loading states), UC-ORG-*, UC-SCR-*
 
-PROGRESS: AC-1 none · 0/7 complete
+PROGRESS: 3 PASS · 3 FAIL · 1 PARTIAL · 7/7 AC evaluated · 🔄 REMEDIATION CYCLE 1
 
 --------------------------------------------------------------------------------
 OUTCOME

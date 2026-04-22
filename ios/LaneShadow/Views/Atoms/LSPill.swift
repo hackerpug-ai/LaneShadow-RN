@@ -10,14 +10,14 @@ import SwiftUI
 ///
 /// ```swift
 /// LSPill(size: .md) {
-///     LSText("Label", variant: .ui.label.sm)
+///     LSText("Label", variant: .label.sm)
 /// }
 ///
 /// LSPill(size: .sm, padding: .sm) {
-///     LSText("Small", variant: .ui.label.sm)
+///     LSText("Small", variant: .label.sm)
 /// }
 /// ```
-public struct LSPill: View {
+public struct LSPill<Content: View>: View {
     @Environment(\.theme) private var theme
 
     private let size: PillSize
@@ -69,15 +69,15 @@ public struct LSPill: View {
 #Preview("Pill Sizes") {
     VStack(spacing: 16) {
         LSPill(size: .sm) {
-            LSText("Small", variant: .ui.label.sm)
+            LSText("Small", variant: .label.sm)
         }
 
         LSPill(size: .md) {
-            LSText("Medium", variant: .ui.label.sm)
+            LSText("Medium", variant: .label.sm)
         }
 
         LSPill(size: .lg) {
-            LSText("Large", variant: .ui.label.md)
+            LSText("Large", variant: .label.md)
         }
     }
     .laneShadowTheme()

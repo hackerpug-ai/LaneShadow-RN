@@ -23,7 +23,6 @@ import XCTest
  */
 @MainActor
 final class LSPillTests: XCTestCase {
-
     // MARK: - AC-1: LSPill renders at sizing.pill.md by default with token radius
 
     func test_md_size_resolves_height_and_radius_tokens() {
