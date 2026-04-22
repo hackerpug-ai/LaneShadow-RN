@@ -358,4 +358,3 @@ private struct ElevationStory: View {
         }
     }
 }
-
