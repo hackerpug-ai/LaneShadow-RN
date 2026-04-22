@@ -14,3 +14,11 @@ Upstream token/theme APIs now expose LaneShadowTheme.sizing.icon.* and LaneShado
 
 ## Blocked — 2026-04-22T18:23:48Z
 Still blocked after existing iteration 003 review. Blocking causes: AC-7 requires zero Material Icons across android/app/src/main, but remaining matches are in many out-of-scope component files; LSIcon/IconSize still parse semantic.tokens.json rather than consuming generated LaneShadowTheme.sizing.icon.* and LaneShadowTheme.icon.stroke.width APIs. Remediation requires upstream/generated theme API work and/or scope expansion for the Material Icon migration.
+
+## Completed on main — 2026-04-22T19:05:00Z
+Rescued across `1675113a` (`feat(android): add LSIcon atom`), `1d4721fc` (`UC-ATM-10-android remediation 003: token-driven icon stroke rendering`), and final cleanup commit `9147d8b7` (`chore(android): remove sandbox material icon imports`). The completed task now renders the generated design-owned icon catalog through the generated theme/icon APIs and removes direct Material Icons usage from Android app main/debug sources.
+
+Validation recorded before completion:
+- `./gradlew :app:compileDebugKotlin` passed.
+- Focused Android `LSIcon` unit tests passed.
+- `rg 'androidx\.compose\.material\.icons|Icons\.' android/app/src/main android/app/src/debug` returned no matches.

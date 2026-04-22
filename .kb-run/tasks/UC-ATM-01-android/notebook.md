@@ -14,3 +14,11 @@ Upstream token/theme APIs now expose generated Kotlin typography.opinion/ui/inst
 
 ## Blocked — 2026-04-22T18:23:48Z
 Reviewer iteration 004 verdict: NEEDS_FIXES. Blocking causes: generated Android theme exposes only legacy type.* text styles, not typography.opinion/ui/instrument with Newsreader/Geist/JetBrains Mono; the primary AC tests are @Ignore; ContentColor ignores active theme values; connectedDebugAndroidTest/detekt/exact release APK gate are not satisfied. Remediation requires upstream token/theme/font generation or explicit scope expansion beyond this atom task.
+
+## Completed on main — 2026-04-22T19:05:00Z
+Rescued and committed as `8af7fcdb` (`feat(android): add LSText atom`). The implementation now uses generated theme typography/content-color APIs, registers the Android typography story through `AtomStories`, and keeps the atom surface in debug-only sandbox code where applicable.
+
+Validation recorded before completion:
+- `./gradlew :app:compileDebugKotlin` passed.
+- Focused Android `LSText` unit tests passed.
+- Material icon import grep across Android app main/debug remained clean after the follow-up icon cleanup.

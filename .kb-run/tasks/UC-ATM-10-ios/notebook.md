@@ -14,3 +14,11 @@ Generated Swift theme package now exposes public IconName, IconPathSpec, and Ico
 
 ## Blocked — 2026-04-22T18:23:48Z
 Still blocked after existing iteration 002 review. Blocking causes: current branch uses app-local IconName and hand-authored paths instead of a generated public icon catalog API; LaneShadowStories.swift registers private placeholder LSIconStories; new Swift files are not in target membership, while xcodeproj edits are prohibited. Remediation requires generated catalog API availability plus project target membership through an allowed path.
+
+## Completed on main — 2026-04-22T19:05:00Z
+Rescued and committed as `13fb315a` (`feat(ios): add LSIcon atom`). The implementation uses generated `LaneShadowTheme.IconName`/catalog APIs, registers real `LSIconStories`, and updates target membership through `ios/project.yml` plus XcodeGen rather than hand-editing project internals.
+
+Validation recorded before completion:
+- `make ios_build` passed.
+- Focused `LaneShadowTests/LSIconTests` and `LaneShadowTests/LSIconTypeSafetyTests` passed.
+- Full `make ios_test` compiled and ran, but still fails older broad source-inspection checks for remaining atom/story coverage that is not complete yet.

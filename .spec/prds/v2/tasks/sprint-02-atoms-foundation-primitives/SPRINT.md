@@ -2,7 +2,7 @@
 
 **Sequence:** 2
 **Timeline:** Phase 2 · Week 2
-**Status:** Planned
+**Status:** In Progress
 
 ---
 
@@ -11,6 +11,32 @@
 This sprint delivers the ten non-map atom UCs — the smallest typed UI primitives that every molecule, organism, and screen downstream will compose from. Each atom ships as paired iOS (SwiftUI) + Android (Compose) implementations with identical public APIs and identical sandbox stories, consumes only TOK-generated constants (no literal colors, no literal spacing), and registers in the Atoms tier aggregator on both platforms. This set includes the four Navigator-specific primitives that are new in V2 — `LSPill`, `LSGlassPanel`, `LSPhaseDot`, `LSScrim` — plus the design-owned SVG `LSIcon` catalog that retires SF Symbols and Material Icons.
 
 Per-platform split: every UC expands to a paired `-ios` + `-android` task so `swift-implementer` and `kotlin-implementer` work in parallel without shared-tree contention. The 10-task-per-sprint gate is intentionally exceeded (20 paired tasks) to surface parallel execution at the planning layer; the sprint's human testing gate still operates at UC granularity.
+
+## Current Progress
+
+Last updated: 2026-04-22
+
+Completed on `main`:
+- `UC-ATM-01-ios` — `LSText` iOS (`66a1dfc4`)
+- `UC-ATM-01-android` — `LSText` Android (`8af7fcdb`)
+- `UC-ATM-06-ios` — `LSPill` iOS (`7b44a079`)
+- `UC-ATM-10-ios` — `LSIcon` iOS (`13fb315a`)
+- `UC-ATM-10-android` — `LSIcon` Android (`9147d8b7`; includes `1675113a` and `1d4721fc` remediation)
+
+Remaining Sprint 2 implementation work:
+- `UC-ATM-02` — Button on iOS and Android
+- `UC-ATM-03` — TextField/TextArea on iOS and Android
+- `UC-ATM-04` — Avatar/Divider/Spinner on iOS and Android
+- `UC-ATM-05` — Card/Panel/GlassPanel on iOS and Android
+- `UC-ATM-06-android` — Pill on Android
+- `UC-ATM-07` — Badge/BestBadge on iOS and Android
+- `UC-ATM-08` — PhaseDot on iOS and Android
+- `UC-ATM-09` — Scrim on iOS and Android
+
+Tracking notes:
+- `.kb-run/state.json` is the execution state for this sprint and currently treats the commits above as the source of truth for completed-on-main work.
+- Earlier off-history evidence remains recorded for pending tasks, but those commits are not counted complete until equivalent work lands on `main`.
+- The generated icon catalog currently covers 31 names; older human-test wording below still says 25 names. Treat the generated catalog and its tests as authoritative unless the design source explicitly reduces the set.
 
 ---
 
