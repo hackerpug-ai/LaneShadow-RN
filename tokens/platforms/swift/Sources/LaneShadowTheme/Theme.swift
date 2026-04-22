@@ -215,7 +215,8 @@ public struct Theme: Sendable {
 
 private extension Theme {
     static func build(from tokens: SemanticTokens) -> Theme {
-        Theme(
+        LaneShadowFontRegistry.registerFonts()
+        return Theme(
             colors: buildColors(from: tokens),
             space: buildSpace(from: tokens),
             radius: buildRadius(from: tokens),
@@ -297,11 +298,12 @@ private extension Theme {
         )
     }
 
-    static func typographyStyle(from def: TypeStyleDef) -> TypographyStyle {
+    static func typographyStyle(from def: TypeStyleDef, fontFamily: String) -> TypographyStyle {
         TypographyStyle(
             fontSize: CGFloat(def.fontSize.value),
             lineHeight: CGFloat(def.lineHeight.value),
-            fontWeight: fontWeight(from: def.fontWeight.value)
+            fontWeight: fontWeight(from: def.fontWeight.value),
+            fontFamily: fontFamily
         )
     }
 
@@ -309,29 +311,29 @@ private extension Theme {
         let t = tokens.type
         return ThemeType(
             label: ThemeTypeScale(
-                sm: typographyStyle(from: t.label.sm),
-                md: typographyStyle(from: t.label.md),
-                lg: typographyStyle(from: t.label.lg)
+                sm: typographyStyle(from: t.label.sm, fontFamily: "Geist"),
+                md: typographyStyle(from: t.label.md, fontFamily: "Geist"),
+                lg: typographyStyle(from: t.label.lg, fontFamily: "Geist")
             ),
             body: ThemeTypeScale(
-                sm: typographyStyle(from: t.body.sm),
-                md: typographyStyle(from: t.body.md),
-                lg: typographyStyle(from: t.body.lg)
+                sm: typographyStyle(from: t.body.sm, fontFamily: "Geist"),
+                md: typographyStyle(from: t.body.md, fontFamily: "Geist"),
+                lg: typographyStyle(from: t.body.lg, fontFamily: "Geist")
             ),
             title: ThemeTypeScale(
-                sm: typographyStyle(from: t.title.sm),
-                md: typographyStyle(from: t.title.md),
-                lg: typographyStyle(from: t.title.lg)
+                sm: typographyStyle(from: t.title.sm, fontFamily: "Geist"),
+                md: typographyStyle(from: t.title.md, fontFamily: "Geist"),
+                lg: typographyStyle(from: t.title.lg, fontFamily: "Geist")
             ),
             heading: ThemeTypeScale(
-                sm: typographyStyle(from: t.heading.sm),
-                md: typographyStyle(from: t.heading.md),
-                lg: typographyStyle(from: t.heading.lg)
+                sm: typographyStyle(from: t.heading.sm, fontFamily: "Newsreader"),
+                md: typographyStyle(from: t.heading.md, fontFamily: "Newsreader"),
+                lg: typographyStyle(from: t.heading.lg, fontFamily: "Newsreader")
             ),
             display: ThemeTypeScale(
-                sm: typographyStyle(from: t.display.sm),
-                md: typographyStyle(from: t.display.md),
-                lg: typographyStyle(from: t.display.lg)
+                sm: typographyStyle(from: t.display.sm, fontFamily: "Newsreader"),
+                md: typographyStyle(from: t.display.md, fontFamily: "Newsreader"),
+                lg: typographyStyle(from: t.display.lg, fontFamily: "Newsreader")
             )
         )
     }

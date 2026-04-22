@@ -1,7 +1,7 @@
 package com.laneshadow.ui.atoms
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
+import com.laneshadow.theme.LaneShadowFontFamilies
 import com.laneshadow.ui.components.testTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -16,7 +16,7 @@ class LSTextTest {
 
         assertEquals(TypographyFamily.Opinion, variant.family)
         assertEquals(testTheme.typography.opinion.xl.fontFamily, style.fontFamily)
-        assertEquals(FontFamily.Serif, style.fontFamily)
+        assertEquals(LaneShadowFontFamilies.newsreader, style.fontFamily)
         assertEquals(testTheme.typography.opinion.xl.fontSize, style.fontSize)
         assertEquals(testTheme.typography.opinion.xl.lineHeight, style.lineHeight)
         assertEquals(testTheme.typography.opinion.xl.fontWeight, style.fontWeight)
@@ -29,7 +29,7 @@ class LSTextTest {
 
         assertEquals(TypographyFamily.Ui, variant.family)
         assertEquals(testTheme.typography.ui.body.md.fontFamily, style.fontFamily)
-        assertEquals(FontFamily.SansSerif, style.fontFamily)
+        assertEquals(LaneShadowFontFamilies.geist, style.fontFamily)
         assertEquals(testTheme.typography.ui.body.md.fontSize, style.fontSize)
         assertEquals(testTheme.typography.ui.body.md.lineHeight, style.lineHeight)
         assertEquals(testTheme.typography.ui.body.md.fontWeight, style.fontWeight)
@@ -42,7 +42,7 @@ class LSTextTest {
 
         assertEquals(TypographyFamily.Instrument, variant.family)
         assertEquals(testTheme.typography.instrument.lg.fontFamily, style.fontFamily)
-        assertEquals(FontFamily.Monospace, style.fontFamily)
+        assertEquals(LaneShadowFontFamilies.jetBrainsMono, style.fontFamily)
         assertEquals(testTheme.typography.instrument.lg.fontSize, style.fontSize)
         assertEquals(testTheme.typography.instrument.lg.lineHeight, style.lineHeight)
         assertEquals(testTheme.typography.instrument.lg.fontWeight, style.fontWeight)

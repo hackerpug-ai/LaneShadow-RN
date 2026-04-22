@@ -10,8 +10,21 @@ final class ThemeTests: XCTestCase {
         XCTAssertEqual(theme.space.md, 12)
         XCTAssertEqual(theme.radius.md, 10)
         XCTAssertEqual(theme.type.body.md.fontSize, 12)
+        XCTAssertEqual(theme.type.body.md.fontFamily, "Geist")
+        XCTAssertEqual(theme.type.display.lg.fontFamily, "Newsreader")
         XCTAssertNotNil(theme.elevation.level1)
         XCTAssertNotNil(theme.domain.waypointOnRoute.default)
+    }
+
+    func testBundledFontsAreRegisteredFromResources() {
+        XCTAssertTrue(LaneShadowFontRegistry.registerFonts())
+
+        for resource in LaneShadowFontRegistry.fontResources {
+            XCTAssertNotNil(
+                Bundle.module.url(forResource: resource, withExtension: "ttf"),
+                "\(resource).ttf should be bundled in LaneShadowTheme resources"
+            )
+        }
     }
 
     func testColorSetExposesStateVariants() {

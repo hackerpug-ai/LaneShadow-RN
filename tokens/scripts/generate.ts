@@ -537,10 +537,10 @@ function emitKotlin(
   lines.push('')
   lines.push('import androidx.compose.ui.graphics.Color')
   lines.push('import androidx.compose.ui.text.TextStyle')
-  lines.push('import androidx.compose.ui.text.font.FontFamily')
   lines.push('import androidx.compose.ui.text.font.FontWeight')
   lines.push('import androidx.compose.ui.unit.dp')
   lines.push('import androidx.compose.ui.unit.sp')
+  lines.push('import com.laneshadow.theme.LaneShadowFontFamilies')
   lines.push('')
   lines.push('object LaneShadowTheme {')
 
@@ -581,10 +581,10 @@ function emitKotlin(
       const weight = mapWeight(token.weight)
       const family =
         token.family === 'opinion'
-          ? 'FontFamily.Serif'
+          ? 'LaneShadowFontFamilies.newsreader'
           : token.family === 'instrument'
-            ? 'FontFamily.Monospace'
-            : 'FontFamily.SansSerif'
+            ? 'LaneShadowFontFamilies.jetBrainsMono'
+            : 'LaneShadowFontFamilies.geist'
       const kotlinWeight =
         weight < 200
           ? 'Thin'

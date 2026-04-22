@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -194,11 +195,15 @@ private fun fontWeightFrom(raw: String): FontWeight =
         else -> FontWeight.Normal
     }
 
-private fun textStyleFrom(def: TypeStyleDefDto): TextStyle =
+private fun textStyleFrom(
+    def: TypeStyleDefDto,
+    fontFamily: FontFamily = LaneShadowFontFamilies.geist,
+): TextStyle =
     TextStyle(
         fontSize = def.fontSize.value.sp,
         lineHeight = def.lineHeight.value.sp,
         fontWeight = fontWeightFrom(def.fontWeight.value),
+        fontFamily = fontFamily,
     )
 
 internal fun spaceValues(tokens: SemanticTokens): LaneShadowSpace {
@@ -280,11 +285,31 @@ internal fun opacityValues(tokens: SemanticTokens): LaneShadowOpacity {
 internal fun typeValues(tokens: SemanticTokens): LaneShadowType {
     val t = tokens.type
     return LaneShadowType(
-        label = LaneShadowTypeScale(textStyleFrom(t.label.sm), textStyleFrom(t.label.md), textStyleFrom(t.label.lg)),
-        body = LaneShadowTypeScale(textStyleFrom(t.body.sm), textStyleFrom(t.body.md), textStyleFrom(t.body.lg)),
-        title = LaneShadowTypeScale(textStyleFrom(t.title.sm), textStyleFrom(t.title.md), textStyleFrom(t.title.lg)),
-        heading = LaneShadowTypeScale(textStyleFrom(t.heading.sm), textStyleFrom(t.heading.md), textStyleFrom(t.heading.lg)),
-        display = LaneShadowTypeScale(textStyleFrom(t.display.sm), textStyleFrom(t.display.md), textStyleFrom(t.display.lg)),
+        label = LaneShadowTypeScale(
+            textStyleFrom(t.label.sm, LaneShadowFontFamilies.geist),
+            textStyleFrom(t.label.md, LaneShadowFontFamilies.geist),
+            textStyleFrom(t.label.lg, LaneShadowFontFamilies.geist),
+        ),
+        body = LaneShadowTypeScale(
+            textStyleFrom(t.body.sm, LaneShadowFontFamilies.geist),
+            textStyleFrom(t.body.md, LaneShadowFontFamilies.geist),
+            textStyleFrom(t.body.lg, LaneShadowFontFamilies.geist),
+        ),
+        title = LaneShadowTypeScale(
+            textStyleFrom(t.title.sm, LaneShadowFontFamilies.geist),
+            textStyleFrom(t.title.md, LaneShadowFontFamilies.geist),
+            textStyleFrom(t.title.lg, LaneShadowFontFamilies.geist),
+        ),
+        heading = LaneShadowTypeScale(
+            textStyleFrom(t.heading.sm, LaneShadowFontFamilies.newsreader),
+            textStyleFrom(t.heading.md, LaneShadowFontFamilies.newsreader),
+            textStyleFrom(t.heading.lg, LaneShadowFontFamilies.newsreader),
+        ),
+        display = LaneShadowTypeScale(
+            textStyleFrom(t.display.sm, LaneShadowFontFamilies.newsreader),
+            textStyleFrom(t.display.md, LaneShadowFontFamilies.newsreader),
+            textStyleFrom(t.display.lg, LaneShadowFontFamilies.newsreader),
+        ),
     )
 }
 

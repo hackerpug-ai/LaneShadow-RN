@@ -5,10 +5,10 @@ package com.laneshadow.theme.generated
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.laneshadow.theme.LaneShadowFontFamilies
 
 object LaneShadowTheme {
   object color {
@@ -115,28 +115,28 @@ object LaneShadowTheme {
         lineHeight = 33.6.sp,
         fontWeight = FontWeight.Normal,
         letterSpacing = -0.45.sp,
-        fontFamily = FontFamily.Serif,
+        fontFamily = LaneShadowFontFamilies.newsreader,
       )
       val lg = TextStyle(
         fontSize = 22.sp,
         lineHeight = 25.96.sp,
         fontWeight = FontWeight.Normal,
         letterSpacing = -0.22.sp,
-        fontFamily = FontFamily.Serif,
+        fontFamily = LaneShadowFontFamilies.newsreader,
       )
       val md = TextStyle(
         fontSize = 17.sp,
         lineHeight = 22.44.sp,
         fontWeight = FontWeight.Normal,
         letterSpacing = 0.sp,
-        fontFamily = FontFamily.Serif,
+        fontFamily = LaneShadowFontFamilies.newsreader,
       )
       val sm = TextStyle(
         fontSize = 14.sp,
         lineHeight = 20.3.sp,
         fontWeight = FontWeight.Normal,
         letterSpacing = 0.sp,
-        fontFamily = FontFamily.Serif,
+        fontFamily = LaneShadowFontFamilies.newsreader,
       )
     }
     object ui {
@@ -146,21 +146,21 @@ object LaneShadowTheme {
         lineHeight = 21.08.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = -0.17.sp,
-        fontFamily = FontFamily.SansSerif,
+        fontFamily = LaneShadowFontFamilies.geist,
       )
       val md = TextStyle(
         fontSize = 14.sp,
         lineHeight = 17.92.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = -0.07.sp,
-        fontFamily = FontFamily.SansSerif,
+        fontFamily = LaneShadowFontFamilies.geist,
       )
       val sm = TextStyle(
         fontSize = 12.sp,
         lineHeight = 15.36.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.sp,
-        fontFamily = FontFamily.SansSerif,
+        fontFamily = LaneShadowFontFamilies.geist,
       )
     }
     object body {
@@ -169,21 +169,21 @@ object LaneShadowTheme {
         lineHeight = 20.72.sp,
         fontWeight = FontWeight.Normal,
         letterSpacing = 0.sp,
-        fontFamily = FontFamily.SansSerif,
+        fontFamily = LaneShadowFontFamilies.geist,
       )
       val md = TextStyle(
         fontSize = 12.sp,
         lineHeight = 18.24.sp,
         fontWeight = FontWeight.Normal,
         letterSpacing = 0.sp,
-        fontFamily = FontFamily.SansSerif,
+        fontFamily = LaneShadowFontFamilies.geist,
       )
       val sm = TextStyle(
         fontSize = 10.5.sp,
         lineHeight = 15.54.sp,
         fontWeight = FontWeight.Normal,
         letterSpacing = 0.sp,
-        fontFamily = FontFamily.SansSerif,
+        fontFamily = LaneShadowFontFamilies.geist,
       )
     }
     object label {
@@ -192,21 +192,21 @@ object LaneShadowTheme {
         lineHeight = 11.sp,
         fontWeight = FontWeight.Medium,
         letterSpacing = 0.88.sp,
-        fontFamily = FontFamily.SansSerif,
+        fontFamily = LaneShadowFontFamilies.geist,
       )
       val md = TextStyle(
         fontSize = 9.5.sp,
         lineHeight = 9.5.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 1.14.sp,
-        fontFamily = FontFamily.SansSerif,
+        fontFamily = LaneShadowFontFamilies.geist,
       )
       val sm = TextStyle(
         fontSize = 8.5.sp,
         lineHeight = 8.5.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 1.19.sp,
-        fontFamily = FontFamily.SansSerif,
+        fontFamily = LaneShadowFontFamilies.geist,
       )
     }
     }
@@ -216,28 +216,28 @@ object LaneShadowTheme {
         lineHeight = 20.16.sp,
         fontWeight = FontWeight.Medium,
         letterSpacing = -0.36.sp,
-        fontFamily = FontFamily.Monospace,
+        fontFamily = LaneShadowFontFamilies.jetBrainsMono,
       )
       val md = TextStyle(
         fontSize = 13.sp,
         lineHeight = 15.6.sp,
         fontWeight = FontWeight.Medium,
         letterSpacing = -0.13.sp,
-        fontFamily = FontFamily.Monospace,
+        fontFamily = LaneShadowFontFamilies.jetBrainsMono,
       )
       val sm = TextStyle(
         fontSize = 10.sp,
         lineHeight = 12.sp,
         fontWeight = FontWeight.Medium,
         letterSpacing = 0.sp,
-        fontFamily = FontFamily.Monospace,
+        fontFamily = LaneShadowFontFamilies.jetBrainsMono,
       )
       val xs = TextStyle(
         fontSize = 8.5.sp,
         lineHeight = 8.5.sp,
         fontWeight = FontWeight.Medium,
         letterSpacing = 0.sp,
-        fontFamily = FontFamily.Monospace,
+        fontFamily = LaneShadowFontFamilies.jetBrainsMono,
       )
     }
   }
