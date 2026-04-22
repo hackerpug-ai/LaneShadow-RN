@@ -22,8 +22,17 @@ final class LSTextTests: XCTestCase {
         let expected = Theme.shared.type.body.md
 
         // Verify the style properties match the theme token exactly
-        XCTAssertEqual(style.fontSize, expected.fontSize, "TypographyStyle fontSize should match theme.type.body.md token")
-        XCTAssertEqual(style.lineHeight, expected.lineHeight, accuracy: 0.001, "TypographyStyle lineHeight should match theme.type.body.md token")
+        XCTAssertEqual(
+            style.fontSize,
+            expected.fontSize,
+            "TypographyStyle fontSize should match theme.type.body.md token"
+        )
+        XCTAssertEqual(
+            style.lineHeight,
+            expected.lineHeight,
+            accuracy: 0.001,
+            "TypographyStyle lineHeight should match theme.type.body.md token"
+        )
 
         // Note: SwiftUI's .font() modifier automatically applies Dynamic Type scaling
         // when TypographyStyle.font is used — this is framework behavior
