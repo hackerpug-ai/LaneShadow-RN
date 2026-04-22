@@ -5,26 +5,6 @@
     "teammateMode": "subprocess"
   },
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/usr/bin/python3 /Users/justinrich/.claude/hooks/protect-xcode-project.py"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/usr/bin/python3 /Users/justinrich/.claude/hooks/protect-xcode-project.py"
-          }
-        ]
-      }
-    ],
     "SubagentStop": [
       {
         "matcher": "",

@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-private fun LaneShadowAppContent(deploymentId: String) {
+internal fun LaneShadowAppContent(deploymentId: String) {
     val theme = LocalLaneShadowTheme.current
     Surface(modifier = Modifier.fillMaxSize(), color = theme.colors.background.default) {
         Column(

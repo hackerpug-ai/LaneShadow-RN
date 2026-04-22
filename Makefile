@@ -6,8 +6,9 @@
 .PHONY: help build start clean install \
         lint format typecheck check \
         server_build server_dev server_start \
-        ios_build ios_dev ios_start ios_sandbox ios_sandbox_story \
-        android_build android_dev android_start android_sandbox android_sandbox_story
+        ios_build ios_dev ios_start ios_sandbox ios_sandbox_story ios_test \
+        android_build android_dev android_start android_sandbox android_sandbox_story android_test \
+        test
 
 # ── All Projects ──────────────────────────────────────
 
@@ -140,6 +141,17 @@ ios_sandbox_story: ## Launch iOS sandbox directly to one story (set STORY_ID=...
 	echo "==> Opening sandbox story ($(STORY_ID))..."; \
 	xcrun simctl openurl "$$SIMULATOR_ID" "laneshadow-sandbox://sandbox?id=$$ENCODED_ID"
 
+ios_test: ## Run iOS unit tests
+	@SIMULATOR_ID=$$(xcrun simctl list devices available | sed -nE 's/.*iPhone 16 \\(([A-F0-9-]+)\\).*/\\1/p' | head -1); \
+	if [ -z "$$SIMULATOR_ID" ]; then \
+		RUNTIME_ID=$$(xcrun simctl list runtimes -j | jq -r '.runtimes[] | select(.isAvailable == true and (.name | startswith("iOS"))) | .identifier' | head -1); \
+		SIMULATOR_ID=$$(xcrun simctl create "iPhone 16" "com.apple.CoreSimulator.SimDeviceType.iPhone-16" "$$RUNTIME_ID"); \
+	fi; \
+	cd ios && xcodebuild test -project LaneShadow.xcodeproj -scheme LaneShadow \
+		-derivedDataPath build/DerivedData \
+		-destination "id=$$SIMULATOR_ID" \
+		-only-testing:LaneShadowTests
+
 # ── Android (Kotlin/Compose) ─────────────────────────
 
 android_build: ## Build Android debug APK
@@ -214,6 +226,15 @@ android_sandbox_story: ## Launch Android sandbox directly to one story (set STOR
 	adb shell am start -W \
 		-a android.intent.action.VIEW \
 		-d "app-sandbox://sandbox?id=$$ENCODED_ID"
+
+android_test: ## Run Android instrumented tests
+	cd android && ./gradlew connectedDebugAndroidTest
+
+test: ## Run all platform tests (iOS + Android)
+	@echo "Running iOS tests..."
+	$(MAKE) ios_test
+	@echo "Running Android tests..."
+	$(MAKE) android_test
 
 # ── Help ──────────────────────────────────────────────
 
