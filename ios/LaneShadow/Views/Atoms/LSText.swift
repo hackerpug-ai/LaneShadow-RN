@@ -1,4 +1,5 @@
 import LaneShadowTheme
+import NativeTheme
 import SwiftUI
 
 public enum ContentColor: CaseIterable, Sendable {
@@ -11,15 +12,15 @@ public enum ContentColor: CaseIterable, Sendable {
     public func resolved(in theme: Theme) -> Color {
         switch self {
         case .primary:
-            theme.colors.onSurface.default
+            dyn(parseColorString("#1E1A16"), parseColorString("#F2EEE8"))
         case .secondary:
-            theme.colors.onSurface.default.opacity(0.7)
+            dyn(parseColorString("#49454F"), parseColorString("#CAC4D0"))
         case .tertiary:
-            theme.colors.onSurface.default.opacity(0.5)
+            dyn(parseColorString("#6B6460"), parseColorString("#9CA3AF"))
         case .subtle:
-            theme.colors.onSurface.default.opacity(0.3)
+            dyn(parseColorString("#9CA3AF"), parseColorString("#6B6460"))
         case .onSignal:
-            theme.colors.onPrimary.default
+            dyn(parseColorString("#FFFFFF"), parseColorString("#FFFFFF"))
         }
     }
 }

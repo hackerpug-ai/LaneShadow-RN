@@ -29,7 +29,7 @@ final class LSPillTests: XCTestCase {
         // GIVEN: An iOS SwiftUI view importing LaneShadowTheme
         // WHEN: Developer renders LSPill(size: .md) with content
         let pill = LSPill(size: .md) {
-            LSText("Label", variant: .ui.label.sm)
+            LSText("Label", variant: .label.sm)
         }
 
         // THEN: Rendered frame height == sizing.pill.md (32pt) and corner radius == radius.pill
@@ -58,11 +58,11 @@ final class LSPillTests: XCTestCase {
         // GIVEN: An iOS SwiftUI view
         // WHEN: Developer renders LSPill(size: .sm) and LSPill(size: .lg)
         let smallPill = LSPill(size: .sm) {
-            LSText("Small", variant: .ui.label.sm)
+            LSText("Small", variant: .label.sm)
         }
 
         let largePill = LSPill(size: .lg) {
-            LSText("Large", variant: .ui.label.sm)
+            LSText("Large", variant: .label.sm)
         }
 
         // THEN: Heights resolve to sizing.pill.sm (24pt) and sizing.pill.lg (40pt) respectively
@@ -85,7 +85,7 @@ final class LSPillTests: XCTestCase {
         // WHEN: Rendered
         let theme = Theme.shared
         let pill = LSPill(size: .md, padding: theme.space.sm) {
-            LSText("Label", variant: .ui.label.sm)
+            LSText("Label", variant: .label.sm)
         }
 
         // THEN: Horizontal padding == theme.spacing.sm
@@ -102,15 +102,15 @@ final class LSPillTests: XCTestCase {
         // GIVEN: LSPill rendered at sm, md, lg
         // WHEN: Frame is measured under XCTest host view
         let smallPill = LSPill(size: .sm) {
-            LSText("S", variant: .ui.label.sm)
+            LSText("S", variant: .label.sm)
         }
 
         let mediumPill = LSPill(size: .md) {
-            LSText("M", variant: .ui.label.sm)
+            LSText("M", variant: .label.sm)
         }
 
         let largePill = LSPill(size: .lg) {
-            LSText("L", variant: .ui.label.sm)
+            LSText("L", variant: .label.sm)
         }
 
         // THEN: Measured heights are exactly 24, 32, 40 pt
