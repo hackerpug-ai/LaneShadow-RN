@@ -1,7 +1,5 @@
 package com.laneshadow.sandbox.stories
 
-import com.laneshadow.ui.sandbox.model.SandboxStory
-import com.laneshadow.ui.sandbox.model.SandboxTier
 import com.nativesandbox.model.Story
 
 /**
@@ -64,5 +62,5 @@ import com.nativesandbox.model.Story
  * Reference each component's STYLE PROPERTIES MATRIX file for required variants.
  */
 object AtomsStories {
-    val all: List<Story> = LSTextStories.all
+    val all: List<Story> = LSTextStories.all + LSIconStories.all
 }
