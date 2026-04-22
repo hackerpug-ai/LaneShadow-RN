@@ -25,6 +25,7 @@
 		68D4936938C405217CC7ADB3 /* LaneShadowPreviewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC59F81D4F3B96E926FA8B81 /* LaneShadowPreviewWrapper.swift */; };
 		7487EB2311A36A4E3BA14212 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 042C70965E7517B7DB83BEBC /* Assets.xcassets */; };
 		74A822E1E4CFFA3A23517B97 /* IconSymbolIOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3E4B933872BFD447BAC71ED /* IconSymbolIOS.swift */; };
+		75033AC510FE315FA3216CF8 /* LSTextTypeSafetyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD91F162851F33419E488079 /* LSTextTypeSafetyTests.swift */; };
 		83DED50F9B7D6E11F1B30091 /* LaneShadowSandboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = C934E3A63158B5E395D53E00 /* LaneShadowSandboxEntry.swift */; };
 		9CBE1C1BAFE71A86A9369501 /* LaneShadow.app in Frameworks */ = {isa = PBXBuildFile; fileRef = C40B550C00DF5E8EB169537B /* LaneShadow.app */; };
 		A6D1E465912B3E9A491E84A2 /* PillSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8850461AB37D3A52AC39911 /* PillSize.swift */; };
@@ -40,6 +41,7 @@
 		E3915BDECFC9144AF569EF63 /* EmptyStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8047E61C431A63FA06036FC /* EmptyStateTests.swift */; };
 		E7BF3CA6E1D3EB02CB7C6C68 /* ConvexStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BFA01AC71D220DB33A48A4C /* ConvexStore.swift */; };
 		EC3256F36680A0F854EF8761 /* SandboxLaunchConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8199CF3904E8BB400B1581B /* SandboxLaunchConfig.swift */; };
+		EF6FC54DD1F4A46E70B60481 /* LSTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4C058738CA50081BD92755 /* LSTextTests.swift */; };
 		F27A5E24040D7CAC685D1C6E /* LSPillStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9560D9BCF0F8124ED1378569 /* LSPillStories.swift */; };
 		INFOTOASTBUILD19DA81322E4 /* InfoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = INFOTOAST19DA81322E4 /* InfoToast.swift */; };
 		INFOTOASTTESTSBUILD19DA81322E4 /* InfoToastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = INFOTOASTTESTS19DA81322E4 /* InfoToastTests.swift */; };
@@ -70,6 +72,7 @@
 		042C70965E7517B7DB83BEBC /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = LaneShadow/Assets.xcassets; sourceTree = "<group>"; };
 		19C0C8E34938049BC6509361 /* App.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = App.swift; path = LaneShadow/App.swift; sourceTree = "<group>"; };
 		1BFA01AC71D220DB33A48A4C /* ConvexStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConvexStore.swift; path = LaneShadow/ConvexStore.swift; sourceTree = "<group>"; };
+		1E4C058738CA50081BD92755 /* LSTextTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LSTextTests.swift; path = LaneShadowTests/Atoms/LSTextTests.swift; sourceTree = "<group>"; };
 		1EC0196534C3FDF7B4386090 /* LSPillTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LSPillTests.swift; path = LaneShadowTests/Atoms/LSPillTests.swift; sourceTree = "<group>"; };
 		58B9F2B1A10000000000010E /* AtomsStories.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AtomsStories.swift; path = LaneShadow/Sandbox/Stories/AtomsStories.swift; sourceTree = "<group>"; };
 		5B1754318C1CD43C0F36DFF2 /* TypographyVariant.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TypographyVariant.swift; path = LaneShadow/Views/Atoms/TypographyVariant.swift; sourceTree = "<group>"; };
@@ -79,6 +82,7 @@
 		9560D9BCF0F8124ED1378569 /* LSPillStories.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LSPillStories.swift; path = LaneShadow/Sandbox/Stories/LSPillStories.swift; sourceTree = "<group>"; };
 		A7781149F2F15D8931F7BD59 /* ConvexConfig.generated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConvexConfig.generated.swift; path = LaneShadow/Generated/ConvexConfig.generated.swift; sourceTree = "<group>"; };
 		A8DF06DFAC4862640146C5EC /* MarkdownTextTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MarkdownTextTests.swift; path = LaneShadowTests/Molecules/MarkdownTextTests.swift; sourceTree = "<group>"; };
+		AD91F162851F33419E488079 /* LSTextTypeSafetyTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LSTextTypeSafetyTests.swift; path = LaneShadowTests/Atoms/LSTextTypeSafetyTests.swift; sourceTree = "<group>"; };
 		AE6AFB9CF38454E7904211D2 /* LaneShadowSandbox.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowSandbox.swift; path = LaneShadow/Sandbox/Entry/LaneShadowSandbox.swift; sourceTree = "<group>"; };
 		B8199CF3904E8BB400B1581B /* SandboxLaunchConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SandboxLaunchConfig.swift; path = LaneShadow/Launch/SandboxLaunchConfig.swift; sourceTree = "<group>"; };
 		BC59F81D4F3B96E926FA8B81 /* LaneShadowPreviewWrapper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LaneShadowPreviewWrapper.swift; path = LaneShadow/Sandbox/Theme/LaneShadowPreviewWrapper.swift; sourceTree = "<group>"; };
@@ -247,6 +251,8 @@
 			isa = PBXGroup;
 			children = (
 				00F2D864836475C036BD1BBB /* IconSymbolIOSTests.swift */,
+				1E4C058738CA50081BD92755 /* LSTextTests.swift */,
+				AD91F162851F33419E488079 /* LSTextTypeSafetyTests.swift */,
 			);
 			name = Atoms;
 			sourceTree = "<group>";
@@ -494,6 +500,8 @@
 				2F0CC613A052CB8DCD986EBA /* IconSymbolIOSTests.swift in Sources */,
 				E3915BDECFC9144AF569EF63 /* EmptyStateTests.swift in Sources */,
 				C49FCD1E157EF1081F07B37B /* LSPillTests.swift in Sources */,
+				EF6FC54DD1F4A46E70B60481 /* LSTextTests.swift in Sources */,
+				75033AC510FE315FA3216CF8 /* LSTextTypeSafetyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -632,7 +640,7 @@
 		BD950CD12FCB4D11B73A43BE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
+				BUNDLE_LOADER = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -644,7 +652,6 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LaneShadow.app/LaneShadow";
 			};
 			name = Debug;
 		};
@@ -734,7 +741,7 @@
 		EAA42636881C41B989D6AF27 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
+				BUNDLE_LOADER = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -746,7 +753,6 @@
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = 1;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LaneShadow.app/LaneShadow";
 			};
 			name = Release;
 		};
