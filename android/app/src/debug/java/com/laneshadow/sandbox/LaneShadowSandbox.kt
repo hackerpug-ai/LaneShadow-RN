@@ -15,10 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,6 +33,8 @@ import com.laneshadow.sandbox.stories.AppStories
 import com.laneshadow.sandbox.theme.LaneShadowThemeBridge
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.theme.LocalLaneShadowTheme
+import com.laneshadow.theme.generated.LaneShadowTheme.IconName
+import com.laneshadow.ui.atoms.LSIcon
 import com.nativesandbox.model.Story
 import com.nativesandbox.theming.themedPreview
 import com.nativesandbox.views.SandboxRoot
@@ -79,7 +78,7 @@ private fun LaneShadowSandboxStoryDetail(
                 title = { Text(story.name) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        LSIcon(name = IconName.ChevL, contentDescription = "Back")
                     }
                 },
             )
