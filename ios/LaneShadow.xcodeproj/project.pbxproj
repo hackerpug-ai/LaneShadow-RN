@@ -25,7 +25,9 @@
 		B5FF9B8BF6CCCBF0478B2A77 /* LaneShadowStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */; };
 		C20B40ADB8746BAD7B7A3FF1 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = 5B658B1BAB40A50AE36EE201 /* LaneShadowTheme */; };
 		C9108535DE88E44D62CC2AE6 /* MarkdownTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5107D4267204A230D572AB9 /* MarkdownTextTests.swift */; };
+		D3FCBC758470A7571618AF4A /* LSTextStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E259B982ADB47ABE53D132D /* LSTextStories.swift */; };
 		E2B1C40DCB7D1C33CC729331 /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6089A65C4DD27D71FDFC6B91 /* MarkdownText.swift */; };
+		E38D09C5CE8E05B40EC425E5 /* LSIconStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */; };
 		E868E14CF971E572F61A614E /* MoleculesStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */; };
 		F9E41F8A8E5435B9BCD67D40 /* InfoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5F858C066D550CE73CE6FD /* InfoToast.swift */; };
 		FEBAB697C67EECE893936275 /* EmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2233125579D4855C122E592 /* EmptyState.swift */; };
@@ -50,6 +52,7 @@
 
 /* Begin PBXFileReference section */
 		0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0E259B982ADB47ABE53D132D /* LSTextStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTextStories.swift; sourceTree = "<group>"; };
 		20AC933B1DF7AFFC89BD22E0 /* InfoToastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoToastTests.swift; sourceTree = "<group>"; };
 		220BC64128EB0A24188F4C65 /* LSPillStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPillStories.swift; sourceTree = "<group>"; };
 		2EEA7EB2CEBB6DE868C24B7E /* EmptyStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateTests.swift; sourceTree = "<group>"; };
@@ -60,6 +63,7 @@
 		5C592B52392DEEACF2D91C3B /* LaneShadowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowTests.swift; sourceTree = "<group>"; };
 		5FB23C9E4DF31CC4E50E47AB /* swift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = swift; path = ../tokens/platforms/swift; sourceTree = SOURCE_ROOT; };
 		6089A65C4DD27D71FDFC6B91 /* MarkdownText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownText.swift; sourceTree = "<group>"; };
+		612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSIconStories.swift; sourceTree = "<group>"; };
 		7C5212D0C0958BE087BA87AC /* IconSymbolIOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconSymbolIOSTests.swift; sourceTree = "<group>"; };
 		85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowStories.swift; sourceTree = "<group>"; };
 		9B5F858C066D550CE73CE6FD /* InfoToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoToast.swift; sourceTree = "<group>"; };
@@ -197,7 +201,9 @@
 			isa = PBXGroup;
 			children = (
 				3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */,
+				612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */,
 				220BC64128EB0A24188F4C65 /* LSPillStories.swift */,
+				0E259B982ADB47ABE53D132D /* LSTextStories.swift */,
 				E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */,
 			);
 			path = Stories;
@@ -495,7 +501,9 @@
 				0A215149AE7AF5FBBCB5409E /* ConvexStore.swift in Sources */,
 				FEBAB697C67EECE893936275 /* EmptyState.swift in Sources */,
 				F9E41F8A8E5435B9BCD67D40 /* InfoToast.swift in Sources */,
+				E38D09C5CE8E05B40EC425E5 /* LSIconStories.swift in Sources */,
 				91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */,
+				D3FCBC758470A7571618AF4A /* LSTextStories.swift in Sources */,
 				40979501CCACCFB156F25EB5 /* LaneShadowSandboxEntry.swift in Sources */,
 				B5FF9B8BF6CCCBF0478B2A77 /* LaneShadowStories.swift in Sources */,
 				E2B1C40DCB7D1C33CC729331 /* MarkdownText.swift in Sources */,

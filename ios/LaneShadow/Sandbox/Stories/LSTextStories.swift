@@ -24,20 +24,20 @@ private struct LSTextSwatchStory: View {
         ScrollView {
             VStack(alignment: .leading, spacing: theme.space.xl) {
                 familySection(
-                    title: "Opinion",
-                    variants: TypographyVariant.allOpinion,
+                    title: "Display",
+                    variants: TypographyVariant.allDisplay,
                     sample: "Where are we riding today?"
                 )
 
                 familySection(
-                    title: "UI",
-                    variants: TypographyVariant.allUI,
+                    title: "Heading",
+                    variants: TypographyVariant.allHeading,
                     sample: "Continue toward the overlook"
                 )
 
                 familySection(
-                    title: "Instrument",
-                    variants: TypographyVariant.allInstrument,
+                    title: "Body",
+                    variants: TypographyVariant.allBody,
                     sample: "64 mi  1h 42m  72F"
                 )
             }
@@ -51,12 +51,12 @@ private struct LSTextSwatchStory: View {
         sample: String
     ) -> some View {
         VStack(alignment: .leading, spacing: theme.space.md) {
-            LSText(title, variant: .ui.label.lg, color: .secondary)
+            LSText(title, variant: .label.lg, color: .secondary)
 
             ForEach(variants, id: \.tokenPath) { variant in
                 VStack(alignment: .leading, spacing: theme.space.xs) {
                     LSText(sample, variant: variant)
-                    LSText(variant.tokenPath, variant: .ui.label.sm, color: .subtle)
+                    LSText(variant.tokenPath, variant: .label.sm, color: .subtle)
                 }
                 .padding(.vertical, theme.space.xs)
             }

@@ -124,7 +124,9 @@ targets:
       - path: LaneShadow/Sandbox/LaneShadowSandboxEntry.swift
       - path: LaneShadow/Sandbox/LaneShadowStories.swift
       - path: LaneShadow/Sandbox/Stories/AtomsStories.swift
+      - path: LaneShadow/Sandbox/Stories/LSIconStories.swift
       - path: LaneShadow/Sandbox/Stories/LSPillStories.swift
+      - path: LaneShadow/Sandbox/Stories/LSTextStories.swift
       - path: LaneShadow/Sandbox/Stories/MoleculesStories.swift
       - path: LaneShadow/Views/Atoms
         type: syncedFolder
