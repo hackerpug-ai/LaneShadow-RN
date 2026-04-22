@@ -24,7 +24,7 @@
       "reviewer": "kotlin-reviewer",
       "wave": null,
       "depends_on": ["UC-SBX-00-android"],
-      "status": "pending",
+      "status": "blocked",
       "completed_commit": null,
       "unmerged_evidence": null,
       "worktree_path": "/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-01-android",
@@ -43,8 +43,17 @@
           "reviewer_response": ".kb-run/tasks/UC-ATM-01-android/iterations/003/reviewer-response.json",
           "verdict": "NEEDS_FIXES",
           "completed_at": "2026-04-22T17:45:17Z"
+        },
+        {
+          "number": 4,
+          "start_commit": "d4b23a9d08b39eba43a966140a8a30460edfda3a",
+          "reviewer_response": ".kb-run/tasks/UC-ATM-01-android/iterations/004/reviewer-response.json",
+          "verdict": "NEEDS_FIXES",
+          "completed_at": "2026-04-22T18:23:48Z"
         }
-      ]
+      ],
+      "blocked_at": "2026-04-22T18:23:48Z",
+      "blocker": "Reviewer iteration 004 returned NEEDS_FIXES: Android theme lacks typography.opinion/ui/instrument family APIs and font assets inside task scope; primary AC tests are @Ignore; ContentColor ignores active theme; required connected/release/detekt gates are not satisfied."
     },
     "UC-ATM-01-ios": {
       "title": "UC-ATM-01-ios",
@@ -291,7 +300,7 @@
       "reviewer": "kotlin-reviewer",
       "wave": null,
       "depends_on": ["UC-SBX-00-android"],
-      "status": "pending",
+      "status": "blocked",
       "completed_commit": null,
       "unmerged_evidence": null,
       "worktree_path": "/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-10-android",
@@ -311,7 +320,9 @@
           "verdict": "NEEDS_FIXES",
           "completed_at": "2026-04-22T17:45:17Z"
         }
-      ]
+      ],
+      "blocked_at": "2026-04-22T18:23:48Z",
+      "blocker": "Reviewer iteration 003 returned NEEDS_FIXES: AC-7 requires removing Material Icons across android/app/src/main outside writeAllowed, and LSIcon still consumes parsed token JSON instead of generated LaneShadowTheme.sizing.icon/icon.stroke APIs."
     },
     "UC-ATM-10-ios": {
       "title": "UC-ATM-10-ios",
@@ -320,7 +331,7 @@
       "reviewer": "swift-reviewer",
       "wave": null,
       "depends_on": ["UC-SBX-00-ios"],
-      "status": "pending",
+      "status": "blocked",
       "completed_commit": null,
       "unmerged_evidence": null,
       "worktree_path": "/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-10-ios",
@@ -340,7 +351,9 @@
           "verdict": "NEEDS_FIXES",
           "completed_at": "2026-04-22T17:45:17Z"
         }
-      ]
+      ],
+      "blocked_at": "2026-04-22T18:23:48Z",
+      "blocker": "Reviewer iteration 002 returned changes requested: implementation uses app-local IconName/hand-authored paths, registered stories are placeholder-shadowed, and target membership requires files outside writeAllowed/project constraints."
     }
   },
   "active_processes": {},

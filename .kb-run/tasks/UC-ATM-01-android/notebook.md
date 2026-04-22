@@ -11,3 +11,6 @@ Reviewer verdict: NEEDS_FIXES. Blocking causes: generated Kotlin theme exposes o
 
 ## Unblocked — 2026-04-22T18:02:00Z
 Upstream token/theme APIs now expose generated Kotlin typography.opinion/ui/instrument styles plus theme content colors. Android compile gates pass; repo-wide unit tests still have unrelated pre-existing Robolectric/checksum failures, and detekt is not configured in this Gradle project.
+
+## Blocked — 2026-04-22T18:23:48Z
+Reviewer iteration 004 verdict: NEEDS_FIXES. Blocking causes: generated Android theme exposes only legacy type.* text styles, not typography.opinion/ui/instrument with Newsreader/Geist/JetBrains Mono; the primary AC tests are @Ignore; ContentColor ignores active theme values; connectedDebugAndroidTest/detekt/exact release APK gate are not satisfied. Remediation requires upstream token/theme/font generation or explicit scope expansion beyond this atom task.
