@@ -18,9 +18,9 @@ import SwiftUI
  * - Focus border: `theme.colors.primary.default`
  * - Error border: `theme.colors.danger.default`
  * - Text color: `theme.colors.onSurface.default`
- * - Placeholder color: `theme.colors.onSurface.subtle`
+ * - Placeholder color: `theme.colors.onSurface.default` with reduced opacity
  * - Input text: `theme.type.body.md.fontSize` (16), regular weight
- * - Label: `theme.type.label.sm.fontSize` (12), medium weight, uppercase, `theme.colors.onSurface.subtle`
+ * - Label: `theme.type.label.sm.fontSize` (12), medium weight, uppercase, `theme.colors.onSurface.default` with reduced opacity
  * - Left icon padding: leading=`theme.space.lg` (16), trailing=`theme.space.sm` (8)
  * - Right icon padding: leading=`theme.space.sm` (8), trailing=`theme.space.lg` (16)
  * - Icon size: 20pt
@@ -78,7 +78,7 @@ public struct LSInput: View {
             if let label {
                 Text(label.uppercased())
                     .font(.system(size: theme.type.label.sm.fontSize, weight: .medium))
-                    .foregroundStyle(theme.colors.onSurface.subtle)
+                    .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
                     .padding(.leading, theme.space.xs)
             }
 
@@ -144,9 +144,6 @@ public struct LSInput: View {
         }
         .accessibilityLabel(label ?? placeholder ?? "Text input")
         .accessibilityAddTraits([.isKeyboardKey])
-        .if(disabled) {
-            $0.accessibilityAddTraits(.notEnabled)
-        }
         .accessibilityIdentifier(testID ?? "input")
     }
 
@@ -176,7 +173,7 @@ public struct LSInput: View {
         } else if isFocused {
             theme.colors.primary.default
         } else {
-            theme.colors.onSurface.subtle
+            theme.colors.onSurface.default.opacity(0.6)
         }
     }
 }
@@ -211,8 +208,8 @@ private extension View {
 #Preview("With Label") {
     LSInput(
         value: .constant(""),
-        placeholder: "Enter text",
-        label: "Label"
+        label: "Label",
+        placeholder: "Enter text"
     )
     .laneShadowTheme()
     .padding()
@@ -221,8 +218,8 @@ private extension View {
 #Preview("With Value") {
     LSInput(
         value: .constant("Sample text"),
-        placeholder: "Enter text",
-        label: "Label"
+        label: "Label",
+        placeholder: "Enter text"
     )
     .laneShadowTheme()
     .padding()
@@ -231,8 +228,8 @@ private extension View {
 #Preview("Error State") {
     LSInput(
         value: .constant(""),
-        placeholder: "Enter text",
         label: "Email",
+        placeholder: "Enter text",
         error: "Invalid email address"
     )
     .laneShadowTheme()
@@ -242,8 +239,8 @@ private extension View {
 #Preview("Disabled") {
     LSInput(
         value: .constant("Disabled text"),
-        placeholder: "Enter text",
         label: "Label",
+        placeholder: "Enter text",
         disabled: true
     )
     .laneShadowTheme()
@@ -273,8 +270,8 @@ private extension View {
 #Preview("With Both Icons") {
     LSInput(
         value: .constant(""),
-        placeholder: "Search",
         label: "Search",
+        placeholder: "Search",
         leftIcon: "magnifyingglass",
         rightIcon: "xmark.circle"
     )
@@ -286,27 +283,27 @@ private extension View {
     VStack(spacing: 16) {
         LSInput(
             value: .constant(""),
-            placeholder: "Default input",
-            label: "Default"
+            label: "Default",
+            placeholder: "Default input"
         )
 
         LSInput(
             value: .constant("Focused text"),
-            placeholder: "Enter text",
-            label: "Focused"
+            label: "Focused",
+            placeholder: "Enter text"
         )
 
         LSInput(
             value: .constant(""),
-            placeholder: "Enter email",
             label: "Error",
+            placeholder: "Enter email",
             error: "Invalid email address"
         )
 
         LSInput(
             value: .constant("Can't edit"),
-            placeholder: "Disabled",
             label: "Disabled",
+            placeholder: "Disabled",
             disabled: true
         )
     }

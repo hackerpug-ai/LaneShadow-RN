@@ -50,6 +50,6 @@ public struct LSSheetHandle: View {
 
         LSSheetHandle()
             .padding()
-            .background(Color.darkGray.opacity(0.3))
+            .background(Color.black.opacity(0.3))
     }
 }

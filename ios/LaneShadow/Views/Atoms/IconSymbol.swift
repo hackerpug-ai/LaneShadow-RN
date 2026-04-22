@@ -103,12 +103,12 @@ public struct LSIconSymbol: View {
         let mappedName = Self.iconMap[name] ?? name
 
         Image(systemName: mappedName)
+            .renderingMode(.template)
             .resizable()
             .scaledToFit()
             .frame(width: size, height: size)
             .foregroundStyle(color)
             .font(.system(size: size).weight(weight))
-            .renderingMode(.template)
             .accessibilityLabel(name)
             .accessibilityHidden(false)
     }

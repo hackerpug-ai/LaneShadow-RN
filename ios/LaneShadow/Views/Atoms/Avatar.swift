@@ -11,9 +11,9 @@ import SwiftUI
  */
 // swiftlint:disable identifier_name
 public enum AvatarSize {
-    case defaultSize // 40×40px (theme.size.avatarDefault)
-    case lg // 64×64px (theme.size.avatarLg)
-    case xl // 96×96px (theme.size.avatarXl)
+    case defaultSize // 40x40px
+    case lg // 64x64px
+    case xl // 96x96px
 }
 
 // swiftlint:enable identifier_name
@@ -42,7 +42,7 @@ public enum AvatarBadgeVariant {
  * Matrix reference: .spec/prds/native-rewrite/matrices/ui/atoms/Avatar.md
  *
  * ## Design Tokens Used
- * - Sizes: `theme.size.avatarDefault/Lg/Xl` (40/64/96)
+ * - Sizes: 40/64/96
  * - Typography: `theme.type.body.sm/title.lg/display.sm.fontSize` (16/24/36)
  * - Colors: `theme.colors.muted.default`, `theme.colors.onSurface.default`
  * - Border: `theme.colors.border.default`, `theme.colors.primary.default`
@@ -93,11 +93,11 @@ public struct Avatar: View {
         // Get avatar dimensions from theme tokens
         let avatarSize: CGFloat = switch size {
         case .defaultSize:
-            theme.size.avatarDefault
+            40
         case .lg:
-            theme.size.avatarLg
+            64
         case .xl:
-            theme.size.avatarXl
+            96
         }
 
         // Get initials font size from theme tokens

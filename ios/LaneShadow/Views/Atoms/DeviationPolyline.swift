@@ -98,7 +98,7 @@ public struct DeviationPolyline: View {
         .accessibilityLabel("Route deviation map")
         .accessibilityHint("Shows original route in gray, detour path in orange, and reconnection point in green")
         .accessibilityAddTraits(.isButton)
-        .testID(testID ?? "deviationPolyline")
+        .accessibilityIdentifier(testID ?? "deviationPolyline")
     }
 
     // MARK: - Private Helpers

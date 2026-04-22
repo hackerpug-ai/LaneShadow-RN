@@ -19,7 +19,7 @@ import SwiftUI
  * - Focus border: `theme.colors.primary.default`
  * - Error border: `theme.colors.danger.default`
  * - Text color: `theme.colors.onSurface.default`
- * - Placeholder color: `theme.colors.onSurface.subtle` with 0.6 opacity
+     * - Placeholder color: `theme.colors.onSurface.default` with 0.6 opacity
  * - Text font: `theme.type.body.sm.fontSize` (14), regular weight
  * - Padding: horizontal=`theme.space.md` (12), vertical=`theme.space.sm` (8)
  * - Disabled opacity: 0.5
@@ -64,7 +64,7 @@ public struct LSTextarea: View {
                 if value.isEmpty, !isFocused {
                     Text(placeholder)
                         .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(theme.colors.onSurface.subtle.opacity(0.6))
+                        .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
                         .padding(.horizontal, theme.space.md)
                         .padding(.vertical, theme.space.sm)
                         .accessibilityHidden(true)
@@ -100,9 +100,6 @@ public struct LSTextarea: View {
                     .foregroundStyle(theme.colors.danger.default)
                     .padding(.leading, theme.space.xs)
             }
-        }
-        .if(disabled) {
-            $0.accessibilityAddTraits(.notEnabled)
         }
     }
 

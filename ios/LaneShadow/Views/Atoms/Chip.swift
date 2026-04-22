@@ -85,7 +85,7 @@ public struct LSChip: View {
             return theme.colors.primary.default
         }
 
-        return theme.colors.onSurface.muted ?? theme.colors.onSurface.default
+        return theme.colors.onSurface.default.opacity(0.6)
     }
 
     // MARK: - Body

@@ -81,9 +81,6 @@ public struct LSSwitch: View {
         .contentShape(Rectangle())
         .accessibilityAddTraits(.isButton)
         .accessibilityValue(value ? "1" : "0")
-        .if(disabled) { view in
-            view.accessibilityAddTraits(.notEnabled)
-        }
         .accessibilityIdentifier(testID ?? "switch")
     }
 

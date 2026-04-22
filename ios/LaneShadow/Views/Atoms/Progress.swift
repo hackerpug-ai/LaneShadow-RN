@@ -105,7 +105,7 @@ public struct LSProgress: View {
 
     private var fraction: CGFloat {
         let rawFraction = value / max
-        return min(1.0, max(0.0, rawFraction))
+        return Swift.min(1.0, Swift.max(0.0, rawFraction))
     }
 
     private func startIndeterminateAnimation() {

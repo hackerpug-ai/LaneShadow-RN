@@ -99,7 +99,6 @@ public struct LSFAB: View {
                 }
         )
         .accessibilityAddTraits(.isButton)
-        .accessibilityAddTraits(disabled ? .notEnabled : [])
         .accessibilityLabel(accessibilityLabel ?? computedAccessibilityLabel)
         .accessibilityIdentifier(testID ?? "fab")
     }

@@ -303,7 +303,6 @@ public struct LSButton: View {
         }
         .disabled(disabled || loading)
         .accessibilityAddTraits(.isButton)
-        .accessibilityAddTraits((disabled || loading) ? .notEnabled : [])
         .accessibilityLabel(accessibilityLabel ?? labelText)
         .accessibilityIdentifier(testID ?? "button")
     }

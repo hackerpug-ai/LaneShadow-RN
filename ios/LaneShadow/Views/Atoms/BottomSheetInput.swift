@@ -18,9 +18,9 @@ import SwiftUI
  * - Focus border: `theme.colors.primary.default`
  * - Error border: `theme.colors.danger.default`
  * - Text color: `theme.colors.onSurface.default`
- * - Placeholder color: `theme.colors.onSurface.subtle`
+ * - Placeholder color: `theme.colors.onSurface.default` with reduced opacity
  * - Input text: `theme.type.body.md.fontSize` (16), regular weight
- * - Label: `theme.type.label.sm.fontSize` (12), medium weight, uppercase, `theme.colors.onSurface.subtle`
+ * - Label: `theme.type.label.sm.fontSize` (12), medium weight, uppercase, `theme.colors.onSurface.default` with reduced opacity
  * - Left icon padding: leading=`theme.space.lg` (16), trailing=`theme.space.sm` (8)
  * - Right icon padding: leading=`theme.space.sm` (8), trailing=`theme.space.lg` (16)
  * - Icon size: `theme.iconSize.small` (16) or medium (20)
@@ -78,7 +78,7 @@ public struct BottomSheetInput: View {
             if let label {
                 Text(label.uppercased())
                     .font(.system(size: theme.type.label.sm.fontSize, weight: .medium))
-                    .foregroundStyle(theme.colors.onSurface.subtle)
+                    .foregroundStyle(theme.colors.onSurface.default.opacity(0.6))
             }
 
             // Input container
@@ -132,13 +132,10 @@ public struct BottomSheetInput: View {
                         .stroke(borderColor, lineWidth: theme.borderWidth.thin)
                 }
             }
-            .opacity(editable ? 1.0 : theme.opacity.step05) // 0.5 when disabled
+            .opacity(editable ? 1.0 : theme.opacity.disabled)
         }
         .accessibilityLabel(label ?? placeholder ?? "Text input")
         .accessibilityAddTraits([.isKeyboardKey])
-        .if(!editable) {
-            $0.accessibilityAddTraits(.notEnabled)
-        }
         .accessibilityIdentifier(testID ?? "bottom-sheet-input")
     }
 
@@ -162,7 +159,7 @@ public struct BottomSheetInput: View {
         if editable {
             theme.colors.onSurface.default
         } else {
-            theme.colors.onSurface.subtle
+            theme.colors.onSurface.default.opacity(0.6)
         }
     }
 
@@ -172,7 +169,7 @@ public struct BottomSheetInput: View {
         } else if isFocused {
             theme.colors.primary.default
         } else {
-            theme.colors.onSurface.subtle
+            theme.colors.onSurface.default.opacity(0.6)
         }
     }
 }
@@ -279,7 +276,7 @@ private extension View {
 }
 
 #Preview("Multiple States") {
-    VStack(spacing: theme.space.lg) {
+    VStack(spacing: 16) {
         BottomSheetInput(
             value: .constant(""),
             placeholder: "Default input",

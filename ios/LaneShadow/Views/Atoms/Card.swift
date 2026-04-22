@@ -86,7 +86,6 @@ public struct Card<Content: View>: View {
         }
         .disabled(disabled)
         .accessibilityAddTraits((onPress != nil) ? .isButton : [])
-        .accessibilityAddTraits(disabled ? .notEnabled : [])
         .accessibilityIdentifier(testID ?? "card")
     }
 
@@ -282,8 +281,7 @@ public struct CardDescription: View {
         case .primary, .success, .warning, .danger:
             theme.colors.onPrimary.default
         case .default:
-            // Use onSurface.muted if available, otherwise fall back to onSurface.default
-            theme.colors.onSurface.muted ?? theme.colors.onSurface.default
+            theme.colors.onSurface.default.opacity(0.6)
         }
     }
 }

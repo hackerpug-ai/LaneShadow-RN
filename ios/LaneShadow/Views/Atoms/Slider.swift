@@ -101,15 +101,12 @@ public struct LSSlider: View {
                 guard !disabled else { return }
                 switch direction {
                 case .increment:
-                    value = min(max, value + step)
+                    value = Swift.min(max, value + step)
                 case .decrement:
-                    value = max(min, value - step)
+                    value = Swift.max(min, value - step)
                 @unknown default:
                     break
                 }
-            }
-            .if(disabled) { view in
-                view.accessibilityAddTraits(.notEnabled)
             }
             .accessibilityIdentifier(testID ?? "slider")
         }
@@ -160,13 +157,13 @@ public struct LSSlider: View {
     // MARK: - Helpers
 
     private func updateValue(from xPosition: CGFloat, in width: CGFloat) {
-        let clampedX = max(0, min(xPosition, width))
+        let clampedX = Swift.max(0, Swift.min(xPosition, width))
         let percentage = Float(clampedX / width)
         let rawValue = min + (percentage * (max - min))
 
         // Snap to step
         let steppedValue = round(rawValue / step) * step
-        value = max(min, min(max, steppedValue))
+        value = Swift.max(min, Swift.min(max, steppedValue))
     }
 }
 

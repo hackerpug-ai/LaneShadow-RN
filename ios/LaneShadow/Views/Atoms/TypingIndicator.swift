@@ -79,7 +79,6 @@ public struct LSTypingIndicator: View {
             isAnimating = true
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityRole(.progressIndicator)
         .accessibilityLabel("Assistant is typing")
         .accessibilityIdentifier(testID ?? "typing-indicator")
     }

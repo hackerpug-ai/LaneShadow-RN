@@ -125,12 +125,8 @@ public struct LSRoutePolyline: View {
             path.addLine(to: point)
         }
 
-        var resolvedPath = path
-        resolvedPath.lineJoinStyle = .round
-        resolvedPath.lineCapStyle = .round
-
         context.stroke(
-            resolvedPath,
+            path,
             with: .color(color),
             style: StrokeStyle(
                 lineWidth: strokeWidth,

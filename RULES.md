@@ -79,7 +79,8 @@ Every commit runs the following checks via `lefthook` `pre-commit` jobs declared
 1. **TypeScript type check** — `pnpm type-check:native`
 2. **Biome lint/format/imports** — `pnpm exec biome check --no-errors-on-unmatched {staged_files}`
 3. **Token validation and sync checks** — `pnpm tokens:validate`, `pnpm tokens:sync-check` when matching files are staged
-4. **Platform-native checks** — `swiftformat`, `xcodebuild ... build`, or `./gradlew :app:compileDebugKotlin` when matching platform files are staged
+4. **iOS project generation check** — `scripts/ios/check-project-generated.sh` when `ios/project.yml` is staged
+5. **Platform-native checks** — `swiftformat`, `xcodebuild ... build`, or `./gradlew :app:compileDebugKotlin` when matching platform files are staged
 
 Additional repo-wide verification runs via `lefthook pre-push`:
 
@@ -128,10 +129,10 @@ Background: holocron research doc `js74ct16xh8dq06zpcysqggd25858fac` — "Multi-
    - Reserve a dedicated **AVD + emulator port** (5554, 5556, …) per Android task
    - Each specialist runs `source scripts/agent-worktree-env.sh` inside the worktree to get per-task `DERIVED_DATA_PATH` / `GRADLE_USER_HOME` / `SWIFTPM_CACHE_DIR`
 4. **Structured build evidence, not free text.** A specialist that commits `.swift` changes must have an `xcodebuild` or XcodeBuildMCP invocation in its transcript; `.kt` / `.gradle` changes require `./gradlew` or `adb`. Enforced by `.claude/hooks/subagent-build-evidence.py` (SubagentStop).
-5. **`.pbxproj` / `.xcodeproj` are human-only.** Blocked globally by `~/.claude/hooks/protect-xcode-project.py` (PreToolUse) and locally by `.codex/hooks/pre_tool_use_protect_xcode.py`. If a file must be added to an Xcode target, stop and ask the user.
+5. **`.pbxproj` / `.xcodeproj` are generated-only.** Agents must not hand-edit Xcode project internals. To change iOS targets, packages, schemes, or source membership, edit [`ios/project.yml`](ios/project.yml), run `scripts/ios/generate-project.sh`, and commit the regenerated `ios/LaneShadow.xcodeproj` output with the spec change. Direct project edits remain blocked globally by `~/.claude/hooks/protect-xcode-project.py` (PreToolUse) and locally by `.codex/hooks/pre_tool_use_protect_xcode.py`.
 6. **Orchestrator merges, never the specialist.** After specialist commits and reviewer approves, orchestrator runs `git merge --no-ff` and then `git worktree remove` (never `--force`). If cleanup fails, preserve the worktree and escalate.
 
-**Humans own:** code signing, provisioning profiles, `.pbxproj` / target membership, App Store / Play Store submission, visual polish judgment.
+**Humans own:** code signing, provisioning profiles, App Store / Play Store submission, visual polish judgment. Xcode target membership is owned by the generated XcodeGen spec, not by manual `.pbxproj` edits.
 
 ---
 

@@ -88,9 +88,6 @@ public struct LSCheckbox: View {
         .accessibilityAddTraits(.isButton)
         .accessibilityLabel(accessibilityLabelForState)
         .accessibilityValue(accessibilityValueForState)
-        .if(disabled) { view in
-            view.accessibilityAddTraits(.notEnabled)
-        }
         .accessibilityIdentifier(testID ?? "checkbox")
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)

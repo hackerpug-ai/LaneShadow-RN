@@ -41,6 +41,11 @@ pre-commit:
       glob: "*.swift"
       run: swiftformat --quiet {staged_files}
 
+    # Xcode project generation: project internals are generated from ios/project.yml.
+    - name: ios-project-generated
+      glob: "ios/project.yml"
+      run: scripts/ios/check-project-generated.sh
+
     # Detekt: Kotlin static analysis for android/ native code.
     # android/ is gitignored (Expo prebuild). Activate when adding custom Kotlin.
     # Install: `brew install detekt`, then uncomment.

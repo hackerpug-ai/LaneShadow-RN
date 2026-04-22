@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: - Toggle Component
 
-/* 
+/*
  * Toggle atom component
  *
  * Following RN wrapper API from react-native/components/ui/toggle.tsx
@@ -168,7 +168,7 @@ public struct LSToggle: View {
         .cornerRadius(cornerRadius)
         .overlay(
             RoundedRectangle(cornerRadius: cornerRadius)
-                .stroke(borderColor, lineWidth: theme.borderWidth.thin)
+                .stroke(borderColor ?? .clear, lineWidth: theme.borderWidth.thin)
         )
         .opacity(disabled ? 0.5 : 1.0)
     }

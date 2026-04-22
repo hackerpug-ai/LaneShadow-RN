@@ -116,7 +116,6 @@ public struct LSPrimaryButton: View {
         .buttonStyle(.plain)
         .disabled(disabled || loading)
         .accessibilityAddTraits(.isButton)
-        .accessibilityAddTraits((disabled || loading) ? .notEnabled : [])
         .accessibilityLabel(loading ? "Loading" : title)
         .accessibilityIdentifier("primaryButton")
     }
