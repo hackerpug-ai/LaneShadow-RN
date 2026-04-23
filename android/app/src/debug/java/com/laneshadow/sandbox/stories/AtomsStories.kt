@@ -68,5 +68,6 @@ object AtomsStories {
             LSPillStories.all +
             LSButtonStories.all +
             LSDisplayStories.all +
-            LSInputStories.all
+            LSInputStories.all +
+            LSSurfaceStories.all
 }
