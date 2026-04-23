@@ -1,0 +1,237 @@
+/**
+ * toast.css — LSToast molecule
+ * LaneShadow V2 · Copper · Molecule
+ * Authority: uc-mol-03-bottomsheet-toast-modal.html §UC-MOL-03
+ *
+ * Composition:
+ *   .mol-toast                     → ls-glass-panel--chrome as base surface
+ *   .mol-toast__icon               → ls-icon (SVG) leading slot
+ *   .mol-toast__body               → text region (message + optional subtext)
+ *   .mol-toast__action             → optional inline ls-btn--ghost/pill
+ *   .mol-toast__dismiss            → X close button
+ *   .mol-toast__progress           → auto-dismiss timer bar (5000ms)
+ *
+ * Status variants: mol-toast--info | --success | --warning | --error | --recording
+ * Position: toast stack lives in a fixed portal at bottom-center (runtime concern).
+ *
+ * NEVER redefines .ls-glass-panel, .ls-btn, .ls-icon.
+ */
+
+/* ── Root ───────────────────────────────────────────────────────── */
+.mol-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-overlay);
+  border: var(--stroke-sm) solid var(--border-default);
+  background: var(--surface-overlay);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  width: 100%;
+  max-width: 340px;
+  position: relative;
+  overflow: hidden;
+  /* Motion: chatOverlayEnter 320ms cubic-bezier(0.22,1,0.36,1) from bottom */
+  /* Motion: chatOverlayDismiss 240ms ease-accelerated downward after 5000ms */
+}
+
+/* ── Icon slot ──────────────────────────────────────────────────── */
+.mol-toast__icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  flex-shrink: 0;
+  margin-top: var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mol-toast__icon svg {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  stroke: currentColor;
+  fill: none;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Body ───────────────────────────────────────────────────────── */
+.mol-toast__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.mol-toast__message {
+  color: var(--content-primary);
+}
+
+.mol-toast__subtext {
+  color: var(--content-secondary);
+}
+
+/* ── Action button ──────────────────────────────────────────────── */
+.mol-toast__action {
+  /* Compose with .ls-btn--ghost.ls-btn--pill */
+  flex-shrink: 0;
+  margin-top: calc(var(--space-1) * -1);
+  height: var(--space-8);
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-4);
+  /* font-size via t-body-md (12px) — apply class at HTML layer */
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--content-primary);
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+
+/* ── Dismiss button ─────────────────────────────────────────────── */
+.mol-toast__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--content-tertiary);
+  border-radius: var(--radius-sm);
+  padding: 0;
+  margin-top: var(--space-1);
+}
+
+.mol-toast__dismiss svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  stroke: currentColor;
+  fill: none;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Auto-dismiss progress bar ──────────────────────────────────── */
+.mol-toast__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: var(--space-1);  /* 2px */
+  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+  /* Width animated from 100% → 0% over 5000ms (chatOverlayDismiss) */
+}
+
+/* ── Status variants ────────────────────────────────────────────── */
+
+/* Default (neutral) */
+.mol-toast--default {
+  background: var(--surface-overlay);
+  border-color: var(--border-default);
+  color: var(--content-primary);
+}
+
+.mol-toast--default .mol-toast__progress {
+  background: var(--border-strong);
+}
+
+/* Info */
+.mol-toast--info {
+  background: var(--status-info-tint);
+  border-color: color-mix(in srgb, var(--status-info) 25%, transparent);
+  color: var(--status-info);
+}
+
+.mol-toast--info .mol-toast__message  { color: var(--status-info); }
+.mol-toast--info .mol-toast__subtext  { color: color-mix(in srgb, var(--status-info) 70%, var(--content-primary)); }
+.mol-toast--info .mol-toast__action   { color: var(--status-info); }
+.mol-toast--info .mol-toast__dismiss  { color: var(--status-info); }
+.mol-toast--info .mol-toast__progress { background: var(--status-info); }
+
+/* Success */
+.mol-toast--success {
+  background: var(--status-success-tint);
+  border-color: color-mix(in srgb, var(--status-success) 25%, transparent);
+  color: var(--status-success);
+}
+
+.mol-toast--success .mol-toast__message  { color: var(--status-success); }
+.mol-toast--success .mol-toast__subtext  { color: color-mix(in srgb, var(--status-success) 70%, var(--content-primary)); }
+.mol-toast--success .mol-toast__action   { color: var(--status-success); }
+.mol-toast--success .mol-toast__dismiss  { color: var(--status-success); }
+.mol-toast--success .mol-toast__progress { background: var(--status-success); }
+
+/* Warning */
+.mol-toast--warning {
+  background: var(--status-warning-tint);
+  border-color: color-mix(in srgb, var(--status-warning) 25%, transparent);
+  color: var(--status-warning);
+}
+
+.mol-toast--warning .mol-toast__message  { color: var(--status-warning); }
+.mol-toast--warning .mol-toast__subtext  { color: color-mix(in srgb, var(--status-warning) 70%, var(--content-primary)); }
+.mol-toast--warning .mol-toast__action   { color: var(--status-warning); }
+.mol-toast--warning .mol-toast__dismiss  { color: var(--status-warning); }
+.mol-toast--warning .mol-toast__progress { background: var(--status-warning); }
+
+/* Error */
+.mol-toast--error {
+  background: var(--status-error-tint);
+  border-color: color-mix(in srgb, var(--status-error) 25%, transparent);
+  color: var(--status-error);
+}
+
+.mol-toast--error .mol-toast__message  { color: var(--status-error); }
+.mol-toast--error .mol-toast__subtext  { color: color-mix(in srgb, var(--status-error) 70%, var(--content-primary)); }
+.mol-toast--error .mol-toast__action   { color: var(--status-error); }
+.mol-toast--error .mol-toast__dismiss  { color: var(--status-error); }
+.mol-toast--error .mol-toast__progress { background: var(--status-error); }
+
+/* Recording (live indicator) */
+.mol-toast--recording {
+  background: color-mix(in srgb, var(--status-recording) 10%, var(--surface-overlay));
+  border-color: color-mix(in srgb, var(--status-recording) 30%, transparent);
+  color: var(--status-recording);
+}
+
+.mol-toast--recording .mol-toast__message  { color: var(--status-recording); }
+.mol-toast--recording .mol-toast__subtext  { color: color-mix(in srgb, var(--status-recording) 70%, var(--content-primary)); }
+.mol-toast--recording .mol-toast__dismiss  { color: var(--status-recording); }
+.mol-toast--recording .mol-toast__progress {
+  background: var(--status-recording);
+  /* Live: no countdown — persists until ride ends */
+}
+
+/* Live pulse dot (recording only) */
+.mol-toast__live-dot {
+  width: var(--space-3);
+  height: var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--status-recording);
+  flex-shrink: 0;
+  margin-top: calc((var(--icon-md) - var(--space-3)) / 2);
+  /* Animation: pulse 1.2s ease-in-out infinite at runtime */
+}
+
+/* ── Multi-line body (no subtext truncation) ────────────────────── */
+.mol-toast--multiline .mol-toast__message {
+  white-space: normal;
+}
+
+/* ── Dark mode ─────────────────────────────────────────────────── */
+.mode-dark .mol-toast--default {
+  background: var(--surface-overlay);
+  border-color: var(--border-default);
+}
+
+/* Status tints on dark stay semantic — no override needed.
+   Tint tokens are light-palette by design (they flip via token system). */

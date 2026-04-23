@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<!-- modal.html — LSModal molecule preview
+     LaneShadow V2 · Copper · Molecule · UC-MOL-03
+     Authority: .spec/prds/v2/concepts/uc-mol-03-bottomsheet-toast-modal.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSModal — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+/* Molecule-local CSS — composed over atom layer */
+
+/* ── Modal backdrop context ───────────────────────────────────── */
+.mol-modal-backdrop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  min-height: 220px;
+  padding: var(--space-7);
+}
+/* .ls-scrim is composed inside this — no backdrop fill here */
+
+/* ── Modal card ─────────────────────────────────────────────── */
+.mol-modal {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--elev-overlay);
+  border: var(--stroke-sm) solid var(--border-default);
+  padding: var(--space-7);
+  width: 100%;
+  max-width: 288px;
+  position: relative;
+  z-index: 3;
+}
+
+/* ── Icon ────────────────────────────────────────────────────── */
+.mol-modal__icon {
+  width: var(--size-control-xl);
+  height: var(--size-control-xl);
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-5);
+  flex-shrink: 0;
+}
+.mol-modal__icon svg {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  stroke: currentColor;
+  fill: none;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mol-modal__icon--destructive {
+  background: color-mix(in srgb, var(--status-error) 12%, var(--surface-card));
+  color: var(--status-error);
+}
+.mol-modal__icon--success {
+  background: color-mix(in srgb, var(--status-success) 12%, var(--surface-card));
+  color: var(--status-success);
+}
+.mol-modal__icon--info {
+  background: color-mix(in srgb, var(--status-info) 12%, var(--surface-card));
+  color: var(--status-info);
+}
+.mol-modal__icon--signal {
+  background: var(--signal-whisper);
+  color: var(--signal-default);
+}
+
+/* ── Title ───────────────────────────────────────────────────── */
+.mol-modal__title {
+  color: var(--content-primary);
+  margin-bottom: var(--space-3);
+}
+
+/* ── Body ────────────────────────────────────────────────────── */
+.mol-modal__body {
+  color: var(--content-secondary);
+  margin-bottom: var(--space-6);
+}
+
+/* ── Form ────────────────────────────────────────────────────── */
+.mol-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+/* ── Actions ─────────────────────────────────────────────────── */
+.mol-modal__actions {
+  display: flex;
+  gap: var(--space-3);
+}
+.mol-modal__actions .ls-btn {
+  flex: 1;
+  height: var(--size-control-lg);
+}
+.mol-modal__actions--single .ls-btn { flex: 1; }
+
+/* Centered layout (success/informational) */
+.mol-modal--centered .mol-modal__title,
+.mol-modal--centered .mol-modal__body { text-align: center; }
+
+/* Dark mode */
+.mode-dark .mol-modal {
+  background: var(--surface-card);
+  border-color: var(--border-default);
+}
+.mode-dark .mol-modal__icon--destructive {
+  background: color-mix(in srgb, var(--status-error) 16%, var(--surface-card));
+}
+.mode-dark .mol-modal__icon--success {
+  background: color-mix(in srgb, var(--status-success) 16%, var(--surface-card));
+}
+.mode-dark .mol-modal__icon--info {
+  background: color-mix(in srgb, var(--status-info) 16%, var(--surface-card));
+}
+
+/* Preview layout */
+.modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-7);
+}
+.modal-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.variant-label { color: var(--content-tertiary); }
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>LSModal</em></h1>
+  <span class="subtitle">MOLECULE · UC-MOL-03 · LaneShadow V2 Copper</span>
+</div>
+
+<!-- ── Four modal variants — Light + Dark ─────────────────────── -->
+<section class="section">
+  <div class="section-label">Variants — Destructive / Informational / Form / Success</div>
+  <div class="two-up">
+
+    <!-- Light -->
+    <div class="theme-pane">
+      <div class="modal-grid">
+
+        <!-- Destructive confirm -->
+        <div class="modal-col">
+          <span class="t-label-md variant-label">Destructive Confirm</span>
+          <div class="mol-modal-backdrop">
+            <div class="ls-scrim ls-scrim--default ls-scrim--blocking"></div>
+            <div class="mol-modal mol-modal--destructive">
+              <div class="mol-modal__icon mol-modal__icon--destructive">
+                <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </div>
+              <h2 class="mol-modal__title t-title-md mol-modal--centered">Delete ride?</h2>
+              <p class="mol-modal__body t-body-md mol-modal--centered">This cannot be undone. The route and all recorded data will be permanently removed.</p>
+              <div class="mol-modal__actions">
+                <button class="ls-btn ls-btn--ghost">Cancel</button>
+                <button class="ls-btn ls-btn--destructive">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informational -->
+        <div class="modal-col">
+          <span class="t-label-md variant-label">Informational</span>
+          <div class="mol-modal-backdrop">
+            <div class="ls-scrim ls-scrim--default ls-scrim--blocking"></div>
+            <div class="mol-modal mol-modal--centered">
+              <div class="mol-modal__icon mol-modal__icon--info">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <h2 class="mol-modal__title t-title-md">Offline map downloaded</h2>
+              <p class="mol-modal__body t-body-md">Central Coast region (1.2 GB) is now available offline. Manage downloads in Settings.</p>
+              <div class="mol-modal__actions mol-modal__actions--single">
+                <button class="ls-btn ls-btn--primary">Got it</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div class="modal-col">
+          <span class="t-label-md variant-label">Form — Save Route</span>
+          <div class="mol-modal-backdrop">
+            <div class="ls-scrim ls-scrim--default ls-scrim--blocking"></div>
+            <div class="mol-modal">
+              <h2 class="mol-modal__title t-title-md">Save route</h2>
+              <p class="mol-modal__body t-body-md" style="margin-bottom: var(--space-4);">Give your route a name before saving to your library.</p>
+              <div class="mol-modal__form">
+                <div class="ls-form-field">
+                  <label class="field-label" for="route-name-light">Route name</label>
+                  <div class="input-wrap">
+                    <input class="ls-input focused" id="route-name-light" type="text" value="Big Sur Loop · April" placeholder="Name your route">
+                  </div>
+                </div>
+                <div class="ls-form-field">
+                  <label class="field-label" for="route-notes-light">Notes (optional)</label>
+                  <div class="input-wrap">
+                    <input class="ls-input" id="route-notes-light" type="text" placeholder="Add a note…">
+                  </div>
+                </div>
+              </div>
+              <div class="mol-modal__actions">
+                <button class="ls-btn ls-btn--ghost">Discard</button>
+                <button class="ls-btn ls-btn--primary">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Success -->
+        <div class="modal-col">
+          <span class="t-label-md variant-label">Success</span>
+          <div class="mol-modal-backdrop">
+            <div class="ls-scrim ls-scrim--default ls-scrim--blocking"></div>
+            <div class="mol-modal mol-modal--centered">
+              <div class="mol-modal__icon mol-modal__icon--success">
+                <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <h2 class="mol-modal__title t-title-md">Ride complete!</h2>
+              <p class="mol-modal__body t-body-md">42.1 mi · 2 h 38 min · 1,240 ft gain. Added to your ride history.</p>
+              <div class="mol-modal__actions mol-modal__actions--single">
+                <button class="ls-btn ls-btn--accept">View stats</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark">
+      <div class="modal-grid">
+
+        <!-- Destructive — dark -->
+        <div class="modal-col">
+          <span class="t-label-md variant-label">Destructive · Dark</span>
+          <div class="mol-modal-backdrop">
+            <div class="ls-scrim ls-scrim--medium ls-scrim--blocking"></div>
+            <div class="mol-modal mol-modal--destructive mol-modal--centered">
+              <div class="mol-modal__icon mol-modal__icon--destructive">
+                <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </div>
+              <h2 class="mol-modal__title t-title-md">Delete ride?</h2>
+              <p class="mol-modal__body t-body-md">This cannot be undone. The route and all recorded data will be permanently removed.</p>
+              <div class="mol-modal__actions">
+                <button class="ls-btn ls-btn--ghost">Cancel</button>
+                <button class="ls-btn ls-btn--destructive">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informational — dark -->
+        <div class="modal-col">
+          <span class="t-label-md variant-label">Informational · Dark</span>
+          <div class="mol-modal-backdrop">
+            <div class="ls-scrim ls-scrim--medium ls-scrim--blocking"></div>
+            <div class="mol-modal mol-modal--centered">
+              <div class="mol-modal__icon mol-modal__icon--info">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <h2 class="mol-modal__title t-title-md">Offline map downloaded</h2>
+              <p class="mol-modal__body t-body-md">Central Coast region (1.2 GB) is now available offline. Manage downloads in Settings.</p>
+              <div class="mol-modal__actions mol-modal__actions--single">
+                <button class="ls-btn ls-btn--primary">Got it</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form — dark -->
+        <div class="modal-col">
+          <span class="t-label-md variant-label">Form · Dark</span>
+          <div class="mol-modal-backdrop">
+            <div class="ls-scrim ls-scrim--medium ls-scrim--blocking"></div>
+            <div class="mol-modal">
+              <h2 class="mol-modal__title t-title-md">Save route</h2>
+              <p class="mol-modal__body t-body-md" style="margin-bottom: var(--space-4);">Give your route a name before saving to your library.</p>
+              <div class="mol-modal__form">
+                <div class="ls-form-field">
+                  <label class="field-label" for="route-name-dark">Route name</label>
+                  <div class="input-wrap">
+                    <input class="ls-input focused" id="route-name-dark" type="text" value="Big Sur Loop · April" placeholder="Name your route">
+                  </div>
+                </div>
+              </div>
+              <div class="mol-modal__actions">
+                <button class="ls-btn ls-btn--ghost">Discard</button>
+                <button class="ls-btn ls-btn--primary">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Success — dark -->
+        <div class="modal-col">
+          <span class="t-label-md variant-label">Success · Dark</span>
+          <div class="mol-modal-backdrop">
+            <div class="ls-scrim ls-scrim--medium ls-scrim--blocking"></div>
+            <div class="mol-modal mol-modal--centered">
+              <div class="mol-modal__icon mol-modal__icon--success">
+                <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <h2 class="mol-modal__title t-title-md">Ride complete!</h2>
+              <p class="mol-modal__body t-body-md">42.1 mi · 2 h 38 min · 1,240 ft gain. Added to your ride history.</p>
+              <div class="mol-modal__actions mol-modal__actions--single">
+                <button class="ls-btn ls-btn--accept">View stats</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Primary + ghost / save-before-leaving ──────────────────── -->
+<section class="section">
+  <div class="section-label">Save-before-leaving / Primary + Ghost</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="modal-col">
+        <span class="t-label-md variant-label">Save route before leaving?</span>
+        <div class="mol-modal-backdrop">
+          <div class="ls-scrim ls-scrim--default ls-scrim--blocking"></div>
+          <div class="mol-modal">
+            <h2 class="mol-modal__title t-title-md">Save route before leaving?</h2>
+            <p class="mol-modal__body t-body-md">You have unsaved changes. Save them now to continue where you left off.</p>
+            <div class="mol-modal__actions">
+              <button class="ls-btn ls-btn--ghost">Discard</button>
+              <button class="ls-btn ls-btn--primary">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="modal-col">
+        <span class="t-label-md variant-label">Save route before leaving? · Dark</span>
+        <div class="mol-modal-backdrop">
+          <div class="ls-scrim ls-scrim--medium ls-scrim--blocking"></div>
+          <div class="mol-modal">
+            <h2 class="mol-modal__title t-title-md">Save route before leaving?</h2>
+            <p class="mol-modal__body t-body-md">You have unsaved changes. Save them now to continue where you left off.</p>
+            <div class="mol-modal__actions">
+              <button class="ls-btn ls-btn--ghost">Discard</button>
+              <button class="ls-btn ls-btn--primary">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

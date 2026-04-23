@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<!-- toast.html — LSToast molecule preview
+     LaneShadow V2 · Copper · Molecule · UC-MOL-03
+     Authority: .spec/prds/v2/concepts/uc-mol-03-bottomsheet-toast-modal.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSToast — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+/* Molecule-local CSS — composed over atom layer */
+
+/* ── LSToast root ─────────────────────────────────────────────── */
+.mol-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-overlay);
+  border: var(--stroke-sm) solid var(--border-default);
+  background: var(--surface-overlay);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  width: 100%;
+  max-width: 340px;
+  position: relative;
+  overflow: hidden;
+}
+.mol-toast__icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  flex-shrink: 0;
+  margin-top: var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mol-toast__icon svg {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  stroke: currentColor;
+  fill: none;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mol-toast__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.mol-toast__action {
+  flex-shrink: 0;
+  height: var(--space-8);
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-4);
+  font-size: 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  align-self: center;
+}
+.mol-toast__dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 0;
+  margin-top: var(--space-1);
+}
+.mol-toast__dismiss svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  stroke: currentColor;
+  fill: none;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mol-toast__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: var(--space-1);
+  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+}
+.mol-toast__live-dot {
+  width: var(--space-3);
+  height: var(--space-3);
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* Status variants */
+.mol-toast--default   { background: var(--surface-overlay); border-color: var(--border-default); color: var(--content-primary); }
+.mol-toast--default .mol-toast__action  { color: var(--content-primary); }
+.mol-toast--default .mol-toast__dismiss { color: var(--content-tertiary); }
+.mol-toast--default .mol-toast__progress { background: var(--border-strong); }
+
+.mol-toast--info { background: var(--status-info-tint); border-color: color-mix(in srgb, var(--status-info) 25%, transparent); }
+.mol-toast--info .mol-toast__icon,
+.mol-toast--info .mol-toast__body,
+.mol-toast--info .mol-toast__action,
+.mol-toast--info .mol-toast__dismiss  { color: var(--status-info); }
+.mol-toast--info .mol-toast__progress  { background: var(--status-info); }
+
+.mol-toast--success { background: var(--status-success-tint); border-color: color-mix(in srgb, var(--status-success) 25%, transparent); }
+.mol-toast--success .mol-toast__icon,
+.mol-toast--success .mol-toast__body,
+.mol-toast--success .mol-toast__action,
+.mol-toast--success .mol-toast__dismiss { color: var(--status-success); }
+.mol-toast--success .mol-toast__progress { background: var(--status-success); }
+
+.mol-toast--warning { background: var(--status-warning-tint); border-color: color-mix(in srgb, var(--status-warning) 25%, transparent); }
+.mol-toast--warning .mol-toast__icon,
+.mol-toast--warning .mol-toast__body,
+.mol-toast--warning .mol-toast__action,
+.mol-toast--warning .mol-toast__dismiss { color: var(--status-warning); }
+.mol-toast--warning .mol-toast__progress { background: var(--status-warning); }
+
+.mol-toast--error { background: var(--status-error-tint); border-color: color-mix(in srgb, var(--status-error) 25%, transparent); }
+.mol-toast--error .mol-toast__icon,
+.mol-toast--error .mol-toast__body,
+.mol-toast--error .mol-toast__action,
+.mol-toast--error .mol-toast__dismiss  { color: var(--status-error); }
+.mol-toast--error .mol-toast__progress { background: var(--status-error); }
+
+.mol-toast--recording {
+  background: color-mix(in srgb, var(--status-recording) 10%, var(--surface-overlay));
+  border-color: color-mix(in srgb, var(--status-recording) 30%, transparent);
+}
+.mol-toast--recording .mol-toast__icon,
+.mol-toast--recording .mol-toast__body,
+.mol-toast--recording .mol-toast__dismiss { color: var(--status-recording); }
+.mol-toast--recording .mol-toast__live-dot { background: var(--status-recording); }
+.mol-toast--recording .mol-toast__progress { background: var(--status-recording); width: 100%; }
+
+/* Subtext color softening */
+.mol-toast--info .mol-toast__body .t-body-sm     { color: color-mix(in srgb, var(--status-info) 70%, var(--content-primary)); }
+.mol-toast--success .mol-toast__body .t-body-sm  { color: color-mix(in srgb, var(--status-success) 70%, var(--content-primary)); }
+.mol-toast--warning .mol-toast__body .t-body-sm  { color: color-mix(in srgb, var(--status-warning) 70%, var(--content-primary)); }
+.mol-toast--error .mol-toast__body .t-body-sm    { color: color-mix(in srgb, var(--status-error) 70%, var(--content-primary)); }
+
+/* Layout helpers */
+.toast-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-7);
+  max-width: 760px;
+}
+.toast-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.variant-label { color: var(--content-tertiary); margin-bottom: var(--space-2); }
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>LSToast</em></h1>
+  <span class="subtitle">MOLECULE · UC-MOL-03 · LaneShadow V2 Copper</span>
+</div>
+
+<!-- ── Status variants — without action ──────────────────────── -->
+<section class="section">
+  <div class="section-label">Status Variants — Without Action</div>
+  <div class="two-up">
+
+    <!-- Light -->
+    <div class="theme-pane">
+      <div class="toast-grid">
+
+        <!-- Default -->
+        <div class="toast-col">
+          <span class="t-label-md variant-label">Default</span>
+          <div class="mol-toast mol-toast--default">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Route saved to your library.</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress" style="width: 80%;"></div>
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="toast-col">
+          <span class="t-label-md variant-label">Info</span>
+          <div class="mol-toast mol-toast--info">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Offline map ready for Central Coast.</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress" style="width: 65%;"></div>
+          </div>
+        </div>
+
+        <!-- Success -->
+        <div class="toast-col">
+          <span class="t-label-md variant-label">Success</span>
+          <div class="mol-toast mol-toast--success">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Ride recorded — 42 mi logged.</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress" style="width: 55%;"></div>
+          </div>
+        </div>
+
+        <!-- Warning -->
+        <div class="toast-col">
+          <span class="t-label-md variant-label">Warning</span>
+          <div class="mol-toast mol-toast--warning">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Low storage — 2 GB remaining.</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress" style="width: 40%;"></div>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div class="toast-col">
+          <span class="t-label-md variant-label">Error</span>
+          <div class="mol-toast mol-toast--error">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Failed to sync route data.</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress" style="width: 20%;"></div>
+          </div>
+        </div>
+
+        <!-- Recording -->
+        <div class="toast-col">
+          <span class="t-label-md variant-label">Recording (Live)</span>
+          <div class="mol-toast mol-toast--recording">
+            <div class="mol-toast__live-dot"></div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Recording ride · 12.4 mi</span>
+              <span class="t-body-sm">Tap to view live stats</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark">
+      <div class="toast-grid">
+
+        <div class="toast-col">
+          <span class="t-label-md variant-label">Default · Dark</span>
+          <div class="mol-toast mol-toast--default">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Route saved to your library.</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress" style="width: 80%;"></div>
+          </div>
+        </div>
+
+        <div class="toast-col">
+          <span class="t-label-md variant-label">Info · Dark</span>
+          <div class="mol-toast mol-toast--info">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Offline map ready for Central Coast.</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress" style="width: 65%;"></div>
+          </div>
+        </div>
+
+        <div class="toast-col">
+          <span class="t-label-md variant-label">Success · Dark</span>
+          <div class="mol-toast mol-toast--success">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Ride recorded — 42 mi logged.</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress" style="width: 55%;"></div>
+          </div>
+        </div>
+
+        <div class="toast-col">
+          <span class="t-label-md variant-label">Warning · Dark</span>
+          <div class="mol-toast mol-toast--warning">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Low storage — 2 GB remaining.</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress" style="width: 40%;"></div>
+          </div>
+        </div>
+
+        <div class="toast-col">
+          <span class="t-label-md variant-label">Error · Dark</span>
+          <div class="mol-toast mol-toast--error">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Failed to sync route data.</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress" style="width: 20%;"></div>
+          </div>
+        </div>
+
+        <div class="toast-col">
+          <span class="t-label-md variant-label">Recording · Dark</span>
+          <div class="mol-toast mol-toast--recording">
+            <div class="mol-toast__live-dot"></div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Recording ride · 12.4 mi</span>
+              <span class="t-body-sm">Tap to view live stats</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── With action + multi-line ──────────────────────────────── -->
+<section class="section">
+  <div class="section-label">With Action Button / Multi-line</div>
+  <div class="two-up">
+
+    <!-- Light -->
+    <div class="theme-pane">
+      <div class="toast-col" style="gap: var(--space-5);">
+
+        <div>
+          <span class="t-label-md variant-label">Success — with Undo action</span>
+          <div class="mol-toast mol-toast--success" style="margin-top: var(--space-3);">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Route deleted.</span>
+            </div>
+            <button class="mol-toast__action" aria-label="Undo">Undo</button>
+            <div class="mol-toast__progress" style="width: 70%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <span class="t-label-md variant-label">Error — with Retry action</span>
+          <div class="mol-toast mol-toast--error" style="margin-top: var(--space-3);">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Upload failed. Check your connection.</span>
+            </div>
+            <button class="mol-toast__action" aria-label="Retry">Retry</button>
+            <div class="mol-toast__progress" style="width: 15%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <span class="t-label-md variant-label">Default — multi-line</span>
+          <div class="mol-toast mol-toast--default" style="margin-top: var(--space-3);">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Big Sur day ride saved.</span>
+              <span class="t-body-sm" style="color: var(--content-secondary);">482 ft elevation gain · 1 h 22 min</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress" style="width: 85%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <span class="t-label-md variant-label">Warning — with View action, multi-line</span>
+          <div class="mol-toast mol-toast--warning" style="margin-top: var(--space-3);">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Road closure ahead on Hwy 1.</span>
+              <span class="t-body-sm">Pescadero · estimated 3 mi detour</span>
+            </div>
+            <button class="mol-toast__action" aria-label="View detour">View</button>
+            <div class="mol-toast__progress" style="width: 48%;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark">
+      <div class="toast-col" style="gap: var(--space-5);">
+
+        <div>
+          <span class="t-label-md variant-label">Success — with Undo · Dark</span>
+          <div class="mol-toast mol-toast--success" style="margin-top: var(--space-3);">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Route deleted.</span>
+            </div>
+            <button class="mol-toast__action">Undo</button>
+            <div class="mol-toast__progress" style="width: 70%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <span class="t-label-md variant-label">Error — with Retry · Dark</span>
+          <div class="mol-toast mol-toast--error" style="margin-top: var(--space-3);">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Upload failed. Check your connection.</span>
+            </div>
+            <button class="mol-toast__action">Retry</button>
+            <div class="mol-toast__progress" style="width: 15%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <span class="t-label-md variant-label">Default — multi-line · Dark</span>
+          <div class="mol-toast mol-toast--default" style="margin-top: var(--space-3);">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Big Sur day ride saved.</span>
+              <span class="t-body-sm" style="color: var(--content-secondary);">482 ft elevation gain · 1 h 22 min</span>
+            </div>
+            <button class="mol-toast__dismiss" aria-label="Dismiss">
+              <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="mol-toast__progress" style="width: 85%;"></div>
+          </div>
+        </div>
+
+        <div>
+          <span class="t-label-md variant-label">Warning — multi-line · Dark</span>
+          <div class="mol-toast mol-toast--warning" style="margin-top: var(--space-3);">
+            <div class="mol-toast__icon">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="mol-toast__body">
+              <span class="t-body-md">Road closure ahead on Hwy 1.</span>
+              <span class="t-body-sm">Pescadero · estimated 3 mi detour</span>
+            </div>
+            <button class="mol-toast__action">View</button>
+            <div class="mol-toast__progress" style="width: 48%;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

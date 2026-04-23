@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<!-- bottom-sheet.html — LSBottomSheet molecule preview
+     LaneShadow V2 · Copper · Molecule · UC-MOL-03
+     Authority: .spec/prds/v2/concepts/uc-mol-03-bottomsheet-toast-modal.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSBottomSheet — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+/* Molecule-local CSS — composed over atom layer */
+
+/* ── Context wrapper ──────────────────────────────────────────── */
+.mol-bottom-sheet-context {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  border: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-overlay);
+  background: var(--surface-inset);
+}
+.mol-bottom-sheet-context__map {
+  position: absolute;
+  inset: 0;
+  background: var(--surface-map);
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.mol-bottom-sheet-context__map-label {
+  position: absolute;
+  bottom: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: var(--content-tertiary);
+}
+.mol-bottom-sheet-context .ls-scrim { z-index: 1; }
+.mol-bottom-sheet-context__anchor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+.mol-bottom-sheet-context__anchor--mid  { height: 50%; }
+.mol-bottom-sheet-context__anchor--full { height: 90%; }
+.mol-bottom-sheet-context__anchor--full .mol-bottom-sheet {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.mol-bottom-sheet-context__anchor--full .mol-bottom-sheet__body { flex: 1; overflow-y: auto; }
+
+/* ── LSBottomSheet root ───────────────────────────────────────── */
+.mol-bottom-sheet {
+  background: var(--surface-overlay);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border: var(--stroke-sm) solid var(--border-default);
+  border-bottom: none;
+  overflow: hidden;
+}
+.mol-bottom-sheet__handle-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) 0 var(--space-2);
+}
+.mol-bottom-sheet__handle {
+  width: 36px;
+  height: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--border-subtle);
+}
+.mol-bottom-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 0 var(--space-5) var(--space-4);
+}
+.mol-bottom-sheet__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-touch-min);
+  height: var(--size-touch-min);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--content-tertiary);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+.mol-bottom-sheet__close svg {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  stroke: currentColor;
+  fill: none;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mol-bottom-sheet__body {
+  padding: 0 var(--space-5) var(--space-5);
+  overflow-y: auto;
+}
+.mol-bottom-sheet__footer {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  border-top: var(--stroke-sm) solid var(--border-subtle);
+}
+.mol-bottom-sheet__option-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: var(--size-control-lg);
+  padding: 0 var(--space-4);
+  background: var(--surface-inset);
+  border-radius: var(--radius-md);
+  border: var(--stroke-sm) solid var(--border-default);
+  color: var(--content-secondary);
+}
+.mol-bottom-sheet__option-row + .mol-bottom-sheet__option-row { margin-top: var(--space-2); }
+.mol-bottom-sheet__waypoint-dot {
+  width: var(--space-3);
+  height: var(--space-3);
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+.mol-bottom-sheet__waypoint-dot--origin   { background: var(--signal-default); }
+.mol-bottom-sheet__waypoint-dot--waypoint { background: var(--border-strong); }
+.mol-bottom-sheet__safe-area { height: var(--space-5); }
+
+/* Dark mode */
+.mode-dark .mol-bottom-sheet { background: var(--surface-overlay); border-color: var(--border-default); }
+.mode-dark .mol-bottom-sheet__option-row { border-color: var(--border-default); }
+
+/* Preview layout helpers */
+.variant-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.variant-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-7);
+  align-items: end;
+}
+.variant-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.variant-label {
+  color: var(--content-tertiary);
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>LSBottomSheet</em></h1>
+  <span class="subtitle">MOLECULE · UC-MOL-03 · LaneShadow V2 Copper</span>
+</div>
+
+<!-- ── Compact / Peek / Multi-section ─────────────────────────── -->
+<section class="section">
+  <div class="section-label">Detents — Light</div>
+  <div class="variant-row">
+
+    <!-- Compact (peek — handle + 1 row) -->
+    <div class="variant-col">
+      <span class="t-label-md variant-label">Peek — Handle Only</span>
+      <div class="mol-bottom-sheet-context" style="height: 280px;">
+        <div class="mol-bottom-sheet-context__map">
+          <span class="t-instr-xs mol-bottom-sheet-context__map-label">Hwy 1 · Big Sur</span>
+        </div>
+        <div class="ls-scrim ls-scrim--default"></div>
+        <div class="mol-bottom-sheet-context__anchor">
+          <div class="mol-bottom-sheet">
+            <div class="mol-bottom-sheet__handle-bar">
+              <div class="mol-bottom-sheet__handle"></div>
+            </div>
+            <div class="mol-bottom-sheet__body">
+              <p class="t-body-md" style="color: var(--content-secondary);">Drag up to expand filters</p>
+            </div>
+            <div class="mol-bottom-sheet__safe-area"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multi-section (header + body + footer actions) ~50% -->
+    <div class="variant-col">
+      <span class="t-label-md variant-label">Multi-section — Route Options (~50%)</span>
+      <div class="mol-bottom-sheet-context" style="height: 380px;">
+        <div class="mol-bottom-sheet-context__map">
+          <span class="t-instr-xs mol-bottom-sheet-context__map-label">Central Coast · CA</span>
+        </div>
+        <div class="ls-scrim ls-scrim--default"></div>
+        <div class="mol-bottom-sheet-context__anchor mol-bottom-sheet-context__anchor--mid">
+          <div class="mol-bottom-sheet">
+            <div class="mol-bottom-sheet__handle-bar">
+              <div class="mol-bottom-sheet__handle"></div>
+            </div>
+            <div class="mol-bottom-sheet__header">
+              <span class="t-title-md" style="color: var(--content-primary);">Route Options</span>
+              <button class="mol-bottom-sheet__close" aria-label="Close">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="mol-bottom-sheet__body">
+              <div class="mol-bottom-sheet__option-row">
+                <span class="t-body-md">Avoid highways</span>
+              </div>
+              <div class="mol-bottom-sheet__option-row">
+                <span class="t-body-md">Prefer scenic routes</span>
+              </div>
+              <div class="mol-bottom-sheet__option-row">
+                <span class="t-body-md">Max distance: 80 mi</span>
+              </div>
+            </div>
+            <div class="mol-bottom-sheet__footer">
+              <button class="ls-btn ls-btn--ghost" style="flex:1;">Reset</button>
+              <button class="ls-btn ls-btn--primary" style="flex:1;">Apply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Full height — waypoints (~90%) -->
+    <div class="variant-col">
+      <span class="t-label-md variant-label">Full-height — Waypoints (~90%)</span>
+      <div class="mol-bottom-sheet-context" style="height: 420px;">
+        <div class="mol-bottom-sheet-context__map">
+          <span class="t-instr-xs mol-bottom-sheet-context__map-label">PCH · Malibu → Ventura</span>
+        </div>
+        <div class="ls-scrim ls-scrim--default"></div>
+        <div class="mol-bottom-sheet-context__anchor mol-bottom-sheet-context__anchor--full">
+          <div class="mol-bottom-sheet">
+            <div class="mol-bottom-sheet__handle-bar">
+              <div class="mol-bottom-sheet__handle"></div>
+            </div>
+            <div class="mol-bottom-sheet__header">
+              <span class="t-title-md" style="color: var(--content-primary);">Waypoints</span>
+            </div>
+            <div class="mol-bottom-sheet__body">
+              <div class="mol-bottom-sheet__option-row">
+                <div class="mol-bottom-sheet__waypoint-dot mol-bottom-sheet__waypoint-dot--origin"></div>
+                <span class="t-body-md">Santa Cruz, CA</span>
+              </div>
+              <div class="mol-bottom-sheet__option-row">
+                <div class="mol-bottom-sheet__waypoint-dot mol-bottom-sheet__waypoint-dot--waypoint"></div>
+                <span class="t-body-md">Big Sur, CA</span>
+              </div>
+              <div class="mol-bottom-sheet__option-row">
+                <div class="mol-bottom-sheet__waypoint-dot mol-bottom-sheet__waypoint-dot--waypoint"></div>
+                <span class="t-body-md">San Luis Obispo, CA</span>
+              </div>
+              <div style="padding: var(--space-4) 0 0; border-top: var(--stroke-sm) solid var(--border-subtle); margin-top: var(--space-3);">
+                <span class="t-body-sm" style="color: var(--content-tertiary);">+ Add waypoint</span>
+              </div>
+            </div>
+            <div class="mol-bottom-sheet__safe-area"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Dark mode ──────────────────────────────────────────────── -->
+<section class="section">
+  <div class="section-label">Detents — Dark</div>
+  <div class="variant-row">
+
+    <!-- Dark compact -->
+    <div class="variant-col">
+      <span class="t-label-md variant-label" style="color: var(--copper-400);">Dark · Peek</span>
+      <div class="mol-bottom-sheet-context mode-dark" style="height: 280px; background: var(--surface-inset);">
+        <div class="mol-bottom-sheet-context__map" style="background: var(--surface-map);"></div>
+        <div class="ls-scrim ls-scrim--medium"></div>
+        <div class="mol-bottom-sheet-context__anchor">
+          <div class="mol-bottom-sheet">
+            <div class="mol-bottom-sheet__handle-bar">
+              <div class="mol-bottom-sheet__handle"></div>
+            </div>
+            <div class="mol-bottom-sheet__body">
+              <p class="t-body-md" style="color: var(--content-secondary);">Filter by condition</p>
+            </div>
+            <div class="mol-bottom-sheet__safe-area"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark multi-section -->
+    <div class="variant-col">
+      <span class="t-label-md variant-label" style="color: var(--copper-400);">Dark · Multi-section (~50%)</span>
+      <div class="mol-bottom-sheet-context mode-dark" style="height: 360px; background: var(--surface-inset);">
+        <div class="mol-bottom-sheet-context__map" style="background: var(--surface-map);"></div>
+        <div class="ls-scrim ls-scrim--medium"></div>
+        <div class="mol-bottom-sheet-context__anchor mol-bottom-sheet-context__anchor--mid">
+          <div class="mol-bottom-sheet">
+            <div class="mol-bottom-sheet__handle-bar">
+              <div class="mol-bottom-sheet__handle"></div>
+            </div>
+            <div class="mol-bottom-sheet__header">
+              <span class="t-title-md" style="color: var(--content-primary);">Route Options</span>
+            </div>
+            <div class="mol-bottom-sheet__body">
+              <div class="mol-bottom-sheet__option-row">
+                <span class="t-body-md">Avoid highways</span>
+              </div>
+              <div class="mol-bottom-sheet__option-row">
+                <span class="t-body-md">Prefer scenic routes</span>
+              </div>
+            </div>
+            <div class="mol-bottom-sheet__footer">
+              <button class="ls-btn ls-btn--ghost" style="flex:1;">Reset</button>
+              <button class="ls-btn ls-btn--primary" style="flex:1;">Apply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark full height -->
+    <div class="variant-col">
+      <span class="t-label-md variant-label" style="color: var(--copper-400);">Dark · Full-height (~90%)</span>
+      <div class="mol-bottom-sheet-context mode-dark" style="height: 420px; background: var(--surface-inset);">
+        <div class="mol-bottom-sheet-context__map" style="background: var(--surface-map);"></div>
+        <div class="ls-scrim ls-scrim--medium"></div>
+        <div class="mol-bottom-sheet-context__anchor mol-bottom-sheet-context__anchor--full">
+          <div class="mol-bottom-sheet">
+            <div class="mol-bottom-sheet__handle-bar">
+              <div class="mol-bottom-sheet__handle"></div>
+            </div>
+            <div class="mol-bottom-sheet__header">
+              <span class="t-title-md" style="color: var(--content-primary);">Waypoints</span>
+            </div>
+            <div class="mol-bottom-sheet__body">
+              <div class="mol-bottom-sheet__option-row">
+                <div class="mol-bottom-sheet__waypoint-dot mol-bottom-sheet__waypoint-dot--origin"></div>
+                <span class="t-body-md">Santa Cruz, CA</span>
+              </div>
+              <div class="mol-bottom-sheet__option-row">
+                <div class="mol-bottom-sheet__waypoint-dot mol-bottom-sheet__waypoint-dot--waypoint"></div>
+                <span class="t-body-md">Big Sur, CA</span>
+              </div>
+              <div class="mol-bottom-sheet__option-row">
+                <div class="mol-bottom-sheet__waypoint-dot mol-bottom-sheet__waypoint-dot--waypoint"></div>
+                <span class="t-body-md">San Luis Obispo, CA</span>
+              </div>
+            </div>
+            <div class="mol-bottom-sheet__safe-area"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>
