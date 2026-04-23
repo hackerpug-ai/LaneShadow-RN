@@ -17,6 +17,7 @@
 		3D2143A67410FB5D8D2F3B45 /* LSInputStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE8CB573821E0981D725E364 /* LSInputStories.swift */; };
 		40979501CCACCFB156F25EB5 /* LaneShadowSandboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C289172CD246D71CC0E6BB /* LaneShadowSandboxEntry.swift */; };
 		4CDBE631CAAFA6685708C14B /* ConvexMobile in Frameworks */ = {isa = PBXBuildFile; productRef = CE666EC279651E6E31EE5FBE /* ConvexMobile */; };
+		762FB79AB5AE6050179BB785 /* LSScrimStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F281656D06513E78E57D10D /* LSScrimStories.swift */; };
 		7E8799D5CE1C5FFCE3D09066 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324B26FB2DE3F759B489CB7B /* App.swift */; };
 		91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220BC64128EB0A24188F4C65 /* LSPillStories.swift */; };
 		925CA576235653EA9D6CE109 /* NativeSandbox in Frameworks */ = {isa = PBXBuildFile; productRef = 9DD5E01C1B4FE6A3686813CA /* NativeSandbox */; };
@@ -71,6 +72,7 @@
 		612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSIconStories.swift; sourceTree = "<group>"; };
 		7C5212D0C0958BE087BA87AC /* IconSymbolIOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconSymbolIOSTests.swift; sourceTree = "<group>"; };
 		85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowStories.swift; sourceTree = "<group>"; };
+		8F281656D06513E78E57D10D /* LSScrimStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScrimStories.swift; sourceTree = "<group>"; };
 		9B5F858C066D550CE73CE6FD /* InfoToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoToast.swift; sourceTree = "<group>"; };
 		A2233125579D4855C122E592 /* EmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyState.swift; sourceTree = "<group>"; };
 		A9EDF4218751AC8200085830 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -225,6 +227,7 @@
 				612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */,
 				EE8CB573821E0981D725E364 /* LSInputStories.swift */,
 				220BC64128EB0A24188F4C65 /* LSPillStories.swift */,
+				8F281656D06513E78E57D10D /* LSScrimStories.swift */,
 				0E259B982ADB47ABE53D132D /* LSTextStories.swift */,
 				E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */,
 			);
@@ -528,6 +531,7 @@
 				E38D09C5CE8E05B40EC425E5 /* LSIconStories.swift in Sources */,
 				3D2143A67410FB5D8D2F3B45 /* LSInputStories.swift in Sources */,
 				91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */,
+				762FB79AB5AE6050179BB785 /* LSScrimStories.swift in Sources */,
 				D3FCBC758470A7571618AF4A /* LSTextStories.swift in Sources */,
 				40979501CCACCFB156F25EB5 /* LaneShadowSandboxEntry.swift in Sources */,
 				B5FF9B8BF6CCCBF0478B2A77 /* LaneShadowStories.swift in Sources */,
