@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<!-- molecules/nav-header/nav-header.html
+     LaneShadow V2 Copper · Molecule · LSNavHeader
+     Authority: uc-mol-02-toolbar-navheader.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Molecule · NavHeader — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+
+/* ═══════════════════════════════════════════════════════
+   mol-nav-header — LSNavHeader molecule
+   Three structural variants:
+     default   — 56px bar, inline title, back + optional action
+     large     — expanded: inner 56px toolbar row + serif large title below
+     collapsed — 56px bar with chrome shadow (scroll-state)
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Shared base ─────────────────────────────────────── */
+.mol-nav-header {
+  background: var(--surface-primary);
+  border-bottom: var(--stroke-sm) solid var(--border-default);
+  width: 100%;
+  position: relative;
+}
+
+/* ── Default variant ─────────────────────────────────── */
+.mol-nav-header--default {
+  height: var(--size-control-xl);          /* 56px */
+  display: flex;
+  align-items: center;
+  padding: var(--space-0) var(--space-5);
+  gap: var(--space-0);
+}
+
+.mol-nav-header--default .mol-nav-header__leading {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: var(--size-touch-min);
+}
+
+.mol-nav-header--default .mol-nav-header__title {
+  flex: 1;
+  color: var(--content-primary);
+}
+
+.mol-nav-header--default .mol-nav-header__trailing {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: var(--size-touch-min);
+  justify-content: flex-end;
+}
+
+/* ── Large-title variant (expanded / scroll-top) ─────── */
+.mol-nav-header--large {
+  padding: var(--space-0) var(--space-5) var(--space-5);
+}
+
+.mol-nav-header--large .mol-nav-header__toolbar-row {
+  display: flex;
+  align-items: center;
+  height: var(--size-control-xl);          /* 56px inner bar */
+  gap: var(--space-0);
+}
+
+.mol-nav-header--large .mol-nav-header__toolbar-row .mol-nav-header__leading {
+  display: flex;
+  align-items: center;
+  min-width: var(--size-touch-min);
+  flex-shrink: 0;
+}
+
+.mol-nav-header--large .mol-nav-header__toolbar-row .mol-nav-header__spacer {
+  flex: 1;
+}
+
+.mol-nav-header--large .mol-nav-header__toolbar-row .mol-nav-header__trailing {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: var(--size-touch-min);
+  justify-content: flex-end;
+}
+
+.mol-nav-header__large-title {
+  color: var(--content-primary);
+  padding: var(--space-0) var(--space-1);
+}
+
+/* ── Collapsed variant (scroll-down state) ───────────── */
+.mol-nav-header--collapsed {
+  height: var(--size-control-xl);          /* 56px */
+  display: flex;
+  align-items: center;
+  padding: var(--space-0) var(--space-5);
+  gap: var(--space-0);
+  box-shadow: var(--elev-chrome);          /* scroll shadow on collapse */
+}
+
+.mol-nav-header--collapsed .mol-nav-header__leading {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: var(--size-touch-min);
+}
+
+.mol-nav-header--collapsed .mol-nav-header__title {
+  flex: 1;
+  text-align: center;
+  color: var(--content-primary);
+}
+
+.mol-nav-header--collapsed .mol-nav-header__trailing {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: var(--size-touch-min);
+  justify-content: flex-end;
+}
+
+/* ── Icon helpers (shared) ────────────────────────────── */
+.mol-nav-header .ls-btn--icon-only {
+  height: var(--size-touch-min);
+  border-radius: var(--radius-md);
+}
+
+.mol-nav-header__icon-svg {
+  display: inline-block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  width: var(--icon-md);
+  height: var(--icon-md);
+  flex-shrink: 0;
+}
+
+/* ── Signal icon tint ────────────────────────────────── */
+.mol-nav-header__icon--signal {
+  color: var(--signal-default);
+}
+
+/* ── Back-button label row (text + chevron) ──────────── */
+.mol-nav-header__back-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--signal-default);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: var(--space-0);
+  border-radius: var(--radius-sm);
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+
+.mol-nav-header__back-label:hover {
+  opacity: var(--opacity-dim);
+}
+
+.mol-nav-header__back-label:active {
+  opacity: var(--opacity-overlay);
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1>Molecule · <em>NavHeader</em></h1>
+  <p class="subtitle">UC-MOL-02 · LSNavHeader · default / large-title / collapsed · platform safe-area aware</p>
+</header>
+
+<!-- ─── Variant 1 — Default (inline title, back + action) ──────────────── -->
+<section class="section">
+  <div class="section-label">Variant 1 — Default (back + inline title + action)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <nav class="mol-nav-header mol-nav-header--default" aria-label="Screen navigation">
+        <div class="mol-nav-header__leading">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="Go back" title="Back">
+            <span class="btn-icon">
+              <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </span>
+          </button>
+        </div>
+        <h1 class="mol-nav-header__title t-title-md">Route Details</h1>
+        <div class="mol-nav-header__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="More options" title="More">
+            <span class="btn-icon">
+              <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+            </span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <nav class="mol-nav-header mol-nav-header--default" aria-label="Screen navigation">
+        <div class="mol-nav-header__leading">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="Go back" title="Back">
+            <span class="btn-icon">
+              <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </span>
+          </button>
+        </div>
+        <h1 class="mol-nav-header__title t-title-md">Route Details</h1>
+        <div class="mol-nav-header__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="More options" title="More">
+            <span class="btn-icon">
+              <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+            </span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Variant 2 — Default with back-label text (iOS pattern) ─────────── -->
+<section class="section">
+  <div class="section-label">Variant 2 — Default with back-label text (iOS copper tint)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <nav class="mol-nav-header mol-nav-header--default" aria-label="Screen navigation">
+        <div class="mol-nav-header__leading">
+          <button class="mol-nav-header__back-label" aria-label="Go back to Wasatch Rides">
+            <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+            <span class="t-body-lg" style="color:var(--signal-default);">Wasatch Rides</span>
+          </button>
+        </div>
+        <h1 class="mol-nav-header__title t-title-md">Big Cottonwood</h1>
+        <div class="mol-nav-header__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only mol-nav-header__icon--signal" aria-label="Save route" title="Save">
+            <span class="btn-icon">
+              <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <nav class="mol-nav-header mol-nav-header--default" aria-label="Screen navigation">
+        <div class="mol-nav-header__leading">
+          <button class="mol-nav-header__back-label" aria-label="Go back to Wasatch Rides">
+            <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+            <span class="t-body-lg" style="color:var(--signal-default);">Wasatch Rides</span>
+          </button>
+        </div>
+        <h1 class="mol-nav-header__title t-title-md">Big Cottonwood</h1>
+        <div class="mol-nav-header__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only mol-nav-header__icon--signal" aria-label="Save route" title="Save">
+            <span class="btn-icon">
+              <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Variant 3 — Large Title Expanded (scroll-top) ──────────────────── -->
+<section class="section">
+  <div class="section-label">Variant 3 — Large Title Expanded (scroll-top · Newsreader serif)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <nav class="mol-nav-header mol-nav-header--large" aria-label="Screen navigation">
+        <div class="mol-nav-header__toolbar-row">
+          <div class="mol-nav-header__leading"></div>
+          <div class="mol-nav-header__spacer"></div>
+          <div class="mol-nav-header__trailing">
+            <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="Edit" title="Edit">
+              <span class="btn-icon">
+                <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </span>
+            </button>
+          </div>
+        </div>
+        <h1 class="mol-nav-header__large-title t-opinion-lg">Wasatch Front Rides</h1>
+      </nav>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <nav class="mol-nav-header mol-nav-header--large" aria-label="Screen navigation">
+        <div class="mol-nav-header__toolbar-row">
+          <div class="mol-nav-header__leading"></div>
+          <div class="mol-nav-header__spacer"></div>
+          <div class="mol-nav-header__trailing">
+            <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="Edit" title="Edit">
+              <span class="btn-icon">
+                <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </span>
+            </button>
+          </div>
+        </div>
+        <h1 class="mol-nav-header__large-title t-opinion-lg">Wasatch Front Rides</h1>
+      </nav>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Variant 4 — Large Title Collapsed (scroll-down, chrome shadow) ──── -->
+<section class="section">
+  <div class="section-label">Variant 4 — Large Title Collapsed (scroll-down · elev-chrome shadow)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <nav class="mol-nav-header mol-nav-header--collapsed" aria-label="Screen navigation">
+        <div class="mol-nav-header__leading">
+          <div style="width:var(--size-touch-min);"></div>
+        </div>
+        <h1 class="mol-nav-header__title t-title-md">Wasatch Front Rides</h1>
+        <div class="mol-nav-header__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="Edit" title="Edit">
+            <span class="btn-icon">
+              <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <nav class="mol-nav-header mol-nav-header--collapsed" aria-label="Screen navigation">
+        <div class="mol-nav-header__leading">
+          <div style="width:var(--size-touch-min);"></div>
+        </div>
+        <h1 class="mol-nav-header__title t-title-md">Wasatch Front Rides</h1>
+        <div class="mol-nav-header__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="Edit" title="Edit">
+            <span class="btn-icon">
+              <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Variant 5 — Default, no back (root chat / tab screen) ───────────── -->
+<section class="section">
+  <div class="section-label">Variant 5 — Default, no back (root screen · Chat)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <nav class="mol-nav-header mol-nav-header--default" aria-label="Screen navigation">
+        <div class="mol-nav-header__leading"></div>
+        <h1 class="mol-nav-header__title t-title-md" style="text-align:center;">Chat</h1>
+        <div class="mol-nav-header__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="New conversation" title="Compose">
+            <span class="btn-icon">
+              <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <nav class="mol-nav-header mol-nav-header--default" aria-label="Screen navigation">
+        <div class="mol-nav-header__leading"></div>
+        <h1 class="mol-nav-header__title t-title-md" style="text-align:center;">Chat</h1>
+        <div class="mol-nav-header__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="New conversation" title="Compose">
+            <span class="btn-icon">
+              <svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </span>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Variant 6 — Back button states ──────────────────────────────────── -->
+<section class="section">
+  <div class="section-label">Variant 6 — Back Button Interactive States</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:72px;">Default</span>
+          <nav class="mol-nav-header mol-nav-header--default" style="width:280px;">
+            <div class="mol-nav-header__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="Back">
+                <span class="btn-icon"><svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <h1 class="mol-nav-header__title t-title-md">Little Cottonwood</h1>
+            <div class="mol-nav-header__trailing"></div>
+          </nav>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:72px;">Hover</span>
+          <nav class="mol-nav-header mol-nav-header--default" style="width:280px;">
+            <div class="mol-nav-header__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only is-hover" aria-label="Back">
+                <span class="btn-icon"><svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <h1 class="mol-nav-header__title t-title-md">Little Cottonwood</h1>
+            <div class="mol-nav-header__trailing"></div>
+          </nav>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:72px;">Pressed</span>
+          <nav class="mol-nav-header mol-nav-header--default" style="width:280px;">
+            <div class="mol-nav-header__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only is-pressed" aria-label="Back">
+                <span class="btn-icon"><svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <h1 class="mol-nav-header__title t-title-md">Little Cottonwood</h1>
+            <div class="mol-nav-header__trailing"></div>
+          </nav>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:72px;">Disabled</span>
+          <nav class="mol-nav-header mol-nav-header--default" style="width:280px;">
+            <div class="mol-nav-header__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only is-disabled" aria-label="Back" disabled>
+                <span class="btn-icon"><svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <h1 class="mol-nav-header__title t-title-md">Little Cottonwood</h1>
+            <div class="mol-nav-header__trailing"></div>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:72px;">Default</span>
+          <nav class="mol-nav-header mol-nav-header--default" style="width:280px;">
+            <div class="mol-nav-header__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="Back">
+                <span class="btn-icon"><svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <h1 class="mol-nav-header__title t-title-md">Little Cottonwood</h1>
+            <div class="mol-nav-header__trailing"></div>
+          </nav>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:72px;">Hover</span>
+          <nav class="mol-nav-header mol-nav-header--default" style="width:280px;">
+            <div class="mol-nav-header__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only is-hover" aria-label="Back">
+                <span class="btn-icon"><svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <h1 class="mol-nav-header__title t-title-md">Little Cottonwood</h1>
+            <div class="mol-nav-header__trailing"></div>
+          </nav>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:72px;">Pressed</span>
+          <nav class="mol-nav-header mol-nav-header--default" style="width:280px;">
+            <div class="mol-nav-header__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only is-pressed" aria-label="Back">
+                <span class="btn-icon"><svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <h1 class="mol-nav-header__title t-title-md">Little Cottonwood</h1>
+            <div class="mol-nav-header__trailing"></div>
+          </nav>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:72px;">Disabled</span>
+          <nav class="mol-nav-header mol-nav-header--default" style="width:280px;">
+            <div class="mol-nav-header__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only is-disabled" aria-label="Back" disabled>
+                <span class="btn-icon"><svg class="mol-nav-header__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <h1 class="mol-nav-header__title t-title-md">Little Cottonwood</h1>
+            <div class="mol-nav-header__trailing"></div>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

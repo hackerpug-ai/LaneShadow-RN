@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<!-- molecules/toolbar/toolbar.html
+     LaneShadow V2 Copper · Molecule · LSToolbar
+     Authority: uc-mol-02-toolbar-navheader.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Molecule · Toolbar — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+
+/* ═══════════════════════════════════════════════════════
+   mol-toolbar — LSToolbar molecule
+   Composes .ls-btn (icon-only/ghost) from _atoms.css
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Root container ──────────────────────────────────── */
+.mol-toolbar {
+  height: var(--size-control-xl);          /* 56px toolbarHeight */
+  background: var(--surface-primary);
+  box-shadow: var(--elev-chrome);
+  border-bottom: var(--stroke-sm) solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  padding: var(--space-0) var(--space-2);
+  gap: var(--space-0);
+  position: relative;
+  width: 100%;
+}
+
+/* ── Layout slots ────────────────────────────────────── */
+.mol-toolbar__leading {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: var(--size-touch-min);        /* 44px — preserves centering */
+}
+
+.mol-toolbar__title-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: var(--space-0) var(--space-3);
+}
+
+.mol-toolbar__trailing {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: var(--space-0);
+  min-width: var(--size-touch-min);        /* mirrors leading for centering */
+  justify-content: flex-end;
+}
+
+/* ── Title text ──────────────────────────────────────── */
+.mol-toolbar__title {
+  color: var(--content-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── No-back modifier — title shifts left ────────────── */
+.mol-toolbar--no-back .mol-toolbar__title-area {
+  justify-content: flex-start;
+  padding-left: var(--space-4);
+}
+
+/* ── Icon button sizing override (composing ls-btn) ──── */
+/* .ls-btn--icon-only already sets width=44px.
+   We add explicit height to match the touch target. */
+.mol-toolbar .ls-btn--icon-only {
+  height: var(--size-touch-min);
+  border-radius: var(--radius-md);
+}
+
+/* ── Signal icon tint ────────────────────────────────── */
+.mol-toolbar__icon--signal {
+  color: var(--signal-default);
+}
+
+/* ── Inline SVG baseline helpers ─────────────────────── */
+.mol-toolbar__icon-svg {
+  display: inline-block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  width: var(--icon-md);
+  height: var(--icon-md);
+  flex-shrink: 0;
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1>Molecule · <em>Toolbar</em></h1>
+  <p class="subtitle">UC-MOL-02 · LSToolbar · height 56px · leading / title / trailing slots · icon-button composition</p>
+</header>
+
+<!-- ─── Variant 1 — Back + Title + Action ──────────────────────────────── -->
+<section class="section">
+  <div class="section-label">Variant 1 — Back + Title + Action</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="mol-toolbar">
+        <div class="mol-toolbar__leading">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" title="Back" aria-label="Go back">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </span>
+          </button>
+        </div>
+        <div class="mol-toolbar__title-area">
+          <span class="mol-toolbar__title t-title-md">Route Details</span>
+        </div>
+        <div class="mol-toolbar__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" title="More options" aria-label="More options">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="mol-toolbar">
+        <div class="mol-toolbar__leading">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" title="Back" aria-label="Go back">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </span>
+          </button>
+        </div>
+        <div class="mol-toolbar__title-area">
+          <span class="mol-toolbar__title t-title-md">Route Details</span>
+        </div>
+        <div class="mol-toolbar__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" title="More options" aria-label="More options">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Variant 2 — Title Only ─────────────────────────────────────────── -->
+<section class="section">
+  <div class="section-label">Variant 2 — Title Only (centered)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="mol-toolbar">
+        <div class="mol-toolbar__leading"></div>
+        <div class="mol-toolbar__title-area">
+          <span class="mol-toolbar__title t-title-md">Discover</span>
+        </div>
+        <div class="mol-toolbar__trailing"></div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="mol-toolbar">
+        <div class="mol-toolbar__leading"></div>
+        <div class="mol-toolbar__title-area">
+          <span class="mol-toolbar__title t-title-md">Discover</span>
+        </div>
+        <div class="mol-toolbar__trailing"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Variant 3 — Title + Two Actions ────────────────────────────────── -->
+<section class="section">
+  <div class="section-label">Variant 3 — Title + Two Actions (share + save signal)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="mol-toolbar">
+        <div class="mol-toolbar__leading">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" title="Back" aria-label="Go back">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </span>
+          </button>
+        </div>
+        <div class="mol-toolbar__title-area">
+          <span class="mol-toolbar__title t-title-md">Plan Route</span>
+        </div>
+        <div class="mol-toolbar__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" title="Share route" aria-label="Share route">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+            </span>
+          </button>
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only mol-toolbar__icon--signal" title="Save route" aria-label="Save route">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="mol-toolbar">
+        <div class="mol-toolbar__leading">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" title="Back" aria-label="Go back">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </span>
+          </button>
+        </div>
+        <div class="mol-toolbar__title-area">
+          <span class="mol-toolbar__title t-title-md">Plan Route</span>
+        </div>
+        <div class="mol-toolbar__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" title="Share route" aria-label="Share route">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+            </span>
+          </button>
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only mol-toolbar__icon--signal" title="Save route" aria-label="Save route">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Variant 4 — No Back Button (title left-aligned) ────────────────── -->
+<section class="section">
+  <div class="section-label">Variant 4 — No Back Button (wordmark / root screen)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="mol-toolbar mol-toolbar--no-back">
+        <div class="mol-toolbar__title-area">
+          <span class="mol-toolbar__title t-title-md">LaneShadow</span>
+        </div>
+        <div class="mol-toolbar__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" title="Search" aria-label="Search routes">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </span>
+          </button>
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" title="Profile" aria-label="Your profile">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="mol-toolbar mol-toolbar--no-back">
+        <div class="mol-toolbar__title-area">
+          <span class="mol-toolbar__title t-title-md">LaneShadow</span>
+        </div>
+        <div class="mol-toolbar__trailing">
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" title="Search" aria-label="Search routes">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </span>
+          </button>
+          <button class="ls-btn ls-btn--ghost ls-btn--icon-only" title="Profile" aria-label="Your profile">
+            <span class="btn-icon">
+              <svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Variant 5 — Interactive States (ghost icon button) ──────────────── -->
+<section class="section">
+  <div class="section-label">Variant 5 — Icon Button States (back button)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:80px;">Default</span>
+          <div class="mol-toolbar" style="width:200px;">
+            <div class="mol-toolbar__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="Back">
+                <span class="btn-icon"><svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <div class="mol-toolbar__title-area"><span class="mol-toolbar__title t-title-md">Millcreek Canyon</span></div>
+            <div class="mol-toolbar__trailing"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:80px;">Hover</span>
+          <div class="mol-toolbar" style="width:200px;">
+            <div class="mol-toolbar__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only is-hover" aria-label="Back">
+                <span class="btn-icon"><svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <div class="mol-toolbar__title-area"><span class="mol-toolbar__title t-title-md">Millcreek Canyon</span></div>
+            <div class="mol-toolbar__trailing"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:80px;">Pressed</span>
+          <div class="mol-toolbar" style="width:200px;">
+            <div class="mol-toolbar__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only is-pressed" aria-label="Back">
+                <span class="btn-icon"><svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <div class="mol-toolbar__title-area"><span class="mol-toolbar__title t-title-md">Millcreek Canyon</span></div>
+            <div class="mol-toolbar__trailing"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:80px;">Disabled</span>
+          <div class="mol-toolbar" style="width:200px;">
+            <div class="mol-toolbar__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only is-disabled" aria-label="Back" disabled>
+                <span class="btn-icon"><svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <div class="mol-toolbar__title-area"><span class="mol-toolbar__title t-title-md">Millcreek Canyon</span></div>
+            <div class="mol-toolbar__trailing"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:80px;">Default</span>
+          <div class="mol-toolbar" style="width:200px;">
+            <div class="mol-toolbar__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only" aria-label="Back">
+                <span class="btn-icon"><svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <div class="mol-toolbar__title-area"><span class="mol-toolbar__title t-title-md">Millcreek Canyon</span></div>
+            <div class="mol-toolbar__trailing"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:80px;">Hover</span>
+          <div class="mol-toolbar" style="width:200px;">
+            <div class="mol-toolbar__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only is-hover" aria-label="Back">
+                <span class="btn-icon"><svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <div class="mol-toolbar__title-area"><span class="mol-toolbar__title t-title-md">Millcreek Canyon</span></div>
+            <div class="mol-toolbar__trailing"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:80px;">Pressed</span>
+          <div class="mol-toolbar" style="width:200px;">
+            <div class="mol-toolbar__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only is-pressed" aria-label="Back">
+                <span class="btn-icon"><svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <div class="mol-toolbar__title-area"><span class="mol-toolbar__title t-title-md">Millcreek Canyon</span></div>
+            <div class="mol-toolbar__trailing"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:var(--space-5);">
+          <span class="t-instr-sm" style="color:var(--content-tertiary);width:80px;">Disabled</span>
+          <div class="mol-toolbar" style="width:200px;">
+            <div class="mol-toolbar__leading">
+              <button class="ls-btn ls-btn--ghost ls-btn--icon-only is-disabled" aria-label="Back" disabled>
+                <span class="btn-icon"><svg class="mol-toolbar__icon-svg" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span>
+              </button>
+            </div>
+            <div class="mol-toolbar__title-area"><span class="mol-toolbar__title t-title-md">Millcreek Canyon</span></div>
+            <div class="mol-toolbar__trailing"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>
