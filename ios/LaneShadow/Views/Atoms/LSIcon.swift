@@ -37,21 +37,24 @@ public struct LSIcon: View {
     private let name: IconName
     private let size: IconSize
     private let color: IconContentColor
+    private let resolvedColorOverride: Color?
 
     public init(
         name: IconName,
         size: IconSize,
-        color: IconContentColor = .primary
+        color: IconContentColor = .primary,
+        resolvedColorOverride: Color? = nil
     ) {
         self.name = name
         self.size = size
         self.color = color
+        self.resolvedColorOverride = resolvedColorOverride
     }
 
     public var body: some View {
         let resolvedSize = Self.resolvedSize(size, in: theme)
         let strokeWidth = Self.strokeWidth(in: theme)
-        let foreground = Self.resolvedColor(color, in: theme)
+        let foreground = resolvedColorOverride ?? Self.resolvedColor(color, in: theme)
 
         Canvas { context, canvasSize in
             let scale = min(canvasSize.width, canvasSize.height) / Self.sourceExtent

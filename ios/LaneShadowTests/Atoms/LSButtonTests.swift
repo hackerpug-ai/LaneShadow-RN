@@ -1,5 +1,6 @@
 import LaneShadowTheme
 import SwiftUI
+import UIKit
 import XCTest
 @testable import LaneShadow
 
@@ -107,6 +108,12 @@ final class LSButtonTests: XCTestCase {
     func test_outline_variant_with_leading_icon_renders_chip_layout() {
         let theme = Theme.shared
         let tokens = LSButtonStyle.tokens(for: .outline, in: theme)
+        let withIconImage = hostedButtonImage(
+            LSButton(title: "", variant: .outline, leadingIcon: .sparkle, action: {})
+        )
+        let withoutIconImage = hostedButtonImage(
+            LSButton(title: "", variant: .outline, action: {})
+        )
 
         XCTAssertEqual(tokens.border, theme.colors.border.default)
         XCTAssertEqual(tokens.borderWidth, theme.borderWidth.thin)
@@ -117,7 +124,19 @@ final class LSButtonTests: XCTestCase {
         XCTAssertEqual(LSButtonStyle.metrics(for: .sm, in: theme).horizontalPadding, theme.space.lg)
         XCTAssertEqual(LSButtonStyle.metrics(for: .md, in: theme).horizontalPadding, theme.space.lg)
         XCTAssertEqual(LSButtonStyle.metrics(for: .lg, in: theme).horizontalPadding, theme.space.lg)
-        XCTAssertNotNil(LSButton(title: "NEW", variant: .outline, leadingIcon: .sparkle, action: {}))
+        XCTAssertNotNil(withIconImage.cgImage)
+        XCTAssertNotNil(withoutIconImage.cgImage)
+        XCTAssertEqual(withIconImage.size, withoutIconImage.size)
+    }
+
+    func test_button_icon_slot_routes_through_lsicon_without_hidden_or_canvas_fallbacks() throws {
+        let source = try String(contentsOfFile: buttonSourceFilePath, encoding: .utf8)
+
+        XCTAssertTrue(source.contains("LSIcon(name: name, size: .sm, resolvedColorOverride: color)"))
+        XCTAssertFalse(source.contains(".hidden()"))
+        XCTAssertFalse(source.contains("LSButtonPlusIcon"))
+        XCTAssertFalse(source.contains("LSButtonSparkleIcon"))
+        XCTAssertFalse(source.contains("Canvas {"))
     }
 
     func test_minimum_touch_target_44pt_on_smallest_size() {
@@ -138,5 +157,34 @@ final class LSButtonTests: XCTestCase {
         }
 
         XCTAssertEqual(actionCount, 1)
+    }
+
+    private func hostedButtonImage(_ button: LSButton) -> UIImage {
+        let rootView = ZStack(alignment: .topLeading) {
+            Color.white
+            button.laneShadowTheme()
+        }
+        .frame(width: 240, height: 80, alignment: .topLeading)
+
+        let controller = UIHostingController(rootView: rootView)
+        controller.loadViewIfNeeded()
+        controller.view.frame = CGRect(x: 0, y: 0, width: 240, height: 80)
+        controller.view.backgroundColor = .white
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+        let renderer = UIGraphicsImageRenderer(bounds: controller.view.bounds)
+        return renderer.image { _ in
+            controller.view.layer.render(in: UIGraphicsGetCurrentContext()!)
+        }
+    }
+
+    private var buttonSourceFilePath: String {
+        let testsFileURL = URL(fileURLWithPath: #filePath)
+        return testsFileURL
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("LaneShadow/Views/Atoms/LSButton.swift")
+            .path
     }
 }
