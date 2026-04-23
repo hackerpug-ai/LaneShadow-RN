@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -26,6 +29,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.LaneShadowThemeValues
 import com.laneshadow.theme.LocalLaneShadowTheme
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
+
 val LSGlassPanelBackgroundColorKey = SemanticsPropertyKey<Color>("LSGlassPanelBackgroundColor")
 val LSGlassPanelCornerRadiusKey = SemanticsPropertyKey<Dp>("LSGlassPanelCornerRadius")
 val LSGlassPanelShadowElevationKey = SemanticsPropertyKey<Dp>("LSGlassPanelShadowElevation")
@@ -43,8 +52,10 @@ private var SemanticsPropertyReceiver.lsGlassPanelBlurRadius by LSGlassPanelBlur
 private var SemanticsPropertyReceiver.lsGlassPanelBlurStrategy by LSGlassPanelBlurStrategyKey
 private var SemanticsPropertyReceiver.lsGlassPanelLeadingStripeWidth by LSGlassPanelLeadingStripeWidthKey
 private var SemanticsPropertyReceiver.lsGlassPanelLeadingStripeColor by LSGlassPanelLeadingStripeColorKey
+val LocalLSGlassPanelBackdropState = staticCompositionLocalOf<HazeState?> { null }
 
 enum class GlassBlurStrategy {
+    HazeBackdrop,
     RenderEffect,
     ModifierBlur,
 }
@@ -97,6 +108,31 @@ fun LSGlassPanel(
     val style = resolveLSGlassPanelStyle(theme, variant)
     val shape = RoundedCornerShape(style.cornerRadius)
     val density = LocalDensity.current
+    val backdropState = LocalLSGlassPanelBackdropState.current
+    val blurStrategy = backdropState?.let { GlassBlurStrategy.HazeBackdrop } ?: style.blurStrategy
+    val blurModifier =
+        if (backdropState != null) {
+            Modifier.hazeEffect(state = backdropState) {
+                blurRadius = style.blurRadius
+                backgroundColor = style.backgroundColor
+                fallbackTint = HazeTint(style.backgroundColor)
+            }
+        } else {
+            when (style.blurStrategy) {
+                GlassBlurStrategy.HazeBackdrop -> Modifier
+                GlassBlurStrategy.RenderEffect ->
+                    Modifier.graphicsLayer {
+                        val blurRadiusPx = with(density) { style.blurRadius.toPx() }
+                        renderEffect = BlurEffect(
+                            radiusX = blurRadiusPx,
+                            radiusY = blurRadiusPx,
+                            edgeTreatment = TileMode.Decal,
+                        )
+                    }
+
+                GlassBlurStrategy.ModifierBlur -> Modifier.blur(style.blurRadius)
+            }
+        }
 
     Surface(
         modifier = modifier.semantics {
@@ -106,7 +142,7 @@ fun LSGlassPanel(
             lsGlassPanelShadowElevation = style.shadowElevation
             lsGlassPanelContentPadding = style.contentPadding
             lsGlassPanelBlurRadius = style.blurRadius
-            lsGlassPanelBlurStrategy = style.blurStrategy.name
+            lsGlassPanelBlurStrategy = blurStrategy.name
             lsGlassPanelLeadingStripeWidth = style.leadingStripeWidth
             lsGlassPanelLeadingStripeColor = style.leadingStripeColor
         },
@@ -114,25 +150,14 @@ fun LSGlassPanel(
         shape = shape,
         shadowElevation = style.shadowElevation,
     ) {
-        Box(modifier = Modifier.clip(shape)) {
+        Box(
+            modifier = Modifier
+                .clip(shape)
+                .then(blurModifier),
+        ) {
             Box(
                 modifier = Modifier
                     .matchParentSize()
-                    .then(
-                        when (style.blurStrategy) {
-                            GlassBlurStrategy.RenderEffect ->
-                                Modifier.graphicsLayer {
-                                    val blurRadiusPx = with(density) { style.blurRadius.toPx() }
-                                    renderEffect = BlurEffect(
-                                        radiusX = blurRadiusPx,
-                                        radiusY = blurRadiusPx,
-                                        edgeTreatment = TileMode.Decal,
-                                    )
-                                }
-
-                            GlassBlurStrategy.ModifierBlur -> Modifier.blur(style.blurRadius)
-                        },
-                    )
                     .background(style.backgroundColor),
             )
 
@@ -156,6 +181,22 @@ fun LSGlassPanel(
             ) {
                 content()
             }
+        }
+    }
+}
+
+@Composable
+fun LSGlassPanelBackdrop(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val hazeState = rememberHazeState()
+    Box(
+        modifier = modifier
+            .hazeSource(state = hazeState),
+    ) {
+        CompositionLocalProvider(LocalLSGlassPanelBackdropState provides hazeState) {
+            content()
         }
     }
 }

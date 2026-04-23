@@ -82,6 +82,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("dev.chrisbanes.haze:haze:1.7.1")
     implementation("com.google.android.material:material:1.12.0")
 
     // Coil 3 for image loading

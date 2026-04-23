@@ -1,15 +1,21 @@
 package com.laneshadow.sandbox.stories
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.atoms.AccentColor
 import com.laneshadow.ui.atoms.GlassVariant
 import com.laneshadow.ui.atoms.LSCard
+import com.laneshadow.ui.atoms.LSGlassPanelBackdrop
 import com.laneshadow.ui.atoms.LSGlassPanel
 import com.laneshadow.ui.atoms.LSPanel
 import com.laneshadow.ui.atoms.LSText
@@ -84,11 +90,29 @@ object LSSurfaceStories {
 private fun SurfaceStoryFrame(content: @Composable () -> Unit) {
     LaneShadowTheme {
         val theme = LocalLaneShadowTheme.current
-        Column(
-            modifier = Modifier.padding(theme.space.xl),
-            verticalArrangement = Arrangement.spacedBy(theme.space.md),
-        ) {
-            content()
+        LSGlassPanelBackdrop {
+            Box(
+                modifier = Modifier
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                theme.colors.surface.default,
+                                theme.colors.card.default,
+                                theme.colors.secondaryContainer.default,
+                            ),
+                        ),
+                    )
+                    .padding(theme.space.xl),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(theme.space.xxxxl * 3),
+                    verticalArrangement = Arrangement.spacedBy(theme.space.md),
+                ) {
+                    content()
+                }
+            }
         }
     }
 }
