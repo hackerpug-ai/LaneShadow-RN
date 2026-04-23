@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<!-- instrument-readout.html — LSInstrumentReadout Molecule Preview
+     LaneShadow V2 Copper · Navigator Molecule · UC-MOL-07
+     Authority: uc-mol-07-navigator-molecules.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LSInstrumentReadout — LaneShadow V2 Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400;1,6..72,500&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+
+/* ── LSInstrumentReadout molecule ───────────────────────────────── */
+.mol-instrument-readout {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--elev-card);
+}
+
+.mol-instrument-readout__divider {
+  height: var(--stroke-sm);
+  background: var(--border-subtle);
+}
+
+/* N-column grids */
+.mol-instrument-readout__grid {
+  display: grid;
+  gap: 0;
+  padding: var(--space-3) 0;
+}
+
+.mol-instrument-readout__grid--4 { grid-template-columns: repeat(4, 1fr); }
+.mol-instrument-readout__grid--3 { grid-template-columns: repeat(3, 1fr); }
+.mol-instrument-readout__grid--2 { grid-template-columns: repeat(2, 1fr); }
+
+.mol-instrument-readout__cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  border-right: var(--stroke-sm) solid var(--border-subtle);
+}
+
+.mol-instrument-readout__cell:last-child {
+  border-right: none;
+}
+
+.mol-instrument-readout__label {
+  color: var(--content-tertiary);
+}
+
+.mol-instrument-readout__value {
+  color: var(--content-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.mol-instrument-readout__value--accent {
+  color: var(--signal-default);
+}
+
+.mol-instrument-readout__unit {
+  color: var(--content-tertiary);
+  display: block;
+}
+
+/* Hero variant — large standalone */
+.mol-instrument-readout--hero {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4) 0;
+}
+
+.mol-instrument-readout--hero .mol-instrument-readout__value {
+  /* hero value uses .t-instr-lg from parent class */
+  gap: var(--space-2);
+}
+
+/* Inline meta variant — no card chrome */
+.mol-instrument-readout--inline {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.mol-instrument-readout--inline .mol-instrument-readout__grid {
+  padding: 0;
+}
+
+.mol-instrument-readout--inline .mol-instrument-readout__cell {
+  padding: var(--space-1) var(--space-3);
+}
+
+/* Multi-row — two-row stat block */
+.mol-instrument-readout__grid--multi {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  padding: var(--space-3) 0;
+}
+
+.mol-instrument-readout__grid--multi .mol-instrument-readout__cell:nth-child(4) {
+  border-right: none;
+}
+
+.mol-instrument-readout__grid--multi .mol-instrument-readout__cell:nth-child(n+5) {
+  border-top: var(--stroke-sm) solid var(--border-subtle);
+}
+
+.mol-instrument-readout__grid--multi .mol-instrument-readout__cell:nth-child(8) {
+  border-right: none;
+}
+
+/* Loading skeleton */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.mol-instrument-readout__skeleton {
+  height: 18px;
+  width: 60%;
+  border-radius: var(--radius-xs);
+  background: linear-gradient(
+    90deg,
+    var(--surface-inset) 0%,
+    var(--border-default) 50%,
+    var(--surface-inset) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer var(--duration-deliberate) var(--ease-linear) infinite;
+}
+
+/* ── Preview layout ─────────────────────────────────────────────── */
+.variant-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  max-width: 600px;
+}
+
+.variant-label-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1><em>LSInstrumentReadout</em></h1>
+  <div class="subtitle">UC-MOL-07 · Navigator Molecule · LaneShadow V2 Copper</div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 01 · STANDARD METRIC BLOCKS — LIGHT
+     ═══════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">standard metric blocks · Light · City Creek + Big Cottonwood</div>
+
+  <div class="variant-stack">
+
+    <!-- 4-metric: Dist / Time / Climb / Scenic — City Creek Canyon -->
+    <div class="variant-label-row">
+      <span class="t-instr-xs" style="color: var(--content-tertiary);">4 metrics — DIST / TIME / CLIMB / SCENIC · City Creek Canyon</span>
+      <div class="mol-instrument-readout"
+           aria-label="Route metrics: Distance 64 miles, Time 2 hours 10 minutes, Climb 2400 feet gain, Scenic score 9.2">
+        <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+        <div class="mol-instrument-readout__grid mol-instrument-readout__grid--4">
+          <div class="mol-instrument-readout__cell"
+               aria-label="Distance: 64 miles">
+            <span class="mol-instrument-readout__label t-label-sm">Dist</span>
+            <span class="mol-instrument-readout__value t-instr-lg">64 mi</span>
+          </div>
+          <div class="mol-instrument-readout__cell"
+               aria-label="Time: 2 hours 10 minutes">
+            <span class="mol-instrument-readout__label t-label-sm">Time</span>
+            <span class="mol-instrument-readout__value t-instr-lg">2h 10m</span>
+          </div>
+          <div class="mol-instrument-readout__cell"
+               aria-label="Climb: 2400 feet gain">
+            <span class="mol-instrument-readout__label t-label-sm">Climb</span>
+            <div class="mol-instrument-readout__value t-instr-lg">
+              2,400
+              <span class="mol-instrument-readout__unit t-label-sm">ft gain</span>
+            </div>
+          </div>
+          <div class="mol-instrument-readout__cell"
+               aria-label="Scenic score: 9.2">
+            <span class="mol-instrument-readout__label t-label-sm">Scenic</span>
+            <span class="mol-instrument-readout__value mol-instrument-readout__value--accent t-instr-lg">9.2</span>
+          </div>
+        </div>
+        <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <!-- 3-metric: Dist / Time / Climb — Big Cottonwood Canyon -->
+    <div class="variant-label-row">
+      <span class="t-instr-xs" style="color: var(--content-tertiary);">3 metrics — DIST / TIME / CLIMB · Big Cottonwood Canyon</span>
+      <div class="mol-instrument-readout"
+           aria-label="Route metrics: Distance 38 miles, Time 1 hour 24 minutes, Climb 1100 feet gain">
+        <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+        <div class="mol-instrument-readout__grid mol-instrument-readout__grid--3">
+          <div class="mol-instrument-readout__cell" aria-label="Distance: 38 miles">
+            <span class="mol-instrument-readout__label t-label-sm">Dist</span>
+            <span class="mol-instrument-readout__value t-instr-lg">38 mi</span>
+          </div>
+          <div class="mol-instrument-readout__cell" aria-label="Time: 1 hour 24 minutes">
+            <span class="mol-instrument-readout__label t-label-sm">Time</span>
+            <span class="mol-instrument-readout__value t-instr-lg">1h 24m</span>
+          </div>
+          <div class="mol-instrument-readout__cell" aria-label="Climb: 1100 feet gain">
+            <span class="mol-instrument-readout__label t-label-sm">Climb</span>
+            <div class="mol-instrument-readout__value t-instr-lg">
+              1,100
+              <span class="mol-instrument-readout__unit t-label-sm">ft gain</span>
+            </div>
+          </div>
+        </div>
+        <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <!-- 2-metric: Dist / Time — inline compact -->
+    <div class="variant-label-row">
+      <span class="t-instr-xs" style="color: var(--content-tertiary);">2 metrics — DIST / TIME · Emigration Canyon</span>
+      <div class="mol-instrument-readout"
+           aria-label="Route metrics: Distance 28 miles, Time 1 hour 5 minutes">
+        <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+        <div class="mol-instrument-readout__grid mol-instrument-readout__grid--2" style="max-width: 240px;">
+          <div class="mol-instrument-readout__cell" aria-label="Distance: 28 miles">
+            <span class="mol-instrument-readout__label t-label-sm">Dist</span>
+            <span class="mol-instrument-readout__value t-instr-lg">28 mi</span>
+          </div>
+          <div class="mol-instrument-readout__cell" aria-label="Time: 1 hour 5 minutes">
+            <span class="mol-instrument-readout__label t-label-sm">Time</span>
+            <span class="mol-instrument-readout__value t-instr-lg">1h 05m</span>
+          </div>
+        </div>
+        <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+      </div>
+    </div>
+
+  </div><!-- /variant-stack -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 02 · SPECIALTY VARIANTS
+     ═══════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">specialty variants · coordinates · elevation · speed</div>
+
+  <div class="variant-stack">
+
+    <!-- Coordinates: Lat / Lon / Elev -->
+    <div class="variant-label-row">
+      <span class="t-instr-xs" style="color: var(--content-tertiary);">coordinates — LAT / LON / ELEV · Solitude trailhead</span>
+      <div class="mol-instrument-readout"
+           aria-label="Position: Latitude 40.6223 North, Longitude 111.6582 West, Elevation 7988 feet">
+        <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+        <div class="mol-instrument-readout__grid mol-instrument-readout__grid--3">
+          <div class="mol-instrument-readout__cell" aria-label="Latitude: 40.6223 degrees North">
+            <span class="mol-instrument-readout__label t-label-sm">Lat</span>
+            <span class="mol-instrument-readout__value t-instr-md">40.6223° N</span>
+          </div>
+          <div class="mol-instrument-readout__cell" aria-label="Longitude: 111.6582 degrees West">
+            <span class="mol-instrument-readout__label t-label-sm">Lon</span>
+            <span class="mol-instrument-readout__value t-instr-md">111.6582° W</span>
+          </div>
+          <div class="mol-instrument-readout__cell" aria-label="Elevation: 7988 feet">
+            <span class="mol-instrument-readout__label t-label-sm">Elev</span>
+            <span class="mol-instrument-readout__value t-instr-md">7,988 ft</span>
+          </div>
+        </div>
+        <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <!-- Elevation pair: current + gain -->
+    <div class="variant-label-row">
+      <span class="t-instr-xs" style="color: var(--content-tertiary);">elevation pair — CURRENT / GAIN · Little Cottonwood</span>
+      <div class="mol-instrument-readout"
+           aria-label="Elevation: Current 8400 feet, Gain 3200 feet">
+        <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+        <div class="mol-instrument-readout__grid mol-instrument-readout__grid--2" style="max-width: 300px;">
+          <div class="mol-instrument-readout__cell" aria-label="Current elevation: 8400 feet">
+            <span class="mol-instrument-readout__label t-label-sm">Elev</span>
+            <div class="mol-instrument-readout__value t-instr-lg">
+              8,400
+              <span class="mol-instrument-readout__unit t-label-sm">ft asl</span>
+            </div>
+          </div>
+          <div class="mol-instrument-readout__cell" aria-label="Elevation gain: 3200 feet">
+            <span class="mol-instrument-readout__label t-label-sm">Gain</span>
+            <div class="mol-instrument-readout__value t-instr-lg">
+              +3,200
+              <span class="mol-instrument-readout__unit t-label-sm">ft</span>
+            </div>
+          </div>
+        </div>
+        <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <!-- Speed / cadence / heart rate — activity stats -->
+    <div class="variant-label-row">
+      <span class="t-instr-xs" style="color: var(--content-tertiary);">speed — single large value · current ride</span>
+      <div class="mol-instrument-readout"
+           aria-label="Current speed: 18.4 miles per hour">
+        <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+        <div class="mol-instrument-readout__grid mol-instrument-readout__grid--3">
+          <div class="mol-instrument-readout__cell" aria-label="Speed: 18.4 miles per hour">
+            <span class="mol-instrument-readout__label t-label-sm">Speed</span>
+            <div class="mol-instrument-readout__value t-instr-lg">
+              18.4
+              <span class="mol-instrument-readout__unit t-label-sm">mph</span>
+            </div>
+          </div>
+          <div class="mol-instrument-readout__cell" aria-label="Cadence: 82 revolutions per minute">
+            <span class="mol-instrument-readout__label t-label-sm">Cadence</span>
+            <div class="mol-instrument-readout__value t-instr-lg">
+              82
+              <span class="mol-instrument-readout__unit t-label-sm">rpm</span>
+            </div>
+          </div>
+          <div class="mol-instrument-readout__cell" aria-label="Heart rate: 147 beats per minute">
+            <span class="mol-instrument-readout__label t-label-sm">HR</span>
+            <div class="mol-instrument-readout__value t-instr-lg">
+              147
+              <span class="mol-instrument-readout__unit t-label-sm">bpm</span>
+            </div>
+          </div>
+        </div>
+        <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+      </div>
+    </div>
+
+  </div><!-- /variant-stack -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 03 · MULTI-ROW STAT BLOCK
+     ═══════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">multi-row stat block · 8-metric activity summary · City Creek full ride</div>
+
+  <div style="max-width: 560px;">
+    <span class="t-instr-xs" style="color: var(--content-tertiary); display: block; margin-bottom: var(--space-3);">8 metrics, 2 rows of 4 — speed / cadence / HR / power · elapsed / dist / climb / calories</span>
+    <div class="mol-instrument-readout"
+         aria-label="Activity stats: Speed 18.4 mph, Cadence 82 rpm, Heart Rate 147 bpm, Power 218 watts, Time 1 hour 42 minutes, Distance 31.2 miles, Climb 1850 feet, Calories 1240">
+      <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+      <div class="mol-instrument-readout__grid--multi">
+        <div class="mol-instrument-readout__cell" aria-label="Speed: 18.4 miles per hour">
+          <span class="mol-instrument-readout__label t-label-sm">Speed</span>
+          <div class="mol-instrument-readout__value t-instr-md">18.4 <span class="mol-instrument-readout__unit t-instr-xs">mph</span></div>
+        </div>
+        <div class="mol-instrument-readout__cell" aria-label="Cadence: 82 revolutions per minute">
+          <span class="mol-instrument-readout__label t-label-sm">Cadence</span>
+          <div class="mol-instrument-readout__value t-instr-md">82 <span class="mol-instrument-readout__unit t-instr-xs">rpm</span></div>
+        </div>
+        <div class="mol-instrument-readout__cell" aria-label="Heart rate: 147 beats per minute">
+          <span class="mol-instrument-readout__label t-label-sm">HR</span>
+          <div class="mol-instrument-readout__value t-instr-md">147 <span class="mol-instrument-readout__unit t-instr-xs">bpm</span></div>
+        </div>
+        <div class="mol-instrument-readout__cell" aria-label="Power: 218 watts">
+          <span class="mol-instrument-readout__label t-label-sm">Power</span>
+          <div class="mol-instrument-readout__value mol-instrument-readout__value--accent t-instr-md">218 <span class="mol-instrument-readout__unit t-instr-xs" style="color: var(--signal-default);">W</span></div>
+        </div>
+        <div class="mol-instrument-readout__cell" aria-label="Elapsed time: 1 hour 42 minutes">
+          <span class="mol-instrument-readout__label t-label-sm">Elapsed</span>
+          <span class="mol-instrument-readout__value t-instr-md">1h 42m</span>
+        </div>
+        <div class="mol-instrument-readout__cell" aria-label="Distance: 31.2 miles">
+          <span class="mol-instrument-readout__label t-label-sm">Dist</span>
+          <div class="mol-instrument-readout__value t-instr-md">31.2 <span class="mol-instrument-readout__unit t-instr-xs">mi</span></div>
+        </div>
+        <div class="mol-instrument-readout__cell" aria-label="Climb: 1850 feet">
+          <span class="mol-instrument-readout__label t-label-sm">Climb</span>
+          <div class="mol-instrument-readout__value t-instr-md">1,850 <span class="mol-instrument-readout__unit t-instr-xs">ft</span></div>
+        </div>
+        <div class="mol-instrument-readout__cell" aria-label="Calories: 1240">
+          <span class="mol-instrument-readout__label t-label-sm">Cal</span>
+          <span class="mol-instrument-readout__value t-instr-md">1,240</span>
+        </div>
+      </div>
+      <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 04 · HERO STANDALONE + INLINE META
+     ═══════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">hero standalone + inline meta</div>
+
+  <div style="display: flex; gap: var(--space-9); align-items: flex-start; flex-wrap: wrap;">
+
+    <!-- Hero: distance -->
+    <div>
+      <span class="t-instr-xs" style="color: var(--content-tertiary); display: block; margin-bottom: var(--space-3);">hero · distance · map overlay</span>
+      <div class="mol-instrument-readout mol-instrument-readout--hero"
+           aria-label="Distance: 64.2 miles">
+        <span class="mol-instrument-readout__label t-label-lg">Distance</span>
+        <div style="display: flex; align-items: baseline; gap: var(--space-2);">
+          <span class="t-instr-lg" style="font-size: 36px; color: var(--content-primary);">64.2</span>
+          <span class="mol-instrument-readout__unit t-label-md">mi</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero: elevation -->
+    <div>
+      <span class="t-instr-xs" style="color: var(--content-tertiary); display: block; margin-bottom: var(--space-3);">hero · elevation · summit readout</span>
+      <div class="mol-instrument-readout mol-instrument-readout--hero"
+           aria-label="Elevation: 11,253 feet">
+        <span class="mol-instrument-readout__label t-label-lg">Elevation</span>
+        <div style="display: flex; align-items: baseline; gap: var(--space-2);">
+          <span class="t-instr-lg" style="font-size: 36px; color: var(--content-primary);">11,253</span>
+          <span class="mol-instrument-readout__unit t-label-md">ft</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inline meta: no card chrome -->
+    <div>
+      <span class="t-instr-xs" style="color: var(--content-tertiary); display: block; margin-bottom: var(--space-3);">inline meta · inside list row · no chrome</span>
+      <div class="mol-instrument-readout mol-instrument-readout--inline"
+           aria-label="Route meta: Distance 22 miles, Time 58 minutes">
+        <div class="mol-instrument-readout__grid mol-instrument-readout__grid--3">
+          <div class="mol-instrument-readout__cell" aria-label="Distance: 22 miles">
+            <span class="mol-instrument-readout__label t-label-sm">Dist</span>
+            <span class="mol-instrument-readout__value t-instr-sm">22 mi</span>
+          </div>
+          <div class="mol-instrument-readout__cell" aria-label="Time: 58 minutes">
+            <span class="mol-instrument-readout__label t-label-sm">Time</span>
+            <span class="mol-instrument-readout__value t-instr-sm">58m</span>
+          </div>
+          <div class="mol-instrument-readout__cell" aria-label="Scenic score: 8.1">
+            <span class="mol-instrument-readout__label t-label-sm">Scenic</span>
+            <span class="mol-instrument-readout__value mol-instrument-readout__value--accent t-instr-sm">8.1</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 05 · LIGHT / DARK TWO-UP
+     ═══════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Light / Dark · 4-metric + 3-metric · full contrast check</div>
+
+  <div class="two-up">
+
+    <!-- Light pane -->
+    <div class="theme-pane">
+      <div class="variant-stack">
+
+        <div class="variant-label-row">
+          <span class="t-instr-xs" style="color: var(--content-tertiary);">light · 4 metrics · Emigration Canyon Loop</span>
+          <div class="mol-instrument-readout"
+               aria-label="Route metrics: Distance 82 miles, Time 2 hours 55 minutes, Climb 3100 feet gain, Scenic score 8.7">
+            <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+            <div class="mol-instrument-readout__grid mol-instrument-readout__grid--4">
+              <div class="mol-instrument-readout__cell" aria-label="Distance: 82 miles">
+                <span class="mol-instrument-readout__label t-label-sm">Dist</span>
+                <span class="mol-instrument-readout__value t-instr-lg">82 mi</span>
+              </div>
+              <div class="mol-instrument-readout__cell" aria-label="Time: 2 hours 55 minutes">
+                <span class="mol-instrument-readout__label t-label-sm">Time</span>
+                <span class="mol-instrument-readout__value t-instr-lg">2h 55m</span>
+              </div>
+              <div class="mol-instrument-readout__cell" aria-label="Climb: 3100 feet gain">
+                <span class="mol-instrument-readout__label t-label-sm">Climb</span>
+                <div class="mol-instrument-readout__value t-instr-lg">3,100<span class="mol-instrument-readout__unit t-label-sm">ft gain</span></div>
+              </div>
+              <div class="mol-instrument-readout__cell" aria-label="Scenic score: 8.7">
+                <span class="mol-instrument-readout__label t-label-sm">Scenic</span>
+                <span class="mol-instrument-readout__value mol-instrument-readout__value--accent t-instr-lg">8.7</span>
+              </div>
+            </div>
+            <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <div class="variant-label-row">
+          <span class="t-instr-xs" style="color: var(--content-tertiary);">light · 3 metrics · Mill Creek Canyon</span>
+          <div class="mol-instrument-readout"
+               aria-label="Route metrics: Distance 18 miles, Time 52 minutes, Climb 720 feet gain">
+            <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+            <div class="mol-instrument-readout__grid mol-instrument-readout__grid--3">
+              <div class="mol-instrument-readout__cell" aria-label="Distance: 18 miles">
+                <span class="mol-instrument-readout__label t-label-sm">Dist</span>
+                <span class="mol-instrument-readout__value t-instr-lg">18 mi</span>
+              </div>
+              <div class="mol-instrument-readout__cell" aria-label="Time: 52 minutes">
+                <span class="mol-instrument-readout__label t-label-sm">Time</span>
+                <span class="mol-instrument-readout__value t-instr-lg">52m</span>
+              </div>
+              <div class="mol-instrument-readout__cell" aria-label="Climb: 720 feet gain">
+                <span class="mol-instrument-readout__label t-label-sm">Climb</span>
+                <div class="mol-instrument-readout__value t-instr-lg">720<span class="mol-instrument-readout__unit t-label-sm">ft gain</span></div>
+              </div>
+            </div>
+            <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Dark pane -->
+    <div class="theme-pane mode-dark">
+      <div class="variant-stack">
+
+        <div class="variant-label-row">
+          <span class="t-instr-xs" style="color: var(--content-tertiary);">dark · 4 metrics · Emigration Canyon Loop</span>
+          <div class="mol-instrument-readout"
+               aria-label="Route metrics: Distance 82 miles, Time 2 hours 55 minutes, Climb 3100 feet gain, Scenic score 8.7">
+            <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+            <div class="mol-instrument-readout__grid mol-instrument-readout__grid--4">
+              <div class="mol-instrument-readout__cell" aria-label="Distance: 82 miles">
+                <span class="mol-instrument-readout__label t-label-sm">Dist</span>
+                <span class="mol-instrument-readout__value t-instr-lg">82 mi</span>
+              </div>
+              <div class="mol-instrument-readout__cell" aria-label="Time: 2 hours 55 minutes">
+                <span class="mol-instrument-readout__label t-label-sm">Time</span>
+                <span class="mol-instrument-readout__value t-instr-lg">2h 55m</span>
+              </div>
+              <div class="mol-instrument-readout__cell" aria-label="Climb: 3100 feet gain">
+                <span class="mol-instrument-readout__label t-label-sm">Climb</span>
+                <div class="mol-instrument-readout__value t-instr-lg">3,100<span class="mol-instrument-readout__unit t-label-sm">ft gain</span></div>
+              </div>
+              <div class="mol-instrument-readout__cell" aria-label="Scenic score: 8.7">
+                <span class="mol-instrument-readout__label t-label-sm">Scenic</span>
+                <span class="mol-instrument-readout__value mol-instrument-readout__value--accent t-instr-lg">8.7</span>
+              </div>
+            </div>
+            <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <div class="variant-label-row">
+          <span class="t-instr-xs" style="color: var(--content-tertiary);">dark · 3 metrics · Mill Creek Canyon</span>
+          <div class="mol-instrument-readout"
+               aria-label="Route metrics: Distance 18 miles, Time 52 minutes, Climb 720 feet gain">
+            <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+            <div class="mol-instrument-readout__grid mol-instrument-readout__grid--3">
+              <div class="mol-instrument-readout__cell" aria-label="Distance: 18 miles">
+                <span class="mol-instrument-readout__label t-label-sm">Dist</span>
+                <span class="mol-instrument-readout__value t-instr-lg">18 mi</span>
+              </div>
+              <div class="mol-instrument-readout__cell" aria-label="Time: 52 minutes">
+                <span class="mol-instrument-readout__label t-label-sm">Time</span>
+                <span class="mol-instrument-readout__value t-instr-lg">52m</span>
+              </div>
+              <div class="mol-instrument-readout__cell" aria-label="Climb: 720 feet gain">
+                <span class="mol-instrument-readout__label t-label-sm">Climb</span>
+                <div class="mol-instrument-readout__value t-instr-lg">720<span class="mol-instrument-readout__unit t-label-sm">ft gain</span></div>
+              </div>
+            </div>
+            <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /two-up -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 06 · LOADING STATE
+     ═══════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">loading state · skeleton shimmer · 4-metric</div>
+
+  <div style="max-width: 560px;">
+    <div class="mol-instrument-readout" aria-label="Route metrics loading" aria-busy="true">
+      <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+      <div class="mol-instrument-readout__grid mol-instrument-readout__grid--4">
+        <div class="mol-instrument-readout__cell">
+          <span class="mol-instrument-readout__label t-label-sm">Dist</span>
+          <div class="mol-instrument-readout__skeleton"></div>
+        </div>
+        <div class="mol-instrument-readout__cell">
+          <span class="mol-instrument-readout__label t-label-sm">Time</span>
+          <div class="mol-instrument-readout__skeleton" style="width: 50%;"></div>
+        </div>
+        <div class="mol-instrument-readout__cell">
+          <span class="mol-instrument-readout__label t-label-sm">Climb</span>
+          <div class="mol-instrument-readout__skeleton" style="width: 55%;"></div>
+        </div>
+        <div class="mol-instrument-readout__cell">
+          <span class="mol-instrument-readout__label t-label-sm">Scenic</span>
+          <div class="mol-instrument-readout__skeleton" style="width: 30%;"></div>
+        </div>
+      </div>
+      <div class="mol-instrument-readout__divider" role="separator" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

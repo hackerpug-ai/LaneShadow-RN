@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<!-- weather-timeline.html — LSWeatherTimeline Molecule Preview
+     LaneShadow V2 Copper · Navigator Molecule · UC-MOL-07
+     Authority: uc-mol-07-navigator-molecules.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LSWeatherTimeline — LaneShadow V2 Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400;1,6..72,500&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+
+/* ── LSWeatherTimeline molecule ─────────────────────────────────── */
+.mol-weather-timeline {
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-shadow: var(--elev-card);
+  min-width: 320px;
+}
+
+.mol-weather-timeline__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.mol-weather-timeline__title {
+  color: var(--content-primary);
+}
+
+.mol-weather-timeline__range {
+  color: var(--content-tertiary);
+}
+
+/* 6-cell default grid */
+.mol-weather-timeline__cells {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-2);
+}
+
+/* 12h scrollable variant */
+.mol-weather-timeline__cells--12h {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(44px, 1fr));
+  gap: var(--space-2);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: var(--space-1);
+}
+
+/* 24h scrollable variant */
+.mol-weather-timeline__cells--24h {
+  display: grid;
+  grid-template-columns: repeat(24, minmax(40px, 1fr));
+  gap: var(--space-1);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: var(--space-1);
+}
+
+.mol-weather-timeline__cell {
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  border: var(--stroke-sm) solid transparent;
+  scroll-snap-align: start;
+}
+
+.mol-weather-timeline__hour {
+  color: var(--content-secondary);
+}
+
+.mol-weather-timeline__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.mol-weather-timeline__temp {
+  /* inherits .t-instr-sm class */
+}
+
+/* Condition skins */
+.mol-wx--clear  { background: var(--wx-clear-tint);  border-color: color-mix(in srgb, var(--wx-clear)  33%, transparent); }
+.mol-wx--rain   { background: var(--wx-rain-tint);   border-color: color-mix(in srgb, var(--wx-rain)   33%, transparent); }
+.mol-wx--wind   { background: var(--wx-wind-tint);   border-color: color-mix(in srgb, var(--wx-wind)   33%, transparent); }
+.mol-wx--storm  { background: var(--wx-storm-tint);  border-color: color-mix(in srgb, var(--wx-storm)  33%, transparent); }
+.mol-wx--hot    { background: var(--wx-hot-tint);    border-color: color-mix(in srgb, var(--wx-hot)    33%, transparent); }
+.mol-wx--cold   { background: var(--wx-cold-tint);   border-color: color-mix(in srgb, var(--wx-cold)   33%, transparent); }
+
+.mol-wx--clear  .mol-weather-timeline__temp,
+.mol-wx--clear  .mol-weather-timeline__icon { color: var(--wx-clear); }
+.mol-wx--rain   .mol-weather-timeline__temp,
+.mol-wx--rain   .mol-weather-timeline__icon { color: var(--wx-rain); }
+.mol-wx--wind   .mol-weather-timeline__temp,
+.mol-wx--wind   .mol-weather-timeline__icon { color: var(--wx-wind); }
+.mol-wx--storm  .mol-weather-timeline__temp,
+.mol-wx--storm  .mol-weather-timeline__icon { color: var(--wx-storm); }
+.mol-wx--hot    .mol-weather-timeline__temp,
+.mol-wx--hot    .mol-weather-timeline__icon { color: var(--wx-hot); }
+.mol-wx--cold   .mol-weather-timeline__temp,
+.mol-wx--cold   .mol-weather-timeline__icon { color: var(--wx-cold); }
+
+/* Expanded readout strip */
+.mol-weather-timeline__readouts {
+  display: flex;
+  gap: var(--space-6);
+  padding-top: var(--space-3);
+  border-top: var(--stroke-sm) solid var(--border-subtle);
+}
+
+.mol-weather-timeline__readout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.mol-weather-timeline__readout-label {
+  color: var(--content-tertiary);
+}
+
+.mol-weather-timeline__readout-value {
+  color: var(--content-primary);
+}
+
+/* ── Reusable SVG weather icons ─────────────────────────────────── */
+/* Defined inline in markup for self-containment */
+
+/* ── Preview layout ─────────────────────────────────────────────── */
+.variant-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 500px;
+}
+
+.variant-label-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1><em>LSWeatherTimeline</em></h1>
+  <div class="subtitle">UC-MOL-07 · Navigator Molecule · LaneShadow V2 Copper</div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 01 · 6H TIMELINES — LIGHT
+     ═══════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">6-hour compact · Light · all-clear + mixed + storm</div>
+
+  <div class="variant-stack">
+
+    <!-- All clear — City Creek Canyon morning -->
+    <div class="variant-label-row">
+      <span class="t-instr-xs" style="color: var(--content-tertiary);">all-clear · City Creek Canyon · 9 AM – 2 PM</span>
+      <div class="mol-weather-timeline"
+           aria-label="Weather along City Creek Canyon, 9 AM to 2 PM">
+        <div class="mol-weather-timeline__header">
+          <span class="mol-weather-timeline__title t-label-md">Weather along the way</span>
+          <span class="mol-weather-timeline__range t-instr-xs">9 AM — 2 PM</span>
+        </div>
+        <div class="mol-weather-timeline__cells" role="list">
+          <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="9 AM, clear, 68 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">9 AM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                  <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                  <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                  <line x1="1.76" y1="1.76" x2="2.82" y2="2.82"/><line x1="9.18" y1="9.18" x2="10.24" y2="10.24"/>
+                  <line x1="1.76" y1="10.24" x2="2.82" y2="9.18"/><line x1="9.18" y1="2.82" x2="10.24" y2="1.76"/>
+                </g>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">68°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="10 AM, clear, 72 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">10 AM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                  <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                  <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                </g>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">72°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="11 AM, clear, 75 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">11 AM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                  <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                  <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                </g>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">75°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="12 PM, clear, 76 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">12 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                  <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                  <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                </g>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">76°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="1 PM, clear, 78 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">1 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                  <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                  <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                </g>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">78°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="2 PM, clear, 77 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">2 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                  <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                  <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                </g>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">77°</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mixed: clear → wind → rain — Big Cottonwood afternoon -->
+    <div class="variant-label-row">
+      <span class="t-instr-xs" style="color: var(--content-tertiary);">mixed · Big Cottonwood Canyon · 10 AM – 3 PM</span>
+      <div class="mol-weather-timeline"
+           aria-label="Weather along Big Cottonwood Canyon, 10 AM to 3 PM">
+        <div class="mol-weather-timeline__header">
+          <span class="mol-weather-timeline__title t-label-md">Weather along the way</span>
+          <span class="mol-weather-timeline__range t-instr-xs">10 AM — 3 PM</span>
+        </div>
+        <div class="mol-weather-timeline__cells" role="list">
+          <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="10 AM, clear, 70 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">10 AM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                  <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                  <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                </g>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">70°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="11 AM, clear, 72 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">11 AM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                  <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                  <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                </g>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">72°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--wind" role="listitem" aria-label="12 PM, windy, 68 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">12 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M1 4.5h7a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+                <path d="M1 7h9a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+                <path d="M1 9.5h5a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">68°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--wind" role="listitem" aria-label="1 PM, windy, 65 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">1 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M1 4.5h7a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+                <path d="M1 7h9a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">65°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--rain" role="listitem" aria-label="2 PM, rain, 61 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">2 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/>
+                <line x1="3.5" y1="9.5" x2="3" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+                <line x1="6" y1="9.5" x2="5.5" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+                <line x1="8.5" y1="9.5" x2="8" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">61°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--rain" role="listitem" aria-label="3 PM, rain, 58 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">3 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/>
+                <line x1="3.5" y1="9.5" x2="3" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+                <line x1="6" y1="9.5" x2="5.5" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">58°</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Storm / hot — full condition spread — Emigration Canyon afternoon -->
+    <div class="variant-label-row">
+      <span class="t-instr-xs" style="color: var(--content-tertiary);">all-conditions spread · Emigration Canyon · 8 AM – 1 PM</span>
+      <div class="mol-weather-timeline"
+           aria-label="Weather along Emigration Canyon, 8 AM to 1 PM">
+        <div class="mol-weather-timeline__header">
+          <span class="mol-weather-timeline__title t-label-md">Weather along the way</span>
+          <span class="mol-weather-timeline__range t-instr-xs">8 AM — 1 PM</span>
+        </div>
+        <div class="mol-weather-timeline__cells" role="list">
+          <div class="mol-weather-timeline__cell mol-wx--cold" role="listitem" aria-label="8 AM, cold, 44 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">8 AM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">44°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="9 AM, clear, 52 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">9 AM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                  <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                  <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                </g>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">52°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--hot" role="listitem" aria-label="10 AM, hot, 88 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">10 AM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                  <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                  <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                  <line x1="1.76" y1="1.76" x2="2.82" y2="2.82"/><line x1="9.18" y1="9.18" x2="10.24" y2="10.24"/>
+                </g>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">88°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--wind" role="listitem" aria-label="11 AM, windy, 71 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">11 AM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M1 4.5h7a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+                <path d="M1 7h9a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">71°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--storm" role="listitem" aria-label="12 PM, storm, 63 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">12 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/>
+                <path d="M6 8l-.8 2h1.6l-.8 2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">63°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--rain" role="listitem" aria-label="1 PM, rain, 59 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">1 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/>
+                <line x1="3.5" y1="9.5" x2="3" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+                <line x1="6" y1="9.5" x2="5.5" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">59°</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /variant-stack -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 02 · EXPANDED — with readout strip
+     ═══════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">expanded · readout strip · City Creek Canyon</div>
+
+  <div style="max-width: 500px;">
+    <span class="t-instr-xs" style="color: var(--content-tertiary); display: block; margin-bottom: var(--space-3);">compact + temperature high/low + wind readout</span>
+    <div class="mol-weather-timeline"
+         aria-label="Weather along City Creek Canyon, 9 AM to 2 PM, high 78 degrees, wind 8 miles per hour">
+      <div class="mol-weather-timeline__header">
+        <span class="mol-weather-timeline__title t-label-md">Weather along the way</span>
+        <span class="mol-weather-timeline__range t-instr-xs">9 AM — 2 PM</span>
+      </div>
+      <div class="mol-weather-timeline__cells" role="list">
+        <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="9 AM, clear, 68 degrees">
+          <span class="mol-weather-timeline__hour t-label-sm">9 AM</span>
+          <span class="mol-weather-timeline__icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+              <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                <line x1="1.76" y1="1.76" x2="2.82" y2="2.82"/>
+              </g>
+            </svg>
+          </span>
+          <span class="mol-weather-timeline__temp t-instr-sm">68°</span>
+        </div>
+        <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="10 AM, clear, 72 degrees">
+          <span class="mol-weather-timeline__hour t-label-sm">10 AM</span>
+          <span class="mol-weather-timeline__icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+              <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+              </g>
+            </svg>
+          </span>
+          <span class="mol-weather-timeline__temp t-instr-sm">72°</span>
+        </div>
+        <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="11 AM, clear, 75 degrees">
+          <span class="mol-weather-timeline__hour t-label-sm">11 AM</span>
+          <span class="mol-weather-timeline__icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+              <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+              </g>
+            </svg>
+          </span>
+          <span class="mol-weather-timeline__temp t-instr-sm">75°</span>
+        </div>
+        <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="12 PM, clear, 78 degrees">
+          <span class="mol-weather-timeline__hour t-label-sm">12 PM</span>
+          <span class="mol-weather-timeline__icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+              <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+              </g>
+            </svg>
+          </span>
+          <span class="mol-weather-timeline__temp t-instr-sm">78°</span>
+        </div>
+        <div class="mol-weather-timeline__cell mol-wx--wind" role="listitem" aria-label="1 PM, windy, 74 degrees">
+          <span class="mol-weather-timeline__hour t-label-sm">1 PM</span>
+          <span class="mol-weather-timeline__icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+              <path d="M1 4.5h7a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+              <path d="M1 7h9a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="mol-weather-timeline__temp t-instr-sm">74°</span>
+        </div>
+        <div class="mol-weather-timeline__cell mol-wx--wind" role="listitem" aria-label="2 PM, windy, 70 degrees">
+          <span class="mol-weather-timeline__hour t-label-sm">2 PM</span>
+          <span class="mol-weather-timeline__icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+              <path d="M1 4.5h7a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+              <path d="M1 7h9a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="mol-weather-timeline__temp t-instr-sm">70°</span>
+        </div>
+      </div>
+      <!-- expanded readout strip -->
+      <div class="mol-weather-timeline__readouts">
+        <div class="mol-weather-timeline__readout">
+          <span class="mol-weather-timeline__readout-label t-label-sm">High</span>
+          <span class="mol-weather-timeline__readout-value t-instr-sm">78°</span>
+        </div>
+        <div class="mol-weather-timeline__readout">
+          <span class="mol-weather-timeline__readout-label t-label-sm">Low</span>
+          <span class="mol-weather-timeline__readout-value t-instr-sm">68°</span>
+        </div>
+        <div class="mol-weather-timeline__readout">
+          <span class="mol-weather-timeline__readout-label t-label-sm">Wind</span>
+          <span class="mol-weather-timeline__readout-value t-instr-sm">8–14 mph</span>
+        </div>
+        <div class="mol-weather-timeline__readout">
+          <span class="mol-weather-timeline__readout-label t-label-sm">UV</span>
+          <span class="mol-weather-timeline__readout-value t-instr-sm">7 High</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 03 · LIGHT / DARK TWO-UP
+     ═══════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Light / Dark · mixed · condition tints preserved</div>
+
+  <div class="two-up">
+
+    <!-- Light -->
+    <div class="theme-pane">
+      <span class="t-instr-xs" style="color: var(--content-tertiary); display: block; margin-bottom: var(--space-4);">light · Solitude to Alta</span>
+      <div class="mol-weather-timeline"
+           aria-label="Weather from Solitude to Alta, 7 PM to 12 AM">
+        <div class="mol-weather-timeline__header">
+          <span class="mol-weather-timeline__title t-label-md">Weather along the way</span>
+          <span class="mol-weather-timeline__range t-instr-xs">7 PM — 12 AM</span>
+        </div>
+        <div class="mol-weather-timeline__cells" role="list">
+          <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="7 PM, clear, 62 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">7 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                  <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                  <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                </g>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">62°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--cold" role="listitem" aria-label="8 PM, cold, 56 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">8 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">56°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--cold" role="listitem" aria-label="9 PM, cold, 52 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">9 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">52°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--storm" role="listitem" aria-label="10 PM, storm, 48 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">10 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/>
+                <path d="M6 8l-.8 2h1.6l-.8 2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">48°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--storm" role="listitem" aria-label="11 PM, storm, 45 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">11 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/>
+                <path d="M6 8l-.8 2h1.6l-.8 2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">45°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--rain" role="listitem" aria-label="12 AM, rain, 43 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">12 AM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/>
+                <line x1="3.5" y1="9.5" x2="3" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+                <line x1="6" y1="9.5" x2="5.5" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">43°</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark">
+      <span class="t-instr-xs" style="color: var(--content-tertiary); display: block; margin-bottom: var(--space-4);">dark · Solitude to Alta</span>
+      <div class="mol-weather-timeline"
+           aria-label="Weather from Solitude to Alta, 7 PM to 12 AM">
+        <div class="mol-weather-timeline__header">
+          <span class="mol-weather-timeline__title t-label-md">Weather along the way</span>
+          <span class="mol-weather-timeline__range t-instr-xs">7 PM — 12 AM</span>
+        </div>
+        <div class="mol-weather-timeline__cells" role="list">
+          <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="7 PM, clear, 62 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">7 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="2.8" fill="currentColor"/>
+                <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                  <line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/>
+                  <line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/>
+                </g>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">62°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--cold" role="listitem" aria-label="8 PM, cold, 56 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">8 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">56°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--cold" role="listitem" aria-label="9 PM, cold, 52 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">9 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">52°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--storm" role="listitem" aria-label="10 PM, storm, 48 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">10 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/>
+                <path d="M6 8l-.8 2h1.6l-.8 2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">48°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--storm" role="listitem" aria-label="11 PM, storm, 45 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">11 PM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/>
+                <path d="M6 8l-.8 2h1.6l-.8 2" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">45°</span>
+          </div>
+          <div class="mol-weather-timeline__cell mol-wx--rain" role="listitem" aria-label="12 AM, rain, 43 degrees">
+            <span class="mol-weather-timeline__hour t-label-sm">12 AM</span>
+            <span class="mol-weather-timeline__icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
+                <path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/>
+                <line x1="3.5" y1="9.5" x2="3" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+                <line x1="6" y1="9.5" x2="5.5" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="mol-weather-timeline__temp t-instr-sm">43°</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /two-up -->
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 04 · 12H SCROLLABLE
+     ═══════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">12h scrollable · Little Cottonwood Canyon — full day</div>
+
+  <div style="max-width: 640px;">
+    <span class="t-instr-xs" style="color: var(--content-tertiary); display: block; margin-bottom: var(--space-3);">12 cells — scroll horizontally on small viewports</span>
+    <div class="mol-weather-timeline"
+         aria-label="Weather along Little Cottonwood Canyon, 6 AM to 6 PM">
+      <div class="mol-weather-timeline__header">
+        <span class="mol-weather-timeline__title t-label-md">Weather along the way</span>
+        <span class="mol-weather-timeline__range t-instr-xs">6 AM — 6 PM</span>
+      </div>
+      <div class="mol-weather-timeline__cells--12h" role="list" aria-label="Scrollable weather timeline">
+        <div class="mol-weather-timeline__cell mol-wx--cold" role="listitem" aria-label="6 AM, cold, 38 degrees"><span class="mol-weather-timeline__hour t-label-sm">6 AM</span><span class="mol-weather-timeline__icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="mol-weather-timeline__temp t-instr-sm">38°</span></div>
+        <div class="mol-weather-timeline__cell mol-wx--cold" role="listitem" aria-label="7 AM, cold, 42 degrees"><span class="mol-weather-timeline__hour t-label-sm">7 AM</span><span class="mol-weather-timeline__icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="mol-weather-timeline__temp t-instr-sm">42°</span></div>
+        <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="8 AM, clear, 51 degrees"><span class="mol-weather-timeline__hour t-label-sm">8 AM</span><span class="mol-weather-timeline__icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></span><span class="mol-weather-timeline__temp t-instr-sm">51°</span></div>
+        <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="9 AM, clear, 58 degrees"><span class="mol-weather-timeline__hour t-label-sm">9 AM</span><span class="mol-weather-timeline__icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></span><span class="mol-weather-timeline__temp t-instr-sm">58°</span></div>
+        <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="10 AM, clear, 64 degrees"><span class="mol-weather-timeline__hour t-label-sm">10 AM</span><span class="mol-weather-timeline__icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></span><span class="mol-weather-timeline__temp t-instr-sm">64°</span></div>
+        <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="11 AM, clear, 69 degrees"><span class="mol-weather-timeline__hour t-label-sm">11 AM</span><span class="mol-weather-timeline__icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></span><span class="mol-weather-timeline__temp t-instr-sm">69°</span></div>
+        <div class="mol-weather-timeline__cell mol-wx--clear" role="listitem" aria-label="12 PM, clear, 74 degrees"><span class="mol-weather-timeline__hour t-label-sm">12 PM</span><span class="mol-weather-timeline__icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.8" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="6" y1="0.5" x2="6" y2="2"/><line x1="6" y1="10" x2="6" y2="11.5"/><line x1="0.5" y1="6" x2="2" y2="6"/><line x1="10" y1="6" x2="11.5" y2="6"/></g></svg></span><span class="mol-weather-timeline__temp t-instr-sm">74°</span></div>
+        <div class="mol-weather-timeline__cell mol-wx--wind" role="listitem" aria-label="1 PM, windy, 71 degrees"><span class="mol-weather-timeline__hour t-label-sm">1 PM</span><span class="mol-weather-timeline__icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 4.5h7a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M1 7h9a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></span><span class="mol-weather-timeline__temp t-instr-sm">71°</span></div>
+        <div class="mol-weather-timeline__cell mol-wx--wind" role="listitem" aria-label="2 PM, windy, 67 degrees"><span class="mol-weather-timeline__hour t-label-sm">2 PM</span><span class="mol-weather-timeline__icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 4.5h7a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><path d="M1 7h9a1.5 1.5 0 0 0 0-3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></span><span class="mol-weather-timeline__temp t-instr-sm">67°</span></div>
+        <div class="mol-weather-timeline__cell mol-wx--rain" role="listitem" aria-label="3 PM, rain, 61 degrees"><span class="mol-weather-timeline__hour t-label-sm">3 PM</span><span class="mol-weather-timeline__icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/><line x1="3.5" y1="9.5" x2="3" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="9.5" x2="5.5" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="mol-weather-timeline__temp t-instr-sm">61°</span></div>
+        <div class="mol-weather-timeline__cell mol-wx--rain" role="listitem" aria-label="4 PM, rain, 58 degrees"><span class="mol-weather-timeline__hour t-label-sm">4 PM</span><span class="mol-weather-timeline__icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 7A3 3 0 0 1 5 2.5a2.5 2.5 0 0 1 4.5 1.2A2 2 0 0 1 9 8H3" stroke="currentColor" stroke-width="1" fill="none"/><line x1="3.5" y1="9.5" x2="3" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/><line x1="6" y1="9.5" x2="5.5" y2="11" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="mol-weather-timeline__temp t-instr-sm">58°</span></div>
+        <div class="mol-weather-timeline__cell mol-wx--cold" role="listitem" aria-label="5 PM, cold, 54 degrees"><span class="mol-weather-timeline__hour t-label-sm">5 PM</span><span class="mol-weather-timeline__icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7 7V3a2 2 0 0 0-4 0v4a3 3 0 1 0 4 0z" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg></span><span class="mol-weather-timeline__temp t-instr-sm">54°</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
