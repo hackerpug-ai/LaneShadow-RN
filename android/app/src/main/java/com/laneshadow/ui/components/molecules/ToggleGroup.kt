@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -243,6 +244,7 @@ fun ToggleGroupItem(
 
     // Build accessibility description
     val itemAccessibilityLabel = accessibilityLabel ?: value
+    val interactionSource = remember { MutableInteractionSource() }
 
     // Clickable Surface
     Surface(
@@ -253,7 +255,7 @@ fun ToggleGroupItem(
             .then(
                 if (!groupState.disabled) {
                     Modifier.clickable(
-                        interactionSource = MutableInteractionSource(),
+                        interactionSource = interactionSource,
                         indication = null,
                         onClick = {
                             when (groupState.type) {

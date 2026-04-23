@@ -490,19 +490,16 @@ private fun PulsingDot(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "pulsing_dot")
 
-    val opacity by if (reduceMotion) {
-        androidx.compose.runtime.derivedStateOf { 0.7f }
-    } else {
-        infiniteTransition.animateFloat(
-            initialValue = 0.4f,
-            targetValue = 1.0f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 600, delayMillis = 0),
-                repeatMode = RepeatMode.Reverse,
-            ),
-            label = "pulsing_dot_opacity",
-        )
-    }
+    val animatedOpacity by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 600, delayMillis = 0),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "pulsing_dot_opacity",
+    )
+    val opacity = if (reduceMotion) 0.7f else animatedOpacity
 
     Box(
         modifier = modifier

@@ -8,15 +8,19 @@
       "UC-ATM-01-ios": "66a1dfc4",
       "UC-ATM-06-ios": "7b44a079",
       "UC-ATM-01-android": "8af7fcdb",
+      "UC-ATM-02-android": "f75e595d",
+      "UC-ATM-02-ios": "ed78fd69",
       "UC-ATM-10-android": "9147d8b7",
-      "UC-ATM-10-ios": "13fb315a"
+      "UC-ATM-10-ios": "13fb315a",
+      "UC-ATM-03-ios": "3bb88b69",
+      "UC-ATM-04-android": "7f005be9",
+      "UC-ATM-04-ios": "9fc775d9",
+      "UC-ATM-06-android": "e7ad40f5",
+      "UC-ATM-08-ios": "3dcfd89f",
+      "UC-ATM-09-ios": "8a0ea752"
     },
     "unmerged_not_counted_complete": {
-      "UC-ATM-02-ios": "4a996f04 (off-history, not ancestor of main)",
-      "UC-ATM-02-android": "b9cb264d (off-history, not ancestor of main)",
-      "UC-ATM-03-ios": "898c4b7f (off-history, not ancestor of main)",
-      "UC-ATM-03-android": "63df8b92 (off-history, not ancestor of main)",
-      "UC-ATM-04-ios": "89adf155 on kb-run/UC-ATM-01-ios, unmerged/misnamed branch"
+      "UC-ATM-03-android": "63df8b92 (off-history, not ancestor of main)"
     }
   },
   "tasks": {
@@ -77,12 +81,20 @@
       "reviewer": "kotlin-reviewer",
       "wave": null,
       "depends_on": ["UC-SBX-00-android", "UC-ATM-01-android", "UC-ATM-10-android"],
-      "status": "pending",
-      "completed_commit": null,
-      "unmerged_evidence": "b9cb264d (off-history, not ancestor of main)",
+      "status": "completed_on_main",
+      "completed_commit": "f75e595d",
+      "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "implementer_response": ".kb-run/tasks/UC-ATM-02-android/child-exec-response.txt",
+          "verdict": "APPROVED",
+          "completed_at": "2026-04-23T16:39:00Z",
+          "notes": "Child commit 1e37f305 merged to main as f75e595d. Instrumentation source compiled, but live adb device execution was unavailable in the child worktree environment."
+        }
+      ]
     },
     "UC-ATM-02-ios": {
       "title": "UC-ATM-02-ios",
@@ -91,12 +103,71 @@
       "reviewer": "swift-reviewer",
       "wave": null,
       "depends_on": ["UC-ATM-10-ios"],
-      "status": "pending",
-      "completed_commit": null,
-      "unmerged_evidence": "4a996f04 (off-history, not ancestor of main)",
+      "status": "completed_on_main",
+      "completed_commit": "ed78fd69",
+      "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "start_commit": "35257947790d514696696055d4d7b1662a15f093",
+          "implementer_response": ".kb-run/tasks/UC-ATM-02-ios/iterations/001/implementer-prompt.md",
+          "verdict": "IMPLEMENTED",
+          "completed_at": "2026-04-22T16:37:09-06:00"
+        },
+        {
+          "number": 2,
+          "start_commit": "265d8776e58b0e228b35248ebe77d5d36a5cfccc",
+          "implementer_response": ".kb-run/tasks/UC-ATM-02-ios/iterations/002/implementer-response.json",
+          "verdict": "BLOCKED_ENVIRONMENT",
+          "completed_at": "2026-04-22T17:06:00-06:00",
+          "notes": "Child sandbox could not write worktree git index; no remediation commit created."
+        },
+        {
+          "number": 3,
+          "start_commit": "265d8776e58b0e228b35248ebe77d5d36a5cfccc",
+          "implementer_response": ".kb-run/tasks/UC-ATM-02-ios/iterations/003/implementer-response.json",
+          "verdict": "BLOCKED_ENVIRONMENT",
+          "completed_at": "2026-04-22T21:53:30-06:00",
+          "notes": "Required cleanup is present unstaged in worktree. Hook-enabled commit fails because CoreSimulatorService is unavailable and ios-typecheck/xcodebuild exits before compile."
+        },
+        {
+          "number": 4,
+          "start_commit": "eccee01f320efd2d5c67f2e0030f26f5660eb409",
+          "reviewer_response": ".kb-run/tasks/UC-ATM-02-ios/iterations/004/reviewer-response.json",
+          "verdict": "NEEDS_FIXES",
+          "completed_at": "2026-04-23T13:26:46.974Z",
+          "notes": "Wrapper-backed build and targeted LSButtonTests passed from the existing worktree. Environment block cleared; task returned to normal remediation flow."
+        },
+        {
+          "number": 5,
+          "start_commit": "eccee01f320efd2d5c67f2e0030f26f5660eb409",
+          "implementer_response": ".kb-run/tasks/UC-ATM-02-ios/iterations/005/implementer-response.json",
+          "reviewer_response": ".kb-run/tasks/UC-ATM-02-ios/iterations/005/reviewer-response.json",
+          "verdict": "NEEDS_FIXES",
+          "completed_at": "2026-04-23T20:03:00Z",
+          "notes": "Commit 70587687 fixed token mapping and removed out-of-scope remediation drift, but reviewer rejected the icon slot because LSButton still bypassed or hid LSIcon-backed rendering."
+        },
+        {
+          "number": 6,
+          "start_commit": "70587687a67b0deda009ba567b040a9d6414b551",
+          "implementer_response": ".kb-run/tasks/UC-ATM-02-ios/iterations/006/implementer-response.json",
+          "reviewer_response": ".kb-run/tasks/UC-ATM-02-ios/iterations/006/reviewer-response.json",
+          "verdict": "NEEDS_FIXES",
+          "completed_at": "2026-04-23T20:22:00Z",
+          "notes": "Commit 4f07ed7a routes button icons through LSIcon with a minimal resolved-color override and removes the hidden/custom icon fallback. Reviewer confirms the icon regression is fixed, but still blocks on missing hover/focus state coverage and disabled opacity token application."
+        },
+        {
+          "number": 7,
+          "start_commit": "4f07ed7a79b4c45c64b18b8f05610e1907eba474",
+          "implementer_response": ".kb-run/tasks/UC-ATM-02-ios/iterations/007/implementer-response.json",
+          "reviewer_response": ".kb-run/tasks/UC-ATM-02-ios/iterations/007/reviewer-response.json",
+          "verdict": "APPROVED",
+          "completed_at": "2026-04-23T15:36:32Z",
+          "notes": "Commit fb918572 completed the hover/focus/disabled-opacity remediation, then host commit 212cea1d restricted LSButton.dispatch to internal visibility. Iteration 007 passed the corrected selector -only-testing:LaneShadowTests/LSButtonTests and was merged to main as ed78fd69 under the sprint's relaxed testing standard."
+        }
+      ]
     },
     "UC-ATM-03-android": {
       "title": "UC-ATM-03-android",
@@ -119,12 +190,20 @@
       "reviewer": "swift-reviewer",
       "wave": null,
       "depends_on": ["UC-ATM-01-ios", "UC-ATM-10-ios"],
-      "status": "pending",
-      "completed_commit": null,
-      "unmerged_evidence": "898c4b7f (off-history, not ancestor of main)",
+      "status": "completed_on_main",
+      "completed_commit": "3bb88b69",
+      "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "implementer_response": ".kb-run/tasks/UC-ATM-03-ios/child-exec-response.txt",
+          "verdict": "APPROVED",
+          "completed_at": "2026-04-23T16:07:51Z",
+          "notes": "Merged to main as 3bb88b69."
+        }
+      ]
     },
     "UC-ATM-04-android": {
       "title": "UC-ATM-04-android",
@@ -133,12 +212,27 @@
       "reviewer": "kotlin-reviewer",
       "wave": null,
       "depends_on": ["UC-SBX-00-android", "UC-ATM-01-android"],
-      "status": "pending",
-      "completed_commit": null,
+      "status": "completed_on_main",
+      "completed_commit": "7f005be9",
       "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "implementer_response": ".kb-run/tasks/UC-ATM-04-android/child-exec-response.txt",
+          "verdict": "NEEDS_FIXES",
+          "completed_at": "2026-04-23T16:39:00Z",
+          "notes": "Child commit 45863637 was not merged. It edited tokens/platforms/kotlin despite writeProhibited scope and replaced the initials path with raw Text styling instead of LSText."
+        },
+        {
+          "number": 2,
+          "implementer_response": ".kb-run/tasks/UC-ATM-04-android/child-exec-response.txt",
+          "verdict": "APPROVED",
+          "completed_at": "2026-04-23T17:09:00Z",
+          "notes": "Repaired directly on main as 7f005be9. Kept avatar sizing shim local to AvatarSize.kt, restored LSText-based initials, and passed compile/test/release verification. Follow-up mainline cleanup restored a passing :app:lintDebug after declaring ACCESS_NETWORK_STATE and fixing unrelated pre-existing Compose/runtime lint blockers."
+        }
+      ]
     },
     "UC-ATM-04-ios": {
       "title": "UC-ATM-04-ios",
@@ -147,12 +241,20 @@
       "reviewer": "swift-reviewer",
       "wave": null,
       "depends_on": ["UC-ATM-01-ios"],
-      "status": "pending",
-      "completed_commit": null,
-      "unmerged_evidence": "89adf155 on kb-run/UC-ATM-01-ios, unmerged/misnamed branch",
+      "status": "completed_on_main",
+      "completed_commit": "9fc775d9",
+      "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "implementer_response": ".kb-run/tasks/UC-ATM-04-ios/child-exec-response.txt",
+          "verdict": "APPROVED",
+          "completed_at": "2026-04-23T16:07:51Z",
+          "notes": "Merged to main as 9fc775d9."
+        }
+      ]
     },
     "UC-ATM-05-android": {
       "title": "UC-ATM-05-android",
@@ -189,12 +291,20 @@
       "reviewer": "kotlin-reviewer",
       "wave": null,
       "depends_on": ["UC-SBX-00-android"],
-      "status": "pending",
-      "completed_commit": null,
+      "status": "completed_on_main",
+      "completed_commit": "e7ad40f5",
       "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "implementer_response": ".kb-run/tasks/UC-ATM-06-android/child-exec-response.txt",
+          "verdict": "APPROVED",
+          "completed_at": "2026-04-23T16:07:51Z",
+          "notes": "Merged to main as e7ad40f5."
+        }
+      ]
     },
     "UC-ATM-06-ios": {
       "title": "UC-ATM-06-ios",
@@ -259,12 +369,19 @@
       "reviewer": "swift-reviewer",
       "wave": null,
       "depends_on": ["UC-SBX-00-ios"],
-      "status": "pending",
-      "completed_commit": null,
+      "status": "completed_on_main",
+      "completed_commit": "3dcfd89f",
       "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "implementer_response": ".kb-run/tasks/UC-ATM-08-ios/child-exec-response.txt",
+          "verdict": "APPROVED",
+          "notes": "Merged to main as 3dcfd89f from child commit ddc4e56b. Follow-up main fix 58ebebd3 added LSPhaseDotStories.swift to ios/project.yml and regenerated the Xcode project so the lane builds cleanly on main."
+        }
+      ]
     },
     "UC-ATM-09-android": {
       "title": "UC-ATM-09-android",
@@ -287,12 +404,19 @@
       "reviewer": "swift-reviewer",
       "wave": null,
       "depends_on": ["UC-SBX-00-ios"],
-      "status": "pending",
-      "completed_commit": null,
+      "status": "completed_on_main",
+      "completed_commit": "8a0ea752",
       "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "implementer_response": ".kb-run/tasks/UC-ATM-09-ios/child-exec-response.txt",
+          "verdict": "APPROVED",
+          "notes": "Merged to main as 8a0ea752 from child commit 17a51ddb after passing targeted LSScrimTests and build verification."
+        }
+      ]
     },
     "UC-ATM-10-android": {
       "title": "UC-ATM-10-android",

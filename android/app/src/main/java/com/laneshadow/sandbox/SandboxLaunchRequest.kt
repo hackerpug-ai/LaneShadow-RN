@@ -63,7 +63,7 @@ object SandboxIntentParser {
                 ?.split("&")
                 ?.firstOrNull { it.substringBefore("=") == "id" }
                 ?.substringAfter("=", "")
-                ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8) }
+                ?.let { URLDecoder.decode(it, StandardCharsets.UTF_8.name()) }
                 ?.trim()
                 ?.takeIf(String::isNotEmpty)
         } else {
