@@ -36,13 +36,17 @@ public struct LSGlassPanel<Content: View>: View {
             .padding(Self.resolvedPadding(padding, in: theme))
             .background(Self.surfaceFill(in: theme))
             .background(.ultraThinMaterial)
-            .overlay(alignment: .leading) {
+            .overlay {
                 if case let .callout(accent) = variant {
-                    Rectangle()
-                        .fill(accent.resolved(in: theme))
-                        .frame(width: Self.stripeWidth(in: theme))
-                        .frame(maxHeight: .infinity)
-                        .clipShape(shape)
+                    HStack(spacing: 0) {
+                        Rectangle()
+                            .fill(accent.resolved(in: theme))
+                            .frame(width: Self.stripeWidth(in: theme))
+                            .frame(maxHeight: .infinity)
+
+                        Spacer(minLength: 0)
+                    }
+                    .clipShape(shape)
                 }
             }
             .clipShape(shape)

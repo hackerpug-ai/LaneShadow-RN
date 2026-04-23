@@ -17,10 +17,14 @@ final class LSGlassPanelTests: XCTestCase {
 
     func test_glasspanel_callout_signal_adds_3pt_stripe_signal_default() throws {
         let theme = Theme.shared
+        let source = try sourceFileContents()
 
         XCTAssertEqual(LSGlassPanel<LSText>.stripeWidth(in: theme), 3)
         XCTAssertEqual(AccentColor.signal.tokenPath, "color.signal.default")
-        XCTAssertTrue(try sourceFileContents().contains("Rectangle()"))
+        XCTAssertTrue(source.contains("HStack(spacing: 0)"))
+        XCTAssertTrue(source.contains("Spacer(minLength: 0)"))
+        XCTAssertFalse(source.contains(".overlay(alignment: .leading)"))
+        XCTAssertTrue(source.contains("Rectangle()"))
         XCTAssertNotNil(
             LSGlassPanel(variant: .callout(accent: .signal)) {
                 LSText("Note", variant: .body.md)
@@ -30,10 +34,12 @@ final class LSGlassPanelTests: XCTestCase {
 
     func test_glasspanel_callout_warning_adds_3pt_stripe_status_warning_default() throws {
         let theme = Theme.shared
+        let source = try sourceFileContents()
 
         XCTAssertEqual(LSGlassPanel<LSText>.stripeWidth(in: theme), 3)
         XCTAssertEqual(AccentColor.warning.tokenPath, "color.status.warning.default")
-        XCTAssertTrue(try sourceFileContents().contains("fill(accent.resolved(in: theme))"))
+        XCTAssertTrue(source.contains("fill(accent.resolved(in: theme))"))
+        XCTAssertTrue(source.contains(".clipShape(shape)"))
         XCTAssertNotNil(
             LSGlassPanel(variant: .callout(accent: .warning)) {
                 LSText("Heads up", variant: .body.md)
