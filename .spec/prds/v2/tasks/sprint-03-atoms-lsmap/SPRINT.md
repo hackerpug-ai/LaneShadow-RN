@@ -12,6 +12,8 @@ This sprint lands the Mapbox-backed `LSMap` atom as three carved-out UCs — a s
 
 Per-platform split: this sprint is already platform-split at the UC level per the PRD (UC-ATM-11 contract / UC-ATM-12 iOS / UC-ATM-13 Android). No further split is needed — each UC maps 1:1 to a specialist.
 
+Carry-forward from Sprint 2: the supporting atom prerequisites are now landed on `main`, including `LSGlassPanel`, `LSScrim`, `LSPhaseDot`, `LSBadge`, and the design-owned `LSIcon` catalog. `LSMap` should compose those shipped atoms where applicable rather than reintroducing map-specific overlay chrome or fallback surface patterns.
+
 ---
 
 ## Package Boundaries (CONSTITUTION)
@@ -22,6 +24,7 @@ Inherited from Sprint 1; restated with map-specific constraints.
 - **Sandbox runtime is the ONLY preview surface.** All nine `LSMap` stories register into `ios/LaneShadow/Sandbox/Stories/MapStories.swift` and `android/app/src/debug/java/com/laneshadow/sandbox/stories/MapStories.kt` via `Story`, `SandboxRoot`, `ThemeController`, `ArgValues` from `~/Projects/native-sandbox`.
 - **Contract boundary is absolute.** UC-ATM-11 contract types (`PolylineData`, `RouteVariant`, `MapError`, `Annotation`) must not import or reference `MapboxMap`, `MapView`, `LineLayer`, `CircleAnnotation`, or any other Mapbox SDK symbol. Platform impls (UC-ATM-12 iOS, UC-ATM-13 Android) isolate SDK types behind the contract.
 - **Story contract.** `LSMap` stories conform to the same native-sandbox Tier 1 shape as other atoms (dotted `atoms.map.{variant}` IDs, `ComponentTier.atom`, `component: "LSMap"`, `summary`, stateless render closure receiving `ArgValues`). Registered into `AtomStories.all` on both platforms. Android story file lives under `android/app/src/debug/java/com/laneshadow/sandbox/stories/MapStories.kt`.
+- **Fallback composition reuses shipped atoms.** Token/access/network error states must compose the existing Sprint 2 atoms (`LSGlassPanel` for the fallback container and `LSScrim` only where an overlay is actually required) instead of introducing LSMap-specific fallback chrome. If the fallback uses a GlassPanel callout treatment, its accent/status stripe must render inside the container bounds.
 
 ---
 
@@ -34,9 +37,9 @@ A reviewer can open the `LSMap` atom stories on iOS and Android, verify preview 
 2. Open `tokens/sandbox/fixtures/routes.fixtures.json` and confirm at least one fixture scenario (e.g., `route_results_three_alts`) contains three `PolylineData` entries with variants `.best`, `.alt1`, `.alt2`.
 3. Open "Atoms / Map" on iOS and exercise stories for Preview (static), Interactive, One Polyline (best), Three Alt Polylines (best+alt1+alt2), Start+End Markers, Auto-fit to Multi-polyline, Dark Style, Error (no token), Error (no network). Verify the Copper Paper Light style loads; toggle dark and verify the Copper Paper Dark style reloads without unmounting.
 4. Open the same nine stories on Android and confirm byte-identical behavior per the parity manifest; place an interactive `LSMap` inside a vertically scrolling parent on both platforms and confirm the map does not hijack outer scroll when the drag originates outside the map bounds.
-5. Temporarily unset `MAPBOX_ACCESS_TOKEN`, rebuild, and confirm both platforms render the `LSGlassPanel` + caption fallback ("Map unavailable — missing access token") with no crash; then disable network on simulator/emulator and confirm the "Map unavailable — no network" variant renders.
+5. Temporarily unset `MAPBOX_ACCESS_TOKEN`, rebuild, and confirm both platforms render the `LSGlassPanel` + caption fallback ("Map unavailable — missing access token") with no crash; if the fallback uses a GlassPanel callout treatment, confirm the accent/status stripe remains inside the container bounds. Then disable network on simulator/emulator and confirm the "Map unavailable — no network" variant renders.
 6. Pass `cameraFit: .polylines(padding: .spacing4)` with a three-polyline set on both platforms and confirm the camera auto-frames the union bounds with `spacing.4` padding.
-7. Run the iOS XCTest suite and Android JUnit + Compose UI suite for `LSMap` and confirm coverage of multi-polyline rendering, per-variant color resolution, style URL resolution per theme, annotation rendering, camera-fit-to-union-bounds, `onTap` invocation, scroll-isolation, and no-symbol-leak.
+7. Run the iOS XCTest suite and Android JUnit + Compose UI suite for `LSMap` and confirm coverage of multi-polyline rendering, route-variant differentiation, theme style switching, annotation rendering, camera-fit-to-union-bounds, `onTap` invocation, scroll-isolation, and no-symbol-leak.
 
 ---
 
@@ -53,6 +56,8 @@ A reviewer can open the `LSMap` atom stories on iOS and Android, verify preview 
 ## Human Testing Gate
 
 **Gate:** The `LSMap` atom stories render on both iOS and Android — preview mode, interactive mode, multi-polyline (best/alt1/alt2 with `color.route.*` strokes), start/end/waypoint annotations, `.polylines` camera auto-fit to union bounds, and token-gated error fallback — all driven by the Copper Paper Light and Copper Paper Dark Mapbox Studio styles, with zero Mapbox SDK symbols leaking through the shared cross-platform contract at `tokens/api/LSMap.contract.md`.
+
+Automated verification for this sprint remains behavioral. Visual fidelity is reviewed manually in the sandbox rather than through hard style assertions or blocking snapshot diffs.
 
 ---
 
@@ -80,4 +85,4 @@ A reviewer can open the `LSMap` atom stories on iOS and Android, verify preview 
 - Sprint 5 (Organisms) — `LSMapLayer` (UC-ORG-02) and `LSRouteCard` (UC-ORG-06) both consume the `LSMap` atom and its multi-polyline contract.
 - Sprint 6 (Screens) — every Navigator screen renders through `LSMapLayer` over `LSMap`.
 
-**Parallelism note:** Sprint 3 and Sprint 4 can execute in parallel — molecules (Sprint 4) do not depend on `LSMap`. Sequencing here is presentational; implementers may start Sprint 4 as soon as UC-ATM-10 (Icon) lands from Sprint 2.
+**Parallelism note:** Sprint 3 and Sprint 4 can execute in parallel — molecules (Sprint 4) do not depend on `LSMap`. Sequencing here is presentational; Sprint 2 atom prerequisites are already landed on `main`, so Sprint 3 is unblocked by prior atom work.

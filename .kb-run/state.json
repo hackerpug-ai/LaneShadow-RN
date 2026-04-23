@@ -2,7 +2,7 @@
   "sprint_id": "sprint-02-atoms-foundation-primitives",
   "sprint_dir": ".spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives",
   "started_at": "2026-04-22T15:51:43.323Z",
-  "mode": "kb-run-global-direct-codex-exec",
+  "mode": "adaptive-strict-resume",
   "completed_verification": {
     "completed_on_main": {
       "UC-ATM-01-ios": "66a1dfc4",
@@ -17,11 +17,16 @@
       "UC-ATM-04-ios": "9fc775d9",
       "UC-ATM-06-android": "e7ad40f5",
       "UC-ATM-08-ios": "3dcfd89f",
-      "UC-ATM-09-ios": "8a0ea752"
+      "UC-ATM-09-ios": "8a0ea752",
+      "UC-ATM-05-ios": "c92a9f0a",
+      "UC-ATM-03-android": "a4f2180b",
+      "UC-ATM-05-android": "a75922cf",
+      "UC-ATM-07-ios": "ede9a185",
+      "UC-ATM-07-android": "7f8e2b56",
+      "UC-ATM-08-android": "626a1cf0",
+      "UC-ATM-09-android": "e594fa1e"
     },
-    "unmerged_not_counted_complete": {
-      "UC-ATM-03-android": "63df8b92 (off-history, not ancestor of main)"
-    }
+    "unmerged_not_counted_complete": {}
   },
   "tasks": {
     "UC-ATM-01-android": {
@@ -176,12 +181,133 @@
       "reviewer": "kotlin-reviewer",
       "wave": null,
       "depends_on": ["UC-SBX-00-android", "UC-ATM-01-android", "UC-ATM-10-android"],
-      "status": "pending",
-      "completed_commit": null,
-      "unmerged_evidence": "63df8b92 (off-history, not ancestor of main)",
+      "status": "completed_on_main",
+      "completed_commit": "a4f2180b",
+      "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "start_commit": "b00189119bf2c60fa35858a57376cfa607f773cd",
+          "implementer_prompt": ".kb-run/tasks/UC-ATM-03-android/iterations/001/implementer-prompt.md",
+          "implementer_response": ".kb-run/tasks/UC-ATM-03-android/iterations/001/implementer-response.json",
+          "evidence_path": ".kb-run/tasks/UC-ATM-03-android/iterations/001/evidence.md",
+          "evidence_manifest_path": ".kb-run/tasks/UC-ATM-03-android/iterations/001/evidence-manifest.json",
+          "launched_at": "2026-04-23T20:09:30.333Z",
+          "reviewer_response": ".kb-run/tasks/UC-ATM-03-android/iterations/001/reviewer-response.json",
+          "verdict": "APPROVED",
+          "completed_at": "2026-04-23T20:42:55Z",
+          "notes": "Host-validated including emulator instrumentation and release APK gate, checkpointed as 719cdaf5, reviewer approved with low-severity legacy-duplication note, cherry-picked to main as a4f2180b."
+        }
+      ],
+      "risk_tier": 1,
+      "review_mode": "strict",
+      "normalized_requirements": {
+        "task_file": "/Users/justinrich/Projects/LaneShadow/.spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-03-android-input-atoms-lstextfield-lstextarea-android-compose.md",
+        "requirements": [
+          {
+            "id": "AC-1",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSTextField default state resolves border + radius + padding tokens [PRIMARY]"
+          },
+          {
+            "id": "AC-2",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSTextArea renders multi-line with starting row count"
+          },
+          {
+            "id": "AC-3",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "All four InputState values resolve correct border tokens"
+          },
+          {
+            "id": "AC-4",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Focused state border distinct from default (interactive)"
+          },
+          {
+            "id": "AC-5",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Error state applies color.border.danger"
+          },
+          {
+            "id": "AC-6",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSTextArea auto-grows up to maxRows, then scrolls"
+          },
+          {
+            "id": "AC-7",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Stories registered (`atoms.textfield.{state}`, `atoms.textarea.{state}`) under src/debug"
+          },
+          {
+            "id": "AC-8",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "No literal color/font/icon refs in LSTextField/LSTextArea (boundary)"
+          },
+          {
+            "id": "AC-9",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Release APK contains zero sandbox symbols (boundary gate)"
+          },
+          {
+            "id": "TC-1",
+            "source": "TEST CRITERIA",
+            "summary": "LSTextField default resolves border/radius/padding tokens"
+          },
+          {
+            "id": "TC-2",
+            "source": "TEST CRITERIA",
+            "summary": "LSTextArea renders multi-line"
+          },
+          {
+            "id": "TC-3",
+            "source": "TEST CRITERIA",
+            "summary": "All four InputState values resolve correct border tokens"
+          },
+          {
+            "id": "TC-4",
+            "source": "TEST CRITERIA",
+            "summary": "Focused state applies border.focused"
+          },
+          {
+            "id": "TC-5",
+            "source": "TEST CRITERIA",
+            "summary": "Error state applies border.danger"
+          },
+          {
+            "id": "TC-6",
+            "source": "TEST CRITERIA",
+            "summary": "LSTextArea auto-grows then scrolls at maxRows"
+          },
+          {
+            "id": "TC-7",
+            "source": "TEST CRITERIA",
+            "summary": "All input/textarea stories registered"
+          },
+          {
+            "id": "TC-8",
+            "source": "TEST CRITERIA",
+            "summary": "LSTextField/LSTextArea contain zero literal color/font/icon refs"
+          },
+          {
+            "id": "TC-9",
+            "source": "TEST CRITERIA",
+            "summary": "Release APK contains zero com.nativesandbox entries"
+          }
+        ],
+        "supplemental_requirements": [
+          {
+            "id": "STATE-MATRIX",
+            "source": "OUTCOME",
+            "summary": "Outcome requires interaction-state coverage for default, disabled, focus, error; explicit AC/TC/DONE coverage is missing for disabled"
+          }
+        ],
+        "outcome_states": ["default", "disabled", "focus", "error"],
+        "warnings": ["Outcome/AC drift detected: missing explicit state coverage for disabled"]
+      },
+      "selector_validation": []
     },
     "UC-ATM-03-ios": {
       "title": "UC-ATM-03-ios",
@@ -263,12 +389,147 @@
       "reviewer": "kotlin-reviewer",
       "wave": null,
       "depends_on": ["UC-SBX-00-android"],
-      "status": "pending",
-      "completed_commit": null,
+      "status": "completed_on_main",
+      "completed_commit": "a75922cf",
       "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "start_commit": "b00189119bf2c60fa35858a57376cfa607f773cd",
+          "implementer_prompt": ".kb-run/tasks/UC-ATM-05-android/iterations/001/implementer-prompt.md",
+          "implementer_response": ".kb-run/tasks/UC-ATM-05-android/iterations/001/implementer-response.json",
+          "evidence_path": ".kb-run/tasks/UC-ATM-05-android/iterations/001/evidence.md",
+          "evidence_manifest_path": ".kb-run/tasks/UC-ATM-05-android/iterations/001/evidence-manifest.json",
+          "prepared_at": "2026-04-23T20:11:18.997Z"
+        },
+        {
+          "number": 2,
+          "start_commit": "c083abafc0185609a2d7b5e152f43d53f680a38d",
+          "implementer_response": ".kb-run/tasks/UC-ATM-05-android/iterations/002/implementer-response.json",
+          "reviewer_response": ".kb-run/tasks/UC-ATM-05-android/iterations/002/reviewer-response.json",
+          "evidence_path": ".kb-run/tasks/UC-ATM-05-android/iterations/002/evidence.md",
+          "evidence_manifest_path": ".kb-run/tasks/UC-ATM-05-android/iterations/002/evidence-manifest.json",
+          "verdict": "APPROVED",
+          "completed_at": "2026-04-23T21:40:00Z",
+          "notes": "Runtime theme-color remediation and GlassPanel backdrop-blur follow-up landed as task worktree commits c083abaf, b57bdebf, and 0723269d, then were cherry-picked to main as 275fedd5, 1a25cac0, and a75922cf after targeted unit, compile, lint, release, and connected instrumentation validation."
+        }
+      ],
+      "risk_tier": 1,
+      "review_mode": "strict",
+      "normalized_requirements": {
+        "task_file": "/Users/justinrich/Projects/LaneShadow/.spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-05-android-surface-trio-lscard-lspanel-lsglasspanel-android-compose.md",
+        "requirements": [
+          {
+            "id": "AC-1",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSCard resolves surface.card + radius.lg + elevation.2 + spacing.4 [PRIMARY]"
+          },
+          {
+            "id": "AC-2",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSPanel resolves surface.primary + radius.md + no elevation + spacing.3"
+          },
+          {
+            "id": "AC-3",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSGlassPanel(Chrome) resolves surface.glass + radius.xl + elevation.overlay + applies backdrop blur"
+          },
+          {
+            "id": "AC-4",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSGlassPanel(Callout(accent)) adds 3.dp leading stripe in color.accent.{accent}"
+          },
+          {
+            "id": "AC-5",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "All AccentColor values resolve through color.accent.{name}"
+          },
+          {
+            "id": "AC-6",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Stories registered for all three surfaces under src/debug"
+          },
+          {
+            "id": "AC-7",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Backdrop blur falls back gracefully on API < 31 (edge \u2014 compatibility)"
+          },
+          {
+            "id": "AC-8",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "No literal color/elevation/radius/spacing/font/icon in surface files (boundary)"
+          },
+          {
+            "id": "AC-9",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Release APK contains zero sandbox symbols (boundary gate)"
+          },
+          {
+            "id": "TC-1",
+            "source": "TEST CRITERIA",
+            "summary": "LSCard tokens (surface.card, radius.lg, elevation.2, spacing.4)"
+          },
+          {
+            "id": "TC-2",
+            "source": "TEST CRITERIA",
+            "summary": "LSPanel tokens (surface.primary, radius.md, no elev, spacing.3)"
+          },
+          {
+            "id": "TC-3",
+            "source": "TEST CRITERIA",
+            "summary": "LSGlassPanel(Chrome) tokens + blur applied"
+          },
+          {
+            "id": "TC-4",
+            "source": "TEST CRITERIA",
+            "summary": "LSGlassPanel(Callout) 3.dp accent stripe"
+          },
+          {
+            "id": "TC-5",
+            "source": "TEST CRITERIA",
+            "summary": "All AccentColor values resolve color.accent.{name}"
+          },
+          {
+            "id": "TC-6",
+            "source": "TEST CRITERIA",
+            "summary": "Surface stories registered (card/panel/glasspanel.chrome + callout.*)"
+          },
+          {
+            "id": "TC-7",
+            "source": "TEST CRITERIA",
+            "summary": "Glass panel API<31 fallback"
+          },
+          {
+            "id": "TC-8",
+            "source": "TEST CRITERIA",
+            "summary": "No literal color/font/icon in surface files"
+          },
+          {
+            "id": "TC-9",
+            "source": "TEST CRITERIA",
+            "summary": "Release APK contains zero com.nativesandbox entries"
+          }
+        ],
+        "supplemental_requirements": [
+          {
+            "id": "USER-FB-GLASSPANEL-INSIDE-STRIPE",
+            "source": "USER_FEEDBACK_2026-04-23",
+            "summary": "GlassPanel callout accent/status stripe must render inside the container bounds rather than outside the left edge."
+          }
+        ],
+        "outcome_states": [],
+        "warnings": []
+      },
+      "selector_validation": [],
+      "platform": "android",
+      "user_feedback": [
+        {
+          "date": "2026-04-23",
+          "summary": "GlassPanel callout accent/status stripe must render inside the container bounds rather than outside the left edge."
+        }
+      ]
     },
     "UC-ATM-05-ios": {
       "title": "UC-ATM-05-ios",
@@ -277,12 +538,156 @@
       "reviewer": "swift-reviewer",
       "wave": null,
       "depends_on": [],
-      "status": "pending",
-      "completed_commit": null,
+      "status": "completed_on_main",
+      "completed_commit": "c92a9f0a",
       "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "start_commit": "b00189119bf2c60fa35858a57376cfa607f773cd",
+          "implementer_prompt": ".kb-run/tasks/UC-ATM-05-ios/iterations/001/implementer-prompt.md",
+          "implementer_response": ".kb-run/tasks/UC-ATM-05-ios/iterations/001/implementer-response.json",
+          "evidence_path": ".kb-run/tasks/UC-ATM-05-ios/iterations/001/evidence.md",
+          "evidence_manifest_path": ".kb-run/tasks/UC-ATM-05-ios/iterations/001/evidence-manifest.json",
+          "launched_at": "2026-04-23T20:09:30.204Z",
+          "reviewer_response": ".kb-run/tasks/UC-ATM-05-ios/iterations/001/reviewer-response.json",
+          "verdict": "APPROVED",
+          "completed_at": "2026-04-23T20:42:55Z",
+          "notes": "Host-validated, checkpointed as 1016597b, reviewer approved with low-severity signal-token fallback note, cherry-picked to main as 9a7de911."
+        },
+        {
+          "number": 2,
+          "start_commit": "9a7de91101d2aef0d6f1a1906c764bf2cb398afa",
+          "implementer_response": ".kb-run/tasks/UC-ATM-05-ios/iterations/002/implementer-response.json",
+          "reviewer_response": ".kb-run/tasks/UC-ATM-05-ios/iterations/002/reviewer-response.json",
+          "evidence_path": ".kb-run/tasks/UC-ATM-05-ios/iterations/002/evidence.md",
+          "evidence_manifest_path": ".kb-run/tasks/UC-ATM-05-ios/iterations/002/evidence-manifest.json",
+          "verdict": "APPROVED",
+          "completed_at": "2026-04-23T21:41:00Z",
+          "notes": "User feedback remediation kept the GlassPanel callout stripe inside the clipped container bounds; validated with targeted swiftlint and xcodebuild, then cherry-picked to main as c92a9f0a."
+        }
+      ],
+      "risk_tier": 1,
+      "review_mode": "strict",
+      "normalized_requirements": {
+        "task_file": "/Users/justinrich/Projects/LaneShadow/.spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-05-ios-surface-trio-lscard-lspanel-lsglasspanel-ios-swiftui.md",
+        "requirements": [
+          {
+            "id": "AC-1",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSCard resolves color.surface.card / radius.lg / elevation.2 / padding spacing.4 [PRIMARY]"
+          },
+          {
+            "id": "AC-2",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSPanel resolves color.surface.primary / radius.md / no shadow / padding spacing.3"
+          },
+          {
+            "id": "AC-3",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSGlassPanel .chrome variant uses .ultraThinMaterial backdrop blur 12-14pt"
+          },
+          {
+            "id": "AC-4",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSGlassPanel .callout(.signal) adds 3pt leading stripe color.signal.default"
+          },
+          {
+            "id": "AC-5",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSGlassPanel .callout(.warning) adds 3pt leading stripe color.status.warning.default"
+          },
+          {
+            "id": "AC-6",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Padding override resolves through Spacing enum (edge \u2014 composition)"
+          },
+          {
+            "id": "AC-7",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Raw Color rejected at compile-time on AccentColor API (error gate \u2014 type-safety)"
+          },
+          {
+            "id": "AC-8",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "All 7 surface stories registered with stable ids"
+          },
+          {
+            "id": "AC-9",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "No literal Color references in LSCard.swift / LSPanel.swift / LSGlassPanel.swift (error gate \u2014 boundary)"
+          },
+          {
+            "id": "TC-1",
+            "source": "TEST CRITERIA",
+            "summary": "LSCard resolves surface.card / radius.lg / elevation.2 / spacing.4 padding"
+          },
+          {
+            "id": "TC-2",
+            "source": "TEST CRITERIA",
+            "summary": "LSPanel resolves surface.primary / radius.md / no shadow / spacing.3 padding"
+          },
+          {
+            "id": "TC-3",
+            "source": "TEST CRITERIA",
+            "summary": "LSGlassPanel .chrome uses ultraThinMaterial + radius.xl + elevation.overlay"
+          },
+          {
+            "id": "TC-4",
+            "source": "TEST CRITERIA",
+            "summary": "LSGlassPanel .callout(.signal) leading 3pt stripe color.signal.default"
+          },
+          {
+            "id": "TC-5",
+            "source": "TEST CRITERIA",
+            "summary": "LSGlassPanel .callout(.warning) leading 3pt stripe color.status.warning.default"
+          },
+          {
+            "id": "TC-6",
+            "source": "TEST CRITERIA",
+            "summary": "LSCard padding override .spacing5 applied"
+          },
+          {
+            "id": "TC-7",
+            "source": "TEST CRITERIA",
+            "summary": "Raw Color rejected on accent param at compile-time"
+          },
+          {
+            "id": "TC-8",
+            "source": "TEST CRITERIA",
+            "summary": "All 7 surface story ids registered + LSSurfaceStories aggregated"
+          },
+          {
+            "id": "TC-9",
+            "source": "TEST CRITERIA",
+            "summary": "Zero literal Color references across 3 atom files"
+          }
+        ],
+        "supplemental_requirements": [
+          {
+            "id": "USER-FB-GLASSPANEL-INSIDE-STRIPE",
+            "source": "USER_FEEDBACK_2026-04-23",
+            "summary": "GlassPanel callout accent/status stripe must render inside the container bounds rather than outside the left edge."
+          }
+        ],
+        "outcome_states": ["default"],
+        "warnings": []
+      },
+      "selector_validation": [
+        {
+          "invalid": "LaneShadowTests/Atoms/LSCardTests",
+          "corrected": "LaneShadowTests/LSCardTests",
+          "note": "Task file selector is path-like and invalid. Use the corrected two-part selector for build/test runs and strict existence validation after the tests are added."
+        }
+      ],
+      "user_feedback": [
+        {
+          "date": "2026-04-23",
+          "summary": "GlassPanel callout accent/status stripe must render inside the container bounds rather than outside the left edge."
+        }
+      ]
     },
     "UC-ATM-06-android": {
       "title": "UC-ATM-06-android",
@@ -327,12 +732,137 @@
       "reviewer": "kotlin-reviewer",
       "wave": null,
       "depends_on": ["UC-ATM-06-android", "UC-ATM-10-android", "UC-SBX-00-android"],
-      "status": "pending",
-      "completed_commit": null,
+      "status": "completed_on_main",
+      "completed_commit": "7f8e2b56",
       "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "start_commit": "b00189119bf2c60fa35858a57376cfa607f773cd",
+          "implementer_prompt": ".kb-run/tasks/UC-ATM-07-android/iterations/001/implementer-prompt.md",
+          "implementer_response": ".kb-run/tasks/UC-ATM-07-android/iterations/001/implementer-response.json",
+          "evidence_path": ".kb-run/tasks/UC-ATM-07-android/iterations/001/evidence.md",
+          "evidence_manifest_path": ".kb-run/tasks/UC-ATM-07-android/iterations/001/evidence-manifest.json",
+          "prepared_at": "2026-04-23T20:13:00.143Z"
+        }
+      ],
+      "risk_tier": 1,
+      "review_mode": "strict",
+      "normalized_requirements": {
+        "task_file": "/Users/justinrich/Projects/LaneShadow/.spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-07-android-badge-atom-lsbadge-lsbestbadge-android-compose.md",
+        "requirements": [
+          {
+            "id": "AC-1",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSBadge Status.Recording resolves color.status.recording tokens [PRIMARY]"
+          },
+          {
+            "id": "AC-2",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "BadgeVariant sealed union exposes Status + Weather cases"
+          },
+          {
+            "id": "AC-3",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSBadge Status.Success resolves color.status.success tokens"
+          },
+          {
+            "id": "AC-4",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSBadge Weather.Rain resolves color.weather.rain tokens + leading icon"
+          },
+          {
+            "id": "AC-5",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSBadge Weather.Wind resolves color.weather.wind tokens + leading icon"
+          },
+          {
+            "id": "AC-6",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSBestBadge resolves color.signal tokens + filled star"
+          },
+          {
+            "id": "AC-7",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "All 12 sandbox stories registered with id atoms.badge.*"
+          },
+          {
+            "id": "AC-8",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "No Color literal in production source (error gate \u2014 boundary)"
+          },
+          {
+            "id": "AC-9",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "No Material Icons references (error gate \u2014 boundary)"
+          },
+          {
+            "id": "AC-10",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Release APK contains zero sandbox references (error gate \u2014 release hygiene)"
+          },
+          {
+            "id": "TC-1",
+            "source": "TEST CRITERIA",
+            "summary": "Status.Recording resolves color.status.recording.{tint,default}"
+          },
+          {
+            "id": "TC-2",
+            "source": "TEST CRITERIA",
+            "summary": "BadgeVariant sealed union exposes Status + Weather cases"
+          },
+          {
+            "id": "TC-3",
+            "source": "TEST CRITERIA",
+            "summary": "Status.Success resolves color.status.success.{tint,default}"
+          },
+          {
+            "id": "TC-4",
+            "source": "TEST CRITERIA",
+            "summary": "Weather.Rain resolves rain tokens + IconName.rain at sizing.icon.xs"
+          },
+          {
+            "id": "TC-5",
+            "source": "TEST CRITERIA",
+            "summary": "Weather.Wind resolves wind tokens + IconName.wind at sizing.icon.xs"
+          },
+          {
+            "id": "TC-6",
+            "source": "TEST CRITERIA",
+            "summary": "LSBestBadge resolves color.signal + IconName.starFill"
+          },
+          {
+            "id": "TC-7",
+            "source": "TEST CRITERIA",
+            "summary": "All 12 atoms.badge.* stories registered"
+          },
+          {
+            "id": "TC-8",
+            "source": "TEST CRITERIA",
+            "summary": "No Color(0x literal in production source"
+          },
+          {
+            "id": "TC-9",
+            "source": "TEST CRITERIA",
+            "summary": "No Material Icons references"
+          },
+          {
+            "id": "TC-10",
+            "source": "TEST CRITERIA",
+            "summary": "Release APK contains zero sandbox references"
+          }
+        ],
+        "supplemental_requirements": [],
+        "outcome_states": ["default", "error"],
+        "warnings": []
+      },
+      "platform": "android",
+      "agent": "kotlin-implementer",
+      "worktree": ".kb-run/worktrees/UC-ATM-07-android",
+      "branch": "kb-run/UC-ATM-07-android",
+      "execution_unit": "UC-ATM-07-android"
     },
     "UC-ATM-07-ios": {
       "title": "UC-ATM-07-ios",
@@ -341,12 +871,124 @@
       "reviewer": "swift-reviewer",
       "wave": null,
       "depends_on": ["UC-ATM-06-ios", "UC-ATM-10-ios", "UC-SBX-00-ios"],
-      "status": "pending",
-      "completed_commit": null,
+      "status": "completed_on_main",
+      "completed_commit": "ede9a185",
       "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "start_commit": "b00189119bf2c60fa35858a57376cfa607f773cd",
+          "implementer_prompt": ".kb-run/tasks/UC-ATM-07-ios/iterations/001/implementer-prompt.md",
+          "implementer_response": ".kb-run/tasks/UC-ATM-07-ios/iterations/001/implementer-response.json",
+          "evidence_path": ".kb-run/tasks/UC-ATM-07-ios/iterations/001/evidence.md",
+          "evidence_manifest_path": ".kb-run/tasks/UC-ATM-07-ios/iterations/001/evidence-manifest.json",
+          "prepared_at": "2026-04-23T20:11:18.867Z"
+        }
+      ],
+      "risk_tier": 1,
+      "review_mode": "strict",
+      "normalized_requirements": {
+        "task_file": "/Users/justinrich/Projects/LaneShadow/.spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-07-ios-badge-atom-lsbadge-lsbestbadge-ios-swiftui.md",
+        "requirements": [
+          {
+            "id": "AC-1",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSBadge renders status.recording with token-resolved color [PRIMARY]"
+          },
+          {
+            "id": "AC-2",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSBadge renders status.{info,success,warning,error} from color.status.* tokens"
+          },
+          {
+            "id": "AC-3",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSBadge weather.rain resolves tokens + leading LSIcon at sizing.icon.xs"
+          },
+          {
+            "id": "AC-4",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSBadge weather.wind resolves tokens + leading LSIcon (edge \u2014 2nd weather variant)"
+          },
+          {
+            "id": "AC-5",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSBestBadge renders \"BEST FOR TODAY\" with filled star + color.signal tokens"
+          },
+          {
+            "id": "AC-6",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "All 12 stories registered (status \u00d7 5 + weather \u00d7 6 + bestBadge)"
+          },
+          {
+            "id": "AC-7",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSBadge composes LSPill(.sm) \u2014 no inlined pill geometry (error gate \u2014 boundary)"
+          },
+          {
+            "id": "AC-8",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Zero SF Symbol references in Badge files (error gate \u2014 icon source)"
+          },
+          {
+            "id": "TC-1",
+            "source": "TEST CRITERIA",
+            "summary": "status.recording resolves color.status.recording.{tint,default} + composes LSPill(.sm)"
+          },
+          {
+            "id": "TC-2",
+            "source": "TEST CRITERIA",
+            "summary": "status.{info,success,warning,error} resolve color.status.*.{tint,default}"
+          },
+          {
+            "id": "TC-3",
+            "source": "TEST CRITERIA",
+            "summary": "weather.rain resolves bg/fg/border tokens + LSIcon(.rain,.xs)"
+          },
+          {
+            "id": "TC-4",
+            "source": "TEST CRITERIA",
+            "summary": "weather.wind resolves bg/fg/border tokens + LSIcon(.wind,.xs)"
+          },
+          {
+            "id": "TC-5",
+            "source": "TEST CRITERIA",
+            "summary": "LSBestBadge resolves color.signal.* + filled star + label \"BEST FOR TODAY\""
+          },
+          {
+            "id": "TC-6",
+            "source": "TEST CRITERIA",
+            "summary": "All 12 stories registered + aggregator wired"
+          },
+          {
+            "id": "TC-7",
+            "source": "TEST CRITERIA",
+            "summary": "LSBadge composes LSPill(.sm); no literal pill geometry"
+          },
+          {
+            "id": "TC-8",
+            "source": "TEST CRITERIA",
+            "summary": "Zero SF Symbol references in Badge files"
+          }
+        ],
+        "supplemental_requirements": [],
+        "outcome_states": ["default", "error"],
+        "warnings": []
+      },
+      "selector_validation": [
+        {
+          "invalid": "LaneShadowTests/Atoms/LSBadgeTests",
+          "corrected": "LaneShadowTests/LSBadgeTests",
+          "note": "Task file selector is path-like and invalid. Use the corrected two-part selector for runtime validation; strict existence validation happens after the tests are added."
+        }
+      ],
+      "platform": "ios",
+      "agent": "swift-implementer",
+      "worktree": ".kb-run/worktrees/UC-ATM-07-ios",
+      "branch": "kb-run/UC-ATM-07-ios",
+      "execution_unit": "UC-ATM-07-ios"
     },
     "UC-ATM-08-android": {
       "title": "UC-ATM-08-android",
@@ -355,12 +997,117 @@
       "reviewer": "kotlin-reviewer",
       "wave": null,
       "depends_on": ["UC-SBX-00-android"],
-      "status": "pending",
-      "completed_commit": null,
+      "status": "completed_on_main",
+      "completed_commit": "626a1cf0",
       "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "start_commit": "b00189119bf2c60fa35858a57376cfa607f773cd",
+          "implementer_prompt": ".kb-run/tasks/UC-ATM-08-android/iterations/001/implementer-prompt.md",
+          "implementer_response": ".kb-run/tasks/UC-ATM-08-android/iterations/001/implementer-response.json",
+          "evidence_path": ".kb-run/tasks/UC-ATM-08-android/iterations/001/evidence.md",
+          "evidence_manifest_path": ".kb-run/tasks/UC-ATM-08-android/iterations/001/evidence-manifest.json",
+          "prepared_at": "2026-04-23T20:13:00.277Z"
+        }
+      ],
+      "risk_tier": 1,
+      "review_mode": "strict",
+      "normalized_requirements": {
+        "task_file": "/Users/justinrich/Projects/LaneShadow/.spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-08-android-phasedot-atom-lsphasedot-android-compose.md",
+        "requirements": [
+          {
+            "id": "AC-1",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSPhaseDot Pending renders hollow with color.border.strong 1dp border [PRIMARY]"
+          },
+          {
+            "id": "AC-2",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSPhaseDot Active renders filled color.signal.default with pulse ring"
+          },
+          {
+            "id": "AC-3",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSPhaseDot Done renders filled color.status.success.default no animation"
+          },
+          {
+            "id": "AC-4",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Three sandbox stories registered with id atoms.phaseDot.*"
+          },
+          {
+            "id": "AC-5",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Pulse animation duration sourced from motion.recipe.phaseDotPulse (error gate \u2014 token discipline)"
+          },
+          {
+            "id": "AC-6",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "No Color literal, no Material Icons (error gate \u2014 boundary)"
+          },
+          {
+            "id": "AC-7",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Release APK contains zero sandbox references (error gate \u2014 release hygiene)"
+          },
+          {
+            "id": "AC-8",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "PhaseDotState sealed union compiles with Pending/Active/Done cases"
+          },
+          {
+            "id": "TC-1",
+            "source": "TEST CRITERIA",
+            "summary": "Pending: hollow, color.border.strong, 1dp border, 10dp size"
+          },
+          {
+            "id": "TC-2",
+            "source": "TEST CRITERIA",
+            "summary": "Active: fill = color.signal.default, pulse ring driven by motion recipe"
+          },
+          {
+            "id": "TC-3",
+            "source": "TEST CRITERIA",
+            "summary": "Done: fill = color.status.success.default, no animation"
+          },
+          {
+            "id": "TC-4",
+            "source": "TEST CRITERIA",
+            "summary": "Three atoms.phaseDot.* stories registered"
+          },
+          {
+            "id": "TC-5",
+            "source": "TEST CRITERIA",
+            "summary": "No `tween(durationMillis=` literal; motion recipe referenced"
+          },
+          {
+            "id": "TC-6",
+            "source": "TEST CRITERIA",
+            "summary": "No Color(0x / Material Icons / FontFamily.Serif"
+          },
+          {
+            "id": "TC-7",
+            "source": "TEST CRITERIA",
+            "summary": "Release APK clean of sandbox refs"
+          },
+          {
+            "id": "TC-8",
+            "source": "TEST CRITERIA",
+            "summary": "PhaseDotState union exposes Pending/Active/Done"
+          }
+        ],
+        "supplemental_requirements": [],
+        "outcome_states": ["default", "active", "pending", "done"],
+        "warnings": []
+      },
+      "platform": "android",
+      "agent": "kotlin-implementer",
+      "worktree": ".kb-run/worktrees/UC-ATM-08-android",
+      "branch": "kb-run/UC-ATM-08-android",
+      "execution_unit": "UC-ATM-08-android"
     },
     "UC-ATM-08-ios": {
       "title": "UC-ATM-08-ios",
@@ -390,12 +1137,107 @@
       "reviewer": "kotlin-reviewer",
       "wave": null,
       "depends_on": ["UC-SBX-00-android"],
-      "status": "pending",
-      "completed_commit": null,
+      "status": "completed_on_main",
+      "completed_commit": "e594fa1e",
       "unmerged_evidence": null,
       "worktree_path": null,
       "worktree_branch": null,
-      "iterations": []
+      "iterations": [
+        {
+          "number": 1,
+          "start_commit": "b00189119bf2c60fa35858a57376cfa607f773cd",
+          "implementer_prompt": ".kb-run/tasks/UC-ATM-09-android/iterations/001/implementer-prompt.md",
+          "implementer_response": ".kb-run/tasks/UC-ATM-09-android/iterations/001/implementer-response.json",
+          "evidence_path": ".kb-run/tasks/UC-ATM-09-android/iterations/001/evidence.md",
+          "evidence_manifest_path": ".kb-run/tasks/UC-ATM-09-android/iterations/001/evidence-manifest.json",
+          "prepared_at": "2026-04-23T20:13:00.408Z"
+        }
+      ],
+      "risk_tier": 1,
+      "review_mode": "strict",
+      "normalized_requirements": {
+        "task_file": "/Users/justinrich/Projects/LaneShadow/.spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-09-android-scrim-atom-lsscrim-android-compose.md",
+        "requirements": [
+          {
+            "id": "AC-1",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "LSScrim renders full-parent overlay with color.surface.scrim background [PRIMARY]"
+          },
+          {
+            "id": "AC-2",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Default opacity sourced from opacity.scrim token (no literal)"
+          },
+          {
+            "id": "AC-3",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Default LSScrim allows touches to pass through"
+          },
+          {
+            "id": "AC-4",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "blocking=true intercepts touches and fires onTap"
+          },
+          {
+            "id": "AC-5",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Three sandbox stories registered with id atoms.scrim.*"
+          },
+          {
+            "id": "AC-6",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "No Color literal / Material Icons / FontFamily.Serif (error gate \u2014 boundary)"
+          },
+          {
+            "id": "AC-7",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Release APK contains zero sandbox references (error gate \u2014 release hygiene)"
+          },
+          {
+            "id": "TC-1",
+            "source": "TEST CRITERIA",
+            "summary": "Default scrim fills parent with color.surface.scrim"
+          },
+          {
+            "id": "TC-2",
+            "source": "TEST CRITERIA",
+            "summary": "Default opacity references opacity.scrim token"
+          },
+          {
+            "id": "TC-3",
+            "source": "TEST CRITERIA",
+            "summary": "Default scrim lets touches pass through"
+          },
+          {
+            "id": "TC-4",
+            "source": "TEST CRITERIA",
+            "summary": "blocking=true intercepts and fires onTap"
+          },
+          {
+            "id": "TC-5",
+            "source": "TEST CRITERIA",
+            "summary": "Three atoms.scrim.* stories registered"
+          },
+          {
+            "id": "TC-6",
+            "source": "TEST CRITERIA",
+            "summary": "No Color(0x / Material Icons / Serif"
+          },
+          {
+            "id": "TC-7",
+            "source": "TEST CRITERIA",
+            "summary": "Release APK clean of sandbox refs"
+          }
+        ],
+        "supplemental_requirements": [],
+        "outcome_states": ["default"],
+        "warnings": []
+      },
+      "platform": "android",
+      "agent": "kotlin-implementer",
+      "worktree": ".kb-run/worktrees/UC-ATM-09-android",
+      "branch": "kb-run/UC-ATM-09-android",
+      "execution_unit": "UC-ATM-09-android"
     },
     "UC-ATM-09-ios": {
       "title": "UC-ATM-09-ios",
@@ -479,5 +1321,122 @@
   },
   "active_processes": {},
   "reaped_processes": {},
-  "base_for_wave_001": "4978042b4c34f09638cc6ae813a58a549eb8aaf2"
+  "base_for_wave_001": "4978042b4c34f09638cc6ae813a58a549eb8aaf2",
+  "preflight": {
+    "2026-04-23T-kb-run-codex": {
+      "root_context_read": true,
+      "hooks_present": true,
+      "tools_present": true,
+      "specialist_prompts": "missing_or_empty",
+      "selector_corrections": {
+        "UC-ATM-05-ios": {
+          "invalid": "LaneShadowTests/Atoms/LSCardTests",
+          "corrected": "LaneShadowTests/LSCardTests"
+        },
+        "UC-ATM-07-ios": {
+          "invalid": "LaneShadowTests/Atoms/LSBadgeTests",
+          "corrected": "LaneShadowTests/LSBadgeTests"
+        }
+      }
+    },
+    "root_context_read": true,
+    "rules_read": true,
+    "hooks_verified": true,
+    "specialist_prompts_source": "fallback_local_prompt",
+    "resume_detected": true,
+    "resume_reason": "Existing .kb-run state and task worktrees found",
+    "selector_validation": {
+      "UC-ATM-07-ios": {
+        "status": "corrected",
+        "invalid_selector": "LaneShadowTests/Atoms/LSBadgeTests",
+        "corrected_selector": "LaneShadowTests/LSBadgeTests"
+      }
+    }
+  },
+  "execution_units": {
+    "UC-ATM-07-ios": {
+      "id": "UC-ATM-07-ios",
+      "kind": "task",
+      "tasks": ["UC-ATM-07-ios"],
+      "risk_tier": 1,
+      "platform": "ios",
+      "agent": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "worktree": ".kb-run/worktrees/UC-ATM-07-ios",
+      "branch": "kb-run/UC-ATM-07-ios",
+      "status": "completed_on_main",
+      "batch_reason": null,
+      "split_reason": "Strict unit due to shared aggregator file conflicts or platform-specific validation path"
+    },
+    "UC-ATM-07-android": {
+      "id": "UC-ATM-07-android",
+      "kind": "task",
+      "tasks": ["UC-ATM-07-android"],
+      "risk_tier": 1,
+      "platform": "android",
+      "agent": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "worktree": ".kb-run/worktrees/UC-ATM-07-android",
+      "branch": "kb-run/UC-ATM-07-android",
+      "status": "completed_on_main",
+      "batch_reason": null,
+      "split_reason": "Strict unit due to shared aggregator file conflicts or platform-specific validation path"
+    },
+    "UC-ATM-08-android": {
+      "id": "UC-ATM-08-android",
+      "kind": "task",
+      "tasks": ["UC-ATM-08-android"],
+      "risk_tier": 1,
+      "platform": "android",
+      "agent": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "worktree": ".kb-run/worktrees/UC-ATM-08-android",
+      "branch": "kb-run/UC-ATM-08-android",
+      "status": "completed_on_main",
+      "batch_reason": null,
+      "split_reason": "Strict unit due to shared aggregator file conflicts or platform-specific validation path"
+    },
+    "UC-ATM-09-android": {
+      "id": "UC-ATM-09-android",
+      "kind": "task",
+      "tasks": ["UC-ATM-09-android"],
+      "risk_tier": 1,
+      "platform": "android",
+      "agent": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "worktree": ".kb-run/worktrees/UC-ATM-09-android",
+      "branch": "kb-run/UC-ATM-09-android",
+      "status": "completed_on_main",
+      "batch_reason": null,
+      "split_reason": "Strict unit due to shared aggregator file conflicts or platform-specific validation path"
+    }
+  },
+  "scheduler": {
+    "effective_concurrency": 4,
+    "conflict_sets": {},
+    "ready_queue": [],
+    "active_tasks": [],
+    "terminal_tasks": [
+      "UC-ATM-01-android",
+      "UC-ATM-01-ios",
+      "UC-ATM-02-android",
+      "UC-ATM-02-ios",
+      "UC-ATM-03-android",
+      "UC-ATM-03-ios",
+      "UC-ATM-04-android",
+      "UC-ATM-04-ios",
+      "UC-ATM-05-android",
+      "UC-ATM-05-ios",
+      "UC-ATM-06-android",
+      "UC-ATM-06-ios",
+      "UC-ATM-07-android",
+      "UC-ATM-07-ios",
+      "UC-ATM-08-android",
+      "UC-ATM-08-ios",
+      "UC-ATM-09-android",
+      "UC-ATM-09-ios",
+      "UC-ATM-10-android",
+      "UC-ATM-10-ios"
+    ]
+  }
 }

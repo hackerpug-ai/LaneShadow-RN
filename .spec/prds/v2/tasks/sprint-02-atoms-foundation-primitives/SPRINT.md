@@ -2,7 +2,7 @@
 
 **Sequence:** 2
 **Timeline:** Phase 2 · Week 2
-**Status:** In Progress
+**Status:** Completed
 
 ---
 
@@ -21,28 +21,31 @@ Completed on `main`:
 - `UC-ATM-01-android` — `LSText` Android (`8af7fcdb`)
 - `UC-ATM-02-ios` — `LSButton` iOS (`ed78fd69`)
 - `UC-ATM-02-android` — `LSButton` Android (`f75e595d`)
+- `UC-ATM-03-android` — `LSTextField` / `LSTextArea` Android (`a4f2180b`)
 - `UC-ATM-03-ios` — `LSTextField` / `LSTextArea` iOS (`3bb88b69`)
+- `UC-ATM-05-ios` — `LSCard` / `LSPanel` / `LSGlassPanel` iOS (`c92a9f0a`, includes callout stripe feedback fix)
+- `UC-ATM-05-android` — `LSCard` / `LSPanel` / `LSGlassPanel` Android (`a75922cf`)
 - `UC-ATM-04-ios` — Display atoms iOS (`9fc775d9`)
 - `UC-ATM-04-android` — Display atoms Android (`7f005be9`)
 - `UC-ATM-06-ios` — `LSPill` iOS (`7b44a079`)
 - `UC-ATM-06-android` — `LSPill` Android (`e7ad40f5`)
+- `UC-ATM-07-ios` — `LSBadge` / `LSBestBadge` iOS (`ede9a185`)
+- `UC-ATM-07-android` — `LSBadge` / `LSBestBadge` Android (`7f8e2b56`)
+- `UC-ATM-08-android` — `LSPhaseDot` Android (`626a1cf0`)
 - `UC-ATM-08-ios` — `LSPhaseDot` iOS (`3dcfd89f`, follow-up project fix `58ebebd3`)
+- `UC-ATM-09-android` — `LSScrim` Android (`e594fa1e`)
 - `UC-ATM-09-ios` — `LSScrim` iOS (`8a0ea752`)
 - `UC-ATM-10-ios` — `LSIcon` iOS (`13fb315a`)
 - `UC-ATM-10-android` — `LSIcon` Android (`9147d8b7`; includes `1675113a` and `1d4721fc` remediation)
 
 Remaining Sprint 2 implementation work:
-- `UC-ATM-03-android` — TextField/TextArea on Android (`63df8b92` exists off-history and must be replayed onto `main`)
-- `UC-ATM-05` — Card/Panel/GlassPanel on iOS and Android
-- `UC-ATM-07` — Badge/BestBadge on iOS and Android
-- `UC-ATM-08-android` — PhaseDot on Android
-- `UC-ATM-09-android` — Scrim on Android
+- None. Sprint 2 is drained on `main`.
 
 Tracking notes:
 - `.kb-run/state.json` is the execution state for this sprint and currently treats the commits above as the source of truth for completed-on-main work.
 - `UC-ATM-04-android` was repaired directly on `main` as `7f005be9` after the original child commit drifted out of scope.
 - `android/:app:lintDebug` passes again after declaring `ACCESS_NETWORK_STATE` and clearing pre-existing Compose/runtime lint blockers.
-- Earlier off-history evidence remains recorded for pending tasks, but those commits are not counted complete until equivalent work lands on `main`.
+- Earlier off-history evidence remains recorded for historical traceability, but Sprint 2 completion is keyed only to the commits now landed on `main`.
 - The generated icon catalog currently covers 31 names; older human-test wording below still says 25 names. Treat the generated catalog and its tests as authoritative unless the design source explicitly reduces the set.
 
 ---
