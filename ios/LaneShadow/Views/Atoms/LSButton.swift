@@ -82,7 +82,7 @@ public struct LSButton: View {
         .accessibilityIdentifier("lsbutton-\(variant.accessibilityValue)-\(size.accessibilityValue)")
     }
 
-    public static func dispatch(isDisabled: Bool, action: () -> Void) {
+    static func dispatch(isDisabled: Bool, action: () -> Void) {
         guard !isDisabled else { return }
         action()
     }
