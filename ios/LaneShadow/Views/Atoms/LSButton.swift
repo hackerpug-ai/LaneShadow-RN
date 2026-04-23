@@ -17,6 +17,8 @@ public enum LSButtonSize: CaseIterable, Hashable, Sendable {
 }
 
 public struct LSButton: View {
+    @State private var isHovered = false
+
     private let title: String
     private let variant: LSButtonVariant
     private let size: LSButtonSize
@@ -74,7 +76,8 @@ public struct LSButton: View {
                 trailingIcon: trailingIcon
             )
         }
-        .buttonStyle(LSButtonStyle(variant: variant, size: size))
+        .buttonStyle(LSButtonStyle(variant: variant, size: size, isHovered: isHovered))
+        .onHover { isHovered = $0 }
         .disabled(isDisabled)
         .accessibilityIdentifier("lsbutton-\(variant.accessibilityValue)-\(size.accessibilityValue)")
     }

@@ -57,6 +57,23 @@ private struct LSButtonStoryView: View {
                 leadingIcon: variant == .outline ? .sparkle : nil,
                 isDisabled: true
             ) {}
+
+            VStack(alignment: .leading, spacing: theme.space.md) {
+                Text("State Matrix")
+                    .font(theme.type.label.sm.font)
+                    .foregroundStyle(theme.colors.onSurface.default)
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: theme.space.md) {
+                        statePreview("Default", state: .default)
+                        statePreview("Hover", state: .hover)
+                        statePreview("Pressed", state: .pressed)
+                        statePreview("Focus", state: .focus)
+                        statePreview("Disabled", state: .disabled)
+                    }
+                    .padding(.vertical, theme.space.xs)
+                }
+            }
         }
         .padding(theme.space.lg)
     }
@@ -70,6 +87,23 @@ private struct LSButtonStoryView: View {
         default:
             nil
         }
+    }
+
+    private func statePreview(_ title: String, state: LSButtonInteractionState) -> some View {
+        VStack(alignment: .leading, spacing: theme.space.sm) {
+            Text(title)
+                .font(theme.type.label.sm.font)
+                .foregroundStyle(theme.colors.onSurface.default)
+
+            LSButton(
+                title: variant.defaultTitle,
+                variant: variant,
+                leadingIcon: state == .default ? leadingIcon : nil,
+                isDisabled: state == .disabled
+            ) {}
+                .lsButtonInteractionStateOverride(state == .disabled ? nil : state)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 

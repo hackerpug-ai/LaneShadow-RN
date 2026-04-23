@@ -42,12 +42,22 @@ public struct LSIcon: View {
     public init(
         name: IconName,
         size: IconSize,
-        color: IconContentColor = .primary,
-        resolvedColorOverride: Color? = nil
+        color: IconContentColor = .primary
     ) {
         self.name = name
         self.size = size
         self.color = color
+        resolvedColorOverride = nil
+    }
+
+    init(
+        name: IconName,
+        size: IconSize,
+        resolvedColorOverride: Color
+    ) {
+        self.name = name
+        self.size = size
+        color = .primary
         self.resolvedColorOverride = resolvedColorOverride
     }
 

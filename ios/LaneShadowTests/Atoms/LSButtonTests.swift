@@ -27,6 +27,18 @@ final class LSButtonTests: XCTestCase {
         )
     }
 
+    func test_primary_hover_state_resolves_explicit_hover_tokens() {
+        let theme = Theme.shared
+        let tokens = LSButtonStyle.tokens(for: .primary, state: .hover, in: theme)
+
+        XCTAssertEqual(
+            tokens.background,
+            theme.colors.primary.hover ?? theme.colors.accent.hover ?? theme.colors.primary.default
+        )
+        XCTAssertEqual(tokens.foreground, theme.colors.onPrimary.default)
+        XCTAssertEqual(tokens.focusRingWidth, 0)
+    }
+
     func test_all_six_variants_resolve_distinct_button_tokens() {
         let theme = Theme.shared
 
@@ -102,7 +114,42 @@ final class LSButtonTests: XCTestCase {
             tokens.foreground,
             theme.colors.onPrimary.disabled ?? theme.colors.onPrimary.default.opacity(theme.opacity.disabled)
         )
+        XCTAssertEqual(tokens.opacity, theme.opacity.disabled)
         XCTAssertEqual(actionCount, 0)
+    }
+
+    func test_outline_disabled_state_uses_disabled_opacity_token() {
+        let theme = Theme.shared
+        let tokens = LSButtonStyle.tokens(for: .outline, state: .disabled, in: theme)
+
+        XCTAssertEqual(tokens.opacity, theme.opacity.disabled)
+        XCTAssertEqual(
+            tokens.border,
+            theme.colors.border.disabled ?? theme.colors.border.default.opacity(theme.opacity.disabled)
+        )
+    }
+
+    func test_focus_state_uses_variant_ring_and_not_generic_border_replacement() {
+        let theme = Theme.shared
+        let primaryTokens = LSButtonStyle.tokens(for: .primary, state: .focus, in: theme)
+        let outlineBase = LSButtonStyle.tokens(for: .outline, in: theme)
+        let outlineFocus = LSButtonStyle.tokens(for: .outline, state: .focus, in: theme)
+
+        XCTAssertEqual(primaryTokens.border, theme.colors.border.default.opacity(0))
+        XCTAssertEqual(primaryTokens.borderWidth, 0)
+        XCTAssertEqual(
+            primaryTokens.focusRing,
+            (theme.colors.primary.focus ?? theme.colors.primary.default).opacity(theme.opacity.actionPressed)
+        )
+        XCTAssertEqual(primaryTokens.focusRingWidth, 3)
+
+        XCTAssertEqual(outlineFocus.border, outlineBase.border)
+        XCTAssertEqual(outlineFocus.borderWidth, outlineBase.borderWidth)
+        XCTAssertEqual(
+            outlineFocus.focusRing,
+            (theme.colors.ring.focus ?? theme.colors.ring.default).opacity(theme.opacity.actionIdle)
+        )
+        XCTAssertEqual(outlineFocus.focusRingWidth, 3)
     }
 
     func test_outline_variant_with_leading_icon_renders_chip_layout() {
@@ -133,10 +180,38 @@ final class LSButtonTests: XCTestCase {
         let source = try String(contentsOfFile: buttonSourceFilePath, encoding: .utf8)
 
         XCTAssertTrue(source.contains("LSIcon(name: name, size: .sm, resolvedColorOverride: color)"))
+        XCTAssertTrue(source.contains(".onHover { isHovered = $0 }"))
         XCTAssertFalse(source.contains(".hidden()"))
         XCTAssertFalse(source.contains("LSButtonPlusIcon"))
         XCTAssertFalse(source.contains("LSButtonSparkleIcon"))
         XCTAssertFalse(source.contains("Canvas {"))
+    }
+
+    func test_lsicon_color_override_is_internal_to_the_module() throws {
+        let source = try String(contentsOfFile: iconSourceFilePath, encoding: .utf8)
+        let publicInitializerSignature = """
+        public init(
+                name: IconName,
+                size: IconSize,
+                color: IconContentColor = .primary
+        """
+        let internalOverrideSignature = """
+        init(
+                name: IconName,
+                size: IconSize,
+                resolvedColorOverride: Color
+        """
+        let removedPublicOverrideSignature = """
+        public init(
+                name: IconName,
+                size: IconSize,
+                color: IconContentColor = .primary,
+                resolvedColorOverride: Color? = nil
+        """
+
+        XCTAssertTrue(source.contains(publicInitializerSignature))
+        XCTAssertTrue(source.contains(internalOverrideSignature))
+        XCTAssertFalse(source.contains(removedPublicOverrideSignature))
     }
 
     func test_minimum_touch_target_44pt_on_smallest_size() {
@@ -185,6 +260,16 @@ final class LSButtonTests: XCTestCase {
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .appendingPathComponent("LaneShadow/Views/Atoms/LSButton.swift")
+            .path
+    }
+
+    private var iconSourceFilePath: String {
+        let testsFileURL = URL(fileURLWithPath: #filePath)
+        return testsFileURL
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("LaneShadow/Views/Atoms/LSIcon.swift")
             .path
     }
 }
