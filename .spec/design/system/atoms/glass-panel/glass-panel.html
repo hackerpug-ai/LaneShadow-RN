@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<!-- glass-panel.html — LSGlassPanel atom preview
+     LaneShadow V2 · Copper · Surface Atoms · UC-ATM-05
+     Authority: .spec/prds/v2/concepts/uc-atm-05-surfaces.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSGlassPanel — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+
+/* ── LSGlassPanel atom ─────────────────────────────────────────── */
+
+/* Base — translucent, backdrop-blur, elevation.overlay */
+.ls-glass-panel {
+  background: var(--surface-glass);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--elev-overlay);
+  border: var(--stroke-sm) solid var(--border-default);
+  padding: var(--space-5);
+  backdrop-filter: blur(13px) saturate(1.2);
+  -webkit-backdrop-filter: blur(13px) saturate(1.2);
+}
+
+/* Chrome variant — explicit rgba(255,255,255,0.55) border for overlay chrome */
+.ls-glass-panel--chrome {
+  border-color: rgba(255, 255, 255, 0.55);
+}
+
+/* Callout base — leading 3px accent stripe via padding offset + pseudo-element */
+.ls-glass-panel--callout-signal,
+.ls-glass-panel--callout-warning {
+  position: relative;
+  overflow: hidden;
+  padding-left: calc(var(--space-5) + 3px); /* space-5 inner + 3px stripe */
+}
+
+.ls-glass-panel--callout-signal::before,
+.ls-glass-panel--callout-warning::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+}
+
+.ls-glass-panel--callout-signal::before  { background: var(--signal-default); }
+.ls-glass-panel--callout-warning::before { background: var(--status-warning); }
+
+/* ── Dark mode border override for glass panels ─────────────────── */
+.mode-dark .ls-glass-panel {
+  border-color: var(--border-default); /* resolves to rgba(242,238,232,0.12) in dark */
+}
+.mode-dark .ls-glass-panel--chrome {
+  border-color: var(--border-default);
+}
+
+/* ── Map mock background — topographic SVG ─────────────────────── */
+.map-bg {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  padding: var(--space-6);
+  min-height: 180px;
+  display: flex;
+  align-items: flex-start;
+  /* Warm paper base + fine topo grid */
+  background-color: var(--map-paper);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cdefs%3E%3CradialGradient id='hill1' cx='30%25' cy='40%25' r='38%25'%3E%3Cstop offset='0%25' stop-color='%23C9BDB3' stop-opacity='0.18'/%3E%3Cstop offset='100%25' stop-color='transparent'/%3E%3C/radialGradient%3E%3CradialGradient id='hill2' cx='72%25' cy='65%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23C9BDB3' stop-opacity='0.14'/%3E%3Cstop offset='100%25' stop-color='transparent'/%3E%3C/radialGradient%3E%3CradialGradient id='hill3' cx='55%25' cy='20%25' r='22%25'%3E%3Cstop offset='0%25' stop-color='%23C9BDB3' stop-opacity='0.10'/%3E%3Cstop offset='100%25' stop-color='transparent'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='400' height='400' fill='url(%23hill1)'/%3E%3Crect width='400' height='400' fill='url(%23hill2)'/%3E%3Crect width='400' height='400' fill='url(%23hill3)'/%3E%3Cellipse cx='120' cy='155' rx='90' ry='60' fill='none' stroke='%23C9BDB3' stroke-width='1' opacity='0.45'/%3E%3Cellipse cx='120' cy='155' rx='70' ry='44' fill='none' stroke='%23C9BDB3' stroke-width='1' opacity='0.40'/%3E%3Cellipse cx='120' cy='155' rx='50' ry='30' fill='none' stroke='%23C9BDB3' stroke-width='1' opacity='0.35'/%3E%3Cellipse cx='120' cy='155' rx='30' ry='16' fill='none' stroke='%23C9BDB3' stroke-width='1' opacity='0.30'/%3E%3Cellipse cx='288' cy='255' rx='72' ry='50' fill='none' stroke='%23C9BDB3' stroke-width='1' opacity='0.35'/%3E%3Cellipse cx='288' cy='255' rx='52' ry='34' fill='none' stroke='%23C9BDB3' stroke-width='1' opacity='0.30'/%3E%3Cellipse cx='288' cy='255' rx='32' ry='18' fill='none' stroke='%23C9BDB3' stroke-width='1' opacity='0.25'/%3E%3Cellipse cx='218' cy='78' rx='55' ry='38' fill='none' stroke='%23C9BDB3' stroke-width='1' opacity='0.28'/%3E%3Cellipse cx='218' cy='78' rx='38' ry='24' fill='none' stroke='%23C9BDB3' stroke-width='1' opacity='0.22'/%3E%3Cpath d='M0 210 Q80 185 160 210 Q240 235 320 205 Q370 190 400 210' fill='none' stroke='%23EE7C2B' stroke-width='2' opacity='0.55' stroke-linecap='round'/%3E%3Cpath d='M0 220 Q80 195 160 220 Q240 245 320 215 Q370 200 400 220' fill='none' stroke='%23EE7C2B' stroke-width='1' opacity='0.18' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: cover;
+}
+
+/* Dark map background */
+.map-bg--dark {
+  background-color: var(--ink-800);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cdefs%3E%3CradialGradient id='hill1d' cx='30%25' cy='40%25' r='38%25'%3E%3Cstop offset='0%25' stop-color='%23F2EEE8' stop-opacity='0.10'/%3E%3Cstop offset='100%25' stop-color='transparent'/%3E%3C/radialGradient%3E%3CradialGradient id='hill2d' cx='72%25' cy='65%25' r='30%25'%3E%3Cstop offset='0%25' stop-color='%23F2EEE8' stop-opacity='0.08'/%3E%3Cstop offset='100%25' stop-color='transparent'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='400' height='400' fill='url(%23hill1d)'/%3E%3Crect width='400' height='400' fill='url(%23hill2d)'/%3E%3Cellipse cx='120' cy='155' rx='90' ry='60' fill='none' stroke='%23F2EEE8' stroke-width='1' opacity='0.18'/%3E%3Cellipse cx='120' cy='155' rx='70' ry='44' fill='none' stroke='%23F2EEE8' stroke-width='1' opacity='0.15'/%3E%3Cellipse cx='120' cy='155' rx='50' ry='30' fill='none' stroke='%23F2EEE8' stroke-width='1' opacity='0.12'/%3E%3Cellipse cx='120' cy='155' rx='30' ry='16' fill='none' stroke='%23F2EEE8' stroke-width='1' opacity='0.10'/%3E%3Cellipse cx='288' cy='255' rx='72' ry='50' fill='none' stroke='%23F2EEE8' stroke-width='1' opacity='0.14'/%3E%3Cellipse cx='288' cy='255' rx='52' ry='34' fill='none' stroke='%23F2EEE8' stroke-width='1' opacity='0.11'/%3E%3Cellipse cx='288' cy='255' rx='32' ry='18' fill='none' stroke='%23F2EEE8' stroke-width='1' opacity='0.09'/%3E%3Cpath d='M0 210 Q80 185 160 210 Q240 235 320 205 Q370 190 400 210' fill='none' stroke='%23EE7C2B' stroke-width='2' opacity='0.50' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: cover;
+}
+
+/* ── Status badge inside glass overlay ─────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  border: var(--stroke-sm) solid var(--border-default);
+  background: var(--surface-inset);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+
+.status-dot--signal  { background: var(--signal-default); }
+.status-dot--warning { background: var(--status-warning); }
+.status-dot--success { background: var(--status-success); }
+
+/* ── Overlay content layout ────────────────────────────────────── */
+.overlay-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.overlay-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+/* ── Two-up layout ─────────────────────────────────────────────── */
+.two-up-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-7);
+}
+
+@media (max-width: 900px) {
+  .two-up-wrap { grid-template-columns: 1fr; }
+}
+
+.variant-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1><em>LSGlassPanel</em> — Surface Atom</h1>
+  <p class="subtitle">UC-ATM-05 · color.surface.glass · radius.xl · elevation.overlay · backdrop-blur 13px · 4 variants</p>
+</header>
+
+<!-- §01 Base variant -->
+<section class="section">
+  <div class="section-label">Base — Translucent Overlay (no accent stripe)</div>
+  <div class="two-up-wrap">
+
+    <!-- Light -->
+    <div class="theme-pane" style="padding: var(--space-5);">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-4);">Light theme</p>
+      <div class="map-bg">
+        <div class="ls-glass-panel" style="width: 100%;">
+          <div class="overlay-inner">
+            <div class="overlay-header">
+              <div>
+                <p class="t-title-md" style="color: var(--content-primary);">Current Position</p>
+                <p class="t-body-sm" style="color: var(--content-tertiary); margin-top: var(--space-1);">Blue Ridge Parkway · milepost 12.4</p>
+              </div>
+              <div class="status-badge">
+                <div class="status-dot status-dot--success"></div>
+                <span class="t-label-sm" style="color: var(--content-secondary);">Live</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: var(--space-5);">
+              <div>
+                <p class="t-label-sm" style="color: var(--content-tertiary);">Speed</p>
+                <p class="t-instr-md" style="color: var(--content-primary);">34.2 mph</p>
+              </div>
+              <div>
+                <p class="t-label-sm" style="color: var(--content-tertiary);">Heading</p>
+                <p class="t-instr-md" style="color: var(--content-primary);">218° SW</p>
+              </div>
+              <div>
+                <p class="t-label-sm" style="color: var(--content-tertiary);">Elevation</p>
+                <p class="t-instr-md" style="color: var(--content-primary);">2,850 ft</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark" style="padding: var(--space-5);">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-4);">Dark theme</p>
+      <div class="map-bg map-bg--dark">
+        <div class="ls-glass-panel" style="width: 100%;">
+          <div class="overlay-inner">
+            <div class="overlay-header">
+              <div>
+                <p class="t-title-md" style="color: var(--content-primary);">Current Position</p>
+                <p class="t-body-sm" style="color: var(--content-tertiary); margin-top: var(--space-1);">Blue Ridge Parkway · milepost 12.4</p>
+              </div>
+              <div class="status-badge">
+                <div class="status-dot status-dot--success"></div>
+                <span class="t-label-sm" style="color: var(--content-secondary);">Live</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: var(--space-5);">
+              <div>
+                <p class="t-label-sm" style="color: var(--content-tertiary);">Speed</p>
+                <p class="t-instr-md" style="color: var(--content-primary);">34.2 mph</p>
+              </div>
+              <div>
+                <p class="t-label-sm" style="color: var(--content-tertiary);">Heading</p>
+                <p class="t-instr-md" style="color: var(--content-primary);">218° SW</p>
+              </div>
+              <div>
+                <p class="t-label-sm" style="color: var(--content-tertiary);">Elevation</p>
+                <p class="t-instr-md" style="color: var(--content-primary);">2,850 ft</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- §02 Chrome variant -->
+<section class="section">
+  <div class="section-label">Chrome — Explicit White-Tint Border (TopBar · ChatInput)</div>
+  <div class="two-up-wrap">
+
+    <!-- Light -->
+    <div class="theme-pane" style="padding: var(--space-5);">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-4);">Light theme</p>
+      <div class="map-bg">
+        <div class="ls-glass-panel ls-glass-panel--chrome" style="width: 100%;">
+          <div class="overlay-inner">
+            <p class="t-label-sm" style="color: var(--content-tertiary);">Chat Input Chrome</p>
+            <div style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--surface-card); border-radius: var(--radius-md); border: var(--stroke-sm) solid var(--border-default);">
+              <span class="t-body-md" style="color: var(--content-subtle); flex: 1;">Where are we riding today?</span>
+              <div class="status-dot status-dot--signal" style="width: 8px; height: 8px;"></div>
+            </div>
+            <p class="t-body-sm" style="color: var(--content-tertiary); text-align: center;">Chrome backing — warm glass, rgba(255,255,255,0.55) border</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark" style="padding: var(--space-5);">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-4);">Dark theme</p>
+      <div class="map-bg map-bg--dark">
+        <div class="ls-glass-panel ls-glass-panel--chrome" style="width: 100%;">
+          <div class="overlay-inner">
+            <p class="t-label-sm" style="color: var(--content-tertiary);">Chat Input Chrome</p>
+            <div style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: var(--surface-card); border-radius: var(--radius-md); border: var(--stroke-sm) solid var(--border-default);">
+              <span class="t-body-md" style="color: var(--content-subtle); flex: 1;">Where are we riding today?</span>
+              <div class="status-dot status-dot--signal" style="width: 8px; height: 8px;"></div>
+            </div>
+            <p class="t-body-sm" style="color: var(--content-tertiary); text-align: center;">Chrome backing — dark warm glass</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- §03 Callout — signal stripe -->
+<section class="section">
+  <div class="section-label">Callout · Signal — 3px Leading Stripe (Navigator Message)</div>
+  <div class="two-up-wrap">
+
+    <!-- Light -->
+    <div class="theme-pane" style="padding: var(--space-5);">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-4);">Light theme</p>
+      <div class="map-bg">
+        <div class="ls-glass-panel ls-glass-panel--callout-signal" style="width: 100%;">
+          <div class="overlay-inner">
+            <div class="overlay-header">
+              <p class="t-title-md" style="color: var(--content-primary);">The Skyline Drive section is closed.</p>
+              <div class="status-badge">
+                <div class="status-dot status-dot--signal"></div>
+                <span class="t-label-sm" style="color: var(--signal-default);">Navigator</span>
+              </div>
+            </div>
+            <p class="t-body-md" style="color: var(--content-secondary);">Road closure between mileposts 22–31. Alternate route via US-211 adds 8 miles.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark" style="padding: var(--space-5);">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-4);">Dark theme</p>
+      <div class="map-bg map-bg--dark">
+        <div class="ls-glass-panel ls-glass-panel--callout-signal" style="width: 100%;">
+          <div class="overlay-inner">
+            <div class="overlay-header">
+              <p class="t-title-md" style="color: var(--content-primary);">The Skyline Drive section is closed.</p>
+              <div class="status-badge">
+                <div class="status-dot status-dot--signal"></div>
+                <span class="t-label-sm" style="color: var(--signal-default);">Navigator</span>
+              </div>
+            </div>
+            <p class="t-body-md" style="color: var(--content-secondary);">Road closure between mileposts 22–31. Alternate route via US-211 adds 8 miles.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- §04 Callout — warning stripe -->
+<section class="section">
+  <div class="section-label">Callout · Warning — 3px Leading Stripe (Inline Error Callout)</div>
+  <div class="two-up-wrap">
+
+    <!-- Light -->
+    <div class="theme-pane" style="padding: var(--space-5);">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-4);">Light theme</p>
+      <div class="map-bg">
+        <div class="ls-glass-panel ls-glass-panel--callout-warning" style="width: 100%;">
+          <div class="overlay-inner">
+            <div class="overlay-header">
+              <p class="t-title-md" style="color: var(--status-warning);">No network connection.</p>
+              <div class="status-badge">
+                <div class="status-dot status-dot--warning"></div>
+                <span class="t-label-sm" style="color: var(--status-warning);">Offline</span>
+              </div>
+            </div>
+            <p class="t-body-md" style="color: var(--content-secondary);">Cached route data is available. Navigation will continue but live traffic and weather are paused.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark" style="padding: var(--space-5);">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-4);">Dark theme</p>
+      <div class="map-bg map-bg--dark">
+        <div class="ls-glass-panel ls-glass-panel--callout-warning" style="width: 100%;">
+          <div class="overlay-inner">
+            <div class="overlay-header">
+              <p class="t-title-md" style="color: var(--status-warning);">No network connection.</p>
+              <div class="status-badge">
+                <div class="status-dot status-dot--warning"></div>
+                <span class="t-label-sm" style="color: var(--status-warning);">Offline</span>
+              </div>
+            </div>
+            <p class="t-body-md" style="color: var(--content-secondary);">Cached route data is available. Navigation will continue but live traffic and weather are paused.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- §05 All four variants side-by-side on map -->
+<section class="section">
+  <div class="section-label">All Four Variants — Light Theme · Stacked on Map</div>
+  <div class="theme-pane" style="padding: var(--space-5);">
+    <div class="map-bg" style="min-height: 480px; flex-direction: column; gap: var(--space-4); align-items: stretch;">
+      <!-- Base -->
+      <div class="ls-glass-panel" style="width: 100%;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);">
+          <p class="t-title-sm" style="color: var(--content-primary);">Base overlay</p>
+          <div class="status-badge">
+            <div class="status-dot status-dot--success"></div>
+            <span class="t-label-sm" style="color: var(--content-secondary);">Active</span>
+          </div>
+        </div>
+        <p class="t-body-sm" style="color: var(--content-tertiary); margin-top: var(--space-2);">surface.glass · no stripe · border.default</p>
+      </div>
+      <!-- Chrome -->
+      <div class="ls-glass-panel ls-glass-panel--chrome" style="width: 100%;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);">
+          <p class="t-title-sm" style="color: var(--content-primary);">Chrome overlay</p>
+          <span class="t-label-sm" style="color: var(--content-tertiary);">rgba(255,255,255,0.55)</span>
+        </div>
+        <p class="t-body-sm" style="color: var(--content-tertiary); margin-top: var(--space-2);">surface.glass · no stripe · white-tint border</p>
+      </div>
+      <!-- Callout signal -->
+      <div class="ls-glass-panel ls-glass-panel--callout-signal" style="width: 100%;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);">
+          <p class="t-title-sm" style="color: var(--content-primary);">Callout · Signal</p>
+          <div class="status-badge">
+            <div class="status-dot status-dot--signal"></div>
+            <span class="t-label-sm" style="color: var(--signal-default);">Navigator</span>
+          </div>
+        </div>
+        <p class="t-body-sm" style="color: var(--content-tertiary); margin-top: var(--space-2);">signal.default stripe · 3px leading</p>
+      </div>
+      <!-- Callout warning -->
+      <div class="ls-glass-panel ls-glass-panel--callout-warning" style="width: 100%;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);">
+          <p class="t-title-sm" style="color: var(--status-warning);">Callout · Warning</p>
+          <div class="status-badge">
+            <div class="status-dot status-dot--warning"></div>
+            <span class="t-label-sm" style="color: var(--status-warning);">Offline</span>
+          </div>
+        </div>
+        <p class="t-body-sm" style="color: var(--content-tertiary); margin-top: var(--space-2);">status.warning stripe · 3px leading</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

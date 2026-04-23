@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<!-- panel.html — LSPanel atom preview
+     LaneShadow V2 · Copper · Surface Atoms · UC-ATM-05
+     Authority: .spec/prds/v2/concepts/uc-atm-05-surfaces.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSPanel — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+
+/* ── LSPanel atom ──────────────────────────────────────────────── */
+.ls-panel {
+  background: var(--surface-inset);
+  border-radius: var(--radius-md);
+  border: var(--stroke-sm) solid var(--border-subtle);
+  padding: var(--space-4);
+  /* No box-shadow — flat by spec */
+}
+
+/* ── Settings panel content layout ────────────────────────────── */
+.panel-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.panel-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.panel-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.panel-divider {
+  height: var(--stroke-sm);
+  background: var(--border-subtle);
+  margin: var(--space-2) 0;
+}
+
+/* ── Simulated textarea ────────────────────────────────────────── */
+.panel-textarea-mock {
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: var(--space-4);
+  min-height: 80px;
+  color: var(--content-secondary);
+  line-height: 1.55;
+  cursor: text;
+}
+
+/* ── Card wrapper for nested context ──────────────────────────── */
+.ls-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  padding: var(--space-5);
+}
+
+.card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.two-up-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-7);
+}
+
+@media (max-width: 900px) {
+  .two-up-wrap { grid-template-columns: 1fr; }
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1><em>LSPanel</em> — Surface Atom</h1>
+  <p class="subtitle">UC-ATM-05 · color.surface.inset · radius.md · no shadow · border.subtle</p>
+</header>
+
+<!-- §01 Standalone panel — settings + text area -->
+<section class="section">
+  <div class="section-label">Standalone — Settings Panel with Label + Text Area</div>
+  <div class="two-up-wrap">
+
+    <!-- Light -->
+    <div class="theme-pane">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Light theme</p>
+      <div style="max-width: 320px;">
+        <div class="ls-panel">
+          <div class="panel-stack">
+
+            <p class="t-label-md" style="color: var(--signal-default);">Ride Notes</p>
+            <div class="panel-divider"></div>
+
+            <div class="panel-field">
+              <p class="t-label-sm" style="color: var(--content-tertiary);">Route Name</p>
+              <div class="panel-textarea-mock" style="min-height: auto; padding: var(--space-3) var(--space-4);">
+                <p class="t-body-md" style="color: var(--content-primary);">Blue Ridge Parkway — South Entrance</p>
+              </div>
+            </div>
+
+            <div class="panel-field">
+              <p class="t-label-sm" style="color: var(--content-tertiary);">Notes</p>
+              <div class="panel-textarea-mock">
+                <p class="t-body-md">Watch for gravel on the switchbacks near milepost 7. Best morning light after the second overlook — worth the early start.</p>
+              </div>
+            </div>
+
+            <div class="panel-field-row">
+              <p class="t-label-sm" style="color: var(--content-tertiary);">Visibility</p>
+              <p class="t-body-sm" style="color: var(--content-secondary);">Friends only</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Dark theme</p>
+      <div style="max-width: 320px;">
+        <div class="ls-panel">
+          <div class="panel-stack">
+
+            <p class="t-label-md" style="color: var(--signal-default);">Ride Notes</p>
+            <div class="panel-divider"></div>
+
+            <div class="panel-field">
+              <p class="t-label-sm" style="color: var(--content-tertiary);">Route Name</p>
+              <div class="panel-textarea-mock" style="min-height: auto; padding: var(--space-3) var(--space-4);">
+                <p class="t-body-md" style="color: var(--content-primary);">Blue Ridge Parkway — South Entrance</p>
+              </div>
+            </div>
+
+            <div class="panel-field">
+              <p class="t-label-sm" style="color: var(--content-tertiary);">Notes</p>
+              <div class="panel-textarea-mock">
+                <p class="t-body-md">Watch for gravel on the switchbacks near milepost 7. Best morning light after the second overlook — worth the early start.</p>
+              </div>
+            </div>
+
+            <div class="panel-field-row">
+              <p class="t-label-sm" style="color: var(--content-tertiary);">Visibility</p>
+              <p class="t-body-sm" style="color: var(--content-secondary);">Friends only</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- §02 Panel nested inside LSCard -->
+<section class="section">
+  <div class="section-label">Nested Inside LSCard — Route Details Info Block</div>
+  <div class="two-up-wrap">
+
+    <!-- Light -->
+    <div class="theme-pane">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Light theme</p>
+      <div class="ls-card" style="max-width: 320px;">
+        <div class="card-stack">
+          <div>
+            <p class="t-title-md" style="color: var(--content-primary); margin-bottom: var(--space-2);">Route Details</p>
+            <p class="t-body-sm" style="color: var(--content-tertiary);">Blue Ridge Parkway · VA–NC</p>
+          </div>
+          <!-- LSPanel inside LSCard — the canonical nesting pattern -->
+          <div class="ls-panel">
+            <div class="panel-stack">
+              <div class="panel-field-row">
+                <span class="t-label-sm" style="color: var(--content-tertiary);">Distance</span>
+                <span class="t-instr-md" style="color: var(--content-primary);">64.2 mi</span>
+              </div>
+              <div class="panel-divider"></div>
+              <div class="panel-field-row">
+                <span class="t-label-sm" style="color: var(--content-tertiary);">Elevation Gain</span>
+                <span class="t-instr-md" style="color: var(--content-primary);">+3,240 ft</span>
+              </div>
+              <div class="panel-divider"></div>
+              <div class="panel-field-row">
+                <span class="t-label-sm" style="color: var(--content-tertiary);">Est. Duration</span>
+                <span class="t-instr-md" style="color: var(--content-primary);">4h 20m</span>
+              </div>
+              <div class="panel-divider"></div>
+              <div class="panel-field-row">
+                <span class="t-label-sm" style="color: var(--content-tertiary);">Surface</span>
+                <span class="t-body-sm" style="color: var(--content-secondary);">Asphalt</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Dark theme</p>
+      <div class="ls-card" style="max-width: 320px;">
+        <div class="card-stack">
+          <div>
+            <p class="t-title-md" style="color: var(--content-primary); margin-bottom: var(--space-2);">Route Details</p>
+            <p class="t-body-sm" style="color: var(--content-tertiary);">Blue Ridge Parkway · VA–NC</p>
+          </div>
+          <div class="ls-panel">
+            <div class="panel-stack">
+              <div class="panel-field-row">
+                <span class="t-label-sm" style="color: var(--content-tertiary);">Distance</span>
+                <span class="t-instr-md" style="color: var(--content-primary);">64.2 mi</span>
+              </div>
+              <div class="panel-divider"></div>
+              <div class="panel-field-row">
+                <span class="t-label-sm" style="color: var(--content-tertiary);">Elevation Gain</span>
+                <span class="t-instr-md" style="color: var(--content-primary);">+3,240 ft</span>
+              </div>
+              <div class="panel-divider"></div>
+              <div class="panel-field-row">
+                <span class="t-label-sm" style="color: var(--content-tertiary);">Est. Duration</span>
+                <span class="t-instr-md" style="color: var(--content-primary);">4h 20m</span>
+              </div>
+              <div class="panel-divider"></div>
+              <div class="panel-field-row">
+                <span class="t-label-sm" style="color: var(--content-tertiary);">Surface</span>
+                <span class="t-body-sm" style="color: var(--content-secondary);">Asphalt</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- §03 Multiple panels stacked — preference groups -->
+<section class="section">
+  <div class="section-label">Stacked Panels — Preference Groups</div>
+  <div class="two-up-wrap">
+
+    <!-- Light -->
+    <div class="theme-pane">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Light theme</p>
+      <div style="max-width: 320px; display: flex; flex-direction: column; gap: var(--space-3);">
+
+        <p class="t-label-md" style="color: var(--content-tertiary);">Notifications</p>
+        <div class="ls-panel">
+          <div class="panel-stack">
+            <div class="panel-field-row">
+              <span class="t-body-md" style="color: var(--content-primary);">Route Alerts</span>
+              <span class="t-label-sm" style="color: var(--signal-default);">On</span>
+            </div>
+            <div class="panel-divider"></div>
+            <div class="panel-field-row">
+              <span class="t-body-md" style="color: var(--content-primary);">Weather Updates</span>
+              <span class="t-label-sm" style="color: var(--signal-default);">On</span>
+            </div>
+            <div class="panel-divider"></div>
+            <div class="panel-field-row">
+              <span class="t-body-md" style="color: var(--content-primary);">Ride Summaries</span>
+              <span class="t-label-sm" style="color: var(--content-tertiary);">Off</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="t-label-md" style="color: var(--content-tertiary); margin-top: var(--space-2);">Privacy</p>
+        <div class="ls-panel">
+          <div class="panel-stack">
+            <div class="panel-field-row">
+              <span class="t-body-md" style="color: var(--content-primary);">Profile visibility</span>
+              <span class="t-body-sm" style="color: var(--content-secondary);">Friends</span>
+            </div>
+            <div class="panel-divider"></div>
+            <div class="panel-field-row">
+              <span class="t-body-md" style="color: var(--content-primary);">Location sharing</span>
+              <span class="t-label-sm" style="color: var(--content-tertiary);">Off</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Dark theme</p>
+      <div style="max-width: 320px; display: flex; flex-direction: column; gap: var(--space-3);">
+
+        <p class="t-label-md" style="color: var(--content-tertiary);">Notifications</p>
+        <div class="ls-panel">
+          <div class="panel-stack">
+            <div class="panel-field-row">
+              <span class="t-body-md" style="color: var(--content-primary);">Route Alerts</span>
+              <span class="t-label-sm" style="color: var(--signal-default);">On</span>
+            </div>
+            <div class="panel-divider"></div>
+            <div class="panel-field-row">
+              <span class="t-body-md" style="color: var(--content-primary);">Weather Updates</span>
+              <span class="t-label-sm" style="color: var(--signal-default);">On</span>
+            </div>
+            <div class="panel-divider"></div>
+            <div class="panel-field-row">
+              <span class="t-body-md" style="color: var(--content-primary);">Ride Summaries</span>
+              <span class="t-label-sm" style="color: var(--content-tertiary);">Off</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="t-label-md" style="color: var(--content-tertiary); margin-top: var(--space-2);">Privacy</p>
+        <div class="ls-panel">
+          <div class="panel-stack">
+            <div class="panel-field-row">
+              <span class="t-body-md" style="color: var(--content-primary);">Profile visibility</span>
+              <span class="t-body-sm" style="color: var(--content-secondary);">Friends</span>
+            </div>
+            <div class="panel-divider"></div>
+            <div class="panel-field-row">
+              <span class="t-body-md" style="color: var(--content-primary);">Location sharing</span>
+              <span class="t-label-sm" style="color: var(--content-tertiary);">Off</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<!-- card.html — LSCard atom preview
+     LaneShadow V2 · Copper · Surface Atoms · UC-ATM-05
+     Authority: .spec/prds/v2/concepts/uc-atm-05-surfaces.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSCard — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+
+/* ── LSCard atom ──────────────────────────────────────────────────── */
+.ls-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  padding: var(--space-5);
+}
+
+/* Padding variants */
+.ls-card--sm { padding: var(--space-4); }
+.ls-card--lg { padding: var(--space-7); }
+
+/* ── Route card content layout ─────────────────────────────────── */
+.route-card-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.route-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.route-card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.route-card-divider {
+  width: var(--stroke-sm);
+  height: 10px;
+  background: var(--border-default);
+  flex-shrink: 0;
+}
+
+.route-card-body {
+  color: var(--content-secondary);
+}
+
+.route-card-inset {
+  background: var(--surface-inset);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  border: var(--stroke-sm) solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.route-card-tags {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.route-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  background: var(--signal-whisper);
+  border: var(--stroke-sm) solid var(--signal-tint);
+  border-radius: var(--radius-pill);
+  color: var(--signal-default);
+}
+
+/* ── Two-up layout for light/dark demonstration ─────────────────── */
+.two-up-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-7);
+}
+
+@media (max-width: 900px) {
+  .two-up-wrap { grid-template-columns: 1fr; }
+}
+
+.card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1><em>LSCard</em> — Surface Atom</h1>
+  <p class="subtitle">UC-ATM-05 · color.surface.card · radius.lg · elevation.card · three padding variants</p>
+</header>
+
+<!-- §01 Default padding (space-5 / 16px) -->
+<section class="section">
+  <div class="section-label">Default — padding.md (space-5)</div>
+  <div class="two-up-wrap">
+
+    <!-- Light -->
+    <div class="theme-pane">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Light theme</p>
+      <div class="card-stack">
+
+        <!-- Route card with title + body + mono distance -->
+        <div class="ls-card" style="max-width: 320px;">
+          <div class="route-card-inner">
+            <div class="route-card-header">
+              <div>
+                <p class="t-title-md" style="color: var(--content-primary);">Blue Ridge Parkway</p>
+                <p class="t-body-sm" style="color: var(--content-tertiary); margin-top: var(--space-1);">Virginia · North Carolina</p>
+              </div>
+              <span class="t-instr-lg" style="color: var(--signal-default); flex-shrink: 0;">64<span class="t-body-sm" style="color: var(--content-tertiary);">mi</span></span>
+            </div>
+            <div class="route-card-meta">
+              <span class="t-instr-sm" style="color: var(--content-secondary);">4h 20m</span>
+              <div class="route-card-divider"></div>
+              <span class="t-instr-sm" style="color: var(--content-secondary);">+3,200 ft</span>
+              <div class="route-card-divider"></div>
+              <span class="t-instr-sm" style="color: var(--content-secondary);">Moderate</span>
+            </div>
+            <p class="t-body-md route-card-body">Scenic ridgeline route through the southern Appalachians. Rolling grades, sweeping views, minimal traffic.</p>
+            <div class="route-card-tags">
+              <span class="route-tag t-label-sm">Scenic</span>
+              <span class="route-tag t-label-sm">Low Traffic</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Minimal card — empty state context -->
+        <div class="ls-card" style="max-width: 320px; min-height: 64px;">
+          <p class="t-body-sm" style="color: var(--content-subtle);">Empty container — surface.card visible</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Dark theme</p>
+      <div class="card-stack">
+
+        <div class="ls-card" style="max-width: 320px;">
+          <div class="route-card-inner">
+            <div class="route-card-header">
+              <div>
+                <p class="t-title-md" style="color: var(--content-primary);">Blue Ridge Parkway</p>
+                <p class="t-body-sm" style="color: var(--content-tertiary); margin-top: var(--space-1);">Virginia · North Carolina</p>
+              </div>
+              <span class="t-instr-lg" style="color: var(--signal-default); flex-shrink: 0;">64<span class="t-body-sm" style="color: var(--content-tertiary);">mi</span></span>
+            </div>
+            <div class="route-card-meta">
+              <span class="t-instr-sm" style="color: var(--content-secondary);">4h 20m</span>
+              <div class="route-card-divider"></div>
+              <span class="t-instr-sm" style="color: var(--content-secondary);">+3,200 ft</span>
+              <div class="route-card-divider"></div>
+              <span class="t-instr-sm" style="color: var(--content-secondary);">Moderate</span>
+            </div>
+            <p class="t-body-md route-card-body">Scenic ridgeline route through the southern Appalachians. Rolling grades, sweeping views, minimal traffic.</p>
+            <div class="route-card-tags">
+              <span class="route-tag t-label-sm">Scenic</span>
+              <span class="route-tag t-label-sm">Low Traffic</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ls-card" style="max-width: 320px; min-height: 64px;">
+          <p class="t-body-sm" style="color: var(--content-subtle);">Empty container — surface.card visible</p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- §02 Padding variants -->
+<section class="section">
+  <div class="section-label">Padding Variants</div>
+  <div class="two-up-wrap">
+
+    <!-- Light -->
+    <div class="theme-pane">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Light theme</p>
+      <div class="card-stack">
+
+        <!-- padding-sm: space-4 -->
+        <div>
+          <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-3);">sm — space-4 (12px)</p>
+          <div class="ls-card ls-card--sm" style="max-width: 320px;">
+            <div class="route-card-inner">
+              <div class="route-card-header">
+                <p class="t-title-sm" style="color: var(--content-primary);">Skyline Drive</p>
+                <span class="t-instr-md" style="color: var(--signal-default);">105<span class="t-body-sm" style="color: var(--content-tertiary);">mi</span></span>
+              </div>
+              <p class="t-body-sm route-card-body">Full corridor, Shenandoah Valley.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- padding-md: space-5 (default) -->
+        <div>
+          <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-3);">md — space-5 (16px) · default</p>
+          <div class="ls-card" style="max-width: 320px;">
+            <div class="route-card-inner">
+              <div class="route-card-header">
+                <p class="t-title-sm" style="color: var(--content-primary);">Skyline Drive</p>
+                <span class="t-instr-md" style="color: var(--signal-default);">105<span class="t-body-sm" style="color: var(--content-tertiary);">mi</span></span>
+              </div>
+              <p class="t-body-sm route-card-body">Full corridor, Shenandoah Valley.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- padding-lg: space-7 -->
+        <div>
+          <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-3);">lg — space-7 (24px)</p>
+          <div class="ls-card ls-card--lg" style="max-width: 320px;">
+            <div class="route-card-inner">
+              <div class="route-card-header">
+                <p class="t-title-sm" style="color: var(--content-primary);">Skyline Drive</p>
+                <span class="t-instr-md" style="color: var(--signal-default);">105<span class="t-body-sm" style="color: var(--content-tertiary);">mi</span></span>
+              </div>
+              <p class="t-body-sm route-card-body">Full corridor, Shenandoah Valley.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Dark theme</p>
+      <div class="card-stack">
+
+        <div>
+          <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-3);">sm — space-4 (12px)</p>
+          <div class="ls-card ls-card--sm" style="max-width: 320px;">
+            <div class="route-card-inner">
+              <div class="route-card-header">
+                <p class="t-title-sm" style="color: var(--content-primary);">Skyline Drive</p>
+                <span class="t-instr-md" style="color: var(--signal-default);">105<span class="t-body-sm" style="color: var(--content-tertiary);">mi</span></span>
+              </div>
+              <p class="t-body-sm route-card-body">Full corridor, Shenandoah Valley.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-3);">md — space-5 (16px) · default</p>
+          <div class="ls-card" style="max-width: 320px;">
+            <div class="route-card-inner">
+              <div class="route-card-header">
+                <p class="t-title-sm" style="color: var(--content-primary);">Skyline Drive</p>
+                <span class="t-instr-md" style="color: var(--signal-default);">105<span class="t-body-sm" style="color: var(--content-tertiary);">mi</span></span>
+              </div>
+              <p class="t-body-sm route-card-body">Full corridor, Shenandoah Valley.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-3);">lg — space-7 (24px)</p>
+          <div class="ls-card ls-card--lg" style="max-width: 320px;">
+            <div class="route-card-inner">
+              <div class="route-card-header">
+                <p class="t-title-sm" style="color: var(--content-primary);">Skyline Drive</p>
+                <span class="t-instr-md" style="color: var(--signal-default);">105<span class="t-body-sm" style="color: var(--content-tertiary);">mi</span></span>
+              </div>
+              <p class="t-body-sm route-card-body">Full corridor, Shenandoah Valley.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- §03 Nested with LSPanel inset block -->
+<section class="section">
+  <div class="section-label">Card with Inset Detail Block</div>
+  <div class="two-up-wrap">
+
+    <!-- Light -->
+    <div class="theme-pane">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Light theme</p>
+      <div class="ls-card" style="max-width: 320px;">
+        <div class="route-card-inner">
+          <div class="route-card-header">
+            <div>
+              <p class="t-title-md" style="color: var(--content-primary);">Today's Ride</p>
+              <p class="t-body-sm" style="color: var(--content-tertiary); margin-top: var(--space-1);">Session · In Progress</p>
+            </div>
+            <span class="t-instr-md" style="color: var(--signal-default);">00:42:17</span>
+          </div>
+          <!-- Inset block using surface-inset -->
+          <div class="route-card-inset">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span class="t-label-sm" style="color: var(--content-tertiary);">Distance</span>
+              <span class="t-instr-md" style="color: var(--content-primary);">18.4 mi</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span class="t-label-sm" style="color: var(--content-tertiary);">Elevation</span>
+              <span class="t-instr-md" style="color: var(--content-primary);">+840 ft</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span class="t-label-sm" style="color: var(--content-tertiary);">Avg Speed</span>
+              <span class="t-instr-md" style="color: var(--content-primary);">26.3 mph</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark">
+      <p class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Dark theme</p>
+      <div class="ls-card" style="max-width: 320px;">
+        <div class="route-card-inner">
+          <div class="route-card-header">
+            <div>
+              <p class="t-title-md" style="color: var(--content-primary);">Today's Ride</p>
+              <p class="t-body-sm" style="color: var(--content-tertiary); margin-top: var(--space-1);">Session · In Progress</p>
+            </div>
+            <span class="t-instr-md" style="color: var(--signal-default);">00:42:17</span>
+          </div>
+          <div class="route-card-inset">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span class="t-label-sm" style="color: var(--content-tertiary);">Distance</span>
+              <span class="t-instr-md" style="color: var(--content-primary);">18.4 mi</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span class="t-label-sm" style="color: var(--content-tertiary);">Elevation</span>
+              <span class="t-instr-md" style="color: var(--content-primary);">+840 ft</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span class="t-label-sm" style="color: var(--content-tertiary);">Avg Speed</span>
+              <span class="t-instr-md" style="color: var(--content-primary);">26.3 mph</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>
