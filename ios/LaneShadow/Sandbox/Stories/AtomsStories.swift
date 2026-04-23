@@ -72,10 +72,8 @@ import SwiftUI
  */
 @MainActor
 enum AtomsStories {
-    static let baseStories: [Story] = LSIconStories.all + LSTextStories.all + [
+    static let all: [Story] = LSIconStories.all + LSTextStories.all + [
         // Sprint 2: Add atom stories here following the pattern above
         // Note: Avatar stories will be added once Avatar.swift is added to Xcode project
     ]
-
-    static let all: [Story] = baseStories + LSButtonStories.all
 }

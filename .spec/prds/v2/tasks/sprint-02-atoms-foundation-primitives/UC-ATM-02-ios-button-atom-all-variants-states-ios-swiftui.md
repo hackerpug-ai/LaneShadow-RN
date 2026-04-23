@@ -13,7 +13,7 @@ AGENT:      implementer=swift-implementer | reviewer=swift-reviewer
 ESTIMATE:   240 min
 
 RUNTIME_COMMANDS:
-  test:      cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests
+  test:      cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests
   typecheck: cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO SWIFT_COMPILATION_MODE=incremental build
   lint:      swiftformat --lint ios/LaneShadow/
 
@@ -66,7 +66,7 @@ AC-1: LSButton .primary variant resolves color.action.primary tokens [PRIMARY]
   TDD_STATE:     none
   TEST_FILE:     ios/LaneShadowTests/Atoms/LSButtonTests.swift
   TEST_FUNCTION: test_primary_variant_resolves_action_primary_tokens
-  VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_primary_variant_resolves_action_primary_tokens
+  VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests/test_primary_variant_resolves_action_primary_tokens
 
 AC-2: Pressed state shifts to color.action.primary.pressed
   GIVEN: An LSButton(.primary) rendered
@@ -75,7 +75,7 @@ AC-2: Pressed state shifts to color.action.primary.pressed
   TDD_STATE:     none
   TEST_FILE:     ios/LaneShadowTests/Atoms/LSButtonTests.swift
   TEST_FUNCTION: test_primary_pressed_state_resolves_pressed_token
-  VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_primary_pressed_state_resolves_pressed_token
+  VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests/test_primary_pressed_state_resolves_pressed_token
 
 AC-3: Disabled state suppresses interaction and resolves disabled tokens
   GIVEN: `LSButton(title:..., variant:.primary, isDisabled: true, action:{})`
@@ -84,7 +84,7 @@ AC-3: Disabled state suppresses interaction and resolves disabled tokens
   TDD_STATE:     none
   TEST_FILE:     ios/LaneShadowTests/Atoms/LSButtonTests.swift
   TEST_FUNCTION: test_disabled_state_suppresses_action_and_resolves_disabled_tokens
-  VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_disabled_state_suppresses_action_and_resolves_disabled_tokens
+  VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests/test_disabled_state_suppresses_action_and_resolves_disabled_tokens
 
 AC-4: Outline + leading icon "NEW" chip variant renders correctly (edge — composition)
   GIVEN: `LSButton(title: "NEW", variant: .outline, leadingIcon: .sparkle, action:{})`
@@ -93,7 +93,7 @@ AC-4: Outline + leading icon "NEW" chip variant renders correctly (edge — comp
   TDD_STATE:     none
   TEST_FILE:     ios/LaneShadowTests/Atoms/LSButtonTests.swift
   TEST_FUNCTION: test_outline_variant_with_leading_icon_renders_chip_layout
-  VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_outline_variant_with_leading_icon_renders_chip_layout
+  VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests/test_outline_variant_with_leading_icon_renders_chip_layout
 
 AC-5: All 6 sandbox stories registered with id atoms.button.{variant}
   GIVEN: `ios/LaneShadow/Sandbox/Stories/LSButtonStories.swift`
@@ -111,7 +111,7 @@ AC-6: Minimum 44×44pt touch target enforced on every size (accessibility — ed
   TDD_STATE:     none
   TEST_FILE:     ios/LaneShadowTests/Atoms/LSButtonTests.swift
   TEST_FUNCTION: test_minimum_touch_target_44pt_on_smallest_size
-  VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_minimum_touch_target_44pt_on_smallest_size
+  VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests/test_minimum_touch_target_44pt_on_smallest_size
 
 AC-7: Action callback fires exactly once per press (behavior — edge)
   GIVEN: An LSButton with action incrementing a counter
@@ -120,7 +120,7 @@ AC-7: Action callback fires exactly once per press (behavior — edge)
   TDD_STATE:     none
   TEST_FILE:     ios/LaneShadowTests/Atoms/LSButtonTests.swift
   TEST_FUNCTION: test_action_fires_exactly_once_per_press
-  VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_action_fires_exactly_once_per_press
+  VERIFY:        cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests/test_action_fires_exactly_once_per_press
 
 AC-8: No literal Color references in LSButton.swift (error gate — boundary)
   GIVEN: ios/LaneShadow/Views/Atoms/LSButton.swift
@@ -236,7 +236,7 @@ EVIDENCE GATES (fast/cheap first)
 
 Gate 1: RED phase evidence (TDD_STATE shows red before green per AC).
 Gate 2: One test per behavioral AC (AC-1..AC-4, AC-6, AC-7 = test functions; AC-5, AC-8, AC-9 = grep gates).
-Gate 3: All XCTest pass — `cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests` exits 0.
+Gate 3: All XCTest pass — `cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests` exits 0.
 Gate 4: Swift build green — `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build` exits 0.
 Gate 5: swiftformat clean — `swiftformat --lint ios/LaneShadow/` exits 0.
 Gate 6: No literal colors — `! grep -REn 'Color\(|Color\.(red|blue|green|black|white|gray|orange|yellow|purple|pink)|#[0-9a-fA-F]{6}' ios/LaneShadow/Views/Atoms/LSButton.swift` returns zero.
@@ -294,22 +294,22 @@ Parallel:   UC-ATM-02-android (Android pair), UC-ATM-03-ios (inputs), UC-ATM-04-
 <!--
 {
   "requirements": [
-    { "id": "AC-1", "type": "acceptance_criterion", "description": "GIVEN iOS view WHEN LSButton .primary rendered THEN background=color.action.primary.background, foreground=color.action.primary.foreground, radius=radius.md, typography=typography.ui.label.md", "verify": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_primary_variant_resolves_action_primary_tokens" },
-    { "id": "AC-2", "type": "acceptance_criterion", "description": "GIVEN LSButton .primary WHEN pressed THEN background=color.action.primary.pressed", "verify": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_primary_pressed_state_resolves_pressed_token" },
-    { "id": "AC-3", "type": "acceptance_criterion", "description": "GIVEN LSButton isDisabled=true WHEN tapped THEN action NOT fired AND background+foreground=color.action.primary.disabled.*", "verify": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_disabled_state_suppresses_action_and_resolves_disabled_tokens" },
-    { "id": "AC-4", "type": "acceptance_criterion", "description": "GIVEN LSButton .outline + leadingIcon WHEN rendered THEN 1pt color.border.default border, transparent bg, foreground=color.content.primary, icon=sizing.icon.sm, spacing=spacing.2", "verify": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_outline_variant_with_leading_icon_renders_chip_layout" },
+    { "id": "AC-1", "type": "acceptance_criterion", "description": "GIVEN iOS view WHEN LSButton .primary rendered THEN background=color.action.primary.background, foreground=color.action.primary.foreground, radius=radius.md, typography=typography.ui.label.md", "verify": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests/test_primary_variant_resolves_action_primary_tokens" },
+    { "id": "AC-2", "type": "acceptance_criterion", "description": "GIVEN LSButton .primary WHEN pressed THEN background=color.action.primary.pressed", "verify": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests/test_primary_pressed_state_resolves_pressed_token" },
+    { "id": "AC-3", "type": "acceptance_criterion", "description": "GIVEN LSButton isDisabled=true WHEN tapped THEN action NOT fired AND background+foreground=color.action.primary.disabled.*", "verify": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests/test_disabled_state_suppresses_action_and_resolves_disabled_tokens" },
+    { "id": "AC-4", "type": "acceptance_criterion", "description": "GIVEN LSButton .outline + leadingIcon WHEN rendered THEN 1pt color.border.default border, transparent bg, foreground=color.content.primary, icon=sizing.icon.sm, spacing=spacing.2", "verify": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests/test_outline_variant_with_leading_icon_renders_chip_layout" },
     { "id": "AC-5", "type": "acceptance_criterion", "description": "GIVEN LSButtonStories.swift WHEN composed THEN 6 stories atoms.button.{primary|secondary|ghost|accept|destructive|outline} registered + aggregated", "verify": "for v in primary secondary ghost accept destructive outline; do grep -q \"atoms.button.$v\" ios/LaneShadow/Sandbox/Stories/LSButtonStories.swift || exit 1; done && grep -q 'LSButtonStories' ios/LaneShadow/Sandbox/LaneShadowStories.swift" },
-    { "id": "AC-6", "type": "acceptance_criterion", "description": "GIVEN LSButton size=.sm WHEN rendered THEN hit-test frame >= 44x44pt", "verify": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_minimum_touch_target_44pt_on_smallest_size" },
-    { "id": "AC-7", "type": "acceptance_criterion", "description": "GIVEN LSButton with action WHEN single tap THEN action fires exactly once", "verify": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_action_fires_exactly_once_per_press" },
+    { "id": "AC-6", "type": "acceptance_criterion", "description": "GIVEN LSButton size=.sm WHEN rendered THEN hit-test frame >= 44x44pt", "verify": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests/test_minimum_touch_target_44pt_on_smallest_size" },
+    { "id": "AC-7", "type": "acceptance_criterion", "description": "GIVEN LSButton with action WHEN single tap THEN action fires exactly once", "verify": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests/test_action_fires_exactly_once_per_press" },
     { "id": "AC-8", "type": "acceptance_criterion", "description": "GIVEN LSButton.swift WHEN grep'd THEN zero literal Color references", "verify": "! grep -REn 'Color\\(|Color\\.(red|blue|green|black|white|gray|orange|yellow|purple|pink)|#[0-9a-fA-F]{6}' ios/LaneShadow/Views/Atoms/LSButton.swift" },
     { "id": "AC-9", "type": "acceptance_criterion", "description": "GIVEN LSButton.swift WHEN grep'd THEN zero Image(systemName:) references", "verify": "! grep -REn 'Image\\(systemName:' ios/LaneShadow/Views/Atoms/LSButton.swift" },
-    { "id": "TC-1", "type": "test_criterion", "description": "Primary variant token resolution", "maps_to_ac": "AC-1", "verify": "cd ios && xcodebuild test -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_primary_variant_resolves_action_primary_tokens" },
-    { "id": "TC-2", "type": "test_criterion", "description": "Pressed state token resolution", "maps_to_ac": "AC-2", "verify": "cd ios && xcodebuild test -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_primary_pressed_state_resolves_pressed_token" },
-    { "id": "TC-3", "type": "test_criterion", "description": "Disabled suppresses action + resolves disabled tokens", "maps_to_ac": "AC-3", "verify": "cd ios && xcodebuild test -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_disabled_state_suppresses_action_and_resolves_disabled_tokens" },
-    { "id": "TC-4", "type": "test_criterion", "description": "Outline + icon chip layout", "maps_to_ac": "AC-4", "verify": "cd ios && xcodebuild test -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_outline_variant_with_leading_icon_renders_chip_layout" },
+    { "id": "TC-1", "type": "test_criterion", "description": "Primary variant token resolution", "maps_to_ac": "AC-1", "verify": "cd ios && xcodebuild test -only-testing:LaneShadowTests/LSButtonTests/test_primary_variant_resolves_action_primary_tokens" },
+    { "id": "TC-2", "type": "test_criterion", "description": "Pressed state token resolution", "maps_to_ac": "AC-2", "verify": "cd ios && xcodebuild test -only-testing:LaneShadowTests/LSButtonTests/test_primary_pressed_state_resolves_pressed_token" },
+    { "id": "TC-3", "type": "test_criterion", "description": "Disabled suppresses action + resolves disabled tokens", "maps_to_ac": "AC-3", "verify": "cd ios && xcodebuild test -only-testing:LaneShadowTests/LSButtonTests/test_disabled_state_suppresses_action_and_resolves_disabled_tokens" },
+    { "id": "TC-4", "type": "test_criterion", "description": "Outline + icon chip layout", "maps_to_ac": "AC-4", "verify": "cd ios && xcodebuild test -only-testing:LaneShadowTests/LSButtonTests/test_outline_variant_with_leading_icon_renders_chip_layout" },
     { "id": "TC-5", "type": "test_criterion", "description": "6 variant stories registered", "maps_to_ac": "AC-5", "verify": "for v in primary secondary ghost accept destructive outline; do grep -q \"atoms.button.$v\" ios/LaneShadow/Sandbox/Stories/LSButtonStories.swift || exit 1; done" },
-    { "id": "TC-6", "type": "test_criterion", "description": "Touch target >= 44x44pt", "maps_to_ac": "AC-6", "verify": "cd ios && xcodebuild test -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_minimum_touch_target_44pt_on_smallest_size" },
-    { "id": "TC-7", "type": "test_criterion", "description": "Action fires once per tap", "maps_to_ac": "AC-7", "verify": "cd ios && xcodebuild test -only-testing:LaneShadowTests/Atoms/LSButtonTests/test_action_fires_exactly_once_per_press" },
+    { "id": "TC-6", "type": "test_criterion", "description": "Touch target >= 44x44pt", "maps_to_ac": "AC-6", "verify": "cd ios && xcodebuild test -only-testing:LaneShadowTests/LSButtonTests/test_minimum_touch_target_44pt_on_smallest_size" },
+    { "id": "TC-7", "type": "test_criterion", "description": "Action fires once per tap", "maps_to_ac": "AC-7", "verify": "cd ios && xcodebuild test -only-testing:LaneShadowTests/LSButtonTests/test_action_fires_exactly_once_per_press" },
     { "id": "TC-8", "type": "test_criterion", "description": "No literal colors in LSButton.swift", "maps_to_ac": "AC-8", "verify": "! grep -REn 'Color\\(|Color\\.(red|blue|green|black|white|gray|orange|yellow|purple|pink)|#[0-9a-fA-F]{6}' ios/LaneShadow/Views/Atoms/LSButton.swift" },
     { "id": "TC-9", "type": "test_criterion", "description": "No SF Symbols in LSButton.swift", "maps_to_ac": "AC-9", "verify": "! grep -REn 'Image\\(systemName:' ios/LaneShadow/Views/Atoms/LSButton.swift" }
   ]
