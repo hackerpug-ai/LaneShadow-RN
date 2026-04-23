@@ -125,6 +125,7 @@ targets:
       - path: LaneShadow/Sandbox/LaneShadowStories.swift
       - path: LaneShadow/Sandbox/Stories/AtomsStories.swift
       - path: LaneShadow/Sandbox/Stories/LSButtonStories.swift
+      - path: LaneShadow/Sandbox/Stories/LSDisplayStories.swift
       - path: LaneShadow/Sandbox/Stories/LSInputStories.swift
       - path: LaneShadow/Sandbox/Stories/LSIconStories.swift
       - path: LaneShadow/Sandbox/Stories/LSPillStories.swift

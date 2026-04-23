@@ -58,7 +58,7 @@ enum LaneShadowStories {
             ElevationStory()
         },
 
-    ] + AtomsStories.all + LSButtonStories.all + LSInputStories.all
+    ] + AtomsStories.all + LSDisplayStories.all + LSButtonStories.all + LSInputStories.all
 }
 
 // MARK: - Color Swatch Story
