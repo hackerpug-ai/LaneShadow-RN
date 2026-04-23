@@ -20,7 +20,10 @@ final class LSButtonTests: XCTestCase {
         let theme = Theme.shared
         let tokens = LSButtonStyle.tokens(for: .primary, state: .pressed, in: theme)
 
-        XCTAssertEqual(tokens.background, theme.colors.accent.pressed ?? theme.colors.primary.default)
+        XCTAssertEqual(
+            tokens.background,
+            theme.colors.primary.pressed ?? theme.colors.accent.pressed ?? theme.colors.primary.default
+        )
     }
 
     func test_all_six_variants_resolve_distinct_button_tokens() {
@@ -90,8 +93,14 @@ final class LSButtonTests: XCTestCase {
             actionCount += 1
         }
 
-        XCTAssertEqual(tokens.background, theme.colors.primary.default.opacity(theme.opacity.disabled))
-        XCTAssertEqual(tokens.foreground, theme.colors.onPrimary.default.opacity(theme.opacity.disabled))
+        XCTAssertEqual(
+            tokens.background,
+            theme.colors.primary.disabled ?? theme.colors.secondaryContainer.default
+        )
+        XCTAssertEqual(
+            tokens.foreground,
+            theme.colors.onPrimary.disabled ?? theme.colors.onPrimary.default.opacity(theme.opacity.disabled)
+        )
         XCTAssertEqual(actionCount, 0)
     }
 
@@ -105,6 +114,9 @@ final class LSButtonTests: XCTestCase {
         XCTAssertEqual(tokens.foreground, theme.colors.onSurface.default)
         XCTAssertEqual(LSButtonStyle.iconSize(for: .sm, in: theme), theme.iconSize.small)
         XCTAssertEqual(LSButtonStyle.labelSpacing(in: theme), theme.space.sm)
+        XCTAssertEqual(LSButtonStyle.metrics(for: .sm, in: theme).horizontalPadding, theme.space.lg)
+        XCTAssertEqual(LSButtonStyle.metrics(for: .md, in: theme).horizontalPadding, theme.space.lg)
+        XCTAssertEqual(LSButtonStyle.metrics(for: .lg, in: theme).horizontalPadding, theme.space.lg)
         XCTAssertNotNil(LSButton(title: "NEW", variant: .outline, leadingIcon: .sparkle, action: {}))
     }
 

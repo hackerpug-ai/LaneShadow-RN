@@ -2,6 +2,17 @@ import LaneShadowTheme
 import NativeTheme
 import SwiftUI
 
+private struct LSButtonForegroundColorKey: EnvironmentKey {
+    static let defaultValue: Color = Theme.shared.colors.onSurface.default
+}
+
+public extension EnvironmentValues {
+    var lsButtonForegroundColor: Color {
+        get { self[LSButtonForegroundColorKey.self] }
+        set { self[LSButtonForegroundColorKey.self] = newValue }
+    }
+}
+
 public enum LSButtonInteractionState: Hashable, Sendable {
     case `default`
     case pressed
@@ -43,7 +54,7 @@ public struct LSButtonStyle: ButtonStyle {
 
         configuration.label
             .font(Self.typography(for: size, in: theme).font)
-            .foregroundStyle(tokens.foreground)
+            .environment(\.lsButtonForegroundColor, tokens.foreground)
             .background(
                 RoundedRectangle(cornerRadius: radius, style: .continuous)
                     .fill(tokens.background)
@@ -82,19 +93,10 @@ public struct LSButtonStyle: ButtonStyle {
     }
 
     public static func metrics(for size: LSButtonSize, in theme: Theme) -> LSButtonMetrics {
-        let horizontalPadding: CGFloat = switch size {
-        case .sm:
-            theme.space.md
-        case .md:
-            theme.space.lg
-        case .lg:
-            theme.space.xl
-        }
-
-        return LSButtonMetrics(
+        LSButtonMetrics(
             minWidth: theme.touchTarget.minTouchTarget,
             minHeight: theme.control.minHeight,
-            horizontalPadding: horizontalPadding
+            horizontalPadding: theme.space.lg
         )
     }
 
@@ -141,12 +143,14 @@ public struct LSButtonStyle: ButtonStyle {
     private static func pressedTokens(
         for variant: LSButtonVariant,
         in theme: Theme,
-        fallback: LSButtonResolvedTokens
+        fallback _: LSButtonResolvedTokens
     ) -> LSButtonResolvedTokens {
         switch variant {
         case .primary:
             filled(
-                background: theme.colors.accent.pressed ?? theme.colors.primary.default,
+                background: theme.colors.primary.pressed
+                    ?? theme.colors.accent.pressed
+                    ?? theme.colors.primary.default,
                 foreground: theme.colors.onPrimary.default,
                 in: theme
             )
@@ -182,24 +186,54 @@ public struct LSButtonStyle: ButtonStyle {
     private static func disabledTokens(
         for variant: LSButtonVariant,
         in theme: Theme,
-        fallback: LSButtonResolvedTokens
+        fallback _: LSButtonResolvedTokens
     ) -> LSButtonResolvedTokens {
         switch variant {
-        case .ghost, .outline:
-            LSButtonResolvedTokens(
-                background: fallback.background,
-                foreground: fallback.foreground.opacity(theme.opacity.disabled),
-                border: fallback.border.opacity(theme.opacity.disabled),
-                borderWidth: fallback.borderWidth,
-                opacity: theme.opacity.disabled
+        case .primary:
+            filled(
+                background: theme.colors.primary.disabled ?? theme.colors.secondaryContainer.default,
+                foreground: theme.colors.onPrimary.disabled
+                    ?? theme.colors.onPrimary.default.opacity(theme.opacity.disabled),
+                in: theme
             )
-        case .primary, .secondary, .accept, .destructive:
+        case .secondary:
+            bordered(
+                background: theme.colors.secondary.disabled ?? theme.colors.muted.default,
+                foreground: theme.colors.onSurface.disabled
+                    ?? theme.colors.onSurface.default.opacity(theme.opacity.disabled),
+                in: theme
+            )
+        case .ghost:
+            unbordered(
+                background: transparent(in: theme),
+                foreground: theme.colors.onSurface.disabled
+                    ?? theme.colors.onSurface.default.opacity(theme.opacity.disabled),
+                in: theme
+            )
+        case .accept:
+            filled(
+                background: theme.colors.success.disabled
+                    ?? theme.colors.success.default.opacity(theme.opacity.container),
+                foreground: theme.colors.onPrimary.disabled
+                    ?? theme.colors.onPrimary.default.opacity(theme.opacity.disabled),
+                in: theme
+            )
+        case .destructive:
+            filled(
+                background: theme.colors.danger.disabled
+                    ?? theme.colors.danger.default.opacity(theme.opacity.container),
+                foreground: theme.colors.onPrimary.disabled
+                    ?? theme.colors.onPrimary.default.opacity(theme.opacity.disabled),
+                in: theme
+            )
+        case .outline:
             LSButtonResolvedTokens(
-                background: fallback.background.opacity(theme.opacity.disabled),
-                foreground: fallback.foreground.opacity(theme.opacity.disabled),
-                border: fallback.border.opacity(theme.opacity.disabled),
-                borderWidth: fallback.borderWidth,
-                opacity: theme.opacity.disabled
+                background: transparent(in: theme),
+                foreground: theme.colors.onSurface.disabled
+                    ?? theme.colors.onSurface.default.opacity(theme.opacity.disabled),
+                border: theme.colors.border.disabled ?? theme.colors.border.default.opacity(theme.opacity.disabled),
+                borderWidth: theme.borderWidth.thin,
+                opacity: 1
             )
         }
     }
