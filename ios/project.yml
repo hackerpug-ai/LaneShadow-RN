@@ -130,6 +130,7 @@ targets:
       - path: LaneShadow/Sandbox/Stories/LSIconStories.swift
       - path: LaneShadow/Sandbox/Stories/LSPillStories.swift
       - path: LaneShadow/Sandbox/Stories/LSScrimStories.swift
+      - path: LaneShadow/Sandbox/Stories/LSPhaseDotStories.swift
       - path: LaneShadow/Sandbox/Stories/LSTextStories.swift
       - path: LaneShadow/Sandbox/Stories/MoleculesStories.swift
       - path: LaneShadow/Views/Atoms

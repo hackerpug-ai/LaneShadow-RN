@@ -58,7 +58,8 @@ enum LaneShadowStories {
             ElevationStory()
         },
 
-    ] + AtomsStories.all + LSDisplayStories.all + LSButtonStories.all + LSInputStories.all + LSScrimStories.all + LSPhaseDotStories.all
+    ] + AtomsStories.all + LSDisplayStories.all + LSButtonStories.all + LSInputStories.all + LSScrimStories
+        .all + LSPhaseDotStories.all
 }
 
 @MainActor
