@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<!-- empty-state.html — Molecule · LSEmptyState
+     LaneShadow V2 Copper · Authority: uc-mol-04-formfield-tabitem-emptystate.html
+     Class prefix: .mol-empty-state -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Molecule · empty-state — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+
+/* ─── TOKEN GAPS ──────────────────────────────────────────────────────────
+   TOKEN_GAP: --size-empty-icon-slot := 64px
+     reason: The framed icon slot (64×64px) is not a named sizing token.
+     Using explicit custom property; value derived from concept annotations.
+   TOKEN_GAP: --size-empty-illustration := 80px
+     reason: Illustration frame (80×80px) is also undeclared. Both defined
+     as local properties since they are molecule-specific layout values.
+   ────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --mol-empty-icon-slot-size: 64px;
+  --mol-empty-illustration-size: 80px;
+}
+
+/* ─── MOL-EMPTY-STATE ────────────────────────────────────────────────────
+   Composes:
+     .ls-btn (UC-ATM-02) — primary / ghost / outline action buttons
+   Internal anatomy:
+     [icon-slot | illustration] → [headline] → [body] → [action row?]
+   Variants by semantic intent:
+     .mol-empty-state--search   (no results — search/filter)
+     .mol-empty-state--first-time (onboarding — no data yet)
+     .mol-empty-state--error    (connection / sync failure)
+     .mol-empty-state--success  (completion / all done)
+   All variants share the same layout; semantic classes only affect
+   the illustration ring color.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.mol-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--space-4);
+  padding: var(--space-9);
+}
+
+/* ── Icon slot (framed icon, no illustration image) ────────────── */
+.mol-empty-state__icon-slot {
+  width: var(--mol-empty-icon-slot-size);
+  height: var(--mol-empty-icon-slot-size);
+  border-radius: var(--radius-lg);
+  background: var(--surface-inset);
+  border: var(--stroke-md) solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mol-empty-state__icon {
+  width: var(--icon-xl);
+  height: var(--icon-xl);
+  fill: none;
+  stroke: var(--content-subtle);
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Illustration frame (richer image / graphic) ───────────────── */
+.mol-empty-state__illustration {
+  width: var(--mol-empty-illustration-size);
+  height: var(--mol-empty-illustration-size);
+  border-radius: var(--radius-xl);
+  background: var(--surface-inset);
+  border: var(--stroke-md) solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* ── Text slots ────────────────────────────────────────────────── */
+.mol-empty-state__headline {
+  color: var(--content-primary);
+  max-width: 240px;
+}
+
+.mol-empty-state__body {
+  color: var(--content-secondary);
+  max-width: 260px;
+}
+
+/* ── Action row ────────────────────────────────────────────────── */
+.mol-empty-state__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-1);
+}
+
+/* ── Semantic ring overrides ────────────────────────────────────── */
+.mol-empty-state--error .mol-empty-state__icon-slot,
+.mol-empty-state--error .mol-empty-state__illustration {
+  border-color: color-mix(in srgb, var(--status-error) 30%, var(--border-default));
+  background: color-mix(in srgb, var(--status-error) 6%, var(--surface-inset));
+}
+
+.mol-empty-state--error .mol-empty-state__icon {
+  stroke: var(--status-error);
+  opacity: var(--opacity-dim);
+}
+
+.mol-empty-state--success .mol-empty-state__icon-slot,
+.mol-empty-state--success .mol-empty-state__illustration {
+  border-color: color-mix(in srgb, var(--status-success) 30%, var(--border-default));
+  background: color-mix(in srgb, var(--status-success) 6%, var(--surface-inset));
+}
+
+.mol-empty-state--success .mol-empty-state__icon {
+  stroke: var(--status-success);
+  opacity: var(--opacity-dim);
+}
+
+.mol-empty-state--first-time .mol-empty-state__icon-slot {
+  border-color: var(--signal-tint);
+  background: var(--signal-whisper);
+}
+
+.mol-empty-state--first-time .mol-empty-state__icon {
+  stroke: var(--signal-default);
+  opacity: var(--opacity-dim);
+}
+
+/* ── Card wrapper for standalone use ────────────────────────────── */
+.mol-empty-card {
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-card);
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1>LSEmptyState — <em>Molecule</em></h1>
+  <div class="subtitle">UC-MOL-04 · empty-state · LaneShadow V2 Copper</div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SEARCH / NO RESULTS
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Search — No Routes Found</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div class="mol-empty-card">
+        <div class="mol-empty-state mol-empty-state--search">
+          <div class="mol-empty-state__icon-slot" role="img" aria-label="No results">
+            <svg class="mol-empty-state__icon" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+              <line x1="8" y1="11" x2="14" y2="11"/>
+            </svg>
+          </div>
+          <p class="mol-empty-state__headline t-title-md">No routes found</p>
+          <p class="mol-empty-state__body t-body-md">Try adjusting your filters or search area. The Wasatch Front has 200+ indexed routes — a wider radius usually helps.</p>
+          <div class="mol-empty-state__actions">
+            <button class="ls-btn ls-btn--ghost">Clear Filters</button>
+            <button class="ls-btn ls-btn--primary">Search Nearby</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div class="mol-empty-card">
+        <div class="mol-empty-state mol-empty-state--search">
+          <div class="mol-empty-state__icon-slot" role="img" aria-label="No results">
+            <svg class="mol-empty-state__icon" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+              <line x1="8" y1="11" x2="14" y2="11"/>
+            </svg>
+          </div>
+          <p class="mol-empty-state__headline t-title-md">No routes found</p>
+          <p class="mol-empty-state__body t-body-md">Try adjusting your filters or search area. The Wasatch Front has 200+ indexed routes — a wider radius usually helps.</p>
+          <div class="mol-empty-state__actions">
+            <button class="ls-btn ls-btn--ghost">Clear Filters</button>
+            <button class="ls-btn ls-btn--primary">Search Nearby</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     FIRST-TIME (no rides yet — onboarding)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">First-Time — No Rides Yet</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div class="mol-empty-card">
+        <div class="mol-empty-state mol-empty-state--first-time">
+          <div class="mol-empty-state__icon-slot" role="img" aria-label="No rides yet">
+            <svg class="mol-empty-state__icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <p class="mol-empty-state__headline t-title-md">No rides yet</p>
+          <p class="mol-empty-state__body t-body-md">Record your first ride to see it here. Head out, tap Record, and let LaneShadow log the adventure across Salt Lake Valley.</p>
+          <div class="mol-empty-state__actions">
+            <button class="ls-btn ls-btn--primary">Start a Ride</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div class="mol-empty-card">
+        <div class="mol-empty-state mol-empty-state--first-time">
+          <div class="mol-empty-state__icon-slot" role="img" aria-label="No rides yet">
+            <svg class="mol-empty-state__icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <p class="mol-empty-state__headline t-title-md">No rides yet</p>
+          <p class="mol-empty-state__body t-body-md">Record your first ride to see it here. Head out, tap Record, and let LaneShadow log the adventure across Salt Lake Valley.</p>
+          <div class="mol-empty-state__actions">
+            <button class="ls-btn ls-btn--primary">Start a Ride</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     ERROR — Connection Lost
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Error — Connection Lost</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div class="mol-empty-card">
+        <div class="mol-empty-state mol-empty-state--error">
+          <div class="mol-empty-state__illustration" role="img" aria-label="No internet connection">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
+                 stroke="var(--status-error)" stroke-width="1.5"
+                 stroke-linecap="round" stroke-linejoin="round"
+                 style="opacity:var(--opacity-dim)">
+              <line x1="1" y1="1" x2="23" y2="23"/>
+              <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.56 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+              <line x1="12" y1="20" x2="12.01" y2="20"/>
+            </svg>
+          </div>
+          <p class="mol-empty-state__headline t-title-md">You are offline</p>
+          <p class="mol-empty-state__body t-body-md">Connect to Wi-Fi or cellular data to access new routes and sync your rides. Downloaded regions of the Wasatch are still available.</p>
+          <div class="mol-empty-state__actions">
+            <button class="ls-btn ls-btn--outline">View Offline Maps</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div class="mol-empty-card">
+        <div class="mol-empty-state mol-empty-state--error">
+          <div class="mol-empty-state__illustration" role="img" aria-label="No internet connection">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
+                 stroke="var(--status-error)" stroke-width="1.5"
+                 stroke-linecap="round" stroke-linejoin="round"
+                 style="opacity:var(--opacity-dim)">
+              <line x1="1" y1="1" x2="23" y2="23"/>
+              <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.56 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+              <line x1="12" y1="20" x2="12.01" y2="20"/>
+            </svg>
+          </div>
+          <p class="mol-empty-state__headline t-title-md">You are offline</p>
+          <p class="mol-empty-state__body t-body-md">Connect to Wi-Fi or cellular data to access new routes and sync your rides. Downloaded regions of the Wasatch are still available.</p>
+          <div class="mol-empty-state__actions">
+            <button class="ls-btn ls-btn--outline">View Offline Maps</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SUCCESS — All Rides Synced
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Success — All Synced</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div class="mol-empty-card">
+        <div class="mol-empty-state mol-empty-state--success">
+          <div class="mol-empty-state__icon-slot" role="img" aria-label="All synced">
+            <svg class="mol-empty-state__icon" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <p class="mol-empty-state__headline t-title-md">All rides synced</p>
+          <p class="mol-empty-state__body t-body-md">Your 47 rides are up to date. Segments from Big Cottonwood Canyon to Antelope Island are ready to explore.</p>
+          <div class="mol-empty-state__actions">
+            <button class="ls-btn ls-btn--secondary">View All Rides</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div class="mol-empty-card">
+        <div class="mol-empty-state mol-empty-state--success">
+          <div class="mol-empty-state__icon-slot" role="img" aria-label="All synced">
+            <svg class="mol-empty-state__icon" viewBox="0 0 24 24">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <p class="mol-empty-state__headline t-title-md">All rides synced</p>
+          <p class="mol-empty-state__body t-body-md">Your 47 rides are up to date. Segments from Big Cottonwood Canyon to Antelope Island are ready to explore.</p>
+          <div class="mol-empty-state__actions">
+            <button class="ls-btn ls-btn--secondary">View All Rides</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     COMPACT / INLINE VARIANT (within a panel, no card wrapper)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Inline / No-Card Context</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div style="background:var(--surface-primary);border-radius:var(--radius-md);border:var(--stroke-sm) solid var(--border-subtle);padding:var(--space-4)">
+        <div class="t-label-md" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Recent Segments</div>
+        <div class="mol-empty-state mol-empty-state--search" style="padding:var(--space-7) var(--space-5)">
+          <div class="mol-empty-state__icon-slot">
+            <svg class="mol-empty-state__icon" viewBox="0 0 24 24">
+              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+              <line x1="8" y1="18" x2="21" y2="18"/>
+              <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+              <line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+          </div>
+          <p class="mol-empty-state__headline t-title-sm">No segments yet</p>
+          <p class="mol-empty-state__body t-body-md">Complete a route to unlock your first segment on the Cottonwood leaderboard.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div style="background:var(--surface-inset);border-radius:var(--radius-md);border:var(--stroke-sm) solid var(--border-subtle);padding:var(--space-4)">
+        <div class="t-label-md" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Recent Segments</div>
+        <div class="mol-empty-state mol-empty-state--search" style="padding:var(--space-7) var(--space-5)">
+          <div class="mol-empty-state__icon-slot">
+            <svg class="mol-empty-state__icon" viewBox="0 0 24 24">
+              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+              <line x1="8" y1="18" x2="21" y2="18"/>
+              <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+              <line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+          </div>
+          <p class="mol-empty-state__headline t-title-sm">No segments yet</p>
+          <p class="mol-empty-state__body t-body-md">Complete a route to unlock your first segment on the Cottonwood leaderboard.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

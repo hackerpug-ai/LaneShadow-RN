@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<!-- tab-item.html — Molecule · LSTabItem
+     LaneShadow V2 Copper · Authority: uc-mol-04-formfield-tabitem-emptystate.html
+     Class prefix: .mol-tab-item -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Molecule · tab-item — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+
+/* ─── TOKEN GAPS ──────────────────────────────────────────────────────────
+   TOKEN_GAP: --size-tab-bar := 56px
+     reason: Tab bar height matches sizing.component.xl (56px) but is not
+     exposed as a named token. Using --size-control-xl from tokens.css.
+   TOKEN_GAP: --size-tab-indicator-w := 24px
+     reason: Indicator pill width is a fixed 24px per concept; no sizing token
+     maps to this value. Defined locally as a custom property.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* ─── MOL-TAB-ITEM ───────────────────────────────────────────────────────
+   Composes:
+     .ls-icon / SVG atoms (UC-ATM-10) — icon strokes
+     .ls-badge-* (UC-ATM-07) — notification badge count
+   Provides three style variants:
+     .mol-tab-bar--underline  (default: 2px top indicator)
+     .mol-tab-bar--pill       (rounded chip selection highlight)
+     .mol-tab-bar--segmented  (full-width solid segment)
+   Each item: .mol-tab-item [+ .mol-tab-item--selected] [+ .mol-tab-item--disabled]
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Shared tab bar shell ─────────────────────────────────────────── */
+.mol-tab-bar {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  max-width: 380px;
+}
+
+/* ── Base item ────────────────────────────────────────────────────── */
+.mol-tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  position: relative;
+  padding: var(--space-2) var(--space-2);
+  cursor: pointer;
+  color: var(--content-tertiary);
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background var(--duration-fast) var(--ease-standard);
+  border: none;
+  background: transparent;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  min-height: var(--size-control-xl);
+}
+
+.mol-tab-item--selected {
+  color: var(--signal-default);
+}
+
+.mol-tab-item--disabled {
+  color: var(--content-subtle);
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Tab icon ─────────────────────────────────────────────────────── */
+.mol-tab-item__icon {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  position: relative;
+}
+
+/* ── Tab label ────────────────────────────────────────────────────── */
+.mol-tab-item__label {
+  /* uses .t-label-sm — applied in HTML */
+  color: inherit;
+}
+
+/* ── Badge slot (wraps icon) ──────────────────────────────────────── */
+.mol-tab-item__icon-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mol-tab-item__badge {
+  position: absolute;
+  top: calc(-1 * var(--space-1));
+  right: calc(-1 * var(--space-2));
+  min-width: var(--space-5);
+  height: var(--space-5);
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--status-error);
+  color: var(--content-on-signal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  border: var(--stroke-md) solid var(--surface-primary);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   VARIANT 1 — Underline (bottom-nav default)
+   Selected indicator: 2px bar at top of tab cell
+   ══════════════════════════════════════════════════════════════════ */
+.mol-tab-bar--underline {
+  background: var(--surface-card);
+  border-top: var(--stroke-sm) solid var(--border-default);
+}
+
+.mol-tab-bar--underline .mol-tab-item--selected::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: var(--stroke-lg);
+  background: var(--signal-default);
+  border-radius: 0 0 var(--radius-xs) var(--radius-xs);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   VARIANT 2 — Pill (top nav / in-page tabs)
+   Selected indicator: rounded pill background behind icon+label
+   ══════════════════════════════════════════════════════════════════ */
+.mol-tab-bar--pill {
+  background: var(--surface-inset);
+  border-radius: var(--radius-pill);
+  padding: var(--space-1);
+  gap: var(--space-1);
+}
+
+.mol-tab-bar--pill .mol-tab-item {
+  border-radius: var(--radius-pill);
+  min-height: var(--size-control-lg);
+  flex-direction: row;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+}
+
+.mol-tab-bar--pill .mol-tab-item--selected {
+  background: var(--surface-card);
+  box-shadow: var(--elev-card);
+  color: var(--signal-default);
+}
+
+/* Pill variant: icon smaller */
+.mol-tab-bar--pill .mol-tab-item__icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   VARIANT 3 — Segmented (filter/view toggle)
+   Full-width cells; selected fills with signal tint
+   ══════════════════════════════════════════════════════════════════ */
+.mol-tab-bar--segmented {
+  background: var(--surface-inset);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  gap: 0;
+}
+
+.mol-tab-bar--segmented .mol-tab-item {
+  border-radius: var(--radius-none);
+  min-height: var(--size-control-lg);
+  flex-direction: row;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-right: var(--stroke-sm) solid var(--border-default);
+}
+
+.mol-tab-bar--segmented .mol-tab-item:last-child {
+  border-right: none;
+}
+
+.mol-tab-bar--segmented .mol-tab-item--selected {
+  background: var(--signal-whisper);
+  color: var(--signal-default);
+  box-shadow: inset 0 0 0 var(--stroke-sm) var(--signal-tint);
+}
+
+.mol-tab-bar--segmented .mol-tab-item__icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+
+/* Focus ring for keyboard nav */
+.mol-tab-item:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--border-focus) 30%, transparent);
+  border-radius: var(--radius-sm);
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1>LSTabItem — <em>Molecule</em></h1>
+  <div class="subtitle">UC-MOL-04 · tab-item · LaneShadow V2 Copper</div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     VARIANT 1 — UNDERLINE (bottom nav)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 1 — Underline · Bottom Navigation</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div style="display:flex;flex-direction:column;gap:var(--space-7)">
+
+        <!-- Map selected -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Map selected</div>
+          <nav class="mol-tab-bar mol-tab-bar--underline" role="tablist" aria-label="Main navigation">
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true" aria-label="Map">
+              <div class="mol-tab-item__icon-slot">
+                <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+              </div>
+              <span class="mol-tab-item__label t-label-sm">Map</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Discover">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Discover</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Rides">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Rides</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Profile">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Profile</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Discover selected with badge -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Discover selected · Rides badge</div>
+          <nav class="mol-tab-bar mol-tab-bar--underline" role="tablist" aria-label="Main navigation">
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Map">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Map</span>
+            </button>
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true" aria-label="Discover">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Discover</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Rides, 3 new">
+              <div class="mol-tab-item__icon-slot">
+                <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                <span class="mol-tab-item__badge" aria-label="3 new rides">3</span>
+              </div>
+              <span class="mol-tab-item__label t-label-sm">Rides</span>
+            </button>
+            <button class="mol-tab-item mol-tab-item--disabled" role="tab" aria-selected="false" aria-disabled="true" aria-label="Profile (unavailable)">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Profile</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- Icon only (no label) -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Icon only (no label)</div>
+          <nav class="mol-tab-bar mol-tab-bar--underline" role="tablist" style="max-width:200px">
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true" aria-label="Map">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Discover">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Rides">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Profile">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </button>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div style="display:flex;flex-direction:column;gap:var(--space-7)">
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Map selected</div>
+          <nav class="mol-tab-bar mol-tab-bar--underline" role="tablist">
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true" aria-label="Map">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Map</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Discover">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Discover</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Rides">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Rides</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Profile">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Profile</span>
+            </button>
+          </nav>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Discover selected · Rides badge</div>
+          <nav class="mol-tab-bar mol-tab-bar--underline" role="tablist">
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Map">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Map</span>
+            </button>
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true" aria-label="Discover">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Discover</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Rides, 3 new">
+              <div class="mol-tab-item__icon-slot">
+                <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                <span class="mol-tab-item__badge" aria-label="3 new rides">3</span>
+              </div>
+              <span class="mol-tab-item__label t-label-sm">Rides</span>
+            </button>
+            <button class="mol-tab-item mol-tab-item--disabled" role="tab" aria-disabled="true" aria-label="Profile (unavailable)">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Profile</span>
+            </button>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     VARIANT 2 — PILL (top nav / in-page)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 2 — Pill · In-Page Tabs</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div style="display:flex;flex-direction:column;gap:var(--space-7)">
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Overview selected</div>
+          <nav class="mol-tab-bar mol-tab-bar--pill" role="tablist" aria-label="Route details">
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Overview</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Elevation</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              <span class="mol-tab-item__label t-label-sm">History</span>
+            </button>
+          </nav>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Elevation selected · History disabled</div>
+          <nav class="mol-tab-bar mol-tab-bar--pill" role="tablist">
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Overview</span>
+            </button>
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Elevation</span>
+            </button>
+            <button class="mol-tab-item mol-tab-item--disabled" role="tab" aria-disabled="true">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              <span class="mol-tab-item__label t-label-sm">History</span>
+            </button>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div style="display:flex;flex-direction:column;gap:var(--space-7)">
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Overview selected</div>
+          <nav class="mol-tab-bar mol-tab-bar--pill" role="tablist">
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Overview</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Elevation</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              <span class="mol-tab-item__label t-label-sm">History</span>
+            </button>
+          </nav>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Elevation selected · History disabled</div>
+          <nav class="mol-tab-bar mol-tab-bar--pill" role="tablist">
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Overview</span>
+            </button>
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Elevation</span>
+            </button>
+            <button class="mol-tab-item mol-tab-item--disabled" role="tab" aria-disabled="true">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              <span class="mol-tab-item__label t-label-sm">History</span>
+            </button>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     VARIANT 3 — SEGMENTED (filter toggle)
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 3 — Segmented · Filter / View Toggle</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div style="display:flex;flex-direction:column;gap:var(--space-7)">
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">All routes selected</div>
+          <nav class="mol-tab-bar mol-tab-bar--segmented" role="tablist" aria-label="Route filter">
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              <span class="mol-tab-item__label t-label-sm">All</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Road</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M3 17l3-3 4 4 5-5 4 4"/><path d="M3 7h18"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Mountain</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Gravel</span>
+            </button>
+          </nav>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Mountain selected</div>
+          <nav class="mol-tab-bar mol-tab-bar--segmented" role="tablist">
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              <span class="mol-tab-item__label t-label-sm">All</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Road</span>
+            </button>
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M3 17l3-3 4 4 5-5 4 4"/><path d="M3 7h18"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Mountain</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Gravel</span>
+            </button>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div style="display:flex;flex-direction:column;gap:var(--space-7)">
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">All routes selected</div>
+          <nav class="mol-tab-bar mol-tab-bar--segmented" role="tablist">
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              <span class="mol-tab-item__label t-label-sm">All</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Road</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M3 17l3-3 4 4 5-5 4 4"/><path d="M3 7h18"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Mountain</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Gravel</span>
+            </button>
+          </nav>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Mountain selected</div>
+          <nav class="mol-tab-bar mol-tab-bar--segmented" role="tablist">
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              <span class="mol-tab-item__label t-label-sm">All</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Road</span>
+            </button>
+            <button class="mol-tab-item mol-tab-item--selected" role="tab" aria-selected="true">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><path d="M3 17l3-3 4 4 5-5 4 4"/><path d="M3 7h18"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Mountain</span>
+            </button>
+            <button class="mol-tab-item" role="tab" aria-selected="false">
+              <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+              <span class="mol-tab-item__label t-label-sm">Gravel</span>
+            </button>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<!-- form-field.html — Molecule · LSFormField
+     LaneShadow V2 Copper · Authority: uc-mol-04-formfield-tabitem-emptystate.html
+     Class prefix: .mol-form-field -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Molecule · form-field — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+
+/* ─── TOKEN GAPS ──────────────────────────────────────────────────────────
+   TOKEN_GAP: --content-error := var(--status-error)
+     reason: concept uses color.content.error semantically; tokens.css exposes
+     --status-error but not --content-error; using --status-error directly.
+   TOKEN_GAP: --opacity-disabled-field := 0.55
+     reason: concept calls for ~0.55 for the whole field wrapper;
+     tokens.css --opacity-disabled is 0.38 (per Material spec for individual
+     controls). Field-level wrapper uses 0.55 to maintain label legibility.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* ─── MOL-FORM-FIELD ─────────────────────────────────────────────────────
+   Composes:
+     .ls-form-field  (layout skeleton from _atoms.css — flex col, gap space-2)
+     .ls-input       (UC-ATM-03 text input atom)
+     .ls-textarea    (UC-ATM-03 textarea atom)
+   Adds:
+     .mol-form-field__label    — required indicator, disabled color
+     .mol-form-field__helper   — helper text slot
+     .mol-form-field__error    — error text + icon slot
+     .mol-form-field__input-wrap — leading/trailing icon adapter
+     .mol-form-field--disabled — wrapper opacity dimming
+   Strategy: .mol-form-field IS .ls-form-field (same element, additive class).
+     The molecule adds labeling, helper/error and wrapper-level disabled state.
+     It does NOT redefine .ls-form-field layout; it only layers meaning on top.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Wrapper: composed with .ls-form-field which provides flex-col + gap */
+.mol-form-field--disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* Label row */
+.mol-form-field__label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  color: var(--content-primary);
+}
+
+/* Required asterisk */
+.mol-form-field__label .required-marker {
+  color: var(--status-error);
+  line-height: 1;
+}
+
+/* Helper / error text share base layout */
+.mol-form-field__helper,
+.mol-form-field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding-top: var(--space-1);
+}
+
+.mol-form-field__helper {
+  color: var(--content-tertiary);
+}
+
+.mol-form-field__error {
+  color: var(--status-error);
+}
+
+.mol-form-field__error-icon {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  flex-shrink: 0;
+  margin-top: 1px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Input wrap with icon slots (extends _atoms.css .input-wrap) */
+.mol-form-field__input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.mol-form-field__input-wrap .mol-input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  pointer-events: none;
+  color: var(--content-tertiary);
+}
+
+.mol-form-field__input-wrap .mol-input-icon.leading  { left:  var(--space-4); }
+.mol-form-field__input-wrap .mol-input-icon.trailing { right: var(--space-4); pointer-events: auto; cursor: pointer; }
+
+.mol-form-field__input-wrap .mol-input-icon svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  stroke: currentColor;
+  fill: none;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mol-form-field__input-wrap.has-leading  .ls-input  { padding-left:  var(--space-10); }
+.mol-form-field__input-wrap.has-trailing .ls-input  { padding-right: var(--space-10); }
+
+/* Trailing icon turns error-red when field is in error */
+.mol-form-field__input-wrap.has-error .mol-input-icon.trailing { color: var(--status-error); }
+
+/* Textarea variant: no min-height override — ls-textarea handles sizing */
+
+/* ── Composition helper: form card ────────────────────────────── */
+.mol-form-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-card);
+  padding: var(--space-6);
+}
+
+.mol-form-card__title {
+  color: var(--content-primary);
+  padding-bottom: var(--space-4);
+  border-bottom: var(--stroke-sm) solid var(--border-subtle);
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1>LSFormField — <em>Molecule</em></h1>
+  <div class="subtitle">UC-MOL-04 · form-field · LaneShadow V2 Copper</div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     STATES — Text Input
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Text Input States</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-7);align-items:start">
+
+        <!-- Default / Placeholder -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Default · placeholder</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Email Address</label>
+            <input class="ls-input" type="email" placeholder="you@laneshadow.com">
+            <span class="mol-form-field__helper t-body-sm">Used for ride invites and notifications.</span>
+          </div>
+        </div>
+
+        <!-- Required marker -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Required</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">
+              Route Name
+              <span class="required-marker t-label-md" aria-hidden="true">*</span>
+            </label>
+            <input class="ls-input" type="text" placeholder="Emigration Canyon Loop">
+          </div>
+        </div>
+
+        <!-- Focused -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Focused</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Starting Point</label>
+            <input class="ls-input focused" type="text" value="Liberty Park, Salt Lake City">
+            <span class="mol-form-field__helper t-body-sm">Shown on shared ride summaries.</span>
+          </div>
+        </div>
+
+        <!-- Filled / No helper -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Filled · no helper</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Display Name</label>
+            <input class="ls-input" type="text" value="Justin Rich">
+          </div>
+        </div>
+
+        <!-- Error state -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Error</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Email Address</label>
+            <div class="mol-form-field__input-wrap has-error">
+              <input class="ls-input error-state" type="email" value="not-an-email">
+            </div>
+            <span class="mol-form-field__error t-body-sm">
+              <svg class="mol-form-field__error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Enter a valid email address.
+            </span>
+          </div>
+        </div>
+
+        <!-- Disabled -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Disabled</div>
+          <div class="ls-form-field mol-form-field mol-form-field--disabled">
+            <label class="mol-form-field__label t-label-md">Username</label>
+            <input class="ls-input" type="text" value="rider_42" disabled>
+            <span class="mol-form-field__helper t-body-sm">Username cannot be changed after sign-up.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-7);align-items:start">
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Default · placeholder</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Email Address</label>
+            <input class="ls-input" type="email" placeholder="you@laneshadow.com">
+            <span class="mol-form-field__helper t-body-sm">Used for ride invites and notifications.</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Required</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">
+              Route Name
+              <span class="required-marker t-label-md" aria-hidden="true">*</span>
+            </label>
+            <input class="ls-input" type="text" placeholder="Emigration Canyon Loop">
+          </div>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Focused</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Starting Point</label>
+            <input class="ls-input focused" type="text" value="Liberty Park, Salt Lake City">
+            <span class="mol-form-field__helper t-body-sm">Shown on shared ride summaries.</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Filled · no helper</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Display Name</label>
+            <input class="ls-input" type="text" value="Justin Rich">
+          </div>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Error</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Email Address</label>
+            <div class="mol-form-field__input-wrap has-error">
+              <input class="ls-input error-state" type="email" value="not-an-email">
+            </div>
+            <span class="mol-form-field__error t-body-sm">
+              <svg class="mol-form-field__error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Enter a valid email address.
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Disabled</div>
+          <div class="ls-form-field mol-form-field mol-form-field--disabled">
+            <label class="mol-form-field__label t-label-md">Username</label>
+            <input class="ls-input" type="text" value="rider_42" disabled>
+            <span class="mol-form-field__helper t-body-sm">Username cannot be changed after sign-up.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     ICON VARIANTS — Leading + Trailing
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Icon Variants — Leading / Trailing Action</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div style="display:flex;flex-direction:column;gap:var(--space-6)">
+
+        <!-- With leading icon -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">With leading icon</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Search Routes</label>
+            <div class="mol-form-field__input-wrap has-leading">
+              <span class="mol-input-icon leading" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              </span>
+              <input class="ls-input" type="search" placeholder="Wasatch Front, Big Cottonwood…">
+            </div>
+            <span class="mol-form-field__helper t-body-sm">Search by name, canyon, or city.</span>
+          </div>
+        </div>
+
+        <!-- With trailing clear action -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">With trailing clear action</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Destination</label>
+            <div class="mol-form-field__input-wrap has-trailing">
+              <input class="ls-input" type="text" value="Snowbird, Alta, UT 84092">
+              <button class="mol-input-icon trailing" aria-label="Clear destination">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- With trailing error icon -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Trailing error indicator</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">
+              Max Distance (km)
+              <span class="required-marker t-label-md" aria-hidden="true">*</span>
+            </label>
+            <div class="mol-form-field__input-wrap has-trailing has-error">
+              <input class="ls-input error-state" type="number" value="-5">
+              <span class="mol-input-icon trailing" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </span>
+            </div>
+            <span class="mol-form-field__error t-body-sm">
+              <svg class="mol-form-field__error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Distance must be greater than 0.
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div style="display:flex;flex-direction:column;gap:var(--space-6)">
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">With leading icon</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Search Routes</label>
+            <div class="mol-form-field__input-wrap has-leading">
+              <span class="mol-input-icon leading" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              </span>
+              <input class="ls-input" type="search" placeholder="Wasatch Front, Big Cottonwood…">
+            </div>
+            <span class="mol-form-field__helper t-body-sm">Search by name, canyon, or city.</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">With trailing clear action</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Destination</label>
+            <div class="mol-form-field__input-wrap has-trailing">
+              <input class="ls-input" type="text" value="Snowbird, Alta, UT 84092">
+              <button class="mol-input-icon trailing" aria-label="Clear destination">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Trailing error indicator</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">
+              Max Distance (km)
+              <span class="required-marker t-label-md" aria-hidden="true">*</span>
+            </label>
+            <div class="mol-form-field__input-wrap has-trailing has-error">
+              <input class="ls-input error-state" type="number" value="-5">
+              <span class="mol-input-icon trailing" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </span>
+            </div>
+            <span class="mol-form-field__error t-body-sm">
+              <svg class="mol-form-field__error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Distance must be greater than 0.
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TEXTAREA VARIANT
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Textarea Variant</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div style="display:flex;flex-direction:column;gap:var(--space-6)">
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Default</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Ride Description</label>
+            <textarea class="ls-textarea" rows="4" placeholder="Describe the route — terrain, highlights, difficulty…"></textarea>
+            <span class="mol-form-field__helper t-body-sm">Shown in the community feed. Markdown supported.</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Focused · with value</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Ride Notes</label>
+            <textarea class="ls-textarea focused" rows="4">Great weather today in Salt Lake — started at Sugarhouse Park, climbed through Millcreek Canyon to Desolation Lake. 8°C at the summit, expect ice on the upper switchbacks in early morning.</textarea>
+          </div>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Error</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">
+              Ride Summary
+              <span class="required-marker t-label-md" aria-hidden="true">*</span>
+            </label>
+            <textarea class="ls-textarea error-state" rows="4">x</textarea>
+            <span class="mol-form-field__error t-body-sm">
+              <svg class="mol-form-field__error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Summary must be at least 20 characters.
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div style="display:flex;flex-direction:column;gap:var(--space-6)">
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Default</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Ride Description</label>
+            <textarea class="ls-textarea" rows="4" placeholder="Describe the route — terrain, highlights, difficulty…"></textarea>
+            <span class="mol-form-field__helper t-body-sm">Shown in the community feed. Markdown supported.</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Focused · with value</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">Ride Notes</label>
+            <textarea class="ls-textarea focused" rows="4">Great weather today in Salt Lake — started at Sugarhouse Park, climbed through Millcreek Canyon to Desolation Lake. 8°C at the summit, expect ice on the upper switchbacks in early morning.</textarea>
+          </div>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-3);">Error</div>
+          <div class="ls-form-field mol-form-field">
+            <label class="mol-form-field__label t-label-md">
+              Ride Summary
+              <span class="required-marker t-label-md" aria-hidden="true">*</span>
+            </label>
+            <textarea class="ls-textarea error-state" rows="4">x</textarea>
+            <span class="mol-form-field__error t-body-sm">
+              <svg class="mol-form-field__error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Summary must be at least 20 characters.
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     COMPOSITION — 2-Field Form Card
+     ═══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Composition — 2-Field Form Card</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-7)">
+
+        <!-- Valid state -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-4);">All fields valid</div>
+          <div class="mol-form-card">
+            <div class="mol-form-card__title t-opinion-lg">Create Account</div>
+            <div class="ls-form-field mol-form-field">
+              <label class="mol-form-field__label t-label-md">Email</label>
+              <input class="ls-input" type="email" value="rider@laneshadow.com">
+            </div>
+            <div class="ls-form-field mol-form-field">
+              <label class="mol-form-field__label t-label-md">Password</label>
+              <input class="ls-input" type="password" value="correcthorsebattery">
+              <span class="mol-form-field__helper t-body-sm">Minimum 8 characters.</span>
+            </div>
+            <button class="ls-btn ls-btn--primary" style="width:100%">Create Account</button>
+          </div>
+        </div>
+
+        <!-- Error state -->
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-4);">Validation errors</div>
+          <div class="mol-form-card">
+            <div class="mol-form-card__title t-opinion-lg">Create Account</div>
+            <div class="ls-form-field mol-form-field">
+              <label class="mol-form-field__label t-label-md">Email</label>
+              <div class="mol-form-field__input-wrap has-error">
+                <input class="ls-input error-state" type="email" value="not-valid">
+              </div>
+              <span class="mol-form-field__error t-body-sm">
+                <svg class="mol-form-field__error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Enter a valid email.
+              </span>
+            </div>
+            <div class="ls-form-field mol-form-field">
+              <label class="mol-form-field__label t-label-md">Password</label>
+              <input class="ls-input focused" type="password" value="pass">
+              <span class="mol-form-field__error t-body-sm">
+                <svg class="mol-form-field__error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Too short — 8 characters minimum.
+              </span>
+            </div>
+            <button class="ls-btn ls-btn--primary is-disabled" disabled style="width:100%">Create Account</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-7)">
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-4);">All fields valid</div>
+          <div class="mol-form-card">
+            <div class="mol-form-card__title t-opinion-lg">Create Account</div>
+            <div class="ls-form-field mol-form-field">
+              <label class="mol-form-field__label t-label-md">Email</label>
+              <input class="ls-input" type="email" value="rider@laneshadow.com">
+            </div>
+            <div class="ls-form-field mol-form-field">
+              <label class="mol-form-field__label t-label-md">Password</label>
+              <input class="ls-input" type="password" value="correcthorsebattery">
+              <span class="mol-form-field__helper t-body-sm">Minimum 8 characters.</span>
+            </div>
+            <button class="ls-btn ls-btn--primary" style="width:100%">Create Account</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="t-instr-xs" style="color:var(--content-tertiary);margin-bottom:var(--space-4);">Validation errors</div>
+          <div class="mol-form-card">
+            <div class="mol-form-card__title t-opinion-lg">Create Account</div>
+            <div class="ls-form-field mol-form-field">
+              <label class="mol-form-field__label t-label-md">Email</label>
+              <div class="mol-form-field__input-wrap has-error">
+                <input class="ls-input error-state" type="email" value="not-valid">
+              </div>
+              <span class="mol-form-field__error t-body-sm">
+                <svg class="mol-form-field__error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Enter a valid email.
+              </span>
+            </div>
+            <div class="ls-form-field mol-form-field">
+              <label class="mol-form-field__label t-label-md">Password</label>
+              <input class="ls-input focused" type="password" value="pass">
+              <span class="mol-form-field__error t-body-sm">
+                <svg class="mol-form-field__error-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Too short — 8 characters minimum.
+              </span>
+            </div>
+            <button class="ls-btn ls-btn--primary is-disabled" disabled style="width:100%">Create Account</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>
