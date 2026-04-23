@@ -137,7 +137,7 @@ final class BadgeTests: XCTestCase {
     func testBadgeAllVariantsIterable() {
         // GIVEN: BadgeVariant enum is CaseIterable
         // WHEN: We iterate through all variants
-        let allVariants = BadgeVariant.allCases
+        let allVariants = LegacyBadgeVariant.allCases
 
         // THEN: All 7 variants are present
         XCTAssertEqual(allVariants.count, 7, "Badge should have exactly 7 variants")

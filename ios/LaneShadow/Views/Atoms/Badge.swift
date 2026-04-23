@@ -14,7 +14,7 @@ public struct Badge: View {
     @Environment(\.theme) private var theme
 
     private let text: String
-    private let variant: BadgeVariant
+    private let variant: LegacyBadgeVariant
     private let icon: String?
     private let opacity: Double
 
@@ -28,7 +28,7 @@ public struct Badge: View {
     ///   - opacity: Opacity value (default is 1.0)
     public init(
         _ text: String,
-        variant: BadgeVariant = .default,
+        variant: LegacyBadgeVariant = .default,
         icon: String? = nil,
         opacity: Double = 1.0
     ) {
@@ -77,8 +77,8 @@ public struct Badge: View {
 
 // MARK: - BadgeVariant
 
-/// Badge color variants matching the translation matrix
-public enum BadgeVariant: String, CaseIterable {
+/// Legacy badge color variants matching the older translation matrix.
+public enum LegacyBadgeVariant: String, CaseIterable {
     case `default`
     case secondary
     case destructive
@@ -95,7 +95,7 @@ private struct BadgeResolvedColors {
     let foreground: Color
     let border: Color?
 
-    static func resolve(theme: Theme, variant: BadgeVariant) -> Self {
+    static func resolve(theme: Theme, variant: LegacyBadgeVariant) -> Self {
         switch variant {
         case .default:
             Self(

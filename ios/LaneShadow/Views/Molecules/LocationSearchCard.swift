@@ -48,13 +48,13 @@ public enum LSLocationSearchStatus: Sendable, Equatable {
     public static func == (lhs: LSLocationSearchStatus, rhs: LSLocationSearchStatus) -> Bool {
         switch (lhs, rhs) {
         case (.running, .running):
-            return true
-        case (.complete(let lhsResults), .complete(let rhsResults)):
-            return lhsResults.map(\.id) == rhsResults.map(\.id)
-        case (.failed(let lhsMsg), .failed(let rhsMsg)):
-            return lhsMsg == rhsMsg
+            true
+        case let (.complete(lhsResults), .complete(rhsResults)):
+            lhsResults.map(\.id) == rhsResults.map(\.id)
+        case let (.failed(lhsMsg), .failed(rhsMsg)):
+            lhsMsg == rhsMsg
         default:
-            return false
+            false
         }
     }
 }
@@ -65,8 +65,8 @@ public enum LSLocationSearchStatus: Sendable, Equatable {
  * Maps place types to badge variants
  */
 private enum PlaceTypeBadge {
-    static func badge(for types: [String]) -> (label: String, variant: BadgeVariant) {
-        let typeMap: [String: (label: String, variant: BadgeVariant)] = [
+    static func badge(for types: [String]) -> (label: String, variant: LegacyBadgeVariant) {
+        let typeMap: [String: (label: String, variant: LegacyBadgeVariant)] = [
             "gas_station": ("Gas", .warning),
             "restaurant": ("Food", .success),
             "cafe": ("Coffee", .info),
@@ -176,9 +176,9 @@ public struct LSLocationSearchCard: View {
             switch status {
             case .running:
                 runningState
-            case .complete(let results):
+            case let .complete(results):
                 completeState(results: results)
-            case .failed(let message):
+            case let .failed(message):
                 failedState(message: message)
             }
         }
@@ -304,7 +304,7 @@ private struct PlaceResultRow: View {
 
     var body: some View {
         Group {
-            if let onPress = onPress {
+            if let onPress {
                 Button(action: { onPress(result.id) }) {
                     rowContent
                 }
