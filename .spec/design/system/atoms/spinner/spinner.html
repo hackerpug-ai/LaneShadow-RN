@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<!-- spinner.html — LSSpinner atom preview
+     LaneShadow V2 · Copper · UC-ATM-04
+     Three sizes · both themes rendered · loading card context -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSSpinner — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+
+/* ── LSSpinner component ──────────────────────────────────────── */
+
+@keyframes ls-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.ls-spinner {
+  border-radius: var(--radius-pill);
+  border-style: solid;
+  border-color: var(--signal-tint);          /* track */
+  border-top-color: var(--signal-default);   /* active arc */
+  animation: ls-spin var(--duration-deliberate) var(--ease-linear) infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Size variants — keyed to icon tokens */
+.ls-spinner.sp-sm {
+  width: var(--icon-sm);     /* 16px */
+  height: var(--icon-sm);
+  border-width: var(--stroke-md);
+}
+
+.ls-spinner.sp-md {
+  width: var(--icon-lg);     /* 24px */
+  height: var(--icon-lg);
+  border-width: var(--stroke-md);
+}
+
+.ls-spinner.sp-lg {
+  width: var(--icon-xl);     /* 32px */
+  height: var(--icon-xl);
+  border-width: var(--stroke-lg);
+}
+
+/* ── Preview layout helpers ───────────────────────────────────── */
+.spinner-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-9);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-8);
+}
+
+.spinner-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.sp-dim {
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  color: var(--content-tertiary);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* Loading card context */
+.loading-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-7);
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  box-shadow: var(--elev-card);
+  min-width: 240px;
+}
+
+.loading-card.centered {
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+.loading-text {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--content-primary);
+  letter-spacing: -0.005em;
+}
+
+.loading-sub {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--content-tertiary);
+  margin-top: var(--space-1);
+}
+
+.loading-text-center {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--content-tertiary);
+  text-align: center;
+}
+
+.cards-row {
+  display: flex;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+/* Inline spinner with button-like context */
+.inline-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.inline-label {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--content-secondary);
+}
+
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>LSSpinner</em> — Display Atom</h1>
+  <div class="subtitle">UC-ATM-04 · Three sizes · 600ms linear infinite · Both themes</div>
+</div>
+
+<div class="two-up">
+
+  <!-- LIGHT THEME PANE -->
+  <div class="theme-pane">
+    <div class="section-label">Light theme</div>
+
+    <!-- Size isolation -->
+    <div class="section">
+      <div class="section-label">Three sizes — isolated</div>
+      <div class="spinner-row">
+        <div class="spinner-cell">
+          <div class="label">sm</div>
+          <div class="ls-spinner sp-sm" aria-hidden="true"></div>
+          <div class="sp-dim">16×16<br>stroke-md</div>
+        </div>
+        <div class="spinner-cell">
+          <div class="label">md</div>
+          <div class="ls-spinner sp-md" aria-hidden="true"></div>
+          <div class="sp-dim">24×24<br>stroke-md</div>
+        </div>
+        <div class="spinner-cell">
+          <div class="label">lg</div>
+          <div class="ls-spinner sp-lg" aria-hidden="true"></div>
+          <div class="sp-dim">32×32<br>stroke-lg</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading card context -->
+    <div class="section">
+      <div class="section-label">Loading card contexts</div>
+      <div class="cards-row">
+        <div class="loading-card">
+          <div class="ls-spinner sp-md" aria-hidden="true"></div>
+          <div>
+            <div class="loading-text">Planning your route…</div>
+            <div class="loading-sub">Navigator is analyzing conditions</div>
+          </div>
+        </div>
+        <div class="loading-card">
+          <div class="ls-spinner sp-sm" aria-hidden="true"></div>
+          <div>
+            <div class="loading-text">Saving route</div>
+            <div class="loading-sub">Adding to your library</div>
+          </div>
+        </div>
+        <div class="loading-card centered">
+          <div class="ls-spinner sp-lg" aria-hidden="true"></div>
+          <div class="loading-text-center">Loading map…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inline loading states -->
+    <div class="section">
+      <div class="section-label">Inline loading states</div>
+      <div style="display: flex; flex-direction: column; gap: var(--space-4);">
+        <div class="inline-row">
+          <div class="ls-spinner sp-sm" aria-hidden="true"></div>
+          <span class="inline-label">Syncing with Strava…</span>
+        </div>
+        <div class="inline-row">
+          <div class="ls-spinner sp-sm" aria-hidden="true"></div>
+          <span class="inline-label">Fetching weather conditions</span>
+        </div>
+        <div class="inline-row">
+          <div class="ls-spinner sp-md" aria-hidden="true"></div>
+          <span class="inline-label">Generating Navigator recommendation</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DARK THEME PANE -->
+  <div class="theme-pane mode-dark">
+    <div class="section-label">Dark theme</div>
+
+    <!-- Size isolation dark -->
+    <div class="section">
+      <div class="section-label">Three sizes — isolated</div>
+      <div class="spinner-row">
+        <div class="spinner-cell">
+          <div class="label">sm</div>
+          <div class="ls-spinner sp-sm" aria-hidden="true"></div>
+          <div class="sp-dim">16×16<br>stroke-md</div>
+        </div>
+        <div class="spinner-cell">
+          <div class="label">md</div>
+          <div class="ls-spinner sp-md" aria-hidden="true"></div>
+          <div class="sp-dim">24×24<br>stroke-md</div>
+        </div>
+        <div class="spinner-cell">
+          <div class="label">lg</div>
+          <div class="ls-spinner sp-lg" aria-hidden="true"></div>
+          <div class="sp-dim">32×32<br>stroke-lg</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading card context dark -->
+    <div class="section">
+      <div class="section-label">Loading card contexts</div>
+      <div class="cards-row">
+        <div class="loading-card">
+          <div class="ls-spinner sp-md" aria-hidden="true"></div>
+          <div>
+            <div class="loading-text">Planning your route…</div>
+            <div class="loading-sub">Navigator is analyzing conditions</div>
+          </div>
+        </div>
+        <div class="loading-card">
+          <div class="ls-spinner sp-sm" aria-hidden="true"></div>
+          <div>
+            <div class="loading-text">Saving route</div>
+            <div class="loading-sub">Adding to your library</div>
+          </div>
+        </div>
+        <div class="loading-card centered">
+          <div class="ls-spinner sp-lg" aria-hidden="true"></div>
+          <div class="loading-text-center">Loading map…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inline loading states dark -->
+    <div class="section">
+      <div class="section-label">Inline loading states</div>
+      <div style="display: flex; flex-direction: column; gap: var(--space-4);">
+        <div class="inline-row">
+          <div class="ls-spinner sp-sm" aria-hidden="true"></div>
+          <span class="inline-label">Syncing with Strava…</span>
+        </div>
+        <div class="inline-row">
+          <div class="ls-spinner sp-sm" aria-hidden="true"></div>
+          <span class="inline-label">Fetching weather conditions</span>
+        </div>
+        <div class="inline-row">
+          <div class="ls-spinner sp-md" aria-hidden="true"></div>
+          <span class="inline-label">Generating Navigator recommendation</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- /.two-up -->
+
+</body>
+</html>

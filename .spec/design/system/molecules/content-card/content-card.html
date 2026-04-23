@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<!-- content-card.html — Molecule · LSContentCard
+     LaneShadow V2 Copper · Authority: uc-mol-01-card-listrow.html
+     Class prefix: .mol-content-card -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Molecule · content-card — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+
+/* ─── MOL-CONTENT-CARD ───────────────────────────────────────────────────
+   Composes ls-card (UC-ATM-05) · ls-pill (UC-ATM-07) · ls-btn (UC-ATM-02)
+   Slot schema: [image-header?] body[title, subtitle?, meta?, chips?] [footer?]
+   ───────────────────────────────────────────────────────────────────────── */
+
+.mol-content-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* ── Image header slot ─────────────────────────────────────────────────── */
+.mol-content-card__image-header {
+  width: 100%;
+  height: 120px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--surface-inset);
+}
+
+/* Gradient overlay for image label legibility */
+.mol-content-card__image-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    var(--surface-scrim) 100%
+  );
+  pointer-events: none;
+}
+
+/* Placeholder fill — renders behind real img */
+.mol-content-card__image-fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    var(--signal-whisper) 0%,
+    var(--border-default) 100%
+  );
+}
+
+.mol-content-card__image-label {
+  position: absolute;
+  bottom: var(--space-3);
+  left: var(--space-4);
+  z-index: 1;
+  color: var(--content-on-signal);
+  opacity: var(--opacity-dim);
+}
+
+/* ── Body ──────────────────────────────────────────────────────────────── */
+.mol-content-card__body {
+  padding: var(--space-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ── Title row ─────────────────────────────────────────────────────────── */
+.mol-content-card__title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.mol-content-card__title {
+  color: var(--content-primary);
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Subtitle ──────────────────────────────────────────────────────────── */
+.mol-content-card__subtitle {
+  color: var(--content-secondary);
+}
+
+/* ── Meta row (instrument/mono stat items) ─────────────────────────────── */
+.mol-content-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.mol-content-card__meta-item {
+  color: var(--content-tertiary);
+}
+
+.mol-content-card__meta-dot {
+  width: var(--space-1);
+  height: var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+  flex-shrink: 0;
+}
+
+/* ── Chip row ──────────────────────────────────────────────────────────── */
+.mol-content-card__chip-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Chip: inline label pill — neutral or signal */
+.mol-content-card__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  border: var(--stroke-sm) solid var(--border-default);
+  background: var(--surface-inset);
+  color: var(--content-secondary);
+  white-space: nowrap;
+}
+
+.mol-content-card__chip--signal {
+  background: var(--signal-whisper);
+  border-color: var(--signal-tint);
+  color: var(--signal-default);
+}
+
+/* ── Actions footer ────────────────────────────────────────────────────── */
+.mol-content-card__footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: var(--stroke-sm) solid var(--border-subtle);
+  background: var(--surface-inset);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* ── States — hover/pressed on interactive cards ──────────────────────── */
+.mol-content-card--interactive {
+  cursor: pointer;
+  transition:
+    box-shadow var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.mol-content-card--interactive.is-hover {
+  box-shadow: var(--elev-overlay);
+}
+
+.mol-content-card--interactive.is-pressed {
+  transform: translateY(1px);
+  box-shadow: var(--elev-card);
+}
+
+.mol-content-card--interactive.is-disabled {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1>Molecule · <em>content-card</em></h1>
+  <p class="subtitle">LSContentCard — structured card with title, optional image, chips, and action footer · Authority: uc-mol-01-card-listrow.html</p>
+</header>
+
+<!-- ═══ Variant 1 — Title Only ═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 1 — Title Only</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="ls-card mol-content-card" style="max-width:300px;">
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Mill Creek Canyon Loop</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="ls-card mol-content-card" style="max-width:300px;">
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Mill Creek Canyon Loop</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ Variant 2 — Title + Subtitle + Meta ══════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 2 — Title + Subtitle + Meta</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="ls-card mol-content-card" style="max-width:300px;">
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Emigration Canyon Climb</span>
+          </div>
+          <div class="mol-content-card__subtitle t-body-sm">28 mi · 1h 04m · Mountain</div>
+          <div class="mol-content-card__meta">
+            <span class="mol-content-card__meta-item t-instr-sm">3,400 ft gain</span>
+            <span class="mol-content-card__meta-dot"></span>
+            <span class="mol-content-card__meta-item t-instr-sm">Last ridden Apr 18</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="ls-card mol-content-card" style="max-width:300px;">
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Emigration Canyon Climb</span>
+          </div>
+          <div class="mol-content-card__subtitle t-body-sm">28 mi · 1h 04m · Mountain</div>
+          <div class="mol-content-card__meta">
+            <span class="mol-content-card__meta-item t-instr-sm">3,400 ft gain</span>
+            <span class="mol-content-card__meta-dot"></span>
+            <span class="mol-content-card__meta-item t-instr-sm">Last ridden Apr 18</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ Variant 3 — With Chips ═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 3 — With Chips</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="ls-card mol-content-card" style="max-width:300px;">
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Big Cottonwood Descent</span>
+          </div>
+          <div class="mol-content-card__subtitle t-body-sm">34 mi · 58m · Twisty</div>
+          <div class="mol-content-card__chip-row">
+            <span class="mol-content-card__chip mol-content-card__chip--signal t-label-sm">Best Route</span>
+            <span class="mol-content-card__chip t-label-sm">Twisty</span>
+            <span class="mol-content-card__chip t-label-sm">Alpine</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="ls-card mol-content-card" style="max-width:300px;">
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Big Cottonwood Descent</span>
+          </div>
+          <div class="mol-content-card__subtitle t-body-sm">34 mi · 58m · Twisty</div>
+          <div class="mol-content-card__chip-row">
+            <span class="mol-content-card__chip mol-content-card__chip--signal t-label-sm">Best Route</span>
+            <span class="mol-content-card__chip t-label-sm">Twisty</span>
+            <span class="mol-content-card__chip t-label-sm">Alpine</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ Variant 4 — With Actions Footer ══════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 4 — With Actions Footer</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="ls-card mol-content-card" style="max-width:300px;">
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Little Dell Reservoir Out-and-Back</span>
+          </div>
+          <div class="mol-content-card__subtitle t-body-sm">19 mi · 42m · Scenic</div>
+          <div class="mol-content-card__meta">
+            <span class="mol-content-card__meta-item t-instr-sm">1,200 ft gain</span>
+            <span class="mol-content-card__meta-dot"></span>
+            <span class="mol-content-card__meta-item t-instr-sm">Saved</span>
+          </div>
+        </div>
+        <div class="mol-content-card__footer">
+          <button class="ls-btn ls-btn--primary ls-btn--pill" style="flex:1;">Ride This</button>
+          <button class="ls-btn ls-btn--ghost ls-btn--pill">Save</button>
+        </div>
+      </div>
+      <!-- Hover state -->
+      <div class="ls-card mol-content-card mol-content-card--interactive is-hover" style="max-width:300px; margin-top:var(--space-5);">
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Little Dell Reservoir Out-and-Back</span>
+          </div>
+          <div class="mol-content-card__subtitle t-body-sm">Hover state</div>
+        </div>
+        <div class="mol-content-card__footer">
+          <button class="ls-btn ls-btn--primary ls-btn--pill" style="flex:1;">Ride This</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="ls-card mol-content-card" style="max-width:300px;">
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Little Dell Reservoir Out-and-Back</span>
+          </div>
+          <div class="mol-content-card__subtitle t-body-sm">19 mi · 42m · Scenic</div>
+          <div class="mol-content-card__meta">
+            <span class="mol-content-card__meta-item t-instr-sm">1,200 ft gain</span>
+            <span class="mol-content-card__meta-dot"></span>
+            <span class="mol-content-card__meta-item t-instr-sm">Saved</span>
+          </div>
+        </div>
+        <div class="mol-content-card__footer">
+          <button class="ls-btn ls-btn--primary ls-btn--pill" style="flex:1;">Ride This</button>
+          <button class="ls-btn ls-btn--ghost ls-btn--pill">Save</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ Variant 5 — With Image Header ════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 5 — With Image Header</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="ls-card mol-content-card" style="max-width:300px;">
+        <div class="mol-content-card__image-header">
+          <div class="mol-content-card__image-fill"></div>
+          <span class="mol-content-card__image-label t-instr-xs">Wasatch Crest Trail · Header Image Slot</span>
+        </div>
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Wasatch Crest Trail</span>
+          </div>
+          <div class="mol-content-card__subtitle t-body-sm">52 mi · 1h 55m · Epic</div>
+          <div class="mol-content-card__chip-row">
+            <span class="mol-content-card__chip mol-content-card__chip--signal t-label-sm">Best Route</span>
+            <span class="mol-content-card__chip t-label-sm">Mountain</span>
+          </div>
+        </div>
+        <div class="mol-content-card__footer">
+          <button class="ls-btn ls-btn--primary ls-btn--pill" style="flex:1;">Open Route</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="ls-card mol-content-card" style="max-width:300px;">
+        <div class="mol-content-card__image-header">
+          <div class="mol-content-card__image-fill"></div>
+          <span class="mol-content-card__image-label t-instr-xs">Wasatch Crest Trail · Header Image Slot</span>
+        </div>
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Wasatch Crest Trail</span>
+          </div>
+          <div class="mol-content-card__subtitle t-body-sm">52 mi · 1h 55m · Epic</div>
+          <div class="mol-content-card__chip-row">
+            <span class="mol-content-card__chip mol-content-card__chip--signal t-label-sm">Best Route</span>
+            <span class="mol-content-card__chip t-label-sm">Mountain</span>
+          </div>
+        </div>
+        <div class="mol-content-card__footer">
+          <button class="ls-btn ls-btn--primary ls-btn--pill" style="flex:1;">Open Route</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ States — Disabled ════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">States — Disabled</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="ls-card mol-content-card mol-content-card--interactive is-disabled" style="max-width:300px;">
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Corner Canyon Classic</span>
+          </div>
+          <div class="mol-content-card__subtitle t-body-sm">Disabled — route unavailable</div>
+        </div>
+        <div class="mol-content-card__footer">
+          <button class="ls-btn ls-btn--primary ls-btn--pill is-disabled" style="flex:1;">Ride This</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="ls-card mol-content-card mol-content-card--interactive is-disabled" style="max-width:300px;">
+        <div class="mol-content-card__body">
+          <div class="mol-content-card__title-row">
+            <span class="mol-content-card__title t-title-md">Corner Canyon Classic</span>
+          </div>
+          <div class="mol-content-card__subtitle t-body-sm">Disabled — route unavailable</div>
+        </div>
+        <div class="mol-content-card__footer">
+          <button class="ls-btn ls-btn--primary ls-btn--pill is-disabled" style="flex:1;">Ride This</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

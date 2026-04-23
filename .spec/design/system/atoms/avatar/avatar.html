@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<!-- avatar.html — LSAvatar atom preview
+     LaneShadow V2 · Copper · UC-ATM-04
+     Five sizes × three variants · both themes rendered -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSAvatar — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+
+/* ── LSAvatar component ───────────────────────────────────────── */
+.ls-avatar {
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-subtle);
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Size variants — keyed to canonical avatar tokens */
+.ls-avatar.av-xs { width: var(--avatar-xs); height: var(--avatar-xs); }
+.ls-avatar.av-sm { width: var(--avatar-sm); height: var(--avatar-sm); }
+.ls-avatar.av-md { width: var(--avatar-md); height: var(--avatar-md); }
+.ls-avatar.av-lg { width: var(--avatar-lg); height: var(--avatar-lg); }
+.ls-avatar.av-xl { width: var(--avatar-xl); height: var(--avatar-xl); }
+
+/* Image variant — fills the circle */
+.ls-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Placeholder fill (no image, no initials) */
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    160deg,
+    var(--signal-tint) 0%,
+    var(--border-default) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Initials variant */
+.ls-avatar.initials-variant {
+  background: var(--signal-whisper);
+  border-color: var(--signal-tint);
+}
+
+.avatar-initials {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--content-primary);
+  user-select: none;
+  line-height: 1;
+}
+
+/* Initials font-size steps — proportional to avatar size */
+.ls-avatar.av-xs .avatar-initials { font-size: 8px; }
+.ls-avatar.av-sm .avatar-initials { font-size: 10px; letter-spacing: 0.04em; }
+.ls-avatar.av-md .avatar-initials { font-size: 12px; letter-spacing: 0.05em; }
+.ls-avatar.av-lg .avatar-initials { font-size: 15px; letter-spacing: 0.05em; }
+.ls-avatar.av-xl .avatar-initials { font-size: 20px; letter-spacing: 0.06em; }
+
+/* Status dot wrap */
+.avatar-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.avatar-status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border-radius: var(--radius-pill);
+  border: var(--stroke-md) solid var(--surface-primary);
+  background: var(--status-success);
+}
+.avatar-wrap.av-xs .avatar-status-dot { width: 6px;  height: 6px; }
+.avatar-wrap.av-sm .avatar-status-dot { width: 8px;  height: 8px; }
+.avatar-wrap.av-md .avatar-status-dot { width: 9px;  height: 9px; }
+.avatar-wrap.av-lg .avatar-status-dot { width: 11px; height: 11px; }
+.avatar-wrap.av-xl .avatar-status-dot { width: 14px; height: 14px; }
+
+/* ── Preview layout helpers ───────────────────────────────────── */
+.av-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-7);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-8);
+}
+.av-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+.av-cell .label {
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  color: var(--content-tertiary);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+.av-dim {
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  color: var(--content-tertiary);
+  text-align: center;
+}
+
+/* Composition card */
+.rider-card {
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 260px;
+  box-shadow: var(--elev-card);
+}
+.rider-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.rider-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.rider-name {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--content-primary);
+  letter-spacing: -0.005em;
+}
+.rider-handle {
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--content-tertiary);
+}
+.rider-detail {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--content-secondary);
+}
+.card-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-subtle);
+  border: none;
+  display: block;
+}
+
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>LSAvatar</em> — Display Atom</h1>
+  <div class="subtitle">UC-ATM-04 · Five sizes · Image / Initials / Placeholder · Both themes</div>
+</div>
+
+<div class="two-up">
+
+  <!-- LIGHT THEME PANE -->
+  <div class="theme-pane">
+    <div class="section-label">Light theme</div>
+
+    <!-- Image variant -->
+    <div class="section">
+      <div class="section-label">Image variant</div>
+      <div class="av-row">
+        <div class="av-cell">
+          <div class="label">xs · 20px</div>
+          <div class="avatar-wrap av-xs">
+            <div class="ls-avatar av-xs">
+              <img src="https://i.pravatar.cc/64?img=1" alt="Justin Rich">
+            </div>
+          </div>
+          <div class="av-dim">20×20</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">sm · 28px</div>
+          <div class="avatar-wrap av-sm">
+            <div class="ls-avatar av-sm">
+              <img src="https://i.pravatar.cc/64?img=5" alt="Alex S.">
+            </div>
+          </div>
+          <div class="av-dim">28×28</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">md · 36px</div>
+          <div class="avatar-wrap av-md">
+            <div class="ls-avatar av-md">
+              <img src="https://i.pravatar.cc/64?img=12" alt="Morgan W.">
+            </div>
+            <div class="avatar-status-dot"></div>
+          </div>
+          <div class="av-dim">36×36 + dot</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">lg · 48px</div>
+          <div class="avatar-wrap av-lg">
+            <div class="ls-avatar av-lg">
+              <img src="https://i.pravatar.cc/64?img=20" alt="Justin Rich">
+            </div>
+          </div>
+          <div class="av-dim">48×48</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">xl · 64px</div>
+          <div class="avatar-wrap av-xl">
+            <div class="ls-avatar av-xl">
+              <img src="https://i.pravatar.cc/64?img=33" alt="Alex S.">
+            </div>
+            <div class="avatar-status-dot"></div>
+          </div>
+          <div class="av-dim">64×64 + dot</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Initials variant -->
+    <div class="section">
+      <div class="section-label">Initials variant</div>
+      <div class="av-row">
+        <div class="av-cell">
+          <div class="label">xs · 20px</div>
+          <div class="ls-avatar av-xs initials-variant">
+            <span class="avatar-initials">JR</span>
+          </div>
+          <div class="av-dim">8px / 600</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">sm · 28px</div>
+          <div class="ls-avatar av-sm initials-variant">
+            <span class="avatar-initials">AS</span>
+          </div>
+          <div class="av-dim">10px / 600</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">md · 36px</div>
+          <div class="ls-avatar av-md initials-variant">
+            <span class="avatar-initials">MW</span>
+          </div>
+          <div class="av-dim">12px / 600</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">lg · 48px</div>
+          <div class="ls-avatar av-lg initials-variant">
+            <span class="avatar-initials">JR</span>
+          </div>
+          <div class="av-dim">15px / 600</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">xl · 64px</div>
+          <div class="ls-avatar av-xl initials-variant">
+            <span class="avatar-initials">AS</span>
+          </div>
+          <div class="av-dim">20px / 600</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Placeholder variant -->
+    <div class="section">
+      <div class="section-label">Placeholder variant</div>
+      <div class="av-row">
+        <div class="av-cell">
+          <div class="label">xs · 20px</div>
+          <div class="ls-avatar av-xs">
+            <div class="avatar-placeholder"></div>
+          </div>
+          <div class="av-dim">20×20</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">sm · 28px</div>
+          <div class="ls-avatar av-sm">
+            <div class="avatar-placeholder"></div>
+          </div>
+          <div class="av-dim">28×28</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">md · 36px</div>
+          <div class="ls-avatar av-md">
+            <div class="avatar-placeholder"></div>
+          </div>
+          <div class="av-dim">36×36</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">lg · 48px</div>
+          <div class="ls-avatar av-lg">
+            <div class="avatar-placeholder"></div>
+          </div>
+          <div class="av-dim">48×48</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">xl · 64px</div>
+          <div class="ls-avatar av-xl">
+            <div class="avatar-placeholder"></div>
+          </div>
+          <div class="av-dim">64×64</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Composition: rider cards -->
+    <div class="section">
+      <div class="section-label">Composition — rider card context</div>
+      <div style="display: flex; gap: var(--space-5); flex-wrap: wrap;">
+        <div class="rider-card">
+          <div class="rider-row">
+            <div class="avatar-wrap av-md">
+              <div class="ls-avatar av-md">
+                <img src="https://i.pravatar.cc/64?img=7" alt="Justin Rich">
+              </div>
+              <div class="avatar-status-dot"></div>
+            </div>
+            <div class="rider-meta">
+              <div class="rider-name">Justin Rich</div>
+              <div class="rider-handle">@justinrich</div>
+            </div>
+          </div>
+          <div class="card-divider"></div>
+          <div class="rider-detail">142 routes saved · Joined March 2024</div>
+        </div>
+        <div class="rider-card">
+          <div class="rider-row">
+            <div class="ls-avatar av-lg initials-variant">
+              <span class="avatar-initials">AS</span>
+            </div>
+            <div class="rider-meta">
+              <div class="rider-name">Alex Sinclair</div>
+              <div class="rider-handle">@sinclairrides</div>
+            </div>
+          </div>
+          <div class="card-divider"></div>
+          <div class="rider-detail">89 routes saved · Joined July 2025</div>
+        </div>
+        <div class="rider-card">
+          <div class="rider-row">
+            <div class="ls-avatar av-md initials-variant">
+              <span class="avatar-initials">MW</span>
+            </div>
+            <div class="rider-meta">
+              <div class="rider-name">Morgan Wheeler</div>
+              <div class="rider-handle">@morganwheels</div>
+            </div>
+          </div>
+          <div class="card-divider"></div>
+          <div class="rider-detail">31 routes saved · Joined January 2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DARK THEME PANE -->
+  <div class="theme-pane mode-dark">
+    <div class="section-label">Dark theme</div>
+
+    <!-- Image variant dark -->
+    <div class="section">
+      <div class="section-label">Image variant</div>
+      <div class="av-row">
+        <div class="av-cell">
+          <div class="label">xs · 20px</div>
+          <div class="avatar-wrap av-xs">
+            <div class="ls-avatar av-xs">
+              <img src="https://i.pravatar.cc/64?img=1" alt="Justin Rich">
+            </div>
+          </div>
+          <div class="av-dim">20×20</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">sm · 28px</div>
+          <div class="avatar-wrap av-sm">
+            <div class="ls-avatar av-sm">
+              <img src="https://i.pravatar.cc/64?img=5" alt="Alex S.">
+            </div>
+          </div>
+          <div class="av-dim">28×28</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">md · 36px</div>
+          <div class="avatar-wrap av-md">
+            <div class="ls-avatar av-md">
+              <img src="https://i.pravatar.cc/64?img=12" alt="Morgan W.">
+            </div>
+            <div class="avatar-status-dot"></div>
+          </div>
+          <div class="av-dim">36×36 + dot</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">lg · 48px</div>
+          <div class="avatar-wrap av-lg">
+            <div class="ls-avatar av-lg">
+              <img src="https://i.pravatar.cc/64?img=20" alt="Justin Rich">
+            </div>
+          </div>
+          <div class="av-dim">48×48</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">xl · 64px</div>
+          <div class="avatar-wrap av-xl">
+            <div class="ls-avatar av-xl">
+              <img src="https://i.pravatar.cc/64?img=33" alt="Alex S.">
+            </div>
+            <div class="avatar-status-dot"></div>
+          </div>
+          <div class="av-dim">64×64 + dot</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Initials variant dark -->
+    <div class="section">
+      <div class="section-label">Initials variant</div>
+      <div class="av-row">
+        <div class="av-cell">
+          <div class="label">xs · 20px</div>
+          <div class="ls-avatar av-xs initials-variant">
+            <span class="avatar-initials">JR</span>
+          </div>
+          <div class="av-dim">8px / 600</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">sm · 28px</div>
+          <div class="ls-avatar av-sm initials-variant">
+            <span class="avatar-initials">AS</span>
+          </div>
+          <div class="av-dim">10px / 600</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">md · 36px</div>
+          <div class="ls-avatar av-md initials-variant">
+            <span class="avatar-initials">MW</span>
+          </div>
+          <div class="av-dim">12px / 600</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">lg · 48px</div>
+          <div class="ls-avatar av-lg initials-variant">
+            <span class="avatar-initials">JR</span>
+          </div>
+          <div class="av-dim">15px / 600</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">xl · 64px</div>
+          <div class="ls-avatar av-xl initials-variant">
+            <span class="avatar-initials">MW</span>
+          </div>
+          <div class="av-dim">20px / 600</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Placeholder variant dark -->
+    <div class="section">
+      <div class="section-label">Placeholder variant</div>
+      <div class="av-row">
+        <div class="av-cell">
+          <div class="label">xs · 20px</div>
+          <div class="ls-avatar av-xs">
+            <div class="avatar-placeholder"></div>
+          </div>
+          <div class="av-dim">20×20</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">sm · 28px</div>
+          <div class="ls-avatar av-sm">
+            <div class="avatar-placeholder"></div>
+          </div>
+          <div class="av-dim">28×28</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">md · 36px</div>
+          <div class="ls-avatar av-md">
+            <div class="avatar-placeholder"></div>
+          </div>
+          <div class="av-dim">36×36</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">lg · 48px</div>
+          <div class="ls-avatar av-lg">
+            <div class="avatar-placeholder"></div>
+          </div>
+          <div class="av-dim">48×48</div>
+        </div>
+        <div class="av-cell">
+          <div class="label">xl · 64px</div>
+          <div class="ls-avatar av-xl">
+            <div class="avatar-placeholder"></div>
+          </div>
+          <div class="av-dim">64×64</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Composition dark -->
+    <div class="section">
+      <div class="section-label">Composition — rider card context</div>
+      <div style="display: flex; gap: var(--space-5); flex-wrap: wrap;">
+        <div class="rider-card">
+          <div class="rider-row">
+            <div class="avatar-wrap av-md">
+              <div class="ls-avatar av-md">
+                <img src="https://i.pravatar.cc/64?img=7" alt="Justin Rich">
+              </div>
+              <div class="avatar-status-dot"></div>
+            </div>
+            <div class="rider-meta">
+              <div class="rider-name">Justin Rich</div>
+              <div class="rider-handle">@justinrich</div>
+            </div>
+          </div>
+          <div class="card-divider"></div>
+          <div class="rider-detail">142 routes saved · Joined March 2024</div>
+        </div>
+        <div class="rider-card">
+          <div class="rider-row">
+            <div class="ls-avatar av-lg initials-variant">
+              <span class="avatar-initials">AS</span>
+            </div>
+            <div class="rider-meta">
+              <div class="rider-name">Alex Sinclair</div>
+              <div class="rider-handle">@sinclairrides</div>
+            </div>
+          </div>
+          <div class="card-divider"></div>
+          <div class="rider-detail">89 routes saved · Joined July 2025</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.two-up -->
+
+</body>
+</html>

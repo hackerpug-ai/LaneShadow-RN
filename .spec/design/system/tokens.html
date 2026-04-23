@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LaneShadow V2 "Copper" — Token System Index</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="./typography/fonts.css">
+  <link rel="stylesheet" href="./tokens/tokens.css">
+  <link rel="stylesheet" href="./typography/type-modules.css">
+  <style>
+    /* Layout styles for the index page itself */
+    body {
+      font-family: var(--font-ui);
+      margin: 0;
+      background: #f0eee9;
+      color: var(--text-heading);
+    }
+
+    .index-header {
+      background: var(--accent-primary);
+      color: white;
+      padding: var(--space-8) var(--space-10);
+      text-align: center;
+    }
+
+    .index-header h1 {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: var(--font-size-30);
+      margin: 0 0 var(--space-3) 0;
+      line-height: var(--line-height-33-6);
+    }
+
+    .index-header p {
+      font-family: var(--font-ui);
+      font-size: var(--font-size-14);
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-5);
+      padding: var(--space-10);
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+
+    .theme-pane {
+      background: var(--surface-page);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      box-shadow: var(--elevation-2);
+    }
+
+    .theme-pane.dark {
+      background: #1a100a;
+    }
+
+    .theme-label {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: var(--font-size-22);
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--border-default);
+    }
+
+    .section {
+      margin-bottom: var(--space-10);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: var(--font-size-17);
+      margin-bottom: var(--space-4);
+      color: var(--text-heading);
+      font-weight: 400;
+    }
+
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: var(--space-3);
+    }
+
+    .swatch {
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border-default);
+    }
+
+    .swatch-fill {
+      height: 48px;
+    }
+
+    .swatch-info {
+      padding: var(--space-2) var(--space-3);
+      background: var(--surface-card);
+    }
+
+    .swatch-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-heading);
+      margin-bottom: 2px;
+    }
+
+    .swatch-value {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .spacing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .spacing-item {
+      text-align: center;
+    }
+
+    .spacing-box {
+      background: var(--accent-primary);
+      border-radius: var(--radius-xs);
+      margin-bottom: var(--space-2);
+    }
+
+    .spacing-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .spacing-value {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-faint);
+    }
+
+    .radius-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .radius-item {
+      text-align: center;
+    }
+
+    .radius-box {
+      height: 48px;
+      background: var(--accent-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-2);
+    }
+
+    .radius-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .radius-value {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-faint);
+    }
+
+    .elevation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .elevation-item {
+      text-align: center;
+    }
+
+    .elevation-box {
+      height: 48px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-2);
+    }
+
+    .elevation-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .elevation-value {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-faint);
+    }
+
+    .type-sample {
+      margin-bottom: var(--space-5);
+      padding: var(--space-4);
+      background: var(--surface-card);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .type-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: var(--space-2);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .type-text {
+      margin: 0;
+    }
+
+    .type-meta {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-faint);
+      margin-top: var(--space-2);
+    }
+  </style>
+</head>
+<body>
+  <div class="index-header">
+    <h1>LaneShadow V2 "Copper"</h1>
+    <p>Design System Token Index — Light & Dark Theme Parity</p>
+  </div>
+
+  <div class="theme-grid">
+    <!-- LIGHT THEME PANE -->
+    <div class="theme-pane" data-theme="light">
+      <h2 class="theme-label">Light Theme</h2>
+
+      <!-- Typography Section -->
+      <div class="section">
+        <h3 class="section-title">Typography — Opinion (Newsreader)</h3>
+
+        <div class="type-sample">
+          <div class="type-label">type-opinion-xl</div>
+          <p class="type-text type-opinion-xl">The Navigator's Voice</p>
+          <div class="type-meta">30px / 33.6px / -0.45ls</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-opinion-lg</div>
+          <p class="type-text type-opinion-lg">The morning mist clears as you head north</p>
+          <div class="type-meta">22px / 25.96px / -0.22ls</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-opinion-md</div>
+          <p class="type-text type-opinion-md">Ready when you are</p>
+          <div class="type-meta">17px / 22.44px / 0ls</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-opinion-sm</div>
+          <p class="type-text type-opinion-sm">Shall we begin?</p>
+          <div class="type-meta">14px / 20.3px / 0ls</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">Typography — UI (Geist)</h3>
+
+        <div class="type-sample">
+          <div class="type-label">type-title-lg</div>
+          <p class="type-text type-title-lg">Screen Title</p>
+          <div class="type-meta">17px / 17.08px / -0.17ls / 600</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-title-md</div>
+          <p class="type-text type-title-md">Card Title</p>
+          <div class="type-meta">14px / 17.92px / -0.07ls / 600</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-body-lg</div>
+          <p class="type-text type-body-lg">Body text for descriptions and content that needs to be readable at a glance.</p>
+          <div class="type-meta">14px / 20.72px / 0ls / 400</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-body-md</div>
+          <p class="type-text type-body-md">Secondary body text for list items and metadata.</p>
+          <div class="type-meta">12px / 18.24px / 0ls / 400</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-label-lg</div>
+          <p class="type-text type-label-lg">Label / Uppercase</p>
+          <div class="type-meta">11px / 11px / 0.88ls / 500</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-label-md</div>
+          <p class="type-text type-label-md">Metadata</p>
+          <div class="type-meta">9.5px / 9.5px / 1.14ls / 600</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-label-sm</div>
+          <p class="type-text type-label-sm">Caption</p>
+          <div class="type-meta">8.5px / 8.5px / 1.19ls / 600</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">Typography — Instrument (JetBrains Mono)</h3>
+
+        <div class="type-sample">
+          <div class="type-label">type-instrument-lg</div>
+          <p class="type-text type-instrument-lg">42.7 mi</p>
+          <div class="type-meta">18px / 20.16px / -0.36ls / 500 / tnum</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-instrument-md</div>
+          <p class="type-text type-instrument-md">1:24:35</p>
+          <div class="type-meta">13px / 15.6px / -0.13ls / 500 / tnum</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-instrument-sm</div>
+          <p class="type-text type-instrument-sm">72°F</p>
+          <div class="type-meta">10px / 12px / 0ls / 500 / tnum</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-instrument-xs</div>
+          <p class="type-text type-instrument-xs">38.2°N</p>
+          <div class="type-meta">8.5px / 8.5px / 0ls / 500 / tnum</div>
+        </div>
+      </div>
+
+      <!-- Surface Colors -->
+      <div class="section">
+        <h3 class="section-title">Surface</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-page);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Page</div>
+              <div class="swatch-value">#F8F7F6</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-card);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Card</div>
+              <div class="swatch-value">#FDFBF8</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-inset);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Inset</div>
+              <div class="swatch-value">#F2EFED</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-overlay);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Overlay</div>
+              <div class="swatch-value">rgba(253,251,248,0.92)</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-glass);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Glass</div>
+              <div class="swatch-value">rgba(253,251,248,0.72)</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-scrim);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Scrim</div>
+              <div class="swatch-value">rgba(34,24,16,0.35)</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-map);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Map</div>
+              <div class="swatch-value">#FDFBF8</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Colors -->
+      <div class="section">
+        <h3 class="section-title">Text</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--text-heading);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Heading</div>
+              <div class="swatch-value">#1E1A16</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--text-body);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Body</div>
+              <div class="swatch-value">#1E1A16</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--text-muted);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Muted</div>
+              <div class="swatch-value">#49454F</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--text-faint);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Faint</div>
+              <div class="swatch-value">#9CA3AF</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--text-on-signal);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">On Signal</div>
+              <div class="swatch-value">#FFFFFF</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Border Colors -->
+      <div class="section">
+        <h3 class="section-title">Border</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--border-default);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Default</div>
+              <div class="swatch-value">#E5DED9</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--border-subtle);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Subtle</div>
+              <div class="swatch-value">#EDE7E1</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--border-strong);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Strong</div>
+              <div class="swatch-value">#C9BDB3</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--border-focus);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Focus</div>
+              <div class="swatch-value">#EE7C2B</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accent Colors -->
+      <div class="section">
+        <h3 class="section-title">Accent — Copper Signal</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--accent-primary);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Primary</div>
+              <div class="swatch-value">#EE7C2B</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--accent-hover);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Hover</div>
+              <div class="swatch-value">#F3A164</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--accent-pressed);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Pressed</div>
+              <div class="swatch-value">#9E4A22</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--accent-tint);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Tint</div>
+              <div class="swatch-value">#F9D5B5</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--accent-whisper);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Whisper</div>
+              <div class="swatch-value">#FCE8D4</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Colors -->
+      <div class="section">
+        <h3 class="section-title">Status / Intent</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--status-info);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Info</div>
+              <div class="swatch-value">#3A8BE3</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--status-success);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Success</div>
+              <div class="swatch-value">#4D8470</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--status-warning);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Warning</div>
+              <div class="swatch-value">#C46F1B</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--status-error);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Error</div>
+              <div class="swatch-value">#C9423C</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weather Colors -->
+      <div class="section">
+        <h3 class="section-title">Weather</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--weather-clear);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Clear</div>
+              <div class="swatch-value">#E6A52A</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--weather-rain);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Rain</div>
+              <div class="swatch-value">#4A86BE</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--weather-wind);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Wind</div>
+              <div class="swatch-value">#6B7B8F</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--weather-storm);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Storm</div>
+              <div class="swatch-value">#5E3FAE</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--weather-hot);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Hot</div>
+              <div class="swatch-value">#C9423C</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--weather-cold);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Cold</div>
+              <div class="swatch-value">#3A8BE3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Route Colors -->
+      <div class="section">
+        <h3 class="section-title">Route</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--route-best);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Best</div>
+              <div class="swatch-value">#EE7C2B</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--route-alt1);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Alt 1</div>
+              <div class="swatch-value">#4D8470</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--route-alt2);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Alt 2</div>
+              <div class="swatch-value">#6B7B8F</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spacing Scale -->
+      <div class="section">
+        <h3 class="section-title">Spacing Scale (4px grid)</h3>
+        <div class="spacing-grid">
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-0); height: var(--space-5);"></div>
+            <div class="spacing-label">space-0</div>
+            <div class="spacing-value">0px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-1); height: var(--space-5);"></div>
+            <div class="spacing-label">space-1</div>
+            <div class="spacing-value">2px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-2); height: var(--space-5);"></div>
+            <div class="spacing-label">space-2</div>
+            <div class="spacing-value">4px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-3); height: var(--space-5);"></div>
+            <div class="spacing-label">space-3</div>
+            <div class="spacing-value">8px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-4); height: var(--space-5);"></div>
+            <div class="spacing-label">space-4</div>
+            <div class="spacing-value">12px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-5); height: var(--space-5);"></div>
+            <div class="spacing-label">space-5</div>
+            <div class="spacing-value">16px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-6); height: var(--space-5);"></div>
+            <div class="spacing-label">space-6</div>
+            <div class="spacing-value">20px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-7); height: var(--space-5);"></div>
+            <div class="spacing-label">space-7</div>
+            <div class="spacing-value">24px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-8); height: var(--space-5);"></div>
+            <div class="spacing-label">space-8</div>
+            <div class="spacing-value">32px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-9); height: var(--space-5);"></div>
+            <div class="spacing-label">space-9</div>
+            <div class="spacing-value">40px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-10); height: var(--space-5);"></div>
+            <div class="spacing-label">space-10</div>
+            <div class="spacing-value">48px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-11); height: var(--space-5);"></div>
+            <div class="spacing-label">space-11</div>
+            <div class="spacing-value">56px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-12); height: var(--space-5);"></div>
+            <div class="spacing-label">space-12</div>
+            <div class="spacing-value">64px</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Radius Scale -->
+      <div class="section">
+        <h3 class="section-title">Border Radius</h3>
+        <div class="radius-grid">
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-none);">none</div>
+            <div class="radius-label">radius-none</div>
+            <div class="radius-value">0px</div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-xs);">xs</div>
+            <div class="radius-label">radius-xs</div>
+            <div class="radius-value">2px</div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-sm);">sm</div>
+            <div class="radius-label">radius-sm</div>
+            <div class="radius-value">6px</div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-md);">md</div>
+            <div class="radius-label">radius-md</div>
+            <div class="radius-value">10px</div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-lg);">lg</div>
+            <div class="radius-label">radius-lg</div>
+            <div class="radius-value">14px</div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-xl);">xl</div>
+            <div class="radius-label">radius-xl</div>
+            <div class="radius-value">20px</div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-pill);">pill</div>
+            <div class="radius-label">radius-pill</div>
+            <div class="radius-value">999px</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Elevation Scale -->
+      <div class="section">
+        <h3 class="section-title">Elevation (Shadow)</h3>
+        <div class="elevation-grid">
+          <div class="elevation-item">
+            <div class="elevation-box" style="box-shadow: var(--elevation-0);">0</div>
+            <div class="elevation-label">elevation-0</div>
+            <div class="elevation-value">0px</div>
+          </div>
+          <div class="elevation-item">
+            <div class="elevation-box" style="box-shadow: var(--elevation-1);">1</div>
+            <div class="elevation-label">elevation-1</div>
+            <div class="elevation-value">0px 1px 2px</div>
+          </div>
+          <div class="elevation-item">
+            <div class="elevation-box" style="box-shadow: var(--elevation-2);">2</div>
+            <div class="elevation-label">elevation-2</div>
+            <div class="elevation-value">0px 2px 8px</div>
+          </div>
+          <div class="elevation-item">
+            <div class="elevation-box" style="box-shadow: var(--elevation-3);">3</div>
+            <div class="elevation-label">elevation-3</div>
+            <div class="elevation-value">0px 4px 16px</div>
+          </div>
+          <div class="elevation-item">
+            <div class="elevation-box" style="box-shadow: var(--elevation-overlay);">overlay</div>
+            <div class="elevation-label">elevation-overlay</div>
+            <div class="elevation-value">0px 8px 32px</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK THEME PANE -->
+    <div class="theme-pane dark" data-theme="dark">
+      <h2 class="theme-label">Dark Theme</h2>
+
+      <!-- Typography Section -->
+      <div class="section">
+        <h3 class="section-title">Typography — Opinion (Newsreader)</h3>
+
+        <div class="type-sample">
+          <div class="type-label">type-opinion-xl</div>
+          <p class="type-text type-opinion-xl">The Navigator's Voice</p>
+          <div class="type-meta">30px / 33.6px / -0.45ls</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-opinion-lg</div>
+          <p class="type-text type-opinion-lg">The morning mist clears as you head north</p>
+          <div class="type-meta">22px / 25.96px / -0.22ls</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-opinion-md</div>
+          <p class="type-text type-opinion-md">Ready when you are</p>
+          <div class="type-meta">17px / 22.44px / 0ls</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-opinion-sm</div>
+          <p class="type-text type-opinion-sm">Shall we begin?</p>
+          <div class="type-meta">14px / 20.3px / 0ls</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">Typography — UI (Geist)</h3>
+
+        <div class="type-sample">
+          <div class="type-label">type-title-lg</div>
+          <p class="type-text type-title-lg">Screen Title</p>
+          <div class="type-meta">17px / 17.08px / -0.17ls / 600</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-title-md</div>
+          <p class="type-text type-title-md">Card Title</p>
+          <div class="type-meta">14px / 17.92px / -0.07ls / 600</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-body-lg</div>
+          <p class="type-text type-body-lg">Body text for descriptions and content that needs to be readable at a glance.</p>
+          <div class="type-meta">14px / 20.72px / 0ls / 400</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-body-md</div>
+          <p class="type-text type-body-md">Secondary body text for list items and metadata.</p>
+          <div class="type-meta">12px / 18.24px / 0ls / 400</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-label-lg</div>
+          <p class="type-text type-label-lg">Label / Uppercase</p>
+          <div class="type-meta">11px / 11px / 0.88ls / 500</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-label-md</div>
+          <p class="type-text type-label-md">Metadata</p>
+          <div class="type-meta">9.5px / 9.5px / 1.14ls / 600</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-label-sm</div>
+          <p class="type-text type-label-sm">Caption</p>
+          <div class="type-meta">8.5px / 8.5px / 1.19ls / 600</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">Typography — Instrument (JetBrains Mono)</h3>
+
+        <div class="type-sample">
+          <div class="type-label">type-instrument-lg</div>
+          <p class="type-text type-instrument-lg">42.7 mi</p>
+          <div class="type-meta">18px / 20.16px / -0.36ls / 500 / tnum</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-instrument-md</div>
+          <p class="type-text type-instrument-md">1:24:35</p>
+          <div class="type-meta">13px / 15.6px / -0.13ls / 500 / tnum</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-instrument-sm</div>
+          <p class="type-text type-instrument-sm">72°F</p>
+          <div class="type-meta">10px / 12px / 0ls / 500 / tnum</div>
+        </div>
+
+        <div class="type-sample">
+          <div class="type-label">type-instrument-xs</div>
+          <p class="type-text type-instrument-xs">38.2°N</p>
+          <div class="type-meta">8.5px / 8.5px / 0ls / 500 / tnum</div>
+        </div>
+      </div>
+
+      <!-- Surface Colors -->
+      <div class="section">
+        <h3 class="section-title">Surface</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-page);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Page</div>
+              <div class="swatch-value">#221810</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-card);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Card</div>
+              <div class="swatch-value">#2D2218</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-inset);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Inset</div>
+              <div class="swatch-value">#362A1F</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-overlay);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Overlay</div>
+              <div class="swatch-value">rgba(45,34,24,0.92)</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-glass);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Glass</div>
+              <div class="swatch-value">rgba(45,34,24,0.72)</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-scrim);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Scrim</div>
+              <div class="swatch-value">rgba(10,6,3,0.50)</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--surface-map);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Map</div>
+              <div class="swatch-value">#2D2218</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Text Colors -->
+      <div class="section">
+        <h3 class="section-title">Text</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--text-heading);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Heading</div>
+              <div class="swatch-value">#F2EEE8</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--text-body);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Body</div>
+              <div class="swatch-value">#F2EEE8</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--text-muted);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Muted</div>
+              <div class="swatch-value">#CAC4D0</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--text-faint);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Faint</div>
+              <div class="swatch-value">#9CA3AF</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--text-on-signal);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">On Signal</div>
+              <div class="swatch-value">#FFFFFF</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Border Colors -->
+      <div class="section">
+        <h3 class="section-title">Border</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--border-default);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Default</div>
+              <div class="swatch-value">rgba(242,238,232,0.12)</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--border-subtle);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Subtle</div>
+              <div class="swatch-value">rgba(242,238,232,0.07)</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--border-strong);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Strong</div>
+              <div class="swatch-value">rgba(242,238,232,0.22)</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--border-focus);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Focus</div>
+              <div class="swatch-value">#EE7C2B</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Accent Colors -->
+      <div class="section">
+        <h3 class="section-title">Accent — Copper Signal</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--accent-primary);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Primary</div>
+              <div class="swatch-value">#EE7C2B</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--accent-hover);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Hover</div>
+              <div class="swatch-value">#F3A164</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--accent-pressed);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Pressed</div>
+              <div class="swatch-value">#9E4A22</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--accent-tint);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Tint</div>
+              <div class="swatch-value">#F9D5B5</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--accent-whisper);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Whisper</div>
+              <div class="swatch-value">#FCE8D4</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Colors -->
+      <div class="section">
+        <h3 class="section-title">Status / Intent</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--status-info);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Info</div>
+              <div class="swatch-value">#3A8BE3</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--status-success);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Success</div>
+              <div class="swatch-value">#4D8470</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--status-warning);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Warning</div>
+              <div class="swatch-value">#C46F1B</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--status-error);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Error</div>
+              <div class="swatch-value">#C9423C</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weather Colors -->
+      <div class="section">
+        <h3 class="section-title">Weather</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--weather-clear);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Clear</div>
+              <div class="swatch-value">#E6A52A</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--weather-rain);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Rain</div>
+              <div class="swatch-value">#4A86BE</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--weather-wind);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Wind</div>
+              <div class="swatch-value">#6B7B8F</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--weather-storm);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Storm</div>
+              <div class="swatch-value">#5E3FAE</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--weather-hot);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Hot</div>
+              <div class="swatch-value">#C9423C</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--weather-cold);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Cold</div>
+              <div class="swatch-value">#3A8BE3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Route Colors -->
+      <div class="section">
+        <h3 class="section-title">Route</h3>
+        <div class="swatch-grid">
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--route-best);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Best</div>
+              <div class="swatch-value">#EE7C2B</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--route-alt1);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Alt 1</div>
+              <div class="swatch-value">#4D8470</div>
+            </div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-fill" style="background: var(--route-alt2);"></div>
+            <div class="swatch-info">
+              <div class="swatch-name">Alt 2</div>
+              <div class="swatch-value">#6B7B8F</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spacing Scale -->
+      <div class="section">
+        <h3 class="section-title">Spacing Scale (4px grid)</h3>
+        <div class="spacing-grid">
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-0); height: var(--space-5);"></div>
+            <div class="spacing-label">space-0</div>
+            <div class="spacing-value">0px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-1); height: var(--space-5);"></div>
+            <div class="spacing-label">space-1</div>
+            <div class="spacing-value">2px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-2); height: var(--space-5);"></div>
+            <div class="spacing-label">space-2</div>
+            <div class="spacing-value">4px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-3); height: var(--space-5);"></div>
+            <div class="spacing-label">space-3</div>
+            <div class="spacing-value">8px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-4); height: var(--space-5);"></div>
+            <div class="spacing-label">space-4</div>
+            <div class="spacing-value">12px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-5); height: var(--space-5);"></div>
+            <div class="spacing-label">space-5</div>
+            <div class="spacing-value">16px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-6); height: var(--space-5);"></div>
+            <div class="spacing-label">space-6</div>
+            <div class="spacing-value">20px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-7); height: var(--space-5);"></div>
+            <div class="spacing-label">space-7</div>
+            <div class="spacing-value">24px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-8); height: var(--space-5);"></div>
+            <div class="spacing-label">space-8</div>
+            <div class="spacing-value">32px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-9); height: var(--space-5);"></div>
+            <div class="spacing-label">space-9</div>
+            <div class="spacing-value">40px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-10); height: var(--space-5);"></div>
+            <div class="spacing-label">space-10</div>
+            <div class="spacing-value">48px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-11); height: var(--space-5);"></div>
+            <div class="spacing-label">space-11</div>
+            <div class="spacing-value">56px</div>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-box" style="width: var(--space-12); height: var(--space-5);"></div>
+            <div class="spacing-label">space-12</div>
+            <div class="spacing-value">64px</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Radius Scale -->
+      <div class="section">
+        <h3 class="section-title">Border Radius</h3>
+        <div class="radius-grid">
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-none);">none</div>
+            <div class="radius-label">radius-none</div>
+            <div class="radius-value">0px</div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-xs);">xs</div>
+            <div class="radius-label">radius-xs</div>
+            <div class="radius-value">2px</div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-sm);">sm</div>
+            <div class="radius-label">radius-sm</div>
+            <div class="radius-value">6px</div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-md);">md</div>
+            <div class="radius-label">radius-md</div>
+            <div class="radius-value">10px</div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-lg);">lg</div>
+            <div class="radius-label">radius-lg</div>
+            <div class="radius-value">14px</div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-xl);">xl</div>
+            <div class="radius-label">radius-xl</div>
+            <div class="radius-value">20px</div>
+          </div>
+          <div class="radius-item">
+            <div class="radius-box" style="border-radius: var(--radius-pill);">pill</div>
+            <div class="radius-label">radius-pill</div>
+            <div class="radius-value">999px</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Elevation Scale -->
+      <div class="section">
+        <h3 class="section-title">Elevation (Shadow)</h3>
+        <div class="elevation-grid">
+          <div class="elevation-item">
+            <div class="elevation-box" style="box-shadow: var(--elevation-0);">0</div>
+            <div class="elevation-label">elevation-0</div>
+            <div class="elevation-value">0px</div>
+          </div>
+          <div class="elevation-item">
+            <div class="elevation-box" style="box-shadow: var(--elevation-1);">1</div>
+            <div class="elevation-label">elevation-1</div>
+            <div class="elevation-value">0px 1px 2px</div>
+          </div>
+          <div class="elevation-item">
+            <div class="elevation-box" style="box-shadow: var(--elevation-2);">2</div>
+            <div class="elevation-label">elevation-2</div>
+            <div class="elevation-value">0px 2px 8px</div>
+          </div>
+          <div class="elevation-item">
+            <div class="elevation-box" style="box-shadow: var(--elevation-3);">3</div>
+            <div class="elevation-label">elevation-3</div>
+            <div class="elevation-value">0px 4px 16px</div>
+          </div>
+          <div class="elevation-item">
+            <div class="elevation-box" style="box-shadow: var(--elevation-overlay);">overlay</div>
+            <div class="elevation-label">elevation-overlay</div>
+            <div class="elevation-value">0px 8px 32px</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

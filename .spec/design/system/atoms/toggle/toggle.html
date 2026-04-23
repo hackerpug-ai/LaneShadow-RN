@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<!-- toggle.html — LSToggle atom preview
+     LaneShadow V2 · Copper · Atom Design Spec
+     Authority: derived from uc-mol-01 list-row (extracted as atom)
+     Atom: LSToggle — boolean switch control (trailing affordance) -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1100">
+<title>LSToggle — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSToggle — boolean switch atom
+   Geometry constants (component-specific, not system tokens):
+     Track width: 42px  — 1.75× the 24px track height
+     Thumb size:  18px  — track height (24px) − 2×3px inset = 18px
+     Thumb off:   3px   — (24 − 18) / 2 = 3px centered inset
+     Thumb on:    22px  — 42 − 18 − 2px visual balance = 22px
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.ls-toggle {
+  /* Geometry constants — see README Notes */
+  width: 42px;
+  height: var(--space-7);          /* 24px track height */
+  border-radius: var(--radius-pill);
+  background: var(--border-default);
+  position: relative;
+  transition: background var(--duration-standard) var(--ease-standard);
+  cursor: pointer;
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* On state — copper track */
+.ls-toggle--on {
+  background: var(--signal-default);
+}
+
+/* Thumb via ::after pseudo-element */
+.ls-toggle::after {
+  content: "";
+  position: absolute;
+  width: 18px;           /* geometry constant — see README */
+  height: 18px;          /* geometry constant — see README */
+  border-radius: var(--radius-pill);
+  background: var(--content-on-signal);
+  top: 3px;              /* geometry constant: (24 − 18) / 2 = 3px */
+  left: 3px;             /* geometry constant: off-position inset */
+  box-shadow: var(--elev-card);
+  transition: left var(--duration-standard) var(--ease-standard);
+}
+
+/* Thumb in on-position */
+.ls-toggle--on::after {
+  left: 22px;            /* geometry constant: 42 − 18 − 2 = 22px */
+}
+
+/* Disabled state */
+.ls-toggle.is-disabled {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Focus-visible ring (keyboard navigation) */
+.ls-toggle:focus-visible {
+  outline: var(--stroke-lg) solid var(--border-focus);
+  outline-offset: var(--space-1);
+}
+
+/* ── Preview-local helpers ──────────────────────────────────────── */
+.toggle-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-7);
+  align-items: center;
+}
+
+.toggle-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.toggle-cell .label {
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  color: var(--content-tertiary);
+  text-align: center;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Simulated focus ring for preview (since :focus-visible needs real focus) */
+.ls-toggle.preview-focus {
+  outline: var(--stroke-lg) solid var(--border-focus);
+  outline-offset: var(--space-1);
+}
+
+/* In-context mock: list row using toggle as trailing */
+.mock-list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  min-height: 44px;
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.mock-list-row__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--signal-whisper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mock-list-row__icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--signal-default);
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.mock-list-row__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.mock-list-row__trailing {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.mock-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.mock-group .mock-list-row {
+  border-radius: 0;
+  border-bottom-color: transparent;
+}
+
+.mock-group .mock-list-row:first-child {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.mock-group .mock-list-row:last-child {
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  border-bottom-color: var(--border-subtle);
+}
+
+.mock-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 0 var(--space-5);
+}
+
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1>LSToggle — <em>Boolean Switch</em></h1>
+  <div class="subtitle">LaneShadow V2 · Copper · Atom · Extracted from uc-mol-01 list-row</div>
+</div>
+
+<!-- ── Section 1: Variant × State Grid ──────────────────────────── -->
+<div class="section">
+  <div class="section-label">Variants × States</div>
+  <div class="two-up">
+
+    <!-- Light theme -->
+    <div class="theme-pane">
+      <div class="section-label" style="font-size:9px;margin-bottom:var(--space-5);">Light mode</div>
+      <div class="toggle-grid">
+
+        <div class="toggle-cell">
+          <button class="ls-toggle" role="switch" aria-checked="false" aria-label="Toggle off default"></button>
+          <span class="label">Off · default</span>
+        </div>
+
+        <div class="toggle-cell">
+          <button class="ls-toggle ls-toggle--on" role="switch" aria-checked="true" aria-label="Toggle on default"></button>
+          <span class="label">On · default</span>
+        </div>
+
+        <div class="toggle-cell">
+          <button class="ls-toggle is-disabled" role="switch" aria-checked="false" aria-disabled="true" tabindex="-1" aria-label="Toggle off disabled"></button>
+          <span class="label">Off · disabled</span>
+        </div>
+
+        <div class="toggle-cell">
+          <button class="ls-toggle ls-toggle--on is-disabled" role="switch" aria-checked="true" aria-disabled="true" tabindex="-1" aria-label="Toggle on disabled"></button>
+          <span class="label">On · disabled</span>
+        </div>
+
+        <div class="toggle-cell">
+          <button class="ls-toggle ls-toggle--on preview-focus" role="switch" aria-checked="true" aria-label="Toggle on focused"></button>
+          <span class="label">On · focus</span>
+        </div>
+
+        <div class="toggle-cell">
+          <button class="ls-toggle preview-focus" role="switch" aria-checked="false" aria-label="Toggle off focused"></button>
+          <span class="label">Off · focus</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Dark theme -->
+    <div class="theme-pane mode-dark">
+      <div class="section-label" style="font-size:9px;margin-bottom:var(--space-5);">Dark mode</div>
+      <div class="toggle-grid">
+
+        <div class="toggle-cell">
+          <button class="ls-toggle" role="switch" aria-checked="false" aria-label="Toggle off default"></button>
+          <span class="label">Off · default</span>
+        </div>
+
+        <div class="toggle-cell">
+          <button class="ls-toggle ls-toggle--on" role="switch" aria-checked="true" aria-label="Toggle on default"></button>
+          <span class="label">On · default</span>
+        </div>
+
+        <div class="toggle-cell">
+          <button class="ls-toggle is-disabled" role="switch" aria-checked="false" aria-disabled="true" tabindex="-1" aria-label="Toggle off disabled"></button>
+          <span class="label">Off · disabled</span>
+        </div>
+
+        <div class="toggle-cell">
+          <button class="ls-toggle ls-toggle--on is-disabled" role="switch" aria-checked="true" aria-disabled="true" tabindex="-1" aria-label="Toggle on disabled"></button>
+          <span class="label">On · disabled</span>
+        </div>
+
+        <div class="toggle-cell">
+          <button class="ls-toggle ls-toggle--on preview-focus" role="switch" aria-checked="true" aria-label="Toggle on focused"></button>
+          <span class="label">On · focus</span>
+        </div>
+
+        <div class="toggle-cell">
+          <button class="ls-toggle preview-focus" role="switch" aria-checked="false" aria-label="Toggle off focused"></button>
+          <span class="label">Off · focus</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Section 2: In-Context Composition (LSListRow mock) ───────── -->
+<div class="section">
+  <div class="section-label">In-Context — LSListRow trailing affordance</div>
+  <div class="two-up">
+
+    <!-- Light theme -->
+    <div class="theme-pane">
+      <div class="section-label" style="font-size:9px;margin-bottom:var(--space-5);">Light mode</div>
+      <div class="mock-group">
+
+        <div class="mock-list-row">
+          <div class="mock-list-row__icon">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div class="mock-list-row__content">
+            <span class="t-body-md">Notifications</span>
+            <span class="t-label-sm" style="color:var(--content-secondary)">Ride alerts and mentions</span>
+          </div>
+          <div class="mock-list-row__trailing">
+            <button class="ls-toggle ls-toggle--on" role="switch" aria-checked="true" aria-labelledby="notif-label"></button>
+          </div>
+        </div>
+
+        <div class="mock-divider"></div>
+
+        <div class="mock-list-row">
+          <div class="mock-list-row__icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="mock-list-row__content">
+            <span class="t-body-md">Location Sharing</span>
+            <span class="t-label-sm" style="color:var(--content-secondary)">During active rides</span>
+          </div>
+          <div class="mock-list-row__trailing">
+            <button class="ls-toggle" role="switch" aria-checked="false" aria-labelledby="location-label"></button>
+          </div>
+        </div>
+
+        <div class="mock-divider"></div>
+
+        <div class="mock-list-row">
+          <div class="mock-list-row__icon" style="opacity:var(--opacity-disabled)">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="mock-list-row__content" style="opacity:var(--opacity-disabled)">
+            <span class="t-body-md">Ride Visibility</span>
+            <span class="t-label-sm" style="color:var(--content-secondary)">Requires location sharing</span>
+          </div>
+          <div class="mock-list-row__trailing">
+            <button class="ls-toggle ls-toggle--on is-disabled" role="switch" aria-checked="true" aria-disabled="true" tabindex="-1" aria-label="Ride visibility"></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Dark theme -->
+    <div class="theme-pane mode-dark">
+      <div class="section-label" style="font-size:9px;margin-bottom:var(--space-5);">Dark mode</div>
+      <div class="mock-group">
+
+        <div class="mock-list-row">
+          <div class="mock-list-row__icon">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div class="mock-list-row__content">
+            <span class="t-body-md">Notifications</span>
+            <span class="t-label-sm" style="color:var(--content-secondary)">Ride alerts and mentions</span>
+          </div>
+          <div class="mock-list-row__trailing">
+            <button class="ls-toggle ls-toggle--on" role="switch" aria-checked="true" aria-label="Notifications"></button>
+          </div>
+        </div>
+
+        <div class="mock-divider"></div>
+
+        <div class="mock-list-row">
+          <div class="mock-list-row__icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="mock-list-row__content">
+            <span class="t-body-md">Location Sharing</span>
+            <span class="t-label-sm" style="color:var(--content-secondary)">During active rides</span>
+          </div>
+          <div class="mock-list-row__trailing">
+            <button class="ls-toggle" role="switch" aria-checked="false" aria-label="Location sharing"></button>
+          </div>
+        </div>
+
+        <div class="mock-divider"></div>
+
+        <div class="mock-list-row">
+          <div class="mock-list-row__icon" style="opacity:var(--opacity-disabled)">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="mock-list-row__content" style="opacity:var(--opacity-disabled)">
+            <span class="t-body-md">Ride Visibility</span>
+            <span class="t-label-sm" style="color:var(--content-secondary)">Requires location sharing</span>
+          </div>
+          <div class="mock-list-row__trailing">
+            <button class="ls-toggle ls-toggle--on is-disabled" role="switch" aria-checked="true" aria-disabled="true" tabindex="-1" aria-label="Ride visibility"></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

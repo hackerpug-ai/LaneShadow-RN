@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<!-- atoms/icon/icon.html — LSIcon Atom Preview
+     LaneShadow V2 · Copper · UC-ATM-10
+     Authority: .spec/prds/v2/concepts/uc-atm-10-icon.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSIcon — Atom Preview — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+/* ── Icon-specific preview styles ─────────────────────────────────── */
+
+/* Base SVG style applied to all outline icons via class */
+.ls-icon {
+  stroke: currentColor;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Fill-type icons (bookmarkFill, starFill, heartFill) */
+.ls-icon-fill {
+  fill: currentColor;
+  stroke: none;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ── Catalog grid ───────────────────────────────────────────────── */
+.icon-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: var(--space-1);
+  background: var(--border-default);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.icon-cell {
+  background: var(--surface-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  cursor: default;
+  transition: background var(--duration-fast) var(--ease-standard);
+}
+
+.icon-cell:hover {
+  background: var(--surface-inset);
+}
+
+.icon-cell .icon-name {
+  font-family: var(--font-instrument);
+  font-size: 8.5px;
+  font-weight: 500;
+  color: var(--content-tertiary);
+  letter-spacing: 0.04em;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* ── Size scale row ─────────────────────────────────────────────── */
+.size-scale-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-7) var(--space-8);
+}
+
+.size-scale-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.size-scale-item .size-token {
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--content-tertiary);
+  letter-spacing: 0.06em;
+}
+
+.size-scale-item .size-px {
+  font-family: var(--font-instrument);
+  font-size: 8px;
+  color: var(--content-subtle);
+}
+
+/* ── Color role row ─────────────────────────────────────────────── */
+.color-role-row {
+  display: flex;
+  align-items: stretch;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.color-role-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-7) var(--space-5);
+  border-right: 1px solid var(--border-subtle);
+}
+
+.color-role-cell:last-child {
+  border-right: none;
+}
+
+.color-role-cell .role-label {
+  font-family: var(--font-instrument);
+  font-size: 8.5px;
+  font-weight: 500;
+  color: var(--content-tertiary);
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+/* ── Multi-size grid (sm / md / lg per icon) ────────────────────── */
+.size-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--space-1);
+  background: var(--border-default);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.size-grid-cell {
+  background: var(--surface-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  cursor: default;
+}
+
+.size-grid-cell .cell-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.size-grid-cell .cell-name {
+  font-family: var(--font-instrument);
+  font-size: 8.5px;
+  font-weight: 500;
+  color: var(--content-tertiary);
+  letter-spacing: 0.04em;
+}
+
+.size-grid-cell .cell-size {
+  font-family: var(--font-instrument);
+  font-size: 7.5px;
+  color: var(--content-subtle);
+  letter-spacing: 0.04em;
+}
+
+/* ── Usage context cards ────────────────────────────────────────── */
+.usage-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-5);
+}
+
+.usage-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.usage-card-title {
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+
+.usage-demo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-inset);
+  border-radius: var(--radius-md);
+}
+
+.usage-label {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--content-primary);
+}
+
+.usage-desc {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--content-tertiary);
+  line-height: 1.5;
+}
+
+/* ── Two-up dark pane overrides ─────────────────────────────────── */
+.theme-pane.mode-dark .icon-catalog-grid {
+  background: var(--border-default);
+}
+
+.theme-pane.mode-dark .icon-cell {
+  background: var(--surface-card);
+}
+
+.theme-pane.mode-dark .icon-cell:hover {
+  background: var(--surface-inset);
+}
+
+.theme-pane.mode-dark .size-scale-row,
+.theme-pane.mode-dark .color-role-row,
+.theme-pane.mode-dark .size-grid {
+  background: var(--surface-card);
+  border-color: var(--border-default);
+}
+
+.theme-pane.mode-dark .usage-card {
+  background: var(--surface-card);
+  border-color: var(--border-default);
+}
+
+.theme-pane.mode-dark .usage-demo {
+  background: var(--surface-inset);
+}
+
+/* Chat send button special demo */
+.send-btn-demo {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-pill);
+  background: var(--signal-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(238, 124, 43, 0.38);
+  flex-shrink: 0;
+  color: var(--content-on-signal);
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+<header class="preview-header">
+  <h1><em>LS</em>Icon</h1>
+  <p class="subtitle">UC-ATM-10 · 31 glyphs · 1.5px rounded stroke · Token-driven color · No platform system icons</p>
+</header>
+
+<!-- ══ §01 FULL CATALOG — LIGHT ════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Full Catalog — Light — all 31 glyphs at --icon-md (18px)</div>
+
+  <div class="icon-catalog-grid">
+
+    <!-- send -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="send">
+        <path d="M17 3L9.5 10.5M17 3L11.5 17.5L9.5 10.5M17 3L3 8L9.5 10.5"/>
+      </svg>
+      <span class="icon-name">send</span>
+    </div>
+
+    <!-- expand -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="expand">
+        <path d="M13 3h4v4M7 17H3v-4M3 3l6 6M17 17l-6-6"/>
+      </svg>
+      <span class="icon-name">expand</span>
+    </div>
+
+    <!-- collapse -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="collapse">
+        <path d="M3 9h4V5M17 11h-4v4M9 3l-6 6M11 17l6-6"/>
+      </svg>
+      <span class="icon-name">collapse</span>
+    </div>
+
+    <!-- menu -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="menu">
+        <path d="M3 5h14M3 10h14M3 15h14"/>
+      </svg>
+      <span class="icon-name">menu</span>
+    </div>
+
+    <!-- plus -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="plus">
+        <path d="M10 3v14M3 10h14"/>
+      </svg>
+      <span class="icon-name">plus</span>
+    </div>
+
+    <!-- close -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="close">
+        <path d="M4 4l12 12M16 4L4 16"/>
+      </svg>
+      <span class="icon-name">close</span>
+    </div>
+
+    <!-- sliders -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="sliders">
+        <path d="M3 5h14M3 10h14M3 15h14"/>
+        <circle cx="7" cy="5" r="2.5"/>
+        <circle cx="13" cy="10" r="2.5"/>
+        <circle cx="7" cy="15" r="2.5"/>
+      </svg>
+      <span class="icon-name">sliders</span>
+    </div>
+
+    <!-- bookmark -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="bookmark">
+        <path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/>
+      </svg>
+      <span class="icon-name">bookmark</span>
+    </div>
+
+    <!-- bookmarkFill -->
+    <div class="icon-cell">
+      <svg class="ls-icon-fill" viewBox="0 0 20 20" width="18" height="18" aria-label="bookmarkFill">
+        <path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/>
+      </svg>
+      <span class="icon-name">bookmarkFill</span>
+    </div>
+
+    <!-- star -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="star">
+        <path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/>
+      </svg>
+      <span class="icon-name">star</span>
+    </div>
+
+    <!-- starFill -->
+    <div class="icon-cell">
+      <svg class="ls-icon-fill" viewBox="0 0 20 20" width="18" height="18" aria-label="starFill">
+        <path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/>
+      </svg>
+      <span class="icon-name">starFill</span>
+    </div>
+
+    <!-- pin -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="pin">
+        <path d="M10 2a5 5 0 015 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 015-5z"/>
+        <circle cx="10" cy="7" r="2"/>
+      </svg>
+      <span class="icon-name">pin</span>
+    </div>
+
+    <!-- clock -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="clock">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M10 6v4l2.5 2.5"/>
+      </svg>
+      <span class="icon-name">clock</span>
+    </div>
+
+    <!-- sun -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="sun">
+        <circle cx="10" cy="10" r="3.5"/>
+        <path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/>
+      </svg>
+      <span class="icon-name">sun</span>
+    </div>
+
+    <!-- rain -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="rain">
+        <path d="M14.5 8.5a4.5 4.5 0 10-9 0H5a3 3 0 000 6h10a3 3 0 000-6h-.5z"/>
+        <path d="M7 15l-1 3M10 15l-1 3M13 15l-1 3"/>
+      </svg>
+      <span class="icon-name">rain</span>
+    </div>
+
+    <!-- wind -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="wind">
+        <path d="M3 8h9.5a2.5 2.5 0 000-5c-1.38 0-2.5 1.12-2.5 2.5"/>
+        <path d="M3 12h12.5a2.5 2.5 0 010 5c-1.38 0-2.5-1.12-2.5-2.5"/>
+        <path d="M3 10h7"/>
+      </svg>
+      <span class="icon-name">wind</span>
+    </div>
+
+    <!-- storm -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="storm">
+        <path d="M13 2L7 10h5l-2 8 8-10h-5l2-6z"/>
+      </svg>
+      <span class="icon-name">storm</span>
+    </div>
+
+    <!-- therm -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="therm">
+        <path d="M10 4v8.15A3 3 0 1010 17V4z"/>
+        <path d="M12.5 6h2M12.5 9h1.5"/>
+      </svg>
+      <span class="icon-name">therm</span>
+    </div>
+
+    <!-- route -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="route">
+        <circle cx="4.5" cy="15.5" r="2"/>
+        <circle cx="15.5" cy="4.5" r="2"/>
+        <path d="M6.5 15.5H10a5 5 0 000-10H6.5A3.5 3.5 0 006.5 13H10"/>
+      </svg>
+      <span class="icon-name">route</span>
+    </div>
+
+    <!-- map -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="map">
+        <path d="M7.5 2L2 5v13l5.5-3 5 3 5.5-3V2L13 5l-5.5-3z"/>
+        <path d="M7.5 2v13M12.5 5v13"/>
+      </svg>
+      <span class="icon-name">map</span>
+    </div>
+
+    <!-- layers -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="layers">
+        <path d="M10 2L2 6.5l8 4.5 8-4.5L10 2z"/>
+        <path d="M2 10.5l8 4.5 8-4.5"/>
+        <path d="M2 14.5l8 4.5 8-4.5"/>
+      </svg>
+      <span class="icon-name">layers</span>
+    </div>
+
+    <!-- share -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="share">
+        <circle cx="15" cy="4" r="2"/>
+        <circle cx="5" cy="10" r="2"/>
+        <circle cx="15" cy="16" r="2"/>
+        <path d="M7 10.7l5.5 3.2M12.5 6.1L7 9.3"/>
+      </svg>
+      <span class="icon-name">share</span>
+    </div>
+
+    <!-- heart -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="heart">
+        <path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/>
+      </svg>
+      <span class="icon-name">heart</span>
+    </div>
+
+    <!-- heartFill -->
+    <div class="icon-cell">
+      <svg class="ls-icon-fill" viewBox="0 0 20 20" width="18" height="18" aria-label="heartFill">
+        <path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/>
+      </svg>
+      <span class="icon-name">heartFill</span>
+    </div>
+
+    <!-- sparkle -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="sparkle">
+        <path d="M10 2l1.5 5.5L17 9l-5.5 1.5L10 16l-1.5-5.5L3 9l5.5-1.5L10 2z"/>
+        <path d="M17 3l.7 2 2 .7-2 .7L17 9l-.7-2.3-2-.7 2-.7L17 3z"/>
+      </svg>
+      <span class="icon-name">sparkle</span>
+    </div>
+
+    <!-- compass -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="compass">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+      </svg>
+      <span class="icon-name">compass</span>
+    </div>
+
+    <!-- edit -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="edit">
+        <path d="M14 3l3 3L6 17H3v-3L14 3z"/>
+        <path d="M12.5 4.5l3 3"/>
+      </svg>
+      <span class="icon-name">edit</span>
+    </div>
+
+    <!-- trash -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="trash">
+        <path d="M4 6h12l-1 11H5L4 6z"/>
+        <path d="M2.5 6h15M8 6V4h4v2"/>
+      </svg>
+      <span class="icon-name">trash</span>
+    </div>
+
+    <!-- bike -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="bike">
+        <circle cx="5" cy="14" r="3"/>
+        <circle cx="15" cy="14" r="3"/>
+        <path d="M5 14l4-7h4l2 7"/>
+        <path d="M9 7l-3 7M12 7l1 4"/>
+        <circle cx="12" cy="6" r="1.5"/>
+      </svg>
+      <span class="icon-name">bike</span>
+    </div>
+
+    <!-- chevR -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="chevR">
+        <path d="M7.5 5l5 5-5 5"/>
+      </svg>
+      <span class="icon-name">chevR</span>
+    </div>
+
+    <!-- chevL -->
+    <div class="icon-cell">
+      <svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18" aria-label="chevL">
+        <path d="M12.5 5l-5 5 5 5"/>
+      </svg>
+      <span class="icon-name">chevL</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ §02 SIZE SCALE ══════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">Size Scale — compass at all 5 token sizes</div>
+
+  <div class="size-scale-row">
+
+    <div class="size-scale-item">
+      <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-xs);height:var(--icon-xs);" aria-label="compass xs">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+      </svg>
+      <span class="size-token">--icon-xs</span>
+      <span class="size-px">12px</span>
+    </div>
+
+    <div class="size-scale-item">
+      <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);" aria-label="compass sm">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+      </svg>
+      <span class="size-token">--icon-sm</span>
+      <span class="size-px">16px</span>
+    </div>
+
+    <div class="size-scale-item">
+      <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);" aria-label="compass md">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+      </svg>
+      <span class="size-token">--icon-md</span>
+      <span class="size-px">18px</span>
+    </div>
+
+    <div class="size-scale-item">
+      <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);" aria-label="compass lg">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+      </svg>
+      <span class="size-token">--icon-lg</span>
+      <span class="size-px">24px</span>
+    </div>
+
+    <div class="size-scale-item">
+      <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-xl);height:var(--icon-xl);" aria-label="compass xl">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+      </svg>
+      <span class="size-token">--icon-xl</span>
+      <span class="size-px">32px</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ §03 COLOR ROLES ════════════════════════════════════════════= -->
+<div class="section">
+  <div class="section-label">Color Roles — compass at all ContentColor roles (--icon-lg)</div>
+
+  <div class="color-role-row">
+
+    <div class="color-role-cell" style="color:var(--content-primary);">
+      <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);" aria-label="compass content-primary">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+      </svg>
+      <span class="role-label">--content-primary</span>
+    </div>
+
+    <div class="color-role-cell" style="color:var(--content-secondary);">
+      <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);" aria-label="compass content-secondary">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+      </svg>
+      <span class="role-label">--content-secondary</span>
+    </div>
+
+    <div class="color-role-cell" style="color:var(--content-tertiary);">
+      <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);" aria-label="compass content-tertiary">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+      </svg>
+      <span class="role-label">--content-tertiary</span>
+    </div>
+
+    <div class="color-role-cell" style="color:var(--signal-default);">
+      <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);" aria-label="compass signal-default">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+      </svg>
+      <span class="role-label">--signal-default</span>
+    </div>
+
+    <div class="color-role-cell" style="color:var(--status-error);">
+      <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);" aria-label="compass status-error">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+      </svg>
+      <span class="role-label">--status-error</span>
+    </div>
+
+    <div class="color-role-cell" style="color:var(--status-success);">
+      <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);" aria-label="compass status-success">
+        <circle cx="10" cy="10" r="7.5"/>
+        <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+      </svg>
+      <span class="role-label">--status-success</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ §04 MULTI-SIZE GRID — sm / md / lg per icon ═══════════════ -->
+<div class="section">
+  <div class="section-label">Multi-size grid — all 31 icons × sm / md / lg</div>
+
+  <div class="size-grid">
+
+    <!-- send sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M17 3L9.5 10.5M17 3L11.5 17.5L9.5 10.5M17 3L3 8L9.5 10.5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M17 3L9.5 10.5M17 3L11.5 17.5L9.5 10.5M17 3L3 8L9.5 10.5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M17 3L9.5 10.5M17 3L11.5 17.5L9.5 10.5M17 3L3 8L9.5 10.5"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">send</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- expand sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M13 3h4v4M7 17H3v-4M3 3l6 6M17 17l-6-6"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M13 3h4v4M7 17H3v-4M3 3l6 6M17 17l-6-6"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M13 3h4v4M7 17H3v-4M3 3l6 6M17 17l-6-6"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">expand</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- collapse sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M3 9h4V5M17 11h-4v4M9 3l-6 6M11 17l6-6"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M3 9h4V5M17 11h-4v4M9 3l-6 6M11 17l6-6"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M3 9h4V5M17 11h-4v4M9 3l-6 6M11 17l6-6"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">collapse</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- menu sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">menu</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- plus sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M10 3v14M3 10h14"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M10 3v14M3 10h14"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M10 3v14M3 10h14"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">plus</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- close sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M4 4l12 12M16 4L4 16"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M4 4l12 12M16 4L4 16"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M4 4l12 12M16 4L4 16"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">close</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- sliders sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M3 5h14M3 10h14M3 15h14"/><circle cx="7" cy="5" r="2.5"/><circle cx="13" cy="10" r="2.5"/><circle cx="7" cy="15" r="2.5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M3 5h14M3 10h14M3 15h14"/><circle cx="7" cy="5" r="2.5"/><circle cx="13" cy="10" r="2.5"/><circle cx="7" cy="15" r="2.5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M3 5h14M3 10h14M3 15h14"/><circle cx="7" cy="5" r="2.5"/><circle cx="13" cy="10" r="2.5"/><circle cx="7" cy="15" r="2.5"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">sliders</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- bookmark sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">bookmark</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- bookmarkFill sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon-fill" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/></svg>
+        <svg class="ls-icon-fill" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/></svg>
+        <svg class="ls-icon-fill" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">bookmarkFill</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- star sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">star</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- starFill sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon-fill" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/></svg>
+        <svg class="ls-icon-fill" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/></svg>
+        <svg class="ls-icon-fill" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">starFill</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- pin sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M10 2a5 5 0 015 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 015-5z"/><circle cx="10" cy="7" r="2"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M10 2a5 5 0 015 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 015-5z"/><circle cx="10" cy="7" r="2"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M10 2a5 5 0 015 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 015-5z"/><circle cx="10" cy="7" r="2"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">pin</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- clock sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.5 2.5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.5 2.5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.5 2.5"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">clock</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- sun sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><circle cx="10" cy="10" r="3.5"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><circle cx="10" cy="10" r="3.5"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><circle cx="10" cy="10" r="3.5"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">sun</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- rain sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M14.5 8.5a4.5 4.5 0 10-9 0H5a3 3 0 000 6h10a3 3 0 000-6h-.5z"/><path d="M7 15l-1 3M10 15l-1 3M13 15l-1 3"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M14.5 8.5a4.5 4.5 0 10-9 0H5a3 3 0 000 6h10a3 3 0 000-6h-.5z"/><path d="M7 15l-1 3M10 15l-1 3M13 15l-1 3"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M14.5 8.5a4.5 4.5 0 10-9 0H5a3 3 0 000 6h10a3 3 0 000-6h-.5z"/><path d="M7 15l-1 3M10 15l-1 3M13 15l-1 3"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">rain</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- wind sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M3 8h9.5a2.5 2.5 0 000-5c-1.38 0-2.5 1.12-2.5 2.5"/><path d="M3 12h12.5a2.5 2.5 0 010 5c-1.38 0-2.5-1.12-2.5-2.5"/><path d="M3 10h7"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M3 8h9.5a2.5 2.5 0 000-5c-1.38 0-2.5 1.12-2.5 2.5"/><path d="M3 12h12.5a2.5 2.5 0 010 5c-1.38 0-2.5-1.12-2.5-2.5"/><path d="M3 10h7"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M3 8h9.5a2.5 2.5 0 000-5c-1.38 0-2.5 1.12-2.5 2.5"/><path d="M3 12h12.5a2.5 2.5 0 010 5c-1.38 0-2.5-1.12-2.5-2.5"/><path d="M3 10h7"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">wind</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- storm sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M13 2L7 10h5l-2 8 8-10h-5l2-6z"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M13 2L7 10h5l-2 8 8-10h-5l2-6z"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M13 2L7 10h5l-2 8 8-10h-5l2-6z"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">storm</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- therm sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M10 4v8.15A3 3 0 1010 17V4z"/><path d="M12.5 6h2M12.5 9h1.5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M10 4v8.15A3 3 0 1010 17V4z"/><path d="M12.5 6h2M12.5 9h1.5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M10 4v8.15A3 3 0 1010 17V4z"/><path d="M12.5 6h2M12.5 9h1.5"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">therm</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- route sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><circle cx="4.5" cy="15.5" r="2"/><circle cx="15.5" cy="4.5" r="2"/><path d="M6.5 15.5H10a5 5 0 000-10H6.5A3.5 3.5 0 006.5 13H10"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><circle cx="4.5" cy="15.5" r="2"/><circle cx="15.5" cy="4.5" r="2"/><path d="M6.5 15.5H10a5 5 0 000-10H6.5A3.5 3.5 0 006.5 13H10"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><circle cx="4.5" cy="15.5" r="2"/><circle cx="15.5" cy="4.5" r="2"/><path d="M6.5 15.5H10a5 5 0 000-10H6.5A3.5 3.5 0 006.5 13H10"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">route</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- map sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M7.5 2L2 5v13l5.5-3 5 3 5.5-3V2L13 5l-5.5-3z"/><path d="M7.5 2v13M12.5 5v13"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M7.5 2L2 5v13l5.5-3 5 3 5.5-3V2L13 5l-5.5-3z"/><path d="M7.5 2v13M12.5 5v13"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M7.5 2L2 5v13l5.5-3 5 3 5.5-3V2L13 5l-5.5-3z"/><path d="M7.5 2v13M12.5 5v13"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">map</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- layers sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M10 2L2 6.5l8 4.5 8-4.5L10 2z"/><path d="M2 10.5l8 4.5 8-4.5"/><path d="M2 14.5l8 4.5 8-4.5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M10 2L2 6.5l8 4.5 8-4.5L10 2z"/><path d="M2 10.5l8 4.5 8-4.5"/><path d="M2 14.5l8 4.5 8-4.5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M10 2L2 6.5l8 4.5 8-4.5L10 2z"/><path d="M2 10.5l8 4.5 8-4.5"/><path d="M2 14.5l8 4.5 8-4.5"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">layers</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- share sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><circle cx="15" cy="4" r="2"/><circle cx="5" cy="10" r="2"/><circle cx="15" cy="16" r="2"/><path d="M7 10.7l5.5 3.2M12.5 6.1L7 9.3"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><circle cx="15" cy="4" r="2"/><circle cx="5" cy="10" r="2"/><circle cx="15" cy="16" r="2"/><path d="M7 10.7l5.5 3.2M12.5 6.1L7 9.3"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><circle cx="15" cy="4" r="2"/><circle cx="5" cy="10" r="2"/><circle cx="15" cy="16" r="2"/><path d="M7 10.7l5.5 3.2M12.5 6.1L7 9.3"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">share</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- heart sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">heart</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- heartFill sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon-fill" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/></svg>
+        <svg class="ls-icon-fill" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/></svg>
+        <svg class="ls-icon-fill" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">heartFill</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- sparkle sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M10 2l1.5 5.5L17 9l-5.5 1.5L10 16l-1.5-5.5L3 9l5.5-1.5L10 2z"/><path d="M17 3l.7 2 2 .7-2 .7L17 9l-.7-2.3-2-.7 2-.7L17 3z"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M10 2l1.5 5.5L17 9l-5.5 1.5L10 16l-1.5-5.5L3 9l5.5-1.5L10 2z"/><path d="M17 3l.7 2 2 .7-2 .7L17 9l-.7-2.3-2-.7 2-.7L17 3z"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M10 2l1.5 5.5L17 9l-5.5 1.5L10 16l-1.5-5.5L3 9l5.5-1.5L10 2z"/><path d="M17 3l.7 2 2 .7-2 .7L17 9l-.7-2.3-2-.7 2-.7L17 3z"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">sparkle</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- compass sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><circle cx="10" cy="10" r="7.5"/><path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><circle cx="10" cy="10" r="7.5"/><path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><circle cx="10" cy="10" r="7.5"/><path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">compass</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- edit sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M14 3l3 3L6 17H3v-3L14 3z"/><path d="M12.5 4.5l3 3"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M14 3l3 3L6 17H3v-3L14 3z"/><path d="M12.5 4.5l3 3"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M14 3l3 3L6 17H3v-3L14 3z"/><path d="M12.5 4.5l3 3"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">edit</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- trash sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M4 6h12l-1 11H5L4 6z"/><path d="M2.5 6h15M8 6V4h4v2"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M4 6h12l-1 11H5L4 6z"/><path d="M2.5 6h15M8 6V4h4v2"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M4 6h12l-1 11H5L4 6z"/><path d="M2.5 6h15M8 6V4h4v2"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">trash</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- bike sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><circle cx="5" cy="14" r="3"/><circle cx="15" cy="14" r="3"/><path d="M5 14l4-7h4l2 7"/><path d="M9 7l-3 7M12 7l1 4"/><circle cx="12" cy="6" r="1.5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><circle cx="5" cy="14" r="3"/><circle cx="15" cy="14" r="3"/><path d="M5 14l4-7h4l2 7"/><path d="M9 7l-3 7M12 7l1 4"/><circle cx="12" cy="6" r="1.5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><circle cx="5" cy="14" r="3"/><circle cx="15" cy="14" r="3"/><path d="M5 14l4-7h4l2 7"/><path d="M9 7l-3 7M12 7l1 4"/><circle cx="12" cy="6" r="1.5"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">bike</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- chevR sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M7.5 5l5 5-5 5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M7.5 5l5 5-5 5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M7.5 5l5 5-5 5"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">chevR</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+    <!-- chevL sm/md/lg -->
+    <div class="size-grid-cell">
+      <div style="display:flex;align-items:center;gap:var(--space-4);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);"><path d="M12.5 5l-5 5 5 5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);"><path d="M12.5 5l-5 5 5 5"/></svg>
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-lg);height:var(--icon-lg);"><path d="M12.5 5l-5 5 5 5"/></svg>
+      </div>
+      <div class="cell-meta"><span class="cell-name">chevL</span><span class="cell-size">sm · md · lg</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ §05 DARK THEME — TWO-UP ════════════════════════════════════= -->
+<div class="section">
+  <div class="section-label">Light vs Dark — full catalog at --icon-md</div>
+
+  <div class="two-up">
+
+    <!-- Light pane -->
+    <div class="theme-pane">
+      <p style="font-family:var(--font-instrument);font-size:9.5px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--content-tertiary);margin-bottom:var(--space-5);">Light</p>
+      <div class="icon-catalog-grid">
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M17 3L9.5 10.5M17 3L11.5 17.5L9.5 10.5M17 3L3 8L9.5 10.5"/></svg><span class="icon-name">send</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M13 3h4v4M7 17H3v-4M3 3l6 6M17 17l-6-6"/></svg><span class="icon-name">expand</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M3 9h4V5M17 11h-4v4M9 3l-6 6M11 17l6-6"/></svg><span class="icon-name">collapse</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M3 5h14M3 10h14M3 15h14"/></svg><span class="icon-name">menu</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 3v14M3 10h14"/></svg><span class="icon-name">plus</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M4 4l12 12M16 4L4 16"/></svg><span class="icon-name">close</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M3 5h14M3 10h14M3 15h14"/><circle cx="7" cy="5" r="2.5"/><circle cx="13" cy="10" r="2.5"/><circle cx="7" cy="15" r="2.5"/></svg><span class="icon-name">sliders</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/></svg><span class="icon-name">bookmark</span></div>
+        <div class="icon-cell" style="color:var(--signal-default);"><svg class="ls-icon-fill" viewBox="0 0 20 20" width="18" height="18"><path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/></svg><span class="icon-name">bookmarkFill</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/></svg><span class="icon-name">star</span></div>
+        <div class="icon-cell" style="color:var(--signal-default);"><svg class="ls-icon-fill" viewBox="0 0 20 20" width="18" height="18"><path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/></svg><span class="icon-name">starFill</span></div>
+        <div class="icon-cell" style="color:var(--signal-default);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 2a5 5 0 015 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 015-5z"/><circle cx="10" cy="7" r="2"/></svg><span class="icon-name">pin</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.5 2.5"/></svg><span class="icon-name">clock</span></div>
+        <div class="icon-cell" style="color:var(--wx-clear);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><circle cx="10" cy="10" r="3.5"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/></svg><span class="icon-name">sun</span></div>
+        <div class="icon-cell" style="color:var(--wx-rain);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M14.5 8.5a4.5 4.5 0 10-9 0H5a3 3 0 000 6h10a3 3 0 000-6h-.5z"/><path d="M7 15l-1 3M10 15l-1 3M13 15l-1 3"/></svg><span class="icon-name">rain</span></div>
+        <div class="icon-cell" style="color:var(--wx-wind);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M3 8h9.5a2.5 2.5 0 000-5c-1.38 0-2.5 1.12-2.5 2.5"/><path d="M3 12h12.5a2.5 2.5 0 010 5c-1.38 0-2.5-1.12-2.5-2.5"/><path d="M3 10h7"/></svg><span class="icon-name">wind</span></div>
+        <div class="icon-cell" style="color:var(--wx-storm);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M13 2L7 10h5l-2 8 8-10h-5l2-6z"/></svg><span class="icon-name">storm</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 4v8.15A3 3 0 1010 17V4z"/><path d="M12.5 6h2M12.5 9h1.5"/></svg><span class="icon-name">therm</span></div>
+        <div class="icon-cell" style="color:var(--signal-default);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><circle cx="4.5" cy="15.5" r="2"/><circle cx="15.5" cy="4.5" r="2"/><path d="M6.5 15.5H10a5 5 0 000-10H6.5A3.5 3.5 0 006.5 13H10"/></svg><span class="icon-name">route</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M7.5 2L2 5v13l5.5-3 5 3 5.5-3V2L13 5l-5.5-3z"/><path d="M7.5 2v13M12.5 5v13"/></svg><span class="icon-name">map</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 2L2 6.5l8 4.5 8-4.5L10 2z"/><path d="M2 10.5l8 4.5 8-4.5"/><path d="M2 14.5l8 4.5 8-4.5"/></svg><span class="icon-name">layers</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><circle cx="15" cy="4" r="2"/><circle cx="5" cy="10" r="2"/><circle cx="15" cy="16" r="2"/><path d="M7 10.7l5.5 3.2M12.5 6.1L7 9.3"/></svg><span class="icon-name">share</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/></svg><span class="icon-name">heart</span></div>
+        <div class="icon-cell" style="color:var(--status-error);"><svg class="ls-icon-fill" viewBox="0 0 20 20" width="18" height="18"><path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/></svg><span class="icon-name">heartFill</span></div>
+        <div class="icon-cell" style="color:var(--signal-default);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 2l1.5 5.5L17 9l-5.5 1.5L10 16l-1.5-5.5L3 9l5.5-1.5L10 2z"/><path d="M17 3l.7 2 2 .7-2 .7L17 9l-.7-2.3-2-.7 2-.7L17 3z"/></svg><span class="icon-name">sparkle</span></div>
+        <div class="icon-cell" style="color:var(--signal-default);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><circle cx="10" cy="10" r="7.5"/><path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/></svg><span class="icon-name">compass</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M14 3l3 3L6 17H3v-3L14 3z"/><path d="M12.5 4.5l3 3"/></svg><span class="icon-name">edit</span></div>
+        <div class="icon-cell" style="color:var(--status-error);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M4 6h12l-1 11H5L4 6z"/><path d="M2.5 6h15M8 6V4h4v2"/></svg><span class="icon-name">trash</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><circle cx="5" cy="14" r="3"/><circle cx="15" cy="14" r="3"/><path d="M5 14l4-7h4l2 7"/><path d="M9 7l-3 7M12 7l1 4"/><circle cx="12" cy="6" r="1.5"/></svg><span class="icon-name">bike</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M7.5 5l5 5-5 5"/></svg><span class="icon-name">chevR</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M12.5 5l-5 5 5 5"/></svg><span class="icon-name">chevL</span></div>
+      </div>
+    </div>
+
+    <!-- Dark pane -->
+    <div class="theme-pane mode-dark">
+      <p style="font-family:var(--font-instrument);font-size:9.5px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--content-tertiary);margin-bottom:var(--space-5);">Dark</p>
+      <div class="icon-catalog-grid">
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M17 3L9.5 10.5M17 3L11.5 17.5L9.5 10.5M17 3L3 8L9.5 10.5"/></svg><span class="icon-name">send</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M13 3h4v4M7 17H3v-4M3 3l6 6M17 17l-6-6"/></svg><span class="icon-name">expand</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M3 9h4V5M17 11h-4v4M9 3l-6 6M11 17l6-6"/></svg><span class="icon-name">collapse</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M3 5h14M3 10h14M3 15h14"/></svg><span class="icon-name">menu</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 3v14M3 10h14"/></svg><span class="icon-name">plus</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M4 4l12 12M16 4L4 16"/></svg><span class="icon-name">close</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M3 5h14M3 10h14M3 15h14"/><circle cx="7" cy="5" r="2.5"/><circle cx="13" cy="10" r="2.5"/><circle cx="7" cy="15" r="2.5"/></svg><span class="icon-name">sliders</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/></svg><span class="icon-name">bookmark</span></div>
+        <div class="icon-cell" style="color:var(--signal-default);"><svg class="ls-icon-fill" viewBox="0 0 20 20" width="18" height="18"><path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/></svg><span class="icon-name">bookmarkFill</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/></svg><span class="icon-name">star</span></div>
+        <div class="icon-cell" style="color:var(--signal-default);"><svg class="ls-icon-fill" viewBox="0 0 20 20" width="18" height="18"><path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/></svg><span class="icon-name">starFill</span></div>
+        <div class="icon-cell" style="color:var(--signal-default);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 2a5 5 0 015 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 015-5z"/><circle cx="10" cy="7" r="2"/></svg><span class="icon-name">pin</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.5 2.5"/></svg><span class="icon-name">clock</span></div>
+        <div class="icon-cell" style="color:var(--wx-clear);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><circle cx="10" cy="10" r="3.5"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4"/></svg><span class="icon-name">sun</span></div>
+        <div class="icon-cell" style="color:var(--wx-rain);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M14.5 8.5a4.5 4.5 0 10-9 0H5a3 3 0 000 6h10a3 3 0 000-6h-.5z"/><path d="M7 15l-1 3M10 15l-1 3M13 15l-1 3"/></svg><span class="icon-name">rain</span></div>
+        <div class="icon-cell" style="color:var(--wx-wind);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M3 8h9.5a2.5 2.5 0 000-5c-1.38 0-2.5 1.12-2.5 2.5"/><path d="M3 12h12.5a2.5 2.5 0 010 5c-1.38 0-2.5-1.12-2.5-2.5"/><path d="M3 10h7"/></svg><span class="icon-name">wind</span></div>
+        <div class="icon-cell" style="color:var(--wx-storm);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M13 2L7 10h5l-2 8 8-10h-5l2-6z"/></svg><span class="icon-name">storm</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 4v8.15A3 3 0 1010 17V4z"/><path d="M12.5 6h2M12.5 9h1.5"/></svg><span class="icon-name">therm</span></div>
+        <div class="icon-cell" style="color:var(--signal-default);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><circle cx="4.5" cy="15.5" r="2"/><circle cx="15.5" cy="4.5" r="2"/><path d="M6.5 15.5H10a5 5 0 000-10H6.5A3.5 3.5 0 006.5 13H10"/></svg><span class="icon-name">route</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M7.5 2L2 5v13l5.5-3 5 3 5.5-3V2L13 5l-5.5-3z"/><path d="M7.5 2v13M12.5 5v13"/></svg><span class="icon-name">map</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 2L2 6.5l8 4.5 8-4.5L10 2z"/><path d="M2 10.5l8 4.5 8-4.5"/><path d="M2 14.5l8 4.5 8-4.5"/></svg><span class="icon-name">layers</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><circle cx="15" cy="4" r="2"/><circle cx="5" cy="10" r="2"/><circle cx="15" cy="16" r="2"/><path d="M7 10.7l5.5 3.2M12.5 6.1L7 9.3"/></svg><span class="icon-name">share</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/></svg><span class="icon-name">heart</span></div>
+        <div class="icon-cell" style="color:var(--status-error);"><svg class="ls-icon-fill" viewBox="0 0 20 20" width="18" height="18"><path d="M10 16.5S2.5 12 2.5 6.5a4 4 0 017.5-2 4 4 0 017.5 2C17.5 12 10 16.5 10 16.5z"/></svg><span class="icon-name">heartFill</span></div>
+        <div class="icon-cell" style="color:var(--signal-default);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M10 2l1.5 5.5L17 9l-5.5 1.5L10 16l-1.5-5.5L3 9l5.5-1.5L10 2z"/><path d="M17 3l.7 2 2 .7-2 .7L17 9l-.7-2.3-2-.7 2-.7L17 3z"/></svg><span class="icon-name">sparkle</span></div>
+        <div class="icon-cell" style="color:var(--signal-default);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><circle cx="10" cy="10" r="7.5"/><path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/></svg><span class="icon-name">compass</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M14 3l3 3L6 17H3v-3L14 3z"/><path d="M12.5 4.5l3 3"/></svg><span class="icon-name">edit</span></div>
+        <div class="icon-cell" style="color:var(--status-error);"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M4 6h12l-1 11H5L4 6z"/><path d="M2.5 6h15M8 6V4h4v2"/></svg><span class="icon-name">trash</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><circle cx="5" cy="14" r="3"/><circle cx="15" cy="14" r="3"/><path d="M5 14l4-7h4l2 7"/><path d="M9 7l-3 7M12 7l1 4"/><circle cx="12" cy="6" r="1.5"/></svg><span class="icon-name">bike</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M7.5 5l5 5-5 5"/></svg><span class="icon-name">chevR</span></div>
+        <div class="icon-cell"><svg class="ls-icon" viewBox="0 0 20 20" width="18" height="18"><path d="M12.5 5l-5 5 5 5"/></svg><span class="icon-name">chevL</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ §06 USAGE CONTEXTS ═════════════════════════════════════════= -->
+<div class="section">
+  <div class="section-label">Usage Contexts</div>
+
+  <div class="usage-grid">
+
+    <div class="usage-card">
+      <span class="usage-card-title">Navigator persona</span>
+      <div class="usage-demo" style="color:var(--signal-default);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);" aria-label="compass">
+          <circle cx="10" cy="10" r="7.5"/>
+          <path d="M13 7l-1.5 4.5L7 13l1.5-4.5L13 7z"/>
+        </svg>
+        <span class="usage-label">Navigator</span>
+      </div>
+      <p class="usage-desc">compass · --icon-md · --signal-default. Phase cards and message bubbles.</p>
+    </div>
+
+    <div class="usage-card">
+      <span class="usage-card-title">Location tag</span>
+      <div class="usage-demo" style="color:var(--signal-default);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);" aria-label="pin">
+          <path d="M10 2a5 5 0 015 5c0 3.5-5 11-5 11S5 10.5 5 7a5 5 0 015-5z"/>
+          <circle cx="10" cy="7" r="2"/>
+        </svg>
+        <span class="usage-label">Twin Peaks, SF</span>
+      </div>
+      <p class="usage-desc">pin · --icon-sm · --signal-default. Waypoint chips and location pills.</p>
+    </div>
+
+    <div class="usage-card">
+      <span class="usage-card-title">Chat send button</span>
+      <div class="usage-demo" style="background:transparent;padding:0;">
+        <div class="send-btn-demo">
+          <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);transform:translate(-1px,1px);" aria-label="send">
+            <path d="M17 3L9.5 10.5M17 3L11.5 17.5L9.5 10.5M17 3L3 8L9.5 10.5"/>
+          </svg>
+        </div>
+      </div>
+      <p class="usage-desc">send · --icon-sm · --content-on-signal. Circular --signal-default button, 42px.</p>
+    </div>
+
+    <div class="usage-card">
+      <span class="usage-card-title">Filter / sliders</span>
+      <div class="usage-demo" style="color:var(--content-secondary);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);" aria-label="sliders">
+          <path d="M3 5h14M3 10h14M3 15h14"/>
+          <circle cx="7" cy="5" r="2.5"/>
+          <circle cx="13" cy="10" r="2.5"/>
+          <circle cx="7" cy="15" r="2.5"/>
+        </svg>
+        <span class="usage-label">Filters</span>
+      </div>
+      <p class="usage-desc">sliders · --icon-md · --content-secondary. ChatInput filter chip.</p>
+    </div>
+
+    <div class="usage-card">
+      <span class="usage-card-title">Best badge</span>
+      <div class="usage-demo" style="color:var(--signal-default);">
+        <svg class="ls-icon-fill" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);" aria-label="starFill">
+          <path d="M10 2.5l2.06 4.17 4.6.67-3.33 3.24.79 4.58L10 12.77l-4.12 2.19.79-4.58L3.34 7.34l4.6-.67L10 2.5z"/>
+        </svg>
+        <span class="usage-label">Best for Today</span>
+      </div>
+      <p class="usage-desc">starFill · --icon-sm · --signal-default. Leads LSBestBadge label.</p>
+    </div>
+
+    <div class="usage-card">
+      <span class="usage-card-title">Save / bookmark</span>
+      <div class="usage-demo" style="color:var(--signal-default);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);" aria-label="bookmark">
+          <path d="M5 3h10a1 1 0 011 1v13l-6-3.5L4 17V4a1 1 0 011-1z"/>
+        </svg>
+        <span class="usage-label">Save ride</span>
+      </div>
+      <p class="usage-desc">bookmark / bookmarkFill toggle · --icon-md. Ride detail header.</p>
+    </div>
+
+    <div class="usage-card">
+      <span class="usage-card-title">Weather pill</span>
+      <div class="usage-demo" style="color:var(--wx-rain);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-sm);height:var(--icon-sm);" aria-label="rain">
+          <path d="M14.5 8.5a4.5 4.5 0 10-9 0H5a3 3 0 000 6h10a3 3 0 000-6h-.5z"/>
+          <path d="M7 15l-1 3M10 15l-1 3M13 15l-1 3"/>
+        </svg>
+        <span class="usage-label">Rain 3pm</span>
+      </div>
+      <p class="usage-desc">rain / sun / wind / storm / therm · --icon-xs–sm. LSBadge weather variants.</p>
+    </div>
+
+    <div class="usage-card">
+      <span class="usage-card-title">AI sparkle indicator</span>
+      <div class="usage-demo" style="color:var(--signal-default);">
+        <svg class="ls-icon" viewBox="0 0 20 20" style="width:var(--icon-md);height:var(--icon-md);" aria-label="sparkle">
+          <path d="M10 2l1.5 5.5L17 9l-5.5 1.5L10 16l-1.5-5.5L3 9l5.5-1.5L10 2z"/>
+          <path d="M17 3l.7 2 2 .7-2 .7L17 9l-.7-2.3-2-.7 2-.7L17 3z"/>
+        </svg>
+        <span class="usage-label">Navigator thinking</span>
+      </div>
+      <p class="usage-desc">sparkle · --icon-md · --signal-default. Navigator composing indicator.</p>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

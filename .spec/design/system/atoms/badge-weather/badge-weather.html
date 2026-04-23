@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<!-- badge-weather.html — LSBadgeWeather atom preview
+     LaneShadow V2 · Copper · Atom: badge-weather
+     Authority: .spec/prds/v2/concepts/uc-atm-07-badge.html §Weather Variants -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSBadgeWeather — LaneShadow V2 · Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════
+   LSBadgeWeather — Component styles
+   All sizing via tokens. Zero hex literals.
+   rgba() border: unavoidable — CSS cannot decompose var() into
+   RGB channels. Channels match the concept file authority.
+   ═══════════════════════════════════════════════════════════════ */
+
+.ls-badge-weather {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;            /* icon ↔ text gap; sub-space-3, not a token step */
+  height: 24px;        /* badge canonical height from UC-ATM-07 spec */
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  /* Typography: body-sm weight escalated to 600 for badge legibility */
+  font-family: var(--font-ui);
+  font-size: 10.5px;   /* matches .t-body-sm — applied via font-family + explicit size */
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* Icon wrapper — forces exact icon-xs bounding box */
+.badge-wx-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  color: currentColor;
+}
+
+/* ── Condition variants ─────────────────────────────────────── */
+
+.ls-badge-weather.wx-clear {
+  background: var(--wx-clear-tint);
+  color: var(--wx-clear);
+  border: 0.5px solid rgba(230, 165, 42, 0.55);
+}
+
+.ls-badge-weather.wx-rain {
+  background: var(--wx-rain-tint);
+  color: var(--wx-rain);
+  border: 0.5px solid rgba(74, 134, 190, 0.55);
+}
+
+.ls-badge-weather.wx-wind {
+  background: var(--wx-wind-tint);
+  color: var(--wx-wind);
+  border: 0.5px solid rgba(107, 123, 143, 0.55);
+}
+
+.ls-badge-weather.wx-storm {
+  background: var(--wx-storm-tint);
+  color: var(--wx-storm);
+  border: 0.5px solid rgba(94, 63, 174, 0.55);
+}
+
+.ls-badge-weather.wx-hot {
+  background: var(--wx-hot-tint);
+  color: var(--wx-hot);
+  border: 0.5px solid rgba(201, 66, 60, 0.55);
+}
+
+.ls-badge-weather.wx-cold {
+  background: var(--wx-cold-tint);
+  color: var(--wx-cold);
+  border: 0.5px solid rgba(58, 139, 227, 0.55);
+}
+
+/* ── Preview layout extras ──────────────────────────────────── */
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  align-items: flex-start;
+}
+
+.badge-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.badge-cell .cell-label {
+  font-family: var(--font-instrument);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>LSBadgeWeather</em></h1>
+  <p class="subtitle">UC-ATM-07 · 6 condition variants · pill-shaped · 24px height · icon-xs inline SVG</p>
+</div>
+
+<!-- ── All 6 conditions — both themes ──────────────────────────── -->
+<section class="section">
+  <div class="section-label">All variants — light + dark</div>
+
+  <div class="two-up">
+
+    <!-- LIGHT PANE -->
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="badge-row">
+
+        <!-- Clear -->
+        <div class="badge-cell">
+          <span class="cell-label">clear</span>
+          <div class="ls-badge-weather wx-clear">
+            <span class="badge-wx-icon">
+              <!-- sun: circle + 8 rays -->
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <line x1="12" y1="2"  x2="12" y2="5"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+                <line x1="2"  y1="12" x2="5"  y2="12"/>
+                <line x1="19" y1="12" x2="22" y2="12"/>
+                <line x1="4.22"  y1="4.22"  x2="6.34"  y2="6.34"/>
+                <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+                <line x1="4.22"  y1="19.78" x2="6.34"  y2="17.66"/>
+                <line x1="17.66" y1="6.34"  x2="19.78" y2="4.22"/>
+              </svg>
+            </span>
+            Clear
+          </div>
+        </div>
+
+        <!-- Rain -->
+        <div class="badge-cell">
+          <span class="cell-label">rain</span>
+          <div class="ls-badge-weather wx-rain">
+            <span class="badge-wx-icon">
+              <!-- rain: cloud body + three drop lines -->
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9"/>
+                <line x1="8"  y1="19" x2="8"  y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="19"/>
+                <line x1="16" y1="19" x2="16" y2="21"/>
+              </svg>
+            </span>
+            Rain 3pm
+          </div>
+        </div>
+
+        <!-- Wind -->
+        <div class="badge-cell">
+          <span class="cell-label">wind</span>
+          <div class="ls-badge-weather wx-wind">
+            <span class="badge-wx-icon">
+              <!-- wind: three streamlines with curved caps -->
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/>
+                <path d="M9.6 4.6A2 2 0 1 1 11 8H2"/>
+                <path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
+              </svg>
+            </span>
+            18mph NW
+          </div>
+        </div>
+
+        <!-- Storm -->
+        <div class="badge-cell">
+          <span class="cell-label">storm</span>
+          <div class="ls-badge-weather wx-storm">
+            <span class="badge-wx-icon">
+              <!-- storm: lightning bolt -->
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </span>
+            Storm cell
+          </div>
+        </div>
+
+        <!-- Hot -->
+        <div class="badge-cell">
+          <span class="cell-label">hot</span>
+          <div class="ls-badge-weather wx-hot">
+            <span class="badge-wx-icon">
+              <!-- hot: thermometer -->
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+              </svg>
+            </span>
+            92°F
+          </div>
+        </div>
+
+        <!-- Cold -->
+        <div class="badge-cell">
+          <span class="cell-label">cold</span>
+          <div class="ls-badge-weather wx-cold">
+            <span class="badge-wx-icon">
+              <!-- cold: snowflake crystal -->
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="2"  x2="12" y2="22"/>
+                <path d="M17 7l-5 5-5-5"/>
+                <path d="M17 17l-5-5-5 5"/>
+                <path d="M2 7l5 2.5M22 7l-5 2.5"/>
+                <path d="M2 17l5-2.5M22 17l-5-2.5"/>
+              </svg>
+            </span>
+            38°F
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /light pane -->
+
+    <!-- DARK PANE -->
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="badge-row">
+
+        <!-- Clear dark -->
+        <div class="badge-cell">
+          <span class="cell-label">clear</span>
+          <div class="ls-badge-weather wx-clear">
+            <span class="badge-wx-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <line x1="12" y1="2"  x2="12" y2="5"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+                <line x1="2"  y1="12" x2="5"  y2="12"/>
+                <line x1="19" y1="12" x2="22" y2="12"/>
+                <line x1="4.22"  y1="4.22"  x2="6.34"  y2="6.34"/>
+                <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+                <line x1="4.22"  y1="19.78" x2="6.34"  y2="17.66"/>
+                <line x1="17.66" y1="6.34"  x2="19.78" y2="4.22"/>
+              </svg>
+            </span>
+            Clear
+          </div>
+        </div>
+
+        <!-- Rain dark -->
+        <div class="badge-cell">
+          <span class="cell-label">rain</span>
+          <div class="ls-badge-weather wx-rain">
+            <span class="badge-wx-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9"/>
+                <line x1="8"  y1="19" x2="8"  y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="19"/>
+                <line x1="16" y1="19" x2="16" y2="21"/>
+              </svg>
+            </span>
+            Rain 3pm
+          </div>
+        </div>
+
+        <!-- Wind dark -->
+        <div class="badge-cell">
+          <span class="cell-label">wind</span>
+          <div class="ls-badge-weather wx-wind">
+            <span class="badge-wx-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/>
+                <path d="M9.6 4.6A2 2 0 1 1 11 8H2"/>
+                <path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
+              </svg>
+            </span>
+            18mph NW
+          </div>
+        </div>
+
+        <!-- Storm dark -->
+        <div class="badge-cell">
+          <span class="cell-label">storm</span>
+          <div class="ls-badge-weather wx-storm">
+            <span class="badge-wx-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </span>
+            Storm cell
+          </div>
+        </div>
+
+        <!-- Hot dark -->
+        <div class="badge-cell">
+          <span class="cell-label">hot</span>
+          <div class="ls-badge-weather wx-hot">
+            <span class="badge-wx-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+              </svg>
+            </span>
+            92°F
+          </div>
+        </div>
+
+        <!-- Cold dark -->
+        <div class="badge-cell">
+          <span class="cell-label">cold</span>
+          <div class="ls-badge-weather wx-cold">
+            <span class="badge-wx-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="2"  x2="12" y2="22"/>
+                <path d="M17 7l-5 5-5-5"/>
+                <path d="M17 17l-5-5-5 5"/>
+                <path d="M2 7l5 2.5M22 7l-5 2.5"/>
+                <path d="M2 17l5-2.5M22 17l-5-2.5"/>
+              </svg>
+            </span>
+            38°F
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /dark pane -->
+
+  </div><!-- /two-up -->
+</section>
+
+<!-- ── In-context sample: badge on a card surface ──────────────── -->
+<section class="section">
+  <div class="section-label">In context — on card surface</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light — card surface</div>
+      <div class="sample-card" style="display: flex; flex-direction: column; gap: var(--space-4);">
+        <div style="font-family: var(--font-ui); font-weight: 600; font-size: 14px; color: var(--content-primary);">
+          Mulholland Drive Loop
+        </div>
+        <div style="display: flex; gap: var(--space-3); flex-wrap: wrap;">
+          <div class="ls-badge-weather wx-clear">
+            <span class="badge-wx-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <circle cx="12" cy="12" r="4"/>
+                <line x1="12" y1="2"  x2="12" y2="5"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+                <line x1="2"  y1="12" x2="5"  y2="12"/>
+                <line x1="19" y1="12" x2="22" y2="12"/>
+              </svg>
+            </span>
+            Clear
+          </div>
+          <div class="ls-badge-weather wx-wind">
+            <span class="badge-wx-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/>
+                <path d="M9.6 4.6A2 2 0 1 1 11 8H2"/>
+              </svg>
+            </span>
+            12mph NW
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark — card surface</div>
+      <div class="sample-card" style="display: flex; flex-direction: column; gap: var(--space-4);">
+        <div style="font-family: var(--font-ui); font-weight: 600; font-size: 14px; color: var(--content-primary);">
+          Mulholland Drive Loop
+        </div>
+        <div style="display: flex; gap: var(--space-3); flex-wrap: wrap;">
+          <div class="ls-badge-weather wx-clear">
+            <span class="badge-wx-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <circle cx="12" cy="12" r="4"/>
+                <line x1="12" y1="2"  x2="12" y2="5"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+                <line x1="2"  y1="12" x2="5"  y2="12"/>
+                <line x1="19" y1="12" x2="22" y2="12"/>
+              </svg>
+            </span>
+            Clear
+          </div>
+          <div class="ls-badge-weather wx-rain">
+            <span class="badge-wx-icon">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9"/>
+                <line x1="8"  y1="19" x2="8"  y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="19"/>
+              </svg>
+            </span>
+            Rain 4pm
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

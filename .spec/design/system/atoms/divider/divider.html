@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<!-- divider.html — LSDivider atom preview
+     LaneShadow V2 · Copper · UC-ATM-04
+     Plain / centered-label / left-label · both themes rendered -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSDivider — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+
+/* ── LSDivider component ──────────────────────────────────────── */
+
+/* Plain horizontal rule */
+.ls-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-subtle);
+  border: none;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Label variant — lines flank the label */
+.ls-divider.with-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: auto;
+  background: none;
+}
+
+.ls-divider.with-label::before,
+.ls-divider.with-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+/* Left-aligned: label at start, rule extends right only */
+.ls-divider.with-label.label-left::before {
+  display: none;
+}
+
+/* Divider label text */
+.divider-label {
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Preview layout helpers ───────────────────────────────────── */
+.divider-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.divider-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.context-note {
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  color: var(--content-tertiary);
+  letter-spacing: 0.06em;
+  margin-top: var(--space-2);
+}
+
+.sample-text {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--content-secondary);
+  line-height: 1.5;
+}
+
+/* Instrument readout grid — shows dividers as vertical separators */
+.readout-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.readout-cell {
+  padding: var(--space-4) var(--space-3);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.readout-cell:last-child {
+  border-right: none;
+}
+.readout-eyebrow {
+  font-family: var(--font-ui);
+  font-size: 7.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+.readout-value {
+  font-family: var(--font-instrument);
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  font-feature-settings: "tnum" 1;
+  color: var(--content-primary);
+}
+.readout-value.signal {
+  color: var(--signal-default);
+}
+
+/* Settings eyebrow block */
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.settings-row-label {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--content-primary);
+}
+.settings-row-value {
+  font-family: var(--font-instrument);
+  font-size: 12px;
+  color: var(--content-tertiary);
+}
+
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>LSDivider</em> — Display Atom</h1>
+  <div class="subtitle">UC-ATM-04 · Plain / Centered label / Left-aligned label · Both themes</div>
+</div>
+
+<div class="two-up">
+
+  <!-- LIGHT THEME PANE -->
+  <div class="theme-pane">
+    <div class="section-label">Light theme</div>
+
+    <div class="divider-showcase">
+
+      <!-- Plain horizontal -->
+      <div class="divider-block">
+        <div class="section-label">Plain horizontal</div>
+        <div class="sample-text">Content above — route title, instrument readout, or any block element.</div>
+        <hr class="ls-divider" role="separator">
+        <div class="sample-text">Content below — supporting details or action row.</div>
+        <div class="context-note">1px solid · border.subtle · w:100%</div>
+      </div>
+
+      <!-- Centered "or" label -->
+      <div class="divider-block">
+        <div class="section-label">Centered label — "or"</div>
+        <div class="ls-divider with-label" role="separator">
+          <span class="divider-label">or</span>
+        </div>
+        <div class="context-note">label.md · content.tertiary · gap: space-4 (12px)</div>
+      </div>
+
+      <!-- Centered search label -->
+      <div class="divider-block">
+        <div class="section-label">Centered label — search context</div>
+        <div class="ls-divider with-label" role="separator">
+          <span class="divider-label">Or search by region</span>
+        </div>
+        <div class="context-note">Same structure · longer label text</div>
+      </div>
+
+      <!-- Left-aligned Settings eyebrow -->
+      <div class="divider-block">
+        <div class="section-label">Left-aligned eyebrow — Settings</div>
+        <div class="ls-divider with-label label-left" role="separator">
+          <span class="divider-label">Settings</span>
+        </div>
+        <div class="settings-section">
+          <div class="settings-row">
+            <span class="settings-row-label">Unit system</span>
+            <span class="settings-row-value">Imperial</span>
+          </div>
+          <hr class="ls-divider" role="separator">
+          <div class="settings-row">
+            <span class="settings-row-label">Default map style</span>
+            <span class="settings-row-value">Copper topo</span>
+          </div>
+          <hr class="ls-divider" role="separator">
+          <div class="settings-row">
+            <span class="settings-row-label">Notifications</span>
+            <span class="settings-row-value">On</span>
+          </div>
+        </div>
+        <div class="context-note">label.left variant · label at start · line extends right</div>
+      </div>
+
+      <!-- Vertical dividers (readout grid) -->
+      <div class="divider-block">
+        <div class="section-label">Vertical separators — readout grid</div>
+        <div class="readout-grid">
+          <div class="readout-cell">
+            <div class="readout-eyebrow">Dist</div>
+            <div class="readout-value">64 mi</div>
+          </div>
+          <div class="readout-cell">
+            <div class="readout-eyebrow">Time</div>
+            <div class="readout-value">2h 10m</div>
+          </div>
+          <div class="readout-cell">
+            <div class="readout-eyebrow">Elv</div>
+            <div class="readout-value">3,240 ft</div>
+          </div>
+          <div class="readout-cell">
+            <div class="readout-eyebrow">Scenic</div>
+            <div class="readout-value signal">9.4</div>
+          </div>
+        </div>
+        <div class="context-note">Vertical: 1px solid border.subtle · orientation:vertical</div>
+      </div>
+
+    </div><!-- /.divider-showcase -->
+  </div>
+
+  <!-- DARK THEME PANE -->
+  <div class="theme-pane mode-dark">
+    <div class="section-label">Dark theme</div>
+
+    <div class="divider-showcase">
+
+      <!-- Plain horizontal dark -->
+      <div class="divider-block">
+        <div class="section-label">Plain horizontal</div>
+        <div class="sample-text">Content above — route title, instrument readout, or any block element.</div>
+        <hr class="ls-divider" role="separator">
+        <div class="sample-text">Content below — supporting details or action row.</div>
+        <div class="context-note">1px solid · border.subtle (rgba 7%) · w:100%</div>
+      </div>
+
+      <!-- Centered "or" dark -->
+      <div class="divider-block">
+        <div class="section-label">Centered label — "or"</div>
+        <div class="ls-divider with-label" role="separator">
+          <span class="divider-label">or</span>
+        </div>
+        <div class="context-note">label.md · content.tertiary · gap: space-4 (12px)</div>
+      </div>
+
+      <!-- Centered search label dark -->
+      <div class="divider-block">
+        <div class="section-label">Centered label — search context</div>
+        <div class="ls-divider with-label" role="separator">
+          <span class="divider-label">Or search by region</span>
+        </div>
+        <div class="context-note">Same structure · longer label text</div>
+      </div>
+
+      <!-- Left-aligned Settings eyebrow dark -->
+      <div class="divider-block">
+        <div class="section-label">Left-aligned eyebrow — Settings</div>
+        <div class="ls-divider with-label label-left" role="separator">
+          <span class="divider-label">Settings</span>
+        </div>
+        <div class="settings-section">
+          <div class="settings-row">
+            <span class="settings-row-label">Unit system</span>
+            <span class="settings-row-value">Imperial</span>
+          </div>
+          <hr class="ls-divider" role="separator">
+          <div class="settings-row">
+            <span class="settings-row-label">Default map style</span>
+            <span class="settings-row-value">Copper topo</span>
+          </div>
+          <hr class="ls-divider" role="separator">
+          <div class="settings-row">
+            <span class="settings-row-label">Notifications</span>
+            <span class="settings-row-value">On</span>
+          </div>
+        </div>
+        <div class="context-note">label.left variant · label at start · line extends right</div>
+      </div>
+
+      <!-- Vertical dividers dark -->
+      <div class="divider-block">
+        <div class="section-label">Vertical separators — readout grid</div>
+        <div class="readout-grid">
+          <div class="readout-cell">
+            <div class="readout-eyebrow">Dist</div>
+            <div class="readout-value">64 mi</div>
+          </div>
+          <div class="readout-cell">
+            <div class="readout-eyebrow">Time</div>
+            <div class="readout-value">2h 10m</div>
+          </div>
+          <div class="readout-cell">
+            <div class="readout-eyebrow">Elv</div>
+            <div class="readout-value">3,240 ft</div>
+          </div>
+          <div class="readout-cell">
+            <div class="readout-eyebrow">Scenic</div>
+            <div class="readout-value signal">9.4</div>
+          </div>
+        </div>
+        <div class="context-note">Vertical: 1px solid border.subtle (dark) · orientation:vertical</div>
+      </div>
+
+    </div><!-- /.divider-showcase -->
+  </div>
+
+</div><!-- /.two-up -->
+
+</body>
+</html>

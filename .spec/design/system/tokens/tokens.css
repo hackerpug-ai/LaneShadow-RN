@@ -1,0 +1,276 @@
+/**
+ * LaneShadow V2 "Copper" Design System — Token Registry
+ * Authority: .spec/prds/v2/concepts/uc-tok-01..05.html
+ *
+ * Theming: `.mode-dark` class on <html> or <body> swaps semantic tokens.
+ * Defaults (:root) are light theme. Add .mode-dark to switch.
+ */
+
+/* ═══════════════════════════════════════════════════════════════════
+   TIER 1 — PRIVATE TOKENS (raw values — theme-agnostic hex)
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  /* Paper (light substrate / dark text on light) */
+  --paper-50:  #FDFBF8;
+  --paper-100: #F8F7F6;
+  --paper-150: #F5F2EE;
+  --paper-200: #F2EFED;
+  --paper-300: #EDE7E1;
+  --paper-400: #E5DED9;
+  --paper-500: #C9BDB3;
+
+  /* Ink (dark substrate / light text on dark) */
+  --ink-050: #F2EEE8;
+  --ink-100: #CAC4D0;
+  --ink-200: #9CA3AF;
+  --ink-300: #6B6460;
+  --ink-400: #49454F;
+  --ink-500: #3D3228;
+  --ink-600: #362A1F;
+  --ink-700: #2D2218;
+  --ink-800: #221810;
+  --ink-900: #1E1A16;
+
+  /* Copper (brand signal) */
+  --copper-100: #FCE8D4;
+  --copper-200: #F9D5B5;
+  --copper-400: #F3A164;
+  --copper-500: #EE7C2B;
+  --copper-600: #B85A2C;
+  --copper-700: #9E4A22;
+
+  /* Weather */
+  --wx-clear-raw:  #E6A52A;   --wx-clear-tint-raw:  #FBEFCF;
+  --wx-rain-raw:   #4A86BE;   --wx-rain-tint-raw:   #DBEAF4;
+  --wx-wind-raw:   #6B7B8F;   --wx-wind-tint-raw:   #E1E6EC;
+  --wx-storm-raw:  #5E3FAE;   --wx-storm-tint-raw:  #E3DCF2;
+  --wx-hot-raw:    #C9423C;   --wx-hot-tint-raw:    #F5D8D6;
+  --wx-cold-raw:   #3A8BE3;   --wx-cold-tint-raw:   #D6E5F7;
+
+  /* Route accents */
+  --route-best-raw: #EE7C2B;
+  --route-alt1-raw: #4D8470;
+  --route-alt2-raw: #6B7B8F;
+
+  /* Status */
+  --status-warning-raw:      #C46F1B;
+  --status-warning-tint-raw: #FEF3C7;
+  --status-error-raw:        #C9423C;
+  --status-error-tint-raw:   #FEE2E2;
+  --status-success-raw:      #4D8470;
+  --status-success-tint-raw: #DCFCE7;
+  --status-info-raw:         #3A8BE3;
+  --status-info-tint-raw:    #DBEAFE;
+  --status-recording-raw:    #C9423C;
+
+  /* Glass borders (translucent frosted edges) */
+  --border-glass-light-raw:  rgba(255, 255, 255, 0.55);
+  --border-glass-dark-raw:   rgba(242, 238, 232, 0.22);
+
+  /* Font families */
+  --font-opinion:    'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui:         'Geist', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-instrument: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TIER 2 — SEMANTIC TOKENS (light theme — default)
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Surface ───────────────────────────────────────────────────── */
+  --surface-primary:  var(--paper-100);
+  --surface-card:     var(--paper-50);
+  --surface-inset:    var(--paper-200);
+  --surface-overlay:  rgba(253, 251, 248, 0.92);
+  --surface-glass:    rgba(253, 251, 248, 0.72);
+  --surface-scrim:    rgba(34, 24, 16, 0.35);
+  --surface-map:      var(--paper-50);
+
+  /* ── Content (text / foreground) ──────────────────────────────── */
+  --content-primary:   var(--ink-900);
+  --content-secondary: var(--ink-400);
+  --content-tertiary:  var(--ink-300);
+  --content-subtle:    var(--ink-200);
+  --content-on-signal: #FFFFFF;
+
+  /* ── Border ──────────────────────────────────────────────────── */
+  --border-default: var(--paper-400);
+  --border-subtle:  var(--paper-300);
+  --border-strong:  var(--paper-500);
+  --border-focus:   var(--copper-500);
+
+  /* ── Signal (brand copper) ───────────────────────────────────── */
+  --signal-default: var(--copper-500);
+  --signal-hover:   var(--copper-400);
+  --signal-pressed: var(--copper-700);
+  --signal-tint:    var(--copper-200);
+  --signal-whisper: var(--copper-100);
+
+  /* ── Action (button fills; may differ from signal later) ─────── */
+  --action-primary:         var(--copper-500);
+  --action-primary-hover:   var(--copper-400);
+  --action-primary-pressed: var(--copper-700);
+  --action-primary-disabled: var(--paper-300);
+
+  /* ── Role (chat/conversation roles) ──────────────────────────── */
+  --role-agent:  var(--copper-500);
+  --role-user:   var(--paper-200);
+  --role-system: var(--paper-400);
+
+  /* ── Status / Intent ─────────────────────────────────────────── */
+  --status-info:         var(--status-info-raw);
+  --status-info-tint:    var(--status-info-tint-raw);
+  --status-success:      var(--status-success-raw);
+  --status-success-tint: var(--status-success-tint-raw);
+  --status-warning:      var(--status-warning-raw);
+  --status-warning-tint: var(--status-warning-tint-raw);
+  --status-error:        var(--status-error-raw);
+  --status-error-tint:   var(--status-error-tint-raw);
+  --status-recording:    var(--status-recording-raw);
+
+  /* ── Border (glass translucent) ──────────────────────────────── */
+  --border-glass: var(--border-glass-light-raw);
+
+  /* ── Weather (on-map + badges) ───────────────────────────────── */
+  --wx-clear:      var(--wx-clear-raw);       --wx-clear-tint: var(--wx-clear-tint-raw);
+  --wx-rain:       var(--wx-rain-raw);        --wx-rain-tint:  var(--wx-rain-tint-raw);
+  --wx-wind:       var(--wx-wind-raw);        --wx-wind-tint:  var(--wx-wind-tint-raw);
+  --wx-storm:      var(--wx-storm-raw);       --wx-storm-tint: var(--wx-storm-tint-raw);
+  --wx-hot:        var(--wx-hot-raw);         --wx-hot-tint:   var(--wx-hot-tint-raw);
+  --wx-cold:       var(--wx-cold-raw);        --wx-cold-tint:  var(--wx-cold-tint-raw);
+
+  /* ── Route (polyline colors) ─────────────────────────────────── */
+  --route-best: var(--route-best-raw);
+  --route-alt1: var(--route-alt1-raw);
+  --route-alt2: var(--route-alt2-raw);
+
+  /* ── Map ornament (topo contours, paper tint) ────────────────── */
+  --map-paper:         var(--paper-50);
+  --map-contour:       rgba(73, 69, 79, 0.22);
+  --map-contour-faint: rgba(73, 69, 79, 0.10);
+
+  /* ── Elevation (box-shadow recipes) ──────────────────────────── */
+  --elev-card:    0 2px 6px rgba(34, 24, 16, 0.06);
+  --elev-chrome:  0 1px 3px rgba(34, 24, 16, 0.04), 0 4px 14px rgba(34, 24, 16, 0.06);
+  --elev-overlay: 0 8px 24px rgba(34, 24, 16, 0.10), 0 2px 6px rgba(34, 24, 16, 0.06);
+
+  /* ── Motion · Duration ───────────────────────────────────────── */
+  --duration-instant:    0ms;
+  --duration-fast:       120ms;
+  --duration-standard:   240ms;
+  --duration-slow:       400ms;
+  --duration-deliberate: 600ms;
+
+  /* ── Motion · Easing ─────────────────────────────────────────── */
+  --ease-standard:    cubic-bezier(0.4, 0.0, 0.2, 1.0);
+  --ease-emphasized:  cubic-bezier(0.2, 0.0, 0.0, 1.0);
+  --ease-decelerated: cubic-bezier(0.0, 0.0, 0.2, 1.0);
+  --ease-accelerated: cubic-bezier(0.4, 0.0, 1.0, 1.0);
+  --ease-linear:      linear;
+
+  /* ── Radius ──────────────────────────────────────────────────── */
+  --radius-none: 0px;
+  --radius-xs:   2px;
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   10px;
+  --radius-xl:   16px;
+  --radius-2xl:  18px;
+  --radius-pill: 999px;
+
+  /* ── Spacing (4px base grid, 0–64px) ─────────────────────────── */
+  --space-0:  0px;
+  --space-1:  2px;
+  --space-2:  4px;
+  --space-3:  8px;
+  --space-4:  12px;
+  --space-5:  16px;
+  --space-6:  20px;
+  --space-7:  24px;
+  --space-8:  32px;
+  --space-9:  40px;
+  --space-10: 48px;
+  --space-11: 56px;
+  --space-12: 64px;
+
+  /* ── Sizing (component heights, touch targets, icon sizes) ──── */
+  --size-touch-min:   44px;
+  --size-control-sm:  28px;
+  --size-control-md:  36px;
+  --size-control-lg:  48px;
+  --size-control-chat: 54px;
+  --size-control-xl:  56px;
+
+  --icon-xs: 12px;
+  --icon-sm: 16px;
+  --icon-md: 18px;
+  --icon-lg: 24px;
+  --icon-xl: 32px;
+
+  --avatar-xs: 20px;
+  --avatar-sm: 28px;
+  --avatar-md: 36px;
+  --avatar-lg: 48px;
+  --avatar-xl: 64px;
+
+  /* ── Stroke widths ───────────────────────────────────────────── */
+  --stroke-sm: 1px;
+  --stroke-md: 1.5px;
+  --stroke-lg: 2px;
+
+  /* ── Opacity scale ───────────────────────────────────────────── */
+  --opacity-0:        0;
+  --opacity-subtle:   0.08;
+  --opacity-focus:    0.12;
+  --opacity-disabled: 0.38;
+  --opacity-overlay:  0.60;
+  --opacity-dim:      0.76;
+  --opacity-veil:     0.92;
+  --opacity-1:        1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TIER 2 — SEMANTIC TOKENS (dark theme override)
+   ═══════════════════════════════════════════════════════════════════ */
+.mode-dark,
+[data-theme="dark"] {
+  /* Surface */
+  --surface-primary: var(--ink-800);
+  --surface-card:    var(--ink-700);
+  --surface-inset:   var(--ink-600);
+  --surface-overlay: rgba(45, 34, 24, 0.92);
+  --surface-glass:   rgba(45, 34, 24, 0.72);
+  --surface-scrim:   rgba(10, 6, 3, 0.50);
+  --surface-map:     var(--ink-700);
+
+  /* Content */
+  --content-primary:   var(--ink-050);
+  --content-secondary: var(--ink-100);
+  --content-tertiary:  var(--ink-200);
+  --content-subtle:    var(--ink-300);
+  --content-on-signal: #FFFFFF;
+
+  /* Border */
+  --border-default: rgba(242, 238, 232, 0.12);
+  --border-subtle:  rgba(242, 238, 232, 0.07);
+  --border-strong:  rgba(242, 238, 232, 0.22);
+  --border-focus:   var(--copper-500);
+  --border-glass:   var(--border-glass-dark-raw);
+
+  /* Map ornament on dark */
+  --map-contour:       rgba(242, 238, 232, 0.22);
+  --map-contour-faint: rgba(242, 238, 232, 0.10);
+
+  /* Elevation (deeper shadows on dark) */
+  --elev-card:    0 2px 6px rgba(0, 0, 0, 0.24);
+  --elev-chrome:  0 1px 3px rgba(0, 0, 0, 0.24), 0 4px 14px rgba(0, 0, 0, 0.28);
+  --elev-overlay: 0 8px 24px rgba(0, 0, 0, 0.42), 0 2px 6px rgba(0, 0, 0, 0.28);
+
+  /* Action: disabled uses ink-500 on dark for visibility */
+  --action-primary-disabled: var(--ink-500);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TYPOGRAPHY — Font families already in Tier 1
+   Type modules live in typography/type-modules.css as .t-* classes.
+   ═══════════════════════════════════════════════════════════════════ */

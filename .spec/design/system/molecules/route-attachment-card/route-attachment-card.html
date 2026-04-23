@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<!-- molecules/route-attachment-card/route-attachment-card.html
+     LaneShadow V2 Copper · Molecule · LSRouteAttachmentCard
+     Authority: uc-mol-08-location-route.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Molecule · LSRouteAttachmentCard — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════
+   mol-route-attachment-card — LSRouteAttachmentCard
+   Composes: .ls-badge-best, .ls-badge-weather, .ls-pill, .ls-btn--accept
+   3px leading color stripe encodes route variant: best/alt1/alt2
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Root card ──────────────────────────────────────────────────── */
+.mol-route-attachment-card {
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  min-width: 260px;
+  max-width: 340px;
+  box-shadow: var(--elev-card);
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow   var(--duration-fast) var(--ease-standard);
+}
+
+.mol-route-attachment-card:hover {
+  box-shadow: var(--elev-chrome);
+  border-color: var(--border-strong);
+}
+
+/* ── Selected state ─────────────────────────────────────────────── */
+.mol-route-attachment-card.is-selected {
+  border-color: var(--signal-default);
+  background: color-mix(in srgb, var(--surface-card) 92%, var(--signal-default));
+}
+
+.mol-route-attachment-card.is-selected:hover {
+  box-shadow: 0 var(--space-2) var(--space-6) color-mix(in srgb, var(--signal-default) 20%, transparent);
+}
+
+/* ── 3px leading color stripe ───────────────────────────────────── */
+.mol-route-attachment-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--space-1);   /* 2px — matches stroke-sm+1 */
+  border-radius: var(--radius-none);
+}
+
+/* Variant: best (copper) */
+.mol-route-attachment-card.v-best::before  { background: var(--route-best); }
+/* Variant: alt1 (sage-green) */
+.mol-route-attachment-card.v-alt1::before  { background: var(--route-alt1); }
+/* Variant: alt2 (slate) */
+.mol-route-attachment-card.v-alt2::before  { background: var(--route-alt2); }
+
+/* ── Map thumbnail (preview decoration — not ls-map atom) ──────── */
+/* NOTE: This is an inline SVG preview helper. Production uses ls-map atom
+   (UC-ATM-11/12). The thumbnail is a 88×60px surface-map rectangle with
+   faint topo-contour lines and a centered polyline in the variant color. */
+.mol-rac__thumbnail {
+  width: 100%;
+  height: 88px;
+  border-radius: var(--radius-md);
+  background: var(--map-paper);
+  border: var(--stroke-sm) solid var(--border-subtle);
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+  margin-bottom: var(--space-1);
+}
+
+.mol-rac__thumbnail svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Card body (below thumbnail) ───────────────────────────────── */
+.mol-rac__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+/* ── Head row: badges + title ───────────────────────────────────── */
+.mol-rac__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* ── Best badge ─────────────────────────────────────────────────── */
+.mol-rac__best-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--signal-default);
+  color: var(--content-on-signal);
+  border-radius: var(--radius-xs);
+  box-shadow: 0 var(--space-1) var(--space-3) color-mix(in srgb, var(--signal-default) 40%, transparent);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.mol-rac__best-badge svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* ── Title ──────────────────────────────────────────────────────── */
+.mol-rac__title {
+  flex: 1;
+  color: var(--content-primary);
+  line-height: 1.24;
+  min-width: 0;
+}
+
+/* ── Via subtitle ───────────────────────────────────────────────── */
+.mol-rac__via {
+  color: var(--content-secondary);
+  line-height: 1.3;
+}
+
+/* ── Metrics row ────────────────────────────────────────────────── */
+.mol-rac__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.mol-rac__metric {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--content-primary);
+  font-feature-settings: "tnum" 1;
+  white-space: nowrap;
+}
+
+.mol-rac__metric-sep {
+  width: var(--stroke-sm);
+  height: var(--space-3);
+  background: var(--border-default);
+  flex-shrink: 0;
+}
+
+/* ── Pill tags (difficulty / surface type) ──────────────────────── */
+.mol-rac__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+/* These reuse .ls-pill but with local size overrides via modifier class */
+.mol-rac__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-pill);
+  border: var(--stroke-sm) solid var(--border-default);
+  background: var(--surface-inset);
+  color: var(--content-secondary);
+  white-space: nowrap;
+}
+
+/* Gravel surface pill */
+.mol-rac__pill.p-gravel {
+  border-color: color-mix(in srgb, var(--route-alt1) 35%, transparent);
+  color: var(--route-alt1);
+  background: color-mix(in srgb, var(--route-alt1) 8%, var(--surface-card));
+}
+
+/* Paved surface pill */
+.mol-rac__pill.p-paved {
+  border-color: color-mix(in srgb, var(--route-alt2) 35%, transparent);
+  color: var(--route-alt2);
+  background: color-mix(in srgb, var(--route-alt2) 8%, var(--surface-card));
+}
+
+/* Climb grade pill */
+.mol-rac__pill.p-climb {
+  border-color: color-mix(in srgb, var(--signal-default) 35%, transparent);
+  color: var(--signal-default);
+  background: var(--signal-whisper);
+}
+
+/* ── Scenic dots meter ──────────────────────────────────────────── */
+.mol-rac__scenic {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.mol-rac__scenic-dot {
+  width: var(--space-2);     /* 4px */
+  height: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+  flex-shrink: 0;
+}
+
+.mol-rac__scenic-dot.is-filled { background: var(--signal-default); }
+
+.mol-rac__scenic-label {
+  color: var(--content-tertiary);
+  margin-left: var(--space-1);
+  white-space: nowrap;
+}
+
+/* ── Weather badge (absolute top-right) ─────────────────────────── */
+.mol-rac__weather {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+/* Clear */
+.mol-rac__weather.wx-clear {
+  background: var(--wx-clear-tint);
+  color: var(--wx-clear);
+  border: var(--stroke-sm) solid color-mix(in srgb, var(--wx-clear) 33%, transparent);
+}
+
+/* Wind */
+.mol-rac__weather.wx-wind {
+  background: var(--wx-wind-tint);
+  color: var(--wx-wind);
+  border: var(--stroke-sm) solid color-mix(in srgb, var(--wx-wind) 33%, transparent);
+}
+
+/* Rain */
+.mol-rac__weather.wx-rain {
+  background: var(--wx-rain-tint);
+  color: var(--wx-rain);
+  border: var(--stroke-sm) solid color-mix(in srgb, var(--wx-rain) 33%, transparent);
+}
+
+.mol-rac__weather svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  flex-shrink: 0;
+}
+
+/* ── Favorite / highlight flag row ─────────────────────────────── */
+.mol-rac__flag {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-top: var(--space-1);
+  border-top: var(--stroke-sm) solid var(--border-subtle);
+  margin-top: var(--space-1);
+}
+
+.mol-rac__flag svg {
+  width: var(--icon-xs);
+  height: var(--icon-xs);
+  fill: var(--signal-default);
+  flex-shrink: 0;
+}
+
+.mol-rac__flag-label {
+  color: var(--signal-default);
+}
+
+/* ── Accept action row ──────────────────────────────────────────── */
+.mol-rac__action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  margin-top: var(--space-1);
+  border-top: var(--stroke-sm) solid var(--border-subtle);
+}
+
+/* Action hidden variant — just omit .mol-rac__action from DOM */
+
+/* ── Compact variant ────────────────────────────────────────────── */
+.mol-route-attachment-card.is-compact {
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-5);
+  gap: var(--space-1);
+}
+
+.mol-route-attachment-card.is-compact .mol-rac__thumbnail {
+  height: 60px;
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1>LSRoute<em>AttachmentCard</em></h1>
+  <div class="subtitle">MOLECULE · UC-MOL-08 · LaneShadow V2 Copper</div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     § 1 — PRIMARY: BEST route · selected · with ls-badge-best + weather
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Primary — BEST route · selected · weather badge</div>
+  <div class="two-up">
+
+    <!-- Light -->
+    <div class="theme-pane">
+      <div class="variant-cell" style="align-items:flex-start;">
+        <div class="mol-route-attachment-card v-best is-selected" style="width:320px;">
+
+          <!-- Map thumbnail: SVG polyline preview (not ls-map atom — preview helper only) -->
+          <div class="mol-rac__thumbnail">
+            <svg viewBox="0 0 320 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <!-- Contour fill layers -->
+              <rect width="320" height="88" fill="var(--map-paper)"/>
+              <!-- Faint topo lines -->
+              <ellipse cx="160" cy="44" rx="130" ry="30" fill="none" stroke="var(--map-contour-faint)" stroke-width="1"/>
+              <ellipse cx="160" cy="44" rx="100" ry="22" fill="none" stroke="var(--map-contour-faint)" stroke-width="1"/>
+              <ellipse cx="160" cy="44" rx="70" ry="14" fill="none" stroke="var(--map-contour)" stroke-width="0.75"/>
+              <ellipse cx="160" cy="44" rx="40" ry="8" fill="none" stroke="var(--map-contour)" stroke-width="0.75"/>
+              <!-- Route polyline: best (copper) -->
+              <polyline
+                points="20,68 55,60 85,50 110,38 140,28 175,22 210,30 245,42 275,52 300,62"
+                fill="none"
+                stroke="var(--route-best)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <!-- Start/end dots -->
+              <circle cx="20" cy="68" r="4" fill="var(--route-best)" opacity="0.9"/>
+              <circle cx="300" cy="62" r="4" fill="var(--route-best)" opacity="0.9"/>
+            </svg>
+          </div>
+
+          <div class="mol-rac__body">
+            <div class="mol-rac__head">
+              <div class="mol-rac__best-badge t-label-sm">
+                <svg viewBox="0 0 8 8"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+                Best
+              </div>
+              <span class="mol-rac__title t-title-md">Emigration Canyon Loop</span>
+            </div>
+            <div class="mol-rac__via t-body-sm">via Emigration Canyon Rd · Little Mountain</div>
+            <div class="mol-rac__meta">
+              <span class="mol-rac__metric t-instr-sm">28.4 mi</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">1h 52m</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">2,340 ft</span>
+              <div class="mol-rac__metric-sep"></div>
+              <div class="mol-rac__scenic">
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <span class="mol-rac__scenic-label t-label-sm">Scenic</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weather badge: absolute top-right -->
+          <div class="mol-rac__weather wx-clear t-label-sm">
+            <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="5" cy="5" r="2" fill="currentColor"/>
+              <g stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                <line x1="5" y1="0.5" x2="5" y2="1.8"/>
+                <line x1="5" y1="8.2" x2="5" y2="9.5"/>
+                <line x1="0.5" y1="5" x2="1.8" y2="5"/>
+                <line x1="8.2" y1="5" x2="9.5" y2="5"/>
+              </g>
+            </svg>
+            Clear
+          </div>
+        </div>
+        <span class="label">best · selected · weather · full · light</span>
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark">
+      <div class="variant-cell" style="align-items:flex-start;">
+        <div class="mol-route-attachment-card v-best is-selected" style="width:320px;">
+          <div class="mol-rac__thumbnail">
+            <svg viewBox="0 0 320 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <rect width="320" height="88" fill="var(--map-paper)"/>
+              <ellipse cx="160" cy="44" rx="130" ry="30" fill="none" stroke="var(--map-contour-faint)" stroke-width="1"/>
+              <ellipse cx="160" cy="44" rx="90" ry="20" fill="none" stroke="var(--map-contour)" stroke-width="0.75"/>
+              <polyline points="20,68 55,60 85,50 110,38 140,28 175,22 210,30 245,42 275,52 300,62"
+                fill="none" stroke="var(--route-best)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="20" cy="68" r="4" fill="var(--route-best)" opacity="0.9"/>
+              <circle cx="300" cy="62" r="4" fill="var(--route-best)" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="mol-rac__body">
+            <div class="mol-rac__head">
+              <div class="mol-rac__best-badge t-label-sm">
+                <svg viewBox="0 0 8 8"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+                Best
+              </div>
+              <span class="mol-rac__title t-title-md">Emigration Canyon Loop</span>
+            </div>
+            <div class="mol-rac__via t-body-sm">via Emigration Canyon Rd · Little Mountain</div>
+            <div class="mol-rac__meta">
+              <span class="mol-rac__metric t-instr-sm">28.4 mi</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">1h 52m</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">2,340 ft</span>
+            </div>
+          </div>
+          <div class="mol-rac__weather wx-clear t-label-sm">
+            <svg viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="2" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="5" y1="0.5" x2="5" y2="1.8"/><line x1="5" y1="8.2" x2="5" y2="9.5"/><line x1="0.5" y1="5" x2="1.8" y2="5"/><line x1="8.2" y1="5" x2="9.5" y2="5"/></g></svg>
+            Clear
+          </div>
+        </div>
+        <span class="label">best · selected · weather · dark</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     § 2 — ALT routes (alt1 sage-green, alt2 slate)
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Alternative routes — alt1 (sage) + alt2 (slate) color-coded polylines</div>
+  <div class="two-up">
+
+    <!-- Alt1 · Light -->
+    <div class="theme-pane">
+      <div class="variant-cell" style="align-items:flex-start;">
+        <div class="mol-route-attachment-card v-alt1" style="width:300px;">
+          <div class="mol-rac__thumbnail">
+            <svg viewBox="0 0 300 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <rect width="300" height="88" fill="var(--map-paper)"/>
+              <ellipse cx="150" cy="44" rx="120" ry="28" fill="none" stroke="var(--map-contour-faint)" stroke-width="1"/>
+              <ellipse cx="150" cy="44" rx="80" ry="18" fill="none" stroke="var(--map-contour-faint)" stroke-width="1"/>
+              <!-- Alt1 polyline: sage green -->
+              <polyline
+                points="20,55 55,52 90,44 125,38 155,42 185,50 215,56 250,58 280,54"
+                fill="none"
+                stroke="var(--route-alt1)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <circle cx="20" cy="55" r="4" fill="var(--route-alt1)" opacity="0.9"/>
+              <circle cx="280" cy="54" r="4" fill="var(--route-alt1)" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="mol-rac__body">
+            <div class="mol-rac__head">
+              <span class="mol-rac__title t-title-md">Bonneville Shoreline Trail</span>
+            </div>
+            <div class="mol-rac__via t-body-sm">via BST North · City Creek · Red Butte</div>
+            <div class="mol-rac__meta">
+              <span class="mol-rac__metric t-instr-sm">14.2 mi</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">58m</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">1,120 ft</span>
+              <div class="mol-rac__metric-sep"></div>
+              <div class="mol-rac__scenic">
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot"></div>
+                <div class="mol-rac__scenic-dot"></div>
+                <span class="mol-rac__scenic-label t-label-sm">Scenic</span>
+              </div>
+            </div>
+            <div class="mol-rac__pills">
+              <div class="mol-rac__pill p-gravel t-label-sm">Gravel</div>
+              <div class="mol-rac__pill p-climb t-label-sm">+6% avg</div>
+            </div>
+          </div>
+          <div class="mol-rac__weather wx-wind t-label-sm">
+            <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 4h6a1.2 1.2 0 0 0 0-2.4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              <path d="M1 6h7a1.2 1.2 0 0 0 0-2.4" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+            </svg>
+            Wind
+          </div>
+        </div>
+        <span class="label">alt1 · sage polyline · gravel + climb pills · wind</span>
+      </div>
+    </div>
+
+    <!-- Alt2 · Light -->
+    <div class="theme-pane">
+      <div class="variant-cell" style="align-items:flex-start;">
+        <div class="mol-route-attachment-card v-alt2" style="width:300px;">
+          <div class="mol-rac__thumbnail">
+            <svg viewBox="0 0 300 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <rect width="300" height="88" fill="var(--map-paper)"/>
+              <ellipse cx="150" cy="44" rx="125" ry="32" fill="none" stroke="var(--map-contour-faint)" stroke-width="1"/>
+              <ellipse cx="150" cy="44" rx="85" ry="20" fill="none" stroke="var(--map-contour)" stroke-width="0.75"/>
+              <!-- Alt2 polyline: slate -->
+              <polyline
+                points="15,72 50,64 85,52 115,40 145,32 180,28 210,36 245,48 275,60 290,68"
+                fill="none"
+                stroke="var(--route-alt2)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <circle cx="15" cy="72" r="4" fill="var(--route-alt2)" opacity="0.9"/>
+              <circle cx="290" cy="68" r="4" fill="var(--route-alt2)" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="mol-rac__body">
+            <div class="mol-rac__head">
+              <span class="mol-rac__title t-title-md">Big Cottonwood Descent</span>
+            </div>
+            <div class="mol-rac__via t-body-sm">via Big Cottonwood Canyon Rd · Wasatch Blvd</div>
+            <div class="mol-rac__meta">
+              <span class="mol-rac__metric t-instr-sm">22.8 mi</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">1h 24m</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">3,100 ft</span>
+              <div class="mol-rac__metric-sep"></div>
+              <div class="mol-rac__scenic">
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot"></div>
+                <span class="mol-rac__scenic-label t-label-sm">Scenic</span>
+              </div>
+            </div>
+            <div class="mol-rac__pills">
+              <div class="mol-rac__pill p-paved t-label-sm">Paved</div>
+              <div class="mol-rac__pill p-climb t-label-sm">+8% max</div>
+            </div>
+          </div>
+          <div class="mol-rac__weather wx-rain t-label-sm">
+            <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 6.5A2.5 2.5 0 0 1 4.5 2a2.2 2.2 0 0 1 4 1 1.8 1.8 0 0 1-.5 3.5H3" stroke="currentColor" stroke-width="1" fill="none"/>
+              <line x1="3" y1="8" x2="2.5" y2="9.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+              <line x1="5.5" y1="8" x2="5" y2="9.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+            </svg>
+            Rain
+          </div>
+        </div>
+        <span class="label">alt2 · slate polyline · paved + climb pills · rain</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     § 3 — WITH ACCEPT ACTION (visible vs hidden)
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Accept action — visible and hidden</div>
+  <div class="two-up">
+
+    <!-- Action visible · Light -->
+    <div class="theme-pane">
+      <div class="variant-cell" style="align-items:flex-start;">
+        <div class="mol-route-attachment-card v-best" style="width:320px;">
+          <div class="mol-rac__thumbnail">
+            <svg viewBox="0 0 320 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <rect width="320" height="88" fill="var(--map-paper)"/>
+              <ellipse cx="160" cy="44" rx="130" ry="30" fill="none" stroke="var(--map-contour-faint)" stroke-width="1"/>
+              <polyline points="20,68 55,60 85,50 110,38 140,28 175,22 210,30 245,42 275,52 300,62"
+                fill="none" stroke="var(--route-best)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="20" cy="68" r="4" fill="var(--route-best)" opacity="0.9"/>
+              <circle cx="300" cy="62" r="4" fill="var(--route-best)" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="mol-rac__body">
+            <div class="mol-rac__head">
+              <div class="mol-rac__best-badge t-label-sm">
+                <svg viewBox="0 0 8 8"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+                Best
+              </div>
+              <span class="mol-rac__title t-title-md">Emigration Canyon Loop</span>
+            </div>
+            <div class="mol-rac__via t-body-sm">via Emigration Canyon Rd</div>
+            <div class="mol-rac__meta">
+              <span class="mol-rac__metric t-instr-sm">28.4 mi</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">1h 52m</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">2,340 ft</span>
+            </div>
+          </div>
+          <!-- Accept action: visible -->
+          <div class="mol-rac__action">
+            <button class="ls-btn ls-btn--ghost t-body-sm" style="height:var(--size-control-sm);">
+              View Details
+            </button>
+            <button class="ls-btn ls-btn--accept t-label-md" style="height:var(--size-control-sm);padding:0 var(--space-4);">
+              Accept Route
+            </button>
+          </div>
+        </div>
+        <span class="label">accept action visible · light</span>
+      </div>
+    </div>
+
+    <!-- Action hidden (no action row) · Light -->
+    <div class="theme-pane">
+      <div class="variant-cell" style="align-items:flex-start;">
+        <div class="mol-route-attachment-card v-best" style="width:320px;">
+          <div class="mol-rac__thumbnail">
+            <svg viewBox="0 0 320 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <rect width="320" height="88" fill="var(--map-paper)"/>
+              <ellipse cx="160" cy="44" rx="120" ry="28" fill="none" stroke="var(--map-contour-faint)" stroke-width="1"/>
+              <polyline points="20,68 55,60 85,50 110,38 140,28 175,22 210,30 245,42 275,52 300,62"
+                fill="none" stroke="var(--route-best)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="20" cy="68" r="4" fill="var(--route-best)" opacity="0.9"/>
+              <circle cx="300" cy="62" r="4" fill="var(--route-best)" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="mol-rac__body">
+            <div class="mol-rac__head">
+              <div class="mol-rac__best-badge t-label-sm">
+                <svg viewBox="0 0 8 8"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+                Best
+              </div>
+              <span class="mol-rac__title t-title-md">Emigration Canyon Loop</span>
+            </div>
+            <div class="mol-rac__via t-body-sm">via Emigration Canyon Rd</div>
+            <div class="mol-rac__meta">
+              <span class="mol-rac__metric t-instr-sm">28.4 mi</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">1h 52m</span>
+            </div>
+          </div>
+          <!-- No action row — "hidden" variant, tap card itself navigates -->
+        </div>
+        <span class="label">accept action hidden (tap-to-navigate) · light</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     § 4 — COMPACT vs FULL
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Compact vs full sizing</div>
+  <div class="two-up">
+
+    <!-- Full · Light -->
+    <div class="theme-pane">
+      <div class="variant-cell" style="align-items:flex-start;">
+        <div class="mol-route-attachment-card v-best" style="width:300px;">
+          <div class="mol-rac__thumbnail">
+            <svg viewBox="0 0 300 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <rect width="300" height="88" fill="var(--map-paper)"/>
+              <ellipse cx="150" cy="44" rx="120" ry="30" fill="none" stroke="var(--map-contour-faint)" stroke-width="1"/>
+              <polyline points="20,64 60,56 100,44 140,32 180,26 220,34 260,48 290,60"
+                fill="none" stroke="var(--route-best)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="20" cy="64" r="4" fill="var(--route-best)" opacity="0.9"/>
+              <circle cx="290" cy="60" r="4" fill="var(--route-best)" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="mol-rac__body">
+            <div class="mol-rac__head">
+              <div class="mol-rac__best-badge t-label-sm">
+                <svg viewBox="0 0 8 8"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+                Best
+              </div>
+              <span class="mol-rac__title t-title-md">Bonneville Shoreline Trail</span>
+            </div>
+            <div class="mol-rac__via t-body-sm">via BST · City Creek Canyon</div>
+            <div class="mol-rac__meta">
+              <span class="mol-rac__metric t-instr-sm">14.2 mi</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">58m</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">1,120 ft</span>
+            </div>
+          </div>
+        </div>
+        <span class="label">full · 88px thumbnail · standard padding</span>
+      </div>
+    </div>
+
+    <!-- Compact · Light -->
+    <div class="theme-pane">
+      <div class="variant-cell" style="align-items:flex-start;">
+        <div class="mol-route-attachment-card v-best is-compact" style="width:300px;">
+          <div class="mol-rac__thumbnail">
+            <svg viewBox="0 0 300 60" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <rect width="300" height="60" fill="var(--map-paper)"/>
+              <ellipse cx="150" cy="30" rx="120" ry="20" fill="none" stroke="var(--map-contour-faint)" stroke-width="1"/>
+              <polyline points="20,44 60,36 100,28 140,20 180,18 220,24 260,34 290,42"
+                fill="none" stroke="var(--route-best)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="20" cy="44" r="3.5" fill="var(--route-best)" opacity="0.9"/>
+              <circle cx="290" cy="42" r="3.5" fill="var(--route-best)" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="mol-rac__body">
+            <div class="mol-rac__head">
+              <div class="mol-rac__best-badge t-label-sm">
+                <svg viewBox="0 0 8 8"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+                Best
+              </div>
+              <span class="mol-rac__title t-title-md">Bonneville Shoreline Trail</span>
+            </div>
+            <div class="mol-rac__meta">
+              <span class="mol-rac__metric t-instr-sm">14.2 mi</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">58m</span>
+            </div>
+          </div>
+        </div>
+        <span class="label">compact · 60px thumbnail · tighter padding</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     § 5 — DIFFICULTY PILLS matrix
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Difficulty pills — gravel / paved / climb-grade</div>
+  <div class="two-up">
+
+    <!-- With pills · Light -->
+    <div class="theme-pane">
+      <div class="variant-cell" style="align-items:flex-start;">
+        <div class="mol-route-attachment-card v-alt1" style="width:300px;">
+          <div class="mol-rac__thumbnail">
+            <svg viewBox="0 0 300 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <rect width="300" height="88" fill="var(--map-paper)"/>
+              <ellipse cx="150" cy="44" rx="110" ry="26" fill="none" stroke="var(--map-contour-faint)" stroke-width="1"/>
+              <polyline points="15,55 55,50 90,42 125,36 155,40 185,48 215,54 250,56 285,52"
+                fill="none" stroke="var(--route-alt1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="15" cy="55" r="4" fill="var(--route-alt1)" opacity="0.9"/>
+              <circle cx="285" cy="52" r="4" fill="var(--route-alt1)" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="mol-rac__body">
+            <div class="mol-rac__head">
+              <span class="mol-rac__title t-title-md">Bonneville Shoreline Trail</span>
+            </div>
+            <div class="mol-rac__via t-body-sm">via Red Butte · Dry Creek</div>
+            <div class="mol-rac__meta">
+              <span class="mol-rac__metric t-instr-sm">14.2 mi</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">1,120 ft</span>
+            </div>
+            <div class="mol-rac__pills">
+              <div class="mol-rac__pill p-gravel t-label-sm">Gravel</div>
+              <div class="mol-rac__pill p-climb t-label-sm">+6% avg</div>
+              <div class="mol-rac__pill p-climb t-label-sm">+14% max</div>
+            </div>
+          </div>
+        </div>
+        <span class="label">gravel + climb grade pills · alt1 · light</span>
+      </div>
+    </div>
+
+    <!-- With pills · Dark -->
+    <div class="theme-pane mode-dark">
+      <div class="variant-cell" style="align-items:flex-start;">
+        <div class="mol-route-attachment-card v-alt2" style="width:300px;">
+          <div class="mol-rac__thumbnail">
+            <svg viewBox="0 0 300 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <rect width="300" height="88" fill="var(--map-paper)"/>
+              <ellipse cx="150" cy="44" rx="120" ry="28" fill="none" stroke="var(--map-contour)" stroke-width="0.75"/>
+              <polyline points="15,72 50,62 85,50 115,38 145,30 180,26 210,34 245,46 278,58 295,66"
+                fill="none" stroke="var(--route-alt2)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="15" cy="72" r="4" fill="var(--route-alt2)" opacity="0.9"/>
+              <circle cx="295" cy="66" r="4" fill="var(--route-alt2)" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="mol-rac__body">
+            <div class="mol-rac__head">
+              <span class="mol-rac__title t-title-md">Big Cottonwood Descent</span>
+            </div>
+            <div class="mol-rac__via t-body-sm">via Big Cottonwood Canyon Rd</div>
+            <div class="mol-rac__meta">
+              <span class="mol-rac__metric t-instr-sm">22.8 mi</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">3,100 ft</span>
+            </div>
+            <div class="mol-rac__pills">
+              <div class="mol-rac__pill p-paved t-label-sm">Paved</div>
+              <div class="mol-rac__pill p-climb t-label-sm">+8% max</div>
+            </div>
+          </div>
+        </div>
+        <span class="label">paved + climb pills · alt2 · dark</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     § 6 — BEST-BADGE + FAVORITE FLAG combined
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Best-badge + favorite flag combined</div>
+  <div class="two-up">
+
+    <!-- Light -->
+    <div class="theme-pane">
+      <div class="variant-cell" style="align-items:flex-start;">
+        <div class="mol-route-attachment-card v-best is-selected" style="width:320px;">
+          <div class="mol-rac__thumbnail">
+            <svg viewBox="0 0 320 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <rect width="320" height="88" fill="var(--map-paper)"/>
+              <ellipse cx="160" cy="44" rx="130" ry="30" fill="none" stroke="var(--map-contour-faint)" stroke-width="1"/>
+              <polyline points="20,68 55,60 85,50 110,38 140,28 175,22 210,30 245,42 275,52 300,62"
+                fill="none" stroke="var(--route-best)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="20" cy="68" r="4" fill="var(--route-best)" opacity="0.9"/>
+              <circle cx="300" cy="62" r="4" fill="var(--route-best)" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="mol-rac__body">
+            <div class="mol-rac__head">
+              <div class="mol-rac__best-badge t-label-sm">
+                <svg viewBox="0 0 8 8"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+                Best
+              </div>
+              <span class="mol-rac__title t-title-md">Emigration Canyon Loop</span>
+            </div>
+            <div class="mol-rac__via t-body-sm">via Emigration Canyon Rd · Little Mountain</div>
+            <div class="mol-rac__meta">
+              <span class="mol-rac__metric t-instr-sm">28.4 mi</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">1h 52m</span>
+              <div class="mol-rac__metric-sep"></div>
+              <div class="mol-rac__scenic">
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <div class="mol-rac__scenic-dot is-filled"></div>
+                <span class="mol-rac__scenic-label t-label-sm">Scenic</span>
+              </div>
+            </div>
+            <!-- Favorite flag row -->
+            <div class="mol-rac__flag">
+              <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M6 10.5s-5-3.5-5-6.5a3 3 0 0 1 5-2.24A3 3 0 0 1 11 4c0 3-5 6.5-5 6.5z"/></svg>
+              <span class="mol-rac__flag-label t-label-sm">Includes Sunset Overlook</span>
+            </div>
+          </div>
+          <div class="mol-rac__weather wx-clear t-label-sm">
+            <svg viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="2" fill="currentColor"/><g stroke="currentColor" stroke-width="1" stroke-linecap="round"><line x1="5" y1="0.5" x2="5" y2="1.8"/><line x1="5" y1="8.2" x2="5" y2="9.5"/><line x1="0.5" y1="5" x2="1.8" y2="5"/><line x1="8.2" y1="5" x2="9.5" y2="5"/></g></svg>
+            Clear
+          </div>
+        </div>
+        <span class="label">best · selected · favorite flag · weather · light</span>
+      </div>
+    </div>
+
+    <!-- Dark -->
+    <div class="theme-pane mode-dark">
+      <div class="variant-cell" style="align-items:flex-start;">
+        <div class="mol-route-attachment-card v-best is-selected" style="width:320px;">
+          <div class="mol-rac__thumbnail">
+            <svg viewBox="0 0 320 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+              <rect width="320" height="88" fill="var(--map-paper)"/>
+              <ellipse cx="160" cy="44" rx="130" ry="30" fill="none" stroke="var(--map-contour)" stroke-width="0.75"/>
+              <polyline points="20,68 55,60 85,50 110,38 140,28 175,22 210,30 245,42 275,52 300,62"
+                fill="none" stroke="var(--route-best)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="20" cy="68" r="4" fill="var(--route-best)" opacity="0.9"/>
+              <circle cx="300" cy="62" r="4" fill="var(--route-best)" opacity="0.9"/>
+            </svg>
+          </div>
+          <div class="mol-rac__body">
+            <div class="mol-rac__head">
+              <div class="mol-rac__best-badge t-label-sm">
+                <svg viewBox="0 0 8 8"><path d="M4 1l.94 2.06L7 3.24l-1.5 1.46.35 2.06L4 5.69l-2.19.99.35-2.06L.72 3.24l2.06-.18z" fill="currentColor"/></svg>
+                Best
+              </div>
+              <span class="mol-rac__title t-title-md">Emigration Canyon Loop</span>
+            </div>
+            <div class="mol-rac__via t-body-sm">via Emigration Canyon Rd · Little Mountain</div>
+            <div class="mol-rac__meta">
+              <span class="mol-rac__metric t-instr-sm">28.4 mi</span>
+              <div class="mol-rac__metric-sep"></div>
+              <span class="mol-rac__metric t-instr-sm">1h 52m</span>
+            </div>
+            <div class="mol-rac__flag">
+              <svg viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><path d="M6 10.5s-5-3.5-5-6.5a3 3 0 0 1 5-2.24A3 3 0 0 1 11 4c0 3-5 6.5-5 6.5z"/></svg>
+              <span class="mol-rac__flag-label t-label-sm">Includes Sunset Overlook</span>
+            </div>
+          </div>
+        </div>
+        <span class="label">best · selected · favorite flag · dark</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

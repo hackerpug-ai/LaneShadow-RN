@@ -1,0 +1,123 @@
+/**
+ * Atom Preview Scaffold — LaneShadow V2 Copper
+ * Shared layout utilities for atom HTML previews.
+ * Uses canonical tokens only: --surface-*, --content-*, --border-*, --space-*, --font-*, etc.
+ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: var(--font-ui);
+  background: var(--surface-primary);
+  color: var(--content-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.55;
+}
+
+body { padding: var(--space-8); }
+
+/* ── Page header ───────────────────────────────────────────────── */
+.preview-header {
+  margin-bottom: var(--space-8);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border-default);
+}
+.preview-header h1 {
+  font-family: var(--font-opinion);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.15;
+  color: var(--content-primary);
+  margin-bottom: var(--space-2);
+}
+.preview-header h1 em { color: var(--signal-default); }
+.preview-header .subtitle {
+  font-family: var(--font-instrument);
+  font-size: 11px;
+  color: var(--content-tertiary);
+  letter-spacing: 0.08em;
+}
+
+/* ── Sections ──────────────────────────────────────────────────── */
+.section { margin-bottom: var(--space-9); }
+.section-label {
+  font-family: var(--font-ui);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--signal-default);
+  margin-bottom: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-default);
+}
+
+/* ── Variant grids ─────────────────────────────────────────────── */
+.variant-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  align-items: flex-start;
+}
+.variant-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  min-width: 120px;
+}
+.variant-cell .label {
+  font-family: var(--font-instrument);
+  font-size: 10px;
+  color: var(--content-tertiary);
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+/* ── Two-up theme panes ────────────────────────────────────────── */
+.two-up {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+}
+@media (max-width: 900px) {
+  .two-up { grid-template-columns: 1fr; }
+}
+
+.theme-pane {
+  padding: var(--space-7);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  background: var(--surface-primary);
+}
+.theme-pane.mode-dark {
+  background: var(--surface-primary);
+}
+
+/* ── Forced-state utilities ────────────────────────────────────── */
+.is-hover    { /* state hook */ }
+.is-focused  { /* state hook */ }
+.is-pressed  { /* state hook */ }
+.is-disabled { opacity: var(--opacity-disabled); pointer-events: none; }
+.is-active   { /* state hook */ }
+.is-error    { /* state hook */ }
+.is-loading  { /* state hook */ }
+
+/* ── Sample content card (for demonstrating atoms in context) ──── */
+.sample-card {
+  padding: var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elev-card);
+}

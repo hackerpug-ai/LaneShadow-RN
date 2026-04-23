@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<!-- atoms/text/text.html — LSText Typography Atom Preview
+     LaneShadow V2 · Copper · UC-ATM-01
+     Self-contained: links canonical tokens, fonts, type-modules, _preview.css -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>LSText — Typography Atom — LaneShadow V2 Copper</title>
+
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+
+<style>
+/* ── Atom-local layout only — zero color/font/spacing literals ── */
+
+.specimen-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0);
+}
+
+.specimen-row {
+  display: grid;
+  grid-template-columns: var(--space-12) 1fr auto;
+  gap: var(--space-6);
+  align-items: center;
+  padding: var(--space-5) var(--space-0);
+  border-bottom: var(--stroke-sm) solid var(--border-subtle);
+}
+.specimen-row:last-child {
+  border-bottom: none;
+}
+
+/* .specimen-role-label — uses .t-instr-sm applied in HTML */
+.specimen-role-label {
+  color: var(--signal-default);
+  white-space: nowrap;
+}
+
+.specimen-text {
+  /* variant class applied in HTML */
+  color: var(--content-primary);
+}
+
+/* .specimen-token — uses .t-instr-sm applied in HTML */
+.specimen-token {
+  color: var(--content-tertiary);
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* ── Color matrix row ─────────────────────────────────────────── */
+.color-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.color-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-md);
+  min-width: 120px;
+}
+
+/* .color-cell-label — uses .t-label-sm applied in HTML */
+.color-cell-label {
+  color: var(--content-tertiary);
+}
+
+.color-cell.on-signal {
+  background: var(--signal-default);
+  border-color: var(--signal-default);
+}
+.color-cell.on-signal .color-cell-label {
+  color: var(--content-on-signal);
+  opacity: var(--opacity-dim);
+}
+
+/* ── Italic demo ──────────────────────────────────────────────── */
+.italic-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-7);
+  margin-top: var(--space-5);
+  align-items: flex-end;
+}
+
+.italic-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ── Disabled state demo ─────────────────────────────────────── */
+.is-disabled {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+}
+
+/* ── Context card ─────────────────────────────────────────────── */
+.context-card {
+  padding: var(--space-6) var(--space-7);
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.context-card-overline {
+  color: var(--content-tertiary);
+}
+
+.context-card-title {
+  color: var(--content-primary);
+}
+
+.context-card-meta {
+  color: var(--content-secondary);
+  padding-top: var(--space-3);
+  border-top: var(--stroke-sm) solid var(--border-subtle);
+  display: flex;
+  gap: var(--space-6);
+}
+
+.context-card-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.context-card-stat-label {
+  color: var(--content-tertiary);
+}
+
+.context-card-stat-value {
+  color: var(--content-primary);
+}
+
+.context-card-navigator {
+  padding: var(--space-5) var(--space-6);
+  background: var(--surface-inset);
+  border-radius: var(--radius-md);
+  border: var(--stroke-sm) solid var(--border-subtle);
+  color: var(--content-primary);
+  margin-top: var(--space-2);
+}
+
+/* ── Family group dividers ────────────────────────────────────── */
+.family-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+  padding-top: var(--space-7);
+}
+
+/* .family-header-label — uses .t-label-md applied in HTML */
+.family-header-label {
+  color: var(--signal-default);
+  white-space: nowrap;
+}
+
+.family-header::after {
+  content: "";
+  flex: 1;
+  height: var(--stroke-sm);
+  background: var(--border-default);
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ PAGE HEADER ═════════════════════════════════════════════════════ -->
+<header class="preview-header">
+  <h1>LSText — <em>Typography Atom</em></h1>
+  <div class="subtitle">UC-ATM-01 · atoms/text · 17 variants across 3 families · 6 color roles</div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     LIGHT THEME + DARK THEME SIDE BY SIDE
+     ═══════════════════════════════════════════════════════════════════════ -->
+
+<div class="two-up">
+
+  <!-- ── LIGHT PANE ──────────────────────────────────────────────────── -->
+  <div class="theme-pane">
+    <div class="section-label">Light Theme</div>
+
+    <!-- OPINION FAMILY -->
+    <div class="section">
+      <div class="family-header">
+        <span class="family-header-label t-label-md">Opinion · Newsreader</span>
+      </div>
+      <div class="specimen-stack">
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-xl</span>
+          <span class="specimen-text t-opinion-xl">
+            Take Skyline down to Alice's.
+          </span>
+          <span class="specimen-token t-instr-sm">.t-opinion-xl</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-xl italic</span>
+          <span class="specimen-text t-opinion-xl">
+            <em class="opinion-ital">Coastal's windy, redwoods bring rain.</em>
+          </span>
+          <span class="specimen-token t-instr-sm">.t-opinion-xl em.opinion-ital</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-lg</span>
+          <span class="specimen-text t-opinion-lg">The Skyline Spine</span>
+          <span class="specimen-token t-instr-sm">.t-opinion-lg</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-lg italic</span>
+          <span class="specimen-text t-opinion-lg">
+            <em class="opinion-ital">Coastal Ladder</em>
+          </span>
+          <span class="specimen-token t-instr-sm">.t-opinion-lg em.opinion-ital</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-md</span>
+          <span class="specimen-text t-opinion-md">Scenic 2-hour ride, avoid highways — three alternates waiting for you.</span>
+          <span class="specimen-token t-instr-sm">.t-opinion-md</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-md italic</span>
+          <span class="specimen-text t-opinion-md"><em class="opinion-ital">Let me think on that…</em></span>
+          <span class="specimen-token t-instr-sm">.t-opinion-md em.opinion-ital</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-sm</span>
+          <span class="specimen-text t-opinion-sm">Saved Rides</span>
+          <span class="specimen-token t-instr-sm">.t-opinion-sm</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-sm italic</span>
+          <span class="specimen-text t-opinion-sm"><em class="opinion-ital">Take Skyline down to Alice's.</em></span>
+          <span class="specimen-token t-instr-sm">.t-opinion-sm em.opinion-ital</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TITLE FAMILY -->
+    <div class="section">
+      <div class="family-header">
+        <span class="family-header-label t-label-md">Title · Geist SemiBold</span>
+      </div>
+      <div class="specimen-stack">
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">title-lg</span>
+          <span class="specimen-text t-title-lg">Saved Rides</span>
+          <span class="specimen-token t-instr-sm">.t-title-lg</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">title-md</span>
+          <span class="specimen-text t-title-md">The Skyline Spine</span>
+          <span class="specimen-token t-instr-sm">.t-title-md</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">title-sm</span>
+          <span class="specimen-text t-title-sm">Coastal Ladder</span>
+          <span class="specimen-token t-instr-sm">.t-title-sm</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BODY FAMILY -->
+    <div class="section">
+      <div class="family-header">
+        <span class="family-header-label t-label-md">Body · Geist Regular</span>
+      </div>
+      <div class="specimen-stack">
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">body-lg</span>
+          <span class="specimen-text t-body-lg">Scenic 2-hour ride, avoid highways — three alternates waiting for you.</span>
+          <span class="specimen-token t-instr-sm">.t-body-lg</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">body-md</span>
+          <span class="specimen-text t-body-md">Scenic 2-hour ride, avoid highways — three alternates waiting for you.</span>
+          <span class="specimen-token t-instr-sm">.t-body-md</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">body-sm</span>
+          <span class="specimen-text t-body-sm">Scenic 2-hour ride, avoid highways — three alternates waiting for you.</span>
+          <span class="specimen-token t-instr-sm">.t-body-sm</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- LABEL FAMILY -->
+    <div class="section">
+      <div class="family-header">
+        <span class="family-header-label t-label-md">Label · Geist Caps</span>
+      </div>
+      <div class="specimen-stack">
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">label-lg</span>
+          <span class="specimen-text t-label-lg">Best For Today</span>
+          <span class="specimen-token t-instr-sm">.t-label-lg</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">label-md</span>
+          <span class="specimen-text t-label-md">2H 10M</span>
+          <span class="specimen-token t-instr-sm">.t-label-md</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">label-sm</span>
+          <span class="specimen-text t-label-sm">Best For Today</span>
+          <span class="specimen-token t-instr-sm">.t-label-sm</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- INSTRUMENT FAMILY -->
+    <div class="section">
+      <div class="family-header">
+        <span class="family-header-label t-label-md">Instrument · JetBrains Mono</span>
+      </div>
+      <div class="specimen-stack">
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">instr-lg</span>
+          <span class="specimen-text t-instr-lg">64 mi · 2h 10m</span>
+          <span class="specimen-token t-instr-sm">.t-instr-lg</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">instr-md</span>
+          <span class="specimen-text t-instr-md">CA-1 · 37.3255°N</span>
+          <span class="specimen-token t-instr-sm">.t-instr-md</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">instr-sm</span>
+          <span class="specimen-text t-instr-sm">64 mi · 2h 10m · 3,240 ft</span>
+          <span class="specimen-token t-instr-sm">.t-instr-sm</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">instr-xs</span>
+          <span class="specimen-text t-instr-xs">DIST · TIME · ELV</span>
+          <span class="specimen-token t-instr-sm">.t-instr-xs</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- COLOR ROLES -->
+    <div class="section">
+      <div class="section-label">Content Color Roles (opinion-md)</div>
+      <div class="color-row">
+
+        <div class="color-cell">
+          <div class="color-cell-label t-label-sm">content.primary</div>
+          <div class="t-opinion-md" style="color: var(--content-primary);">The Skyline Spine</div>
+        </div>
+
+        <div class="color-cell">
+          <div class="color-cell-label t-label-sm">content.secondary</div>
+          <div class="t-opinion-md" style="color: var(--content-secondary);">The Skyline Spine</div>
+        </div>
+
+        <div class="color-cell">
+          <div class="color-cell-label t-label-sm">content.tertiary</div>
+          <div class="t-opinion-md" style="color: var(--content-tertiary);">The Skyline Spine</div>
+        </div>
+
+        <div class="color-cell">
+          <div class="color-cell-label t-label-sm">content.subtle</div>
+          <div class="t-opinion-md" style="color: var(--content-subtle);">The Skyline Spine</div>
+        </div>
+
+        <div class="color-cell">
+          <div class="color-cell-label t-label-sm">signal.default</div>
+          <div class="t-opinion-md" style="color: var(--signal-default);">The Skyline Spine</div>
+        </div>
+
+        <div class="color-cell on-signal">
+          <div class="color-cell-label t-label-sm">content.on-signal</div>
+          <div class="t-opinion-md" style="color: var(--content-on-signal);">The Skyline Spine</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- STATES -->
+    <div class="section">
+      <div class="section-label">States</div>
+
+      <div class="specimen-stack">
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">default</span>
+          <span class="specimen-text t-body-lg">Scenic 2-hour ride, avoid highways.</span>
+          <span class="specimen-token t-instr-sm">default</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">disabled</span>
+          <span class="specimen-text t-body-lg is-disabled">Scenic 2-hour ride, avoid highways.</span>
+          <span class="specimen-token t-instr-sm">opacity-disabled</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- IN-CONTEXT CARD -->
+    <div class="section">
+      <div class="section-label">In Context — Route Card</div>
+      <div class="context-card">
+        <div class="context-card-overline t-label-lg">Best For Today</div>
+        <div class="context-card-title t-opinion-lg">The Skyline Spine</div>
+        <div class="t-body-md" style="color: var(--content-secondary);">Scenic 2-hour ride, avoid highways — three alternates waiting for you.</div>
+        <div class="context-card-meta">
+          <div class="context-card-stat">
+            <div class="context-card-stat-label t-label-sm">Distance</div>
+            <div class="context-card-stat-value t-instr-lg">64 mi</div>
+          </div>
+          <div class="context-card-stat">
+            <div class="context-card-stat-label t-label-sm">Time</div>
+            <div class="context-card-stat-value t-instr-lg">2h 10m</div>
+          </div>
+          <div class="context-card-stat">
+            <div class="context-card-stat-label t-label-sm">Coords</div>
+            <div class="context-card-stat-value t-instr-md" style="color: var(--content-secondary);">CA-1 · 37.3255°N</div>
+          </div>
+        </div>
+        <div class="context-card-navigator t-opinion-md">
+          <em class="opinion-ital">Take Skyline down to Alice's.</em>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /theme-pane light -->
+
+  <!-- ── DARK PANE ───────────────────────────────────────────────────── -->
+  <div class="theme-pane mode-dark">
+    <div class="section-label">Dark Theme</div>
+
+    <!-- OPINION FAMILY -->
+    <div class="section">
+      <div class="family-header">
+        <span class="family-header-label t-label-md">Opinion · Newsreader</span>
+      </div>
+      <div class="specimen-stack">
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-xl</span>
+          <span class="specimen-text t-opinion-xl">
+            Take Skyline down to Alice's.
+          </span>
+          <span class="specimen-token t-instr-sm">.t-opinion-xl</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-xl italic</span>
+          <span class="specimen-text t-opinion-xl">
+            <em class="opinion-ital">Coastal's windy, redwoods bring rain.</em>
+          </span>
+          <span class="specimen-token t-instr-sm">.t-opinion-xl em.opinion-ital</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-lg</span>
+          <span class="specimen-text t-opinion-lg">The Skyline Spine</span>
+          <span class="specimen-token t-instr-sm">.t-opinion-lg</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-lg italic</span>
+          <span class="specimen-text t-opinion-lg">
+            <em class="opinion-ital">Coastal Ladder</em>
+          </span>
+          <span class="specimen-token t-instr-sm">.t-opinion-lg em.opinion-ital</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-md</span>
+          <span class="specimen-text t-opinion-md">Scenic 2-hour ride, avoid highways — three alternates waiting for you.</span>
+          <span class="specimen-token t-instr-sm">.t-opinion-md</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-md italic</span>
+          <span class="specimen-text t-opinion-md"><em class="opinion-ital">Let me think on that…</em></span>
+          <span class="specimen-token t-instr-sm">.t-opinion-md em.opinion-ital</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-sm</span>
+          <span class="specimen-text t-opinion-sm">Saved Rides</span>
+          <span class="specimen-token t-instr-sm">.t-opinion-sm</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">opinion-sm italic</span>
+          <span class="specimen-text t-opinion-sm"><em class="opinion-ital">Take Skyline down to Alice's.</em></span>
+          <span class="specimen-token t-instr-sm">.t-opinion-sm em.opinion-ital</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TITLE FAMILY -->
+    <div class="section">
+      <div class="family-header">
+        <span class="family-header-label t-label-md">Title · Geist SemiBold</span>
+      </div>
+      <div class="specimen-stack">
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">title-lg</span>
+          <span class="specimen-text t-title-lg">Saved Rides</span>
+          <span class="specimen-token t-instr-sm">.t-title-lg</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">title-md</span>
+          <span class="specimen-text t-title-md">The Skyline Spine</span>
+          <span class="specimen-token t-instr-sm">.t-title-md</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">title-sm</span>
+          <span class="specimen-text t-title-sm">Coastal Ladder</span>
+          <span class="specimen-token t-instr-sm">.t-title-sm</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BODY FAMILY -->
+    <div class="section">
+      <div class="family-header">
+        <span class="family-header-label t-label-md">Body · Geist Regular</span>
+      </div>
+      <div class="specimen-stack">
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">body-lg</span>
+          <span class="specimen-text t-body-lg">Scenic 2-hour ride, avoid highways — three alternates waiting for you.</span>
+          <span class="specimen-token t-instr-sm">.t-body-lg</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">body-md</span>
+          <span class="specimen-text t-body-md">Scenic 2-hour ride, avoid highways — three alternates waiting for you.</span>
+          <span class="specimen-token t-instr-sm">.t-body-md</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">body-sm</span>
+          <span class="specimen-text t-body-sm">Scenic 2-hour ride, avoid highways — three alternates waiting for you.</span>
+          <span class="specimen-token t-instr-sm">.t-body-sm</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- LABEL FAMILY -->
+    <div class="section">
+      <div class="family-header">
+        <span class="family-header-label t-label-md">Label · Geist Caps</span>
+      </div>
+      <div class="specimen-stack">
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">label-lg</span>
+          <span class="specimen-text t-label-lg">Best For Today</span>
+          <span class="specimen-token t-instr-sm">.t-label-lg</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">label-md</span>
+          <span class="specimen-text t-label-md">2H 10M</span>
+          <span class="specimen-token t-instr-sm">.t-label-md</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">label-sm</span>
+          <span class="specimen-text t-label-sm">Best For Today</span>
+          <span class="specimen-token t-instr-sm">.t-label-sm</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- INSTRUMENT FAMILY -->
+    <div class="section">
+      <div class="family-header">
+        <span class="family-header-label t-label-md">Instrument · JetBrains Mono</span>
+      </div>
+      <div class="specimen-stack">
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">instr-lg</span>
+          <span class="specimen-text t-instr-lg">64 mi · 2h 10m</span>
+          <span class="specimen-token t-instr-sm">.t-instr-lg</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">instr-md</span>
+          <span class="specimen-text t-instr-md">CA-1 · 37.3255°N</span>
+          <span class="specimen-token t-instr-sm">.t-instr-md</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">instr-sm</span>
+          <span class="specimen-text t-instr-sm">64 mi · 2h 10m · 3,240 ft</span>
+          <span class="specimen-token t-instr-sm">.t-instr-sm</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">instr-xs</span>
+          <span class="specimen-text t-instr-xs">DIST · TIME · ELV</span>
+          <span class="specimen-token t-instr-sm">.t-instr-xs</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- COLOR ROLES -->
+    <div class="section">
+      <div class="section-label">Content Color Roles (opinion-md)</div>
+      <div class="color-row">
+
+        <div class="color-cell">
+          <div class="color-cell-label t-label-sm">content.primary</div>
+          <div class="t-opinion-md" style="color: var(--content-primary);">The Skyline Spine</div>
+        </div>
+
+        <div class="color-cell">
+          <div class="color-cell-label t-label-sm">content.secondary</div>
+          <div class="t-opinion-md" style="color: var(--content-secondary);">The Skyline Spine</div>
+        </div>
+
+        <div class="color-cell">
+          <div class="color-cell-label t-label-sm">content.tertiary</div>
+          <div class="t-opinion-md" style="color: var(--content-tertiary);">The Skyline Spine</div>
+        </div>
+
+        <div class="color-cell">
+          <div class="color-cell-label t-label-sm">content.subtle</div>
+          <div class="t-opinion-md" style="color: var(--content-subtle);">The Skyline Spine</div>
+        </div>
+
+        <div class="color-cell">
+          <div class="color-cell-label t-label-sm">signal.default</div>
+          <div class="t-opinion-md" style="color: var(--signal-default);">The Skyline Spine</div>
+        </div>
+
+        <div class="color-cell on-signal">
+          <div class="color-cell-label t-label-sm">content.on-signal</div>
+          <div class="t-opinion-md" style="color: var(--content-on-signal);">The Skyline Spine</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- STATES -->
+    <div class="section">
+      <div class="section-label">States</div>
+
+      <div class="specimen-stack">
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">default</span>
+          <span class="specimen-text t-body-lg">Scenic 2-hour ride, avoid highways.</span>
+          <span class="specimen-token t-instr-sm">default</span>
+        </div>
+
+        <div class="specimen-row">
+          <span class="specimen-role-label t-instr-sm">disabled</span>
+          <span class="specimen-text t-body-lg is-disabled">Scenic 2-hour ride, avoid highways.</span>
+          <span class="specimen-token t-instr-sm">opacity-disabled</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- IN-CONTEXT CARD -->
+    <div class="section">
+      <div class="section-label">In Context — Route Card</div>
+      <div class="context-card">
+        <div class="context-card-overline t-label-lg">Best For Today</div>
+        <div class="context-card-title t-opinion-lg">The Skyline Spine</div>
+        <div class="t-body-md" style="color: var(--content-secondary);">Scenic 2-hour ride, avoid highways — three alternates waiting for you.</div>
+        <div class="context-card-meta">
+          <div class="context-card-stat">
+            <div class="context-card-stat-label t-label-sm">Distance</div>
+            <div class="context-card-stat-value t-instr-lg">64 mi</div>
+          </div>
+          <div class="context-card-stat">
+            <div class="context-card-stat-label t-label-sm">Time</div>
+            <div class="context-card-stat-value t-instr-lg">2h 10m</div>
+          </div>
+          <div class="context-card-stat">
+            <div class="context-card-stat-label t-label-sm">Coords</div>
+            <div class="context-card-stat-value t-instr-md" style="color: var(--content-secondary);">CA-1 · 37.3255°N</div>
+          </div>
+        </div>
+        <div class="context-card-navigator t-opinion-md">
+          <em class="opinion-ital">Take Skyline down to Alice's.</em>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /theme-pane dark -->
+
+</div><!-- /two-up -->
+
+</body>
+</html>

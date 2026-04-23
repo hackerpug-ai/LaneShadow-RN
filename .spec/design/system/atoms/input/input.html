@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<!-- input.html — LSTextField + LSTextArea Atom Preview
+     LaneShadow V2 · Copper · UC-ATM-03
+     Authority: .spec/prds/v2/concepts/uc-atm-03-input.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Input Atom — LSTextField + LSTextArea · LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   INPUT ATOM — LOCAL STYLES
+   All values use canonical tokens only. Zero hex literals.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Form field wrapper ─────────────────────────────────────────── */
+.ls-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* ── Field label ────────────────────────────────────────────────── */
+.field-label {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.28;
+  color: var(--content-primary);
+}
+
+.field-label.required::after {
+  content: " *";
+  color: var(--status-error);
+}
+
+/* Disabled label tint */
+.field-label.is-disabled {
+  color: var(--content-subtle);
+}
+
+/* ── Input wrapper (icon positioning context) ───────────────────── */
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Base: LSTextField ──────────────────────────────────────────── */
+.ls-input {
+  width: 100%;
+  height: var(--size-control-lg);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  border: var(--stroke-sm) solid var(--border-default);
+  background: var(--surface-card);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.48;
+  color: var(--content-primary);
+  outline: none;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow   var(--duration-fast) var(--ease-standard),
+    background   var(--duration-fast) var(--ease-standard);
+  -webkit-appearance: none;
+}
+
+.ls-input::placeholder {
+  color: var(--content-subtle);
+}
+
+/* Leading/trailing icon padding shifts */
+.input-wrap.has-leading  .ls-input { padding-left: var(--space-10); }
+.input-wrap.has-trailing .ls-input { padding-right: var(--space-10); }
+
+/* Focused state */
+.ls-input.focused,
+.ls-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--border-focus) 15%, transparent);
+  background: var(--surface-card);
+}
+
+/* Error state */
+.ls-input.error-state {
+  border-color: var(--status-error);
+  background: color-mix(in srgb, var(--status-error) 8%, var(--surface-card));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-error) 12%, transparent);
+}
+
+/* Disabled state */
+.ls-input:disabled,
+.ls-input.disabled {
+  background: var(--surface-inset);
+  border-color: var(--border-subtle);
+  color: var(--content-subtle);
+  cursor: not-allowed;
+  opacity: var(--opacity-disabled);
+}
+
+/* ── Icon slots ─────────────────────────────────────────────────── */
+.input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: var(--content-tertiary);
+  flex-shrink: 0;
+}
+
+.input-icon.leading  { left: var(--space-4); }
+.input-icon.trailing { right: var(--space-4); pointer-events: auto; cursor: pointer; }
+
+.input-icon svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  stroke-width: var(--stroke-md);
+  stroke: currentColor;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Error trailing icon adopts error color */
+.input-wrap.has-error .input-icon.trailing { color: var(--status-error); }
+
+/* ── Helper text ────────────────────────────────────────────────── */
+.field-helper {
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  line-height: 1.48;
+  color: var(--content-tertiary);
+}
+
+.field-helper.error { color: var(--status-error); }
+
+/* ── Base: LSTextArea ───────────────────────────────────────────── */
+.ls-textarea {
+  width: 100%;
+  min-height: var(--size-control-lg);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: var(--stroke-sm) solid var(--border-default);
+  background: var(--surface-card);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--content-primary);
+  outline: none;
+  resize: vertical;
+  transition:
+    border-color var(--duration-fast) var(--ease-standard),
+    box-shadow   var(--duration-fast) var(--ease-standard);
+  -webkit-appearance: none;
+}
+
+.ls-textarea::placeholder { color: var(--content-subtle); }
+
+.ls-textarea.focused,
+.ls-textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--border-focus) 15%, transparent);
+  background: var(--surface-card);
+}
+
+.ls-textarea.error-state {
+  border-color: var(--status-error);
+  background: color-mix(in srgb, var(--status-error) 8%, var(--surface-card));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-error) 12%, transparent);
+}
+
+.ls-textarea:disabled,
+.ls-textarea.disabled {
+  background: var(--surface-inset);
+  border-color: var(--border-subtle);
+  color: var(--content-subtle);
+  cursor: not-allowed;
+  opacity: var(--opacity-disabled);
+}
+
+/* ── Dark mode disabled override ────────────────────────────────── */
+.mode-dark .ls-input:disabled,
+.mode-dark .ls-input.disabled {
+  background: var(--ink-600);
+}
+.mode-dark .ls-textarea:disabled,
+.mode-dark .ls-textarea.disabled {
+  background: var(--ink-600);
+}
+
+/* ── Preview layout helpers ─────────────────────────────────────── */
+.states-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-7);
+  align-items: start;
+}
+
+.state-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.state-caption {
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  color: var(--content-tertiary);
+  line-height: 1.6;
+}
+
+.icon-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-7);
+  align-items: flex-start;
+}
+
+.icon-cell {
+  flex: 1;
+  min-width: 220px;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.composition-card {
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-7) var(--space-8);
+  max-width: 440px;
+  box-shadow: var(--elev-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.composition-title {
+  font-family: var(--font-opinion);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.18;
+  color: var(--content-primary);
+}
+
+.composition-title em {
+  font-style: italic;
+  color: var(--signal-default);
+}
+</style>
+</head>
+<body>
+
+<!-- ── Page header ─────────────────────────────────────────────── -->
+<header class="preview-header">
+  <h1>Input — <em>LSTextField</em> + <em>LSTextArea</em></h1>
+  <div class="subtitle">UC-ATM-03 · Tier A · 48px · radius-md · spacing-4 · Copper focus</div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════
+     §1 — LSTextField STATES · LIGHT THEME
+     ══════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">LSTextField — four states · Light</div>
+
+  <div class="states-row">
+
+    <!-- Default -->
+    <div class="state-cell">
+      <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Default</div>
+      <div class="ls-form-field">
+        <label class="field-label">Ask the Navigator</label>
+        <div class="input-wrap">
+          <input class="ls-input" type="text" placeholder="Where to today?">
+        </div>
+        <div class="field-helper">Enter a city, road, or region.</div>
+      </div>
+      <div class="state-caption">
+        bg: surface-card<br>
+        border: border-default<br>
+        h: size-control-lg · r: radius-md
+      </div>
+    </div>
+
+    <!-- Focused -->
+    <div class="state-cell">
+      <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Focused</div>
+      <div class="ls-form-field">
+        <label class="field-label">Ask the Navigator</label>
+        <div class="input-wrap">
+          <input class="ls-input focused" type="text" value="Marin Headlands">
+        </div>
+        <div class="field-helper">Enter a city, road, or region.</div>
+      </div>
+      <div class="state-caption">
+        bg: surface-card<br>
+        border: border-focus (copper-500)<br>
+        ring: 3px / 15% alpha
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="state-cell">
+      <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Error</div>
+      <div class="ls-form-field">
+        <label class="field-label required">Home zip</label>
+        <div class="input-wrap">
+          <input class="ls-input error-state" type="text" value="invalid">
+        </div>
+        <div class="field-helper error">Must be 5 digits.</div>
+      </div>
+      <div class="state-caption">
+        bg: status-error / 8% tint<br>
+        border: status-error<br>
+        helper: status-error · 10.5px
+      </div>
+    </div>
+
+    <!-- Disabled -->
+    <div class="state-cell">
+      <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Disabled</div>
+      <div class="ls-form-field">
+        <label class="field-label is-disabled">End location</label>
+        <div class="input-wrap">
+          <input class="ls-input disabled" type="text" placeholder="Set automatically" disabled>
+        </div>
+        <div class="field-helper">Set by Navigator based on route.</div>
+      </div>
+      <div class="state-caption">
+        bg: surface-inset<br>
+        border: border-subtle<br>
+        opacity: opacity-disabled
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     §2 — LSTextField ICON SLOTS · LIGHT THEME
+     ══════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">LSTextField — icon slots</div>
+
+  <div class="icon-row">
+
+    <!-- Leading only -->
+    <div class="icon-cell">
+      <div class="t-label-sm" style="color: var(--content-tertiary);">Leading icon</div>
+      <div class="ls-form-field">
+        <div class="input-wrap has-leading">
+          <span class="input-icon leading" aria-hidden="true">
+            <!-- search icon -->
+            <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M11 11 L14 14"/></svg>
+          </span>
+          <input class="ls-input" type="text" placeholder="Search routes...">
+        </div>
+      </div>
+      <div class="state-caption">icon-sm · left: space-4 · pl: space-10</div>
+    </div>
+
+    <!-- Trailing only (focused) -->
+    <div class="icon-cell">
+      <div class="t-label-sm" style="color: var(--content-tertiary);">Trailing icon · focused</div>
+      <div class="ls-form-field">
+        <div class="input-wrap has-trailing">
+          <input class="ls-input focused" type="text" value="Marin Headlands">
+          <span class="input-icon trailing" aria-label="Clear">
+            <!-- close icon -->
+            <svg viewBox="0 0 16 16"><path d="M4 4 L12 12 M12 4 L4 12"/></svg>
+          </span>
+        </div>
+      </div>
+      <div class="state-caption">icon-sm · right: space-4 · pr: space-10</div>
+    </div>
+
+    <!-- Both icons (focused) -->
+    <div class="icon-cell">
+      <div class="t-label-sm" style="color: var(--content-tertiary);">Both icons · focused</div>
+      <div class="ls-form-field">
+        <div class="input-wrap has-leading has-trailing">
+          <span class="input-icon leading" aria-hidden="true">
+            <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M11 11 L14 14"/></svg>
+          </span>
+          <input class="ls-input focused" type="text" value="Pacific Coast Route">
+          <span class="input-icon trailing" aria-label="Clear">
+            <svg viewBox="0 0 16 16"><path d="M4 4 L12 12 M12 4 L4 12"/></svg>
+          </span>
+        </div>
+      </div>
+      <div class="state-caption">pl: space-10 · pr: space-10</div>
+    </div>
+
+    <!-- Trailing icon + error -->
+    <div class="icon-cell">
+      <div class="t-label-sm" style="color: var(--content-tertiary);">Trailing icon · error</div>
+      <div class="ls-form-field">
+        <div class="input-wrap has-trailing has-error">
+          <input class="ls-input error-state" type="text" value="???">
+          <span class="input-icon trailing" aria-hidden="true">
+            <!-- alert-circle icon -->
+            <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5 L8 8.5" stroke-width="1.8"/><circle cx="8" cy="10.8" r="0.7" fill="currentColor" stroke="none"/></svg>
+          </span>
+        </div>
+        <div class="field-helper error">Location not recognized.</div>
+      </div>
+      <div class="state-caption">icon adopts status-error</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     §3 — LSTextArea STATES · LIGHT THEME
+     ══════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">LSTextArea — four states · Light</div>
+
+  <div class="states-row">
+
+    <!-- Default (1 row) -->
+    <div class="state-cell">
+      <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Default · 1 row</div>
+      <div class="ls-form-field">
+        <label class="field-label">Route notes</label>
+        <textarea class="ls-textarea" placeholder="Add notes for this ride..." style="height: var(--size-control-lg); resize: none;"></textarea>
+        <div class="field-helper">Optional ride notes.</div>
+      </div>
+      <div class="state-caption">
+        h: size-control-lg (48px)<br>
+        border: border-default<br>
+        resize: grows on content
+      </div>
+    </div>
+
+    <!-- Focused (2 rows) -->
+    <div class="state-cell">
+      <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Focused · 2 rows</div>
+      <div class="ls-form-field">
+        <label class="field-label">Route notes</label>
+        <textarea class="ls-textarea focused" style="height: 76px; resize: none;">Takes the scenic approach via the ridge road, then descends through the valley floor.</textarea>
+      </div>
+      <div class="state-caption">
+        h: 76px (2 rows)<br>
+        border: border-focus<br>
+        ring: copper / 3px / 15%
+      </div>
+    </div>
+
+    <!-- Error (3 rows) -->
+    <div class="state-cell">
+      <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Error · 3 rows</div>
+      <div class="ls-form-field">
+        <label class="field-label required">Description</label>
+        <textarea class="ls-textarea error-state" style="height: 104px; resize: none;">Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua quisque id diam vel quam elementum.</textarea>
+        <div class="field-helper error">Must be under 160 characters.</div>
+      </div>
+      <div class="state-caption">
+        h: 104px (3 rows)<br>
+        border: status-error<br>
+        bg: error / 8% tint
+      </div>
+    </div>
+
+    <!-- Disabled -->
+    <div class="state-cell">
+      <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Disabled</div>
+      <div class="ls-form-field">
+        <label class="field-label is-disabled">Auto-summary</label>
+        <textarea class="ls-textarea disabled" style="height: 76px; resize: none;" disabled>Navigator will generate a route summary automatically.</textarea>
+        <div class="field-helper">Generated by Navigator.</div>
+      </div>
+      <div class="state-caption">
+        bg: surface-inset<br>
+        border: border-subtle<br>
+        opacity: opacity-disabled
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     §4 — COMPLETE FORM COMPOSITION · LIGHT
+     ══════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">LSFormField composition · Light</div>
+
+  <div class="composition-card">
+    <div class="composition-title"><em>Plan</em> your ride.</div>
+
+    <div class="ls-form-field">
+      <label class="field-label required">Ask the Navigator</label>
+      <div class="input-wrap has-leading">
+        <span class="input-icon leading" aria-hidden="true">
+          <!-- map-pin icon -->
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+            <circle cx="8" cy="7" r="2.5"/>
+            <path d="M8 14 C8 14 2.5 9 2.5 7 a5.5 5.5 0 0 1 11 0 C13.5 9 8 14 8 14z"/>
+          </svg>
+        </span>
+        <input class="ls-input focused" type="text" value="Where to today?">
+      </div>
+      <div class="field-helper">Where does your ride begin?</div>
+    </div>
+
+    <div class="ls-form-field">
+      <label class="field-label">Route notes</label>
+      <textarea class="ls-textarea" style="height: 76px; resize: none;" placeholder="Add notes for this ride... scenic, fast, avoid highways..."></textarea>
+      <div class="field-helper">Optional — the Navigator uses this to refine suggestions.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     §5 — DARK THEME
+     ══════════════════════════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">LSTextField + LSTextArea — Dark theme</div>
+
+  <div class="mode-dark" style="background: var(--surface-primary); padding: var(--space-8); border-radius: var(--radius-lg); display: flex; flex-direction: column; gap: var(--space-8);">
+
+    <!-- TextField dark states -->
+    <div class="states-row">
+
+      <div class="state-cell">
+        <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Default</div>
+        <div class="ls-form-field">
+          <label class="field-label">Ask the Navigator</label>
+          <div class="input-wrap">
+            <input class="ls-input" type="text" placeholder="Where to today?">
+          </div>
+          <div class="field-helper">Enter a city, road, or region.</div>
+        </div>
+        <div class="state-caption" style="color: var(--content-tertiary);">
+          bg: ink-700<br>
+          border: rgba white 12%<br>
+          placeholder: content-subtle
+        </div>
+      </div>
+
+      <div class="state-cell">
+        <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Focused</div>
+        <div class="ls-form-field">
+          <label class="field-label">Ask the Navigator</label>
+          <div class="input-wrap">
+            <input class="ls-input focused" type="text" value="Marin Headlands">
+          </div>
+          <div class="field-helper">Enter a city, road, or region.</div>
+        </div>
+        <div class="state-caption" style="color: var(--content-tertiary);">
+          border: border-focus (copper-500)<br>
+          ring: 3px / copper 15%
+        </div>
+      </div>
+
+      <div class="state-cell">
+        <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Error</div>
+        <div class="ls-form-field">
+          <label class="field-label required">Home zip</label>
+          <div class="input-wrap">
+            <input class="ls-input error-state" type="text" value="invalid">
+          </div>
+          <div class="field-helper error">Must be 5 digits.</div>
+        </div>
+        <div class="state-caption" style="color: var(--content-tertiary);">
+          border: status-error<br>
+          bg: error / 8% tint<br>
+          helper: status-error
+        </div>
+      </div>
+
+      <div class="state-cell">
+        <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Disabled</div>
+        <div class="ls-form-field">
+          <label class="field-label is-disabled">End location</label>
+          <div class="input-wrap">
+            <input class="ls-input disabled" type="text" placeholder="Set automatically" disabled>
+          </div>
+          <div class="field-helper">Set by Navigator based on route.</div>
+        </div>
+        <div class="state-caption" style="color: var(--content-tertiary);">
+          bg: ink-600<br>
+          border: border-subtle<br>
+          opacity: opacity-disabled
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Icon slots dark -->
+    <div>
+      <div class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">Icon slots · dark surface</div>
+      <div class="icon-row">
+
+        <div class="icon-cell">
+          <div class="t-label-sm" style="color: var(--content-tertiary);">Leading</div>
+          <div class="ls-form-field">
+            <div class="input-wrap has-leading">
+              <span class="input-icon leading" aria-hidden="true">
+                <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5"/><path d="M11 11 L14 14"/></svg>
+              </span>
+              <input class="ls-input" type="text" placeholder="Search routes...">
+            </div>
+          </div>
+        </div>
+
+        <div class="icon-cell">
+          <div class="t-label-sm" style="color: var(--content-tertiary);">Trailing · focused</div>
+          <div class="ls-form-field">
+            <div class="input-wrap has-trailing">
+              <input class="ls-input focused" type="text" value="Pacific Coast Route">
+              <span class="input-icon trailing" aria-label="Clear">
+                <svg viewBox="0 0 16 16"><path d="M4 4 L12 12 M12 4 L4 12"/></svg>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="icon-cell">
+          <div class="t-label-sm" style="color: var(--content-tertiary);">Trailing · error</div>
+          <div class="ls-form-field">
+            <div class="input-wrap has-trailing has-error">
+              <input class="ls-input error-state" type="text" value="???">
+              <span class="input-icon trailing" aria-hidden="true">
+                <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5 L8 8.5" stroke-width="1.8"/><circle cx="8" cy="10.8" r="0.7" fill="currentColor" stroke="none"/></svg>
+              </span>
+            </div>
+            <div class="field-helper error">Location not recognized.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TextArea dark states -->
+    <div>
+      <div class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">LSTextArea · dark surface</div>
+      <div class="states-row">
+
+        <div class="state-cell">
+          <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Default · 1 row</div>
+          <div class="ls-form-field">
+            <label class="field-label">Route notes</label>
+            <textarea class="ls-textarea" placeholder="Add notes for this ride..." style="height: var(--size-control-lg); resize: none;"></textarea>
+            <div class="field-helper">Optional ride notes.</div>
+          </div>
+        </div>
+
+        <div class="state-cell">
+          <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Focused · 2 rows</div>
+          <div class="ls-form-field">
+            <label class="field-label">Route notes</label>
+            <textarea class="ls-textarea focused" style="height: 76px; resize: none;">Takes the scenic approach via the ridge road, then descends through the valley floor.</textarea>
+          </div>
+        </div>
+
+        <div class="state-cell">
+          <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Error · 3 rows</div>
+          <div class="ls-form-field">
+            <label class="field-label required">Description</label>
+            <textarea class="ls-textarea error-state" style="height: 104px; resize: none;">Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua quisque id diam.</textarea>
+            <div class="field-helper error">Must be under 160 characters.</div>
+          </div>
+        </div>
+
+        <div class="state-cell">
+          <div class="t-label-sm" style="color: var(--content-tertiary); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border-default);">Disabled</div>
+          <div class="ls-form-field">
+            <label class="field-label is-disabled">Auto-summary</label>
+            <textarea class="ls-textarea disabled" style="height: 76px; resize: none;" disabled>Navigator will generate a route summary automatically.</textarea>
+            <div class="field-helper">Generated by Navigator.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Form composition dark -->
+    <div>
+      <div class="t-label-sm" style="color: var(--content-tertiary); margin-bottom: var(--space-5);">LSFormField composition · dark</div>
+      <div class="composition-card">
+        <div class="composition-title"><em>Plan</em> your ride.</div>
+        <div class="ls-form-field">
+          <label class="field-label required">Ask the Navigator</label>
+          <div class="input-wrap has-leading">
+            <span class="input-icon leading" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                <circle cx="8" cy="7" r="2.5"/>
+                <path d="M8 14 C8 14 2.5 9 2.5 7 a5.5 5.5 0 0 1 11 0 C13.5 9 8 14 8 14z"/>
+              </svg>
+            </span>
+            <input class="ls-input focused" type="text" value="Where to today?">
+          </div>
+          <div class="field-helper">Where does your ride begin?</div>
+        </div>
+        <div class="ls-form-field">
+          <label class="field-label">Route notes</label>
+          <textarea class="ls-textarea" style="height: 76px; resize: none;" placeholder="Add notes for this ride..."></textarea>
+          <div class="field-helper">Optional — Navigator uses this to refine suggestions.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

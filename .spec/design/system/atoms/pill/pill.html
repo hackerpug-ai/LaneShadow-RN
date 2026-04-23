@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<!-- pill.html — LSPill atom preview
+     LaneShadow V2 · Copper · UC-ATM-06
+     3 sizes × 3 variants · light + dark
+     Authority: .spec/prds/v2/concepts/uc-atm-06-pill.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>LSPill — LaneShadow V2 Copper</title>
+
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════
+   LSPill — ATOM STYLES
+   All values resolve from canonical tokens. Zero hex literals.
+   Zero raw numeric font-size / font-weight / letter-spacing.
+   Heights use space tokens: sm=--space-7(24px) md=--space-8(32px) lg=--space-9(40px)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Base shape ───────────────────────────────────────────────── */
+.ls-pill {
+  display:         inline-flex;
+  align-items:     center;
+  justify-content: center;
+  border-radius:   var(--radius-pill);
+  flex-shrink:     0;
+  gap:             5px;           /* spacing.icon-gap — no canonical token yet */
+  white-space:     nowrap;
+}
+
+/* ── Size: sm — height 24px ───────────────────────────────────── */
+.ls-pill.pill-sm {
+  height:  var(--space-7);        /* 24px */
+  padding: 0 var(--space-3);      /* 0 8px */
+}
+.ls-pill.pill-sm .pill-text { font-weight: 500; }
+
+/* ── Size: md — height 32px ───────────────────────────────────── */
+.ls-pill.pill-md {
+  height:  var(--space-8);        /* 32px */
+  padding: 0 var(--space-4);      /* 0 12px */
+}
+.ls-pill.pill-md .pill-text { font-weight: 500; }
+
+/* ── Size: lg — height 40px ───────────────────────────────────── */
+.ls-pill.pill-lg {
+  height:  var(--space-9);        /* 40px */
+  padding: 0 var(--space-5);      /* 0 16px */
+}
+.ls-pill.pill-lg .pill-text { font-weight: 500; }
+
+/* ── Pill icon wrapper ────────────────────────────────────────── */
+.pill-icon {
+  display:        flex;
+  align-items:    center;
+  justify-content:center;
+  flex-shrink:    0;
+  color:          inherit;
+}
+
+/* ── Variant: filled ──────────────────────────────────────────── */
+/* signal-whisper background + signal border — warm copper hint  */
+.pill-filled {
+  background: var(--signal-whisper);
+  border:     1px solid var(--signal-default);
+  color:      var(--content-primary);
+}
+
+/* ── Variant: outlined ────────────────────────────────────────── */
+/* surface-card background + border-default — neutral container   */
+.pill-outlined {
+  background: var(--surface-card);
+  border:     1px solid var(--border-default);
+  color:      var(--content-primary);
+}
+
+/* ── Variant: ghost ──────────────────────────────────────────── */
+/* transparent + border-subtle — recedes into surface             */
+.pill-ghost {
+  background: transparent;
+  border:     1px solid var(--border-subtle);
+  color:      var(--content-secondary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PREVIEW LAYOUT — local to this preview, not part of the atom API
+   ═══════════════════════════════════════════════════════════════════ */
+.size-section {
+  margin-bottom: var(--space-9);
+}
+
+.size-heading {
+  margin-bottom: var(--space-5);
+}
+
+.pill-row {
+  display:     flex;
+  flex-wrap:   wrap;
+  align-items: center;
+  gap:         var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.pill-cell {
+  display:        flex;
+  flex-direction: column;
+  align-items:    flex-start;
+  gap:            var(--space-2);
+}
+
+.cell-label {
+  font-family:    var(--font-instrument);
+  font-size:      9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color:          var(--content-tertiary);
+}
+
+/* Variant row header */
+.variant-header {
+  display:     flex;
+  align-items: center;
+  gap:         var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.variant-name {
+  font-family:    var(--font-instrument);
+  font-size:      9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color:          var(--signal-default);
+  min-width:      80px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="preview-header">
+  <h1><em>LSPill</em> — Shape Primitive</h1>
+  <div class="subtitle">UC-ATM-06 · Tier B · 3 sizes × 3 variants · light + dark</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     LIGHT THEME
+     ═══════════════════════════════════════════════════════════════ -->
+
+<div class="section">
+  <div class="section-label">Light theme</div>
+
+  <!-- SIZE: SM -->
+  <div class="size-section">
+    <div class="size-heading section-label" style="margin-bottom: var(--space-4);">SM — 24px height</div>
+
+    <!-- Filled -->
+    <div class="variant-header">
+      <span class="variant-name">Filled</span>
+    </div>
+    <div class="pill-row">
+      <div class="pill-cell">
+        <span class="cell-label">routes</span>
+        <span class="ls-pill pill-sm pill-filled">
+          <span class="pill-text t-body-sm">12 routes</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">status</span>
+        <span class="ls-pill pill-sm pill-filled">
+          <span class="pill-text t-body-sm">NEW</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">label</span>
+        <span class="ls-pill pill-sm pill-filled">
+          <span class="pill-text t-body-sm">BETA</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">tag</span>
+        <span class="ls-pill pill-sm pill-filled">
+          <span class="pill-text t-body-sm">FAVORITE</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Outlined -->
+    <div class="variant-header">
+      <span class="variant-name">Outlined</span>
+    </div>
+    <div class="pill-row">
+      <div class="pill-cell">
+        <span class="cell-label">distance</span>
+        <span class="ls-pill pill-sm pill-outlined">
+          <span class="pill-text t-body-sm">64 MI</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">duration</span>
+        <span class="ls-pill pill-sm pill-outlined">
+          <span class="pill-text t-body-sm">2H 10M</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">tag</span>
+        <span class="ls-pill pill-sm pill-outlined">
+          <span class="pill-text t-body-sm">FAVORITE</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">count</span>
+        <span class="ls-pill pill-sm pill-outlined">
+          <span class="pill-text t-body-sm">12 routes</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Ghost -->
+    <div class="variant-header">
+      <span class="variant-name">Ghost</span>
+    </div>
+    <div class="pill-row">
+      <div class="pill-cell">
+        <span class="cell-label">subtle tag</span>
+        <span class="ls-pill pill-sm pill-ghost">
+          <span class="pill-text t-body-sm">NEW</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">label</span>
+        <span class="ls-pill pill-sm pill-ghost">
+          <span class="pill-text t-body-sm">BETA</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">distance</span>
+        <span class="ls-pill pill-sm pill-ghost">
+          <span class="pill-text t-body-sm">64 MI</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">duration</span>
+        <span class="ls-pill pill-sm pill-ghost">
+          <span class="pill-text t-body-sm">2H 10M</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIZE: MD -->
+  <div class="size-section">
+    <div class="size-heading section-label" style="margin-bottom: var(--space-4);">MD — 32px height</div>
+
+    <!-- Filled -->
+    <div class="variant-header">
+      <span class="variant-name">Filled</span>
+    </div>
+    <div class="pill-row">
+      <div class="pill-cell">
+        <span class="cell-label">routes</span>
+        <span class="ls-pill pill-md pill-filled">
+          <span class="pill-text t-body-md">12 routes</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">status</span>
+        <span class="ls-pill pill-md pill-filled">
+          <span class="pill-text t-body-md">NEW</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">label</span>
+        <span class="ls-pill pill-md pill-filled">
+          <span class="pill-text t-body-md">BETA</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">tag</span>
+        <span class="ls-pill pill-md pill-filled">
+          <span class="pill-text t-body-md">FAVORITE</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Outlined -->
+    <div class="variant-header">
+      <span class="variant-name">Outlined</span>
+    </div>
+    <div class="pill-row">
+      <div class="pill-cell">
+        <span class="cell-label">distance</span>
+        <span class="ls-pill pill-md pill-outlined">
+          <span class="pill-text t-body-md">64 MI</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">duration</span>
+        <span class="ls-pill pill-md pill-outlined">
+          <span class="pill-text t-body-md">2H 10M</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">favorite</span>
+        <span class="ls-pill pill-md pill-outlined">
+          <span class="pill-text t-body-md">FAVORITE</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">count</span>
+        <span class="ls-pill pill-md pill-outlined">
+          <span class="pill-text t-body-md">12 routes</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Ghost -->
+    <div class="variant-header">
+      <span class="variant-name">Ghost</span>
+    </div>
+    <div class="pill-row">
+      <div class="pill-cell">
+        <span class="cell-label">tag</span>
+        <span class="ls-pill pill-md pill-ghost">
+          <span class="pill-text t-body-md">NEW</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">beta</span>
+        <span class="ls-pill pill-md pill-ghost">
+          <span class="pill-text t-body-md">BETA</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">distance</span>
+        <span class="ls-pill pill-md pill-ghost">
+          <span class="pill-text t-body-md">64 MI</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">duration</span>
+        <span class="ls-pill pill-md pill-ghost">
+          <span class="pill-text t-body-md">2H 10M</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIZE: LG -->
+  <div class="size-section">
+    <div class="size-heading section-label" style="margin-bottom: var(--space-4);">LG — 40px height</div>
+
+    <!-- Filled -->
+    <div class="variant-header">
+      <span class="variant-name">Filled</span>
+    </div>
+    <div class="pill-row">
+      <div class="pill-cell">
+        <span class="cell-label">routes</span>
+        <span class="ls-pill pill-lg pill-filled">
+          <span class="pill-text t-body-lg">12 routes</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">status</span>
+        <span class="ls-pill pill-lg pill-filled">
+          <span class="pill-text t-body-lg">NEW</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">label</span>
+        <span class="ls-pill pill-lg pill-filled">
+          <span class="pill-text t-body-lg">BETA</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">tag</span>
+        <span class="ls-pill pill-lg pill-filled">
+          <span class="pill-text t-body-lg">FAVORITE</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Outlined -->
+    <div class="variant-header">
+      <span class="variant-name">Outlined</span>
+    </div>
+    <div class="pill-row">
+      <div class="pill-cell">
+        <span class="cell-label">distance</span>
+        <span class="ls-pill pill-lg pill-outlined">
+          <span class="pill-text t-body-lg">64 MI</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">duration</span>
+        <span class="ls-pill pill-lg pill-outlined">
+          <span class="pill-text t-body-lg">2H 10M</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">favorite</span>
+        <span class="ls-pill pill-lg pill-outlined">
+          <span class="pill-text t-body-lg">FAVORITE</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">count</span>
+        <span class="ls-pill pill-lg pill-outlined">
+          <span class="pill-text t-body-lg">12 routes</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Ghost -->
+    <div class="variant-header">
+      <span class="variant-name">Ghost</span>
+    </div>
+    <div class="pill-row">
+      <div class="pill-cell">
+        <span class="cell-label">tag</span>
+        <span class="ls-pill pill-lg pill-ghost">
+          <span class="pill-text t-body-lg">NEW</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">beta</span>
+        <span class="ls-pill pill-lg pill-ghost">
+          <span class="pill-text t-body-lg">BETA</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">distance</span>
+        <span class="ls-pill pill-lg pill-ghost">
+          <span class="pill-text t-body-lg">64 MI</span>
+        </span>
+      </div>
+      <div class="pill-cell">
+        <span class="cell-label">duration</span>
+        <span class="ls-pill pill-lg pill-ghost">
+          <span class="pill-text t-body-lg">2H 10M</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     DARK THEME — mode-dark on the pane wrapper
+     ═══════════════════════════════════════════════════════════════ -->
+
+<div class="section">
+  <div class="section-label">Dark theme</div>
+
+  <div class="theme-pane mode-dark">
+
+    <!-- SIZE: SM DARK -->
+    <div class="size-section">
+      <div class="size-heading section-label" style="margin-bottom: var(--space-4);">SM — 24px height</div>
+
+      <!-- Filled -->
+      <div class="variant-header">
+        <span class="variant-name">Filled</span>
+      </div>
+      <div class="pill-row">
+        <div class="pill-cell">
+          <span class="cell-label">routes</span>
+          <span class="ls-pill pill-sm pill-filled">
+            <span class="pill-text t-body-sm">12 routes</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">status</span>
+          <span class="ls-pill pill-sm pill-filled">
+            <span class="pill-text t-body-sm">NEW</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">label</span>
+          <span class="ls-pill pill-sm pill-filled">
+            <span class="pill-text t-body-sm">BETA</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">tag</span>
+          <span class="ls-pill pill-sm pill-filled">
+            <span class="pill-text t-body-sm">FAVORITE</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Outlined -->
+      <div class="variant-header">
+        <span class="variant-name">Outlined</span>
+      </div>
+      <div class="pill-row">
+        <div class="pill-cell">
+          <span class="cell-label">distance</span>
+          <span class="ls-pill pill-sm pill-outlined">
+            <span class="pill-text t-body-sm">64 MI</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">duration</span>
+          <span class="ls-pill pill-sm pill-outlined">
+            <span class="pill-text t-body-sm">2H 10M</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">tag</span>
+          <span class="ls-pill pill-sm pill-outlined">
+            <span class="pill-text t-body-sm">FAVORITE</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">count</span>
+          <span class="ls-pill pill-sm pill-outlined">
+            <span class="pill-text t-body-sm">12 routes</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Ghost -->
+      <div class="variant-header">
+        <span class="variant-name">Ghost</span>
+      </div>
+      <div class="pill-row">
+        <div class="pill-cell">
+          <span class="cell-label">tag</span>
+          <span class="ls-pill pill-sm pill-ghost">
+            <span class="pill-text t-body-sm">NEW</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">beta</span>
+          <span class="ls-pill pill-sm pill-ghost">
+            <span class="pill-text t-body-sm">BETA</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">distance</span>
+          <span class="ls-pill pill-sm pill-ghost">
+            <span class="pill-text t-body-sm">64 MI</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">duration</span>
+          <span class="ls-pill pill-sm pill-ghost">
+            <span class="pill-text t-body-sm">2H 10M</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIZE: MD DARK -->
+    <div class="size-section">
+      <div class="size-heading section-label" style="margin-bottom: var(--space-4);">MD — 32px height</div>
+
+      <!-- Filled -->
+      <div class="variant-header">
+        <span class="variant-name">Filled</span>
+      </div>
+      <div class="pill-row">
+        <div class="pill-cell">
+          <span class="cell-label">routes</span>
+          <span class="ls-pill pill-md pill-filled">
+            <span class="pill-text t-body-md">12 routes</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">status</span>
+          <span class="ls-pill pill-md pill-filled">
+            <span class="pill-text t-body-md">NEW</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">label</span>
+          <span class="ls-pill pill-md pill-filled">
+            <span class="pill-text t-body-md">BETA</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">tag</span>
+          <span class="ls-pill pill-md pill-filled">
+            <span class="pill-text t-body-md">FAVORITE</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Outlined -->
+      <div class="variant-header">
+        <span class="variant-name">Outlined</span>
+      </div>
+      <div class="pill-row">
+        <div class="pill-cell">
+          <span class="cell-label">distance</span>
+          <span class="ls-pill pill-md pill-outlined">
+            <span class="pill-text t-body-md">64 MI</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">duration</span>
+          <span class="ls-pill pill-md pill-outlined">
+            <span class="pill-text t-body-md">2H 10M</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">favorite</span>
+          <span class="ls-pill pill-md pill-outlined">
+            <span class="pill-text t-body-md">FAVORITE</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">count</span>
+          <span class="ls-pill pill-md pill-outlined">
+            <span class="pill-text t-body-md">12 routes</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Ghost -->
+      <div class="variant-header">
+        <span class="variant-name">Ghost</span>
+      </div>
+      <div class="pill-row">
+        <div class="pill-cell">
+          <span class="cell-label">tag</span>
+          <span class="ls-pill pill-md pill-ghost">
+            <span class="pill-text t-body-md">NEW</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">beta</span>
+          <span class="ls-pill pill-md pill-ghost">
+            <span class="pill-text t-body-md">BETA</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">distance</span>
+          <span class="ls-pill pill-md pill-ghost">
+            <span class="pill-text t-body-md">64 MI</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">duration</span>
+          <span class="ls-pill pill-md pill-ghost">
+            <span class="pill-text t-body-md">2H 10M</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIZE: LG DARK -->
+    <div class="size-section">
+      <div class="size-heading section-label" style="margin-bottom: var(--space-4);">LG — 40px height</div>
+
+      <!-- Filled -->
+      <div class="variant-header">
+        <span class="variant-name">Filled</span>
+      </div>
+      <div class="pill-row">
+        <div class="pill-cell">
+          <span class="cell-label">routes</span>
+          <span class="ls-pill pill-lg pill-filled">
+            <span class="pill-text t-body-lg">12 routes</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">status</span>
+          <span class="ls-pill pill-lg pill-filled">
+            <span class="pill-text t-body-lg">NEW</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">label</span>
+          <span class="ls-pill pill-lg pill-filled">
+            <span class="pill-text t-body-lg">BETA</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">tag</span>
+          <span class="ls-pill pill-lg pill-filled">
+            <span class="pill-text t-body-lg">FAVORITE</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Outlined -->
+      <div class="variant-header">
+        <span class="variant-name">Outlined</span>
+      </div>
+      <div class="pill-row">
+        <div class="pill-cell">
+          <span class="cell-label">distance</span>
+          <span class="ls-pill pill-lg pill-outlined">
+            <span class="pill-text t-body-lg">64 MI</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">duration</span>
+          <span class="ls-pill pill-lg pill-outlined">
+            <span class="pill-text t-body-lg">2H 10M</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">favorite</span>
+          <span class="ls-pill pill-lg pill-outlined">
+            <span class="pill-text t-body-lg">FAVORITE</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">count</span>
+          <span class="ls-pill pill-lg pill-outlined">
+            <span class="pill-text t-body-lg">12 routes</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Ghost -->
+      <div class="variant-header">
+        <span class="variant-name">Ghost</span>
+      </div>
+      <div class="pill-row">
+        <div class="pill-cell">
+          <span class="cell-label">tag</span>
+          <span class="ls-pill pill-lg pill-ghost">
+            <span class="pill-text t-body-lg">NEW</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">beta</span>
+          <span class="ls-pill pill-lg pill-ghost">
+            <span class="pill-text t-body-lg">BETA</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">distance</span>
+          <span class="ls-pill pill-lg pill-ghost">
+            <span class="pill-text t-body-lg">64 MI</span>
+          </span>
+        </div>
+        <div class="pill-cell">
+          <span class="cell-label">duration</span>
+          <span class="ls-pill pill-lg pill-ghost">
+            <span class="pill-text t-body-lg">2H 10M</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.theme-pane.mode-dark -->
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     WITH ICON — icon + label pattern across sizes
+     ═══════════════════════════════════════════════════════════════ -->
+
+<div class="section">
+  <div class="section-label">With icon — filled variant</div>
+
+  <div class="pill-row">
+
+    <div class="pill-cell">
+      <span class="cell-label">sm · route count</span>
+      <span class="ls-pill pill-sm pill-filled">
+        <span class="pill-icon">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+        </span>
+        <span class="pill-text t-body-sm">12 routes</span>
+      </span>
+    </div>
+
+    <div class="pill-cell">
+      <span class="cell-label">md · distance</span>
+      <span class="ls-pill pill-md pill-filled">
+        <span class="pill-icon">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </span>
+        <span class="pill-text t-body-md">64 MI</span>
+      </span>
+    </div>
+
+    <div class="pill-cell">
+      <span class="cell-label">lg · duration</span>
+      <span class="ls-pill pill-lg pill-filled">
+        <span class="pill-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        <span class="pill-text t-body-lg">2H 10M</span>
+      </span>
+    </div>
+
+  </div>
+
+  <div class="pill-row" style="margin-top: var(--space-5);">
+
+    <div class="pill-cell">
+      <span class="cell-label">sm · outlined</span>
+      <span class="ls-pill pill-sm pill-outlined">
+        <span class="pill-icon">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="5"/></svg>
+        </span>
+        <span class="pill-text t-body-sm">FAVORITE</span>
+      </span>
+    </div>
+
+    <div class="pill-cell">
+      <span class="cell-label">md · ghost</span>
+      <span class="ls-pill pill-md pill-ghost">
+        <span class="pill-icon">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 20h20M12 4l8 16H4z"/></svg>
+        </span>
+        <span class="pill-text t-body-md">BETA</span>
+      </span>
+    </div>
+
+    <div class="pill-cell">
+      <span class="cell-label">lg · ghost</span>
+      <span class="ls-pill pill-lg pill-ghost">
+        <span class="pill-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </span>
+        <span class="pill-text t-body-lg">NEW</span>
+      </span>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     DARK THEME — WITH ICON
+     ═══════════════════════════════════════════════════════════════ -->
+
+<div class="section">
+  <div class="section-label">With icon — dark theme</div>
+
+  <div class="theme-pane mode-dark">
+    <div class="pill-row">
+
+      <div class="pill-cell">
+        <span class="cell-label">sm · filled</span>
+        <span class="ls-pill pill-sm pill-filled">
+          <span class="pill-icon">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <span class="pill-text t-body-sm">12 routes</span>
+        </span>
+      </div>
+
+      <div class="pill-cell">
+        <span class="cell-label">md · outlined</span>
+        <span class="ls-pill pill-md pill-outlined">
+          <span class="pill-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </span>
+          <span class="pill-text t-body-md">64 MI</span>
+        </span>
+      </div>
+
+      <div class="pill-cell">
+        <span class="cell-label">lg · ghost</span>
+        <span class="ls-pill pill-lg pill-ghost">
+          <span class="pill-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          <span class="pill-text t-body-lg">2H 10M</span>
+        </span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

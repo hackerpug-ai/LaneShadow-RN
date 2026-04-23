@@ -39,7 +39,7 @@
   display: flex;
   align-items: stretch;
   width: 100%;
-  max-width: 380px;
+  max-width: 380px; /* demo helper: constrains preview width; remove in production */
 }
 
 /* ── Base item ────────────────────────────────────────────────────── */
@@ -115,9 +115,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-ui);
-  font-size: 9px;
-  font-weight: 700;
+  /* typography via .t-label-sm applied in HTML */
   line-height: 1;
   letter-spacing: 0;
   border: var(--stroke-md) solid var(--surface-primary);
@@ -138,7 +136,7 @@
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 24px;
+  width: 24px; /* geometric constant: indicator width pinned at 24px per concept spec */
   height: var(--stroke-lg);
   background: var(--signal-default);
   border-radius: 0 0 var(--radius-xs) var(--radius-xs);
@@ -277,7 +275,7 @@
             <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Rides, 3 new">
               <div class="mol-tab-item__icon-slot">
                 <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-                <span class="mol-tab-item__badge" aria-label="3 new rides">3</span>
+                <span class="mol-tab-item__badge t-label-sm" aria-label="3 new rides">3</span>
               </div>
               <span class="mol-tab-item__label t-label-sm">Rides</span>
             </button>
@@ -350,7 +348,7 @@
             <button class="mol-tab-item" role="tab" aria-selected="false" aria-label="Rides, 3 new">
               <div class="mol-tab-item__icon-slot">
                 <svg class="mol-tab-item__icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-                <span class="mol-tab-item__badge" aria-label="3 new rides">3</span>
+                <span class="mol-tab-item__badge t-label-sm" aria-label="3 new rides">3</span>
               </div>
               <span class="mol-tab-item__label t-label-sm">Rides</span>
             </button>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<!-- suggestion-chip.html — mol-suggestion-chip preview
+     LaneShadow V2 Copper · Molecule · UC-MOL-05
+     Authority: uc-mol-05-pill-family.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>mol-suggestion-chip — LaneShadow V2 Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+/* ── mol-suggestion-chip molecule styles ───────────────────────── */
+
+.mol-suggestion-chip {
+  /* Always md size — size is locked by spec */
+  background: var(--surface-glass);
+  border-color: var(--border-glass);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  color: var(--content-primary);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+/* Dark surface — switch border to semantic token */
+.mode-dark .mol-suggestion-chip {
+  border-color: var(--border-default);
+}
+
+/* Hover — default (unprimed) */
+.mol-suggestion-chip.is-hover:not(.is-primed) {
+  background: color-mix(in srgb, var(--surface-glass) 90%, var(--surface-inset));
+  border-color: rgba(255, 255, 255, 0.75);
+}
+
+.mode-dark .mol-suggestion-chip.is-hover:not(.is-primed) {
+  border-color: var(--border-strong);
+  background: var(--surface-inset);
+}
+
+/* Pressed — default */
+.mol-suggestion-chip.is-pressed:not(.is-primed) {
+  background: var(--surface-inset);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.mode-dark .mol-suggestion-chip.is-pressed:not(.is-primed) {
+  background: var(--surface-inset);
+  border-color: var(--border-strong);
+}
+
+/* Primed (post-tap applied) */
+.mol-suggestion-chip.is-primed {
+  background: var(--signal-whisper);
+  border-color: var(--signal-tint);
+  color: var(--signal-default);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Primed hover */
+.mol-suggestion-chip.is-primed.is-hover {
+  background: var(--signal-tint);
+  border-color: var(--signal-default);
+}
+
+/* Disabled */
+.mol-suggestion-chip.is-disabled {
+  background: var(--surface-glass);
+  border-color: var(--border-subtle);
+  color: var(--content-subtle);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Icon — default copper accent */
+.mol-suggestion-chip__icon {
+  color: var(--signal-default);
+  flex-shrink: 0;
+}
+
+/* Primed icon inherits chip color (signal-default) */
+.mol-suggestion-chip.is-primed .mol-suggestion-chip__icon {
+  color: currentColor;
+}
+
+/* Chevron — tertiary, smaller */
+.mol-suggestion-chip__chevron {
+  color: var(--content-tertiary);
+  flex-shrink: 0;
+  margin-left: var(--space-1);
+}
+
+.mol-suggestion-chip.is-primed .mol-suggestion-chip__chevron {
+  color: color-mix(in srgb, var(--signal-default) 60%, transparent);
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>mol-suggestion-chip</em></h1>
+  <div class="subtitle">UC-MOL-05 · Pill Semantics Family · LaneShadow V2 Copper · Single-tap suggestion primer · Always md (32px)</div>
+</div>
+
+<!-- ─── Default / Primed states ─── -->
+<section class="section">
+  <div class="section-label">Default vs Primed (post-tap)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-suggestion-chip__label">Twisty back roads</span>
+          </button>
+          <div class="label">Default</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-suggestion-chip__label">Avoid highway</span>
+          </button>
+          <div class="label">Default</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-suggestion-chip__label">Scenic coastal route</span>
+          </button>
+          <div class="label">Default</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-suggestion-chip__label">Morning commute</span>
+          </button>
+          <div class="label">Default</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-primed" type="button" aria-pressed="true">
+            <span class="t-label-md mol-suggestion-chip__label">Twisty back roads</span>
+          </button>
+          <div class="label">Primed (applied)</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-primed" type="button" aria-pressed="true">
+            <span class="t-label-md mol-suggestion-chip__label">Avoid highway</span>
+          </button>
+          <div class="label">Primed (applied)</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-primed" type="button" aria-pressed="true">
+            <span class="t-label-md mol-suggestion-chip__label">Scenic coastal route</span>
+          </button>
+          <div class="label">Primed (applied)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-suggestion-chip__label">Twisty back roads</span>
+          </button>
+          <div class="label">Default</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-suggestion-chip__label">Avoid highway</span>
+          </button>
+          <div class="label">Default</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-suggestion-chip__label">Scenic coastal route</span>
+          </button>
+          <div class="label">Default</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-primed" type="button" aria-pressed="true">
+            <span class="t-label-md mol-suggestion-chip__label">Twisty back roads</span>
+          </button>
+          <div class="label">Primed (applied)</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-primed" type="button" aria-pressed="true">
+            <span class="t-label-md mol-suggestion-chip__label">Avoid highway</span>
+          </button>
+          <div class="label">Primed (applied)</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── With leading icon ─── -->
+<section class="section">
+  <div class="section-label">With leading icon</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <svg class="mol-suggestion-chip__icon" aria-hidden="true" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none"><path d="M8 2C5.24 2 3 4.24 3 7c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor"/></svg>
+            <span class="t-label-md mol-suggestion-chip__label">Rides near me</span>
+          </button>
+          <div class="label">Location icon</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <svg class="mol-suggestion-chip__icon" aria-hidden="true" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none"><path d="M8 2a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5zm0 2.5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="t-label-md mol-suggestion-chip__label">Under 2 hours</span>
+          </button>
+          <div class="label">Duration icon</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <svg class="mol-suggestion-chip__icon" aria-hidden="true" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none"><path d="M3 8L7 4M3 8l4 4M7 4h6v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-suggestion-chip__label">Loop route</span>
+          </button>
+          <div class="label">Route type icon</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <svg class="mol-suggestion-chip__icon" aria-hidden="true" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none"><path d="M8 2v3M8 11v3M2 8h3M11 8h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="2.5" fill="currentColor"/></svg>
+            <span class="t-label-md mol-suggestion-chip__label">Explore new roads</span>
+          </button>
+          <div class="label">Explore icon</div>
+        </div>
+        <!-- Primed with icon -->
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-primed" type="button" aria-pressed="true">
+            <svg class="mol-suggestion-chip__icon" aria-hidden="true" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none"><path d="M8 2C5.24 2 3 4.24 3 7c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor"/></svg>
+            <span class="t-label-md mol-suggestion-chip__label">Rides near me</span>
+          </button>
+          <div class="label">Primed with icon</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-primed" type="button" aria-pressed="true">
+            <svg class="mol-suggestion-chip__icon" aria-hidden="true" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none"><path d="M8 2a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5zm0 2.5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="t-label-md mol-suggestion-chip__label">Under 2 hours</span>
+          </button>
+          <div class="label">Primed with icon</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <svg class="mol-suggestion-chip__icon" aria-hidden="true" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none"><path d="M8 2C5.24 2 3 4.24 3 7c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor"/></svg>
+            <span class="t-label-md mol-suggestion-chip__label">Rides near me</span>
+          </button>
+          <div class="label">Location icon</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <svg class="mol-suggestion-chip__icon" aria-hidden="true" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none"><path d="M8 2a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5zm0 2.5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span class="t-label-md mol-suggestion-chip__label">Under 2 hours</span>
+          </button>
+          <div class="label">Duration icon</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-primed" type="button" aria-pressed="true">
+            <svg class="mol-suggestion-chip__icon" aria-hidden="true" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none"><path d="M8 2C5.24 2 3 4.24 3 7c0 3.75 5 9 5 9s5-5.25 5-9c0-2.76-2.24-5-5-5zm0 6.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor"/></svg>
+            <span class="t-label-md mol-suggestion-chip__label">Rides near me</span>
+          </button>
+          <div class="label">Primed with icon</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── With trailing chevron ─── -->
+<section class="section">
+  <div class="section-label">With trailing chevron (drill-down)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-suggestion-chip__label">More terrain options</span>
+            <svg class="mol-suggestion-chip__chevron" aria-hidden="true" width="var(--icon-xs)" height="var(--icon-xs)" viewBox="0 0 12 12" fill="none"><path d="M4 3l4 3-4 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="label">Trailing chevron</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <svg class="mol-suggestion-chip__icon" aria-hidden="true" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none"><path d="M2 12l6-9 6 9H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-suggestion-chip__label">All mountains</span>
+            <svg class="mol-suggestion-chip__chevron" aria-hidden="true" width="var(--icon-xs)" height="var(--icon-xs)" viewBox="0 0 12 12" fill="none"><path d="M4 3l4 3-4 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="label">Icon + chevron</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-suggestion-chip__label">More terrain options</span>
+            <svg class="mol-suggestion-chip__chevron" aria-hidden="true" width="var(--icon-xs)" height="var(--icon-xs)" viewBox="0 0 12 12" fill="none"><path d="M4 3l4 3-4 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="label">Trailing chevron</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip" type="button" aria-pressed="false">
+            <svg class="mol-suggestion-chip__icon" aria-hidden="true" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none"><path d="M2 12l6-9 6 9H2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-suggestion-chip__label">All mountains</span>
+            <svg class="mol-suggestion-chip__chevron" aria-hidden="true" width="var(--icon-xs)" height="var(--icon-xs)" viewBox="0 0 12 12" fill="none"><path d="M4 3l4 3-4 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="label">Icon + chevron</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Hover / Pressed / Disabled ─── -->
+<section class="section">
+  <div class="section-label">Forced states — hover / pressed / disabled</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-hover" type="button">
+            <span class="t-label-md mol-suggestion-chip__label">Twisty back roads</span>
+          </button>
+          <div class="label">Hover</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-pressed" type="button">
+            <span class="t-label-md mol-suggestion-chip__label">Twisty back roads</span>
+          </button>
+          <div class="label">Pressed</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-primed is-hover" type="button" aria-pressed="true">
+            <span class="t-label-md mol-suggestion-chip__label">Twisty back roads</span>
+          </button>
+          <div class="label">Primed hover</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-disabled" type="button" aria-disabled="true" disabled>
+            <span class="t-label-md mol-suggestion-chip__label">Suggest route</span>
+          </button>
+          <div class="label">Disabled</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-hover" type="button">
+            <span class="t-label-md mol-suggestion-chip__label">Twisty back roads</span>
+          </button>
+          <div class="label">Hover</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-pressed" type="button">
+            <span class="t-label-md mol-suggestion-chip__label">Avoid highway</span>
+          </button>
+          <div class="label">Pressed</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-suggestion-chip is-disabled" type="button" aria-disabled="true" disabled>
+            <span class="t-label-md mol-suggestion-chip__label">Suggest route</span>
+          </button>
+          <div class="label">Disabled</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── In context: suggestion row ─── -->
+<section class="section">
+  <div class="section-label">In context — suggestion row (chat / search sheet)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light — fresh state</div>
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;">
+        <button class="ls-pill md mol-suggestion-chip" type="button">
+          <span class="t-label-md mol-suggestion-chip__label">Twisty back roads</span>
+        </button>
+        <button class="ls-pill md mol-suggestion-chip" type="button">
+          <span class="t-label-md mol-suggestion-chip__label">Avoid highway</span>
+        </button>
+        <button class="ls-pill md mol-suggestion-chip" type="button">
+          <span class="t-label-md mol-suggestion-chip__label">Scenic coastal route</span>
+        </button>
+        <button class="ls-pill md mol-suggestion-chip" type="button">
+          <span class="t-label-md mol-suggestion-chip__label">Under 2 hours</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark — one primed</div>
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;">
+        <button class="ls-pill md mol-suggestion-chip is-primed" type="button" aria-pressed="true">
+          <span class="t-label-md mol-suggestion-chip__label">Twisty back roads</span>
+        </button>
+        <button class="ls-pill md mol-suggestion-chip" type="button">
+          <span class="t-label-md mol-suggestion-chip__label">Avoid highway</span>
+        </button>
+        <button class="ls-pill md mol-suggestion-chip" type="button">
+          <span class="t-label-md mol-suggestion-chip__label">Scenic coastal route</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

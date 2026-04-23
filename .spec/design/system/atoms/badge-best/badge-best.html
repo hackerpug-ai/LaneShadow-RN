@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<!-- badge-best.html — LSBadgeBest atom preview
+     LaneShadow V2 · Copper · Atom: badge-best
+     Authority: .spec/prds/v2/concepts/uc-atm-07-badge.html §LSBestBadge -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSBadgeBest — LaneShadow V2 · Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════
+   LSBadgeBest — Component styles
+   Distinct atom. Copper fill. White text. Filled star.
+   Zero hex literals — all via semantic tokens.
+   ═══════════════════════════════════════════════════════════════ */
+
+.ls-badge-best {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 10px;          /* spec: spacing.2.5 — between space-3(8px) and space-4(12px) */
+  border-radius: var(--radius-pill);
+  background: var(--signal-default);
+  color: var(--content-on-signal);
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  /* Typography: UI font, heavier than weather badge, with brand letter-spacing */
+  font-family: var(--font-ui);
+  font-size: 10.5px;        /* matches .t-body-sm base size — badge-tuned weight */
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+/* Star icon wrapper */
+.badge-best-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+/* ── Preview layout extras ──────────────────────────────────── */
+
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  align-items: flex-start;
+}
+
+.badge-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.badge-cell .cell-label {
+  font-family: var(--font-instrument);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+
+.badge-cell .cell-note {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  color: var(--content-tertiary);
+  line-height: 1.4;
+}
+
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>LSBadgeBest</em></h1>
+  <p class="subtitle">UC-ATM-07 · Distinct atom · copper fill · white text · filled star · full + compact variants</p>
+</div>
+
+<!-- ── Both variants — both themes ─────────────────────────────── -->
+<section class="section">
+  <div class="section-label">All variants — light + dark</div>
+
+  <div class="two-up">
+
+    <!-- LIGHT PANE -->
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="badge-row">
+
+        <!-- Full variant -->
+        <div class="badge-cell">
+          <span class="cell-label">full</span>
+          <div class="ls-badge-best">
+            <span class="badge-best-icon">
+              <!-- Filled star — 5-point polygon -->
+              <svg width="11" height="11" viewBox="0 0 24 24"
+                   fill="currentColor" stroke="none">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </span>
+            BEST FOR TODAY
+          </div>
+          <span class="cell-note">Primary — route list, summary card</span>
+        </div>
+
+        <!-- Compact variant -->
+        <div class="badge-cell">
+          <span class="cell-label">compact</span>
+          <div class="ls-badge-best">
+            <span class="badge-best-icon">
+              <svg width="11" height="11" viewBox="0 0 24 24"
+                   fill="currentColor" stroke="none">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </span>
+            BEST
+          </div>
+          <span class="cell-note">Compact — tight inline spaces</span>
+        </div>
+
+      </div>
+    </div><!-- /light pane -->
+
+    <!-- DARK PANE -->
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="badge-row">
+
+        <!-- Full variant dark -->
+        <div class="badge-cell">
+          <span class="cell-label">full</span>
+          <div class="ls-badge-best">
+            <span class="badge-best-icon">
+              <svg width="11" height="11" viewBox="0 0 24 24"
+                   fill="currentColor" stroke="none">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </span>
+            BEST FOR TODAY
+          </div>
+          <span class="cell-note">Copper pops against ink-800</span>
+        </div>
+
+        <!-- Compact variant dark -->
+        <div class="badge-cell">
+          <span class="cell-label">compact</span>
+          <div class="ls-badge-best">
+            <span class="badge-best-icon">
+              <svg width="11" height="11" viewBox="0 0 24 24"
+                   fill="currentColor" stroke="none">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </span>
+            BEST
+          </div>
+          <span class="cell-note">Compact — on dark surface</span>
+        </div>
+
+      </div>
+    </div><!-- /dark pane -->
+
+  </div><!-- /two-up -->
+</section>
+
+<!-- ── In-context sample: badge alongside weather badges ───────── -->
+<section class="section">
+  <div class="section-label">In context — mixed with weather badges</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light — route card</div>
+      <div class="sample-card" style="display: flex; flex-direction: column; gap: var(--space-4);">
+        <div style="font-family: var(--font-ui); font-weight: 600; font-size: 14px; color: var(--content-primary);">
+          Angeles Crest Descent
+        </div>
+        <div style="display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center;">
+          <!-- LSBadgeBest compact -->
+          <div class="ls-badge-best">
+            <span class="badge-best-icon">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </span>
+            BEST
+          </div>
+          <!-- weather badge alongside -->
+          <div class="ls-badge-weather wx-clear" style="
+            display: inline-flex; align-items: center; gap: 5px; height: 24px;
+            padding: 0 var(--space-3); border-radius: var(--radius-pill);
+            white-space: nowrap; flex-shrink: 0;
+            font-family: var(--font-ui); font-size: 10.5px; font-weight: 600; line-height: 1;
+            background: var(--wx-clear-tint); color: var(--wx-clear);
+            border: 0.5px solid rgba(230, 165, 42, 0.55);">
+            <span style="display:flex;align-items:center;justify-content:center;width:var(--icon-xs);height:var(--icon-xs);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                <circle cx="12" cy="12" r="4"/>
+                <line x1="12" y1="2"  x2="12" y2="5"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+                <line x1="2"  y1="12" x2="5"  y2="12"/>
+                <line x1="19" y1="12" x2="22" y2="12"/>
+              </svg>
+            </span>
+            Clear
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark — route card</div>
+      <div class="sample-card" style="display: flex; flex-direction: column; gap: var(--space-4);">
+        <div style="font-family: var(--font-ui); font-weight: 600; font-size: 14px; color: var(--content-primary);">
+          Angeles Crest Descent
+        </div>
+        <div style="display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center;">
+          <!-- LSBadgeBest full on dark -->
+          <div class="ls-badge-best">
+            <span class="badge-best-icon">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </span>
+            BEST FOR TODAY
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Anatomy callout ──────────────────────────────────────────── -->
+<section class="section">
+  <div class="section-label">Anatomy</div>
+  <div class="two-up">
+    <div class="theme-pane" style="display: flex; flex-direction: column; gap: var(--space-5);">
+      <div style="font-family: var(--font-instrument); font-size: 10px; color: var(--content-tertiary); letter-spacing: 0.06em;">
+        Filled star · always present · never optional
+      </div>
+      <div style="font-family: var(--font-instrument); font-size: 10px; color: var(--content-tertiary); letter-spacing: 0.06em;">
+        Background: <span style="color: var(--signal-default); font-weight: 600;">--signal-default</span> (copper — reserved for this semantic only)
+      </div>
+      <div style="font-family: var(--font-instrument); font-size: 10px; color: var(--content-tertiary); letter-spacing: 0.06em;">
+        Text: <span style="color: var(--content-primary); font-weight: 600;">--content-on-signal</span> (#FFFFFF)
+      </div>
+      <div style="font-family: var(--font-instrument); font-size: 10px; color: var(--content-tertiary); letter-spacing: 0.06em;">
+        Height: 24px · Padding: 0 10px · Radius: --radius-pill
+      </div>
+    </div>
+    <div class="theme-pane mode-dark" style="display: flex; flex-direction: column; gap: var(--space-5);">
+      <div style="font-family: var(--font-instrument); font-size: 10px; color: var(--content-tertiary); letter-spacing: 0.06em;">
+        Dark mode: copper fill unchanged (--signal-default not overridden)
+      </div>
+      <div style="font-family: var(--font-instrument); font-size: 10px; color: var(--content-tertiary); letter-spacing: 0.06em;">
+        Copper pops naturally against --surface-primary (ink-800)
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

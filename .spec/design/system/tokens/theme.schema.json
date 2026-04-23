@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://laneshadow.dev/design-system/theme.schema.json",
+  "title": "LaneShadow V2 Copper — Theme Schema",
+  "description": "Enforces identical key structure across theme.light.json and theme.dark.json",
+  "type": "object",
+  "required": [
+    "meta", "surface", "content", "border", "signal", "action", "role",
+    "status", "weather", "route", "map", "elev", "duration", "ease",
+    "radius", "space", "size", "stroke", "opacity"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "meta": {
+      "type": "object",
+      "required": ["name", "authority"],
+      "properties": {
+        "name": { "enum": ["light", "dark"] },
+        "authority": { "type": "string" }
+      }
+    },
+    "surface": {
+      "type": "object",
+      "required": ["primary", "card", "inset", "overlay", "glass", "scrim", "map"]
+    },
+    "content": {
+      "type": "object",
+      "required": ["primary", "secondary", "tertiary", "subtle", "on-signal"]
+    },
+    "border": {
+      "type": "object",
+      "required": ["default", "subtle", "strong", "focus"]
+    },
+    "signal": {
+      "type": "object",
+      "required": ["default", "hover", "pressed", "tint", "whisper"]
+    },
+    "action": {
+      "type": "object",
+      "required": ["primary", "primary-hover", "primary-pressed", "primary-disabled"]
+    },
+    "role": {
+      "type": "object",
+      "required": ["agent", "user", "system"]
+    },
+    "status": {
+      "type": "object",
+      "required": ["info", "success", "warning", "error", "recording"]
+    },
+    "weather": {
+      "type": "object",
+      "required": [
+        "clear", "clear-tint", "rain", "rain-tint", "wind", "wind-tint",
+        "storm", "storm-tint", "hot", "hot-tint", "cold", "cold-tint"
+      ]
+    },
+    "route": {
+      "type": "object",
+      "required": ["best", "alt1", "alt2"]
+    },
+    "map": {
+      "type": "object",
+      "required": ["paper", "contour", "contour-faint"]
+    },
+    "elev": {
+      "type": "object",
+      "required": ["card", "chrome", "overlay"]
+    },
+    "duration": {
+      "type": "object",
+      "required": ["instant", "fast", "standard", "slow", "deliberate"]
+    },
+    "ease": {
+      "type": "object",
+      "required": ["standard", "emphasized", "decelerated", "accelerated", "linear"]
+    },
+    "radius": {
+      "type": "object",
+      "required": ["none", "xs", "sm", "md", "lg", "xl", "pill"]
+    },
+    "space": {
+      "type": "object",
+      "required": ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+    },
+    "size": {
+      "type": "object",
+      "required": [
+        "touch-min", "control-sm", "control-md", "control-lg", "control-xl",
+        "icon-xs", "icon-sm", "icon-md", "icon-lg", "icon-xl",
+        "avatar-xs", "avatar-sm", "avatar-md", "avatar-lg", "avatar-xl"
+      ]
+    },
+    "stroke": {
+      "type": "object",
+      "required": ["sm", "md", "lg"]
+    },
+    "opacity": {
+      "type": "object",
+      "required": ["0", "subtle", "focus", "disabled", "overlay", "dim", "veil", "1"]
+    }
+  }
+}

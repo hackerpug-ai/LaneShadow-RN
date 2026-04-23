@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<!-- filter-chip.html — mol-filter-chip preview
+     LaneShadow V2 Copper · Molecule · UC-MOL-05
+     Authority: uc-mol-05-pill-family.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>mol-filter-chip — LaneShadow V2 Copper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+/* ── mol-filter-chip molecule styles ──────────────────────────── */
+
+.mol-filter-chip {
+  background: var(--surface-card);
+  border-color: var(--border-default);
+  color: var(--content-secondary);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    color var(--duration-fast) var(--ease-standard);
+}
+
+/* Hover — unselected */
+.mol-filter-chip.is-hover:not(.is-selected) {
+  background: var(--surface-inset);
+  border-color: var(--border-strong);
+}
+
+/* Pressed — unselected */
+.mol-filter-chip.is-pressed:not(.is-selected) {
+  background: var(--border-default);
+  border-color: var(--border-strong);
+}
+
+/* Selected */
+.mol-filter-chip.is-selected {
+  background: var(--signal-default);
+  border-color: var(--signal-default);
+  color: var(--content-on-signal);
+}
+
+/* Selected hover */
+.mol-filter-chip.is-selected.is-hover {
+  background: var(--signal-hover);
+  border-color: var(--signal-hover);
+}
+
+/* Selected pressed */
+.mol-filter-chip.is-selected.is-pressed {
+  background: var(--signal-pressed);
+  border-color: var(--signal-pressed);
+}
+
+/* Disabled */
+.mol-filter-chip.is-disabled {
+  background: var(--surface-card);
+  border-color: var(--border-subtle);
+  color: var(--content-subtle);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Leading check icon — hidden when not selected */
+.mol-filter-chip__check {
+  display: none;
+  flex-shrink: 0;
+}
+.mol-filter-chip.is-selected .mol-filter-chip__check {
+  display: inline-flex;
+}
+
+/* Trailing close button */
+.mol-filter-chip__close {
+  flex-shrink: 0;
+  opacity: var(--opacity-dim);
+  color: currentColor;
+}
+
+/* Count badge (instrument tabular-num) */
+.mol-filter-chip__count {
+  background: color-mix(in srgb, currentColor 15%, transparent);
+  border-radius: var(--radius-sm);
+  padding: var(--space-0) var(--space-2);
+  line-height: var(--space-5);
+  min-width: var(--space-5);
+  text-align: center;
+}
+
+/* Dark surface — unselected border needs to be visible */
+.mode-dark .mol-filter-chip:not(.is-selected):not(.is-disabled) {
+  border-color: var(--border-default);
+  background: var(--surface-card);
+  color: var(--content-secondary);
+}
+
+.mode-dark .mol-filter-chip.is-hover:not(.is-selected) {
+  background: var(--surface-inset);
+  border-color: var(--border-strong);
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>mol-filter-chip</em></h1>
+  <div class="subtitle">UC-MOL-05 · Pill Semantics Family · LaneShadow V2 Copper · Toggleable filter control</div>
+</div>
+
+<!-- ─── Unselected / Selected ─── -->
+<section class="section">
+  <div class="section-label">Unselected vs Selected</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-filter-chip__label">Scenic</span>
+          </button>
+          <div class="label">Unselected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Scenic</span>
+          </button>
+          <div class="label">Selected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-filter-chip__label">Twisty</span>
+          </button>
+          <div class="label">Unselected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Twisty</span>
+          </button>
+          <div class="label">Selected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-filter-chip__label">Avoid Highway</span>
+          </button>
+          <div class="label">Unselected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Avoid Highway</span>
+          </button>
+          <div class="label">Selected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill sm mol-filter-chip" type="button" aria-pressed="false">
+            <span class="t-label-sm mol-filter-chip__label">Gravel</span>
+          </button>
+          <div class="label">Unselected · sm</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill sm mol-filter-chip is-selected" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="8" height="8" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-sm mol-filter-chip__label">Gravel</span>
+          </button>
+          <div class="label">Selected · sm</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill lg mol-filter-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-filter-chip__label">Mountain</span>
+          </button>
+          <div class="label">Unselected · lg</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill lg mol-filter-chip is-selected" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Mountain</span>
+          </button>
+          <div class="label">Selected · lg</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-filter-chip__label">Scenic</span>
+          </button>
+          <div class="label">Unselected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Scenic</span>
+          </button>
+          <div class="label">Selected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-filter-chip__label">Twisty</span>
+          </button>
+          <div class="label">Unselected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Twisty</span>
+          </button>
+          <div class="label">Selected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+            <span class="t-label-md mol-filter-chip__label">Avoid Highway</span>
+          </button>
+          <div class="label">Unselected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Avoid Highway</span>
+          </button>
+          <div class="label">Selected</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Hover / Pressed states ─── -->
+<section class="section">
+  <div class="section-label">Forced states — hover / pressed</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-hover" type="button" aria-pressed="false">
+            <span class="t-label-md mol-filter-chip__label">Coastal</span>
+          </button>
+          <div class="label">Hover (unselected)</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-pressed" type="button" aria-pressed="false">
+            <span class="t-label-md mol-filter-chip__label">Coastal</span>
+          </button>
+          <div class="label">Pressed (unselected)</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected is-hover" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Coastal</span>
+          </button>
+          <div class="label">Hover (selected)</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected is-pressed" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Coastal</span>
+          </button>
+          <div class="label">Pressed (selected)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-hover" type="button" aria-pressed="false">
+            <span class="t-label-md mol-filter-chip__label">Coastal</span>
+          </button>
+          <div class="label">Hover (unselected)</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected is-hover" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Coastal</span>
+          </button>
+          <div class="label">Hover (selected)</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected is-pressed" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Coastal</span>
+          </button>
+          <div class="label">Pressed (selected)</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Removable + Count ─── -->
+<section class="section">
+  <div class="section-label">Removable filter + count badge</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected mol-filter-chip--removable" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Scenic</span>
+            <svg class="mol-filter-chip__close" aria-label="Remove Scenic filter" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+          <div class="label">Removable selected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected mol-filter-chip--removable" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Twisty</span>
+            <svg class="mol-filter-chip__close" aria-label="Remove Twisty filter" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+          <div class="label">Removable selected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Gravel</span>
+            <span class="mol-filter-chip__count t-instr-xs">3</span>
+          </button>
+          <div class="label">Selected with count</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Mountain</span>
+            <span class="mol-filter-chip__count t-instr-xs">12</span>
+          </button>
+          <div class="label">Selected with count</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected mol-filter-chip--removable" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Scenic</span>
+            <svg class="mol-filter-chip__close" aria-label="Remove Scenic filter" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+          <div class="label">Removable selected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Gravel</span>
+            <span class="mol-filter-chip__count t-instr-xs">3</span>
+          </button>
+          <div class="label">Selected with count</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Disabled ─── -->
+<section class="section">
+  <div class="section-label">Disabled state</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-disabled" type="button" aria-pressed="false" aria-disabled="true" disabled>
+            <span class="t-label-md mol-filter-chip__label">Premium Only</span>
+          </button>
+          <div class="label">Disabled unselected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected is-disabled" type="button" aria-pressed="true" aria-disabled="true" disabled>
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Road</span>
+          </button>
+          <div class="label">Disabled selected</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-disabled" type="button" aria-pressed="false" aria-disabled="true" disabled>
+            <span class="t-label-md mol-filter-chip__label">Premium Only</span>
+          </button>
+          <div class="label">Disabled unselected</div>
+        </div>
+        <div class="variant-cell">
+          <button class="ls-pill md mol-filter-chip is-selected is-disabled" type="button" aria-pressed="true" aria-disabled="true" disabled>
+            <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="t-label-md mol-filter-chip__label">Road</span>
+          </button>
+          <div class="label">Disabled selected</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── In context: filter bar ─── -->
+<section class="section">
+  <div class="section-label">In context — filter bar composition</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light — mixed selection state</div>
+      <div role="group" aria-label="Terrain filters" style="display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;">
+        <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+          <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="t-label-md mol-filter-chip__label">Scenic</span>
+        </button>
+        <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+          <span class="t-label-md mol-filter-chip__label">Gravel</span>
+        </button>
+        <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+          <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="t-label-md mol-filter-chip__label">Twisty</span>
+        </button>
+        <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+          <span class="t-label-md mol-filter-chip__label">Mountain</span>
+        </button>
+        <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+          <span class="t-label-md mol-filter-chip__label">Coastal</span>
+        </button>
+        <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+          <span class="t-label-md mol-filter-chip__label">Avoid Highway</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark — mixed selection state</div>
+      <div role="group" aria-label="Terrain filters" style="display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center;">
+        <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+          <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="t-label-md mol-filter-chip__label">Scenic</span>
+        </button>
+        <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+          <span class="t-label-md mol-filter-chip__label">Gravel</span>
+        </button>
+        <button class="ls-pill md mol-filter-chip is-selected" type="button" aria-pressed="true">
+          <svg class="mol-filter-chip__check" aria-hidden="true" width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3.5 3.5L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="t-label-md mol-filter-chip__label">Twisty</span>
+        </button>
+        <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+          <span class="t-label-md mol-filter-chip__label">Mountain</span>
+        </button>
+        <button class="ls-pill md mol-filter-chip" type="button" aria-pressed="false">
+          <span class="t-label-md mol-filter-chip__label">Avoid Highway</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

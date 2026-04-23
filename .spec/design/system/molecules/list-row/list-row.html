@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<!-- list-row.html — Molecule · LSListRow
+     LaneShadow V2 Copper · Authority: uc-mol-01-card-listrow.html
+     Class prefix: .mol-list-row -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Molecule · list-row — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+
+/* ─── MOL-LIST-ROW ───────────────────────────────────────────────────────
+   Composes ls-avatar (UC-ATM-04) · ls-icon (UC-ATM-10) · ls-toggle (NEW)
+   · ls-btn (UC-ATM-02)
+   Single horizontal row: [leading] [content] [trailing]
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ── Row container ─────────────────────────────────────────────────────── */
+.mol-list-row {
+  display: flex;
+  align-items: center;
+  min-height: var(--size-touch-min);   /* 44px touch target */
+  padding: var(--space-2) var(--space-4);
+  gap: var(--space-3);
+  background: var(--surface-card);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-standard);
+  position: relative;
+}
+
+/* Separator between sibling rows */
+.mol-list-row + .mol-list-row {
+  border-top: var(--stroke-sm) solid var(--border-subtle);
+}
+
+/* ── States ────────────────────────────────────────────────────────────── */
+.mol-list-row.is-hover {
+  background: var(--surface-inset);
+}
+
+.mol-list-row.is-pressed {
+  background: var(--surface-inset);
+}
+
+.mol-list-row.is-focused {
+  outline: var(--stroke-md) solid var(--border-focus);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+
+.mol-list-row.is-disabled {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Non-interactive variant — no hover, default cursor */
+.mol-list-row--non-interactive {
+  cursor: default;
+}
+
+.mol-list-row--non-interactive.is-hover {
+  background: var(--surface-card);
+}
+
+/* ── Leading slot ──────────────────────────────────────────────────────── */
+.mol-list-row__leading {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Icon container: 32×32 tinted badge */
+.mol-list-row__icon-container {
+  width: var(--space-8);   /* 32px */
+  height: var(--space-8);  /* 32px */
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  border: var(--stroke-sm) solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--content-secondary);
+}
+
+/* ── Content (title + subtitle) ────────────────────────────────────────── */
+.mol-list-row__content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.mol-list-row__title {
+  color: var(--content-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mol-list-row__subtitle {
+  color: var(--content-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Trailing slot ─────────────────────────────────────────────────────── */
+.mol-list-row__trailing {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--content-tertiary);
+}
+
+/* Trailing status label (e.g. "Locked") */
+.mol-list-row__trailing-label {
+  color: var(--content-subtle);
+}
+
+/* Chevron icon */
+.mol-list-row__chevron {
+  color: var(--content-subtle);
+  flex-shrink: 0;
+}
+
+/* ── Toggle (ls-toggle atom) ───────────────────────────────────────────── */
+/* ls-toggle styles live in _atoms.css once the atom is registered.
+   Molecule only positions it — no redefinition of .ls-toggle here. */
+
+/* ── Group wrapper — rows inside ls-card ───────────────────────────────── */
+.mol-list-group {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-card);
+  background: var(--surface-card);
+}
+
+.mol-list-group .mol-list-row:first-child {
+  border-top: none;
+}
+
+/* ── Group header label ────────────────────────────────────────────────── */
+.mol-list-group__header {
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  border-bottom: var(--stroke-sm) solid var(--border-subtle);
+  color: var(--content-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+</style>
+</head>
+<body>
+
+<header class="preview-header">
+  <h1>Molecule · <em>list-row</em></h1>
+  <p class="subtitle">LSListRow — horizontal row with leading icon/avatar, title, subtitle, trailing chevron/toggle · Authority: uc-mol-01-card-listrow.html</p>
+</header>
+
+<!-- ═══ Variant 1 — Leading Icon ═════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 1 — Leading Icon, Title Only</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="mol-list-group" style="max-width:340px;">
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Notifications</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mol-list-row is-hover">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Bluetooth Sensors</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Profile</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="mol-list-group" style="max-width:340px;">
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Notifications</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Profile</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ Variant 2 — Leading Avatar ══════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 2 — Leading Avatar, Title + Subtitle</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="mol-list-group" style="max-width:340px;">
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-md);height:var(--avatar-md);border-radius:var(--radius-pill);">JR</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Justin Rich</span>
+            <span class="mol-list-row__subtitle t-label-sm">Joined 2023 · 847 mi total</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-md);height:var(--avatar-md);border-radius:var(--radius-pill);">MK</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Maya Kim</span>
+            <span class="mol-list-row__subtitle t-label-sm">Following · 1,240 mi total</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <button class="ls-btn ls-btn--outline ls-btn--pill">Follow</button>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-sm);height:var(--avatar-sm);border-radius:var(--radius-pill);background:linear-gradient(135deg, var(--wx-rain-tint), var(--paper-400));">TS</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Tom Salazar</span>
+            <span class="mol-list-row__subtitle t-label-sm">avatar-sm · 28px variant</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <div class="ls-toggle ls-toggle--on"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="mol-list-group" style="max-width:340px;">
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-md);height:var(--avatar-md);border-radius:var(--radius-pill);">JR</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Justin Rich</span>
+            <span class="mol-list-row__subtitle t-label-sm">Joined 2023 · 847 mi total</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-md);height:var(--avatar-md);border-radius:var(--radius-pill);">MK</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Maya Kim</span>
+            <span class="mol-list-row__subtitle t-label-sm">Following · 1,240 mi total</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <button class="ls-btn ls-btn--outline ls-btn--pill">Follow</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ Variant 3 — With Toggle ══════════════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 3 — Trailing Toggle (on / off)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="mol-list-group" style="max-width:340px;">
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Privacy Mode</span>
+            <span class="mol-list-row__subtitle t-label-sm">Hide location on social feed</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <div class="ls-toggle ls-toggle--on"></div>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Auto-Pause</span>
+            <span class="mol-list-row__subtitle t-label-sm">Stop recording at red lights</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <div class="ls-toggle"></div>
+          </div>
+        </div>
+        <div class="mol-list-row is-pressed">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Live Tracking</span>
+            <span class="mol-list-row__subtitle t-label-sm">Pressed state shown</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <div class="ls-toggle ls-toggle--on"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="mol-list-group" style="max-width:340px;">
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Privacy Mode</span>
+            <span class="mol-list-row__subtitle t-label-sm">Hide location on social feed</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <div class="ls-toggle ls-toggle--on"></div>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Auto-Pause</span>
+            <span class="mol-list-row__subtitle t-label-sm">Stop recording at red lights</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <div class="ls-toggle"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ Variant 4 — Non-interactive / Disabled ═══════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 4 — Non-interactive and Disabled</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="mol-list-group" style="max-width:340px;">
+        <!-- Non-interactive: no hover, static label trailing -->
+        <div class="mol-list-row mol-list-row--non-interactive">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Ride Version</span>
+            <span class="mol-list-row__subtitle t-label-sm">v2.4.1</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <span class="mol-list-row__trailing-label t-label-sm">v2.4.1</span>
+          </div>
+        </div>
+        <!-- Disabled row -->
+        <div class="mol-list-row is-disabled">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Advanced Metrics</span>
+            <span class="mol-list-row__subtitle t-label-sm">Requires sensor pairing</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <span class="mol-list-row__trailing-label t-label-sm">Locked</span>
+          </div>
+        </div>
+        <!-- Focused row -->
+        <div class="mol-list-row is-focused">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Privacy Settings</span>
+            <span class="mol-list-row__subtitle t-label-sm">Focused state shown</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="mol-list-group" style="max-width:340px;">
+        <div class="mol-list-row mol-list-row--non-interactive">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Ride Version</span>
+            <span class="mol-list-row__subtitle t-label-sm">v2.4.1</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <span class="mol-list-row__trailing-label t-label-sm">v2.4.1</span>
+          </div>
+        </div>
+        <div class="mol-list-row is-disabled">
+          <div class="mol-list-row__leading">
+            <div class="mol-list-row__icon-container">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+                <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+              </svg>
+            </div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Advanced Metrics</span>
+            <span class="mol-list-row__subtitle t-label-sm">Requires sensor pairing</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <span class="mol-list-row__trailing-label t-label-sm">Locked</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ Variant 5 — Grouped list-in-card ════════════════════════════════ -->
+<section class="section">
+  <div class="section-label">Variant 5 — Grouped List in Card (composition)</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="ls-card" style="max-width:340px;padding:0;overflow:hidden;">
+        <div class="mol-list-group__header t-label-sm">Recent Routes</div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-xs);height:var(--avatar-xs);border-radius:var(--radius-pill);">EC</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Emigration Canyon</span>
+            <span class="mol-list-row__subtitle t-label-sm">28 mi · 3 days ago</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-xs);height:var(--avatar-xs);border-radius:var(--radius-pill);background:linear-gradient(135deg, var(--wx-rain-tint), var(--border-default));">BC</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Big Cottonwood Descent</span>
+            <span class="mol-list-row__subtitle t-label-sm">34 mi · 1 week ago</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-xs);height:var(--avatar-xs);border-radius:var(--radius-pill);background:linear-gradient(135deg, var(--status-success-raw), var(--route-alt1-raw));" >WC</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Wasatch Crest Trail</span>
+            <span class="mol-list-row__subtitle t-label-sm">52 mi · 2 weeks ago</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-xs);height:var(--avatar-xs);border-radius:var(--radius-pill);">MC</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Mill Creek Canyon Loop</span>
+            <span class="mol-list-row__subtitle t-label-sm">18 mi · last month</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-xs);height:var(--avatar-xs);border-radius:var(--radius-pill);background:linear-gradient(135deg, var(--wx-clear-tint), var(--signal-whisper));">LD</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Little Dell Reservoir</span>
+            <span class="mol-list-row__subtitle t-label-sm">19 mi · last month</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark" data-theme="dark">
+      <div class="ls-card" style="max-width:340px;padding:0;overflow:hidden;">
+        <div class="mol-list-group__header t-label-sm">Recent Routes</div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-xs);height:var(--avatar-xs);border-radius:var(--radius-pill);">EC</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Emigration Canyon</span>
+            <span class="mol-list-row__subtitle t-label-sm">28 mi · 3 days ago</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-xs);height:var(--avatar-xs);border-radius:var(--radius-pill);">BC</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Big Cottonwood Descent</span>
+            <span class="mol-list-row__subtitle t-label-sm">34 mi · 1 week ago</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="mol-list-row">
+          <div class="mol-list-row__leading">
+            <div class="ls-avatar" style="width:var(--avatar-xs);height:var(--avatar-xs);border-radius:var(--radius-pill);">MC</div>
+          </div>
+          <div class="mol-list-row__content">
+            <span class="mol-list-row__title t-body-md">Mill Creek Canyon Loop</span>
+            <span class="mol-list-row__subtitle t-label-sm">18 mi · last month</span>
+          </div>
+          <div class="mol-list-row__trailing">
+            <svg class="mol-list-row__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--stroke-md)" stroke-linecap="round" stroke-linejoin="round" style="width:var(--icon-sm);height:var(--icon-sm);">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<!-- phase-dot.html — LSPhaseDot atom preview
+     LaneShadow V2 · Copper · Atom Design Preview · 2026-04-23
+     Atom: LSPhaseDot — pending / active / done states with ring-pulse
+     Authority: .spec/prds/v2/concepts/uc-atm-08-phasedot.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LSPhaseDot — LaneShadow V2 · Copper · Atom Preview</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../_preview.css">
+<style>
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSPhaseDot — PRODUCTION SIZE (10px)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.ls-phase-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+  position: relative;
+  display: inline-block;
+}
+
+/* State: pending — hollow, surface.card fill, border.strong ring */
+.ls-phase-dot.pending {
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-strong);
+}
+
+/* State: active — signal.default fill + concentric ring pulse */
+.ls-phase-dot.active {
+  background: var(--signal-default);
+}
+
+.ls-phase-dot.active::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: var(--radius-pill);
+  border: var(--stroke-md) solid var(--signal-default);
+  opacity: 0;
+  animation: phaseDotPulse 900ms ease-in-out infinite;
+}
+
+/* State: done — status.success fill + inset white checkmark */
+.ls-phase-dot.done {
+  background: var(--status-success);
+}
+
+.ls-phase-dot.done::after {
+  content: "";
+  position: absolute;
+  inset: 1.5px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 12 10 18 20 6'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LSPhaseDot — SCALED DEMO (50px) for inspection
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.ls-phase-dot-lg {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+  position: relative;
+  display: inline-block;
+}
+
+.ls-phase-dot-lg.pending {
+  background: var(--surface-card);
+  border: 5px solid var(--border-strong);
+}
+
+.ls-phase-dot-lg.active {
+  background: var(--signal-default);
+}
+
+.ls-phase-dot-lg.active::after {
+  content: "";
+  position: absolute;
+  inset: -16px;
+  border-radius: var(--radius-pill);
+  border: 5px solid var(--signal-default);
+  opacity: 0;
+  animation: phaseDotPulseLg 900ms ease-in-out infinite;
+}
+
+.ls-phase-dot-lg.done {
+  background: var(--status-success);
+}
+
+.ls-phase-dot-lg.done::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='4 12 10 18 20 6'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ANIMATION — motion.recipe.phaseDotPulse
+   Trigger: state == .active (on render)
+   Ring: scale(0) opacity(0.4) → scale(1.5) opacity(0)
+   Duration: 900ms · ease-in-out · infinite
+   ═══════════════════════════════════════════════════════════════════════ */
+
+@keyframes phaseDotPulse {
+  0%   { transform: scale(0); opacity: 0.4; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes phaseDotPulseLg {
+  0%   { transform: scale(0); opacity: 0.4; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PREVIEW LAYOUT HELPERS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Scaled demo cell — 82px bounding box: 50px dot + 16px ring each side */
+.dot-cell-lg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.dot-stage-lg {
+  width: 82px;
+  height: 82px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  position: relative;
+}
+
+/* Production demo cell — 26px bounding box: 10px dot + ring clearance */
+.dot-cell-sm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.dot-stage-sm {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  position: relative;
+}
+
+.dot-cell-label {
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--signal-default);
+}
+
+.dot-cell-sub {
+  color: var(--content-tertiary);
+  text-align: center;
+  max-width: 120px;
+}
+
+/* Production size strip */
+.production-strip {
+  display: flex;
+  gap: var(--space-8);
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* PhaseIndicator composition */
+.phase-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-0);
+  position: relative;
+}
+
+.phase-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.phase-step-row {
+  display: flex;
+  align-items: center;
+  overflow: visible;
+}
+
+.phase-connector {
+  width: var(--space-10);
+  height: var(--stroke-sm);
+  flex-shrink: 0;
+}
+
+.phase-connector.done    { background: var(--status-success); }
+.phase-connector.active  { background: var(--signal-tint); }
+.phase-connector.pending { background: var(--border-subtle); }
+
+.phase-step-label {
+  font-family: var(--font-instrument);
+  white-space: nowrap;
+  position: absolute;
+  top: 16px;
+}
+
+.phase-step.state-done    .phase-step-label { color: var(--content-tertiary); }
+.phase-step.state-active  .phase-step-label { color: var(--content-primary); font-weight: 600; }
+.phase-step.state-pending .phase-step-label { color: var(--content-subtle); }
+
+.composition-wrapper {
+  display: inline-block;
+  padding: var(--space-8);
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--elev-card);
+}
+
+.composition-caption {
+  margin-top: var(--space-4);
+  font-family: var(--font-instrument);
+  color: var(--content-tertiary);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="preview-header">
+  <h1>LS<em>Phase</em>Dot</h1>
+  <div class="subtitle">UC-ATM-08 · Copper · 10px status dot · pending / active / done · motion.recipe.phaseDotPulse (900ms)</div>
+</div>
+
+<!-- ── SECTION 1: SCALED DEMO (50px for inspection) ── -->
+<div class="section">
+  <div class="section-label">Scaled demo — 50px diameter</div>
+
+  <div class="two-up">
+
+    <!-- LIGHT PANE -->
+    <div class="theme-pane">
+      <div class="variant-grid" style="margin-bottom: var(--space-4);">
+
+        <div class="dot-cell-lg">
+          <div class="dot-cell-label t-instr-xs">pending</div>
+          <div class="dot-stage-lg">
+            <div class="ls-phase-dot-lg pending"></div>
+          </div>
+          <div class="dot-cell-sub t-instr-sm">Hollow · border.strong · no animation</div>
+        </div>
+
+        <div class="dot-cell-lg">
+          <div class="dot-cell-label t-instr-xs">active</div>
+          <div class="dot-stage-lg">
+            <div class="ls-phase-dot-lg active"></div>
+          </div>
+          <div class="dot-cell-sub t-instr-sm">signal.default fill · ring pulse · 900ms</div>
+        </div>
+
+        <div class="dot-cell-lg">
+          <div class="dot-cell-label t-instr-xs">done</div>
+          <div class="dot-stage-lg">
+            <div class="ls-phase-dot-lg done"></div>
+          </div>
+          <div class="dot-cell-sub t-instr-sm">status.success fill · checkmark · no animation</div>
+        </div>
+
+      </div>
+      <div class="dot-cell-sub t-instr-xs" style="text-align: left;">Light theme</div>
+    </div>
+
+    <!-- DARK PANE -->
+    <div class="theme-pane mode-dark">
+      <div class="variant-grid" style="margin-bottom: var(--space-4);">
+
+        <div class="dot-cell-lg">
+          <div class="dot-cell-label t-instr-xs">pending</div>
+          <div class="dot-stage-lg">
+            <div class="ls-phase-dot-lg pending"></div>
+          </div>
+          <div class="dot-cell-sub t-instr-sm">Hollow · border.strong rgba · ink-700 fill</div>
+        </div>
+
+        <div class="dot-cell-lg">
+          <div class="dot-cell-label t-instr-xs">active</div>
+          <div class="dot-stage-lg">
+            <div class="ls-phase-dot-lg active"></div>
+          </div>
+          <div class="dot-cell-sub t-instr-sm">Copper pops against ink — max contrast</div>
+        </div>
+
+        <div class="dot-cell-lg">
+          <div class="dot-cell-label t-instr-xs">done</div>
+          <div class="dot-stage-lg">
+            <div class="ls-phase-dot-lg done"></div>
+          </div>
+          <div class="dot-cell-sub t-instr-sm">Success green · checkmark · no animation</div>
+        </div>
+
+      </div>
+      <div class="dot-cell-sub t-instr-xs" style="text-align: left;">Dark theme (.mode-dark)</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── SECTION 2: PRODUCTION SIZE (10px) ── -->
+<div class="section">
+  <div class="section-label">Production size — 10px diameter</div>
+
+  <div class="two-up">
+
+    <!-- LIGHT PANE -->
+    <div class="theme-pane">
+      <div class="production-strip">
+
+        <div class="dot-cell-sm">
+          <div class="dot-cell-label t-instr-xs">pending</div>
+          <div class="dot-stage-sm">
+            <div class="ls-phase-dot pending"></div>
+          </div>
+          <div class="dot-cell-sub t-instr-sm">10px · hollow · border.strong</div>
+        </div>
+
+        <div class="dot-cell-sm">
+          <div class="dot-cell-label t-instr-xs">active</div>
+          <div class="dot-stage-sm">
+            <div class="ls-phase-dot active"></div>
+          </div>
+          <div class="dot-cell-sub t-instr-sm">10px · signal fill · ring pulse</div>
+        </div>
+
+        <div class="dot-cell-sm">
+          <div class="dot-cell-label t-instr-xs">done</div>
+          <div class="dot-stage-sm">
+            <div class="ls-phase-dot done"></div>
+          </div>
+          <div class="dot-cell-sub t-instr-sm">10px · success fill · check</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK PANE -->
+    <div class="theme-pane mode-dark">
+      <div class="production-strip">
+
+        <div class="dot-cell-sm">
+          <div class="dot-cell-label t-instr-xs">pending</div>
+          <div class="dot-stage-sm">
+            <div class="ls-phase-dot pending"></div>
+          </div>
+          <div class="dot-cell-sub t-instr-sm">10px · hollow · rgba border</div>
+        </div>
+
+        <div class="dot-cell-sm">
+          <div class="dot-cell-label t-instr-xs">active</div>
+          <div class="dot-stage-sm">
+            <div class="ls-phase-dot active"></div>
+          </div>
+          <div class="dot-cell-sub t-instr-sm">10px · copper · pulse ring</div>
+        </div>
+
+        <div class="dot-cell-sm">
+          <div class="dot-cell-label t-instr-xs">done</div>
+          <div class="dot-stage-sm">
+            <div class="ls-phase-dot done"></div>
+          </div>
+          <div class="dot-cell-sub t-instr-sm">10px · green · check</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── SECTION 3: PhaseIndicator COMPOSITION ── -->
+<div class="section">
+  <div class="section-label">PhaseIndicator composition — 5 steps in a row</div>
+
+  <div class="two-up">
+
+    <!-- LIGHT COMPOSITION -->
+    <div class="theme-pane">
+      <div class="composition-wrapper" style="position: relative;">
+        <div style="position: relative; padding-bottom: var(--space-7);">
+          <div class="phase-indicator">
+
+            <!-- Step 1: done -->
+            <div class="phase-step state-done">
+              <div class="phase-step-row">
+                <div class="ls-phase-dot done"></div>
+                <div class="phase-connector done"></div>
+              </div>
+              <div class="phase-step-label t-instr-xs">Scout</div>
+            </div>
+
+            <!-- Step 2: done -->
+            <div class="phase-step state-done">
+              <div class="phase-step-row">
+                <div class="ls-phase-dot done"></div>
+                <div class="phase-connector active"></div>
+              </div>
+              <div class="phase-step-label t-instr-xs">Draw</div>
+            </div>
+
+            <!-- Step 3: active (pulsing) -->
+            <div class="phase-step state-active">
+              <div class="phase-step-row">
+                <div class="ls-phase-dot active"></div>
+                <div class="phase-connector pending"></div>
+              </div>
+              <div class="phase-step-label t-instr-xs">Weather</div>
+            </div>
+
+            <!-- Step 4: pending -->
+            <div class="phase-step state-pending">
+              <div class="phase-step-row">
+                <div class="ls-phase-dot pending"></div>
+                <div class="phase-connector pending"></div>
+              </div>
+              <div class="phase-step-label t-instr-xs">Score</div>
+            </div>
+
+            <!-- Step 5: pending (no connector) -->
+            <div class="phase-step state-pending">
+              <div class="phase-step-row">
+                <div class="ls-phase-dot pending"></div>
+              </div>
+              <div class="phase-step-label t-instr-xs">Rank</div>
+            </div>
+
+          </div>
+        </div>
+        <div class="composition-caption t-instr-xs">done / done / active / pending / pending · light</div>
+      </div>
+    </div>
+
+    <!-- DARK COMPOSITION -->
+    <div class="theme-pane mode-dark">
+      <div class="composition-wrapper" style="position: relative;">
+        <div style="position: relative; padding-bottom: var(--space-7);">
+          <div class="phase-indicator">
+
+            <!-- Step 1: done -->
+            <div class="phase-step state-done">
+              <div class="phase-step-row">
+                <div class="ls-phase-dot done"></div>
+                <div class="phase-connector done"></div>
+              </div>
+              <div class="phase-step-label t-instr-xs">Scout</div>
+            </div>
+
+            <!-- Step 2: done -->
+            <div class="phase-step state-done">
+              <div class="phase-step-row">
+                <div class="ls-phase-dot done"></div>
+                <div class="phase-connector active"></div>
+              </div>
+              <div class="phase-step-label t-instr-xs">Draw</div>
+            </div>
+
+            <!-- Step 3: active (pulsing) -->
+            <div class="phase-step state-active">
+              <div class="phase-step-row">
+                <div class="ls-phase-dot active"></div>
+                <div class="phase-connector pending"></div>
+              </div>
+              <div class="phase-step-label t-instr-xs">Weather</div>
+            </div>
+
+            <!-- Step 4: pending -->
+            <div class="phase-step state-pending">
+              <div class="phase-step-row">
+                <div class="ls-phase-dot pending"></div>
+                <div class="phase-connector pending"></div>
+              </div>
+              <div class="phase-step-label t-instr-xs">Score</div>
+            </div>
+
+            <!-- Step 5: pending (no connector) -->
+            <div class="phase-step state-pending">
+              <div class="phase-step-row">
+                <div class="ls-phase-dot pending"></div>
+              </div>
+              <div class="phase-step-label t-instr-xs">Rank</div>
+            </div>
+
+          </div>
+        </div>
+        <div class="composition-caption t-instr-xs">done / done / active / pending / pending · dark</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── SECTION 4: ANIMATION SPEC ── -->
+<div class="section">
+  <div class="section-label">Animation — motion.recipe.phaseDotPulse</div>
+
+  <div class="sample-card" style="max-width: 640px;">
+    <table style="width: 100%; border-collapse: collapse; font-family: var(--font-ui); font-size: 12px; color: var(--content-secondary);">
+      <thead>
+        <tr>
+          <th style="text-align: left; padding: var(--space-2) var(--space-4) var(--space-3); font-family: var(--font-instrument); font-size: 8.5px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); border-bottom: 2px solid var(--border-default);">Property</th>
+          <th style="text-align: left; padding: var(--space-2) var(--space-4) var(--space-3); font-family: var(--font-instrument); font-size: 8.5px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); border-bottom: 2px solid var(--border-default);">Value</th>
+          <th style="text-align: left; padding: var(--space-2) var(--space-4) var(--space-3); font-family: var(--font-instrument); font-size: 8.5px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); border-bottom: 2px solid var(--border-default);">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Trigger</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle); font-family: var(--font-instrument); color: var(--content-primary);">state == .active</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Begins immediately on render</td>
+        </tr>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Element</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle); font-family: var(--font-instrument); color: var(--content-primary);">::after pseudo</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Concentric ring overlay on dot</td>
+        </tr>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Start</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle); font-family: var(--font-instrument); color: var(--content-primary);">scale(0) opacity(0.4)</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Ring at dot center, 40% visible</td>
+        </tr>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">End</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle); font-family: var(--font-instrument); color: var(--content-primary);">scale(1.5) opacity(0)</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">15px max radius, fully faded</td>
+        </tr>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Duration</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle); font-family: var(--font-instrument); color: var(--content-primary);">900ms</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">motion.recipe.phaseDotPulse</td>
+        </tr>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Easing</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle); font-family: var(--font-instrument); color: var(--content-primary);">ease-in-out</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">No autoreversal</td>
+        </tr>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4);">Iteration</td>
+          <td style="padding: var(--space-2) var(--space-4); font-family: var(--font-instrument); color: var(--content-primary);">infinite</td>
+          <td style="padding: var(--space-2) var(--space-4);">Continuous loop while state is active</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── SECTION 5: DIMENSION REFERENCE ── -->
+<div class="section">
+  <div class="section-label">Dimension reference</div>
+
+  <div class="sample-card" style="max-width: 640px;">
+    <table style="width: 100%; border-collapse: collapse; font-family: var(--font-ui); font-size: 12px; color: var(--content-secondary);">
+      <thead>
+        <tr>
+          <th style="text-align: left; padding: var(--space-2) var(--space-4) var(--space-3); font-family: var(--font-instrument); font-size: 8.5px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); border-bottom: 2px solid var(--border-default);">Property</th>
+          <th style="text-align: left; padding: var(--space-2) var(--space-4) var(--space-3); font-family: var(--font-instrument); font-size: 8.5px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); border-bottom: 2px solid var(--border-default);">Value</th>
+          <th style="text-align: left; padding: var(--space-2) var(--space-4) var(--space-3); font-family: var(--font-instrument); font-size: 8.5px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--signal-default); border-bottom: 2px solid var(--border-default);">Token / Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Dot diameter</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle); font-family: var(--font-instrument); color: var(--content-primary);">10px</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Fixed; not responsive to font scale</td>
+        </tr>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Border (pending)</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle); font-family: var(--font-instrument); color: var(--content-primary);">--stroke-sm</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">--border-strong color · hollow fill</td>
+        </tr>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Ring border</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle); font-family: var(--font-instrument); color: var(--content-primary);">--stroke-md</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">--signal-default color</td>
+        </tr>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Ring max radius</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle); font-family: var(--font-instrument); color: var(--content-primary);">15px</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">scale(1.5) × 10px half-dot = 15px from center</td>
+        </tr>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">Bounding box (active)</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle); font-family: var(--font-instrument); color: var(--content-primary);">40px × 40px</td>
+          <td style="padding: var(--space-2) var(--space-4); border-bottom: 1px solid var(--border-subtle);">10px dot + 15px ring clearance each side</td>
+        </tr>
+        <tr>
+          <td style="padding: var(--space-2) var(--space-4);">Connector line (molecule)</td>
+          <td style="padding: var(--space-2) var(--space-4); font-family: var(--font-instrument); color: var(--content-primary);">--stroke-sm</td>
+          <td style="padding: var(--space-2) var(--space-4);">Defined in UC-MOL-07 PhaseIndicator, not this atom</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>
