@@ -62,5 +62,11 @@ import com.nativesandbox.model.Story
  * Reference each component's STYLE PROPERTIES MATRIX file for required variants.
  */
 object AtomsStories {
-    val all: List<Story> = LSTextStories.all + LSIconStories.all + LSPillStories.all + LSButtonStories.all + LSDisplayStories.all
+    val all: List<Story> =
+        LSTextStories.all +
+            LSIconStories.all +
+            LSPillStories.all +
+            LSButtonStories.all +
+            LSDisplayStories.all +
+            LSInputStories.all
 }
