@@ -17,8 +17,10 @@ pre-commit:
       run: pnpm icons:check
 
     # TypeScript typecheck via tsgo (Go-based compiler, ~10x faster than tsc).
-    # pnpm type-check still uses tsc for the benchmark baseline.
+    # Scope this to JS/TS/JSON-manifest changes so native-only Swift/Kotlin work
+    # is gated by ios-typecheck / android-typecheck instead of unrelated backend checks.
     - name: typecheck
+      glob: "**/*.{js,jsx,ts,tsx,mjs,cjs,mts,cts,json,jsonc}"
       run: pnpm type-check:native
 
     # Biome: lint + format + organize imports for JS/TS/JSON only.
