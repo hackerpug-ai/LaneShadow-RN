@@ -14,8 +14,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import com.laneshadow.theme.LaneShadowThemeValues
 import com.laneshadow.theme.LocalLaneShadowTheme
-import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
-
 val LSPanelBackgroundColorKey = SemanticsPropertyKey<Color>("LSPanelBackgroundColor")
 val LSPanelCornerRadiusKey = SemanticsPropertyKey<Dp>("LSPanelCornerRadius")
 val LSPanelShadowElevationKey = SemanticsPropertyKey<Dp>("LSPanelShadowElevation")
@@ -35,7 +33,7 @@ data class LSPanelStyle(
 
 fun resolveLSPanelStyle(theme: LaneShadowThemeValues): LSPanelStyle =
     LSPanelStyle(
-        backgroundColor = GeneratedTokens.color.Surface.primary,
+        backgroundColor = theme.colors.surface.default,
         cornerRadius = theme.radius.md,
         shadowElevation = theme.elevation.light.level0,
         contentPadding = theme.space.md,

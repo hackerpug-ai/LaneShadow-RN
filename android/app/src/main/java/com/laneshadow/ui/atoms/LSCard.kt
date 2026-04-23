@@ -14,8 +14,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import com.laneshadow.theme.LaneShadowThemeValues
 import com.laneshadow.theme.LocalLaneShadowTheme
-import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
-
 val LSCardBackgroundColorKey = SemanticsPropertyKey<Color>("LSCardBackgroundColor")
 val LSCardCornerRadiusKey = SemanticsPropertyKey<Dp>("LSCardCornerRadius")
 val LSCardShadowElevationKey = SemanticsPropertyKey<Dp>("LSCardShadowElevation")
@@ -35,7 +33,7 @@ data class LSCardStyle(
 
 fun resolveLSCardStyle(theme: LaneShadowThemeValues): LSCardStyle =
     LSCardStyle(
-        backgroundColor = GeneratedTokens.color.Surface.card,
+        backgroundColor = theme.colors.card.default,
         cornerRadius = theme.radius.lg,
         shadowElevation = theme.elevation.light.level2,
         contentPadding = theme.space.lg,

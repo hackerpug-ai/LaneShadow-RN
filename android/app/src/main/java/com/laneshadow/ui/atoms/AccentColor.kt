@@ -2,7 +2,6 @@ package com.laneshadow.ui.atoms
 
 import androidx.compose.ui.graphics.Color
 import com.laneshadow.theme.LaneShadowThemeValues
-import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 
 enum class AccentColor {
     Signal,
@@ -10,10 +9,10 @@ enum class AccentColor {
 }
 
 fun resolveAccentColor(
-    @Suppress("UNUSED_PARAMETER") theme: LaneShadowThemeValues,
+    theme: LaneShadowThemeValues,
     accent: AccentColor,
 ): Color =
     when (accent) {
-        AccentColor.Signal -> GeneratedTokens.color.Signal.default
-        AccentColor.Warning -> GeneratedTokens.color.Status.Warning.default
+        AccentColor.Signal -> theme.colors.accent.default
+        AccentColor.Warning -> theme.colors.warning.default
     }

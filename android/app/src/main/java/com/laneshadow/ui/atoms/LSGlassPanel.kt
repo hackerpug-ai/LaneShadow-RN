@@ -26,8 +26,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.LaneShadowThemeValues
 import com.laneshadow.theme.LocalLaneShadowTheme
-import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
-
 val LSGlassPanelBackgroundColorKey = SemanticsPropertyKey<Color>("LSGlassPanelBackgroundColor")
 val LSGlassPanelCornerRadiusKey = SemanticsPropertyKey<Dp>("LSGlassPanelCornerRadius")
 val LSGlassPanelShadowElevationKey = SemanticsPropertyKey<Dp>("LSGlassPanelShadowElevation")
@@ -78,7 +76,7 @@ fun resolveLSGlassPanelStyle(
     val stripeColor = if (variant is GlassVariant.Callout) resolveAccentColor(theme, variant.accent) else Color.Transparent
 
     return LSGlassPanelStyle(
-        backgroundColor = GeneratedTokens.color.Surface.glass,
+        backgroundColor = theme.colors.card.default.copy(alpha = 0.72f),
         cornerRadius = theme.radius.xl,
         shadowElevation = theme.elevation.light.level8,
         contentPadding = theme.space.lg,

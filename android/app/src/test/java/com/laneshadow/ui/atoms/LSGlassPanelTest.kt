@@ -2,7 +2,6 @@ package com.laneshadow.ui.atoms
 
 import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.ThemeLoader
-import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import com.laneshadow.theme.laneShadowThemeValues
 import java.io.File
 import org.junit.Assert.assertEquals
@@ -15,7 +14,7 @@ class LSGlassPanelTest {
         val style = resolveLSGlassPanelStyle(theme, GlassVariant.Callout(AccentColor.Signal))
 
         assertEquals(3.dp, style.leadingStripeWidth)
-        assertEquals(GeneratedTokens.color.Signal.default, style.leadingStripeColor)
+        assertEquals(theme.colors.accent.default, style.leadingStripeColor)
     }
 
     @Test
@@ -26,16 +25,24 @@ class LSGlassPanelTest {
             resolveAccentColor(theme, accent)
         }
 
-        assertEquals(GeneratedTokens.color.Signal.default, resolved.getValue(AccentColor.Signal))
-        assertEquals(GeneratedTokens.color.Status.Warning.default, resolved.getValue(AccentColor.Warning))
+        assertEquals(theme.colors.accent.default, resolved.getValue(AccentColor.Signal))
+        assertEquals(theme.colors.warning.default, resolved.getValue(AccentColor.Warning))
     }
 
-    private fun loadTheme() =
+    @Test
+    fun glasspanel_uses_runtime_dark_theme_glass_fill() {
+        val darkTheme = loadTheme(darkTheme = true)
+        val style = resolveLSGlassPanelStyle(darkTheme, GlassVariant.Chrome)
+
+        assertEquals(darkTheme.colors.card.default.copy(alpha = 0.72f), style.backgroundColor)
+    }
+
+    private fun loadTheme(darkTheme: Boolean = false) =
         laneShadowThemeValues(
             tokens = ThemeLoader.fromStream(
                 javaClass.classLoader?.getResourceAsStream("semantic.tokens.json")
                     ?: File("../../tokens/platforms/kotlin/src/main/assets/semantic.tokens.json").inputStream(),
             ),
-            darkTheme = false,
+            darkTheme = darkTheme,
         )
 }
