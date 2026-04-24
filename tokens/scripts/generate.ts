@@ -392,15 +392,27 @@ function semanticColorsToKotlinTree(value: Record<string, any> | undefined): Kot
   if (!value) return tree
 
   for (const [name, entry] of Object.entries(value)) {
+    const normalizedName = camelCaseName(name)
     if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) continue
     if ('light' in entry && 'dark' in entry) {
-      tree[name] = { light: entry.light, dark: entry.dark }
+      tree[normalizedName] = { light: entry.light, dark: entry.dark }
       continue
     }
-    tree[name] = semanticColorsToKotlinTree(entry as Record<string, any>)
+    tree[normalizedName] = semanticColorsToKotlinTree(entry as Record<string, any>)
   }
 
   return tree
+}
+
+function hasColorTokenPath(tree: KotlinColorNode, pathParts: string[]): boolean {
+  let current: KotlinColorNode | ColorToken | undefined = tree
+  for (const part of pathParts) {
+    if (!current || isColorToken(current)) {
+      return false
+    }
+    current = current[part]
+  }
+  return current !== undefined
 }
 
 function buildKotlinColorTree(tokens: SemanticTokens, theme: ThemeModes): KotlinColorNode {
@@ -452,8 +464,10 @@ function buildKotlinColorTree(tokens: SemanticTokens, theme: ThemeModes): Kotlin
     mergeKotlinColorTrees(tree, overlayTree)
   }
 
-  // The drift report is authoritative for this missing Copper token until the theme JSON carries it.
-  upsertColorToken(tree, ['surface', 'scrimSoft'], 'rgba(34,24,16,0.18)', 'rgba(10,6,3,0.28)')
+  // The drift report is authoritative for this missing Copper token until the semantic source carries it.
+  if (!hasColorTokenPath(tree, ['surface', 'scrimSoft'])) {
+    upsertColorToken(tree, ['surface', 'scrimSoft'], 'rgba(34,24,16,0.18)', 'rgba(10,6,3,0.28)')
+  }
 
   return tree
 }

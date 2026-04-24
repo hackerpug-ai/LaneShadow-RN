@@ -21,7 +21,6 @@ object LaneShadowTheme {
       val scrim = Color(0.133f, 0.094f, 0.063f, 0.35f)
       val scrimSoft = Color(0.133f, 0.094f, 0.063f, 0.18f)
       val map = Color(0xFFFDFBF8)
-      val scrimSoft = Color(0.133f, 0.094f, 0.063f, 0.18f)
       object dark {
         val primary = Color(0xFF221810)
         val card = Color(0xFF2D2218)
@@ -31,7 +30,6 @@ object LaneShadowTheme {
         val scrim = Color(0.039f, 0.024f, 0.012f, 0.50f)
         val scrimSoft = Color(0.039f, 0.024f, 0.012f, 0.28f)
         val map = Color(0xFF2D2218)
-        val scrimSoft = Color(0.039f, 0.024f, 0.012f, 0.28f)
       }
     }
     object Content {
