@@ -49,7 +49,7 @@ final class LSPillTests: XCTestCase {
         view?.layoutIfNeeded()
 
         // Verify theme tokens
-        XCTAssertEqual(expectedRadius, 999, "Corner radius should use theme.radius.full (999)")
+        XCTAssertEqual(expectedRadius, 9999, "Corner radius should use theme.radius.full (9999)")
     }
 
     // MARK: - AC-2: LSPill renders sm and lg sizes at exact token heights

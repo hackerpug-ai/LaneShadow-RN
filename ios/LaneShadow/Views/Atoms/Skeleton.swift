@@ -30,10 +30,13 @@ struct LSSkeleton: View {
 }
 
 #Preview {
+    let previewSmallRadius = Theme.shared.radius.sm
+    let previewLargeRadius = Theme.shared.radius.xl
+
     VStack(spacing: 16) {
         LSSkeleton(width: 200, height: 20)
-        LSSkeleton(width: 150, height: 16, cornerRadius: 4)
-        LSSkeleton(width: 100, height: 100, cornerRadius: 12)
+        LSSkeleton(width: 150, height: 16, cornerRadius: previewSmallRadius)
+        LSSkeleton(width: 100, height: 100, cornerRadius: previewLargeRadius)
     }
     .padding()
 }
