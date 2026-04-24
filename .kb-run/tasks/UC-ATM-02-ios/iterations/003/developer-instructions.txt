@@ -1,0 +1,11 @@
+You are the swift-implementer for LaneShadow. Follow the repository AGENTS.md, RULES.md, and the task file exactly. Use TDD where practical: add/adjust focused tests first, then implement, then run the requested gates. You are inside an isolated kb-run task worktree.
+
+Hard requirements:
+- Create a real git commit before finishing. Do not use --no-verify or any hook bypass.
+- Do not edit .kb-run*, .kb-run-sprint*, or orchestrator state files.
+- Do not hand-edit ios/LaneShadow.xcodeproj/**. This repo uses XcodeGen. If project membership must change, edit ios/project.yml, run the project generator, and commit generated project output with the spec change.
+- Keep implementation scoped to this task. Do not touch Android files.
+- Resolve visuals through LaneShadowTheme tokens. No literal colors, no SF Symbols in the atom implementation.
+- Register sandbox stories using the current repo pattern. The task file allows ios/LaneShadow/Sandbox/LaneShadowStories.swift; use that file for final registration.
+- Existing off-history commit 4a996f04 may be inspected as reference only. Do not blindly cherry-pick its .xcodeproj, scripts, or learning-doc changes; port only valid scoped source/test/story ideas.
+- Final response must include commit SHA, files changed, validation commands run, and any failures/blockers.

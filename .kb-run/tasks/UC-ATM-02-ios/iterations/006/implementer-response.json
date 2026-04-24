@@ -1,0 +1,13 @@
+Commit `4f07ed7a79b4c45c64b18b8f05610e1907eba474` remains the final commit, and the worktree is now clean.
+
+Files changed: `ios/LaneShadow/Views/Atoms/LSButton.swift`, `ios/LaneShadow/Views/Atoms/LSIcon.swift`, `ios/LaneShadowTests/Atoms/LSButtonTests.swift`.
+
+`LSButton` now sends every supported button icon through `LSIcon`. The old `.plus`/`.sparkle` custom `Canvas` code is gone, the hidden fallback is gone, and `LSIcon` got a minimal resolved-color override so the button can still apply its token-resolved foreground color directly without a broader icon refactor.
+
+Validation:
+- `swiftformat --lint ios/LaneShadow/Views/Atoms/LSButton.swift ios/LaneShadow/Views/Atoms/LSIcon.swift ios/LaneShadowTests/Atoms/LSButtonTests.swift` — pass
+- `cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests` — pass
+- `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO SWIFT_COMPILATION_MODE=incremental build` — pass
+- Task grep gates for no literal colors / no SF Symbols / story registration — pass
+
+The remaining dirty file was only `.kb-run-sprint-codex/.state.json.sha256`; I restored it so the repo is clean.

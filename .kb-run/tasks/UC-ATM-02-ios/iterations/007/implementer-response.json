@@ -1,0 +1,28 @@
+Commit `fb918572b0a267b42424aefaeaf904d8df88e09d` is in.
+
+Files changed:
+- `ios/LaneShadow/Views/Atoms/LSButton.swift`
+- `ios/LaneShadow/Views/Atoms/LSButtonStyle.swift`
+- `ios/LaneShadow/Views/Atoms/LSIcon.swift`
+- `ios/LaneShadow/Sandbox/Stories/LSButtonStories.swift`
+- `ios/LaneShadowTests/Atoms/LSButtonTests.swift`
+
+Behavior changes:
+- Hover is now explicit as `LSButtonInteractionState.hover`. `LSButton` tracks pointer hover with `.onHover` and passes `isHovered` into `LSButtonStyle`, so Catalyst/macOS pointer environments resolve a real hover state.
+- Focus is now `LSButtonInteractionState.focus` with a dedicated 3pt outer ring (`focusRing` + `focusRingWidth`) instead of reusing the generic border/ring path. The base border remains unchanged and the ring color is variant-specific.
+- Disabled opacity is token-driven for every variant through `theme.opacity.disabled`, in addition to disabled foreground/background tokens.
+- `LSIcon` still renders button icons, but the override was narrowed: the public initializer no longer exposes `resolvedColorOverride`; the override path is now internal-only and used by button code.
+
+Validation:
+- `swiftformat --lint ios/LaneShadow/Views/Atoms/LSButton.swift ios/LaneShadow/Views/Atoms/LSButtonStyle.swift ios/LaneShadow/Views/Atoms/LSIcon.swift ios/LaneShadow/Sandbox/Stories/LSButtonStories.swift ios/LaneShadowTests/Atoms/LSButtonTests.swift` — PASS
+- `cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests` — PASS
+- `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO SWIFT_COMPILATION_MODE=incremental build` — PASS
+- `for v in primary secondary ghost accept destructive outline; do grep -q "atoms.button.$v" ios/LaneShadow/Sandbox/Stories/LSButtonStories.swift || exit 1; done && grep -q 'LSButtonStories' ios/LaneShadow/Sandbox/LaneShadowStories.swift` — PASS
+- Negative color grep against `LSButton.swift` — PASS
+- Negative `Image(systemName:)` grep against `LSButton.swift` — PASS
+
+Selector correction used:
+- Invalid task selector: `-only-testing:LaneShadowTests/Atoms/LSButtonTests`
+- Valid selector used: `-only-testing:LaneShadowTests/LSButtonTests`
+
+Remaining blocker: none. The only dirty file left in the worktree is the orchestrator-owned `.kb-run-sprint-codex/.state.json.sha256`, which I did not touch.

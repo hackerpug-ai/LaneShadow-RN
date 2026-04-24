@@ -1,0 +1,14 @@
+Commit SHA: `17a51ddb2d6982db66a124a2b2f064451eb70fde`.
+
+Implemented `LSScrim` on iOS in [LSScrim.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-09-ios/ios/LaneShadow/Views/Atoms/LSScrim.swift), added lane-focused XCTest coverage in [LSScrimTests.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-09-ios/ios/LaneShadowTests/Atoms/LSScrimTests.swift), registered the three required sandbox stories in [LSScrimStories.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-09-ios/ios/LaneShadow/Sandbox/Stories/LSScrimStories.swift), wired them into [LaneShadowStories.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-09-ios/ios/LaneShadow/Sandbox/LaneShadowStories.swift), and reconciled current XcodeGen membership in [project.yml](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-09-ios/ios/project.yml) plus generated [project.pbxproj](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-09-ios/ios/LaneShadow.xcodeproj/project.pbxproj).
+
+Validations run:
+- `cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSScrimTests`
+- `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO SWIFT_COMPILATION_MODE=incremental build`
+- `lefthook run pre-commit` with `swiftformat`, `ios-project-generated`, and `ios-typecheck` passing
+- `swiftformat --lint` on the touched lane files
+- grep gates for story IDs and no forbidden `Color` literals in `LSScrim.swift`
+
+Residual risks:
+- The current generated Swift theme does not expose a dedicated `opacity.scrim` accessor, so the default path uses the existing tokenized scrim color and override alpha is applied explicitly; this is tested, but should be revisited if the theme generator adds first-class scrim opacity tokens.
+- I did not do manual sandbox visual QA in the simulator beyond build/test coverage.

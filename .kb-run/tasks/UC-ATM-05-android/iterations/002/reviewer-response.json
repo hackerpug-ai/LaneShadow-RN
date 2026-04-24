@@ -1,0 +1,59 @@
+{
+  "verdict": "APPROVED",
+  "confidence": "HIGH",
+  "tasks": [
+    {
+      "id": "UC-ATM-05-android",
+      "verdict": "APPROVED",
+      "requirements": [
+        {
+          "id": "AC-1",
+          "satisfied": true,
+          "evidence": "LSCard now resolves its fill from the active theme values and has dark-theme regression coverage."
+        },
+        {
+          "id": "AC-2",
+          "satisfied": true,
+          "evidence": "LSPanel now resolves its fill from the active theme values and has dark-theme regression coverage."
+        },
+        {
+          "id": "AC-3",
+          "satisfied": true,
+          "evidence": "LSGlassPanel now supports a real backdrop-aware blur path through Haze when a backdrop source is provided, while retaining the API-aware fallback path."
+        },
+        {
+          "id": "AC-4",
+          "satisfied": true,
+          "evidence": "The callout stripe renders inside the clipped glass panel bounds and retains the required 3.dp width."
+        },
+        {
+          "id": "AC-5",
+          "satisfied": true,
+          "evidence": "Signal and warning callout accents resolve from canonical runtime theme values."
+        },
+        {
+          "id": "AC-6",
+          "satisfied": true,
+          "evidence": "The required surface stories are registered, and the sandbox story frame provides a real backdrop source for the glass variants."
+        },
+        {
+          "id": "AC-7",
+          "satisfied": true,
+          "evidence": "The compatibility fallback remains in place and the connected instrumentation suite passed."
+        },
+        {
+          "id": "AC-8",
+          "satisfied": true,
+          "evidence": "No forbidden literal color/icon/font usage remains in the surface atom files."
+        },
+        {
+          "id": "AC-9",
+          "satisfied": true,
+          "evidence": "Release assemble passed and the APK inspection gate found zero com.nativesandbox entries."
+        }
+      ]
+    }
+  ],
+  "findings": [],
+  "summary": "Approved. The Android surface trio now uses runtime theme colors, the GlassPanel callout stripe stays inside the container bounds, and the chrome variant has a real backdrop-blur path backed by the sandbox and instrumentation coverage."
+}

@@ -1,0 +1,35 @@
+{
+  "task_id": "UC-ATM-03-android",
+  "files_changed": [
+    "android/app/src/main/java/com/laneshadow/ui/atoms/InputState.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/LSTextField.kt",
+    "android/app/src/main/java/com/laneshadow/ui/atoms/LSTextArea.kt",
+    "android/app/src/debug/java/com/laneshadow/sandbox/stories/LSInputStories.kt",
+    "android/app/src/debug/java/com/laneshadow/sandbox/stories/AtomsStories.kt",
+    "android/app/src/test/java/com/laneshadow/ui/atoms/LSTextFieldTest.kt",
+    "android/app/src/test/java/com/laneshadow/ui/atoms/LSTextAreaTest.kt",
+    "android/app/src/androidTest/java/com/laneshadow/ui/atoms/LSTextFieldInstrumentationTest.kt",
+    "android/app/src/androidTest/java/com/laneshadow/ui/atoms/LSTextAreaInstrumentationTest.kt"
+  ],
+  "verification_commands": [
+    "source scripts/agent-worktree-env.sh && cd android && ./gradlew :app:testDebugUnitTest --tests \"com.laneshadow.ui.atoms.LSTextFieldTest\" --tests \"com.laneshadow.ui.atoms.LSTextAreaTest\"",
+    "source scripts/agent-worktree-env.sh && cd android && ./gradlew :app:compileDebugAndroidTestKotlin",
+    "emulator @Pixel_7_API_34 -no-snapshot -no-window -no-boot-anim -port 5554",
+    "adb -s emulator-5554 wait-for-device shell 'while [[ \"$(getprop sys.boot_completed)\" != \"1\" ]]; do sleep 1; done; echo booted'",
+    "source scripts/agent-worktree-env.sh && cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.ui.atoms.LSTextFieldInstrumentationTest,com.laneshadow.ui.atoms.LSTextAreaInstrumentationTest",
+    "source scripts/agent-worktree-env.sh && cd android && ./gradlew :app:compileDebugKotlin",
+    "for s in default focused error disabled; do grep -q \"atoms.textfield.$s\" android/app/src/debug/java/com/laneshadow/sandbox/stories/LSInputStories.kt || exit 1; grep -q \"atoms.textarea.$s\" android/app/src/debug/java/com/laneshadow/sandbox/stories/LSInputStories.kt || exit 1; done",
+    "! grep -REn 'Color\\(0x|androidx\\.compose\\.material\\.icons|Icons\\.(Filled|Outlined)|FontFamily\\.(Serif|SansSerif|Monospace|Default)' android/app/src/main/java/com/laneshadow/ui/atoms/LSTextField.kt android/app/src/main/java/com/laneshadow/ui/atoms/LSTextArea.kt",
+    "source scripts/agent-worktree-env.sh && cd android && ./gradlew :app:assembleRelease",
+    "[ \"$(unzip -l android/app/build/outputs/apk/release/app-release-unsigned.apk | grep -c com.nativesandbox)\" = \"0\" ]",
+    "source scripts/agent-worktree-env.sh && cd android && ./gradlew tasks --all | rg -i detekt"
+  ],
+  "red_phase_commands": [
+    "source scripts/agent-worktree-env.sh && cd android && ./gradlew :app:testDebugUnitTest --tests \"com.laneshadow.ui.atoms.LSTextFieldTest.default_state_resolves_border_radius_padding_tokens\"",
+    "source scripts/agent-worktree-env.sh && cd android && ./gradlew :app:compileDebugAndroidTestKotlin"
+  ],
+  "notes": [
+    "Documented verification drift: the repo has no Gradle detekt task, confirmed by `./gradlew tasks --all | rg -i detekt` returning no matches.",
+    "Documented release-path drift: the release build emits `android/app/build/outputs/apk/release/app-release-unsigned.apk` rather than `app-release.apk`."
+  ]
+}

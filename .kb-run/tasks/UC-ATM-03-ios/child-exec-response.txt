@@ -1,0 +1,30 @@
+Commit `c6df26b99bb8e60036524c17bb3bc35b649cf72a` is in place.
+
+I finished UC-ATM-03-ios by replacing the salvaged input atoms with buildable SwiftUI implementations that match the current theme API, adding the missing `LSInputStories` registration and Xcode membership through `ios/project.yml` plus the generated `project.pbxproj`, and replacing the broken salvage tests with valid XCTest coverage for the token/state logic.
+
+**Validations**
+- `bash scripts/ios/generate-project.sh`
+- `swiftformat ios/LaneShadow ios/LaneShadowTests`
+- `cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSTextFieldTests -only-testing:LaneShadowTests/LSTextAreaTests`
+- `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build`
+- `swiftformat --lint ios/LaneShadow ios/LaneShadowTests`
+- Story/grep gates for all required `atoms.textfield.*` and `atoms.textarea.*` ids
+- Banned-pattern grep for literal colors / `Image(systemName:)` in the new atom files
+- `pnpm type-check:native` after installing workspace deps and generating local Convex bindings with `CONVEX_DEPLOYMENT=dev:quirky-panther-164 npx convex codegen`
+- Pre-commit hooks passed on the successful commit
+
+**Remaining Risks**
+- The new tests are logic/source/token focused, not UI snapshot or end-to-end interaction tests.
+- Error helper text is still constrained by the current `LSText` API, which doesn’t expose a dedicated error color variant.
+- The worktree still has unrelated uncommitted molecule changes and `.kb-run-sprint-codex/.state.json.sha256`; I left those untouched.
+
+**Changed Files**
+- `ios/project.yml`
+- `ios/LaneShadow.xcodeproj/project.pbxproj`
+- `ios/LaneShadow/Sandbox/LaneShadowStories.swift`
+- `ios/LaneShadow/Sandbox/Stories/LSInputStories.swift`
+- `ios/LaneShadow/Views/Atoms/InputState.swift`
+- `ios/LaneShadow/Views/Atoms/LSTextArea.swift`
+- `ios/LaneShadow/Views/Atoms/LSTextField.swift`
+- `ios/LaneShadowTests/Atoms/LSTextAreaTests.swift`
+- `ios/LaneShadowTests/Atoms/LSTextFieldTests.swift`

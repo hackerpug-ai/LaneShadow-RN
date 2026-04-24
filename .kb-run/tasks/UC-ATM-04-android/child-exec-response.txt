@@ -1,0 +1,29 @@
+**Commit**
+
+`45863637e0840823eeadcef6366fcf6b7a11dd1d`  
+Commit message: `Add Android display atoms`
+
+**Files Changed**
+
+- Added Android display atoms and enums in [`android/app/src/main/java/com/laneshadow/ui/atoms/LSAvatar.kt`](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-04-android/android/app/src/main/java/com/laneshadow/ui/atoms/LSAvatar.kt), [`LSDivider.kt`](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-04-android/android/app/src/main/java/com/laneshadow/ui/atoms/LSDivider.kt), [`LSSpinner.kt`](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-04-android/android/app/src/main/java/com/laneshadow/ui/atoms/LSSpinner.kt), plus `AvatarSize.kt`, `DividerOrientation.kt`, and `SpinnerSize.kt`.
+- Added sandbox story coverage in [`android/app/src/debug/java/com/laneshadow/sandbox/stories/LSDisplayStories.kt`](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-04-android/android/app/src/debug/java/com/laneshadow/sandbox/stories/LSDisplayStories.kt) and registered it from `AtomsStories.kt`.
+- Extended the Kotlin theme wrapper in [`tokens/platforms/kotlin/src/main/kotlin/com/laneshadow/theme/LaneShadowTheme.kt`](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-ATM-04-android/tokens/platforms/kotlin/src/main/kotlin/com/laneshadow/theme/LaneShadowTheme.kt) to expose avatar sizing values needed by the new atom.
+- Added focused lane tests in `LSAvatarTest.kt`, `LSDividerTest.kt`, and `LSSpinnerTest.kt`.
+
+**Validation Run**
+
+- Passed: `pnpm tokens:validate`
+- Passed: `./gradlew :app:compileDebugKotlin --no-daemon -Dkotlin.compiler.execution.strategy=in-process --max-workers=1`
+- Passed: `./gradlew :app:assembleRelease --no-daemon -Dkotlin.compiler.execution.strategy=in-process --max-workers=1`
+- Passed: story ID presence grep for required sandbox entries
+- Passed: forbidden-pattern grep on the new atom files
+- Passed: release APK symbol check for `com.nativesandbox` leakage
+
+- Not clean at repo baseline: `./gradlew :app:lintDebug` fails in unrelated existing files including `android/app/src/main/java/com/laneshadow/models/WifiValidator.kt` and `android/app/src/main/java/com/laneshadow/sandbox/SandboxLaunchRequest.kt`
+- Not runnable at repo baseline: `:app:testDebugUnitTest` is already broken by unrelated existing unit-test compilation failures, so the new lane tests were added but could not be executed through Gradle
+
+**Residual Risks**
+
+- `LSAvatar` uses token-aligned initials text styling directly instead of delegating through `LSText`; behavior is consistent, but that package-level symbol resolution issue should be cleaned up separately.
+- Avatar sizing had to be backfilled in the Kotlin theme wrapper because the generated token layer does not currently expose the avatar sizing contract claimed by the task markdown.
+- There is still one unrelated dirty file in the worktree: `.kb-run-sprint-codex/.state.json.sha256`, left uncommitted on purpose.

@@ -1,0 +1,23 @@
+Commit: `70587687a67b0deda009ba567b040a9d6414b551`
+
+Files changed in the commit:
+- `.spec/codex-remediation-handoff-20260423.md` deleted
+- `.spec/prds/v2/tasks/sprint-02-atoms-foundation-primitives/UC-ATM-02-ios-button-atom-all-variants-states-ios-swiftui.md` restored to `main`
+- `ios/LaneShadow/Views/Atoms/LSButton.swift`
+- `ios/LaneShadow/Views/Atoms/LSButtonStyle.swift`
+- `ios/LaneShadowTests/Atoms/LSButtonTests.swift`
+- `lefthook.yml` restored to `main`
+- `scripts/ios/xcodebuild-worktree.sh` deleted
+
+Validation run:
+- `swiftformat --lint ios/LaneShadow/` -> fail, due pre-existing unrelated formatting issues in out-of-scope molecule files on this branch
+- `swiftformat --lint ios/LaneShadow/Views/Atoms/LSButton.swift ios/LaneShadow/Views/Atoms/LSButtonStyle.swift ios/LaneShadow/Sandbox/Stories/LSButtonStories.swift ios/LaneShadow/Sandbox/LaneShadowStories.swift ios/LaneShadowTests/Atoms/LSButtonTests.swift` -> pass
+- `cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Atoms/LSButtonTests` -> pass, but no-op selector, 0 tests executed
+- `cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSButtonTests` -> pass, 7 tests executed
+- `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO SWIFT_COMPILATION_MODE=incremental build` -> pass
+- grep gates for story registration, no literal colors in `LSButton.swift`, and no `Image(systemName:)` in `LSButton.swift` -> pass
+- `git commit` with hooks enabled -> pass
+
+`ios/project.yml` / generated project updates were retained in the branch because they are still required: excluding legacy `ios/LaneShadow/Views/Atoms/Button.swift` prevents duplicate `LSButton` membership, and explicit `LSButtonStories.swift` inclusion is needed in the current XcodeGen layout. No new changes to those files were made in this remediation commit.
+
+The generated runner checksum file was restored after the hook warning. The worktree is now clean.

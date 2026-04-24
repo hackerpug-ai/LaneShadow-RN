@@ -1,0 +1,108 @@
+{
+  "status": "completed",
+  "task_id": "UC-ATM-05-ios",
+  "blocking_issues": [],
+  "unblock_options": [],
+  "failure_classification": "none",
+  "failed_commands": [],
+  "evidence_path": ".kb-run/tasks/UC-ATM-05-ios/iterations/001/evidence.md",
+  "evidence_manifest_path": ".kb-run/tasks/UC-ATM-05-ios/iterations/001/evidence-manifest.json",
+  "summary": "Implemented LSCard, LSPanel, and LSGlassPanel plus AccentColor, added 7 surface stories and focused atom tests, and validated the task on host with targeted XCTest, build, story/boundary greps, and scoped SwiftFormat lint.",
+  "files_changed": [
+    "ios/LaneShadow/Views/Atoms/AccentColor.swift",
+    "ios/LaneShadow/Views/Atoms/LSCard.swift",
+    "ios/LaneShadow/Views/Atoms/LSPanel.swift",
+    "ios/LaneShadow/Views/Atoms/LSGlassPanel.swift",
+    "ios/LaneShadow/Sandbox/LaneShadowStories.swift",
+    "ios/LaneShadowTests/Atoms/LSCardTests.swift",
+    "ios/LaneShadowTests/Atoms/LSPanelTests.swift",
+    "ios/LaneShadowTests/Atoms/LSGlassPanelTests.swift",
+    "ios/LaneShadowTests/Atoms/LSGlassPanelTypeSafetyTests.swift"
+  ],
+  "verification_commands": [
+    "source scripts/agent-worktree-env.sh && cd ios && xcodebuild test -scheme LaneShadow -destination 'id=20EC6FD5-4630-4DEF-83F9-1D36093F704E' -only-testing:LaneShadowTests/LSCardTests -only-testing:LaneShadowTests/LSPanelTests -only-testing:LaneShadowTests/LSGlassPanelTests -only-testing:LaneShadowTests/LSGlassPanelTypeSafetyTests",
+    "source scripts/agent-worktree-env.sh && cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build",
+    "for s in atoms.card.default atoms.card.with-content atoms.panel.default atoms.panel.nested atoms.glasspanel.chrome atoms.glasspanel.callout-signal atoms.glasspanel.callout-warning; do grep -q \"$s\" ios/LaneShadow/Sandbox/LaneShadowStories.swift || exit 1; done && grep -q 'LSSurfaceStories' ios/LaneShadow/Sandbox/LaneShadowStories.swift && ! grep -REn 'Color\\(|Color\\.(red|blue|green|black|white|gray|orange|yellow|purple|pink)|#[0-9a-fA-F]{6}' ios/LaneShadow/Views/Atoms/LSCard.swift ios/LaneShadow/Views/Atoms/LSPanel.swift ios/LaneShadow/Views/Atoms/LSGlassPanel.swift",
+    "source scripts/agent-worktree-env.sh && swiftformat --lint ios/LaneShadow/Views/Atoms/AccentColor.swift ios/LaneShadow/Views/Atoms/LSCard.swift ios/LaneShadow/Views/Atoms/LSPanel.swift ios/LaneShadow/Views/Atoms/LSGlassPanel.swift ios/LaneShadow/Sandbox/LaneShadowStories.swift ios/LaneShadowTests/Atoms/LSCardTests.swift ios/LaneShadowTests/Atoms/LSPanelTests.swift ios/LaneShadowTests/Atoms/LSGlassPanelTests.swift ios/LaneShadowTests/Atoms/LSGlassPanelTypeSafetyTests.swift"
+  ],
+  "acceptance_criteria_evidence": [
+    {
+      "id": "AC-1",
+      "status": "met",
+      "evidence": [
+        "LSCardTests passed on host using the corrected selector -only-testing:LaneShadowTests/LSCardTests.",
+        "Evidence covers surface.card token resolution, radius.lg, elevation.2, and spacing.4 padding."
+      ]
+    },
+    {
+      "id": "AC-2",
+      "status": "met",
+      "evidence": [
+        "LSPanelTests passed on host using the corrected selector -only-testing:LaneShadowTests/LSPanelTests.",
+        "Evidence covers surface.primary token resolution, radius.md, level0 shadow values, and spacing.3 padding."
+      ]
+    },
+    {
+      "id": "AC-3",
+      "status": "met",
+      "evidence": [
+        "LSGlassPanelTests passed on host and assert the .chrome variant uses .ultraThinMaterial.",
+        "Evidence also covers radius.xl and overlay elevation token mapping."
+      ]
+    },
+    {
+      "id": "AC-4",
+      "status": "met",
+      "evidence": [
+        "LSGlassPanelTests passed on host and assert the .callout(.signal) variant renders the 3pt leading stripe.",
+        "AccentColor.signal maps to color.signal.default."
+      ]
+    },
+    {
+      "id": "AC-5",
+      "status": "met",
+      "evidence": [
+        "LSGlassPanelTests passed on host and assert the .callout(.warning) variant renders the 3pt leading stripe.",
+        "AccentColor.warning maps to color.status.warning.default."
+      ]
+    },
+    {
+      "id": "AC-6",
+      "status": "met",
+      "evidence": [
+        "LSCardTests passed on host and verify the .spacing5 padding override.",
+        "All padding resolution flows through the shared Spacing enum helpers."
+      ]
+    },
+    {
+      "id": "AC-7",
+      "status": "met",
+      "evidence": [
+        "LSGlassPanelTypeSafetyTests passed on host and assert the API uses AccentColor rather than raw Color.",
+        "Source inspection in the test confirms no raw Color accent parameter remains."
+      ]
+    },
+    {
+      "id": "AC-8",
+      "status": "met",
+      "evidence": [
+        "The grep gate passed for all 7 required story ids in LaneShadowStories.swift.",
+        "LaneShadowStories.swift contains and aggregates LSSurfaceStories for the current sandbox target."
+      ]
+    },
+    {
+      "id": "AC-9",
+      "status": "met",
+      "evidence": [
+        "The no-literal-Color grep gate passed across LSCard.swift, LSPanel.swift, and LSGlassPanel.swift.",
+        "Scoped SwiftFormat lint passed on all task files."
+      ]
+    }
+  ],
+  "reviewer_considerations": [
+    "LaneShadowStories.swift already acts as the active sandbox aggregator, so the surface story definitions and registration live there in this branch.",
+    "The task doc's original XCTest selectors were invalid; host validation used the corrected selectors LaneShadowTests/LSCardTests, LaneShadowTests/LSPanelTests, LaneShadowTests/LSGlassPanelTests, and LaneShadowTests/LSGlassPanelTypeSafetyTests.",
+    "An intermediate simulator run failed with a busy/preflight launch error, but the final host run on booted simulator UDID 20EC6FD5-4630-4DEF-83F9-1D36093F704E passed."
+  ],
+  "notes": "The public theme API does not currently expose a direct surface.glass accessor, so glass token fallback is isolated in AccentColor.swift while the three atom files still satisfy the no-literal-Color boundary."
+}
