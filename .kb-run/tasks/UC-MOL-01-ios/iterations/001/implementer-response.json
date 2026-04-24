@@ -1,0 +1,45 @@
+## Implementation Complete: UC-MOL-01-ios
+
+**Base SHA**: `fbe49fe479d55d6eee99efa6264bea5ec7bce515`  
+**Commit SHA**: `30a2fa2c1c352dae8029da8c89240a247480e158`
+
+**Files Modified**
+- [ios/LaneShadow/Views/Molecules/LSContentCard.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/LaneShadow/Views/Molecules/LSContentCard.swift)
+- [ios/LaneShadow/Views/Molecules/LSListRow.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/LaneShadow/Views/Molecules/LSListRow.swift)
+- [ios/LaneShadowTests/Molecules/LSContentCardTests.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/LaneShadowTests/Molecules/LSContentCardTests.swift)
+- [ios/LaneShadowTests/Molecules/LSListRowTests.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/LaneShadowTests/Molecules/LSListRowTests.swift)
+- [ios/LaneShadow/Sandbox/Stories/Molecules/LSContentCardStory.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/LaneShadow/Sandbox/Stories/Molecules/LSContentCardStory.swift)
+- [ios/LaneShadow/Sandbox/Stories/Molecules/LSListRowStory.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/LaneShadow/Sandbox/Stories/Molecules/LSListRowStory.swift)
+- [ios/LaneShadow/Sandbox/Stories/MoleculesStories.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/LaneShadow/Sandbox/Stories/MoleculesStories.swift)
+- [ios/project.yml](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/project.yml)
+- [ios/LaneShadow.xcodeproj/project.pbxproj](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/LaneShadow.xcodeproj/project.pbxproj)
+- [ai-specs/UC-MOL-01/ios-learnings.md](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ai-specs/UC-MOL-01/ios-learnings.md)
+
+**Validation**
+- `swiftformat --lint ...LSContentCard.swift ...LSListRowStory.swift` → PASS
+- `cd ios && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` → PASS
+- `cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` → PASS
+- `grep -n 'Color(red:\|Color(hex:\|Font.system\|foregroundColor(' ios/LaneShadow/Views/Molecules/LSContentCard.swift ios/LaneShadow/Views/Molecules/LSListRow.swift | wc -l | xargs test 0 -eq` → PASS
+- New file membership grep in `project.pbxproj` for all 6 new Swift files → PASS
+- Visual verification screenshot captured at `.artifacts/uc-mol-01-ios.png` during run (not committed)
+
+**TDD Summary (RED → GREEN)**
+| AC | Test File | Test Function | RED Evidence |
+|----|-----------|---------------|--------------|
+| AC-1/2/5 (ContentCard tokens/footer/no forbidden APIs) | `LSContentCardTests.swift` | `test_default_render_routes_surface...`, `test_action_footer_renders...`, `test_no_forbidden...` | Initial `xcodebuild test` failed: `Cannot find 'LSContentCard' in scope` |
+| AC-3/4/5 (ListRow spacing/tap/no pressed/no forbidden APIs) | `LSListRowTests.swift` | `test_list_row_uses_touch_target...`, `test_interactive_ontap_fires...`, `test_noninteractive_row_has_no_pressed_highlight`, `test_no_forbidden...` | Initial `xcodebuild test` failed: `Cannot find 'LSListRow' in scope` |
+| AC-6 (10 stories registered) | `LSContentCardTests.swift`, `LSListRowTests.swift` | `test_content_card_stories_registered`, `test_list_row_stories_registered...` | Initial compile failed before stories existed |
+
+**Story Registration Summary**
+- `LSContentCardStory`: 4 stories
+  - `withImageHeader`, `titleOnly`, `titleSubtitleChips`, `withActions`
+- `LSListRowStory`: 6 stories
+  - `leadingIcon`, `leadingAvatar`, `withSubtitle`, `withToggle`, `withChevron`, `withTrailingButton`
+- Aggregated in `MoleculesStories.all` via `LSContentCardStory.all + LSListRowStory.all + ...`
+
+**Residual Risks**
+- Pre-existing dirty file remains untouched by this task: `.kb-run-sprint-codex/.state.json.sha256`.
+- Repo-wide `swiftlint` still reports unrelated existing warnings/errors outside this task scope.
+
+**Output File Note**
+- No explicit configured output-file path was present in environment variables for this run; report returned inline.

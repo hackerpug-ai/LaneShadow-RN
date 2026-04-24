@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<!-- route-card.html — LSRouteCard organism preview
+     LaneShadow V2 · Copper · Organism · UC-ORG-06
+     Authority: .spec/prds/v2/concepts/uc-org-06-route-card.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSRouteCard — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../../molecules/_atoms.css">
+<link rel="stylesheet" href="../_molecules.css">
+<style>
+/* Organism-local CSS — composes .ls-card (surface, border, elevation),
+   .ls-map-preview (via org-level wrapper since LSMap is a platform atom),
+   .mol-tag-pill / .ls-pill (for difficulty tags), .ls-icon (heartFill when saved).
+   Organism adds layout glue for the map preview slot + info row. */
+
+/* ═══════════════════════════════════════════════════════
+   org-route-card — full route card organism
+   Anatomy:
+     .ls-card (base)
+     └─ .org-route-card__map         (160pt preview slot with polyline + markers)
+     └─ .org-route-card__info        (title row + sub row + tags row)
+   ═══════════════════════════════════════════════════════ */
+
+/* Card override: remove inner padding so the map preview extends edge-to-edge.
+   Padding is re-applied inside __info. This is the organism modifier pattern. */
+.org-route-card {
+  padding: var(--space-0);
+  overflow: hidden;
+  max-width: 360px;
+}
+
+.org-route-card__map {
+  position: relative;
+  height: var(--space-12);                   /* 64pt × 2.5 ≈ 160pt via extended scale */
+  background: var(--surface-map);
+  overflow: hidden;
+}
+/* Extend to ~160pt via aspect-ratio trick — card is 360pt wide, so 2.25:1 = 160pt */
+.org-route-card__map {
+  aspect-ratio: 9 / 4;
+  height: auto;
+}
+.org-route-card__map::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--space-0) - var(--space-3));
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: var(--space-7) var(--space-7);
+  opacity: var(--opacity-overlay);
+}
+.org-route-card__map::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 60%, var(--surface-scrim) 100%);
+  opacity: var(--opacity-focus);
+  pointer-events: none;
+}
+.org-route-card__map-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Start + End annotations */
+.org-route-card__marker {
+  position: absolute;
+  z-index: 2;
+}
+.org-route-card__marker--start {
+  width: var(--space-4);
+  height: var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--signal-default);
+  border: var(--stroke-lg) solid var(--surface-card);
+}
+.org-route-card__marker--end {
+  width: var(--space-5);
+  height: var(--space-5);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  border: var(--stroke-lg) solid var(--signal-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.org-route-card__marker--end::after {
+  content: "";
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--signal-default);
+}
+/* Alt variant markers follow the polyline color */
+.org-route-card__marker--alt1 .org-route-card__marker--start,
+.org-route-card__marker--alt1.org-route-card__marker--start {
+  background: var(--route-alt1);
+}
+.org-route-card__marker--alt1 .org-route-card__marker--end,
+.org-route-card__marker--alt1.org-route-card__marker--end {
+  border-color: var(--route-alt1);
+}
+.org-route-card__marker--alt1.org-route-card__marker--end::after {
+  background: var(--route-alt1);
+}
+
+/* Info section below map */
+.org-route-card__info {
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.org-route-card__title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+.org-route-card__title {
+  flex: 1;
+  color: var(--content-primary);
+  min-width: 0;
+}
+.org-route-card__title--overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.org-route-card__saved-icon {
+  color: var(--signal-default);
+  flex-shrink: 0;
+}
+.org-route-card__saved-icon svg {
+  fill: currentColor;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+
+.org-route-card__sub {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--content-secondary);
+}
+.org-route-card__sub-sep {
+  width: var(--stroke-sm);
+  height: var(--space-3);
+  background: var(--border-default);
+}
+
+.org-route-card__tags {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Difficulty tint variants — organism-level modifiers on .ls-pill */
+.org-route-card__tag--easy {
+  border-color: var(--status-success);
+  background: var(--status-success-tint);
+  color: var(--status-success);
+}
+.org-route-card__tag--moderate {
+  border-color: var(--status-warning);
+  background: var(--status-warning-tint);
+  color: var(--status-warning);
+}
+.org-route-card__tag--hard {
+  border-color: var(--status-error);
+  background: var(--status-error-tint);
+  color: var(--status-error);
+}
+
+/* Missing-data placeholder */
+.org-route-card__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  color: var(--content-tertiary);
+  height: 100%;
+  text-align: center;
+}
+.org-route-card__placeholder svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-md);
+  opacity: var(--opacity-overlay);
+  width: var(--icon-xl);
+  height: var(--icon-xl);
+}
+.org-route-card__sub--missing { color: var(--content-tertiary); }
+
+.variant-cell {
+  align-items: stretch;
+  width: 100%;
+  max-width: 360px;
+}
+.variant-cell > .label {
+  align-self: center;
+  margin-top: var(--space-3);
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>org-route-card</em></h1>
+  <div class="subtitle">UC-ORG-06 · LSRouteCard · LaneShadow V2 Copper · Full route card with map preview + metrics + difficulty</div>
+</div>
+
+<!-- ─── Stories ─── -->
+<section class="section">
+  <div class="section-label">LSRouteCard · six compositions</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+
+        <!-- S.01 Default -->
+        <div class="variant-cell">
+          <div class="ls-card org-route-card">
+            <div class="org-route-card__map">
+              <svg class="org-route-card__map-svg" viewBox="0 0 360 160" fill="none" preserveAspectRatio="none">
+                <path d="M40 120 Q80 90 120 75 Q165 58 210 62 Q255 66 300 52" stroke="var(--route-best)" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="org-route-card__marker org-route-card__marker--start" style="bottom:calc(var(--space-9) - var(--space-4)); left: var(--space-9);"></span>
+              <span class="org-route-card__marker org-route-card__marker--end" style="bottom: var(--space-8); right: var(--space-10);"></span>
+            </div>
+            <div class="org-route-card__info">
+              <div class="org-route-card__title-row">
+                <span class="t-title-md org-route-card__title">The Skyline Spine</span>
+              </div>
+              <div class="org-route-card__sub">
+                <span class="t-instr-sm">47 mi</span>
+                <span class="org-route-card__sub-sep"></span>
+                <span class="t-instr-sm">1h 22m</span>
+              </div>
+              <div class="org-route-card__tags">
+                <span class="ls-pill pill-sm org-route-card__tag--moderate"><span class="t-label-sm">Moderate</span></span>
+                <span class="ls-pill pill-sm"><span class="t-label-sm">Paved</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.01 · Default</div>
+        </div>
+
+        <!-- S.02 Saved -->
+        <div class="variant-cell">
+          <div class="ls-card org-route-card">
+            <div class="org-route-card__map">
+              <svg class="org-route-card__map-svg" viewBox="0 0 360 160" fill="none" preserveAspectRatio="none">
+                <path d="M40 120 Q80 90 120 75 Q165 58 210 62 Q255 66 300 52" stroke="var(--route-best)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              </svg>
+              <span class="org-route-card__marker org-route-card__marker--start" style="bottom:calc(var(--space-9) - var(--space-4)); left: var(--space-9);"></span>
+              <span class="org-route-card__marker org-route-card__marker--end" style="bottom: var(--space-8); right: var(--space-10);"></span>
+            </div>
+            <div class="org-route-card__info">
+              <div class="org-route-card__title-row">
+                <span class="t-title-md org-route-card__title">The Skyline Spine</span>
+                <span class="org-route-card__saved-icon" aria-label="Saved">
+                  <svg viewBox="0 0 18 18"><path d="M5 2H13C13.6 2 14 2.4 14 3V16L9 13L4 16V3C4 2.4 4.4 2 5 2Z"/></svg>
+                </span>
+              </div>
+              <div class="org-route-card__sub">
+                <span class="t-instr-sm">47 mi</span>
+                <span class="org-route-card__sub-sep"></span>
+                <span class="t-instr-sm">1h 22m</span>
+              </div>
+              <div class="org-route-card__tags">
+                <span class="ls-pill pill-sm org-route-card__tag--moderate"><span class="t-label-sm">Moderate</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.02 · Saved (heart icon in title row)</div>
+        </div>
+
+        <!-- S.03 Alt Variant -->
+        <div class="variant-cell">
+          <div class="ls-card org-route-card">
+            <div class="org-route-card__map">
+              <svg class="org-route-card__map-svg" viewBox="0 0 360 160" fill="none" preserveAspectRatio="none">
+                <path d="M40 115 Q85 100 130 90 Q175 80 215 85 Q255 90 305 75" stroke="var(--route-alt1)" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="8 5"/>
+              </svg>
+              <span class="org-route-card__marker org-route-card__marker--start org-route-card__marker--alt1" style="bottom: var(--space-8); left: var(--space-9); background: var(--route-alt1);"></span>
+              <span class="org-route-card__marker org-route-card__marker--end org-route-card__marker--alt1" style="bottom: var(--space-6); right: var(--space-9); border-color: var(--route-alt1);"></span>
+            </div>
+            <div class="org-route-card__info">
+              <div class="org-route-card__title-row">
+                <span class="t-title-md org-route-card__title">Old La Honda Road</span>
+              </div>
+              <div class="org-route-card__sub">
+                <span class="t-instr-sm">38 mi</span>
+                <span class="org-route-card__sub-sep"></span>
+                <span class="t-instr-sm">1h 05m</span>
+              </div>
+              <div class="org-route-card__tags">
+                <span class="ls-pill pill-sm org-route-card__tag--easy"><span class="t-label-sm">Easy</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.03 · Alt variant (route-alt1)</div>
+        </div>
+
+        <!-- S.04 Long Title Overflow -->
+        <div class="variant-cell">
+          <div class="ls-card org-route-card">
+            <div class="org-route-card__map">
+              <svg class="org-route-card__map-svg" viewBox="0 0 360 160" fill="none" preserveAspectRatio="none">
+                <path d="M40 120 Q80 85 140 70 Q200 55 260 60 Q300 63 320 55" stroke="var(--route-best)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              </svg>
+              <span class="org-route-card__marker org-route-card__marker--start" style="bottom: var(--space-9); left: var(--space-9);"></span>
+              <span class="org-route-card__marker org-route-card__marker--end" style="bottom: var(--space-6); right: var(--space-8);"></span>
+            </div>
+            <div class="org-route-card__info">
+              <div class="org-route-card__title-row">
+                <span class="t-title-md org-route-card__title org-route-card__title--overflow">The Pacific Coast Highway Long Haul South from SF to Big Sur</span>
+              </div>
+              <div class="org-route-card__sub">
+                <span class="t-instr-sm">142 mi</span>
+                <span class="org-route-card__sub-sep"></span>
+                <span class="t-instr-sm">3h 45m</span>
+              </div>
+              <div class="org-route-card__tags">
+                <span class="ls-pill pill-sm org-route-card__tag--hard"><span class="t-label-sm">Challenging</span></span>
+                <span class="ls-pill pill-sm"><span class="t-label-sm">Scenic</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.04 · Long title (overflow ellipsis)</div>
+        </div>
+
+        <!-- S.05 Missing Optional Data -->
+        <div class="variant-cell">
+          <div class="ls-card org-route-card">
+            <div class="org-route-card__map">
+              <div class="org-route-card__placeholder">
+                <svg viewBox="0 0 24 24"><path d="M3 8L12 3L21 8V19L12 21L3 19V8Z"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="8" x2="21" y2="8"/></svg>
+                <span class="t-body-sm">Map preview unavailable</span>
+              </div>
+            </div>
+            <div class="org-route-card__info">
+              <div class="org-route-card__title-row">
+                <span class="t-title-md org-route-card__title">Unnamed Route</span>
+              </div>
+              <div class="org-route-card__sub org-route-card__sub--missing">
+                <span class="t-instr-sm">— mi</span>
+                <span class="org-route-card__sub-sep"></span>
+                <span class="t-instr-sm">—</span>
+              </div>
+              <div class="org-route-card__tags">
+                <span class="ls-pill pill-sm" style="color: var(--content-subtle);"><span class="t-label-sm">Unknown</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.05 · Missing optional data</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+
+        <div class="variant-cell">
+          <div class="ls-card org-route-card">
+            <div class="org-route-card__map">
+              <svg class="org-route-card__map-svg" viewBox="0 0 360 160" fill="none" preserveAspectRatio="none">
+                <path d="M40 120 Q80 90 120 75 Q165 58 210 62 Q255 66 300 52" stroke="var(--route-best)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              </svg>
+              <span class="org-route-card__marker org-route-card__marker--start" style="bottom: var(--space-8); left: var(--space-9);"></span>
+              <span class="org-route-card__marker org-route-card__marker--end" style="bottom: var(--space-7); right: var(--space-10);"></span>
+            </div>
+            <div class="org-route-card__info">
+              <div class="org-route-card__title-row">
+                <span class="t-title-md org-route-card__title">The Skyline Spine</span>
+                <span class="org-route-card__saved-icon" aria-label="Saved">
+                  <svg viewBox="0 0 18 18"><path d="M5 2H13C13.6 2 14 2.4 14 3V16L9 13L4 16V3C4 2.4 4.4 2 5 2Z"/></svg>
+                </span>
+              </div>
+              <div class="org-route-card__sub">
+                <span class="t-instr-sm">47 mi</span>
+                <span class="org-route-card__sub-sep"></span>
+                <span class="t-instr-sm">1h 22m</span>
+              </div>
+              <div class="org-route-card__tags">
+                <span class="ls-pill pill-sm org-route-card__tag--moderate"><span class="t-label-sm">Moderate</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.06 · Dark mode (saved)</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="ls-card org-route-card">
+            <div class="org-route-card__map">
+              <svg class="org-route-card__map-svg" viewBox="0 0 360 160" fill="none" preserveAspectRatio="none">
+                <path d="M40 115 Q85 100 130 90 Q175 80 215 85 Q255 90 305 75" stroke="var(--route-alt1)" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="8 5"/>
+              </svg>
+              <span class="org-route-card__marker org-route-card__marker--start" style="bottom: var(--space-8); left: var(--space-9); background: var(--route-alt1);"></span>
+              <span class="org-route-card__marker org-route-card__marker--end" style="bottom: var(--space-6); right: var(--space-9); border-color: var(--route-alt1);"></span>
+            </div>
+            <div class="org-route-card__info">
+              <div class="org-route-card__title-row">
+                <span class="t-title-md org-route-card__title">Old La Honda Road</span>
+              </div>
+              <div class="org-route-card__sub">
+                <span class="t-instr-sm">38 mi</span>
+                <span class="org-route-card__sub-sep"></span>
+                <span class="t-instr-sm">1h 05m</span>
+              </div>
+              <div class="org-route-card__tags">
+                <span class="ls-pill pill-sm org-route-card__tag--easy"><span class="t-label-sm">Easy</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.03 · Alt variant (dark)</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

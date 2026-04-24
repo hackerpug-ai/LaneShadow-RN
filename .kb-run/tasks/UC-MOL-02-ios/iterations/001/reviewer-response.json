@@ -1,0 +1,84 @@
+{
+  "verdict": "NEEDS_FIXES",
+  "confidence": "HIGH",
+  "tasks": [
+    {
+      "id": "UC-MOL-02-ios",
+      "verdict": "NEEDS_FIXES",
+      "requirements": [
+        {
+          "id": "AC-1",
+          "satisfied": false,
+          "evidence": "LSToolbar pins the row to `theme.control.minHeight` at ios/LaneShadow/Views/Molecules/LSToolbar.swift:76. The task/design contract requires `sizing.component.toolbarHeight`, which is 56 in tokens/semantic/dimensions.tokens.json.",
+          "remediation": "Expose and use the dedicated toolbar-height token for the rendered frame instead of `theme.control.minHeight`, then add a behavior test that asserts the resolved height is 56."
+        },
+        {
+          "id": "AC-2",
+          "satisfied": true,
+          "evidence": "`safeAreaInset(edge: .top, spacing: 0)` is present at ios/LaneShadow/Views/Molecules/LSToolbar.swift:58, and the forbidden hardcoded status-bar-height literals are absent from the file.",
+          "remediation": null
+        },
+        {
+          "id": "AC-3",
+          "satisfied": true,
+          "evidence": "Large-title mode renders `LSText(title, variant: .opinion.lg)` in its own row at ios/LaneShadow/Views/Molecules/LSNavHeader.swift:85-95.",
+          "remediation": null
+        },
+        {
+          "id": "AC-4",
+          "satisfied": true,
+          "evidence": "Default mode renders `LSText(title, variant: .ui.title.md)` inline in the toolbar row at ios/LaneShadow/Views/Molecules/LSNavHeader.swift:103-106, and there is no `NavigationView`/`NavigationStack` in the molecule source.",
+          "remediation": null
+        },
+        {
+          "id": "AC-5",
+          "satisfied": true,
+          "evidence": "Static grep over LSToolbar.swift and LSNavHeader.swift returned zero matches for `Color(red:)`, `Color(hex:)`, `Font.system`, and `foregroundColor(`. `swiftformat --lint` on the touched molecule/test files also passed.",
+          "remediation": null
+        },
+        {
+          "id": "AC-6",
+          "satisfied": true,
+          "evidence": "All 4 toolbar and 3 nav-header story IDs are present in ios/LaneShadow/Sandbox/Stories/Molecules/LSToolbarStory.swift and ios/LaneShadow/Sandbox/Stories/Molecules/LSNavHeaderStory.swift, and both story groups are aggregated in ios/LaneShadow/Sandbox/Stories/MoleculesStories.swift.",
+          "remediation": null
+        },
+        {
+          "id": "TC-7",
+          "satisfied": true,
+          "evidence": "`swiftformat --lint ios/LaneShadow/Views/Molecules/LSToolbar.swift ios/LaneShadow/Views/Molecules/LSNavHeader.swift ios/LaneShadowTests/Molecules/LSToolbarTests.swift ios/LaneShadowTests/Molecules/LSNavHeaderTests.swift` exited cleanly.",
+          "remediation": null
+        },
+        {
+          "id": "TC-8",
+          "satisfied": true,
+          "evidence": "Host validation evidence reports `cd ios && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` passed. Local replay in this sandbox was blocked by CoreSimulator/temp-file I/O restrictions, not by a source-level build failure.",
+          "remediation": null
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "severity": "HIGH",
+      "task_id": "UC-MOL-02-ios",
+      "location": "ios/LaneShadow/Views/Molecules/LSToolbar.swift:76; ios/LaneShadow/Views/Molecules/LSNavHeader.swift:116",
+      "evidence": "Both molecules render their chrome rows with `theme.control.minHeight`, which is the generic 48pt control token. The task contract and design reference require the dedicated toolbar height token (`sizing.component.toolbarHeight` = 56). This is a user-visible size regression, and the toolbar implementation directly violates AC-1.",
+      "fix": "Add a runtime path for the 56pt toolbar-height token and use it for both toolbar rows. Do not leave the token as a string constant; the rendered frame must resolve from the actual token value."
+    },
+    {
+      "severity": "HIGH",
+      "task_id": "UC-MOL-02-ios",
+      "location": "ios/LaneShadowTests/Molecules/LSToolbarTests.swift:13-22; ios/LaneShadowTests/Molecules/LSNavHeaderTests.swift:9-26",
+      "evidence": "The added tests are mostly source-string inspections and constant checks (`heightTokenPath`, `surfaceTokenPath`, `source.contains(...)`) rather than behavior assertions against rendered views. They missed the real regression above: the code advertises `sizing.component.toolbarHeight` but actually renders at `theme.control.minHeight`.",
+      "fix": "Replace source-text assertions with behavior tests that inspect rendered layout/token outcomes, including actual toolbar/header height and typography usage. Keep one AC-focused test per acceptance criterion, but make each test fail on real visual/token regressions."
+    },
+    {
+      "severity": "MEDIUM",
+      "task_id": "UC-MOL-02-ios",
+      "location": "ios/LaneShadow/Views/Molecules/LSNavHeader.swift:73,95,115",
+      "evidence": "The nav-header chrome uses compact spacing tokens (`theme.space.xs` and `theme.space.md`) where the design recipe specifies 16pt horizontal and bottom padding for the nav-header chrome. That means the large-title/header spacing does not match the documented molecule recipe even though the typography variant is correct.",
+      "fix": "Align nav-header chrome spacing with the design token recipe for this molecule, then add a layout-focused test or snapshot-style assertion that covers the large-title spacing contract."
+    }
+  ],
+  "summary": "Needs fixes. The implementation ships a real chrome-metric regression: both molecules render at the generic 48pt control height instead of the required 56pt toolbar token, and the new tests are too superficial to catch it. Static lint/forbidden-API gates passed; local xcodebuild replay was sandbox-blocked, so build/test status beyond that relies on the supplied host evidence."
+}

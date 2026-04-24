@@ -1,0 +1,84 @@
+{
+  "verdict": "NEEDS_FIXES",
+  "confidence": "HIGH",
+  "tasks": [
+    {
+      "id": "UC-MOL-05-ios",
+      "verdict": "NEEDS_FIXES",
+      "requirements": [
+        {
+          "id": "AC-1",
+          "satisfied": false,
+          "evidence": "ios/LaneShadow/Views/Molecules/LSTagPill.swift:42-58 applies the glass background and border to the inner HStack instead of the outer LSPill view. That means the content is tokenized, but the pill surface itself is not the thing being styled.",
+          "remediation": "Move the glass background and border to the outer LSPill view and keep the inner content limited to LSIcon/LSText layout."
+        },
+        {
+          "id": "AC-2",
+          "satisfied": false,
+          "evidence": "ios/LaneShadow/Views/Molecules/LSFilterChip.swift:55-65 paints selected/unselected surfaces on the inner LSText subtree rather than on the LSPill container, so the rendered chip bounds do not match the required pill surface treatment.",
+          "remediation": "Apply selected/unselected fill and border to the LSPill container itself, not to the child label view."
+        },
+        {
+          "id": "AC-3",
+          "satisfied": true,
+          "evidence": "ios/LaneShadow/Views/Molecules/LSFilterChip.swift:54-75 still uses a single Button action path through LSFilterChip.dispatch, and the focused xcodebuild test run for LaneShadowTests/LSFilterChipTests completed successfully.",
+          "remediation": null
+        },
+        {
+          "id": "AC-4",
+          "satisfied": false,
+          "evidence": "ios/LaneShadow/Views/Molecules/LSSuggestionChip.swift:43-54 attaches the card surface and border to the inner LSText subtree instead of the outer LSPill view, so the suggestion chip's rendered surface is narrower than the pill container.",
+          "remediation": "Move the card fill and border to the LSPill view and remove the compensating inner padding that currently masks the bug."
+        },
+        {
+          "id": "AC-5",
+          "satisfied": false,
+          "evidence": "ios/LaneShadow/Views/Molecules/LSWeatherBadge.swift:107-121 applies the weather tint and border to the inner HStack, not the LSPill container. The style helper resolves the right tokens, but the badge surface rendering is still wrong at the molecule level.",
+          "remediation": "Apply weather tint and border to the outer LSPill view so the full pill surface reflects the resolved weather tokens."
+        },
+        {
+          "id": "AC-6",
+          "satisfied": true,
+          "evidence": "ios/LaneShadow/Views/Molecules/LSWeatherBadge.swift:107 uses LSPill(size: size), and the focused xcodebuild test run for LaneShadowTests/LSWeatherBadgeTests completed successfully.",
+          "remediation": null
+        },
+        {
+          "id": "AC-7",
+          "satisfied": true,
+          "evidence": "The four molecule files do not contain Capsule(), Color(red:), Color(hex:), or Font.system literals, and the grep gate remained clean during host validation.",
+          "remediation": null
+        },
+        {
+          "id": "AC-8",
+          "satisfied": true,
+          "evidence": "ios/LaneShadow/Sandbox/Stories/Molecules/LSPillSemanticsStory.swift registers the required semantic and weather variants, and the focused xcodebuild story-registration test completed successfully.",
+          "remediation": null
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "severity": "HIGH",
+      "task_id": "UC-MOL-05-ios",
+      "location": "ios/LaneShadow/Views/Molecules/LSTagPill.swift:42-58",
+      "evidence": "The glass fill and border are attached below LSPill on the inner HStack. The pill atom supplies the clip and height, but the surface treatment does not wrap the pill container.",
+      "fix": "Attach background and border modifiers to the outer LSPill view and keep the inner content focused on atom composition only."
+    },
+    {
+      "severity": "HIGH",
+      "task_id": "UC-MOL-05-ios",
+      "location": "ios/LaneShadow/Views/Molecules/LSFilterChip.swift:55-65; ios/LaneShadow/Views/Molecules/LSSuggestionChip.swift:44-54; ios/LaneShadow/Views/Molecules/LSWeatherBadge.swift:107-121",
+      "evidence": "Three remaining molecules repeat the same composition error: tokenized surface styling is applied to child content instead of the LSPill container. That changes the actual rendered bounds of the chip/badge even though helper tokens and grep gates pass.",
+      "fix": "Move each surface/background/overlay modifier to the outer LSPill call site, remove compensating inner padding, and preserve LSIcon/LSText composition for content only."
+    },
+    {
+      "severity": "MEDIUM",
+      "task_id": "UC-MOL-05-ios",
+      "location": "ios/LaneShadowTests/Molecules/LSTagPillTests.swift; ios/LaneShadowTests/Molecules/LSFilterChipTests.swift; ios/LaneShadowTests/Molecules/LSSuggestionChipTests.swift; ios/LaneShadowTests/Molecules/LSWeatherBadgeTests.swift",
+      "evidence": "The current tests mostly validate token helpers, source grep invariants, and dispatch helpers. They did not fail even though the rendered pill surface was attached to the wrong subtree.",
+      "fix": "Strengthen the molecule tests so they fail when surface styling is attached below LSPill instead of to the pill container."
+    }
+  ],
+  "summary": "NEEDS_FIXES: the iOS pill family resolves the right tokens on paper, but multiple molecules style the inner content instead of the LSPill surface, so the rendered pill/chip/badge contract is still wrong. Test coverage also needs to be strengthened so this regression cannot pass again."
+}

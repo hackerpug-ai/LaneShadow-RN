@@ -1,0 +1,671 @@
+{
+  "sprint_id": "sprint-04-molecules-composite-patterns",
+  "sprint_dir": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns",
+  "started_at": "2026-04-24T15:33:32Z",
+  "mode": "strict",
+  "model_profile": "tiered",
+  "notes": [
+    "Previous .kb-run/state.json preserved at .kb-run/state.pre-sprint-04-reconcile-2026-04-24T15-33-32Z.json.",
+    "Root main worktree is dirty, so Sprint 04 integration now runs from .kb-run/worktrees/sprint-04-integration on branch kb-run/sprint-04-integration.",
+    "UC-MOL-05-ios and UC-MOL-05-android were previously approved in task worktrees and are now merged into the Sprint 04 integration branch.",
+    "UC-MOL-08-ios was approved host-side after remediation and merged into the Sprint 04 integration branch at 58eb7d57.",
+    "UC-MOL-08-android was approved host-side after remediation and merged into the Sprint 04 integration branch at fbe49fe4.",
+    "UC-MOL-01-ios was approved host-side after remediation and merged into the Sprint 04 integration branch at 800c6ebf.",
+    "Batching is disabled for this sprint run because tasks share platform story registries/project files and platform runtime isolation is one active implementer per native platform."
+  ],
+  "preflight": {
+    "root_context": "pass",
+    "tools": {
+      "codex": "codex-cli 0.122.0",
+      "git": "git version 2.50.1 (Apple Git-155)",
+      "rg": "ripgrep 15.1.0 (rev af60c2de9d)"
+    },
+    "hooks": "pass",
+    "integration_branch": "kb-run/sprint-04-integration",
+    "integration_worktree": ".kb-run/worktrees/sprint-04-integration",
+    "integration_head": "800c6ebfd41edb0869e590849f8eefb8721fbe4e",
+    "baseline_failures": [
+      "Root repository contains unrelated tracked and untracked changes outside Sprint 04 scope.",
+      "Connected-device Android instrumentation remains environment-limited when no emulator/device is attached."
+    ]
+  },
+  "scheduler": {
+    "effective_concurrency": 2,
+    "platform_slots": {
+      "ios": 1,
+      "android": 1
+    },
+    "ready_queue": [
+      "UC-MOL-03-ios",
+      "UC-MOL-03-android",
+      "UC-MOL-04-ios",
+      "UC-MOL-04-android",
+      "UC-MOL-06-ios",
+      "UC-MOL-06-android",
+      "UC-MOL-07-ios",
+      "UC-MOL-07-android"
+    ],
+    "active_tasks": [
+      "UC-MOL-02-android",
+      "UC-MOL-02-ios"
+    ],
+    "terminal_tasks": [
+      "UC-MOL-01-ios",
+      "UC-MOL-01-android",
+      "UC-MOL-05-ios",
+      "UC-MOL-05-android",
+      "UC-MOL-08-ios",
+      "UC-MOL-08-android"
+    ],
+    "resume_reconciled": true,
+    "poll_interval_seconds": 30,
+    "last_child_poll_at": "2026-04-24T18:46:50Z"
+  },
+  "execution_units": [
+    {
+      "id": "UC-MOL-01-ios",
+      "task_ids": [
+        "UC-MOL-01-ios"
+      ],
+      "risk_tier": 2,
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "completed",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-01-ios"
+    },
+    {
+      "id": "UC-MOL-01-android",
+      "task_ids": [
+        "UC-MOL-01-android"
+      ],
+      "risk_tier": 2,
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "completed",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-01-android"
+    },
+    {
+      "id": "UC-MOL-02-ios",
+      "task_ids": [
+        "UC-MOL-02-ios"
+      ],
+      "risk_tier": 2,
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "planned",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-02-ios"
+    },
+    {
+      "id": "UC-MOL-02-android",
+      "task_ids": [
+        "UC-MOL-02-android"
+      ],
+      "risk_tier": 2,
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "planned",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-02-android"
+    },
+    {
+      "id": "UC-MOL-03-ios",
+      "task_ids": [
+        "UC-MOL-03-ios"
+      ],
+      "risk_tier": 2,
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "planned",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-03-ios"
+    },
+    {
+      "id": "UC-MOL-03-android",
+      "task_ids": [
+        "UC-MOL-03-android"
+      ],
+      "risk_tier": 2,
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "planned",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-03-android"
+    },
+    {
+      "id": "UC-MOL-04-ios",
+      "task_ids": [
+        "UC-MOL-04-ios"
+      ],
+      "risk_tier": 2,
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "planned",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-04-ios"
+    },
+    {
+      "id": "UC-MOL-04-android",
+      "task_ids": [
+        "UC-MOL-04-android"
+      ],
+      "risk_tier": 2,
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "planned",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-04-android"
+    },
+    {
+      "id": "UC-MOL-05-ios",
+      "task_ids": [
+        "UC-MOL-05-ios"
+      ],
+      "risk_tier": 2,
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "completed",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-05-ios"
+    },
+    {
+      "id": "UC-MOL-05-android",
+      "task_ids": [
+        "UC-MOL-05-android"
+      ],
+      "risk_tier": 2,
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "completed",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-05-android"
+    },
+    {
+      "id": "UC-MOL-06-ios",
+      "task_ids": [
+        "UC-MOL-06-ios"
+      ],
+      "risk_tier": 2,
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "planned",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-06-ios"
+    },
+    {
+      "id": "UC-MOL-06-android",
+      "task_ids": [
+        "UC-MOL-06-android"
+      ],
+      "risk_tier": 2,
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "planned",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-06-android"
+    },
+    {
+      "id": "UC-MOL-07-ios",
+      "task_ids": [
+        "UC-MOL-07-ios"
+      ],
+      "risk_tier": 2,
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "planned",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-07-ios"
+    },
+    {
+      "id": "UC-MOL-07-android",
+      "task_ids": [
+        "UC-MOL-07-android"
+      ],
+      "risk_tier": 2,
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "planned",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-07-android"
+    },
+    {
+      "id": "UC-MOL-08-ios",
+      "task_ids": [
+        "UC-MOL-08-ios"
+      ],
+      "risk_tier": 2,
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "completed",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-08-ios"
+    },
+    {
+      "id": "UC-MOL-08-android",
+      "task_ids": [
+        "UC-MOL-08-android"
+      ],
+      "risk_tier": 2,
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "implementer_model": "gpt-5.3-codex",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "completed",
+      "worktree_path": ".kb-run/worktrees/UC-MOL-08-android"
+    }
+  ],
+  "tasks": {
+    "UC-MOL-01-ios": {
+      "unit_id": "UC-MOL-01-ios",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-01-ios-card-listrow-molecules.md",
+      "depends_on": [
+        "ALIGN-03-ios"
+      ],
+      "status": "completed",
+      "next_action": "",
+      "blocker_class": "",
+      "attempt_count": 3,
+      "review_cycle_count": 3,
+      "stale_recovery_count": 0,
+      "last_progress_at": "2026-04-24T17:43:15Z",
+      "last_heartbeat_at": "2026-04-24T17:43:15Z",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "2026-04-24T17:43:15Z",
+      "last_child_exit_at": "2026-04-24T17:43:15Z",
+      "last_child_status": "completed",
+      "resume_source": "completed_terminal",
+      "head_commit": "c02124017eced04d4adf1612938fc001b3d10ad8"
+    },
+    "UC-MOL-01-android": {
+      "unit_id": "UC-MOL-01-android",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-01-android-card-listrow-molecules.md",
+      "depends_on": [
+        "ALIGN-03-android"
+      ],
+      "status": "completed",
+      "next_action": "",
+      "blocker_class": "",
+      "attempt_count": 2,
+      "review_cycle_count": 2,
+      "stale_recovery_count": 0,
+      "last_progress_at": "2026-04-24T17:05:39Z",
+      "last_heartbeat_at": "2026-04-24T17:05:39Z",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "2026-04-24T17:05:39Z",
+      "last_child_exit_at": "2026-04-24T17:05:39Z",
+      "last_child_status": "completed",
+      "resume_source": "completed_terminal",
+      "head_commit": "8460ccf9127e8d1d5796715e127fbab88cfe6a0f"
+    },
+    "UC-MOL-02-ios": {
+      "unit_id": "UC-MOL-02-ios",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-02-ios-toolbar-navheader-molecules.md",
+      "depends_on": [
+        "ALIGN-03-ios"
+      ],
+      "status": "in_progress",
+      "next_action": "dispatch_reviewer",
+      "blocker_class": "session_stale",
+      "attempt_count": 1,
+      "review_cycle_count": 0,
+      "stale_recovery_count": 1,
+      "last_progress_at": "2026-04-24T18:46:50Z",
+      "last_heartbeat_at": "2026-04-24T18:46:50Z",
+      "active_child_pid": "80107",
+      "active_child_role": "reviewer",
+      "active_child_session_id": "93752",
+      "last_child_poll_at": "2026-04-24T18:46:50Z",
+      "last_child_exit_at": "2026-04-24T18:46:27Z",
+      "last_child_status": "running",
+      "resume_source": "reviewer_launch"
+    },
+    "UC-MOL-02-android": {
+      "unit_id": "UC-MOL-02-android",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-02-android-toolbar-navheader-molecules.md",
+      "depends_on": [
+        "ALIGN-03-android"
+      ],
+      "status": "in_progress",
+      "next_action": "send_remediation",
+      "blocker_class": "session_stale",
+      "attempt_count": 2,
+      "review_cycle_count": 0,
+      "stale_recovery_count": 2,
+      "last_progress_at": "2026-04-24T18:43:05Z",
+      "last_heartbeat_at": "2026-04-24T18:43:05Z",
+      "active_child_pid": "67317",
+      "active_child_role": "implementer",
+      "active_child_session_id": "68722",
+      "last_child_poll_at": "2026-04-24T18:43:53Z",
+      "last_child_exit_at": "2026-04-24T18:41:35Z",
+      "last_child_status": "running",
+      "resume_source": "same_assignee_recovery"
+    },
+    "UC-MOL-03-ios": {
+      "unit_id": "UC-MOL-03-ios",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-03-ios-bottomsheet-toast-modal-molecules.md",
+      "depends_on": [
+        "ALIGN-03-ios"
+      ],
+      "status": "planned",
+      "next_action": "dispatch_implementer",
+      "blocker_class": "",
+      "attempt_count": 0,
+      "review_cycle_count": 0,
+      "stale_recovery_count": 0,
+      "last_progress_at": "",
+      "last_heartbeat_at": "",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "",
+      "last_child_exit_at": "",
+      "last_child_status": "",
+      "resume_source": "preserved_executable_action"
+    },
+    "UC-MOL-03-android": {
+      "unit_id": "UC-MOL-03-android",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-03-android-bottomsheet-toast-modal-molecules.md",
+      "depends_on": [
+        "ALIGN-03-android"
+      ],
+      "status": "planned",
+      "next_action": "dispatch_implementer",
+      "blocker_class": "",
+      "attempt_count": 0,
+      "review_cycle_count": 0,
+      "stale_recovery_count": 0,
+      "last_progress_at": "",
+      "last_heartbeat_at": "",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "",
+      "last_child_exit_at": "",
+      "last_child_status": "",
+      "resume_source": "preserved_executable_action"
+    },
+    "UC-MOL-04-ios": {
+      "unit_id": "UC-MOL-04-ios",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-04-ios-formfield-tabitem-emptystate-molecules.md",
+      "depends_on": [
+        "ALIGN-03-ios"
+      ],
+      "status": "planned",
+      "next_action": "dispatch_implementer",
+      "blocker_class": "",
+      "attempt_count": 0,
+      "review_cycle_count": 0,
+      "stale_recovery_count": 0,
+      "last_progress_at": "",
+      "last_heartbeat_at": "",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "",
+      "last_child_exit_at": "",
+      "last_child_status": "",
+      "resume_source": "preserved_executable_action"
+    },
+    "UC-MOL-04-android": {
+      "unit_id": "UC-MOL-04-android",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-04-android-formfield-tabitem-emptystate-molecules.md",
+      "depends_on": [
+        "ALIGN-03-android"
+      ],
+      "status": "planned",
+      "next_action": "dispatch_implementer",
+      "blocker_class": "",
+      "attempt_count": 0,
+      "review_cycle_count": 0,
+      "stale_recovery_count": 0,
+      "last_progress_at": "",
+      "last_heartbeat_at": "",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "",
+      "last_child_exit_at": "",
+      "last_child_status": "",
+      "resume_source": "preserved_executable_action"
+    },
+    "UC-MOL-05-ios": {
+      "unit_id": "UC-MOL-05-ios",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-05-ios-pill-semantics-family.md",
+      "depends_on": [
+        "ALIGN-03-ios"
+      ],
+      "status": "completed",
+      "next_action": "",
+      "blocker_class": "",
+      "attempt_count": 2,
+      "review_cycle_count": 2,
+      "stale_recovery_count": 0,
+      "last_progress_at": "2026-04-24T15:33:32Z",
+      "last_heartbeat_at": "2026-04-24T15:33:32Z",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "",
+      "last_child_exit_at": "",
+      "last_child_status": "completed",
+      "resume_source": "completed_terminal"
+    },
+    "UC-MOL-05-android": {
+      "unit_id": "UC-MOL-05-android",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-05-android-pill-semantics-family.md",
+      "depends_on": [
+        "ALIGN-03-android"
+      ],
+      "status": "completed",
+      "next_action": "",
+      "blocker_class": "",
+      "attempt_count": 2,
+      "review_cycle_count": 2,
+      "stale_recovery_count": 0,
+      "last_progress_at": "2026-04-24T15:33:32Z",
+      "last_heartbeat_at": "2026-04-24T15:33:32Z",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "",
+      "last_child_exit_at": "",
+      "last_child_status": "completed",
+      "resume_source": "completed_terminal"
+    },
+    "UC-MOL-06-ios": {
+      "unit_id": "UC-MOL-06-ios",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-06-ios-chatinput-molecule.md",
+      "depends_on": [
+        "ALIGN-03-ios",
+        "UC-MOL-05-ios",
+        "UC-MOL-08-ios"
+      ],
+      "status": "planned",
+      "next_action": "dispatch_implementer",
+      "blocker_class": "",
+      "attempt_count": 0,
+      "review_cycle_count": 0,
+      "stale_recovery_count": 0,
+      "last_progress_at": "",
+      "last_heartbeat_at": "",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "",
+      "last_child_exit_at": "",
+      "last_child_status": "",
+      "resume_source": "preserved_executable_action"
+    },
+    "UC-MOL-06-android": {
+      "unit_id": "UC-MOL-06-android",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-06-android-chatinput-molecule.md",
+      "depends_on": [
+        "ALIGN-03-android",
+        "UC-MOL-05-android",
+        "UC-MOL-08-android"
+      ],
+      "status": "planned",
+      "next_action": "dispatch_implementer",
+      "blocker_class": "",
+      "attempt_count": 0,
+      "review_cycle_count": 0,
+      "stale_recovery_count": 0,
+      "last_progress_at": "",
+      "last_heartbeat_at": "",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "",
+      "last_child_exit_at": "",
+      "last_child_status": "",
+      "resume_source": "preserved_executable_action"
+    },
+    "UC-MOL-07-ios": {
+      "unit_id": "UC-MOL-07-ios",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-07-ios-navigator-molecules.md",
+      "depends_on": [
+        "ALIGN-03-ios"
+      ],
+      "status": "planned",
+      "next_action": "dispatch_implementer",
+      "blocker_class": "",
+      "attempt_count": 0,
+      "review_cycle_count": 0,
+      "stale_recovery_count": 0,
+      "last_progress_at": "",
+      "last_heartbeat_at": "",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "",
+      "last_child_exit_at": "",
+      "last_child_status": "",
+      "resume_source": "preserved_executable_action"
+    },
+    "UC-MOL-07-android": {
+      "unit_id": "UC-MOL-07-android",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-07-android-navigator-molecules.md",
+      "depends_on": [
+        "ALIGN-03-android",
+        "UC-MOL-05-android"
+      ],
+      "status": "planned",
+      "next_action": "dispatch_implementer",
+      "blocker_class": "",
+      "attempt_count": 0,
+      "review_cycle_count": 0,
+      "stale_recovery_count": 0,
+      "last_progress_at": "",
+      "last_heartbeat_at": "",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "",
+      "last_child_exit_at": "",
+      "last_child_status": "",
+      "resume_source": "preserved_executable_action"
+    },
+    "UC-MOL-08-ios": {
+      "unit_id": "UC-MOL-08-ios",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-08-ios-location-route-molecules.md",
+      "depends_on": [
+        "ALIGN-03-ios",
+        "UC-MOL-05-ios"
+      ],
+      "status": "completed",
+      "next_action": "",
+      "blocker_class": "",
+      "attempt_count": 2,
+      "review_cycle_count": 2,
+      "stale_recovery_count": 1,
+      "last_progress_at": "2026-04-24T16:10:00Z",
+      "last_heartbeat_at": "2026-04-24T16:10:00Z",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "2026-04-24T16:10:00Z",
+      "last_child_exit_at": "2026-04-24T16:09:22Z",
+      "last_child_status": "completed",
+      "resume_source": "completed_terminal",
+      "head_commit": "92bd2e68aa1272f0ae59a27d03dc569d0a8be47e"
+    },
+    "UC-MOL-08-android": {
+      "unit_id": "UC-MOL-08-android",
+      "file": ".spec/prds/v2/tasks/sprint-04-molecules-composite-patterns/UC-MOL-08-android-location-route-molecules.md",
+      "depends_on": [
+        "ALIGN-03-android",
+        "UC-MOL-05-android"
+      ],
+      "status": "completed",
+      "next_action": "",
+      "blocker_class": "",
+      "attempt_count": 1,
+      "review_cycle_count": 1,
+      "stale_recovery_count": 1,
+      "last_progress_at": "2026-04-24T16:10:00Z",
+      "last_heartbeat_at": "2026-04-24T16:10:00Z",
+      "active_child_pid": "",
+      "active_child_role": "",
+      "active_child_session_id": "",
+      "last_child_poll_at": "2026-04-24T16:10:00Z",
+      "last_child_exit_at": "2026-04-24T16:09:22Z",
+      "last_child_status": "completed",
+      "resume_source": "completed_terminal",
+      "head_commit": "b4e54fc01f2aef0c3148bf1756cf5e6e7f85cadb"
+    }
+  }
+}

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<!-- topbar-navbar.html — LSTopBar + LSNavBar organism preview
+     LaneShadow V2 · Copper · Organism · UC-ORG-01
+     Authority: .spec/prds/v2/concepts/uc-org-01-topbar-navbar.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSTopBar + LSNavBar — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../../molecules/_atoms.css">
+<link rel="stylesheet" href="../_molecules.css">
+<style>
+/* Organism-local CSS — composed over atom + molecule layers.
+   Never redefines .ls-* or .mol-* classes. */
+
+/* ═══════════════════════════════════════════════════════
+   org-topbar — LSTopBar chrome
+   Slot layout: leading chip · optional centered title · trailing chip
+   Chips are organism-specific (more opaque than .ls-glass-panel)
+   because the spec calls for ~90% surface alpha so the chrome reads
+   as a solid affordance, not a frosted overlay.
+   ═══════════════════════════════════════════════════════ */
+.org-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-0);
+  position: relative;
+  z-index: 5;
+}
+
+.org-topbar__chip {
+  height: var(--space-9);           /* 40pt — canonical chip height */
+  border-radius: var(--radius-md);
+  background: var(--surface-overlay);
+  border: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-chrome);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--content-primary);
+  flex-shrink: 0;
+}
+.org-topbar__chip--square {
+  width: var(--space-9);            /* 40×40pt hamburger target */
+}
+.org-topbar__chip--with-label {
+  padding: var(--space-0) var(--space-4);
+  gap: var(--space-2);
+}
+.org-topbar__chip svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  width: var(--icon-md);
+  height: var(--icon-md);
+  flex-shrink: 0;
+}
+.org-topbar__chip--with-label svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+
+/* Recording chip variant — red tint + pulsing dot */
+.org-topbar__chip--record {
+  background: var(--status-error-tint);
+  border-color: var(--status-error);
+  color: var(--status-error);
+}
+.org-topbar__rec-dot {
+  width: var(--space-3);
+  height: var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--status-recording);
+  animation: org-topbar-rec-pulse
+             calc(var(--duration-deliberate) * 2.333)
+             var(--ease-standard) infinite;
+}
+@keyframes org-topbar-rec-pulse {
+  0%, 100% { opacity: var(--opacity-1); }
+  50%      { opacity: var(--opacity-overlay); }
+}
+
+/* Centered title — takes the flex gap between chips */
+.org-topbar__title {
+  flex: 1;
+  text-align: center;
+  color: var(--content-primary);
+}
+
+/* ═══════════════════════════════════════════════════════
+   org-navbar — LSNavBar modal-sheet chrome
+   Composes on top of .mol-toolbar geometry; adds optional
+   filter-chip row and search-input row below the toolbar.
+   ═══════════════════════════════════════════════════════ */
+.org-navbar {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  border: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-card);
+  overflow: hidden;
+  max-width: 360px;
+}
+.org-navbar__toolbar {
+  display: flex;
+  align-items: center;
+  padding: var(--space-4) var(--space-4);
+  gap: var(--space-3);
+  border-bottom: var(--stroke-sm) solid var(--border-default);
+  background: var(--surface-card);
+  position: relative;
+}
+.org-navbar__leading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+.org-navbar__trailing {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.org-navbar__title {
+  position: absolute;
+  left: var(--space-0);
+  right: var(--space-0);
+  text-align: center;
+  color: var(--content-primary);
+  pointer-events: none;
+}
+.org-navbar__icon-btn {
+  width: var(--size-control-md);
+  height: var(--size-control-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--content-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.org-navbar__icon-btn svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+.org-navbar__icon-btn--signal { color: var(--signal-default); }
+
+.org-navbar__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--signal-default);
+}
+
+/* Filter-chip row (below toolbar) */
+.org-navbar__filter-row {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--surface-card);
+  border-bottom: var(--stroke-sm) solid var(--border-default);
+}
+.org-navbar__filter-row::-webkit-scrollbar { display: none; }
+
+/* Search-input row (below toolbar) */
+.org-navbar__search-row {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  background: var(--surface-card);
+  border-bottom: var(--stroke-sm) solid var(--border-default);
+}
+.org-navbar__search-input {
+  height: var(--size-control-md);
+  background: var(--surface-inset);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-0) var(--space-4);
+  color: var(--content-tertiary);
+}
+.org-navbar__search-input svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  flex-shrink: 0;
+}
+
+/* Simulated map scene — demo-only container so TopBar chrome reads
+   over a paper-map surface the way it does on screen.
+   Preview-local; not part of the organism API. */
+.demo-scene {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 9 / 8;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-card);
+  background: var(--surface-map);
+}
+.demo-scene__map {
+  position: absolute;
+  inset: 0;
+  background: var(--surface-map);
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: var(--space-8) var(--space-8);
+  opacity: var(--opacity-dim);
+}
+.demo-scene__route {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.variant-cell {
+  align-items: stretch;
+  width: 100%;
+  max-width: 360px;
+}
+.variant-cell > .label {
+  align-self: center;
+  margin-top: var(--space-3);
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>org-topbar + org-navbar</em></h1>
+  <div class="subtitle">UC-ORG-01 · LSTopBar + LSNavBar · LaneShadow V2 Copper · Top chrome + modal toolbar</div>
+</div>
+
+<!-- ─── LSTopBar Stories ─── -->
+<section class="section">
+  <div class="section-label">LSTopBar · five stories over a simulated map</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+
+        <!-- S.01 Default -->
+        <div class="variant-cell">
+          <div class="demo-scene">
+            <div class="demo-scene__map"></div>
+            <div class="org-topbar">
+              <div class="org-topbar__chip org-topbar__chip--square" role="button" aria-label="Menu">
+                <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+              </div>
+              <div class="org-topbar__chip org-topbar__chip--with-label" role="button" aria-label="New conversation">
+                <svg viewBox="0 0 24 24"><path d="M12 5 V19"/><path d="M5 12 H19"/></svg>
+                <span class="t-title-sm">NEW</span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.01 · Default — hamburger + NEW</div>
+        </div>
+
+        <!-- S.02 With Title -->
+        <div class="variant-cell">
+          <div class="demo-scene">
+            <div class="demo-scene__map"></div>
+            <div class="org-topbar">
+              <div class="org-topbar__chip org-topbar__chip--square" role="button" aria-label="Menu">
+                <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+              </div>
+              <span class="t-opinion-md org-topbar__title">Details</span>
+              <div class="org-topbar__chip org-topbar__chip--with-label" role="button" aria-label="New conversation">
+                <svg viewBox="0 0 24 24"><path d="M12 5 V19"/><path d="M5 12 H19"/></svg>
+                <span class="t-title-sm">NEW</span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.02 · With centered title</div>
+        </div>
+
+        <!-- S.03 Hamburger Only -->
+        <div class="variant-cell">
+          <div class="demo-scene">
+            <div class="demo-scene__map"></div>
+            <div class="org-topbar">
+              <div class="org-topbar__chip org-topbar__chip--square" role="button" aria-label="Menu">
+                <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.03 · Hamburger only</div>
+        </div>
+
+        <!-- S.04 Record Highlight -->
+        <div class="variant-cell">
+          <div class="demo-scene">
+            <div class="demo-scene__map"></div>
+            <div class="org-topbar">
+              <div class="org-topbar__chip org-topbar__chip--square" role="button" aria-label="Menu">
+                <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+              </div>
+              <div class="org-topbar__chip org-topbar__chip--with-label org-topbar__chip--record" role="button" aria-label="Recording">
+                <span class="org-topbar__rec-dot" aria-hidden="true"></span>
+                <span class="t-title-sm">REC</span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.04 · Record highlight (pulsing)</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+
+        <div class="variant-cell">
+          <div class="demo-scene">
+            <div class="demo-scene__map"></div>
+            <div class="org-topbar">
+              <div class="org-topbar__chip org-topbar__chip--square" role="button" aria-label="Menu">
+                <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+              </div>
+              <div class="org-topbar__chip org-topbar__chip--with-label" role="button" aria-label="New conversation">
+                <svg viewBox="0 0 24 24"><path d="M12 5 V19"/><path d="M5 12 H19"/></svg>
+                <span class="t-title-sm">NEW</span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.01 · Default</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="demo-scene">
+            <div class="demo-scene__map"></div>
+            <div class="org-topbar">
+              <div class="org-topbar__chip org-topbar__chip--square" role="button" aria-label="Menu">
+                <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+              </div>
+              <span class="t-opinion-md org-topbar__title">Details</span>
+              <div class="org-topbar__chip org-topbar__chip--with-label" role="button" aria-label="New conversation">
+                <svg viewBox="0 0 24 24"><path d="M12 5 V19"/><path d="M5 12 H19"/></svg>
+                <span class="t-title-sm">NEW</span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.02 · With title</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="demo-scene">
+            <div class="demo-scene__map"></div>
+            <div class="org-topbar">
+              <div class="org-topbar__chip org-topbar__chip--square" role="button" aria-label="Menu">
+                <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.03 · Hamburger only</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="demo-scene">
+            <div class="demo-scene__map"></div>
+            <div class="org-topbar">
+              <div class="org-topbar__chip org-topbar__chip--square" role="button" aria-label="Menu">
+                <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+              </div>
+              <div class="org-topbar__chip org-topbar__chip--with-label org-topbar__chip--record" role="button" aria-label="Recording">
+                <span class="org-topbar__rec-dot" aria-hidden="true"></span>
+                <span class="t-title-sm">REC</span>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.04 · Record highlight</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── LSNavBar Stories ─── -->
+<section class="section">
+  <div class="section-label">LSNavBar · three variants for modal-sheet chrome</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+
+        <!-- N.01 Back + Title + Close -->
+        <div class="variant-cell">
+          <div class="org-navbar">
+            <div class="org-navbar__toolbar">
+              <div class="org-navbar__leading">
+                <button class="org-navbar__icon-btn org-navbar__icon-btn--signal" aria-label="Back">
+                  <svg viewBox="0 0 18 18"><path d="M11 4L6 9L11 14"/></svg>
+                </button>
+                <span class="t-body-md org-navbar__back">Back</span>
+              </div>
+              <span class="t-title-md org-navbar__title">Filter</span>
+              <div class="org-navbar__trailing">
+                <button class="org-navbar__icon-btn" aria-label="Close">
+                  <svg viewBox="0 0 16 16"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="label">N.01 · Back + Title + Close</div>
+        </div>
+
+        <!-- N.02 Filter Chip Row -->
+        <div class="variant-cell">
+          <div class="org-navbar">
+            <div class="org-navbar__toolbar">
+              <div class="org-navbar__leading">
+                <button class="org-navbar__icon-btn org-navbar__icon-btn--signal" aria-label="Back">
+                  <svg viewBox="0 0 18 18"><path d="M11 4L6 9L11 14"/></svg>
+                </button>
+              </div>
+              <span class="t-title-md org-navbar__title">Routes</span>
+              <div class="org-navbar__trailing">
+                <button class="org-navbar__icon-btn" aria-label="Close">
+                  <svg viewBox="0 0 16 16"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="org-navbar__filter-row">
+              <span class="ls-pill pill-md mol-filter-chip is-selected"><span class="t-label-sm">All</span></span>
+              <span class="ls-pill pill-md mol-filter-chip"><span class="t-label-sm">Scenic</span></span>
+              <span class="ls-pill pill-md mol-filter-chip"><span class="t-label-sm">Short</span></span>
+              <span class="ls-pill pill-md mol-filter-chip"><span class="t-label-sm">Saved</span></span>
+            </div>
+          </div>
+          <div class="label">N.02 · Filter chip row</div>
+        </div>
+
+        <!-- N.03 Search Slot -->
+        <div class="variant-cell">
+          <div class="org-navbar">
+            <div class="org-navbar__toolbar">
+              <div class="org-navbar__leading">
+                <button class="org-navbar__icon-btn org-navbar__icon-btn--signal" aria-label="Back">
+                  <svg viewBox="0 0 18 18"><path d="M11 4L6 9L11 14"/></svg>
+                </button>
+              </div>
+              <span class="t-title-md org-navbar__title">Search</span>
+              <div class="org-navbar__trailing">
+                <button class="org-navbar__icon-btn" aria-label="Close">
+                  <svg viewBox="0 0 16 16"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="org-navbar__search-row">
+              <div class="org-navbar__search-input">
+                <svg viewBox="0 0 14 14"><circle cx="6" cy="6" r="4"/><line x1="9" y1="9" x2="12" y2="12"/></svg>
+                <span class="t-body-md">Search routes…</span>
+              </div>
+            </div>
+          </div>
+          <div class="label">N.03 · Search slot</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+
+        <div class="variant-cell">
+          <div class="org-navbar">
+            <div class="org-navbar__toolbar">
+              <div class="org-navbar__leading">
+                <button class="org-navbar__icon-btn org-navbar__icon-btn--signal" aria-label="Back">
+                  <svg viewBox="0 0 18 18"><path d="M11 4L6 9L11 14"/></svg>
+                </button>
+                <span class="t-body-md org-navbar__back">Back</span>
+              </div>
+              <span class="t-title-md org-navbar__title">Filter</span>
+              <div class="org-navbar__trailing">
+                <button class="org-navbar__icon-btn" aria-label="Close">
+                  <svg viewBox="0 0 16 16"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="label">N.01 · Back + Title + Close</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="org-navbar">
+            <div class="org-navbar__toolbar">
+              <div class="org-navbar__leading">
+                <button class="org-navbar__icon-btn org-navbar__icon-btn--signal" aria-label="Back">
+                  <svg viewBox="0 0 18 18"><path d="M11 4L6 9L11 14"/></svg>
+                </button>
+              </div>
+              <span class="t-title-md org-navbar__title">Routes</span>
+              <div class="org-navbar__trailing">
+                <button class="org-navbar__icon-btn" aria-label="Close">
+                  <svg viewBox="0 0 16 16"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="org-navbar__filter-row">
+              <span class="ls-pill pill-md mol-filter-chip is-selected"><span class="t-label-sm">All</span></span>
+              <span class="ls-pill pill-md mol-filter-chip"><span class="t-label-sm">Scenic</span></span>
+              <span class="ls-pill pill-md mol-filter-chip"><span class="t-label-sm">Short</span></span>
+              <span class="ls-pill pill-md mol-filter-chip"><span class="t-label-sm">Saved</span></span>
+            </div>
+          </div>
+          <div class="label">N.02 · Filter chip row</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="org-navbar">
+            <div class="org-navbar__toolbar">
+              <div class="org-navbar__leading">
+                <button class="org-navbar__icon-btn org-navbar__icon-btn--signal" aria-label="Back">
+                  <svg viewBox="0 0 18 18"><path d="M11 4L6 9L11 14"/></svg>
+                </button>
+              </div>
+              <span class="t-title-md org-navbar__title">Search</span>
+              <div class="org-navbar__trailing">
+                <button class="org-navbar__icon-btn" aria-label="Close">
+                  <svg viewBox="0 0 16 16"><line x1="3" y1="3" x2="13" y2="13"/><line x1="13" y1="3" x2="3" y2="13"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="org-navbar__search-row">
+              <div class="org-navbar__search-input">
+                <svg viewBox="0 0 14 14"><circle cx="6" cy="6" r="4"/><line x1="9" y1="9" x2="12" y2="12"/></svg>
+                <span class="t-body-md">Search routes…</span>
+              </div>
+            </div>
+          </div>
+          <div class="label">N.03 · Search slot</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

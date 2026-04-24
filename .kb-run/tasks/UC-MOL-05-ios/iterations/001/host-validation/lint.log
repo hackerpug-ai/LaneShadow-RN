@@ -1,0 +1,6 @@
+Running SwiftFormat...
+(lint mode - no files will be changed.)
+Reading config file at /Users/justinrich/Projects/LaneShadow/.swiftformat
+Reading config file at /Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/.swiftformat
+SwiftFormat completed in 0.05s.
+0/134 files require formatting.

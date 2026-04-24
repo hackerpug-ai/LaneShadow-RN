@@ -30,13 +30,13 @@ public struct LSLocationContextBar: View {
 
     public var body: some View {
         HStack(spacing: 0) {
-            LSTagPill(icon: .pin, label: location)
+            locationPill
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             Spacer(minLength: theme.space.xs)
 
             Button(action: handleModeTap) {
-                LSTagPill(label: mode.pillLabel)
+                modePill
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Location mode: \(mode.pillLabel)")
@@ -45,6 +45,37 @@ public struct LSLocationContextBar: View {
         .padding(.horizontal, theme.space.xs)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("lslocationcontextbar")
+    }
+
+    private var locationPill: some View {
+        LSPill(size: .md) {
+            HStack(spacing: theme.space.xs) {
+                LSIcon(name: .pin, size: .sm, resolvedColorOverride: ContentColor.primary.resolved(in: theme))
+                LSText(location, variant: .body.sm, color: .primary)
+            }
+        }
+        .background(
+            RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                .fill(LSSurfaceColorToken.card.resolved(in: theme))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                .stroke(theme.colors.border.default, lineWidth: theme.borderWidth.hairline)
+        )
+    }
+
+    private var modePill: some View {
+        LSPill(size: .md) {
+            LSText(mode.pillLabel, variant: .label.sm, color: .secondary)
+        }
+        .background(
+            RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                .fill(LSSurfaceColorToken.card.resolved(in: theme))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                .stroke(theme.colors.border.default, lineWidth: theme.borderWidth.hairline)
+        )
     }
 
     func handleModeTap() {

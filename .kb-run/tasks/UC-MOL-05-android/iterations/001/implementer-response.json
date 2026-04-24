@@ -1,0 +1,35 @@
+Implemented `UC-MOL-05-android` and committed it.
+
+**Commit**
+- Base SHA: `f94e4711210c77e2449aad98b5b4660d69e9b623`
+- Commit SHA: `8262cb5b64c314930d42b81fb6df6896b801f554`
+
+**Changed Files**
+- [PillSemanticsTypes.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/main/java/com/laneshadow/ui/molecules/PillSemanticsTypes.kt)
+- [LSTagPill.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/main/java/com/laneshadow/ui/molecules/LSTagPill.kt)
+- [LSFilterChip.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/main/java/com/laneshadow/ui/molecules/LSFilterChip.kt)
+- [LSSuggestionChip.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/main/java/com/laneshadow/ui/molecules/LSSuggestionChip.kt)
+- [LSWeatherBadge.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/main/java/com/laneshadow/ui/molecules/LSWeatherBadge.kt)
+- [LSTagPillTest.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/test/java/com/laneshadow/ui/molecules/LSTagPillTest.kt)
+- [LSFilterChipTest.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/test/java/com/laneshadow/ui/molecules/LSFilterChipTest.kt)
+- [LSWeatherBadgeTest.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/test/java/com/laneshadow/ui/molecules/LSWeatherBadgeTest.kt)
+- [LSSuggestionChipUiTest.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/androidTest/java/com/laneshadow/ui/molecules/LSSuggestionChipUiTest.kt)
+- [LSFilterChipUiTest.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/androidTest/java/com/laneshadow/ui/molecules/LSFilterChipUiTest.kt)
+- [LSPillSemanticsStory.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/debug/java/com/laneshadow/sandbox/stories/molecules/LSPillSemanticsStory.kt)
+- [MoleculesStories.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/debug/java/com/laneshadow/sandbox/stories/molecules/MoleculesStories.kt)
+- [AppStories.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/debug/java/com/laneshadow/sandbox/stories/AppStories.kt)
+- [android-learnings.md](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/ai-specs/UC-MOL-05-android/android-learnings.md)
+
+**Commands Run**
+- `cd android && ./gradlew detekt` (pass)
+- `cd android && ./gradlew :app:compileDebugKotlin` (pass)
+- `cd android && ./gradlew test` (pass)
+- `cd android && ./gradlew assembleDebug` (pass)
+- Targeted unit tests for AC-1/2/4/5 with `:app:testDebugUnitTest --tests ...` (pass)
+- AC-6 gate: `Color(0xFF)` grep across 4 molecule files (0)
+- AC-7 gate: story ID grep count in `LSPillSemanticsStory.kt` (16, passes `>=12`)
+- Connected tests attempted with `-Pandroid.testInstrumentationRunnerArguments.class=...` (blocked, no connected device)
+
+**Remaining Risks**
+- AC-3 and AC-8 instrumentation execution is currently unverified in this environment because `connectedDebugAndroidTest` fails with `No connected devices`.
+- Emulator visual screenshot verification is blocked for the same reason (`adb devices` returned none).

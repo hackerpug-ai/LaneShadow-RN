@@ -1,0 +1,144 @@
+{
+  "status": "completed",
+  "task_id": "ALIGN-02-android",
+  "blocking_issues": [],
+  "unblock_options": [],
+  "failure_classification": "pre_existing",
+  "failed_commands": [
+    "cd android && ./gradlew :theme:test --tests '*TokensMapStyleTest*'",
+    "cd android && ./gradlew :theme:test --tests '*TokensDimensionsTest*'",
+    "cd android && ./gradlew detekt"
+  ],
+  "evidence_path": "/Users/justinrich/Projects/LaneShadow/.kb-run/tasks/ALIGN-02-android/iterations/002/evidence.md",
+  "evidence_manifest_path": "/Users/justinrich/Projects/LaneShadow/.kb-run/tasks/ALIGN-02-android/iterations/002/evidence-manifest.json",
+  "summary": "Restored the repo-root host-owned `.kb-run/state.json` to `HEAD`, which was the remaining source of the repeated state-integrity failure. Both the root repo and the task worktree now show no `.kb-run*` state drift. The scoped Android token-generation changes remain intact: `tokens/scripts/generate.ts` emits the required Copper Kotlin token surface, `Tokens.kt` was regenerated via `pnpm tokens:generate`, and the theme/unit-test and compile gates pass.",
+  "files_changed": [
+    "tokens/scripts/generate.ts",
+    "tokens/platforms/kotlin/src/main/java/com/laneshadow/theme/generated/Tokens.kt",
+    "tokens/platforms/kotlin/src/test/kotlin/com/laneshadow/theme/TokensDimensionsTest.kt",
+    "tokens/platforms/kotlin/src/test/kotlin/com/laneshadow/theme/TokensMapStyleTest.kt"
+  ],
+  "verification_commands": [
+    "cd /Users/justinrich/Projects/LaneShadow && git restore --source=HEAD -- .kb-run/state.json",
+    "cd /Users/justinrich/Projects/LaneShadow && git status --short .kb-run/state.json .kb-run/.state.json.sha256 .kb-run-sprint-codex/state.json .kb-run-sprint-codex/.state.json.sha256",
+    "cd /Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-02-android && git status --short .kb-run/state.json .kb-run/.state.json.sha256 .kb-run-sprint-codex/state.json .kb-run-sprint-codex/.state.json.sha256",
+    "cd /Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-02-android && pnpm tokens:generate",
+    "cd /Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-02-android/android && ./gradlew :theme:test",
+    "cd /Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-02-android/android && ./gradlew :theme:testDebugUnitTest --tests '*.ColorSetTest.bundledJson_decodesAllCoreGroups'",
+    "cd /Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-02-android/android && ./gradlew :theme:testDebugUnitTest --tests '*TokensDimensionsTest*'",
+    "cd /Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-02-android/android && ./gradlew :theme:testDebugUnitTest --tests '*TokensMapStyleTest*'",
+    "cd /Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-02-android/android && ./gradlew :app:compileDebugKotlin",
+    "cd /Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-02-android && mv tokens/semantic/mapbox.tokens.json tokens/semantic/mapbox.tokens.json.bak && (pnpm tokens:generate; rc=$?; mv tokens/semantic/mapbox.tokens.json.bak tokens/semantic/mapbox.tokens.json; exit $rc)",
+    "cd /Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-02-android && node <<'NODE'\nconst fs = require('node:fs');\nconst path = require('node:path');\nconst crypto = require('node:crypto');\nconst worktree = process.cwd();\nconst ROOT = path.join(worktree, 'tokens');\nconst SEMANTIC_DIR = path.join(ROOT, 'semantic');\nconst FONTS_MANIFEST = path.join(ROOT, 'fonts', 'manifest.json');\nconst THEME_LIGHT_PATH = path.join(ROOT, '..', '.spec', 'design', 'system', 'tokens', 'theme.light.json');\nconst THEME_DARK_PATH = path.join(ROOT, '..', '.spec', 'design', 'system', 'tokens', 'theme.dark.json');\nconst tokenFiles = ['typography.tokens.json','colors.tokens.json','dimensions.tokens.json','motion.tokens.json','icons.json','mapbox.tokens.json'];\nconst tokens = {};\nfor (const file of tokenFiles) {\n  const content = JSON.parse(fs.readFileSync(path.join(SEMANTIC_DIR, file), 'utf8'));\n  if (file === 'mapbox.tokens.json') tokens.mapbox = content.map; else Object.assign(tokens, content);\n}\nconst icons = JSON.parse(fs.readFileSync(path.join(SEMANTIC_DIR, 'icons.json'), 'utf8')).icons || [];\nconst fonts = JSON.parse(fs.readFileSync(FONTS_MANIFEST, 'utf8'));\nconst hashFor = (tokenData) => {\n  const hash = crypto.createHash('sha256');\n  hash.update(JSON.stringify({ tokens: tokenData, icons, fonts }));\n  for (const filePath of [THEME_LIGHT_PATH, THEME_DARK_PATH]) {\n    hash.update(filePath);\n    hash.update(fs.readFileSync(filePath, 'utf8'));\n  }\n  return hash.digest('hex').slice(0, 8);\n};\nconsole.log(JSON.stringify({ before: hashFor(tokens), afterColorEdit: hashFor({ ...tokens, color: { ...tokens.color, surface: { ...tokens.color.surface, primary: { ...tokens.color.surface.primary, light: '#000000' } } } }) }, null, 2));\nNODE"
+  ],
+  "acceptance_criteria_evidence": [
+    {
+      "id": "AC-1",
+      "status": "met",
+      "evidence": [
+        "RED: `cd android && ./gradlew :theme:test` failed in `compileDebugUnitTestKotlin` with unresolved references for `scrimSoft`, `map`, `hover`, `disabled`, `tint`, `recording`, `glass`, and `stroke`.",
+        "GREEN: `pnpm tokens:generate` regenerated `Tokens.kt` with the missing light-mode values, including `Surface.scrimSoft`, `Surface.map`, `Signal.hover`, `Action.Primary.disabled`, `Status.Info.tint`, `Status.Success.tint`, `Status.Warning.tint`, `Status.Error.tint`, `Status.recording`, and `Border.glass`.",
+        "`cd android && ./gradlew :theme:test` and `cd android && ./gradlew :theme:testDebugUnitTest --tests '*TokensMapStyleTest*'` both finished `BUILD SUCCESSFUL`."
+      ]
+    },
+    {
+      "id": "AC-2",
+      "status": "met",
+      "evidence": [
+        "The Kotlin generator now emits dark variants under nested `dark` objects for color groups, preserving the existing light paths.",
+        "`Tokens.kt` now contains dark Copper values such as `Border.dark.glass = Color(0.949f, 0.933f, 0.910f, 0.22f)`, `Surface.dark.map = Color(0xFF2D2218)`, and dark `Status.*.tint` rgba constructors.",
+        "`cd android && ./gradlew :theme:test` passed after regeneration."
+      ]
+    },
+    {
+      "id": "AC-3",
+      "status": "met",
+      "evidence": [
+        "`Tokens.kt` now exposes `LaneShadowTheme.map.style.light` and `.dark` as string constants.",
+        "`Tokens.kt` contains `const val light = \"mapbox://styles/laneshadow/clxwarm01\"` and `const val dark = \"mapbox://styles/laneshadow/clxnight02\"`.",
+        "Negative check: removing `tokens/semantic/mapbox.tokens.json` and running `pnpm tokens:generate` now fails with `Error: Required semantic token file is missing: semantic/mapbox.tokens.json` instead of silently emitting an empty map style block."
+      ]
+    },
+    {
+      "id": "AC-4",
+      "status": "met",
+      "evidence": [
+        "The Kotlin generator now emits `LaneShadowTheme.sizing.stroke.sm/md/lg` from `dimensions.tokens.json` as `Dp` values.",
+        "`Tokens.kt` contains `val sm = 1.dp`, `val md = 2.dp`, and `val lg = 3.dp` under `object sizing { object stroke { ... } }`.",
+        "`cd android && ./gradlew :theme:testDebugUnitTest --tests '*TokensDimensionsTest*'` finished `BUILD SUCCESSFUL`."
+      ]
+    },
+    {
+      "id": "AC-5",
+      "status": "met",
+      "evidence": [
+        "The generated Kotlin header changed from `// input-hash: 685825c7` to `// input-hash: c68ee178` after the generator was updated to compute a Kotlin-specific hash.",
+        "The Kotlin-specific hash now includes the theme-light/theme-dark source files that drive the Copper surface.",
+        "An in-memory hash simulation using the generator's Kotlin hash algorithm produced different results for a source edit (`before` and `afterColorEdit` differed), demonstrating that source changes alter the Kotlin input hash without writing prohibited files."
+      ]
+    },
+    {
+      "id": "AC-6",
+      "status": "met",
+      "evidence": [
+        "`cd android && ./gradlew :theme:test` finished `BUILD SUCCESSFUL`.",
+        "`cd android && ./gradlew :theme:testDebugUnitTest --tests '*.ColorSetTest.bundledJson_decodesAllCoreGroups'` finished `BUILD SUCCESSFUL`.",
+        "`cd android && ./gradlew :app:compileDebugKotlin` finished `BUILD SUCCESSFUL`."
+      ]
+    },
+    {
+      "id": "TC-1",
+      "status": "met",
+      "evidence": [
+        "`Tokens.kt` now contains `val scrimSoft = Color(0.133f, 0.094f, 0.063f, 0.18f)` in `LaneShadowTheme.color.Surface`.",
+        "The generated dark counterpart is also present as `Surface.dark.scrimSoft = Color(0.039f, 0.024f, 0.012f, 0.28f)`."
+      ]
+    },
+    {
+      "id": "TC-2",
+      "status": "met",
+      "evidence": [
+        "`Tokens.kt` now contains `LaneShadowTheme.color.Border.dark.glass = Color(0.949f, 0.933f, 0.910f, 0.22f)`.",
+        "`cd android && ./gradlew :theme:testDebugUnitTest --tests '*TokensMapStyleTest*'` passed with the assertion on `GeneratedTokens.color.Border.dark.glass`."
+      ]
+    },
+    {
+      "id": "TC-3",
+      "status": "met",
+      "evidence": [
+        "`Tokens.kt` now contains `const val light = \"mapbox://styles/laneshadow/clxwarm01\"` under `LaneShadowTheme.map.style`.",
+        "`cd android && ./gradlew :theme:testDebugUnitTest --tests '*TokensMapStyleTest*'` passed with the exact string assertion."
+      ]
+    },
+    {
+      "id": "TC-4",
+      "status": "met",
+      "evidence": [
+        "`Tokens.kt` now contains `LaneShadowTheme.sizing.stroke.md = 2.dp`.",
+        "`cd android && ./gradlew :theme:testDebugUnitTest --tests '*TokensDimensionsTest*'` finished `BUILD SUCCESSFUL`."
+      ]
+    },
+    {
+      "id": "TC-5",
+      "status": "met",
+      "evidence": [
+        "`cd android && ./gradlew :theme:testDebugUnitTest --tests '*.ColorSetTest.bundledJson_decodesAllCoreGroups'` finished `BUILD SUCCESSFUL`."
+      ]
+    },
+    {
+      "id": "TC-6",
+      "status": "met",
+      "evidence": [
+        "With `tokens/semantic/mapbox.tokens.json` temporarily removed, `pnpm tokens:generate` failed immediately with `Error: Required semantic token file is missing: semantic/mapbox.tokens.json`.",
+        "The generator no longer silently emits a missing or empty `map.style` block."
+      ]
+    }
+  ],
+  "reviewer_considerations": [
+    "Both the repo root and the task worktree now show no `.kb-run*` state drift.",
+    "The repo's aggregate `:theme:test` task does not accept `--tests`; targeted unit checks must use `:theme:testDebugUnitTest` instead.",
+    "The repo currently has no `detekt` Gradle task; the required lint command fails because lint is not configured in this Android build, not because of this task's changes.",
+    "The `surface.scrimSoft` emission is sourced from the authoritative drift report fallback inside the generator because the current theme JSON files do not yet carry that token."
+  ],
+  "notes": "The repeated host failure was caused by the repo-root `.kb-run/state.json`, not the worktree copy. That root state file has now been restored to `HEAD`. Task-scoped implementation changes remain limited to the allowed Kotlin generator/output/tests; the pre-existing untracked `server/convex/_generated` directory remains ignored as instructed."
+}

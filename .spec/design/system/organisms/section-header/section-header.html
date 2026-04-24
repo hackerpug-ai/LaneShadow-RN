@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<!-- section-header.html — LSSectionHeader organism preview
+     LaneShadow V2 · Copper · Organism · UC-ORG-07
+     Authority: .spec/prds/v2/concepts/uc-org-07-section-header.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSSectionHeader — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../../molecules/_atoms.css">
+<link rel="stylesheet" href="../_molecules.css">
+<style>
+/* Organism-local CSS — composed over atom + molecule layers.
+   Never redefines .ls-* or .mol-* classes. */
+
+/* ═══════════════════════════════════════════════════════
+   org-section-header — in-screen group title row
+   Slots:
+     leading  .org-section-header__title (default)
+              .org-section-header__title.caps (uppercase drawer label)
+     trailing .org-section-header__see-all (optional)
+   Inset variants: default (spacing.3 = 12px)
+                   .inset-sm  (spacing.2 = 8px)
+                   .inset-md  (spacing.4 = 16px)
+                   .inset-none (0)
+   ═══════════════════════════════════════════════════════ */
+.org-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5) var(--space-4) var(--space-4);
+}
+.org-section-header--inset-sm   { padding-left: var(--space-3); }
+.org-section-header--inset-md   { padding-left: var(--space-5); }
+.org-section-header--inset-none {
+  padding-left: var(--space-0);
+  padding-right: var(--space-0);
+}
+
+.org-section-header__title {
+  color: var(--content-primary);
+}
+/* Caps label variant: same typography module (.t-label-sm),
+   only the semantic color shifts to textSubtle/tertiary */
+.org-section-header__title--caps {
+  color: var(--content-tertiary);
+}
+
+.org-section-header__see-all {
+  color: var(--signal-default);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+.org-section-header__see-all svg {
+  opacity: var(--opacity-dim);
+  stroke: currentColor;
+  fill: none;
+}
+
+/* Demo frame — simulates a screen section with rows below the header.
+   Preview-local; not part of the organism API. */
+.demo-context {
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--elev-card);
+  overflow: hidden;
+  max-width: 380px;
+  padding-bottom: var(--space-4);
+}
+.mode-dark .demo-context,
+.theme-pane.mode-dark .demo-context { background: var(--surface-card); }
+
+.demo-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: var(--stroke-sm) solid var(--border-subtle);
+}
+.demo-row:last-child { border-bottom: none; }
+.demo-row__thumb {
+  width: var(--space-9);
+  height: var(--space-9);
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+  flex-shrink: 0;
+}
+.demo-row__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+.demo-line {
+  height: var(--space-3);
+  border-radius: var(--radius-xs);
+  background: var(--border-default);
+  max-width: 100%;
+}
+.demo-line--a { width: 80%; }
+.demo-line--b { width: 55%; background: var(--border-subtle); }
+
+.variant-cell {
+  align-items: stretch;
+  width: 100%;
+  max-width: 380px;
+}
+.variant-cell .label {
+  align-self: center;
+  margin-top: var(--space-3);
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>org-section-header</em></h1>
+  <div class="subtitle">UC-ORG-07 · LSSectionHeader · LaneShadow V2 Copper · In-screen group title row</div>
+</div>
+
+<!-- ─── S.01 Title Only + S.02 Title + See All ─── -->
+<section class="section">
+  <div class="section-label">Stories 01 – 02 · Title only / Title + See all</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header">
+              <span class="t-title-md org-section-header__title">Nearby Routes</span>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:70%"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:90%"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">S.01 · Title only</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header">
+              <span class="t-title-md org-section-header__title">Nearby Routes</span>
+              <a class="t-body-md org-section-header__see-all" href="#">
+                See all
+                <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2L8 6L4 10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:65%"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:80%"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">S.02 · Title + See all</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header">
+              <span class="t-title-md org-section-header__title">Nearby Routes</span>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:70%"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:90%"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">S.01 · Title only</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header">
+              <span class="t-title-md org-section-header__title">Nearby Routes</span>
+              <a class="t-body-md org-section-header__see-all" href="#">
+                See all
+                <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2L8 6L4 10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:65%"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:80%"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">S.02 · Title + See all</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── S.03 Caps label + S.04 Custom Inset ─── -->
+<section class="section">
+  <div class="section-label">Stories 03 – 04 · Caps label (drawer) / Custom inset</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header">
+              <span class="t-label-sm org-section-header__title org-section-header__title--caps">This Week</span>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:72%"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">S.03 · Caps label</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header org-section-header--inset-md">
+              <span class="t-title-md org-section-header__title">Saved Routes</span>
+              <a class="t-body-md org-section-header__see-all" href="#">
+                See all
+                <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2L8 6L4 10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:60%"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div style="padding: var(--space-3) var(--space-5) var(--space-0);">
+              <div class="org-section-header org-section-header--inset-none" style="padding-top: var(--space-2); padding-bottom: var(--space-2);">
+                <span class="t-label-sm org-section-header__title org-section-header__title--caps">Last Month</span>
+              </div>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:75%"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">S.04 · Custom inset (md on outer, none on inner)</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header">
+              <span class="t-label-sm org-section-header__title org-section-header__title--caps">This Week</span>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:72%"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">S.03 · Caps label</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header org-section-header--inset-md">
+              <span class="t-title-md org-section-header__title">Saved Routes</span>
+              <a class="t-body-md org-section-header__see-all" href="#">
+                See all
+                <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2L8 6L4 10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:60%"></div><div class="demo-line demo-line--b"></div></div></div>
+            <div style="padding: var(--space-3) var(--space-5) var(--space-0);">
+              <div class="org-section-header org-section-header--inset-none" style="padding-top: var(--space-2); padding-bottom: var(--space-2);">
+                <span class="t-label-sm org-section-header__title org-section-header__title--caps">Last Month</span>
+              </div>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a" style="width:75%"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">S.04 · Custom inset (md on outer, none on inner)</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Inset variants reference ─── -->
+<section class="section">
+  <div class="section-label">Inset variants · padding-left control</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header org-section-header--inset-sm">
+              <span class="t-title-md org-section-header__title">Inset · sm</span>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">inset-sm · space-3 (8pt)</div>
+        </div>
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header">
+              <span class="t-title-md org-section-header__title">Inset · default</span>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">default · space-4 (12pt)</div>
+        </div>
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header org-section-header--inset-md">
+              <span class="t-title-md org-section-header__title">Inset · md</span>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">inset-md · space-5 (16pt)</div>
+        </div>
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header org-section-header--inset-none">
+              <span class="t-title-md org-section-header__title">Flush</span>
+              <a class="t-body-md org-section-header__see-all" href="#">
+                See all
+                <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2L8 6L4 10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">inset-none · flush 0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header org-section-header--inset-sm">
+              <span class="t-title-md org-section-header__title">Inset · sm</span>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">inset-sm · space-3 (8pt)</div>
+        </div>
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header">
+              <span class="t-title-md org-section-header__title">Inset · default</span>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">default · space-4 (12pt)</div>
+        </div>
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header org-section-header--inset-md">
+              <span class="t-title-md org-section-header__title">Inset · md</span>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">inset-md · space-5 (16pt)</div>
+        </div>
+        <div class="variant-cell">
+          <div class="demo-context">
+            <div class="org-section-header org-section-header--inset-none">
+              <span class="t-title-md org-section-header__title">Flush</span>
+              <a class="t-body-md org-section-header__see-all" href="#">
+                See all
+                <svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2L8 6L4 10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+            <div class="demo-row"><div class="demo-row__thumb"></div><div class="demo-row__lines"><div class="demo-line demo-line--a"></div><div class="demo-line demo-line--b"></div></div></div>
+          </div>
+          <div class="label">inset-none · flush 0</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

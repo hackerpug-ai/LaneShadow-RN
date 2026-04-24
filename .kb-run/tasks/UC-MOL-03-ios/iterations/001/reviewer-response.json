@@ -1,0 +1,77 @@
+{
+  "verdict": "NEEDS_FIXES",
+  "confidence": "HIGH",
+  "tasks": [
+    {
+      "id": "UC-MOL-03-ios",
+      "verdict": "NEEDS_FIXES",
+      "requirements": [
+        {
+          "id": "AC-1",
+          "satisfied": true,
+          "evidence": "`LSBottomSheetDetent.small` resolves to `0.25` at ios/LaneShadow/Views/Molecules/LSBottomSheet.swift:10-23, the sheet presents with `.presentationDetents([.fraction(0.25), ...])` at :99-105, and the overlay surface, top radius, and 36pt handle are implemented at :114-141.",
+          "remediation": null
+        },
+        {
+          "id": "AC-2",
+          "satisfied": true,
+          "evidence": "Medium and large detents resolve to `0.5` and `0.9` in ios/LaneShadow/Views/Molecules/LSBottomSheet.swift:10-23 and are included in the presented detent set at :99-103.",
+          "remediation": null
+        },
+        {
+          "id": "AC-3",
+          "satisfied": true,
+          "evidence": "Dismiss dispatch is guarded through `LSBottomSheetDismissCoordinator` at ios/LaneShadow/Views/Molecules/LSBottomSheet.swift:26-38 and wired to the sheet `onDismiss` at :93-97, which supports the exactly-once drag-dismiss requirement.",
+          "remediation": null
+        },
+        {
+          "id": "AC-4",
+          "satisfied": true,
+          "evidence": "All four `LSToastVariant` cases resolve token-backed styles in ios/LaneShadow/Views/Molecules/LSToast.swift:5-58, and the enter motion recipe is token-backed and named `motion.recipe.chatOverlayEnter` at :282-288.",
+          "remediation": null
+        },
+        {
+          "id": "AC-5",
+          "satisfied": false,
+          "evidence": "`LSToast.dismissRecipe` hardcodes `visibleDurationMilliseconds: 5000` at ios/LaneShadow/Views/Molecules/LSToast.swift:291-297, but the token source defines `motion.recipe.chatOverlayDismiss.duration` as `{motion.duration.fast}` in tokens/semantic/motion.tokens.json:52-55. The unit test also bakes in the same incorrect literal at ios/LaneShadowTests/Molecules/LSToastTests.swift:27-43, so the reported pass does not verify the acceptance criterion.",
+          "remediation": "Derive the toast auto-dismiss duration from the motion token instead of `5000`, then update the test to assert against the token-backed value rather than a hardcoded literal."
+        },
+        {
+          "id": "AC-6",
+          "satisfied": true,
+          "evidence": "`LSModal` composes title/body with `LSText` and actions with `LSButton` variants in ios/LaneShadow/Views/Molecules/LSModal.swift:49-89; destructive and ghost action factories are defined at :5-20.",
+          "remediation": null
+        },
+        {
+          "id": "AC-7",
+          "satisfied": true,
+          "evidence": "The new overlay molecules remain token-driven: `LSBottomSheet`, `LSToast`, and `LSModal` use `LaneShadowTheme`/theme values throughout (ios/LaneShadow/Views/Molecules/LSBottomSheet.swift:114-141, ios/LaneShadow/Views/Molecules/LSToast.swift:185-237, ios/LaneShadow/Views/Molecules/LSModal.swift:52-89), and local grep/style checks found no literal `Color(...)`, `Font.system`, or `foregroundColor(...)` usage.",
+          "remediation": null
+        },
+        {
+          "id": "AC-8",
+          "satisfied": true,
+          "evidence": "Stories are present in ios/LaneShadow/Sandbox/Stories/Molecules/LSBottomSheetStory.swift:6-43, ios/LaneShadow/Sandbox/Stories/Molecules/LSToastStory.swift:6-55, and ios/LaneShadow/Sandbox/Stories/Molecules/LSModalStory.swift:6-50, aggregated in ios/LaneShadow/Sandbox/Stories/MoleculesStories.swift:8-19, and added to project membership in ios/project.yml:148-172 and :227-229. The paired `project.pbxproj` diff only adds the corresponding file references/build entries for those `project.yml` additions.",
+          "remediation": null
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "severity": "HIGH",
+      "task_id": "UC-MOL-03-ios",
+      "location": "ios/LaneShadow/Views/Molecules/LSToast.swift:291-297; tokens/semantic/motion.tokens.json:52-55",
+      "evidence": "AC-5 says toast auto-dismiss must use the `motion.recipe.chatOverlayDismiss` duration, but the implementation names that recipe while still using a fixed `5000` ms. The actual token maps the dismiss recipe duration to `motion.duration.fast`, so the shipped behavior is not token-driven and will drift whenever the design token changes.",
+      "fix": "Replace the hardcoded `5000` with a duration resolved from the theme/token-backed dismiss recipe and drive both the progress animation and `Task.sleep` from that resolved value."
+    },
+    {
+      "severity": "MEDIUM",
+      "task_id": "UC-MOL-03-ios",
+      "location": "ios/LaneShadowTests/Molecules/LSToastTests.swift:27-43",
+      "evidence": "The toast timing test asserts `recipe.visibleDurationMilliseconds == 5000`, which encodes the same wrong literal as the implementation. That means the test suite passes even when AC-5 is violated, so it would not catch future token changes either.",
+      "fix": "Change the test to verify the toast dismiss duration is derived from the token-backed motion recipe or the resolved theme duration, not from a duplicated literal."
+    }
+  ],
+  "summary": "Needs fixes. The overlay molecules generally match scope, the Xcode project change is limited to the expected XcodeGen membership additions, and local `swiftformat --lint`, `xcodebuild build`, and full `xcodebuild test` all passed in this environment, which makes the earlier simulator Busy error look environmental rather than product-level. The blocker is AC-5: `LSToast` still hardcodes a 5000 ms auto-dismiss duration instead of deriving it from `motion.recipe.chatOverlayDismiss`, and the accompanying test masks that regression by asserting the same literal."
+}

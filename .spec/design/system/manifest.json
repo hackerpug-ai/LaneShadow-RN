@@ -1,0 +1,60 @@
+{
+  "run": {
+    "skill": "design-deconstruct",
+    "phase": "views (Phase 5)",
+    "concept_root": ".spec/prds/v2/concepts",
+    "output_dir": ".spec/design/system",
+    "completed_at": "2026-04-23T19:45:00-07:00",
+    "mode": "resume-from-views (atoms, molecules, organisms, tokens already built)"
+  },
+  "phases": {
+    "tokens": { "status": "cached", "note": "tokens.css + theme.light/dark.json preserved from prior run" },
+    "atoms": { "status": "cached", "count": 17 },
+    "molecules": { "status": "cached", "count": 20 },
+    "organisms": { "status": "cached", "count": 7 },
+    "views": { "status": "completed", "count": 6 }
+  },
+  "views": [
+    { "name": "idle-screen",           "authority": "uc-scr-01", "stories": 7, "audit": "clean", "artifacts": ["README.md","idle-screen.html","idle-screen.pdf","idle-screen.png","idle-screen-mobile.png"] },
+    { "name": "planning-screen",       "authority": "uc-scr-02", "stories": 7, "audit": "clean", "artifacts": ["README.md","planning-screen.html","planning-screen.pdf","planning-screen.png","planning-screen-mobile.png"] },
+    { "name": "route-results-screen",  "authority": "uc-scr-03", "stories": 7, "audit": "clean (after 1 remediation dispatch — 7 violations fixed)", "artifacts": ["README.md","route-results-screen.html","route-results-screen.pdf","route-results-screen.png","route-results-screen-mobile.png"] },
+    { "name": "route-details-screen",  "authority": "uc-scr-04", "stories": 6, "audit": "clean", "artifacts": ["README.md","route-details-screen.html","route-details-screen.pdf","route-details-screen.png","route-details-screen-mobile.png"] },
+    { "name": "sessions-screen",       "authority": "uc-scr-05", "stories": 5, "audit": "clean (after orchestrator literal-to-token swap: --elev-drawer, --space-hairline)", "artifacts": ["README.md","sessions-screen.html","sessions-screen.pdf","sessions-screen.png","sessions-screen-mobile.png"] },
+    { "name": "error-screen",          "authority": "uc-scr-06", "stories": 6, "audit": "clean", "artifacts": ["README.md","error-screen.html","error-screen.pdf","error-screen.png","error-screen-mobile.png"] }
+  ],
+  "bundles_regenerated": [
+    { "path": "views/_organisms.css", "generated_from": "organisms/*/*.html <style> blocks", "size_bytes": 42757 }
+  ],
+  "token_gaps_resolved": [
+    { "key": "--surface-scrim-soft", "light": "rgba(34,24,16,0.18)", "dark": "rgba(10,6,3,0.28)", "source": "route-results-screen (refining-state map dim)", "mirrored_in": ["tokens.css", "theme.light.json", "theme.dark.json"] },
+    { "key": "--elev-drawer",        "light": "2px 0 16px rgba(34,24,16,0.14)", "dark": "2px 0 16px rgba(0,0,0,0.60)", "source": "sessions-screen (leading-drawer slide shadow)", "mirrored_in": ["tokens.css", "theme.light.json", "theme.dark.json"] },
+    { "key": "--space-hairline",     "light": "1px", "dark": "1px", "source": "sessions-screen (active-row stripe optical nudge)", "mirrored_in": ["tokens.css"] }
+  ],
+  "variant_requests": [],
+  "cascade_trail": [],
+  "remediations": [
+    {
+      "view": "route-results-screen",
+      "count": 7,
+      "violations_before": ["padding: 2px × 2", "line-height: numeric × 4", "font-weight: 600"],
+      "resolution": "subagent re-dispatched via SendMessage; 5 edits applied (delegated typography to .t-* classes, swapped 2px padding for var(--space-1))",
+      "post_audit": "clean (0 violations)"
+    }
+  ],
+  "quality_bar": {
+    "hex_literals": 0,
+    "numeric_typography_literals": 0,
+    "raw_px_in_spacing": 0,
+    "total_violations_across_all_views": 0,
+    "link_tag_count_per_view": 7,
+    "mobile_breakpoint_present_per_view": true,
+    "stacked_layout_compliance": "100% — no two-up / side-by-side grids in any view"
+  },
+  "render": {
+    "chrome_path": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "pdf_args": "--headless=new --virtual-time-budget=5000 --no-pdf-header-footer",
+    "desktop_window": "1320x9000",
+    "mobile_window": "375x9000",
+    "trim_pass": "PIL bottom-detection to canvas color (+40px pad)"
+  }
+}

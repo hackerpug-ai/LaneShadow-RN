@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<!-- sessions-drawer.html — LSSessionsDrawer organism preview
+     LaneShadow V2 · Copper · Organism · UC-ORG-05
+     Authority: .spec/prds/v2/concepts/uc-org-05-sessions-drawer.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSSessionsDrawer — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../../molecules/_atoms.css">
+<link rel="stylesheet" href="../_molecules.css">
+<style>
+/* Organism-local CSS — composes .ls-btn (NEW chip), and mirrors the
+   section-header pattern (UC-ORG-07). Adds drawer layout + session-row
+   styling. Never redefines atom or molecule styles. */
+
+/* ═══════════════════════════════════════════════════════
+   org-sessions-drawer — left-anchored 312pt conversation-history drawer
+   ═══════════════════════════════════════════════════════ */
+.org-sessions-drawer {
+  background: var(--surface-card);
+  border-right: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-overlay);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.org-sessions-drawer__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-6) var(--space-5) var(--space-4);
+  border-bottom: var(--stroke-sm) solid var(--border-subtle);
+  flex-shrink: 0;
+}
+.org-sessions-drawer__title {
+  font-family: var(--font-opinion);
+  color: var(--content-primary);
+}
+
+.org-sessions-drawer__section-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: var(--space-4) var(--space-5) var(--space-2);
+  flex-shrink: 0;
+}
+.org-sessions-drawer__section-label  { color: var(--content-tertiary); }
+.org-sessions-drawer__section-count  { color: var(--content-tertiary); }
+
+.org-sessions-drawer__list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.org-sessions-drawer__row {
+  position: relative;
+  padding: var(--space-3) var(--space-5) var(--space-3) var(--space-6);
+  border-bottom: var(--stroke-sm) solid var(--border-subtle);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+/* Active row: copper stripe + signal-whisper tint.
+   In dark mode --signal-whisper is overridden in tokens.css to a translucent
+   copper glow, so this rule covers both themes without mode-specific overrides. */
+.org-sessions-drawer__row--active {
+  background: var(--signal-whisper);
+}
+.org-sessions-drawer__row--active::before {
+  content: "";
+  position: absolute;
+  left: var(--space-0);
+  top: var(--space-0);
+  bottom: var(--space-0);
+  width: var(--stroke-lg);
+  background: var(--signal-default);
+}
+
+.org-sessions-drawer__row-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.org-sessions-drawer__row-title {
+  flex: 1;
+  color: var(--content-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.org-sessions-drawer__row-when {
+  color: var(--content-tertiary);
+  flex-shrink: 0;
+}
+.org-sessions-drawer__row-preview {
+  font-family: var(--font-opinion);
+  font-style: italic;
+  color: var(--content-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  line-clamp: 1;
+}
+.org-sessions-drawer__row-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+.org-sessions-drawer__row-meta-chip { color: var(--content-tertiary); }
+.org-sessions-drawer__row--active .org-sessions-drawer__row-meta-chip--primary {
+  color: var(--signal-default);
+}
+.org-sessions-drawer__row-variant-dot {
+  width: var(--space-3);
+  height: var(--space-1);
+  border-radius: var(--radius-xs);
+}
+.org-sessions-drawer__row-variant-dot--best { background: var(--route-best); }
+.org-sessions-drawer__row-variant-dot--alt1 { background: var(--route-alt1); }
+.org-sessions-drawer__row-variant-dot--alt2 { background: var(--route-alt2); }
+
+/* Empty state */
+.org-sessions-drawer__empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-6);
+  gap: var(--space-3);
+  text-align: center;
+}
+.org-sessions-drawer__empty-icon {
+  width: var(--size-control-lg);
+  height: var(--size-control-lg);
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--content-tertiary);
+}
+.org-sessions-drawer__empty-icon svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-md);
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+}
+.org-sessions-drawer__empty-label { color: var(--content-tertiary); }
+
+/* Demo stage — simulated phone-scene with scrim + drawer anchored left.
+   Preview-local; not part of the organism API. */
+.demo-stage {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 9 / 17;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-card);
+  background: var(--surface-map);
+  isolation: isolate;
+}
+.demo-stage__map {
+  position: absolute;
+  inset: 0;
+  background: var(--surface-map);
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: var(--space-8) var(--space-8);
+}
+.demo-stage__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--surface-scrim);
+  pointer-events: none;
+}
+.demo-stage__drawer {
+  position: absolute;
+  top: var(--space-0);
+  bottom: var(--space-0);
+  left: var(--space-0);
+  width: 82%;
+}
+
+.variant-cell {
+  align-items: stretch;
+  width: 100%;
+  max-width: 360px;
+}
+.variant-cell > .label {
+  align-self: center;
+  margin-top: var(--space-3);
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>org-sessions-drawer</em></h1>
+  <div class="subtitle">UC-ORG-05 · LSSessionsDrawer · LaneShadow V2 Copper · Left-anchored conversation-history drawer (312pt / 82%)</div>
+</div>
+
+<!-- ─── Stories ─── -->
+<section class="section">
+  <div class="section-label">LSSessionsDrawer · five compositions</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+
+        <!-- S.01 Default (5 sessions, 1 active) -->
+        <div class="variant-cell">
+          <div class="demo-stage">
+            <div class="demo-stage__map"></div>
+            <div class="demo-stage__scrim"></div>
+            <div class="demo-stage__drawer">
+              <div class="org-sessions-drawer">
+                <div class="org-sessions-drawer__header">
+                  <span class="t-opinion-lg org-sessions-drawer__title">Rides</span>
+                  <button class="ls-btn ls-btn--outline">
+                    <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+                    NEW
+                  </button>
+                </div>
+                <div class="org-sessions-drawer__section-label-row">
+                  <span class="t-label-sm org-sessions-drawer__section-label">This Week</span>
+                  <span class="t-instr-xs org-sessions-drawer__section-count">5</span>
+                </div>
+                <div class="org-sessions-drawer__list">
+
+                  <div class="org-sessions-drawer__row org-sessions-drawer__row--active">
+                    <div class="org-sessions-drawer__row-title-row">
+                      <span class="t-title-sm org-sessions-drawer__row-title">Santa Cruz Loop</span>
+                      <span class="t-instr-xs org-sessions-drawer__row-when">Today</span>
+                    </div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Take 1 south to Davenport then back through the redwoods…</div>
+                    <div class="org-sessions-drawer__row-meta">
+                      <span class="org-sessions-drawer__row-variant-dot org-sessions-drawer__row-variant-dot--best"></span>
+                      <span class="t-label-sm org-sessions-drawer__row-meta-chip org-sessions-drawer__row-meta-chip--primary">Active</span>
+                    </div>
+                  </div>
+
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row">
+                      <span class="t-title-sm org-sessions-drawer__row-title">Skyline to the Sea</span>
+                      <span class="t-instr-xs org-sessions-drawer__row-when">Mon</span>
+                    </div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Best way to do 84 to 35 heading south into the park…</div>
+                    <div class="org-sessions-drawer__row-meta">
+                      <span class="org-sessions-drawer__row-variant-dot org-sessions-drawer__row-variant-dot--best"></span>
+                      <span class="t-label-sm org-sessions-drawer__row-meta-chip">3 routes</span>
+                    </div>
+                  </div>
+
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row">
+                      <span class="t-title-sm org-sessions-drawer__row-title">PCH Evening Run</span>
+                      <span class="t-instr-xs org-sessions-drawer__row-when">Sun</span>
+                    </div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Sunset ride from Pacifica down to Half Moon Bay…</div>
+                    <div class="org-sessions-drawer__row-meta">
+                      <span class="org-sessions-drawer__row-variant-dot org-sessions-drawer__row-variant-dot--alt1"></span>
+                      <span class="t-label-sm org-sessions-drawer__row-meta-chip">2 routes</span>
+                    </div>
+                  </div>
+
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row">
+                      <span class="t-title-sm org-sessions-drawer__row-title">Marin Headlands</span>
+                      <span class="t-instr-xs org-sessions-drawer__row-when">Sat</span>
+                    </div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Cross the bridge and head out to Hawk Hill at sunrise…</div>
+                    <div class="org-sessions-drawer__row-meta">
+                      <span class="t-label-sm org-sessions-drawer__row-meta-chip">1 route</span>
+                    </div>
+                  </div>
+
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row">
+                      <span class="t-title-sm org-sessions-drawer__row-title">Mt. Tam Summit</span>
+                      <span class="t-instr-xs org-sessions-drawer__row-when">Fri</span>
+                    </div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Looking for the cleanest line up Pan Toll…</div>
+                    <div class="org-sessions-drawer__row-meta">
+                      <span class="t-label-sm org-sessions-drawer__row-meta-chip">2 routes</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.01 · Default (5 sessions, 1 active)</div>
+        </div>
+
+        <!-- S.02 Empty State -->
+        <div class="variant-cell">
+          <div class="demo-stage">
+            <div class="demo-stage__map"></div>
+            <div class="demo-stage__scrim"></div>
+            <div class="demo-stage__drawer">
+              <div class="org-sessions-drawer">
+                <div class="org-sessions-drawer__header">
+                  <span class="t-opinion-lg org-sessions-drawer__title">Rides</span>
+                  <button class="ls-btn ls-btn--outline">
+                    <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+                    NEW
+                  </button>
+                </div>
+                <div class="org-sessions-drawer__empty">
+                  <div class="org-sessions-drawer__empty-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8V12L15 15" stroke-linecap="round"/></svg>
+                  </div>
+                  <span class="t-body-sm org-sessions-drawer__empty-label">No rides yet. Tap NEW to start a conversation.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.02 · Empty state</div>
+        </div>
+
+        <!-- S.03 Long List (20, scrollable) -->
+        <div class="variant-cell">
+          <div class="demo-stage">
+            <div class="demo-stage__map"></div>
+            <div class="demo-stage__scrim"></div>
+            <div class="demo-stage__drawer">
+              <div class="org-sessions-drawer">
+                <div class="org-sessions-drawer__header">
+                  <span class="t-opinion-lg org-sessions-drawer__title">Rides</span>
+                  <button class="ls-btn ls-btn--outline">
+                    <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+                    NEW
+                  </button>
+                </div>
+                <div class="org-sessions-drawer__section-label-row">
+                  <span class="t-label-sm org-sessions-drawer__section-label">This Week</span>
+                  <span class="t-instr-xs org-sessions-drawer__section-count">12</span>
+                </div>
+                <div class="org-sessions-drawer__list">
+                  <div class="org-sessions-drawer__row org-sessions-drawer__row--active">
+                    <div class="org-sessions-drawer__row-title-row"><span class="t-title-sm org-sessions-drawer__row-title">Santa Cruz Loop</span><span class="t-instr-xs org-sessions-drawer__row-when">Today</span></div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Take 1 south to Davenport…</div>
+                    <div class="org-sessions-drawer__row-meta"><span class="t-label-sm org-sessions-drawer__row-meta-chip org-sessions-drawer__row-meta-chip--primary">Active</span></div>
+                  </div>
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row"><span class="t-title-sm org-sessions-drawer__row-title">Skyline to the Sea</span><span class="t-instr-xs org-sessions-drawer__row-when">Mon</span></div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">84 to 35 heading south…</div>
+                    <div class="org-sessions-drawer__row-meta"><span class="t-label-sm org-sessions-drawer__row-meta-chip">3 routes</span></div>
+                  </div>
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row"><span class="t-title-sm org-sessions-drawer__row-title">PCH Evening Run</span><span class="t-instr-xs org-sessions-drawer__row-when">Sun</span></div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Sunset ride from Pacifica…</div>
+                    <div class="org-sessions-drawer__row-meta"><span class="t-label-sm org-sessions-drawer__row-meta-chip">2 routes</span></div>
+                  </div>
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row"><span class="t-title-sm org-sessions-drawer__row-title">Marin Headlands</span><span class="t-instr-xs org-sessions-drawer__row-when">Sat</span></div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Cross the bridge at sunrise…</div>
+                    <div class="org-sessions-drawer__row-meta"><span class="t-label-sm org-sessions-drawer__row-meta-chip">1 route</span></div>
+                  </div>
+                  <div class="org-sessions-drawer__row" style="opacity: var(--opacity-overlay);">
+                    <div class="org-sessions-drawer__row-title-row"><span class="t-title-sm org-sessions-drawer__row-title">Mt. Tam Summit</span><span class="t-instr-xs org-sessions-drawer__row-when">Fri</span></div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Pan Toll to the top…</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.03 · Long list (fade at bottom indicates more)</div>
+        </div>
+
+        <!-- S.04 No Active Session -->
+        <div class="variant-cell">
+          <div class="demo-stage">
+            <div class="demo-stage__map"></div>
+            <div class="demo-stage__scrim"></div>
+            <div class="demo-stage__drawer">
+              <div class="org-sessions-drawer">
+                <div class="org-sessions-drawer__header">
+                  <span class="t-opinion-lg org-sessions-drawer__title">Rides</span>
+                  <button class="ls-btn ls-btn--outline">
+                    <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+                    NEW
+                  </button>
+                </div>
+                <div class="org-sessions-drawer__section-label-row">
+                  <span class="t-label-sm org-sessions-drawer__section-label">This Week</span>
+                  <span class="t-instr-xs org-sessions-drawer__section-count">4</span>
+                </div>
+                <div class="org-sessions-drawer__list">
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row"><span class="t-title-sm org-sessions-drawer__row-title">Santa Cruz Loop</span><span class="t-instr-xs org-sessions-drawer__row-when">Mon</span></div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Take 1 south to Davenport…</div>
+                    <div class="org-sessions-drawer__row-meta"><span class="t-label-sm org-sessions-drawer__row-meta-chip">3 routes</span></div>
+                  </div>
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row"><span class="t-title-sm org-sessions-drawer__row-title">Skyline to the Sea</span><span class="t-instr-xs org-sessions-drawer__row-when">Sun</span></div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">84 to 35 heading south…</div>
+                    <div class="org-sessions-drawer__row-meta"><span class="t-label-sm org-sessions-drawer__row-meta-chip">2 routes</span></div>
+                  </div>
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row"><span class="t-title-sm org-sessions-drawer__row-title">PCH Evening Run</span><span class="t-instr-xs org-sessions-drawer__row-when">Sat</span></div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Sunset ride Pacifica…</div>
+                    <div class="org-sessions-drawer__row-meta"><span class="t-label-sm org-sessions-drawer__row-meta-chip">1 route</span></div>
+                  </div>
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row"><span class="t-title-sm org-sessions-drawer__row-title">Marin Headlands</span><span class="t-instr-xs org-sessions-drawer__row-when">Fri</span></div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Cross bridge at sunrise…</div>
+                    <div class="org-sessions-drawer__row-meta"><span class="t-label-sm org-sessions-drawer__row-meta-chip">2 routes</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.04 · No active session</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+
+        <!-- S.05 Dark Mode -->
+        <div class="variant-cell">
+          <div class="demo-stage">
+            <div class="demo-stage__map"></div>
+            <div class="demo-stage__scrim"></div>
+            <div class="demo-stage__drawer">
+              <div class="org-sessions-drawer">
+                <div class="org-sessions-drawer__header">
+                  <span class="t-opinion-lg org-sessions-drawer__title">Rides</span>
+                  <button class="ls-btn ls-btn--outline">
+                    <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+                    NEW
+                  </button>
+                </div>
+                <div class="org-sessions-drawer__section-label-row">
+                  <span class="t-label-sm org-sessions-drawer__section-label">This Week</span>
+                  <span class="t-instr-xs org-sessions-drawer__section-count">3</span>
+                </div>
+                <div class="org-sessions-drawer__list">
+                  <div class="org-sessions-drawer__row org-sessions-drawer__row--active">
+                    <div class="org-sessions-drawer__row-title-row"><span class="t-title-sm org-sessions-drawer__row-title">Santa Cruz Loop</span><span class="t-instr-xs org-sessions-drawer__row-when">Today</span></div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Take 1 south to Davenport…</div>
+                    <div class="org-sessions-drawer__row-meta"><span class="t-label-sm org-sessions-drawer__row-meta-chip org-sessions-drawer__row-meta-chip--primary">Active</span></div>
+                  </div>
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row"><span class="t-title-sm org-sessions-drawer__row-title">Skyline to the Sea</span><span class="t-instr-xs org-sessions-drawer__row-when">Mon</span></div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">84 to 35 heading south…</div>
+                    <div class="org-sessions-drawer__row-meta"><span class="t-label-sm org-sessions-drawer__row-meta-chip">2 routes</span></div>
+                  </div>
+                  <div class="org-sessions-drawer__row">
+                    <div class="org-sessions-drawer__row-title-row"><span class="t-title-sm org-sessions-drawer__row-title">PCH Evening Run</span><span class="t-instr-xs org-sessions-drawer__row-when">Sun</span></div>
+                    <div class="t-body-sm org-sessions-drawer__row-preview">Sunset ride Pacifica…</div>
+                    <div class="org-sessions-drawer__row-meta"><span class="t-label-sm org-sessions-drawer__row-meta-chip">1 route</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.05 · Dark mode</div>
+        </div>
+
+        <!-- Dark Empty -->
+        <div class="variant-cell">
+          <div class="demo-stage">
+            <div class="demo-stage__map"></div>
+            <div class="demo-stage__scrim"></div>
+            <div class="demo-stage__drawer">
+              <div class="org-sessions-drawer">
+                <div class="org-sessions-drawer__header">
+                  <span class="t-opinion-lg org-sessions-drawer__title">Rides</span>
+                  <button class="ls-btn ls-btn--outline">
+                    <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+                    NEW
+                  </button>
+                </div>
+                <div class="org-sessions-drawer__empty">
+                  <div class="org-sessions-drawer__empty-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8V12L15 15" stroke-linecap="round"/></svg>
+                  </div>
+                  <span class="t-body-sm org-sessions-drawer__empty-label">No rides yet. Tap NEW to start a conversation.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.02 · Empty state (dark)</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

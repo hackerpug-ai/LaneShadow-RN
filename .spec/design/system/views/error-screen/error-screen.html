@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<!-- error-screen.html — UC-SCR-06 "ErrorScreen" view preview
+     LaneShadow V2 · Copper · View · UC-SCR-06
+     Authority: .spec/prds/v2/concepts/uc-scr-06-error.html · 08-uc-scr.md §UC-SCR-06
+     Composes: org-map-layer · org-topbar · org-navigator-callouts (ERROR/LSInlineErrorCallout)
+               mol-chat-input · mol-suggestion-chip -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>UC-SCR-06 — ErrorScreen — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../../molecules/_atoms.css">
+<link rel="stylesheet" href="../../organisms/_molecules.css">
+<link rel="stylesheet" href="../_organisms.css">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   VIEW-LOCAL CSS — only .view-error-screen* selectors.
+   NEVER redefines .ls-*, .mol-*, .org-* classes.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Page scaffolding ─────────────────────────────────────────── */
+.view-error-screen {
+  background: var(--surface-primary);
+  color: var(--content-primary);
+  font-family: var(--font-ui);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Preview header ───────────────────────────────────────────── */
+.view-error-screen__preview-header {
+  padding: var(--space-9) var(--space-9) var(--space-8);
+  border-bottom: var(--stroke-sm) solid var(--border-default);
+}
+
+.view-error-screen__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--status-warning);
+  margin-bottom: var(--space-5);
+}
+
+.view-error-screen__eyebrow::before {
+  content: "";
+  display: block;
+  width: var(--space-8);
+  height: var(--stroke-sm);
+  background: var(--status-warning);
+}
+
+.view-error-screen__doc-title {
+  color: var(--content-primary);
+  margin-bottom: var(--space-4);
+}
+
+.view-error-screen__doc-title em {
+  font-style: italic;
+  color: var(--status-warning);
+}
+
+.view-error-screen__doc-tagline {
+  font-style: italic;
+  color: var(--content-secondary);
+  max-width: 600px;
+}
+
+/* ── Story section (full-width stacked) ───────────────────────── */
+.view-error-screen__story {
+  padding: var(--space-11) var(--space-9);
+  border-bottom: var(--stroke-sm) solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.view-error-screen__story:last-child {
+  border-bottom: none;
+}
+
+/* ── Caption band (story heading) ─────────────────────────────── */
+.view-error-screen__caption {
+  width: 100%;
+  max-width: 860px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-bottom: var(--space-5);
+  border-bottom: var(--stroke-sm) solid var(--border-default);
+}
+
+.view-error-screen__caption-id {
+  color: var(--status-warning);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.view-error-screen__caption-id::before {
+  content: "";
+  display: block;
+  width: var(--space-7);
+  height: var(--stroke-sm);
+  background: var(--status-warning);
+}
+
+.view-error-screen__caption-title {
+  color: var(--content-primary);
+}
+
+.view-error-screen__caption-desc {
+  color: var(--content-secondary);
+  max-width: 560px;
+}
+
+/* ── Phone frame ──────────────────────────────────────────────── */
+.view-error-screen__phone {
+  width: 100%;
+  max-width: 390px;
+  aspect-ratio: 9 / 19.5;
+  position: relative;
+  border-radius: var(--radius-xl);
+  border: var(--stroke-sm) solid var(--border-default);
+  background: var(--surface-primary);
+  overflow: hidden;
+  box-shadow: var(--elev-overlay);
+  isolation: isolate;
+}
+
+/* Dynamic island notch */
+.view-error-screen__di {
+  position: absolute;
+  top: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 112px;
+  height: 30px;
+  background: var(--ink-900);
+  border-radius: var(--radius-xl);
+  z-index: 60;
+}
+
+[data-theme="dark"] .view-error-screen__di {
+  background: var(--ink-900);
+}
+
+/* Status bar */
+.view-error-screen__status-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-10) var(--space-5) var(--space-0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 50;
+  color: var(--content-primary);
+}
+
+/* Home indicator bar */
+.view-error-screen__home-bar {
+  position: absolute;
+  bottom: var(--space-2);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: var(--space-1);
+  background: rgba(0, 0, 0, 0.38);
+  border-radius: var(--radius-pill);
+  z-index: 60;
+}
+
+[data-theme="dark"] .view-error-screen__home-bar {
+  background: rgba(255, 255, 255, 0.30);
+}
+
+/* ── Map slot (inside phone frame) ────────────────────────────── */
+.view-error-screen__map-slot {
+  position: absolute;
+  inset: 0;
+  background: var(--map-paper);
+  z-index: 0;
+  overflow: hidden;
+}
+
+.view-error-screen__map-slot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: var(--space-8) var(--space-8);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.view-error-screen__map-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ── Route origin / destination pins ──────────────────────────── */
+.view-error-screen__origin-pin {
+  position: absolute;
+  width: var(--space-3);
+  height: var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--signal-default);
+  border: var(--stroke-lg) solid var(--surface-card);
+  z-index: 4;
+}
+
+.view-error-screen__dest-pin {
+  position: absolute;
+  width: var(--space-5);
+  height: var(--space-5);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  border: var(--stroke-lg) solid var(--signal-default);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.view-error-screen__dest-pin-dot {
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--signal-default);
+}
+
+/* ── Broken segment marker ────────────────────────────────────── */
+.view-error-screen__broken-mark {
+  position: absolute;
+  width: var(--space-5);
+  height: var(--space-5);
+  background: color-mix(in srgb, var(--status-error) 12%, var(--surface-card));
+  border: var(--stroke-md) solid var(--status-error);
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--status-error);
+  z-index: 4;
+}
+
+/* ── Network offline watermark ────────────────────────────────── */
+.view-error-screen__offline-glyph {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  transform: translate(-50%, -50%);
+  width: 70px;
+  height: 70px;
+  opacity: 0.25;
+  color: var(--status-warning);
+}
+
+/* ── Error callout card (LSInlineErrorCallout composition) ─────── */
+.view-error-screen__callout {
+  position: absolute;
+  top: var(--space-11);
+  left: var(--space-4);
+  right: var(--space-4);
+  z-index: 20;
+  background: var(--surface-glass);
+  border: var(--stroke-sm) solid color-mix(in srgb, var(--status-warning) 24%, transparent);
+  border-top: var(--stroke-md) solid var(--status-warning);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  box-shadow: var(--elev-overlay);
+}
+
+/* Storm-gate variant: top stripe + border use storm color */
+.view-error-screen__callout--storm {
+  border-top-color: var(--wx-storm);
+  border-color: color-mix(in srgb, var(--wx-storm) 30%, transparent);
+}
+
+/* Faded transition state (suggestion tapped) */
+.view-error-screen__callout--fading {
+  opacity: 0.55;
+}
+
+/* ── Callout head row ──────────────────────────────────────────── */
+.view-error-screen__callout-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.view-error-screen__compass-chip {
+  width: var(--space-7);
+  height: var(--space-7);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--status-warning) 14%, var(--surface-card));
+  border: var(--stroke-sm) solid color-mix(in srgb, var(--status-warning) 30%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--status-warning);
+  flex-shrink: 0;
+}
+
+.view-error-screen__compass-chip--storm {
+  background: color-mix(in srgb, var(--wx-storm) 14%, var(--surface-card));
+  border-color: color-mix(in srgb, var(--wx-storm) 35%, transparent);
+  color: var(--wx-storm);
+}
+
+.view-error-screen__callout-head-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Callout label (THE NAVIGATOR) ────────────────────────────── */
+.view-error-screen__callout-label {
+  /* letter-spacing and text-transform come from .t-label-sm applied in HTML */
+  color: var(--status-warning);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.view-error-screen__callout-label-dot {
+  width: var(--space-1);
+  height: var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--status-warning);
+  flex-shrink: 0;
+}
+
+.view-error-screen__callout-label--storm {
+  color: var(--wx-storm);
+}
+
+.view-error-screen__callout-label-dot--storm {
+  background: var(--wx-storm);
+}
+
+/* ── Callout body (opinion-serif) ─────────────────────────────── */
+.view-error-screen__callout-body {
+  /* font-family/size/weight/line-height come from .t-opinion-md applied in HTML */
+  color: var(--content-primary);
+}
+
+/* ── Callout detail (muted sans) ─────────────────────────────── */
+.view-error-screen__callout-detail {
+  /* font-family/size/weight from .t-body-sm applied in HTML */
+  color: var(--content-secondary);
+  margin-top: var(--space-3);
+}
+
+/* ── Suggestion chip divider row ──────────────────────────────── */
+.view-error-screen__sugg-row {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--stroke-sm) dashed color-mix(in srgb, var(--status-warning) 22%, transparent);
+}
+
+/* Primary suggestion chip — warning tint */
+.view-error-screen__sugg-chip--primary {
+  padding: var(--space-3) var(--space-4);
+  min-height: var(--space-9);
+  display: inline-flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--status-warning) 12%, var(--surface-card));
+  border: var(--stroke-sm) solid color-mix(in srgb, var(--status-warning) 40%, transparent);
+  border-radius: var(--radius-pill);
+  color: var(--status-warning);
+  box-shadow: var(--elev-chrome);
+  cursor: pointer;
+}
+
+/* Primary suggestion chip — storm tint (S04 variant) */
+.view-error-screen__sugg-chip--storm {
+  background: color-mix(in srgb, var(--wx-storm) 12%, var(--surface-card));
+  border-color: color-mix(in srgb, var(--wx-storm) 40%, transparent);
+  color: var(--wx-storm);
+}
+
+/* Tertiary suggestion chip — plain glass */
+.view-error-screen__sugg-chip--tertiary {
+  padding: var(--space-3) var(--space-4);
+  min-height: var(--space-9);
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-pill);
+  color: var(--content-primary);
+  box-shadow: var(--elev-chrome);
+  cursor: pointer;
+}
+
+/* ── Chat input anchor ─────────────────────────────────────────── */
+.view-error-screen__chat-anchor {
+  position: absolute;
+  bottom: var(--space-5);
+  left: var(--space-4);
+  right: var(--space-4);
+  z-index: 40;
+}
+
+/* Dimmed (offline) state */
+.view-error-screen__chat-anchor--dimmed {
+  opacity: 0.7;
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .view-error-screen__story {
+    padding: var(--space-9) var(--space-6);
+  }
+
+  .view-error-screen__preview-header {
+    padding: var(--space-8) var(--space-6);
+  }
+
+  .view-error-screen__phone {
+    max-width: min(390px, 80vw);
+  }
+}
+
+@media (max-width: 375px) {
+  .view-error-screen__story {
+    padding: var(--space-8) var(--space-4);
+  }
+
+  .view-error-screen__preview-header {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .view-error-screen__phone {
+    max-width: 100%;
+    border-radius: var(--radius-lg);
+  }
+
+  .view-error-screen__caption {
+    flex-direction: column;
+  }
+
+  .view-error-screen__caption-id {
+    justify-content: center;
+  }
+
+  .view-error-screen__caption-title,
+  .view-error-screen__caption-desc {
+    text-align: center;
+  }
+}
+</style>
+</head>
+<body class="view-error-screen">
+
+<!-- ══════════════════════════════════════════════════════════════════
+     PREVIEW HEADER
+     ═════════════════════════════════════════════════════════════════ -->
+<header class="view-error-screen__preview-header">
+  <div class="view-error-screen__eyebrow t-label-md">UC-SCR-06 · ErrorScreen · View</div>
+  <h1 class="view-error-screen__doc-title t-opinion-xl">
+    Couldn't <em>stitch</em> that one.
+  </h1>
+  <p class="view-error-screen__doc-tagline t-opinion-sm">
+    The Navigator owns its failures. A warn-stripe callout names what broke,
+    offers two recoveries as suggestion chips, and keeps the chat input
+    open so the rider can rewrite the ask themselves.
+    7 variants: 4 primary (broken segment · offline · impossible constraint · dark safety-gate) + 3 edge states.
+  </p>
+</header>
+
+<main role="main">
+
+<!-- ══════════════════════════════════════════════════════════════════
+     S01 — DEFAULT · BROKEN SEGMENT · LIGHT
+     ═════════════════════════════════════════════════════════════════ -->
+<section class="view-error-screen__story" aria-label="S01 Broken Segment Light">
+  <div class="view-error-screen__caption">
+    <div class="view-error-screen__caption-id t-instr-sm">S01 · Default · Light</div>
+    <div class="view-error-screen__caption-title t-opinion-lg">Lucia <em>broken</em> — inland or Big Sur</div>
+    <p class="view-error-screen__caption-desc t-body-sm">
+      Default error state. Warn-stripe callout with compass + "THE NAVIGATOR" label + opinion-serif body + muted detail line + two primary suggestion chips + tertiary "Rewrite the ask". Map shows attempted polyline with a red broken-mark at the failed gap.
+    </p>
+  </div>
+
+  <div class="view-error-screen__phone" role="img" aria-label="ErrorScreen phone preview — S01 Broken Segment Light">
+    <!-- Dynamic island -->
+    <div class="view-error-screen__di"></div>
+
+    <!-- Paper map slot -->
+    <div class="view-error-screen__map-slot">
+      <svg class="view-error-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <!-- Contour lines -->
+        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
+          <path d="M -20 310 C 80 285, 165 350, 240 310 S 340 330, 420 290"/>
+          <path d="M -20 430 C 65 405, 155 475, 240 430 S 340 455, 420 415"/>
+          <path d="M -20 570 C 80 540, 160 605, 240 570 S 340 590, 420 550"/>
+        </g>
+        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
+          <path d="M -20 255 C 80 232, 165 295, 240 255 S 340 275, 420 238"/>
+          <path d="M -20 495 C 80 470, 160 535, 240 495 S 340 518, 420 478"/>
+        </g>
+        <!-- Attempted broken polyline (two segments with gap) -->
+        <path d="M 55 580 C 100 520, 140 510, 175 495" stroke="var(--status-error)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 6" fill="none" opacity="0.75"/>
+        <path d="M 230 470 C 275 510, 310 490, 340 465" stroke="var(--status-error)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 6" fill="none" opacity="0.6"/>
+      </svg>
+      <!-- Origin pin -->
+      <div class="view-error-screen__origin-pin" style="left:11%;top:67%;"></div>
+      <!-- Broken mark at gap -->
+      <div class="view-error-screen__broken-mark" style="left:52%;top:55%;">
+        <span class="t-instr-sm">!</span>
+      </div>
+      <!-- Destination pin -->
+      <div class="view-error-screen__dest-pin" style="left:83%;top:52%;">
+        <div class="view-error-screen__dest-pin-dot"></div>
+      </div>
+    </div>
+
+    <!-- TopBar slot -->
+    <div class="org-map-layer__top-bar">
+      <nav class="org-topbar" aria-label="App navigation">
+        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </button>
+        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          <span class="t-label-md">New</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Error callout (LSInlineErrorCallout — top-overlay slot) -->
+    <div class="view-error-screen__callout org-map-layer__top-overlay" role="status" aria-label="Navigator error callout">
+      <div class="view-error-screen__callout-head">
+        <div class="view-error-screen__compass-chip" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9"/>
+            <polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div class="view-error-screen__callout-head-text">
+          <div class="view-error-screen__callout-label t-label-sm">
+            <span class="view-error-screen__callout-label-dot" aria-hidden="true"></span>
+            The Navigator
+          </div>
+          <p class="view-error-screen__callout-body t-opinion-md">
+            Couldn't stitch that one together — the segment through Lucia looked broken.
+          </p>
+        </div>
+      </div>
+      <p class="view-error-screen__callout-detail t-body-sm">
+        Try a different end point, or let me route you inland via Carmel Valley Rd instead?
+      </p>
+      <div class="view-error-screen__sugg-row" role="list">
+        <button class="view-error-screen__sugg-chip--primary t-body-sm" role="listitem" aria-label="Suggestion: Try inland">Try inland</button>
+        <button class="view-error-screen__sugg-chip--primary t-body-sm" role="listitem" aria-label="Suggestion: End at Big Sur">End at Big Sur</button>
+        <button class="view-error-screen__sugg-chip--tertiary t-body-sm" role="listitem" aria-label="Suggestion: Rewrite the ask">Rewrite the ask</button>
+      </div>
+    </div>
+
+    <!-- Chat input anchor (bottom-overlay slot) -->
+    <div class="org-map-layer__bottom-overlay view-error-screen__chat-anchor">
+      <div class="mol-chat-input" role="group" aria-label="Chat input — error recovery">
+        <div class="mol-chat-input__bar" role="textbox" aria-placeholder="Try again, or let me know what to change…">
+          <button class="mol-chat-input__leading-btn" aria-label="Voice input">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/>
+            </svg>
+          </button>
+          <span class="mol-chat-input__field t-body-lg">Try again, or let me know what to change…</span>
+          <button class="mol-chat-input__filter-btn" aria-label="Open ride filters">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+              <line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/>
+              <line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/>
+              <line x1="14" y1="17" x2="20" y2="17"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="view-error-screen__status-bar">
+      <span class="t-instr-sm">9:46</span>
+      <div style="display:flex;gap:var(--space-2);align-items:center;">
+        <svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 14 10"><path d="M1 5 C 3 2, 11 2, 13 5 M3 6 C 4 4, 10 4, 11 6 M5.5 7 C 6 6, 8 6, 8.5 7" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/><circle cx="7" cy="8.5" r="0.9" fill="currentColor"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <div class="view-error-screen__home-bar"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     S02 — DEFAULT · DARK · SAFETY-GATE (storm)
+     ═════════════════════════════════════════════════════════════════ -->
+<section class="view-error-screen__story" data-theme="dark" aria-label="S02 Dark Safety Gate Storm">
+  <div class="view-error-screen__caption">
+    <div class="view-error-screen__caption-id t-instr-sm">S02 · Default · Dark</div>
+    <div class="view-error-screen__caption-title t-opinion-lg">Storm blocks the <em>region</em></div>
+    <p class="view-error-screen__caption-desc t-body-sm">
+      Dark-mode safety-gate variant. Top stripe and compass chip adopt storm-purple instead of warning-copper. Suggestions shift to temporal recoveries. Every token re-resolves on warm-dark ink substrate.
+    </p>
+  </div>
+
+  <div class="view-error-screen__phone" data-theme="dark" role="img" aria-label="ErrorScreen phone preview — S02 Dark Safety Gate">
+    <div class="view-error-screen__di"></div>
+
+    <!-- Dark paper map with storm hatching -->
+    <div class="view-error-screen__map-slot" style="background:var(--ink-900);">
+      <svg class="view-error-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
+          <path d="M -20 350 C 65 325, 155 395, 240 350 S 340 375, 420 335"/>
+        </g>
+        <!-- Storm hatching -->
+        <g stroke="var(--wx-storm)" stroke-width="0.6" opacity="0.55">
+          <line x1="40" y1="80" x2="35" y2="100"/><line x1="100" y1="60" x2="95" y2="80"/>
+          <line x1="175" y1="90" x2="170" y2="110"/><line x1="260" y1="75" x2="255" y2="95"/>
+          <line x1="70" y1="210" x2="65" y2="230"/><line x1="210" y1="195" x2="205" y2="215"/>
+          <line x1="130" y1="335" x2="125" y2="355"/><line x1="285" y1="310" x2="280" y2="330"/>
+          <line x1="50" y1="460" x2="45" y2="480"/><line x1="240" y1="490" x2="235" y2="510"/>
+          <line x1="155" y1="570" x2="150" y2="590"/><line x1="320" y1="545" x2="315" y2="565"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- TopBar -->
+    <div class="org-map-layer__top-bar">
+      <nav class="org-topbar" aria-label="App navigation">
+        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </button>
+        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          <span class="t-label-md">New</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Storm-gate error callout -->
+    <div class="view-error-screen__callout view-error-screen__callout--storm org-map-layer__top-overlay" role="status" aria-label="Navigator error callout — safety gate">
+      <div class="view-error-screen__callout-head">
+        <div class="view-error-screen__compass-chip view-error-screen__compass-chip--storm" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9"/>
+            <polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div class="view-error-screen__callout-head-text">
+          <div class="view-error-screen__callout-label view-error-screen__callout-label--storm t-label-sm">
+            <span class="view-error-screen__callout-label-dot view-error-screen__callout-label-dot--storm" aria-hidden="true"></span>
+            The Navigator
+          </div>
+          <p class="view-error-screen__callout-body t-opinion-md">
+            Thunderstorm across the entire region. I won't plan a ride through that.
+          </p>
+        </div>
+      </div>
+      <p class="view-error-screen__callout-detail t-body-sm">
+        The safety gate blocked every candidate. Weather clears after midnight — I can hold the ask until then.
+      </p>
+      <div class="view-error-screen__sugg-row" style="border-top-color:color-mix(in srgb, var(--wx-storm) 22%, transparent);" role="list">
+        <button class="view-error-screen__sugg-chip--storm t-body-sm" role="listitem" aria-label="Suggestion: Remind me at midnight">Remind me at midnight</button>
+        <button class="view-error-screen__sugg-chip--storm t-body-sm" role="listitem" aria-label="Suggestion: Ride tomorrow">Ride tomorrow</button>
+        <button class="view-error-screen__sugg-chip--tertiary t-body-sm" role="listitem" aria-label="Suggestion: Something indoors">Something indoors</button>
+      </div>
+    </div>
+
+    <!-- Chat input anchor -->
+    <div class="org-map-layer__bottom-overlay view-error-screen__chat-anchor">
+      <div class="mol-chat-input" role="group" aria-label="Chat input — error recovery">
+        <div class="mol-chat-input__bar" role="textbox" aria-placeholder="Try again, or let me know what to change…">
+          <button class="mol-chat-input__leading-btn" aria-label="Voice input">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/>
+            </svg>
+          </button>
+          <span class="mol-chat-input__field t-body-lg">Try again, or let me know what to change…</span>
+          <button class="mol-chat-input__filter-btn" aria-label="Open ride filters">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+              <line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/>
+              <line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/>
+              <line x1="14" y1="17" x2="20" y2="17"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="view-error-screen__status-bar">
+      <span class="t-instr-sm">8:18 PM</span>
+      <div style="display:flex;gap:var(--space-2);align-items:center;">
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <div class="view-error-screen__home-bar"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     S03 — EXTENDED · IMPOSSIBLE CONSTRAINT · LIGHT
+     ═════════════════════════════════════════════════════════════════ -->
+<section class="view-error-screen__story" aria-label="S03 Extended Impossible Constraint Light">
+  <div class="view-error-screen__caption">
+    <div class="view-error-screen__caption-id t-instr-sm">S03 · Extended · Light</div>
+    <div class="view-error-screen__caption-title t-opinion-lg">The ask <em>breaks physics</em></div>
+    <p class="view-error-screen__caption-desc t-body-sm">
+      When the rider's constraints cannot be satisfied, the Navigator states the contradiction directly. Suggestions are constraint relaxations ordered by minimum impact. Longer detail copy with 3+ chips.
+    </p>
+  </div>
+
+  <div class="view-error-screen__phone" role="img" aria-label="ErrorScreen phone preview — S03 Impossible Constraint">
+    <div class="view-error-screen__di"></div>
+
+    <div class="view-error-screen__map-slot">
+      <svg class="view-error-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
+          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
+          <path d="M -20 380 C 65 355, 155 420, 240 380 S 340 405, 420 365"/>
+        </g>
+        <!-- Crossed-through impossible route attempt -->
+        <path d="M 55 560 C 120 490, 200 470, 320 485" fill="none" stroke="var(--content-subtle)" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+        <g stroke="var(--status-error)" stroke-width="2" stroke-linecap="round">
+          <line x1="158" y1="458" x2="228" y2="528"/>
+          <line x1="228" y1="458" x2="158" y2="528"/>
+        </g>
+      </svg>
+      <!-- Origin pin -->
+      <div class="view-error-screen__origin-pin" style="left:11%;top:65%;"></div>
+      <!-- Destination pin -->
+      <div class="view-error-screen__dest-pin" style="left:83%;top:56%;">
+        <div class="view-error-screen__dest-pin-dot"></div>
+      </div>
+    </div>
+
+    <!-- TopBar -->
+    <div class="org-map-layer__top-bar">
+      <nav class="org-topbar" aria-label="App navigation">
+        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </button>
+        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          <span class="t-label-md">New</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Error callout — extended copy, 3 chips -->
+    <div class="view-error-screen__callout org-map-layer__top-overlay" role="status" aria-label="Navigator error callout — impossible constraint">
+      <div class="view-error-screen__callout-head">
+        <div class="view-error-screen__compass-chip" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9"/>
+            <polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div class="view-error-screen__callout-head-text">
+          <div class="view-error-screen__callout-label t-label-sm">
+            <span class="view-error-screen__callout-label-dot" aria-hidden="true"></span>
+            The Navigator
+          </div>
+          <p class="view-error-screen__callout-body t-opinion-md">
+            30 miles and no highways between here and Big Sur? The geography says no.
+          </p>
+        </div>
+      </div>
+      <p class="view-error-screen__callout-detail t-body-sm">
+        I tried three shapes: a tight coastal-only loop, a start-side detour, and a bluff overlook. Each needed at least 55 minutes one-way. If you can flex the time limit to an hour I have a 58-minute coastal version ready.
+      </p>
+      <div class="view-error-screen__sugg-row" role="list">
+        <button class="view-error-screen__sugg-chip--primary t-body-sm" role="listitem" aria-label="Suggestion: Allow Hwy 1">Allow Hwy 1</button>
+        <button class="view-error-screen__sugg-chip--primary t-body-sm" role="listitem" aria-label="Suggestion: Flex to 60 min">Flex to 60 min</button>
+        <button class="view-error-screen__sugg-chip--primary t-body-sm" role="listitem" aria-label="Suggestion: Closer end point">Closer end point</button>
+        <button class="view-error-screen__sugg-chip--tertiary t-body-sm" role="listitem" aria-label="Suggestion: Rewrite">Rewrite</button>
+      </div>
+    </div>
+
+    <!-- Chat input anchor -->
+    <div class="org-map-layer__bottom-overlay view-error-screen__chat-anchor">
+      <div class="mol-chat-input" role="group" aria-label="Chat input — error recovery">
+        <div class="mol-chat-input__bar" role="textbox" aria-placeholder="Try again, or let me know what to change…">
+          <button class="mol-chat-input__leading-btn" aria-label="Voice input">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/>
+            </svg>
+          </button>
+          <span class="mol-chat-input__field t-body-lg">Try again, or let me know what to change…</span>
+          <button class="mol-chat-input__filter-btn" aria-label="Open ride filters">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+              <line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/>
+              <line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/>
+              <line x1="14" y1="17" x2="20" y2="17"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="view-error-screen__status-bar">
+      <span class="t-instr-sm">9:46</span>
+      <div style="display:flex;gap:var(--space-2);align-items:center;">
+        <svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <div class="view-error-screen__home-bar"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     S04 — RECOVERED · SUGGESTION TAPPED · LIGHT
+     ═════════════════════════════════════════════════════════════════ -->
+<section class="view-error-screen__story" aria-label="S04 Recovered Suggestion Tapped Light">
+  <div class="view-error-screen__caption">
+    <div class="view-error-screen__caption-id t-instr-sm">S04 · Recovered · Light</div>
+    <div class="view-error-screen__caption-title t-opinion-lg">Chip primed the <em>input</em></div>
+    <p class="view-error-screen__caption-desc t-body-sm">
+      Tapping "Try inland" primed the chat field with an adjusted prompt and swapped the trailing slot to the copper send button. The callout fades to 55% as the screen prepares to transition back to PlanningScreen.
+    </p>
+  </div>
+
+  <div class="view-error-screen__phone" role="img" aria-label="ErrorScreen phone preview — S04 Recovered Suggestion Tapped">
+    <div class="view-error-screen__di"></div>
+
+    <div class="view-error-screen__map-slot">
+      <svg class="view-error-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
+          <path d="M -20 310 C 80 285, 165 350, 240 310 S 340 330, 420 290"/>
+          <path d="M -20 500 C 65 475, 155 540, 240 500 S 340 525, 420 485"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- TopBar -->
+    <div class="org-map-layer__top-bar">
+      <nav class="org-topbar" aria-label="App navigation">
+        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </button>
+        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          <span class="t-label-md">New</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Error callout — fading out (suggestion tapped) -->
+    <div class="view-error-screen__callout view-error-screen__callout--fading org-map-layer__top-overlay" role="status" aria-label="Navigator error callout — fading">
+      <div class="view-error-screen__callout-head">
+        <div class="view-error-screen__compass-chip" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9"/>
+            <polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div class="view-error-screen__callout-head-text">
+          <div class="view-error-screen__callout-label t-label-sm">
+            <span class="view-error-screen__callout-label-dot" aria-hidden="true"></span>
+            The Navigator
+          </div>
+          <p class="view-error-screen__callout-body t-opinion-md">
+            Couldn't stitch that one together.
+          </p>
+        </div>
+      </div>
+      <div class="view-error-screen__sugg-row" role="list">
+        <button class="view-error-screen__sugg-chip--primary t-body-sm" role="listitem" aria-label="Suggestion: Try inland">Try inland</button>
+      </div>
+    </div>
+
+    <!-- Chat input — recovered (send revealed, field primed) -->
+    <div class="org-map-layer__bottom-overlay view-error-screen__chat-anchor">
+      <div class="mol-chat-input" role="group" aria-label="Chat input — suggestion primed">
+        <div class="mol-chat-input__bar is-active" role="textbox" aria-label="Ride prompt — primed with suggestion">
+          <button class="mol-chat-input__leading-btn" aria-label="Voice input">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/>
+            </svg>
+          </button>
+          <span class="mol-chat-input__field has-value t-body-lg">Plan inland alternative</span>
+          <button class="ls-btn ls-btn--chat-send" style="display:flex;" aria-label="Send revised ride request">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12l14-7-5 7 5 7z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="view-error-screen__status-bar">
+      <span class="t-instr-sm">9:46</span>
+      <div style="display:flex;gap:var(--space-2);align-items:center;">
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <div class="view-error-screen__home-bar"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     V01 — OFFLINE / NETWORK TIMEOUT · LIGHT
+     ═════════════════════════════════════════════════════════════════ -->
+<section class="view-error-screen__story" aria-label="V01 Offline Network Timeout Light">
+  <div class="view-error-screen__caption">
+    <div class="view-error-screen__caption-id t-instr-sm">V01 · Offline</div>
+    <div class="view-error-screen__caption-title t-opinion-lg">Connection <em>lost</em></div>
+    <p class="view-error-screen__caption-desc t-body-sm">
+      Watermark wifi-off glyph makes network state legible. Suggestions include a retry CTA and two cached recent sessions the rider can open without network. Chat input dims to indicate unavailability.
+    </p>
+  </div>
+
+  <div class="view-error-screen__phone" role="img" aria-label="ErrorScreen phone preview — V01 Offline">
+    <div class="view-error-screen__di"></div>
+
+    <div class="view-error-screen__map-slot">
+      <svg class="view-error-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
+          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
+          <path d="M -20 380 C 65 355, 155 420, 240 380 S 340 405, 420 365"/>
+          <path d="M -20 580 C 80 555, 160 615, 240 580 S 340 600, 420 560"/>
+        </g>
+      </svg>
+      <!-- Offline / disconnected wifi watermark -->
+      <div class="view-error-screen__offline-glyph" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M3 8 C 8 4, 16 4, 21 8"/>
+          <path d="M5 12 C 8 10, 16 10, 19 12" stroke-dasharray="1.5 2"/>
+          <path d="M7 15 C 9 14, 15 14, 17 15" stroke-dasharray="1 2"/>
+          <circle cx="12" cy="18" r="1.5" fill="currentColor"/>
+          <line x1="3" y1="3" x2="21" y2="21"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- TopBar -->
+    <div class="org-map-layer__top-bar">
+      <nav class="org-topbar" aria-label="App navigation">
+        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </button>
+        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          <span class="t-label-md">New</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Error callout — offline state -->
+    <div class="view-error-screen__callout org-map-layer__top-overlay" role="status" aria-label="Navigator error callout — offline">
+      <div class="view-error-screen__callout-head">
+        <div class="view-error-screen__compass-chip" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9"/>
+            <polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div class="view-error-screen__callout-head-text">
+          <div class="view-error-screen__callout-label t-label-sm">
+            <span class="view-error-screen__callout-label-dot" aria-hidden="true"></span>
+            The Navigator
+          </div>
+          <p class="view-error-screen__callout-body t-opinion-md">
+            I lost the signal mid-thought. Let's try that again when you're back on data.
+          </p>
+        </div>
+      </div>
+      <p class="view-error-screen__callout-detail t-body-sm">
+        You're offline. Suggestions below are drawn from your last 14 days of rides.
+      </p>
+      <div class="view-error-screen__sugg-row" role="list">
+        <button class="view-error-screen__sugg-chip--primary t-body-sm" role="listitem" aria-label="Suggestion: Retry when online">Retry when online</button>
+        <button class="view-error-screen__sugg-chip--tertiary t-body-sm" role="listitem" aria-label="Suggestion: Santa Cruz loop (recent)">Santa Cruz loop (recent)</button>
+        <button class="view-error-screen__sugg-chip--tertiary t-body-sm" role="listitem" aria-label="Suggestion: Coast after dark (recent)">Coast after dark (recent)</button>
+      </div>
+    </div>
+
+    <!-- Chat input anchor — dimmed (offline) -->
+    <div class="org-map-layer__bottom-overlay view-error-screen__chat-anchor view-error-screen__chat-anchor--dimmed">
+      <div class="mol-chat-input" role="group" aria-label="Chat input — unavailable offline">
+        <div class="mol-chat-input__bar" role="textbox" aria-placeholder="Offline — reconnect to try again…" aria-disabled="true">
+          <button class="mol-chat-input__leading-btn" aria-label="Voice input" disabled>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/>
+            </svg>
+          </button>
+          <span class="mol-chat-input__field t-body-lg">Offline — reconnect to try again…</span>
+          <button class="mol-chat-input__filter-btn" aria-label="Filters unavailable" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+              <line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/>
+              <line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/>
+              <line x1="14" y1="17" x2="20" y2="17"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status bar — degraded signal shown -->
+    <div class="view-error-screen__status-bar">
+      <span class="t-instr-sm">9:46</span>
+      <div style="display:flex;gap:var(--space-2);align-items:center;">
+        <svg width="16" height="10" viewBox="0 0 16 10" opacity="0.5"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg>
+        <svg width="14" height="10" viewBox="0 0 14 10" opacity="0.35"><path d="M1 5 C 3 2, 11 2, 13 5 M3 6 C 4 4, 10 4, 11 6" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/><line x1="1" y1="1" x2="13" y2="9" stroke="currentColor" stroke-width="1"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <div class="view-error-screen__home-bar"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     V02 — GENERIC FAILURE · NO SUGGESTIONS · LIGHT
+     ═════════════════════════════════════════════════════════════════ -->
+<section class="view-error-screen__story" aria-label="V02 Generic Failure No Suggestions Light">
+  <div class="view-error-screen__caption">
+    <div class="view-error-screen__caption-id t-instr-sm">V02 · Generic Failure</div>
+    <div class="view-error-screen__caption-title t-opinion-lg">Honest copy, no <em>chips</em></div>
+    <p class="view-error-screen__caption-desc t-body-sm">
+      When the system cannot generate recovery suggestions, the callout says so plainly. No suggestion chips appear. The chat input is the only recovery path; the rider is trusted to rephrase.
+    </p>
+  </div>
+
+  <div class="view-error-screen__phone" role="img" aria-label="ErrorScreen phone preview — V02 Generic Failure">
+    <div class="view-error-screen__di"></div>
+
+    <div class="view-error-screen__map-slot">
+      <svg class="view-error-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
+          <path d="M -20 310 C 80 285, 165 350, 240 310 S 340 330, 420 290"/>
+          <path d="M -20 520 C 65 495, 155 565, 240 520 S 340 545, 420 505"/>
+        </g>
+      </svg>
+    </div>
+
+    <!-- TopBar -->
+    <div class="org-map-layer__top-bar">
+      <nav class="org-topbar" aria-label="App navigation">
+        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <path d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </button>
+        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          <span class="t-label-md">New</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Error callout — no chips -->
+    <div class="view-error-screen__callout org-map-layer__top-overlay" role="status" aria-label="Navigator error callout — generic failure">
+      <div class="view-error-screen__callout-head">
+        <div class="view-error-screen__compass-chip" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="9"/>
+            <polygon points="12 7 15 12 12 17 9 12" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div class="view-error-screen__callout-head-text">
+          <div class="view-error-screen__callout-label t-label-sm">
+            <span class="view-error-screen__callout-label-dot" aria-hidden="true"></span>
+            The Navigator
+          </div>
+          <p class="view-error-screen__callout-body t-opinion-md">
+            Something went wrong on my end. I don't have a good suggestion this time.
+          </p>
+        </div>
+      </div>
+      <p class="view-error-screen__callout-detail t-body-sm">
+        Please rewrite the ask — a slightly different prompt usually works.
+      </p>
+      <!-- No sugg-row rendered — V02 explicitly has no chips -->
+    </div>
+
+    <!-- Chat input anchor -->
+    <div class="org-map-layer__bottom-overlay view-error-screen__chat-anchor">
+      <div class="mol-chat-input" role="group" aria-label="Chat input — error recovery">
+        <div class="mol-chat-input__bar" role="textbox" aria-placeholder="Try again, or let me know what to change…">
+          <button class="mol-chat-input__leading-btn" aria-label="Voice input">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19h16M7 14l-3 5 3 5M20 5h-8l-5 9"/>
+            </svg>
+          </button>
+          <span class="mol-chat-input__field t-body-lg">Try again, or let me know what to change…</span>
+          <button class="mol-chat-input__filter-btn" aria-label="Open ride filters">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+              <line x1="4" y1="7" x2="14" y2="7"/><circle cx="17" cy="7" r="2.5"/>
+              <line x1="4" y1="17" x2="8" y2="17"/><circle cx="11" cy="17" r="2.5"/>
+              <line x1="14" y1="17" x2="20" y2="17"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="view-error-screen__status-bar">
+      <span class="t-instr-sm">9:46</span>
+      <div style="display:flex;gap:var(--space-2);align-items:center;">
+        <svg width="16" height="10" viewBox="0 0 16 10"><rect x="0" y="4" width="2" height="6" fill="currentColor"/><rect x="4" y="2" width="2" height="8" fill="currentColor"/><rect x="8" y="0" width="2" height="10" fill="currentColor"/><rect x="12" y="0" width="2" height="10" fill="currentColor"/></svg>
+        <svg width="22" height="10" viewBox="0 0 22 10"><rect x="0.5" y="0.5" width="18" height="9" rx="2" stroke="currentColor" fill="none"/><rect x="2.5" y="2" width="14" height="6" rx="1" fill="currentColor"/><rect x="19" y="3" width="2" height="4" rx="0.5" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <div class="view-error-screen__home-bar"></div>
+  </div>
+</section>
+
+</main>
+</body>
+</html>

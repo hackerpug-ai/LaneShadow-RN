@@ -1,0 +1,13 @@
+State integrity violation is fixed.
+
+- Restored orchestrator-owned checksum file to its original content (the `.kb-run-sprint-codex/.state.json.sha256` diff is gone).
+- Removed transient artifact screenshot so only atom-scope edits remain.
+- Current tracked diff is now only:
+  - [Checkbox.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-03-ios/ios/LaneShadow/Views/Atoms/Checkbox.swift)
+  - [LSScrim.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-03-ios/ios/LaneShadow/Views/Atoms/LSScrim.swift)
+  - [Skeleton.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-03-ios/ios/LaneShadow/Views/Atoms/Skeleton.swift)
+
+Validation rerun:
+- `swiftformat --lint ios/LaneShadow/` passes (`0/129 files require formatting`).
+
+Worktree is ready for host orchestrator validation and checkpoint commit.
