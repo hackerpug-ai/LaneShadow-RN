@@ -138,38 +138,28 @@ targets:
       - path: LaneShadow/Sandbox/Stories/LSPhaseDotStories.swift
       - path: LaneShadow/Sandbox/Stories/LSTextStories.swift
       - path: LaneShadow/Sandbox/Stories/MoleculesStories.swift
-      - path: LaneShadow/Sandbox/Stories/Molecules/LSContentCardStory.swift
-      - path: LaneShadow/Sandbox/Stories/Molecules/LSListRowStory.swift
-      - path: LaneShadow/Sandbox/Stories/Molecules/LSPillSemanticsStory.swift
-      - path: LaneShadow/Sandbox/Stories/Molecules/LSLocationContextBarStory.swift
-      - path: LaneShadow/Sandbox/Stories/Molecules/LSRouteAttachmentCardStory.swift
-      - path: LaneShadow/Sandbox/Stories/Molecules/LSToolbarStory.swift
-      - path: LaneShadow/Sandbox/Stories/Molecules/LSNavHeaderStory.swift
       - path: LaneShadow/Sandbox/Stories/Molecules/LSBottomSheetStory.swift
       - path: LaneShadow/Sandbox/Stories/Molecules/LSToastStory.swift
       - path: LaneShadow/Sandbox/Stories/Molecules/LSModalStory.swift
+      - path: LaneShadow/Sandbox/Stories/Molecules/LSFormFieldStories.swift
+      - path: LaneShadow/Sandbox/Stories/Molecules/LSTabItemStories.swift
+      - path: LaneShadow/Sandbox/Stories/Molecules/LSEmptyStateStories.swift
       - path: LaneShadow/Views/Atoms
         type: syncedFolder
         excludes:
           - Button.swift
       # Legacy molecule files are not yet build-clean as a folder. Keep only
       # the files that were already target members until that layer is migrated.
-      - path: LaneShadow/Views/Molecules/EmptyState.swift
+      # - path: LaneShadow/Views/Molecules/EmptyState.swift # Superseded by Sprint 04 LSEmptyState.swift
       - path: LaneShadow/Views/Molecules/InfoToast.swift
       - path: LaneShadow/Views/Molecules/MarkdownText.swift
-      - path: LaneShadow/Views/Molecules/LSTagPill.swift
-      - path: LaneShadow/Views/Molecules/LSFilterChip.swift
-      - path: LaneShadow/Views/Molecules/LSSuggestionChip.swift
-      - path: LaneShadow/Views/Molecules/LSWeatherBadge.swift
-      - path: LaneShadow/Views/Molecules/LSContentCard.swift
-      - path: LaneShadow/Views/Molecules/LSListRow.swift
-      - path: LaneShadow/Views/Molecules/LSLocationContextBar.swift
-      - path: LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift
-      - path: LaneShadow/Views/Molecules/LSToolbar.swift
-      - path: LaneShadow/Views/Molecules/LSNavHeader.swift
+      # Sprint 04 molecules
       - path: LaneShadow/Views/Molecules/LSBottomSheet.swift
       - path: LaneShadow/Views/Molecules/LSToast.swift
       - path: LaneShadow/Views/Molecules/LSModal.swift
+      - path: LaneShadow/Views/Molecules/LSFormField.swift
+      - path: LaneShadow/Views/Molecules/LSTabItem.swift
+      - path: LaneShadow/Views/Molecules/LSEmptyState.swift
     dependencies:
       - package: ConvexMobile
       - package: LaneShadowTheme
@@ -211,22 +201,15 @@ targets:
       - path: LaneShadowTests/LaneShadowTests.swift
       - path: LaneShadowTests/Atoms
         type: syncedFolder
-      - path: LaneShadowTests/Molecules/EmptyStateTests.swift
+      # - path: LaneShadowTests/Molecules/EmptyStateTests.swift # Legacy, superseded by LSEmptyStateTests.swift
       - path: LaneShadowTests/Molecules/InfoToastTests.swift
       - path: LaneShadowTests/Molecules/MarkdownTextTests.swift
-      - path: LaneShadowTests/Molecules/LSTagPillTests.swift
-      - path: LaneShadowTests/Molecules/LSFilterChipTests.swift
-      - path: LaneShadowTests/Molecules/LSSuggestionChipTests.swift
-      - path: LaneShadowTests/Molecules/LSWeatherBadgeTests.swift
-      - path: LaneShadowTests/Molecules/LSLocationContextBarTests.swift
-      - path: LaneShadowTests/Molecules/LSRouteAttachmentCardTests.swift
-      - path: LaneShadowTests/Molecules/LSContentCardTests.swift
-      - path: LaneShadowTests/Molecules/LSListRowTests.swift
-      - path: LaneShadowTests/Molecules/LSToolbarTests.swift
-      - path: LaneShadowTests/Molecules/LSNavHeaderTests.swift
       - path: LaneShadowTests/Molecules/LSBottomSheetTests.swift
       - path: LaneShadowTests/Molecules/LSToastTests.swift
       - path: LaneShadowTests/Molecules/LSModalTests.swift
+      - path: LaneShadowTests/Molecules/LSFormFieldTests.swift
+      - path: LaneShadowTests/Molecules/LSTabItemTests.swift
+      - path: LaneShadowTests/Molecules/LSEmptyStateTests.swift
       # Legacy molecule tests are intentionally outside the managed folder
       # until the molecule implementation layer is migrated.
     dependencies:

@@ -2,19 +2,21 @@ import LaneShadowTheme
 import NativeSandbox
 import SwiftUI
 
-/// Molecule stories — empty shell per UC-SBX-05-ios (Sprint 1 cleanup).
-/// Sprint 4 (molecules) will repopulate this aggregator.
+/// Molecule stories — Sprint 4 molecule components.
 @MainActor
 enum MoleculesStories {
     static let all: [Story] =
         LSContentCardStory.all +
         LSListRowStory.all +
-        LSPillSemanticsStory.all +
-        LSLocationContextBarStory.all +
-        LSRouteAttachmentCardStory.all +
         LSToolbarStory.all +
         LSNavHeaderStory.all +
         LSBottomSheetStory.all +
         LSToastStory.all +
-        LSModalStory.all
+        LSModalStory.all +
+        LSFormFieldStories.all +
+        LSTabItemStories.all +
+        LSEmptyStateStories.all +
+        LSPillSemanticsStory.all +
+        LSLocationContextBarStory.all +
+        LSRouteAttachmentCardStory.all
 }
