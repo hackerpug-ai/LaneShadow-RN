@@ -23,6 +23,9 @@ class ChecksumValidator {
     suspend fun validate(filePath: String, expectedChecksum: String): ChecksumResult {
         return try {
             val actualChecksum = computeSHA256(filePath)
+            if (actualChecksum.isEmpty()) {
+                return ChecksumResult(valid = false, actualChecksum = actualChecksum)
+            }
             ChecksumResult(
                 valid = actualChecksum == expectedChecksum,
                 actualChecksum = actualChecksum

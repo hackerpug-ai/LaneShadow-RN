@@ -15,34 +15,20 @@ class ChecksumValidatorTest {
 
     private lateinit var testFile: File
 
-    // AC-1: Public API matches source
+    // AC-1: Public API remains callable via the expected coroutine surface
     @Test
     fun testPublicAPIMatchesSource() = runTest {
-        // GIVEN: TypeScript source defines exported functions
-        // ChecksumValidator class with:
-        // - validate(filePath, expectedChecksum) → Promise<ChecksumResult>
-
-        // WHEN: Kotlin equivalents are called
         val validator = ChecksumValidator()
+        testFile = File.createTempFile("checksum-api", ".tmp")
+        testFile.writeText("api contract")
 
-        // THEN: Function signatures match (names, parameters, return types)
-        // Verify class exists with correct method signature
-        val validateMethod = validator.javaClass.getDeclaredMethod(
-            "validate",
-            String::class.java,
-            String::class.java
-        )
+        val expectedChecksum = validator.computeSHA256ForTest(testFile.absolutePath)
+        val result = validator.validate(testFile.absolutePath, expectedChecksum)
 
-        // Verify method name matches
-        assertEquals("validate", validateMethod.name)
+        assertTrue("validate should accept two strings and return a successful result", result.valid)
+        assertEquals(expectedChecksum, result.actualChecksum)
 
-        // Verify parameter count matches
-        assertEquals(2, validateMethod.parameterCount)
-
-        // Verify return type contains suspend signature
-        assertTrue("validate should return ChecksumResult",
-            validateMethod.returnType.name.contains("ChecksumResult") ||
-            validateMethod.returnType.name.contains("Continuation"))
+        testFile.delete()
     }
 
     // AC-2: Async operations use coroutines
@@ -128,7 +114,7 @@ class ChecksumValidatorTest {
         // GIVEN: File is larger than 50MB
         val validator = ChecksumValidator()
 
-        // Create a file > 50MB (we'll simulate this by testing the logic)
+        // Create a file > 50MB so validation explicitly bypasses checksum comparison
         testFile = File.createTempFile("checksum-large", ".tmp")
 
         // Write 51MB of data
