@@ -1,0 +1,247 @@
+{
+  "route_preview_single": {
+    "mode": "preview",
+    "camera": {
+      "center": {
+        "lat": 37.8104,
+        "lon": -122.4752
+      },
+      "zoom": 10.8,
+      "pitch": 0,
+      "bearing": 0
+    },
+    "cameraFit": {
+      "type": "polyline",
+      "padding": "spacing4"
+    },
+    "polylines": [
+      {
+        "variant": "best",
+        "strokeWidth": "md",
+        "coordinates": [
+          {
+            "lat": 37.7749,
+            "lon": -122.4194
+          },
+          {
+            "lat": 37.8078,
+            "lon": -122.4750
+          },
+          {
+            "lat": 37.8324,
+            "lon": -122.4803
+          },
+          {
+            "lat": 37.8626,
+            "lon": -122.4856
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "kind": "start",
+        "coordinate": {
+          "lat": 37.7749,
+          "lon": -122.4194
+        },
+        "label": "San Francisco"
+      },
+      {
+        "kind": "end",
+        "coordinate": {
+          "lat": 37.8626,
+          "lon": -122.4856
+        },
+        "label": "Muir Beach"
+      }
+    ],
+    "showFavorites": false
+  },
+  "route_results_three_alts": {
+    "mode": "interactive",
+    "camera": {
+      "center": {
+        "lat": 37.8205,
+        "lon": -122.4048
+      },
+      "zoom": 10.6,
+      "pitch": 0,
+      "bearing": 0
+    },
+    "cameraFit": {
+      "type": "polylines",
+      "padding": "spacing4"
+    },
+    "polylines": [
+      {
+        "variant": "best",
+        "strokeWidth": "md",
+        "coordinates": [
+          {
+            "lat": 37.7749,
+            "lon": -122.4194
+          },
+          {
+            "lat": 37.7927,
+            "lon": -122.3930
+          },
+          {
+            "lat": 37.8070,
+            "lon": -122.4028
+          },
+          {
+            "lat": 37.8267,
+            "lon": -122.4230
+          },
+          {
+            "lat": 37.8715,
+            "lon": -122.2730
+          }
+        ]
+      },
+      {
+        "variant": "alt1",
+        "strokeWidth": "md",
+        "coordinates": [
+          {
+            "lat": 37.7749,
+            "lon": -122.4194
+          },
+          {
+            "lat": 37.7897,
+            "lon": -122.3902
+          },
+          {
+            "lat": 37.8068,
+            "lon": -122.3777
+          },
+          {
+            "lat": 37.8354,
+            "lon": -122.2912
+          },
+          {
+            "lat": 37.8715,
+            "lon": -122.2730
+          }
+        ]
+      },
+      {
+        "variant": "alt2",
+        "strokeWidth": "md",
+        "coordinates": [
+          {
+            "lat": 37.7749,
+            "lon": -122.4194
+          },
+          {
+            "lat": 37.7818,
+            "lon": -122.4043
+          },
+          {
+            "lat": 37.7989,
+            "lon": -122.3884
+          },
+          {
+            "lat": 37.8165,
+            "lon": -122.3605
+          },
+          {
+            "lat": 37.8715,
+            "lon": -122.2730
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "kind": "start",
+        "coordinate": {
+          "lat": 37.7749,
+          "lon": -122.4194
+        },
+        "label": "Ferry Building"
+      },
+      {
+        "kind": "waypoint",
+        "coordinate": {
+          "lat": 37.8014,
+          "lon": -122.3977
+        },
+        "label": "Treasure Island turnoff"
+      },
+      {
+        "kind": "end",
+        "coordinate": {
+          "lat": 37.8715,
+          "lon": -122.2730
+        },
+        "label": "Berkeley Hills"
+      }
+    ],
+    "showFavorites": true
+  },
+  "route_preview_long_coastal": {
+    "mode": "preview",
+    "camera": {
+      "center": {
+        "lat": 37.4868,
+        "lon": -122.4570
+      },
+      "zoom": 8.7,
+      "pitch": 0,
+      "bearing": 0
+    },
+    "cameraFit": {
+      "type": "polyline",
+      "padding": "spacing4"
+    },
+    "polylines": [
+      {
+        "variant": "best",
+        "strokeWidth": "md",
+        "coordinates": [
+          {
+            "lat": 37.7749,
+            "lon": -122.4194
+          },
+          {
+            "lat": 37.6375,
+            "lon": -122.4164
+          },
+          {
+            "lat": 37.5052,
+            "lon": -122.4765
+          },
+          {
+            "lat": 37.2552,
+            "lon": -122.3886
+          },
+          {
+            "lat": 36.9741,
+            "lon": -122.0308
+          }
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "kind": "start",
+        "coordinate": {
+          "lat": 37.7749,
+          "lon": -122.4194
+        },
+        "label": "San Francisco"
+      },
+      {
+        "kind": "end",
+        "coordinate": {
+          "lat": 36.9741,
+          "lon": -122.0308
+        },
+        "label": "Santa Cruz"
+      }
+    ],
+    "showFavorites": false
+  }
+}
