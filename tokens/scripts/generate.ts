@@ -64,9 +64,10 @@ interface SemanticTokens {
     role?: Record<string, Record<string, ColorToken>>
     weather?: Record<string, Record<string, ColorToken>>
     route?: Record<string, ColorToken>
-    status?: Record<string, Record<string, ColorToken>>
+    status?: Record<string, ColorToken | Record<string, ColorToken>>
     border?: Record<string, ColorToken>
     action?: Record<string, Record<string, ColorToken>>
+    map?: Record<string, ColorToken>
   }
   dimensions?: {
     spacing?: Record<string, DimensionToken>
@@ -87,6 +88,7 @@ interface SemanticTokens {
     easing?: Record<string, MotionEasing>
     [key: string]: MotionRecipe | MotionDuration | MotionEasing | undefined
   }
+  mapbox?: MapboxTokens['map']
 }
 
 interface IconManifest {
@@ -110,12 +112,29 @@ interface FontManifest {
   }>
 }
 
+type ThemeScalar = string | number
+type ThemeGroup = Record<string, ThemeScalar>
+
+interface ThemeModeFile {
+  [group: string]: unknown
+}
+
+interface ThemeModes {
+  light: ThemeModeFile
+  dark: ThemeModeFile
+}
+
+type KotlinColorNode = Record<string, KotlinColorNode | ColorToken>
+
 // Paths
 const ROOT = path.resolve(__dirname, '..')
 const SEMANTIC_DIR = path.join(ROOT, 'semantic')
 const ICONS_DIR = path.join(ROOT, 'icons')
 const FONTS_MANIFEST = path.join(ROOT, 'fonts', 'manifest.json')
 const PLATFORMS_DIR = path.join(ROOT, 'platforms')
+const THEME_TOKENS_DIR = path.resolve(ROOT, '..', '.spec', 'design', 'system', 'tokens')
+const THEME_LIGHT_PATH = path.join(THEME_TOKENS_DIR, 'theme.light.json')
+const THEME_DARK_PATH = path.join(THEME_TOKENS_DIR, 'theme.dark.json')
 
 const SWIFT_OUTPUT = path.join(
   PLATFORMS_DIR,
@@ -140,6 +159,47 @@ const KOTLIN_OUTPUT = path.join(
 const TS_OUTPUT = path.join(PLATFORMS_DIR, 'web', 'tokens.ts')
 const MAPBOX_OUTPUT = path.join(PLATFORMS_DIR, 'web', 'mapbox.ts')
 
+type ThemeTokenValue = string | number
+
+interface ThemeColorSource {
+  surface: Record<string, ThemeTokenValue>
+  border: Record<string, ThemeTokenValue>
+  signal: Record<string, ThemeTokenValue>
+  action: Record<string, ThemeTokenValue>
+  status: Record<string, ThemeTokenValue>
+  map: Record<string, ThemeTokenValue>
+}
+
+function loadThemeColors(name: 'light' | 'dark'): ThemeColorSource {
+  const filePath = path.join(THEME_TOKENS_DIR, `theme.${name}.json`)
+  return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as ThemeColorSource
+}
+
+function cloneJson<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T
+}
+
+function toSwiftIdentifier(name: string): string {
+  if (name === 'default') return '`default`'
+  return name.replace(/-([a-z0-9])/g, (_, char: string) => char.toUpperCase())
+}
+
+function setNestedColorToken(
+  root: Record<string, any>,
+  pathSegments: string[],
+  token: ColorToken,
+): void {
+  let cursor = root
+  for (const segment of pathSegments.slice(0, -1)) {
+    cursor[segment] ??= {}
+    cursor = cursor[segment]
+  }
+  const leafKey = pathSegments[pathSegments.length - 1]
+  if (cursor[leafKey] === undefined) {
+    cursor[leafKey] = token
+  }
+}
+
 // Load all semantic token files
 function loadSemanticTokens(): SemanticTokens {
   const tokens: SemanticTokens = {}
@@ -155,14 +215,19 @@ function loadSemanticTokens(): SemanticTokens {
 
   for (const file of tokenFiles) {
     const filePath = path.join(SEMANTIC_DIR, file)
-    if (fs.existsSync(filePath)) {
-      const content = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-      // Merge content, preserving the mapbox key
+    if (!fs.existsSync(filePath)) {
       if (file === 'mapbox.tokens.json') {
-        tokens.mapbox = content.map
-      } else {
-        Object.assign(tokens, content)
+        throw new Error(`Required semantic token file is missing: ${path.relative(ROOT, filePath)}`)
       }
+      continue
+    }
+
+    const content = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
+    // Merge content, preserving the mapbox key
+    if (file === 'mapbox.tokens.json') {
+      tokens.mapbox = content.map
+    } else {
+      Object.assign(tokens, content)
     }
   }
 
@@ -198,6 +263,20 @@ function loadFontManifest(): FontManifest {
 function generateInputHash(tokens: SemanticTokens, icons: string[], fonts: FontManifest): string {
   const data = JSON.stringify({ tokens, icons, fonts }) + icons.sort().join(',')
   return crypto.createHash('sha256').update(data).digest('hex').substring(0, 8)
+}
+
+function generateKotlinInputHash(
+  tokens: SemanticTokens,
+  icons: string[],
+  fonts: FontManifest,
+): string {
+  const hash = crypto.createHash('sha256')
+  hash.update(JSON.stringify({ tokens, icons, fonts }))
+  for (const filePath of [THEME_LIGHT_PATH, THEME_DARK_PATH]) {
+    hash.update(filePath)
+    hash.update(fs.readFileSync(filePath, 'utf-8'))
+  }
+  return hash.digest('hex').substring(0, 8)
 }
 
 // Parse color string to hex/rgba
@@ -240,6 +319,184 @@ function mapFontFamily(role: string): string {
 // Map weight string to numeric value
 function mapWeight(weight: string): number {
   return parseInt(weight, 10)
+}
+
+function toTypeScriptKey(value: string): string {
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(value) ? value : JSON.stringify(value)
+}
+
+function camelCaseName(value: string): string {
+  return value.replace(/-([a-zA-Z0-9])/g, (_, char: string) => char.toUpperCase())
+}
+
+function pascalCaseName(value: string): string {
+  const camel = camelCaseName(value)
+  return camel.charAt(0).toUpperCase() + camel.slice(1)
+}
+
+function loadThemeModes(): ThemeModes {
+  return {
+    light: JSON.parse(fs.readFileSync(THEME_LIGHT_PATH, 'utf-8')) as ThemeModeFile,
+    dark: JSON.parse(fs.readFileSync(THEME_DARK_PATH, 'utf-8')) as ThemeModeFile,
+  }
+}
+
+function themeGroup(mode: ThemeModeFile, groupName: string): ThemeGroup {
+  const group = mode[groupName]
+  if (!group || typeof group !== 'object' || Array.isArray(group)) {
+    return {}
+  }
+  return group as ThemeGroup
+}
+
+function isColorToken(value: KotlinColorNode | ColorToken): value is ColorToken {
+  return typeof value === 'object' && value !== null && 'light' in value && 'dark' in value
+}
+
+function upsertColorToken(
+  tree: KotlinColorNode,
+  pathParts: string[],
+  light: string,
+  dark: string,
+): void {
+  let current = tree
+  for (const part of pathParts.slice(0, -1)) {
+    const existing = current[part]
+    if (!existing || isColorToken(existing)) {
+      current[part] = {}
+    }
+    current = current[part] as KotlinColorNode
+  }
+  current[pathParts[pathParts.length - 1]] = { light, dark }
+}
+
+function mergeKotlinColorTrees(target: KotlinColorNode, source: KotlinColorNode): KotlinColorNode {
+  for (const [name, value] of Object.entries(source)) {
+    if (isColorToken(value)) {
+      target[name] = value
+      continue
+    }
+
+    const existing = target[name]
+    if (!existing || isColorToken(existing)) {
+      target[name] = {}
+    }
+    mergeKotlinColorTrees(target[name] as KotlinColorNode, value)
+  }
+
+  return target
+}
+
+function semanticColorsToKotlinTree(value: Record<string, any> | undefined): KotlinColorNode {
+  const tree: KotlinColorNode = {}
+  if (!value) return tree
+
+  for (const [name, entry] of Object.entries(value)) {
+    const normalizedName = camelCaseName(name)
+    if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) continue
+    if ('light' in entry && 'dark' in entry) {
+      tree[normalizedName] = { light: entry.light, dark: entry.dark }
+      continue
+    }
+    tree[normalizedName] = semanticColorsToKotlinTree(entry as Record<string, any>)
+  }
+
+  return tree
+}
+
+function hasColorTokenPath(tree: KotlinColorNode, pathParts: string[]): boolean {
+  let current: KotlinColorNode | ColorToken | undefined = tree
+  for (const part of pathParts) {
+    if (!current || isColorToken(current)) {
+      return false
+    }
+    current = current[part]
+  }
+  return current !== undefined
+}
+
+function buildKotlinColorTree(tokens: SemanticTokens, theme: ThemeModes): KotlinColorNode {
+  const tree = semanticColorsToKotlinTree(tokens.color as Record<string, any> | undefined)
+  const groups = [
+    'surface',
+    'content',
+    'border',
+    'signal',
+    'action',
+    'role',
+    'status',
+    'weather',
+    'route',
+  ]
+
+  for (const groupName of groups) {
+    const lightGroup = themeGroup(theme.light, groupName)
+    const darkGroup = themeGroup(theme.dark, groupName)
+    const overlayTree: KotlinColorNode = {}
+
+    for (const [rawKey, lightValue] of Object.entries(lightGroup)) {
+      const darkValue = darkGroup[rawKey]
+      if (typeof lightValue !== 'string' || typeof darkValue !== 'string') continue
+
+      let pathParts: string[]
+      if (groupName === 'action') {
+        const [variant, state = 'default'] = rawKey.split('-', 2)
+        pathParts = [groupName, variant, camelCaseName(state)]
+      } else if (groupName === 'role') {
+        pathParts = [groupName, rawKey, 'default']
+      } else if (groupName === 'weather') {
+        const [variant, state] = rawKey.split('-', 2)
+        pathParts = [groupName, variant, camelCaseName(state ?? 'default')]
+      } else if (groupName === 'status') {
+        if (rawKey === 'recording') {
+          pathParts = [groupName, rawKey]
+        } else {
+          const [variant, state] = rawKey.split('-', 2)
+          pathParts = [groupName, variant, camelCaseName(state ?? 'default')]
+        }
+      } else {
+        pathParts = [groupName, camelCaseName(rawKey)]
+      }
+
+      upsertColorToken(overlayTree, pathParts, lightValue, darkValue)
+    }
+
+    mergeKotlinColorTrees(tree, overlayTree)
+  }
+
+  // The drift report is authoritative for this missing Copper token until the semantic source carries it.
+  if (!hasColorTokenPath(tree, ['surface', 'scrimSoft'])) {
+    upsertColorToken(tree, ['surface', 'scrimSoft'], 'rgba(34,24,16,0.18)', 'rgba(10,6,3,0.28)')
+  }
+
+  return tree
+}
+
+function hasDirectColorLeaves(node: KotlinColorNode): boolean {
+  return Object.values(node).some((value) => isColorToken(value))
+}
+
+function emitKotlinColorMembers(
+  lines: string[],
+  node: KotlinColorNode,
+  indent: string,
+  mode: 'light' | 'dark',
+): void {
+  for (const [name, value] of Object.entries(node)) {
+    if (isColorToken(value)) {
+      lines.push(`${indent}val ${camelCaseName(name)} = Color(${toKotlinColorArgs(value[mode])})`)
+      continue
+    }
+
+    lines.push(`${indent}object ${pascalCaseName(name)} {`)
+    emitKotlinColorMembers(lines, value, `${indent}  `, mode)
+    if (mode === 'light' && hasDirectColorLeaves(value)) {
+      lines.push(`${indent}  object dark {`)
+      emitKotlinColorMembers(lines, value, `${indent}    `, 'dark')
+      lines.push(`${indent}  }`)
+    }
+    lines.push(`${indent}}`)
+  }
 }
 
 interface SvgPathSpec {
@@ -335,6 +592,8 @@ function emitSwift(
   inputHash: string,
 ): string {
   const lines: string[] = []
+  const lightTheme = loadThemeColors('light')
+  const darkTheme = loadThemeColors('dark')
 
   // Header
   lines.push('// GENERATED by tokens/scripts/generate.ts — do not edit by hand')
@@ -387,7 +646,81 @@ function emitSwift(
   lines.push('enum LaneShadowTheme {')
 
   // Colors — emit as dynamic colors using dyn() + parseColorString()
-  if (tokens.color) {
+  const swiftColors = cloneJson(tokens.color ?? {})
+
+  const swiftColorFallbacks: Array<{ path: string[]; light: string; dark: string }> = [
+    {
+      path: ['surface', 'scrim-soft'],
+      light: 'rgba(34,24,16,0.18)',
+      dark: 'rgba(10,6,3,0.28)',
+    },
+    {
+      path: ['surface', 'map'],
+      light: String(lightTheme.surface.map),
+      dark: String(darkTheme.surface.map),
+    },
+    {
+      path: ['border', 'glass'],
+      light: String(lightTheme.border.glass),
+      dark: String(darkTheme.border.glass),
+    },
+    {
+      path: ['signal', 'hover'],
+      light: String(lightTheme.signal.hover),
+      dark: String(darkTheme.signal.hover),
+    },
+    {
+      path: ['action', 'primary', 'disabled'],
+      light: String(lightTheme.action['primary-disabled']),
+      dark: String(darkTheme.action['primary-disabled']),
+    },
+    {
+      path: ['status', 'info', 'tint'],
+      light: String(lightTheme.status['info-tint']),
+      dark: String(darkTheme.status['info-tint']),
+    },
+    {
+      path: ['status', 'success', 'tint'],
+      light: String(lightTheme.status['success-tint']),
+      dark: String(darkTheme.status['success-tint']),
+    },
+    {
+      path: ['status', 'warning', 'tint'],
+      light: String(lightTheme.status['warning-tint']),
+      dark: String(darkTheme.status['warning-tint']),
+    },
+    {
+      path: ['status', 'error', 'tint'],
+      light: String(lightTheme.status['error-tint']),
+      dark: String(darkTheme.status['error-tint']),
+    },
+    {
+      path: ['status', 'recording'],
+      light: String(lightTheme.status.recording),
+      dark: String(darkTheme.status.recording),
+    },
+    {
+      path: ['map', 'paper'],
+      light: String(lightTheme.map.paper),
+      dark: String(darkTheme.map.paper),
+    },
+    {
+      path: ['map', 'contour'],
+      light: String(lightTheme.map.contour),
+      dark: String(darkTheme.map.contour),
+    },
+    {
+      path: ['map', 'contourFaint'],
+      light: String(lightTheme.map['contour-faint']),
+      dark: String(darkTheme.map['contour-faint']),
+    },
+  ]
+
+  for (const entry of swiftColorFallbacks) {
+    setNestedColorToken(swiftColors, entry.path, { light: entry.light, dark: entry.dark })
+  }
+
+  if (Object.keys(swiftColors).length > 0) {
     lines.push('  enum color {')
 
     const processColorGroup = (groupName: string, group: Record<string, any>) => {
@@ -405,7 +738,7 @@ function emitSwift(
       lines.push(`    enum ${groupName} {`)
 
       for (const { name, token } of leafTokens) {
-        const swiftName = name === 'default' ? '`default`' : name
+        const swiftName = toSwiftIdentifier(name)
         lines.push(
           `      static let ${swiftName} = dyn(parseColorString("${token.light}"), parseColorString("${token.dark}"))`,
         )
@@ -418,7 +751,7 @@ function emitSwift(
       lines.push(`    }`)
     }
 
-    for (const [groupName, group] of Object.entries(tokens.color)) {
+    for (const [groupName, group] of Object.entries(swiftColors)) {
       if (typeof group === 'object' && !Array.isArray(group)) {
         processColorGroup(groupName, group as Record<string, any>)
       }
@@ -498,6 +831,30 @@ function emitSwift(
     lines.push('  }')
   }
 
+  if (tokens.dimensions?.sizing?.stroke) {
+    lines.push('  enum sizing {')
+    lines.push('    enum stroke {')
+    for (const key of ['sm', 'md', 'lg']) {
+      const token = tokens.dimensions.sizing.stroke[key]
+      if (token?.$value !== undefined) {
+        lines.push(`      static let ${key}: CGFloat = ${token.$value}`)
+      }
+    }
+    lines.push('    }')
+    lines.push('  }')
+  }
+
+  if (tokens.mapbox?.style) {
+    lines.push('  enum map {')
+    lines.push('    enum style {')
+    lines.push(
+      `      static let light: String = ${JSON.stringify(tokens.mapbox.style.light.$value)}`,
+    )
+    lines.push(`      static let dark: String = ${JSON.stringify(tokens.mapbox.style.dark.$value)}`)
+    lines.push('    }')
+    lines.push('  }')
+  }
+
   // Icons
   if (icons.length > 0) {
     lines.push('  enum icon {')
@@ -528,6 +885,10 @@ function emitKotlin(
   inputHash: string,
 ): string {
   const lines: string[] = []
+  const themeModes = loadThemeModes()
+  const colorTree = buildKotlinColorTree(tokens, themeModes)
+  const mapLight = themeGroup(themeModes.light, 'map')
+  const mapDark = themeGroup(themeModes.dark, 'map')
 
   // Header
   lines.push('// GENERATED by tokens/scripts/generate.ts — do not edit by hand')
@@ -545,31 +906,47 @@ function emitKotlin(
   lines.push('object LaneShadowTheme {')
 
   // Colors
-  if (tokens.color) {
+  if (Object.keys(colorTree).length > 0) {
     lines.push('  object color {')
+    for (const [groupName, group] of Object.entries(colorTree)) {
+      if (isColorToken(group)) continue
+      lines.push(`    object ${pascalCaseName(groupName)} {`)
+      emitKotlinColorMembers(lines, group, '      ', 'light')
+      if (hasDirectColorLeaves(group)) {
+        lines.push('      object dark {')
+        emitKotlinColorMembers(lines, group, '        ', 'dark')
+        lines.push('      }')
+      }
+      lines.push('    }')
+    }
+    lines.push('  }')
+  }
 
-    const emitColorGroup = (groupName: string, group: Record<string, any>) => {
-      lines.push(`    object ${groupName.capitalize()} {`)
-
-      for (const [name, value] of Object.entries(group)) {
-        if (typeof value === 'object' && 'light' in value && 'dark' in value) {
-          const colorToken = value as ColorToken
-          const lightArgs = toKotlinColorArgs(colorToken.light)
-          lines.push(`      val ${name} = Color(${lightArgs})`)
-        } else if (typeof value === 'object') {
-          emitColorGroup(name, value)
+  if (Object.keys(mapLight).length > 0) {
+    lines.push('  object map {')
+    for (const [name, value] of Object.entries(mapLight)) {
+      if (typeof value === 'string') {
+        lines.push(`    val ${camelCaseName(name)} = Color(${toKotlinColorArgs(value)})`)
+      }
+    }
+    if (Object.keys(mapDark).length > 0) {
+      lines.push('    object dark {')
+      for (const [name, value] of Object.entries(mapDark)) {
+        if (typeof value === 'string') {
+          lines.push(`      val ${camelCaseName(name)} = Color(${toKotlinColorArgs(value)})`)
         }
       }
-
-      lines.push(`    }`)
+      lines.push('    }')
     }
-
-    for (const [groupName, group] of Object.entries(tokens.color)) {
-      if (typeof group === 'object' && !Array.isArray(group)) {
-        emitColorGroup(groupName, group as Record<string, any>)
-      }
+    if (!tokens.mapbox?.style) {
+      throw new Error(
+        'Required mapbox style tokens are missing from tokens/semantic/mapbox.tokens.json',
+      )
     }
-
+    lines.push('    object style {')
+    lines.push(`      const val light = "${tokens.mapbox.style.light.$value}"`)
+    lines.push(`      const val dark = "${tokens.mapbox.style.dark.$value}"`)
+    lines.push('    }')
     lines.push('  }')
   }
 
@@ -651,8 +1028,13 @@ function emitKotlin(
   }
 
   // Dimensions required by native atom contracts.
-  if (tokens.dimensions?.sizing?.icon || tokens.dimensions?.sizing?.iconStroke) {
+  if (
+    tokens.dimensions?.sizing?.icon ||
+    tokens.dimensions?.sizing?.iconStroke ||
+    tokens.dimensions?.sizing?.stroke
+  ) {
     const iconSize = tokens.dimensions.sizing.icon ?? {}
+    const strokeSize = tokens.dimensions.sizing.stroke ?? {}
     const iconStroke = tokens.dimensions.sizing.iconStroke ?? {}
     lines.push('  object sizing {')
     lines.push('    object icon {')
@@ -663,6 +1045,16 @@ function emitKotlin(
       }
     }
     lines.push('    }')
+    if (Object.keys(strokeSize).length > 0) {
+      lines.push('    object stroke {')
+      for (const key of ['sm', 'md', 'lg']) {
+        const token = strokeSize[key]
+        if (token?.$value !== undefined) {
+          lines.push(`      val ${key} = ${token.$value}.dp`)
+        }
+      }
+      lines.push('    }')
+    }
     lines.push('  }')
     lines.push('  object icon {')
     lines.push('    object stroke {')
@@ -718,14 +1110,15 @@ function emitTypeScript(
       const padding = '  '.repeat(indent)
 
       for (const [name, value] of Object.entries(group)) {
+        const key = toTypeScriptKey(name)
         if (typeof value === 'object' && 'light' in value && 'dark' in value) {
           const colorToken = value as ColorToken
-          lines.push(`${padding}${name}: {`)
+          lines.push(`${padding}${key}: {`)
           lines.push(`${padding}  light: '${colorToken.light}',`)
           lines.push(`${padding}  dark: '${colorToken.dark}'`)
           lines.push(`${padding}},`)
         } else if (typeof value === 'object') {
-          lines.push(`${padding}${name}: {`)
+          lines.push(`${padding}${key}: {`)
           emitColorGroup(value, indent + 1)
           lines.push(`${padding}},`)
         }
@@ -742,7 +1135,7 @@ function emitTypeScript(
 
     const emitTypographyToken = (name: string, token: TypographyToken, indent: number) => {
       const padding = '  '.repeat(indent)
-      lines.push(`${padding}${name}: {`)
+      lines.push(`${padding}${toTypeScriptKey(name)}: {`)
       lines.push(`${padding}  family: '${mapFontFamily(token.family)}',`)
       lines.push(`${padding}  weight: ${token.weight},`)
       lines.push(`${padding}  size: ${token.size},`)
@@ -761,7 +1154,7 @@ function emitTypeScript(
     if (typo.ui) {
       lines.push('    ui: {')
       for (const [category, variants] of Object.entries(typo.ui)) {
-        lines.push(`      ${category}: {`)
+        lines.push(`      ${toTypeScriptKey(category)}: {`)
         for (const [size, token] of Object.entries(variants)) {
           emitTypographyToken(size, token, 4)
         }
@@ -1262,7 +1655,9 @@ async function main() {
 
   // Generate hash
   const inputHash = generateInputHash(tokens, icons, fonts)
+  const kotlinInputHash = generateKotlinInputHash(tokens, icons, fonts)
   console.log(`  🔐 Input hash: ${inputHash}`)
+  console.log(`  🤖 Kotlin input hash: ${kotlinInputHash}`)
 
   // Ensure output directories exist
   fs.mkdirSync(path.dirname(SWIFT_OUTPUT), { recursive: true })
@@ -1289,7 +1684,7 @@ async function main() {
 
   // Emit Kotlin
   console.log('  🤖 Emitting Kotlin tokens...')
-  const kotlin = emitKotlin(tokens, icons, fonts, inputHash)
+  const kotlin = emitKotlin(tokens, icons, fonts, kotlinInputHash)
   fs.writeFileSync(KOTLIN_OUTPUT, `${kotlin}\n`)
 
   // Emit TypeScript
