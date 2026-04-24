@@ -21,6 +21,9 @@ packages:
     path: ../tokens/platforms/swift
   NativeSandbox:
     path: ../../native-sandbox/ios
+  MapboxMaps:
+    url: https://github.com/mapbox/mapbox-maps-ios
+    from: 11.6.0
 
 settings:
   base:
@@ -128,6 +131,8 @@ targets:
       - path: LaneShadow/Sandbox/Stories/LSDisplayStories.swift
       - path: LaneShadow/Sandbox/Stories/LSInputStories.swift
       - path: LaneShadow/Sandbox/Stories/LSIconStories.swift
+      - path: LaneShadow/Sandbox/Stories/LSInputStories.swift
+      - path: LaneShadow/Sandbox/Stories/LSMapStories.swift
       - path: LaneShadow/Sandbox/Stories/LSPillStories.swift
       - path: LaneShadow/Sandbox/Stories/LSScrimStories.swift
       - path: LaneShadow/Sandbox/Stories/LSPhaseDotStories.swift
@@ -146,6 +151,7 @@ targets:
       - package: ConvexMobile
       - package: LaneShadowTheme
       - package: NativeSandbox
+      - package: MapboxMaps
       - sdk: Foundation.framework
     preBuildScripts:
       - name: Inject Convex URL

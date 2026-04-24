@@ -22,6 +22,7 @@
 		7E8799D5CE1C5FFCE3D09066 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324B26FB2DE3F759B489CB7B /* App.swift */; };
 		91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220BC64128EB0A24188F4C65 /* LSPillStories.swift */; };
 		925CA576235653EA9D6CE109 /* NativeSandbox in Frameworks */ = {isa = PBXBuildFile; productRef = 9DD5E01C1B4FE6A3686813CA /* NativeSandbox */; };
+		95572DAE37FCF32B9BDE4BC4 /* LSMapStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = A770CE2595F52C1DC3532F8A /* LSMapStories.swift */; };
 		95DD81C1CEF88FF460DA7A6E /* InfoToastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20AC933B1DF7AFFC89BD22E0 /* InfoToastTests.swift */; };
 		A09AB47FC330215325A9F4F1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDF4218751AC8200085830 /* Foundation.framework */; };
 		A71A81EDC8563AFD14EE83FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95CA989BE1243B1021F83D3 /* ContentView.swift */; };
@@ -34,6 +35,7 @@
 		E2B1C40DCB7D1C33CC729331 /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6089A65C4DD27D71FDFC6B91 /* MarkdownText.swift */; };
 		E38D09C5CE8E05B40EC425E5 /* LSIconStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */; };
 		E868E14CF971E572F61A614E /* MoleculesStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */; };
+		ED9DF59A25970507B80D1720 /* MapboxMaps in Frameworks */ = {isa = PBXBuildFile; productRef = DA5E21A6F8345673A1101414 /* MapboxMaps */; };
 		F9E41F8A8E5435B9BCD67D40 /* InfoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5F858C066D550CE73CE6FD /* InfoToast.swift */; };
 		FEBAB697C67EECE893936275 /* EmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2233125579D4855C122E592 /* EmptyState.swift */; };
 /* End PBXBuildFile section */
@@ -77,6 +79,7 @@
 		9B5F858C066D550CE73CE6FD /* InfoToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoToast.swift; sourceTree = "<group>"; };
 		9F8ABC117BB7538D9D09E1F6 /* LSPhaseDotStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPhaseDotStories.swift; sourceTree = "<group>"; };
 		A2233125579D4855C122E592 /* EmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyState.swift; sourceTree = "<group>"; };
+		A770CE2595F52C1DC3532F8A /* LSMapStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSMapStories.swift; sourceTree = "<group>"; };
 		A9EDF4218751AC8200085830 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		B95CA989BE1243B1021F83D3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D5107D4267204A230D572AB9 /* MarkdownTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextTests.swift; sourceTree = "<group>"; };
@@ -181,6 +184,7 @@
 				4CDBE631CAAFA6685708C14B /* ConvexMobile in Frameworks */,
 				1952669D73F48496CFB75791 /* LaneShadowTheme in Frameworks */,
 				925CA576235653EA9D6CE109 /* NativeSandbox in Frameworks */,
+				ED9DF59A25970507B80D1720 /* MapboxMaps in Frameworks */,
 				A09AB47FC330215325A9F4F1 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -228,6 +232,7 @@
 				534D26C275878552CD82E5FE /* LSDisplayStories.swift */,
 				612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */,
 				EE8CB573821E0981D725E364 /* LSInputStories.swift */,
+				A770CE2595F52C1DC3532F8A /* LSMapStories.swift */,
 				9F8ABC117BB7538D9D09E1F6 /* LSPhaseDotStories.swift */,
 				220BC64128EB0A24188F4C65 /* LSPillStories.swift */,
 				8F281656D06513E78E57D10D /* LSScrimStories.swift */,
@@ -371,6 +376,7 @@
 				CE666EC279651E6E31EE5FBE /* ConvexMobile */,
 				A82A70CA01368BECA5189F19 /* LaneShadowTheme */,
 				9DD5E01C1B4FE6A3686813CA /* NativeSandbox */,
+				DA5E21A6F8345673A1101414 /* MapboxMaps */,
 			);
 			productName = LaneShadow;
 			productReference = 307F61C56AD06224E9F93B51 /* LaneShadow.app */;
@@ -455,6 +461,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				2448E52A67F9CA102454EA73 /* XCRemoteSwiftPackageReference "convex-swift" */,
+				B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */,
 				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */,
 				AFE99AB4F94E0A32951934B9 /* XCLocalSwiftPackageReference "../../native-sandbox/ios" */,
 			);
@@ -533,6 +540,7 @@
 				1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */,
 				E38D09C5CE8E05B40EC425E5 /* LSIconStories.swift in Sources */,
 				3D2143A67410FB5D8D2F3B45 /* LSInputStories.swift in Sources */,
+				95572DAE37FCF32B9BDE4BC4 /* LSMapStories.swift in Sources */,
 				1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */,
 				91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */,
 				762FB79AB5AE6050179BB785 /* LSScrimStories.swift in Sources */,
@@ -896,6 +904,14 @@
 				minimumVersion = 0.7.0;
 			};
 		};
+		B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mapbox/mapbox-maps-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.6.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -915,6 +931,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2448E52A67F9CA102454EA73 /* XCRemoteSwiftPackageReference "convex-swift" */;
 			productName = ConvexMobile;
+		};
+		DA5E21A6F8345673A1101414 /* MapboxMaps */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */;
+			productName = MapboxMaps;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
