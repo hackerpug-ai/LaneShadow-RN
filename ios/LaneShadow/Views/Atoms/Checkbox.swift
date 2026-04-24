@@ -34,7 +34,7 @@ public enum CheckboxState: Equatable {
  * - Background indeterminate: theme.colors.primary.default
  * - Disabled opacity: theme.opacity.disabled (0.5)
  * - Checkmark: "✓" text, 12pt bold, theme.colors.onPrimary.default
- * - Indeterminate bar: 8×2 RoundedRectangle(cornerRadius: 1), theme.colors.onPrimary.default
+ * - Indeterminate bar: 8×2 rounded bar, theme.colors.onPrimary.default
  * - Touch target: minimum 44×44
  *
  * ## Parameters

@@ -104,13 +104,15 @@ private final class ScrimTapCaptureControl: UIControl {
 }
 
 #Preview("Default") {
+    let previewRadius = Theme.shared.radius.xl
+
     ZStack {
-        RoundedRectangle(cornerRadius: 20)
+        RoundedRectangle(cornerRadius: previewRadius)
             .fill(Color(uiColor: .systemGray5))
             .frame(height: 220)
 
         LSScrim()
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .clipShape(RoundedRectangle(cornerRadius: previewRadius))
     }
     .padding()
     .laneShadowTheme()
