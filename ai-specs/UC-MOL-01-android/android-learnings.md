@@ -4,27 +4,28 @@
 2026-04-24
 
 ## Edge Cases Discovered
-1. The generated token surface in this module does not expose `sizing.touchTarget`, so `LSListRow` uses an explicit `44.dp` minimum height constant to satisfy touch-target behavior.
-2. The task validation grep for bare `Text(` is broad enough to match `LSText(`, so molecule files use an alias import (`LSText as LSLabel`) while still composing through the atom.
+1. The Kotlin theme model currently lacks a generated `sizing.touchTarget` field, so this remediation adds a local `LaneShadowSizing.touchTarget` extension (48.dp Android contract) used through `theme.sizing.touchTarget` in `LSListRow`.
+2. Compose unit tests that use `createComposeRule()` fail under `testReleaseUnitTest` due missing activity resolution; wrapping the Compose rule with a debug-variant `RuleChain` guard avoids release crashes while keeping `testDebugUnitTest` contract coverage.
+3. `connectedDebugAndroidTest` method filtering uses instrumentation runner arguments (`-Pandroid.testInstrumentationRunnerArguments.class=...`) rather than `--tests` for this Gradle task.
 
 ## API Contract Notes
-- `LSContentCard` accepts optional `header` and `actions` composable slots and only renders their containers when provided.
-- `LSListRow` uses nullable `onTap`; when null it does not attach clickable semantics.
+- `LSContentCard` now resolves style via `LocalLaneShadowTheme.current` through `resolveLSContentCardStyle(theme)` rather than direct generated token color reads.
+- `LSListRow` now exposes root semantics for min-height/gap/padding/subtitle variant/chevron size to make token contract assertions behavior-based instead of source-based.
+- The caller `modifier` is applied directly to the interactive row root, so external tags/clicks target the clickable semantics node.
 
 ## UI Decisions
-- `LSContentCard` footer actions are separated with `LSDivider` and inset surface styling so optional actions visually read as a slot without introducing fixed empty spacing.
-- `LSListRowTrailing.Button` is rendered via atom composition (`LSCard` + `LSText`) to preserve atom-only molecule composition constraints in this task.
+- Subtitle typography for `LSListRow` was standardized to `TypographyVariant.Ui.Body.Md` per contract.
+- Chevron trailing icon moved to `IconSize.Md` and row min-height now enforces the 48.dp touch target contract.
+- Content card footer background uses themed inset-equivalent (`theme.colors.surfaceVariant.default`) via resolver path.
 
 ## Gotchas for iOS Implementer
-- If your static checks search for bare `Text(` tokens, atom wrappers may need aliasing or stricter regex matching to avoid false positives.
-- Keep non-interactive row behavior strict: no gesture/click wiring when tap callback is absent.
+- If token generation lags platform contract fields (like touch target), add a local theme extension to keep API shape stable until generator parity lands.
+- Place click semantics and public modifiers on the same root node; otherwise UI tests and external consumers will click a non-interactive wrapper.
+- Prefer semantics/property assertions in tests over source-text grep for composition contracts.
 
 ## Files Created/Modified
-- `android/app/src/main/java/com/laneshadow/ui/molecules/LSContentCard.kt` — new content card molecule with optional header/actions slots.
-- `android/app/src/main/java/com/laneshadow/ui/molecules/LSListRow.kt` — new list row molecule with leading/trailing variants and optional divider.
-- `android/app/src/test/java/com/laneshadow/ui/molecules/LSContentCardTest.kt` — unit tests for token/style and slot composition contracts.
-- `android/app/src/test/java/com/laneshadow/ui/molecules/LSListRowTest.kt` — unit tests for atom usage, layout contract, and no-literal-color/no-bare-text guard.
-- `android/app/src/androidTest/java/com/laneshadow/ui/molecules/LSListRowUiTest.kt` — UI tests for tap callback behavior and non-interactive semantics.
-- `android/app/src/debug/java/com/laneshadow/sandbox/stories/molecules/LSContentCardStory.kt` — 4 content-card story variants.
-- `android/app/src/debug/java/com/laneshadow/sandbox/stories/molecules/LSListRowStory.kt` — 6 list-row story variants.
-- `android/app/src/debug/java/com/laneshadow/sandbox/stories/molecules/MoleculesStories.kt` — story registry updated with both new molecule story groups.
+- `android/app/src/main/java/com/laneshadow/ui/molecules/LSContentCard.kt` — theme-resolved style + immutable style model.
+- `android/app/src/main/java/com/laneshadow/ui/molecules/LSListRow.kt` — contract min-height/spacing/typography fixes, stable models, root semantics, clickable-root alignment.
+- `android/app/src/test/java/com/laneshadow/ui/molecules/LSContentCardTest.kt` — exact AC test names + behavior/semantics assertions.
+- `android/app/src/test/java/com/laneshadow/ui/molecules/LSListRowTest.kt` — exact AC test name + behavior/semantics assertions.
+- `android/app/src/androidTest/java/com/laneshadow/ui/molecules/LSListRowUiTest.kt` — exact AC test name + interactive/non-interactive semantics assertions.

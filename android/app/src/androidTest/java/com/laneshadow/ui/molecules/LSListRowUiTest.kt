@@ -1,7 +1,13 @@
 package com.laneshadow.ui.molecules
 
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -20,43 +26,44 @@ class LSListRowUiTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun interactive_row_tap_fires_callback_exactly_once_per_tap() {
+    fun tap_callback_fires_once_non_tap_row_has_no_indication() {
         var tapCount = 0
 
         composeTestRule.setContent {
             LaneShadowTheme {
-                LSListRow(
-                    title = "Jordan Kim",
-                    subtitle = "Ride alerts enabled",
-                    leading = LSListRowLeading.Avatar(initials = "JK"),
-                    trailing = LSListRowTrailing.Button(label = "Follow"),
-                    onTap = { tapCount += 1 },
-                    modifier = Modifier.testTag("list-row-interactive"),
-                )
+                Column {
+                    LSListRow(
+                        title = "Jordan Kim",
+                        subtitle = "Ride alerts enabled",
+                        leading = LSListRowLeading.Avatar(initials = "JK"),
+                        trailing = LSListRowTrailing.Button(label = "Follow"),
+                        onTap = { tapCount += 1 },
+                        modifier = Modifier.testTag("list-row-interactive"),
+                    )
+
+                    LSListRow(
+                        title = "Notifications",
+                        subtitle = "Ride alerts and mentions",
+                        leading = LSListRowLeading.Icon(name = IconName.Menu),
+                        trailing = LSListRowTrailing.Chevron,
+                        onTap = null,
+                        modifier = Modifier.testTag("list-row-static"),
+                    )
+                }
             }
         }
 
-        composeTestRule.onNodeWithTag("list-row-interactive").performClick()
+        composeTestRule.onNodeWithTag("list-row-interactive")
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .performClick()
+
         composeTestRule.runOnIdle {
             assertEquals(1, tapCount)
         }
-    }
 
-    @Test
-    fun non_interactive_row_has_no_click_semantics() {
-        composeTestRule.setContent {
-            LaneShadowTheme {
-                LSListRow(
-                    title = "Notifications",
-                    subtitle = "Ride alerts and mentions",
-                    leading = LSListRowLeading.Icon(name = IconName.Menu),
-                    trailing = LSListRowTrailing.Chevron,
-                    onTap = null,
-                    modifier = Modifier.testTag("list-row-static"),
-                )
-            }
-        }
-
-        composeTestRule.onNodeWithTag("list-row-static").assertHasNoClickAction()
+        composeTestRule.onNodeWithTag("list-row-static")
+            .assertHasNoClickAction()
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
     }
 }
