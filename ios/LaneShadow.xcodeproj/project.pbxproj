@@ -36,6 +36,7 @@
 		9FCE01BFE6E270FC78FCF05A /* LSFormFieldStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4A7D452F312F54C6748C22 /* LSFormFieldStories.swift */; };
 		A09AB47FC330215325A9F4F1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDF4218751AC8200085830 /* Foundation.framework */; };
 		A71A81EDC8563AFD14EE83FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95CA989BE1243B1021F83D3 /* ContentView.swift */; };
+		AB76A5DDC894FEE5240E0AA2 /* LSChatInputStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = E78086BF19CF8443A4664599 /* LSChatInputStories.swift */; };
 		B55D247513D3B4742E36D92B /* AtomsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */; };
 		B5FF9B8BF6CCCBF0478B2A77 /* LaneShadowStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */; };
 		C20B40ADB8746BAD7B7A3FF1 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = 5B658B1BAB40A50AE36EE201 /* LaneShadowTheme */; };
@@ -102,6 +103,7 @@
 		D5107D4267204A230D572AB9 /* MarkdownTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextTests.swift; sourceTree = "<group>"; };
 		DA1BDF769396CF5EB37B55B9 /* LSFormFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFormFieldTests.swift; sourceTree = "<group>"; };
 		E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoleculesStories.swift; sourceTree = "<group>"; };
+		E78086BF19CF8443A4664599 /* LSChatInputStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSChatInputStories.swift; sourceTree = "<group>"; };
 		EA14A4A60BB921AEF31B1BE7 /* LSEmptyStateStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSEmptyStateStories.swift; sourceTree = "<group>"; };
 		EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSLocationContextBar.swift; sourceTree = "<group>"; };
 		ED792B4C270AB975C34CB118 /* LaneShadowTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LaneShadowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -323,6 +325,7 @@
 		8C41ED0E046EE966A32C67CB /* Molecules */ = {
 			isa = PBXGroup;
 			children = (
+				E78086BF19CF8443A4664599 /* LSChatInputStories.swift */,
 				EA14A4A60BB921AEF31B1BE7 /* LSEmptyStateStories.swift */,
 				AC4A7D452F312F54C6748C22 /* LSFormFieldStories.swift */,
 				31658B6BC3E9D3BE680EB5C8 /* LSTabItemStories.swift */,
@@ -572,6 +575,7 @@
 				F9E41F8A8E5435B9BCD67D40 /* InfoToast.swift in Sources */,
 				0B45673D740CC18D7C34929C /* LSButtonStories.swift in Sources */,
 				96D64305E0336CAB29EDE308 /* LSChatInput.swift in Sources */,
+				AB76A5DDC894FEE5240E0AA2 /* LSChatInputStories.swift in Sources */,
 				1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */,
 				E59A273AD62956C2EFAC59C9 /* LSEmptyState.swift in Sources */,
 				34177B113250A9B068F8E3EA /* LSEmptyStateStories.swift in Sources */,

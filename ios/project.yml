@@ -141,6 +141,7 @@ targets:
       - path: LaneShadow/Sandbox/Stories/Molecules/LSFormFieldStories.swift
       - path: LaneShadow/Sandbox/Stories/Molecules/LSTabItemStories.swift
       - path: LaneShadow/Sandbox/Stories/Molecules/LSEmptyStateStories.swift
+      - path: LaneShadow/Sandbox/Stories/Molecules/LSChatInputStories.swift
       - path: LaneShadow/Views/Atoms
         type: syncedFolder
         excludes:
