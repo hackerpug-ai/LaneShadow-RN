@@ -36,7 +36,7 @@ final class ThemeTests: XCTestCase {
     }
 
     func testGeneratedIconCatalogExposesPathSpecs() {
-        XCTAssertEqual(IconName.allCases.count, 31)
+        XCTAssertEqual(IconName.allCases.count, 33)
 
         let specs = IconCatalog.pathSpecs(for: .bike)
         XCTAssertFalse(specs.isEmpty)

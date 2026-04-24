@@ -11,6 +11,8 @@ public enum IconName: String, CaseIterable, Hashable, Sendable {
     case chevL
     case chevR
     case clock
+    case circle
+    case circleFill
     case close
     case collapse
     case compass
@@ -88,6 +90,14 @@ public enum IconCatalog {
             [
                 IconPathSpec(pathData: "M2 12 A10 10 0 1 0 22 12 A10 10 0 1 0 2 12", fill: false, stroke: true),
                 IconPathSpec(pathData: "M12 6 L12 12 L16 14", fill: false, stroke: true),
+            ]
+        case .circle:
+            [
+                IconPathSpec(pathData: "M4 12 A8 8 0 1 0 20 12 A8 8 0 1 0 4 12", fill: false, stroke: true),
+            ]
+        case .circleFill:
+            [
+                IconPathSpec(pathData: "M4 12 A8 8 0 1 0 20 12 A8 8 0 1 0 4 12", fill: true, stroke: true),
             ]
         case .close:
             [
@@ -563,6 +573,8 @@ public enum LaneShadowTheme {
             case chevL
             case chevR
             case clock
+            case circle
+            case circleFill
             case close
             case collapse
             case compass

@@ -139,6 +139,8 @@ targets:
       - path: LaneShadow/Sandbox/Stories/LSTextStories.swift
       - path: LaneShadow/Sandbox/Stories/MoleculesStories.swift
       - path: LaneShadow/Sandbox/Stories/Molecules/LSPillSemanticsStory.swift
+      - path: LaneShadow/Sandbox/Stories/Molecules/LSLocationContextBarStory.swift
+      - path: LaneShadow/Sandbox/Stories/Molecules/LSRouteAttachmentCardStory.swift
       - path: LaneShadow/Views/Atoms
         type: syncedFolder
         excludes:
@@ -152,6 +154,8 @@ targets:
       - path: LaneShadow/Views/Molecules/LSFilterChip.swift
       - path: LaneShadow/Views/Molecules/LSSuggestionChip.swift
       - path: LaneShadow/Views/Molecules/LSWeatherBadge.swift
+      - path: LaneShadow/Views/Molecules/LSLocationContextBar.swift
+      - path: LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift
     dependencies:
       - package: ConvexMobile
       - package: LaneShadowTheme
@@ -194,6 +198,8 @@ targets:
       - path: LaneShadowTests/Molecules/LSFilterChipTests.swift
       - path: LaneShadowTests/Molecules/LSSuggestionChipTests.swift
       - path: LaneShadowTests/Molecules/LSWeatherBadgeTests.swift
+      - path: LaneShadowTests/Molecules/LSLocationContextBarTests.swift
+      - path: LaneShadowTests/Molecules/LSRouteAttachmentCardTests.swift
       # Legacy molecule tests are intentionally outside the managed folder
       # until the molecule implementation layer is migrated.
     dependencies:
