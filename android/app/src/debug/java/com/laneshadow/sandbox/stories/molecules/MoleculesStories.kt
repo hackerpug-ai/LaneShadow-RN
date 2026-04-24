@@ -18,5 +18,6 @@ object MoleculesStories {
     val all: List<Story> =
         LSFormFieldStory.all +
             LSTabItemStory.all +
-            LSEmptyStateStory.all
+            LSEmptyStateStory.all +
+            LSNavigatorMoleculesStory.all
 }
