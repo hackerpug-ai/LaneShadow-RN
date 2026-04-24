@@ -8,5 +8,7 @@ object MoleculesStories {
             LSContentCardStory.all +
             LSListRowStory.all +
             LSLocationContextBarStory.all +
-            LSRouteAttachmentCardStory.all
+            LSRouteAttachmentCardStory.all +
+            LSToolbarStory.all +
+            LSNavHeaderStory.all
 }
