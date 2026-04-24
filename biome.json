@@ -13,6 +13,7 @@
       "!!**/convex/_generated",
       "!!**/.claude/worktrees",
       "!!**/.worktrees",
+      "!!**/.kb-run",
       "!!**/.tmp",
       "!!**/venv",
       "!!**/__mocks__",
