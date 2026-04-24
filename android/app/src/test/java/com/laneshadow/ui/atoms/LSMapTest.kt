@@ -1,168 +1,189 @@
 package com.laneshadow.ui.atoms
 
-import java.io.File
+import androidx.compose.ui.unit.dp
+import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LSMapTest {
     @Test
-    fun latLng_data_class_exists() {
-        val latLng = LatLng(37.7749, -122.4194)
-        assertEquals(37.7749, latLng.lat, 0.0)
-        assertEquals(-122.4194, latLng.lon, 0.0)
-    }
-
-    @Test
-    fun colorToken_data_class_exists() {
-        val colorToken = ColorToken("color.route.best")
-        assertEquals("color.route.best", colorToken.path)
-    }
-
-    @Test
-    fun strokeSize_enum_has_all_cases() {
-        val sizes = StrokeSize.entries
-        assertEquals(3, sizes.size)
-        assertTrue(sizes.contains(StrokeSize.Sm))
-        assertTrue(sizes.contains(StrokeSize.Md))
-        assertTrue(sizes.contains(StrokeSize.Lg))
-    }
-
-    @Test
-    fun spacingToken_enum_has_all_cases() {
-        val tokens = SpacingToken.entries
-        assertEquals(3, tokens.size)
-        assertTrue(tokens.contains(SpacingToken.Spacing3))
-        assertTrue(tokens.contains(SpacingToken.Spacing4))
-        assertTrue(tokens.contains(SpacingToken.Spacing5))
-    }
-
-    @Test
-    fun cameraPosition_data_class_exists_with_optional_params() {
-        val full = CameraPosition(
-            center = LatLng(37.7749, -122.4194),
-            zoom = 10.0,
-            pitch = 45.0,
-            bearing = 90.0,
+    fun style_tokens_switch_and_request_reload_when_theme_changes_in_place() {
+        val light = resolveLSMapRenderModel(
+            mode = MapMode.Interactive,
+            camera = CameraPosition(center = LatLng(37.7749, -122.4194), zoom = 10.0),
+            isDarkTheme = false,
+            hasAccessToken = true,
+            isNetworkAvailable = true,
         )
-        assertEquals(37.7749, full.center.lat, 0.0)
-        assertEquals(10.0, full.zoom, 0.0)
-        assertEquals(45.0, full.pitch!!, 0.0)
-        assertEquals(90.0, full.bearing!!, 0.0)
 
-        val minimal = CameraPosition(
-            center = LatLng(37.7749, -122.4194),
-            zoom = 10.0,
+        assertEquals(GeneratedTokens.map.style.light, light.styleUri)
+        assertFalse(light.shouldReloadStyle)
+
+        val dark = resolveLSMapRenderModel(
+            mode = MapMode.Interactive,
+            camera = CameraPosition(center = LatLng(37.7749, -122.4194), zoom = 10.0),
+            isDarkTheme = true,
+            hasAccessToken = true,
+            isNetworkAvailable = true,
+            previousStyleUri = light.styleUri,
         )
-        assertEquals(37.7749, minimal.center.lat, 0.0)
-        assertEquals(10.0, minimal.zoom, 0.0)
-        assertEquals(null, minimal.pitch)
-        assertEquals(null, minimal.bearing)
+
+        assertEquals(GeneratedTokens.map.style.dark, dark.styleUri)
+        assertTrue(dark.shouldReloadStyle)
+        assertNull(dark.fallback)
     }
 
     @Test
-    fun annotationKind_enum_has_all_cases() {
-        val kinds = AnnotationKind.entries
-        assertEquals(3, kinds.size)
-        assertTrue(kinds.contains(AnnotationKind.Start))
-        assertTrue(kinds.contains(AnnotationKind.End))
-        assertTrue(kinds.contains(AnnotationKind.Waypoint))
-    }
-
-    @Test
-    fun annotation_data_class_exists_with_optional_label() {
-        val withLabel = Annotation(
-            kind = AnnotationKind.Start,
-            coordinate = LatLng(37.7749, -122.4194),
-            label = "Start",
-        )
-        assertEquals("Start", withLabel.label)
-
-        val withoutLabel = Annotation(
-            kind = AnnotationKind.End,
-            coordinate = LatLng(37.8626, -122.4856),
-        )
-        assertEquals(null, withoutLabel.label)
-    }
-
-    @Test
-    fun routeVariant_sealed_class_has_all_cases() {
-        val best = RouteVariant.Best
-        val alt1 = RouteVariant.Alt1
-        val alt2 = RouteVariant.Alt2
-        val custom = RouteVariant.Custom(ColorToken("color.route.custom"))
-
-        assertTrue(best is RouteVariant)
-        assertTrue(alt1 is RouteVariant)
-        assertTrue(alt2 is RouteVariant)
-        assertTrue(custom is RouteVariant)
-    }
-
-    @Test
-    fun polylineData_data_class_exists_with_defaults() {
-        val poly1 = PolylineData(
-            coordinates = listOf(
-                LatLng(37.7749, -122.4194),
-                LatLng(37.8078, -122.4750),
+    fun three_polylines_use_token_colors() {
+        val specs = listOf(
+            resolveLSMapPolylineSpec(
+                PolylineData(
+                    coordinates = listOf(LatLng(37.7749, -122.4194), LatLng(37.8078, -122.4750)),
+                    variant = RouteVariant.Best,
+                ),
+                isDarkTheme = false,
             ),
-            variant = RouteVariant.Best,
-        )
-        assertEquals(2, poly1.coordinates.size)
-        assertEquals(RouteVariant.Best, poly1.variant)
-        assertEquals(StrokeSize.Md, poly1.strokeWidth)
-
-        val poly2 = PolylineData(
-            coordinates = listOf(
-                LatLng(37.7749, -122.4194),
-                LatLng(37.8078, -122.4750),
+            resolveLSMapPolylineSpec(
+                PolylineData(
+                    coordinates = listOf(LatLng(37.7749, -122.4194), LatLng(37.8078, -122.4750)),
+                    variant = RouteVariant.Alt1,
+                ),
+                isDarkTheme = false,
             ),
-            variant = RouteVariant.Alt1,
-            strokeWidth = StrokeSize.Lg,
+            resolveLSMapPolylineSpec(
+                PolylineData(
+                    coordinates = listOf(LatLng(37.7749, -122.4194), LatLng(37.8078, -122.4750)),
+                    variant = RouteVariant.Alt2,
+                ),
+                isDarkTheme = false,
+            ),
         )
-        assertEquals(StrokeSize.Lg, poly2.strokeWidth)
+
+        assertEquals(GeneratedTokens.color.Route.best, specs[0].color)
+        assertEquals(GeneratedTokens.color.Route.alt1, specs[1].color)
+        assertEquals(GeneratedTokens.color.Route.alt2, specs[2].color)
+        assertEquals(GeneratedTokens.sizing.stroke.md, specs[0].strokeWidth)
+        assertEquals(GeneratedTokens.sizing.stroke.md, specs[1].strokeWidth)
+        assertEquals(GeneratedTokens.sizing.stroke.md, specs[2].strokeWidth)
     }
 
     @Test
-    fun mapMode_enum_has_all_cases() {
-        val modes = MapMode.entries
-        assertEquals(2, modes.size)
-        assertTrue(modes.contains(MapMode.Preview))
-        assertTrue(modes.contains(MapMode.Interactive))
+    fun custom_route_token_resolves_without_raw_colors() {
+        val spec = resolveLSMapPolylineSpec(
+            PolylineData(
+                coordinates = listOf(LatLng(37.7749, -122.4194), LatLng(37.8078, -122.4750)),
+                variant = RouteVariant.Custom(ColorToken("color.route.alt2")),
+                strokeWidth = StrokeSize.Lg,
+            ),
+            isDarkTheme = false,
+        )
+
+        assertEquals(GeneratedTokens.color.Route.alt2, spec.color)
+        assertEquals(GeneratedTokens.sizing.stroke.lg, spec.strokeWidth)
     }
 
     @Test
-    fun cameraFit_sealed_class_has_all_cases() {
-        val static = CameraFit.Static
-        val polyline = CameraFit.Polyline(SpacingToken.Spacing4)
-        val polylines = CameraFit.Polylines(SpacingToken.Spacing5)
+    fun annotations_render_at_spec_sizes() {
+        val start = resolveLSMapAnnotationSpec(
+            Annotation(
+                kind = AnnotationKind.Start,
+                coordinate = LatLng(37.7749, -122.4194),
+            ),
+            isDarkTheme = false,
+        )
+        val end = resolveLSMapAnnotationSpec(
+            Annotation(
+                kind = AnnotationKind.End,
+                coordinate = LatLng(37.8626, -122.4856),
+            ),
+            isDarkTheme = false,
+        )
+        val waypoint = resolveLSMapAnnotationSpec(
+            Annotation(
+                kind = AnnotationKind.Waypoint,
+                coordinate = LatLng(37.8324, -122.4803),
+            ),
+            isDarkTheme = false,
+        )
 
-        assertTrue(static is CameraFit)
-        assertTrue(polyline is CameraFit)
-        assertTrue(polylines is CameraFit)
-        assertEquals(SpacingToken.Spacing4, (polyline as CameraFit.Polyline).padding)
-        assertEquals(SpacingToken.Spacing5, (polylines as CameraFit.Polylines).padding)
+        assertEquals(GeneratedTokens.color.Status.Success.default, start.color)
+        assertEquals(14.dp, start.visual.outerDiameter)
+        assertEquals(2.5.dp, start.visual.borderWidth)
+        assertNull(start.visual.innerDiameter)
+
+        assertEquals(GeneratedTokens.color.Status.recording, end.color)
+        assertEquals(18.dp, end.visual.outerDiameter)
+        assertEquals(0.dp, end.visual.borderWidth)
+        assertEquals(6.dp, end.visual.innerDiameter)
+
+        assertEquals(GeneratedTokens.color.Status.Info.default, waypoint.color)
+        assertEquals(12.dp, waypoint.visual.outerDiameter)
+        assertEquals(0.dp, waypoint.visual.borderWidth)
+        assertNull(waypoint.visual.innerDiameter)
     }
 
     @Test
-    fun mapError_enum_has_all_cases() {
-        val errors = MapError.entries
-        assertEquals(3, errors.size)
-        assertTrue(errors.contains(MapError.MissingToken))
-        assertTrue(errors.contains(MapError.NetworkUnavailable))
-        assertTrue(errors.contains(MapError.StyleLoadFailed))
+    fun camera_fit_polylines_uses_token_padding() {
+        val staticFit = resolveLSMapCameraFitSpec(CameraFit.Static)
+        val polylineFit = resolveLSMapCameraFitSpec(CameraFit.Polyline(SpacingToken.Spacing4))
+        val polylinesFit = resolveLSMapCameraFitSpec(CameraFit.Polylines(SpacingToken.Spacing4))
+
+        assertEquals("static", staticFit.kind)
+        assertNull(staticFit.padding)
+        assertNull(staticFit.durationMs)
+
+        assertEquals("polyline", polylineFit.kind)
+        assertEquals(16.dp, polylineFit.padding)
+        assertEquals(LSMapCameraEaseDurationMs, polylineFit.durationMs)
+
+        assertEquals("polylines", polylinesFit.kind)
+        assertEquals(16.dp, polylinesFit.padding)
+        assertEquals(LSMapCameraEaseDurationMs, polylinesFit.durationMs)
     }
 
     @Test
-    fun source_file_exists_and_contains_lsMap_function() {
-        val source = File("src/main/java/com/laneshadow/ui/atoms/LSMap.kt")
-        assertTrue("LSMap.kt source file should exist", source.exists())
+    fun missing_token_shows_glass_panel_fallback() {
+        val model = resolveLSMapRenderModel(
+            mode = MapMode.Interactive,
+            camera = CameraPosition(center = LatLng(37.7749, -122.4194), zoom = 10.0),
+            hasAccessToken = false,
+            isNetworkAvailable = true,
+        )
 
-        val content = source.readText()
-        assertTrue("Source should contain LSMap function", content.contains("fun LSMap("))
-        assertTrue("Source should contain mode parameter", content.contains("mode: MapMode"))
-        assertTrue("Source should contain camera parameter", content.contains("camera: CameraPosition"))
-        assertTrue("Source should contain polylines parameter", content.contains("polylines: List<PolylineData>"))
-        assertTrue("Source should contain annotations parameter", content.contains("annotations: List<Annotation>"))
+        assertEquals(MapError.MissingToken, model.fallback?.error)
+        assertEquals("Map unavailable", model.fallback?.title)
+        assertNull(model.styleUri)
+        assertTrue(model.polylines.isEmpty())
+        assertTrue(model.annotations.isEmpty())
     }
 
+    @Test
+    fun network_unavailable_shows_glass_panel_fallback() {
+        val model = resolveLSMapRenderModel(
+            mode = MapMode.Interactive,
+            camera = CameraPosition(center = LatLng(37.7749, -122.4194), zoom = 10.0),
+            hasAccessToken = true,
+            isNetworkAvailable = false,
+        )
+
+        assertEquals(MapError.NetworkUnavailable, model.fallback?.error)
+        assertEquals("Network unavailable", model.fallback?.title)
+        assertNull(model.styleUri)
+        assertTrue(model.polylines.isEmpty())
+        assertTrue(model.annotations.isEmpty())
+    }
+
+    @Test
+    fun scroll_isolation_stays_enabled_while_preview_disables_gestures() {
+        val preview = resolveLSMapInteractionSpec(MapMode.Preview)
+        val interactive = resolveLSMapInteractionSpec(MapMode.Interactive)
+
+        assertFalse(preview.gesturesEnabled)
+        assertTrue(preview.nestedScrollEnabled)
+        assertTrue(interactive.gesturesEnabled)
+        assertTrue(interactive.nestedScrollEnabled)
+    }
 }
