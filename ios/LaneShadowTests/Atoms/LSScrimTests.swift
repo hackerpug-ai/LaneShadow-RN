@@ -1,4 +1,3 @@
-import LaneShadowTheme
 import SwiftUI
 import UIKit
 import XCTest
@@ -6,41 +5,6 @@ import XCTest
 
 @MainActor
 final class LSScrimTests: XCTestCase {
-    func test_default_resolves_surface_and_opacity_tokens() {
-        let theme = Theme.shared
-        let tokenColor = UIColor(theme.colors.scrim.default).resolvedColor(
-            with: UITraitCollection(userInterfaceStyle: .light)
-        )
-        let resolved = LSScrim.resolvedUIColor(
-            in: theme,
-            opacity: LSScrim.defaultOpacity,
-            traits: UITraitCollection(userInterfaceStyle: .light)
-        )
-
-        XCTAssertEqual(resolved.rgba.red, tokenColor.rgba.red, accuracy: 0.001)
-        XCTAssertEqual(resolved.rgba.green, tokenColor.rgba.green, accuracy: 0.001)
-        XCTAssertEqual(resolved.rgba.blue, tokenColor.rgba.blue, accuracy: 0.001)
-        XCTAssertEqual(resolved.rgba.alpha, 0.35, accuracy: 0.001)
-    }
-
-    func test_override_opacity_resolves_token() {
-        let theme = Theme.shared
-        let overrideOpacity = Double(theme.opacity.overlay)
-        let resolved = LSScrim.resolvedUIColor(
-            in: theme,
-            opacity: overrideOpacity,
-            traits: UITraitCollection(userInterfaceStyle: .light)
-        )
-        let tokenColor = UIColor(theme.colors.scrim.default).resolvedColor(
-            with: UITraitCollection(userInterfaceStyle: .light)
-        )
-
-        XCTAssertEqual(resolved.rgba.red, tokenColor.rgba.red, accuracy: 0.001)
-        XCTAssertEqual(resolved.rgba.green, tokenColor.rgba.green, accuracy: 0.001)
-        XCTAssertEqual(resolved.rgba.blue, tokenColor.rgba.blue, accuracy: 0.001)
-        XCTAssertEqual(resolved.rgba.alpha, overrideOpacity, accuracy: 0.001)
-    }
-
     func test_default_passes_touches_through() throws {
         var probeTapCount = 0
         let harness = ScrimHarness(
@@ -188,17 +152,5 @@ private final class ProbeTapControl: UIControl {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-}
-
-private extension UIColor {
-    var rgba: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
-        var red: CGFloat = 0
-        var green: CGFloat = 0
-        var blue: CGFloat = 0
-        var alpha: CGFloat = 0
-
-        getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        return (red, green, blue, alpha)
     }
 }

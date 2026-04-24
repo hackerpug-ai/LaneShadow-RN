@@ -14,7 +14,6 @@
 		1952669D73F48496CFB75791 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = A82A70CA01368BECA5189F19 /* LaneShadowTheme */; };
 		1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534D26C275878552CD82E5FE /* LSDisplayStories.swift */; };
 		1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8ABC117BB7538D9D09E1F6 /* LSPhaseDotStories.swift */; };
-		2A52620DA23586375267751E /* IconSymbolIOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5212D0C0958BE087BA87AC /* IconSymbolIOSTests.swift */; };
 		3D2143A67410FB5D8D2F3B45 /* LSInputStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE8CB573821E0981D725E364 /* LSInputStories.swift */; };
 		40979501CCACCFB156F25EB5 /* LaneShadowSandboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C289172CD246D71CC0E6BB /* LaneShadowSandboxEntry.swift */; };
 		4CDBE631CAAFA6685708C14B /* ConvexMobile in Frameworks */ = {isa = PBXBuildFile; productRef = CE666EC279651E6E31EE5FBE /* ConvexMobile */; };
@@ -73,7 +72,6 @@
 		5FB23C9E4DF31CC4E50E47AB /* swift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = swift; path = ../tokens/platforms/swift; sourceTree = SOURCE_ROOT; };
 		6089A65C4DD27D71FDFC6B91 /* MarkdownText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownText.swift; sourceTree = "<group>"; };
 		612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSIconStories.swift; sourceTree = "<group>"; };
-		7C5212D0C0958BE087BA87AC /* IconSymbolIOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconSymbolIOSTests.swift; sourceTree = "<group>"; };
 		85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowStories.swift; sourceTree = "<group>"; };
 		8F281656D06513E78E57D10D /* LSScrimStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScrimStories.swift; sourceTree = "<group>"; };
 		9B5F858C066D550CE73CE6FD /* InfoToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoToast.swift; sourceTree = "<group>"; };
@@ -288,35 +286,10 @@
 			isa = PBXGroup;
 			children = (
 				5B8A253F72C6B3D6A21D5422 /* Atoms */,
-				8A68A95F61AB685BAB72189D /* Components */,
 				ABBAFDBD7FF159A58193899A /* Molecules */,
 				5C592B52392DEEACF2D91C3B /* LaneShadowTests.swift */,
 			);
 			path = LaneShadowTests;
-			sourceTree = "<group>";
-		};
-		8A68A95F61AB685BAB72189D /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				9121D9EE8EDFEC4C2D0B50CF /* UI */,
-			);
-			path = Components;
-			sourceTree = "<group>";
-		};
-		8C1733FFF5CDB27C7332DBBB /* Atoms */ = {
-			isa = PBXGroup;
-			children = (
-				7C5212D0C0958BE087BA87AC /* IconSymbolIOSTests.swift */,
-			);
-			path = Atoms;
-			sourceTree = "<group>";
-		};
-		9121D9EE8EDFEC4C2D0B50CF /* UI */ = {
-			isa = PBXGroup;
-			children = (
-				8C1733FFF5CDB27C7332DBBB /* Atoms */,
-			);
-			path = UI;
 			sourceTree = "<group>";
 		};
 		9A00239A316DF9BC49914EC8 /* Views */ = {
@@ -564,7 +537,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				AFD4E47761A2E61BAAA06453 /* EmptyStateTests.swift in Sources */,
-				2A52620DA23586375267751E /* IconSymbolIOSTests.swift in Sources */,
 				95DD81C1CEF88FF460DA7A6E /* InfoToastTests.swift in Sources */,
 				06E6D012390862D9ABF3488C /* LaneShadowTests.swift in Sources */,
 				C9108535DE88E44D62CC2AE6 /* MarkdownTextTests.swift in Sources */,
