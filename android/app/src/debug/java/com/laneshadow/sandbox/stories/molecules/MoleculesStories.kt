@@ -13,11 +13,13 @@ import com.nativesandbox.model.Story
  * ## Sprint 04 Registration
  *
  * Molecule stories for UC-MOL-04: FormField, TabItem, EmptyState
+ * Molecule stories for UC-MOL-06: ChatInput
  */
 object MoleculesStories {
     val all: List<Story> =
         LSFormFieldStory.all +
             LSTabItemStory.all +
             LSEmptyStateStory.all +
-            LSNavigatorMoleculesStory.all
+            LSNavigatorMoleculesStory.all +
+            LSChatInputStory.all
 }

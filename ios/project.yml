@@ -154,6 +154,9 @@ targets:
       - path: LaneShadow/Views/Molecules/LSFormField.swift
       - path: LaneShadow/Views/Molecules/LSTabItem.swift
       - path: LaneShadow/Views/Molecules/LSEmptyState.swift
+      - path: LaneShadow/Views/Molecules/LSLocationContextBar.swift
+      - path: LaneShadow/Views/Molecules/LSSuggestionChip.swift
+      - path: LaneShadow/Views/Molecules/LSChatInput.swift
     dependencies:
       - package: ConvexMobile
       - package: LaneShadowTheme
@@ -201,6 +204,7 @@ targets:
       - path: LaneShadowTests/Molecules/LSFormFieldTests.swift
       - path: LaneShadowTests/Molecules/LSTabItemTests.swift
       - path: LaneShadowTests/Molecules/LSEmptyStateTests.swift
+      - path: LaneShadowTests/Molecules/LSChatInputTests.swift
       # Legacy molecule tests are intentionally outside the managed folder
       # until the molecule implementation layer is migrated.
     dependencies:
