@@ -45,12 +45,16 @@ val LSToolbarBackgroundColorKey = SemanticsPropertyKey<Color>("LSToolbarBackgrou
 val LSToolbarTitleVariantKey = SemanticsPropertyKey<String>("LSToolbarTitleVariant")
 val LSToolbarInsetsAppliedKey = SemanticsPropertyKey<Boolean>("LSToolbarInsetsApplied")
 val LSToolbarTrailingGapKey = SemanticsPropertyKey<Dp>("LSToolbarTrailingGap")
+val LSToolbarButtonVariantKey = SemanticsPropertyKey<String>("LSToolbarButtonVariant")
+val LSToolbarIconSizeKey = SemanticsPropertyKey<Dp>("LSToolbarIconSize")
 
 private var SemanticsPropertyReceiver.lsToolbarHeight by LSToolbarHeightKey
 private var SemanticsPropertyReceiver.lsToolbarBackgroundColor by LSToolbarBackgroundColorKey
 private var SemanticsPropertyReceiver.lsToolbarTitleVariant by LSToolbarTitleVariantKey
 private var SemanticsPropertyReceiver.lsToolbarInsetsApplied by LSToolbarInsetsAppliedKey
 private var SemanticsPropertyReceiver.lsToolbarTrailingGap by LSToolbarTrailingGapKey
+private var SemanticsPropertyReceiver.lsToolbarButtonVariant by LSToolbarButtonVariantKey
+private var SemanticsPropertyReceiver.lsToolbarIconSize by LSToolbarIconSizeKey
 
 @Stable
 data class ToolbarComponentSizing(
@@ -60,8 +64,8 @@ data class ToolbarComponentSizing(
 
 val LaneShadowThemeValues.toolbarComponentSizing: ToolbarComponentSizing
     get() = ToolbarComponentSizing(
-        // Toolbar height token is not exposed in LaneShadowThemeValues yet; derive from existing spacing tokens.
-        toolbarHeight = space.xxxxl - space.sm,
+        // The toolbar maps to the dedicated control-xl token ladder in the Android theme surface.
+        toolbarHeight = space.xxxxl,
         actionTouchTarget = space.xxxl,
     )
 
@@ -101,6 +105,7 @@ data class LSToolbarStyle(
     val backgroundColor: Color,
     val trailingGap: Dp,
     val actionTouchTarget: Dp,
+    val iconSize: Dp,
 )
 
 fun resolveLSToolbarStyle(theme: LaneShadowThemeValues): LSToolbarStyle =
@@ -109,6 +114,7 @@ fun resolveLSToolbarStyle(theme: LaneShadowThemeValues): LSToolbarStyle =
         backgroundColor = GeneratedTokens.color.Surface.primary,
         trailingGap = theme.space.xs,
         actionTouchTarget = theme.toolbarComponentSizing.actionTouchTarget,
+        iconSize = theme.sizing.icon.md,
     )
 
 @Composable
@@ -116,6 +122,7 @@ fun LSToolbar(
     title: String,
     leading: LSToolbarLeading = LSToolbarLeading.None,
     trailing: LSToolbarTrailing = LSToolbarTrailing.None,
+    windowInsets: WindowInsets = WindowInsets.systemBars,
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
@@ -125,7 +132,7 @@ fun LSToolbar(
         modifier = modifier
             .fillMaxWidth()
             .background(style.backgroundColor)
-            .windowInsetsPadding(WindowInsets.systemBars)
+            .windowInsetsPadding(windowInsets)
             .semantics {
                 lsToolbarHeight = style.height
                 lsToolbarBackgroundColor = style.backgroundColor
@@ -160,6 +167,7 @@ fun LSToolbar(
             LeadingSlot(
                 leading = leading,
                 actionSize = style.actionTouchTarget,
+                iconSize = style.iconSize,
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -168,6 +176,7 @@ fun LSToolbar(
                 trailing = trailing,
                 actionSize = style.actionTouchTarget,
                 actionGap = style.trailingGap,
+                iconSize = style.iconSize,
             )
         }
     }
@@ -177,6 +186,7 @@ fun LSToolbar(
 private fun LeadingSlot(
     leading: LSToolbarLeading,
     actionSize: Dp,
+    iconSize: Dp,
 ) {
     when (leading) {
         LSToolbarLeading.None -> Unit
@@ -187,6 +197,7 @@ private fun LeadingSlot(
                 onClick = leading.onClick,
                 modifier = Modifier.testTag(LSToolbarLeadingTag),
                 actionSize = actionSize,
+                iconSize = iconSize,
             )
         }
     }
@@ -197,6 +208,7 @@ private fun TrailingSlot(
     trailing: LSToolbarTrailing,
     actionSize: Dp,
     actionGap: Dp,
+    iconSize: Dp,
 ) {
     when (trailing) {
         LSToolbarTrailing.None -> Unit
@@ -206,6 +218,7 @@ private fun TrailingSlot(
                 description = "Toolbar action: ${trailing.icon.value}",
                 onClick = trailing.onClick,
                 actionSize = actionSize,
+                iconSize = iconSize,
                 modifier = Modifier.testTag(LSToolbarTrailingTag),
             )
         }
@@ -219,6 +232,7 @@ private fun TrailingSlot(
                     description = "Toolbar action: ${trailing.first.icon.value}",
                     onClick = trailing.first.onClick,
                     actionSize = actionSize,
+                    iconSize = iconSize,
                     modifier = Modifier,
                 )
                 ToolbarIconButton(
@@ -226,6 +240,7 @@ private fun TrailingSlot(
                     description = "Toolbar action: ${trailing.second.icon.value}",
                     onClick = trailing.second.onClick,
                     actionSize = actionSize,
+                    iconSize = iconSize,
                     modifier = Modifier,
                 )
             }
@@ -239,10 +254,16 @@ private fun ToolbarIconButton(
     description: String,
     onClick: () -> Unit,
     actionSize: Dp,
+    iconSize: Dp,
     modifier: Modifier,
 ) {
     Box(
-        modifier = modifier.size(actionSize),
+        modifier = modifier
+            .size(actionSize)
+            .semantics {
+                lsToolbarButtonVariant = "Ghost"
+                lsToolbarIconSize = iconSize
+            },
         contentAlignment = Alignment.Center,
     ) {
         LSButton(

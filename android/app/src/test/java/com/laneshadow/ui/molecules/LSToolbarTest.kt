@@ -1,6 +1,7 @@
 package com.laneshadow.ui.molecules
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -14,6 +15,8 @@ import com.laneshadow.BuildConfig
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme.IconName
+import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
@@ -35,11 +38,13 @@ class LSToolbarTest {
     @Test
     fun default_render_uses_chrome_tokens() {
         var expectedToolbarHeight: Dp = 0.dp
+        var expectedActionIconSize: Dp = 0.dp
 
         composeTestRule.setContent {
             LaneShadowTheme {
                 val theme = LocalLaneShadowTheme.current
                 expectedToolbarHeight = theme.toolbarComponentSizing.toolbarHeight
+                expectedActionIconSize = theme.sizing.icon.md
 
                 LSToolbar(
                     leading = LSToolbarLeading.Back(onClick = {}),
@@ -52,13 +57,20 @@ class LSToolbarTest {
 
         composeTestRule.onNodeWithTag("toolbar-default")
             .assert(SemanticsMatcher.expectValue(LSToolbarHeightKey, expectedToolbarHeight))
-            .assert(SemanticsMatcher.keyIsDefined(LSToolbarBackgroundColorKey))
+            .assert(SemanticsMatcher.expectValue(LSToolbarBackgroundColorKey, GeneratedTokens.color.Surface.primary))
             .assert(SemanticsMatcher.expectValue(LSToolbarTitleVariantKey, "Ui.Title.Md"))
             .assert(SemanticsMatcher.expectValue(LSToolbarInsetsAppliedKey, true))
 
-        composeTestRule.onNodeWithTag("ls-toolbar-title").fetchSemanticsNode()
-        composeTestRule.onNodeWithContentDescription("Navigate back").fetchSemanticsNode()
-        composeTestRule.onNodeWithContentDescription("Toolbar action: menu").fetchSemanticsNode()
+        composeTestRule.onNodeWithTag(LSToolbarLeadingTag)
+            .assert(SemanticsMatcher.expectValue(LSToolbarButtonVariantKey, "Ghost"))
+            .assert(SemanticsMatcher.expectValue(LSToolbarIconSizeKey, expectedActionIconSize))
+        composeTestRule.onNodeWithTag(LSToolbarTrailingTag)
+            .assert(SemanticsMatcher.expectValue(LSToolbarButtonVariantKey, "Ghost"))
+            .assert(SemanticsMatcher.expectValue(LSToolbarIconSizeKey, expectedActionIconSize))
+
+        val toolbarBounds: Rect = composeTestRule.onNodeWithTag("toolbar-default").fetchSemanticsNode().boundsInRoot
+        val titleBounds: Rect = composeTestRule.onNodeWithTag(LSToolbarTitleTag).fetchSemanticsNode().boundsInRoot
+        assertEquals(toolbarBounds.center.x, titleBounds.center.x, 0.5f)
     }
 
     @Test

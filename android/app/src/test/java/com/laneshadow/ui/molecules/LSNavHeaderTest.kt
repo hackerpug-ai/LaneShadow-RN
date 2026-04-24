@@ -1,13 +1,18 @@
 package com.laneshadow.ui.molecules
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.laneshadow.BuildConfig
 import com.laneshadow.theme.LaneShadowTheme
+import com.laneshadow.theme.LocalLaneShadowTheme
+import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -46,8 +51,15 @@ class LSNavHeaderTest {
 
     @Test
     fun large_title_with_subtitle_renders_both_nodes() {
+        var expectedSubtitleGap: Dp = 0.dp
+        var expectedSubtitleColor: Color = Color.Unspecified
+
         composeTestRule.setContent {
             LaneShadowTheme {
+                val theme = LocalLaneShadowTheme.current
+                expectedSubtitleGap = theme.space.xs
+                expectedSubtitleColor = GeneratedTokens.color.Content.tertiary
+
                 LSNavHeader(
                     variant = NavHeaderVariant.LargeTitleWithSubtitle,
                     title = "Chat",
@@ -60,7 +72,8 @@ class LSNavHeaderTest {
         composeTestRule.onNodeWithTag("nav-header-large-subtitle")
             .assert(SemanticsMatcher.expectValue(LSNavHeaderTitleVariantKey, "Opinion.Lg"))
             .assert(SemanticsMatcher.expectValue(LSNavHeaderSubtitleVariantKey, "Ui.Body.Md"))
-            .assert(SemanticsMatcher.keyIsDefined(LSNavHeaderSubtitleColorKey))
+            .assert(SemanticsMatcher.expectValue(LSNavHeaderSubtitleColorKey, expectedSubtitleColor))
+            .assert(SemanticsMatcher.expectValue(LSNavHeaderVerticalGapKey, expectedSubtitleGap))
 
         composeTestRule.onNodeWithTag("ls-nav-header-title").fetchSemanticsNode()
         composeTestRule.onNodeWithTag("ls-nav-header-subtitle").fetchSemanticsNode()
