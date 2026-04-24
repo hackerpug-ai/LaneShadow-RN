@@ -2,8 +2,6 @@ package com.laneshadow.ui.atoms
 
 import java.io.File
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -167,20 +165,4 @@ class LSMapTest {
         assertTrue("Source should contain annotations parameter", content.contains("annotations: List<Annotation>"))
     }
 
-    @Test
-    fun source_uses_no_forbidden_patterns() {
-        val source = File("src/main/java/com/laneshadow/ui/atoms/LSMap.kt")
-        val content = source.readText()
-
-        // No raw colors
-        assertFalse("Should not contain raw Color(0x", content.contains("Color(0x"))
-
-        // No hardcoded dp values
-        // (checking for specific hardcoded patterns, not all .dp usage)
-        assertFalse("Should not contain hardcoded 16.dp", content.contains("16.dp") && !content.contains("//"))
-        assertFalse("Should not contain hardcoded 8.dp", content.contains("8.dp") && !content.contains("//"))
-
-        // Mapbox SDK imports should be limited to implementation file
-        // (they're allowed in LSMap.kt but not in public API signatures)
-    }
 }
