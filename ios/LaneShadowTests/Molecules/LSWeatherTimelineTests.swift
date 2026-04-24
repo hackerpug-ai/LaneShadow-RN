@@ -21,7 +21,6 @@ import XCTest
  * - Theme integration with semantic weather colors
  */
 final class LSWeatherTimelineTests: XCTestCase {
-
     // MARK: - AC-3: LSWeatherTimeline renders 6 cells with per-condition tints
 
     func test_six_cells_render_with_per_condition_tinted_backgrounds() {
@@ -50,7 +49,7 @@ final class LSWeatherTimelineTests: XCTestCase {
         XCTAssertEqual(entries.count, 6)
 
         // Verify all weather conditions are represented
-        let conditions = Set(entries.map { $0.condition })
+        let conditions = Set(entries.map(\.condition))
         XCTAssertTrue(conditions.contains(.clear))
         XCTAssertTrue(conditions.contains(.rain))
         XCTAssertTrue(conditions.contains(.wind))

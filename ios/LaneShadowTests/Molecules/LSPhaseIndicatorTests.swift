@@ -21,7 +21,6 @@ import XCTest
  * - Theme integration with semantic colors
  */
 final class LSPhaseIndicatorTests: XCTestCase {
-
     // MARK: - AC-1: LSPhaseIndicator renders compass chip + header + LSPhaseDot list
 
     func test_renders_compass_chip_header_and_phasedot_step_list() {

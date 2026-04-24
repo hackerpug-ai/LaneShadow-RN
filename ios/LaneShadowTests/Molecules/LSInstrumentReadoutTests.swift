@@ -21,7 +21,6 @@ import XCTest
  * - Theme integration with semantic colors
  */
 final class LSInstrumentReadoutTests: XCTestCase {
-
     // MARK: - AC-4: LSInstrumentReadout 4-column grid
 
     func test_four_column_grid_with_divider_atoms_and_mono_values() {

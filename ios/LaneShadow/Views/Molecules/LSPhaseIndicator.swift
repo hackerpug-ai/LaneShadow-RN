@@ -69,7 +69,6 @@ public struct LSPhaseIndicator: View {
 
     // MARK: - Private Views
 
-    @ViewBuilder
     private var headerSection: some View {
         HStack(spacing: theme.space.sm) {
             // Compass chip
@@ -91,7 +90,6 @@ public struct LSPhaseIndicator: View {
         }
     }
 
-    @ViewBuilder
     private var phaseList: some View {
         VStack(alignment: .leading, spacing: theme.space.md) {
             ForEach(phases) { phase in
@@ -140,11 +138,11 @@ public struct LSPhaseIndicator: View {
 
     private var currentStepLabel: String {
         if let activePhase = phases.first(where: { $0.state == .active }) {
-            return activePhase.label
+            activePhase.label
         } else if phases.allSatisfy({ $0.state == .done }) {
-            return "Complete"
+            "Complete"
         } else {
-            return "Planning"
+            "Planning"
         }
     }
 
@@ -153,11 +151,11 @@ public struct LSPhaseIndicator: View {
     private func textColor(for state: PhaseState) -> ContentColor {
         switch state {
         case .pending:
-            return .tertiary
+            .tertiary
         case .active:
-            return .primary
+            .primary
         case .done:
-            return .secondary
+            .secondary
         }
     }
 }
@@ -187,11 +185,11 @@ private extension PhaseState {
     var accessibilityValue: String {
         switch self {
         case .pending:
-            return "Pending"
+            "Pending"
         case .active:
-            return "In progress"
+            "In progress"
         case .done:
-            return "Completed"
+            "Completed"
         }
     }
 }

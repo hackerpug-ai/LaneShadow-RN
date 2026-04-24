@@ -118,7 +118,7 @@ public struct InstrumentMetric: Identifiable, Equatable {
         self.isAccent = isAccent
     }
 
-    // Convenience constructors for common metric types
+    /// Convenience constructors for common metric types
     public static func dist(_ value: String) -> InstrumentMetric {
         InstrumentMetric(label: "Dist", value: value)
     }

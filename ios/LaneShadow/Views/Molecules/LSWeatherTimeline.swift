@@ -73,7 +73,6 @@ public struct LSWeatherTimeline: View {
 
     // MARK: - Private Views
 
-    @ViewBuilder
     private var headerSection: some View {
         HStack {
             LSText("Weather along the way", variant: .labelMd, color: .primary)
@@ -130,32 +129,32 @@ public struct LSWeatherTimeline: View {
     private func colors(for condition: WeatherCondition) -> WeatherColors {
         switch condition {
         case .clear:
-            return WeatherColors(
+            WeatherColors(
                 defaultColor: LaneShadowTheme.color.weather.clear.default,
                 tint: LaneShadowTheme.color.weather.clear.tint
             )
         case .rain:
-            return WeatherColors(
+            WeatherColors(
                 defaultColor: LaneShadowTheme.color.weather.rain.default,
                 tint: LaneShadowTheme.color.weather.rain.tint
             )
         case .wind:
-            return WeatherColors(
+            WeatherColors(
                 defaultColor: LaneShadowTheme.color.weather.wind.default,
                 tint: LaneShadowTheme.color.weather.wind.tint
             )
         case .storm:
-            return WeatherColors(
+            WeatherColors(
                 defaultColor: LaneShadowTheme.color.weather.storm.default,
                 tint: LaneShadowTheme.color.weather.storm.tint
             )
         case .hot:
-            return WeatherColors(
+            WeatherColors(
                 defaultColor: LaneShadowTheme.color.weather.hot.default,
                 tint: LaneShadowTheme.color.weather.hot.tint
             )
         case .cold:
-            return WeatherColors(
+            WeatherColors(
                 defaultColor: LaneShadowTheme.color.weather.cold.default,
                 tint: LaneShadowTheme.color.weather.cold.tint
             )
@@ -165,17 +164,17 @@ public struct LSWeatherTimeline: View {
     private func iconName(for condition: WeatherCondition) -> IconName {
         switch condition {
         case .clear:
-            return .sun
+            .sun
         case .rain:
-            return .rain
+            .rain
         case .wind:
-            return .wind
+            .wind
         case .storm:
-            return .storm
+            .storm
         case .hot:
-            return .therm
+            .therm
         case .cold:
-            return .therm
+            .therm
         }
     }
 }
@@ -221,17 +220,17 @@ private extension WeatherCondition {
     var accessibilityName: String {
         switch self {
         case .clear:
-            return "clear"
+            "clear"
         case .rain:
-            return "rain"
+            "rain"
         case .wind:
-            return "windy"
+            "windy"
         case .storm:
-            return "storm"
+            "storm"
         case .hot:
-            return "hot"
+            "hot"
         case .cold:
-            return "cold"
+            "cold"
         }
     }
 }
