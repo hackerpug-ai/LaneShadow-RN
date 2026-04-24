@@ -7,6 +7,9 @@ object MoleculesStories {
         LSPillSemanticsStory.all +
             LSContentCardStory.all +
             LSListRowStory.all +
+            LSBottomSheetStory.all +
+            LSToastStory.all +
+            LSModalStory.all +
             LSLocationContextBarStory.all +
             LSRouteAttachmentCardStory.all +
             LSToolbarStory.all +
