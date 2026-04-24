@@ -12,6 +12,7 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.isContainer
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import androidx.compose.foundation.BorderStroke
 import com.laneshadow.theme.LaneShadowThemeValues
 import com.laneshadow.theme.LocalLaneShadowTheme
 val LSCardBackgroundColorKey = SemanticsPropertyKey<Color>("LSCardBackgroundColor")
@@ -42,23 +43,33 @@ fun resolveLSCardStyle(theme: LaneShadowThemeValues): LSCardStyle =
 @Composable
 fun LSCard(
     modifier: Modifier = Modifier,
+    backgroundColor: Color? = null,
+    cornerRadius: Dp? = null,
+    shadowElevation: Dp? = null,
+    contentPadding: Dp? = null,
+    border: BorderStroke? = null,
     content: @Composable () -> Unit,
 ) {
-    val style = resolveLSCardStyle(LocalLaneShadowTheme.current)
+    val defaultStyle = resolveLSCardStyle(LocalLaneShadowTheme.current)
+    val resolvedBackgroundColor = backgroundColor ?: defaultStyle.backgroundColor
+    val resolvedCornerRadius = cornerRadius ?: defaultStyle.cornerRadius
+    val resolvedShadowElevation = shadowElevation ?: defaultStyle.shadowElevation
+    val resolvedContentPadding = contentPadding ?: defaultStyle.contentPadding
 
     Surface(
         modifier = modifier.semantics {
             isContainer = true
-            lsCardBackgroundColor = style.backgroundColor
-            lsCardCornerRadius = style.cornerRadius
-            lsCardShadowElevation = style.shadowElevation
-            lsCardContentPadding = style.contentPadding
+            lsCardBackgroundColor = resolvedBackgroundColor
+            lsCardCornerRadius = resolvedCornerRadius
+            lsCardShadowElevation = resolvedShadowElevation
+            lsCardContentPadding = resolvedContentPadding
         },
-        color = style.backgroundColor,
-        shape = RoundedCornerShape(style.cornerRadius),
-        shadowElevation = style.shadowElevation,
+        color = resolvedBackgroundColor,
+        shape = RoundedCornerShape(resolvedCornerRadius),
+        shadowElevation = resolvedShadowElevation,
+        border = border,
     ) {
-        Box(modifier = Modifier.padding(style.contentPadding)) {
+        Box(modifier = Modifier.padding(resolvedContentPadding)) {
             content()
         }
     }

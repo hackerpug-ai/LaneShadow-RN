@@ -5,35 +5,41 @@ import com.laneshadow.ui.atoms.RouteVariant
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LSRouteAttachmentCardTest {
-    @Test
-    fun full_best_selected_variant_renders_all_slots() {
-        val source = File("src/main/java/com/laneshadow/ui/molecules/LSRouteAttachmentCard.kt").readText()
-
-        assertEquals(GeneratedTokens.color.Route.best, resolveRouteAttachmentStripeColor(RouteVariant.Best))
-        assertEquals(5, resolveRouteAttachmentScenicDots(5))
-        assertTrue(source.contains("RouteStripeWidth = 3.dp"))
-        assertTrue(source.contains("GeneratedTokens.color.Signal.default"))
-        assertTrue(source.contains("LSBestBadge("))
-        assertTrue(source.contains("LSWeatherBadge("))
-        assertTrue(source.contains("TypographyVariant.Ui.Title.Md"))
-        assertTrue(source.contains("TypographyVariant.Ui.Body.Sm"))
-        assertTrue(source.contains("TypographyVariant.Instrument.Sm"))
-        assertTrue(source.contains("repeat(ScenicDotCount)"))
-        assertTrue(source.contains("CircleShape"))
+    private val source by lazy {
+        File("src/main/java/com/laneshadow/ui/molecules/LSRouteAttachmentCard.kt").readText()
     }
 
     @Test
-    fun compact_mode_suppresses_best_badge_and_weather_badge() {
-        val source = File("src/main/java/com/laneshadow/ui/molecules/LSRouteAttachmentCard.kt").readText()
+    fun full_best_selected_variant_keeps_atom_composition_contracts() {
+        assertEquals(GeneratedTokens.color.Route.best, resolveRouteAttachmentStripeColor(RouteVariant.Best))
+        assertEquals(5, resolveRouteAttachmentScenicDots(5))
 
+        // Composition contract: molecule must compose required atoms, not raw primitives.
+        assertTrue(source.contains("LSCard("))
+        assertFalse(source.contains("Surface("))
+        assertTrue(source.contains("LSBestBadge("))
+        assertTrue(source.contains("LSWeatherBadge("))
+        assertTrue(source.contains("ScenicDotIcon("))
+        assertTrue(source.contains("ScenicDotSize = 6.dp"))
+        assertTrue(source.contains("ScenicDotBorderWidth = 1.dp"))
+        assertTrue(source.contains("CircleShape"))
+        assertTrue(source.contains(".background(GeneratedTokens.color.Signal.default, CircleShape)"))
+        assertTrue(source.contains("GeneratedTokens.color.Border.strong"))
+    }
+
+    @Test
+    fun compact_mode_keeps_layout_contracts_and_badge_gate() {
         assertTrue(source.contains("CompactHorizontalPadding = 12.dp"))
         assertTrue(source.contains("CompactVerticalPadding = 10.dp"))
         assertTrue(source.contains("if (!compact && (route.isBest || route.weatherBadge != null))"))
         assertTrue(source.contains("text = route.via"))
+        assertTrue(source.contains("horizontal = horizontalPadding"))
+        assertTrue(source.contains("vertical = verticalPadding"))
     }
 
     @Test

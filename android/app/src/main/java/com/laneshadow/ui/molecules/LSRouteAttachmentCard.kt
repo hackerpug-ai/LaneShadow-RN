@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +34,7 @@ import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.atoms.IconColor
 import com.laneshadow.ui.atoms.IconSize
 import com.laneshadow.ui.atoms.LSBestBadge
+import com.laneshadow.ui.atoms.LSCard
 import com.laneshadow.ui.atoms.LSIcon
 import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.RouteVariant
@@ -46,6 +45,8 @@ const val LSRouteAttachmentCardStripeTag = "ls-route-attachment-card-stripe"
 const val LSRouteAttachmentCardBestBadgeTag = "ls-route-attachment-card-best-badge"
 const val LSRouteAttachmentCardWeatherBadgeTag = "ls-route-attachment-card-weather-badge"
 const val LSRouteAttachmentCardFavoriteTag = "ls-route-attachment-card-favorite-row"
+const val LSRouteAttachmentCardScenicDotTagPrefix = "ls-route-attachment-card-scenic-dot"
+const val LSRouteAttachmentCardScenicLabelTag = "ls-route-attachment-card-scenic-label"
 
 val LSRouteAttachmentCardBackgroundColorKey = SemanticsPropertyKey<Color>("LSRouteAttachmentCardBackgroundColor")
 val LSRouteAttachmentCardBorderColorKey = SemanticsPropertyKey<Color>("LSRouteAttachmentCardBorderColor")
@@ -54,6 +55,7 @@ val LSRouteAttachmentCardStripeWidthKey = SemanticsPropertyKey<Dp>("LSRouteAttac
 val LSRouteAttachmentCardHorizontalPaddingKey = SemanticsPropertyKey<Dp>("LSRouteAttachmentCardHorizontalPadding")
 val LSRouteAttachmentCardVerticalPaddingKey = SemanticsPropertyKey<Dp>("LSRouteAttachmentCardVerticalPadding")
 val LSRouteAttachmentCardScenicFilledDotsKey = SemanticsPropertyKey<Int>("LSRouteAttachmentCardScenicFilledDots")
+val LSRouteAttachmentCardScenicDotFilledKey = SemanticsPropertyKey<Boolean>("LSRouteAttachmentCardScenicDotFilled")
 
 private var SemanticsPropertyReceiver.lsRouteAttachmentCardBackgroundColor by LSRouteAttachmentCardBackgroundColorKey
 private var SemanticsPropertyReceiver.lsRouteAttachmentCardBorderColor by LSRouteAttachmentCardBorderColorKey
@@ -62,6 +64,7 @@ private var SemanticsPropertyReceiver.lsRouteAttachmentCardStripeWidth by LSRout
 private var SemanticsPropertyReceiver.lsRouteAttachmentCardHorizontalPadding by LSRouteAttachmentCardHorizontalPaddingKey
 private var SemanticsPropertyReceiver.lsRouteAttachmentCardVerticalPadding by LSRouteAttachmentCardVerticalPaddingKey
 private var SemanticsPropertyReceiver.lsRouteAttachmentCardScenicFilledDots by LSRouteAttachmentCardScenicFilledDotsKey
+private var SemanticsPropertyReceiver.lsRouteAttachmentCardScenicDotFilled by LSRouteAttachmentCardScenicDotFilledKey
 
 private val RouteStripeWidth = 3.dp
 private val CompactHorizontalPadding = 12.dp
@@ -103,9 +106,8 @@ fun LSRouteAttachmentCard(
     val horizontalPadding = if (compact) CompactHorizontalPadding else theme.space.lg
     val verticalPadding = if (compact) CompactVerticalPadding else theme.space.md
     val scenicFilledDots = resolveRouteAttachmentScenicDots(route.scenicScore)
-    val shape = RoundedCornerShape(theme.radius.md)
 
-    Surface(
+    LSCard(
         modifier = modifier
             .fillMaxWidth()
             .semantics {
@@ -129,10 +131,11 @@ fun LSRouteAttachmentCard(
                     Modifier
                 },
             ),
-        color = theme.colors.card.default,
-        shape = shape,
-        border = BorderStroke(1.dp, borderColor),
+        backgroundColor = theme.colors.card.default,
+        cornerRadius = theme.radius.md,
         shadowElevation = theme.elevation.light.level2,
+        contentPadding = 0.dp,
+        border = BorderStroke(1.dp, borderColor),
     ) {
         Row {
             Box(
@@ -234,21 +237,9 @@ private fun ScenicMeter(filledDots: Int) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         repeat(ScenicDotCount) { index ->
-            val isFilled = index < filledDots
-            Box(
-                modifier = Modifier
-                    .size(ScenicDotSize)
-                    .then(
-                        if (isFilled) {
-                            Modifier.background(GeneratedTokens.color.Signal.default, CircleShape)
-                        } else {
-                            Modifier.border(
-                                ScenicDotBorderWidth,
-                                GeneratedTokens.color.Border.strong,
-                                CircleShape,
-                            )
-                        },
-                    ),
+            ScenicDotIcon(
+                index = index,
+                filled = index < filledDots,
             )
         }
 
@@ -256,8 +247,32 @@ private fun ScenicMeter(filledDots: Int) {
             text = "SCENIC",
             variant = TypographyVariant.Ui.Label.Sm,
             color = ContentColor.Tertiary,
+            modifier = Modifier.testTag(LSRouteAttachmentCardScenicLabelTag),
         )
     }
+}
+
+@Composable
+private fun ScenicDotIcon(index: Int, filled: Boolean) {
+    Box(
+        modifier = Modifier
+            .testTag("$LSRouteAttachmentCardScenicDotTagPrefix-$index")
+            .semantics {
+                lsRouteAttachmentCardScenicDotFilled = filled
+            }
+            .size(ScenicDotSize)
+            .then(
+                if (filled) {
+                    Modifier.background(GeneratedTokens.color.Signal.default, CircleShape)
+                } else {
+                    Modifier.border(
+                        ScenicDotBorderWidth,
+                        GeneratedTokens.color.Border.strong,
+                        CircleShape,
+                    )
+                },
+            ),
+    )
 }
 
 fun resolveRouteAttachmentStripeColor(variant: RouteVariant): Color =
