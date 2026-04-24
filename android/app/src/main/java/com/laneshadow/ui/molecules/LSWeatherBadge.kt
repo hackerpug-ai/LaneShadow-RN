@@ -7,12 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.LocalLaneShadowTheme
-import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.atoms.IconSize
 import com.laneshadow.ui.atoms.LSIcon
 import com.laneshadow.ui.atoms.LSPill
 import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.PillSize
+import com.laneshadow.ui.atoms.asTextColor
 
 @Composable
 fun LSWeatherBadge(
@@ -39,7 +39,7 @@ fun LSWeatherBadge(
         LSText(
             text = label,
             variant = style.labelVariant,
-            color = ContentColor.Primary,
+            color = style.iconColor.asTextColor(),
         )
     }
 }
