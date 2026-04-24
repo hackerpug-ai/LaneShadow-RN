@@ -16,5 +16,7 @@ object MoleculesStories {
             LSEmptyStateStory.all +
             LSPillSemanticsStory.all +
             LSLocationContextBarStory.all +
-            LSRouteAttachmentCardStory.all
+            LSRouteAttachmentCardStory.all +
+            LSNavigatorMoleculesStory.all +
+            LSChatInputStory.all
 }
