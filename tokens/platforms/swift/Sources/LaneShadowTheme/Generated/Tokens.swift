@@ -281,146 +281,155 @@ public enum IconCatalog {
     }
 }
 
-enum LaneShadowTheme {
-    enum color {
-        enum surface {
-            static let primary = dyn(parseColorString("#F8F7F6"), parseColorString("#221810"))
-            static let card = dyn(parseColorString("#FDFBF8"), parseColorString("#2D2218"))
-            static let inset = dyn(parseColorString("#F2EFED"), parseColorString("#362A1F"))
-            static let overlay = dyn(
+public enum LaneShadowTheme {
+    public enum color {
+        public enum surface {
+            public static let primary = dyn(parseColorString("#F8F7F6"), parseColorString("#221810"))
+            public static let card = dyn(parseColorString("#FDFBF8"), parseColorString("#2D2218"))
+            public static let inset = dyn(parseColorString("#F2EFED"), parseColorString("#362A1F"))
+            public static let overlay = dyn(
                 parseColorString("rgba(253,251,248,0.92)"),
                 parseColorString("rgba(45,34,24,0.92)")
             )
-            static let glass = dyn(parseColorString("rgba(253,251,248,0.72)"), parseColorString("rgba(45,34,24,0.72)"))
-            static let scrim = dyn(parseColorString("rgba(34,24,16,0.35)"), parseColorString("rgba(10,6,3,0.50)"))
-            static let scrimSoft = dyn(parseColorString("rgba(34,24,16,0.18)"), parseColorString("rgba(10,6,3,0.28)"))
-            static let map = dyn(parseColorString("#FDFBF8"), parseColorString("#2D2218"))
+            public static let glass = dyn(
+                parseColorString("rgba(253,251,248,0.72)"),
+                parseColorString("rgba(45,34,24,0.72)")
+            )
+            public static let scrim = dyn(
+                parseColorString("rgba(34,24,16,0.35)"),
+                parseColorString("rgba(10,6,3,0.50)")
+            )
+            public static let scrimSoft = dyn(
+                parseColorString("rgba(34,24,16,0.18)"),
+                parseColorString("rgba(10,6,3,0.28)")
+            )
+            public static let map = dyn(parseColorString("#FDFBF8"), parseColorString("#2D2218"))
         }
 
-        enum content {
-            static let primary = dyn(parseColorString("#1E1A16"), parseColorString("#F2EEE8"))
-            static let secondary = dyn(parseColorString("#49454F"), parseColorString("#CAC4D0"))
-            static let tertiary = dyn(parseColorString("#6B6460"), parseColorString("#9CA3AF"))
-            static let subtle = dyn(parseColorString("#9CA3AF"), parseColorString("#6B6460"))
-            static let onSignal = dyn(parseColorString("#FFFFFF"), parseColorString("#FFFFFF"))
+        public enum content {
+            public static let primary = dyn(parseColorString("#1E1A16"), parseColorString("#F2EEE8"))
+            public static let secondary = dyn(parseColorString("#49454F"), parseColorString("#CAC4D0"))
+            public static let tertiary = dyn(parseColorString("#6B6460"), parseColorString("#9CA3AF"))
+            public static let subtle = dyn(parseColorString("#9CA3AF"), parseColorString("#6B6460"))
+            public static let onSignal = dyn(parseColorString("#FFFFFF"), parseColorString("#FFFFFF"))
         }
 
-        enum signal {
-            static let `default` = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
-            static let pressed = dyn(parseColorString("#9E4A22"), parseColorString("#9E4A22"))
-            static let tint = dyn(parseColorString("#F9D5B5"), parseColorString("#F9D5B5"))
-            static let whisper = dyn(parseColorString("#FCE8D4"), parseColorString("#FCE8D4"))
-            static let hover = dyn(parseColorString("#F3A164"), parseColorString("#F3A164"))
+        public enum signal {
+            public static let `default` = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
+            public static let pressed = dyn(parseColorString("#9E4A22"), parseColorString("#9E4A22"))
+            public static let tint = dyn(parseColorString("#F9D5B5"), parseColorString("#F9D5B5"))
+            public static let whisper = dyn(parseColorString("#FCE8D4"), parseColorString("#FCE8D4"))
+            public static let hover = dyn(parseColorString("#F3A164"), parseColorString("#F3A164"))
         }
 
-        enum role {
-            enum agent {
-                static let `default` = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
+        public enum role {
+            public enum agent {
+                public static let `default` = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
             }
 
-            enum user {
-                static let `default` = dyn(parseColorString("#F2EFED"), parseColorString("#F2EFED"))
+            public enum user {
+                public static let `default` = dyn(parseColorString("#F2EFED"), parseColorString("#F2EFED"))
             }
 
-            enum system {
-                static let `default` = dyn(parseColorString("#E5DED9"), parseColorString("#E5DED9"))
-            }
-        }
-
-        enum weather {
-            enum clear {
-                static let `default` = dyn(parseColorString("#E6A52A"), parseColorString("#E6A52A"))
-                static let tint = dyn(parseColorString("#FBEFCF"), parseColorString("#FBEFCF"))
-            }
-
-            enum rain {
-                static let `default` = dyn(parseColorString("#4A86BE"), parseColorString("#4A86BE"))
-                static let tint = dyn(parseColorString("#DBEAF4"), parseColorString("#DBEAF4"))
-            }
-
-            enum wind {
-                static let `default` = dyn(parseColorString("#6B7B8F"), parseColorString("#6B7B8F"))
-                static let tint = dyn(parseColorString("#E1E6EC"), parseColorString("#E1E6EC"))
-            }
-
-            enum storm {
-                static let `default` = dyn(parseColorString("#5E3FAE"), parseColorString("#5E3FAE"))
-                static let tint = dyn(parseColorString("#E3DCF2"), parseColorString("#E3DCF2"))
-            }
-
-            enum hot {
-                static let `default` = dyn(parseColorString("#C9423C"), parseColorString("#C9423C"))
-                static let tint = dyn(parseColorString("#F5D8D6"), parseColorString("#F5D8D6"))
-            }
-
-            enum cold {
-                static let `default` = dyn(parseColorString("#3A8BE3"), parseColorString("#3A8BE3"))
-                static let tint = dyn(parseColorString("#D6E5F7"), parseColorString("#D6E5F7"))
+            public enum system {
+                public static let `default` = dyn(parseColorString("#E5DED9"), parseColorString("#E5DED9"))
             }
         }
 
-        enum route {
-            static let best = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
-            static let alt1 = dyn(parseColorString("#4D8470"), parseColorString("#4D8470"))
-            static let alt2 = dyn(parseColorString("#6B7B8F"), parseColorString("#6B7B8F"))
+        public enum weather {
+            public enum clear {
+                public static let `default` = dyn(parseColorString("#E6A52A"), parseColorString("#E6A52A"))
+                public static let tint = dyn(parseColorString("#FBEFCF"), parseColorString("#FBEFCF"))
+            }
+
+            public enum rain {
+                public static let `default` = dyn(parseColorString("#4A86BE"), parseColorString("#4A86BE"))
+                public static let tint = dyn(parseColorString("#DBEAF4"), parseColorString("#DBEAF4"))
+            }
+
+            public enum wind {
+                public static let `default` = dyn(parseColorString("#6B7B8F"), parseColorString("#6B7B8F"))
+                public static let tint = dyn(parseColorString("#E1E6EC"), parseColorString("#E1E6EC"))
+            }
+
+            public enum storm {
+                public static let `default` = dyn(parseColorString("#5E3FAE"), parseColorString("#5E3FAE"))
+                public static let tint = dyn(parseColorString("#E3DCF2"), parseColorString("#E3DCF2"))
+            }
+
+            public enum hot {
+                public static let `default` = dyn(parseColorString("#C9423C"), parseColorString("#C9423C"))
+                public static let tint = dyn(parseColorString("#F5D8D6"), parseColorString("#F5D8D6"))
+            }
+
+            public enum cold {
+                public static let `default` = dyn(parseColorString("#3A8BE3"), parseColorString("#3A8BE3"))
+                public static let tint = dyn(parseColorString("#D6E5F7"), parseColorString("#D6E5F7"))
+            }
         }
 
-        enum status {
-            static let recording = dyn(parseColorString("#C9423C"), parseColorString("#C9423C"))
-            enum info {
-                static let `default` = dyn(parseColorString("#3A8BE3"), parseColorString("#3A8BE3"))
-                static let tint = dyn(parseColorString("#DBEAFE"), parseColorString("rgba(58,139,227,0.18)"))
+        public enum route {
+            public static let best = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
+            public static let alt1 = dyn(parseColorString("#4D8470"), parseColorString("#4D8470"))
+            public static let alt2 = dyn(parseColorString("#6B7B8F"), parseColorString("#6B7B8F"))
+        }
+
+        public enum status {
+            public static let recording = dyn(parseColorString("#C9423C"), parseColorString("#C9423C"))
+            public enum info {
+                public static let `default` = dyn(parseColorString("#3A8BE3"), parseColorString("#3A8BE3"))
+                public static let tint = dyn(parseColorString("#DBEAFE"), parseColorString("rgba(58,139,227,0.18)"))
             }
 
-            enum success {
-                static let `default` = dyn(parseColorString("#4D8470"), parseColorString("#4D8470"))
-                static let tint = dyn(parseColorString("#DCFCE7"), parseColorString("rgba(77,132,112,0.22)"))
+            public enum success {
+                public static let `default` = dyn(parseColorString("#4D8470"), parseColorString("#4D8470"))
+                public static let tint = dyn(parseColorString("#DCFCE7"), parseColorString("rgba(77,132,112,0.22)"))
             }
 
-            enum warning {
-                static let `default` = dyn(parseColorString("#C46F1B"), parseColorString("#C46F1B"))
-                static let tint = dyn(parseColorString("#FEF3C7"), parseColorString("rgba(196,111,27,0.22)"))
+            public enum warning {
+                public static let `default` = dyn(parseColorString("#C46F1B"), parseColorString("#C46F1B"))
+                public static let tint = dyn(parseColorString("#FEF3C7"), parseColorString("rgba(196,111,27,0.22)"))
             }
 
-            enum error {
-                static let `default` = dyn(parseColorString("#C9423C"), parseColorString("#C9423C"))
-                static let tint = dyn(parseColorString("#FEE2E2"), parseColorString("rgba(201,66,60,0.22)"))
+            public enum error {
+                public static let `default` = dyn(parseColorString("#C9423C"), parseColorString("#C9423C"))
+                public static let tint = dyn(parseColorString("#FEE2E2"), parseColorString("rgba(201,66,60,0.22)"))
             }
         }
 
-        enum border {
-            static let `default` = dyn(parseColorString("#E5DED9"), parseColorString("rgba(242,238,232,0.12)"))
-            static let subtle = dyn(parseColorString("#EDE7E1"), parseColorString("rgba(242,238,232,0.07)"))
-            static let strong = dyn(parseColorString("#C9BDB3"), parseColorString("rgba(242,238,232,0.22)"))
-            static let focus = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
-            static let glass = dyn(
+        public enum border {
+            public static let `default` = dyn(parseColorString("#E5DED9"), parseColorString("rgba(242,238,232,0.12)"))
+            public static let subtle = dyn(parseColorString("#EDE7E1"), parseColorString("rgba(242,238,232,0.07)"))
+            public static let strong = dyn(parseColorString("#C9BDB3"), parseColorString("rgba(242,238,232,0.22)"))
+            public static let focus = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
+            public static let glass = dyn(
                 parseColorString("rgba(255,255,255,0.55)"),
                 parseColorString("rgba(242,238,232,0.22)")
             )
         }
 
-        enum action {
-            enum primary {
-                static let `default` = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
-                static let hover = dyn(parseColorString("#F3A164"), parseColorString("#F3A164"))
-                static let pressed = dyn(parseColorString("#9E4A22"), parseColorString("#9E4A22"))
-                static let disabled = dyn(parseColorString("#EDE7E1"), parseColorString("#3D3228"))
+        public enum action {
+            public enum primary {
+                public static let `default` = dyn(parseColorString("#EE7C2B"), parseColorString("#EE7C2B"))
+                public static let hover = dyn(parseColorString("#F3A164"), parseColorString("#F3A164"))
+                public static let pressed = dyn(parseColorString("#9E4A22"), parseColorString("#9E4A22"))
+                public static let disabled = dyn(parseColorString("#EDE7E1"), parseColorString("#3D3228"))
             }
 
-            enum secondary {
-                static let `default` = dyn(parseColorString("#FCE8D4"), parseColorString("#FCE8D4"))
-                static let hover = dyn(parseColorString("#F9D5B5"), parseColorString("#F9D5B5"))
-                static let pressed = dyn(parseColorString("#F3A164"), parseColorString("#F3A164"))
+            public enum secondary {
+                public static let `default` = dyn(parseColorString("#FCE8D4"), parseColorString("#FCE8D4"))
+                public static let hover = dyn(parseColorString("#F9D5B5"), parseColorString("#F9D5B5"))
+                public static let pressed = dyn(parseColorString("#F3A164"), parseColorString("#F3A164"))
             }
         }
 
-        enum map {
-            static let paper = dyn(parseColorString("#FDFBF8"), parseColorString("#2D2218"))
-            static let contour = dyn(
+        public enum map {
+            public static let paper = dyn(parseColorString("#FDFBF8"), parseColorString("#2D2218"))
+            public static let contour = dyn(
                 parseColorString("rgba(73,69,79,0.22)"),
                 parseColorString("rgba(242,238,232,0.22)")
             )
-            static let contourFaint = dyn(
+            public static let contourFaint = dyn(
                 parseColorString("rgba(73,69,79,0.10)"),
                 parseColorString("rgba(242,238,232,0.10)")
             )

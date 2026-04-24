@@ -38,7 +38,7 @@ public struct LSExcludedFavorite: Equatable, Sendable {
  */
 public func formatExcludedList(_ favorites: [LSExcludedFavorite]) -> String {
     let namedFavorites = favorites.filter { $0.name != nil }
-    let names = namedFavorites.compactMap { $0.name }
+    let names = namedFavorites.compactMap(\.name)
 
     if names.isEmpty {
         return "some favorites"
@@ -135,7 +135,7 @@ public struct LSFavoriteExclusionAlert: View {
 
     public var body: some View {
         Group {
-            if shouldShowAlert && isVisible {
+            if shouldShowAlert, isVisible {
                 mainContent
                     .onAppear {
                         setupAutoDismiss()
@@ -160,12 +160,12 @@ public struct LSFavoriteExclusionAlert: View {
 
     private var shouldShowAlert: Bool {
         // Don't show if toggle is off or no exclusions
-        guard includeFavorites && !excludedFavorites.isEmpty else {
+        guard includeFavorites, !excludedFavorites.isEmpty else {
             return false
         }
 
         // Check session awareness
-        if let sessionKey = sessionKey, shownSessions.contains(sessionKey) {
+        if let sessionKey, shownSessions.contains(sessionKey) {
             return false
         }
 
@@ -175,11 +175,11 @@ public struct LSFavoriteExclusionAlert: View {
     // MARK: - Check Visibility
 
     private func checkVisibility() {
-        if shouldShowAlert && !hasShownForSession {
+        if shouldShowAlert, !hasShownForSession {
             isVisible = true
 
             // Track this session
-            if let sessionKey = sessionKey {
+            if let sessionKey {
                 shownSessions.insert(sessionKey)
                 hasShownForSession = true
             }
@@ -197,7 +197,6 @@ public struct LSFavoriteExclusionAlert: View {
 
     // MARK: - Main Content
 
-    @ViewBuilder
     private var mainContent: some View {
         HStack(spacing: 0) {
             // Info icon
@@ -275,7 +274,7 @@ public struct LSFavoriteExclusionAlert: View {
         let reasonMessage = "These favorites are too far from your route"
 
         let namedFavorites = excludedFavorites.filter { $0.name != nil }
-        let names = namedFavorites.compactMap { $0.name }
+        let names = namedFavorites.compactMap(\.name)
 
         if names.isEmpty {
             return "\(baseMessage). \(reasonMessage)."
@@ -316,7 +315,7 @@ public struct LSFavoriteExclusionAlert: View {
         LSFavoriteExclusionAlert(
             excludedFavorites: [
                 LSExcludedFavorite(id: "1", name: "Pacific Coast Highway", reason: "Too far"),
-                LSExcludedFavorite(id: "2", name: "Mulholland Drive", reason: "Too far")
+                LSExcludedFavorite(id: "2", name: "Mulholland Drive", reason: "Too far"),
             ],
             includeFavorites: true,
             onDismiss: { print("Dismissed") }
@@ -337,7 +336,7 @@ public struct LSFavoriteExclusionAlert: View {
                 LSExcludedFavorite(id: "2", name: "Road Two", reason: "Too far"),
                 LSExcludedFavorite(id: "3", name: "Road Three", reason: "Too far"),
                 LSExcludedFavorite(id: "4", name: "Road Four", reason: "Too far"),
-                LSExcludedFavorite(id: "5", name: "Road Five", reason: "Too far")
+                LSExcludedFavorite(id: "5", name: "Road Five", reason: "Too far"),
             ],
             includeFavorites: true,
             onDismiss: { print("Dismissed") }
@@ -353,7 +352,7 @@ public struct LSFavoriteExclusionAlert: View {
         LSFavoriteExclusionAlert(
             excludedFavorites: [
                 LSExcludedFavorite(id: "1", reason: "Too far"),
-                LSExcludedFavorite(id: "2", reason: "Too far")
+                LSExcludedFavorite(id: "2", reason: "Too far"),
             ],
             includeFavorites: true,
             onDismiss: { print("Dismissed") }
@@ -368,7 +367,7 @@ public struct LSFavoriteExclusionAlert: View {
     VStack(spacing: 16) {
         LSFavoriteExclusionAlert(
             excludedFavorites: [
-                LSExcludedFavorite(id: "1", name: "Sunset Boulevard", reason: "Too far")
+                LSExcludedFavorite(id: "1", name: "Sunset Boulevard", reason: "Too far"),
             ],
             includeFavorites: true,
             onDismiss: { print("Dismissed") }

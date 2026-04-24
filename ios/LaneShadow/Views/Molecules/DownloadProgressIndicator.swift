@@ -94,7 +94,7 @@ public struct LSDownloadProgressIndicator: View {
             infoRow
 
             // Cancel button (only when downloading)
-            if state == .downloading, let onCancel = onCancel {
+            if state == .downloading, let onCancel {
                 cancelButton(onCancel)
             }
         }
@@ -154,13 +154,13 @@ public struct LSDownloadProgressIndicator: View {
     private var statusText: String {
         switch state {
         case .complete:
-            return "Download complete"
+            "Download complete"
         case .failed:
-            return "Download failed"
+            "Download failed"
         case .paused:
-            return "Paused"
+            "Paused"
         default:
-            return Self.formatETA(seconds: eta)
+            Self.formatETA(seconds: eta)
         }
     }
 
@@ -181,7 +181,7 @@ public struct LSDownloadProgressIndicator: View {
     /// - Parameter seconds: Seconds to format (nil if not applicable)
     /// - Returns: String in format "X sec left" or "X min left" or empty string
     public static func formatETA(seconds: TimeInterval?) -> String {
-        guard let seconds = seconds, seconds > 0 else {
+        guard let seconds, seconds > 0 else {
             return ""
         }
 

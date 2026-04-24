@@ -61,7 +61,7 @@ public struct LSDiscoveryLoadingOverlay: View {
                         // Filter bar skeleton placeholders
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: theme.space.sm) {
-                                ForEach(0..<5, id: \.self) { _ in
+                                ForEach(0 ..< 5, id: \.self) { _ in
                                     filterChipSkeleton()
                                 }
                             }
@@ -73,7 +73,7 @@ public struct LSDiscoveryLoadingOverlay: View {
 
                         // Route pin skeleton placeholders
                         VStack(spacing: theme.space.lg) {
-                            ForEach(0..<3, id: \.self) { _ in
+                            ForEach(0 ..< 3, id: \.self) { _ in
                                 routePinSkeleton()
                             }
                         }
@@ -96,7 +96,7 @@ public struct LSDiscoveryLoadingOverlay: View {
 
     private func filterChipSkeleton() -> some View {
         // Random width between 80-100pt, height 32pt, rounded
-        let randomWidth = CGFloat(Double.random(in: 80...100))
+        let randomWidth = CGFloat(Double.random(in: 80 ... 100))
         return LSSkeleton(
             width: randomWidth,
             height: 32,

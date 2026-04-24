@@ -215,24 +215,24 @@ public struct LSRouteAttachmentCard: View {
     private func weatherIconName(for type: LSWeatherBadgeType) -> String {
         switch type {
         case .clear:
-            return "weather-sunny"
+            "weather-sunny"
         case .rain:
-            return "weather-rainy"
+            "weather-rainy"
         case .wind:
-            return "weather-windy"
+            "weather-windy"
         case .cloudy:
-            return "weather-cloudy"
+            "weather-cloudy"
         }
     }
 
     private func weatherColor(for type: LSWeatherBadgeType) -> Color {
         switch type {
         case .rain:
-            return theme.colors.danger.default
+            theme.colors.danger.default
         case .wind:
-            return theme.colors.warning.default
+            theme.colors.warning.default
         default:
-            return theme.colors.onSurface.muted
+            theme.colors.onSurface.muted
         }
     }
 }

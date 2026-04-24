@@ -20,9 +20,9 @@ public struct LSBounds: Sendable {
 
     // swiftlint:disable:next identifier_name
     public init(sw: LSLatLng, ne: LSLatLng) {
-        /// Convenience initializer with short parameter names for compatibility
-        self.southwest = sw
-        self.northeast = ne
+        // Convenience initializer with short parameter names for compatibility
+        southwest = sw
+        northeast = ne
     }
 }
 
@@ -193,7 +193,7 @@ public extension LSFavoriteRoadCard where ThumbnailContent == EmptyView {
         self.favoriteRoadId = favoriteRoadId
         self.name = name
         self.bounds = bounds
-        self.thumbnailContent = { EmptyView() }
+        thumbnailContent = { EmptyView() }
         self.onPress = onPress
         self.onDelete = onDelete
         self.testID = testID

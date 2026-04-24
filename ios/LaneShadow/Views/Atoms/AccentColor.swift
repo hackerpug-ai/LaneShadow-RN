@@ -65,14 +65,7 @@ enum LSSurfaceColorToken {
         case .primary:
             theme.colors.surface.default
         case .glass:
-            LSTokenColor.surfaceGlass
+            LaneShadowTheme.color.surface.glass
         }
     }
-}
-
-private enum LSTokenColor {
-    static let surfaceGlass = dyn(
-        parseColorString("rgba(253,251,248,0.72)"),
-        parseColorString("rgba(45,34,24,0.72)")
-    )
 }

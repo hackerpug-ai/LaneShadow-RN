@@ -19,25 +19,25 @@ public enum LSEnrichmentStatus: Sendable, CaseIterable {
     var config: StatusConfig {
         switch self {
         case .draft:
-            return StatusConfig(
+            StatusConfig(
                 label: "Draft",
                 iconName: "clock",
                 colorKeyPath: \.onSurface.subtle
             )
         case .partial:
-            return StatusConfig(
+            StatusConfig(
                 label: "Partial",
                 iconName: "checkmark.circle",
                 colorKeyPath: nil // Use domain color
             )
         case .complete:
-            return StatusConfig(
+            StatusConfig(
                 label: "Complete",
                 iconName: "star",
                 colorKeyPath: nil // Use domain color
             )
         case .failed:
-            return StatusConfig(
+            StatusConfig(
                 label: "Failed",
                 iconName: "exclamationmark.triangle",
                 colorKeyPath: \.danger
@@ -49,13 +49,13 @@ public enum LSEnrichmentStatus: Sendable, CaseIterable {
     func color(theme: Theme) -> Color {
         switch self {
         case .draft:
-            return theme.colors.onSurface.subtle
+            theme.colors.onSurface.subtle
         case .partial:
-            return theme.domain.enrichmentFast.default
+            theme.domain.enrichmentFast.default
         case .complete:
-            return theme.domain.enrichmentExtended.default
+            theme.domain.enrichmentExtended.default
         case .failed:
-            return theme.colors.danger.default
+            theme.colors.danger.default
         }
     }
 }
@@ -74,29 +74,29 @@ public enum LSEnrichmentBadgeSize: Sendable {
 
     var verticalPadding: CGFloat {
         switch self {
-        case .small: return 4
-        case .medium: return 6
+        case .small: 4
+        case .medium: 6
         }
     }
 
     var horizontalPadding: CGFloat {
         switch self {
-        case .small: return 8
-        case .medium: return 12
+        case .small: 8
+        case .medium: 12
         }
     }
 
     var iconSize: CGFloat {
         switch self {
-        case .small: return 14
-        case .medium: return 16
+        case .small: 14
+        case .medium: 16
         }
     }
 
     var typographyKeyPath: KeyPath<ThemeType, ThemeTypeScale> {
         switch self {
-        case .small: return \.label.sm
-        case .medium: return \.label.md
+        case .small: \.label.sm
+        case .medium: \.label.md
         }
     }
 }
@@ -112,12 +112,6 @@ public struct StatusConfig: Sendable {
     let label: String
     let iconName: String
     let colorKeyPath: KeyPath<ThemeColors, ColorSet>?
-
-    init(label: String, iconName: String, colorKeyPath: KeyPath<ThemeColors, ColorSet>?) {
-        self.label = label
-        self.iconName = iconName
-        self.colorKeyPath = colorKeyPath
-    }
 }
 
 // MARK: - Enrichment Status Badge Component

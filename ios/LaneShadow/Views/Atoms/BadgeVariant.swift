@@ -41,7 +41,7 @@ private extension BadgeStatusVariant {
                 backgroundToken: "color.status.info.tint",
                 foregroundToken: "color.status.info.default",
                 borderToken: nil,
-                backgroundColor: badgeColor("#DBEAFE"),
+                backgroundColor: LaneShadowTheme.color.status.info.tint,
                 foregroundColor: theme.colors.info.default,
                 borderColor: nil,
                 borderOpacity: 0,
@@ -53,7 +53,7 @@ private extension BadgeStatusVariant {
                 backgroundToken: "color.status.success.tint",
                 foregroundToken: "color.status.success.default",
                 borderToken: nil,
-                backgroundColor: badgeColor("#DCFCE7"),
+                backgroundColor: LaneShadowTheme.color.status.success.tint,
                 foregroundColor: theme.colors.success.default,
                 borderColor: nil,
                 borderOpacity: 0,
@@ -65,7 +65,7 @@ private extension BadgeStatusVariant {
                 backgroundToken: "color.status.warning.tint",
                 foregroundToken: "color.status.warning.default",
                 borderToken: nil,
-                backgroundColor: badgeColor("#FEF3C7"),
+                backgroundColor: LaneShadowTheme.color.status.warning.tint,
                 foregroundColor: theme.colors.warning.default,
                 borderColor: nil,
                 borderOpacity: 0,
@@ -77,7 +77,7 @@ private extension BadgeStatusVariant {
                 backgroundToken: "color.status.error.tint",
                 foregroundToken: "color.status.error.default",
                 borderToken: nil,
-                backgroundColor: badgeColor("#FEE2E2"),
+                backgroundColor: LaneShadowTheme.color.status.error.tint,
                 foregroundColor: theme.colors.danger.default,
                 borderColor: nil,
                 borderOpacity: 0,
@@ -89,7 +89,7 @@ private extension BadgeStatusVariant {
                 backgroundToken: "color.status.recording.tint",
                 foregroundToken: "color.status.recording.default",
                 borderToken: nil,
-                backgroundColor: badgeColor("#FEE2E2"),
+                backgroundColor: LaneShadowTheme.color.status.error.tint,
                 foregroundColor: theme.colors.danger.default,
                 borderColor: nil,
                 borderOpacity: 0,
@@ -108,8 +108,8 @@ extension BadgeWeatherVariant {
                 backgroundToken: "color.weather.clear.tint",
                 foregroundToken: "color.weather.clear.default",
                 borderToken: "color.weather.clear.default",
-                backgroundColor: badgeColor("#FBEFCF"),
-                foregroundColor: badgeColor("#E6A52A"),
+                backgroundColor: LaneShadowTheme.color.weather.clear.tint,
+                foregroundColor: LaneShadowTheme.color.weather.clear.default,
                 leadingIcon: .sun,
                 theme: theme
             )
@@ -118,8 +118,8 @@ extension BadgeWeatherVariant {
                 backgroundToken: "color.weather.rain.tint",
                 foregroundToken: "color.weather.rain.default",
                 borderToken: "color.weather.rain.default",
-                backgroundColor: badgeColor("#DBEAF4"),
-                foregroundColor: badgeColor("#4A86BE"),
+                backgroundColor: LaneShadowTheme.color.weather.rain.tint,
+                foregroundColor: LaneShadowTheme.color.weather.rain.default,
                 leadingIcon: .rain,
                 theme: theme
             )
@@ -128,8 +128,8 @@ extension BadgeWeatherVariant {
                 backgroundToken: "color.weather.wind.tint",
                 foregroundToken: "color.weather.wind.default",
                 borderToken: "color.weather.wind.default",
-                backgroundColor: badgeColor("#E1E6EC"),
-                foregroundColor: badgeColor("#6B7B8F"),
+                backgroundColor: LaneShadowTheme.color.weather.wind.tint,
+                foregroundColor: LaneShadowTheme.color.weather.wind.default,
                 leadingIcon: .wind,
                 theme: theme
             )
@@ -138,8 +138,8 @@ extension BadgeWeatherVariant {
                 backgroundToken: "color.weather.storm.tint",
                 foregroundToken: "color.weather.storm.default",
                 borderToken: "color.weather.storm.default",
-                backgroundColor: badgeColor("#E3DCF2"),
-                foregroundColor: badgeColor("#5E3FAE"),
+                backgroundColor: LaneShadowTheme.color.weather.storm.tint,
+                foregroundColor: LaneShadowTheme.color.weather.storm.default,
                 leadingIcon: .storm,
                 theme: theme
             )
@@ -148,8 +148,8 @@ extension BadgeWeatherVariant {
                 backgroundToken: "color.weather.hot.tint",
                 foregroundToken: "color.weather.hot.default",
                 borderToken: "color.weather.hot.default",
-                backgroundColor: badgeColor("#F5D8D6"),
-                foregroundColor: badgeColor("#C9423C"),
+                backgroundColor: LaneShadowTheme.color.weather.hot.tint,
+                foregroundColor: LaneShadowTheme.color.weather.hot.default,
                 leadingIcon: .therm,
                 theme: theme
             )
@@ -158,8 +158,8 @@ extension BadgeWeatherVariant {
                 backgroundToken: "color.weather.cold.tint",
                 foregroundToken: "color.weather.cold.default",
                 borderToken: "color.weather.cold.default",
-                backgroundColor: badgeColor("#D6E5F7"),
-                foregroundColor: badgeColor("#3A8BE3"),
+                backgroundColor: LaneShadowTheme.color.weather.cold.tint,
+                foregroundColor: LaneShadowTheme.color.weather.cold.default,
                 leadingIcon: .wind,
                 theme: theme
             )
@@ -187,8 +187,4 @@ extension BadgeWeatherVariant {
             iconSize: .xs
         )
     }
-}
-
-private func badgeColor(_ hex: String) -> Color {
-    dyn(parseColorString(hex), parseColorString(hex))
 }

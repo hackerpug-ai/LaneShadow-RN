@@ -12,15 +12,15 @@ public enum ContentColor: CaseIterable, Sendable {
     public func resolved(in theme: Theme) -> Color {
         switch self {
         case .primary:
-            dyn(parseColorString("#1E1A16"), parseColorString("#F2EEE8"))
+            LaneShadowTheme.color.content.primary
         case .secondary:
-            dyn(parseColorString("#49454F"), parseColorString("#CAC4D0"))
+            LaneShadowTheme.color.content.secondary
         case .tertiary:
-            dyn(parseColorString("#6B6460"), parseColorString("#9CA3AF"))
+            LaneShadowTheme.color.content.tertiary
         case .subtle:
-            dyn(parseColorString("#9CA3AF"), parseColorString("#6B6460"))
+            LaneShadowTheme.color.content.subtle
         case .onSignal:
-            dyn(parseColorString("#FFFFFF"), parseColorString("#FFFFFF"))
+            LaneShadowTheme.color.content.onSignal
         }
     }
 }

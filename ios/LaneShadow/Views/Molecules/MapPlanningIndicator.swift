@@ -141,9 +141,9 @@ private struct TypingIndicator: View {
     }
 
     private func animateDots() {
-        let animationDuration: Double = 0.3
-        let pauseDuration: Double = 0.3
-        let staggerDelay: Double = 0.15
+        let animationDuration = 0.3
+        let pauseDuration = 0.3
+        let staggerDelay = 0.15
 
         // Dot 1 - starts immediately
         withAnimation(.easeInOut(duration: animationDuration).repeatForever(autoreverses: true)) {

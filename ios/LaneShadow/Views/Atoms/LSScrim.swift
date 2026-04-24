@@ -11,20 +11,28 @@ public struct LSScrim: View {
     private let opacity: Double
     private let blocking: Bool
     private let onTap: (() -> Void)?
+    private let variant: ScrimVariant
+
+    public enum ScrimVariant {
+        case `default`
+        case soft
+    }
 
     public init(
         opacity: Double = defaultOpacity,
         blocking: Bool = false,
-        onTap: (() -> Void)? = nil
+        onTap: (() -> Void)? = nil,
+        variant: ScrimVariant = .default
     ) {
         self.opacity = opacity
         self.blocking = blocking
         self.onTap = onTap
+        self.variant = variant
     }
 
     public var body: some View {
         Rectangle()
-            .fill(Self.resolvedFill(in: theme, opacity: opacity))
+            .fill(Self.resolvedFill(in: theme, opacity: opacity, variant: variant))
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .overlay {
                 if blocking {
@@ -38,16 +46,22 @@ public struct LSScrim: View {
 }
 
 extension LSScrim {
-    static func resolvedFill(in theme: Theme, opacity: Double) -> Color {
-        Color(uiColor: resolvedUIColor(in: theme, opacity: opacity))
+    static func resolvedFill(in theme: Theme, opacity: Double, variant: ScrimVariant = .default) -> Color {
+        Color(uiColor: resolvedUIColor(in: theme, opacity: opacity, variant: variant))
     }
 
     static func resolvedUIColor(
         in theme: Theme,
         opacity: Double,
+        variant: ScrimVariant = .default,
         traits: UITraitCollection = UITraitCollection.current
     ) -> UIColor {
-        let tokenColor = UIColor(theme.colors.scrim.default).resolvedColor(with: traits)
+        let tokenColor = switch variant {
+        case .default:
+            UIColor(theme.colors.scrim.default).resolvedColor(with: traits)
+        case .soft:
+            UIColor(LaneShadowTheme.color.surface.scrimSoft).resolvedColor(with: traits)
+        }
 
         if abs(opacity - defaultOpacity) < 0.000_1 {
             return tokenColor

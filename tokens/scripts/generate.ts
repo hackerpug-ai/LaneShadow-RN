@@ -643,7 +643,7 @@ function emitSwift(
     lines.push('')
   }
 
-  lines.push('enum LaneShadowTheme {')
+  lines.push('public enum LaneShadowTheme {')
 
   // Colors — emit as dynamic colors using dyn() + parseColorString()
   const swiftColors = cloneJson(tokens.color ?? {})
@@ -721,7 +721,7 @@ function emitSwift(
   }
 
   if (Object.keys(swiftColors).length > 0) {
-    lines.push('  enum color {')
+    lines.push('  public enum color {')
 
     const processColorGroup = (groupName: string, group: Record<string, any>) => {
       const leafTokens: Array<{ name: string; token: ColorToken }> = []
@@ -735,12 +735,12 @@ function emitSwift(
         }
       }
 
-      lines.push(`    enum ${groupName} {`)
+      lines.push(`    public enum ${groupName} {`)
 
       for (const { name, token } of leafTokens) {
         const swiftName = toSwiftIdentifier(name)
         lines.push(
-          `      static let ${swiftName} = dyn(parseColorString("${token.light}"), parseColorString("${token.dark}"))`,
+          `      public static let ${swiftName} = dyn(parseColorString("${token.light}"), parseColorString("${token.dark}"))`,
         )
       }
 

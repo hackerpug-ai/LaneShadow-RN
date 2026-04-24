@@ -21,26 +21,26 @@ public enum LSRouteArchetype: String, CaseIterable, Sendable {
     /// Display label for this archetype
     var label: String {
         switch self {
-        case .all: return "All"
-        case .twisties: return "Twisties"
-        case .scenic: return "Scenic"
-        case .technical: return "Technical"
-        case .cruising: return "Cruising"
-        case .sport: return "Sport"
-        case .adventure: return "Adventure"
+        case .all: "All"
+        case .twisties: "Twisties"
+        case .scenic: "Scenic"
+        case .technical: "Technical"
+        case .cruising: "Cruising"
+        case .sport: "Sport"
+        case .adventure: "Adventure"
         }
     }
 
     /// Icon name for this archetype (optional)
     var iconName: String? {
         switch self {
-        case .all: return "checkmark.circle.fill"
-        case .twisties: return "road.variant"
-        case .scenic: return "landscape.fill"
-        case .technical: return "wrench.fill"
-        case .cruising: return "bicycle"
-        case .sport: return "flame.fill"
-        case .adventure: return "compass.fill"
+        case .all: "checkmark.circle.fill"
+        case .twisties: "road.variant"
+        case .scenic: "landscape.fill"
+        case .technical: "wrench.fill"
+        case .cruising: "bicycle"
+        case .sport: "flame.fill"
+        case .adventure: "compass.fill"
         }
     }
 }
@@ -234,7 +234,7 @@ extension LSDiscoveryFilterBar {
                     .technical: 150,
                     .cruising: 200,
                     .sport: 100,
-                    .adventure: 50
+                    .adventure: 50,
                 ]
             )
         }
@@ -256,7 +256,7 @@ extension LSDiscoveryFilterBar {
                     .technical: 150,
                     .cruising: 200,
                     .sport: 100,
-                    .adventure: 50
+                    .adventure: 50,
                 ]
             )
         }
@@ -278,7 +278,7 @@ extension LSDiscoveryFilterBar {
                     .technical: 150,
                     .cruising: 200,
                     .sport: 100,
-                    .adventure: 50
+                    .adventure: 50,
                 ]
             )
         }
