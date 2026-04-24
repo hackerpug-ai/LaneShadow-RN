@@ -32,6 +32,11 @@
         "light": "rgba(34,24,16,0.35)",
         "dark": "rgba(10,6,3,0.50)",
         "$comment": "Dismiss scrim — 35% (light), 50% (dark)"
+      },
+      "scrim-soft": {
+        "light": "rgba(34,24,16,0.18)",
+        "dark": "rgba(10,6,3,0.28)",
+        "$comment": "Soft scrim — reduced-dismiss overlay"
       }
     },
     "content": {
@@ -247,6 +252,11 @@
         "light": "#EE7C2B",
         "dark": "#EE7C2B",
         "$comment": "Focus ring — copper signal"
+      },
+      "glass": {
+        "light": "rgba(255,255,255,0.55)",
+        "dark": "rgba(242,238,232,0.22)",
+        "$comment": "Glass border — elevated translucent edge"
       }
     },
     "action": {
