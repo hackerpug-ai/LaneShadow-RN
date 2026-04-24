@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.LaneShadowThemeValues
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme.IconName
@@ -62,10 +63,12 @@ data class ToolbarComponentSizing(
     val actionTouchTarget: Dp,
 )
 
+// Mirrors canonical dimensions token: dimensions.sizing.component.toolbarHeight = 56dp.
+val ToolbarHeightComponentToken: Dp = 56.dp
+
 val LaneShadowThemeValues.toolbarComponentSizing: ToolbarComponentSizing
     get() = ToolbarComponentSizing(
-        // The toolbar maps to the dedicated control-xl token ladder in the Android theme surface.
-        toolbarHeight = space.xxxxl,
+        toolbarHeight = ToolbarHeightComponentToken,
         actionTouchTarget = space.xxxl,
     )
 

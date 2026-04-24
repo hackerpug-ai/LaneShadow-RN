@@ -37,13 +37,12 @@ class LSToolbarTest {
 
     @Test
     fun default_render_uses_chrome_tokens() {
-        var expectedToolbarHeight: Dp = 0.dp
+        val expectedToolbarHeight: Dp = 56.dp
         var expectedActionIconSize: Dp = 0.dp
 
         composeTestRule.setContent {
             LaneShadowTheme {
                 val theme = LocalLaneShadowTheme.current
-                expectedToolbarHeight = theme.toolbarComponentSizing.toolbarHeight
                 expectedActionIconSize = theme.sizing.icon.md
 
                 LSToolbar(
