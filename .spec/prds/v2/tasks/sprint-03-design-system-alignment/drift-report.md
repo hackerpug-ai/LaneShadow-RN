@@ -10,7 +10,7 @@ Notes:
 - Rows below use canonical dotted paths from the theme JSONs or semantic schemas, not emitted accessor names.
 - `Tokens.swift` carries light and dark values for the color tokens it emits, so its drift is primarily omissions and naming rewrites.
 - `Tokens.kt` emits only a single literal for color tokens. When the canonical dark value differs from the light value, Android has a discrete `WRONG_VALUE` drift even if the key exists by name.
-- Canonical theme `stroke.*` tokens and dimensions-schema `sizing.stroke.*` tokens are audited separately. They are distinct contracts.
+- Canonical theme `stroke.*` tokens and the dimensions stroke trio are audited separately. They are distinct contracts.
 
 ## Missing Rows
 
@@ -37,6 +37,33 @@ Notes:
 | sizing.stroke.sm | 1 | 1 | MISSING | MISSING |
 | sizing.stroke.md | 2 | 2 | MISSING | MISSING |
 | sizing.stroke.lg | 3 | 3 | MISSING | MISSING |
+| radius.none | 0 | 0 | MISSING | MISSING |
+| radius.xs | 2 | 2 | MISSING | MISSING |
+| radius.sm | 4 | 4 | MISSING | MISSING |
+| radius.md | 6 | 6 | MISSING | MISSING |
+| radius.lg | 10 | 10 | MISSING | MISSING |
+| radius.xl | 16 | 16 | MISSING | MISSING |
+| radius.2xl | 18 | 18 | MISSING | MISSING |
+| radius.pill | 999 | 999 | MISSING | MISSING |
+| size.touch-min | 44 | 44 | MISSING | MISSING |
+| size.control-sm | 28 | 28 | MISSING | MISSING |
+| size.control-md | 36 | 36 | MISSING | MISSING |
+| size.control-lg | 48 | 48 | MISSING | MISSING |
+| size.control-chat | 54 | 54 | MISSING | MISSING |
+| size.control-xl | 56 | 56 | MISSING | MISSING |
+| size.avatar-xs | 20 | 20 | MISSING | MISSING |
+| size.avatar-sm | 28 | 28 | MISSING | MISSING |
+| size.avatar-md | 36 | 36 | MISSING | MISSING |
+| size.avatar-lg | 48 | 48 | MISSING | MISSING |
+| size.avatar-xl | 64 | 64 | MISSING | MISSING |
+| opacity.0 | 0 | 0 | MISSING | MISSING |
+| opacity.subtle | 0.08 | 0.08 | MISSING | MISSING |
+| opacity.focus | 0.12 | 0.12 | MISSING | MISSING |
+| opacity.disabled | 0.38 | 0.38 | MISSING | MISSING |
+| opacity.overlay | 0.60 | 0.60 | MISSING | MISSING |
+| opacity.dim | 0.76 | 0.76 | MISSING | MISSING |
+| opacity.veil | 0.92 | 0.92 | MISSING | MISSING |
+| opacity.1 | 1 | 1 | MISSING | MISSING |
 | elev.card | 0 2px 6px rgba(34,24,16,0.06) | 0 2px 6px rgba(0,0,0,0.24) | MISSING | MISSING |
 | elev.chrome | 0 1px 3px rgba(34,24,16,0.04), 0 4px 14px rgba(34,24,16,0.06) | 0 1px 3px rgba(0,0,0,0.24), 0 4px 14px rgba(0,0,0,0.28) | MISSING | MISSING |
 | elev.overlay | 0 8px 24px rgba(34,24,16,0.10), 0 2px 6px rgba(34,24,16,0.06) | 0 8px 24px rgba(0,0,0,0.42), 0 2px 6px rgba(0,0,0,0.28) | MISSING | MISSING |
@@ -80,11 +107,34 @@ Observed canonical-path vs emitted-name divergences:
 | content.on-signal | `LaneShadowTheme.color.content.onSignal` | `LaneShadowTheme.color.Content.onSignal` | kebab-case leaf becomes camelCase accessor |
 | action.primary-hover | `LaneShadowTheme.color.action.primary.hover` | `LaneShadowTheme.color.Action.Primary.hover` | canonical hyphenated leaf is rewritten into nested groups |
 | action.primary-pressed | `LaneShadowTheme.color.action.primary.pressed` | `LaneShadowTheme.color.Action.Primary.pressed` | same kebab-case to nested-group rewrite |
-| space.0`...`space.12 | `LaneShadowTheme.spacing.s0`...`s12` | not emitted | Swift renames numeric spacing keys to `s*`; Android omits the spacing group entirely |
-| size.touch-min | not emitted | not emitted | theme JSON uses `touch-min`, but dimensions schema and generated outputs use `touchTarget` / component sizing instead |
+| space.0 | `LaneShadowTheme.spacing.s0` | not emitted | numeric key is renamed to `s0` on iOS; Android omits the spacing group |
+| space.1 | `LaneShadowTheme.spacing.s1` | not emitted | numeric key is renamed to `s1` on iOS; Android omits the spacing group |
+| space.2 | `LaneShadowTheme.spacing.s2` | not emitted | numeric key is renamed to `s2` on iOS; Android omits the spacing group |
+| space.3 | `LaneShadowTheme.spacing.s3` | not emitted | numeric key is renamed to `s3` on iOS; Android omits the spacing group |
+| space.4 | `LaneShadowTheme.spacing.s4` | not emitted | numeric key is renamed to `s4` on iOS; Android omits the spacing group |
+| space.5 | `LaneShadowTheme.spacing.s5` | not emitted | numeric key is renamed to `s5` on iOS; Android omits the spacing group |
+| space.6 | `LaneShadowTheme.spacing.s6` | not emitted | numeric key is renamed to `s6` on iOS; Android omits the spacing group |
+| space.7 | `LaneShadowTheme.spacing.s7` | not emitted | numeric key is renamed to `s7` on iOS; Android omits the spacing group |
+| space.8 | `LaneShadowTheme.spacing.s8` | not emitted | numeric key is renamed to `s8` on iOS; Android omits the spacing group |
+| space.9 | `LaneShadowTheme.spacing.s9` | not emitted | numeric key is renamed to `s9` on iOS; Android omits the spacing group |
+| space.10 | `LaneShadowTheme.spacing.s10` | not emitted | numeric key is renamed to `s10` on iOS; Android omits the spacing group |
+| space.11 | `LaneShadowTheme.spacing.s11` | not emitted | numeric key is renamed to `s11` on iOS; Android omits the spacing group |
+| space.12 | `LaneShadowTheme.spacing.s12` | not emitted | numeric key is renamed to `s12` on iOS; Android omits the spacing group |
+| size.icon-xs | not emitted | `LaneShadowTheme.sizing.icon.xs` | theme `size.icon-xs` is renamed under `sizing.icon.xs`; Android value matches 12 |
+| size.icon-sm | not emitted | `LaneShadowTheme.sizing.icon.sm` | theme `size.icon-sm` is renamed under `sizing.icon.sm`; Android value matches 16 |
+| size.icon-md | not emitted | `LaneShadowTheme.sizing.icon.md` | Android renames the key and emits 20 instead of canonical 18 |
+| size.icon-lg | not emitted | `LaneShadowTheme.sizing.icon.lg` | theme `size.icon-lg` is renamed under `sizing.icon.lg`; Android value matches 24 |
+| size.icon-xl | not emitted | `LaneShadowTheme.sizing.icon.xl` | theme `size.icon-xl` is renamed under `sizing.icon.xl`; Android value matches 32 |
 
 ## Android-Specific Drift
 
 - `Tokens.kt` has no dark-variant carrier for any emitted color token. The `WRONG_VALUE` table above enumerates every canonical key whose generated Android value is locked to the light literal while the dark value differs.
-- `Tokens.kt` also omits entire groups that are required for the second-theme migration: `map.*`, `elev.*`, `duration.*`, `ease.*`, canonical theme `stroke.*`, and dimensions-schema `sizing.stroke.*`.
-- The dimensions schema already splits Android sizing from the theme contract in places such as `size.touch-min` versus `dimensions.sizing.touchTarget.android`; that naming split remains separate from the canonical theme-token audit.
+- `Tokens.kt` also omits entire groups that are required for the second-theme migration: `map.*`, `elev.*`, `duration.*`, `ease.*`, canonical theme `stroke.*`, `radius.*`, `opacity.*`, and multiple `size.*` families.
+- Android's only emitted size family is `sizing.icon.*`, which rewrites the canonical `size.icon-*` keys and changes the medium value from 18 to 20.
+
+## Legacy-Theme Dependencies
+
+- Native token generation still treats theme JSON and dimensions JSON as separate authorities. Theme-owned families such as `radius.*`, `opacity.*`, and most `size.*` keys never reach `Tokens.swift` or `Tokens.kt`, so atoms cannot switch to Copper by theme alone.
+- The dimensions schema splits `size.touch-min` into platform-specific `dimensions.sizing.touchTarget.ios/android` before generation, so the canonical theme key has no native accessor on either platform.
+- The dimensions schema diverges from the theme contract for radius values (`radius.sm/md/lg/xl`) and drops `radius.2xl` entirely, which would block a clean second-theme migration even if native generation were extended tomorrow.
+- Android's generated icon sizing already drifts from the theme contract at `size.icon-md`: the canonical theme value is 18, while `LaneShadowTheme.sizing.icon.md` emits 20.
