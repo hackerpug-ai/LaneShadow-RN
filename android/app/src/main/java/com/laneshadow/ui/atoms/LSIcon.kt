@@ -129,6 +129,12 @@ private val IconName.pathSpecs: List<IconPathSpec>
                 IconPathSpec("M2 12 A10 10 0 1 0 22 12 A10 10 0 1 0 2 12", fill = false, stroke = true),
                 IconPathSpec("M12 6 L12 12 L16 14", fill = false, stroke = true),
             )
+            IconName.Circle -> listOf(
+                IconPathSpec("M4 12 A8 8 0 1 0 20 12 A8 8 0 1 0 4 12", fill = false, stroke = true),
+            )
+            IconName.CircleFill -> listOf(
+                IconPathSpec("M4 12 A8 8 0 1 0 20 12 A8 8 0 1 0 4 12", fill = true, stroke = true),
+            )
             IconName.Close -> listOf(
                 IconPathSpec("M18 6 L6 18", fill = false, stroke = true),
                 IconPathSpec("M6 6 L18 18", fill = false, stroke = true),

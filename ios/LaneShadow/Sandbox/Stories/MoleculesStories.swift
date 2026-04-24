@@ -6,5 +6,5 @@ import SwiftUI
 /// Sprint 4 (molecules) will repopulate this aggregator.
 @MainActor
 enum MoleculesStories {
-    static let all: [Story] = LSPillSemanticsStory.all
+    static let all: [Story] = LSPillSemanticsStory.all + LSLocationContextBarStory.all + LSRouteAttachmentCardStory.all
 }
