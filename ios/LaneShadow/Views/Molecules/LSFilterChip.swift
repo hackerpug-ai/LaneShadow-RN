@@ -54,16 +54,15 @@ public struct LSFilterChip: View {
         Button(action: { Self.dispatch(onToggle) }) {
             LSPill(size: .md) {
                 LSText(label, variant: .label.md, color: style.textColor)
-                    .padding(.horizontal, theme.space.xs)
-                    .background(
-                        RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
-                            .fill(style.backgroundColor)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
-                            .stroke(style.borderColor, lineWidth: theme.borderWidth.hairline)
-                    )
             }
+            .background(
+                RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                    .fill(style.backgroundColor)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                    .stroke(style.borderColor, lineWidth: theme.borderWidth.hairline)
+            )
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(Self.tapAccessibilityIdentifier)

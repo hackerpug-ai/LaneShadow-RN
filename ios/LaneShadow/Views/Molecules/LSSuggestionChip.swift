@@ -43,16 +43,15 @@ public struct LSSuggestionChip: View {
         Button(action: { Self.dispatch(onTap) }) {
             LSPill(size: .md) {
                 LSText(label, variant: .label.md, color: .secondary)
-                    .padding(.horizontal, theme.space.xs)
-                    .background(
-                        RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
-                            .fill(style.backgroundColor)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
-                            .stroke(style.borderColor, lineWidth: theme.borderWidth.hairline)
-                    )
             }
+            .background(
+                RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                    .fill(style.backgroundColor)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                    .stroke(style.borderColor, lineWidth: theme.borderWidth.hairline)
+            )
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier(Self.tapAccessibilityIdentifier)

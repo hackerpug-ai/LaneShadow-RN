@@ -47,15 +47,14 @@ public struct LSTagPill: View {
 
                 LSText(labelText, variant: .label.sm, color: .secondary)
             }
-            .padding(.horizontal, theme.space.xs)
-            .background(
-                RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
-                    .fill(style.backgroundColor)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
-                    .stroke(style.borderColor, lineWidth: theme.borderWidth.hairline)
-            )
         }
+        .background(
+            RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                .fill(style.backgroundColor)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                .stroke(style.borderColor, lineWidth: theme.borderWidth.hairline)
+        )
     }
 }

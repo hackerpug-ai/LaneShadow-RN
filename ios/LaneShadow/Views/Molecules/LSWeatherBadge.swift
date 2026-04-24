@@ -110,15 +110,14 @@ public struct LSWeatherBadge: View {
                 LSText(label, variant: .label.sm, color: .secondary)
                     .foregroundStyle(style.foregroundColor)
             }
-            .padding(.horizontal, theme.space.xs)
-            .background(
-                RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
-                    .fill(style.backgroundColor)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
-                    .stroke(style.borderColor, lineWidth: theme.borderWidth.hairline)
-            )
         }
+        .background(
+            RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                .fill(style.backgroundColor)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                .stroke(style.borderColor, lineWidth: theme.borderWidth.hairline)
+        )
     }
 }
