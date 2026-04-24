@@ -2,10 +2,7 @@ package com.laneshadow.sandbox.stories.molecules
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import com.laneshadow.ui.molecules.LSToast
 import com.laneshadow.ui.molecules.LSToastState
 import com.laneshadow.ui.molecules.LSToastVisuals
@@ -79,9 +76,8 @@ object LSToastStory {
 @Composable
 private fun ToastStoryContent(visuals: LSToastVisuals) {
     val state = remember { LSToastState() }
-    var refreshKey by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(refreshKey) {
+    LaunchedEffect(visuals) {
         state.show(
             message = visuals.message,
             variant = visuals.variant,
@@ -93,8 +89,5 @@ private fun ToastStoryContent(visuals: LSToastVisuals) {
 
     LSToast(
         state = state,
-        onDismissed = {
-            refreshKey += 1
-        },
     )
 }

@@ -5,7 +5,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -69,18 +68,9 @@ private fun ModalAction.asButtonVariant(): ButtonVariant =
     }
 
 internal fun modalEnterMotion(theme: LaneShadowThemeValues): OverlayMotionRecipe {
-    val durationMillis = theme.motion.duration["standard"] ?: 240
-    val easingPoints = theme.motion.easing["decelerated"] ?: listOf(0.0, 0.0, 0.2, 1.0)
-
-    return OverlayMotionRecipe(
-        name = ModalEnterRecipePath,
-        durationMillis = durationMillis,
-        easing = CubicBezierEasing(
-            easingPoints[0].toFloat(),
-            easingPoints[1].toFloat(),
-            easingPoints[2].toFloat(),
-            easingPoints[3].toFloat(),
-        ),
+    return overlayEnterMotion(
+        theme = theme,
+        recipeName = ModalEnterRecipePath,
     )
 }
 

@@ -54,8 +54,14 @@ internal const val BottomSheetEnterRecipePath = "motion.recipe.chatOverlayEnter"
 internal const val BottomSheetDetentSmallFraction = 0.25f
 internal const val BottomSheetDetentMediumFraction = 0.5f
 internal const val BottomSheetDetentLargeFraction = 0.9f
+internal const val ChatOverlayEnterDurationToken = "normal"
+internal const val ChatOverlayEnterEasingToken = "decelerate"
+internal const val ChatOverlayDismissDurationToken = "fast"
+internal const val ChatOverlayDismissVisibleMillis = 5_000
 private val BottomSheetHandleWidth = 36.dp
 private val BottomSheetHandleHeight = 4.dp
+private const val MotionBezierPointCount = 4
+private val ChatOverlayDismissLinearEasingPoints = listOf(0f, 0f, 1f, 1f)
 
 val LSBottomSheetSurfaceColorKey = SemanticsPropertyKey<Color>("LSBottomSheetSurfaceColor")
 val LSBottomSheetDetentHeightKey = SemanticsPropertyKey<Dp>("LSBottomSheetDetentHeight")
@@ -80,8 +86,15 @@ enum class BottomSheetDetent {
 internal data class OverlayMotionRecipe(
     val name: String,
     val durationMillis: Int,
-    val easing: Easing,
-)
+    val easingPoints: List<Float>,
+) {
+    val easing: Easing = CubicBezierEasing(
+        easingPoints[0],
+        easingPoints[1],
+        easingPoints[2],
+        easingPoints[3],
+    )
+}
 
 internal fun resolveBottomSheetDetentFraction(detent: BottomSheetDetent): Float =
     when (detent) {
@@ -96,19 +109,77 @@ internal fun resolveBottomSheetDetentHeight(
 ): Dp = screenHeight * resolveBottomSheetDetentFraction(detent)
 
 internal fun bottomSheetEnterMotion(theme: LaneShadowThemeValues): OverlayMotionRecipe {
-    val durationMillis = theme.motion.duration["standard"] ?: 240
-    val easingPoints = theme.motion.easing["decelerated"] ?: listOf(0.0, 0.0, 0.2, 1.0)
+    return overlayEnterMotion(
+        theme = theme,
+        recipeName = BottomSheetEnterRecipePath,
+    )
+}
 
-    return OverlayMotionRecipe(
-        name = BottomSheetEnterRecipePath,
-        durationMillis = durationMillis,
-        easing = CubicBezierEasing(
-            easingPoints[0].toFloat(),
-            easingPoints[1].toFloat(),
-            easingPoints[2].toFloat(),
-            easingPoints[3].toFloat(),
+internal fun overlayEnterMotion(
+    theme: LaneShadowThemeValues,
+    recipeName: String,
+): OverlayMotionRecipe =
+    overlayMotionRecipe(
+        theme = theme,
+        recipeName = recipeName,
+        durationToken = ChatOverlayEnterDurationToken,
+        easingPoints = requireMotionEasingPoints(
+            theme = theme,
+            recipeName = recipeName,
+            easingToken = ChatOverlayEnterEasingToken,
         ),
     )
+
+internal fun overlayDismissMotion(
+    theme: LaneShadowThemeValues,
+    recipeName: String,
+): OverlayMotionRecipe =
+    overlayMotionRecipe(
+        theme = theme,
+        recipeName = recipeName,
+        durationToken = ChatOverlayDismissDurationToken,
+        easingPoints = ChatOverlayDismissLinearEasingPoints,
+    )
+
+private fun overlayMotionRecipe(
+    theme: LaneShadowThemeValues,
+    recipeName: String,
+    durationToken: String,
+    easingPoints: List<Float>,
+): OverlayMotionRecipe =
+    OverlayMotionRecipe(
+        name = recipeName,
+        durationMillis = requireMotionDuration(
+            theme = theme,
+            recipeName = recipeName,
+            durationToken = durationToken,
+        ),
+        easingPoints = easingPoints,
+    )
+
+private fun requireMotionDuration(
+    theme: LaneShadowThemeValues,
+    recipeName: String,
+    durationToken: String,
+): Int =
+    requireNotNull(theme.motion.duration[durationToken]) {
+        "LaneShadowTheme is missing $recipeName duration token '$durationToken'"
+    }
+
+private fun requireMotionEasingPoints(
+    theme: LaneShadowThemeValues,
+    recipeName: String,
+    easingToken: String,
+): List<Float> {
+    val easingPoints = requireNotNull(theme.motion.easing[easingToken]) {
+        "LaneShadowTheme is missing $recipeName easing token '$easingToken'"
+    }.map(Double::toFloat)
+
+    require(easingPoints.size == MotionBezierPointCount) {
+        "LaneShadowTheme easing token '$easingToken' must expose four cubic bezier points for $recipeName"
+    }
+
+    return easingPoints
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

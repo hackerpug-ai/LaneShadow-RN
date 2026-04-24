@@ -3,9 +3,6 @@ package com.laneshadow.ui.molecules
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.Easing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -199,38 +196,27 @@ internal fun resolveLSToastStyle(variant: ToastVariant): LSToastStyle =
     }
 
 internal fun toastEnterMotion(theme: LaneShadowThemeValues): OverlayMotionRecipe {
-    val durationMillis = theme.motion.duration["standard"] ?: 240
-    val easingPoints = theme.motion.easing["decelerated"] ?: listOf(0.0, 0.0, 0.2, 1.0)
-
-    return OverlayMotionRecipe(
-        name = ToastEnterRecipePath,
-        durationMillis = durationMillis,
-        easing = CubicBezierEasing(
-            easingPoints[0].toFloat(),
-            easingPoints[1].toFloat(),
-            easingPoints[2].toFloat(),
-            easingPoints[3].toFloat(),
-        ),
+    return overlayEnterMotion(
+        theme = theme,
+        recipeName = ToastEnterRecipePath,
     )
 }
 
-internal fun toastDismissMotion(theme: LaneShadowThemeValues): OverlayMotionRecipe {
-    val durationMillis = theme.motion.duration["fast"] ?: 120
-    val easingPoints = theme.motion.easing["linear"] ?: listOf(0.0, 0.0, 1.0, 1.0)
+internal data class ToastDismissContract(
+    val visibleMillis: Int,
+    val exitMotion: OverlayMotionRecipe,
+)
 
-    return OverlayMotionRecipe(
-        name = ToastDismissRecipePath,
-        durationMillis = durationMillis,
-        easing = CubicBezierEasing(
-            easingPoints[0].toFloat(),
-            easingPoints[1].toFloat(),
-            easingPoints[2].toFloat(),
-            easingPoints[3].toFloat(),
+internal fun toastDismissContract(theme: LaneShadowThemeValues): ToastDismissContract =
+    ToastDismissContract(
+        visibleMillis = ChatOverlayDismissVisibleMillis,
+        exitMotion = overlayDismissMotion(
+            theme = theme,
+            recipeName = ToastDismissRecipePath,
         ),
     )
-}
 
-internal fun toastAutoDismissMillis(theme: LaneShadowThemeValues): Int = toastDismissMotion(theme).durationMillis
+internal fun toastAutoDismissMillis(theme: LaneShadowThemeValues): Int = toastDismissContract(theme).visibleMillis
 
 @Composable
 fun LSToast(
@@ -242,15 +228,16 @@ fun LSToast(
     val current = state.current ?: return
     val style = remember(current.variant) { resolveLSToastStyle(current.variant) }
     val enterMotion = remember(theme) { toastEnterMotion(theme) }
-    val dismissMotion = remember(theme) { toastDismissMotion(theme) }
+    val dismissContract = remember(theme) { toastDismissContract(theme) }
+    val dismissMotion = dismissContract.exitMotion
     val dismissCallback by rememberUpdatedState(onDismissed)
     var isVisible by remember(current) { mutableStateOf(false) }
     var progressRunning by remember(current) { mutableStateOf(false) }
     val progress by animateFloatAsState(
         targetValue = if (progressRunning && isVisible) 0f else 1f,
         animationSpec = tween(
-            durationMillis = toastAutoDismissMillis(theme),
-            easing = LinearEasing,
+            durationMillis = dismissContract.visibleMillis,
+            easing = dismissMotion.easing,
         ),
         label = "ls_toast_progress",
     )
@@ -258,7 +245,7 @@ fun LSToast(
     LaunchedEffect(current) {
         isVisible = true
         progressRunning = true
-        delay(toastAutoDismissMillis(theme).toLong())
+        delay(dismissContract.visibleMillis.toLong())
         isVisible = false
         delay(dismissMotion.durationMillis.toLong())
         if (state.current == current) {
@@ -283,7 +270,7 @@ fun LSToast(
                     lsToastBackgroundColor = style.backgroundColor
                     lsToastProgressColor = style.progressColor
                     lsToastDismissRecipe = dismissMotion.name
-                    lsToastAutoDismissMillis = toastAutoDismissMillis(theme)
+                    lsToastAutoDismissMillis = dismissContract.visibleMillis
                     lsToastVariant = current.variant.name
                     lsToastRole = style.role
                     contentDescription = current.detail?.let { "${current.message}. $it" } ?: current.message
