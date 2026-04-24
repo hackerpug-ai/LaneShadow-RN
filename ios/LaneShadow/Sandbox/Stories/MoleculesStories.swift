@@ -13,5 +13,8 @@ enum MoleculesStories {
         LSLocationContextBarStory.all +
         LSRouteAttachmentCardStory.all +
         LSToolbarStory.all +
-        LSNavHeaderStory.all
+        LSNavHeaderStory.all +
+        LSBottomSheetStory.all +
+        LSToastStory.all +
+        LSModalStory.all
 }
