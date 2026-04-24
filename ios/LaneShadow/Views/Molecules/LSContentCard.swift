@@ -86,6 +86,7 @@ public struct LSContentCard: View {
                     LSDivider()
                     actions
                         .padding(.top, Self.footerTopPadding(in: theme))
+                        .accessibilityIdentifier("lscontentcard-actions")
                 }
             }
         }
@@ -104,6 +105,7 @@ public struct LSContentCard: View {
                 LSText(item, variant: .label.md, color: .tertiary)
             }
         }
+        .accessibilityIdentifier("lscontentcard-metadata")
     }
 
     private var chipRow: some View {
@@ -126,12 +128,20 @@ public struct LSContentCard: View {
 }
 
 extension LSContentCard {
+    static func titleTypographyVariant() -> TypographyVariant {
+        .title.md
+    }
+
+    static func subtitleTypographyVariant() -> TypographyVariant {
+        .body.md
+    }
+
     static func bodyVerticalSpacing(in theme: Theme) -> CGFloat {
         theme.space.xs
     }
 
     static func footerTopPadding(in theme: Theme) -> CGFloat {
-        theme.space.sm
+        theme.space.xs
     }
 
     static func metadataSpacing(in theme: Theme) -> CGFloat {

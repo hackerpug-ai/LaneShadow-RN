@@ -49,7 +49,7 @@ public struct LSListRow: View {
     public var body: some View {
         VStack(spacing: Self.zeroSpacing(in: theme)) {
             if onTap != nil {
-                Button(action: handleTap) {
+                Button(action: performPrimaryAction) {
                     rowContent(backgroundColor: Self.interactiveBackground(isPressed: false, in: theme))
                 }
                 .buttonStyle(LSListRowButtonStyle())
@@ -67,7 +67,7 @@ public struct LSListRow: View {
         .accessibilityElement(children: .contain)
     }
 
-    func handleTap() {
+    public func performPrimaryAction() {
         onTap?()
     }
 
@@ -79,10 +79,10 @@ public struct LSListRow: View {
     }
 
     private func rowContent(backgroundColor: Color) -> some View {
-        HStack(spacing: theme.space.sm) {
+        HStack(spacing: Self.rowSpacing(in: theme)) {
             leadingView
 
-            VStack(alignment: .leading, spacing: theme.space.xs) {
+            VStack(alignment: .leading, spacing: Self.verticalPadding(in: theme)) {
                 LSText(title, variant: .body.md)
                 if let subtitle {
                     LSText(subtitle, variant: .label.sm, color: .secondary)
@@ -92,10 +92,11 @@ public struct LSListRow: View {
 
             trailingView
         }
-        .padding(.vertical, theme.space.xs)
-        .padding(.horizontal, theme.space.md)
-        .frame(minHeight: theme.touchTarget.minTouchTarget)
+        .padding(.vertical, Self.verticalPadding(in: theme))
+        .padding(.horizontal, Self.horizontalPadding(in: theme))
+        .frame(minHeight: Self.minimumTouchTarget(in: theme))
         .background(backgroundColor)
+        .accessibilityIdentifier("lslistrow-content")
     }
 
     @ViewBuilder
@@ -119,7 +120,12 @@ public struct LSListRow: View {
         case .chevron:
             LSIcon(name: .chevR, size: .sm, color: .subtle)
         case let .toggle(isOn):
-            LSIcon(name: isOn ? .circleFill : .circle, size: .sm, color: .signal)
+            LSSwitch(
+                value: .constant(isOn),
+                disabled: true,
+                testID: "lslistrow-toggle"
+            )
+            .accessibilityLabel("List row toggle")
         case let .button(buttonTitle, variant, action):
             LSButton(buttonTitle, variant: variant, size: .sm, action: action)
         }
@@ -141,12 +147,55 @@ private struct LSListRowButtonStyle: ButtonStyle {
 }
 
 extension LSListRow {
+    static func rowSpacing(in theme: Theme) -> CGFloat {
+        theme.space.sm
+    }
+
+    static func verticalPadding(in theme: Theme) -> CGFloat {
+        theme.space.xs
+    }
+
+    static func horizontalPadding(in theme: Theme) -> CGFloat {
+        theme.space.md
+    }
+
+    static func minimumTouchTarget(in theme: Theme) -> CGFloat {
+        theme.touchTarget.minTouchTarget
+    }
+
     static func interactiveBackground(isPressed: Bool, in _: Theme) -> Color {
         if isPressed {
             LaneShadowTheme.color.surface.inset
         } else {
             LaneShadowTheme.color.surface.card
         }
+    }
+
+    static func backgroundToken(isInteractive: Bool, isPressed: Bool) -> String {
+        guard isInteractive, isPressed else {
+            return "color.surface.card"
+        }
+
+        return "color.surface.inset"
+    }
+
+    static func trailingIconName(for trailing: LSListRowTrailing) -> IconName? {
+        switch trailing {
+        case .chevron:
+            .chevR
+        case let .icon(iconName):
+            iconName
+        default:
+            nil
+        }
+    }
+
+    static func hasSemanticToggle(for trailing: LSListRowTrailing) -> Bool {
+        if case .toggle = trailing {
+            return true
+        }
+
+        return false
     }
 
     static func zeroSpacing(in theme: Theme) -> CGFloat {

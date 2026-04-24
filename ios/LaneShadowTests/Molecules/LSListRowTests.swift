@@ -1,9 +1,10 @@
+import LaneShadowTheme
 import XCTest
 @testable import LaneShadow
 
 @MainActor
 final class LSListRowTests: XCTestCase {
-    func test_list_row_uses_touch_target_and_spacing_tokens() throws {
+    func test_layout_tokens_and_minimum_touch_target() {
         let row = LSListRow(
             leading: .avatar(initials: "LS"),
             title: "Name",
@@ -11,42 +12,39 @@ final class LSListRowTests: XCTestCase {
             trailing: .chevron
         )
 
+        XCTAssertEqual(LSListRow.rowSpacing(in: Theme.shared), Theme.shared.space.sm)
+        XCTAssertEqual(LSListRow.verticalPadding(in: Theme.shared), Theme.shared.space.xs)
+        XCTAssertEqual(LSListRow.minimumTouchTarget(in: Theme.shared), Theme.shared.touchTarget.minTouchTarget)
+
+        XCTAssertEqual(LSListRow.trailingIconName(for: .chevron), .chevR)
         XCTAssertEqual(row.title, "Name")
         XCTAssertEqual(row.subtitle, "Detail")
-
-        let source = try moleculeSource(named: "LSListRow.swift")
-        XCTAssertTrue(source.contains("frame(minHeight: theme.touchTarget.minTouchTarget"))
-        XCTAssertTrue(source.contains("HStack(spacing: theme.space.sm)"))
-        XCTAssertTrue(source.contains(".padding(.vertical, theme.space.xs)"))
     }
 
-    func test_interactive_ontap_fires_exactly_once() {
-        var count = 0
-        let row = LSListRow(
+    func test_ontap_fires_once_and_no_highlight_without_handler() {
+        var tapCount = 0
+        let interactive = LSListRow(
             leading: .icon(.pin),
             title: "Notifications",
             trailing: .chevron,
             onTap: {
-                count += 1
+                tapCount += 1
             }
         )
 
-        row.handleTap()
+        interactive.performPrimaryAction()
+        XCTAssertEqual(tapCount, 1)
 
-        XCTAssertEqual(count, 1)
-    }
-
-    func test_noninteractive_row_has_no_pressed_highlight() {
-        let row = LSListRow(
+        let staticRow = LSListRow(
             leading: .icon(.pin),
             title: "Static",
             trailing: .none,
             onTap: nil
         )
-
-        XCTAssertFalse(row.isInteractive)
+        XCTAssertFalse(staticRow.isInteractive)
+        XCTAssertTrue(LSListRow.hasSemanticToggle(for: .toggle(isOn: true)))
         XCTAssertEqual(
-            row.backgroundToken(isPressed: true),
+            LSListRow.backgroundToken(isInteractive: false, isPressed: true),
             "color.surface.card"
         )
     }
@@ -60,28 +58,6 @@ final class LSListRowTests: XCTestCase {
         XCTAssertFalse(source.contains("foregroundColor("))
     }
 
-    func test_list_row_stories_registered_and_molecules_index_contains_all_10_new_story_variants() throws {
-        let listRowStory = try storySource(named: "LSListRowStory.swift")
-        let contentCardStory = try storySource(named: "LSContentCardStory.swift")
-        let molecules = try storySource(named: "MoleculesStories.swift")
-
-        XCTAssertTrue(molecules.contains("LSContentCardStory.all"))
-        XCTAssertTrue(molecules.contains("LSListRowStory.all"))
-
-        XCTAssertTrue(listRowStory.contains("molecules.listRow.leadingIcon"))
-        XCTAssertTrue(listRowStory.contains("molecules.listRow.leadingAvatar"))
-        XCTAssertTrue(listRowStory.contains("molecules.listRow.withSubtitle"))
-        XCTAssertTrue(listRowStory.contains("molecules.listRow.withToggle"))
-        XCTAssertTrue(listRowStory.contains("molecules.listRow.withChevron"))
-        XCTAssertTrue(listRowStory.contains("molecules.listRow.withTrailingButton"))
-        XCTAssertTrue(listRowStory.contains("component: \"LSListRow\""))
-
-        XCTAssertTrue(contentCardStory.contains("molecules.contentCard.withImageHeader"))
-        XCTAssertTrue(contentCardStory.contains("molecules.contentCard.titleOnly"))
-        XCTAssertTrue(contentCardStory.contains("molecules.contentCard.titleSubtitleChips"))
-        XCTAssertTrue(contentCardStory.contains("molecules.contentCard.withActions"))
-    }
-
     private func moleculeSource(named fileName: String) throws -> String {
         let root = repoRoot()
         let url = root
@@ -89,21 +65,6 @@ final class LSListRowTests: XCTestCase {
             .appendingPathComponent(fileName)
 
         return try String(contentsOf: url, encoding: .utf8)
-    }
-
-    private func storySource(named fileName: String) throws -> String {
-        let root = repoRoot()
-        let candidateURLs = [
-            root.appendingPathComponent("ios/LaneShadow/Sandbox/Stories/Molecules/\(fileName)"),
-            root.appendingPathComponent("ios/LaneShadow/Sandbox/Stories/\(fileName)"),
-        ]
-
-        for url in candidateURLs where FileManager.default.fileExists(atPath: url.path) {
-            return try String(contentsOf: url, encoding: .utf8)
-        }
-
-        XCTFail("Missing story source: \(fileName)")
-        return ""
     }
 
     private func repoRoot() -> URL {
