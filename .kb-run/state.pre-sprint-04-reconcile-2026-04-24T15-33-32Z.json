@@ -1,0 +1,319 @@
+{
+  "sprint_id": "sprint-03-design-system-alignment",
+  "sprint_dir": ".spec/prds/v2/tasks/sprint-03-design-system-alignment",
+  "started_at": "2026-04-24T13:14:57Z",
+  "mode": "strict",
+  "model_profile": "tiered",
+  "notes": [
+    "Previous .kb-run/state.json preserved at .kb-run/state.pre-uc-atm-12-remediation-2026-04-24T13-14-57Z.json.",
+    "Scope is narrowed to reopened UC-ATM-12 LSMap remediation units only.",
+    "Current repository was already dirty before this Sprint 03 remediation run; runner must avoid reverting unrelated work.",
+    "UC-ATM-12-ios is runnable from main HEAD and will use a fresh strict worktree.",
+    "UC-ATM-12-android is preflight-blocked: MAPBOX_DOWNLOADS_TOKEN is missing and Mapbox Android artifacts are not present in local Gradle cache."
+  ],
+  "preflight": {
+    "root_context": "pass",
+    "tools": {
+      "codex": "codex-cli 0.122.0",
+      "git": "git version 2.50.1 (Apple Git-155)",
+      "rg": "ripgrep 15.1.0 (rev af60c2de9d)"
+    },
+    "hooks": "pass",
+    "baseline_failures": [
+      "Repository contained unrelated .kb-run, spec, token, and Android Gradle changes before scheduling.",
+      "MAPBOX_DOWNLOADS_TOKEN is missing in the host environment; Android Mapbox dependency fetch is not currently possible."
+    ]
+  },
+  "scheduler": {
+    "effective_concurrency": 2,
+    "platform_slots": {
+      "ios": 1,
+      "android": 1
+    },
+    "ready_queue": [],
+    "active_tasks": [],
+    "terminal_tasks": []
+  },
+  "execution_units": [
+    {
+      "id": "UC-ATM-12-ios",
+      "task_ids": [
+        "UC-ATM-12-ios"
+      ],
+      "risk_tier": 3,
+      "implementer": "swift-implementer",
+      "reviewer": "swift-reviewer",
+      "implementer_model": "gpt-5.4",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "blocked",
+      "worktree_path": ".kb-run/worktrees/UC-ATM-12-ios"
+    },
+    {
+      "id": "UC-ATM-12-android",
+      "task_ids": [
+        "UC-ATM-12-android"
+      ],
+      "risk_tier": 3,
+      "implementer": "kotlin-implementer",
+      "reviewer": "kotlin-reviewer",
+      "implementer_model": "gpt-5.4",
+      "implementer_effort": "medium",
+      "reviewer_model": "gpt-5.4",
+      "reviewer_effort": "high",
+      "status": "blocked",
+      "worktree_path": ".kb-run/worktrees/UC-ATM-12-android"
+    }
+  ],
+  "tasks": {
+    "UC-ATM-12-ios": {
+      "unit_id": "UC-ATM-12-ios",
+      "file": ".spec/prds/v2/tasks/sprint-03-design-system-alignment/UC-ATM-12-ios-lsmap-ios-implementation.md",
+      "depends_on": [
+        "UC-ATM-11",
+        "ALIGN-02-ios"
+      ],
+      "status": "blocked",
+      "dependency_status": "satisfied_on_main",
+      "runtime_commands": {
+        "test": "cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'",
+        "typecheck": "cd ios && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'",
+        "lint": "swiftformat --lint ios/LaneShadow/"
+      },
+      "normalized_requirements": {
+        "task_file": "/Users/justinrich/Projects/LaneShadow/.spec/prds/v2/tasks/sprint-03-design-system-alignment/UC-ATM-12-ios-lsmap-ios-implementation.md",
+        "requirements": [
+          {
+            "id": "AC-1",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Mapbox SPM added [PRIMARY]"
+          },
+          {
+            "id": "AC-2",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Preview mode with Copper Light, gestures disabled"
+          },
+          {
+            "id": "AC-3",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Theme toggle reloads in-place"
+          },
+          {
+            "id": "AC-4",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Multi-polyline rendering"
+          },
+          {
+            "id": "AC-5",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Annotations with status colors"
+          },
+          {
+            "id": "AC-6",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "CameraFit.polylines union bounds"
+          },
+          {
+            "id": "AC-7",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Missing token \u2192 fallback, no crash"
+          },
+          {
+            "id": "AC-8",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Scroll isolation inside ScrollView"
+          },
+          {
+            "id": "AC-9",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Nine sandbox stories compile"
+          },
+          {
+            "id": "TC-1",
+            "source": "TEST CRITERIA",
+            "summary": "MapboxMaps/mapbox-maps-ios appears in ios/project.yml packages section"
+          },
+          {
+            "id": "TC-2",
+            "source": "TEST CRITERIA",
+            "summary": "xcodebuild build exits BUILD SUCCEEDED after Mapbox SPM added"
+          },
+          {
+            "id": "TC-3",
+            "source": "TEST CRITERIA",
+            "summary": "test_preview_mode_disables_gestures passes"
+          },
+          {
+            "id": "TC-4",
+            "source": "TEST CRITERIA",
+            "summary": "test_theme_change_reloads_style_without_unmounting passes"
+          },
+          {
+            "id": "TC-5",
+            "source": "TEST CRITERIA",
+            "summary": "test_three_polylines_render_with_variant_colors passes"
+          },
+          {
+            "id": "TC-6",
+            "source": "TEST CRITERIA",
+            "summary": "test_annotations_render_with_status_colors passes"
+          },
+          {
+            "id": "TC-7",
+            "source": "TEST CRITERIA",
+            "summary": "test_camera_fit_polylines_frames_union_bounds passes"
+          },
+          {
+            "id": "TC-8",
+            "source": "TEST CRITERIA",
+            "summary": "test_missing_token_renders_error_fallback_without_crash passes"
+          },
+          {
+            "id": "TC-9",
+            "source": "TEST CRITERIA",
+            "summary": "test_scroll_isolation_does_not_hijack_outer_scroll passes"
+          },
+          {
+            "id": "TC-10",
+            "source": "TEST CRITERIA",
+            "summary": "No literal Mapbox access token (pk. prefix) in staged files"
+          },
+          {
+            "id": "TC-11",
+            "source": "TEST CRITERIA",
+            "summary": "Full xcodebuild test exits TEST SUCCEEDED with all LSMapTests passing"
+          }
+        ],
+        "supplemental_requirements": [],
+        "outcome_states": [],
+        "warnings": []
+      },
+      "selector_validation": {
+        "required": false,
+        "status": "not_applicable"
+      },
+      "next_action": "await_user",
+      "blocker_class": "human_decision",
+      "attempt_count": 4,
+      "review_cycle_count": 0,
+      "stale_recovery_count": 0,
+      "last_progress_at": "2026-04-24T13:22:22Z",
+      "resume_source": "bounded_retry_exhausted",
+      "start_commit": "f94e4711210c77e2449aad98b5b4660d69e9b623",
+      "implementer_pid": 66932,
+      "blocking_reason": "Three implementer launches failed to make in-scope LSMap edits or emit a completion packet; bounded retries exhausted without executable progress."
+    },
+    "UC-ATM-12-android": {
+      "unit_id": "UC-ATM-12-android",
+      "file": ".spec/prds/v2/tasks/sprint-03-design-system-alignment/UC-ATM-12-android-lsmap-android-implementation.md",
+      "depends_on": [
+        "UC-ATM-11",
+        "ALIGN-02-android"
+      ],
+      "status": "blocked",
+      "dependency_status": "satisfied_on_main",
+      "runtime_commands": {
+        "test": "cd android && ./gradlew :app:test",
+        "typecheck": "cd android && ./gradlew :app:compileDebugKotlin",
+        "lint": "cd android && ./gradlew detekt"
+      },
+      "normalized_requirements": {
+        "task_file": "/Users/justinrich/Projects/LaneShadow/.spec/prds/v2/tasks/sprint-03-design-system-alignment/UC-ATM-12-android-lsmap-android-implementation.md",
+        "requirements": [
+          {
+            "id": "AC-1",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Public signature matches UC-ATM-11 contract [PRIMARY]"
+          },
+          {
+            "id": "AC-2",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Style URL loads from tokens; theme toggle reloads in-place"
+          },
+          {
+            "id": "AC-3",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Multi-polyline rendering uses route tokens"
+          },
+          {
+            "id": "AC-4",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Annotations at spec-correct sizes"
+          },
+          {
+            "id": "AC-5",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "CameraFit.Polylines union bounds"
+          },
+          {
+            "id": "AC-6",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Missing-token fallback, no crash"
+          },
+          {
+            "id": "AC-7",
+            "source": "ACCEPTANCE CRITERIA",
+            "summary": "Scroll isolation in LazyColumn"
+          },
+          {
+            "id": "TC-1",
+            "source": "TEST CRITERIA",
+            "summary": "LSMapTest.three_polylines_use_token_colors passes: best=EE7C2B, alt1=4D8470, alt2=6B7B8F"
+          },
+          {
+            "id": "TC-2",
+            "source": "TEST CRITERIA",
+            "summary": "LSMapTest.annotations_render_at_spec_sizes passes: start=14/end=18/6/waypoint=12"
+          },
+          {
+            "id": "TC-3",
+            "source": "TEST CRITERIA",
+            "summary": "LSMapTest.missing_token_shows_glass_panel_fallback passes: no MapView created"
+          },
+          {
+            "id": "TC-4",
+            "source": "TEST CRITERIA",
+            "summary": "LSMapTest.network_unavailable_shows_glass_panel_fallback passes"
+          },
+          {
+            "id": "TC-5",
+            "source": "TEST CRITERIA",
+            "summary": "LSMap.kt contains zero raw Color(0x literals in polyline/annotation code"
+          },
+          {
+            "id": "TC-6",
+            "source": "TEST CRITERIA",
+            "summary": "LSMap.kt calls rememberNestedScrollInteropConnection for scroll isolation"
+          },
+          {
+            "id": "TC-7",
+            "source": "TEST CRITERIA",
+            "summary": "LSMap.kt has no hardcoded mapbox:// URL outside GeneratedTokens references"
+          },
+          {
+            "id": "TC-8",
+            "source": "TEST CRITERIA",
+            "summary": "LSMapStories.kt defines exactly 9 stories matching iOS parity manifest"
+          }
+        ],
+        "supplemental_requirements": [],
+        "outcome_states": [],
+        "warnings": []
+      },
+      "selector_validation": {
+        "required": false,
+        "status": "not_applicable"
+      },
+      "next_action": "await_user",
+      "blocker_class": "human_decision",
+      "attempt_count": 4,
+      "review_cycle_count": 0,
+      "stale_recovery_count": 0,
+      "last_progress_at": "2026-04-24T14:07:08Z",
+      "resume_source": "bounded_retry_exhausted",
+      "start_commit": "f94e4711210c77e2449aad98b5b4660d69e9b623",
+      "blocking_reason": "Four bounded implementer launches did not converge into spec-conformant LSMap Android edits; child sessions kept preserving or generating incorrect contract assumptions instead of producing a validated completion packet."
+    }
+  }
+}

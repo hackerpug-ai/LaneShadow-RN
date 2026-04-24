@@ -1,0 +1,77 @@
+{
+  "verdict": "NEEDS_FIXES",
+  "confidence": "HIGH",
+  "tasks": [
+    {
+      "id": "UC-MOL-05-android",
+      "verdict": "NEEDS_FIXES",
+      "requirements": [
+        {
+          "id": "AC-1",
+          "satisfied": true,
+          "evidence": "android/app/src/main/java/com/laneshadow/ui/molecules/LSTagPill.kt:28-44 composes the molecule through LSPill, LSIcon, and LSText, and host validation passed detekt, compileDebugKotlin, and test.",
+          "remediation": null
+        },
+        {
+          "id": "AC-2",
+          "satisfied": true,
+          "evidence": "android/app/src/main/java/com/laneshadow/ui/molecules/LSFilterChip.kt:33-49 resolves selected vs unselected chip styling through resolveFilterChipStyle(selected), and host validation passed the Android unit suite.",
+          "remediation": null
+        },
+        {
+          "id": "AC-3",
+          "satisfied": true,
+          "evidence": "android/app/src/androidTest/java/com/laneshadow/ui/molecules/LSSuggestionChipUiTest.kt exists for the one-tap contract. The host still has no connected device, so execution remains an environment note rather than a code defect in this remediation round.",
+          "remediation": null
+        },
+        {
+          "id": "AC-4",
+          "satisfied": false,
+          "evidence": "android/app/src/main/java/com/laneshadow/ui/molecules/LSWeatherBadge.kt:39-42 routes the badge label through ContentColor.Primary instead of the weather-condition foreground resolved by PillSemanticsTypes.kt. The icon and border use weather styling, but the label text does not.",
+          "remediation": "Route the badge label through the condition-specific weather foreground path and add test coverage that fails if the label falls back to generic primary content color."
+        },
+        {
+          "id": "AC-5",
+          "satisfied": true,
+          "evidence": "android/app/src/main/java/com/laneshadow/ui/molecules/PillSemanticsTypes.kt:153-205 resolves six distinct weather badge tint values and matching icons, and host validation passed the Android unit suite.",
+          "remediation": null
+        },
+        {
+          "id": "AC-6",
+          "satisfied": true,
+          "evidence": "The four Android molecule files remain free of Color(0xFF) literals, and the grep gate stayed clean during host validation.",
+          "remediation": null
+        },
+        {
+          "id": "AC-7",
+          "satisfied": true,
+          "evidence": "android/app/src/debug/java/com/laneshadow/sandbox/stories/molecules/LSPillSemanticsStory.kt still contains 16 pill-semantics story IDs, which satisfies the required story count.",
+          "remediation": null
+        },
+        {
+          "id": "AC-8",
+          "satisfied": true,
+          "evidence": "android/app/src/androidTest/java/com/laneshadow/ui/molecules/LSFilterChipUiTest.kt exists for the exact-once toggle contract. As with AC-3, host execution remains blocked by the lack of a connected device rather than by a code defect uncovered in this review round.",
+          "remediation": null
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "severity": "HIGH",
+      "task_id": "UC-MOL-05-android",
+      "location": "android/app/src/main/java/com/laneshadow/ui/molecules/LSWeatherBadge.kt:39-42",
+      "evidence": "The badge label is rendered with ContentColor.Primary even though WeatherCondition.resolveWeatherBadgeStyle() already resolves the condition-specific weather foreground. This violates AC-4's required weather-default foreground contract for the label.",
+      "fix": "Use the condition-derived weather foreground for the badge label and keep the icon/border/label aligned on the same weather token family."
+    },
+    {
+      "severity": "MEDIUM",
+      "task_id": "UC-MOL-05-android",
+      "location": "android/app/src/test/java/com/laneshadow/ui/molecules/LSWeatherBadgeTest.kt",
+      "evidence": "Current tests stop at the style resolver and tint uniqueness. They do not exercise the composable wiring strongly enough to catch the incorrect label color path in LSWeatherBadge itself.",
+      "fix": "Add focused test coverage that fails when LSWeatherBadge routes its label through a generic content color instead of the weather foreground."
+    }
+  ],
+  "summary": "NEEDS_FIXES: Android's pill family is close, but LSWeatherBadge still renders its label with a generic primary content color instead of the resolved weather foreground token. The badge tests also need stronger coverage so this composable-level regression fails immediately."
+}

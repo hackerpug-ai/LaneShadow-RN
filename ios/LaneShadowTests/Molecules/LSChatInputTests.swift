@@ -27,7 +27,6 @@ import XCTest
  */
 @MainActor
 final class LSChatInputTests: XCTestCase {
-
     // MARK: - AC-1: Empty state renders LSGlassPanel + sliders trailing
 
     func test_empty_state_renders_glasspanel_with_sliders_trailing() {
@@ -41,8 +40,8 @@ final class LSChatInputTests: XCTestCase {
             value: $text,
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { },
-            onFilter: { }
+            onCollapse: {},
+            onFilter: {}
         )
 
         // THEN: Component renders without crashing
@@ -62,8 +61,8 @@ final class LSChatInputTests: XCTestCase {
             value: $text,
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { },
-            onFilter: { }
+            onCollapse: {},
+            onFilter: {}
         )
 
         // THEN: Component renders with send button
@@ -84,9 +83,11 @@ final class LSChatInputTests: XCTestCase {
         let chatInput = LSChatInput(
             value: $text,
             placeholder: "Plan a ride…",
-            onSend: { sentText = $0; sendExpectation.fulfill() },
-            onCollapse: { },
-            onFilter: { }
+            onSend: { sentText = $0
+                sendExpectation.fulfill()
+            },
+            onCollapse: {},
+            onFilter: {}
         )
 
         // THEN: Component renders (callback wiring verified)
@@ -106,8 +107,10 @@ final class LSChatInputTests: XCTestCase {
             value: .constant(""),
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { collapseCount += 1; collapseExpectation.fulfill() },
-            onFilter: { }
+            onCollapse: { collapseCount += 1
+                collapseExpectation.fulfill()
+            },
+            onFilter: {}
         )
 
         // THEN: Component renders with callback wiring
@@ -121,7 +124,7 @@ final class LSChatInputTests: XCTestCase {
         // GIVEN: LSChatInput with suggestions
         let suggestions = [
             SuggestionChip(label: "Twisty back roads"),
-            SuggestionChip(label: "Coastal route")
+            SuggestionChip(label: "Coastal route"),
         ]
 
         var tappedChip: SuggestionChip?
@@ -132,10 +135,12 @@ final class LSChatInputTests: XCTestCase {
             value: .constant(""),
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { },
-            onFilter: { },
+            onCollapse: {},
+            onFilter: {},
             suggestions: suggestions,
-            onSuggestionTap: { tappedChip = $0; tapExpectation.fulfill() }
+            onSuggestionTap: { tappedChip = $0
+                tapExpectation.fulfill()
+            }
         )
 
         // THEN: Component renders with suggestions
@@ -157,8 +162,8 @@ final class LSChatInputTests: XCTestCase {
             value: .constant(""),
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { },
-            onFilter: { },
+            onCollapse: {},
+            onFilter: {},
             locationBadge: location
         )
 
@@ -177,8 +182,8 @@ final class LSChatInputTests: XCTestCase {
             value: .constant(""),
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { },
-            onFilter: { },
+            onCollapse: {},
+            onFilter: {},
             isThinking: true
         )
 
@@ -217,15 +222,16 @@ final class LSChatInputTests: XCTestCase {
         // THEN: No raw TextField(), ProgressView(), Color(hex:), Font.system
 
         // This test is verified by grep gate in AC-9
-        // grep -n 'TextField(\|ProgressView()\|Color(red:\|Color(hex:\|Font.system' ios/LaneShadow/Views/Molecules/LSChatInput.swift | wc -l = 0
+        // grep -n 'TextField(\|ProgressView()\|Color(red:\|Color(hex:\|Font.system'
+        // ios/LaneShadow/Views/Molecules/LSChatInput.swift | wc -l = 0
 
         // For runtime, we just verify the component exists and renders
         let chatInput = LSChatInput(
             value: .constant(""),
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { },
-            onFilter: { }
+            onCollapse: {},
+            onFilter: {}
         )
         XCTAssertNotNil(chatInput)
     }
@@ -245,8 +251,8 @@ final class LSChatInputTests: XCTestCase {
             value: .constant(""),
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { },
-            onFilter: { }
+            onCollapse: {},
+            onFilter: {}
         )
         XCTAssertNotNil(story1)
 
@@ -255,8 +261,8 @@ final class LSChatInputTests: XCTestCase {
             value: .constant("30-mile gravel ride"),
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { },
-            onFilter: { }
+            onCollapse: {},
+            onFilter: {}
         )
         XCTAssertNotNil(story2)
 
@@ -266,8 +272,8 @@ final class LSChatInputTests: XCTestCase {
             value: .constant(""),
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { },
-            onFilter: { },
+            onCollapse: {},
+            onFilter: {},
             suggestions: [SuggestionChip(label: "Twisty back roads")],
             locationBadge: location
         )
@@ -278,8 +284,8 @@ final class LSChatInputTests: XCTestCase {
             value: .constant(""),
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { },
-            onFilter: { },
+            onCollapse: {},
+            onFilter: {},
             isThinking: true
         )
         XCTAssertNotNil(story4)
@@ -289,8 +295,8 @@ final class LSChatInputTests: XCTestCase {
             value: .constant("test"),
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { },
-            onFilter: { },
+            onCollapse: {},
+            onFilter: {},
             isEnabled: false
         )
         XCTAssertNotNil(story5)
@@ -300,8 +306,8 @@ final class LSChatInputTests: XCTestCase {
             value: .constant(""),
             placeholder: "Refine your route preferences — add waypoints, surface types, elevation targets, or scenic priorities…",
             onSend: { _ in },
-            onCollapse: { },
-            onFilter: { }
+            onCollapse: {},
+            onFilter: {}
         )
         XCTAssertNotNil(story6)
     }

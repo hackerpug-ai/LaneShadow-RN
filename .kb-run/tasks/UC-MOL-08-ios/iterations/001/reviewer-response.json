@@ -1,0 +1,84 @@
+{
+  "verdict": "NEEDS_FIXES",
+  "confidence": "HIGH",
+  "tasks": [
+    {
+      "id": "UC-MOL-08-ios",
+      "verdict": "NEEDS_FIXES",
+      "requirements": [
+        {
+          "id": "AC-1",
+          "satisfied": true,
+          "evidence": "ios/LaneShadow/Views/Molecules/LSLocationContextBar.swift composes the bar from two LSTagPill molecules with spacer separation, and the focused LSLocationContextBar host test run passed.",
+          "remediation": null
+        },
+        {
+          "id": "AC-2",
+          "satisfied": true,
+          "evidence": "The mode-pill callback path remains isolated in LSLocationContextBar.handleModeChange(), and the focused LSLocationContextBar host test run passed.",
+          "remediation": null
+        },
+        {
+          "id": "AC-3",
+          "satisfied": false,
+          "evidence": "ios/LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift currently renders the scenic meter with `LSIcon(name: filled ? .starFill : .star, ...)` scaled down to simulate dots. The task requires a 5-dot scenic meter routed through LSIcon using filled and hollow circle variants, not shrunken stars.",
+          "remediation": "Replace the scenic meter with a true five-dot filled/hollow circle implementation through LSIcon, and strengthen the route-card tests so the wrong fallback shape fails immediately."
+        },
+        {
+          "id": "AC-4",
+          "satisfied": true,
+          "evidence": "LSRouteAttachmentCard.resolvedStyle(selected:) still switches the border token and color to `color.signal.default`, and the focused selected-state host test run passed.",
+          "remediation": null
+        },
+        {
+          "id": "AC-5",
+          "satisfied": false,
+          "evidence": "LSRouteAttachmentCard.contentPadding(compact:) returns `vertical: 2, horizontal: 4` for compact mode, which does not satisfy the required tighter padding of 10pt vertical and 12pt horizontal.",
+          "remediation": "Update compact-mode content padding to the required 10pt vertical / 12pt horizontal contract and add a source or value assertion so the next review cannot miss it."
+        },
+        {
+          "id": "AC-6",
+          "satisfied": true,
+          "evidence": "LSRouteAttachmentCard.resolvedStyle(variant:) still maps `.alt1` and `.alt2` to the expected route stripe tokens, and the focused route-variant host test run passed.",
+          "remediation": null
+        },
+        {
+          "id": "AC-7",
+          "satisfied": true,
+          "evidence": "The tap handler remains a single LSRouteAttachmentCard.handleTap() closure invocation, and the focused onTap host test run passed.",
+          "remediation": null
+        },
+        {
+          "id": "AC-8",
+          "satisfied": true,
+          "evidence": "Story files were added and registered, swiftformat passed, xcodebuild build succeeded, and the focused story-registration host test run passed.",
+          "remediation": null
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "severity": "HIGH",
+      "task_id": "UC-MOL-08-ios",
+      "location": "ios/LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift:186",
+      "evidence": "The scenic meter uses `star` / `starFill` icons scaled to 0.5 as a visual fallback. The task requires a true five-dot scenic meter with filled and hollow circle semantics routed through LSIcon.",
+      "fix": "Implement scenic meter dots with circle-based LSIcon semantics instead of scaled star fallbacks, and keep the route-card tests aligned with that requirement."
+    },
+    {
+      "severity": "HIGH",
+      "task_id": "UC-MOL-08-ios",
+      "location": "ios/LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift:231",
+      "evidence": "Compact-mode content padding resolves to `vertical: 2, horizontal: 4`, which does not match the required `10pt vertical / 12pt horizontal` contract.",
+      "fix": "Set compact-mode content padding to the required values and keep the stripe/badge suppression behavior unchanged."
+    },
+    {
+      "severity": "MEDIUM",
+      "task_id": "UC-MOL-08-ios",
+      "location": "ios/LaneShadowTests/Molecules/LSRouteAttachmentCardTests.swift",
+      "evidence": "The current tests prove the file uses LSIcon and avoids `Image(systemName:)`, but they do not fail on the wrong icon shape or the wrong compact padding values.",
+      "fix": "Strengthen the tests so a non-dot scenic meter and incorrect compact padding both fail before review."
+    }
+  ],
+  "summary": "NEEDS_FIXES: iteration 001 passes build and test, but the route card still misses two explicit UI contracts. The scenic meter is implemented as scaled stars instead of circle-based dots, and compact mode uses the wrong padding values."
+}

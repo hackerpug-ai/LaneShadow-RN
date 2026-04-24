@@ -62,12 +62,11 @@ public struct LSChatInput: View {
 
     // MARK: - Location Bar
 
-    @ViewBuilder
     private func locationBarView(for location: LocationContext) -> some View {
         LSLocationContextBar(
             location: location.label,
             mode: location.mode,
-            onModeChange: { }
+            onModeChange: {}
         )
         .accessibilityIdentifier("lschatinput-location-bar")
     }

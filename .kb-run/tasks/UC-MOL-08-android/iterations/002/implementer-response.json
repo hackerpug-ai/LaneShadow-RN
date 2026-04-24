@@ -1,0 +1,28 @@
+Implemented the UC-MOL-08-android remediation directly on the task branch after the original reviewer session failed to emit a usable verdict file.
+
+**Commit**
+- Base SHA: `02b5a01cb67d8d04dbd4e4881fb33721da7ec795`
+- Commit SHA: `b4e54fc01f2aef0c3148bf1756cf5e6e7f85cadb`
+
+**Changed Files**
+- [LSCard.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-08-android/android/app/src/main/java/com/laneshadow/ui/atoms/LSCard.kt)
+- [LSRouteAttachmentCard.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-08-android/android/app/src/main/java/com/laneshadow/ui/molecules/LSRouteAttachmentCard.kt)
+- [LSRouteAttachmentCardTest.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-08-android/android/app/src/test/java/com/laneshadow/ui/molecules/LSRouteAttachmentCardTest.kt)
+- [LSLocationContextBarTest.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-08-android/android/app/src/test/java/com/laneshadow/ui/molecules/LSLocationContextBarTest.kt)
+- [LSRouteAttachmentCardUiTest.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-08-android/android/app/src/androidTest/java/com/laneshadow/ui/molecules/LSRouteAttachmentCardUiTest.kt)
+
+**What Changed**
+- Replaced the raw `Surface` route-card container with `LSCard`, adding the minimal override hooks needed for border, radius, shadow, and zero inner padding.
+- Kept the scenic meter aligned with the Android task spec as named-constant filled/hollow Box circles and added runtime semantics/tag coverage so composition regressions fail in `androidTest` compilation.
+- Strengthened unit tests to enforce `LSCard` composition, compact padding constants, and accessibility/tag contracts instead of relying only on broad source-text checks.
+
+**Commands Run**
+- `cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.molecules.LSRouteAttachmentCardTest --tests com.laneshadow.ui.molecules.LSLocationContextBarTest`
+- `cd android && ./gradlew :app:compileDebugKotlin`
+- `cd android && ./gradlew :app:compileDebugAndroidTestKotlin`
+- `cd android && ./gradlew detekt`
+- `grep -n 'Color(0xFF' android/app/src/main/java/com/laneshadow/ui/molecules/LSLocationContextBar.kt android/app/src/main/java/com/laneshadow/ui/molecules/LSRouteAttachmentCard.kt | wc -l`
+- `grep -c 'molecules.locationcontextbar\\|molecules.routeattachment' android/app/src/debug/java/com/laneshadow/sandbox/stories/molecules/LSLocationContextBarStory.kt android/app/src/debug/java/com/laneshadow/sandbox/stories/molecules/LSRouteAttachmentCardStory.kt | awk -F: '{s+=$2} END {print s}'`
+
+**Remaining Risk**
+- Connected-device instrumentation execution is still unavailable on this host, so the `androidTest` route-card and location-context assertions were compile-validated but not run on device/emulator in this remediation pass.

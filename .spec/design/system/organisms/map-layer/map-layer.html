@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<!-- map-layer.html — LSMapLayer organism preview
+     LaneShadow V2 · Copper · Organism · UC-ORG-02
+     Authority: .spec/prds/v2/concepts/uc-org-02-maplayer.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSMapLayer — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../../molecules/_atoms.css">
+<link rel="stylesheet" href="../_molecules.css">
+<style>
+/* Organism-local CSS — the foundational z-order / slot contract.
+   LSMapLayer owns positioning; consumers pass pre-assembled slot content. */
+
+/* ═══════════════════════════════════════════════════════
+   org-map-layer — the stacking context + slot geometry
+   z-order contract (bottom → top):
+     0  map
+     1  scrim
+     2  top-overlays / bottom-overlays (same z-level, positioned apart)
+     3  bottomSheet
+     4  leadingDrawer
+     5  topBar
+   ═══════════════════════════════════════════════════════ */
+.org-map-layer {
+  position: relative;
+  isolation: isolate;                        /* new stacking context */
+  overflow: hidden;
+  background: var(--surface-map);
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 9 / 17;
+  border-radius: var(--radius-xl);
+  border: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-card);
+}
+
+.org-map-layer__map {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--surface-map);
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: var(--space-8) var(--space-8);
+}
+.org-map-layer__map svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.org-map-layer__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--surface-scrim);
+  pointer-events: none;
+}
+
+.org-map-layer__top-overlay {
+  position: absolute;
+  top: var(--space-10);                      /* 48pt — below topbar clearance */
+  left: var(--space-4);
+  right: var(--space-4);
+  z-index: 2;
+}
+.org-map-layer__bottom-overlay {
+  position: absolute;
+  bottom: var(--space-5);
+  left: var(--space-4);
+  right: var(--space-4);
+  z-index: 2;
+}
+
+.org-map-layer__bottom-sheet {
+  position: absolute;
+  left: var(--space-0);
+  right: var(--space-0);
+  bottom: var(--space-0);
+  z-index: 3;
+}
+
+.org-map-layer__leading-drawer {
+  position: absolute;
+  top: var(--space-0);
+  bottom: var(--space-0);
+  left: var(--space-0);
+  width: 82%;
+  z-index: 4;
+}
+
+.org-map-layer__top-bar {
+  position: absolute;
+  top: var(--space-0);
+  left: var(--space-0);
+  right: var(--space-0);
+  z-index: 5;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Slot-content stand-ins — preview-only fillers demonstrating
+   where each slot sits. Full content lives in sibling organisms
+   (UC-ORG-01 TopBar, UC-ORG-03 NavMessage, UC-ORG-04 RouteSheet,
+    UC-ORG-05 SessionsDrawer) and UC-MOL-06 ChatInput.
+   These `.ml-demo-*` classes are NOT part of the organism API.
+   ═══════════════════════════════════════════════════════ */
+
+/* Mini glass chip for the top-bar slot */
+.ml-demo-chip {
+  height: var(--space-9);
+  border-radius: var(--radius-md);
+  background: var(--surface-overlay);
+  border: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-chrome);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--content-primary);
+  flex-shrink: 0;
+}
+.ml-demo-chip--square { width: var(--space-9); }
+.ml-demo-chip--pill {
+  padding: var(--space-0) var(--space-4);
+  gap: var(--space-2);
+}
+.ml-demo-chip svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+.ml-demo-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4) var(--space-0);
+}
+
+/* Mini navigator-message stand-in for top-overlay slot */
+.ml-demo-nav-msg {
+  background: var(--surface-glass);
+  border: var(--stroke-sm) solid var(--signal-tint);
+  border-top: var(--stroke-lg) solid var(--signal-default);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--elev-overlay);
+}
+.ml-demo-nav-msg__label {
+  color: var(--signal-default);
+  margin-bottom: var(--space-1);
+}
+.ml-demo-nav-msg__body {
+  font-family: var(--font-opinion);
+  color: var(--content-primary);
+}
+
+/* Mini chat-input stand-in for bottom-overlay slot */
+.ml-demo-chat {
+  height: var(--size-control-chat);
+  background: var(--surface-glass);
+  border: var(--stroke-sm) solid var(--border-default);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-radius: var(--radius-2xl);
+  display: flex;
+  align-items: center;
+  padding: var(--space-0) var(--space-2) var(--space-0) var(--space-4);
+  gap: var(--space-3);
+  box-shadow: var(--elev-chrome);
+}
+.ml-demo-chat__field {
+  flex: 1;
+  color: var(--content-tertiary);
+}
+.ml-demo-chat__send {
+  width: var(--size-control-md);
+  height: var(--size-control-md);
+  background: var(--signal-default);
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--content-on-signal);
+  flex-shrink: 0;
+}
+.ml-demo-chat__send svg {
+  fill: currentColor;
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+
+/* Mini route-sheet stand-in for bottomSheet slot */
+.ml-demo-sheet {
+  background: var(--surface-card);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  padding: var(--space-3) var(--space-4) var(--space-5);
+  box-shadow: var(--elev-overlay);
+  border-top: var(--stroke-sm) solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.ml-demo-sheet__handle {
+  width: var(--space-8);
+  height: var(--space-1);
+  background: var(--border-strong);
+  border-radius: var(--radius-pill);
+  margin: var(--space-0) auto var(--space-1);
+}
+.ml-demo-sheet__title { color: var(--content-primary); }
+.ml-demo-sheet__sub   { color: var(--content-secondary); }
+.ml-demo-sheet__actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+.ml-demo-sheet__btn {
+  flex: 1;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+.ml-demo-sheet__btn--outline {
+  border: var(--stroke-md) solid var(--border-default);
+  background: transparent;
+  color: var(--content-primary);
+}
+.ml-demo-sheet__btn--primary {
+  flex: 2;
+  background: var(--signal-default);
+  color: var(--content-on-signal);
+}
+
+/* Mini sessions-drawer stand-in for leadingDrawer slot */
+.ml-demo-drawer {
+  background: var(--surface-card);
+  width: 100%;
+  height: 100%;
+  border-right: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-overlay);
+  display: flex;
+  flex-direction: column;
+}
+.ml-demo-drawer__header {
+  padding: var(--space-5) var(--space-4) var(--space-3);
+  border-bottom: var(--stroke-sm) solid var(--border-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.ml-demo-drawer__title {
+  font-family: var(--font-opinion);
+  color: var(--content-primary);
+}
+.ml-demo-drawer__section-label {
+  padding: var(--space-3) var(--space-4) var(--space-1);
+  color: var(--content-tertiary);
+}
+.ml-demo-drawer__row {
+  padding: var(--space-3) var(--space-4) var(--space-3) var(--space-5);
+  border-bottom: var(--stroke-sm) solid var(--border-subtle);
+  position: relative;
+}
+.ml-demo-drawer__row--active {
+  background: var(--signal-whisper);
+}
+.ml-demo-drawer__row--active::before {
+  content: "";
+  position: absolute;
+  left: var(--space-0);
+  top: var(--space-0);
+  bottom: var(--space-0);
+  width: var(--stroke-lg);
+  background: var(--signal-default);
+}
+.ml-demo-drawer__row-name { color: var(--content-primary); }
+.ml-demo-drawer__row-prev {
+  font-family: var(--font-opinion);
+  font-style: italic;
+  color: var(--content-secondary);
+}
+
+/* Z-order visualization table */
+.z-order-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: 520px;
+  margin-top: var(--space-6);
+}
+.z-order-row {
+  display: grid;
+  grid-template-columns: var(--space-8) 1fr 2fr;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-3) var(--space-5);
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-left: var(--stroke-lg) solid var(--border-default);
+  border-radius: var(--radius-md);
+}
+.z-order-row--top { border-left-color: var(--signal-default); }
+.z-order-row__level { color: var(--signal-default); }
+.z-order-row__name  { color: var(--content-primary); }
+.z-order-row__desc  { color: var(--content-secondary); }
+
+.variant-cell {
+  align-items: stretch;
+  width: 100%;
+  max-width: 360px;
+}
+.variant-cell > .label {
+  align-self: center;
+  margin-top: var(--space-3);
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>org-map-layer</em></h1>
+  <div class="subtitle">UC-ORG-02 · LSMapLayer · LaneShadow V2 Copper · Foundational canvas with 7 named slots</div>
+</div>
+
+<!-- ─── Z-Order Contract ─── -->
+<section class="section">
+  <div class="section-label">Z-order contract · map → scrim → overlays → sheet → drawer → top bar</div>
+  <div class="two-up">
+
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="z-order-stack">
+        <div class="z-order-row z-order-row--top">
+          <span class="t-instr-md z-order-row__level">5</span>
+          <span class="t-title-md z-order-row__name">topBar</span>
+          <span class="t-body-sm z-order-row__desc">Always above everything — glass chips float over all content.</span>
+        </div>
+        <div class="z-order-row">
+          <span class="t-instr-md z-order-row__level">4</span>
+          <span class="t-title-md z-order-row__name">leadingDrawer</span>
+          <span class="t-body-sm z-order-row__desc">SessionsDrawer covers scrim + overlays + sheet when open.</span>
+        </div>
+        <div class="z-order-row">
+          <span class="t-instr-md z-order-row__level">3</span>
+          <span class="t-title-md z-order-row__name">bottomSheet</span>
+          <span class="t-body-sm z-order-row__desc">RouteSheet anchors to bottom, above overlays.</span>
+        </div>
+        <div class="z-order-row">
+          <span class="t-instr-md z-order-row__level">2</span>
+          <span class="t-title-md z-order-row__name">topOverlays / bottomOverlays</span>
+          <span class="t-body-sm z-order-row__desc">NavigatorMessage (top), ChatInput (bottom). Same level; safe-area positions them apart.</span>
+        </div>
+        <div class="z-order-row">
+          <span class="t-instr-md z-order-row__level">1</span>
+          <span class="t-title-md z-order-row__name">scrim</span>
+          <span class="t-body-sm z-order-row__desc">Warm-black 0.35 opacity above map, below all overlays.</span>
+        </div>
+        <div class="z-order-row">
+          <span class="t-instr-md z-order-row__level">0</span>
+          <span class="t-title-md z-order-row__name">map</span>
+          <span class="t-body-sm z-order-row__desc">Full-bleed map canvas. Base layer. Always rendered first.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="z-order-stack">
+        <div class="z-order-row z-order-row--top">
+          <span class="t-instr-md z-order-row__level">5</span>
+          <span class="t-title-md z-order-row__name">topBar</span>
+          <span class="t-body-sm z-order-row__desc">Always above everything — glass chips float over all content.</span>
+        </div>
+        <div class="z-order-row">
+          <span class="t-instr-md z-order-row__level">4</span>
+          <span class="t-title-md z-order-row__name">leadingDrawer</span>
+          <span class="t-body-sm z-order-row__desc">SessionsDrawer covers scrim + overlays + sheet when open.</span>
+        </div>
+        <div class="z-order-row">
+          <span class="t-instr-md z-order-row__level">3</span>
+          <span class="t-title-md z-order-row__name">bottomSheet</span>
+          <span class="t-body-sm z-order-row__desc">RouteSheet anchors to bottom, above overlays.</span>
+        </div>
+        <div class="z-order-row">
+          <span class="t-instr-md z-order-row__level">2</span>
+          <span class="t-title-md z-order-row__name">topOverlays / bottomOverlays</span>
+          <span class="t-body-sm z-order-row__desc">NavigatorMessage (top), ChatInput (bottom). Same level; safe-area positions them apart.</span>
+        </div>
+        <div class="z-order-row">
+          <span class="t-instr-md z-order-row__level">1</span>
+          <span class="t-title-md z-order-row__name">scrim</span>
+          <span class="t-body-sm z-order-row__desc">Warm-black 0.50 opacity above map, below all overlays.</span>
+        </div>
+        <div class="z-order-row">
+          <span class="t-instr-md z-order-row__level">0</span>
+          <span class="t-title-md z-order-row__name">map</span>
+          <span class="t-body-sm z-order-row__desc">Full-bleed map canvas — dark map-paper token.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─── Slot composition stories ─── -->
+<section class="section">
+  <div class="section-label">Seven slot compositions — empty map → full stack</div>
+  <div class="two-up">
+
+    <!-- LIGHT PANE -->
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+
+        <!-- S.01 Map Only -->
+        <div class="variant-cell">
+          <div class="org-map-layer">
+            <div class="org-map-layer__map">
+              <svg viewBox="0 0 360 680" fill="none" preserveAspectRatio="none">
+                <path d="M40 340 Q130 260 190 220 Q260 180 320 205" stroke="var(--map-contour)" stroke-width="1.5" fill="none" opacity="0.6"/>
+                <path d="M30 400 Q90 350 170 320 Q230 290 320 300" stroke="var(--map-contour)" stroke-width="1" fill="none" opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+          <div class="label">S.01 · Map only</div>
+        </div>
+
+        <!-- S.02 Map + TopBar -->
+        <div class="variant-cell">
+          <div class="org-map-layer">
+            <div class="org-map-layer__map"></div>
+            <div class="org-map-layer__top-bar">
+              <div class="ml-demo-topbar">
+                <div class="ml-demo-chip ml-demo-chip--square">
+                  <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+                </div>
+                <div class="ml-demo-chip ml-demo-chip--pill">
+                  <svg viewBox="0 0 24 24"><path d="M12 5 V19"/><path d="M5 12 H19"/></svg>
+                  <span class="t-title-sm">NEW</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.02 · Map + TopBar</div>
+        </div>
+
+        <!-- S.03 Map + Top Overlay -->
+        <div class="variant-cell">
+          <div class="org-map-layer">
+            <div class="org-map-layer__map"></div>
+            <div class="org-map-layer__top-bar">
+              <div class="ml-demo-topbar">
+                <div class="ml-demo-chip ml-demo-chip--square">
+                  <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+                </div>
+                <div class="ml-demo-chip ml-demo-chip--pill">
+                  <svg viewBox="0 0 24 24"><path d="M12 5 V19"/><path d="M5 12 H19"/></svg>
+                  <span class="t-title-sm">NEW</span>
+                </div>
+              </div>
+            </div>
+            <div class="org-map-layer__top-overlay">
+              <div class="ml-demo-nav-msg">
+                <div class="t-label-sm ml-demo-nav-msg__label">The Navigator</div>
+                <div class="t-body-sm ml-demo-nav-msg__body">Three routes south through the coastal hills.</div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.03 · Map + Top overlay (NavigatorMessage)</div>
+        </div>
+
+        <!-- S.04 Map + Bottom Overlay -->
+        <div class="variant-cell">
+          <div class="org-map-layer">
+            <div class="org-map-layer__map"></div>
+            <div class="org-map-layer__top-bar">
+              <div class="ml-demo-topbar">
+                <div class="ml-demo-chip ml-demo-chip--square">
+                  <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="org-map-layer__bottom-overlay">
+              <div class="ml-demo-chat">
+                <span class="t-body-md ml-demo-chat__field">Where do you want to ride?</span>
+                <div class="ml-demo-chat__send">
+                  <svg viewBox="0 0 16 16"><path d="M2 14L14 8L2 2V7L10 8L2 9V14Z"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.04 · Map + Bottom overlay (ChatInput)</div>
+        </div>
+
+        <!-- S.05 Map + Scrim + Drawer -->
+        <div class="variant-cell">
+          <div class="org-map-layer">
+            <div class="org-map-layer__map"></div>
+            <div class="org-map-layer__scrim"></div>
+            <div class="org-map-layer__leading-drawer">
+              <div class="ml-demo-drawer">
+                <div class="ml-demo-drawer__header">
+                  <span class="t-opinion-md ml-demo-drawer__title">Rides</span>
+                  <span class="t-label-sm" style="color: var(--signal-default);">+ NEW</span>
+                </div>
+                <span class="t-label-sm ml-demo-drawer__section-label">This Week</span>
+                <div class="ml-demo-drawer__row ml-demo-drawer__row--active">
+                  <div class="t-title-sm ml-demo-drawer__row-name">Santa Cruz Loop</div>
+                  <div class="t-body-sm ml-demo-drawer__row-prev">Take 1 south to Davenport…</div>
+                </div>
+                <div class="ml-demo-drawer__row">
+                  <div class="t-title-sm ml-demo-drawer__row-name">Skyline to the Sea</div>
+                  <div class="t-body-sm ml-demo-drawer__row-prev">Best way to do 84 to 35…</div>
+                </div>
+                <div class="ml-demo-drawer__row">
+                  <div class="t-title-sm ml-demo-drawer__row-name">PCH Evening Run</div>
+                  <div class="t-body-sm ml-demo-drawer__row-prev">Sunset ride from Pacifica…</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.05 · Map + Scrim + Drawer</div>
+        </div>
+
+        <!-- S.06 Map + Sheet -->
+        <div class="variant-cell">
+          <div class="org-map-layer">
+            <div class="org-map-layer__map">
+              <svg viewBox="0 0 360 680" fill="none" preserveAspectRatio="none">
+                <path d="M60 260 Q130 220 190 200 Q250 180 300 210" stroke="var(--route-best)" stroke-width="4" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="org-map-layer__top-bar">
+              <div class="ml-demo-topbar">
+                <div class="ml-demo-chip ml-demo-chip--square">
+                  <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="org-map-layer__bottom-sheet">
+              <div class="ml-demo-sheet">
+                <div class="ml-demo-sheet__handle"></div>
+                <span class="t-opinion-md ml-demo-sheet__title">The Skyline Spine</span>
+                <span class="t-body-sm ml-demo-sheet__sub">via Kings Mountain Rd · 47 mi</span>
+                <div class="ml-demo-sheet__actions">
+                  <div class="t-title-sm ml-demo-sheet__btn ml-demo-sheet__btn--outline">Save</div>
+                  <div class="t-title-sm ml-demo-sheet__btn ml-demo-sheet__btn--primary">Ride this</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.06 · Map + Bottom sheet</div>
+        </div>
+
+        <!-- S.07 Full Stack -->
+        <div class="variant-cell">
+          <div class="org-map-layer">
+            <div class="org-map-layer__map">
+              <svg viewBox="0 0 360 680" fill="none" preserveAspectRatio="none">
+                <path d="M60 260 Q130 220 190 200 Q250 180 300 210" stroke="var(--route-best)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="org-map-layer__scrim" style="opacity: var(--opacity-focus);"></div>
+            <div class="org-map-layer__top-overlay">
+              <div class="ml-demo-nav-msg">
+                <div class="t-label-sm ml-demo-nav-msg__label">The Navigator</div>
+                <div class="t-body-sm ml-demo-nav-msg__body">Best route selected.</div>
+              </div>
+            </div>
+            <div class="org-map-layer__bottom-overlay" style="bottom: calc(var(--space-12) + var(--space-8));">
+              <div class="ml-demo-chat">
+                <span class="t-body-md ml-demo-chat__field">Refine route…</span>
+                <div class="ml-demo-chat__send">
+                  <svg viewBox="0 0 16 16"><path d="M2 14L14 8L2 2V7L10 8L2 9V14Z"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="org-map-layer__bottom-sheet">
+              <div class="ml-demo-sheet">
+                <div class="ml-demo-sheet__handle"></div>
+                <span class="t-opinion-md ml-demo-sheet__title">The Skyline Spine</span>
+                <div class="ml-demo-sheet__actions">
+                  <div class="t-title-sm ml-demo-sheet__btn ml-demo-sheet__btn--outline">Save</div>
+                  <div class="t-title-sm ml-demo-sheet__btn ml-demo-sheet__btn--primary">Ride this</div>
+                </div>
+              </div>
+            </div>
+            <div class="org-map-layer__top-bar">
+              <div class="ml-demo-topbar">
+                <div class="ml-demo-chip ml-demo-chip--square">
+                  <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+                </div>
+                <div class="ml-demo-chip ml-demo-chip--pill">
+                  <svg viewBox="0 0 24 24"><path d="M12 5 V19"/><path d="M5 12 H19"/></svg>
+                  <span class="t-title-sm">NEW</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.07 · Full stack (every slot populated except drawer)</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK PANE -->
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+
+        <div class="variant-cell">
+          <div class="org-map-layer">
+            <div class="org-map-layer__map">
+              <svg viewBox="0 0 360 680" fill="none" preserveAspectRatio="none">
+                <path d="M40 340 Q130 260 190 220 Q260 180 320 205" stroke="var(--map-contour)" stroke-width="1.5" fill="none" opacity="0.6"/>
+                <path d="M30 400 Q90 350 170 320 Q230 290 320 300" stroke="var(--map-contour)" stroke-width="1" fill="none" opacity="0.4"/>
+              </svg>
+            </div>
+          </div>
+          <div class="label">S.01 · Map only</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="org-map-layer">
+            <div class="org-map-layer__map"></div>
+            <div class="org-map-layer__top-bar">
+              <div class="ml-demo-topbar">
+                <div class="ml-demo-chip ml-demo-chip--square">
+                  <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+                </div>
+                <div class="ml-demo-chip ml-demo-chip--pill">
+                  <svg viewBox="0 0 24 24"><path d="M12 5 V19"/><path d="M5 12 H19"/></svg>
+                  <span class="t-title-sm">NEW</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.02 · Map + TopBar</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="org-map-layer">
+            <div class="org-map-layer__map"></div>
+            <div class="org-map-layer__bottom-overlay">
+              <div class="ml-demo-chat">
+                <span class="t-body-md ml-demo-chat__field">Where do you want to ride?</span>
+                <div class="ml-demo-chat__send">
+                  <svg viewBox="0 0 16 16"><path d="M2 14L14 8L2 2V7L10 8L2 9V14Z"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="org-map-layer__top-bar">
+              <div class="ml-demo-topbar">
+                <div class="ml-demo-chip ml-demo-chip--square">
+                  <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.04 · Map + Bottom overlay</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="org-map-layer">
+            <div class="org-map-layer__map"></div>
+            <div class="org-map-layer__scrim"></div>
+            <div class="org-map-layer__leading-drawer">
+              <div class="ml-demo-drawer">
+                <div class="ml-demo-drawer__header">
+                  <span class="t-opinion-md ml-demo-drawer__title">Rides</span>
+                  <span class="t-label-sm" style="color: var(--signal-default);">+ NEW</span>
+                </div>
+                <span class="t-label-sm ml-demo-drawer__section-label">This Week</span>
+                <div class="ml-demo-drawer__row ml-demo-drawer__row--active">
+                  <div class="t-title-sm ml-demo-drawer__row-name">Santa Cruz Loop</div>
+                  <div class="t-body-sm ml-demo-drawer__row-prev">Take 1 south to Davenport…</div>
+                </div>
+                <div class="ml-demo-drawer__row">
+                  <div class="t-title-sm ml-demo-drawer__row-name">Skyline to the Sea</div>
+                  <div class="t-body-sm ml-demo-drawer__row-prev">Best way to do 84 to 35…</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.05 · Map + Scrim + Drawer</div>
+        </div>
+
+        <div class="variant-cell">
+          <div class="org-map-layer">
+            <div class="org-map-layer__map">
+              <svg viewBox="0 0 360 680" fill="none" preserveAspectRatio="none">
+                <path d="M60 260 Q130 220 190 200 Q250 180 300 210" stroke="var(--route-best)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="org-map-layer__scrim" style="opacity: var(--opacity-focus);"></div>
+            <div class="org-map-layer__top-overlay">
+              <div class="ml-demo-nav-msg">
+                <div class="t-label-sm ml-demo-nav-msg__label">The Navigator</div>
+                <div class="t-body-sm ml-demo-nav-msg__body">Best route selected.</div>
+              </div>
+            </div>
+            <div class="org-map-layer__bottom-overlay" style="bottom: calc(var(--space-12) + var(--space-8));">
+              <div class="ml-demo-chat">
+                <span class="t-body-md ml-demo-chat__field">Refine route…</span>
+                <div class="ml-demo-chat__send">
+                  <svg viewBox="0 0 16 16"><path d="M2 14L14 8L2 2V7L10 8L2 9V14Z"/></svg>
+                </div>
+              </div>
+            </div>
+            <div class="org-map-layer__bottom-sheet">
+              <div class="ml-demo-sheet">
+                <div class="ml-demo-sheet__handle"></div>
+                <span class="t-opinion-md ml-demo-sheet__title">The Skyline Spine</span>
+                <div class="ml-demo-sheet__actions">
+                  <div class="t-title-sm ml-demo-sheet__btn ml-demo-sheet__btn--outline">Save</div>
+                  <div class="t-title-sm ml-demo-sheet__btn ml-demo-sheet__btn--primary">Ride this</div>
+                </div>
+              </div>
+            </div>
+            <div class="org-map-layer__top-bar">
+              <div class="ml-demo-topbar">
+                <div class="ml-demo-chip ml-demo-chip--square">
+                  <svg viewBox="0 0 24 24"><path d="M4 7 H20"/><path d="M4 12 H20"/><path d="M4 17 H14"/></svg>
+                </div>
+                <div class="ml-demo-chip ml-demo-chip--pill">
+                  <svg viewBox="0 0 24 24"><path d="M12 5 V19"/><path d="M5 12 H19"/></svg>
+                  <span class="t-title-sm">NEW</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.07 · Full stack</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

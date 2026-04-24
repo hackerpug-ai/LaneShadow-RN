@@ -1,0 +1,20 @@
+{
+  "task_id": "UC-ATM-11",
+  "host_validation": true,
+  "files": [
+    "tokens/api/LSMap.contract.md",
+    "tokens/sandbox/fixtures/routes.fixtures.json",
+    "ios/LaneShadow/Views/Atoms/LSMap.swift"
+  ],
+  "commands": [
+    "test -f tokens/api/LSMap.contract.md && test -f tokens/sandbox/fixtures/routes.fixtures.json",
+    "node -e \"const f=require('./tokens/sandbox/fixtures/routes.fixtures.json'); const a=f.route_results_three_alts.polylines; console.log(a.length===3 && a.some(p=>p.variant==='best') && a.some(p=>p.variant==='alt1') && a.some(p=>p.variant==='alt2')?'PASS':'FAIL')\"",
+    "grep -n 'MBXAccessToken\\|secrets.xml\\|MAPBOX_ACCESS_TOKEN' tokens/api/LSMap.contract.md",
+    "grep -n 'LSGlassPanel\\|MapMode\\|CameraPosition\\|CameraFit\\|PolylineData\\|Annotation' ios/LaneShadow/Views/Atoms/LSMap.swift",
+    "cd ios && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'"
+  ],
+  "notes": [
+    "Task scope is limited to the shared contract doc, shared fixture file, and scoped iOS stub.",
+    "The runner checksum artifact warning came from .kb-run-sprint-codex/.state.json.sha256 and is outside task scope."
+  ]
+}

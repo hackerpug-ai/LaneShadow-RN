@@ -1,0 +1,50 @@
+{
+  "verdict": "APPROVED",
+  "confidence": "MEDIUM",
+  "tasks": [
+    {
+      "id": "UC-MOL-02-ios",
+      "verdict": "APPROVED",
+      "requirements": [
+        {
+          "id": "AC-1",
+          "satisfied": true,
+          "evidence": "LSToolbar now resolves `toolbarHeight` from token-backed theme spacing and binds the row to `.frame(height: toolbarHeight)` in `ios/LaneShadow/Views/Molecules/LSToolbar.swift:45-80`. `ios/LaneShadowTests/Molecules/LSToolbarTests.swift:6-27,55-64` reads `tokens/semantic/dimensions.tokens.json` `dimensions.sizing.component.toolbarHeight.$value`, asserts equality with `toolbar.toolbarHeight`, and rejects `.frame(height: theme.control.minHeight)`. Host validation reports `LSToolbarTests.test_default_render_uses_surface_primary_and_slot_atoms` passed on commit `01ac52af86279f0f2031d6a660591488bb941bfd`.",
+          "remediation": null
+        },
+        {
+          "id": "AC-2",
+          "satisfied": true,
+          "evidence": "`ios/LaneShadow/Views/Molecules/LSToolbar.swift:59-64` still uses `.safeAreaInset(edge: .top, spacing: 0)` and the molecule source contains no hardcoded status-bar heights. User-provided safe-area grep passed for this exact worktree state; local source inspection confirmed no `44`, `47`, or `20` status-bar offsets were introduced.",
+          "remediation": null
+        },
+        {
+          "id": "AC-3",
+          "satisfied": true,
+          "evidence": "`ios/LaneShadow/Views/Molecules/LSNavHeader.swift:67-120` preserves large-title rendering with `LSText(title, variant: .opinion.lg)`, `theme.space.lg` horizontal padding, `theme.space.lg` large-variant bottom padding, and a 56pt toolbar row via `toolbarHeight`. `ios/LaneShadowTests/Molecules/LSNavHeaderTests.swift:6-21,37-46` asserts `.opinion.lg`, token-backed height equality, corrected spacing recipe, and rejection of `theme.control.minHeight`. Host validation reports `LSNavHeaderTests.test_large_title_uses_opinion_lg_typography` passed.",
+          "remediation": null
+        },
+        {
+          "id": "AC-4",
+          "satisfied": true,
+          "evidence": "`ios/LaneShadow/Views/Molecules/LSNavHeader.swift:40-50,102-120` keeps default mode on `.ui.title.md` while sharing the same `toolbarHeight` binding. `ios/LaneShadowTests/Molecules/LSNavHeaderTests.swift:24-34,37-46` asserts `.ui.title.md`, token-backed 56pt height, and the corrected horizontal spacing. Host validation reports `LSNavHeaderTests.test_default_variant_uses_ui_title_md` passed.",
+          "remediation": null
+        },
+        {
+          "id": "AC-5",
+          "satisfied": true,
+          "evidence": "Manual inspection of `ios/LaneShadow/Views/Molecules/LSToolbar.swift` and `ios/LaneShadow/Views/Molecules/LSNavHeader.swift` found no `Color(red:)`, `Color(hex:)`, `Font.system`, or deprecated `foregroundColor(` usage. User-provided forbidden-API grep passed on this exact worktree state, and the molecules use `LSText`/`foregroundStyle` plus token-resolved theme colors instead.",
+          "remediation": null
+        },
+        {
+          "id": "AC-6",
+          "satisfied": true,
+          "evidence": "All 4 toolbar stories and 3 nav-header stories remain registered in `ios/LaneShadow/Sandbox/Stories/Molecules/LSToolbarStory.swift`, `ios/LaneShadow/Sandbox/Stories/Molecules/LSNavHeaderStory.swift`, and aggregated by `ios/LaneShadow/Sandbox/Stories/MoleculesStories.swift`. `ios/LaneShadowTests/Molecules/LSToolbarTests.swift:29-53` checks the aggregator plus all seven story IDs. Host validation reports `LSToolbarTests.test_all_seven_toolbar_navheader_stories_registered` passed, and full `xcodebuild test` for the exact worktree state also passed.",
+          "remediation": null
+        }
+      ]
+    }
+  ],
+  "findings": [],
+  "summary": "Approved. The remediation fixes the prior 48pt-vs-56pt regression by binding both molecules to a token-backed 56pt height, strengthens tests enough to catch a fallback to `theme.control.minHeight`, restores the nav-header 16pt spacing recipe, preserves top safe-area handling, and keeps all seven stories registered. Local `xcodebuild` re-runs were blocked by this read-only sandbox, so confidence is medium rather than high, but the exact-state host validations provided align with the reviewed source."
+}

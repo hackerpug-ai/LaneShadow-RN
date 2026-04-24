@@ -1,0 +1,77 @@
+{
+  "verdict": "NEEDS_FIXES",
+  "confidence": "HIGH",
+  "tasks": [
+    {
+      "id": "UC-MOL-03-android",
+      "verdict": "NEEDS_FIXES",
+      "requirements": [
+        {
+          "id": "AC-1",
+          "satisfied": false,
+          "evidence": "`LSBottomSheet.kt:98-110` labels the enter recipe as `motion.recipe.chatOverlayEnter`, but the runtime lookup uses `theme.motion.duration[\"standard\"]` and `theme.motion.easing[\"decelerated\"]`. The bundled Android asset at `tokens/platforms/kotlin/src/main/assets/semantic.tokens.json:1214-1265` only exposes `normal` and `decelerate`, so Android always falls back to literal defaults instead of consuming the live motion token contract.",
+          "remediation": "Resolve bottom-sheet motion from the actual recipe/token names shipped to Android, or extend the theme loader to expose `chatOverlayEnter` directly and fail loudly when required motion inputs are missing."
+        },
+        {
+          "id": "AC-2",
+          "satisfied": true,
+          "evidence": "`LSBottomSheet.kt:54-56` defines the required `0.25f`, `0.5f`, and `0.9f` detent fractions, and `resolveBottomSheetDetentHeight` in `LSBottomSheet.kt:93-96` multiplies them by `LocalConfiguration.current.screenHeightDp.dp` before applying the result at `LSBottomSheet.kt:123-126,173`.",
+          "remediation": null
+        },
+        {
+          "id": "AC-3",
+          "satisfied": true,
+          "evidence": "`LSBottomSheet` delegates dismissal through a single `onDismissRequest = onDismiss` path in `LSBottomSheet.kt:151-168`, and `LSBottomSheetUiTest.kt:29-67` verifies a swipe-down produces exactly one callback on the connected emulator run reported in the packet.",
+          "remediation": null
+        },
+        {
+          "id": "AC-4",
+          "satisfied": false,
+          "evidence": "`LSToast.kt:217-263` derives the entire auto-dismiss window from `theme.motion.duration[\"fast\"]`; in the bundled Android asset `fast` is `120` at `tokens/platforms/kotlin/src/main/assets/semantic.tokens.json:1219-1222`. The toast authority expects a readable `chatOverlayDismiss` lifetime of 5000ms at `.spec/design/system/molecules/toast/README.md:7,36-39,67`, and `ai-specs/UC-MOL-03-android/android-learnings.md:5` confirms the sandbox had to re-trigger the toast because it disappears too quickly.",
+          "remediation": "Separate toast visible lifetime from exit animation speed by consuming a recipe or dedicated token that preserves the intended `chatOverlayDismiss` window, then remove the story re-trigger workaround."
+        },
+        {
+          "id": "AC-5",
+          "satisfied": true,
+          "evidence": "`resolveLSToastStyle` in `LSToast.kt:169-199` maps default, success, warning, and error to four distinct token colors, and `LSToastTest.kt:28-49` asserts those colors are unique.",
+          "remediation": null
+        },
+        {
+          "id": "AC-6",
+          "satisfied": true,
+          "evidence": "`LSModal.kt:100-203` builds the dialog from `Dialog`, `LSCard`, `LSText`, and `LSButton`, while `LSModalTest.kt:13-24` explicitly checks that `AlertDialog` and `TextButton` are not used.",
+          "remediation": null
+        },
+        {
+          "id": "AC-7",
+          "satisfied": false,
+          "evidence": "All three overlay motion helpers contain literal fallbacks: `LSBottomSheet.kt:99-100`, `LSModal.kt:72-73`, and `LSToast.kt:202-219`. Existing token consumers such as `LSPhaseDot.kt:179-188` use `requireNotNull` instead. Because the Android asset does not provide the requested `standard` / `decelerated` / `linear` keys, these hardcoded fallbacks are active in normal runtime, so the overlays are not fully token-driven under theme changes.",
+          "remediation": "Replace the silent fallback constants with validated token lookups, or update the Android theme loader/assets so the overlay molecules can consume the real motion recipe inputs without hardcoded backup values."
+        },
+        {
+          "id": "AC-8",
+          "satisfied": true,
+          "evidence": "The sandbox registers three bottom-sheet stories in `LSBottomSheetStory.kt:20-40`, four toast stories in `LSToastStory.kt:16-57`, and two modal stories in `LSModalStory.kt:13-41`, and `MoleculesStories.kt:5-16` aggregates all nine.",
+          "remediation": null
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "severity": "HIGH",
+      "task_id": "UC-MOL-03-android",
+      "location": "android/app/src/main/java/com/laneshadow/ui/molecules/LSBottomSheet.kt:98-110; android/app/src/main/java/com/laneshadow/ui/molecules/LSModal.kt:71-84; android/app/src/main/java/com/laneshadow/ui/molecules/LSToast.kt:201-229; tokens/platforms/kotlin/src/main/assets/semantic.tokens.json:1214-1265",
+      "evidence": "The new overlay helpers request `duration[\"standard\"]`, `easing[\"decelerated\"]`, and `easing[\"linear\"]`, but the Android bundle only ships `normal` and `decelerate` and no `linear` entry. That means the current Android runtime is already on the literal `?: 240` / `?: 120` / hardcoded bezier fallbacks, so the feature is masking a theme-contract mismatch instead of actually being token-driven.",
+      "fix": "Sync the Android semantic asset/theme API with the motion names used by these molecules, or expose `chatOverlayEnter` / `chatOverlayDismiss` recipe objects directly and replace the silent fallbacks with validated lookups."
+    },
+    {
+      "severity": "HIGH",
+      "task_id": "UC-MOL-03-android",
+      "location": "android/app/src/main/java/com/laneshadow/ui/molecules/LSToast.kt:217-263; .spec/design/system/molecules/toast/README.md:7,36-39,67; ai-specs/UC-MOL-03-android/android-learnings.md:5",
+      "evidence": "`LSToast` uses the generic `fast` duration as its whole visible lifetime before auto-dismiss. In the shipped Android asset that is 120ms, so the toast disappears almost immediately and the sandbox compensates by re-triggering it in a loop. The design authority calls for a readable 5000ms toast lifetime, so the runtime behavior is materially too short for real use.",
+      "fix": "Introduce a recipe-backed or dedicated token-backed toast visibility duration instead of tying the readable lifetime to the exit animation duration, then remove the sandbox re-trigger workaround."
+    }
+  ],
+  "summary": "Most of the molecule surface area is in place: detents, dismissal wiring, atom composition, tests, and story registration all look solid. Approval is blocked by motion-contract drift on Android: the new overlays are currently running on hardcoded fallback motion values because the bundled token asset does not provide the keys the code asks for, and that mismatch also leaves `LSToast` with an effectively unreadable 120ms auto-dismiss lifetime."
+}

@@ -71,8 +71,8 @@ private struct ChatInputDefaultStory: View {
                 value: $text,
                 placeholder: "Plan a ride…",
                 onSend: { _ in },
-                onCollapse: { },
-                onFilter: { }
+                onCollapse: {},
+                onFilter: {}
             )
         }
     }
@@ -87,8 +87,8 @@ private struct ChatInputWithTextStory: View {
                 value: $text,
                 placeholder: "Plan a ride…",
                 onSend: { _ in },
-                onCollapse: { },
-                onFilter: { }
+                onCollapse: {},
+                onFilter: {}
             )
         }
     }
@@ -103,12 +103,12 @@ private struct ChatInputWithSuggestionsAndLocationStory: View {
                 value: $text,
                 placeholder: "Plan a ride…",
                 onSend: { _ in },
-                onCollapse: { },
-                onFilter: { },
+                onCollapse: {},
+                onFilter: {},
                 suggestions: [
                     SuggestionChip(label: "Twisty back roads"),
                     SuggestionChip(label: "Avoid highway"),
-                    SuggestionChip(label: "Scenic canyon")
+                    SuggestionChip(label: "Scenic canyon"),
                 ],
                 locationBadge: LocationContext(
                     label: "Near Santa Cruz, CA",
@@ -128,8 +128,8 @@ private struct ChatInputThinkingStory: View {
                 value: $text,
                 placeholder: "Plan a ride…",
                 onSend: { _ in },
-                onCollapse: { },
-                onFilter: { },
+                onCollapse: {},
+                onFilter: {},
                 isThinking: true
             )
         }
@@ -145,8 +145,8 @@ private struct ChatInputDisabledStory: View {
                 value: $text,
                 placeholder: "Plan a ride…",
                 onSend: { _ in },
-                onCollapse: { },
-                onFilter: { },
+                onCollapse: {},
+                onFilter: {},
                 isEnabled: false
             )
         }
@@ -162,8 +162,8 @@ private struct ChatInputRefiningPromptStory: View {
                 value: $text,
                 placeholder: "Refine your route preferences — add waypoints, surface types, elevation targets, or scenic priorities…",
                 onSend: { _ in },
-                onCollapse: { },
-                onFilter: { }
+                onCollapse: {},
+                onFilter: {}
             )
         }
     }

@@ -1,0 +1,45 @@
+Implemented `UC-MOL-05-ios` end-to-end in the scoped worktree with new molecules, tests, story registration, project wiring, and runtime verification.
+
+**Changed files**
+- [LSTagPill.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/LaneShadow/Views/Molecules/LSTagPill.swift)
+- [LSFilterChip.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/LaneShadow/Views/Molecules/LSFilterChip.swift)
+- [LSSuggestionChip.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/LaneShadow/Views/Molecules/LSSuggestionChip.swift)
+- [LSWeatherBadge.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/LaneShadow/Views/Molecules/LSWeatherBadge.swift)
+- [LSTagPillTests.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/LaneShadowTests/Molecules/LSTagPillTests.swift)
+- [LSFilterChipTests.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/LaneShadowTests/Molecules/LSFilterChipTests.swift)
+- [LSSuggestionChipTests.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/LaneShadowTests/Molecules/LSSuggestionChipTests.swift)
+- [LSWeatherBadgeTests.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/LaneShadowTests/Molecules/LSWeatherBadgeTests.swift)
+- [LSPillSemanticsStory.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/LaneShadow/Sandbox/Stories/Molecules/LSPillSemanticsStory.swift)
+- [MoleculesStories.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/LaneShadow/Sandbox/Stories/MoleculesStories.swift)
+- [LaneShadowStories.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/LaneShadow/Sandbox/LaneShadowStories.swift)
+- [project.yml](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/project.yml)
+- [ios-learnings.md](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ai-specs/UC-MOL-05/ios-learnings.md)
+- Generated: [project.pbxproj](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-ios/ios/LaneShadow.xcodeproj/project.pbxproj) via XcodeGen script
+
+**What was delivered**
+- Added semantic molecules composing `LSPill` + atom content (`LSIcon`/`LSText`) with tokenized colors.
+- Added public `WeatherCondition` enum (`sun/rain/wind/storm/hot/cold`) for cross-molecule reuse.
+- Registered full “Molecules / Pill Semantics” stories including all `6 conditions x 2 sizes`.
+- Added AC-mapped molecule tests and story registration test.
+- Confirmed anti-pattern gate (`Capsule()/Color(red:)/Color(hex:)/Font.system`) = 0 in the four new molecule files.
+- Captured simulator screenshot: `/tmp/UC-MOL-05-ios-pill-semantics.png`.
+
+**Commands run**
+- `bash scripts/ios/generate-project.sh`
+- `swiftformat --lint ios/LaneShadow/` (passes)
+- `cd ios && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` (BUILD SUCCEEDED)
+- `cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` (TEST SUCCEEDED)
+- AC-specific `-only-testing` runs for:
+  - `LSTagPillTests/test_glass_surface_and_icon_atom_composition`
+  - `LSFilterChipTests/test_selected_uses_signal_default_unselected_uses_card_surface`
+  - `LSFilterChipTests/test_ontoggle_fires_exactly_once`
+  - `LSSuggestionChipTests/test_ontap_fires_once_and_resolves_card_surface`
+  - `LSWeatherBadgeTests/test_all_six_conditions_resolve_weather_color_tokens`
+  - `LSWeatherBadgeTests/test_sm_and_md_size_heights_from_pill_atom`
+  - `LSTagPillTests/test_pill_semantics_stories_registered`
+- Gate grep:
+  - `grep -n 'Capsule()\|Color(red:\|Color(hex:\|Font.system' ... | wc -l` => `0`
+
+**Remaining risks**
+- Interaction “fires once” tests validate the dispatch path deterministically (unit level) rather than full tap-to-action UIKit event plumbing.
+- Parallel `xcodebuild test` on one simulator destination is flaky in this environment; sequential runs are stable.

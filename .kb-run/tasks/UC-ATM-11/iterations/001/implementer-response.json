@@ -1,0 +1,128 @@
+{
+  "status": "completed",
+  "task_id": "UC-ATM-11",
+  "blocking_issues": [],
+  "unblock_options": [],
+  "failure_classification": "none",
+  "failed_commands": [],
+  "evidence_path": "/Users/justinrich/Projects/LaneShadow/.kb-run/tasks/UC-ATM-11/iterations/001/evidence.md",
+  "evidence_manifest_path": "/Users/justinrich/Projects/LaneShadow/.kb-run/tasks/UC-ATM-11/iterations/001/evidence-manifest.json",
+  "summary": "UC-ATM-11 is satisfied in the current worktree scope: the shared LSMap contract doc exists with the required types and access-token convention, the sandbox fixture file contains the 3 required scenarios including a 3-polyline alternate-route case, and the scoped iOS LSMap stub compiles without importing MapboxMaps while using LSGlassPanel as the fallback body.",
+  "files_changed": [
+    "tokens/api/LSMap.contract.md",
+    "tokens/sandbox/fixtures/routes.fixtures.json",
+    "ios/LaneShadow/Views/Atoms/LSMap.swift"
+  ],
+  "verification_commands": [
+    "test -f tokens/api/LSMap.contract.md && test -f tokens/sandbox/fixtures/routes.fixtures.json",
+    "node -e \"const f=require('./tokens/sandbox/fixtures/routes.fixtures.json'); const a=f.route_results_three_alts.polylines; console.log(a.length===3 && a.some(p=>p.variant==='best') && a.some(p=>p.variant==='alt1') && a.some(p=>p.variant==='alt2')?'PASS':'FAIL')\"",
+    "test -f ios/LaneShadow/Views/Atoms/LSMap.swift && grep -c 'import MapboxMaps' ios/LaneShadow/Views/Atoms/LSMap.swift",
+    "grep -c 'CameraPosition\\|AnnotationKind\\|RouteVariant\\|PolylineData\\|MapMode\\|CameraFit\\|MapError' tokens/api/LSMap.contract.md",
+    "grep -n 'MBXAccessToken\\|secrets.xml\\|MAPBOX_ACCESS_TOKEN' tokens/api/LSMap.contract.md",
+    "grep -n 'LSGlassPanel\\|MapMode\\|CameraPosition\\|CameraFit\\|PolylineData\\|Annotation' ios/LaneShadow/Views/Atoms/LSMap.swift",
+    "cd ios && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'"
+  ],
+  "acceptance_criteria_evidence": [
+    {
+      "id": "AC-1",
+      "status": "met",
+      "evidence": [
+        "tokens/api/LSMap.contract.md exists.",
+        "grep -c 'CameraPosition\\|AnnotationKind\\|RouteVariant\\|PolylineData\\|MapMode\\|CameraFit\\|MapError' tokens/api/LSMap.contract.md -> 19.",
+        "Contract doc includes CameraPosition, AnnotationKind, Annotation, RouteVariant, PolylineData, MapMode, CameraFit, MapError, plus Swift and Kotlin public API signatures."
+      ]
+    },
+    {
+      "id": "AC-2",
+      "status": "met",
+      "evidence": [
+        "tokens/sandbox/fixtures/routes.fixtures.json exists.",
+        "Fixture scenarios present: route_preview_single, route_results_three_alts, route_preview_long_coastal.",
+        "node verification returned PASS for 3 polylines with variants best, alt1, alt2."
+      ]
+    },
+    {
+      "id": "AC-3",
+      "status": "met",
+      "evidence": [
+        "test -f ios/LaneShadow/Views/Atoms/LSMap.swift && grep -c 'import MapboxMaps' ios/LaneShadow/Views/Atoms/LSMap.swift -> 0 imports.",
+        "grep -n 'LSGlassPanel' ios/LaneShadow/Views/Atoms/LSMap.swift shows LSGlassPanel referenced at line 148.",
+        "cd ios && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' completed with '** BUILD SUCCEEDED **'."
+      ]
+    },
+    {
+      "id": "AC-4",
+      "status": "met",
+      "evidence": [
+        "grep -n 'MBXAccessToken\\|secrets.xml\\|MAPBOX_ACCESS_TOKEN' tokens/api/LSMap.contract.md shows iOS and Android token guidance at lines 145-154.",
+        "Contract explicitly documents iOS Info.plist MBXAccessToken and Android secrets.xml/Gradle MAPBOX_ACCESS_TOKEN convention."
+      ]
+    },
+    {
+      "id": "AC-5",
+      "status": "met",
+      "evidence": [
+        "LSMap.swift function signature includes mode, camera, cameraFit = .static, polylines = [], annotations = [], showFavorites = false, onTap = nil.",
+        "grep -n 'MapMode\\|CameraPosition\\|CameraFit\\|PolylineData\\|Annotation' ios/LaneShadow/Views/Atoms/LSMap.swift shows required type declarations and signature references at lines 34, 53, 59, 82, 98, 103, 117-121."
+      ]
+    },
+    {
+      "id": "TC-1",
+      "status": "met",
+      "evidence": [
+        "test -f tokens/api/LSMap.contract.md -> passed."
+      ]
+    },
+    {
+      "id": "TC-2",
+      "status": "met",
+      "evidence": [
+        "test -f tokens/sandbox/fixtures/routes.fixtures.json -> passed."
+      ]
+    },
+    {
+      "id": "TC-3",
+      "status": "met",
+      "evidence": [
+        "node -e \"const f=require('./tokens/sandbox/fixtures/routes.fixtures.json'); console.log(f.route_results_three_alts.polylines.length===3?'PASS':'FAIL')\" -> PASS.",
+        "Structured check reported threeAltCount = 3."
+      ]
+    },
+    {
+      "id": "TC-4",
+      "status": "met",
+      "evidence": [
+        "test -f ios/LaneShadow/Views/Atoms/LSMap.swift -> passed.",
+        "grep -c 'import MapboxMaps' ios/LaneShadow/Views/Atoms/LSMap.swift -> 0."
+      ]
+    },
+    {
+      "id": "TC-5",
+      "status": "met",
+      "evidence": [
+        "cd ios && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -> '** BUILD SUCCEEDED **'."
+      ]
+    },
+    {
+      "id": "TC-6",
+      "status": "met",
+      "evidence": [
+        "grep -n 'LSGlassPanel' ios/LaneShadow/Views/Atoms/LSMap.swift -> line 148 references LSGlassPanel."
+      ]
+    },
+    {
+      "id": "TC-7",
+      "status": "met",
+      "evidence": [
+        "grep -c 'MapMode\\|CameraPosition\\|CameraFit\\|PolylineData\\|Annotation' ios/LaneShadow/Views/Atoms/LSMap.swift -> 20.",
+        "LSMap.swift contains declarations/signature references for MapMode, CameraPosition, CameraFit, PolylineData, and Annotation."
+      ]
+    }
+  ],
+  "reviewer_considerations": [
+    "The scoped task files are confined to the allowed write scope: tokens/api/LSMap.contract.md, tokens/sandbox/fixtures/routes.fixtures.json, and ios/LaneShadow/Views/Atoms/LSMap.swift.",
+    "LSMap.swift intentionally keeps all contract type declarations local to the stub so UC-ATM-12-ios can replace only the rendering body without changing the shared signature.",
+    "No Android production files were touched, and no .kb-run files were modified."
+  ],
+  "notes": "The host-owned worktree shows a dirty .kb-run state file outside task scope; it was not modified. The task deliverables in scope already satisfy the required acceptance and test criteria in this worktree, and the required iOS build verification passed on 2026-04-23."
+}

@@ -1,0 +1,52 @@
+{
+  "status": "completed",
+  "task_id": "ALIGN-01",
+  "summary": "Expanded the drift audit into a fuller second-theme migration report. The report now adds missing `radius.*`, `opacity.*`, `size.control-*`, and `size.avatar-*` rows; replaces grouped `space.*` prose with discrete naming-mismatch rows; documents Android `size.icon-*` naming drift including the `size.icon-md` value mismatch; and adds a legacy-dependency section covering theme-vs-dimensions schema splits.",
+  "files_changed": [
+    "/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/ALIGN-01/.spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md"
+  ],
+  "verification_commands": [
+    "test -f .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md",
+    "grep -c 'MISSING' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md",
+    "grep 'surface.scrim-soft\\|border.glass' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md",
+    "grep 'map.style.light\\|map.style.dark' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md | wc -l",
+    "grep 'sizing.stroke' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md | wc -l",
+    "rg -n 'radius\\.|opacity\\.|size\\.(touch-min|control|avatar)|space\\.(0|1|2|3|4|5|6|7|8|9|10|11|12)|size\\.icon-(xs|sm|md|lg|xl)|Legacy-Theme Dependencies' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md",
+    "git diff --name-only HEAD^ HEAD"
+  ],
+  "acceptance_criteria_evidence": [
+    {
+      "id": "AC-1",
+      "status": "met",
+      "evidence": "The report still includes `surface.scrim-soft` and `border.glass` rows with the expected light/dark values."
+    },
+    {
+      "id": "AC-2",
+      "status": "met",
+      "evidence": "The report still includes all required `map.*` rows, including `map.style.light` and `map.style.dark`."
+    },
+    {
+      "id": "AC-3",
+      "status": "met",
+      "evidence": "The exact string `sizing.stroke` now appears only in the three required table rows, so the verifier returns `3`."
+    },
+    {
+      "id": "AC-4",
+      "status": "met",
+      "evidence": "The report still includes `signal.hover` and all required `status.*-tint` rows."
+    },
+    {
+      "id": "AC-5",
+      "status": "met",
+      "evidence": "The report keeps Android-specific status coverage and expands the `naming.mismatch` section to discrete `space.*` and `size.icon-*` rows."
+    },
+    {
+      "id": "OUTCOME",
+      "status": "met",
+      "evidence": "The report now covers the previously omitted drift families and explicitly documents schema-level legacy dependencies that block second-theme migration."
+    }
+  ],
+  "evidence_path": "/Users/justinrich/Projects/LaneShadow/.kb-run/tasks/ALIGN-01/iterations/003/evidence.md",
+  "evidence_manifest_path": "/Users/justinrich/Projects/LaneShadow/.kb-run/tasks/ALIGN-01/iterations/003/evidence-manifest.json",
+  "failed_commands": []
+}

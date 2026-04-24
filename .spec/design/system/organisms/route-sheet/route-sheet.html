@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<!-- route-sheet.html — LSRouteSheet organism preview
+     LaneShadow V2 · Copper · Organism · UC-ORG-04
+     Authority: .spec/prds/v2/concepts/uc-org-04-route-sheet.html -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>LSRouteSheet — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../../molecules/_atoms.css">
+<link rel="stylesheet" href="../_molecules.css">
+<style>
+/* Organism-local CSS — composes .mol-bottom-sheet (shell),
+   .mol-instrument-readout, .mol-weather-timeline, .ls-badge-best,
+   .ls-btn. Organism adds layout glue for head / scenic row /
+   sticky action row. Never redefines molecule or atom styles. */
+
+/* ═══════════════════════════════════════════════════════
+   org-route-sheet — layout glue over .mol-bottom-sheet shell
+   ═══════════════════════════════════════════════════════ */
+.org-route-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-0) var(--space-5) var(--space-5);
+}
+/* Let the molecule provide its own handle bar + rounded surface. */
+
+.org-route-sheet__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.org-route-sheet__badge-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.org-route-sheet__scenic {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--content-tertiary);
+}
+.org-route-sheet__scenic-dot {
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+}
+.org-route-sheet__scenic-dot--filled {
+  background: var(--signal-default);
+}
+.org-route-sheet__title {
+  font-family: var(--font-opinion);
+  color: var(--content-primary);
+  margin-top: var(--space-1);
+}
+.org-route-sheet__via {
+  color: var(--content-secondary);
+}
+
+/* Sticky action row — Save outline flex 1 · Ride primary flex 2 */
+.org-route-sheet__actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+.org-route-sheet__actions .ls-btn {
+  flex: 1;
+}
+.org-route-sheet__actions .ls-btn--primary {
+  flex: 2;
+}
+
+/* Demo stage — bottom-anchored context over a paper map.
+   Preview-local; not part of the organism API. */
+.demo-stage {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 9 / 17;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-card);
+  background: var(--surface-map);
+  isolation: isolate;
+}
+.demo-stage__map {
+  position: absolute;
+  inset: 0;
+  background: var(--surface-map);
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: var(--space-8) var(--space-8);
+}
+.demo-stage__route {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.demo-stage__sheet {
+  position: absolute;
+  left: var(--space-0);
+  right: var(--space-0);
+  bottom: var(--space-0);
+}
+
+.variant-cell {
+  align-items: stretch;
+  width: 100%;
+  max-width: 360px;
+}
+.variant-cell > .label {
+  align-self: center;
+  margin-top: var(--space-3);
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>org-route-sheet</em></h1>
+  <div class="subtitle">UC-ORG-04 · LSRouteSheet · LaneShadow V2 Copper · RouteDetails bottom sheet with metrics + weather + actions</div>
+</div>
+
+<!-- ─── Stories ─── -->
+<section class="section">
+  <div class="section-label">LSRouteSheet · five compositions bottom-anchored to a simulated map</div>
+  <div class="two-up">
+
+    <!-- LIGHT -->
+    <div class="theme-pane">
+      <div class="section-label">Light</div>
+      <div class="variant-grid">
+
+        <!-- S.01 Best Route -->
+        <div class="variant-cell">
+          <div class="demo-stage">
+            <div class="demo-stage__map">
+              <svg class="demo-stage__route" viewBox="0 0 360 680" fill="none" preserveAspectRatio="none">
+                <path d="M60 260 Q120 220 180 200 Q240 180 300 210" stroke="var(--route-best)" stroke-width="4" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="demo-stage__sheet">
+              <div class="mol-bottom-sheet">
+                <div class="mol-bottom-sheet__handle-bar"><div class="mol-bottom-sheet__handle"></div></div>
+                <div class="org-route-sheet">
+                  <div class="org-route-sheet__head">
+                    <div class="org-route-sheet__badge-row">
+                      <span class="ls-badge-best"><span class="t-label-sm">Best Route</span></span>
+                      <span class="t-label-sm org-route-sheet__scenic">
+                        <span class="org-route-sheet__scenic-dot org-route-sheet__scenic-dot--filled"></span>
+                        <span class="org-route-sheet__scenic-dot org-route-sheet__scenic-dot--filled"></span>
+                        <span class="org-route-sheet__scenic-dot org-route-sheet__scenic-dot--filled"></span>
+                        <span class="org-route-sheet__scenic-dot"></span>
+                        <span class="org-route-sheet__scenic-dot"></span>
+                        Scenic
+                      </span>
+                    </div>
+                    <div class="t-opinion-lg org-route-sheet__title">The Skyline Spine</div>
+                    <div class="t-body-sm org-route-sheet__via">via Kings Mountain Rd · Kings Mountain → Woodside</div>
+                  </div>
+                  <div class="mol-instrument-readout">
+                    <div class="mol-instrument-readout__divider"></div>
+                    <div class="mol-instrument-readout__grid mol-instrument-readout__grid--4">
+                      <div class="mol-instrument-readout__cell">
+                        <div class="t-label-sm mol-instrument-readout__label">Dist</div>
+                        <div class="t-instr-md mol-instrument-readout__value">47</div>
+                        <div class="t-label-sm mol-instrument-readout__unit">mi</div>
+                      </div>
+                      <div class="mol-instrument-readout__cell">
+                        <div class="t-label-sm mol-instrument-readout__label">Time</div>
+                        <div class="t-instr-md mol-instrument-readout__value">1:22</div>
+                        <div class="t-label-sm mol-instrument-readout__unit">hrs</div>
+                      </div>
+                      <div class="mol-instrument-readout__cell">
+                        <div class="t-label-sm mol-instrument-readout__label">Climb</div>
+                        <div class="t-instr-md mol-instrument-readout__value">3.2k</div>
+                        <div class="t-label-sm mol-instrument-readout__unit">ft</div>
+                      </div>
+                      <div class="mol-instrument-readout__cell">
+                        <div class="t-label-sm mol-instrument-readout__label">Scenic</div>
+                        <div class="t-instr-md mol-instrument-readout__value mol-instrument-readout__value--accent">4.8</div>
+                        <div class="t-label-sm mol-instrument-readout__unit">/ 5</div>
+                      </div>
+                    </div>
+                    <div class="mol-instrument-readout__divider"></div>
+                  </div>
+                  <div class="mol-weather-timeline">
+                    <div class="mol-weather-timeline__header">
+                      <div class="t-label-sm mol-weather-timeline__title">Weather along the way</div>
+                      <div class="t-instr-sm mol-weather-timeline__range">9am – 3pm</div>
+                    </div>
+                    <div class="mol-weather-timeline__cells mol-weather-timeline__cells--24h">
+                      <div class="mol-weather-timeline__cell mol-wx--clear"><span class="t-label-sm mol-weather-timeline__hour">9A</span><span class="mol-weather-timeline__icon">☀</span><span class="t-instr-sm mol-weather-timeline__temp">62°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--clear"><span class="t-label-sm mol-weather-timeline__hour">10A</span><span class="mol-weather-timeline__icon">☀</span><span class="t-instr-sm mol-weather-timeline__temp">65°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--clear"><span class="t-label-sm mol-weather-timeline__hour">11A</span><span class="mol-weather-timeline__icon">☀</span><span class="t-instr-sm mol-weather-timeline__temp">67°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--wind"><span class="t-label-sm mol-weather-timeline__hour">12P</span><span class="mol-weather-timeline__icon">🌬</span><span class="t-instr-sm mol-weather-timeline__temp">68°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--wind"><span class="t-label-sm mol-weather-timeline__hour">1P</span><span class="mol-weather-timeline__icon">🌬</span><span class="t-instr-sm mol-weather-timeline__temp">66°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--clear"><span class="t-label-sm mol-weather-timeline__hour">2P</span><span class="mol-weather-timeline__icon">☀</span><span class="t-instr-sm mol-weather-timeline__temp">64°</span></div>
+                    </div>
+                  </div>
+                  <div class="org-route-sheet__actions">
+                    <button class="ls-btn ls-btn--outline">
+                      <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2H12C12.6 2 13 2.4 13 3V14L8 11.5L3 14V3C3 2.4 3.4 2 4 2Z"/></svg>
+                      Save
+                    </button>
+                    <button class="ls-btn ls-btn--primary">
+                      Ride this
+                      <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2L10 7L4 12"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.01 · Best route</div>
+        </div>
+
+        <!-- S.02 Alt Route (no Best badge) -->
+        <div class="variant-cell">
+          <div class="demo-stage">
+            <div class="demo-stage__map">
+              <svg class="demo-stage__route" viewBox="0 0 360 680" fill="none" preserveAspectRatio="none">
+                <path d="M60 240 Q120 220 180 230 Q230 240 300 230" stroke="var(--route-alt1)" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-dasharray="6 4"/>
+              </svg>
+            </div>
+            <div class="demo-stage__sheet">
+              <div class="mol-bottom-sheet">
+                <div class="mol-bottom-sheet__handle-bar"><div class="mol-bottom-sheet__handle"></div></div>
+                <div class="org-route-sheet">
+                  <div class="org-route-sheet__head">
+                    <span class="t-label-sm org-route-sheet__scenic">
+                      <span class="org-route-sheet__scenic-dot org-route-sheet__scenic-dot--filled"></span>
+                      <span class="org-route-sheet__scenic-dot org-route-sheet__scenic-dot--filled"></span>
+                      <span class="org-route-sheet__scenic-dot"></span>
+                      <span class="org-route-sheet__scenic-dot"></span>
+                      <span class="org-route-sheet__scenic-dot"></span>
+                      Moderate scenic
+                    </span>
+                    <div class="t-opinion-lg org-route-sheet__title">Old La Honda Road</div>
+                    <div class="t-body-sm org-route-sheet__via">via Page Mill Rd · Palo Alto → Woodside</div>
+                  </div>
+                  <div class="mol-instrument-readout">
+                    <div class="mol-instrument-readout__divider"></div>
+                    <div class="mol-instrument-readout__grid mol-instrument-readout__grid--4">
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Dist</div><div class="t-instr-md mol-instrument-readout__value">38</div><div class="t-label-sm mol-instrument-readout__unit">mi</div></div>
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Time</div><div class="t-instr-md mol-instrument-readout__value">1:05</div><div class="t-label-sm mol-instrument-readout__unit">hrs</div></div>
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Climb</div><div class="t-instr-md mol-instrument-readout__value">2.1k</div><div class="t-label-sm mol-instrument-readout__unit">ft</div></div>
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Scenic</div><div class="t-instr-md mol-instrument-readout__value">3.6</div><div class="t-label-sm mol-instrument-readout__unit">/ 5</div></div>
+                    </div>
+                    <div class="mol-instrument-readout__divider"></div>
+                  </div>
+                  <div class="org-route-sheet__actions">
+                    <button class="ls-btn ls-btn--outline">
+                      <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2H12C12.6 2 13 2.4 13 3V14L8 11.5L3 14V3C3 2.4 3.4 2 4 2Z"/></svg>
+                      Save
+                    </button>
+                    <button class="ls-btn ls-btn--primary">
+                      Ride this
+                      <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2L10 7L4 12"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.02 · Alt route (no Best badge)</div>
+        </div>
+
+        <!-- S.03 Mixed Weather -->
+        <div class="variant-cell">
+          <div class="demo-stage">
+            <div class="demo-stage__map"></div>
+            <div class="demo-stage__sheet">
+              <div class="mol-bottom-sheet">
+                <div class="mol-bottom-sheet__handle-bar"><div class="mol-bottom-sheet__handle"></div></div>
+                <div class="org-route-sheet">
+                  <div class="org-route-sheet__head">
+                    <div class="t-opinion-lg org-route-sheet__title">Coastal Connector</div>
+                    <div class="t-body-sm org-route-sheet__via">via Hwy 1 · Half Moon Bay → Monterey</div>
+                  </div>
+                  <div class="mol-instrument-readout">
+                    <div class="mol-instrument-readout__divider"></div>
+                    <div class="mol-instrument-readout__grid mol-instrument-readout__grid--4">
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Dist</div><div class="t-instr-md mol-instrument-readout__value">52</div><div class="t-label-sm mol-instrument-readout__unit">mi</div></div>
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Time</div><div class="t-instr-md mol-instrument-readout__value">1:35</div><div class="t-label-sm mol-instrument-readout__unit">hrs</div></div>
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Climb</div><div class="t-instr-md mol-instrument-readout__value">1.4k</div><div class="t-label-sm mol-instrument-readout__unit">ft</div></div>
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Scenic</div><div class="t-instr-md mol-instrument-readout__value">4.5</div><div class="t-label-sm mol-instrument-readout__unit">/ 5</div></div>
+                    </div>
+                    <div class="mol-instrument-readout__divider"></div>
+                  </div>
+                  <div class="mol-weather-timeline">
+                    <div class="mol-weather-timeline__header">
+                      <div class="t-label-sm mol-weather-timeline__title">Weather along the way</div>
+                      <div class="t-instr-sm mol-weather-timeline__range">10am – 4pm</div>
+                    </div>
+                    <div class="mol-weather-timeline__cells mol-weather-timeline__cells--24h">
+                      <div class="mol-weather-timeline__cell mol-wx--clear"><span class="t-label-sm mol-weather-timeline__hour">10A</span><span class="mol-weather-timeline__icon">☀</span><span class="t-instr-sm mol-weather-timeline__temp">58°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--wind"><span class="t-label-sm mol-weather-timeline__hour">11A</span><span class="mol-weather-timeline__icon">🌬</span><span class="t-instr-sm mol-weather-timeline__temp">56°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--rain"><span class="t-label-sm mol-weather-timeline__hour">12P</span><span class="mol-weather-timeline__icon">🌧</span><span class="t-instr-sm mol-weather-timeline__temp">54°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--rain"><span class="t-label-sm mol-weather-timeline__hour">1P</span><span class="mol-weather-timeline__icon">🌧</span><span class="t-instr-sm mol-weather-timeline__temp">53°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--wind"><span class="t-label-sm mol-weather-timeline__hour">2P</span><span class="mol-weather-timeline__icon">🌬</span><span class="t-instr-sm mol-weather-timeline__temp">55°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--clear"><span class="t-label-sm mol-weather-timeline__hour">3P</span><span class="mol-weather-timeline__icon">☀</span><span class="t-instr-sm mol-weather-timeline__temp">57°</span></div>
+                    </div>
+                  </div>
+                  <div class="org-route-sheet__actions">
+                    <button class="ls-btn ls-btn--outline">
+                      <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2H12C12.6 2 13 2.4 13 3V14L8 11.5L3 14V3C3 2.4 3.4 2 4 2Z"/></svg>
+                      Save
+                    </button>
+                    <button class="ls-btn ls-btn--primary">
+                      Ride this
+                      <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2L10 7L4 12"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.03 · Mixed weather (clear + wind + rain)</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="theme-pane mode-dark">
+      <div class="section-label">Dark</div>
+      <div class="variant-grid">
+
+        <!-- Dark S.01 Best Route -->
+        <div class="variant-cell">
+          <div class="demo-stage">
+            <div class="demo-stage__map">
+              <svg class="demo-stage__route" viewBox="0 0 360 680" fill="none" preserveAspectRatio="none">
+                <path d="M60 260 Q120 220 180 200 Q240 180 300 210" stroke="var(--route-best)" stroke-width="4" fill="none" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="demo-stage__sheet">
+              <div class="mol-bottom-sheet">
+                <div class="mol-bottom-sheet__handle-bar"><div class="mol-bottom-sheet__handle"></div></div>
+                <div class="org-route-sheet">
+                  <div class="org-route-sheet__head">
+                    <div class="org-route-sheet__badge-row">
+                      <span class="ls-badge-best"><span class="t-label-sm">Best Route</span></span>
+                    </div>
+                    <div class="t-opinion-lg org-route-sheet__title">The Skyline Spine</div>
+                    <div class="t-body-sm org-route-sheet__via">via Kings Mountain Rd</div>
+                  </div>
+                  <div class="mol-instrument-readout">
+                    <div class="mol-instrument-readout__divider"></div>
+                    <div class="mol-instrument-readout__grid mol-instrument-readout__grid--4">
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Dist</div><div class="t-instr-md mol-instrument-readout__value">47</div><div class="t-label-sm mol-instrument-readout__unit">mi</div></div>
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Time</div><div class="t-instr-md mol-instrument-readout__value">1:22</div><div class="t-label-sm mol-instrument-readout__unit">hrs</div></div>
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Climb</div><div class="t-instr-md mol-instrument-readout__value">3.2k</div><div class="t-label-sm mol-instrument-readout__unit">ft</div></div>
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Scenic</div><div class="t-instr-md mol-instrument-readout__value mol-instrument-readout__value--accent">4.8</div><div class="t-label-sm mol-instrument-readout__unit">/ 5</div></div>
+                    </div>
+                    <div class="mol-instrument-readout__divider"></div>
+                  </div>
+                  <div class="org-route-sheet__actions">
+                    <button class="ls-btn ls-btn--outline">
+                      <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2H12C12.6 2 13 2.4 13 3V14L8 11.5L3 14V3C3 2.4 3.4 2 4 2Z"/></svg>
+                      Save
+                    </button>
+                    <button class="ls-btn ls-btn--primary">
+                      Ride this
+                      <svg width="var(--icon-sm)" height="var(--icon-sm)" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2L10 7L4 12"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.01 · Best route (dark)</div>
+        </div>
+
+        <!-- Dark S.03 Mixed Weather -->
+        <div class="variant-cell">
+          <div class="demo-stage">
+            <div class="demo-stage__map"></div>
+            <div class="demo-stage__sheet">
+              <div class="mol-bottom-sheet">
+                <div class="mol-bottom-sheet__handle-bar"><div class="mol-bottom-sheet__handle"></div></div>
+                <div class="org-route-sheet">
+                  <div class="org-route-sheet__head">
+                    <div class="t-opinion-lg org-route-sheet__title">Coastal Connector</div>
+                    <div class="t-body-sm org-route-sheet__via">via Hwy 1</div>
+                  </div>
+                  <div class="mol-instrument-readout">
+                    <div class="mol-instrument-readout__divider"></div>
+                    <div class="mol-instrument-readout__grid mol-instrument-readout__grid--4">
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Dist</div><div class="t-instr-md mol-instrument-readout__value">52</div><div class="t-label-sm mol-instrument-readout__unit">mi</div></div>
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Time</div><div class="t-instr-md mol-instrument-readout__value">1:35</div><div class="t-label-sm mol-instrument-readout__unit">hrs</div></div>
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Climb</div><div class="t-instr-md mol-instrument-readout__value">1.4k</div><div class="t-label-sm mol-instrument-readout__unit">ft</div></div>
+                      <div class="mol-instrument-readout__cell"><div class="t-label-sm mol-instrument-readout__label">Scenic</div><div class="t-instr-md mol-instrument-readout__value">4.5</div><div class="t-label-sm mol-instrument-readout__unit">/ 5</div></div>
+                    </div>
+                    <div class="mol-instrument-readout__divider"></div>
+                  </div>
+                  <div class="mol-weather-timeline">
+                    <div class="mol-weather-timeline__header">
+                      <div class="t-label-sm mol-weather-timeline__title">Weather along the way</div>
+                      <div class="t-instr-sm mol-weather-timeline__range">10am – 4pm</div>
+                    </div>
+                    <div class="mol-weather-timeline__cells mol-weather-timeline__cells--24h">
+                      <div class="mol-weather-timeline__cell mol-wx--clear"><span class="t-label-sm mol-weather-timeline__hour">10A</span><span class="mol-weather-timeline__icon">☀</span><span class="t-instr-sm mol-weather-timeline__temp">58°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--wind"><span class="t-label-sm mol-weather-timeline__hour">11A</span><span class="mol-weather-timeline__icon">🌬</span><span class="t-instr-sm mol-weather-timeline__temp">56°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--rain"><span class="t-label-sm mol-weather-timeline__hour">12P</span><span class="mol-weather-timeline__icon">🌧</span><span class="t-instr-sm mol-weather-timeline__temp">54°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--rain"><span class="t-label-sm mol-weather-timeline__hour">1P</span><span class="mol-weather-timeline__icon">🌧</span><span class="t-instr-sm mol-weather-timeline__temp">53°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--wind"><span class="t-label-sm mol-weather-timeline__hour">2P</span><span class="mol-weather-timeline__icon">🌬</span><span class="t-instr-sm mol-weather-timeline__temp">55°</span></div>
+                      <div class="mol-weather-timeline__cell mol-wx--clear"><span class="t-label-sm mol-weather-timeline__hour">3P</span><span class="mol-weather-timeline__icon">☀</span><span class="t-instr-sm mol-weather-timeline__temp">57°</span></div>
+                    </div>
+                  </div>
+                  <div class="org-route-sheet__actions">
+                    <button class="ls-btn ls-btn--outline">Save</button>
+                    <button class="ls-btn ls-btn--primary">Ride this</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="label">S.03 · Mixed weather (dark)</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</body>
+</html>

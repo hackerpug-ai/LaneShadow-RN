@@ -1,0 +1,171 @@
+{
+  "task": "UC-MOL-08-ios",
+  "review_round": 1,
+  "status": "NEEDS_FIXES",
+  "diff_reviewed": "git diff 69917ef488ed3ef95e8ec9318251d95193528634..4ecccd6d02a43c6532459a6ceda238dc3ede8a00",
+  "files_analyzed_count": 13,
+  "files_analyzed": [
+    "ios/LaneShadow/Views/Molecules/LSLocationContextBar.swift",
+    "ios/LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift",
+    "ios/LaneShadowTests/Molecules/LSLocationContextBarTests.swift",
+    "ios/LaneShadowTests/Molecules/LSRouteAttachmentCardTests.swift",
+    "ios/LaneShadow/Sandbox/Stories/Molecules/LSLocationContextBarStory.swift",
+    "ios/LaneShadow/Sandbox/Stories/Molecules/LSRouteAttachmentCardStory.swift",
+    "ios/LaneShadow/Sandbox/Stories/MoleculesStories.swift",
+    "ios/project.yml",
+    "ios/LaneShadow.xcodeproj/project.pbxproj",
+    "ios/LaneShadow/Views/Atoms/LSIcon.swift",
+    "tokens/platforms/swift/Sources/LaneShadowTheme/Generated/Tokens.swift",
+    "tokens/platforms/swift/Tests/LaneShadowThemeTests/ThemeTests.swift",
+    "ios/LaneShadow/Views/Molecules/RouteAttachmentCard.swift"
+  ],
+  "legacy_file_unchanged": {
+    "path": "ios/LaneShadow/Views/Molecules/RouteAttachmentCard.swift",
+    "unchanged": true
+  },
+  "mandatory_gates": {
+    "xcodebuild_test": {
+      "status": "blocked",
+      "details": "Attempted in this environment and failed before executing tests because CoreSimulator/temp/result-bundle writes are not permitted here. Packet-provided evidence says the targeted tests passed."
+    },
+    "xcodebuild_build": {
+      "status": "blocked",
+      "details": "Attempted in this environment and failed during package-resolution/temp-file writes. Packet-provided evidence says build passed."
+    },
+    "swiftlint": {
+      "status": "failed",
+      "details": "Repo-wide invocation exits nonzero in this environment and lints vendor/generated sources as well as project code."
+    },
+    "tc_8_no_literal_hex_or_system_image_in_molecule_source": {
+      "status": "passed",
+      "details": "No `Color(red:`, `Color(hex:`, or `Image(systemName:` usage in the two reviewed molecule files."
+    }
+  },
+  "validation_gates": [
+    {
+      "id": "SWUI-01",
+      "status": "passed",
+      "details": "No deprecated SwiftUI APIs found in `LSLocationContextBar.swift` or `LSRouteAttachmentCard.swift`."
+    },
+    {
+      "id": "SWUI-02",
+      "status": "passed",
+      "details": "No new `ObservableObject` usage."
+    },
+    {
+      "id": "CONC-01",
+      "status": "passed",
+      "details": "New route/context models are `Sendable`."
+    },
+    {
+      "id": "TOKEN-01",
+      "status": "failed",
+      "details": "Compact padding is expressed with raw literals and, more importantly, is not the actual rendered outer padding because `LSCard` adds its own padding first."
+    },
+    {
+      "id": "STATE-01",
+      "status": "passed",
+      "details": "No async/loading state required for these static molecules."
+    },
+    {
+      "id": "TEST-01",
+      "status": "failed",
+      "details": "No RED-phase evidence for this task was provided in the reviewed worktree."
+    },
+    {
+      "id": "TEST-02",
+      "status": "failed",
+      "details": "Key tests inspect source strings/helpers instead of asserting rendered behavior, and they missed two spec regressions."
+    },
+    {
+      "id": "CROSS-01",
+      "status": "failed",
+      "details": "Swift generated tokens were edited directly, while the upstream icon manifest and other generated platforms remain unsynced."
+    },
+    {
+      "id": "MOD-01",
+      "status": "failed",
+      "details": "No modular-design analysis artifact for this task was found."
+    },
+    {
+      "id": "DRY-01",
+      "status": "passed",
+      "details": "No obvious Rule-of-2 extraction miss in the new molecule files."
+    }
+  ],
+  "critical_issues": [
+    {
+      "severity": "CRITICAL",
+      "file": "tokens/platforms/swift/Sources/LaneShadowTheme/Generated/Tokens.swift:1",
+      "title": "Generated Swift token output was edited directly and is now out of sync with the token source of truth",
+      "problem": "The file is explicitly marked generated-only, but `circle` and `circleFill` were added only in the Swift generated output. The upstream manifest `tokens/semantic/icons.json` still contains 31 icons and does not list either icon, while other generated platforms remain unchanged (`tokens/platforms/web/tokens.ts` and `tokens/platforms/kotlin/.../Tokens.kt` still expose the old icon set). The Swift file also still carries the old input hash.",
+      "fix": "Add the icons to the token source of truth (`tokens/semantic/icons.json` plus SVG assets under `tokens/icons/` if needed), regenerate all platform outputs with the token generator, and commit the synchronized generated files. Do not hand-edit `Generated/Tokens.swift`.",
+      "violated_gates": [
+        "CROSS-01"
+      ]
+    }
+  ],
+  "high_issues": [
+    {
+      "severity": "HIGH",
+      "file": "ios/LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift:140",
+      "title": "Compact padding acceptance criterion is not actually met on screen",
+      "problem": "The molecule wraps content in `LSCard(padding: compact ? .spacing3 : .spacing4)`, and `LSCard` adds its own outer padding (`spacing3` = 12, `spacing4` = 16) before the molecule adds `contentPadding`. In compact mode the effective outer padding is therefore 22 vertical / 24 horizontal, not the required 10 / 12.",
+      "fix": "Make the card's outer padding actually resolve to the specified compact spacing, either by allowing `LSCard` to render without built-in padding for this use case or by moving the exact compact padding responsibility entirely into one layer.",
+      "violated_gates": [
+        "TOKEN-01"
+      ]
+    },
+    {
+      "severity": "HIGH",
+      "file": "ios/LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift:197",
+      "title": "Metrics row does not match the UC-MOL-08 spec",
+      "problem": "The spec/concept calls for mono distance + duration + 5-dot scenic meter + `SCENIC` label. The implementation instead renders distance, duration, elevation, and scenic dots, with no `SCENIC` label at all.",
+      "fix": "Remove the extra elevation metric from this molecule, add the required scenic label with the specified label typography, and update tests/stories to match the documented composition.",
+      "violated_gates": [
+        "STATE-01",
+        "TEST-02"
+      ]
+    }
+  ],
+  "medium_issues": [
+    {
+      "severity": "MEDIUM",
+      "file": "ios/LaneShadowTests/Molecules/LSRouteAttachmentCardTests.swift:52",
+      "title": "Tests still miss the real regressions that matter for this task",
+      "problem": "The strengthened tests assert helper values and source-string presence, but they do not verify actual rendered compact padding after `LSCard` composition and they do not assert the required `SCENIC` label. That allowed both spec mismatches above to pass.",
+      "fix": "Replace source-text assertions with behavior-focused tests around rendered composition/output contracts, and add coverage for effective compact padding and scenic label presence.",
+      "violated_gates": [
+        "TEST-02"
+      ]
+    }
+  ],
+  "improvements": [],
+  "tdd_quality": {
+    "red_phase_evidence": {
+      "status": "failed",
+      "details": "No current-task RED evidence was found in the reviewed worktree."
+    },
+    "tests_verify_behavior": {
+      "status": "failed",
+      "details": "Several tests validate source text or helper methods rather than end-user-visible behavior."
+    },
+    "edge_cases_covered": {
+      "status": "partial",
+      "details": "Scenic icon clamping is covered, but effective compact layout and required scenic labeling are not."
+    }
+  },
+  "cross_platform_check": {
+    "android_learnings_available_for_this_task": false,
+    "consistency_findings": [
+      "Legacy `RouteAttachmentCard.swift` remained unchanged as required.",
+      "Route stripe token names map correctly for `.best`, `.alt1`, and `.alt2` in the Swift molecule.",
+      "Token pipeline consistency is broken because only Swift generated output was edited; Kotlin and web generated outputs did not receive the same icon additions."
+    ]
+  },
+  "visual_verification": {
+    "status": "not_run",
+    "details": "Simulator-based visual verification was not possible in this environment because CoreSimulator/result-bundle writes are blocked."
+  },
+  "verdict_rationale": "The candidate fixes the prior star-vs-dot scenic meter regression, preserves the legacy molecule file, and adds the required stories/tests. However, it still fails the task at merge quality: the route card does not render the specified compact padding or metrics row, and the direct edit to generated Swift token output is a source-of-truth regression that will drift or be overwritten on the next token generation run."
+}

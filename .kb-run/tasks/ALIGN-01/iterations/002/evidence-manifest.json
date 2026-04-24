@@ -1,0 +1,24 @@
+{
+  "task_id": "ALIGN-01",
+  "host_validation": true,
+  "files": [
+    ".spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md"
+  ],
+  "commands": [
+    "test -f .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md",
+    "grep -c 'MISSING' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md",
+    "grep 'scrim-soft' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md | grep 'rgba(34,24,16,0.18)'",
+    "grep 'map.style.light\\|map.style.dark' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md | wc -l",
+    "grep 'sizing.stroke.md' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md | grep '\\b2\\b'",
+    "grep 'surface.scrim-soft\\|border.glass' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md",
+    "grep 'map.paper\\|map.contour\\|map.style' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md | wc -l",
+    "grep 'sizing.stroke' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md | wc -l",
+    "grep 'signal.hover\\|status.*tint' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md",
+    "grep -i 'android\\|kotlin\\|naming.mismatch\\|camelCase' .spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md",
+    "git diff --name-only | grep -vE 'drift-report\\.md' | grep -E '\\.swift|\\.kt' | wc -l"
+  ],
+  "notes": [
+    "Task scope is limited to the sprint drift report markdown.",
+    "The runner checksum artifact warning came from .kb-run-sprint-codex/.state.json.sha256 and was restored before validation."
+  ]
+}

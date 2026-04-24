@@ -1,0 +1,86 @@
+{
+  "verdict": "APPROVED",
+  "confidence": "HIGH",
+  "tasks": [
+    {
+      "id": "ALIGN-01",
+      "verdict": "APPROVED",
+      "requirements": [
+        {
+          "id": "AC-1",
+          "satisfied": true,
+          "evidence": "The report includes `surface.scrim-soft` and `border.glass` rows with the required light and dark values.",
+          "remediation": null
+        },
+        {
+          "id": "AC-2",
+          "satisfied": true,
+          "evidence": "The report includes `map.paper`, `map.contour`, `map.contour-faint`, `map.style.light`, and `map.style.dark` as discrete missing rows.",
+          "remediation": null
+        },
+        {
+          "id": "AC-3",
+          "satisfied": true,
+          "evidence": "The report includes exactly three `sizing.stroke.*` rows, and the verifier `grep 'sizing.stroke' ... | wc -l` now returns `3`.",
+          "remediation": null
+        },
+        {
+          "id": "AC-4",
+          "satisfied": true,
+          "evidence": "The report includes `signal.hover` and all `status.*-tint` keys as discrete missing rows.",
+          "remediation": null
+        },
+        {
+          "id": "AC-5",
+          "satisfied": true,
+          "evidence": "The report preserves separate iOS and Android columns and expands the `naming.mismatch` section into discrete `space.*` and `size.icon-*` rows.",
+          "remediation": null
+        },
+        {
+          "id": "OUTCOME",
+          "satisfied": true,
+          "evidence": "The report now covers the real unresolved drift families across theme, mapbox, and dimensions contracts, and it explicitly documents the legacy theme-vs-dimensions dependencies that block a clean second-theme migration.",
+          "remediation": null
+        },
+        {
+          "id": "TC-1",
+          "satisfied": true,
+          "evidence": "`drift-report.md` exists in the required task path.",
+          "remediation": null
+        },
+        {
+          "id": "TC-2",
+          "satisfied": true,
+          "evidence": "`grep -c 'MISSING'` returns `61`, well above the required threshold.",
+          "remediation": null
+        },
+        {
+          "id": "TC-3",
+          "satisfied": true,
+          "evidence": "The `surface.scrim-soft` row contains the required light value `rgba(34,24,16,0.18)`.",
+          "remediation": null
+        },
+        {
+          "id": "TC-4",
+          "satisfied": true,
+          "evidence": "Both `map.style.light` and `map.style.dark` rows are present.",
+          "remediation": null
+        },
+        {
+          "id": "TC-5",
+          "satisfied": true,
+          "evidence": "The `sizing.stroke.md` row records the expected value `2`.",
+          "remediation": null
+        },
+        {
+          "id": "TC-6",
+          "satisfied": true,
+          "evidence": "The checkpoint diff changes only `.spec/prds/v2/tasks/sprint-03-design-system-alignment/drift-report.md`.",
+          "remediation": null
+        }
+      ]
+    }
+  ],
+  "findings": [],
+  "summary": "Approved. ALIGN-01 now reads as a real cross-platform drift audit rather than a spot-check list: the required rows are present, the missing drift families are enumerated, the naming-mismatch section is discrete and deterministic, and the legacy theme/schema dependencies blocking second-theme migration are explicitly documented."
+}

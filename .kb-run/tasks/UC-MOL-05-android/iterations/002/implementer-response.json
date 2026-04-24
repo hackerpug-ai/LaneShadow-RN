@@ -1,0 +1,22 @@
+Commit `079b8e4c9a666a42434a18bb66fcde27c0b29855` is in place and the worktree is clean.
+
+Files changed:
+- [LSText.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/main/java/com/laneshadow/ui/atoms/LSText.kt)
+- [LSWeatherBadge.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/main/java/com/laneshadow/ui/molecules/LSWeatherBadge.kt)
+- [LSTextTest.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/test/java/com/laneshadow/ui/atoms/LSTextTest.kt)
+- [LSWeatherBadgeTest.kt](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-05-android/android/app/src/test/java/com/laneshadow/ui/molecules/LSWeatherBadgeTest.kt)
+
+The weather label now stays in `LSText`, but its color comes from the same condition-specific token family as the icon: `LSWeatherBadge` passes `style.iconColor.asTextColor()`, and `LSText` now supports a typed `TextColor.Weather(...)` path instead of forcing `ContentColor.Primary`. The border still uses `style.borderColor`, so icon, label, and border stay aligned on the same weather semantic.
+
+Validation run:
+- `cd android && ./gradlew detekt` — PASS
+- `cd android && ./gradlew :app:compileDebugKotlin` — PASS
+- `cd android && ./gradlew test` — PASS
+- `cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSWeatherBadgeTest.rain_condition_resolves_correct_tint_and_icon'` — PASS
+- `cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSWeatherBadgeTest.all_six_conditions_resolve_distinct_tints'` — PASS
+- `grep -n 'Color(0xFF' ... | wc -l | grep -x '0'` — FAIL as written in this shell because `wc -l` emits padded spaces; equivalent count check returned `0`, so the no-inline-color gate is satisfied
+- Connected-device tests were not run; the environment still does not provide a connected device/emulator for instrumentation execution
+
+Test coverage change:
+- `LSWeatherBadgeTest.rain_condition_resolves_correct_tint_and_icon` now checks the molecule wiring itself: it verifies `LSText` is used, verifies `style.iconColor.asTextColor()` is the label path, and rejects raw `Text` import and `ContentColor.Primary`
+- `LSTextTest` now verifies `LSText` supports the new typed `TextColor` overload while still rejecting raw `Color` parameters

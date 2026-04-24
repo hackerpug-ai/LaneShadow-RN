@@ -1,0 +1,25 @@
+**Commit**
+`69917ef488ed3ef95e8ec9318251d95193528634` (`Fix iOS pill surface styling regressions`)
+
+**Changed Files**
+- `ios/LaneShadow/Views/Molecules/LSTagPill.swift`
+- `ios/LaneShadow/Views/Molecules/LSFilterChip.swift`
+- `ios/LaneShadow/Views/Molecules/LSSuggestionChip.swift`
+- `ios/LaneShadow/Views/Molecules/LSWeatherBadge.swift`
+- `ios/LaneShadowTests/Molecules/LSTagPillTests.swift`
+- `ios/LaneShadowTests/Molecules/LSFilterChipTests.swift`
+- `ios/LaneShadowTests/Molecules/LSSuggestionChipTests.swift`
+- `ios/LaneShadowTests/Molecules/LSWeatherBadgeTests.swift`
+
+Surface styling now attaches to `LSPill` itself in all four molecules: the fill and border modifiers were moved off the inner `HStack`/`LSText` subtree and chained onto the outer `LSPill` view, and the extra inner horizontal padding used to fake pill bounds was removed. Inner composition still flows through `LSIcon` and `LSText` only.
+
+Test coverage is stronger in all four molecule test files. Each suite now asserts that the `LSPill` content closure contains no `.background`, `.overlay`, or inner horizontal padding, while the single surface `.background` and `.overlay` remain on the trailing `LSPill` modifier chain and still use `style.backgroundColor` / `style.borderColor`. That directly catches the reviewer’s regression.
+
+**Validation**
+- `swiftformat --lint ...` — PASS
+- `cd ios && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` — PASS
+- `cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSTagPillTests -only-testing:LaneShadowTests/LSFilterChipTests -only-testing:LaneShadowTests/LSSuggestionChipTests -only-testing:LaneShadowTests/LSWeatherBadgeTests` — PASS
+- `grep -n 'Capsule()\|Color(red:\|Color(hex:\|Font.system' ... | wc -l | xargs test 0 -eq` — PASS
+- `git commit` with hooks enabled — PASS
+
+The worktree is not fully clean because it started with two unrelated modified generated files I did not touch: `.kb-run-sprint-codex/.state.json.sha256` and `ios/LaneShadow.xcodeproj/project.pbxproj.backup`. I left them alone because your task rules explicitly forbid touching `.kb-run*` orchestrator state and unrelated generated project artifacts.

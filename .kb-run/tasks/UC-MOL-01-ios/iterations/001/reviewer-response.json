@@ -1,0 +1,72 @@
+{
+  "verdict": "NEEDS_FIXES",
+  "confidence": "MEDIUM",
+  "tasks": [
+    {
+      "id": "UC-MOL-01-ios",
+      "verdict": "NEEDS_FIXES",
+      "requirements": [
+        {
+          "id": "AC-1",
+          "satisfied": false,
+          "evidence": "The contract requires `LSContentCardTests.test_default_render_uses_surface_card_tokens`, but [ios/LaneShadowTests/Molecules/LSContentCardTests.swift:6] defines `test_default_render_routes_surface_and_typography_through_atoms` instead, so the required `-only-testing` gate cannot pass.",
+          "remediation": "Add or rename the exact contract test method and make it assert rendered token behavior rather than source-string presence."
+        },
+        {
+          "id": "AC-2",
+          "satisfied": false,
+          "evidence": "The contract requires `test_action_footer_slot_renders_below_metadata`, but [ios/LaneShadowTests/Molecules/LSContentCardTests.swift:22] defines a different method and only checks `hasActionsFooter`/zero padding, not footer placement or atom-preserving footer rendering.",
+          "remediation": "Add the exact required test name and verify rendered footer ordering/gap with actual view inspection."
+        },
+        {
+          "id": "AC-3",
+          "satisfied": false,
+          "evidence": "The contract requires `LSListRowTests.test_layout_tokens_and_minimum_touch_target`, but [ios/LaneShadowTests/Molecules/LSListRowTests.swift:6] defines `test_list_row_uses_touch_target_and_spacing_tokens`; it only searches source text and property values, not rendered layout.",
+          "remediation": "Add the exact contract test and verify min height, spacing, and chevron composition through rendered view behavior."
+        },
+        {
+          "id": "AC-4",
+          "satisfied": false,
+          "evidence": "The contract requires a single `test_ontap_fires_once_and_no_highlight_without_handler`, but [ios/LaneShadowTests/Molecules/LSListRowTests.swift:23] and [ios/LaneShadowTests/Molecules/LSListRowTests.swift:39] split it into helper-level checks; `handleTap()` is called directly instead of simulating a tap.",
+          "remediation": "Implement the exact contract test and verify tap/highlight behavior through the public interactive surface, not internal helpers."
+        },
+        {
+          "id": "AC-5",
+          "satisfied": true,
+          "evidence": "Manual grep returned `0` matches for `Color(red:|Color(hex:|Font.system|foregroundColor(` across `LSContentCard.swift` and `LSListRow.swift`.",
+          "remediation": null
+        },
+        {
+          "id": "AC-6",
+          "satisfied": false,
+          "evidence": "The contract requires `LSContentCardTests.test_all_ten_stories_registered`, but no such selector exists; story checks are split across [ios/LaneShadowTests/Molecules/LSContentCardTests.swift:50] and [ios/LaneShadowTests/Molecules/LSListRowTests.swift:63], and they only grep source strings rather than verifying all 10 stories render in light/dark.",
+          "remediation": "Add the exact aggregate story-registration test and verify both families render under light and dark themes."
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "severity": "HIGH",
+      "task_id": "UC-MOL-01-ios",
+      "location": "ios/LaneShadowTests/Molecules/LSContentCardTests.swift:6",
+      "evidence": "The required contract test selectors are missing or renamed. The task contract expects `test_default_render_uses_surface_card_tokens`, `test_action_footer_slot_renders_below_metadata`, and `test_all_ten_stories_registered`, but this file defines different methods, so the documented `xcodebuild -only-testing` verification commands cannot pass.",
+      "fix": "Add or rename the exact XCTest methods required by the contract so the prescribed verification commands are valid."
+    },
+    {
+      "severity": "HIGH",
+      "task_id": "UC-MOL-01-ios",
+      "location": "ios/LaneShadowTests/Molecules/LSListRowTests.swift:23",
+      "evidence": "The new molecule tests are not behavior tests. They inspect source strings, stored properties, and call `handleTap()` directly instead of exercising rendered SwiftUI views, tap handling, pressed-state behavior, or light/dark story rendering.",
+      "fix": "Replace source-string and helper-call assertions with real view inspection/UI interaction tests that verify rendered layout, user taps, highlight behavior, and story registration outcomes."
+    },
+    {
+      "severity": "MEDIUM",
+      "task_id": "UC-MOL-01-ios",
+      "location": "ios/LaneShadow/Views/Molecules/LSListRow.swift:121",
+      "evidence": "`.toggle(isOn:)` is rendered as `LSIcon(name: isOn ? .circleFill : .circle, ...)`, which is a static icon, not a semantic toggle/switch. The 'With Toggle' variant therefore lacks toggle behavior and accessibility semantics from the design reference.",
+      "fix": "Implement a semantic trailing toggle control for the `.toggle` case, or explicitly narrow the API/story to a non-interactive status indicator if that is the intended scope."
+    }
+  ],
+  "summary": "NEEDS_FIXES: the delivery contract is not met because the required XCTest selectors were not implemented as specified, and the added tests do not verify molecule behavior. The forbidden-API grep and scoped SwiftFormat lint passed, but `xcodebuild build/test` could not be validated in this read-only sandbox because package-resolution/CoreSimulator writes were permission-denied, and repo-wide `swiftlint` did not exit cleanly."
+}

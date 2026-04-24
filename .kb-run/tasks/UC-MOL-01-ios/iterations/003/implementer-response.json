@@ -1,0 +1,58 @@
+Implemented the UC-MOL-01-ios remediation on the task worktree and committed it as `c02124017eced04d4adf1612938fc001b3d10ad8`.
+
+**Commit**
+- Base SHA: `13eeac25b48a66e97ba6265bceca4ec61dbe0b0f`
+- Commit SHA: `c02124017eced04d4adf1612938fc001b3d10ad8`
+
+**Changed Files**
+- [LSContentCard.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/LaneShadow/Views/Molecules/LSContentCard.swift)
+- [LSListRow.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/LaneShadow/Views/Molecules/LSListRow.swift)
+- [LSContentCardTests.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/LaneShadowTests/Molecules/LSContentCardTests.swift)
+- [LSListRowTests.swift](/Users/justinrich/Projects/LaneShadow/.kb-run/worktrees/UC-MOL-01-ios/ios/LaneShadowTests/Molecules/LSListRowTests.swift)
+
+**Validation**
+- `swiftformat --lint ios/LaneShadow/Views/Molecules/LSContentCard.swift ios/LaneShadow/Views/Molecules/LSListRow.swift ios/LaneShadowTests/Molecules/LSContentCardTests.swift ios/LaneShadowTests/Molecules/LSListRowTests.swift` -> PASS
+- `cd ios && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` -> PASS
+- `cd ios && xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` -> PASS
+- `grep -n 'Color(red:\|Color(hex:\|Font.system\|foregroundColor(' ios/LaneShadow/Views/Molecules/LSContentCard.swift ios/LaneShadow/Views/Molecules/LSListRow.swift | wc -l | xargs test 0 -eq` -> PASS
+- Hook validation during commit:
+  - `swiftformat` -> PASS
+  - iOS typecheck/build hook -> PASS with existing unrelated warnings in `LaneShadowSandboxEntry.swift` and `MarkdownText.swift`
+
+**RED -> GREEN Evidence**
+- RED:
+  - Replayed the new public-surface tests against the iteration start commit `13eeac25b48a66e97ba6265bceca4ec61dbe0b0f` in a detached harness worktree using the current rewritten test files.
+  - Command:
+    - `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LSContentCardTests/test_default_render_uses_surface_card_tokens -only-testing:LaneShadowTests/LSContentCardTests/test_action_footer_slot_renders_below_metadata -only-testing:LaneShadowTests/LSListRowTests/test_layout_tokens_and_minimum_touch_target -only-testing:LaneShadowTests/LSListRowTests/test_ontap_fires_once_and_no_highlight_without_handler`
+  - Result: FAIL (`** TEST FAILED **`)
+  - Concrete failure:
+    - `LSListRowTests.test_ontap_fires_once_and_no_highlight_without_handler`
+    - `XCTUnwrap failed: expected non-nil value of type "UIControl"`
+  - This proves the pre-remediation implementation did not expose the required public interactive surface.
+- GREEN:
+  - Targeted public-surface selectors passed in the remediation worktree:
+    - `LSContentCardTests.test_default_render_uses_surface_card_tokens`
+    - `LSContentCardTests.test_action_footer_slot_renders_below_metadata`
+    - `LSListRowTests.test_layout_tokens_and_minimum_touch_target`
+    - `LSListRowTests.test_ontap_fires_once_and_no_highlight_without_handler`
+  - Full scheme test run also passed with `** TEST SUCCEEDED **`.
+
+**How AC-1 through AC-4 Are Proven Now**
+- AC-1:
+  - `test_default_render_uses_surface_card_tokens` hosts a real `LSContentCard`, inspects the rendered card layer, and verifies runtime geometry/elevation/padding while also confirming the molecule composes through `LSCard` and `LSText`.
+- AC-2:
+  - `test_action_footer_slot_renders_below_metadata` compares hosted with-actions and without-actions renders, verifies divider/footer ordering below metadata, and verifies the footer/gap disappears when actions are absent.
+- AC-3:
+  - `test_layout_tokens_and_minimum_touch_target` hosts a real `LSListRow`, inspects layer geometry for spacing/order, and verifies the rendered row surface reaches the minimum touch-target height.
+- AC-4:
+  - `LSListRow` now exposes a real transparent `UIControl` interaction surface through `LSListRowInteractionSurface`.
+  - `test_ontap_fires_once_and_no_highlight_without_handler` sends `.touchUpInside` through that control and verifies exactly one callback, while separately proving the static row path exposes no interactive control ancestor.
+
+**Screenshot Artifact**
+- Valid molecule screenshot captured at:
+  - [uc-mol-01-ios-remediation-iteration-003.png](/Users/justinrich/Projects/LaneShadow/.kb-run/tasks/UC-MOL-01-ios/iterations/003/uc-mol-01-ios-remediation-iteration-003.png)
+- The artifact shows the `molecules.contentCard.withActions` sandbox detail page and preview card, not the simulator home screen.
+
+**Residual Risk**
+- The task worktree still shows the pre-existing dirty `.kb-run-sprint-codex/.state.json.sha256` file, which I did not modify.
+- Full-scheme test output still contains unrelated pre-existing SwiftUI environment warnings from `MarkdownTextTests`; they do not originate from this remediation and did not fail the suite.
