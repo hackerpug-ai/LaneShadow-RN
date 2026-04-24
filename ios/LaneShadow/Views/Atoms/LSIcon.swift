@@ -113,6 +113,10 @@ public struct LSIcon: View {
             stroke(chevRPath, in: &context, strokeWidth: strokeWidth, foreground: foreground)
         case .clock:
             stroke(clockPath, in: &context, strokeWidth: strokeWidth, foreground: foreground)
+        case .circle:
+            stroke(circlePath, in: &context, strokeWidth: strokeWidth, foreground: foreground)
+        case .circleFill:
+            fillAndStroke(circlePath, in: &context, strokeWidth: strokeWidth, foreground: foreground)
         case .close:
             stroke(closePath, in: &context, strokeWidth: strokeWidth, foreground: foreground)
         case .collapse:
@@ -270,6 +274,12 @@ public struct LSIcon: View {
         var path = Path()
         addCircle(&path, center: CGPoint(x: 12, y: 12), radius: 10)
         addPolyline(&path, [CGPoint(x: 12, y: 6), CGPoint(x: 12, y: 12), CGPoint(x: 16, y: 14)])
+        return path
+    }
+
+    private var circlePath: Path {
+        var path = Path()
+        addCircle(&path, center: CGPoint(x: 12, y: 12), radius: 8)
         return path
     }
 

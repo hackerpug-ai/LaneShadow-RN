@@ -42,7 +42,7 @@ private struct EmptyStateWithIllustrationStory: View {
                 icon: .route,
                 title: "No routes found",
                 body: "Try adjusting your filters or search area to see more routes.",
-                action: .primary("Clear Filters") { }
+                action: .primary("Clear Filters") {}
             )
         }
     }
@@ -66,7 +66,7 @@ private struct EmptyStateWithActionStory: View {
                 icon: .bike,
                 title: "No rides yet",
                 body: "Record your first ride to see it here.",
-                action: .primary("Start a Ride") { }
+                action: .primary("Start a Ride") {}
             )
         }
     }

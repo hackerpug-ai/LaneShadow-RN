@@ -1,13 +1,12 @@
 import LaneShadowTheme
 import SwiftUI
 import Testing
-
 @testable import LaneShadow
 
 @MainActor
 struct LSFormFieldTests {
     @Test("test_default_render_routes_through_lstextfield_atom")
-    func test_default_render_routes_through_lstextfield_atom() async throws {
+    func default_render_routes_through_lstextfield_atom() {
         // GIVEN: developer instantiates LSFormField with label, value binding, placeholder, and no error
         let formField = LSFormField(
             label: "Email",
@@ -24,7 +23,7 @@ struct LSFormFieldTests {
     }
 
     @Test("test_error_state_renders_error_text_in_danger_color")
-    func test_error_state_renders_error_text_in_danger_color() async throws {
+    func error_state_renders_error_text_in_danger_color() {
         // GIVEN: developer instantiates LSFormField with error message
         let formField = LSFormField(
             label: "Email",
@@ -41,7 +40,7 @@ struct LSFormFieldTests {
     }
 
     @Test("test_all_eight_molecule_stories_registered")
-    func test_all_eight_molecule_stories_registered() async throws {
+    func all_eight_molecule_stories_registered() {
         // This test will be implemented when stories are added
         // For now, it's a placeholder to ensure the test file exists
         #expect(true)

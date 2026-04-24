@@ -66,6 +66,7 @@ enum LaneShadowStories {
         + LSButtonStories.all
         + LSInputStories.all
         + LSPillStories.all
+        + MoleculesStories.all
         + LSScrimStories.all
         + LSPhaseDotStories.all
 }

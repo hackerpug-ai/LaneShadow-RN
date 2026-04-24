@@ -19,8 +19,8 @@ public struct LSTabItem: View {
     ) {
         self.icon = icon
         self.label = label
-        self.isSelected = selected
-        self.isDisabled = disabled
+        isSelected = selected
+        isDisabled = disabled
         self.action = action
     }
 
@@ -35,7 +35,8 @@ public struct LSTabItem: View {
 
                 if let label {
                     LSText(label, variant: .label.sm)
-                        .foregroundStyle(isSelected ? theme.colors.primary.default : ContentColor.tertiary.resolved(in: theme))
+                        .foregroundStyle(isSelected ? theme.colors.primary.default : ContentColor.tertiary
+                            .resolved(in: theme))
                 }
 
                 if isSelected {

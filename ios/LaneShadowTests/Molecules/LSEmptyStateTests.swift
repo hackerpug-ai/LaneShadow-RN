@@ -1,19 +1,18 @@
 import LaneShadowTheme
 import SwiftUI
 import Testing
-
 @testable import LaneShadow
 
 @MainActor
 struct LSEmptyStateTests {
     @Test("test_centered_layout_with_icon_text_and_button_atoms")
-    func test_centered_layout_with_icon_text_and_button_atoms() async throws {
+    func centered_layout_with_icon_text_and_button_atoms() {
         // GIVEN: developer instantiates LSEmptyState with icon, title, body, and action
         let emptyState = LSEmptyState(
             icon: .layers,
             title: "No rides yet",
             body: "Record your first ride.",
-            action: .primary("Get Started") { }
+            action: .primary("Get Started") {}
         )
 
         // WHEN: view body resolves
@@ -23,7 +22,7 @@ struct LSEmptyStateTests {
     }
 
     @Test("test_action_button_fires_callback_once")
-    func test_action_button_fires_callback_once() async throws {
+    func action_button_fires_callback_once() {
         // GIVEN: LSEmptyState rendered with action closure
         var callbackCount = 0
         let emptyState = LSEmptyState(

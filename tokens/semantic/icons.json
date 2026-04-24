@@ -17,6 +17,8 @@
     "starFill",
     "pin",
     "clock",
+    "circle",
+    "circleFill",
     "sun",
     "rain",
     "wind",

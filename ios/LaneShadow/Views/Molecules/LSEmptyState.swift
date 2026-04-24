@@ -23,7 +23,7 @@ public struct LSEmptyState: View {
     ) {
         self.icon = icon
         self.title = title
-        self.bodyText = body
+        bodyText = body
         self.action = action
     }
 
@@ -51,11 +51,11 @@ public struct LSEmptyState: View {
 
             if let action {
                 switch action {
-                case .primary(let title, let callback):
+                case let .primary(title, callback):
                     LSButton(title, variant: .primary, action: callback)
-                case .secondary(let title, let callback):
+                case let .secondary(title, callback):
                     LSButton(title, variant: .secondary, action: callback)
-                case .ghost(let title, let callback):
+                case let .ghost(title, callback):
                     LSButton(title, variant: .ghost, action: callback)
                 }
             }
