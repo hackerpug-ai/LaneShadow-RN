@@ -138,6 +138,8 @@ targets:
       - path: LaneShadow/Sandbox/Stories/LSPhaseDotStories.swift
       - path: LaneShadow/Sandbox/Stories/LSTextStories.swift
       - path: LaneShadow/Sandbox/Stories/MoleculesStories.swift
+      - path: LaneShadow/Sandbox/Stories/Molecules/LSContentCardStory.swift
+      - path: LaneShadow/Sandbox/Stories/Molecules/LSListRowStory.swift
       - path: LaneShadow/Sandbox/Stories/Molecules/LSPillSemanticsStory.swift
       - path: LaneShadow/Sandbox/Stories/Molecules/LSLocationContextBarStory.swift
       - path: LaneShadow/Sandbox/Stories/Molecules/LSRouteAttachmentCardStory.swift
@@ -154,6 +156,8 @@ targets:
       - path: LaneShadow/Views/Molecules/LSFilterChip.swift
       - path: LaneShadow/Views/Molecules/LSSuggestionChip.swift
       - path: LaneShadow/Views/Molecules/LSWeatherBadge.swift
+      - path: LaneShadow/Views/Molecules/LSContentCard.swift
+      - path: LaneShadow/Views/Molecules/LSListRow.swift
       - path: LaneShadow/Views/Molecules/LSLocationContextBar.swift
       - path: LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift
     dependencies:
@@ -206,6 +210,8 @@ targets:
       - path: LaneShadowTests/Molecules/LSWeatherBadgeTests.swift
       - path: LaneShadowTests/Molecules/LSLocationContextBarTests.swift
       - path: LaneShadowTests/Molecules/LSRouteAttachmentCardTests.swift
+      - path: LaneShadowTests/Molecules/LSContentCardTests.swift
+      - path: LaneShadowTests/Molecules/LSListRowTests.swift
       # Legacy molecule tests are intentionally outside the managed folder
       # until the molecule implementation layer is migrated.
     dependencies:
