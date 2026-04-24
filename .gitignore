@@ -145,3 +145,6 @@ tokens/platforms/**/build/
 # Gradle build artifacts for the theme module
 tokens/platforms/kotlin/build/
 tokens/platforms/kotlin/.gradle/
+
+# Generated Mapbox access token
+android/app/src/main/res/values/secrets.xml

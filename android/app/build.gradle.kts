@@ -7,6 +7,23 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
+// Generate secrets.xml from environment variables before build
+val generateSecretsXml by tasks.registering {
+    val outputFile = file("src/main/res/values/secrets.xml")
+    outputs.file(outputFile)
+    doLast {
+        val token = System.getenv("MAPBOX_ACCESS_TOKEN") ?: ""
+        outputFile.parentFile.mkdirs()
+        outputFile.writeText("""
+            <?xml version="1.0" encoding="utf-8"?>
+            <resources>
+                <string name="mapbox_access_token">$token</string>
+            </resources>
+        """.trimIndent())
+    }
+}
+tasks.named("preBuild") { dependsOn(generateSecretsXml) }
+
 fun readConvexDeployment(): String {
     val envFile = listOf(
         File(rootDir, "../server/.env.local"),
@@ -95,6 +112,9 @@ dependencies {
 
     // Kotlinx Serialization for JSON parsing
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
+    // Mapbox Maps SDK for Android (commented out - requires MAPBOX_DOWNLOADS_TOKEN)
+    // implementation("com.mapbox.maps:android:2.14.0")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation(project(":theme"))

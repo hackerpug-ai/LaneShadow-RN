@@ -72,5 +72,6 @@ object AtomsStories {
             LSButtonStories.all +
             LSDisplayStories.all +
             LSInputStories.all +
-            LSSurfaceStories.all
+            LSSurfaceStories.all +
+            LSMapStories.all
 }
