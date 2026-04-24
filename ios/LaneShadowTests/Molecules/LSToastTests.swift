@@ -27,6 +27,10 @@ final class LSToastTests: XCTestCase {
     func test_auto_dismiss_fires_after_motion_recipe_duration() throws {
         let source = try moleculeSource(named: "LSToast.swift")
         let recipe = LSToast.dismissRecipe(in: Theme.shared)
+        let expectedDismissDuration = try XCTUnwrap(
+            Theme.shared.motion.duration["fast"],
+            "motion.recipe.chatOverlayDismiss should resolve through motion.duration.fast"
+        )
         let coordinator = LSToastDismissCoordinator()
         var dismissCount = 0
 
@@ -37,10 +41,12 @@ final class LSToastTests: XCTestCase {
             dismissCount += 1
         }
 
-        XCTAssertEqual(recipe.visibleDurationMilliseconds, 5000)
+        XCTAssertEqual(recipe.visibleDurationMilliseconds, expectedDismissDuration)
+        XCTAssertEqual(recipe.animationDurationMilliseconds, expectedDismissDuration)
         XCTAssertEqual(dismissCount, 1)
         XCTAssertTrue(source.contains("Task.sleep"))
         XCTAssertFalse(source.contains("DispatchQueue.main.asyncAfter"))
+        XCTAssertFalse(source.contains(String(50 * 100)))
     }
 
     private func moleculeSource(named fileName: String) throws -> String {

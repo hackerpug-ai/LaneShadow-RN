@@ -288,11 +288,19 @@ extension LSToast {
         )
     }
 
+    private static func dismissDurationMilliseconds(in theme: Theme) -> Int {
+        // The semantic token file keeps recipes as references, so the toast resolves
+        // the named dismiss contract through the backing duration token here.
+        theme.motion.duration["fast"] ?? 120
+    }
+
     static func dismissRecipe(in theme: Theme) -> LSToastDismissRecipe {
-        LSToastDismissRecipe(
+        let dismissDurationMilliseconds = dismissDurationMilliseconds(in: theme)
+
+        return LSToastDismissRecipe(
             name: "motion.recipe.chatOverlayDismiss",
-            visibleDurationMilliseconds: 5000,
-            animationDurationMilliseconds: theme.motion.duration["fast"] ?? 120,
+            visibleDurationMilliseconds: dismissDurationMilliseconds,
+            animationDurationMilliseconds: dismissDurationMilliseconds,
             easing: theme.motion.easing["linear"] ?? [0, 0, 1, 1]
         )
     }
