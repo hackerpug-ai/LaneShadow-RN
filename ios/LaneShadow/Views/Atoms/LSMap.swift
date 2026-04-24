@@ -113,6 +113,7 @@ public enum MapError: String, CaseIterable, Equatable, Sendable {
 }
 
 @MainActor
+@ViewBuilder
 public func LSMap(
     mode: MapMode,
     camera: CameraPosition,
@@ -122,18 +123,34 @@ public func LSMap(
     showFavorites: Bool = false,
     onTap: ((LatLng) -> Void)? = nil
 ) -> some View {
-    LSMapStubView(
-        mode: mode,
-        camera: camera,
-        cameraFit: cameraFit,
-        polylines: polylines,
-        annotations: annotations,
-        showFavorites: showFavorites,
-        onTap: onTap
-    )
+    // Check for Mapbox access token in Info.plist
+    let hasToken = Bundle.main.infoDictionary?["MBXAccessToken"] as? String != nil
+
+    if hasToken {
+        // Production Mapbox implementation
+        LSMapUIViewRepresentable(
+            mode: mode,
+            camera: camera,
+            cameraFit: cameraFit,
+            polylines: polylines,
+            annotations: annotations,
+            onTap: onTap
+        )
+    } else {
+        // Fallback error state
+        LSMapErrorView(
+            mode: mode,
+            camera: camera,
+            cameraFit: cameraFit,
+            polylines: polylines,
+            annotations: annotations,
+            showFavorites: showFavorites,
+            onTap: onTap
+        )
+    }
 }
 
-private struct LSMapStubView: View {
+private struct LSMapErrorView: View {
     @Environment(\.theme) private var theme
 
     let mode: MapMode
@@ -147,22 +164,27 @@ private struct LSMapStubView: View {
     var body: some View {
         LSGlassPanel(variant: .chrome) {
             VStack(alignment: .leading, spacing: theme.space.xs) {
-                Text("Map preview - UC-ATM-12")
-                    .font(.headline)
+                Text("Map Unavailable")
+                    .font(theme.type.heading.sm.font)
+                    .foregroundStyle(theme.colors.danger.default)
+
+                Text("Mapbox access token is missing. Please configure MAPBOX_ACCESS_TOKEN in build settings.")
+                    .font(theme.type.body.md.font)
+                    .foregroundStyle(theme.colors.onSurface.default)
 
                 Text(summaryLine)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(theme.type.label.sm.font)
+                    .foregroundStyle(theme.colors.muted.default)
 
                 Text(cameraLine)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .font(theme.type.label.sm.font)
+                    .foregroundStyle(theme.colors.muted.default)
             }
             .frame(maxWidth: .infinity, minHeight: 180, alignment: .topLeading)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Map preview placeholder")
-        .accessibilityHint("UC-ATM-12 replaces this fallback with the native map implementation.")
+        .accessibilityLabel("Map unavailable error")
+        .accessibilityHint("Mapbox access token is missing. Check your build configuration.")
     }
 
     private var summaryLine: String {
