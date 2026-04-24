@@ -64,9 +64,17 @@ public struct LSContentCard: View {
 
                 VStack(alignment: .leading, spacing: Self.bodyVerticalSpacing(in: theme)) {
                     LSText(title, variant: .title.md)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(title)
+                        .accessibilityValue(TypographyVariant.title.md.tokenPath)
+                        .accessibilityIdentifier("lscontentcard-title")
 
                     if let subtitle {
                         LSText(subtitle, variant: .body.md, color: .secondary)
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(subtitle)
+                            .accessibilityValue(TypographyVariant.body.md.tokenPath)
+                            .accessibilityIdentifier("lscontentcard-subtitle")
                     }
 
                     if !metadata.isEmpty {
@@ -77,6 +85,7 @@ public struct LSContentCard: View {
                         chipRow
                     }
                 }
+                .accessibilityIdentifier("lscontentcard-body")
                 .padding(
                     .bottom,
                     hasActionsFooter ? Self.bodyVerticalSpacing(in: theme) : bodyBottomPaddingWhenFooterMissing
@@ -103,6 +112,9 @@ public struct LSContentCard: View {
                 }
 
                 LSText(item, variant: .label.md, color: .tertiary)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(item)
+                    .accessibilityValue(TypographyVariant.label.md.tokenPath)
             }
         }
         .accessibilityIdentifier("lscontentcard-metadata")
@@ -124,6 +136,7 @@ public struct LSContentCard: View {
                 )
             }
         }
+        .accessibilityIdentifier("lscontentcard-chips")
     }
 }
 

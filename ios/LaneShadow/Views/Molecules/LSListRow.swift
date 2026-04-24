@@ -18,6 +18,7 @@ public enum LSListRowTrailing {
 
 public struct LSListRow: View {
     @Environment(\.theme) private var theme
+    @State private var isPressed = false
 
     let leading: LSListRowLeading
     let title: String
@@ -49,12 +50,14 @@ public struct LSListRow: View {
     public var body: some View {
         VStack(spacing: Self.zeroSpacing(in: theme)) {
             if onTap != nil {
-                Button(action: performPrimaryAction) {
-                    rowContent(backgroundColor: Self.interactiveBackground(isPressed: false, in: theme))
-                }
-                .buttonStyle(LSListRowButtonStyle())
-                .accessibilityAddTraits(.isButton)
-                .accessibilityIdentifier("lslistrow-interactive")
+                rowContent(backgroundColor: Self.interactiveBackground(isPressed: isPressed, in: theme))
+                    .overlay {
+                        LSListRowInteractionSurface(
+                            isPressed: $isPressed,
+                            onActivate: performPrimaryAction
+                        )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
             } else {
                 rowContent(backgroundColor: Self.interactiveBackground(isPressed: false, in: theme))
                     .accessibilityIdentifier("lslistrow-static")
@@ -84,10 +87,19 @@ public struct LSListRow: View {
 
             VStack(alignment: .leading, spacing: Self.verticalPadding(in: theme)) {
                 LSText(title, variant: .body.md)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(title)
+                    .accessibilityValue(TypographyVariant.body.md.tokenPath)
+                    .accessibilityIdentifier("lslistrow-title")
                 if let subtitle {
                     LSText(subtitle, variant: .label.sm, color: .secondary)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(subtitle)
+                        .accessibilityValue(TypographyVariant.label.sm.tokenPath)
+                        .accessibilityIdentifier("lslistrow-subtitle")
                 }
             }
+            .accessibilityIdentifier("lslistrow-textstack")
             .frame(maxWidth: .infinity, alignment: .leading)
 
             trailingView
@@ -105,8 +117,14 @@ public struct LSListRow: View {
         case let .icon(iconName):
             LSIcon(name: iconName, size: .sm, color: .secondary)
                 .frame(width: theme.touchTarget.minTouchTarget, height: theme.touchTarget.minTouchTarget)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(iconName.rawValue)
+                .accessibilityIdentifier("lslistrow-leading")
         case let .avatar(image, initials, size):
             LSAvatar(image: image, initials: initials, size: size)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(initials ?? "Avatar")
+                .accessibilityIdentifier("lslistrow-leading")
         }
     }
 
@@ -117,8 +135,14 @@ public struct LSListRow: View {
             EmptyView()
         case let .icon(iconName):
             LSIcon(name: iconName, size: .sm, color: .tertiary)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(iconName.rawValue)
+                .accessibilityIdentifier("lslistrow-trailing-icon")
         case .chevron:
             LSIcon(name: .chevR, size: .sm, color: .subtle)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(IconName.chevR.rawValue)
+                .accessibilityIdentifier("lslistrow-chevron")
         case let .toggle(isOn):
             LSSwitch(
                 value: .constant(isOn),
@@ -129,20 +153,6 @@ public struct LSListRow: View {
         case let .button(buttonTitle, variant, action):
             LSButton(buttonTitle, variant: variant, size: .sm, action: action)
         }
-    }
-}
-
-private struct LSListRowButtonStyle: ButtonStyle {
-    @Environment(\.theme) private var theme
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .background(
-                LSListRow.interactiveBackground(
-                    isPressed: configuration.isPressed,
-                    in: theme
-                )
-            )
     }
 }
 
@@ -200,5 +210,48 @@ extension LSListRow {
 
     static func zeroSpacing(in theme: Theme) -> CGFloat {
         theme.space.xs - theme.space.xs
+    }
+}
+
+private struct LSListRowInteractionSurface: UIViewRepresentable {
+    @Binding var isPressed: Bool
+    let onActivate: () -> Void
+
+    func makeUIView(context: Context) -> LSListRowTapControl {
+        let control = LSListRowTapControl()
+        control.accessibilityIdentifier = "lslistrow-interactive"
+        control.onPressChanged = { isPressed = $0 }
+        control.onActivate = onActivate
+        return control
+    }
+
+    func updateUIView(_ uiView: LSListRowTapControl, context _: Context) {
+        uiView.onPressChanged = { isPressed = $0 }
+        uiView.onActivate = onActivate
+    }
+}
+
+private final class LSListRowTapControl: UIControl {
+    var onPressChanged: ((Bool) -> Void)?
+    var onActivate: (() -> Void)?
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+        addAction(UIAction { [weak self] _ in
+            self?.onPressChanged?(true)
+        }, for: [.touchDown, .touchDragEnter])
+        addAction(UIAction { [weak self] _ in
+            self?.onPressChanged?(false)
+        }, for: [.touchDragExit, .touchCancel, .touchUpOutside])
+        addAction(UIAction { [weak self] _ in
+            self?.onPressChanged?(false)
+            self?.onActivate?()
+        }, for: .touchUpInside)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
