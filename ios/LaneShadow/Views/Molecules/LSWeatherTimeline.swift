@@ -56,18 +56,12 @@ public struct LSWeatherTimeline: View {
             cellGrid
         }
         .padding(theme.space.md)
-        .background(theme.colors.surface.card)
-        .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))
+        .background(LaneShadowTheme.color.surface.card)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: theme.radius.lg)
-                .stroke(theme.colors.border.default, lineWidth: theme.borderWidth.hairline)
+            RoundedRectangle(cornerRadius: theme.radius.lg, style: .continuous)
+                .stroke(LaneShadowTheme.color.border.default, lineWidth: theme.borderWidth.hairline)
         }
-        .shadow(
-            color: theme.colors.scrim.opacity(0.1),
-            radius: theme.elevation.level2.radius,
-            x: theme.elevation.level2.offsetX,
-            y: theme.elevation.level2.offsetY
-        )
         .accessibilityLabel("Weather along the way, \(from) to \(to)")
     }
 
@@ -75,11 +69,11 @@ public struct LSWeatherTimeline: View {
 
     private var headerSection: some View {
         HStack {
-            LSText("Weather along the way", variant: .labelMd, color: .primary)
+            LSText("Weather along the way", variant: .label.md, color: .primary)
 
             Spacer()
 
-            LSText("\(from) — \(to)", variant: .labelSm, color: .tertiary)
+            LSText("\(from) — \(to)", variant: .label.sm, color: .tertiary)
         }
     }
 
@@ -99,7 +93,7 @@ public struct LSWeatherTimeline: View {
 
         return VStack(spacing: theme.space.xs) {
             // Hour label
-            LSText(entry.hour, variant: .labelSm, color: .secondary)
+            LSText(entry.hour, variant: .label.sm, color: .secondary)
 
             // Weather icon
             LSIcon(
@@ -110,7 +104,7 @@ public struct LSWeatherTimeline: View {
             .accessibilityHidden(true)
 
             // Temperature value
-            LSText(entry.temp, variant: .instrumentSm, color: .primary)
+            LSText(entry.temp, variant: .label.sm, color: .primary)
         }
         .padding(.vertical, theme.space.sm)
         .padding(.horizontal, theme.space.md)
@@ -197,16 +191,6 @@ public struct WeatherEntry: Identifiable, Equatable {
         self.condition = condition
         self.temp = temp
     }
-}
-
-/// Weather condition types
-public enum WeatherCondition: Equatable, Sendable {
-    case clear
-    case rain
-    case wind
-    case storm
-    case hot
-    case cold
 }
 
 // MARK: - Supporting Types

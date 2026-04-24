@@ -69,7 +69,7 @@ public struct LSToolbar: View {
             leadingSlot
                 .frame(minWidth: theme.touchTarget.minTouchTarget, alignment: .leading)
 
-            LSText(title, variant: .ui.title.md)
+            LSText(title, variant: .title.md)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .center)
 

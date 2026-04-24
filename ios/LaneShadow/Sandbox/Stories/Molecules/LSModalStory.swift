@@ -65,7 +65,7 @@ private struct LSModalStoryDemo: View {
                 .fill(LaneShadowTheme.color.surface.primary)
                 .overlay {
                     VStack(alignment: .leading, spacing: theme.space.sm) {
-                        LSText("Blocking flow", variant: .ui.title.md)
+                        LSText("Blocking flow", variant: .title.md)
                         LSText("Tap the call-to-action to reopen the modal.", variant: .body.md, color: .secondary)
                     }
                     .padding(theme.space.lg)

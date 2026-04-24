@@ -12,7 +12,7 @@ public struct WeatherConditionResolvedStyle {
 }
 
 public enum WeatherCondition: String, CaseIterable, Sendable {
-    case sun
+    case clear
     case rain
     case wind
     case storm
@@ -21,9 +21,9 @@ public enum WeatherCondition: String, CaseIterable, Sendable {
 
     var resolvedStyle: WeatherConditionResolvedStyle {
         switch self {
-        case .sun:
+        case .clear:
             weatherStyle(
-                key: "sun",
+                key: "clear",
                 background: LaneShadowTheme.color.weather.clear.tint,
                 foreground: LaneShadowTheme.color.weather.clear.default,
                 icon: .sun

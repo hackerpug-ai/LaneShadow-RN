@@ -49,8 +49,8 @@ enum LSPillSemanticsStory {
                 .padding(Theme.shared.space.lg)
         },
     ] + [
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.sun.sm", condition: .sun, size: .sm),
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.sun.md", condition: .sun, size: .md),
+        weatherStory(id: "molecules.pillSemantics.weatherBadge.clear.sm", condition: .clear, size: .sm),
+        weatherStory(id: "molecules.pillSemantics.weatherBadge.clear.md", condition: .clear, size: .md),
         weatherStory(id: "molecules.pillSemantics.weatherBadge.rain.sm", condition: .rain, size: .sm),
         weatherStory(id: "molecules.pillSemantics.weatherBadge.rain.md", condition: .rain, size: .md),
         weatherStory(id: "molecules.pillSemantics.weatherBadge.wind.sm", condition: .wind, size: .sm),
@@ -101,7 +101,7 @@ private extension WeatherCondition {
 
     var defaultLabel: String {
         switch self {
-        case .sun:
+        case .clear:
             "Clear"
         case .rain:
             "Rain 3pm"

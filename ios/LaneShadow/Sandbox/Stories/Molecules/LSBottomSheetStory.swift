@@ -77,7 +77,7 @@ private struct LSBottomSheetStoryDemo: View {
 
             LSBottomSheet(isPresented: $isPresented, detent: detent) {
                 VStack(alignment: .leading, spacing: theme.space.md) {
-                    LSText("Route Filters", variant: .ui.title.md)
+                    LSText("Route Filters", variant: .title.md)
                     LSText("Choose a preset to refine the ride plan.", variant: .body.md, color: .secondary)
                     LSText("Scenic", variant: .label.md, color: .secondary)
                     LSText("Coffee stop", variant: .label.md, color: .secondary)

@@ -102,7 +102,7 @@ private fun route(
         scenicScore = 4,
         variant = variant,
         weatherBadge = RouteAttachmentWeather(
-            condition = WeatherCondition.Sun,
+            condition = WeatherCondition.Clear,
             label = "CLEAR",
         ),
         isBest = isBest,

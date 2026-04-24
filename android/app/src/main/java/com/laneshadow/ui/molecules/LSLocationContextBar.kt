@@ -32,11 +32,6 @@ private var SemanticsPropertyReceiver.lsLocationContextBarHorizontalPadding by L
 private const val SpaceBetweenValue = "SpaceBetween"
 private val LocationPillMaxWidth = 260.dp
 
-enum class LocationMode {
-    Auto,
-    Manual,
-}
-
 private val LocationMode.label: String
     get() = if (this == LocationMode.Auto) "AUTO" else "MANUAL"
 

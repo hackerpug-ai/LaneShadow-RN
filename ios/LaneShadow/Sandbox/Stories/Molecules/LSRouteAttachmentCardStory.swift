@@ -88,7 +88,7 @@ enum LSRouteAttachmentCardStory {
             duration: "1h 45m",
             elevation: "3,200 ft",
             scenicRating: 4,
-            weather: .init(condition: .sun, label: "Clear")
+            weather: .init(condition: .clear, label: "Clear")
         )
     }
 
@@ -127,7 +127,7 @@ enum LSRouteAttachmentCardStory {
             duration: "1h 18m",
             elevation: "1,800 ft",
             scenicRating: 5,
-            weather: .init(condition: .sun, label: "Clear"),
+            weather: .init(condition: .clear, label: "Clear"),
             favoriteLabel: "Includes West Cliff favorite"
         )
     }

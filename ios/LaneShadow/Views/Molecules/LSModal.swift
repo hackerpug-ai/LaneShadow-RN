@@ -50,7 +50,7 @@ public struct LSModal: View {
         let body = bodyText
 
         return VStack(alignment: .leading, spacing: theme.space.md) {
-            LSText(title, variant: .ui.title.md)
+            LSText(title, variant: .title.md)
                 .accessibilityIdentifier("lsmodal-title")
 
             LSText(body, variant: .body.md, color: .secondary)

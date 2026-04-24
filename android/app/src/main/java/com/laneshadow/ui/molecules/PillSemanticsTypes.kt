@@ -17,20 +17,25 @@ enum class AccentColor {
 }
 
 sealed interface WeatherCondition {
-    data object Sun : WeatherCondition
-
+    data object Clear : WeatherCondition
     data object Rain : WeatherCondition
-
     data object Wind : WeatherCondition
-
     data object Storm : WeatherCondition
-
     data object Hot : WeatherCondition
-
     data object Cold : WeatherCondition
 
     companion object {
-        val all: List<WeatherCondition> = listOf(Sun, Rain, Wind, Storm, Hot, Cold)
+        val all: List<WeatherCondition> = listOf(Clear, Rain, Wind, Storm, Hot, Cold)
+
+        fun icon(condition: WeatherCondition): com.laneshadow.theme.generated.LaneShadowTheme.IconName =
+            when (condition) {
+                Clear -> com.laneshadow.theme.generated.LaneShadowTheme.IconName.Sun
+                Rain -> com.laneshadow.theme.generated.LaneShadowTheme.IconName.Rain
+                Wind -> com.laneshadow.theme.generated.LaneShadowTheme.IconName.Wind
+                Storm -> com.laneshadow.theme.generated.LaneShadowTheme.IconName.Storm
+                Hot -> com.laneshadow.theme.generated.LaneShadowTheme.IconName.Therm
+                Cold -> com.laneshadow.theme.generated.LaneShadowTheme.IconName.Therm
+            }
     }
 }
 
@@ -152,7 +157,7 @@ fun resolveSuggestionChipStyle(primed: Boolean): SuggestionChipStyle =
 
 fun WeatherCondition.resolveWeatherBadgeStyle(): WeatherBadgeStyle =
     when (this) {
-        WeatherCondition.Sun -> weatherStyle(
+        WeatherCondition.Clear -> weatherStyle(
             backgroundColor = LaneShadowTheme.color.Weather.Clear.tint,
             foregroundColor = LaneShadowTheme.color.Weather.Clear.default,
             icon = IconName.Sun,

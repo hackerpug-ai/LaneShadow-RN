@@ -29,11 +29,11 @@ object LSPillSemanticsStory {
         story("molecules.suggestion.default", "LSSuggestionChip", "Suggestion Chip Default", "Default suggestion pill at md height.") {
             LSSuggestionChip(label = "Twisty back roads", onTap = {})
         },
-        story("molecules.weather.sun.sm", "LSWeatherBadge", "Weather SUN SM", "Weather badge (sun) small.") {
-            LSWeatherBadge(condition = WeatherCondition.Sun, label = "Sun", size = PillSize.Sm)
+        story("molecules.weather.clear.sm", "LSWeatherBadge", "Weather CLEAR SM", "Weather badge (clear) small.") {
+            LSWeatherBadge(condition = WeatherCondition.Clear, label = "Clear", size = PillSize.Sm)
         },
-        story("molecules.weather.sun.md", "LSWeatherBadge", "Weather SUN MD", "Weather badge (sun) medium.") {
-            LSWeatherBadge(condition = WeatherCondition.Sun, label = "Sun", size = PillSize.Md)
+        story("molecules.weather.clear.md", "LSWeatherBadge", "Weather CLEAR MD", "Weather badge (clear) medium.") {
+            LSWeatherBadge(condition = WeatherCondition.Clear, label = "Clear", size = PillSize.Md)
         },
         story("molecules.weather.rain.sm", "LSWeatherBadge", "Weather RAIN SM", "Weather badge (rain) small.") {
             LSWeatherBadge(condition = WeatherCondition.Rain, label = "Rain", size = PillSize.Sm)

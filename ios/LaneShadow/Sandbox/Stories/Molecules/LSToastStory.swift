@@ -67,7 +67,7 @@ private struct LSToastStoryDemo: View {
                 .fill(LaneShadowTheme.color.surface.primary)
                 .overlay {
                     VStack(alignment: .leading, spacing: theme.space.sm) {
-                        LSText("Overlay feedback", variant: .ui.title.md)
+                        LSText("Overlay feedback", variant: .title.md)
                         LSText(
                             "This story replays the toast after each manual dismissal.",
                             variant: .body.md,

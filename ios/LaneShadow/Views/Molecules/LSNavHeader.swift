@@ -40,9 +40,9 @@ public struct LSNavHeader: View {
     var resolvedTitleVariant: TypographyVariant {
         switch variant {
         case .default:
-            .ui.title.md
+            .title.md
         case .largeTitle:
-            .opinion.lg
+            .heading.lg
         }
     }
 
