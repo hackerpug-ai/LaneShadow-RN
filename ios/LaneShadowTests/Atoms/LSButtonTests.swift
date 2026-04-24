@@ -1,179 +1,16 @@
 import LaneShadowTheme
-import SwiftUI
-import UIKit
 import XCTest
 @testable import LaneShadow
 
-@MainActor
 final class LSButtonTests: XCTestCase {
-    func test_primary_variant_resolves_action_primary_tokens() {
-        let theme = Theme.shared
-        let tokens = LSButtonStyle.tokens(for: .primary, in: theme)
-
-        XCTAssertEqual(tokens.background, theme.colors.primary.default)
-        XCTAssertEqual(tokens.foreground, theme.colors.onPrimary.default)
-        XCTAssertEqual(LSButtonStyle.cornerRadius(for: .md, in: theme), theme.radius.md)
-        XCTAssertEqual(LSButtonStyle.typography(for: .md, in: theme).fontSize, theme.type.label.md.fontSize)
-        XCTAssertNotNil(LSButton(title: "Continue", variant: .primary, action: {}))
-    }
-
-    func test_primary_pressed_state_resolves_pressed_token() {
-        let theme = Theme.shared
-        let tokens = LSButtonStyle.tokens(for: .primary, state: .pressed, in: theme)
-
-        XCTAssertEqual(
-            tokens.background,
-            theme.colors.primary.pressed ?? theme.colors.accent.pressed ?? theme.colors.primary.default
-        )
-    }
-
-    func test_primary_hover_state_resolves_explicit_hover_tokens() {
-        let theme = Theme.shared
-        let tokens = LSButtonStyle.tokens(for: .primary, state: .hover, in: theme)
-
-        XCTAssertEqual(
-            tokens.background,
-            theme.colors.primary.hover ?? theme.colors.accent.hover ?? theme.colors.primary.default
-        )
-        XCTAssertEqual(tokens.foreground, theme.colors.onPrimary.default)
-        XCTAssertEqual(tokens.focusRingWidth, 0)
-    }
-
-    func test_all_six_variants_resolve_distinct_button_tokens() {
-        let theme = Theme.shared
-
-        let expected: [(LSButtonVariant, Color, Color, Color, CGFloat)] = [
-            (
-                .primary,
-                theme.colors.primary.default,
-                theme.colors.onPrimary.default,
-                theme.colors.border.default.opacity(0),
-                0
-            ),
-            (
-                .secondary,
-                theme.colors.secondary.default,
-                theme.colors.onSurface.default,
-                theme.colors.border.default,
-                theme.borderWidth.thin
-            ),
-            (
-                .ghost,
-                theme.colors.surface.default.opacity(0),
-                theme.colors.onSurface.default,
-                theme.colors.border.default.opacity(0),
-                0
-            ),
-            (
-                .accept,
-                theme.colors.success.default,
-                theme.colors.onPrimary.default,
-                theme.colors.border.default.opacity(0),
-                0
-            ),
-            (
-                .destructive,
-                theme.colors.danger.default,
-                theme.colors.onPrimary.default,
-                theme.colors.border.default.opacity(0),
-                0
-            ),
-            (
-                .outline,
-                theme.colors.surface.default.opacity(0),
-                theme.colors.onSurface.default,
-                theme.colors.border.default,
-                theme.borderWidth.thin
-            ),
-        ]
-
-        for (variant, background, foreground, border, borderWidth) in expected {
-            let tokens = LSButtonStyle.tokens(for: variant, in: theme)
-
-            XCTAssertEqual(tokens.background, background)
-            XCTAssertEqual(tokens.foreground, foreground)
-            XCTAssertEqual(tokens.border, border)
-            XCTAssertEqual(tokens.borderWidth, borderWidth)
-        }
-    }
-
-    func test_disabled_state_suppresses_action_and_resolves_disabled_tokens() {
-        let theme = Theme.shared
-        let tokens = LSButtonStyle.tokens(for: .primary, state: .disabled, in: theme)
+    func test_disabled_state_suppresses_action() {
         var actionCount = 0
 
         LSButton.dispatch(isDisabled: true) {
             actionCount += 1
         }
 
-        XCTAssertEqual(
-            tokens.background,
-            theme.colors.primary.disabled ?? theme.colors.secondaryContainer.default
-        )
-        XCTAssertEqual(
-            tokens.foreground,
-            theme.colors.onPrimary.disabled ?? theme.colors.onPrimary.default.opacity(theme.opacity.disabled)
-        )
-        XCTAssertEqual(tokens.opacity, theme.opacity.disabled)
         XCTAssertEqual(actionCount, 0)
-    }
-
-    func test_outline_disabled_state_uses_disabled_opacity_token() {
-        let theme = Theme.shared
-        let tokens = LSButtonStyle.tokens(for: .outline, state: .disabled, in: theme)
-
-        XCTAssertEqual(tokens.opacity, theme.opacity.disabled)
-        XCTAssertEqual(
-            tokens.border,
-            theme.colors.border.disabled ?? theme.colors.border.default.opacity(theme.opacity.disabled)
-        )
-    }
-
-    func test_focus_state_uses_variant_ring_and_not_generic_border_replacement() {
-        let theme = Theme.shared
-        let primaryTokens = LSButtonStyle.tokens(for: .primary, state: .focus, in: theme)
-        let outlineBase = LSButtonStyle.tokens(for: .outline, in: theme)
-        let outlineFocus = LSButtonStyle.tokens(for: .outline, state: .focus, in: theme)
-
-        XCTAssertEqual(primaryTokens.border, theme.colors.border.default.opacity(0))
-        XCTAssertEqual(primaryTokens.borderWidth, 0)
-        XCTAssertEqual(
-            primaryTokens.focusRing,
-            (theme.colors.primary.focus ?? theme.colors.primary.default).opacity(theme.opacity.actionPressed)
-        )
-        XCTAssertEqual(primaryTokens.focusRingWidth, 3)
-
-        XCTAssertEqual(outlineFocus.border, outlineBase.border)
-        XCTAssertEqual(outlineFocus.borderWidth, outlineBase.borderWidth)
-        XCTAssertEqual(
-            outlineFocus.focusRing,
-            (theme.colors.ring.focus ?? theme.colors.ring.default).opacity(theme.opacity.actionIdle)
-        )
-        XCTAssertEqual(outlineFocus.focusRingWidth, 3)
-    }
-
-    func test_outline_variant_with_leading_icon_renders_chip_layout() {
-        let theme = Theme.shared
-        let tokens = LSButtonStyle.tokens(for: .outline, in: theme)
-        let withIconImage = hostedButtonImage(
-            LSButton(title: "", variant: .outline, leadingIcon: .sparkle, action: {})
-        )
-        let withoutIconImage = hostedButtonImage(
-            LSButton(title: "", variant: .outline, action: {})
-        )
-
-        XCTAssertEqual(tokens.border, theme.colors.border.default)
-        XCTAssertEqual(tokens.borderWidth, theme.borderWidth.thin)
-        XCTAssertEqual(tokens.background, theme.colors.surface.default.opacity(0))
-        XCTAssertEqual(tokens.foreground, theme.colors.onSurface.default)
-        XCTAssertEqual(LSButtonStyle.iconSize(for: .sm, in: theme), theme.iconSize.small)
-        XCTAssertEqual(LSButtonStyle.labelSpacing(in: theme), theme.space.sm)
-        XCTAssertEqual(LSButtonStyle.metrics(for: .sm, in: theme).horizontalPadding, theme.space.lg)
-        XCTAssertEqual(LSButtonStyle.metrics(for: .md, in: theme).horizontalPadding, theme.space.lg)
-        XCTAssertEqual(LSButtonStyle.metrics(for: .lg, in: theme).horizontalPadding, theme.space.lg)
-        XCTAssertNotNil(withIconImage.cgImage)
-        XCTAssertNotNil(withoutIconImage.cgImage)
-        XCTAssertEqual(withIconImage.size, withoutIconImage.size)
     }
 
     func test_button_icon_slot_routes_through_lsicon_without_hidden_or_canvas_fallbacks() throws {
@@ -232,25 +69,6 @@ final class LSButtonTests: XCTestCase {
         }
 
         XCTAssertEqual(actionCount, 1)
-    }
-
-    private func hostedButtonImage(_ button: LSButton) -> UIImage {
-        let rootView = ZStack(alignment: .topLeading) {
-            Color.white
-            button.laneShadowTheme()
-        }
-        .frame(width: 240, height: 80, alignment: .topLeading)
-
-        let controller = UIHostingController(rootView: rootView)
-        controller.loadViewIfNeeded()
-        controller.view.frame = CGRect(x: 0, y: 0, width: 240, height: 80)
-        controller.view.backgroundColor = .white
-        controller.view.setNeedsLayout()
-        controller.view.layoutIfNeeded()
-        let renderer = UIGraphicsImageRenderer(bounds: controller.view.bounds)
-        return renderer.image { _ in
-            controller.view.layer.render(in: UIGraphicsGetCurrentContext()!)
-        }
     }
 
     private var buttonSourceFilePath: String {

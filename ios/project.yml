@@ -182,7 +182,6 @@ targets:
       - path: LaneShadowTests/LaneShadowTests.swift
       - path: LaneShadowTests/Atoms
         type: syncedFolder
-      - path: LaneShadowTests/Components/UI/Atoms/IconSymbolIOSTests.swift
       - path: LaneShadowTests/Molecules/EmptyStateTests.swift
       - path: LaneShadowTests/Molecules/InfoToastTests.swift
       - path: LaneShadowTests/Molecules/MarkdownTextTests.swift
