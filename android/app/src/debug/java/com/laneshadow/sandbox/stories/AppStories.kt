@@ -1,5 +1,6 @@
 package com.laneshadow.sandbox.stories
 
+import com.laneshadow.sandbox.stories.molecules.MoleculesStories
 import com.laneshadow.ui.sandbox.model.SandboxTier
 import com.laneshadow.ui.sandbox.model.SandboxStory
 import com.laneshadow.ui.sandbox.stories.AppStories as InfrastructureStories
@@ -8,7 +9,12 @@ import com.nativesandbox.model.Story
 
 object AppStories {
     val all: List<Story> =
-        (TokenSwatchStories.all + InfrastructureStories.all.map { it.asNativeStory() } + AtomsStories.all)
+        (
+            TokenSwatchStories.all +
+                InfrastructureStories.all.map { it.asNativeStory() } +
+                AtomsStories.all +
+                MoleculesStories.all
+            )
             .sortedBy(Story::id)
 }
 
