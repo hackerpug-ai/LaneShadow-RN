@@ -1,16 +1,18 @@
 # ALIGN-01 Drift Report
 
 Audit scope:
-- Canonical color values: `.spec/design/system/tokens/theme.light.json` and `.spec/design/system/tokens/theme.dark.json`
+- Canonical color/theme values: `.spec/design/system/tokens/theme.light.json` and `.spec/design/system/tokens/theme.dark.json`
 - Canonical map style values: `tokens/semantic/mapbox.tokens.json`
-- Canonical sizing values: `tokens/semantic/dimensions.tokens.json`
+- Canonical dimensions values: `tokens/semantic/dimensions.tokens.json`
 - Current generated outputs: `tokens/platforms/swift/Sources/LaneShadowTheme/Generated/Tokens.swift` and `tokens/platforms/kotlin/src/main/java/com/laneshadow/theme/generated/Tokens.kt`
 
 Notes:
-- `Tokens.kt` emits light-theme literals only for the color tokens it does contain. Missing rows below capture outright omissions; Android also has a broader dark-mode value drift across the generated color surface.
-- `surface.scrim-soft` is referenced by the sprint acceptance criteria and concept screens (`uc-scr-03-route-results.html`) but is not emitted by either native token output.
+- Rows below use canonical dotted paths from the theme JSONs or semantic schemas, not emitted accessor names.
+- `Tokens.swift` carries light and dark values for the color tokens it emits, so its drift is primarily omissions and naming rewrites.
+- `Tokens.kt` emits only a single literal for color tokens. When the canonical dark value differs from the light value, Android has a discrete `WRONG_VALUE` drift even if the key exists by name.
+- Canonical theme `stroke.*` tokens and dimensions-schema `sizing.stroke.*` tokens are audited separately. They are distinct contracts.
 
-## Drift Rows
+## Missing Rows
 
 | Key Path | Expected Light | Expected Dark | iOS Status | Android Status |
 | --- | --- | --- | --- | --- |
@@ -29,6 +31,9 @@ Notes:
 | map.contour-faint | rgba(73,69,79,0.10) | rgba(242,238,232,0.10) | MISSING | MISSING |
 | map.style.light | mapbox://styles/laneshadow/clxwarm01 | mapbox://styles/laneshadow/clxwarm01 | MISSING | MISSING |
 | map.style.dark | mapbox://styles/laneshadow/clxnight02 | mapbox://styles/laneshadow/clxnight02 | MISSING | MISSING |
+| stroke.sm | 1 | 1 | MISSING | MISSING |
+| stroke.md | 1.5 | 1.5 | MISSING | MISSING |
+| stroke.lg | 2 | 2 | MISSING | MISSING |
 | sizing.stroke.sm | 1 | 1 | MISSING | MISSING |
 | sizing.stroke.md | 2 | 2 | MISSING | MISSING |
 | sizing.stroke.lg | 3 | 3 | MISSING | MISSING |
@@ -46,18 +51,40 @@ Notes:
 | ease.accelerated | cubic-bezier(0.4,0.0,1.0,1.0) | cubic-bezier(0.4,0.0,1.0,1.0) | MISSING | MISSING |
 | ease.linear | linear | linear | MISSING | MISSING |
 
+## Wrong-Valued Android Rows
+
+These rows already exist semantically in `Tokens.kt`, but Android serializes only the light literal and cannot represent the canonical dark value.
+
+| Key Path | Expected Light | Expected Dark | iOS Status | Android Status |
+| --- | --- | --- | --- | --- |
+| surface.primary | #F8F7F6 | #221810 | MATCH | WRONG_VALUE (`Surface.primary = #F8F7F6`) |
+| surface.card | #FDFBF8 | #2D2218 | MATCH | WRONG_VALUE (`Surface.card = #FDFBF8`) |
+| surface.inset | #F2EFED | #362A1F | MATCH | WRONG_VALUE (`Surface.inset = #F2EFED`) |
+| surface.overlay | rgba(253,251,248,0.92) | rgba(45,34,24,0.92) | MATCH | WRONG_VALUE (`Surface.overlay = rgba(253,251,248,0.92)`) |
+| surface.glass | rgba(253,251,248,0.72) | rgba(45,34,24,0.72) | MATCH | WRONG_VALUE (`Surface.glass = rgba(253,251,248,0.72)`) |
+| surface.scrim | rgba(34,24,16,0.35) | rgba(10,6,3,0.50) | MATCH | WRONG_VALUE (`Surface.scrim = rgba(34,24,16,0.35)`) |
+| content.primary | #1E1A16 | #F2EEE8 | MATCH | WRONG_VALUE (`Content.primary = #1E1A16`) |
+| content.secondary | #49454F | #CAC4D0 | MATCH | WRONG_VALUE (`Content.secondary = #49454F`) |
+| content.tertiary | #6B6460 | #9CA3AF | MATCH | WRONG_VALUE (`Content.tertiary = #6B6460`) |
+| content.subtle | #9CA3AF | #6B6460 | MATCH | WRONG_VALUE (`Content.subtle = #9CA3AF`) |
+| border.default | #E5DED9 | rgba(242,238,232,0.12) | MATCH | WRONG_VALUE (`Border.default = #E5DED9`) |
+| border.subtle | #EDE7E1 | rgba(242,238,232,0.07) | MATCH | WRONG_VALUE (`Border.subtle = #EDE7E1`) |
+| border.strong | #C9BDB3 | rgba(242,238,232,0.22) | MATCH | WRONG_VALUE (`Border.strong = #C9BDB3`) |
+
 ## naming.mismatch
 
 Observed canonical-path vs emitted-name divergences:
 
 | Canonical token path | iOS emitted shape | Android emitted shape | Note |
 | --- | --- | --- | --- |
-| content.on-signal | `LaneShadowTheme.color.content.onSignal` | `LaneShadowTheme.color.Content.onSignal` | kebab-case token becomes camelCase accessor |
-| action.primary-hover | `LaneShadowTheme.color.action.primary.hover` | `LaneShadowTheme.color.Action.Primary.hover` | canonical hyphenated leaf is split into nested groups |
-| action.primary-pressed | `LaneShadowTheme.color.action.primary.pressed` | `LaneShadowTheme.color.Action.Primary.pressed` | same kebab-case to camelCase/nested rewrite |
-| space.0`...`space.12 | `LaneShadowTheme.spacing.s0`...`s12` | not emitted | Swift renames numeric spacing keys to `s*`; Android omits the spacing group |
-| size.touch-min | not emitted | not emitted | design token uses kebab-case; dimensions schema uses `touchTarget` instead of `touch-min`, so the naming contract is already split before native generation |
+| content.on-signal | `LaneShadowTheme.color.content.onSignal` | `LaneShadowTheme.color.Content.onSignal` | kebab-case leaf becomes camelCase accessor |
+| action.primary-hover | `LaneShadowTheme.color.action.primary.hover` | `LaneShadowTheme.color.Action.Primary.hover` | canonical hyphenated leaf is rewritten into nested groups |
+| action.primary-pressed | `LaneShadowTheme.color.action.primary.pressed` | `LaneShadowTheme.color.Action.Primary.pressed` | same kebab-case to nested-group rewrite |
+| space.0`...`space.12 | `LaneShadowTheme.spacing.s0`...`s12` | not emitted | Swift renames numeric spacing keys to `s*`; Android omits the spacing group entirely |
+| size.touch-min | not emitted | not emitted | theme JSON uses `touch-min`, but dimensions schema and generated outputs use `touchTarget` / component sizing instead |
 
-Android-specific drift:
-- `Tokens.kt` has no dark-variant carrier for color values; even rows that exist by name are serialized as single light literals.
-- `Tokens.kt` omits entire groups that Swift also omits: `map`, `elev`, `duration`, `ease`, and `sizing.stroke`.
+## Android-Specific Drift
+
+- `Tokens.kt` has no dark-variant carrier for any emitted color token. The `WRONG_VALUE` table above enumerates every canonical key whose generated Android value is locked to the light literal while the dark value differs.
+- `Tokens.kt` also omits entire groups that are required for the second-theme migration: `map.*`, `elev.*`, `duration.*`, `ease.*`, canonical theme `stroke.*`, and dimensions-schema `sizing.stroke.*`.
+- The dimensions schema already splits Android sizing from the theme contract in places such as `size.touch-min` versus `dimensions.sizing.touchTarget.android`; that naming split remains separate from the canonical theme-token audit.
