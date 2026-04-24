@@ -196,8 +196,7 @@ private struct LSMapContainer: View {
     let onTap: ((LatLng) -> Void)?
 
     var body: some View {
-        let token = (Bundle.main.infoDictionary?["MBXAccessToken"] as? String)?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let token = resolveMapboxAccessToken()
         let renderModel = resolveLSMapRenderModel(
             mode: mode,
             cameraFit: cameraFit,
@@ -226,6 +225,7 @@ private struct LSMapContainer: View {
                 polylines: polylines,
                 annotations: annotations,
                 onTap: onTap,
+                accessToken: token,
                 renderModel: renderModel
             )
         }
@@ -486,4 +486,14 @@ private func resolveLSMapRouteColor(_ variant: RouteVariant) -> Color {
             LaneShadowTheme.color.route.best
         }
     }
+}
+
+private func resolveMapboxAccessToken() -> String {
+    let infoToken = (Bundle.main.infoDictionary?["MBXAccessToken"] as? String)?
+        .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    if !infoToken.isEmpty {
+        return infoToken
+    }
+
+    return MapboxConfig.accessToken.trimmingCharacters(in: .whitespacesAndNewlines)
 }

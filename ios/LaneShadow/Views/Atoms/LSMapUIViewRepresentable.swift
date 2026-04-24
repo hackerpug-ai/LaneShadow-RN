@@ -1,4 +1,5 @@
 import CoreLocation
+import MapboxCommon
 import MapboxMaps
 import SwiftUI
 import UIKit
@@ -12,9 +13,11 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
     let polylines: [PolylineData]
     let annotations: [Annotation]
     let onTap: ((LatLng) -> Void)?
+    let accessToken: String
     let renderModel: LSMapRenderModel
 
     func makeUIView(context: Context) -> MapView {
+        configureAccessToken()
         let mapView = MapView(frame: .zero)
         context.coordinator.mapView = mapView
         configureGestures(on: mapView)
@@ -32,6 +35,7 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
     }
 
     func updateUIView(_ mapView: MapView, context: Context) {
+        configureAccessToken()
         context.coordinator.mapView = mapView
         configureGestures(on: mapView)
         applyStyleAndCamera(to: mapView, coordinator: context.coordinator)
@@ -39,6 +43,11 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
 
     func makeCoordinator() -> Coordinator {
         Coordinator(onTap: onTap)
+    }
+
+    private func configureAccessToken() {
+        guard !accessToken.isEmpty else { return }
+        MapboxOptions.accessToken = accessToken
     }
 
     private func configureGestures(on mapView: MapView) {
@@ -54,8 +63,7 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
     private func applyStyleAndCamera(to mapView: MapView, coordinator: Coordinator) {
         if let styleURIString = renderModel.styleURI,
            coordinator.currentStyleURI != styleURIString,
-           let styleURI = StyleURI(rawValue: styleURIString)
-        {
+           let styleURI = StyleURI(rawValue: styleURIString) {
             mapView.mapboxMap.loadStyle(styleURI)
             coordinator.currentStyleURI = styleURIString
         }

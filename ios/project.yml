@@ -160,6 +160,12 @@ targets:
           - $(SRCROOT)/../server/.env.local
         outputFiles:
           - $(SRCROOT)/LaneShadow/Generated/ConvexConfig.generated.swift
+      - name: Inject Mapbox Token
+        script: 'bash "${SRCROOT}/LaneShadow/Scripts/inject-mapbox-token.sh"'
+        inputFiles:
+          - $(SRCROOT)/../.env.local
+        outputFiles:
+          - $(SRCROOT)/LaneShadow/Generated/MapboxConfig.generated.swift
     settings:
       base:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

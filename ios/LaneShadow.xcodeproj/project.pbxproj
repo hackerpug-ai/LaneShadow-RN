@@ -329,6 +329,7 @@
 			buildConfigurationList = 765550164B633AF5BE20873D /* Build configuration list for PBXNativeTarget "LaneShadow" */;
 			buildPhases = (
 				4DA27FB2E419ED84C9F93CEF /* Inject Convex URL */,
+				C6212AA2A8A4F0DFCF513598 /* Inject Mapbox Token */,
 				2A6033EDE1343B9C16180D04 /* Sources */,
 				D12CB4045645161CAADD1E9D /* Resources */,
 				19699B30D5FFCEFA31F387A4 /* Frameworks */,
@@ -495,6 +496,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/LaneShadow/Scripts/inject-convex-url.sh\"";
+		};
+		C6212AA2A8A4F0DFCF513598 /* Inject Mapbox Token */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/../.env.local",
+			);
+			name = "Inject Mapbox Token";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/LaneShadow/Generated/MapboxConfig.generated.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "bash \"${SRCROOT}/LaneShadow/Scripts/inject-mapbox-token.sh\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
