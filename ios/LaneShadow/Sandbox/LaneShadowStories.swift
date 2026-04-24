@@ -59,11 +59,13 @@ enum LaneShadowStories {
         },
 
     ] + AtomsStories.all
+        + LSMapStories.all
         + LSBadgeStories.all
         + LSSurfaceStories.all
         + LSDisplayStories.all
         + LSButtonStories.all
         + LSInputStories.all
+        + LSPillStories.all
         + LSScrimStories.all
         + LSPhaseDotStories.all
 }
@@ -379,52 +381,63 @@ private struct ColorSwatchStory: View {
         ScrollView {
             VStack(alignment: .leading, spacing: theme.space.lg) {
                 section("Surface") {
-                    swatchRow("primary", theme.colors.surface.default)
-                    swatchRow("card", theme.colors.card.default)
-                    swatchRow("variant", theme.colors.surfaceVariant.default)
-                    swatchRow("background", theme.colors.background.default)
-                    swatchRow("muted", theme.colors.muted.default)
-                    swatchRow("input", theme.colors.input.default)
+                    swatchRow("background", LaneShadowTheme.color.surface.primary)
+                    swatchRow("surface", LaneShadowTheme.color.surface.primary)
+                    swatchRow("card", LaneShadowTheme.color.surface.card)
+                    swatchRow("inset", LaneShadowTheme.color.surface.inset)
+                    swatchRow("overlay", LaneShadowTheme.color.surface.overlay)
+                    swatchRow("glass", LaneShadowTheme.color.surface.glass)
+                    swatchRow("scrim", LaneShadowTheme.color.surface.scrim)
                 }
 
                 section("Content") {
-                    swatchRow("onSurface", theme.colors.onSurface.default)
-                    swatchRow("onPrimary", theme.colors.onPrimary.default)
-                    swatchRow("onSecondary", theme.colors.onSecondary.default)
-                    swatchRow("secondary", theme.colors.secondary.default)
-                    swatchRow("tertiary", theme.colors.tertiary.default)
+                    swatchRow("primary", LaneShadowTheme.color.content.primary)
+                    swatchRow("secondary", LaneShadowTheme.color.content.secondary)
+                    swatchRow("tertiary", LaneShadowTheme.color.content.tertiary)
+                    swatchRow("subtle", LaneShadowTheme.color.content.subtle)
                 }
 
-                section("Signal & Action") {
-                    swatchRow("primary (signal)", theme.colors.primary.default)
-                    swatchRow("accent", theme.colors.accent.default)
-                    swatchRow("secondaryContainer", theme.colors.secondaryContainer.default)
-                    swatchRow("warningContainer", theme.colors.warningContainer.default)
-                    swatchRow("onWarningContainer", theme.colors.onWarningContainer.default)
+                section("Signal") {
+                    swatchRow("default", LaneShadowTheme.color.signal.default)
+                    swatchRow("hover", LaneShadowTheme.color.signal.hover)
+                    swatchRow("pressed", LaneShadowTheme.color.signal.pressed)
+                    swatchRow("tint", LaneShadowTheme.color.signal.tint)
+                    swatchRow("whisper", LaneShadowTheme.color.signal.whisper)
+                }
+
+                section("Action") {
+                    swatchRow("primary", LaneShadowTheme.color.action.primary.default)
+                    swatchRow("secondary", LaneShadowTheme.color.action.secondary.default)
+                }
+
+                section("Border") {
+                    swatchRow("default", LaneShadowTheme.color.border.default)
+                    swatchRow("subtle", LaneShadowTheme.color.border.subtle)
+                    swatchRow("strong", LaneShadowTheme.color.border.strong)
+                    swatchRow("focus", LaneShadowTheme.color.border.focus)
+                    swatchRow("glass", LaneShadowTheme.color.border.glass)
                 }
 
                 section("Status") {
-                    swatchRow("info", theme.colors.info.default)
-                    swatchRow("success", theme.colors.success.default)
-                    swatchRow("warning", theme.colors.warning.default)
-                    swatchRow("danger", theme.colors.danger.default)
+                    swatchRow("recording", LaneShadowTheme.color.status.recording)
+                    swatchRow("info", LaneShadowTheme.color.status.info.default)
+                    swatchRow("success", LaneShadowTheme.color.status.success.default)
+                    swatchRow("warning", LaneShadowTheme.color.status.warning.default)
+                }
+
+                section("Weather") {
+                    swatchRow("clear", LaneShadowTheme.color.weather.clear.default)
+                    swatchRow("rain", LaneShadowTheme.color.weather.rain.default)
+                    swatchRow("wind", LaneShadowTheme.color.weather.wind.default)
+                    swatchRow("storm", LaneShadowTheme.color.weather.storm.default)
+                    swatchRow("hot", LaneShadowTheme.color.weather.hot.default)
+                    swatchRow("cold", LaneShadowTheme.color.weather.cold.default)
                 }
 
                 section("Route") {
-                    swatchRow("routeSelected", theme.colors.routeSelected.default)
-                    swatchRow("routeAlternate", theme.colors.routeAlternate.default)
-                }
-
-                section("Border & Scrim") {
-                    swatchRow("border", theme.colors.border.default)
-                    swatchRow("divider", theme.colors.divider.default)
-                    swatchRow("ring", theme.colors.ring.default)
-                    swatchRow("scrim", theme.colors.scrim.default)
-                    swatchRow("popover", theme.colors.popover.default)
-                }
-
-                section("Domain") {
-                    swatchRow("orange", theme.domain.orange.default)
+                    swatchRow("best", LaneShadowTheme.color.route.best)
+                    swatchRow("alt1", LaneShadowTheme.color.route.alt1)
+                    swatchRow("alt2", LaneShadowTheme.color.route.alt2)
                 }
             }
             .padding(theme.space.lg)
@@ -519,7 +532,7 @@ private struct TypographyStory: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("42.7 mi  ·  1,204 ft  ·  14:32")
-                    .font(.system(size: 18, weight: .medium, design: .monospaced))
+                    .font(LaneShadowTheme.typography.instrumentLg.font)
                     .foregroundStyle(theme.colors.onSurface.default)
                 Text("instrument.lg — 18pt / medium")
                     .font(theme.type.label.sm.font)
@@ -528,9 +541,18 @@ private struct TypographyStory: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("3:42:15 PM  ·  68°F  ·  12 mph")
-                    .font(.system(size: 13, weight: .medium, design: .monospaced))
+                    .font(LaneShadowTheme.typography.instrumentMd.font)
                     .foregroundStyle(theme.colors.onSurface.default)
                 Text("instrument.md — 13pt / medium")
+                    .font(theme.type.label.sm.font)
+                    .foregroundStyle(theme.colors.onSurface.default.opacity(0.5))
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("42.7mi")
+                    .font(LaneShadowTheme.typography.instrumentSm.font)
+                    .foregroundStyle(theme.colors.onSurface.default)
+                Text("instrument.sm — 10pt / medium")
                     .font(theme.type.label.sm.font)
                     .foregroundStyle(theme.colors.onSurface.default.opacity(0.5))
             }

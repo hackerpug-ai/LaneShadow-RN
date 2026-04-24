@@ -436,88 +436,88 @@ public enum LaneShadowTheme {
         }
     }
 
-    enum typography {
-        static let opinionXl = TypographyStyle(
+    public enum typography {
+        public static let opinionXl = TypographyStyle(
             fontSize: 30,
             lineHeight: 33.6,
             fontWeight: .light
         )
-        static let opinionLg = TypographyStyle(
+        public static let opinionLg = TypographyStyle(
             fontSize: 22,
             lineHeight: 25.96,
             fontWeight: .light
         )
-        static let opinionMd = TypographyStyle(
+        public static let opinionMd = TypographyStyle(
             fontSize: 17,
             lineHeight: 22.44,
             fontWeight: .light
         )
-        static let opinionSm = TypographyStyle(
+        public static let opinionSm = TypographyStyle(
             fontSize: 14,
             lineHeight: 20.3,
             fontWeight: .light
         )
-        static let uiTitleLg = TypographyStyle(
+        public static let uiTitleLg = TypographyStyle(
             fontSize: 17,
             lineHeight: 21.08,
             fontWeight: .semibold
         )
-        static let uiTitleMd = TypographyStyle(
+        public static let uiTitleMd = TypographyStyle(
             fontSize: 14,
             lineHeight: 17.92,
             fontWeight: .semibold
         )
-        static let uiTitleSm = TypographyStyle(
+        public static let uiTitleSm = TypographyStyle(
             fontSize: 12,
             lineHeight: 15.36,
             fontWeight: .semibold
         )
-        static let uiBodyLg = TypographyStyle(
+        public static let uiBodyLg = TypographyStyle(
             fontSize: 14,
             lineHeight: 20.72,
             fontWeight: .light
         )
-        static let uiBodyMd = TypographyStyle(
+        public static let uiBodyMd = TypographyStyle(
             fontSize: 12,
             lineHeight: 18.24,
             fontWeight: .light
         )
-        static let uiBodySm = TypographyStyle(
+        public static let uiBodySm = TypographyStyle(
             fontSize: 10.5,
             lineHeight: 15.54,
             fontWeight: .light
         )
-        static let uiLabelLg = TypographyStyle(
+        public static let uiLabelLg = TypographyStyle(
             fontSize: 11,
             lineHeight: 11,
             fontWeight: .medium
         )
-        static let uiLabelMd = TypographyStyle(
+        public static let uiLabelMd = TypographyStyle(
             fontSize: 9.5,
             lineHeight: 9.5,
             fontWeight: .semibold
         )
-        static let uiLabelSm = TypographyStyle(
+        public static let uiLabelSm = TypographyStyle(
             fontSize: 8.5,
             lineHeight: 8.5,
             fontWeight: .semibold
         )
-        static let instrumentLg = TypographyStyle(
+        public static let instrumentLg = TypographyStyle(
             fontSize: 18,
             lineHeight: 20.16,
             fontWeight: .medium
         )
-        static let instrumentMd = TypographyStyle(
+        public static let instrumentMd = TypographyStyle(
             fontSize: 13,
             lineHeight: 15.6,
             fontWeight: .medium
         )
-        static let instrumentSm = TypographyStyle(
+        public static let instrumentSm = TypographyStyle(
             fontSize: 10,
             lineHeight: 12,
             fontWeight: .medium
         )
-        static let instrumentXs = TypographyStyle(
+        public static let instrumentXs = TypographyStyle(
             fontSize: 8.5,
             lineHeight: 8.5,
             fontWeight: .medium

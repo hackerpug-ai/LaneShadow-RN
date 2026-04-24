@@ -762,7 +762,7 @@ function emitSwift(
 
   // Typography — use TypographyStyle(fontSize:lineHeight:fontWeight:)
   if (tokens.typography) {
-    lines.push('  enum typography {')
+    lines.push('  public enum typography {')
 
     const emitTypographyToken = (name: string, token: TypographyToken) => {
       const weight = mapWeight(token.weight)
@@ -781,7 +781,7 @@ function emitSwift(
                     ? 'heavy'
                     : 'black'
 
-      lines.push(`    static let ${name} = TypographyStyle(`)
+      lines.push(`    public static let ${name} = TypographyStyle(`)
       lines.push(`      fontSize: ${token.size},`)
       lines.push(`      lineHeight: ${token.lineHeight},`)
       lines.push(`      fontWeight: .${swiftWeight}`)
