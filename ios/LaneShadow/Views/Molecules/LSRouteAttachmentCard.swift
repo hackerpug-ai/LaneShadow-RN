@@ -75,6 +75,7 @@ public struct LSRouteAttachmentCard: View {
 
     private static let scenicMeterCount = 5
     private static let scenicDotScale: CGFloat = 0.5
+    private static let scenicLabelText = "SCENIC"
 
     let route: LSRouteAttachmentCardRoute
     let selected: Bool
@@ -121,6 +122,24 @@ public struct LSRouteAttachmentCard: View {
         Self.contentPadding(compact: compact)
     }
 
+    var metricValues: [String] {
+        [route.distance, route.duration]
+    }
+
+    var scenicLabel: String {
+        Self.scenicLabelText
+    }
+
+    func effectiveContentPadding(in theme: Theme = .shared) -> LSRouteAttachmentCardContentPadding {
+        let baseInset = Self.containerInset(compact: compact, in: theme)
+        let contentInset = contentPadding
+
+        return LSRouteAttachmentCardContentPadding(
+            vertical: baseInset.vertical + contentInset.vertical,
+            horizontal: baseInset.horizontal + contentInset.horizontal
+        )
+    }
+
     func handleTap() {
         onTap?()
     }
@@ -137,43 +156,47 @@ public struct LSRouteAttachmentCard: View {
         )
         let padding = contentPadding
 
-        return LSCard(padding: compact ? .spacing3 : .spacing4) {
-            VStack(alignment: .leading, spacing: theme.space.sm) {
-                headerRow
+        let cardContent = VStack(alignment: .leading, spacing: theme.space.sm) {
+            headerRow
 
-                VStack(alignment: .leading, spacing: theme.space.xs) {
-                    LSText(route.title, variant: .title.md)
-                        .accessibilityIdentifier("lsrouteattachmentcard-title")
+            VStack(alignment: .leading, spacing: theme.space.xs) {
+                LSText(route.title, variant: .title.md)
+                    .accessibilityIdentifier("lsrouteattachmentcard-title")
 
-                    LSText(route.subtitle, variant: .body.sm, color: .secondary)
-                        .accessibilityIdentifier("lsrouteattachmentcard-subtitle")
-                }
-
-                metricsRow(style: style)
-
-                if let favoriteLabel = route.favoriteLabel {
-                    favoriteRow(favoriteLabel)
-                }
+                LSText(route.subtitle, variant: .body.sm, color: .secondary)
+                    .accessibilityIdentifier("lsrouteattachmentcard-subtitle")
             }
-            .padding(.vertical, padding.vertical)
-            .padding(.horizontal, padding.horizontal)
-        }
-        .overlay {
-            HStack(spacing: 0) {
-                Rectangle()
-                    .fill(style.stripeColor)
-                    .frame(width: Self.stripeWidth)
-                    .frame(maxHeight: .infinity)
 
-                Spacer(minLength: 0)
+            metricsRow(style: style)
+
+            if let favoriteLabel = route.favoriteLabel {
+                favoriteRow(favoriteLabel)
             }
-            .clipShape(shape)
         }
-        .overlay {
-            shape
-                .stroke(style.borderColor, lineWidth: theme.borderWidth.hairline)
+        .padding(.vertical, padding.vertical)
+        .padding(.horizontal, padding.horizontal)
+
+        let cardSurface = LSCard(padding: compact ? .spacing3 : .spacing4) {
+            cardContent
         }
-        .contentShape(shape)
+
+        return cardSurface
+            .overlay {
+                HStack(spacing: 0) {
+                    Rectangle()
+                        .fill(style.stripeColor)
+                        .frame(width: Self.stripeWidth)
+                        .frame(maxHeight: .infinity)
+
+                    Spacer(minLength: 0)
+                }
+                .clipShape(shape)
+            }
+            .overlay {
+                shape
+                    .stroke(style.borderColor, lineWidth: theme.borderWidth.hairline)
+            }
+            .contentShape(shape)
     }
 
     private var headerRow: some View {
@@ -196,11 +219,9 @@ public struct LSRouteAttachmentCard: View {
 
     private func metricsRow(style: LSRouteAttachmentCardResolvedStyle) -> some View {
         HStack(spacing: theme.space.sm) {
-            metricText(route.distance)
+            metricText(metricValues[0])
             metricDivider(style: style)
-            metricText(route.duration)
-            metricDivider(style: style)
-            metricText(route.elevation)
+            metricText(metricValues[1])
             metricDivider(style: style)
             scenicMeter(style: style)
         }
@@ -236,6 +257,9 @@ public struct LSRouteAttachmentCard: View {
                 .scaleEffect(Self.scenicDotScale)
                 .accessibilityIdentifier("lsrouteattachmentcard-scenic-\(index)")
             }
+
+            LSText(Self.scenicLabelText, variant: .label.sm, color: .secondary)
+                .accessibilityIdentifier("lsrouteattachmentcard-scenic-label")
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
@@ -264,10 +288,15 @@ extension LSRouteAttachmentCard {
 
     static func contentPadding(compact: Bool) -> LSRouteAttachmentCardContentPadding {
         if compact {
-            return LSRouteAttachmentCardContentPadding(vertical: 10, horizontal: 12)
+            return LSRouteAttachmentCardContentPadding(vertical: -2, horizontal: 0)
         }
 
         return LSRouteAttachmentCardContentPadding(vertical: 0, horizontal: 4)
+    }
+
+    static func containerInset(compact: Bool, in theme: Theme) -> LSRouteAttachmentCardContentPadding {
+        let inset = LSCard<EmptyView>.resolvedPadding(compact ? .spacing3 : .spacing4, in: theme)
+        return LSRouteAttachmentCardContentPadding(vertical: inset, horizontal: inset)
     }
 
     static func clampedScenicRating(_ scenicRating: Int) -> Int {

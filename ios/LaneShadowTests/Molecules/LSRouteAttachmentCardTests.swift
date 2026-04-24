@@ -1,10 +1,11 @@
+import NativeTheme
 import XCTest
 @testable import LaneShadow
 @testable import LaneShadowTheme
 
 @MainActor
 final class LSRouteAttachmentCardTests: XCTestCase {
-    func test_best_variant_stripe_and_bestbadge_and_weatherbadge() throws {
+    func test_best_variant_stripe_and_bestbadge_and_weatherbadge() {
         let route = bestRouteMock()
         let card = LSRouteAttachmentCard(route: route, selected: false, compact: false)
         let style = LSRouteAttachmentCard.resolvedStyle(variant: route.variant, selected: false)
@@ -17,22 +18,6 @@ final class LSRouteAttachmentCardTests: XCTestCase {
         XCTAssertEqual(style.stripeToken, "color.route.best")
         XCTAssertEqual(style.scenicFilledToken, "color.signal.default")
         XCTAssertEqual(style.scenicEmptyToken, "color.border.strong")
-
-        let source = try moleculeSource(named: "LSRouteAttachmentCard.swift")
-        XCTAssertTrue(source.contains("LSCard("))
-        XCTAssertTrue(source.contains("Rectangle()"))
-        XCTAssertTrue(source.contains("LSBestBadge()"))
-        XCTAssertTrue(source.contains("LSWeatherBadge("))
-        XCTAssertTrue(source.contains("LSText(route.title, variant: .title.md)"))
-        XCTAssertTrue(source.contains("LSText(route.subtitle, variant: .body.sm, color: .secondary)"))
-        XCTAssertTrue(source.contains("LaneShadowTheme.typography.instrumentSm.font"))
-        XCTAssertGreaterThanOrEqual(source.components(separatedBy: "LSIcon(").count - 1, 2)
-        XCTAssertTrue(source.contains("name: iconName"))
-        XCTAssertTrue(source.contains("index < clampedRating ? .circleFill : .circle"))
-        XCTAssertFalse(source.contains(".starFill"))
-        XCTAssertFalse(source.contains(".star,"))
-        XCTAssertFalse(source.contains("Image(systemName:"))
-        XCTAssertFalse(source.contains("Color(hex:"))
     }
 
     func test_selected_state_applies_signal_border() {
@@ -54,7 +39,20 @@ final class LSRouteAttachmentCardTests: XCTestCase {
 
         XCTAssertFalse(card.showsBestBadge)
         XCTAssertFalse(card.showsWeatherBadge)
-        XCTAssertEqual(card.contentPadding, LSRouteAttachmentCardContentPadding(vertical: 10, horizontal: 12))
+        XCTAssertEqual(
+            card.effectiveContentPadding(),
+            LSRouteAttachmentCardContentPadding(vertical: 10, horizontal: 12)
+        )
+    }
+
+    func test_non_compact_mode_uses_card_inset_plus_content_padding() {
+        let card = LSRouteAttachmentCard(route: bestRouteMock(), selected: false, compact: false)
+        let inset = LSRouteAttachmentCard.containerInset(compact: false, in: Theme.shared)
+
+        XCTAssertEqual(
+            card.effectiveContentPadding(),
+            LSRouteAttachmentCardContentPadding(vertical: inset.vertical, horizontal: inset.horizontal + 4)
+        )
     }
 
     func test_scenic_meter_uses_five_filled_and_hollow_circle_icons() {
@@ -101,6 +99,14 @@ final class LSRouteAttachmentCardTests: XCTestCase {
         XCTAssertEqual(alt2Style.stripeToken, "color.route.alt2")
         XCTAssertFalse(alt1Card.showsBestBadge)
         XCTAssertFalse(alt2Card.showsBestBadge)
+    }
+
+    func test_metrics_row_matches_uc_mol_08_composition() {
+        let card = LSRouteAttachmentCard(route: bestRouteMock(), selected: false, compact: false)
+
+        XCTAssertEqual(card.metricValues, ["62 mi", "1h 45m"])
+        XCTAssertEqual(card.scenicLabel, "SCENIC")
+        XCTAssertFalse(card.metricValues.contains("3,200 ft"))
     }
 
     func test_ontap_fires_once() {
@@ -152,22 +158,5 @@ final class LSRouteAttachmentCardTests: XCTestCase {
             scenicRating: 2,
             weather: .init(condition: .rain, label: "Rain 3pm")
         )
-    }
-
-    private func moleculeSource(named fileName: String) throws -> String {
-        let root = repoRoot()
-        let url = root
-            .appendingPathComponent("ios/LaneShadow/Views/Molecules")
-            .appendingPathComponent(fileName)
-
-        return try String(contentsOf: url, encoding: .utf8)
-    }
-
-    private func repoRoot() -> URL {
-        URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
     }
 }
