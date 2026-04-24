@@ -4,17 +4,21 @@ import XCTest
 @MainActor
 final class LSToolbarTests: XCTestCase {
     func test_default_render_uses_surface_primary_and_slot_atoms() throws {
+        let expectedHeight = try toolbarHeightTokenValue()
         let toolbar = LSToolbar(
             leading: .back(action: {}),
             title: "Details",
             trailing: .action(icon: .menu, action: {})
         )
+        let source = try moleculeSource(named: "LSToolbar.swift")
 
         XCTAssertEqual(toolbar.titleText, "Details")
         XCTAssertEqual(toolbar.heightTokenPath, "sizing.component.toolbarHeight")
         XCTAssertEqual(toolbar.surfaceTokenPath, "color.surface.primary")
+        XCTAssertEqual(toolbar.toolbarHeight, expectedHeight)
 
-        let source = try moleculeSource(named: "LSToolbar.swift")
+        XCTAssertTrue(source.contains(".frame(height: toolbarHeight)"))
+        XCTAssertFalse(source.contains(".frame(height: theme.control.minHeight)"))
         XCTAssertTrue(source.contains("safeAreaInset(edge: .top"))
         XCTAssertTrue(source.contains("LaneShadowTheme.color.surface.primary"))
         XCTAssertTrue(source.contains("LSText(title, variant: .ui.title.md)"))
@@ -46,6 +50,18 @@ final class LSToolbarTests: XCTestCase {
                 "Missing story id: \(id)"
             )
         }
+    }
+
+    private func toolbarHeightTokenValue() throws -> CGFloat {
+        let url = repoRoot().appendingPathComponent("tokens/semantic/dimensions.tokens.json")
+        let data = try Data(contentsOf: url)
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let dimensions = try XCTUnwrap(json?["dimensions"] as? [String: Any])
+        let sizing = try XCTUnwrap(dimensions["sizing"] as? [String: Any])
+        let component = try XCTUnwrap(sizing["component"] as? [String: Any])
+        let toolbarHeight = try XCTUnwrap(component["toolbarHeight"] as? [String: Any])
+        let value = try XCTUnwrap(toolbarHeight["$value"] as? Double)
+        return CGFloat(value)
     }
 
     private func moleculeSource(named fileName: String) throws -> String {

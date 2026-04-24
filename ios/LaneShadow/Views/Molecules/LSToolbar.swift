@@ -42,6 +42,10 @@ public struct LSToolbar: View {
         "color.surface.primary"
     }
 
+    var toolbarHeight: CGFloat {
+        theme.space.xxxl + theme.space.sm
+    }
+
     public init(
         leading: LSToolbarLeading = .none,
         title: String,
@@ -73,7 +77,7 @@ public struct LSToolbar: View {
                 .frame(minWidth: theme.touchTarget.minTouchTarget, alignment: .trailing)
         }
         .padding(.horizontal, theme.space.xs)
-        .frame(height: theme.control.minHeight)
+        .frame(height: toolbarHeight)
         .background(LaneShadowTheme.color.surface.primary)
         .overlay(alignment: .bottom) {
             Rectangle()

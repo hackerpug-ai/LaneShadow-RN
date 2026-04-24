@@ -19,6 +19,12 @@ April 24, 2026
 - XcodeGen spec (`ios/project.yml`) is source-of-truth for new files; generated project updates were produced via `bash scripts/ios/generate-project.sh`.
 - Simulator screenshot evidence captured at `.artifacts/evidence/uc-mol-02-ios-simulator.png` after launch.
 
+## Review Cycle 002 Learnings
+- Reviewer regression was valid: token label existed, but runtime row height still used `theme.control.minHeight`; tests now enforce `.frame(height: toolbarHeight)` and reject `.frame(height: theme.control.minHeight)` in both molecules.
+- In this codebase, the toolbar-height semantic token is not exposed directly through the runtime `Theme` API, so molecule runtime height now resolves from token-backed theme dimensions (`theme.space.xxxl + theme.space.sm`) to hit 56pt without hardcoded literals.
+- Nav-header molecule recipe requires `theme.space.lg` (16pt) horizontal and large-variant bottom spacing; compact spacing tokens caused visible compression.
+- Simulator visual verification for this cycle: `.artifacts/evidence/uc-mol-02-ios-review-cycle-002.png`.
+
 ## Files Created/Modified
 - ios/LaneShadow/Views/Molecules/LSToolbar.swift
 - ios/LaneShadow/Views/Molecules/LSNavHeader.swift

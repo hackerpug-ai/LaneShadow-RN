@@ -46,6 +46,10 @@ public struct LSNavHeader: View {
         }
     }
 
+    var toolbarHeight: CGFloat {
+        theme.space.xxxl + theme.space.sm
+    }
+
     public init(
         variant: LSNavHeaderVariant,
         title: String,
@@ -70,7 +74,7 @@ public struct LSNavHeader: View {
                 largeTitleRow
             }
         }
-        .padding(.bottom, variant == .largeTitle ? theme.space.xs : zeroSpacing)
+        .padding(.bottom, variant == .largeTitle ? theme.space.lg : zeroSpacing)
         .background(LaneShadowTheme.color.surface.primary)
         .overlay(alignment: .bottom) {
             Rectangle()
@@ -92,7 +96,7 @@ public struct LSNavHeader: View {
                     .lineLimit(2)
             }
         }
-        .padding(.horizontal, theme.space.md)
+        .padding(.horizontal, theme.space.lg)
     }
 
     private func toolbarRow(inlineTitle: Bool) -> some View {
@@ -112,8 +116,8 @@ public struct LSNavHeader: View {
             navTrailingSlot
                 .frame(minWidth: theme.touchTarget.minTouchTarget, alignment: .trailing)
         }
-        .padding(.horizontal, theme.space.xs)
-        .frame(height: theme.control.minHeight)
+        .padding(.horizontal, theme.space.lg)
+        .frame(height: toolbarHeight)
     }
 
     @ViewBuilder
