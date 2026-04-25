@@ -2,6 +2,7 @@
 package com.laneshadow.sandbox
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,16 +39,21 @@ import com.laneshadow.ui.atoms.LSIcon
 import com.nativesandbox.model.Story
 import com.nativesandbox.theming.themedPreview
 import com.nativesandbox.views.SandboxRoot
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 @Composable
 fun LaneShadowSandbox(route: SandboxRoute = SandboxRoute(shouldOpenSandbox = true, storyId = null)) {
     var selectedStoryId by remember(route.storyId) { mutableStateOf(route.storyId) }
     val allStories = LaneShadowSandboxEntry.getAllStories()
     val selectedStory = selectedStoryId?.let { storyId -> allStories.firstOrNull { it.id == storyId } }
-    val previewWrapper = themedPreview { content -> LaneShadowTheme { content() } }
+    val isDark = LaneShadowThemeBridge.isDarkMode()
+    val previewWrapper = themedPreview { content -> LaneShadowTheme(darkTheme = isDark) { content() } }
 
     if (selectedStory != null) {
-        LaneShadowTheme {
+        LaneShadowTheme(darkTheme = isDark) {
             LaneShadowSandboxStoryDetail(
                 story = selectedStory,
                 previewWrapper = previewWrapper,
