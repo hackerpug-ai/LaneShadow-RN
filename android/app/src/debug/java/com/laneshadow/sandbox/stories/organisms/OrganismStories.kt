@@ -6,5 +6,6 @@ object OrganismStories {
     val all: List<Story> = listOf(
         *LSTopBarStory.all.toTypedArray(),
         *LSNavBarStory.all.toTypedArray(),
+        *LSSectionHeaderStory.all.toTypedArray(),
     )
 }
