@@ -134,7 +134,7 @@ private var mockSessions: [StorySession] {
 }
 
 private var longMockSessions: [StorySession] {
-    (0..<20).map { index in
+    (0 ..< 20).map { index in
         StorySession(
             id: "session-\(index)",
             title: "Session \(index)",

@@ -6,7 +6,7 @@ import XCTest
 
 // MARK: - Session Model (test fixture)
 
-struct LSTestSession: Identifiable, Equatable, Sendable {
+struct LSTestSession: Identifiable, Equatable {
     let id: String
     let title: String
     let preview: String
@@ -33,7 +33,7 @@ struct LSTestSession: Identifiable, Equatable, Sendable {
     }
 }
 
-// Extend LSTestSession to conform to the session protocols
+/// Extend LSTestSession to conform to the session protocols
 extension LSTestSession: SessionTitleProvider, SessionPreviewProvider, SessionWhenProvider {}
 
 // MARK: - Tests
@@ -214,7 +214,7 @@ final class LSSessionsDrawerTests: XCTestCase {
 
     func test_header_and_section_label_stay_sticky_on_scroll() throws {
         // Create 20 mock sessions for long list
-        let twentySessions = (0..<20).map { index in
+        let twentySessions = (0 ..< 20).map { index in
             LSTestSession.mock(
                 id: "session-\(index)",
                 title: "Session \(index)",
