@@ -150,6 +150,7 @@ targets:
       - path: LaneShadow/Sandbox/Stories/TemplateStories.swift
       - path: LaneShadow/Sandbox/Stories/ModifierStories.swift
       - path: LaneShadow/Sandbox/Stories/InfrastructureStories.swift
+      - path: LaneShadow/Sandbox/Stories/Infrastructure/PlaceholderInfrastructureStories.swift
       # Sprint 05 organism stories
       - path: LaneShadow/Sandbox/Stories/Organisms
         type: syncedFolder
