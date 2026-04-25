@@ -14,6 +14,8 @@ import SwiftUI
 public struct LSRouteCard: View {
     @Environment(\.theme) private var theme
 
+    private let mapPreviewHeight: CGFloat = 160
+
     private let route: Route
 
     public init(route: Route) {
@@ -37,8 +39,6 @@ public struct LSRouteCard: View {
     // MARK: - Map Preview
 
     private var mapPreview: some View {
-        let mapHeight: CGFloat = 160
-
         return ZStack(alignment: .topLeading) {
             if !route.polyline.isEmpty {
                 LSMap(
@@ -53,13 +53,13 @@ public struct LSRouteCard: View {
                     ],
                     annotations: mapAnnotations
                 )
-                .frame(height: mapHeight)
+                .frame(height: mapPreviewHeight)
                 .clipShape(RoundedRectangle(cornerRadius: theme.radius.md))
             } else {
                 // Fallback placeholder when no polyline
                 Rectangle()
                     .fill(LSSurfaceColorToken.card.resolved(in: theme))
-                    .frame(height: mapHeight)
+                    .frame(height: mapPreviewHeight)
                     .clipShape(RoundedRectangle(cornerRadius: theme.radius.md))
                     .overlay {
                         VStack(spacing: theme.space.xs) {

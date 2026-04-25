@@ -5,6 +5,8 @@ import SwiftUI
 public struct LSNavigatorMessage: View {
     @Environment(\.theme) private var theme
 
+    private let indicatorDotSize: CGFloat = 5
+
     private let messageBody: String
     private let attachments: [LSRouteAttachment]
     private let pinned: Bool
@@ -45,6 +47,7 @@ public struct LSNavigatorMessage: View {
         .task {
             // Auto-dismiss after 5000ms for unpinned messages
             try? await Task.sleep(nanoseconds: 5_000_000_000)
+            guard !Task.isCancelled else { return }
             if !pinned {
                 onDismiss()
             }
@@ -85,13 +88,13 @@ extension LSNavigatorMessage {
     private func weatherCondition(from type: LSWeatherBadgeType) -> WeatherCondition {
         switch type {
         case .clear:
-            return .clear
+            .clear
         case .rain:
-            return .rain
+            .rain
         case .wind:
-            return .wind
+            .wind
         case .cloudy:
-            return .storm // Map cloudy to storm as closest equivalent
+            .storm // Map cloudy to storm as closest equivalent
         }
     }
 
@@ -124,7 +127,7 @@ extension LSNavigatorMessage {
         .background(
             Circle()
                 .fill(LaneShadowTheme.color.signal.whisper)
-                .opacity(theme.opacity.values["20"] ?? 0.22)
+                .opacity(theme.opacity.values["20"]!)
         )
         .overlay(
             Circle()
@@ -161,7 +164,7 @@ extension LSNavigatorMessage {
         HStack(spacing: theme.space.xs) {
             Circle()
                 .fill(LaneShadowTheme.color.signal.default)
-                .frame(width: 5, height: 5)
+                .frame(width: indicatorDotSize, height: indicatorDotSize)
 
             LSText("Pinned — will not auto-dismiss", variant: .label.sm)
                 .foregroundStyle(LaneShadowTheme.color.signal.default)

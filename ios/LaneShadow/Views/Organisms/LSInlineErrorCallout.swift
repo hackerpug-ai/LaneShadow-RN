@@ -68,7 +68,7 @@ extension LSInlineErrorCallout {
         .background(
             Circle()
                 .fill(LaneShadowTheme.color.status.warning.default)
-                .opacity(theme.opacity.values["20"] ?? 0.22)
+                .opacity(theme.opacity.values["20"]!)
         )
         .overlay(
             Circle()

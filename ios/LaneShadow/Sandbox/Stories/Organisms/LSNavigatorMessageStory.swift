@@ -28,6 +28,17 @@ enum LSNavigatorMessageStory {
         ) { _ in
             LSNavigatorMessage(
                 body: "Take 280 south to 92 east, then Skyline.",
+                attachments: [
+                    LSRouteAttachment(
+                        id: "route-1",
+                        label: "Via Skyline Blvd",
+                        description: "Scenic coastal route",
+                        distance: "42 mi",
+                        duration: "2h 15m",
+                        scenicScore: 4.8,
+                        isBest: true
+                    )
+                ],
                 pinned: false,
                 onPin: {},
                 onDismiss: {}
@@ -42,6 +53,11 @@ enum LSNavigatorMessageStory {
         ) { _ in
             LSNavigatorMessage(
                 body: "Take 280 south to 92 east, then Skyline.",
+                attachments: [
+                    LSRouteAttachment(id: "route-1", label: "Via Skyline Blvd", description: "Scenic coastal route", distance: "42 mi", duration: "2h 15m", scenicScore: 4.8, isBest: true),
+                    LSRouteAttachment(id: "route-2", label: "Highway 1 South", description: "Direct highway route", distance: "38 mi", duration: "1h 45m", scenicScore: 3.2, isBest: false),
+                    LSRouteAttachment(id: "route-3", label: "Through Pescadero", description: "Inland route through farmland", distance: "52 mi", duration: "2h 40m", scenicScore: 4.1, isBest: false)
+                ],
                 pinned: false,
                 onPin: {},
                 onDismiss: {}

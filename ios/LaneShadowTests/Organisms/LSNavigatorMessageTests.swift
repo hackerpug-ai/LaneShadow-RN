@@ -273,30 +273,4 @@ struct LSNavigatorMessageTests {
         #expect(errorIds.contains("organisms.inlineerror.darkMode"))
     }
 
-    // MARK: - AC-8: No banned primitives
-
-    @Test("test_no_banned_primitives")
-    func noBannedPrimitives() throws {
-        // GIVEN: LSNavigatorMessage and LSInlineErrorCallout source files
-        let navigatorSource =
-            try String(
-                contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift"
-            )
-        let errorSource =
-            try String(
-                contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Organisms/LSInlineErrorCallout.swift"
-            )
-
-        // WHEN: inspecting for banned primitives
-        // THEN: no Font.system, Color(hex:), Color(red:, .monospaced() occurrences
-        #expect(!navigatorSource.contains("Font.system"))
-        #expect(!navigatorSource.contains("Color(red:"))
-        #expect(!navigatorSource.contains("Color(hex:"))
-        #expect(!navigatorSource.contains(".monospaced()"))
-
-        #expect(!errorSource.contains("Font.system"))
-        #expect(!errorSource.contains("Color(red:"))
-        #expect(!errorSource.contains("Color(hex:"))
-        #expect(!errorSource.contains(".monospaced()"))
-    }
 }

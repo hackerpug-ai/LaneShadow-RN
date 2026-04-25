@@ -7,6 +7,9 @@ import SwiftUI
 public struct LSSessionsDrawer<Session: Identifiable>: View where Session.ID == String {
     @Environment(\.theme) private var theme
 
+    private let drawerWidth: CGFloat = 312
+    private let sessionRowHeight: CGFloat = 72
+
     private let sessions: [Session]
     private let activeSessionId: String?
     private let groupLabel: String
@@ -54,14 +57,14 @@ public struct LSSessionsDrawer<Session: Identifiable>: View where Session.ID == 
                     }
                 }
             }
-            .frame(width: 312)
+            .frame(width: drawerWidth)
             .overlay(alignment: .trailing) {
                 Rectangle()
                     .fill(LaneShadowTheme.color.border.default)
                     .frame(width: theme.strokeWidth.thin)
             }
             .shadow(
-                color: theme.elevation.level4.shadowColor.opacity(theme.opacity.values["10"] ?? 0.1),
+                color: theme.elevation.level4.shadowColor.opacity(theme.opacity.values["10"]!),
                 radius: 16,
                 x: 2,
                 y: 0
@@ -92,6 +95,8 @@ public struct LSSessionsDrawer<Session: Identifiable>: View where Session.ID == 
 
 private struct SessionRow<Session: Identifiable>: View where Session.ID == String {
     @Environment(\.theme) private var theme
+
+    private let rowHeight: CGFloat = 72
 
     private let session: Session
     private let isActive: Bool
@@ -151,18 +156,14 @@ private struct SessionRow<Session: Identifiable>: View where Session.ID == Strin
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     isActive
-                        ? LaneShadowTheme.color.signal.default.opacity(theme.opacity.values["5"] ?? 0.05)
+                        ? LaneShadowTheme.color.signal.default.opacity(theme.opacity.values["5"]!)
                         : Color.clear
                 )
             }
         }
         .buttonStyle(.plain)
-        .background(LaneShadowTheme.color.border.subtle.opacity(theme.opacity.values["50"] ?? 0.5))
+        .background(LaneShadowTheme.color.border.subtle.opacity(theme.opacity.values["50"]!))
         .frame(height: rowHeight)
-    }
-
-    private var rowHeight: CGFloat {
-        72
     }
 }
 
