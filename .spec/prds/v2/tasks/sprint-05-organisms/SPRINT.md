@@ -2,7 +2,7 @@
 
 **Sequence:** 5
 **Timeline:** Phase 4 · Week 4–5
-**Status:** Planned
+**Status:** In Progress (remediation)
 
 ---
 
@@ -61,6 +61,15 @@ A reviewer can open every organism story in the sandbox on both platforms with m
 | UC-ORG-06-android | `LSRouteCard` domain organism (consumes multi-polyline `LSMap`) — Android Compose | kotlin-implementer | 180 min |
 | UC-ORG-07-ios | `LSSectionHeader` organism — iOS SwiftUI | swift-implementer | 90 min |
 | UC-ORG-07-android | `LSSectionHeader` organism — Android Compose | kotlin-implementer | 90 min |
+
+### Remediation Tasks (from red-hat review 2026-04-25)
+
+| ID | Title | Agent | Estimate |
+|----|-------|-------|----------|
+| REMEDIATION-01 | UC-ORG-03 Android: Missing tests + disabled stories | kotlin-implementer | 120 min |
+| REMEDIATION-02 | UC-ORG-03 iOS: Auto-dismiss + attachment composition | swift-implementer | 90 min |
+| REMEDIATION-03 | UC-ORG-02 iOS: Replace EmptyView stubs in MapLayer | swift-implementer | 90 min |
+| REMEDIATION-04 | Token sweep: Replace hardcoded values across organisms | swift-implementer + kotlin-implementer | 60 min |
 
 ---
 

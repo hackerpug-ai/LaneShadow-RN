@@ -36,8 +36,55 @@ struct LSNavigatorMessageTests {
 
     // MARK: - AC-3: Unpinned auto-dismiss; pinned persists
 
-    // Note: Auto-dismiss timing implementation is deferred
-    // Would require .task { try? await Task.sleep(...) }
+    @Test("test_autoDismiss_firesAfterTimeout")
+    func autoDismissFiresAfterTimeout() async {
+        // GIVEN: LSNavigatorMessage with pinned=false and onDismiss callback
+        final class DismissTracker: @unchecked Sendable {
+            var dismissCount = 0
+        }
+        let tracker = DismissTracker()
+
+        let message = LSNavigatorMessage(
+            body: "Take 280 south to 92 east, then Skyline.",
+            pinned: false,
+            onPin: {},
+            onDismiss: { @Sendable in tracker.dismissCount += 1 }
+        )
+
+        // WHEN: view body resolves and 5000ms elapses
+        _ = message.body
+
+        // Wait for auto-dismiss timeout
+        try? await Task.sleep(nanoseconds: 5_500_000_000) // 5.5 seconds to ensure timeout fires
+
+        // THEN: onDismiss fired exactly once
+        #expect(tracker.dismissCount == 1, "Expected onDismiss to fire once after 5000ms")
+    }
+
+    @Test("test_pinned_message_doesNotAutoDismiss")
+    func pinnedMessageDoesNotAutoDismiss() async {
+        // GIVEN: LSNavigatorMessage with pinned=true and onDismiss callback
+        final class DismissTracker: @unchecked Sendable {
+            var dismissCount = 0
+        }
+        let tracker = DismissTracker()
+
+        let message = LSNavigatorMessage(
+            body: "Take 280 south to 92 east, then Skyline.",
+            pinned: true,
+            onPin: {},
+            onDismiss: { @Sendable in tracker.dismissCount += 1 }
+        )
+
+        // WHEN: view body resolves and 5000ms elapses
+        _ = message.body
+
+        // Wait for auto-dismiss timeout
+        try? await Task.sleep(nanoseconds: 5_500_000_000) // 5.5 seconds
+
+        // THEN: onDismiss did NOT fire
+        #expect(tracker.dismissCount == 0, "Expected onDismiss to NOT fire for pinned message")
+    }
 
     // MARK: - AC-4: Pin/Dismiss handlers fire once
 

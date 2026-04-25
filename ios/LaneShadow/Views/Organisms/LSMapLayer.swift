@@ -64,15 +64,20 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
 
             // z-index 3: Bottom sheet (above overlays)
             if let bottomSheet {
-                // Bottom sheet rendering deferred to AC-6
-                EmptyView()
-                    .accessibilityIdentifier("maplayer.bottomSheet")
+                LSBottomSheet(
+                    isPresented: .constant(true),
+                    detent: bottomSheet.detent == .medium ? .medium : .large,
+                    onDismiss: {}
+                ) {
+                    bottomSheet.content()
+                }
+                .accessibilityIdentifier("maplayer.bottomSheet")
             }
 
             // z-index 4: Leading drawer (above sheet and overlays)
             if let leadingDrawer {
-                // Drawer rendering deferred to AC-5
-                EmptyView()
+                leadingDrawer.content()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                     .accessibilityIdentifier("maplayer.drawer")
             }
 
