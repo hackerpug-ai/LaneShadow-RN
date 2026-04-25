@@ -112,7 +112,7 @@ enum RouteCardFixtures {
         LSRouteCard.Route(
             id: "route-1",
             title: "The Skyline Spine",
-            distance: 47_000, // meters
+            distance: 47000, // meters
             duration: 4920, // seconds (1h 22m)
             polyline: [
                 LatLng(lat: 37.7749, lon: -122.4194),
@@ -129,7 +129,7 @@ enum RouteCardFixtures {
         LSRouteCard.Route(
             id: "route-2",
             title: "Old La Honda Road",
-            distance: 38_000,
+            distance: 38000,
             duration: 3900,
             polyline: [
                 LatLng(lat: 37.3500, lon: -122.2000),
@@ -153,7 +153,7 @@ enum RouteCardFixtures {
             id: "route-3",
             title: "The Pacific Coast Highway Long Haul South from San Francisco to Big Sur",
             distance: 142_000,
-            duration: 13_500,
+            duration: 13500,
             polyline: [
                 LatLng(lat: 37.7749, lon: -122.4194),
                 LatLng(lat: 36.5000, lon: -121.9000),
