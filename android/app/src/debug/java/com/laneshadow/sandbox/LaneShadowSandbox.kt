@@ -42,7 +42,8 @@ import com.nativesandbox.views.SandboxRoot
 @Composable
 fun LaneShadowSandbox(route: SandboxRoute = SandboxRoute(shouldOpenSandbox = true, storyId = null)) {
     var selectedStoryId by remember(route.storyId) { mutableStateOf(route.storyId) }
-    val selectedStory = selectedStoryId?.let { storyId -> AppStories.all.firstOrNull { it.id == storyId } }
+    val allStories = LaneShadowSandboxEntry.getAllStories()
+    val selectedStory = selectedStoryId?.let { storyId -> allStories.firstOrNull { it.id == storyId } }
     val previewWrapper = themedPreview { content -> LaneShadowTheme { content() } }
 
     if (selectedStory != null) {
@@ -57,7 +58,7 @@ fun LaneShadowSandbox(route: SandboxRoute = SandboxRoute(shouldOpenSandbox = tru
     }
 
     SandboxRoot(
-        stories = AppStories.all,
+        stories = allStories,
         themeController = LaneShadowThemeBridge,
         previewWrapper = previewWrapper,
     )
