@@ -172,6 +172,8 @@ targets:
       - path: LaneShadow/Views/Molecules/LSWeatherBadge.swift
       - path: LaneShadow/Views/Molecules/LSInstrumentReadout.swift
       - path: LaneShadow/Views/Molecules/LSWeatherTimeline.swift
+      - path: LaneShadow/Views/Molecules/ChatTranscript.swift
+      - path: LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift
       # Sprint 05 organisms
       - path: LaneShadow/Views/Organisms/LSRouteSheet.swift
       - path: LaneShadow/Views/Organisms/LSSessionsDrawer.swift

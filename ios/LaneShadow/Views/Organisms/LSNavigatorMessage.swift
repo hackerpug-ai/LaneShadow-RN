@@ -6,17 +6,20 @@ public struct LSNavigatorMessage: View {
     @Environment(\.theme) private var theme
 
     private let messageBody: String
+    private let attachments: [LSRouteAttachment]
     private let pinned: Bool
     private let onPin: @Sendable () -> Void
     private let onDismiss: @Sendable () -> Void
 
     public init(
         body: String,
+        attachments: [LSRouteAttachment] = [],
         pinned: Bool = false,
         onPin: @Sendable @escaping () -> Void,
         onDismiss: @Sendable @escaping () -> Void
     ) {
         messageBody = body
+        self.attachments = attachments
         self.pinned = pinned
         self.onPin = onPin
         self.onDismiss = onDismiss
@@ -29,6 +32,10 @@ public struct LSNavigatorMessage: View {
 
                 LSText(messageBody, variant: .heading.md)
                     .foregroundStyle(LaneShadowTheme.color.content.primary)
+
+                if !attachments.isEmpty {
+                    attachmentStack
+                }
 
                 if pinned {
                     pinnedIndicator
@@ -46,6 +53,48 @@ public struct LSNavigatorMessage: View {
 }
 
 extension LSNavigatorMessage {
+    private var attachmentStack: some View {
+        VStack(alignment: .leading, spacing: theme.space.sm) {
+            ForEach(Array(attachments.enumerated()), id: \.element.id) { index, attachment in
+                LSRouteAttachmentCard(
+                    route: LSRouteAttachmentCardRoute(
+                        variant: attachment.isBest ? .best : (index == 1 ? .alt1 : .alt2),
+                        title: attachment.label,
+                        subtitle: attachment.description,
+                        distance: attachment.distance,
+                        duration: attachment.duration,
+                        elevation: "", // Not provided by LSRouteAttachment
+                        scenicRating: Int(attachment.scenicScore),
+                        weather: attachment.weatherBadge.map { weather in
+                            LSRouteAttachmentCardRoute.Weather(
+                                condition: weatherCondition(from: weather.type),
+                                label: weather.text
+                            )
+                        },
+                        favoriteLabel: nil
+                    ),
+                    selected: index == 0, // First attachment is selected
+                    compact: false,
+                    onTap: nil
+                )
+            }
+        }
+        .padding(.top, theme.space.xs)
+    }
+
+    private func weatherCondition(from type: LSWeatherBadgeType) -> WeatherCondition {
+        switch type {
+        case .clear:
+            return .clear
+        case .rain:
+            return .rain
+        case .wind:
+            return .wind
+        case .cloudy:
+            return .storm // Map cloudy to storm as closest equivalent
+        }
+    }
+
     private var headerRow: some View {
         HStack(alignment: .top, spacing: theme.space.xs) {
             compassChip

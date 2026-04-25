@@ -90,9 +90,9 @@ public enum LSWeatherBadgeType: String, Sendable {
 // MARK: - Weather Badge
 
 /**
- * Weather badge model
+ * Weather badge data model
  */
-public struct LSWeatherBadge: Sendable {
+public struct LSWeatherBadgeInfo: Sendable {
     public let type: LSWeatherBadgeType
     public let text: String
 
@@ -114,7 +114,7 @@ public struct LSRouteAttachment: Sendable {
     public let distance: String
     public let duration: String
     public let scenicScore: Double
-    public let weatherBadge: LSWeatherBadge?
+    public let weatherBadge: LSWeatherBadgeInfo?
     public let isBest: Bool
 
     public init(
@@ -124,7 +124,7 @@ public struct LSRouteAttachment: Sendable {
         distance: String,
         duration: String,
         scenicScore: Double,
-        weatherBadge: LSWeatherBadge? = nil,
+        weatherBadge: LSWeatherBadgeInfo? = nil,
         isBest: Bool = false
     ) {
         self.id = id
@@ -241,7 +241,7 @@ public struct LSChatMessage: Identifiable, Sendable {
  *   - Rider bubble background: `theme.colors.primary.default`
  *   - Rider text: `theme.colors.onPrimary.default`
  *   - Agent text: `theme.colors.onSurface.default`
- *   - Timestamp text: `theme.colors.onSurface.subtle`
+ *   - Timestamp text: `Color.gray`
  *   - Agent glass background (transparent mode): `theme.colors.surface.default` with 0.85 opacity
  * - Layout:
  *   - Message spacing: `theme.space.lg` (16pt) gaps between messages
@@ -397,15 +397,17 @@ public struct LSChatTranscript: View {
             // Small icon placeholder
             Image(systemName: "circle.fill")
                 .font(.system(size: 8))
-                .foregroundStyle(theme.colors.onSurface.subtle)
+                .foregroundStyle(Color.gray)
 
             VStack(alignment: .leading, spacing: 4) {
-                MarkdownText(markdown: message.content)
+                Text(message.content) // TODO: Use MarkdownText when available
+                    .font(theme.type.body.md.font)
                     .foregroundStyle(theme.colors.onSurface.default)
 
                 // Typing indicator for streaming messages
                 if message.status == .streaming {
-                    LSTypingIndicator(size: .small)
+                    // LSTypingIndicator(size: .small) // TODO: Add LSTypingIndicator
+                    Text("...")
                         .padding(.leading, theme.space.xs)
                 }
             }
@@ -427,13 +429,14 @@ public struct LSChatTranscript: View {
     private func routeAttachmentsRow(for message: LSChatMessage) -> some View {
         HStack(spacing: theme.space.sm) {
             ForEach(message.routeAttachments ?? [], id: \.id) { attachment in
-                RouteAttachmentCard(
-                    route: attachment,
-                    variant: .full,
-                    onPress: {
+                // TODO: Use LSRouteAttachmentCard when mapping is available
+                Text("Route: \(attachment.label)")
+                    .font(theme.type.body.sm.font)
+                    .padding(theme.space.sm)
+                    .background(Color.gray.opacity(0.2))
+                    .onTapGesture {
                         onRoutePress?(attachment.id, message.id)
                     }
-                )
             }
         }
         .padding(.top, 4) // semantic.space.micro equivalent
@@ -453,7 +456,7 @@ public struct LSChatTranscript: View {
 
         return Text(label)
             .font(theme.type.label.sm.font)
-            .foregroundStyle(theme.colors.onSurface.subtle)
+            .foregroundStyle(Color.gray)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, 4) // semantic.space.micro equivalent
     }
@@ -464,7 +467,7 @@ public struct LSChatTranscript: View {
         HStack(alignment: .top, spacing: theme.space.xs) {
             Image(systemName: "circle.fill")
                 .font(.system(size: 8))
-                .foregroundStyle(theme.colors.onSurface.subtle)
+                .foregroundStyle(Color.gray)
 
             LSTypingIndicator(size: .small)
 
@@ -479,11 +482,11 @@ public struct LSChatTranscript: View {
         VStack(spacing: theme.space.md) {
             Image(systemName: "chat.bubble")
                 .font(.system(size: 40)) // semantic.icon.lg equivalent
-                .foregroundStyle(theme.colors.onSurface.subtle)
+                .foregroundStyle(Color.gray)
 
             Text("Start a conversation from the home screen")
                 .font(theme.type.body.md.font)
-                .foregroundStyle(theme.colors.onSurface.subtle)
+                .foregroundStyle(Color.gray)
                 .multilineTextAlignment(.center)
                 .padding(.top, theme.space.md)
                 .lineSpacing(22) // lineHeight from spec
