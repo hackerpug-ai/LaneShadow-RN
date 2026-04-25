@@ -170,7 +170,10 @@ targets:
       - path: LaneShadow/Views/Molecules/LSChatInput.swift
       - path: LaneShadow/Views/Molecules/LSToolbar.swift
       - path: LaneShadow/Views/Molecules/LSWeatherBadge.swift
+      - path: LaneShadow/Views/Molecules/LSInstrumentReadout.swift
+      - path: LaneShadow/Views/Molecules/LSWeatherTimeline.swift
       # Sprint 05 organisms
+      - path: LaneShadow/Views/Organisms/LSRouteSheet.swift
       - path: LaneShadow/Views/Organisms
         type: syncedFolder
     dependencies:

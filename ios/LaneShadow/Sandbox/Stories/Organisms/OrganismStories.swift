@@ -13,6 +13,7 @@ enum OrganismStories {
         stories += LSNavigatorMessageStory.all
         stories += LSInlineErrorCalloutStory.all
         stories += LSMapLayerStory.all
+        stories += LSRouteSheetStory.all
         return stories
     }()
 }
