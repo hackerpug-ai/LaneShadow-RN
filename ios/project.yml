@@ -169,6 +169,7 @@ targets:
       - path: LaneShadow/Views/Molecules/LSSuggestionChip.swift
       - path: LaneShadow/Views/Molecules/LSChatInput.swift
       - path: LaneShadow/Views/Molecules/LSToolbar.swift
+      - path: LaneShadow/Views/Molecules/LSWeatherBadge.swift
       # Sprint 05 organisms
       - path: LaneShadow/Views/Organisms
         type: syncedFolder
