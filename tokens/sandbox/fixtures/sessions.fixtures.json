@@ -1,0 +1,169 @@
+{
+  "default": [
+    {
+      "id": "session-001",
+      "title": "Santa Cruz loop",
+      "preview": "Scenic 2-hour ride, avoid highways",
+      "meta": "3 routes · Active",
+      "when": "Now",
+      "active": true,
+      "routeIds": ["route-001", "route-002", "route-003"],
+      "createdAt": "2026-04-25T10:30:00Z"
+    },
+    {
+      "id": "session-002",
+      "title": "Niles Canyon morning",
+      "preview": "Twisty roads, coffee stop in Sunol",
+      "meta": "2 routes",
+      "when": "Tue",
+      "active": false,
+      "routeIds": ["route-004", "route-005"],
+      "createdAt": "2026-04-22T08:15:00Z"
+    },
+    {
+      "id": "session-003",
+      "title": "Diablo summit attempt",
+      "preview": "Early morning climb, light traffic",
+      "meta": "1 route",
+      "when": "Apr 12",
+      "active": false,
+      "routeIds": ["route-008"],
+      "createdAt": "2026-04-12T06:45:00Z"
+    }
+  ],
+  "empty": [],
+  "overflow": [
+    {
+      "id": "session-001",
+      "title": "Santa Cruz loop",
+      "preview": "Scenic 2-hour ride, avoid highways",
+      "meta": "3 routes · Active",
+      "when": "Now",
+      "active": true,
+      "routeIds": ["route-001", "route-002", "route-003"],
+      "createdAt": "2026-04-25T10:30:00Z"
+    },
+    {
+      "id": "session-002",
+      "title": "Niles Canyon morning",
+      "preview": "Twisty roads, coffee stop in Sunol",
+      "meta": "2 routes",
+      "when": "Tue",
+      "active": false,
+      "routeIds": ["route-004", "route-005"],
+      "createdAt": "2026-04-22T08:15:00Z"
+    },
+    {
+      "id": "session-003",
+      "title": "Diablo summit attempt",
+      "preview": "Early morning climb, light traffic",
+      "meta": "1 route",
+      "when": "Apr 12",
+      "active": false,
+      "routeIds": ["route-008"],
+      "createdAt": "2026-04-12T06:45:00Z"
+    },
+    {
+      "id": "session-004",
+      "title": "Point Reyes lighthouse",
+      "preview": "Coastal views, possible whale watching",
+      "meta": "2 routes",
+      "when": "Apr 10",
+      "active": false,
+      "routeIds": ["route-007", "route-012"],
+      "createdAt": "2026-04-10T09:00:00Z"
+    },
+    {
+      "id": "session-005",
+      "title": "Stevens Canyon sunset",
+      "preview": "Evening ride, dinner at end",
+      "meta": "3 routes",
+      "when": "Apr 08",
+      "active": false,
+      "routeIds": ["route-009", "route-001", "route-006"],
+      "createdAt": "2026-04-08T17:30:00Z"
+    },
+    {
+      "id": "session-006",
+      "title": "San Antonio valley explorer",
+      "preview": "Long remote ride, bring extra fuel",
+      "meta": "1 route",
+      "when": "Apr 05",
+      "active": false,
+      "routeIds": ["route-011"],
+      "createdAt": "2026-04-05T07:00:00Z"
+    },
+    {
+      "id": "session-007",
+      "title": "Pescadero creek run",
+      "preview": "Forest roads, lunch in Pescadero",
+      "meta": "2 routes",
+      "when": "Apr 01",
+      "active": false,
+      "routeIds": ["route-004", "route-001"],
+      "createdAt": "2026-04-01T10:00:00Z"
+    },
+    {
+      "id": "session-008",
+      "title": "Mt Hamilton observatory",
+      "preview": "Steepest climb in Bay Area",
+      "meta": "1 route",
+      "when": "Mar 28",
+      "active": false,
+      "routeIds": ["route-003"],
+      "createdAt": "2026-03-28T06:00:00Z"
+    },
+    {
+      "id": "session-009",
+      "title": "Coastal highway magic",
+      "preview": "Devil's Slide to Santa Cruz",
+      "meta": "4 routes",
+      "when": "Mar 25",
+      "active": false,
+      "routeIds": ["route-012", "route-002", "route-007", "route-001"],
+      "createdAt": "2026-03-25T08:30:00Z"
+    },
+    {
+      "id": "session-010",
+      "title": "Tamaulipas bay tour",
+      "preview": "Easy ride, scenic waterfront",
+      "meta": "2 routes",
+      "when": "Mar 22",
+      "active": false,
+      "routeIds": ["route-010", "route-005"],
+      "createdAt": "2026-03-22T11:00:00Z"
+    },
+    {
+      "id": "session-011",
+      "title": "Santa Cruz mountain dive",
+      "preview": "Summit to sea, elevation galore",
+      "meta": "3 routes",
+      "when": "Mar 18",
+      "active": false,
+      "routeIds": ["route-006", "route-009", "route-004"],
+      "createdAt": "2026-03-18T07:30:00Z"
+    },
+    {
+      "id": "session-012",
+      "title": "Skyline spine encore",
+      "preview": "Weekend classic, Alice's lunch",
+      "meta": "2 routes",
+      "when": "Mar 15",
+      "active": false,
+      "routeIds": ["route-001", "route-003"],
+      "createdAt": "2026-03-15T09:15:00Z"
+    }
+  ],
+  "long-copy": [
+    {
+      "id": "session-001",
+      "title": "The Ultimate Santa Cruz Coastal Loop Adventure with Multiple Scenic Stops and Optional Extensions",
+      "preview": "I am looking for a truly scenic and memorable two-hour motorcycle ride that takes me down the coast to Santa Cruz while completely avoiding all highways and major roads. I want to see the ocean, ride through redwood forests, and maybe stop for coffee along the way. Please include optional detours to points of interest.",
+      "meta": "3 routes · Active · Plus 2 optional extensions",
+      "when": "Now",
+      "active": true,
+      "routeIds": ["route-001", "route-002", "route-003", "route-012", "route-007"],
+      "createdAt": "2026-04-25T10:30:00Z"
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "default": [
+    {
+      "hour": "9",
+      "temperature": 62,
+      "condition": "clear"
+    },
+    {
+      "hour": "10",
+      "temperature": 65,
+      "condition": "clear"
+    },
+    {
+      "hour": "11",
+      "temperature": 68,
+      "condition": "clear"
+    },
+    {
+      "hour": "12",
+      "temperature": 71,
+      "condition": "clear"
+    },
+    {
+      "hour": "13",
+      "temperature": 73,
+      "condition": "clear"
+    },
+    {
+      "hour": "14",
+      "temperature": 74,
+      "condition": "clear"
+    }
+  ],
+  "empty": [],
+  "overflow": [
+    {
+      "hour": "6",
+      "temperature": 55,
+      "condition": "clear"
+    },
+    {
+      "hour": "7",
+      "temperature": 58,
+      "condition": "clear"
+    },
+    {
+      "hour": "8",
+      "temperature": 60,
+      "condition": "clear"
+    },
+    {
+      "hour": "9",
+      "temperature": 62,
+      "condition": "clear"
+    },
+    {
+      "hour": "10",
+      "temperature": 65,
+      "condition": "clear"
+    },
+    {
+      "hour": "11",
+      "temperature": 68,
+      "condition": "clear"
+    },
+    {
+      "hour": "12",
+      "temperature": 71,
+      "condition": "clear"
+    },
+    {
+      "hour": "13",
+      "temperature": 73,
+      "condition": "clear"
+    },
+    {
+      "hour": "14",
+      "temperature": 74,
+      "condition": "clear"
+    },
+    {
+      "hour": "15",
+      "temperature": 75,
+      "condition": "clear"
+    },
+    {
+      "hour": "16",
+      "temperature": 74,
+      "condition": "clear"
+    },
+    {
+      "hour": "17",
+      "temperature": 72,
+      "condition": "clear"
+    }
+  ],
+  "long-copy": [
+    {
+      "hour": "9",
+      "temperature": 62,
+      "condition": "clear"
+    },
+    {
+      "hour": "10",
+      "temperature": 65,
+      "condition": "clear"
+    },
+    {
+      "hour": "11",
+      "temperature": 68,
+      "condition": "clear"
+    },
+    {
+      "hour": "12",
+      "temperature": 71,
+      "condition": "clear"
+    },
+    {
+      "hour": "13",
+      "temperature": 73,
+      "condition": "clear"
+    },
+    {
+      "hour": "14",
+      "temperature": 74,
+      "condition": "clear"
+    },
+    {
+      "hour": "15",
+      "temperature": 75,
+      "condition": "clear"
+    },
+    {
+      "hour": "16",
+      "temperature": 74,
+      "condition": "clear"
+    },
+    {
+      "hour": "17",
+      "temperature": 72,
+      "condition": "clear"
+    },
+    {
+      "hour": "18",
+      "temperature": 70,
+      "condition": "clear"
+    },
+    {
+      "hour": "19",
+      "temperature": 68,
+      "condition": "clear"
+    },
+    {
+      "hour": "20",
+      "temperature": 65,
+      "condition": "clear"
+    }
+  ]
+}

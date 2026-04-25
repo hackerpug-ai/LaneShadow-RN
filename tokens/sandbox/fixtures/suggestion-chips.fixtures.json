@@ -1,0 +1,89 @@
+{
+  "default": [
+    {
+      "id": "chip-001",
+      "label": "Twisty back roads"
+    },
+    {
+      "id": "chip-002",
+      "label": "Coastal cruise"
+    },
+    {
+      "id": "chip-003",
+      "label": "Try inland"
+    },
+    {
+      "id": "chip-004",
+      "label": "End at Big Sur"
+    }
+  ],
+  "empty": [],
+  "overflow": [
+    {
+      "id": "chip-001",
+      "label": "Twisty back roads"
+    },
+    {
+      "id": "chip-002",
+      "label": "Coastal cruise"
+    },
+    {
+      "id": "chip-003",
+      "label": "Try inland"
+    },
+    {
+      "id": "chip-004",
+      "label": "End at Big Sur"
+    },
+    {
+      "id": "chip-005",
+      "label": "Mountain pass"
+    },
+    {
+      "id": "chip-006",
+      "label": "Valley roads"
+    },
+    {
+      "id": "chip-007",
+      "label": "Forest trails"
+    },
+    {
+      "id": "chip-008",
+      "label": "Ocean views"
+    },
+    {
+      "id": "chip-009",
+      "label": "Wine country"
+    },
+    {
+      "id": "chip-010",
+      "label": "Historic towns"
+    },
+    {
+      "id": "chip-011",
+      "label": "Waterfall route"
+    },
+    {
+      "id": "chip-012",
+      "label": "Sunset spot"
+    }
+  ],
+  "long-copy": [
+    {
+      "id": "chip-001",
+      "label": "Twisty back roads with elevation changes and technical corners"
+    },
+    {
+      "id": "chip-002",
+      "label": "Scenic coastal cruise with panoramic ocean views and photo opportunities"
+    },
+    {
+      "id": "chip-003",
+      "label": "Try inland routes through valleys and farmland with gentle curves"
+    },
+    {
+      "id": "chip-004",
+      "label": "End at Big Sur with dinner at the famous restaurant overlooking the Pacific"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "default": [
+    {
+      "id": "reading",
+      "label": "Reading your ride",
+      "status": "done"
+    },
+    {
+      "id": "sketching",
+      "label": "Sketching roads",
+      "status": "done"
+    },
+    {
+      "id": "validating",
+      "label": "Checking they connect",
+      "status": "active"
+    },
+    {
+      "id": "weather",
+      "label": "Reading the sky",
+      "status": "pending"
+    },
+    {
+      "id": "building",
+      "label": "Ranking your options",
+      "status": "pending"
+    }
+  ],
+  "empty": [],
+  "overflow": [
+    {
+      "id": "reading",
+      "label": "Reading your ride",
+      "status": "done"
+    },
+    {
+      "id": "sketching",
+      "label": "Sketching roads",
+      "status": "done"
+    },
+    {
+      "id": "validating",
+      "label": "Checking they connect",
+      "status": "done"
+    },
+    {
+      "id": "weather",
+      "label": "Reading the sky",
+      "status": "done"
+    },
+    {
+      "id": "building",
+      "label": "Ranking your options",
+      "status": "active"
+    }
+  ],
+  "long-copy": [
+    {
+      "id": "reading",
+      "label": "Reading your ride request and understanding your preferences for scenic routes",
+      "status": "done"
+    },
+    {
+      "id": "sketching",
+      "label": "Sketching potential road routes through the Santa Cruz Mountains",
+      "status": "done"
+    },
+    {
+      "id": "validating",
+      "label": "Checking that all road segments connect properly and are rideable",
+      "status": "active"
+    },
+    {
+      "id": "weather",
+      "label": "Reading the sky and checking current weather conditions along all routes",
+      "status": "pending"
+    },
+    {
+      "id": "building",
+      "label": "Ranking your options based on scenery, difficulty, and weather",
+      "status": "pending"
+    }
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "default": [
+    {
+      "id": "route-001",
+      "name": "The Skyline Spine",
+      "via": "280 → 92 → Skyline to Alice's",
+      "distance": 42500,
+      "estimatedTime": 5400,
+      "climb": 3200,
+      "scenicScore": 9,
+      "difficulty": "advanced",
+      "polyline": "q`xwF|~kjVAo@f@e@lBiYfOaMnJcZ`FoOnFyDtL}DnK{DvB{FbEyE~CyC`Dy@hCq@|A}@jC]lBg@fBs@bBc@|@a@r@U`@O`@If@E\\G\\I`@Mf@Ul@Uz@w@hBe@f@i@`@c@x@]t@Qr@Op@M`@K`@I\\G",
+      "variant": "best"
+    },
+    {
+      "id": "route-002",
+      "name": "Coastal Highway 1 Classic",
+      "via": "Great Highway → Hwy 1 → Pacifica",
+      "distance": 38000,
+      "estimatedTime": 4800,
+      "climb": 2100,
+      "scenicScore": 10,
+      "difficulty": "moderate",
+      "polyline": "y|rwFv`ojVHELGFWAYOu@i@sAo@aAk@eA]oAEk@Ai@Aa@?W@W@UBQ@OBODQBKDQFSF]H_@Da@Ba@?[@KBK@I@I@G@E@G@E?G?E?C?A?A?@?@?",
+      "variant": "alt1"
+    },
+    {
+      "id": "route-003",
+      "name": "Mount Hamilton Loop",
+      "via": "Alum Rock → Mt Hamilton → San Antonio",
+      "distance": 56000,
+      "estimatedTime": 7200,
+      "climb": 4500,
+      "scenicScore": 8,
+      "difficulty": "advanced",
+      "polyline": "kvswFzcbjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+      "variant": "alt2"
+    }
+  ],
+  "empty": [],
+  "overflow": [
+    {
+      "id": "route-001",
+      "name": "The Skyline Spine",
+      "via": "280 → 92 → Skyline to Alice's",
+      "distance": 42500,
+      "estimatedTime": 5400,
+      "climb": 3200,
+      "scenicScore": 9,
+      "difficulty": "advanced",
+      "polyline": "q`xwF|~kjVAo@f@e@lBiYfOaMnJcZ`FoOnFyDtL}DnK{DvB{FbEyE~CyC`Dy@hCq@|A}@jC]lBg@fBs@bBc@|@a@r@U`@O`@If@E\\G\\I`@Mf@Ul@Uz@w@hBe@f@i@`@c@x@]t@Qr@Op@M`@K`@I\\G",
+      "variant": "best"
+    },
+    {
+      "id": "route-002",
+      "name": "Coastal Highway 1 Classic",
+      "via": "Great Highway → Hwy 1 → Pacifica",
+      "distance": 38000,
+      "estimatedTime": 4800,
+      "climb": 2100,
+      "scenicScore": 10,
+      "difficulty": "moderate",
+      "polyline": "y|rwFv`ojVHELGFWAYOu@i@sAo@aAk@eA]oAEk@Ai@Aa@?W@W@UBQ@OBODQBKDQFSF]H_@Da@Ba@?[@KBK@I@I@G@E@G@E?G?E?C?A?A?@?@?",
+      "variant": "alt1"
+    },
+    {
+      "id": "route-003",
+      "name": "Mount Hamilton Loop",
+      "via": "Alum Rock → Mt Hamilton → San Antonio",
+      "distance": 56000,
+      "estimatedTime": 7200,
+      "climb": 4500,
+      "scenicScore": 8,
+      "difficulty": "advanced",
+      "polyline": "kvswFzcbjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+      "variant": "alt2"
+    },
+    {
+      "id": "route-004",
+      "name": "Pescadero Creek Run",
+      "via": "Skyline → 84 → Pescadero",
+      "distance": 49000,
+      "estimatedTime": 6000,
+      "climb": 2800,
+      "scenicScore": 9,
+      "difficulty": "moderate",
+      "polyline": "enrwF~afjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+      "variant": "best"
+    },
+    {
+      "id": "route-005",
+      "name": "Niles Canyon Twist",
+      "via": "Palomares → Niles Canyon → Sunol",
+      "distance": 35000,
+      "estimatedTime": 4200,
+      "climb": 1800,
+      "scenicScore": 7,
+      "difficulty": "moderate",
+      "polyline": "qrswFzcbjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+      "variant": "alt1"
+    },
+    {
+      "id": "route-006",
+      "name": "Santa Cruz Mountain Dive",
+      "via": "17 → Summit → 9",
+      "distance": 52000,
+      "estimatedTime": 6600,
+      "climb": 4100,
+      "scenicScore": 9,
+      "difficulty": "advanced",
+      "polyline": "osrwFzcbjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+      "variant": "alt2"
+    },
+    {
+      "id": "route-007",
+      "name": "Point Reyes Peninsula",
+      "via": "Sir Francis Drake → Point Reyes",
+      "distance": 61000,
+      "estimatedTime": 7800,
+      "climb": 2400,
+      "scenicScore": 10,
+      "difficulty": "moderate",
+      "polyline": "utrwFzcbjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+      "variant": "best"
+    },
+    {
+      "id": "route-008",
+      "name": "Diablo Summit Challenge",
+      "via": "Walnut Grove → South Gate → Summit",
+      "distance": 34000,
+      "estimatedTime": 4800,
+      "climb": 3600,
+      "scenicScore": 8,
+      "difficulty": "advanced",
+      "polyline": "wtrwFzcbjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+      "variant": "alt1"
+    },
+    {
+      "id": "route-009",
+      "name": "Stevens Pass Sweep",
+      "via": "Calaveras → Stevens Canyon → Sunnyvale",
+      "distance": 43000,
+      "estimatedTime": 5400,
+      "climb": 2900,
+      "scenicScore": 8,
+      "difficulty": "moderate",
+      "polyline": "vsrwFzcbjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+      "variant": "alt2"
+    },
+    {
+      "id": "route-010",
+      "name": "Tamaulipas Bay Tour",
+      "via": "Richmond → San Pablo → Pinole",
+      "distance": 28000,
+      "estimatedTime": 3600,
+      "climb": 1200,
+      "scenicScore": 6,
+      "difficulty": "easy",
+      "polyline": "xtrwFzcbjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+      "variant": "best"
+    },
+    {
+      "id": "route-011",
+      "name": "San Antonio Valley Explorer",
+      "via": "Mines Rd → San Antonio → Del Puerto",
+      "distance": 72000,
+      "estimatedTime": 9000,
+      "climb": 5200,
+      "scenicScore": 9,
+      "difficulty": "advanced",
+      "polyline": "zurwFzcbjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+      "variant": "alt1"
+    },
+    {
+      "id": "route-012",
+      "name": "Coastal Magic",
+      "via": "Devil's Slide → Half Moon Bay → Santa Cruz",
+      "distance": 78000,
+      "estimatedTime": 9600,
+      "climb": 3400,
+      "scenicScore": 10,
+      "difficulty": "moderate",
+      "polyline": "qvrwFzcbjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+      "variant": "alt2"
+    }
+  ],
+  "long-copy": [
+    {
+      "id": "route-001",
+      "name": "The Magnificent and Legendary Skyline Spine Adventure Through The Santa Cruz Mountains",
+      "via": "Interstate 280 West toward San Francisco → Highway 92 West toward Half Moon Bay → Skyline Boulevard South all the way to the famous and historic Alice's Restaurant at the intersection of Highway 84 and Skyline Boulevard where riders from all over Northern California gather every weekend",
+      "distance": 42500,
+      "estimatedTime": 5400,
+      "climb": 3200,
+      "scenicScore": 9,
+      "difficulty": "advanced",
+      "polyline": "q`xwF|~kjVAo@f@e@lBiYfOaMnJcZ`FoOnFyDtL}DnK{DvB{FbEyE~CyC`Dy@hCq@|A}@jC]lBg@fBs@bBc@|@a@r@U`@O`@If@E\\G\\I`@Mf@Ul@Uz@w@hBe@f@i@`@c@x@]t@Qr@Op@M`@K`@I\\G",
+      "variant": "best"
+    }
+  ]
+}
