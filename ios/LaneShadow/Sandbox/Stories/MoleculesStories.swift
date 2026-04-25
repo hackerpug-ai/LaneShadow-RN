@@ -5,20 +5,23 @@ import SwiftUI
 /// Molecule stories — Sprint 4 molecule components.
 @MainActor
 enum MoleculesStories {
-    static let all: [Story] =
-        LSContentCardStory.all
-        + LSListRowStory.all
-        + LSToolbarStory.all
-        + LSNavHeaderStory.all
-        + LSBottomSheetStory.all
-        + LSToastStory.all
-        + LSModalStory.all
-        + LSFormFieldStories.all
-        + LSTabItemStories.all
-        + LSEmptyStateStories.all
-        + LSPillSemanticsStory.all
-        + LSLocationContextBarStory.all
-        + LSRouteAttachmentCardStory.all
-        + LSChatInputStories.all
-        + LSNavigatorMoleculesStories.all
+    static let all: [Story] = {
+        var stories: [Story] = []
+        // stories += LSContentCardStory.all
+        // stories += LSListRowStory.all
+        stories += LSToolbarStory.all
+        // stories += LSNavHeaderStory.all
+        stories += LSBottomSheetStory.all
+        stories += LSToastStory.all
+        stories += LSModalStory.all
+        stories += LSFormFieldStories.all
+        stories += LSTabItemStories.all
+        stories += LSEmptyStateStories.all
+        // stories += LSPillSemanticsStory.all
+        // stories += LSLocationContextBarStory.all
+        // stories += LSRouteAttachmentCardStory.all
+        stories += LSChatInputStories.all
+        // stories += LSNavigatorMoleculesStories.all
+        return stories
+    }()
 }
