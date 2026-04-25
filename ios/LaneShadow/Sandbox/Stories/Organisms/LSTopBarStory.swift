@@ -10,7 +10,8 @@ enum LSTopBarStory {
             tier: .organism,
             component: "TopBar",
             name: "Default",
-            summary: "Hamburger leading + NEW trailing. Unified rounded-rect chips (radius.md), 90% surface alpha over map."
+            summary: "Hamburger leading + NEW trailing. Unified rounded-rect chips (radius.md), 90% surface alpha over map.",
+            previewMode: .fullScreen
         ) { _ in
             LSTopBar(
                 onMenuTap: {},
@@ -22,7 +23,8 @@ enum LSTopBarStory {
             tier: .organism,
             component: "TopBar",
             name: "With Title",
-            summary: "Title fills the flex gap between chips; display.title.md — Newsreader serif 18pt 500."
+            summary: "Title fills the flex gap between chips; display.title.md — Newsreader serif 18pt 500.",
+            previewMode: .fullScreen
         ) { _ in
             LSTopBar(
                 title: "Details",
@@ -35,7 +37,8 @@ enum LSTopBarStory {
             tier: .organism,
             component: "TopBar",
             name: "Hamburger Only",
-            summary: "Trailing slot empty. Used on screens where NEW is contextually absent."
+            summary: "Trailing slot empty. Used on screens where NEW is contextually absent.",
+            previewMode: .fullScreen
         ) { _ in
             LSTopBar(
                 trailing: .none,
@@ -47,7 +50,8 @@ enum LSTopBarStory {
             tier: .organism,
             component: "TopBar",
             name: "Record Highlight",
-            summary: "Trailing chip swapped to recording indicator. Pulsing red dot + REC label from color.status.recording."
+            summary: "Trailing chip swapped to recording indicator. Pulsing red dot + REC label from color.status.recording.",
+            previewMode: .fullScreen
         ) { _ in
             LSTopBar(
                 trailing: .recordHighlight(isRecording: true),

@@ -7,26 +7,40 @@ public enum GlassVariant: Hashable, Sendable {
     case callout(accent: AccentColor)
 }
 
+/// Corner-radius preset for glass surfaces.
+///
+/// - `.default`: legacy radius (`theme.radius.xl`) — used by larger glass surfaces.
+/// - `.md`: smaller chip radius (`theme.radius.md`) — keeps tall/wide chips reading
+///   as rounded-rectangles instead of capsules. Use for TopBar chips and similar
+///   compact containers.
+public enum GlassCornerRadius: Hashable, Sendable {
+    case `default`
+    case md
+}
+
 public struct LSGlassPanel<Content: View>: View {
     @Environment(\.theme) private var theme
 
     private let variant: GlassVariant
     private let padding: Spacing
+    private let cornerRadius: GlassCornerRadius
     private let content: Content
 
     public init(
         variant: GlassVariant = .chrome,
         padding: Spacing = .spacing4,
+        cornerRadius: GlassCornerRadius = .default,
         @ViewBuilder content: () -> Content
     ) {
         self.variant = variant
         self.padding = padding
+        self.cornerRadius = cornerRadius
         self.content = content()
     }
 
     public var body: some View {
         let shape = RoundedRectangle(
-            cornerRadius: Self.cornerRadius(in: theme),
+            cornerRadius: Self.cornerRadius(cornerRadius, in: theme),
             style: .continuous
         )
         let elevation = Self.elevation(in: theme)
@@ -72,8 +86,18 @@ extension LSGlassPanel {
         LSSurfaceColorToken.glass.resolved(in: theme)
     }
 
+    /// Default radius (legacy callers without an explicit override).
     static func cornerRadius(in theme: Theme) -> CGFloat {
-        theme.radius.xl
+        cornerRadius(.default, in: theme)
+    }
+
+    static func cornerRadius(_ radius: GlassCornerRadius, in theme: Theme) -> CGFloat {
+        switch radius {
+        case .default:
+            return theme.radius.xl
+        case .md:
+            return theme.radius.md
+        }
     }
 
     static func elevation(in theme: Theme) -> ElevationStyle {

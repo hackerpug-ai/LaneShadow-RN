@@ -12,6 +12,7 @@ import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.organisms.LSSessionsDrawer
 import com.laneshadow.ui.organisms.Session
 import com.nativesandbox.model.ComponentTier
+import com.nativesandbox.model.PreviewMode
 import com.nativesandbox.model.Story
 
 /**
@@ -176,6 +177,7 @@ object LSSessionsDrawerStory {
             component = "LSSessionsDrawer",
             name = "Default",
             summary = "5 sessions, Santa Cruz Loop active. Copper stripe + tinted bg on active row.",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 Box(modifier = Modifier.width(312.dp).height(800.dp)) {
                     DefaultStory()
@@ -188,6 +190,7 @@ object LSSessionsDrawerStory {
             component = "LSSessionsDrawer",
             name = "Empty State",
             summary = "No sessions. Empty state with icon + prompt to start a new conversation.",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 Box(modifier = Modifier.width(312.dp).height(800.dp)) {
                     EmptyStateStory()
@@ -200,6 +203,7 @@ object LSSessionsDrawerStory {
             component = "LSSessionsDrawer",
             name = "Long List (20)",
             summary = "20 sessions; list scrolls while header + section label stay sticky.",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 Box(modifier = Modifier.width(312.dp).height(800.dp)) {
                     LongListStory()
@@ -212,6 +216,7 @@ object LSSessionsDrawerStory {
             component = "LSSessionsDrawer",
             name = "No Active Session",
             summary = "activeSessionId: null. No copper stripe or tinted background on any row.",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 Box(modifier = Modifier.width(312.dp).height(800.dp)) {
                     NoActiveSessionStory()
@@ -224,6 +229,7 @@ object LSSessionsDrawerStory {
             component = "LSSessionsDrawer",
             name = "Dark Mode",
             summary = "Drawer resolves to ink-700 surface. Copper stripe remains vivid.",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 Box(modifier = Modifier.width(312.dp).height(800.dp)) {
                     DarkModeStory()

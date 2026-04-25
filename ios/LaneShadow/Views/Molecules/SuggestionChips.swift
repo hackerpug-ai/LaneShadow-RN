@@ -145,9 +145,9 @@ public struct LSSuggestionChips: View {
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(chipTextColor)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .frame(minHeight: 36)
+            .padding(.horizontal, theme.space.md)
+            .padding(.vertical, theme.space.sm)
+            .frame(minHeight: 40)
             .background(chipBackground)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)

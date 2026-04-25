@@ -46,6 +46,7 @@ public struct LSTopBar: View {
             // Trailing: NEW chip or Record Highlight
             trailingContent
         }
+        .frame(maxWidth: .infinity)
         .padding(.horizontal, theme.space.md)
         .padding(.top, theme.space.xs)
         .safeAreaInset(edge: .top, spacing: 0) {
@@ -57,7 +58,7 @@ public struct LSTopBar: View {
 
     private var hamburgerChip: some View {
         Button(action: onMenuTap) {
-            LSGlassPanel(variant: .chrome, padding: .spacing3) {
+            LSGlassPanel(variant: .chrome, padding: .spacing3, cornerRadius: .md) {
                 LSIcon(name: .menu, size: .md, color: .primary)
                     .frame(width: chipSize, height: chipSize)
             }
@@ -83,12 +84,13 @@ public struct LSTopBar: View {
 
     private func newChip(action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            LSGlassPanel(variant: .chrome, padding: .spacing3) {
+            LSGlassPanel(variant: .chrome, padding: .spacing3, cornerRadius: .md) {
                 HStack(spacing: theme.space.xs) {
                     LSIcon(name: .plus, size: .sm, color: .primary)
                     LSText("NEW", variant: .label.md, color: .primary)
                 }
             }
+            .fixedSize(horizontal: true, vertical: false)
             .frame(height: chipSize)
         }
         .accessibilityLabel("New")
@@ -96,7 +98,7 @@ public struct LSTopBar: View {
     }
 
     private var recordHighlightChip: some View {
-        LSGlassPanel(variant: .chrome, padding: .spacing3) {
+        LSGlassPanel(variant: .chrome, padding: .spacing3, cornerRadius: .md) {
             HStack(spacing: theme.space.xs) {
                 Circle()
                     .fill(LaneShadowTheme.color.status.recording)
@@ -104,6 +106,7 @@ public struct LSTopBar: View {
                 LSText("REC", variant: .label.md, color: .primary)
             }
         }
+        .fixedSize(horizontal: true, vertical: false)
         .frame(height: chipSize)
         .accessibilityLabel("Recording")
         .accessibilityIdentifier("lstopbar-recording")

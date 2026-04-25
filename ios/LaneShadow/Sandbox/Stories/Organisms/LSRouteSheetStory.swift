@@ -10,7 +10,8 @@ enum LSRouteSheetStory {
             tier: .organism,
             component: "RouteSheet",
             name: "Best Route",
-            summary: "Best badge + scenic tag + title opinion.lg + via + 4-col readout + weather + actions."
+            summary: "Best badge + scenic tag + title opinion.lg + via + 4-col readout + weather + actions.",
+            previewMode: .fullScreen
         ) { _ in
             LSRouteSheet(
                 route: RouteDetails(
@@ -42,7 +43,8 @@ enum LSRouteSheetStory {
             tier: .organism,
             component: "RouteSheet",
             name: "Alt Route",
-            summary: "No Best badge. Scenic tag shows lower score. All clear weather cells."
+            summary: "No Best badge. Scenic tag shows lower score. All clear weather cells.",
+            previewMode: .fullScreen
         ) { _ in
             LSRouteSheet(
                 route: RouteDetails(
@@ -74,7 +76,8 @@ enum LSRouteSheetStory {
             tier: .organism,
             component: "RouteSheet",
             name: "Long Title + Via",
-            summary: "Title wraps to 2 lines. Via line also wraps. Sheet height expands."
+            summary: "Title wraps to 2 lines. Via line also wraps. Sheet height expands.",
+            previewMode: .fullScreen
         ) { _ in
             LSRouteSheet(
                 route: RouteDetails(
@@ -99,7 +102,8 @@ enum LSRouteSheetStory {
             tier: .organism,
             component: "RouteSheet",
             name: "Mixed Weather",
-            summary: "Clear + wind + rain cells. Each cell resolves its own tint color."
+            summary: "Clear + wind + rain cells. Each cell resolves its own tint color.",
+            previewMode: .fullScreen
         ) { _ in
             LSRouteSheet(
                 route: RouteDetails(
@@ -131,7 +135,8 @@ enum LSRouteSheetStory {
             tier: .organism,
             component: "RouteSheet",
             name: "Dark Mode",
-            summary: "Sheet surface resolves to ink-700. All tokens re-resolve."
+            summary: "Sheet surface resolves to ink-700. All tokens re-resolve.",
+            previewMode: .fullScreen
         ) { _ in
             LSRouteSheet(
                 route: RouteDetails(

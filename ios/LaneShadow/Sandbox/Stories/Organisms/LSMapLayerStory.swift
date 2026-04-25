@@ -11,7 +11,8 @@ enum LSMapLayerStory {
             tier: .organism,
             component: "MapLayer",
             name: "Map Only",
-            summary: "LSMap(mode:.preview) fills the entire screen. No other slots populated."
+            summary: "LSMap(mode:.preview) fills the entire screen. No other slots populated.",
+            previewMode: .fullScreen
         ) { _ in
             LSMapLayer {
                 LSMap(
@@ -30,7 +31,8 @@ enum LSMapLayerStory {
             tier: .organism,
             component: "MapLayer",
             name: "Map + TopBar",
-            summary: "LSTopBar at z-index 5, above everything. Map below. Matches Idle screen pattern."
+            summary: "LSTopBar at z-index 5, above everything. Map below. Matches Idle screen pattern.",
+            previewMode: .fullScreen
         ) { _ in
             LSMapLayer(
                 map: {
@@ -55,7 +57,8 @@ enum LSMapLayerStory {
             tier: .organism,
             component: "MapLayer",
             name: "Map + Top Overlay",
-            summary: "NavigatorMessage in topOverlays slot. Positioned below TopBar with safe-area padding."
+            summary: "NavigatorMessage in topOverlays slot. Positioned below TopBar with safe-area padding.",
+            previewMode: .fullScreen
         ) { _ in
             LSMapLayer(
                 map: {
@@ -94,7 +97,8 @@ enum LSMapLayerStory {
             tier: .organism,
             component: "MapLayer",
             name: "Map + Bottom Overlay",
-            summary: "ChatInput in bottomOverlays. Anchored above bottom safe area at z-index 2."
+            summary: "ChatInput in bottomOverlays. Anchored above bottom safe area at z-index 2.",
+            previewMode: .fullScreen
         ) { _ in
             LSMapLayer(
                 map: {
@@ -134,7 +138,8 @@ enum LSMapLayerStory {
             tier: .organism,
             component: "MapLayer",
             name: "Map + Scrim + Drawer",
-            summary: "LSScrim z-1, SessionsDrawer at z-4 above scrim. Matches SCR-05 Sessions pattern."
+            summary: "LSScrim z-1, SessionsDrawer at z-4 above scrim. Matches SCR-05 Sessions pattern.",
+            previewMode: .fullScreen
         ) { _ in
             LSMapLayer(
                 map: {
@@ -174,7 +179,8 @@ enum LSMapLayerStory {
             tier: .organism,
             component: "MapLayer",
             name: "Map + Sheet",
-            summary: "RouteSheet at z-index 3, anchored bottom. TopBar still visible above sheet at z-5."
+            summary: "RouteSheet at z-index 3, anchored bottom. TopBar still visible above sheet at z-5.",
+            previewMode: .fullScreen
         ) { _ in
             LSMapLayer(
                 map: {
@@ -213,7 +219,8 @@ enum LSMapLayerStory {
             tier: .organism,
             component: "MapLayer",
             name: "Full Stack",
-            summary: "All slots populated: map + scrim + top/bottom overlays + sheet + top bar. Maximum composition."
+            summary: "All slots populated: map + scrim + top/bottom overlays + sheet + top bar. Maximum composition.",
+            previewMode: .fullScreen
         ) { _ in
             LSMapLayer(
                 map: {
@@ -276,7 +283,8 @@ enum LSMapLayerStory {
             tier: .organism,
             component: "MapLayer",
             name: "Map Only · Dark",
-            summary: "map-paper resolves to #1B140E. Grid contours use ink-tinted alpha."
+            summary: "map-paper resolves to #1B140E. Grid contours use ink-tinted alpha.",
+            previewMode: .fullScreen
         ) { _ in
             LSMapLayer {
                 LSMap(
@@ -295,7 +303,8 @@ enum LSMapLayerStory {
             tier: .organism,
             component: "MapLayer",
             name: "Full Stack · Dark",
-            summary: "All seven slots on dark canvas. Deeper scrim, ink-alpha glass borders."
+            summary: "All seven slots on dark canvas. Deeper scrim, ink-alpha glass borders.",
+            previewMode: .fullScreen
         ) { _ in
             LSMapLayer(
                 map: {

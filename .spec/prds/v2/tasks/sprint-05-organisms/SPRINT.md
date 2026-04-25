@@ -70,6 +70,7 @@ A reviewer can open every organism story in the sandbox on both platforms with m
 | REMEDIATION-02 | UC-ORG-03 iOS: Auto-dismiss + attachment composition | swift-implementer | 90 min |
 | REMEDIATION-03 | UC-ORG-02 iOS: Replace EmptyView stubs in MapLayer | swift-implementer | 90 min |
 | REMEDIATION-04 | Token sweep: Replace hardcoded values across organisms | swift-implementer + kotlin-implementer | 60 min |
+| REMEDIATION-07 | TopBar layout + chip radius, InlineErrorCallout chip padding, native-sandbox `previewMode: .fullScreen` opt-in | swift-implementer + kotlin-implementer | 120 min |
 
 ---
 
@@ -111,3 +112,22 @@ A reviewer can open every organism story in the sandbox on both platforms with m
 
 - Sprint 6 (Navigator Screens) — every screen assembles one or more of these organisms into the `LSMapLayer` canvas; `LSTopBar`, `LSMapLayer`, `LSNavigatorMessage`, `LSInlineErrorCallout`, `LSRouteSheet`, `LSSessionsDrawer`, and `LSRouteCard` are all consumed by UC-SCR-01..06.
 - Sprint 7 — indirectly, through the RN-retirement gate being "all V2 screens still render after cleanup".
+
+---
+
+## Human Signals
+
+### HUMAN SIGNAL: AI Surprise
+*Elicited 2026-04-25 by kb-run-sprint merge gate*
+
+> Test quality gap caught by reviewer — the swift-reviewer caught that LSNavigatorMessageTests used source-inspection (reading source files for string patterns) instead of behavioral testing. Tests looked green but weren't actually verifying runtime behavior. This is exactly the kind of false-confidence issue the anti-stub gate is designed to catch.
+
+### HUMAN SIGNAL: Overrides
+*Elicited 2026-04-25 by kb-run-sprint merge gate*
+
+> None. Accepted all agent outputs and reviewer verdicts without override.
+
+### HUMAN SIGNAL: First Break Point
+*Elicited 2026-04-25 by kb-run-sprint merge gate*
+
+> Auto-dismiss timing — the 5000ms Task.sleep in LSNavigatorMessage's .task modifier may not fire correctly if the SwiftUI view lifecycle is unexpected (e.g., view disappearing and reappearing, background/foreground transitions). This is the highest-risk behavior because timing-dependent code is inherently fragile in declarative UI frameworks.

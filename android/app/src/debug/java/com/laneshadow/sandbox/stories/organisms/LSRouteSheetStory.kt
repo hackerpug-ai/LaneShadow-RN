@@ -11,6 +11,7 @@ import com.laneshadow.ui.organisms.RouteDetails
 import com.laneshadow.ui.molecules.WeatherCondition
 import com.laneshadow.ui.molecules.WeatherTimelineEntry
 import com.nativesandbox.model.ComponentTier
+import com.nativesandbox.model.PreviewMode
 import com.nativesandbox.model.Story
 
 object LSRouteSheetStory {
@@ -21,6 +22,7 @@ object LSRouteSheetStory {
             component = "LSRouteSheet",
             name = "Best Route",
             summary = "Best badge + scenic tag + title opinion.lg + via + 4-col readout + weather + actions.",
+            previewMode = PreviewMode.FullScreen,
             content = { BestRouteStory() },
         ),
         Story(
@@ -29,6 +31,7 @@ object LSRouteSheetStory {
             component = "LSRouteSheet",
             name = "Alt Route",
             summary = "No Best badge. Scenic tag shows lower score. Alt1 sage polyline. All clear weather cells.",
+            previewMode = PreviewMode.FullScreen,
             content = { AltRouteStory() },
         ),
         Story(
@@ -37,6 +40,7 @@ object LSRouteSheetStory {
             component = "LSRouteSheet",
             name = "Long Title + Via",
             summary = "Title wraps to 2 lines. Via line also wraps. Sheet height expands. Weather omitted for brevity.",
+            previewMode = PreviewMode.FullScreen,
             content = { LongTitleStory() },
         ),
         Story(
@@ -45,6 +49,7 @@ object LSRouteSheetStory {
             component = "LSRouteSheet",
             name = "Mixed Weather",
             summary = "Clear + wind + rain cells. Each cell resolves its own tint color. Tinted cells warn the rider visually.",
+            previewMode = PreviewMode.FullScreen,
             content = { MixedWeatherStory() },
         ),
         Story(
@@ -53,6 +58,7 @@ object LSRouteSheetStory {
             component = "LSRouteSheet",
             name = "Dark Mode",
             summary = "Sheet surface resolves to ink-700. All tokens re-resolve. Best badge copper remains vivid.",
+            previewMode = PreviewMode.FullScreen,
             content = { DarkModeStory() },
         ),
     )

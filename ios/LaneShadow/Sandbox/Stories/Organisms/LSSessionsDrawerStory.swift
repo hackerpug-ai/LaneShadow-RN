@@ -10,7 +10,8 @@ enum LSSessionsDrawerStory {
             tier: .organism,
             component: "SessionsDrawer",
             name: "Default",
-            summary: "5 sessions, Santa Cruz Loop active. Copper stripe + tinted bg on active row. Header + section label sticky."
+            summary: "5 sessions, Santa Cruz Loop active. Copper stripe + tinted bg on active row. Header + section label sticky.",
+            previewMode: .fullScreen
         ) { _ in
             LSSessionsDrawer<StorySession>(
                 sessions: mockSessions,
@@ -26,7 +27,8 @@ enum LSSessionsDrawerStory {
             tier: .organism,
             component: "SessionsDrawer",
             name: "Empty State",
-            summary: "No sessions. Empty state with icon + prompt to start a new conversation. Header + NEW button present."
+            summary: "No sessions. Empty state with icon + prompt to start a new conversation. Header + NEW button present.",
+            previewMode: .fullScreen
         ) { _ in
             LSSessionsDrawer<StorySession>(
                 sessions: [],
@@ -42,7 +44,8 @@ enum LSSessionsDrawerStory {
             tier: .organism,
             component: "SessionsDrawer",
             name: "Long List",
-            summary: "20 sessions; list scrolls while header + section label stay sticky. Fade at bottom indicates more rows below."
+            summary: "20 sessions; list scrolls while header + section label stay sticky. Fade at bottom indicates more rows below.",
+            previewMode: .fullScreen
         ) { _ in
             LSSessionsDrawer<StorySession>(
                 sessions: longMockSessions,
@@ -58,7 +61,8 @@ enum LSSessionsDrawerStory {
             tier: .organism,
             component: "SessionsDrawer",
             name: "No Active Session",
-            summary: "activeSessionId: nil. No copper stripe or tinted background on any row. All rows default state."
+            summary: "activeSessionId: nil. No copper stripe or tinted background on any row. All rows default state.",
+            previewMode: .fullScreen
         ) { _ in
             LSSessionsDrawer<StorySession>(
                 sessions: mockSessions,
@@ -74,7 +78,8 @@ enum LSSessionsDrawerStory {
             tier: .organism,
             component: "SessionsDrawer",
             name: "Dark Mode",
-            summary: "Drawer resolves to ink-700 surface. Copper stripe remains vivid. All text tokens re-resolve on dark surface."
+            summary: "Drawer resolves to ink-700 surface. Copper stripe remains vivid. All text tokens re-resolve on dark surface.",
+            previewMode: .fullScreen
         ) { _ in
             LSSessionsDrawer<StorySession>(
                 sessions: mockSessions,

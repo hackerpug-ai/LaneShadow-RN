@@ -21,6 +21,7 @@ import com.laneshadow.ui.organisms.SheetDetent
 import com.laneshadow.ui.organisms.ScrimSpec
 import com.laneshadow.ui.organisms.TopBarTrailing
 import com.nativesandbox.model.ComponentTier
+import com.nativesandbox.model.PreviewMode
 import com.nativesandbox.model.Story
 
 object LSMapLayerStory {
@@ -31,6 +32,7 @@ object LSMapLayerStory {
             component = "LSMapLayer",
             name = "Map Only",
             summary = "LSMap(mode:.preview) fills the entire phone-screen. No other slots populated.",
+            previewMode = PreviewMode.FullScreen,
             content = { MapOnlyStory() },
         ),
         Story(
@@ -39,6 +41,7 @@ object LSMapLayerStory {
             component = "LSMapLayer",
             name = "Map + TopBar",
             summary = "LSTopBar at z-index 5, above everything. Map below. Matches Idle screen pattern.",
+            previewMode = PreviewMode.FullScreen,
             content = { MapTopBarStory() },
         ),
         Story(
@@ -47,6 +50,7 @@ object LSMapLayerStory {
             component = "LSMapLayer",
             name = "Map + Top Overlay",
             summary = "NavigatorMessage in topOverlays slot. Positioned below TopBar with safe-area padding.",
+            previewMode = PreviewMode.FullScreen,
             content = { MapTopOverlayStory() },
         ),
         Story(
@@ -55,6 +59,7 @@ object LSMapLayerStory {
             component = "LSMapLayer",
             name = "Map + Bottom Overlay",
             summary = "ChatInput in bottomOverlays. Anchored above bottom safe area at z-index 2.",
+            previewMode = PreviewMode.FullScreen,
             content = { MapBottomOverlayStory() },
         ),
         Story(
@@ -63,6 +68,7 @@ object LSMapLayerStory {
             component = "LSMapLayer",
             name = "Map + Scrim + Drawer",
             summary = "LSScrim z-1, SessionsDrawer at z-4 above scrim. Matches SCR-05 Sessions pattern.",
+            previewMode = PreviewMode.FullScreen,
             content = { MapScrimDrawerStory() },
         ),
         Story(
@@ -71,6 +77,7 @@ object LSMapLayerStory {
             component = "LSMapLayer",
             name = "Map + Sheet",
             summary = "RouteSheet at z-index 3, anchored bottom. TopBar still visible above sheet at z-5.",
+            previewMode = PreviewMode.FullScreen,
             content = { MapSheetStory() },
         ),
         Story(
@@ -79,6 +86,7 @@ object LSMapLayerStory {
             component = "LSMapLayer",
             name = "Full Stack",
             summary = "All slots populated: map + scrim + top/bottom overlays + sheet + top bar. Maximum composition story.",
+            previewMode = PreviewMode.FullScreen,
             content = { FullStackStory() },
         ),
     )

@@ -60,6 +60,18 @@ enum class GlassBlurStrategy {
     ModifierBlur,
 }
 
+/**
+ * Corner-radius preset for [LSGlassPanel].
+ *
+ * - [Default]: legacy radius (`theme.radius.xl`) — large glass surfaces.
+ * - [Md]: smaller chip radius (`theme.radius.md`) — keeps tall/wide chips reading
+ *   as rounded-rectangles instead of capsules. Use for TopBar chips.
+ */
+enum class GlassCornerRadius {
+    Default,
+    Md,
+}
+
 data class LSGlassPanelStyle(
     val backgroundColor: Color,
     val cornerRadius: Dp,
@@ -82,13 +94,19 @@ fun resolveLSGlassPanelStyle(
     theme: LaneShadowThemeValues,
     variant: GlassVariant,
     sdkInt: Int = Build.VERSION.SDK_INT,
+    cornerRadius: GlassCornerRadius = GlassCornerRadius.Default,
 ): LSGlassPanelStyle {
     val stripeWidth = if (variant is GlassVariant.Callout) 3.dp else 0.dp
     val stripeColor = if (variant is GlassVariant.Callout) resolveAccentColor(theme, variant.accent) else Color.Transparent
 
+    val resolvedCornerRadius = when (cornerRadius) {
+        GlassCornerRadius.Default -> theme.radius.xl
+        GlassCornerRadius.Md -> theme.radius.md
+    }
+
     return LSGlassPanelStyle(
         backgroundColor = theme.colors.card.default.copy(alpha = 0.72f),
-        cornerRadius = theme.radius.xl,
+        cornerRadius = resolvedCornerRadius,
         shadowElevation = theme.elevation.light.level8,
         contentPadding = theme.space.lg,
         blurRadius = 13.dp,
@@ -102,10 +120,11 @@ fun resolveLSGlassPanelStyle(
 fun LSGlassPanel(
     variant: GlassVariant = GlassVariant.Chrome,
     modifier: Modifier = Modifier,
+    cornerRadius: GlassCornerRadius = GlassCornerRadius.Default,
     content: @Composable () -> Unit,
 ) {
     val theme = LocalLaneShadowTheme.current
-    val style = resolveLSGlassPanelStyle(theme, variant)
+    val style = resolveLSGlassPanelStyle(theme, variant, cornerRadius = cornerRadius)
     val shape = RoundedCornerShape(style.cornerRadius)
     val density = LocalDensity.current
     val backdropState = LocalLSGlassPanelBackdropState.current

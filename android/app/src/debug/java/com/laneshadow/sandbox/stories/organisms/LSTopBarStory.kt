@@ -9,6 +9,7 @@ import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.organisms.LSTopBar
 import com.laneshadow.ui.organisms.TopBarTrailing
 import com.nativesandbox.model.ComponentTier
+import com.nativesandbox.model.PreviewMode
 import com.nativesandbox.model.Story
 
 object LSTopBarStory {
@@ -19,6 +20,7 @@ object LSTopBarStory {
             component = "LSTopBar",
             name = "Default",
             summary = "Hamburger leading + NEW trailing with glass chrome chips.",
+            previewMode = PreviewMode.FullScreen,
             content = { TopBarDefaultStory() },
         ),
         Story(
@@ -27,6 +29,7 @@ object LSTopBarStory {
             component = "LSTopBar",
             name = "With Title",
             summary = "Centered title between hamburger and NEW chips.",
+            previewMode = PreviewMode.FullScreen,
             content = { TopBarWithTitleStory() },
         ),
         Story(
@@ -35,6 +38,7 @@ object LSTopBarStory {
             component = "LSTopBar",
             name = "Hamburger Only",
             summary = "Hamburger chip with no trailing slot.",
+            previewMode = PreviewMode.FullScreen,
             content = { TopBarHamburgerOnlyStory() },
         ),
         Story(
@@ -43,6 +47,7 @@ object LSTopBarStory {
             component = "LSTopBar",
             name = "Record Highlight",
             summary = "Recording indicator with red dot and REC label.",
+            previewMode = PreviewMode.FullScreen,
             content = { TopBarRecordHighlightStory() },
         ),
     )

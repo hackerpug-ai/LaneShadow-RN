@@ -2,6 +2,7 @@ package com.laneshadow.ui.organisms
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -178,7 +179,8 @@ private fun SuggestionChip(
     val theme = LocalLaneShadowTheme.current
 
     LSPill(
-        size = PillSize.Md,
+        size = PillSize.Lg,
+        padding = PaddingValues(horizontal = theme.space.md, vertical = theme.space.xs),
         modifier = Modifier.clickable(onClick = onTap),
     ) {
         LSText(

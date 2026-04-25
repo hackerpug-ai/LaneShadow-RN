@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -26,6 +27,7 @@ import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme.IconName
 import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import com.laneshadow.ui.atoms.ContentColor
+import com.laneshadow.ui.atoms.GlassCornerRadius
 import com.laneshadow.ui.atoms.GlassVariant
 import com.laneshadow.ui.atoms.IconColor
 import com.laneshadow.ui.atoms.IconSize
@@ -86,16 +88,9 @@ fun LSTopBar(
 
     Row(
         modifier = modifier
-            .statusBarsPadding()
-            .then(
-                if (title != null) {
-                    Modifier
-                } else {
-                    Modifier
-                }
-            ),
+            .fillMaxWidth()
+            .statusBarsPadding(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(theme.space.sm),
     ) {
         // Leading hamburger chip
         HamburgerChip(
@@ -117,9 +112,11 @@ fun LSTopBar(
             )
 
             Spacer(modifier = Modifier.weight(1f))
+        } else {
+            Spacer(modifier = Modifier.weight(1f))
         }
 
-        // Trailing slot
+        // Trailing slot — pinned to opposite edge by Spacer(weight)
         when (trailing) {
             TopBarTrailing.None -> {
                 // No trailing chip
@@ -168,6 +165,7 @@ private fun HamburgerChip(
 
     LSGlassPanel(
         variant = GlassVariant.Chrome,
+        cornerRadius = GlassCornerRadius.Md,
         modifier = modifier
             .size(chipHeight)
             .semantics {
@@ -197,6 +195,7 @@ private fun NewChip(
 
     LSGlassPanel(
         variant = GlassVariant.Chrome,
+        cornerRadius = GlassCornerRadius.Md,
         modifier = modifier
             .height(chipHeight)
             .semantics {
