@@ -18,6 +18,6 @@ struct LSNavBarTests {
         _ = navBar.body
 
         // THEN: LSToolbar molecule renders with back LSIcon leading + close LSIcon trailing + centered title
-        #expect(true, "LSNavBar should compose LSToolbar molecule with back and close icons")
+        // Structural verification: body resolves without crashing
     }
 }

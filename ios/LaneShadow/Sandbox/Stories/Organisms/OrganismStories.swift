@@ -9,6 +9,7 @@ enum OrganismStories {
         var stories: [Story] = []
         stories += LSTopBarStory.all
         stories += LSNavBarStory.all
+        stories += LSSectionHeaderStory.all
         return stories
     }()
 }
