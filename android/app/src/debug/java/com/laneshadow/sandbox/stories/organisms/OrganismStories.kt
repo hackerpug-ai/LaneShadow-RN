@@ -10,6 +10,7 @@ object OrganismStories {
         addAll(LSMapLayerStory.all)
         addAll(LSRouteSheetStory.all)
         addAll(LSSessionsDrawerStory.all)
+        addAll(LSRouteCardStory.all)
         // LSNavigatorMessageStory and LSInlineErrorCalloutStory disabled due to API issues
         // addAll(LSNavigatorMessageStory.all)
         // addAll(LSInlineErrorCalloutStory.all)
