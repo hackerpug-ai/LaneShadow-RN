@@ -50,7 +50,7 @@ public struct LSSectionHeader: View {
                 Button {
                     onTap()
                 } label: {
-                    HStack(spacing: 3) {
+                    HStack(spacing: theme.space.xs) {
                         LSText(label, variant: .body.sm)
                             .foregroundStyle(LaneShadowTheme.color.signal.default)
                         LSIcon(
@@ -64,8 +64,8 @@ public struct LSSectionHeader: View {
                 .accessibilityIdentifier("lssectionheader-link")
             }
         }
-        .padding(.vertical, 12)
+        .padding(.vertical, theme.space.md)
         .padding(.leading, leadingInset)
-        .padding(.trailing, 16)
+        .padding(.trailing, theme.space.lg)
     }
 }
