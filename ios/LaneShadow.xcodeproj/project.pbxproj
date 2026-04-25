@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0088B7B8DE44EAB0E681D685 /* ModifierStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F130DF4421118EE59843068 /* ModifierStories.swift */; };
 		06E6D012390862D9ABF3488C /* LaneShadowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C592B52392DEEACF2D91C3B /* LaneShadowTests.swift */; };
 		078589B1255FE42AA7459089 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */; };
 		0A215149AE7AF5FBBCB5409E /* ConvexStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */; };
@@ -17,6 +18,7 @@
 		1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8ABC117BB7538D9D09E1F6 /* LSPhaseDotStories.swift */; };
 		24E92B6C2FD5880E27973B68 /* ChatTranscript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9585186566089A7EAF681DDB /* ChatTranscript.swift */; };
 		260AE5B2889B2C4DCE1F1C38 /* LSEmptyStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68571E06FBCE8232271D1DB2 /* LSEmptyStateTests.swift */; };
+		2A685A9BE84EC13D3483B8C8 /* TemplateStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCE935E865EBECBA195F949 /* TemplateStories.swift */; };
 		329EEE4B089D016554E2F75B /* LSToastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7996DA2EBA1763B4956D788D /* LSToastTests.swift */; };
 		34177B113250A9B068F8E3EA /* LSEmptyStateStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA14A4A60BB921AEF31B1BE7 /* LSEmptyStateStories.swift */; };
 		35821980B5053707A9A97CDE /* LSRouteSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEDACF6EC8AA820E5E31C40 /* LSRouteSheet.swift */; };
@@ -65,6 +67,7 @@
 		E868E14CF971E572F61A614E /* MoleculesStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */; };
 		EA035D37C13A73B7C213068C /* LSBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4783B461B5B9EC6A5AA6F1DF /* LSBottomSheet.swift */; };
 		ED9DF59A25970507B80D1720 /* MapboxMaps in Frameworks */ = {isa = PBXBuildFile; productRef = DA5E21A6F8345673A1101414 /* MapboxMaps */; };
+		F93C7EA30338ABCA88DEE925 /* InfrastructureStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */; };
 		F994D017357EA5F2EAA9D72F /* LSModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94AB21A076699921AC328EE9 /* LSModal.swift */; };
 		F9E41F8A8E5435B9BCD67D40 /* InfoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5F858C066D550CE73CE6FD /* InfoToast.swift */; };
 		FCAE00CC74E427BDB51D7F65 /* LSSuggestionChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */; };
@@ -108,9 +111,11 @@
 		324B26FB2DE3F759B489CB7B /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		3B4E8EF6472F1ABEBBC33DFB /* ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ios; path = "../../native-sandbox/ios"; sourceTree = SOURCE_ROOT; };
 		3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomsStories.swift; sourceTree = "<group>"; };
+		3FCE935E865EBECBA195F949 /* TemplateStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateStories.swift; sourceTree = "<group>"; };
 		4783B461B5B9EC6A5AA6F1DF /* LSBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSBottomSheet.swift; sourceTree = "<group>"; };
 		478C8C03ABF1E0F4AFEF0836 /* LSWeatherBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSWeatherBadge.swift; sourceTree = "<group>"; };
 		4A2AE4E90D3718200E3AB248 /* LSEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSEmptyState.swift; sourceTree = "<group>"; };
+		4F130DF4421118EE59843068 /* ModifierStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModifierStories.swift; sourceTree = "<group>"; };
 		534D26C275878552CD82E5FE /* LSDisplayStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSDisplayStories.swift; sourceTree = "<group>"; };
 		5C592B52392DEEACF2D91C3B /* LaneShadowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowTests.swift; sourceTree = "<group>"; };
 		5FB23C9E4DF31CC4E50E47AB /* swift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = swift; path = ../tokens/platforms/swift; sourceTree = SOURCE_ROOT; };
@@ -133,6 +138,7 @@
 		AC4A7D452F312F54C6748C22 /* LSFormFieldStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFormFieldStories.swift; sourceTree = "<group>"; };
 		B95CA989BE1243B1021F83D3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BB3A089B3C507033B7B2BEF8 /* LSBottomSheetStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSBottomSheetStory.swift; sourceTree = "<group>"; };
+		BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfrastructureStories.swift; sourceTree = "<group>"; };
 		BD7360EC93AFB89C2E49D267 /* LSBottomSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSBottomSheetTests.swift; sourceTree = "<group>"; };
 		CFFB033EDA463052A650A51D /* LSToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbar.swift; sourceTree = "<group>"; };
 		D1261D8D753487C4CE27B783 /* LSTabItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTabItemTests.swift; sourceTree = "<group>"; };
@@ -320,6 +326,7 @@
 				8C41ED0E046EE966A32C67CB /* Molecules */,
 				D026D3B873FDE7B7153F206F /* Organisms */,
 				3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */,
+				BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */,
 				05416F03B3657341F705522A /* LSButtonStories.swift */,
 				534D26C275878552CD82E5FE /* LSDisplayStories.swift */,
 				612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */,
@@ -329,7 +336,9 @@
 				220BC64128EB0A24188F4C65 /* LSPillStories.swift */,
 				8F281656D06513E78E57D10D /* LSScrimStories.swift */,
 				0E259B982ADB47ABE53D132D /* LSTextStories.swift */,
+				4F130DF4421118EE59843068 /* ModifierStories.swift */,
 				E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */,
+				3FCE935E865EBECBA195F949 /* TemplateStories.swift */,
 			);
 			path = Stories;
 			sourceTree = "<group>";
@@ -582,7 +591,7 @@
 				2448E52A67F9CA102454EA73 /* XCRemoteSwiftPackageReference "convex-swift" */,
 				B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */,
 				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */,
-				AFE99AB4F94E0A32951934B9 /* XCLocalSwiftPackageReference "../../native-sandbox/ios" */,
+				587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A409E156DCE522478E497BB1 /* Products */;
@@ -675,6 +684,7 @@
 				A71A81EDC8563AFD14EE83FB /* ContentView.swift in Sources */,
 				0A215149AE7AF5FBBCB5409E /* ConvexStore.swift in Sources */,
 				F9E41F8A8E5435B9BCD67D40 /* InfoToast.swift in Sources */,
+				F93C7EA30338ABCA88DEE925 /* InfrastructureStories.swift in Sources */,
 				EA035D37C13A73B7C213068C /* LSBottomSheet.swift in Sources */,
 				1030D0562B837B78A06D138D /* LSBottomSheetStory.swift in Sources */,
 				0B45673D740CC18D7C34929C /* LSButtonStories.swift in Sources */,
@@ -711,7 +721,9 @@
 				40979501CCACCFB156F25EB5 /* LaneShadowSandboxEntry.swift in Sources */,
 				B5FF9B8BF6CCCBF0478B2A77 /* LaneShadowStories.swift in Sources */,
 				E2B1C40DCB7D1C33CC729331 /* MarkdownText.swift in Sources */,
+				0088B7B8DE44EAB0E681D685 /* ModifierStories.swift in Sources */,
 				E868E14CF971E572F61A614E /* MoleculesStories.swift in Sources */,
+				2A685A9BE84EC13D3483B8C8 /* TemplateStories.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1058,9 +1070,9 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../tokens/platforms/swift;
 		};
-		AFE99AB4F94E0A32951934B9 /* XCLocalSwiftPackageReference "../../native-sandbox/ios" */ = {
+		587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = "../../native-sandbox/ios";
+			relativePath = "/Users/justinrich/Projects/native-sandbox/ios";
 		};
 /* End XCLocalSwiftPackageReference section */
 

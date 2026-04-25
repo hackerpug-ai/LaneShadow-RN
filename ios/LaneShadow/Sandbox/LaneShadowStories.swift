@@ -6,11 +6,11 @@ import SwiftUI
 @MainActor
 enum LaneShadowStories {
     static let all: [Story] = [
-        // MARK: - Token Swatch Stories
+        // MARK: - Token Swatch Stories (infrastructure tier for design-system documentation)
 
         Story(
-            id: "tokens/color-swatches/all",
-            tier: .atom,
+            id: "infrastructure.tokens.color-swatches.all",
+            tier: .infrastructure,
             component: "ColorTokens",
             name: "All Colors",
             summary: "Every semantic color swatch: surface, content, signal, action, border, domain"
@@ -19,8 +19,8 @@ enum LaneShadowStories {
         },
 
         Story(
-            id: "tokens/typography/all-families",
-            tier: .atom,
+            id: "infrastructure.tokens.typography.all-families",
+            tier: .infrastructure,
             component: "TypographyTokens",
             name: "All Families & Sizes",
             summary: "Opinion (Newsreader), UI (Geist), Instrument (JetBrains Mono) — all size/weight variants"
@@ -29,8 +29,8 @@ enum LaneShadowStories {
         },
 
         Story(
-            id: "tokens/spacing/rungs",
-            tier: .atom,
+            id: "infrastructure.tokens.spacing.rungs",
+            tier: .infrastructure,
             component: "SpacingTokens",
             name: "Spacing Scale",
             summary: "xs through 4xl — every spacing rung visualized"
@@ -39,8 +39,8 @@ enum LaneShadowStories {
         },
 
         Story(
-            id: "tokens/radius/shapes",
-            tier: .atom,
+            id: "infrastructure.tokens.radius.shapes",
+            tier: .infrastructure,
             component: "RadiusTokens",
             name: "Corner Radii",
             summary: "none through full — corner radius scale"
@@ -49,8 +49,8 @@ enum LaneShadowStories {
         },
 
         Story(
-            id: "tokens/elevation/levels",
-            tier: .atom,
+            id: "infrastructure.tokens.elevation.levels",
+            tier: .infrastructure,
             component: "ElevationTokens",
             name: "Elevation Levels",
             summary: "Level 0 through 8 — shadow depth progression"
@@ -59,6 +59,11 @@ enum LaneShadowStories {
         },
 
     ] + AtomsStories.all
+        + MoleculesStories.all
+        + OrganismStories.all
+        + TemplateStories.all
+        + ModifierStories.all
+        + InfrastructureStories.all
         + LSMapStories.all
         + LSBadgeStories.all
         + LSSurfaceStories.all
@@ -66,8 +71,6 @@ enum LaneShadowStories {
         + LSButtonStories.all
         + LSInputStories.all
         + LSPillStories.all
-        + MoleculesStories.all
-        + OrganismStories.all
         + LSScrimStories.all
         + LSPhaseDotStories.all
 }

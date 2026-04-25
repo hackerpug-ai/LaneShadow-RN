@@ -20,7 +20,7 @@ packages:
   LaneShadowTheme:
     path: ../tokens/platforms/swift
   NativeSandbox:
-    path: ../../native-sandbox/ios
+    path: /Users/justinrich/Projects/native-sandbox/ios
   MapboxMaps:
     url: https://github.com/mapbox/mapbox-maps-ios
     from: 11.6.0
@@ -146,6 +146,10 @@ targets:
       - path: LaneShadow/Sandbox/Stories/Molecules/LSEmptyStateStories.swift
       - path: LaneShadow/Sandbox/Stories/Molecules/LSChatInputStories.swift
       - path: LaneShadow/Sandbox/Stories/Molecules/LSToolbarStory.swift
+      # Sprint 06 tier aggregators
+      - path: LaneShadow/Sandbox/Stories/TemplateStories.swift
+      - path: LaneShadow/Sandbox/Stories/ModifierStories.swift
+      - path: LaneShadow/Sandbox/Stories/InfrastructureStories.swift
       # Sprint 05 organism stories
       - path: LaneShadow/Sandbox/Stories/Organisms
         type: syncedFolder
