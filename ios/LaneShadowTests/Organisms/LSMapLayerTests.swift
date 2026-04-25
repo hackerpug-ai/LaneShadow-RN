@@ -124,7 +124,7 @@ struct LSMapLayerTests {
     }
 
     @Test("test_leading_drawer_slide_in_motion_token")
-    func test_leading_drawer_slide_in_motion_token() {
+    func leading_drawer_slide_in_motion_token() {
         // GIVEN: LSMapLayer with leadingDrawer containing SessionsDrawer
         let camera = CameraPosition(
             center: LatLng(lat: 37.7749, lon: -122.4194),
@@ -156,7 +156,7 @@ struct LSMapLayerTests {
     }
 
     @Test("test_bottom_sheet_uses_lsbottomsheet_molecule")
-    func test_bottom_sheet_uses_lsbottomsheet_molecule() {
+    func bottom_sheet_uses_lsbottomsheet_molecule() {
         // GIVEN: LSMapLayer with bottomSheet containing RouteSheet
         let camera = CameraPosition(
             center: LatLng(lat: 37.7749, lon: -122.4194),
@@ -185,7 +185,7 @@ struct LSMapLayerTests {
     }
 
     @Test("test_all_seven_maplayer_stories_registered")
-    func test_all_seven_maplayer_stories_registered() {
+    func all_seven_maplayer_stories_registered() {
         // GIVEN: developer opens the sandbox
         // WHEN: navigating to Organisms / MapLayer
         // THEN: stories Map Only, Map + TopBar, Map + Top Overlay, Map + Bottom Overlay,

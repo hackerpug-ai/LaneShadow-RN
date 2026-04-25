@@ -79,7 +79,7 @@ enum LSMapLayerStory {
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                    }
+                    },
                 ],
                 topBar: LSTopBar(
                     onMenuTap: {},
@@ -119,7 +119,7 @@ enum LSMapLayerStory {
                             }
                         }
                         .frame(height: 46)
-                    }
+                    },
                 ],
                 topBar: LSTopBar(
                     onMenuTap: {},
@@ -235,7 +235,7 @@ enum LSMapLayerStory {
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                    }
+                    },
                 ],
                 bottomOverlays: [
                     GlassOverlaySlot(id: "chat") {
@@ -247,7 +247,7 @@ enum LSMapLayerStory {
                             }
                         }
                         .frame(height: 46)
-                    }
+                    },
                 ],
                 bottomSheet: BottomSheetSpec(detent: .medium) {
                     VStack(alignment: .leading, spacing: 12) {
@@ -317,7 +317,7 @@ enum LSMapLayerStory {
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                    }
+                    },
                 ],
                 bottomOverlays: [
                     GlassOverlaySlot(id: "chat") {
@@ -329,7 +329,7 @@ enum LSMapLayerStory {
                             }
                         }
                         .frame(height: 46)
-                    }
+                    },
                 ],
                 bottomSheet: BottomSheetSpec(detent: .medium) {
                     VStack(alignment: .leading, spacing: 12) {
