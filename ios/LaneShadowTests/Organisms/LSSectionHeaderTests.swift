@@ -51,8 +51,11 @@ final class LSSectionHeaderTests: XCTestCase {
     // MARK: - AC-3: See all tap fires once
 
     func test_see_all_tap_fires_once() throws {
-        var tapCount = 0
-        let onTap = { tapCount += 1 }
+        final class TapCounter: @unchecked Sendable {
+            var count = 0
+        }
+        let counter = TapCounter()
+        let onTap = { @Sendable in counter.count += 1 }
         let header = LSSectionHeader(
             title: "Nearby Routes",
             trailing: .link(label: "See all", onTap: onTap)
@@ -67,11 +70,11 @@ final class LSSectionHeaderTests: XCTestCase {
         XCTAssertTrue(source.contains("onTap()"), "Should call onTap in button action")
 
         // Verify closure doesn't fire automatically
-        XCTAssertEqual(tapCount, 0, "Tap should not fire automatically")
+        XCTAssertEqual(counter.count, 0, "Tap should not fire automatically")
 
         // Verify closure fires when invoked
         onTap()
-        XCTAssertEqual(tapCount, 1, "Tap should fire once when invoked")
+        XCTAssertEqual(counter.count, 1, "Tap should fire once when invoked")
     }
 
     // MARK: - AC-4: Custom inset override

@@ -30,10 +30,12 @@ struct LSNavigatorMessageTests {
     }
 
     // MARK: - AC-2: Three attachments first selected
+
     // Note: LSNavigatorMessage doesn't currently support attachments
     // This AC is deferred until LSRouteAttachmentCard integration is added
 
     // MARK: - AC-3: Unpinned auto-dismiss; pinned persists
+
     // Note: Auto-dismiss timing implementation is deferred
     // Would require .task { try? await Task.sleep(...) }
 
@@ -107,8 +109,14 @@ struct LSNavigatorMessageTests {
     @Test("test_no_banned_primitives")
     func noBannedPrimitives() throws {
         // GIVEN: LSNavigatorMessage and LSInlineErrorCallout source files
-        let navigatorSource = try String(contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift")
-        let errorSource = try String(contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Organisms/LSInlineErrorCallout.swift")
+        let navigatorSource =
+            try String(
+                contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift"
+            )
+        let errorSource =
+            try String(
+                contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Organisms/LSInlineErrorCallout.swift"
+            )
 
         // WHEN: inspecting for banned primitives
         // THEN: no Font.system, Color(hex:), Color(red:, .monospaced() occurrences
