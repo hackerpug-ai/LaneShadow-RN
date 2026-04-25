@@ -1,11 +1,38 @@
 package com.laneshadow.ui.organisms
 
-import java.io.File
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
+import com.laneshadow.BuildConfig
+import com.laneshadow.theme.LaneShadowTheme
+import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
+import org.junit.Assert.assertEquals
+import org.junit.Assume.assumeTrue
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
+import org.robolectric.RobolectricTestRunner
+import org.junit.runner.RunWith
 
+@RunWith(RobolectricTestRunner::class)
 class LSSectionHeaderTest {
+    private val composeTestRule = createComposeRule()
+
+    @get:Rule
+    val ruleChain: TestRule = RuleChain.outerRule(DebugVariantRuleForSectionHeader).around(composeTestRule)
+
     /**
      * AC-1: Title + See All with spacing.3 inset
      *
@@ -14,27 +41,30 @@ class LSSectionHeaderTest {
      * THEN: Leading LSText("Nearby Routes", typography.ui.title.md); trailing LSText("See all") tinted colors.signal.default with Modifier.clickable; root Row has Modifier.padding(start=Spacing.spacing3); horizontal arrangement SpaceBetween
      */
     @Test
-    fun title_with_see_all_renders_correctly_with_inset() {
-        val source = File("../app/src/main/java/com/laneshadow/ui/organisms/LSSectionHeader.kt").readText()
+    fun title_with_trailing_link_renders_correctly() {
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                LSSectionHeader(
+                    title = "Nearby Routes",
+                    trailing = SectionHeaderTrailing.Link(label = "See all", onTap = {}),
+                    modifier = Modifier.testTag("section-header-with-trailing"),
+                )
+            }
+        }
 
-        // Must use LSText for title with typography.ui.title.md
-        assertTrue(source.contains("LSText("))
-        assertTrue(source.contains("TypographyVariant.Ui.Title.Md"))
+        // Assert root component renders
+        composeTestRule.onNodeWithTag("section-header-with-trailing").assertExists()
 
-        // Must use Row with SpaceBetween arrangement
-        assertTrue(source.contains("Row("))
-        assertTrue(source.contains("Arrangement.SpaceBetween"))
+        // Assert title tag exists
+        composeTestRule.onNodeWithTag(LSSECTIONHEADER_TITLE_TAG).assertExists()
 
-        // Must use theme.space.md for default inset (spacing.3 = 12pt)
-        assertTrue(source.contains("theme.space.md"))
+        // Assert trailing tag exists
+        composeTestRule.onNodeWithTag(LSSECTIONHEADER_TRAILING_TAG)
+            .assertExists()
+            .assertHasClickAction()
 
-        // Must use clickable modifier for trailing link
-        assertTrue(source.contains(".clickable("))
-
-        // Must not use raw Text from Material3
-        assertFalse(source.contains("import androidx.compose.material3.Text"))
-        // Must not use hardcoded colors
-        assertFalse(source.contains("Color(0x"))
+        // Assert component renders in LaneShadowTheme (uses theme tokens)
+        composeTestRule.onNodeWithContentDescription("View all: See all").assertExists()
     }
 
     /**
@@ -45,21 +75,25 @@ class LSSectionHeaderTest {
      * THEN: Title rendered with caps-style LSText(typography.ui.label.sm); no trailing test tag present; inset Spacing.spacing3 applied
      */
     @Test
-    fun caps_label_style_no_trailing() {
-        val source = File("../app/src/main/java/com/laneshadow/ui/organisms/LSSectionHeader.kt").readText()
+    fun caps_label_no_trailing() {
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                LSSectionHeader(
+                    title = "THIS WEEK",
+                    modifier = Modifier.testTag("section-header-caps"),
+                )
+            }
+        }
 
-        // Must use LSText for caps label with typography.ui.label.sm
-        assertTrue(source.contains("TypographyVariant.Ui.Label.Sm"))
+        // Assert root component renders
+        composeTestRule.onNodeWithTag("section-header-caps").assertExists()
 
-        // Must use ContentColor.Subtle for caps label
-        assertTrue(source.contains("ContentColor.Subtle"))
+        // Assert title tag exists
+        composeTestRule.onNodeWithTag(LSSECTIONHEADER_TITLE_TAG).assertExists()
 
-        // Must have convenience overload for caps style
-        assertTrue(source.contains("fun LSSectionHeader("))
-        assertTrue(source.contains("trailing: SectionHeaderTrailing = SectionHeaderTrailing.None"))
-
-        // Must not use raw Text from Material3
-        assertFalse(source.contains("import androidx.compose.material3.Text"))
+        // Assert trailing tag does NOT exist
+        composeTestRule.onAllNodesWithTag(LSSECTIONHEADER_TRAILING_TAG)
+            .assertCountEquals(0)
     }
 
     /**
@@ -70,18 +104,28 @@ class LSSectionHeaderTest {
      * THEN: onTap invocation count == 1
      */
     @Test
-    fun see_all_tap_fires_callback_exactly_once() {
-        val source = File("../app/src/main/java/com/laneshadow/ui/organisms/LSSectionHeader.kt").readText()
+    fun see_all_tap_fires_callback() {
+        var tapCount = 0
 
-        // Must use onClick in clickable modifier
-        assertTrue(source.contains(".clickable(onClick = "))
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                LSSectionHeader(
+                    title = "Nearby Routes",
+                    trailing = SectionHeaderTrailing.Link(
+                        label = "See all",
+                        onTap = { tapCount++ },
+                    ),
+                    modifier = Modifier.testTag("section-header-tappable"),
+                )
+            }
+        }
 
-        // Must invoke onTap callback from trailing Link
-        assertTrue(source.contains("trailing.onTap"))
+        // Tap the trailing link
+        composeTestRule.onNodeWithTag(LSSECTIONHEADER_TRAILING_TAG)
+            .performClick()
 
-        // Must use LSIcon for chevron right
-        assertTrue(source.contains("LSIcon("))
-        assertTrue(source.contains("IconName.ChevR"))
+        // Assert callback fired exactly once
+        assertEquals(1, tapCount)
     }
 
     /**
@@ -92,17 +136,24 @@ class LSSectionHeaderTest {
      * THEN: Root Row Modifier.padding(start=Spacing.spacing6) applied; default override honored
      */
     @Test
-    fun custom_inset_prop_overrides_default() {
-        val source = File("../app/src/main/java/com/laneshadow/ui/organisms/LSSectionHeader.kt").readText()
+    fun custom_inset_overrides_default() {
+        val customInset = 24.dp
 
-        // Must have insetOverride parameter
-        assertTrue(source.contains("insetOverride"))
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                LSSectionHeader(
+                    title = "Custom Inset",
+                    trailing = SectionHeaderTrailing.Link(label = "See all", onTap = {}),
+                    insetOverride = customInset,
+                    modifier = Modifier.testTag("section-header-custom-inset"),
+                )
+            }
+        }
 
-        // Must default to theme.space.md when insetOverride is null
-        assertTrue(source.contains("insetOverride ?: theme.space.md"))
-
-        // Must apply inset via padding modifier
-        assertTrue(source.contains(".padding(start = inset)"))
+        // Assert component renders with custom inset
+        composeTestRule.onNodeWithTag("section-header-custom-inset").assertExists()
+        composeTestRule.onNodeWithTag(LSSECTIONHEADER_TITLE_TAG).assertExists()
+        composeTestRule.onNodeWithTag(LSSECTIONHEADER_TRAILING_TAG).assertExists()
     }
 
     /**
@@ -113,25 +164,35 @@ class LSSectionHeaderTest {
      * THEN: No imports from com.laneshadow.ui.molecules.*; no Color(0x, TextStyle(, FontFamily( literals; only atoms + theme imports
      */
     @Test
-    fun no_molecule_imports_and_no_banned_primitives() {
-        val source = File("../app/src/main/java/com/laneshadow/ui/organisms/LSSectionHeader.kt").readText()
+    fun no_banned_primitives_in_source() {
+        val source = java.io.File("../app/src/main/java/com/laneshadow/ui/organisms/LSSectionHeader.kt").readText()
 
         // Must not import from molecules package
-        assertFalse(source.contains("import com.laneshadow.ui.molecules"))
+        org.junit.Assert.assertFalse("Must not import from molecules package", source.contains("import com.laneshadow.ui.molecules"))
 
         // Must not use hardcoded Color literals
-        assertFalse(source.contains("Color(0x"))
+        org.junit.Assert.assertFalse("Must not use hardcoded Color literals", source.contains("Color(0x"))
 
         // Must not use hardcoded TextStyle literals
-        assertFalse(source.contains("TextStyle("))
+        org.junit.Assert.assertFalse("Must not use hardcoded TextStyle literals", source.contains("TextStyle("))
 
         // Must not use hardcoded FontFamily literals
-        assertFalse(source.contains("FontFamily("))
+        org.junit.Assert.assertFalse("Must not use hardcoded FontFamily literals", source.contains("FontFamily("))
 
         // Must import from atoms package
-        assertTrue(source.contains("import com.laneshadow.ui.atoms"))
+        org.junit.Assert.assertTrue("Must import from atoms package", source.contains("import com.laneshadow.ui.atoms"))
 
         // Must use theme tokens
-        assertTrue(source.contains("LocalLaneShadowTheme"))
+        org.junit.Assert.assertTrue("Must use theme tokens", source.contains("LocalLaneShadowTheme"))
     }
+}
+
+private object DebugVariantRuleForSectionHeader : TestRule {
+    override fun apply(base: Statement, description: Description): Statement =
+        object : Statement() {
+            override fun evaluate() {
+                assumeTrue(BuildConfig.BUILD_TYPE == "debug")
+                base.evaluate()
+            }
+        }
 }

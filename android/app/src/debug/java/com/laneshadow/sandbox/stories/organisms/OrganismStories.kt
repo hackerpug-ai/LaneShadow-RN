@@ -3,9 +3,12 @@ package com.laneshadow.sandbox.stories.organisms
 import com.nativesandbox.model.Story
 
 object OrganismStories {
-    val all: List<Story> = listOf(
-        *LSTopBarStory.all.toTypedArray(),
-        *LSNavBarStory.all.toTypedArray(),
-        *LSSectionHeaderStory.all.toTypedArray(),
-    )
+    val all: List<Story> = buildList {
+        addAll(LSTopBarStory.all)
+        addAll(LSNavBarStory.all)
+        addAll(LSSectionHeaderStory.all)
+        // LSNavigatorMessageStory and LSInlineErrorCalloutStory disabled due to API issues
+        // addAll(LSNavigatorMessageStory.all)
+        // addAll(LSInlineErrorCalloutStory.all)
+    }
 }
