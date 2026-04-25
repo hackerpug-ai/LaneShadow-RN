@@ -56,6 +56,7 @@
 		C815D55CC39819958EAC1ED1 /* LSWeatherTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EE8B6BD461E65A5DD1F948 /* LSWeatherTimeline.swift */; };
 		C9108535DE88E44D62CC2AE6 /* MarkdownTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5107D4267204A230D572AB9 /* MarkdownTextTests.swift */; };
 		D3FCBC758470A7571618AF4A /* LSTextStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E259B982ADB47ABE53D132D /* LSTextStories.swift */; };
+		DA5A4BD4334BFB5A70AC36EB /* LSSessionsDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A4BF96B7AD1B8F8BABF061 /* LSSessionsDrawer.swift */; };
 		E2B1C40DCB7D1C33CC729331 /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6089A65C4DD27D71FDFC6B91 /* MarkdownText.swift */; };
 		E38D09C5CE8E05B40EC425E5 /* LSIconStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */; };
 		E59A273AD62956C2EFAC59C9 /* LSEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A2AE4E90D3718200E3AB248 /* LSEmptyState.swift */; };
@@ -91,6 +92,7 @@
 		0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0B452143E44AAB17CB9164E3 /* LSToastStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToastStory.swift; sourceTree = "<group>"; };
 		0E259B982ADB47ABE53D132D /* LSTextStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTextStories.swift; sourceTree = "<group>"; };
+		15A4BF96B7AD1B8F8BABF061 /* LSSessionsDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSSessionsDrawer.swift; sourceTree = "<group>"; };
 		15E783920D0C7F446CD2A1C7 /* LSToolbarStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbarStory.swift; sourceTree = "<group>"; };
 		19695B8A9932BA0DADCBEADF /* LSChatInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSChatInput.swift; sourceTree = "<group>"; };
 		1C18F36042134628BD1BF30B /* LSTabItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTabItem.swift; sourceTree = "<group>"; };
@@ -377,6 +379,7 @@
 			isa = PBXGroup;
 			children = (
 				1EEDACF6EC8AA820E5E31C40 /* LSRouteSheet.swift */,
+				15A4BF96B7AD1B8F8BABF061 /* LSSessionsDrawer.swift */,
 			);
 			path = Organisms;
 			sourceTree = "<group>";
@@ -686,6 +689,7 @@
 				91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */,
 				35821980B5053707A9A97CDE /* LSRouteSheet.swift in Sources */,
 				762FB79AB5AE6050179BB785 /* LSScrimStories.swift in Sources */,
+				DA5A4BD4334BFB5A70AC36EB /* LSSessionsDrawer.swift in Sources */,
 				FCAE00CC74E427BDB51D7F65 /* LSSuggestionChip.swift in Sources */,
 				938A965D4FEDD3713546A274 /* LSTabItem.swift in Sources */,
 				67E11B124F365ECBE356E456 /* LSTabItemStories.swift in Sources */,
