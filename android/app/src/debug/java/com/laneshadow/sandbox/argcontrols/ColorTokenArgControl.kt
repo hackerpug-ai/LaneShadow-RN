@@ -8,17 +8,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import com.laneshadow.theme.LocalLaneShadowTheme
 
 /**
@@ -58,7 +64,7 @@ fun ColorTokenArgControl(
                 .fillMaxWidth()
                 .clickable { expanded = true }
                 .padding(vertical = theme.space.xs),
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             // Show color swatch
             val color = remember(value) {
@@ -67,21 +73,51 @@ fun ColorTokenArgControl(
             Box(
                 modifier = Modifier
                     .size(24.dp)
-                    .background(color, CircleShape)
-                    .padding(end = theme.space.sm),
+                    .background(color, CircleShape),
             )
+            Box(modifier = Modifier.width(theme.space.sm))
             Text(
                 text = value,
                 style = theme.type.body.md,
                 color = theme.colors.onSurface.default,
                 modifier = Modifier.weight(1f),
             )
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowDown,
+                contentDescription = "Dropdown",
+                tint = theme.colors.onSurface.default,
+            )
         }
 
-        if (expanded) {
-            // Dropdown menu would be shown here
-            // Full implementation would use DropdownMenu
-            // For each token in tokenOptions, show a row with color swatch + name
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            tokenOptions.forEach { token ->
+                val tokenColor = remember(token) {
+                    parseTokenColor(token)
+                }
+                DropdownMenuItem(
+                    text = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .background(tokenColor, CircleShape),
+                            )
+                            Box(modifier = Modifier.width(theme.space.sm))
+                            Text(token)
+                        }
+                    },
+                    onClick = {
+                        onValueChange(token)
+                        expanded = false
+                    },
+                )
+            }
         }
     }
 }
@@ -113,10 +149,19 @@ private fun getColorTokensForGroup(group: String): List<String> {
 
 /**
  * Parse a token string to get the actual Color value.
- * This would read from Tokens.kt to get the actual color value.
+ * Generates a consistent color from the token name using a hash function.
+ * This ensures different tokens show different colors in the UI.
+ *
+ * TODO: Read from generated Tokens.kt to get actual theme color values.
  */
 private fun parseTokenColor(tokenName: String): Color {
-    // This is a simplified implementation
-    // Full implementation would parse the token name and read from Tokens.kt
-    return Color.Gray
+    // Generate a consistent color from the token name string
+    val hash = tokenName.hashCode()
+
+    // Extract RGB components from the hash
+    val red = ((hash shr 16) and 0xFF) % 156 + 100  // Keep in visible range 100-255
+    val green = ((hash shr 8) and 0xFF) % 156 + 100
+    val blue = (hash and 0xFF) % 156 + 100
+
+    return Color(red, green, blue)
 }

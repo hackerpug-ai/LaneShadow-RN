@@ -54,6 +54,7 @@ class ArgControlRenderingTest {
         // WHEN: User types in the field
         composeTestRule.onNodeWithText("initial")
             .performTextClearance()
+        composeTestRule.onNodeWithText("")
             .performTextInput("new value")
 
         // THEN: Value is updated
@@ -157,5 +158,35 @@ class ArgControlRenderingTest {
         // THEN: Dropdown is rendered with label and current value
         composeTestRule.onNodeWithText("Test Select").assertExists()
         composeTestRule.onNodeWithText("option1").assertExists()
+    }
+
+    @Test
+    fun selectArgControl_opens_dropdown_and_selects_option() {
+        var currentValue = "option1"
+        val options = listOf("option1", "option2", "option3")
+
+        composeTestRule.setContent {
+            SelectArgControl(
+                label = "Test Select",
+                value = currentValue,
+                options = options,
+                onValueChange = { currentValue = it },
+            )
+        }
+
+        // Initial state
+        assert(currentValue == "option1") { "Initial value should be option1" }
+
+        // WHEN: User clicks the dropdown to open it
+        composeTestRule.onNodeWithText("option1").performClick()
+
+        // Wait for dropdown to appear
+        composeTestRule.waitForIdle()
+
+        // WHEN: User clicks on option2
+        composeTestRule.onNodeWithText("option2").performClick()
+
+        // THEN: Value is updated
+        assert(currentValue == "option2") { "Value should be updated to option2" }
     }
 }

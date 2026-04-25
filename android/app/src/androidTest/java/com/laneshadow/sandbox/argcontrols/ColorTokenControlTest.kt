@@ -2,6 +2,7 @@ package com.laneshadow.sandbox.argcontrols
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import org.junit.Rule
 import org.junit.Test
 
@@ -75,7 +76,18 @@ class ColorTokenControlTest {
             "Initial value should be color.action.default"
         }
 
-        // Note: Full test would click dropdown and select different option
-        // For now, we just verify the control renders
+        // WHEN: User clicks the dropdown to open it
+        composeTestRule.onNodeWithText("color.action.default").performClick()
+
+        // Wait for dropdown to appear
+        composeTestRule.waitForIdle()
+
+        // WHEN: User clicks on color.action.hover
+        composeTestRule.onNodeWithText("color.action.hover").performClick()
+
+        // THEN: Value is updated
+        assert(currentValue == "color.action.hover") {
+            "Value should be updated to color.action.hover"
+        }
     }
 }
