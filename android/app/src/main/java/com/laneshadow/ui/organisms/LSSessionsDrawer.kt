@@ -49,6 +49,9 @@ const val LSSSESSIONSDRAWER_NEW_BUTTON_TAG = "ls-sessions-drawer-new-button"
 const val LSSSESSIONSDRAWER_SESSION_ROW_TAG = "ls-sessions-drawer-session-row"
 const val LSSSESSIONSDRAWER_ACTIVE_STRIPE_TAG = "ls-sessions-drawer-active-stripe"
 
+// Private constants for hardcoded values
+private val drawerWidth = 312.dp
+
 // Semantics keys
 val LSGlassPanelLSGlassPanelVariantKey = SemanticsPropertyKey<GlassVariant>("LSGlassPanelVariant")
 val SessionRowActiveKey = SemanticsPropertyKey<Boolean>("SessionRowActive")
@@ -77,7 +80,6 @@ fun LSSessionsDrawer(
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
-    val drawerWidth = 312.dp
 
     LSGlassPanel(
         variant = GlassVariant.Chrome,
@@ -85,7 +87,7 @@ fun LSSessionsDrawer(
             .width(drawerWidth)
             .fillMaxHeight()
             .border(
-                width = 1.dp,
+                width = GeneratedTokens.sizing.stroke.sm,
                 color = theme.colors.border.default,
             )
             .testTag(LSSSESSIONSDRAWER_TAG),
@@ -189,7 +191,7 @@ private fun SessionRow(
             .then(
                 if (isActive) {
                     Modifier.background(
-                        color = GeneratedTokens.color.Signal.default.copy(alpha = 0.05f),
+                        color = GeneratedTokens.color.Signal.default.copy(alpha = theme.opacity.values["focus"] ?: 0.05f),
                     )
                 } else {
                     Modifier

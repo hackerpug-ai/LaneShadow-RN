@@ -64,6 +64,10 @@ const val NAVIGATOR_CLOSE_ICON_TAG = "navigator-close-icon"
 const val NAVIGATOR_ATTACHMENTS_TAG = "navigator-attachments"
 const val NAVIGATOR_PINNED_INDICATOR_TAG = "navigator-pinned-indicator"
 
+// Private constants for hardcoded values
+private val attachmentSpacing = 6.dp
+private val indicatorDotSize = 5.dp
+
 // Motion recipe paths
 private const val ChatOverlayEnterRecipePath = "motion.recipe.chatOverlayEnter"
 private const val ChatOverlayDismissRecipePath = "motion.recipe.chatOverlayDismiss"
@@ -200,7 +204,7 @@ fun LSNavigatorMessage(
                 if (attachments.isNotEmpty()) {
                     Column(
                         modifier = Modifier.testTag(NAVIGATOR_ATTACHMENTS_TAG),
-                        verticalArrangement = Arrangement.spacedBy(6.dp), // spacing.2 (6dp) between rows
+                        verticalArrangement = Arrangement.spacedBy(attachmentSpacing),
                     ) {
                         attachments.forEachIndexed { index, attachment ->
                             LSRouteAttachmentCard(
@@ -255,8 +259,8 @@ private fun PinnedIndicator(
     ) {
         Box(
             modifier = Modifier
-                .size(5.dp)
-                .background(theme.colors.primary.default.copy(alpha = 0.22f), CircleShape),
+                .size(indicatorDotSize)
+                .background(theme.colors.primary.default.copy(alpha = theme.opacity.values["focus"] ?: 0.12f), CircleShape),
         )
 
         LSText(

@@ -21,10 +21,10 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme.IconName
+import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.atoms.GlassVariant
 import com.laneshadow.ui.atoms.IconColor
@@ -35,7 +35,6 @@ import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.StatusColor
 import com.laneshadow.ui.atoms.TextColor
 import com.laneshadow.ui.atoms.TypographyVariant
-import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 
 // Test tags
 const val LSTOPBAR_TAG = "ls-topbar"
@@ -48,6 +47,10 @@ const val LSTOPBAR_RECORDING_INDICATOR_TAG = "TopBarRecordingIndicatorTag"
 val LSTopBarGlassVariantKey = SemanticsPropertyKey<GlassVariant>("LSTopBarGlassVariant")
 
 private var SemanticsPropertyReceiver.lsTopBarGlassVariant by LSTopBarGlassVariantKey
+
+// Private constants for hardcoded values
+private val chipHeight = 40.dp
+private val recordingDotSize = 6.dp
 
 /**
  * Sealed interface for LSTopBar trailing slot variants.
@@ -162,12 +165,11 @@ private fun HamburgerChip(
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
-    val chipSize = 40.dp
 
     LSGlassPanel(
         variant = GlassVariant.Chrome,
         modifier = modifier
-            .size(chipSize)
+            .size(chipHeight)
             .semantics {
                 lsTopBarGlassVariant = GlassVariant.Chrome
             }
@@ -196,7 +198,7 @@ private fun NewChip(
     LSGlassPanel(
         variant = GlassVariant.Chrome,
         modifier = modifier
-            .height(40.dp)
+            .height(chipHeight)
             .semantics {
                 lsTopBarGlassVariant = GlassVariant.Chrome
             }
@@ -232,14 +234,14 @@ private fun RecordHighlightChip(
 
     Row(
         modifier = modifier
-            .height(40.dp),
+            .height(chipHeight),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(theme.space.xs),
     ) {
         // Recording indicator dot (pulsing red dot)
         RecordingDot(
             color = GeneratedTokens.color.Status.recording,
-            modifier = Modifier.size(6.dp),
+            modifier = Modifier.size(recordingDotSize),
         )
 
         LSText(

@@ -33,6 +33,9 @@ import com.laneshadow.ui.atoms.SpacingToken
 import com.laneshadow.ui.atoms.TypographyVariant
 import com.laneshadow.ui.molecules.LSTagPill
 
+// Private constants for hardcoded values
+private val mapPreviewHeight = 160.dp
+
 @Composable
 fun LSRouteCard(
     route: RouteCardRoute,
@@ -53,7 +56,7 @@ fun LSRouteCard(
             Box(
                 modifier = Modifier
                     .testTag("ls-map-preview")
-                    .height(160.dp)
+                    .height(mapPreviewHeight)
             ) {
                 mapContent()
             }
@@ -88,7 +91,7 @@ fun LSRouteCard(
                     color = ContentColor.Secondary,
                 )
 
-                Spacer(Modifier.width(1.dp))
+                Spacer(Modifier.width(GeneratedTokens.sizing.stroke.sm))
 
                 LSText(
                     text = route.estimatedTime,
