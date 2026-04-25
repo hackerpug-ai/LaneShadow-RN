@@ -12,6 +12,7 @@ import androidx.compose.ui.test.performClick
 import com.laneshadow.BuildConfig
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.atoms.GlassVariant
+import com.laneshadow.ui.organisms.SuggestionChip
 import org.junit.Assert.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
@@ -101,11 +102,11 @@ class LSInlineErrorCalloutTest {
 
     @Test
     fun suggestion_tap_fires_callback_with_correct_chip() {
-        var tappedChip: LSInlineErrorCallout.SuggestionChip? = null
+        var tappedChip: SuggestionChip? = null
 
         val suggestions = listOf(
-            LSInlineErrorCallout.SuggestionChip(label = "Retry", isPrimary = true),
-            LSInlineErrorCallout.SuggestionChip(label = "Cancel", isPrimary = false),
+            SuggestionChip(label = "Retry", isPrimary = true),
+            SuggestionChip(label = "Cancel", isPrimary = false),
         )
 
         composeTestRule.setContent {
@@ -153,9 +154,9 @@ class LSInlineErrorCalloutTest {
     @Test
     fun multiple_suggestions_render_in_order() {
         val suggestions = listOf(
-            LSInlineErrorCallout.SuggestionChip(label = "First", isPrimary = true),
-            LSInlineErrorCallout.SuggestionChip(label = "Second", isPrimary = false),
-            LSInlineErrorCallout.SuggestionChip(label = "Third", isPrimary = false),
+            SuggestionChip(label = "First", isPrimary = true),
+            SuggestionChip(label = "Second", isPrimary = false),
+            SuggestionChip(label = "Third", isPrimary = false),
         )
 
         composeTestRule.setContent {

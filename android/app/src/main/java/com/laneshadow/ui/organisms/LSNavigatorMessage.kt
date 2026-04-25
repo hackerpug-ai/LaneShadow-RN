@@ -51,6 +51,8 @@ import com.laneshadow.ui.atoms.TextColor
 import com.laneshadow.ui.atoms.TypographyVariant
 import com.laneshadow.ui.molecules.LSRouteAttachmentCard
 import com.laneshadow.ui.molecules.RouteAttachment
+import com.laneshadow.ui.molecules.overlayDismissMotion
+import com.laneshadow.ui.molecules.overlayEnterMotion
 import kotlinx.coroutines.delay
 
 // Test tags
@@ -268,17 +270,27 @@ private fun PinnedIndicator(
 /**
  * Enter transition - slide down from y:-20 + fade in.
  */
-private fun rememberEnterTransition(): EnterTransition =
-    slideInVertically(
+@Composable
+private fun rememberEnterTransition(): EnterTransition {
+    val theme = LocalLaneShadowTheme.current
+    val recipe = overlayEnterMotion(theme, ChatOverlayEnterRecipePath)
+
+    return slideInVertically(
         initialOffsetY = { -20 },
-        animationSpec = tween(280),
-    ) + fadeIn(animationSpec = tween(280))
+        animationSpec = tween(recipe.durationMillis, easing = recipe.easing),
+    ) + fadeIn(animationSpec = tween(recipe.durationMillis, easing = recipe.easing))
+}
 
 /**
  * Exit transition - slide up to y:-16 + fade out.
  */
-private fun rememberExitTransition(): ExitTransition =
-    slideOutVertically(
+@Composable
+private fun rememberExitTransition(): ExitTransition {
+    val theme = LocalLaneShadowTheme.current
+    val recipe = overlayDismissMotion(theme, ChatOverlayDismissRecipePath)
+
+    return slideOutVertically(
         targetOffsetY = { -16 },
-        animationSpec = tween(220),
-    ) + fadeOut(animationSpec = tween(220))
+        animationSpec = tween(recipe.durationMillis, easing = recipe.easing),
+    ) + fadeOut(animationSpec = tween(recipe.durationMillis, easing = recipe.easing))
+}
