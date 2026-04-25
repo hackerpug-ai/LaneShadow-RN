@@ -27,7 +27,7 @@ class LSWeatherBadgeTest {
     @Test
     fun all_six_conditions_resolve_distinct_tints() {
         val tintColors = listOf(
-            WeatherCondition.Sun,
+            WeatherCondition.Clear,
             WeatherCondition.Rain,
             WeatherCondition.Wind,
             WeatherCondition.Storm,
