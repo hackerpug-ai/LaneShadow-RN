@@ -148,8 +148,8 @@ private fun DrawerHeader(
             .padding(
                 start = theme.space.lg,
                 end = theme.space.lg,
-                top = 18.dp,
-                bottom = 14.dp,
+                top = theme.space.lg,
+                bottom = theme.space.md,
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
@@ -184,7 +184,7 @@ private fun SessionRow(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 72.dp) // Ensure minimum height for the stripe to be visible
+            .heightIn(min = theme.space.xl + theme.space.md) // Ensure minimum height for the stripe to be visible
             .clickable(onClick = onTap)
             .then(
                 if (isActive) {
@@ -202,30 +202,30 @@ private fun SessionRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = 16.dp,
+                    start = theme.space.md,
                     end = theme.space.lg,
-                    top = 12.dp,
-                    bottom = 12.dp,
+                    top = theme.space.sm,
+                    bottom = theme.space.sm,
                 ),
             verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
         ) {
-            // Active stripe (3dp left edge)
+            // Active stripe (theme.space.xs left edge)
             if (isActive) {
                 androidx.compose.foundation.layout.Box(
                     modifier = Modifier
-                        .width(3.dp)
-                        .height(48.dp)
+                        .width(theme.space.xs)
+                        .height(theme.space.xl + theme.space.sm)
                         .background(GeneratedTokens.color.Signal.default)
                         .testTag(LSSSESSIONSDRAWER_ACTIVE_STRIPE_TAG)
                         .semantics { },
                     content = {},
                 )
-                androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(3.dp))
+                androidx.compose.foundation.layout.Spacer(modifier = Modifier.width(theme.space.xs))
             }
                 // Row content
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(3.dp),
+                    verticalArrangement = Arrangement.spacedBy(theme.space.xs),
                 ) {
                     // Title row: title + when label
                     Row(
@@ -258,14 +258,14 @@ private fun SessionRow(
 
                     // Meta footer
                     val metaColor = if (isActive) {
-                        GeneratedTokens.color.Signal.default
+                        TextColor.Signal
                     } else {
-                        theme.colors.muted.default
+                        TextColor.Content(ContentColor.Subtle)
                     }
 
-                    Text(
+                    LSText(
                         text = session.meta,
-                        style = theme.typography.ui.label.sm,
+                        variant = TypographyVariant.Ui.Label.Sm,
                         color = metaColor,
                     )
                 }
@@ -276,7 +276,7 @@ private fun SessionRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(androidx.compose.ui.Alignment.BottomCenter)
-                .height(1.dp)
+                .height(with(LocalLaneShadowTheme.current) { space.xs / 3 })
                 .background(GeneratedTokens.color.Border.subtle),
         )
     }

@@ -146,7 +146,7 @@ public struct LSRouteCard: View {
     private var divider: some View {
         Rectangle()
             .fill(theme.colors.border.default)
-            .frame(width: 1, height: 10)
+            .frame(width: theme.strokeWidth.thin, height: 10)
     }
 
     private var formattedDistance: String {

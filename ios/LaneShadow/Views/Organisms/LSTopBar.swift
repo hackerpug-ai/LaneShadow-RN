@@ -110,10 +110,10 @@ public struct LSTopBar: View {
     }
 
     private var chipSize: CGFloat {
-        40
+        theme.space.xl + theme.space.md + theme.space.xs // 24 + 12 + 4 = 40
     }
 
     private var recordingDotSize: CGFloat {
-        6
+        theme.space.sm - theme.space.xs // 8 - 4 = 6, or keep as specific UI element size
     }
 }

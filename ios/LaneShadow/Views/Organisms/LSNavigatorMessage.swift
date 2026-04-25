@@ -35,6 +35,13 @@ public struct LSNavigatorMessage: View {
                 }
             }
         }
+        .task {
+            // Auto-dismiss after 5000ms for unpinned messages
+            try? await Task.sleep(nanoseconds: 5_000_000_000)
+            if !pinned {
+                onDismiss()
+            }
+        }
     }
 }
 
@@ -43,7 +50,7 @@ extension LSNavigatorMessage {
         HStack(alignment: .top, spacing: theme.space.xs) {
             compassChip
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: theme.space.xs) {
                 LSText("THE NAVIGATOR", variant: .label.sm)
                     .foregroundStyle(LaneShadowTheme.color.signal.default)
             }
@@ -68,7 +75,7 @@ extension LSNavigatorMessage {
         .background(
             Circle()
                 .fill(LaneShadowTheme.color.signal.whisper)
-                .opacity(0.22)
+                .opacity(theme.opacity.values["20"] ?? 0.22)
         )
         .overlay(
             Circle()

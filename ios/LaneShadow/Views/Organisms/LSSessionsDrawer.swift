@@ -58,10 +58,10 @@ public struct LSSessionsDrawer<Session: Identifiable>: View where Session.ID == 
             .overlay(alignment: .trailing) {
                 Rectangle()
                     .fill(LaneShadowTheme.color.border.default)
-                    .frame(width: 1)
+                    .frame(width: theme.strokeWidth.thin)
             }
             .shadow(
-                color: Color.black.opacity(0.1),
+                color: theme.elevation.level4.shadowColor.opacity(theme.opacity.values["10"] ?? 0.1),
                 radius: 16,
                 x: 2,
                 y: 0
@@ -151,13 +151,13 @@ private struct SessionRow<Session: Identifiable>: View where Session.ID == Strin
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     isActive
-                        ? LaneShadowTheme.color.signal.default.opacity(0.05)
+                        ? LaneShadowTheme.color.signal.default.opacity(theme.opacity.values["5"] ?? 0.05)
                         : Color.clear
                 )
             }
         }
         .buttonStyle(.plain)
-        .background(LaneShadowTheme.color.border.subtle.opacity(0.5))
+        .background(LaneShadowTheme.color.border.subtle.opacity(theme.opacity.values["50"] ?? 0.5))
         .frame(height: rowHeight)
     }
 
