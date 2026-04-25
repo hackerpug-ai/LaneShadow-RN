@@ -59,9 +59,9 @@ public struct LSTopBar: View {
     private var hamburgerChip: some View {
         Button(action: onMenuTap) {
             LSGlassPanel(variant: .chrome, padding: .spacing3, cornerRadius: .md) {
-                LSIcon(name: .menu, size: .md, color: .primary)
-                    .frame(width: chipSize, height: chipSize)
+                LSIcon(name: .menu, size: .sm, color: .primary)
             }
+            .fixedSize(horizontal: true, vertical: false)
             .frame(width: chipSize, height: chipSize)
         }
         .accessibilityLabel("Menu")

@@ -175,7 +175,7 @@ private fun HamburgerChip(
     ) {
         LSIcon(
             name = IconName.Menu,
-            size = IconSize.Md,
+            size = IconSize.Sm,
             color = IconColor.Content(ContentColor.Primary),
             modifier = Modifier
                 .semantics { contentDescription = "Open menu" },
