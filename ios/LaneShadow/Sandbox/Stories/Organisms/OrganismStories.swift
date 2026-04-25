@@ -10,6 +10,8 @@ enum OrganismStories {
         stories += LSTopBarStory.all
         stories += LSNavBarStory.all
         stories += LSSectionHeaderStory.all
+        stories += LSNavigatorMessageStory.all
+        stories += LSInlineErrorCalloutStory.all
         return stories
     }()
 }

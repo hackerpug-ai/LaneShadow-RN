@@ -7,6 +7,7 @@ object OrganismStories {
         addAll(LSTopBarStory.all)
         addAll(LSNavBarStory.all)
         addAll(LSSectionHeaderStory.all)
+        addAll(LSMapLayerStory.all)
         // LSNavigatorMessageStory and LSInlineErrorCalloutStory disabled due to API issues
         // addAll(LSNavigatorMessageStory.all)
         // addAll(LSInlineErrorCalloutStory.all)
