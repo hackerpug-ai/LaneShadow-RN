@@ -47,7 +47,8 @@ struct LSRouteSheetTests {
         _ = routeSheet.body
 
         // THEN: top-down composition renders without crashing
-        // Structural verification: drag handle + best badge + title + subtitle + instrument readout + weather timeline + action row
+        // Structural verification: drag handle + best badge + title + subtitle + instrument readout + weather timeline
+        // + action row
         // Full composition test: all components compose correctly
     }
 
@@ -173,7 +174,10 @@ struct LSRouteSheetTests {
         #expect(storyIds.contains("organisms.routesheet.best"), "Best Route story should be registered")
         #expect(storyIds.contains("organisms.routesheet.altRoute"), "Alt Route story should be registered")
         #expect(storyIds.contains("organisms.routesheet.longTitle"), "Long Title + Via story should be registered")
-        #expect(storyIds.contains("organisms.routesheet.mixedWeather"), "Mixed Weather Timeline story should be registered")
+        #expect(
+            storyIds.contains("organisms.routesheet.mixedWeather"),
+            "Mixed Weather Timeline story should be registered"
+        )
         #expect(storyIds.contains("organisms.routesheet.darkMode"), "Dark Mode story should be registered")
     }
 }
