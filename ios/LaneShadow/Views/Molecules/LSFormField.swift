@@ -31,9 +31,7 @@ public struct LSFormField: View {
                 LSText(label, variant: .label.md, color: .primary)
 
                 if isRequired {
-                    Text("*")
-                        .font(theme.type.label.md.font)
-                        .foregroundStyle(theme.colors.danger.default)
+                    LSText("*", variant: .label.md, color: .danger)
                 }
             }
 
@@ -48,9 +46,7 @@ public struct LSFormField: View {
             if let error {
                 HStack(spacing: theme.space.xs) {
                     LSIcon(name: .close, size: .xs, resolvedColorOverride: theme.colors.danger.default)
-                    Text(error)
-                        .font(theme.type.body.sm.font)
-                        .foregroundStyle(theme.colors.danger.default)
+                    LSText(error, variant: .body.sm, color: .danger)
                 }
             }
         }

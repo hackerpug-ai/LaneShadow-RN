@@ -8,6 +8,7 @@ public enum ContentColor: CaseIterable, Sendable {
     case tertiary
     case subtle
     case onSignal
+    case danger
 
     public func resolved(in theme: Theme) -> Color {
         switch self {
@@ -21,6 +22,8 @@ public enum ContentColor: CaseIterable, Sendable {
             LaneShadowTheme.color.content.subtle
         case .onSignal:
             LaneShadowTheme.color.content.onSignal
+        case .danger:
+            theme.colors.danger.default
         }
     }
 }
