@@ -39,7 +39,7 @@ public struct LSRouteCard: View {
     // MARK: - Map Preview
 
     private var mapPreview: some View {
-        return ZStack(alignment: .topLeading) {
+        ZStack(alignment: .topLeading) {
             if !route.polyline.isEmpty {
                 LSMap(
                     mode: .preview,

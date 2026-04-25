@@ -272,5 +272,4 @@ struct LSNavigatorMessageTests {
         #expect(errorIds.contains("organisms.inlineerror.longBodyAndSuggestions"))
         #expect(errorIds.contains("organisms.inlineerror.darkMode"))
     }
-
 }

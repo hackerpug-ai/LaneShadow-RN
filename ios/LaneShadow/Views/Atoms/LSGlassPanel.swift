@@ -94,9 +94,9 @@ extension LSGlassPanel {
     static func cornerRadius(_ radius: GlassCornerRadius, in theme: Theme) -> CGFloat {
         switch radius {
         case .default:
-            return theme.radius.xl
+            theme.radius.xl
         case .md:
-            return theme.radius.md
+            theme.radius.md
         }
     }
 
