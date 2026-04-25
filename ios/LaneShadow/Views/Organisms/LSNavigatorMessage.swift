@@ -16,7 +16,7 @@ public struct LSNavigatorMessage: View {
         onPin: @Sendable @escaping () -> Void,
         onDismiss: @Sendable @escaping () -> Void
     ) {
-        self.messageBody = body
+        messageBody = body
         self.pinned = pinned
         self.onPin = onPin
         self.onDismiss = onDismiss
@@ -81,7 +81,8 @@ extension LSNavigatorMessage {
             LSIcon(
                 name: pinned ? .bookmarkFill : .bookmark,
                 size: .sm,
-                resolvedColorOverride: pinned ? LaneShadowTheme.color.signal.default : LaneShadowTheme.color.content.tertiary
+                resolvedColorOverride: pinned ? LaneShadowTheme.color.signal.default : LaneShadowTheme.color.content
+                    .tertiary
             )
         }
         .buttonStyle(.plain)
