@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.laneshadow.BuildConfig
@@ -117,8 +118,15 @@ class LSTopBarTest {
         assertEquals(0, menuTapCount)
         assertEquals(0, newTapCount)
 
-        // Note: Callback verification would require performClick() calls
-        // The existence of clickAction is verified by the clickable modifier in implementation
+        // Tap hamburger chip — should fire menu callback exactly once
+        composeTestRule.onNodeWithTag(HAMBURGER_CHIP_TAG).performClick()
+        assertEquals(1, menuTapCount)
+        assertEquals(0, newTapCount)  // New callback hasn't fired yet
+
+        // Tap trailing NEW chip — should fire new callback exactly once
+        composeTestRule.onNodeWithTag(TRAILING_CHIP_TAG).performClick()
+        assertEquals(1, menuTapCount)  // Menu callback count unchanged
+        assertEquals(1, newTapCount)
     }
 
     @Test

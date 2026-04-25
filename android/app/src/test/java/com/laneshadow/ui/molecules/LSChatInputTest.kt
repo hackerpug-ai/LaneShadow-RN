@@ -54,6 +54,10 @@ class LSChatInputTest {
 
         // Must use LazyRow for horizontal scrolling
         assertTrue(source.contains("LazyRow"))
+
+        // Must use LSSuggestionChip component (not raw LSPill)
+        assertTrue(source.contains("LSSuggestionChip("))
+        assertFalse(source.contains("LSPill("))
     }
 
     @Test
@@ -63,8 +67,12 @@ class LSChatInputTest {
         // Must check locationBadge != null
         assertTrue(source.contains("locationBadge != null"))
 
-        // Must have TODO comment for UC-MOL-08
-        assertTrue(source.contains("UC-MOL-08"))
+        // Must use LSLocationContextBar component
+        assertTrue(source.contains("LSLocationContextBar("))
+
+        // Must pass location label and mode
+        assertTrue(source.contains("location = locationBadge.label"))
+        assertTrue(source.contains("mode = locationBadge.mode"))
     }
 
     @Test
@@ -76,5 +84,16 @@ class LSChatInputTest {
 
         // Must use LSSpinner when thinking
         assertTrue(source.contains("LSSpinner("))
+    }
+
+    @Test
+    fun input_height_uses_theme_token() {
+        val source = File("../app/src/main/java/com/laneshadow/ui/molecules/LSChatInput.kt").readText()
+
+        // Must use theme.sizing.touchTarget for input height
+        assertTrue(source.contains("theme.sizing.touchTarget"))
+
+        // Must not hardcode 56.dp
+        assertFalse(source.contains("val inputHeight = 56.dp"))
     }
 }

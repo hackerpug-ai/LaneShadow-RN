@@ -10,22 +10,16 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme.IconName
 import com.laneshadow.ui.atoms.ButtonState
 import com.laneshadow.ui.atoms.ButtonVariant
-import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.atoms.GlassVariant
 import com.laneshadow.ui.atoms.LSButton
 import com.laneshadow.ui.atoms.LSGlassPanel
-import com.laneshadow.ui.atoms.LSPill
 import com.laneshadow.ui.atoms.LSSpinner
-import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.LSTextField
-import com.laneshadow.ui.atoms.PillSize
 import com.laneshadow.ui.atoms.SpinnerSize
-import com.laneshadow.ui.atoms.TypographyVariant
 
 /**
  * LSChatInput molecule component
@@ -62,9 +56,7 @@ fun LSChatInput(
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
-    // TODO: Use theme.sizing.component.inputHeight when token is available
-    // Using 56.dp as a reasonable default based on LSTextField minHeight + padding
-    val inputHeight = 56.dp
+    val inputHeight = theme.sizing.touchTarget
 
     Column(
         modifier = modifier,
@@ -72,8 +64,11 @@ fun LSChatInput(
     ) {
         // Location context bar (top optional layer)
         if (locationBadge != null) {
-            // TODO: UC-MOL-08-android - LSLocationContextBar
-            // Stub for now since UC-MOL-08 may not be implemented yet
+            LSLocationContextBar(
+                location = locationBadge.label,
+                mode = locationBadge.mode,
+                onModeChange = { /* TODO: Handle mode change */ },
+            )
         }
 
         // Suggestion chips LazyRow (middle optional layer)
@@ -82,17 +77,11 @@ fun LSChatInput(
                 horizontalArrangement = Arrangement.spacedBy(theme.space.sm),
             ) {
                 items(suggestions) { chip ->
-                    LSPill(
-                        size = PillSize.Md,
-                        modifier = Modifier
-                            .padding(horizontal = theme.space.xs),
-                    ) {
-                        LSText(
-                            text = chip.label,
-                            variant = TypographyVariant.Ui.Label.Sm,
-                            color = ContentColor.Primary,
-                        )
-                    }
+                    LSSuggestionChip(
+                        label = chip.label,
+                        onTap = { onSuggestionTap(chip) },
+                        modifier = Modifier.padding(horizontal = theme.space.xs),
+                    )
                 }
             }
         }
