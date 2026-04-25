@@ -24,7 +24,8 @@ import com.laneshadow.ui.atoms.SpinnerSize
 /**
  * LSChatInput molecule component
  *
- * Chat input molecule composing LSGlassPanel, LSTextField, LSButton, LSSpinner, and LSPill atoms.
+ * Chat input molecule composing LSGlassPanel, LSTextField, LSButton, LSSpinner,
+ * LSSuggestionChip, and LSLocationContextBar components.
  * Follows the design spec at .spec/design/system/molecules/chat-input/
  *
  * @param value Current input value
