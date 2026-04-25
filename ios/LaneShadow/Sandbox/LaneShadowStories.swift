@@ -82,7 +82,7 @@ enum LSBadgeStories {
         BadgeWeatherVariant.allCases.map { weather in weatherStory(weather) } +
         [
             Story(
-                id: "atoms.bestBadge.default",
+                id: "atoms.best-badge.default",
                 tier: .atom,
                 component: "LSBestBadge",
                 name: "Best Badge",
@@ -140,7 +140,7 @@ enum LSBadgeStories {
 enum LSPhaseDotStories {
     static let all: [Story] = [
         Story(
-            id: "atoms.phaseDot.pending",
+            id: "atoms.phase-dot.pending",
             tier: .atom,
             component: "LSPhaseDot",
             name: "Pending",
@@ -150,7 +150,7 @@ enum LSPhaseDotStories {
         },
 
         Story(
-            id: "atoms.phaseDot.active",
+            id: "atoms.phase-dot.active",
             tier: .atom,
             component: "LSPhaseDot",
             name: "Active",
@@ -160,7 +160,7 @@ enum LSPhaseDotStories {
         },
 
         Story(
-            id: "atoms.phaseDot.done",
+            id: "atoms.phase-dot.done",
             tier: .atom,
             component: "LSPhaseDot",
             name: "Done",

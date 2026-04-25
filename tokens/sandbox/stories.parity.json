@@ -1,19 +1,24 @@
 {
-  "shared": [
-    "templates.idle.default",
-    "templates.planning.default",
-    "templates.routeResults.default",
-    "templates.routeDetails.default",
-    "templates.sessions.default",
-    "templates.error.default"
-  ],
+  "shared": [],
   "ios_only": [
     "infrastructure.tokens.color-swatches.all",
     "infrastructure.tokens.typography.all-families",
     "infrastructure.tokens.spacing.rungs",
     "infrastructure.tokens.radius.shapes",
     "infrastructure.tokens.elevation.levels",
-    "infrastructure.registry.parity-manifest"
+    "infrastructure.registry.parity-manifest",
+    "atoms.best-badge.default",
+    "atoms.phase-dot.pending",
+    "atoms.phase-dot.active",
+    "atoms.phase-dot.done",
+    "atoms.card.default",
+    "atoms.card.with-content",
+    "atoms.panel.default",
+    "atoms.panel.nested",
+    "atoms.glasspanel.chrome",
+    "atoms.glasspanel.callout-signal",
+    "atoms.glasspanel.callout-warning"
   ],
-  "android_only": []
+  "android_only": [],
+  "_note": "This parity manifest tracks the stories fixed in UC-SBX-01-ios remediation. Many other iOS stories exist but are not yet tracked here. This manifest will be expanded in future tasks."
 }

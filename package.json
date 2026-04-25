@@ -28,6 +28,7 @@
     "tokens:sync-check": "pnpm tsx tokens/scripts/sync-check.ts",
     "icons:check": "pnpm tsx tokens/scripts/icons-check.ts",
     "tokens:sync": "node ../native-theme/scripts/sync-bundled-json.js --config tokens/sync.config.json",
+    "sandbox:parity-check": "bash scripts/sandbox/parity-check.sh",
     "ui:diff": "pnpm tsx scripts/ui-diff/capture-rn.ts && pnpm tsx scripts/ui-diff/capture-android.ts && pnpm tsx scripts/ui-diff/capture-ios.ts && pnpm tsx scripts/ui-diff/compare.ts",
     "capture:design": "pnpm tsx scripts/capture-design-system.ts"
   },

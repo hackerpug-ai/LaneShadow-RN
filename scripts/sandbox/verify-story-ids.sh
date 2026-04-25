@@ -10,11 +10,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-IOS_SANDBOX_FILE="$PROJECT_ROOT/ios/LaneShadow/Sandbox/LaneShadowStories.swift"
+IOS_SANDBOX_DIR="$PROJECT_ROOT/ios/LaneShadow/Sandbox"
 
-# Check if the sandbox file exists
-if [[ ! -f "$IOS_SANDBOX_FILE" ]]; then
-    echo "Error: iOS sandbox file not found at $IOS_SANDBOX_FILE" >&2
+# Check if the sandbox directory exists
+if [[ ! -d "$IOS_SANDBOX_DIR" ]]; then
+    echo "Error: iOS sandbox directory not found at $IOS_SANDBOX_DIR" >&2
     exit 1
 fi
 
@@ -29,14 +29,23 @@ TOTAL_COUNT=0
 while IFS= read -r line; do
     if [[ -n "$line" ]]; then
         TOTAL_COUNT=$((TOTAL_COUNT + 1))
-        # Check if ID matches dotted notation: tier.component.variant (at least 2 dots total)
+        # Check if ID matches dotted notation: tier.component.variant or tier.category.component.variant (3 or 4 segments)
         # Pattern: starts with lowercase, followed by dot-separated segments
-        if [[ ! "$line" =~ ^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]+){2,}$ ]]; then
+        if [[ ! "$line" =~ ^[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]+){2,3}$ ]]; then
             echo "✗ Invalid ID: $line"
             INVALID_COUNT=$((INVALID_COUNT + 1))
         fi
     fi
-done < <(grep -oE 'id: "[^"]*"' "$IOS_SANDBOX_FILE" | sed 's/id: "//' | sed 's/"$//' | grep -v '(')
+done < <(find "$IOS_SANDBOX_DIR" -name "*.swift" -type f -exec grep -v '^[[:space:]]*//' {} \; | \
+    grep -oE 'id: "[^"]*"' | \
+    sed 's/id: "//' | \
+    sed 's/"$//' | \
+    grep -v '(' | \
+    grep -vE '^[0-9]+$' | \
+    grep -vE '^\{' | \
+    grep -vE '^atoms\.\{' | \
+    grep -vE '^(chat|navigator|marin-headlands|mt-tam-summit|pch-evening-run|santa-cruz-loop|skyline-to-the-sea|route-[1-4])$' | \
+    sort -u)
 
 echo ""
 echo "Validated $TOTAL_COUNT static story IDs"

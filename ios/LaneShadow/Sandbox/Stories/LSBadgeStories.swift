@@ -13,7 +13,7 @@ import SwiftUI
 // atoms.badge.weather.storm
 // atoms.badge.weather.hot
 // atoms.badge.weather.cold
-// atoms.bestBadge.default
+// atoms.best-badge.default
 
 @MainActor
 enum LSBadgeStories {
@@ -22,7 +22,7 @@ enum LSBadgeStories {
         BadgeWeatherVariant.allCases.map(weatherStory) +
         [
             Story(
-                id: "atoms.bestBadge.default",
+                id: "atoms.best-badge.default",
                 tier: .atom,
                 component: "LSBestBadge",
                 name: "Best Badge",

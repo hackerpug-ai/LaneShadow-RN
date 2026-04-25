@@ -67,12 +67,36 @@ struct StoryRegistryTests {
 
     @Test("TC-4: Parity manifest exists and has valid schema")
     func parityManifestSchemaValid() throws {
-        let manifestPath = "/Users/justinrich/Projects/LaneShadow/.claude/worktrees/agent-a8959800382098351/tokens/sandbox/stories.parity.json"
-
+        // Find the parity manifest relative to the test bundle
         let fileManager = FileManager.default
-        #expect(fileManager.fileExists(atPath: manifestPath), "Parity manifest must exist at \(manifestPath)")
+        let currentDirectory = fileManager.currentDirectoryPath
 
-        let data = try Data(contentsOf: URL(fileURLWithPath: manifestPath))
+        // Navigate from test build directory to project root
+        // Typical path: ios/LaneShadow/build/... -> ios/LaneShadow -> ios -> project root
+        var manifestPath = URL(fileURLWithPath: currentDirectory)
+
+        // Try to find tokens/sandbox/stories.parity.json by walking up the directory tree
+        let manifestName = "tokens/sandbox/stories.parity.json"
+        var found = false
+
+        for _ in 0..<5 { // Limit depth to avoid infinite loops
+            manifestPath.appendPathComponent(manifestName)
+            if fileManager.fileExists(atPath: manifestPath.path) {
+                found = true
+                break
+            }
+            manifestPath.deleteLastPathComponent()
+            manifestPath.deleteLastPathComponent()
+
+            // If we're at the root, stop
+            if manifestPath.path == "/" {
+                break
+            }
+        }
+
+        #expect(found, "Parity manifest must be found at \(manifestName) relative to test working directory")
+
+        let data = try Data(contentsOf: manifestPath)
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
         #expect(json != nil, "Parity manifest must be valid JSON")

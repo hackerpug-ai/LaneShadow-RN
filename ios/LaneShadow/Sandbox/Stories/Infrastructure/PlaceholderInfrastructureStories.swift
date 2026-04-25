@@ -2,22 +2,12 @@ import LaneShadowTheme
 import NativeSandbox
 import SwiftUI
 
-/// Infrastructure tier stories for the LaneShadow sandbox.
+/// Placeholder infrastructure stories.
 ///
-/// Infrastructure stories include:
-/// - Theme controllers
-/// - Mock providers
-/// - Sandbox utilities
-/// - Testing fixtures
-///
-/// See UC-SBX-02 and UC-SBX-03 for detailed theme controller and mock provider stories.
-///
-/// NOTE: This file contains inline Story() declarations because PlaceholderInfrastructureStories.swift
-/// cannot be created without Xcode project registration. Once the build system supports automatic
-/// file registration, these should be moved to a separate PlaceholderInfrastructureStories.swift file
-/// to match the pure reducer pattern used by other tier aggregators.
+/// This is a temporary placeholder until UC-SBX-02 and UC-SBX-03
+/// populate this tier with theme controller and mock provider stories.
 @MainActor
-enum InfrastructureStories {
+enum PlaceholderInfrastructureStories {
     static let all: [Story] = [
         Story(
             id: "infrastructure.registry.parity-manifest",
