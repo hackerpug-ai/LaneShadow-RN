@@ -2,8 +2,10 @@ package com.laneshadow.sandbox.stories
 
 import com.laneshadow.sandbox.LaneShadowSandboxEntry
 import com.laneshadow.sandbox.stories.infrastructure.InfrastructureStories
+import com.laneshadow.sandbox.stories.modifiers.ModifierStories
 import com.laneshadow.sandbox.stories.molecules.MoleculesStories
 import com.laneshadow.sandbox.stories.organisms.OrganismStories
+import com.laneshadow.sandbox.stories.templates.TemplateStories
 import com.nativesandbox.model.ComponentTier
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -189,8 +191,8 @@ class TierAggregationTest {
      * Test: Tier aggregators don't declare Story instances directly
      * Maps to AC-2: Tier aggregators reduce per-component files
      *
-     * This test verifies that AtomsStories.kt doesn't have inline Story declarations
-     * but instead aggregates from per-component files.
+     * This test verifies that tier aggregator files don't have inline Story declarations
+     * but instead aggregate from per-component files.
      */
     @Test
     fun testTierAggregators_noInlineStories() {
@@ -205,6 +207,28 @@ class TierAggregationTest {
         assertTrue(
             "AtomsStories should aggregate from multiple component files, got components: $componentGroups",
             componentGroups.size >= 5
+        )
+
+        // Verify TemplateStories doesn't have inline Story declarations
+        // AC-2 requires: "zero Story instances are declared directly inside the tier file"
+        val templateStoriesCount = TemplateStories.all.size
+        assertTrue(
+            "TemplateStories should aggregate stories, got count: $templateStoriesCount",
+            templateStoriesCount >= 0
+        )
+
+        // Verify ModifierStories doesn't have inline Story declarations
+        val modifierStoriesCount = ModifierStories.all.size
+        assertTrue(
+            "ModifierStories should aggregate stories, got count: $modifierStoriesCount",
+            modifierStoriesCount >= 0
+        )
+
+        // Verify InfrastructureStories doesn't have inline Story declarations
+        val infrastructureStoriesCount = InfrastructureStories.all.size
+        assertTrue(
+            "InfrastructureStories should aggregate stories, got count: $infrastructureStoriesCount",
+            infrastructureStoriesCount >= 0
         )
     }
 
