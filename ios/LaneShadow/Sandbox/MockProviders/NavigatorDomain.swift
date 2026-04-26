@@ -98,6 +98,10 @@ public struct Session: Sendable, Equatable, Identifiable {
     }
 }
 
+// MARK: - Session Protocol Conformance for LSSessionsDrawer
+
+extension Session: SessionTitleProvider, SessionPreviewProvider, SessionWhenProvider {}
+
 /// Navigator message - the chat interface between user and Navigator
 public struct NavigatorMessage: Sendable, Equatable {
     public let id: String

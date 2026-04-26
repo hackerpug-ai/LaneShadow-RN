@@ -52,7 +52,7 @@ public enum SessionsMockProvider: MockProvider {
                     active: false,
                     routeIds: ["route-006", "route-007", "route-008", "route-009"],
                     createdAt: "2025-04-12T09:15:00Z"
-                ),
+                )
             ],
             activeSessionId: "session-003"
         )
@@ -72,7 +72,7 @@ public enum SessionsMockProvider: MockProvider {
             "Morning mountain run", "Coastal sunset cruise", "Wine country tour",
             "Redwood forest adventure", "Desert loop", "City escape",
             "Border run", "Pass storm chasing", "Peak bagging",
-            "Valley cruise", "River road romp", "Lake loop tour",
+            "Valley cruise", "River road romp", "Lake loop tour"
         ]
 
         for (index, title) in titles.enumerated() {
@@ -99,8 +99,12 @@ public enum SessionsMockProvider: MockProvider {
             sessions: [
                 Session(
                     id: "session-003",
-                    title: "Santa Cruz Coastal Loop with Technical Mountain Passes and Scenic Overlooks",
-                    preview: "An epic adventure featuring the finest twisty roads leading down to Santa Cruz, including the legendary Stage Road with its perfectly engineered decreasing-radius corners, followed by a return journey via Highway 9 through redwood forests",
+                    title: "Santa Cruz Coastal Loop with Technical Mountain Passes and " +
+                        "Scenic Overlooks",
+                    preview: "An epic adventure featuring the finest twisty roads leading " +
+                        "down to Santa Cruz, including the legendary Stage Road with its " +
+                        "perfectly engineered decreasing-radius corners, followed by a " +
+                        "return journey via Highway 9 through redwood forests",
                     meta: "3 meticulously planned routes · Currently Active",
                     when: "Now",
                     active: true,
@@ -110,7 +114,10 @@ public enum SessionsMockProvider: MockProvider {
                 Session(
                     id: "session-002",
                     title: "Big Sur Weekend Adventure with Luxury Accommodations and Fine Dining",
-                    preview: "A comprehensive two-day coastal cruiser featuring overnight accommodation at the historic Ventana Big Sur resort, with carefully planned stops at scenic overlooks, art galleries, and the world-famous Nepenthe restaurant perched cliffside above the Pacific Ocean",
+                    preview: "A comprehensive two-day coastal cruiser featuring overnight " +
+                        "accommodation at the historic Ventana Big Sur resort, with carefully " +
+                        "planned stops at scenic overlooks, art galleries, and the world-famous " +
+                        "Nepenthe restaurant perched cliffside above the Pacific Ocean",
                     meta: "2 distinct route options for each day",
                     when: "Tue",
                     active: false,
@@ -119,14 +126,18 @@ public enum SessionsMockProvider: MockProvider {
                 ),
                 Session(
                     id: "session-001",
-                    title: "Napa Valley Wine Country Tour featuring Premium Tastings and Vineyard Lunches",
-                    preview: "An exclusive curated journey through Napa Valley's most prestigious wineries, including private tastings at Opus One, Dominus, and Screaming Eagle, with a specially planned route through the Silverado Trail and lunch at the French Laundry",
+                    title: "Napa Valley Wine Country Tour featuring Premium Tastings and " +
+                        "Vineyard Lunches",
+                    preview: "An exclusive curated journey through Napa Valley's most prestigious " +
+                        "wineries, including private tastings at Opus One, Dominus, and Screaming " +
+                        "Eagle, with a specially planned route through the Silverado Trail and " +
+                        "lunch at the French Laundry",
                     meta: "4 unique routes covering different AVAs",
                     when: "Apr 12",
                     active: false,
                     routeIds: ["route-006", "route-007", "route-008", "route-009"],
                     createdAt: "2025-04-12T09:15:00Z"
-                ),
+                )
             ],
             activeSessionId: "session-003"
         )

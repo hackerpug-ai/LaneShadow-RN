@@ -21,28 +21,7 @@ struct SessionsScreenTests {
         ])))
     }
 
-    /// AC-2: Scrim tap dismisses drawer and fires onDismiss callback
-    @Test
-    func scrim_tap_fires_on_dismiss() {
-        var dismissCount = 0
-
-        let provider = SessionsMockProvider.self
-        let screen = SessionsScreen(
-            provider: provider,
-            onDismiss: {
-                dismissCount += 1
-            }
-        )
-
-        // Verify callback is set (actual tap testing requires UI runtime)
-        #expect(dismissCount == 0, "Initial dismiss count should be 0")
-
-        // Simulate dismiss callback
-        screen.onDismiss()
-        #expect(dismissCount == 1, "onDismiss should increment when called")
-    }
-
-    /// AC-3: Session row tap fires onSelect callback with session id
+    /// AC-2: Session row tap fires onSelect callback with session id
     @Test
     func session_row_tap_fires_on_select() {
         var selectedSessionId: String?
@@ -57,16 +36,18 @@ struct SessionsScreenTests {
             }
         )
 
-        // Verify callback is set
+        // Verify callback is wired correctly
         #expect(selectCount == 0, "Initial select count should be 0")
 
-        // Simulate selection callback
+        // Simulate selecting session-002 by calling the callback
         screen.onSelect("session-002")
-        #expect(selectCount == 1, "onSelect should increment when called")
+
+        // Verify callback was fired with the correct session ID
+        #expect(selectCount == 1, "onSelect should fire when called")
         #expect(selectedSessionId == "session-002", "Should pass the correct session ID")
     }
 
-    /// AC-4: "NEW" button tap fires onNew callback
+    /// AC-3: "NEW" button tap fires onNew callback
     @Test
     func new_button_tap_fires_on_new() {
         var newCount = 0
@@ -79,12 +60,37 @@ struct SessionsScreenTests {
             }
         )
 
-        // Verify callback is set
+        // Verify callback is wired correctly
         #expect(newCount == 0, "Initial new count should be 0")
 
-        // Simulate new callback
+        // Simulate tapping NEW button by calling the callback
         screen.onNew()
-        #expect(newCount == 1, "onNew should increment when called")
+
+        // Verify callback was fired exactly once
+        #expect(newCount == 1, "onNew should fire when called")
+    }
+
+    /// AC-4: Scrim tap dismisses drawer and fires onDismiss callback
+    @Test
+    func scrim_tap_fires_on_dismiss() {
+        var dismissCount = 0
+
+        let provider = SessionsMockProvider.self
+        let screen = SessionsScreen(
+            provider: provider,
+            onDismiss: {
+                dismissCount += 1
+            }
+        )
+
+        // Verify callback is wired correctly
+        #expect(dismissCount == 0, "Initial dismiss count should be 0")
+
+        // Simulate scrim tap by calling the dismiss handler
+        screen.onDismiss()
+
+        // Verify callback was fired exactly once
+        #expect(dismissCount == 1, "onDismiss should fire when called")
     }
 
     /// AC-5: Light/dark toggle re-resolves all tokens
