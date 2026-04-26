@@ -1,0 +1,62 @@
+[
+  {
+    "hour": "6",
+    "temperature": 55,
+    "condition": "clear"
+  },
+  {
+    "hour": "7",
+    "temperature": 58,
+    "condition": "clear"
+  },
+  {
+    "hour": "8",
+    "temperature": 60,
+    "condition": "clear"
+  },
+  {
+    "hour": "9",
+    "temperature": 62,
+    "condition": "clear"
+  },
+  {
+    "hour": "10",
+    "temperature": 65,
+    "condition": "clear"
+  },
+  {
+    "hour": "11",
+    "temperature": 68,
+    "condition": "clear"
+  },
+  {
+    "hour": "12",
+    "temperature": 71,
+    "condition": "clear"
+  },
+  {
+    "hour": "13",
+    "temperature": 73,
+    "condition": "clear"
+  },
+  {
+    "hour": "14",
+    "temperature": 74,
+    "condition": "clear"
+  },
+  {
+    "hour": "15",
+    "temperature": 75,
+    "condition": "clear"
+  },
+  {
+    "hour": "16",
+    "temperature": 74,
+    "condition": "clear"
+  },
+  {
+    "hour": "17",
+    "temperature": 72,
+    "condition": "clear"
+  }
+]

@@ -1,17 +1,8 @@
-//
-//  NavigatorDomain.swift
-//  LaneShadow
-//
-//  Navigator domain entities for mock data providers.
-//
-//  These mirror the Convex read types in server/convex/schema.ts with
-//  Navigator-domain extensions per .spec/prds/v2/11-technical-requirements.md
-//
-
 import Foundation
 
 // ============================================================================
 // MARK: - Core Navigator Entities
+
 // ============================================================================
 
 /// User entity - mirrors Convex User read type
@@ -40,15 +31,15 @@ public struct User: Sendable, Equatable {
 /// Route entity - mirrors Convex Route read type with Navigator extensions
 public struct Route: Sendable, Equatable {
     public let id: String
-    public let name: String  // e.g. "The Skyline Spine"
-    public let via: String  // e.g. "280 → 92 → Skyline to Alice's"
-    public let distance: Int  // meters
-    public let estimatedTime: Int  // seconds
-    public let climb: Int  // feet
-    public let scenicScore: Int  // 0-10; UI shows ⌈scenicScore/2⌉ dots out of 5
-    public let difficulty: String  // "easy" | "moderate" | "advanced"
-    public let polyline: String  // encoded polyline
-    public let variant: String?  // "best" | "alt1" | "alt2"
+    public let name: String // e.g. "The Skyline Spine"
+    public let via: String // e.g. "280 → 92 → Skyline to Alice's"
+    public let distance: Int // meters
+    public let estimatedTime: Int // seconds
+    public let climb: Int // feet
+    public let scenicScore: Int // 0-10; UI shows ⌈scenicScore/2⌉ dots out of 5
+    public let difficulty: String // "easy" | "moderate" | "advanced"
+    public let polyline: String // encoded polyline
+    public let variant: String? // "best" | "alt1" | "alt2"
 
     public init(
         id: String,
@@ -78,13 +69,13 @@ public struct Route: Sendable, Equatable {
 /// Session entity for Navigator screen state
 public struct Session: Sendable, Equatable {
     public let id: String
-    public let title: String  // e.g. "Santa Cruz loop"
-    public let preview: String  // last user prompt
-    public let meta: String  // e.g. "3 routes · Active"
-    public let when: String  // relative label ("Now", "Tue", "Apr 12")
-    public let active: Bool  // currently-focused session
-    public let routeIds: [String]  // pointers into Route fixtures
-    public let createdAt: String  // ISO 8601
+    public let title: String // e.g. "Santa Cruz loop"
+    public let preview: String // last user prompt
+    public let meta: String // e.g. "3 routes · Active"
+    public let when: String // relative label ("Now", "Tue", "Apr 12")
+    public let active: Bool // currently-focused session
+    public let routeIds: [String] // pointers into Route fixtures
+    public let createdAt: String // ISO 8601
 
     public init(
         id: String,
@@ -110,13 +101,13 @@ public struct Session: Sendable, Equatable {
 /// Navigator message - the chat interface between user and Navigator
 public struct NavigatorMessage: Sendable, Equatable {
     public let id: String
-    public let sessionId: String  // references Session.id
-    public let body: String  // Navigator's prose response
-    public let timestamp: String  // ISO 8601
-    public let kind: String  // "prompt" | "response" | "error"
-    public let attachments: [RouteAttachment]?  // present when kind == "response"
-    public let detail: String?  // optional secondary text
-    public let pinned: Bool  // sticky response
+    public let sessionId: String // references Session.id
+    public let body: String // Navigator's prose response
+    public let timestamp: String // ISO 8601
+    public let kind: String // "prompt" | "response" | "error"
+    public let attachments: [RouteAttachment]? // present when kind == "response"
+    public let detail: String? // optional secondary text
+    public let pinned: Bool // sticky response
 
     public init(
         id: String,
@@ -141,13 +132,13 @@ public struct NavigatorMessage: Sendable, Equatable {
 
 /// Route attachment - a route card attached to a Navigator message
 public struct RouteAttachment: Sendable, Equatable {
-    public let routeId: String  // pointer into Route fixtures
-    public let variant: String  // "best" | "alt1" | "alt2"
-    public let isBest: Bool  // renders LSBestBadge
-    public let weather: WeatherSummary  // route-level forecast
-    public let scenic: Int  // 1-5 dot meter count
-    public let includesFavorite: Bool?  // triggers call-out
-    public let includesFavoriteLabel: String?  // call-out text
+    public let routeId: String // pointer into Route fixtures
+    public let variant: String // "best" | "alt1" | "alt2"
+    public let isBest: Bool // renders LSBestBadge
+    public let weather: WeatherSummary // route-level forecast
+    public let scenic: Int // 1-5 dot meter count
+    public let includesFavorite: Bool? // triggers call-out
+    public let includesFavoriteLabel: String? // call-out text
 
     public init(
         routeId: String,
@@ -170,8 +161,8 @@ public struct RouteAttachment: Sendable, Equatable {
 
 /// Weather summary for route conditions
 public struct WeatherSummary: Sendable, Equatable {
-    public let condition: String  // "clear" | "rain" | "wind" | "storm" | "hot" | "cold"
-    public let label: String  // e.g. "Clear", "Rain 3pm", "18mph NW"
+    public let condition: String // "clear" | "rain" | "wind" | "storm" | "hot" | "cold"
+    public let label: String // e.g. "Clear", "Rain 3pm", "18mph NW"
 
     public init(condition: String, label: String) {
         self.condition = condition
@@ -181,9 +172,9 @@ public struct WeatherSummary: Sendable, Equatable {
 
 /// Weather timeline entry for hourly forecasts
 public struct WeatherTimelineEntry: Sendable, Equatable {
-    public let hour: String  // "9", "10", "11", ...
-    public let temperature: Int  // °F
-    public let condition: String  // WeatherSummary condition
+    public let hour: String // "9", "10", "11", ...
+    public let temperature: Int // °F
+    public let condition: String // WeatherSummary condition
 
     public init(hour: String, temperature: Int, condition: String) {
         self.hour = hour
@@ -194,9 +185,9 @@ public struct WeatherTimelineEntry: Sendable, Equatable {
 
 /// Planning phase for the planning screen
 public struct PlanningPhase: Sendable, Equatable {
-    public let id: String  // "reading" | "sketching" | "validating" | "weather" | "building"
-    public let label: String  // e.g. "Reading your ride"
-    public let status: String  // "pending" | "active" | "done"
+    public let id: String // "reading" | "sketching" | "validating" | "weather" | "building"
+    public let label: String // e.g. "Reading your ride"
+    public let status: String // "pending" | "active" | "done"
 
     public init(id: String, label: String, status: String) {
         self.id = id
@@ -208,7 +199,7 @@ public struct PlanningPhase: Sendable, Equatable {
 /// Suggestion chip for chat input (namespaced to avoid conflict with LSChatInput.SuggestionChip)
 public struct MockSuggestionChip: Sendable, Equatable {
     public let id: String
-    public let label: String  // e.g. "Twisty back roads"
+    public let label: String // e.g. "Twisty back roads"
 
     public init(id: String, label: String) {
         self.id = id
@@ -218,8 +209,8 @@ public struct MockSuggestionChip: Sendable, Equatable {
 
 /// Location context for the location badge (namespaced to avoid conflict with LSChatInput.LocationContext)
 public struct MockLocationContext: Sendable, Equatable {
-    public let label: String  // e.g. "Near Santa Cruz, CA"
-    public let mode: String  // "auto" | "manual"
+    public let label: String // e.g. "Near Santa Cruz, CA"
+    public let mode: String // "auto" | "manual"
 
     public init(label: String, mode: String) {
         self.label = label
@@ -229,6 +220,7 @@ public struct MockLocationContext: Sendable, Equatable {
 
 // ============================================================================
 // MARK: - Screen State Containers
+
 // ============================================================================
 
 /// Idle screen state
@@ -250,9 +242,9 @@ public struct IdleScreenState: Sendable, Equatable {
 
 /// Greeting for idle screen
 public struct Greeting: Sendable, Equatable {
-    public let meta: String  // e.g. "FRIDAY · 68°F · CLEAR"
-    public let headline: String  // e.g. "Where are we riding today?"
-    public let emphasis: String?  // substring to italicize (e.g. "today")
+    public let meta: String // e.g. "FRIDAY · 68°F · CLEAR"
+    public let headline: String // e.g. "Where are we riding today?"
+    public let emphasis: String? // substring to italicize (e.g. "today")
 
     public init(meta: String, headline: String, emphasis: String? = nil) {
         self.meta = meta
@@ -340,8 +332,8 @@ public struct ErrorScreenState: Sendable, Equatable {
 /// Navigator error for error screen
 public struct NavigatorError: Sendable, Equatable {
     public let title: String
-    public let body: String  // e.g. "Couldn't stitch that one together"
-    public let detail: String?  // e.g. "Try a different end point"
+    public let body: String // e.g. "Couldn't stitch that one together"
+    public let detail: String? // e.g. "Try a different end point"
 
     public init(
         title: String = "THE NAVIGATOR",

@@ -1,13 +1,3 @@
-//
-//  RouteDetailsMockProvider.swift
-//  LaneShadow
-//
-//  Mock provider for Route Details screen data.
-//
-//  Provides a single route with weather timeline
-//  for the Route Details/route-inspection screen.
-//
-
 import Foundation
 
 /// Mock provider for Route Details screen data.
@@ -20,18 +10,18 @@ public enum RouteDetailsMockProvider: MockProvider {
     public static func value(variant: String = "default") -> RouteDetailsScreenState {
         switch variant {
         case "empty":
-            return emptyState()
+            emptyState()
         case "overflow":
-            return overflowState()
+            overflowState()
         case "long-copy":
-            return longCopyState()
+            longCopyState()
         default:
-            return defaultState()
+            defaultState()
         }
     }
 
     private static func defaultState() -> RouteDetailsScreenState {
-        return RouteDetailsScreenState(
+        RouteDetailsScreenState(
             route: Route(
                 id: "route-001",
                 name: "The Skyline Spine",
@@ -51,13 +41,13 @@ public enum RouteDetailsMockProvider: MockProvider {
                 WeatherTimelineEntry(hour: "12", temperature: 70, condition: "clear"),
                 WeatherTimelineEntry(hour: "13", temperature: 71, condition: "wind"),
                 WeatherTimelineEntry(hour: "14", temperature: 70, condition: "wind"),
-                WeatherTimelineEntry(hour: "15", temperature: 68, condition: "clear")
+                WeatherTimelineEntry(hour: "15", temperature: 68, condition: "clear"),
             ]
         )
     }
 
     private static func emptyState() -> RouteDetailsScreenState {
-        return RouteDetailsScreenState(
+        RouteDetailsScreenState(
             route: Route(
                 id: "route-empty",
                 name: "Empty Route",
@@ -78,7 +68,7 @@ public enum RouteDetailsMockProvider: MockProvider {
         var timeline: [WeatherTimelineEntry] = []
         let conditions = ["clear", "clear", "wind", "wind", "rain", "storm", "hot", "cold"]
 
-        for i in 0..<23 {
+        for i in 0 ..< 23 {
             timeline.append(WeatherTimelineEntry(
                 hour: "\(i)",
                 temperature: 55 + i,
@@ -91,7 +81,7 @@ public enum RouteDetailsMockProvider: MockProvider {
                 id: "route-overflow",
                 name: "The Epic All-Day Adventure Route",
                 via: "280 → 92 → Skyline → Alice's → Stage → 84 → 1 → PCH → Malibu → Topanga → Mulholland → 405 → 5 → 101 → 154 → 192 → 33 → 1 → PCH → back to start",
-                distance: 250000,
+                distance: 250_000,
                 estimatedTime: 28800,
                 climb: 18500,
                 scenicScore: 10,
@@ -104,7 +94,7 @@ public enum RouteDetailsMockProvider: MockProvider {
     }
 
     private static func longCopyState() -> RouteDetailsScreenState {
-        return RouteDetailsScreenState(
+        RouteDetailsScreenState(
             route: Route(
                 id: "route-001",
                 name: "The Skyline Spine: A Technical Masterpiece of Motorcycle Road Design",
@@ -152,7 +142,7 @@ public enum RouteDetailsMockProvider: MockProvider {
                     hour: "15",
                     temperature: 68,
                     condition: "clear"
-                )
+                ),
             ]
         )
     }

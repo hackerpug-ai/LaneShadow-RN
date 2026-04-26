@@ -1,13 +1,3 @@
-//
-//  ErrorMockProvider.swift
-//  LaneShadow
-//
-//  Mock provider for Error screen data.
-//
-//  Provides navigator error and recovery suggestions
-//  for the Error/recovery screen.
-//
-
 import Foundation
 
 /// Mock provider for Error screen data.
@@ -20,18 +10,18 @@ public enum ErrorMockProvider: MockProvider {
     public static func value(variant: String = "default") -> ErrorScreenState {
         switch variant {
         case "empty":
-            return emptyState()
+            emptyState()
         case "overflow":
-            return overflowState()
+            overflowState()
         case "long-copy":
-            return longCopyState()
+            longCopyState()
         default:
-            return defaultState()
+            defaultState()
         }
     }
 
     private static func defaultState() -> ErrorScreenState {
-        return ErrorScreenState(
+        ErrorScreenState(
             error: NavigatorError(
                 title: "THE NAVIGATOR",
                 body: "Couldn't stitch that one together — the segment through Lucia looked broken.",
@@ -39,13 +29,13 @@ public enum ErrorMockProvider: MockProvider {
             ),
             suggestions: [
                 MockSuggestionChip(id: "chip-001", label: "Try inland"),
-                MockSuggestionChip(id: "chip-002", label: "End at Big Sur")
+                MockSuggestionChip(id: "chip-002", label: "End at Big Sur"),
             ]
         )
     }
 
     private static func emptyState() -> ErrorScreenState {
-        return ErrorScreenState(
+        ErrorScreenState(
             error: NavigatorError(
                 title: "THE NAVIGATOR",
                 body: "An error occurred.",
@@ -56,7 +46,7 @@ public enum ErrorMockProvider: MockProvider {
     }
 
     private static func overflowState() -> ErrorScreenState {
-        return ErrorScreenState(
+        ErrorScreenState(
             error: NavigatorError(
                 title: "THE NAVIGATOR",
                 body: "Multiple routing errors detected. Several road segments appear to be closed or inaccessible.",
@@ -74,13 +64,13 @@ public enum ErrorMockProvider: MockProvider {
                 MockSuggestionChip(id: "chip-009", label: "Add stops"),
                 MockSuggestionChip(id: "chip-010", label: "Change time"),
                 MockSuggestionChip(id: "chip-011", label: "Different day"),
-                MockSuggestionChip(id: "chip-012", label: "Start over")
+                MockSuggestionChip(id: "chip-012", label: "Start over"),
             ]
         )
     }
 
     private static func longCopyState() -> ErrorScreenState {
-        return ErrorScreenState(
+        ErrorScreenState(
             error: NavigatorError(
                 title: "THE NAVIGATOR",
                 body: "I encountered a significant routing problem while attempting to construct your requested route. The specific issue is that the road segment through the town of Lucia appears to be either closed for maintenance or permanently inaccessible, which prevents me from creating a continuous route through that section of the coastline. This is a known bottleneck on Highway 1 that frequently causes routing disruptions.",
@@ -98,7 +88,7 @@ public enum ErrorMockProvider: MockProvider {
                 MockSuggestionChip(
                     id: "chip-003",
                     label: "Start from north of the closure at Point Sur"
-                )
+                ),
             ]
         )
     }

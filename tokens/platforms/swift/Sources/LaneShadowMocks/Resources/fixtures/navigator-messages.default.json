@@ -1,0 +1,94 @@
+[
+  {
+    "id": "msg-001",
+    "sessionId": "session-001",
+    "body": "I found three great options for your Santa Cruz ride. The Skyline Spine is the most scenic - it'll take you through the redwoods with incredible views. Highway 1 is the classic coastal route if you want ocean vistas the whole way. Mt Hamilton is a challenging climb with rewarding panoramas at the summit.",
+    "timestamp": "2026-04-25T10:31:00Z",
+    "kind": "response",
+    "attachments": [
+      {
+        "routeId": "route-001",
+        "variant": "best",
+        "isBest": true,
+        "weather": {
+          "condition": "clear",
+          "label": "Clear"
+        },
+        "scenic": 5,
+        "includesFavorite": true,
+        "includesFavoriteLabel": "INCLUDES SUNSET CLIMB"
+      },
+      {
+        "routeId": "route-002",
+        "variant": "alt1",
+        "isBest": false,
+        "weather": {
+          "condition": "clear",
+          "label": "Clear"
+        },
+        "scenic": 5,
+        "includesFavorite": null,
+        "includesFavoriteLabel": null
+      },
+      {
+        "routeId": "route-003",
+        "variant": "alt2",
+        "isBest": false,
+        "weather": {
+          "condition": "wind",
+          "label": "18mph NW"
+        },
+        "scenic": 4,
+        "includesFavorite": null,
+        "includesFavoriteLabel": null
+      }
+    ],
+    "detail": null,
+    "pinned": true
+  },
+  {
+    "id": "msg-002",
+    "sessionId": "session-001",
+    "body": "Scenic 2-hour ride, avoid highways",
+    "timestamp": "2026-04-25T10:30:00Z",
+    "kind": "prompt",
+    "attachments": null,
+    "detail": null,
+    "pinned": false
+  },
+  {
+    "id": "msg-003",
+    "sessionId": "session-002",
+    "body": "Here are two twisty routes through Niles Canyon. Both take you past the Sunol coffee shop - perfect timing for a morning break.",
+    "timestamp": "2026-04-22T08:16:00Z",
+    "kind": "response",
+    "attachments": [
+      {
+        "routeId": "route-004",
+        "variant": "best",
+        "isBest": true,
+        "weather": {
+          "condition": "clear",
+          "label": "Clear"
+        },
+        "scenic": 4,
+        "includesFavorite": null,
+        "includesFavoriteLabel": null
+      },
+      {
+        "routeId": "route-005",
+        "variant": "alt1",
+        "isBest": false,
+        "weather": {
+          "condition": "clear",
+          "label": "Clear"
+        },
+        "scenic": 3,
+        "includesFavorite": null,
+        "includesFavoriteLabel": null
+      }
+    ],
+    "detail": null,
+    "pinned": true
+  }
+]

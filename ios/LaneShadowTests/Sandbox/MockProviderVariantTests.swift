@@ -1,23 +1,9 @@
-//
-//  MockProviderVariantTests.swift
-//  LaneShadowTests
-//
-//  Tests for mock provider variants.
-//
-//  Verifies that all providers:
-//  - Support all declared variants
-//  - Return distinguishable values per variant
-//  - Are deterministic (same variant = same value)
-//
-
 import Foundation
 import Testing
-
 @testable import LaneShadow
 
 @Suite("Mock Provider Variant Tests")
 struct MockProviderVariantTests {
-
     // MARK: - IdleMockProvider
 
     @Test("IdleMockProvider: All variants return values")
@@ -41,7 +27,10 @@ struct MockProviderVariantTests {
         #expect(longCopyState.suggestions.count == 4, "Long-copy should have 4 suggestions")
 
         // Verify long-copy has longer text
-        #expect(longCopyState.greeting.headline.count > defaultState.greeting.headline.count, "Long-copy headline should be longer")
+        #expect(
+            longCopyState.greeting.headline.count > defaultState.greeting.headline.count,
+            "Long-copy headline should be longer"
+        )
     }
 
     @Test("IdleMockProvider: Deterministic")
@@ -218,8 +207,14 @@ struct MockProviderVariantTests {
 
         #expect(IdleMockProvider.variants == expectedVariants, "IdleMockProvider should have standard variants")
         #expect(PlanningMockProvider.variants == expectedVariants, "PlanningMockProvider should have standard variants")
-        #expect(RouteResultsMockProvider.variants == expectedVariants, "RouteResultsMockProvider should have standard variants")
-        #expect(RouteDetailsMockProvider.variants == expectedVariants, "RouteDetailsMockProvider should have standard variants")
+        #expect(
+            RouteResultsMockProvider.variants == expectedVariants,
+            "RouteResultsMockProvider should have standard variants"
+        )
+        #expect(
+            RouteDetailsMockProvider.variants == expectedVariants,
+            "RouteDetailsMockProvider should have standard variants"
+        )
         #expect(SessionsMockProvider.variants == expectedVariants, "SessionsMockProvider should have standard variants")
         #expect(ErrorMockProvider.variants == expectedVariants, "ErrorMockProvider should have standard variants")
     }

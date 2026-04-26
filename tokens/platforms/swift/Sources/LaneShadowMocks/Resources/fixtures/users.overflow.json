@@ -1,0 +1,86 @@
+[
+  {
+    "id": "user-001",
+    "name": "Alex Rider",
+    "handle": "alexrider",
+    "avatarUrl": "https://example.com/avatars/alexrider.jpg",
+    "bio": "Weekend warrior exploring the Bay Area backroads"
+  },
+  {
+    "id": "user-002",
+    "name": "Sam Cruz",
+    "handle": "samcruz",
+    "avatarUrl": "https://example.com/avatars/samcruz.jpg",
+    "bio": "Coastal rides are my therapy"
+  },
+  {
+    "id": "user-003",
+    "name": "Jordan Moto",
+    "handle": "jordanmoto",
+    "avatarUrl": null,
+    "bio": "Twisty roads and mountain passes"
+  },
+  {
+    "id": "user-004",
+    "name": "Taylor Scenic",
+    "handle": "taylorscenic",
+    "avatarUrl": "https://example.com/avatars/taylor.jpg",
+    "bio": "Chasing sunsets on two wheels"
+  },
+  {
+    "id": "user-005",
+    "name": "Casey Explorer",
+    "handle": "caseyexplorer",
+    "avatarUrl": "https://example.com/avatars/casey.jpg",
+    "bio": "Every road is an adventure"
+  },
+  {
+    "id": "user-006",
+    "name": "Morgan Touring",
+    "handle": "morgan touring",
+    "avatarUrl": null,
+    "bio": "Long distance specialist"
+  },
+  {
+    "id": "user-007",
+    "name": "Riley Coastal",
+    "handle": "rileycoastal",
+    "avatarUrl": "https://example.com/avatars/riley.jpg",
+    "bio": "Highway 1 is my home"
+  },
+  {
+    "id": "user-008",
+    "name": "Quinn Mountain",
+    "handle": "quinnmountain",
+    "avatarUrl": "https://example.com/avatars/quinn.jpg",
+    "bio": "Elevation junkie"
+  },
+  {
+    "id": "user-009",
+    "name": "Avery Backroads",
+    "handle": "averybackroads",
+    "avatarUrl": null,
+    "bio": "The smaller the road, the better"
+  },
+  {
+    "id": "user-010",
+    "name": "Dale Cruiser",
+    "handle": "dalecruiser",
+    "avatarUrl": "https://example.com/avatars/dale.jpg",
+    "bio": "Sunday morning rides are the best"
+  },
+  {
+    "id": "user-011",
+    "name": "Blake Adventurer",
+    "handle": "blakeadventurer",
+    "avatarUrl": "https://example.com/avatars/blake.jpg",
+    "bio": "Always looking for the next horizon"
+  },
+  {
+    "id": "user-012",
+    "name": "Reese Navigator",
+    "handle": "reesenavigator",
+    "avatarUrl": "https://example.com/avatars/reese.jpg",
+    "bio": "Planning the perfect route is half the fun"
+  }
+]

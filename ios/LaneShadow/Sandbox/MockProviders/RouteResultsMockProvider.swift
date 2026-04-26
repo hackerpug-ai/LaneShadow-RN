@@ -1,13 +1,3 @@
-//
-//  RouteResultsMockProvider.swift
-//  LaneShadow
-//
-//  Mock provider for Route Results screen data.
-//
-//  Provides navigator message, route list, and selected route
-//  for the Route Results/route-selection screen.
-//
-
 import Foundation
 
 /// Mock provider for Route Results screen data.
@@ -20,18 +10,18 @@ public enum RouteResultsMockProvider: MockProvider {
     public static func value(variant: String = "default") -> RouteResultsScreenState {
         switch variant {
         case "empty":
-            return emptyState()
+            emptyState()
         case "overflow":
-            return overflowState()
+            overflowState()
         case "long-copy":
-            return longCopyState()
+            longCopyState()
         default:
-            return defaultState()
+            defaultState()
         }
     }
 
     private static func defaultState() -> RouteResultsScreenState {
-        return RouteResultsScreenState(
+        RouteResultsScreenState(
             message: NavigatorMessage(
                 id: "msg-002",
                 sessionId: "session-001",
@@ -65,7 +55,7 @@ public enum RouteResultsMockProvider: MockProvider {
                         scenic: 3,
                         includesFavorite: nil,
                         includesFavoriteLabel: nil
-                    )
+                    ),
                 ],
                 detail: "All routes avoid current roadwork on Highway 1.",
                 pinned: true
@@ -106,14 +96,14 @@ public enum RouteResultsMockProvider: MockProvider {
                     difficulty: "moderate",
                     polyline: "encoded_polyline_here",
                     variant: "alt2"
-                )
+                ),
             ],
             selectedRouteId: "route-001"
         )
     }
 
     private static func emptyState() -> RouteResultsScreenState {
-        return RouteResultsScreenState(
+        RouteResultsScreenState(
             message: NavigatorMessage(
                 id: "msg-002",
                 sessionId: "session-001",
@@ -133,7 +123,7 @@ public enum RouteResultsMockProvider: MockProvider {
         var routes: [Route] = []
         var attachments: [RouteAttachment] = []
 
-        for i in 1...12 {
+        for i in 1 ... 12 {
             routes.append(Route(
                 id: "route-\(String(format: "%03d", i))",
                 name: "Route Option \(i)",
@@ -178,7 +168,7 @@ public enum RouteResultsMockProvider: MockProvider {
     }
 
     private static func longCopyState() -> RouteResultsScreenState {
-        return RouteResultsScreenState(
+        RouteResultsScreenState(
             message: NavigatorMessage(
                 id: "msg-002",
                 sessionId: "session-001",
@@ -212,7 +202,7 @@ public enum RouteResultsMockProvider: MockProvider {
                         scenic: 3,
                         includesFavorite: nil,
                         includesFavoriteLabel: nil
-                    )
+                    ),
                 ],
                 detail: "All routes have been verified against current Caltrans road closures and construction reports. I've also checked recent motorcycle forum posts for real-world surface condition updates.",
                 pinned: true
@@ -253,7 +243,7 @@ public enum RouteResultsMockProvider: MockProvider {
                     difficulty: "moderate",
                     polyline: "encoded_polyline_here",
                     variant: "alt2"
-                )
+                ),
             ],
             selectedRouteId: "route-001"
         )

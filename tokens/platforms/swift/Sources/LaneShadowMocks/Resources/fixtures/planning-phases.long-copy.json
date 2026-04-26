@@ -1,0 +1,27 @@
+[
+  {
+    "id": "reading",
+    "label": "Reading your ride request and understanding your preferences for scenic routes",
+    "status": "done"
+  },
+  {
+    "id": "sketching",
+    "label": "Sketching potential road routes through the Santa Cruz Mountains",
+    "status": "done"
+  },
+  {
+    "id": "validating",
+    "label": "Checking that all road segments connect properly and are rideable",
+    "status": "active"
+  },
+  {
+    "id": "weather",
+    "label": "Reading the sky and checking current weather conditions along all routes",
+    "status": "pending"
+  },
+  {
+    "id": "building",
+    "label": "Ranking your options based on scenery, difficulty, and weather",
+    "status": "pending"
+  }
+]

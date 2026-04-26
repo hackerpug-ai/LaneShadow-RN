@@ -1,0 +1,49 @@
+[
+  {
+    "id": "msg-001",
+    "sessionId": "session-001",
+    "body": "I have analyzed your request for a scenic two-hour ride to Santa Cruz while avoiding all highways and major roads, and I am pleased to report that I have found three exceptional routes that perfectly match your criteria. The first option, which I highly recommend as the best choice, is the legendary Skyline Spine - this magnificent route will take you through towering ancient redwood forests in the Santa Cruz Mountains, offering breathtaking panoramic views at every turn and including the famous Sunset Climb section that experienced riders consider one of the premier riding experiences in all of Northern California. Your second option is the classic Highway 1 coastal route, which provides unobstructed ocean vistas for virtually the entire duration of your journey, with the Pacific Ocean as your constant companion on the right side. The third option is the Mount Hamilton climb, which is the most challenging of the three but rewards your efforts with absolutely stunning summit panoramas that stretch for miles in every direction on clear days.",
+    "timestamp": "2026-04-25T10:31:00Z",
+    "kind": "response",
+    "attachments": [
+      {
+        "routeId": "route-001",
+        "variant": "best",
+        "isBest": true,
+        "weather": {
+          "condition": "clear",
+          "label": "Clear"
+        },
+        "scenic": 5,
+        "includesFavorite": true,
+        "includesFavoriteLabel": "INCLUDES SUNSET CLIMB"
+      },
+      {
+        "routeId": "route-002",
+        "variant": "alt1",
+        "isBest": false,
+        "weather": {
+          "condition": "clear",
+          "label": "Clear"
+        },
+        "scenic": 5,
+        "includesFavorite": null,
+        "includesFavoriteLabel": null
+      },
+      {
+        "routeId": "route-003",
+        "variant": "alt2",
+        "isBest": false,
+        "weather": {
+          "condition": "wind",
+          "label": "18mph NW"
+        },
+        "scenic": 4,
+        "includesFavorite": null,
+        "includesFavoriteLabel": null
+      }
+    ],
+    "detail": null,
+    "pinned": true
+  }
+]

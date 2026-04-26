@@ -1,13 +1,3 @@
-//
-//  PlanningMockProvider.swift
-//  LaneShadow
-//
-//  Mock provider for Planning screen data.
-//
-//  Provides planning phases, navigator message, and thinking state
-//  for the Planning/route-building screen.
-//
-
 import Foundation
 
 /// Mock provider for Planning screen data.
@@ -20,24 +10,24 @@ public enum PlanningMockProvider: MockProvider {
     public static func value(variant: String = "default") -> PlanningScreenState {
         switch variant {
         case "empty":
-            return emptyState()
+            emptyState()
         case "overflow":
-            return overflowState()
+            overflowState()
         case "long-copy":
-            return longCopyState()
+            longCopyState()
         default:
-            return defaultState()
+            defaultState()
         }
     }
 
     private static func defaultState() -> PlanningScreenState {
-        return PlanningScreenState(
+        PlanningScreenState(
             phases: [
                 PlanningPhase(id: "reading", label: "Reading your ride", status: "done"),
                 PlanningPhase(id: "sketching", label: "Sketching routes", status: "active"),
                 PlanningPhase(id: "validating", label: "Validating roads", status: "pending"),
                 PlanningPhase(id: "weather", label: "Checking conditions", status: "pending"),
-                PlanningPhase(id: "building", label: "Building your rides", status: "pending")
+                PlanningPhase(id: "building", label: "Building your rides", status: "pending"),
             ],
             message: NavigatorMessage(
                 id: "msg-001",
@@ -54,7 +44,7 @@ public enum PlanningMockProvider: MockProvider {
     }
 
     private static func emptyState() -> PlanningScreenState {
-        return PlanningScreenState(
+        PlanningScreenState(
             phases: [],
             message: NavigatorMessage(
                 id: "msg-001",
@@ -71,7 +61,7 @@ public enum PlanningMockProvider: MockProvider {
     }
 
     private static func overflowState() -> PlanningScreenState {
-        return PlanningScreenState(
+        PlanningScreenState(
             phases: [
                 PlanningPhase(id: "reading", label: "Reading your ride request", status: "done"),
                 PlanningPhase(id: "analyzing", label: "Analyzing terrain", status: "done"),
@@ -83,7 +73,7 @@ public enum PlanningMockProvider: MockProvider {
                 PlanningPhase(id: "scenic", label: "Evaluating scenic value", status: "pending"),
                 PlanningPhase(id: "building", label: "Building final routes", status: "pending"),
                 PlanningPhase(id: "optimizing", label: "Optimizing for preferences", status: "pending"),
-                PlanningPhase(id: "finalizing", label: "Finalizing recommendations", status: "pending")
+                PlanningPhase(id: "finalizing", label: "Finalizing recommendations", status: "pending"),
             ],
             message: NavigatorMessage(
                 id: "msg-001",
@@ -100,7 +90,7 @@ public enum PlanningMockProvider: MockProvider {
     }
 
     private static func longCopyState() -> PlanningScreenState {
-        return PlanningScreenState(
+        PlanningScreenState(
             phases: [
                 PlanningPhase(
                     id: "reading",
@@ -126,7 +116,7 @@ public enum PlanningMockProvider: MockProvider {
                     id: "building",
                     label: "Building comprehensive route profiles with turn-by-turn directions and elevation profiles",
                     status: "pending"
-                )
+                ),
             ],
             message: NavigatorMessage(
                 id: "msg-001",

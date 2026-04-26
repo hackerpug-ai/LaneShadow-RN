@@ -1,0 +1,63 @@
+{
+  "mode": "preview",
+  "camera": {
+    "center": {
+      "lat": 37.4868,
+      "lon": -122.457
+    },
+    "zoom": 8.7,
+    "pitch": 0,
+    "bearing": 0
+  },
+  "cameraFit": {
+    "type": "polyline",
+    "padding": "spacing4"
+  },
+  "polylines": [
+    {
+      "variant": "best",
+      "strokeWidth": "md",
+      "coordinates": [
+        {
+          "lat": 37.7749,
+          "lon": -122.4194
+        },
+        {
+          "lat": 37.6375,
+          "lon": -122.4164
+        },
+        {
+          "lat": 37.5052,
+          "lon": -122.4765
+        },
+        {
+          "lat": 37.2552,
+          "lon": -122.3886
+        },
+        {
+          "lat": 36.9741,
+          "lon": -122.0308
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "kind": "start",
+      "coordinate": {
+        "lat": 37.7749,
+        "lon": -122.4194
+      },
+      "label": "San Francisco"
+    },
+    {
+      "kind": "end",
+      "coordinate": {
+        "lat": 36.9741,
+        "lon": -122.0308
+      },
+      "label": "Santa Cruz"
+    }
+  ],
+  "showFavorites": false
+}

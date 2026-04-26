@@ -25,6 +25,7 @@
     "prepare": "lefthook install",
     "tokens:validate": "node tokens/scripts/validate-contract.js && pnpm tsx tokens/scripts/validate-typography.ts && pnpm tsx tokens/scripts/validate-dimensions.ts && node tokens/scripts/validate-colors.js",
     "tokens:generate": "pnpm tsx tokens/scripts/generate.ts",
+    "fixtures:generate": "pnpm tsx tokens/scripts/generate-fixtures.ts",
     "tokens:sync-check": "pnpm tsx tokens/scripts/sync-check.ts",
     "icons:check": "pnpm tsx tokens/scripts/icons-check.ts",
     "tokens:sync": "node ../native-theme/scripts/sync-bundled-json.js --config tokens/sync.config.json",

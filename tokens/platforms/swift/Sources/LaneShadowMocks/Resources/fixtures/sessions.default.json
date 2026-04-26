@@ -1,0 +1,41 @@
+[
+  {
+    "id": "session-001",
+    "title": "Santa Cruz loop",
+    "preview": "Scenic 2-hour ride, avoid highways",
+    "meta": "3 routes · Active",
+    "when": "Now",
+    "active": true,
+    "routeIds": [
+      "route-001",
+      "route-002",
+      "route-003"
+    ],
+    "createdAt": "2026-04-25T10:30:00Z"
+  },
+  {
+    "id": "session-002",
+    "title": "Niles Canyon morning",
+    "preview": "Twisty roads, coffee stop in Sunol",
+    "meta": "2 routes",
+    "when": "Tue",
+    "active": false,
+    "routeIds": [
+      "route-004",
+      "route-005"
+    ],
+    "createdAt": "2026-04-22T08:15:00Z"
+  },
+  {
+    "id": "session-003",
+    "title": "Diablo summit attempt",
+    "preview": "Early morning climb, light traffic",
+    "meta": "1 route",
+    "when": "Apr 12",
+    "active": false,
+    "routeIds": [
+      "route-008"
+    ],
+    "createdAt": "2026-04-12T06:45:00Z"
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "id": "reading",
+    "label": "Reading your ride",
+    "status": "done"
+  },
+  {
+    "id": "sketching",
+    "label": "Sketching roads",
+    "status": "done"
+  },
+  {
+    "id": "validating",
+    "label": "Checking they connect",
+    "status": "done"
+  },
+  {
+    "id": "weather",
+    "label": "Reading the sky",
+    "status": "done"
+  },
+  {
+    "id": "building",
+    "label": "Ranking your options",
+    "status": "active"
+  }
+]

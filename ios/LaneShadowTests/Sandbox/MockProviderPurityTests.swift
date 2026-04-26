@@ -1,24 +1,9 @@
-//
-//  MockProviderPurityTests.swift
-//  LaneShadowTests
-//
-//  Tests for mock provider purity.
-//
-//  Verifies that all providers:
-//  - Contain no I/O operations
-//  - Contain no network calls
-//  - Contain no async/await
-//  - Are pure functions (deterministic, no side effects)
-//
-
 import Foundation
 import Testing
-
 @testable import LaneShadow
 
 @Suite("Mock Provider Purity Tests")
 struct MockProviderPurityTests {
-
     // MARK: - I/O Symbol Detection
 
     @Test("IdleMockProvider: Contains no I/O symbols")
@@ -73,7 +58,7 @@ struct MockProviderPurityTests {
             "RouteResultsMockProvider.swift",
             "RouteDetailsMockProvider.swift",
             "SessionsMockProvider.swift",
-            "ErrorMockProvider.swift"
+            "ErrorMockProvider.swift",
         ]
 
         for provider in providers {
@@ -95,7 +80,7 @@ struct MockProviderPurityTests {
             "RouteResultsMockProvider.swift",
             "RouteDetailsMockProvider.swift",
             "SessionsMockProvider.swift",
-            "ErrorMockProvider.swift"
+            "ErrorMockProvider.swift",
         ]
 
         for provider in providers {
@@ -117,7 +102,7 @@ struct MockProviderPurityTests {
             "RouteResultsMockProvider.swift",
             "RouteDetailsMockProvider.swift",
             "SessionsMockProvider.swift",
-            "ErrorMockProvider.swift"
+            "ErrorMockProvider.swift",
         ]
 
         for provider in providers {
@@ -139,7 +124,7 @@ struct MockProviderPurityTests {
             "RouteResultsMockProvider.swift",
             "RouteDetailsMockProvider.swift",
             "SessionsMockProvider.swift",
-            "ErrorMockProvider.swift"
+            "ErrorMockProvider.swift",
         ]
 
         for provider in providers {
@@ -176,7 +161,7 @@ struct MockProviderPurityTests {
             "stdin",
             "NSLog",
             "os_log",
-            "Logger"
+            "Logger",
         ]
 
         return ioPatterns.contains { source.contains($0) }
@@ -192,18 +177,18 @@ struct MockProviderPurityTests {
             "fetch(",
             "axios",
             "http://",
-            "https://"
+            "https://",
         ]
 
         return networkPatterns.contains { source.contains($0) }
     }
 
     private func containsAsyncAwait(_ source: String) -> Bool {
-        return source.contains("async ") || source.contains("await ")
+        source.contains("async ") || source.contains("await ")
     }
 
     private func containsThrowingFunctions(_ source: String) -> Bool {
-        return source.contains("throws") && source.contains("func")
+        source.contains("throws") && source.contains("func")
     }
 
     private func containsFileOrJSONParsing(_ source: String) -> Bool {
@@ -214,7 +199,7 @@ struct MockProviderPurityTests {
             "Data(contentsOf:",
             "String(contentsOfFile:",
             "Bundle.main",
-            ".json"
+            ".json",
         ]
 
         return patterns.contains { source.contains($0) }

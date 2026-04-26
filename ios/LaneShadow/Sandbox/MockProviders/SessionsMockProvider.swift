@@ -1,13 +1,3 @@
-//
-//  SessionsMockProvider.swift
-//  LaneShadow
-//
-//  Mock provider for Sessions screen data.
-//
-//  Provides a list of past and active sessions
-//  for the Sessions/history screen.
-//
-
 import Foundation
 
 /// Mock provider for Sessions screen data.
@@ -20,18 +10,18 @@ public enum SessionsMockProvider: MockProvider {
     public static func value(variant: String = "default") -> SessionsScreenState {
         switch variant {
         case "empty":
-            return emptyState()
+            emptyState()
         case "overflow":
-            return overflowState()
+            overflowState()
         case "long-copy":
-            return longCopyState()
+            longCopyState()
         default:
-            return defaultState()
+            defaultState()
         }
     }
 
     private static func defaultState() -> SessionsScreenState {
-        return SessionsScreenState(
+        SessionsScreenState(
             sessions: [
                 Session(
                     id: "session-003",
@@ -62,14 +52,14 @@ public enum SessionsMockProvider: MockProvider {
                     active: false,
                     routeIds: ["route-006", "route-007", "route-008", "route-009"],
                     createdAt: "2025-04-12T09:15:00Z"
-                )
+                ),
             ],
             activeSessionId: "session-003"
         )
     }
 
     private static func emptyState() -> SessionsScreenState {
-        return SessionsScreenState(
+        SessionsScreenState(
             sessions: [],
             activeSessionId: nil
         )
@@ -82,7 +72,7 @@ public enum SessionsMockProvider: MockProvider {
             "Morning mountain run", "Coastal sunset cruise", "Wine country tour",
             "Redwood forest adventure", "Desert loop", "City escape",
             "Border run", "Pass storm chasing", "Peak bagging",
-            "Valley cruise", "River road romp", "Lake loop tour"
+            "Valley cruise", "River road romp", "Lake loop tour",
         ]
 
         for (index, title) in titles.enumerated() {
@@ -93,7 +83,7 @@ public enum SessionsMockProvider: MockProvider {
                 meta: "\(index + 1) route\(index == 0 ? "" : "s")",
                 when: index < 3 ? "Now" : (index < 6 ? "Tue" : "Apr \(12 - index % 10)"),
                 active: index == 0,
-                routeIds: Array((1...index + 1).map { "route-\(String(format: "%03d", $0))" }),
+                routeIds: Array((1 ... index + 1).map { "route-\(String(format: "%03d", $0))" }),
                 createdAt: "2025-04-25T10:30:00Z"
             ))
         }
@@ -105,7 +95,7 @@ public enum SessionsMockProvider: MockProvider {
     }
 
     private static func longCopyState() -> SessionsScreenState {
-        return SessionsScreenState(
+        SessionsScreenState(
             sessions: [
                 Session(
                     id: "session-003",
@@ -136,7 +126,7 @@ public enum SessionsMockProvider: MockProvider {
                     active: false,
                     routeIds: ["route-006", "route-007", "route-008", "route-009"],
                     createdAt: "2025-04-12T09:15:00Z"
-                )
+                ),
             ],
             activeSessionId: "session-003"
         )

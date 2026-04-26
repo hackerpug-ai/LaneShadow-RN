@@ -1,0 +1,18 @@
+[
+  {
+    "id": "session-001",
+    "title": "The Ultimate Santa Cruz Coastal Loop Adventure with Multiple Scenic Stops and Optional Extensions",
+    "preview": "I am looking for a truly scenic and memorable two-hour motorcycle ride that takes me down the coast to Santa Cruz while completely avoiding all highways and major roads. I want to see the ocean, ride through redwood forests, and maybe stop for coffee along the way. Please include optional detours to points of interest.",
+    "meta": "3 routes · Active · Plus 2 optional extensions",
+    "when": "Now",
+    "active": true,
+    "routeIds": [
+      "route-001",
+      "route-002",
+      "route-003",
+      "route-012",
+      "route-007"
+    ],
+    "createdAt": "2026-04-25T10:30:00Z"
+  }
+]

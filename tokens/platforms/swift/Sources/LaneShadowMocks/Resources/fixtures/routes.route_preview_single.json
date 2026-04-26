@@ -1,0 +1,59 @@
+{
+  "mode": "preview",
+  "camera": {
+    "center": {
+      "lat": 37.8104,
+      "lon": -122.4752
+    },
+    "zoom": 10.8,
+    "pitch": 0,
+    "bearing": 0
+  },
+  "cameraFit": {
+    "type": "polyline",
+    "padding": "spacing4"
+  },
+  "polylines": [
+    {
+      "variant": "best",
+      "strokeWidth": "md",
+      "coordinates": [
+        {
+          "lat": 37.7749,
+          "lon": -122.4194
+        },
+        {
+          "lat": 37.8078,
+          "lon": -122.475
+        },
+        {
+          "lat": 37.8324,
+          "lon": -122.4803
+        },
+        {
+          "lat": 37.8626,
+          "lon": -122.4856
+        }
+      ]
+    }
+  ],
+  "annotations": [
+    {
+      "kind": "start",
+      "coordinate": {
+        "lat": 37.7749,
+        "lon": -122.4194
+      },
+      "label": "San Francisco"
+    },
+    {
+      "kind": "end",
+      "coordinate": {
+        "lat": 37.8626,
+        "lon": -122.4856
+      },
+      "label": "Muir Beach"
+    }
+  ],
+  "showFavorites": false
+}

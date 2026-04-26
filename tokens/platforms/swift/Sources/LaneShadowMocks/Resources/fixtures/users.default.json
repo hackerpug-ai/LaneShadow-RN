@@ -1,0 +1,23 @@
+[
+  {
+    "id": "user-001",
+    "name": "Alex Rider",
+    "handle": "alexrider",
+    "avatarUrl": "https://example.com/avatars/alexrider.jpg",
+    "bio": "Weekend warrior exploring the Bay Area backroads"
+  },
+  {
+    "id": "user-002",
+    "name": "Sam Cruz",
+    "handle": "samcruz",
+    "avatarUrl": "https://example.com/avatars/samcruz.jpg",
+    "bio": "Coastal rides are my therapy"
+  },
+  {
+    "id": "user-003",
+    "name": "Jordan Moto",
+    "handle": "jordanmoto",
+    "avatarUrl": null,
+    "bio": "Twisty roads and mountain passes"
+  }
+]

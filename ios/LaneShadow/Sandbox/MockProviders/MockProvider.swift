@@ -1,15 +1,3 @@
-//
-//  MockProvider.swift
-//  LaneShadow
-//
-//  Mock provider protocol for pure, deterministic test data.
-//
-//  Providers must be:
-//  - Pure (no I/O, no network, no disk access)
-//  - Deterministic (same input always returns same output)
-//  - Synchronous (no async/await, no throwing)
-//
-
 /// Mock provider interface for pure, deterministic test data.
 ///
 /// Providers must be:
