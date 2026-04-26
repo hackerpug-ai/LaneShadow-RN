@@ -97,7 +97,10 @@ struct RouteDetailsScreenTests {
 
     @Test("TC-6: No Convex imports in RouteDetailsScreen")
     func noConvexImports() throws {
-        let sourceCode = try String(contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/RouteDetailsScreen.swift", encoding: .utf8)
+        let sourceCode = try String(
+            contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/RouteDetailsScreen.swift",
+            encoding: .utf8
+        )
 
         let hasConvex = sourceCode.contains("Convex")
         #expect(!hasConvex)
@@ -105,7 +108,10 @@ struct RouteDetailsScreenTests {
 
     @Test("TC-6: No URLSession in RouteDetailsScreen")
     func noURLSession() throws {
-        let sourceCode = try String(contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/RouteDetailsScreen.swift", encoding: .utf8)
+        let sourceCode = try String(
+            contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/RouteDetailsScreen.swift",
+            encoding: .utf8
+        )
 
         let hasURLSession = sourceCode.contains("URLSession")
         #expect(!hasURLSession)
@@ -113,7 +119,10 @@ struct RouteDetailsScreenTests {
 
     @Test("TC-6: No .task modifier in RouteDetailsScreen")
     func noTaskModifier() throws {
-        let sourceCode = try String(contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/RouteDetailsScreen.swift", encoding: .utf8)
+        let sourceCode = try String(
+            contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/RouteDetailsScreen.swift",
+            encoding: .utf8
+        )
 
         let hasTask = sourceCode.contains(".task(")
         #expect(!hasTask)
