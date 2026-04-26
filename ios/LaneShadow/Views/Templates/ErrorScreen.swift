@@ -8,7 +8,7 @@ import SwiftUI
 public struct ErrorScreen: View {
     @Environment(\.theme) private var theme
 
-    private let provider: (any MockProvider.Type)
+    private let provider: any MockProvider.Type
     private let state: ErrorScreenState
 
     @State private var chatInputValue: String = ""
@@ -41,13 +41,13 @@ public struct ErrorScreen: View {
                 GlassOverlaySlot(
                     id: "error-callout",
                     content: { errorCalloutView }
-                )
+                ),
             ],
             bottomOverlays: [
                 GlassOverlaySlot(
                     id: "chatinput",
                     content: { chatInputView }
-                )
+                ),
             ],
             topBar: {
                 LSTopBar(
@@ -68,7 +68,7 @@ public struct ErrorScreen: View {
             LinearGradient(
                 gradient: Gradient(colors: [
                     theme.colors.surface.default,
-                    theme.colors.background.default
+                    theme.colors.background.default,
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -88,7 +88,7 @@ public struct ErrorScreen: View {
         LSInlineErrorCallout(
             body: state.error.body,
             detail: state.error.detail,
-            suggestions: state.suggestions.map { $0.label },
+            suggestions: state.suggestions.map(\.label),
             onSuggestionTap: { tappedLabel in
                 // Find matching MockSuggestionChip to pass to callback
                 if let chip = state.suggestions.first(where: { $0.label == tappedLabel }) {
