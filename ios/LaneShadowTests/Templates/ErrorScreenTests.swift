@@ -89,6 +89,10 @@ struct ErrorScreenTests {
         let sendIcon = try? chatInputViewAfter.find(viewWithAccessibilityIdentifier: "lschatinput-send-icon")
         #expect(sendIcon != nil, "Send icon should be visible after text entry")
 
+        // Verify sliders icon is now hidden (filter button should be hidden when input has text)
+        let slidersIconAfter = try? chatInputViewAfter.find(viewWithAccessibilityIdentifier: "lschatinput-filter-icon-sliders")
+        #expect(slidersIconAfter == nil, "Sliders icon should be hidden after text entry")
+
         // Verify the binding state
         #expect(inputValue == "Try again", "Input value should update through binding")
         #expect(!inputValue.isEmpty, "Input should no longer be empty after text entry")

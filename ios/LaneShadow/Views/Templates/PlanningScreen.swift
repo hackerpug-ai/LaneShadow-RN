@@ -195,12 +195,16 @@ struct SketchingPolyline: View {
             Circle()
                 .fill(theme.colors.primary.default)
                 .frame(width: theme.type.label.sm.fontSize, height: theme.type.label.sm.fontSize)
-                .shadow(color: theme.colors.primary.default.opacity(0.25), radius: 3)
-                .shadow(color: theme.colors.primary.default.opacity(0.4), radius: 5)
-                .scaleEffect(isAnimating ? breathingRecipe.scaleRange.upperBound : breathingRecipe.scaleRange.lowerBound)
+                .shadow(color: theme.colors.primary.default.opacity(0.25), radius: theme.space.sm)
+                .shadow(color: theme.colors.primary.default.opacity(0.4), radius: theme.space.md)
+                .scaleEffect(isAnimating ? breathingRecipe.scaleRange.upperBound : breathingRecipe.scaleRange
+                    .lowerBound)
                 .opacity(isAnimating ? breathingRecipe.endOpacity : breathingRecipe.startOpacity)
                 .animation(breathingRecipe.animation, value: isAnimating)
-                .position(x: 200, y: 250) // Positioned along the polyline
+                .position(
+                    x: UIScreen.main.bounds.width / 2 - theme.space.xl * 2,
+                    y: UIScreen.main.bounds.height / 2 - theme.space.md
+                ) // Positioned along the polyline using theme tokens
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -271,29 +275,37 @@ struct BreathingDotRecipe: Equatable {
 // MARK: - Polyline Shape
 
 struct PolylineShape: Shape {
+    @Environment(\.theme) private var theme
+
     func path(in rect: CGRect) -> Path {
         var path = Path()
 
+        // Use theme space tokens for semantic spacing
+        let offsetXl = theme.space.xl * 2
+        let offsetLg = theme.space.lg * 2
+        let offsetMd = theme.space.md * 2
+        let offsetSm = theme.space.sm * 2
+
         // Start point
-        path.move(to: CGPoint(x: rect.midX - 80, y: rect.midY - 40))
+        path.move(to: CGPoint(x: rect.midX - offsetLg, y: rect.midY - offsetMd))
 
         // Sketching polyline path
         path.addCurve(
-            to: CGPoint(x: rect.midX - 40, y: rect.midY - 60),
-            control1: CGPoint(x: rect.midX - 70, y: rect.midY - 50),
-            control2: CGPoint(x: rect.midX - 50, y: rect.midY - 60)
+            to: CGPoint(x: rect.midX - offsetMd, y: rect.midY - offsetLg - theme.space.sm),
+            control1: CGPoint(x: rect.midX - offsetLg + theme.space.xs, y: rect.midY - offsetMd - theme.space.sm),
+            control2: CGPoint(x: rect.midX - offsetMd - theme.space.xs, y: rect.midY - offsetLg - theme.space.sm)
         )
 
         path.addCurve(
-            to: CGPoint(x: rect.midX + 20, y: rect.midY - 30),
-            control1: CGPoint(x: rect.midX, y: rect.midY - 50),
-            control2: CGPoint(x: rect.midX + 10, y: rect.midY - 40)
+            to: CGPoint(x: rect.midX + theme.space.md, y: rect.midY - offsetMd + theme.space.sm),
+            control1: CGPoint(x: rect.midX, y: rect.midY - offsetLg),
+            control2: CGPoint(x: rect.midX + theme.space.sm, y: rect.midY - offsetMd)
         )
 
         path.addCurve(
-            to: CGPoint(x: rect.midX + 60, y: rect.midY),
-            control1: CGPoint(x: rect.midX + 40, y: rect.midY - 20),
-            control2: CGPoint(x: rect.midX + 50, y: rect.midY - 10)
+            to: CGPoint(x: rect.midX + offsetMd + theme.space.sm, y: rect.midY),
+            control1: CGPoint(x: rect.midX + offsetMd, y: rect.midY - theme.space.md),
+            control2: CGPoint(x: rect.midX + offsetLg, y: rect.midY - theme.space.sm)
         )
 
         return path
