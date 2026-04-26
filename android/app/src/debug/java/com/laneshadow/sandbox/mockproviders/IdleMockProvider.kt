@@ -29,12 +29,12 @@ object IdleMockProvider : MockProvider<IdleScreenState> {
             suggestions = listOf(
                 SuggestionChip(id = "chip-001", label = "Twisty back roads"),
                 SuggestionChip(id = "chip-002", label = "Coastal cruise"),
-                SuggestionChip(id = "chip-003", label = "Try inland"),
-                SuggestionChip(id = "chip-004", label = "End at Big Sur")
+                SuggestionChip(id = "chip-003", label = "Half-day loop"),
+                SuggestionChip(id = "chip-004", label = "Mountain passes")
             ),
             locationContext = LocationContext(
                 label = "Near Santa Cruz, CA",
-                mode = "auto"
+                mode = "manual"
             )
         )
     }

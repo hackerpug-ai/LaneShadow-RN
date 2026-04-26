@@ -95,17 +95,21 @@ class IdleScreenTest {
      * THEN: Trailing icon swaps from sliders to send
      *
      * Note: The actual icon swap is handled by LSChatInput molecule.
-     * This test verifies IdleScreen properly wires the onValueChange callback.
+     * This test verifies IdleScreen properly wires the onValueChange callback
+     * and manages input state via remember.
      */
     @Test
     fun ac3_trailing_icon_swap_callback_wiring_is_correct() {
         val source = File("../app/src/main/java/com/laneshadow/ui/templates/IdleScreen.kt").readText()
 
-        // Must pass onValueChange to LSChatInput
-        assertTrue(source.contains("onValueChange = onValueChange"))
+        // Must manage input state via remember
+        assertTrue(source.contains("remember { mutableStateOf(\"\") }"))
 
-        // LSChatInput must accept value parameter (we pass empty string for now)
-        assertTrue(source.contains("value ="))
+        // Must pass value state to LSChatInput
+        assertTrue(source.contains("value = inputValue"))
+
+        // Must handle onValueChange callback
+        assertTrue(source.contains("onValueChange = { newValue ->"))
     }
 
     /**
@@ -203,26 +207,14 @@ class IdleScreenTest {
 
     /**
      * Verify that IdleMockProvider provides correct default state
+     *
+     * RED test: Calls IdleMockProvider.value("default") to assert
+     * the provider returns correct chips and location mode
      */
     @Test
     fun idle_mock_provider_default_state_is_correct() {
-        val state = IdleScreenState(
-            greeting = Greeting(
-                meta = "FRIDAY · 68°F · CLEAR",
-                headline = "Where are we riding today?",
-                emphasis = "today"
-            ),
-            suggestions = listOf(
-                MockSuggestionChip(id = "chip-001", label = "Twisty back roads"),
-                MockSuggestionChip(id = "chip-002", label = "Coastal cruise"),
-                MockSuggestionChip(id = "chip-003", label = "Half-day loop"),
-                MockSuggestionChip(id = "chip-004", label = "Mountain passes")
-            ),
-            locationContext = MockLocationContext(
-                label = "Near Santa Cruz, CA",
-                mode = "auto"
-            )
-        )
+        val provider = com.laneshadow.sandbox.mockproviders.IdleMockProvider
+        val state = provider.value("default")
 
         // Verify greeting
         assertEquals("FRIDAY · 68°F · CLEAR", state.greeting.meta)
@@ -233,11 +225,14 @@ class IdleScreenTest {
         assertEquals(4, state.suggestions.size)
         assertEquals("Twisty back roads", state.suggestions[0].label)
         assertEquals("Coastal cruise", state.suggestions[1].label)
+        // AC-1 CRITICAL FIX: Must be "Half-day loop" (not "Try inland")
         assertEquals("Half-day loop", state.suggestions[2].label)
+        // AC-1 CRITICAL FIX: Must be "Mountain passes" (not "End at Big Sur")
         assertEquals("Mountain passes", state.suggestions[3].label)
 
         // Verify location context
         assertEquals("Near Santa Cruz, CA", state.locationContext.label)
-        assertEquals("auto", state.locationContext.mode)
+        // AC-1 CRITICAL FIX: Must be "manual" (not "auto")
+        assertEquals("manual", state.locationContext.mode)
     }
 }

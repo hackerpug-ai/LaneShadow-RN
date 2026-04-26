@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
@@ -61,6 +65,7 @@ fun IdleScreen(
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
+    var inputValue by remember { mutableStateOf("") }
 
     // Build annotated string with italicized emphasis
     val greetingHeadline = buildAnnotatedString {
@@ -117,8 +122,11 @@ fun IdleScreen(
                 id = "chat-input",
                 content = {
                     LSChatInput(
-                        value = "", // In production, this would be managed by state
-                        onValueChange = onValueChange,
+                        value = inputValue,
+                        onValueChange = { newValue ->
+                            inputValue = newValue
+                            onValueChange(newValue)
+                        },
                         placeholder = "Where should we ride?",
                         onSend = onSend,
                         onCollapse = onCollapse,
@@ -127,7 +135,8 @@ fun IdleScreen(
                             UISuggestionChip(label = mockChip.label)
                         },
                         onSuggestionTap = { uiChip ->
-                            // Find the original mock chip to preserve its ID
+                            // Update input value and find the original mock chip to preserve its ID
+                            inputValue = uiChip.label
                             val originalChip = state.suggestions.firstOrNull { it.label == uiChip.label }
                             onSuggestionTap(originalChip ?: MockSuggestionChip(id = "", label = uiChip.label))
                         },
