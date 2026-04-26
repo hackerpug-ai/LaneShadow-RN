@@ -4,7 +4,10 @@
 **Agent:** kotlin-implementer
 **Estimate:** 180 min
 **Type:** FEATURE
-**Status:** Backlog
+**Status:** ✅ Completed (AC-5/TC-5 snapshot verification deferred to UC-SBX-06-android dropshots wiring per sprint sequencing)
+**Completed:** 2026-04-26
+**Commits:** eae820de (initial), 4ca6d71d (wip), 35124b52 (animation enhance), 47121935 (TC-2 instrumented + TC-3 constant)
+**Reviewer:** kotlin-reviewer (cycle 1 NEEDS_FIXES → cycle 2 APPROVED with AC-5/TC-5 deferral)
 **Priority:** P0
 **Effort:** L
 **PRD Refs:** UC-SCR-03
