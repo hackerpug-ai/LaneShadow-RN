@@ -202,6 +202,16 @@
 			path = Entry;
 			sourceTree = "<group>";
 		};
+		3CE2AE4772ABC9D4A3699741 /* MockProviders */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = MockProviders;
+			path = MockProviders;
+			sourceTree = "<group>";
+		};
 		4C8A8E02554AE3D5AC4FAC51 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			explicitFileTypes = {
@@ -325,6 +335,7 @@
 			children = (
 				B92913E9843A5845817A3DBD /* Controls */,
 				3BC11B009ED26B33FC7A0333 /* Entry */,
+				3CE2AE4772ABC9D4A3699741 /* MockProviders */,
 				2F2DF9072E7DE318B1CF4168 /* Stories */,
 				E5E2F792F8318B064762B018 /* Theme */,
 				F7C289172CD246D71CC0E6BB /* LaneShadowSandboxEntry.swift */,
@@ -531,6 +542,7 @@
 				3BC11B009ED26B33FC7A0333 /* Entry */,
 				A1DA24033B9915EAB116ED62 /* Generated */,
 				9B1969E887592C82E1672459 /* Launch */,
+				3CE2AE4772ABC9D4A3699741 /* MockProviders */,
 				D026D3B873FDE7B7153F206F /* Organisms */,
 				4C8A8E02554AE3D5AC4FAC51 /* Organisms */,
 				E5E2F792F8318B064762B018 /* Theme */,

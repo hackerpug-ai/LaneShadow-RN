@@ -126,6 +126,8 @@ targets:
         type: syncedFolder
       - path: LaneShadow/Sandbox/Controls
         type: syncedFolder
+      - path: LaneShadow/Sandbox/MockProviders
+        type: syncedFolder
       - path: LaneShadow/Sandbox/LaneShadowSandboxEntry.swift
       - path: LaneShadow/Sandbox/LaneShadowStories.swift
       - path: LaneShadow/Sandbox/Stories/AtomsStories.swift
