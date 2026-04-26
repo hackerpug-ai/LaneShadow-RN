@@ -39,6 +39,7 @@
 		67E11B124F365ECBE356E456 /* LSTabItemStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31658B6BC3E9D3BE680EB5C8 /* LSTabItemStories.swift */; };
 		67E4FE6F8B713FEF68326B97 /* LSTabItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1261D8D753487C4CE27B783 /* LSTabItemTests.swift */; };
 		6BB3BD5F5C744CD42F5DF5C6 /* LSChatInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3123362FBC613B11809CE348 /* LSChatInputTests.swift */; };
+		70E7890ECC146DFD7B20765D /* RouteDetailsScreenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B53974D098C0BDB7ADE013D /* RouteDetailsScreenTests.swift */; };
 		762FB79AB5AE6050179BB785 /* LSScrimStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F281656D06513E78E57D10D /* LSScrimStories.swift */; };
 		7D4F7230A93BF39451BC7BB6 /* LSModalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 690C1B6B480FD345A05807B0 /* LSModalTests.swift */; };
 		7E8799D5CE1C5FFCE3D09066 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324B26FB2DE3F759B489CB7B /* App.swift */; };
@@ -53,6 +54,7 @@
 		96D64305E0336CAB29EDE308 /* LSChatInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19695B8A9932BA0DADCBEADF /* LSChatInput.swift */; };
 		9FCE01BFE6E270FC78FCF05A /* LSFormFieldStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4A7D452F312F54C6748C22 /* LSFormFieldStories.swift */; };
 		A09AB47FC330215325A9F4F1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDF4218751AC8200085830 /* Foundation.framework */; };
+		A17CC48ED95764622369BD1B /* RouteDetailsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1498FA84CAC727B61EC02C /* RouteDetailsScreen.swift */; };
 		A71A81EDC8563AFD14EE83FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95CA989BE1243B1021F83D3 /* ContentView.swift */; };
 		AB76A5DDC894FEE5240E0AA2 /* LSChatInputStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = E78086BF19CF8443A4664599 /* LSChatInputStories.swift */; };
 		B55D247513D3B4742E36D92B /* AtomsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */; };
@@ -100,6 +102,7 @@
 		0880B419366B8C13DDE80143 /* LSModalStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSModalStory.swift; sourceTree = "<group>"; };
 		0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0B452143E44AAB17CB9164E3 /* LSToastStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToastStory.swift; sourceTree = "<group>"; };
+		0B53974D098C0BDB7ADE013D /* RouteDetailsScreenTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RouteDetailsScreenTests.swift; path = LaneShadowTests/Templates/RouteDetailsScreenTests.swift; sourceTree = "<group>"; };
 		0E259B982ADB47ABE53D132D /* LSTextStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTextStories.swift; sourceTree = "<group>"; };
 		15A4BF96B7AD1B8F8BABF061 /* LSSessionsDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSSessionsDrawer.swift; sourceTree = "<group>"; };
 		15E783920D0C7F446CD2A1C7 /* LSToolbarStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbarStory.swift; sourceTree = "<group>"; };
@@ -109,6 +112,7 @@
 		1EEDACF6EC8AA820E5E31C40 /* LSRouteSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSRouteSheet.swift; sourceTree = "<group>"; };
 		20AC933B1DF7AFFC89BD22E0 /* InfoToastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoToastTests.swift; sourceTree = "<group>"; };
 		220BC64128EB0A24188F4C65 /* LSPillStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPillStories.swift; sourceTree = "<group>"; };
+		2F1498FA84CAC727B61EC02C /* RouteDetailsScreen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RouteDetailsScreen.swift; path = Views/Templates/RouteDetailsScreen.swift; sourceTree = "<group>"; };
 		307F61C56AD06224E9F93B51 /* LaneShadow.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LaneShadow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3123362FBC613B11809CE348 /* LSChatInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSChatInputTests.swift; sourceTree = "<group>"; };
 		31658B6BC3E9D3BE680EB5C8 /* LSTabItemStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTabItemStories.swift; sourceTree = "<group>"; };
@@ -164,7 +168,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		58099F917373377216261552 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		58099F917373377216261552 /* Exceptions for "Atoms" folder in "LaneShadow" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Button.swift,
@@ -176,106 +180,118 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0B23304A78B886F9A286C5E4 /* Sandbox */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Sandbox;
 			path = Sandbox;
 			sourceTree = "<group>";
 		};
 		0E516A6442C2AA10AA5009F5 /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		244E36879200004067F64629 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		3BC11B009ED26B33FC7A0333 /* Entry */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Entry;
 			path = Entry;
 			sourceTree = "<group>";
 		};
 		3CE2AE4772ABC9D4A3699741 /* MockProviders */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = MockProviders;
 			path = MockProviders;
 			sourceTree = "<group>";
 		};
 		4C8A8E02554AE3D5AC4FAC51 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		5B8A253F72C6B3D6A21D5422 /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Atoms;
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		5D43661EA5776DD985956D8D /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		9B1969E887592C82E1672459 /* Launch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Launch;
 			path = Launch;
 			sourceTree = "<group>";
 		};
 		A1DA24033B9915EAB116ED62 /* Generated */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Generated;
 			path = Generated;
 			sourceTree = "<group>";
 		};
 		A8E49074235FCF05900AA173 /* LaneShadowUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
@@ -285,54 +301,57 @@
 		};
 		B92913E9843A5845817A3DBD /* Controls */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Controls;
 			path = Controls;
 			sourceTree = "<group>";
 		};
 		CE8B4DF54243DD52953C7CFE /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				58099F917373377216261552 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+				58099F917373377216261552 /* Exceptions for "Atoms" folder in "LaneShadow" target */,
 			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Atoms;
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		CF77ECAB776F34B039A160CA /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		D026D3B873FDE7B7153F206F /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		E5E2F792F8318B064762B018 /* Theme */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
-			name = Theme;
 			path = Theme;
 			sourceTree = "<group>";
 		};
@@ -459,6 +478,8 @@
 				0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */,
 				B95CA989BE1243B1021F83D3 /* ContentView.swift */,
 				F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */,
+				2F1498FA84CAC727B61EC02C /* RouteDetailsScreen.swift */,
+				D8DF00A6CF63744F4C142DC9 /* LaneShadowTests */,
 			);
 			path = LaneShadow;
 			sourceTree = "<group>";
@@ -556,6 +577,14 @@
 			path = Molecules;
 			sourceTree = "<group>";
 		};
+		D8DF00A6CF63744F4C142DC9 /* LaneShadowTests */ = {
+			isa = PBXGroup;
+			children = (
+				0B53974D098C0BDB7ADE013D /* RouteDetailsScreenTests.swift */,
+			);
+			name = LaneShadowTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -613,8 +642,6 @@
 				A8E49074235FCF05900AA173 /* LaneShadowUITests */,
 			);
 			name = LaneShadowUITests;
-			packageProductDependencies = (
-			);
 			productName = LaneShadowUITests;
 			productReference = EF4B1C18D8FD1069B42CB70D /* LaneShadowUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -684,8 +711,8 @@
 				B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */,
 				15EF0D9EB05071BCFDAB5F3D /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
 				E60D5EE87AD2B6F3ECB752C9 /* XCRemoteSwiftPackageReference "ViewInspector" */,
-				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */,
-				587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */,
+				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "swift" */,
+				587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A409E156DCE522478E497BB1 /* Products */;
@@ -820,6 +847,7 @@
 				E868E14CF971E572F61A614E /* MoleculesStories.swift in Sources */,
 				616DD39EE36B30266B875E68 /* PlaceholderInfrastructureStories.swift in Sources */,
 				2A685A9BE84EC13D3483B8C8 /* TemplateStories.swift in Sources */,
+				A17CC48ED95764622369BD1B /* RouteDetailsScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -845,6 +873,7 @@
 				5E2C1E120480203DDF3939E8 /* LSToolbarTests.swift in Sources */,
 				06E6D012390862D9ABF3488C /* LaneShadowTests.swift in Sources */,
 				C9108535DE88E44D62CC2AE6 /* MarkdownTextTests.swift in Sources */,
+				70E7890ECC146DFD7B20765D /* RouteDetailsScreenTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -900,7 +929,10 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LaneShadow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app;
 				SDKROOT = iphoneos;
@@ -945,7 +977,10 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LaneShadow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app;
 				SDKROOT = iphoneos;
@@ -1162,11 +1197,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */ = {
+		47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "swift" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../tokens/platforms/swift;
 		};
-		587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */ = {
+		587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "ios" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "/Users/justinrich/Projects/native-sandbox/ios";
 		};
