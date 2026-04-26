@@ -10,7 +10,7 @@ import XCTest
 struct RouteResultsScreenTests {
     /// AC-1: RouteResults composition renders (snapshot + manual verification)
     @Test
-    func default_renders_all_slots() {
+    func routeResults_default_renders() {
         let provider = RouteResultsMockProvider.self
         let screen = RouteResultsScreen(provider: provider)
 
@@ -94,7 +94,9 @@ struct RouteResultsScreenTests {
         let inspected = try screen.inspect()
 
         // Find the navigator message
-        let navigatorMessage = try inspected.find(viewWithAccessibilityIdentifier: "maplayer.topOverlay.navigator-message")
+        let navigatorMessage = try inspected.find(
+            viewWithAccessibilityIdentifier: "maplayer.topOverlay.navigator-message"
+        )
 
         // Find and tap the pin button
         let pinButton = try navigatorMessage.find(viewWithAccessibilityIdentifier: "navigatormessage-pin")
@@ -111,7 +113,7 @@ struct RouteResultsScreenTests {
 
     /// AC-5: Dark mode re-resolves tokens
     @Test
-    func dark_mode_snapshot() {
+    func routeResults_dark_mode() {
         let provider = RouteResultsMockProvider.self
         let screen = RouteResultsScreen(provider: provider)
 

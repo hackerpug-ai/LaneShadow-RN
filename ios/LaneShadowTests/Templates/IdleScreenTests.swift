@@ -10,7 +10,7 @@ import XCTest
 struct IdleScreenTests {
     /// AC-1: Idle composition renders all six slot elements (snapshot + manual verification)
     @Test
-    func default_renders_all_slots() {
+    func idle_default_renders() {
         let provider = IdleMockProvider.default
         let screen = IdleScreen(provider: provider)
 
@@ -66,25 +66,30 @@ struct IdleScreenTests {
                 set: { inputValue = $0 }
             )
         )
+        .laneShadowTheme()
 
-        // Initial state: input is empty
-        #expect(inputValue.isEmpty, "Input should start empty")
+        // Initial state: input is empty, sliders icon should be visible
+        let inspected = try screen.inspect()
+        let chatInputView = try inspected.find(viewWithAccessibilityIdentifier: "idlescreen-chatinput")
 
-        // Verify LSChatInput receives the binding properly by accessing it through the binding
-        let binding = Binding(
-            get: { inputValue },
-            set: { inputValue = $0 }
-        )
+        // Verify sliders icon is present (filter button is shown when input is empty)
+        let slidersIcon = try chatInputView.find(viewWithAccessibilityIdentifier: "lschatinput-filter-icon-sliders")
+        #expect(slidersIcon.exists(), "Sliders icon should be visible when input is empty")
 
         // Simulate user typing via the binding
-        binding.wrappedValue = "Test ride"
+        inputValue = "Test ride"
 
-        // Verify the binding propagates the state change
+        // Re-inspect after text entry
+        let inspectedAfter = try screen.inspect()
+        let chatInputViewAfter = try inspectedAfter.find(viewWithAccessibilityIdentifier: "idlescreen-chatinput")
+
+        // Verify send icon is now present (send button is shown when input has text)
+        let sendIcon = try chatInputViewAfter.find(viewWithAccessibilityIdentifier: "lschatinput-send-icon")
+        #expect(sendIcon.exists(), "Send icon should be visible after text entry")
+
+        // Verify the binding state
         #expect(inputValue == "Test ride", "Input value should update through binding")
         #expect(!inputValue.isEmpty, "Input should no longer be empty after text entry")
-
-        // The icon swap from sliders to send happens in LSChatInput based on the binding value
-        // Template correctly wires the binding to LSChatInput, which owns the icon logic
     }
 
     /// AC-4: Hamburger tap fires presentSessions callback
@@ -116,7 +121,7 @@ struct IdleScreenTests {
 
     /// AC-5: Light/dark toggle re-resolves all tokens
     @Test
-    func dark_mode_snapshot() {
+    func idle_dark_mode() {
         let provider = IdleMockProvider.default
         let screen = IdleScreen(provider: provider)
 
