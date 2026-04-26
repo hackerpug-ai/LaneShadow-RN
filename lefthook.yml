@@ -78,3 +78,7 @@ pre-push:
     # Enable with: git config lane-shadow.ui-diff.enabled true
     - name: ui-diff
       run: test "$(git config lane-shadow.ui-diff.enabled)" = "true" && pnpm ui:diff || true
+
+    # Snapshot parity check — ensures all stories have light + dark baselines.
+    - name: snapshots:check
+      run: pnpm snapshots:check
