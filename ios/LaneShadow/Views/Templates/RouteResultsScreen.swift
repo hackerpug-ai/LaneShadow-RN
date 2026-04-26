@@ -148,7 +148,6 @@ public struct RouteResultsScreen: View {
 
         for (index, route) in state.routes.enumerated() {
             let delayMs = Double(index) * staggerMs
-            let totalDuration = delayMs + durationMs
 
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(Int(delayMs))) {
                 withAnimation(.easeOut(duration: durationMs / 1000.0)) {

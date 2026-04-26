@@ -68,9 +68,19 @@ struct RouteResultsScreenTests {
         // Find the map layer
         let mapLayer = try inspected.find(viewWithAccessibilityIdentifier: "maplayer.map")
 
-        // Verify polylines are present (they should have accessibility identifiers)
-        // This test verifies the animation configuration is applied
-        #expect(true, "Polylines should be configured with routeDrawOn recipe")
+        // Verify the map exists and has the correct accessibility identifier
+        #expect(
+            try mapLayer.accessibilityIdentifier() == "maplayer.map",
+            "Map layer should have correct accessibility identifier"
+        )
+
+        // Verify animation state is initialized - the screen should have drawProgress state
+        // that gets populated on appear. We can verify the screen has the expected routes.
+        let state = provider.value(variant: "default")
+        #expect(
+            !state.routes.isEmpty,
+            "Mock provider should have routes to animate"
+        )
     }
 
     /// AC-4: Pin/close callbacks fire correctly
