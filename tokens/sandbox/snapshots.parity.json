@@ -338,9 +338,7 @@
     "route-skyline-dark",
     "route-skyline-spine",
     "santa-cruz-loop",
-    "session-$index",
     "skyline-to-sea",
-    "story-${variant.javaClass.simpleName.lowercase()}",
     "templates.error.default",
     "templates.error.impossible",
     "templates.error.long-detail",
@@ -366,11 +364,11 @@
     "templates.sessions.empty",
     "templates.sessions.longCopy",
     "templates.sessions.overflow",
-    "tokens/color-swatches/all",
-    "tokens/elevation/levels",
-    "tokens/radius/shapes",
-    "tokens/spacing/rungs",
-    "tokens/typography/all-families"
+    "tokens.color-swatches.all",
+    "tokens.elevation.levels",
+    "tokens.radius.shapes",
+    "tokens.spacing.rungs",
+    "tokens.typography.all-families"
   ],
   "_note": "Snapshot parity manifest for UC-SBX-06. Android: 213 stories \u00d7 2 themes = 426 PNGs. iOS: complete set (310 PNGs). Total shared stories: 213."
 }

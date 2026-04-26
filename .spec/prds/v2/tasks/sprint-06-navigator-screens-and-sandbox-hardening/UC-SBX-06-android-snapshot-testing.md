@@ -4,7 +4,7 @@
 **Agent:** kotlin-implementer
 **Estimate:** 480 min
 **Type:** FEATURE
-**Status:** Backlog
+**Status:** NEEDS_FIXES (kotlin-reviewer, 2026-04-26 round 1)
 **Priority:** P0
 **Effort:** XL
 **PRD Refs:** UC-SBX-06
@@ -50,6 +50,7 @@ Stand up the Android visual-regression snapshot suite using `dropshots`, capture
 - **THEN** They find the dropshots Gradle plugin applied with a test-scope dependency on dropshots runtime; release/main builds do not link it
 - **Verify:** `./gradlew :app:dependencies --configuration releaseRuntimeClasspath` shows no dropshots; `:app:assembleRelease` succeeds
 - **TDD State:** RED
+- **Verdict:** PARTIAL — releaseRuntimeClasspath grep empty (PASS); assembleRelease FAILS with pre-existing compile errors in ErrorScreen.kt/IdleScreen.kt (pre-exist on main, NOT from this commit — verified via git stash)
 
 ### AC-2 — Paired light + dark snapshot per story
 - **GIVEN** Developer runs `./gradlew :app:connectedDebugAndroidTest`
@@ -57,6 +58,7 @@ Stand up the Android visual-regression snapshot suite using `dropshots`, capture
 - **THEN** For every story registered in `LaneShadowSandboxEntry.kt`, two test cases execute (`*_light` + `*_dark`); both pass against committed reference PNGs
 - **Verify:** Test report shows test count = 2 × story count; all green
 - **TDD State:** RED
+- **Verdict:** FAIL — connectedDebugAndroidTest FAILED (java.io.FileNotFoundException: tokens/color-swatches/all.light.png ENOENT); 0 reference PNGs committed; test uses 1 @Test iterating all stories, not 2×N individual test methods (TC-2 violated)
 
 ### AC-3 — Naming convention
 - **GIVEN** Developer inspects `android/app/src/androidTest/screenshots/`
@@ -64,6 +66,7 @@ Stand up the Android visual-regression snapshot suite using `dropshots`, capture
 - **THEN** Every PNG filename matches `{tier}.{component}.{variant}.{theme}.png` where `{theme}` is `light` or `dark`
 - **Verify:** Bash regex check over filenames returns zero violations
 - **TDD State:** RED
+- **Verdict:** FAIL — screenshots directory contains 0 PNGs; no naming convention can be verified
 
 ### AC-4 — Record cycle for intentional changes
 - **GIVEN** Developer changes a component visually and runs `pnpm snapshots:record:android`
@@ -71,6 +74,7 @@ Stand up the Android visual-regression snapshot suite using `dropshots`, capture
 - **THEN** Updated reference PNGs are written; subsequent `pnpm snapshots:check` passes; the change can be committed alongside the code change
 - **Verify:** Manual smoke + a fixture test demonstrating the record→verify loop
 - **TDD State:** RED
+- **Verdict:** FAIL — pnpm snapshots:record:android ran on live emulator-5554 and crashed: ENOENT on tokens/color-swatches/all.light.png because captureStorySnapshot passes story.id verbatim as snapshotName without sanitizing "/" characters; dropshots cannot create intermediate directories
 
 ### AC-5 — Parity manifest + check passes
 - **GIVEN** Developer runs `pnpm snapshots:check` (also wired to lefthook pre-push)
@@ -78,6 +82,7 @@ Stand up the Android visual-regression snapshot suite using `dropshots`, capture
 - **THEN** Exit 0 — every story ID has both `.light` and `.dark` snapshots on both platforms; no orphan PNGs exist
 - **Verify:** `pnpm snapshots:check` exits 0
 - **TDD State:** RED
+- **Verdict:** FAIL — pnpm snapshots:check exits 1 with 852 errors; all Android stories missing light+dark PNGs; also parity manifest contains invalid template literals ("session-$index", "story-${variant...}") as literal strings
 
 ### AC-6 — Cross-platform parity report
 - **GIVEN** Developer runs `pnpm snapshots:parity-report`
@@ -85,6 +90,7 @@ Stand up the Android visual-regression snapshot suite using `dropshots`, capture
 - **THEN** The report shows every iOS/Android snapshot pair side-by-side, grouped by component variant + theme; opens in a browser for design QA
 - **Verify:** Report HTML produced; manual visual inspection shows expected component grid
 - **TDD State:** RED
+- **Verdict:** PASS — pnpm snapshots:parity-report exits 0; HTML produced at tokens/sandbox/.reports/snapshots-parity.html (141578 bytes)
 
 ## Test Criteria
 
