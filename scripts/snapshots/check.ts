@@ -2,9 +2,12 @@
 /**
  * Snapshot parity check script.
  *
- * Verifies that every shared story id in stories.parity.json has both .light and .dark
- * PNG snapshots in ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/, and that no
- * orphan snapshot files exist.
+ * Verifies that every story ID in the parity manifest has both .light and .dark
+ * PNG snapshots in the correct platform directories:
+ * - iOS: ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/ (hyphen-separated IDs)
+ * - Android: android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/ (dot-separated IDs)
+ *
+ * Also verifies no orphan snapshot files exist.
  *
  * Usage: pnpm snapshots:check
  *
@@ -39,14 +42,51 @@ function loadParityManifest(): ParityManifest {
   return JSON.parse(content)
 }
 
-function getSnapshotFiles(): string[] {
-  const snapshotDir = join(ROOT, 'ios/LaneShadowTests/__Snapshots__/StorySnapshotTests')
-  if (!existsSync(snapshotDir)) {
-    throw new Error(`Snapshot directory not found: ${snapshotDir}`)
+interface PlatformSnapshots {
+  ios: Map<string, Set<'light' | 'dark'>>
+  android: Map<string, Set<'light' | 'dark'>>
+}
+
+function getSnapshotFiles(): PlatformSnapshots {
+  const ios = new Map<string, Set<'light' | 'dark'>>()
+  const android = new Map<string, Set<'light' | 'dark'>>()
+
+  // iOS snapshots: ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/
+  const iosSnapshotDir = join(ROOT, 'ios/LaneShadowTests/__Snapshots__/StorySnapshotTests')
+  if (existsSync(iosSnapshotDir)) {
+    const files = readdirSync(iosSnapshotDir).filter((f) => f.endsWith('.png'))
+    for (const file of files) {
+      const { storyId, theme } = extractStoryIdAndThemeFromFileName(file)
+      if (!ios.has(storyId)) {
+        ios.set(storyId, new Set())
+      }
+      ios.get(storyId)!.add(theme)
+    }
   }
 
-  const files = readdirSync(snapshotDir)
-  return files.filter((f) => f.endsWith('.png'))
+  // Android snapshots: android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/
+  const androidSnapshotDir = join(
+    ROOT,
+    'android/app/src/androidTest/screenshots/AllStoriesSnapshotTest',
+  )
+  if (existsSync(androidSnapshotDir)) {
+    const files = readdirSync(androidSnapshotDir).filter((f) => f.endsWith('.png'))
+    for (const file of files) {
+      // Android uses dot-separated story IDs with theme suffix
+      // Format: {storyId}.{theme}.png (e.g., atoms.button.primary.light.png)
+      const match = file.match(/^(.+)\.(light|dark)\.png$/)
+      if (!match) {
+        throw new Error(`Invalid Android snapshot file name format: ${file}`)
+      }
+      const [, storyId, theme] = match
+      if (!android.has(storyId)) {
+        android.set(storyId, new Set())
+      }
+      android.get(storyId)!.add(theme as 'light' | 'dark')
+    }
+  }
+
+  return { ios, android }
 }
 
 function extractStoryIdAndThemeFromFileName(fileName: string): {
@@ -89,39 +129,55 @@ function _extractStoryIdFromFileName(fileName: string): string {
 
 function checkSnapshots(): CheckResult {
   const manifest = loadParityManifest()
-  const snapshotFiles = getSnapshotFiles()
+  const { ios: iosSnapshots, android: androidSnapshots } = getSnapshotFiles()
 
   const errors: string[] = []
-  const trackedStoryIds = new Set([...manifest.shared, ...manifest.ios_only])
 
-  // Check 1: Every tracked story has both light and dark snapshots
-  for (const storyId of trackedStoryIds) {
-    const lightFile = snapshotFiles.find((f) => {
-      const { storyId: sid, theme } = extractStoryIdAndThemeFromFileName(f)
-      return sid === storyId && theme === 'light'
-    })
-    const darkFile = snapshotFiles.find((f) => {
-      const { storyId: sid, theme } = extractStoryIdAndThemeFromFileName(f)
-      return sid === storyId && theme === 'dark'
-    })
+  // iOS stories: shared + ios_only
+  const iosTrackedIds = new Set([...manifest.shared, ...manifest.ios_only])
 
-    if (!lightFile) {
-      errors.push(`Missing light snapshot for story: ${storyId}`)
+  // Android stories: shared (as dot-separated IDs)
+  const androidTrackedIds = new Set(manifest.shared)
+
+  // Check iOS: every tracked story has both light and dark snapshots
+  for (const storyId of iosTrackedIds) {
+    const isoId = storyId // iOS uses hyphens
+    const themes = iosSnapshots.get(isoId)
+
+    if (!themes?.has('light')) {
+      errors.push(`iOS: Missing light snapshot for story: ${storyId}`)
     }
-    if (!darkFile) {
-      errors.push(`Missing dark snapshot for story: ${storyId}`)
+    if (!themes?.has('dark')) {
+      errors.push(`iOS: Missing dark snapshot for story: ${storyId}`)
     }
   }
 
-  // Check 2: No orphan snapshot files (snapshots without corresponding story ids)
-  const snapshottedStoryIds = new Set(
-    snapshotFiles.map((f) => extractStoryIdAndThemeFromFileName(f).storyId),
-  )
+  // Check Android: every tracked story has both light and dark snapshots
+  for (const storyId of androidTrackedIds) {
+    const themes = androidSnapshots.get(storyId)
 
-  for (const snapshottedId of snapshottedStoryIds) {
-    if (!trackedStoryIds.has(snapshottedId)) {
+    if (!themes?.has('light')) {
+      errors.push(`Android: Missing light snapshot for story: ${storyId}`)
+    }
+    if (!themes?.has('dark')) {
+      errors.push(`Android: Missing dark snapshot for story: ${storyId}`)
+    }
+  }
+
+  // Check for orphan snapshots on iOS
+  for (const snapshottedId of iosSnapshots.keys()) {
+    if (!iosTrackedIds.has(snapshottedId)) {
       errors.push(
-        `Orphan snapshot found: ${snapshottedId} (no matching story id in snapshots.parity.json)`,
+        `iOS: Orphan snapshot found: ${snapshottedId} (no matching story id in snapshots.parity.json)`,
+      )
+    }
+  }
+
+  // Check for orphan snapshots on Android
+  for (const snapshottedId of androidSnapshots.keys()) {
+    if (!androidTrackedIds.has(snapshottedId)) {
+      errors.push(
+        `Android: Orphan snapshot found: ${snapshottedId} (no matching story id in snapshots.parity.json)`,
       )
     }
   }
@@ -133,18 +189,27 @@ function checkSnapshots(): CheckResult {
 }
 
 function main() {
-  console.log('🔍 Checking iOS snapshot parity...\n')
+  console.log('🔍 Checking snapshot parity (iOS + Android)...\n')
 
   try {
+    const { ios: iosSnapshots, android: androidSnapshots } = getSnapshotFiles()
     const result = checkSnapshots()
 
     if (result.passed) {
-      const snapshotDir = join(ROOT, 'ios/LaneShadowTests/__Snapshots__/StorySnapshotTests')
-      const fileCount = readdirSync(snapshotDir).filter((f) => f.endsWith('.png')).length
+      const iosFileCount = Array.from(iosSnapshots.values()).reduce(
+        (sum, themes) => sum + themes.size,
+        0,
+      )
+      const androidFileCount = Array.from(androidSnapshots.values()).reduce(
+        (sum, themes) => sum + themes.size,
+        0,
+      )
 
       console.log('✅ Snapshot parity check passed')
-      console.log(`   Verified ${fileCount} snapshot PNGs`)
-      console.log('   All tracked stories have light + dark snapshots')
+      console.log(`   iOS: ${iosFileCount} snapshot PNGs`)
+      console.log(`   Android: ${androidFileCount} snapshot PNGs`)
+      console.log(`   Total: ${iosFileCount + androidFileCount} snapshots`)
+      console.log('   All tracked stories have light + dark snapshots on their platforms')
       console.log('   No orphan snapshot files found\n')
       process.exit(0)
     } else {

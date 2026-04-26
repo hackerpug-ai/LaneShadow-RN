@@ -40,9 +40,10 @@ function iosSnapshotPath(storyId: string, theme: 'light' | 'dark'): string {
 }
 
 function androidSnapshotPath(storyId: string, theme: 'light' | 'dark'): string {
-  // Android snapshots are at: android/app/src/androidTest/snapshots/{storyId}_{theme}.png
-  const snapshotDir = join(ROOT, 'android/app/src/androidTest/snapshots')
-  const fileName = `${storyId}_${theme}.png`
+  // Android snapshots are at: android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/{storyId}.{theme}.png
+  // where storyId uses dots (e.g., atoms.button.primary)
+  const snapshotDir = join(ROOT, 'android/app/src/androidTest/screenshots/AllStoriesSnapshotTest')
+  const fileName = `${storyId}.${theme}.png`
   return join(snapshotDir, fileName)
 }
 

@@ -31,6 +31,7 @@
     "tokens:sync": "node ../native-theme/scripts/sync-bundled-json.js --config tokens/sync.config.json",
     "sandbox:parity-check": "bash scripts/sandbox/parity-check.sh",
     "snapshots:record:ios": "bash scripts/snapshots/record-ios.sh",
+    "snapshots:record:android": "bash scripts/snapshots/record-android.sh",
     "snapshots:check": "pnpm tsx scripts/snapshots/check.ts",
     "snapshots:parity-report": "pnpm tsx scripts/snapshots/parity-report.ts",
     "ui:diff": "pnpm tsx scripts/ui-diff/capture-rn.ts && pnpm tsx scripts/ui-diff/capture-android.ts && pnpm tsx scripts/ui-diff/capture-ios.ts && pnpm tsx scripts/ui-diff/compare.ts",
