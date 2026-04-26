@@ -136,8 +136,8 @@ function checkSnapshots(): CheckResult {
   // iOS stories: shared + ios_only
   const iosTrackedIds = new Set([...manifest.shared, ...manifest.ios_only])
 
-  // Android stories: shared (as dot-separated IDs)
-  const androidTrackedIds = new Set(manifest.shared)
+  // Android stories: shared + android_only (as dot-separated IDs)
+  const androidTrackedIds = new Set([...manifest.shared, ...manifest.android_only])
 
   // Check iOS: every tracked story has both light and dark snapshots
   for (const storyId of iosTrackedIds) {

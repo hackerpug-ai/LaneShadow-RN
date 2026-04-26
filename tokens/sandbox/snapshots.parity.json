@@ -156,7 +156,24 @@
     "templates-routeDetails-mixedWeather",
     "templates-sessions-default"
   ],
-  "android_only": [],
+  "android_only": [
+    "molecules.filterchip.selected",
+    "molecules.filterchip.unselected",
+    "molecules.suggestion.default",
+    "molecules.tagpill.default",
+    "molecules.weather.clear.md",
+    "molecules.weather.clear.sm",
+    "molecules.weather.cold.md",
+    "molecules.weather.cold.sm",
+    "molecules.weather.hot.md",
+    "molecules.weather.hot.sm",
+    "molecules.weather.rain.md",
+    "molecules.weather.rain.sm",
+    "molecules.weather.storm.md",
+    "molecules.weather.storm.sm",
+    "molecules.weather.wind.md",
+    "molecules.weather.wind.sm"
+  ],
   "shared": [
     "atoms.avatar.image",
     "atoms.avatar.initials",
