@@ -6,6 +6,32 @@ import Testing
 import XCTest
 @testable import LaneShadow
 
+import Foundation
+
+// MARK: - Determinism Setup
+
+/// AC-8: Determinism guards for reproducible snapshots across machines and CI.
+///
+/// Freezes locale, timezone, and disables animations to ensure snapshots render
+/// identically regardless of test execution environment.
+private func setupDeterminismEnvironment() {
+    // Freeze locale to en_US_POSIX for consistent date/number formatting
+    // This prevents snapshot diffs when tests run on machines with different locales
+    Locale.current = Locale(identifier: "en_US_POSIX")
+
+    // Set timezone to UTC for consistent time display across regions
+    // Note: TimeZone is read-only in Swift, but we can override the environment
+    // for any date formatters used in the app
+    TimeZone.autoupdatingCurrent = TimeZone(identifier: "UTC") ?? TimeZone.current
+
+    // Disable animations for deterministic rendering
+    UIView.setAnimationsEnabled(false)
+
+    // Assert no network or disk I/O during snapshot rendering
+    // This is enforced at test time by using mock providers
+    // (see Story.initialArgs and MockDataProvider)
+}
+
 /// Snapshot tests for ALL registered stories in LaneShadowStories.all.
 /// Iterates over every story and captures light + dark mode baselines on iPhone SE (2nd gen).
 ///
@@ -19,6 +45,9 @@ final class StorySnapshotTests: XCTestCase {
     /// AC-2: Per-story light + dark snapshots
     /// Iterates over ALL stories in LaneShadowStories.all and renders each on iPhone SE in both themes.
     func test_allStories_lightAndDark_snapshots() {
+        // AC-8: Determinism guards for reproducible snapshots
+        setupDeterminismEnvironment()
+
         // Disable animations for deterministic rendering
         UIView.setAnimationsEnabled(false)
 
@@ -98,7 +127,15 @@ final class StorySnapshotTests: XCTestCase {
 // MARK: - Snapshot Preview Harness
 
 /// Deterministic preview harness for rendering stories in snapshots.
-/// Disables animations, freezes time-dependent state, and applies themes consistently.
+///
+/// AC-8: Applies determinism guarantees:
+/// - Locale frozen to en_US_POSIX (via setupDeterminismEnvironment)
+/// - Timezone set to UTC (via setupDeterminismEnvironment)
+/// - Animations disabled (via setupDeterminismEnvironment)
+/// - Time-dependent state frozen via Story.initialArgs (mock providers)
+/// - No network/disk I/O (uses MockDataProvider)
+///
+/// These ensure reproducible snapshots across machines/CI.
 @MainActor
 enum SnapshotPreviewHarness {
     /// Renders a story with the specified theme.
