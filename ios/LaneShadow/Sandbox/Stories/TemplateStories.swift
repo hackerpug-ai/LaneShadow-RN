@@ -10,6 +10,8 @@ enum TemplateStories {
 
         // Sprint 6: Navigator screen templates
         stories.append(contentsOf: IdleScreenStory.all)
+        stories.append(contentsOf: ErrorScreenStory.all)
+        stories.append(contentsOf: RouteResultsScreenStory.all)
 
         return stories
     }()

@@ -96,16 +96,16 @@ class PlanningScreenTest {
         val source = File("../app/src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
 
         // POSITIVE ASSERTION: Must reference the correct motion token key
-        // motion.duration["slower"] is the 600ms token for sketch polyline loop
+        // motion.duration["deliberate"] is the 600ms token for sketch polyline loop
         assertTrue(
-            "PlanningScreen must use motion.duration[\"slower\"] for sketch polyline loop (600ms)",
-            source.contains("motion.duration[\"slower\"]")
+            "PlanningScreen must use motion.duration[\"deliberate\"] for sketch polyline loop (600ms)",
+            source.contains("motion.duration[\"deliberate\"]")
         )
 
-        // Must use standard easing for the animation
+        // Must use linear easing for the animation
         assertTrue(
-            "PlanningScreen must use motion.easing[\"standard\"] for sketch polyline",
-            source.contains("motion.easing[\"standard\"]")
+            "PlanningScreen must use motion.easing[\"linear\"] for sketch polyline",
+            source.contains("motion.easing[\"linear\"]")
         )
 
         // Must NOT have inline animation duration literals (hardcoded values like 600)

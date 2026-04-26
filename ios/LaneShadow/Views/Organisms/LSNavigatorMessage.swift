@@ -146,6 +146,7 @@ extension LSNavigatorMessage {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(pinned ? "Unpin message" : "Pin message")
+        .accessibilityIdentifier("navigatormessage-pin")
     }
 
     private var dismissButton: some View {
@@ -158,6 +159,7 @@ extension LSNavigatorMessage {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Dismiss message")
+        .accessibilityIdentifier("navigatormessage-dismiss")
     }
 
     private var pinnedIndicator: some View {

@@ -33,7 +33,7 @@ import com.laneshadow.ui.organisms.LSTopBar
  * Data class representing a sketch polyline animation recipe based on motion tokens.
  *
  * Reads from `LaneShadowTheme.motion.recipe.sketchPolylineLoop` which specifies:
- * - duration: motion.duration.standard (600ms)
+ * - duration: motion.duration.deliberate (600ms)
  * - easing: motion.easing.linear
  * - iteration: loop
  */
@@ -47,24 +47,24 @@ internal data class SketchPolylineRecipe(
  * Build a SketchPolylineRecipe from theme motion tokens.
  *
  * References `motion.recipe.sketchPolylineLoop` which uses:
- * - motion.duration["slower"] (600ms)
- * - motion.easing["standard"]
+ * - motion.duration["deliberate"] (600ms)
+ * - motion.easing["linear"]
  *
  * Fails hard if tokens are unavailable (no fallback to hardcoded values).
  */
 internal fun sketchPolylineRecipe(theme: LaneShadowThemeValues): SketchPolylineRecipe {
-    // Must use slower (600ms) for sketch polyline loop animation
-    val duration = requireNotNull(theme.motion.duration["slower"]) {
-        "LaneShadowTheme is missing motion.duration[\"slower\"] for sketch polyline loop (600ms)"
+    // Must use deliberate (600ms) for sketch polyline loop animation
+    val duration = requireNotNull(theme.motion.duration["deliberate"]) {
+        "LaneShadowTheme is missing motion.duration[\"deliberate\"] for sketch polyline loop (600ms)"
     }
 
-    // Must use standard easing
-    val easingPoints = requireNotNull(theme.motion.easing["standard"]) {
-        "LaneShadowTheme is missing motion.easing[\"standard\"] for sketch polyline"
+    // Must use linear easing
+    val easingPoints = requireNotNull(theme.motion.easing["linear"]) {
+        "LaneShadowTheme is missing motion.easing[\"linear\"] for sketch polyline"
     }
 
     require(easingPoints.size == 4) {
-        "LaneShadowTheme easing[\"standard\"] must expose four cubic bezier points"
+        "LaneShadowTheme easing[\"linear\"] must expose four cubic bezier points"
     }
 
     return SketchPolylineRecipe(
