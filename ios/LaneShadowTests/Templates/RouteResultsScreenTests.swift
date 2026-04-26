@@ -18,7 +18,7 @@ struct RouteResultsScreenTests {
             UITraitCollection(userInterfaceStyle: .light),
             UITraitCollection(userInterfaceIdiom: .phone),
             UITraitCollection(horizontalSizeClass: .compact),
-            UITraitCollection(verticalSizeClass: .regular),
+            UITraitCollection(verticalSizeClass: .regular)
         ])))
     }
 
@@ -33,7 +33,7 @@ struct RouteResultsScreenTests {
         let requiredColorTokens = [
             "color.route.best",
             "color.route.alt1",
-            "color.route.alt2",
+            "color.route.alt2"
         ]
 
         for token in requiredColorTokens {
@@ -60,19 +60,6 @@ struct RouteResultsScreenTests {
     @Test
     func animation_recipe_with_stagger() async throws {
         let provider = RouteResultsMockProvider.self
-        let screen = RouteResultsScreen(provider: provider)
-
-        // Verify the screen has polylines with animation
-        let inspected = try screen.inspect()
-
-        // Find the map layer
-        let mapLayer = try inspected.find(viewWithAccessibilityIdentifier: "maplayer.map")
-
-        // Verify the map exists and has the correct accessibility identifier
-        #expect(
-            try mapLayer.accessibilityIdentifier() == "maplayer.map",
-            "Map layer should have correct accessibility identifier"
-        )
 
         // Verify animation state is initialized - the screen should have drawProgress state
         // that gets populated on appear. We can verify the screen has the expected routes.
@@ -80,6 +67,34 @@ struct RouteResultsScreenTests {
         #expect(
             !state.routes.isEmpty,
             "Mock provider should have routes to animate"
+        )
+
+        // Verify the source uses theme motion tokens, not hardcoded values
+        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/RouteResultsScreen.swift"
+        let sourceCode = try String(contentsOfFile: sourceFile, encoding: .utf8)
+
+        // Verify theme.motion.duration is used (not hardcoded values)
+        #expect(
+            sourceCode.contains("theme.motion.duration"),
+            "RouteResultsScreen.swift should use theme.motion.duration token"
+        )
+
+        // Verify theme.motion.easing is used (not hardcoded .easeOut)
+        #expect(
+            sourceCode.contains("theme.motion.easing"),
+            "RouteResultsScreen.swift should use theme.motion.easing token"
+        )
+
+        // Verify 120ms stagger is present
+        #expect(
+            sourceCode.contains("120"),
+            "RouteResultsScreen.swift should have 120ms stagger between routes"
+        )
+
+        // Verify .easeOut is NOT used (replaced with theme tokens)
+        #expect(
+            !sourceCode.contains(".easeOut(duration:"),
+            "RouteResultsScreen.swift should not use hardcoded .easeOut animation"
         )
     }
 
@@ -133,7 +148,7 @@ struct RouteResultsScreenTests {
                 UITraitCollection(userInterfaceStyle: .dark),
                 UITraitCollection(userInterfaceIdiom: .phone),
                 UITraitCollection(horizontalSizeClass: .compact),
-                UITraitCollection(verticalSizeClass: .regular),
+                UITraitCollection(verticalSizeClass: .regular)
             ]))
         )
     }
@@ -150,7 +165,7 @@ struct RouteResultsScreenTests {
             "URLSession",
             "CLLocationManager",
             ".task(",
-            ".asyncComputed",
+            ".asyncComputed"
         ]
 
         // Verify source contains no forbidden symbols

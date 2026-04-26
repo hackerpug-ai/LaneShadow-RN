@@ -38,13 +38,13 @@ public struct RouteResultsScreen: View {
                 GlassOverlaySlot(
                     id: "navigator-message",
                     content: { navigatorMessageOverlay }
-                ),
+                )
             ],
             bottomOverlays: [
                 GlassOverlaySlot(
                     id: "chatinput",
                     content: { chatInputView }
-                ),
+                )
             ],
             topBar: {
                 LSTopBar(
@@ -106,7 +106,7 @@ public struct RouteResultsScreen: View {
                 if let first = coords.first, let last = coords.last {
                     return [
                         Annotation(kind: .start, coordinate: first, label: nil),
-                        Annotation(kind: .end, coordinate: last, label: nil),
+                        Annotation(kind: .end, coordinate: last, label: nil)
                     ]
                 }
             }
@@ -134,7 +134,7 @@ public struct RouteResultsScreen: View {
         [
             LatLng(lat: 37.7749, lon: -122.4194),
             LatLng(lat: 37.7849, lon: -122.4094),
-            LatLng(lat: 37.7949, lon: -122.3994),
+            LatLng(lat: 37.7949, lon: -122.3994)
         ]
     }
 
@@ -142,15 +142,24 @@ public struct RouteResultsScreen: View {
         // Reset draw progress
         drawProgress = Dictionary(uniqueKeysWithValues: state.routes.map { ($0.id, 0.0) })
 
-        // Animate each route with stagger
+        // Animate each route with stagger using theme motion tokens
         let staggerMs: Double = 120 // 120ms stagger between routes
-        let durationMs: Double = 600 // deliberate duration from motion tokens
+        let durationMs = Double(theme.motion.duration["slower"] ?? 600)
+        let easing = theme.motion.easing["standard"] ?? [0.4, 0, 0.2, 1]
 
         for (index, route) in state.routes.enumerated() {
             let delayMs = Double(index) * staggerMs
 
             DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(Int(delayMs))) {
-                withAnimation(.easeOut(duration: durationMs / 1000.0)) {
+                withAnimation(
+                    Animation.timingCurve(
+                        easing[0],
+                        easing[1],
+                        easing[2],
+                        easing[3],
+                        duration: durationMs / 1000.0
+                    )
+                ) {
                     drawProgress[route.id] = 1.0
                 }
             }
@@ -235,6 +244,8 @@ public struct RouteResultsScreen: View {
             onCollapse: {},
             onFilter: {}
         )
+        .padding(.horizontal, theme.space.md)
+        .accessibilityIdentifier("route-resultsscreen-chatinput")
         .padding(.horizontal, theme.space.md)
         .accessibilityIdentifier("route-resultsscreen-chatinput")
     }
