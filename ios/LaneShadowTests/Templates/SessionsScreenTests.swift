@@ -122,6 +122,27 @@ struct SessionsScreenTests {
         )
     }
 
+    /// AC-5: Sticky header on scroll — verify drawer structure supports sticky headers
+    ///
+    /// NOTE: ViewInspector cannot perform scroll operations or inspect scroll positions.
+    /// This test verifies the drawer is rendered (which contains the sticky header implementation).
+    /// Actual scroll behavior is covered at the LSSessionsDrawer component level.
+    @Test
+    func sticky_header_on_scroll() {
+        let provider = SessionsMockProvider.self
+        let screen = SessionsScreen(provider: provider)
+
+        // Verify the drawer content is rendered (which includes sticky header)
+        // The LSSessionsDrawer component uses ScrollView with sticky header section
+        // This test verifies composition is correct; actual scroll testing is at component level
+        assertSnapshot(matching: screen, as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
+            UITraitCollection(userInterfaceStyle: .light),
+            UITraitCollection(userInterfaceIdiom: .phone),
+            UITraitCollection(horizontalSizeClass: .compact),
+            UITraitCollection(verticalSizeClass: .regular),
+        ])))
+    }
+
     /// AC-6: No data fetching in template — verify no Convex/URLSession/.task symbols
     @Test
     func no_data_fetching_symbols() throws {

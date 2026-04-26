@@ -17,7 +17,6 @@ public struct ErrorScreen: View {
 
     public init(
         provider: (any MockProvider.Type) = ErrorMockProvider.self,
-        chatInputValue: Binding<String>? = nil,
         onMenuTap: @escaping () -> Void = {},
         onSuggestionTap: @escaping (MockSuggestionChip) -> Void = { _ in }
     ) {
@@ -29,7 +28,6 @@ public struct ErrorScreen: View {
             // Fallback to default ErrorMockProvider if wrong type passed
             state = ErrorMockProvider.value(variant: "default")
         }
-        _chatInputValue = State(initialValue: chatInputValue?.wrappedValue ?? "")
         self.onMenuTap = onMenuTap
         self.onSuggestionTap = onSuggestionTap
     }
