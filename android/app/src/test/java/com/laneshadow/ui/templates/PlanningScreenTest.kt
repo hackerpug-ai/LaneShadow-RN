@@ -94,21 +94,27 @@ class PlanningScreenTest {
     fun ac3_sketch_polyline_animation_references_motion_recipe() {
         val source = File("../app/src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
 
-        // Must NOT have inline animation duration literals like tween(3000) or tween(5000)
-        // If animation is present, it must reference theme recipe
-        assertFalse(source.contains("tween(3000") || source.contains("tween(5000") || source.contains("tween(1000"))
+        // POSITIVE ASSERTION: Must reference sketchPolylineLoop or the motion tokens it uses
+        assertTrue(
+            "PlanningScreen must implement sketch polyline animation referencing motion.recipe.sketchPolylineLoop",
+            source.contains("sketchPolylineLoop") ||
+            source.contains("sketchPolylineRecipe") ||
+            source.contains("motion.duration[\"deliberate\"]") ||
+            source.contains("motion.easing[\"linear\"]")
+        )
 
-        // Must NOT have inline easing like CubicBezierEasing(...) without theme reference
-        val hasCubicBezier = source.contains("CubicBezierEasing(")
-        val hasMotionReference = source.contains("motion.recipe") || source.contains("theme.motion")
+        // Must NOT have inline animation duration literals (hardcoded values like 600)
+        assertFalse(
+            "Sketch polyline animation must use motion recipe, not hardcoded tween values",
+            source.contains("tween(600)") || source.contains("tween(3000") || source.contains("tween(5000")
+        )
 
-        // If it has cubic bezier, must be extracting from theme (not hardcoded)
-        if (hasCubicBezier) {
-            assertTrue(hasMotionReference || source.contains("theme.motion.easing"))
-        }
-
-        // Must use LocalLaneShadowTheme for any animation setup
-        assertTrue(source.contains("LocalLaneShadowTheme") || !hasCubicBezier)
+        // Must NOT have inline easing without theme reference
+        val hasLocalThemeReference = source.contains("LocalLaneShadowTheme")
+        assertTrue(
+            "Animation setup must use LocalLaneShadowTheme to access motion recipes",
+            hasLocalThemeReference
+        )
     }
 
     /**

@@ -50,7 +50,6 @@ class LaneShadowThemeToggleTest {
 
         // Wait for recomposition
         composeTestRule.waitUntil(timeoutMillis = 1000) {
-            val currentTheme = composeTestRule.onRoot().fetchSemanticsNode()
             // Trigger recomposition by reading again
             composeTestRule.setContent {
                 LaneShadowTheme {

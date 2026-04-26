@@ -39,7 +39,7 @@ class LSRouteAttachmentCardUiTest {
                         scenicScore = 5,
                         variant = RouteVariant.Best,
                         weatherBadge = RouteAttachmentWeather(
-                            condition = WeatherCondition.Sun,
+                            condition = WeatherCondition.Clear,
                             label = "CLEAR",
                         ),
                         isBest = true,
