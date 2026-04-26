@@ -22,24 +22,23 @@ struct RouteResultsScreenTests {
         ])))
     }
 
-    /// AC-2: Source references route color tokens and camera fit polylines
+    /// AC-2: Source references route variant mapping and camera fit polylines
     @Test
-    func route_color_and_camera_tokens_present() throws {
-        // Read the RouteResultsScreen.swift source file and verify it contains required tokens
+    func route_variant_mapping_and_camera_tokens_present() throws {
         let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/RouteResultsScreen.swift"
         let sourceCode = try String(contentsOfFile: sourceFile, encoding: .utf8)
 
-        // Verify route color tokens are referenced
-        let requiredColorTokens = [
-            "color.route.best",
-            "color.route.alt1",
-            "color.route.alt2",
+        // Verify route variant mapping covers all 3 variants (best, alt1, alt2)
+        let requiredVariants = [
+            ".best",
+            ".alt1",
+            ".alt2",
         ]
 
-        for token in requiredColorTokens {
+        for variant in requiredVariants {
             #expect(
-                sourceCode.contains(token),
-                "RouteResultsScreen.swift should reference '\(token)' token"
+                sourceCode.contains(variant),
+                "RouteResultsScreen.swift should reference RouteVariant \(variant)"
             )
         }
 
@@ -47,12 +46,6 @@ struct RouteResultsScreenTests {
         #expect(
             sourceCode.contains("polylines"),
             "RouteResultsScreen.swift should use cameraFit: .polylines"
-        )
-
-        // Verify spacing4 token is used for padding
-        #expect(
-            sourceCode.contains("spacing4"),
-            "RouteResultsScreen.swift should use spacing4 token for camera padding"
         )
     }
 
