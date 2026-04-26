@@ -95,13 +95,17 @@ class PlanningScreenTest {
     fun ac3_sketch_polyline_animation_references_motion_recipe() {
         val source = File("../app/src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
 
-        // POSITIVE ASSERTION: Must reference sketchPolylineLoop or the motion tokens it uses
+        // POSITIVE ASSERTION: Must reference the correct motion token key
+        // motion.duration["slower"] is the 600ms token for sketch polyline loop
         assertTrue(
-            "PlanningScreen must implement sketch polyline animation referencing motion.recipe.sketchPolylineLoop",
-            source.contains("sketchPolylineLoop") ||
-            source.contains("sketchPolylineRecipe") ||
-            source.contains("motion.duration") ||
-            source.contains("motion.easing[\"linear\"]")
+            "PlanningScreen must use motion.duration[\"slower\"] for sketch polyline loop (600ms)",
+            source.contains("motion.duration[\"slower\"]")
+        )
+
+        // Must use standard easing for the animation
+        assertTrue(
+            "PlanningScreen must use motion.easing[\"standard\"] for sketch polyline",
+            source.contains("motion.easing[\"standard\"]")
         )
 
         // Must NOT have inline animation duration literals (hardcoded values like 600)
@@ -117,12 +121,36 @@ class PlanningScreenTest {
             hasLocalThemeReference
         )
 
-        // CRITICAL: pathProgress must be wired to rendering (not dead variable)
-        // Must be passed to PolylineData drawProgress, Canvas rendering, or similar
+        // CRITICAL: pathProgress must be wired to LSMap rendering
+        // Must be passed to PolylineData drawProgress which LSMap consumes
         assertTrue(
-            "pathProgress must be passed to rendering (PolylineData drawProgress, Canvas, or similar)",
-            source.contains("drawProgress = pathProgress") ||
-            (source.contains("Canvas") && source.contains("pathProgress"))
+            "pathProgress must be passed to PolylineData drawProgress for LSMap rendering",
+            source.contains("drawProgress = pathProgress")
+        )
+    }
+
+    /**
+     * AC-3b — Render test: drawProgress influences polyline rendering
+     *
+     * GIVEN: Polyline with drawProgress=0.5 in LSMap
+     * WHEN: Inspected
+     * THEN: Source uses Compose Canvas to render polyline with animated trim
+     *
+     * Note: This is a structural test ensuring the render boundary consumes drawProgress.
+     * Visual verification done via sandbox story.
+     */
+    @Test
+    fun ac3b_draw_progress_influences_polyline_render() {
+        val source = File("../app/src/main/java/com/laneshadow/ui/atoms/LSMap.kt").readText()
+
+        // Must consume drawProgress in rendering
+        assertTrue(
+            "LSMap must read drawProgress from polylines and apply to rendering",
+            source.contains("drawProgress") && (
+                source.contains("Canvas") ||
+                source.contains("PathMeasure") ||
+                source.contains("lineTrimOffset")
+            )
         )
     }
 

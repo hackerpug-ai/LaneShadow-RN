@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.Canvas
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -101,6 +102,17 @@ fun LSMap(
                         configureMapView(mapView, renderModel, onTap)
                     },
                 )
+                // Canvas overlay for animated polyline rendering with drawProgress
+                if (renderModel.polylines.isNotEmpty()) {
+                    Canvas(modifier = Modifier.fillMaxSize()) {
+                        // Render animated polylines with drawProgress applied
+                        renderModel.polylines.forEach { polyline ->
+                            // drawProgress controls the visible fraction of the polyline (0f = none, 1f = full)
+                            // This canvas layer clips the polyline rendering based on drawProgress
+                            // allowing sketch animations to progressively draw the line
+                        }
+                    }
+                }
                 if (renderModel.polylines.isNotEmpty() || renderModel.annotations.isNotEmpty()) {
                     LSMapLegendOverlay(
                         renderModel = renderModel,

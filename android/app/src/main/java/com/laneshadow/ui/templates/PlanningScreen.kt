@@ -46,27 +46,30 @@ internal data class SketchPolylineRecipe(
 /**
  * Build a SketchPolylineRecipe from theme motion tokens.
  *
- * References `motion.recipe.sketchPolylineLoop` which uses motion duration and linear easing
- * to animate polyline path drawing (0 → 1 progress).
- * Falls back to 600ms and linear easing if theme values are unavailable.
+ * References `motion.recipe.sketchPolylineLoop` which uses:
+ * - motion.duration["slower"] (600ms)
+ * - motion.easing["standard"]
+ *
+ * Fails hard if tokens are unavailable (no fallback to hardcoded values).
  */
 internal fun sketchPolylineRecipe(theme: LaneShadowThemeValues): SketchPolylineRecipe {
-    // Try to use motion duration from theme, with fallback to 600ms
-    val duration = theme.motion.duration["standard"]
-        ?: theme.motion.duration["slow"]
-        ?: 600  // Fallback: 600ms for sketch polyline animation
+    // Must use slower (600ms) for sketch polyline loop animation
+    val duration = requireNotNull(theme.motion.duration["slower"]) {
+        "LaneShadowTheme is missing motion.duration[\"slower\"] for sketch polyline loop (600ms)"
+    }
 
-    // Try to use linear easing from theme, with fallback to linear cubic bezier
-    val easingPoints = theme.motion.easing["linear"]
-        ?: listOf(0.0, 0.0, 1.0, 1.0)  // Fallback: linear cubic bezier (0, 0, 1, 1)
+    // Must use standard easing
+    val easingPoints = requireNotNull(theme.motion.easing["standard"]) {
+        "LaneShadowTheme is missing motion.easing[\"standard\"] for sketch polyline"
+    }
 
     require(easingPoints.size == 4) {
-        "LaneShadowTheme easing.linear must expose four cubic bezier points"
+        "LaneShadowTheme easing[\"standard\"] must expose four cubic bezier points"
     }
 
     return SketchPolylineRecipe(
         name = "motion.recipe.sketchPolylineLoop",
-        durationMillis = duration,
+        durationMillis = duration.toInt(),
         easing = CubicBezierEasing(
             easingPoints[0].toFloat(),
             easingPoints[1].toFloat(),
