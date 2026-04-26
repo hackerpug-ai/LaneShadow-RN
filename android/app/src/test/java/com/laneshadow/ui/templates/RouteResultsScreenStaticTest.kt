@@ -84,11 +84,21 @@ class RouteResultsScreenStaticTest {
     @Test
     fun ac3_usesRouteDrawOnMotionRecipe() {
         // THEN: References motion.recipe.routeDrawOn
-        // Note: This may be implemented in LSMap or a future enhancement
-        // For now, we verify polylines are being set up for animation
         assertTrue(
-            "RouteResultsScreen must set up polylines for potential animation",
-            source.contains("PolylineData")
+            "RouteResultsScreen must reference motion.duration[\"routeDrawOn\"]",
+            source.contains("motion.duration") && source.contains("routeDrawOn")
+        )
+
+        // THEN: Uses 120ms stagger between paths
+        assertTrue(
+            "RouteResultsScreen must use 120ms stagger delay",
+            source.contains("120L") && source.contains("staggerDelay")
+        )
+
+        // THEN: Sets up polylines for animation with drawProgress
+        assertTrue(
+            "RouteResultsScreen must set up polylines with drawProgress animation",
+            source.contains("PolylineData") && source.contains("drawProgress")
         )
     }
 
