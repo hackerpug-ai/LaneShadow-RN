@@ -74,7 +74,7 @@ public struct RouteDetailsScreen: View {
                 coordinates: data.coordinates,
                 variant: data.route.isBest ? .best : .alt1,
                 strokeWidth: .lg
-            ),
+            )
         ]
     }
 
@@ -85,7 +85,7 @@ public struct RouteDetailsScreen: View {
 
         return [
             Annotation(kind: .start, coordinate: first, label: nil),
-            Annotation(kind: .end, coordinate: last, label: nil),
+            Annotation(kind: .end, coordinate: last, label: nil)
         ]
     }
 
