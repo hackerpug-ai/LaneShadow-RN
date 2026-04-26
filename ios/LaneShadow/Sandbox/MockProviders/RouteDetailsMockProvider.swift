@@ -37,7 +37,15 @@ public enum RouteDetailsMockProvider: MockProvider {
                 WeatherEntry(hour: "2P", condition: .clear, temp: "71°"),
             ],
             timeRange: ("9 AM", "2 PM"),
-            polyline: "encoded_polyline_here"
+            coordinates: [
+                LatLng(lat: 37.7749, lon: -122.4194),
+                LatLng(lat: 37.7849, lon: -122.4094),
+                LatLng(lat: 37.7949, lon: -122.3994),
+                LatLng(lat: 37.8049, lon: -122.3894),
+                LatLng(lat: 37.8149, lon: -122.3794),
+                LatLng(lat: 37.8249, lon: -122.3694),
+                LatLng(lat: 37.8349, lon: -122.3594),
+            ]
         )
     }
 
@@ -62,7 +70,15 @@ public enum RouteDetailsMockProvider: MockProvider {
                 WeatherEntry(hour: "4P", condition: .rain, temp: "56°"),
             ],
             timeRange: ("11 AM", "4 PM"),
-            polyline: "encoded_polyline_mixed_weather"
+            coordinates: [
+                LatLng(lat: 37.6249, lon: -122.4694),
+                LatLng(lat: 37.6349, lon: -122.4594),
+                LatLng(lat: 37.6449, lon: -122.4494),
+                LatLng(lat: 37.6549, lon: -122.4394),
+                LatLng(lat: 37.6649, lon: -122.4294),
+                LatLng(lat: 37.6749, lon: -122.4194),
+                LatLng(lat: 37.6849, lon: -122.4094),
+            ]
         )
     }
 }
@@ -73,16 +89,16 @@ public struct RouteDetailsData: @unchecked Sendable {
     public let route: RouteDetails
     public let weatherTimeline: [WeatherEntry]
     public let timeRange: (String, String)
-    public let polyline: String
+    public let coordinates: [LatLng]
     public init(
         route: RouteDetails,
         weatherTimeline: [WeatherEntry],
         timeRange: (String, String),
-        polyline: String
+        coordinates: [LatLng]
     ) {
         self.route = route
         self.weatherTimeline = weatherTimeline
         self.timeRange = timeRange
-        self.polyline = polyline
+        self.coordinates = coordinates
     }
 }

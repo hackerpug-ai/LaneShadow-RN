@@ -17,8 +17,6 @@ public struct RouteDetailsScreen: View {
     private let onRide: @Sendable () -> Void
     private let onDismiss: @Sendable () -> Void
 
-    @State private var isSheetPresented: Bool = true
-
     public init(
         provider: RouteDetailsMockProvider.Type = RouteDetailsMockProvider.self,
         onSave: @escaping @Sendable () -> Void = {},
@@ -73,7 +71,7 @@ public struct RouteDetailsScreen: View {
     private var routePolylines: [PolylineData] {
         [
             PolylineData(
-                coordinates: decodePolyline(data.polyline),
+                coordinates: data.coordinates,
                 variant: data.route.isBest ? .best : .alt1,
                 strokeWidth: .lg
             ),
@@ -81,26 +79,13 @@ public struct RouteDetailsScreen: View {
     }
 
     private var routeAnnotations: [Annotation] {
-        let coords = decodePolyline(data.polyline)
-        guard let first = coords.first, let last = coords.last else {
+        guard let first = data.coordinates.first, let last = data.coordinates.last else {
             return []
         }
 
         return [
             Annotation(kind: .start, coordinate: first, label: nil),
             Annotation(kind: .end, coordinate: last, label: nil),
-        ]
-    }
-
-    private func decodePolyline(_ encoded: String) -> [LatLng] {
-        // Placeholder polyline decoding
-        // In production, this would decode the encoded polyline string
-        [
-            LatLng(lat: 37.7749, lon: -122.4194),
-            LatLng(lat: 37.7849, lon: -122.4094),
-            LatLng(lat: 37.7949, lon: -122.3994),
-            LatLng(lat: 37.8049, lon: -122.3894),
-            LatLng(lat: 37.8149, lon: -122.3794),
         ]
     }
 

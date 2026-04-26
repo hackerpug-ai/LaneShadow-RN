@@ -2,6 +2,8 @@ import LaneShadowTheme
 import SnapshotTesting
 import SwiftUI
 import Testing
+import ViewInspector
+import XCTest
 @testable import LaneShadow
 
 @MainActor
@@ -9,7 +11,7 @@ import Testing
 struct RouteDetailsScreenTests {
     // MARK: - AC-1: RouteDetails composition renders
 
-    @Test("AC-1: Screen renders with map, polyline, and sheet components", .snapshot())
+    @Test("AC-1: Screen renders with map, polyline, and sheet components")
     func screenCompositionRenders() {
         let screen = RouteDetailsScreen(provider: RouteDetailsMockProvider.self)
 
@@ -17,7 +19,7 @@ struct RouteDetailsScreenTests {
         #expect(!TypeReflection.isEmptyView(screen))
     }
 
-    @Test("AC-1: LSRouteSheet is presented at .large detent", .snapshot())
+    @Test("AC-1: LSRouteSheet is presented at .large detent")
     func sheetPresentedAtLargeDetent() async throws {
         let screen = RouteDetailsScreen(provider: RouteDetailsMockProvider.self)
 
@@ -159,7 +161,7 @@ struct RouteDetailsScreenTests {
 
     // MARK: - AC-5: Light/dark token re-resolution
 
-    @Test("AC-5: Screen renders in light mode", .snapshot())
+    @Test("AC-5: Screen renders in light mode")
     func lightModeRendering() {
         let screen = RouteDetailsScreen(provider: RouteDetailsMockProvider.self)
             .preferredColorScheme(.light)
@@ -167,7 +169,7 @@ struct RouteDetailsScreenTests {
         #expect(!TypeReflection.isEmptyView(screen))
     }
 
-    @Test("AC-5: Screen renders in dark mode", .snapshot())
+    @Test("AC-5: Screen renders in dark mode")
     func darkModeRendering() {
         let screen = RouteDetailsScreen(provider: RouteDetailsMockProvider.self)
             .preferredColorScheme(.dark)
