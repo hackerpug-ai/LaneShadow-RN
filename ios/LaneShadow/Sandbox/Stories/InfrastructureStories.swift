@@ -5,5 +5,5 @@ import NativeSandbox
 /// Pure reducer — delegates to per-component story files under Infrastructure/.
 @MainActor
 enum InfrastructureStories {
-    static let all: [Story] = PlaceholderInfrastructureStories.all
+    static let all: [Story] = PlaceholderInfrastructureStories.all + InfrastructureControlsStories.all
 }

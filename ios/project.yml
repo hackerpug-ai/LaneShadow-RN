@@ -124,6 +124,8 @@ targets:
         type: syncedFolder
       - path: LaneShadow/Sandbox/Theme
         type: syncedFolder
+      - path: LaneShadow/Sandbox/Controls
+        type: syncedFolder
       - path: LaneShadow/Sandbox/LaneShadowSandboxEntry.swift
       - path: LaneShadow/Sandbox/LaneShadowStories.swift
       - path: LaneShadow/Sandbox/Stories/AtomsStories.swift
@@ -151,6 +153,7 @@ targets:
       - path: LaneShadow/Sandbox/Stories/ModifierStories.swift
       - path: LaneShadow/Sandbox/Stories/InfrastructureStories.swift
       - path: LaneShadow/Sandbox/Stories/Infrastructure/PlaceholderInfrastructureStories.swift
+      - path: LaneShadow/Sandbox/Stories/Infrastructure/InfrastructureControlsStories.swift
       # Sprint 05 organism stories
       - path: LaneShadow/Sandbox/Stories/Organisms
         type: syncedFolder
@@ -238,6 +241,9 @@ targets:
       - path: LaneShadowTests/Molecules/LSToolbarTests.swift
       # Sprint 05 organism tests
       - path: LaneShadowTests/Organisms
+        type: syncedFolder
+      # Sprint 06 sandbox infrastructure tests
+      - path: LaneShadowTests/Sandbox
         type: syncedFolder
       # Legacy molecule tests are intentionally outside the managed folder
       # until the molecule implementation layer is migrated.

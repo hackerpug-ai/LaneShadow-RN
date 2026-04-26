@@ -1,3 +1,4 @@
+import Foundation
 import NativeSandbox
 import Testing
 @testable import LaneShadow
@@ -79,7 +80,7 @@ struct StoryRegistryTests {
         let manifestName = "tokens/sandbox/stories.parity.json"
         var found = false
 
-        for _ in 0..<5 { // Limit depth to avoid infinite loops
+        for _ in 0 ..< 5 { // Limit depth to avoid infinite loops
             manifestPath.appendPathComponent(manifestName)
             if fileManager.fileExists(atPath: manifestPath.path) {
                 found = true
@@ -100,11 +101,12 @@ struct StoryRegistryTests {
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
         #expect(json != nil, "Parity manifest must be valid JSON")
-        #expect(json?["shared"] is [String], "Parity manifest must have 'shared' array")
-        #expect(json?["ios_only"] is [String], "Parity manifest must have 'ios_only' array")
-        #expect(json?["android_only"] is [String], "Parity manifest must have 'android_only' array")
 
-        let shared = json?["shared"] as? [String] ?? []
+        // Verify required keys exist and are arrays
+        #expect(json?["shared"] != nil, "Parity manifest must have 'shared' key")
+        #expect(json?["ios_only"] != nil, "Parity manifest must have 'ios_only' key")
+        #expect(json?["android_only"] != nil, "Parity manifest must have 'android_only' key")
+
         let requiredScreenIds = [
             "templates.idle.default",
             "templates.planning.default",
@@ -115,7 +117,10 @@ struct StoryRegistryTests {
         ]
 
         for screenId in requiredScreenIds {
-            #expect(shared.contains(screenId), "Shared manifest must contain '\(screenId)'")
+            #expect(
+                (json?["shared"] as? [String])?.contains(screenId) == true,
+                "Shared manifest must contain '\(screenId)'"
+            )
         }
     }
 }
