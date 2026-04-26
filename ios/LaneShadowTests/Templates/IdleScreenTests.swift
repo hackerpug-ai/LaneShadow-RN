@@ -73,8 +73,8 @@ struct IdleScreenTests {
         let chatInputView = try inspected.find(viewWithAccessibilityIdentifier: "idlescreen-chatinput")
 
         // Verify sliders icon is present (filter button is shown when input is empty)
-        let slidersIcon = try chatInputView.find(viewWithAccessibilityIdentifier: "lschatinput-filter-icon-sliders")
-        #expect(slidersIcon.exists(), "Sliders icon should be visible when input is empty")
+        let slidersIcon = try? chatInputView.find(viewWithAccessibilityIdentifier: "lschatinput-filter-icon-sliders")
+        #expect(slidersIcon != nil, "Sliders icon should be visible when input is empty")
 
         // Simulate user typing via the binding
         inputValue = "Test ride"
@@ -84,8 +84,8 @@ struct IdleScreenTests {
         let chatInputViewAfter = try inspectedAfter.find(viewWithAccessibilityIdentifier: "idlescreen-chatinput")
 
         // Verify send icon is now present (send button is shown when input has text)
-        let sendIcon = try chatInputViewAfter.find(viewWithAccessibilityIdentifier: "lschatinput-send-icon")
-        #expect(sendIcon.exists(), "Send icon should be visible after text entry")
+        let sendIcon = try? chatInputViewAfter.find(viewWithAccessibilityIdentifier: "lschatinput-send-icon")
+        #expect(sendIcon != nil, "Send icon should be visible after text entry")
 
         // Verify the binding state
         #expect(inputValue == "Test ride", "Input value should update through binding")

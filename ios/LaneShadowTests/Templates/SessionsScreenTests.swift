@@ -102,7 +102,7 @@ struct SessionsScreenTests {
             try? button.text() == "NEW"
         }
 
-        #expect(newButton != nil, "NEW button should exist")
+        #expect(newButton != nil, "NEW button should be found")
 
         try newButton?.tap()
 
