@@ -88,6 +88,38 @@ class IdleScreenInstrumentedTest {
         composeRule
             .onNodeWithTag("greeting-headline")
             .assertIsDisplayed()
+
+        // Assert meta text content: "FRIDAY · 68°F · CLEAR"
+        composeRule
+            .onNode(hasText("FRIDAY · 68°F · CLEAR"))
+            .assertIsDisplayed()
+
+        // Assert headline contains the text
+        composeRule
+            .onNode(hasText("Where are we riding today?"))
+            .assertIsDisplayed()
+
+        // Assert all suggestion chip labels are visible
+        composeRule
+            .onNode(hasText("Twisty back roads"))
+            .assertIsDisplayed()
+
+        composeRule
+            .onNode(hasText("Coastal cruise"))
+            .assertIsDisplayed()
+
+        composeRule
+            .onNode(hasText("Half-day loop"))
+            .assertIsDisplayed()
+
+        composeRule
+            .onNode(hasText("Mountain passes"))
+            .assertIsDisplayed()
+
+        // Assert location badge is visible
+        composeRule
+            .onNode(hasText("MANUAL"))
+            .assertIsDisplayed()
     }
 
     /**
@@ -102,6 +134,7 @@ class IdleScreenInstrumentedTest {
         val defaultState = IdleMockProvider.value("default")
         val firstChipLabel = defaultState.suggestions[0].label
         var tappedChip: com.laneshadow.sandbox.mockproviders.SuggestionChip? = null
+        val capturedValues = mutableListOf<String>()
 
         composeRule.setContent {
             LaneShadowTheme {
@@ -115,7 +148,9 @@ class IdleScreenInstrumentedTest {
                         onSend = { },
                         onCollapse = { },
                         onFilter = { },
-                        onValueChange = { },
+                        onValueChange = { newValue ->
+                            capturedValues.add(newValue)
+                        },
                     )
                 }
             }
@@ -128,13 +163,16 @@ class IdleScreenInstrumentedTest {
             .performClick()
 
         // After tapping, verify the callback was invoked with the correct chip
-        // The chip tap should trigger onSuggestionTap which IdleScreen wires correctly
+        assert(tappedChip != null) { "onSuggestionTap should have been invoked" }
+        assert(tappedChip!!.label == firstChipLabel) { "Tapped chip label should match: ${tappedChip!!.label} == $firstChipLabel" }
+
+        // Verify input value was updated with chip label
+        assert(capturedValues.contains(firstChipLabel)) { "onValueChange should fire with chip label: $capturedValues" }
+
+        // Verify chat input is still displayed
         composeRule
             .onNodeWithTag("chat-input")
             .assertIsDisplayed()
-
-        // In a real test with more complete tap handling, we'd verify tappedChip is not null
-        // and has the correct label. For now we verify the node is still displayed.
     }
 
     /**
@@ -176,9 +214,18 @@ class IdleScreenInstrumentedTest {
             .onNodeWithTag("chat-input")
             .assertIsDisplayed()
 
-        // The test verifies that onValueChange is properly wired to handle state updates
-        // In production, typing triggers onValueChange which updates inputValue state
-        // which is then passed to LSChatInput, enabling the trailing icon swap logic
+        // Type into the chat input
+        composeRule
+            .onNode(hasText("Where should we ride?"))
+            .performTextInput("hello")
+
+        // Assert onValueChange captured the text input
+        assert(capturedValues.contains("hello")) { "onValueChange should capture 'hello': $capturedValues" }
+
+        // The icon swap is internal to LSChatInput:
+        // When value is empty, it shows sliders icon (filter)
+        // When value is non-empty, it shows send icon
+        // We verify the state is correctly propagated by checking captured values
     }
 
     /**
@@ -214,13 +261,12 @@ class IdleScreenInstrumentedTest {
             .onNodeWithTag("ls-topbar")
             .assertIsDisplayed()
 
-        // The hamburger menu is part of LSTopBar
-        // Tapping it would invoke onMenuTap callback
-        // This test verifies the wiring by checking the callback was set up
-        // (actual tap behavior is tested in LSTopBar's own tests)
+        // Tap the hamburger menu chip
+        composeRule
+            .onNodeWithTag("ls-topbar-hamburger-chip")
+            .performClick()
 
         // Verify the callback was invoked when hamburger is tapped
-        // For this test, we rely on the wiring being correct as shown in unit tests
-        assert(!menuTapped) // Initially false until tapped
+        assert(menuTapped) { "Hamburger tap should invoke onMenuTap callback" }
     }
 }
