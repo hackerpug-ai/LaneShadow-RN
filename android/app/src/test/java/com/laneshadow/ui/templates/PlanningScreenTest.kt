@@ -38,25 +38,57 @@ class PlanningScreenTest {
      */
     @Test
     fun ac1_planning_screen_has_correct_composable_signature() {
-        val source = File("../app/src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
+        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
 
         // Must accept PlanningScreenState parameter
-        assertTrue(source.contains("state: PlanningScreenState"))
+        assertTrue(
+            "PlanningScreen must accept PlanningScreenState as parameter",
+            source.contains("state: PlanningScreenState")
+        )
 
-        // Must compose LSMapLayer
-        assertTrue(source.contains("LSMapLayer("))
+        // Must accept callback parameters for interaction
+        assertTrue(
+            "PlanningScreen must accept onMenuTap callback",
+            source.contains("onMenuTap: () -> Unit")
+        )
+        assertTrue(
+            "PlanningScreen must accept onCollapse callback",
+            source.contains("onCollapse: () -> Unit")
+        )
+        assertTrue(
+            "PlanningScreen must accept onFilter callback",
+            source.contains("onFilter: () -> Unit")
+        )
+
+        // Must compose LSMapLayer as root layout
+        assertTrue(
+            "PlanningScreen must compose LSMapLayer as root layout",
+            source.contains("LSMapLayer(")
+        )
 
         // Must compose LSTopBar
-        assertTrue(source.contains("LSTopBar("))
+        assertTrue(
+            "PlanningScreen must compose LSTopBar in topBar slot",
+            source.contains("LSTopBar(")
+        )
 
         // Must compose LSPhaseIndicator
-        assertTrue(source.contains("LSPhaseIndicator("))
+        assertTrue(
+            "PlanningScreen must compose LSPhaseIndicator in topOverlays",
+            source.contains("LSPhaseIndicator(")
+        )
 
         // Must compose LSChatInput
-        assertTrue(source.contains("LSChatInput("))
+        assertTrue(
+            "PlanningScreen must compose LSChatInput in bottomOverlays",
+            source.contains("LSChatInput(")
+        )
 
         // Must pass isThinking to LSChatInput (which shows spinner in trailing slot)
-        assertTrue(source.contains("isThinking"))
+        assertTrue(
+            "PlanningScreen must pass isThinking flag to LSChatInput",
+            source.contains("isThinking")
+        )
     }
 
     /**
@@ -65,20 +97,38 @@ class PlanningScreenTest {
      * GIVEN: Story argTypes expose activePhase
      * WHEN: Developer changes the active phase
      * THEN: LSPhaseIndicator re-renders with the new step pulsing and prior steps marked done
+     *
+     * This test verifies that PlanningMockProvider provides multiple variants with
+     * different active phases, enabling the story to demonstrate phase cycling.
      */
     @Test
     fun ac2_active_phase_argtype_is_parameterized() {
-        val source = File("../app/src/debug/java/com/laneshadow/sandbox/stories/templates/PlanningScreenStory.kt").readText()
+        val source = File("src/debug/java/com/laneshadow/sandbox/mockproviders/PlanningMockProvider.kt").readText()
 
-        // Must create multiple stories with different activePhase values
-        assertTrue(source.contains("templates.planning."))
-
-        // Should have at least default and phase variants
+        // Must create multiple states with different active phases
+        // Each variant should have a different phase marked as "active"
         assertTrue(
-            source.contains("default") ||
-            source.contains("validating") ||
-            source.contains("weather") ||
-            source.contains("building")
+            "PlanningMockProvider must provide 'default' variant",
+            source.contains("default") || source.contains("\"default\"")
+        )
+
+        // Verify variants list includes multiple states
+        assertTrue(
+            "PlanningMockProvider must expose variants list with multiple states",
+            source.contains("override val variants") && source.contains("listOf")
+        )
+
+        // Verify different phases can be active across variants
+        // defaultState has "validating" as active
+        assertTrue(
+            "PlanningMockProvider defaultState must have 'validating' as active phase",
+            source.contains("id = \"validating\"") && source.contains("status = \"active\"")
+        )
+
+        // overflowState has "building" as active (different from default)
+        assertTrue(
+            "PlanningMockProvider overflowState must have 'building' as active phase to demonstrate phase cycling",
+            source.contains("id = \"building\"") && source.contains("overflowState()")
         )
     }
 
@@ -93,7 +143,7 @@ class PlanningScreenTest {
      */
     @Test
     fun ac3_sketch_polyline_animation_references_motion_recipe() {
-        val source = File("../app/src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
+        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
 
         // POSITIVE ASSERTION: Must reference the correct motion token key
         // motion.duration["deliberate"] is the 600ms token for sketch polyline loop
@@ -127,6 +177,18 @@ class PlanningScreenTest {
             "pathProgress must be passed to PolylineData drawProgress for LSMap rendering",
             source.contains("drawProgress = pathProgress")
         )
+
+        // Verify animation is infinite (loops continuously)
+        assertTrue(
+            "Sketch polyline animation must use infiniteRepeatable to loop continuously",
+            source.contains("infiniteRepeatable(") && source.contains("RepeatMode.Restart")
+        )
+
+        // Verify animation uses tween with theme-derived duration (not hardcoded)
+        assertTrue(
+            "Animation must use tween with sketchRecipe.durationMillis (from theme)",
+            source.contains("tween(sketchRecipe.durationMillis")
+        )
     }
 
     /**
@@ -141,7 +203,7 @@ class PlanningScreenTest {
      */
     @Test
     fun ac3b_draw_progress_influences_polyline_render() {
-        val source = File("../app/src/main/java/com/laneshadow/ui/atoms/LSMap.kt").readText()
+        val source = File("src/main/java/com/laneshadow/ui/atoms/LSMap.kt").readText()
 
         // Must consume drawProgress in rendering
         assertTrue(
@@ -152,6 +214,13 @@ class PlanningScreenTest {
                 source.contains("lineTrimOffset")
             )
         )
+
+        // Verify drawProgress is actually used in polyline rendering logic
+        // (not just declared but never read)
+        assertTrue(
+            "LSMap must use polyline.drawProgress in Canvas drawing logic",
+            source.contains("polyline") && source.contains("drawProgress")
+        )
     }
 
     /**
@@ -160,23 +229,45 @@ class PlanningScreenTest {
      * GIVEN: PlanningScreen rendered with isThinking=true
      * WHEN: Developer attempts to type or tap send
      * THEN: Input is disabled and trailing slot shows LSSpinner (not send button)
+     *
+     * This test verifies that PlanningScreen correctly wires the thinking state
+     * to LSChatInput to disable interaction and show spinner.
+     *
+     * Note: Full UI verification (disabled semantics + spinner visibility) is done
+     * via instrumented tests (PlanningScreenInstrumentedTest.tc4_chat_input_disabled_when_thinking).
      */
     @Test
     fun ac4_chat_input_is_disabled_when_thinking() {
-        val source = File("../app/src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
+        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
 
-        // Must pass isThinking to LSChatInput
-        assertTrue(source.contains("isThinking"))
+        // Must pass isThinking parameter from state to LSChatInput
+        assertTrue(
+            "PlanningScreen must pass state.isThinking to LSChatInput",
+            source.contains("state.isThinking")
+        )
 
-        // Must pass isEnabled parameter
-        assertTrue(source.contains("isEnabled") || source.contains("isThinking"))
+        // Must pass isEnabled = false to disable input while thinking
+        assertTrue(
+            "PlanningScreen must pass isEnabled = false to LSChatInput to disable interaction",
+            source.contains("isEnabled = false") || source.contains("isEnabled:false")
+        )
 
-        // Must use state.isThinking from PlanningScreenState
-        assertTrue(source.contains("state.isThinking"))
+        // Must compose LSChatInput (which handles spinner rendering in trailing slot)
+        assertTrue(
+            "PlanningScreen must compose LSChatInput component",
+            source.contains("LSChatInput(")
+        )
 
-        // Must render LSSpinner in chat input trailing slot when thinking
-        // (LSChatInput handles this, but PlanningScreen must pass the flag)
-        assertTrue(source.contains("LSChatInput("))
+        // Verify the pattern: LSChatInput call includes both isThinking and isEnabled
+        val lsChatInputCall = source.substringAfter("LSChatInput(").substringBefore(")")
+        assertTrue(
+            "LSChatInput call must include isThinking parameter",
+            lsChatInputCall.contains("isThinking")
+        )
+        assertTrue(
+            "LSChatInput call must include isEnabled parameter",
+            lsChatInputCall.contains("isEnabled")
+        )
     }
 
     /**
@@ -185,25 +276,59 @@ class PlanningScreenTest {
      * GIVEN: PlanningScreen rendered
      * WHEN: Theme toggled
      * THEN: All elements re-render with correct LaneShadowTheme tokens
+     *
+     * This test verifies that PlanningScreen reads theme tokens at composition time,
+     * ensuring it will re-resolve tokens when theme changes.
+     *
+     * Note: Full visual verification of light/dark rendering is done via sandbox stories.
+     * This test verifies the code structure enables theme reactivity.
      */
     @Test
     fun ac5_planning_screen_uses_theme_tokens() {
-        val source = File("../app/src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
+        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
 
-        // PlanningScreen delegates theme handling to child components
-        // (LSPhaseIndicator, LSChatInput, LSMap, LSMapLayer all use LocalLaneShadowTheme)
-        // So it must compose those components
-        assertTrue(source.contains("LSPhaseIndicator("))
-        assertTrue(source.contains("LSChatInput("))
-        assertTrue(source.contains("LSMap("))
-        assertTrue(source.contains("LSMapLayer("))
+        // Must read from LocalLaneShadowTheme (enables reactivity to theme changes)
+        assertTrue(
+            "PlanningScreen must read LocalLaneShadowTheme.current to access motion tokens",
+            source.contains("LocalLaneShadowTheme.current") || source.contains("LocalLaneShadowTheme")
+        )
+
+        // Must call sketchPolylineRecipe() which reads theme motion tokens
+        assertTrue(
+            "PlanningScreen must call sketchPolylineRecipe(theme) to build animation from theme",
+            source.contains("sketchPolylineRecipe(theme)")
+        )
+
+        // Must compose theme-aware child components
+        assertTrue(
+            "PlanningScreen must compose LSPhaseIndicator (theme-aware component)",
+            source.contains("LSPhaseIndicator(")
+        )
+        assertTrue(
+            "PlanningScreen must compose LSChatInput (theme-aware component)",
+            source.contains("LSChatInput(")
+        )
+        assertTrue(
+            "PlanningScreen must compose LSMap (theme-aware component)",
+            source.contains("LSMap(")
+        )
+        assertTrue(
+            "PlanningScreen must compose LSMapLayer (theme-aware component)",
+            source.contains("LSMapLayer(")
+        )
 
         // Must NOT hardcode colors (e.g., Color(0xFF...))
-        assertFalse(source.contains("Color(0x"))
+        assertFalse(
+            "PlanningScreen must NOT hardcode Color literals; use theme tokens",
+            source.contains("Color(0x")
+        )
 
         // Must NOT hardcode spacing values like 16.dp, 24.dp in main layout
         // (child components handle spacing via theme)
-        assertTrue(source.contains("fillMaxSize"))
+        assertTrue(
+            "PlanningScreen should use fillMaxSize for layout (spacing delegated to child components)",
+            source.contains("fillMaxSize")
+        )
     }
 
     /**
@@ -216,25 +341,43 @@ class PlanningScreenTest {
      */
     @Test
     fun ac6_planning_screen_has_no_data_fetching_dependencies() {
-        val source = File("../app/src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
+        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
 
         // Must NOT import Convex
-        assertFalse(source.contains("import com.laneshadow.convex"))
-        assertFalse(source.contains("import convex."))
+        assertFalse(
+            "PlanningScreen must NOT import Convex (data via mock provider only)",
+            source.contains("import com.laneshadow.convex") || source.contains("import convex.")
+        )
 
         // Must NOT import networking libraries
-        assertFalse(source.contains("import retrofit."))
-        assertFalse(source.contains("import okhttp."))
+        assertFalse(
+            "PlanningScreen must NOT import Retrofit networking",
+            source.contains("import retrofit.") || source.contains("import okhttp.")
+        )
 
         // Must NOT import repository classes
-        assertFalse(source.contains("import com.laneshadow.data.repository"))
-        assertFalse(source.contains("Repository"))
+        assertFalse(
+            "PlanningScreen must NOT import repository classes (data via mock provider)",
+            source.contains("import com.laneshadow.data.repository") || source.contains("import.*Repository")
+        )
 
         // Must use mock provider types for screen state
-        assertTrue(source.contains("import com.laneshadow.sandbox.mockproviders.PlanningScreenState"))
+        assertTrue(
+            "PlanningScreen must import PlanningScreenState from mock providers",
+            source.contains("import com.laneshadow.sandbox.mockproviders.PlanningScreenState")
+        )
 
         // Must use UI PlanningPhase (not mock domain type)
-        assertTrue(source.contains("import com.laneshadow.ui.molecules.PlanningPhase"))
+        assertTrue(
+            "PlanningScreen must import PlanningPhase from UI molecules",
+            source.contains("import com.laneshadow.ui.molecules.PlanningPhase")
+        )
+
+        // Must NOT have any data fetching function calls (e.g., repository.fetch, api.call)
+        assertFalse(
+            "PlanningScreen must NOT call repository fetch methods",
+            source.contains("repository.") || source.contains(".fetch(") || source.contains(".get(")
+        )
     }
 
     /**
@@ -242,17 +385,30 @@ class PlanningScreenTest {
      */
     @Test
     fun planning_screen_story_is_registered_at_correct_tier_and_id() {
-        val source = File("../app/src/debug/java/com/laneshadow/sandbox/stories/templates/PlanningScreenStory.kt").readText()
+        val source = File("src/debug/java/com/laneshadow/sandbox/stories/templates/PlanningScreenStory.kt").readText()
 
         // Must register with ComponentTier.Template
-        assertTrue(source.contains("ComponentTier.Template"))
+        assertTrue(
+            "PlanningScreenStory must register with ComponentTier.Template",
+            source.contains("ComponentTier.Template")
+        )
 
         // Must have ID starting with templates.planning
-        assertTrue(source.contains("templates.planning"))
+        assertTrue(
+            "PlanningScreenStory must have story ID starting with 'templates.planning'",
+            source.contains("templates.planning")
+        )
+
+        // Must have at least one story registered
+        assertTrue(
+            "PlanningScreenStory must define Story list",
+            source.contains("val all: List<Story>")
+        )
 
         // Must register in TemplateStories
-        val templatesSource = File("../app/src/debug/java/com/laneshadow/sandbox/stories/templates/TemplateStories.kt").readText()
+        val templatesSource = File("src/debug/java/com/laneshadow/sandbox/stories/templates/TemplateStories.kt").readText()
         assertTrue(
+            "TemplateStories must include PlanningScreenStory",
             templatesSource.contains("PlanningScreenStory") ||
             templatesSource.contains("templates.planning")
         )
@@ -263,12 +419,32 @@ class PlanningScreenTest {
      */
     @Test
     fun planning_phases_map_status_to_phase_dot_state() {
-        val source = File("../app/src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
+        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
 
         // Must map "pending", "active", "done" to PhaseDotState
         assertTrue(
-            source.contains("PhaseDotState") ||
+            "PlanningScreen must import PhaseDotState enum",
+            source.contains("PhaseDotState")
+        )
+
+        // Must read phase.status from mock provider state
+        assertTrue(
+            "PlanningScreen must read phase.status when mapping to PhaseDotState",
             source.contains("phase.status")
+        )
+
+        // Must have mapping logic for all three states
+        assertTrue(
+            "PlanningScreen must map 'pending' status to PhaseDotState.Pending",
+            source.contains("\"pending\"") && source.contains("PhaseDotState.Pending")
+        )
+        assertTrue(
+            "PlanningScreen must map 'active' status to PhaseDotState.Active",
+            source.contains("\"active\"") && source.contains("PhaseDotState.Active")
+        )
+        assertTrue(
+            "PlanningScreen must map 'done' status to PhaseDotState.Done",
+            source.contains("\"done\"") && source.contains("PhaseDotState.Done")
         )
     }
 }
