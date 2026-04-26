@@ -110,6 +110,7 @@ fun LSRouteAttachmentCard(
     LSCard(
         modifier = modifier
             .fillMaxWidth()
+            .testTag(LSRouteAttachmentCardTag)
             .semantics {
                 isContainer = true
                 lsRouteAttachmentCardBackgroundColor = theme.colors.card.default
@@ -155,7 +156,7 @@ fun LSRouteAttachmentCard(
                     ),
                 verticalArrangement = Arrangement.spacedBy(theme.space.sm),
             ) {
-                if (!compact && (route.isBest || route.weatherBadge != null)) {
+                if (route.isBest || route.weatherBadge != null) {
                     Box(modifier = Modifier.fillMaxWidth()) {
                         if (route.isBest) {
                             LSBestBadge(

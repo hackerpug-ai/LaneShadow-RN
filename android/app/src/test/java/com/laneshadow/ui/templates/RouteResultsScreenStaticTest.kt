@@ -15,6 +15,12 @@ class RouteResultsScreenStaticTest {
         File("src/main/java/com/laneshadow/ui/templates/RouteResultsScreen.kt").readText()
     }
 
+    private val sourceWithoutComments by lazy {
+        source.lines()
+            .filterNot { it.trim().startsWith("//") || it.trim().startsWith("/*") || it.trim().startsWith("*") }
+            .joinToString("\n")
+    }
+
     /**
      * TC-6: AC-6 — No data-fetching logic
      *
@@ -38,10 +44,10 @@ class RouteResultsScreenStaticTest {
             source.contains("import java.net")
         )
 
-        // THEN: No coroutine scope for fetching
+        // THEN: No coroutine scope for fetching (LaunchedEffect is allowed for animations)
         assertFalse(
-            "RouteResultsScreen must not launch coroutines for data fetching",
-            source.contains("LaunchedEffect") && source.contains("fetch")
+            "RouteResultsScreen must not fetch data from coroutines",
+            sourceWithoutComments.contains("fetch") || sourceWithoutComments.contains("repository") || sourceWithoutComments.contains("dataSource")
         )
 
         // THEN: Accepts state as parameter

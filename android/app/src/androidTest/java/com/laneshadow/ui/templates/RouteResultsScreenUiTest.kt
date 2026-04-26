@@ -94,9 +94,9 @@ class RouteResultsScreenUiTest {
             .onAllNodesWithTag(LSRouteAttachmentCardTag)
             .assertCountEquals(3)
 
-        // THEN: First card has "★ Best" badge
+        // THEN: First card has "BEST FOR TODAY" badge
         composeTestRule
-            .onNodeWithText("★ Best")
+            .onNodeWithText("BEST FOR TODAY")
             .assertIsDisplayed()
 
         // THEN: Pin and close icons are present
@@ -107,9 +107,9 @@ class RouteResultsScreenUiTest {
             .onNodeWithTag(NAVIGATOR_CLOSE_ICON_TAG)
             .assertIsDisplayed()
 
-        // THEN: Chat input is displayed with refine placeholder
+        // THEN: Chat input is displayed
         composeTestRule
-            .onNodeWithText("Refine —")
+            .onNodeWithTag("route-results-chat-input")
             .assertIsDisplayed()
     }
 

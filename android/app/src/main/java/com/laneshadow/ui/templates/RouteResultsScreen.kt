@@ -2,6 +2,12 @@ package com.laneshadow.ui.templates
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.laneshadow.sandbox.mockproviders.RouteResultsScreenState
@@ -23,6 +29,8 @@ import com.laneshadow.ui.organisms.GlassOverlaySlot
 import com.laneshadow.ui.organisms.LSMapLayer
 import com.laneshadow.ui.organisms.LSNavigatorMessage
 import com.laneshadow.ui.organisms.LSTopBar
+import com.laneshadow.ui.util.PolylineDecoder
+import kotlinx.coroutines.delay
 
 /**
  * RouteResultsScreen template — three polylines + NavigatorMessage + refine chat.
@@ -61,17 +69,41 @@ fun RouteResultsScreen(
 ) {
     val theme = LocalLaneShadowTheme.current
 
-    // Convert mock routes to PolylineData list
-    val polylines = state.routes.mapIndexed { index, route ->
-        val variant = when (index) {
-            0 -> RouteVariant.Best
-            1 -> RouteVariant.Alt1
-            else -> RouteVariant.Alt2
+    // Decode polyline strings from mock data and create animated PolylineData list
+    // Each polyline tracks its own drawProgress for staggered animation
+    val polylines = remember(state.routes) {
+        state.routes.mapIndexed { index, route ->
+            val variant = when (index) {
+                0 -> RouteVariant.Best
+                1 -> RouteVariant.Alt1
+                else -> RouteVariant.Alt2
+            }
+            // Decode the encoded polyline string to List<LatLng>
+            val coordinates = PolylineDecoder.decodeOrNull(route.polyline)
+            Triple(index, variant, coordinates)
         }
-        PolylineData(
-            coordinates = emptyList(), // Mock data doesn't have real coordinates
-            variant = variant,
-        )
+    }
+
+    // Track draw progress for each polyline (0f = hidden, 1f = fully drawn)
+    val drawProgressList = remember { mutableStateListOf<Float>() }
+    repeat(polylines.size) { drawProgressList.add(0f) }
+
+    // Staggered route draw-on animation per AC-3
+    // motion.recipe.routeDrawOn fires with 120ms stagger between paths
+    LaunchedEffect(polylines) {
+        val staggerDelay = 120L // 120ms stagger between paths
+        val animationDuration = theme.motion.duration["routeDrawOn"]?.toLong() ?: 600L
+
+        polylines.forEachIndexed { index, _ ->
+            delay(staggerDelay) // Wait for stagger delay before starting this polyline
+            // Animate from 0f to 1f over the animation duration
+            val steps = 30 // Smooth animation
+            val stepDuration = animationDuration / steps
+            repeat(steps) { step ->
+                drawProgressList[index] = (step + 1).toFloat() / steps
+                delay(stepDuration)
+            }
+        }
     }
 
     // Convert mock attachments to UI RouteAttachment list
@@ -114,7 +146,13 @@ fun RouteResultsScreen(
                     zoom = 11.0,
                 ),
                 cameraFit = CameraFit.Polylines(padding = SpacingToken.Spacing4),
-                polylines = polylines,
+                polylines = polylines.mapIndexed { index, (routeIndex, variant, coordinates) ->
+                    PolylineData(
+                        coordinates = coordinates,
+                        variant = variant,
+                        drawProgress = drawProgressList.getOrElse(index) { 1f },
+                    )
+                },
             )
         },
         topOverlays = listOf(
