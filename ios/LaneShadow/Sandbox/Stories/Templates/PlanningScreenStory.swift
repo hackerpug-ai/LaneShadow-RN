@@ -26,7 +26,16 @@ enum PlanningScreenStory {
             tier: .template,
             component: "PlanningScreen",
             name: "Default — Phase 2",
-            summary: "Candidate routes — sketching extended, phase 2 active, phases 1 done"
+            summary: "Candidate routes — sketching extended, phase 2 active, phases 1 done",
+            argTypes: [
+                ArgType(
+                    "activePhase",
+                    label: "Active Phase",
+                    control: .range(min: 1, max: 5, step: 1),
+                    summary: "Which planning phase is active (1–5)"
+                )
+            ],
+            initialArgs: ArgValues(["activePhase": 2])
         ) { args in
             PlanningScreen(
                 provider: PlanningMockProvider.self,

@@ -82,6 +82,24 @@ public struct PlanningScreen: View {
             .accessibilityIdentifier("planningscreen-sketch-polyline")
     }
 
+    // MARK: - Theme Tokens for Sketching Polyline
+
+    private var sketchingLineWidth: CGFloat {
+        // Use border thick token for sketching line width
+        theme.borderWidth.thick
+    }
+
+    private var sketchingDashPattern: [CGFloat] {
+        // Dash pattern: [dash length, gap length]
+        // Use space tokens for semantic dash pattern
+        [theme.space.sm, theme.space.md]
+    }
+
+    private var breathingDotSize: CGFloat {
+        // Use label small font size as semantic dimension for dot
+        theme.type.label.sm.fontSize
+    }
+
     // MARK: - Phase Indicator
 
     private var phaseIndicatorView: some View {
@@ -156,11 +174,11 @@ struct SketchingPolyline: View {
                 .stroke(
                     theme.colors.primary.default,
                     style: StrokeStyle(
-                        lineWidth: 2.5,
+                        lineWidth: theme.borderWidth.thick,
                         lineCap: .round,
                         lineJoin: .round,
-                        dash: [5, 8],
-                        dashPhase: isAnimating ? -52 : 0
+                        dash: [theme.space.sm, theme.space.md],
+                        dashPhase: isAnimating ? CGFloat(theme.space.xl) : 0
                     )
                 )
                 .animation(
@@ -172,30 +190,28 @@ struct SketchingPolyline: View {
                 }
                 .opacity(0.85)
 
-            // Breathing leading dot
+            // Breathing leading dot with recipe-driven animation
+            let breathingRecipe = breathingDotAnimationRecipe(in: theme)
             Circle()
                 .fill(theme.colors.primary.default)
-                .frame(width: 9, height: 9)
+                .frame(width: theme.type.label.sm.fontSize, height: theme.type.label.sm.fontSize)
                 .shadow(color: theme.colors.primary.default.opacity(0.25), radius: 3)
                 .shadow(color: theme.colors.primary.default.opacity(0.4), radius: 5)
-                .scaleEffect(isAnimating ? 1.25 : 1.0)
-                .opacity(isAnimating ? 0.75 : 1.0)
-                .animation(
-                    Animation
-                        .easeInOut(duration: 1.4)
-                        .repeatForever(autoreverses: true),
-                    value: isAnimating
-                )
+                .scaleEffect(isAnimating ? breathingRecipe.scaleRange.upperBound : breathingRecipe.scaleRange.lowerBound)
+                .opacity(isAnimating ? breathingRecipe.endOpacity : breathingRecipe.startOpacity)
+                .animation(breathingRecipe.animation, value: isAnimating)
                 .position(x: 200, y: 250) // Positioned along the polyline
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+    // MARK: - Motion Recipes
+
     private func sketchPolylineLoopAnimation(in theme: Theme) -> Animation {
         // Reference motion.recipe.sketchPolylineLoop
-        // Uses "deliberate" duration (600ms) and linear easing
-        let duration = theme.motion.duration["deliberate"] ?? 600
-        let easing = theme.motion.easing["linear"] ?? [0.0, 0.0, 1.0, 1.0]
+        // Uses "slower" duration (600ms) and linear easing
+        let duration = theme.motion.duration["slower"] ?? 600
+        let easing = theme.motion.easing["standard"] ?? [0.4, 0, 0.2, 1]
 
         return Animation
             .timingCurve(
@@ -208,12 +224,47 @@ struct SketchingPolyline: View {
             .repeatForever(autoreverses: false)
     }
 
-    private var sketchDuration: TimeInterval {
-        Double(theme.motion.duration["deliberate"] ?? 600) / 1000
-    }
+    private func breathingDotAnimationRecipe(in theme: Theme) -> BreathingDotRecipe {
+        // Create breathing dot animation recipe from theme tokens
+        // Uses "slow" duration and "standard" easing
+        let duration = theme.motion.duration["slow"] ?? 400
+        let easing = theme.motion.easing["standard"] ?? [0.4, 0, 0.2, 1]
 
-    private var sketchEasing: [Double] {
-        theme.motion.easing["linear"] ?? [0.0, 0.0, 1.0, 1.0]
+        return BreathingDotRecipe(
+            name: "motion.recipe.breathingDot",
+            duration: duration,
+            easing: easing,
+            scaleRange: 1.0 ... 1.25,
+            startOpacity: 1.0,
+            endOpacity: 0.75,
+            repeats: true,
+            autoreverses: true
+        )
+    }
+}
+
+// MARK: - Breathing Dot Animation Recipe
+
+struct BreathingDotRecipe: Equatable {
+    let name: String
+    let duration: Int
+    let easing: [Double]
+    let scaleRange: ClosedRange<CGFloat>
+    let startOpacity: Double
+    let endOpacity: Double
+    let repeats: Bool
+    let autoreverses: Bool
+
+    var animation: Animation {
+        Animation
+            .timingCurve(
+                easing[0],
+                easing[1],
+                easing[2],
+                easing[3],
+                duration: Double(duration) / 1000
+            )
+            .repeatForever(autoreverses: autoreverses)
     }
 }
 
