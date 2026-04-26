@@ -6,7 +6,8 @@ import Testing
 
 @MainActor
 struct SessionsScreenTests {
-    /// AC-1: Sessions composition renders — scrim at 0.35 opacity, LSSessionsDrawer slides in, "Rides" header, "NEW" button, "THIS WEEK" section, 5 session rows, active one stripe-highlighted
+    /// AC-1: Sessions composition renders — scrim at 0.35 opacity, LSSessionsDrawer slides in, "Rides" header, "NEW"
+    /// button, "THIS WEEK" section, 5 session rows, active one stripe-highlighted
     @Test
     func sessions_default_renders() {
         let provider = SessionsMockProvider.self
@@ -16,7 +17,7 @@ struct SessionsScreenTests {
             UITraitCollection(userInterfaceStyle: .light),
             UITraitCollection(userInterfaceIdiom: .phone),
             UITraitCollection(horizontalSizeClass: .compact),
-            UITraitCollection(verticalSizeClass: .regular)
+            UITraitCollection(verticalSizeClass: .regular),
         ])))
     }
 
@@ -98,7 +99,7 @@ struct SessionsScreenTests {
                 UITraitCollection(userInterfaceStyle: .dark),
                 UITraitCollection(userInterfaceIdiom: .phone),
                 UITraitCollection(horizontalSizeClass: .compact),
-                UITraitCollection(verticalSizeClass: .regular)
+                UITraitCollection(verticalSizeClass: .regular),
             ]))
         )
     }
@@ -114,7 +115,7 @@ struct SessionsScreenTests {
             "URLSession",
             "CLLocationManager",
             ".task(",
-            ".asyncComputed"
+            ".asyncComputed",
         ]
 
         for pattern in forbiddenPatterns {

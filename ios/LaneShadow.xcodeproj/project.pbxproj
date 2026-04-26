@@ -64,6 +64,7 @@
 		C815D55CC39819958EAC1ED1 /* LSWeatherTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EE8B6BD461E65A5DD1F948 /* LSWeatherTimeline.swift */; };
 		C9108535DE88E44D62CC2AE6 /* MarkdownTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5107D4267204A230D572AB9 /* MarkdownTextTests.swift */; };
 		D3FCBC758470A7571618AF4A /* LSTextStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E259B982ADB47ABE53D132D /* LSTextStories.swift */; };
+		5579899B4D154308A5587154 /* LSPhaseIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F96295534BC4A8CB4B3C330 /* LSPhaseIndicator.swift */; };
 		DA5A4BD4334BFB5A70AC36EB /* LSSessionsDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A4BF96B7AD1B8F8BABF061 /* LSSessionsDrawer.swift */; };
 		E2B1C40DCB7D1C33CC729331 /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6089A65C4DD27D71FDFC6B91 /* MarkdownText.swift */; };
 		E38D09C5CE8E05B40EC425E5 /* LSIconStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */; };
@@ -136,6 +137,7 @@
 		9585186566089A7EAF681DDB /* ChatTranscript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTranscript.swift; sourceTree = "<group>"; };
 		9B5F858C066D550CE73CE6FD /* InfoToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoToast.swift; sourceTree = "<group>"; };
 		9F8ABC117BB7538D9D09E1F6 /* LSPhaseDotStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPhaseDotStories.swift; sourceTree = "<group>"; };
+		3F96295534BC4A8CB4B3C330 /* LSPhaseIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPhaseIndicator.swift; sourceTree = "<group>"; };
 		A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSSuggestionChip.swift; sourceTree = "<group>"; };
 		A770CE2595F52C1DC3532F8A /* LSMapStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSMapStories.swift; sourceTree = "<group>"; };
 		A9EDF4218751AC8200085830 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -451,6 +453,7 @@
 				1E4B5E214B40EA6C2A95441B /* LSInstrumentReadout.swift */,
 				EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */,
 				94AB21A076699921AC328EE9 /* LSModal.swift */,
+				3F96295534BC4A8CB4B3C330 /* LSPhaseIndicator.swift */,
 				70071A35653D217D4EB4A4B8 /* LSRouteAttachmentCard.swift */,
 				A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */,
 				1C18F36042134628BD1BF30B /* LSTabItem.swift */,
@@ -812,6 +815,7 @@
 				44945380093B96A3F672A526 /* LSModalStory.swift in Sources */,
 				1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */,
 				91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */,
+				5579899B4D154308A5587154 /* LSPhaseIndicator.swift in Sources */,
 				B6A59F8B49C2AD8ECBFB7A18 /* LSRouteAttachmentCard.swift in Sources */,
 				35821980B5053707A9A97CDE /* LSRouteSheet.swift in Sources */,
 				762FB79AB5AE6050179BB785 /* LSScrimStories.swift in Sources */,
