@@ -18,7 +18,7 @@ struct IdleScreenTests {
             UITraitCollection(userInterfaceStyle: .light),
             UITraitCollection(userInterfaceIdiom: .phone),
             UITraitCollection(horizontalSizeClass: .compact),
-            UITraitCollection(verticalSizeClass: .regular)
+            UITraitCollection(verticalSizeClass: .regular),
         ])))
     }
 
@@ -131,7 +131,7 @@ struct IdleScreenTests {
                 UITraitCollection(userInterfaceStyle: .dark),
                 UITraitCollection(userInterfaceIdiom: .phone),
                 UITraitCollection(horizontalSizeClass: .compact),
-                UITraitCollection(verticalSizeClass: .regular)
+                UITraitCollection(verticalSizeClass: .regular),
             ]))
         )
     }
@@ -149,7 +149,7 @@ struct IdleScreenTests {
             "URLSession",
             "CLLocationManager",
             ".task(",
-            ".asyncComputed"
+            ".asyncComputed",
         ]
 
         // Verify source contains no forbidden symbols

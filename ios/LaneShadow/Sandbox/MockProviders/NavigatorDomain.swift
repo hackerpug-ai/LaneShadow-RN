@@ -67,7 +67,7 @@ public struct Route: Sendable, Equatable {
 }
 
 /// Session entity for Navigator screen state
-public struct Session: Sendable, Equatable {
+public struct Session: Sendable, Equatable, Identifiable {
     public let id: String
     public let title: String // e.g. "Santa Cruz loop"
     public let preview: String // last user prompt
