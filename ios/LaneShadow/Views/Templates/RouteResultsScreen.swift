@@ -38,13 +38,13 @@ public struct RouteResultsScreen: View {
                 GlassOverlaySlot(
                     id: "navigator-message",
                     content: { navigatorMessageOverlay }
-                )
+                ),
             ],
             bottomOverlays: [
                 GlassOverlaySlot(
                     id: "chatinput",
                     content: { chatInputView }
-                )
+                ),
             ],
             topBar: {
                 LSTopBar(
@@ -106,7 +106,7 @@ public struct RouteResultsScreen: View {
                 if let first = coords.first, let last = coords.last {
                     return [
                         Annotation(kind: .start, coordinate: first, label: nil),
-                        Annotation(kind: .end, coordinate: last, label: nil)
+                        Annotation(kind: .end, coordinate: last, label: nil),
                     ]
                 }
             }
@@ -131,10 +131,10 @@ public struct RouteResultsScreen: View {
     private func decodePolyline(_ encoded: String) -> [LatLng] {
         // Placeholder polyline decoding
         // In production, this would decode the encoded polyline string
-        return [
+        [
             LatLng(lat: 37.7749, lon: -122.4194),
             LatLng(lat: 37.7849, lon: -122.4094),
-            LatLng(lat: 37.7949, lon: -122.3994)
+            LatLng(lat: 37.7949, lon: -122.3994),
         ]
     }
 
@@ -213,15 +213,15 @@ public struct RouteResultsScreen: View {
     private func weatherBadgeType(from condition: String) -> LSWeatherBadgeType {
         switch condition.lowercased() {
         case "clear":
-            return .clear
+            .clear
         case "rain":
-            return .rain
+            .rain
         case "wind":
-            return .wind
+            .wind
         case "storm":
-            return .cloudy
+            .cloudy
         default:
-            return .clear
+            .clear
         }
     }
 

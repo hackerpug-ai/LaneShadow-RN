@@ -13,13 +13,12 @@ struct PlanningScreenTests {
     /// TC-1: Snapshot of default planning variant matches baseline
     @Test
     func planning_default_renders() {
-        let provider = PlanningMockProvider.default
         let screen = PlanningScreen(
-            provider: provider,
+            provider: PlanningMockProvider.self,
             activePhase: 2
         )
 
-        assertSnapshot(matching: screen, as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
+        assertSnapshot(of: screen, as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
             UITraitCollection(userInterfaceStyle: .light),
             UITraitCollection(userInterfaceIdiom: .phone),
             UITraitCollection(horizontalSizeClass: .compact),
@@ -32,9 +31,8 @@ struct PlanningScreenTests {
     /// TC-2: Phase argType variants 1–5 each render with correct active index
     @Test(arguments: [1, 2, 3, 4, 5])
     func phase_variant_sets_active_phase(phase: Int) async throws {
-        let provider = PlanningMockProvider.default
         let screen = PlanningScreen(
-            provider: provider,
+            provider: PlanningMockProvider.self,
             activePhase: phase
         )
         .laneShadowTheme()
@@ -86,9 +84,8 @@ struct PlanningScreenTests {
     /// TC-4: Chat input is disabled and trailing slot contains LSSpinner
     @Test
     func chat_input_disabled_with_spinner() async throws {
-        let provider = PlanningMockProvider.default
         let screen = PlanningScreen(
-            provider: provider,
+            provider: PlanningMockProvider.self,
             activePhase: 2
         )
         .laneShadowTheme()
@@ -115,13 +112,12 @@ struct PlanningScreenTests {
     /// TC-5: Dark snapshot matches baseline
     @Test
     func planning_dark_renders() {
-        let provider = PlanningMockProvider.default
         let screen = PlanningScreen(
-            provider: provider,
+            provider: PlanningMockProvider.self,
             activePhase: 2
         )
 
-        assertSnapshot(matching: screen, as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
+        assertSnapshot(of: screen, as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
             UITraitCollection(userInterfaceStyle: .dark),
             UITraitCollection(userInterfaceIdiom: .phone),
             UITraitCollection(horizontalSizeClass: .compact),
