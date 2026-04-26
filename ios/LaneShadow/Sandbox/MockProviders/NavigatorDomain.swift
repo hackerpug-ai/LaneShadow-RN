@@ -183,8 +183,8 @@ public struct WeatherTimelineEntry: Sendable, Equatable {
     }
 }
 
-/// Planning phase for the planning screen
-public struct PlanningPhase: Sendable, Equatable {
+/// Planning phase data for mock providers (avoiding conflict with LSPhaseIndicator.PlanningPhase)
+public struct PlanningPhaseData: Sendable, Equatable {
     public let id: String // "reading" | "sketching" | "validating" | "weather" | "building"
     public let label: String // e.g. "Reading your ride"
     public let status: String // "pending" | "active" | "done"
@@ -255,12 +255,12 @@ public struct Greeting: Sendable, Equatable {
 
 /// Planning screen state
 public struct PlanningScreenState: Sendable, Equatable {
-    public let phases: [PlanningPhase]
+    public let phases: [PlanningPhaseData]
     public let message: NavigatorMessage
     public let isThinking: Bool
 
     public init(
-        phases: [PlanningPhase],
+        phases: [PlanningPhaseData],
         message: NavigatorMessage,
         isThinking: Bool
     ) {
