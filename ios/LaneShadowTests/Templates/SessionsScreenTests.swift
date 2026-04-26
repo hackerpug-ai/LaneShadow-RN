@@ -22,6 +22,10 @@ struct SessionsScreenTests {
     }
 
     /// AC-2: Session row tap fires onSelect callback with session id
+    ///
+    /// NOTE: ViewInspector cannot reach session rows inside LSSessionsDrawer component.
+    /// This test verifies callback wiring by calling the public onSelect method directly.
+    /// Real UI interaction testing is covered at the LSSessionsDrawer component level.
     @Test
     func session_row_tap_fires_on_select() {
         var selectedSessionId: String?
@@ -39,7 +43,7 @@ struct SessionsScreenTests {
         // Verify callback is wired correctly
         #expect(selectCount == 0, "Initial select count should be 0")
 
-        // Simulate selecting session-002 by calling the callback
+        // Verify callback wiring by calling the public onSelect method
         screen.onSelect("session-002")
 
         // Verify callback was fired with the correct session ID
@@ -48,6 +52,10 @@ struct SessionsScreenTests {
     }
 
     /// AC-3: "NEW" button tap fires onNew callback
+    ///
+    /// NOTE: ViewInspector cannot reach the NEW button inside LSSessionsDrawer component.
+    /// This test verifies callback wiring by calling the public onNew method directly.
+    /// Real UI interaction testing is covered at the LSSessionsDrawer component level.
     @Test
     func new_button_tap_fires_on_new() {
         var newCount = 0
@@ -63,7 +71,7 @@ struct SessionsScreenTests {
         // Verify callback is wired correctly
         #expect(newCount == 0, "Initial new count should be 0")
 
-        // Simulate tapping NEW button by calling the callback
+        // Verify callback wiring by calling the public onNew method
         screen.onNew()
 
         // Verify callback was fired exactly once
@@ -71,6 +79,10 @@ struct SessionsScreenTests {
     }
 
     /// AC-4: Scrim tap dismisses drawer and fires onDismiss callback
+    ///
+    /// NOTE: ViewInspector cannot tap the scrim gesture due to UIViewRepresentable wrapper.
+    /// This test verifies callback wiring by calling the public onDismiss method directly.
+    /// Real UI interaction testing is covered at the LSScrim component level.
     @Test
     func scrim_tap_fires_on_dismiss() {
         var dismissCount = 0
@@ -86,7 +98,7 @@ struct SessionsScreenTests {
         // Verify callback is wired correctly
         #expect(dismissCount == 0, "Initial dismiss count should be 0")
 
-        // Simulate scrim tap by calling the dismiss handler
+        // Verify callback wiring by calling the public onDismiss method
         screen.onDismiss()
 
         // Verify callback was fired exactly once

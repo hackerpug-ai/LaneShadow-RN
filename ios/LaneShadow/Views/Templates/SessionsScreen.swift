@@ -32,7 +32,7 @@ public struct SessionsScreen: View {
         ZStack {
             LSMapLayer(
                 map: { mapView },
-                scrim: nil, // Render scrim manually with tap support
+                scrim: nil, // Manual scrim rendering required for tap gesture support (AC-4)
                 leadingDrawer: isDrawerPresented ? DrawerSpec(
                     content: {
                         drawerContent
@@ -42,7 +42,8 @@ public struct SessionsScreen: View {
             )
             .accessibilityIdentifier("sessionsscreen")
 
-            // Scrim with tap gesture
+            // Scrim with tap gesture for dismiss (AC-4 requirement)
+            // Note: LSMapLayer scrim slot doesn't support tap handlers, so we render manually
             if isDrawerPresented {
                 LSScrim(
                     opacity: 0.35,
@@ -109,7 +110,7 @@ public struct SessionsScreen: View {
             LinearGradient(
                 gradient: Gradient(colors: [
                     theme.colors.surface.default,
-                    theme.colors.background.default,
+                    theme.colors.background.default
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
