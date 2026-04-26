@@ -42,15 +42,17 @@ struct ErrorScreenTests {
         // Use ViewInspector to find and tap the "Try inland" suggestion chip
         let inspected = try screen.inspect()
 
-        // Find the chip button with label "Try inland" and tap it
-        // The chip is wrapped in LSInlineErrorCallout within the top overlay
+        // Find the error callout which contains the suggestion chips
         let errorCallout = try inspected.find(viewWithAccessibilityIdentifier: "lsinlineerrorcallout")
-        // The callout contains suggestion chips - we need to find the specific one
-        // For now, we'll verify the callout renders and contains suggestions
-        try errorCallout.vStack()
 
-        // Verify callback would be fired (actual tap test requires more specific inspection)
-        #expect(callbackCount == 0, "Callback should not fire without tap")
+        // The suggestion chips are in an HStack within the callout
+        // We can find the first chip by its accessibility identifier
+        let chipButton = try errorCallout.find(viewWithAccessibilityIdentifier: "lssuggestionchip-tap")
+        try chipButton.button().tap()
+
+        // Verify callback was fired exactly once with the correct chip
+        #expect(callbackCount == 1, "Callback should fire exactly once on chip tap")
+        #expect(tappedChip?.label == "Try inland", "Should pass the correct chip to the callback")
     }
 
     /// AC-3: Trailing icon swaps from sliders to send on text entry
@@ -66,25 +68,30 @@ struct ErrorScreenTests {
                 set: { inputValue = $0 }
             )
         )
+        .laneShadowTheme()
 
-        // Initial state: input is empty
-        #expect(inputValue.isEmpty, "Input should start empty")
+        // Initial state: input is empty, sliders icon should be visible
+        let inspected = try screen.inspect()
+        let chatInputView = try inspected.find(viewWithAccessibilityIdentifier: "errorscreen-chatinput")
 
-        // Verify LSChatInput receives the binding properly
-        let binding = Binding(
-            get: { inputValue },
-            set: { inputValue = $0 }
-        )
+        // Verify sliders icon is present (filter button is shown when input is empty)
+        let slidersIcon = try? chatInputView.find(viewWithAccessibilityIdentifier: "lschatinput-filter-icon-sliders")
+        #expect(slidersIcon != nil, "Sliders icon should be visible when input is empty")
 
         // Simulate user typing via the binding
-        binding.wrappedValue = "Try again"
+        inputValue = "Try again"
 
-        // Verify the binding propagates the state change
+        // Re-inspect after text entry
+        let inspectedAfter = try screen.inspect()
+        let chatInputViewAfter = try inspectedAfter.find(viewWithAccessibilityIdentifier: "errorscreen-chatinput")
+
+        // Verify send icon is now present (send button is shown when input has text)
+        let sendIcon = try? chatInputViewAfter.find(viewWithAccessibilityIdentifier: "lschatinput-send-icon")
+        #expect(sendIcon != nil, "Send icon should be visible after text entry")
+
+        // Verify the binding state
         #expect(inputValue == "Try again", "Input value should update through binding")
         #expect(!inputValue.isEmpty, "Input should no longer be empty after text entry")
-
-        // The icon swap from sliders to send happens in LSChatInput based on the binding value
-        // Template correctly wires the binding to LSChatInput, which owns the icon logic
     }
 
     /// AC-4: Hamburger tap fires presentSessions callback
