@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.laneshadow.R
@@ -291,7 +292,7 @@ private fun LSMapLegendOverlay(
         modifier = modifier,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            renderModel.polylines.forEach { polyline ->
+            renderModel.polylines.forEachIndexed { index, polyline ->
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -299,7 +300,8 @@ private fun LSMapLegendOverlay(
                     Box(
                         modifier = Modifier
                             .size(24.dp, polyline.strokeWidth)
-                            .background(polyline.color),
+                            .background(polyline.color)
+                            .testTag("ls-polyline-${index}"),
                     )
                     LSText(
                         text = "${polyline.coordinates.size} points",

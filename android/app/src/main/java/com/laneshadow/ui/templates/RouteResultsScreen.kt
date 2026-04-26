@@ -33,6 +33,12 @@ import com.laneshadow.ui.util.PolylineDecoder
 import kotlinx.coroutines.delay
 
 /**
+ * Stagger delay (in milliseconds) between polyline draw animations.
+ * Per motion.recipe.routeDrawOn animation spec.
+ */
+const val ROUTE_DRAW_ON_STAGGER_MS: Long = 120L
+
+/**
  * RouteResultsScreen template — three polylines + NavigatorMessage + refine chat.
  *
  * Renders the RouteResults screen with:
@@ -89,9 +95,9 @@ fun RouteResultsScreen(
     repeat(polylines.size) { drawProgressList.add(0f) }
 
     // Staggered route draw-on animation per AC-3
-    // motion.recipe.routeDrawOn fires with 120ms stagger between paths
+    // motion.recipe.routeDrawOn fires with ROUTE_DRAW_ON_STAGGER_MS between paths
     LaunchedEffect(polylines) {
-        val staggerDelay = 120L // 120ms stagger between paths
+        val staggerDelay = ROUTE_DRAW_ON_STAGGER_MS
         val animationDuration = theme.motion.duration["routeDrawOn"]?.toLong() ?: 600L
 
         polylines.forEachIndexed { index, _ ->

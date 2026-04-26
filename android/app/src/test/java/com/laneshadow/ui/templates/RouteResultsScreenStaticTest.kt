@@ -3,6 +3,7 @@ package com.laneshadow.ui.templates
 import org.junit.Test
 import org.junit.Assert.*
 import java.io.File
+import com.laneshadow.ui.templates.ROUTE_DRAW_ON_STAGGER_MS
 
 /**
  * Static tests for RouteResultsScreen template.
@@ -83,22 +84,38 @@ class RouteResultsScreenStaticTest {
      */
     @Test
     fun ac3_usesRouteDrawOnMotionRecipe() {
+        // THEN: Exports ROUTE_DRAW_ON_STAGGER_MS constant
+        assertTrue(
+            "RouteResultsScreen must define ROUTE_DRAW_ON_STAGGER_MS constant",
+            source.contains("ROUTE_DRAW_ON_STAGGER_MS")
+        )
+
         // THEN: References motion.recipe.routeDrawOn
         assertTrue(
             "RouteResultsScreen must reference motion.duration[\"routeDrawOn\"]",
             source.contains("motion.duration") && source.contains("routeDrawOn")
         )
 
-        // THEN: Uses 120ms stagger between paths
-        assertTrue(
-            "RouteResultsScreen must use 120ms stagger delay",
-            source.contains("120L") && source.contains("staggerDelay")
-        )
-
         // THEN: Sets up polylines for animation with drawProgress
         assertTrue(
             "RouteResultsScreen must set up polylines with drawProgress animation",
             source.contains("PolylineData") && source.contains("drawProgress")
+        )
+    }
+
+    /**
+     * TC-3: Assert ROUTE_DRAW_ON_STAGGER_MS constant value.
+     *
+     * GIVEN ROUTE_DRAW_ON_STAGGER_MS constant
+     * WHEN Inspected
+     * THEN Value is 120L (120 milliseconds)
+     */
+    @Test
+    fun tc3_routeDrawOnStaggerConstantValue() {
+        assertEquals(
+            "ROUTE_DRAW_ON_STAGGER_MS must be exactly 120ms per motion recipe spec",
+            120L,
+            ROUTE_DRAW_ON_STAGGER_MS
         )
     }
 
