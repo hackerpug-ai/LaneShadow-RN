@@ -18,7 +18,7 @@ struct ErrorScreenTests {
             UITraitCollection(userInterfaceStyle: .light),
             UITraitCollection(userInterfaceIdiom: .phone),
             UITraitCollection(horizontalSizeClass: .compact),
-            UITraitCollection(verticalSizeClass: .regular)
+            UITraitCollection(verticalSizeClass: .regular),
         ])))
     }
 
@@ -90,7 +90,8 @@ struct ErrorScreenTests {
         #expect(sendIcon != nil, "Send icon should be visible after text entry")
 
         // Verify sliders icon is now hidden (filter button should be hidden when input has text)
-        let slidersIconAfter = try? chatInputViewAfter.find(viewWithAccessibilityIdentifier: "lschatinput-filter-icon-sliders")
+        let slidersIconAfter = try? chatInputViewAfter
+            .find(viewWithAccessibilityIdentifier: "lschatinput-filter-icon-sliders")
         #expect(slidersIconAfter == nil, "Sliders icon should be hidden after text entry")
 
         // Verify the binding state
@@ -137,7 +138,7 @@ struct ErrorScreenTests {
                 UITraitCollection(userInterfaceStyle: .dark),
                 UITraitCollection(userInterfaceIdiom: .phone),
                 UITraitCollection(horizontalSizeClass: .compact),
-                UITraitCollection(verticalSizeClass: .regular)
+                UITraitCollection(verticalSizeClass: .regular),
             ]))
         )
     }
@@ -155,7 +156,7 @@ struct ErrorScreenTests {
             "URLSession",
             "CLLocationManager",
             ".task(",
-            ".asyncComputed"
+            ".asyncComputed",
         ]
 
         // Verify source contains no forbidden symbols

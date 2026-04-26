@@ -34,7 +34,7 @@ public enum RouteDetailsMockProvider: MockProvider {
                 WeatherEntry(hour: "11", condition: .clear, temp: "67°"),
                 WeatherEntry(hour: "12", condition: .clear, temp: "71°"),
                 WeatherEntry(hour: "1P", condition: .clear, temp: "73°"),
-                WeatherEntry(hour: "2P", condition: .clear, temp: "71°")
+                WeatherEntry(hour: "2P", condition: .clear, temp: "71°"),
             ],
             timeRange: ("9 AM", "2 PM"),
             coordinates: [
@@ -44,7 +44,7 @@ public enum RouteDetailsMockProvider: MockProvider {
                 LatLng(lat: 37.8049, lon: -122.3894),
                 LatLng(lat: 37.8149, lon: -122.3794),
                 LatLng(lat: 37.8249, lon: -122.3694),
-                LatLng(lat: 37.8349, lon: -122.3594)
+                LatLng(lat: 37.8349, lon: -122.3594),
             ]
         )
     }
@@ -67,7 +67,7 @@ public enum RouteDetailsMockProvider: MockProvider {
                 WeatherEntry(hour: "1P", condition: .wind, temp: "65°"),
                 WeatherEntry(hour: "2P", condition: .wind, temp: "62°"),
                 WeatherEntry(hour: "3P", condition: .rain, temp: "58°"),
-                WeatherEntry(hour: "4P", condition: .rain, temp: "56°")
+                WeatherEntry(hour: "4P", condition: .rain, temp: "56°"),
             ],
             timeRange: ("11 AM", "4 PM"),
             coordinates: [
@@ -77,7 +77,7 @@ public enum RouteDetailsMockProvider: MockProvider {
                 LatLng(lat: 37.6549, lon: -122.4394),
                 LatLng(lat: 37.6649, lon: -122.4294),
                 LatLng(lat: 37.6749, lon: -122.4194),
-                LatLng(lat: 37.6849, lon: -122.4094)
+                LatLng(lat: 37.6849, lon: -122.4094),
             ]
         )
     }
@@ -85,7 +85,7 @@ public enum RouteDetailsMockProvider: MockProvider {
 
 // MARK: - Data Models
 
-public struct RouteDetailsData: @unchecked Sendable {
+public struct RouteDetailsData: @unchecked Sendable, Equatable {
     public let route: RouteDetails
     public let weatherTimeline: [WeatherEntry]
     public let timeRange: (String, String)
@@ -100,5 +100,13 @@ public struct RouteDetailsData: @unchecked Sendable {
         self.weatherTimeline = weatherTimeline
         self.timeRange = timeRange
         self.coordinates = coordinates
+    }
+
+    public static func == (lhs: RouteDetailsData, rhs: RouteDetailsData) -> Bool {
+        lhs.route == rhs.route &&
+            lhs.weatherTimeline == rhs.weatherTimeline &&
+            lhs.timeRange.0 == rhs.timeRange.0 &&
+            lhs.timeRange.1 == rhs.timeRange.1 &&
+            lhs.coordinates == rhs.coordinates
     }
 }
