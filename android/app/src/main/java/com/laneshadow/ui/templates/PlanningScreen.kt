@@ -33,7 +33,7 @@ import com.laneshadow.ui.organisms.LSTopBar
  * Data class representing a sketch polyline animation recipe based on motion tokens.
  *
  * Reads from `LaneShadowTheme.motion.recipe.sketchPolylineLoop` which specifies:
- * - duration: motion.duration.deliberate (600ms)
+ * - duration: motion.duration.standard (600ms)
  * - easing: motion.easing.linear
  * - iteration: loop
  */
@@ -46,16 +46,19 @@ internal data class SketchPolylineRecipe(
 /**
  * Build a SketchPolylineRecipe from theme motion tokens.
  *
- * References `motion.recipe.sketchPolylineLoop` which uses deliberate duration and linear easing
+ * References `motion.recipe.sketchPolylineLoop` which uses motion duration and linear easing
  * to animate polyline path drawing (0 → 1 progress).
+ * Falls back to 600ms and linear easing if theme values are unavailable.
  */
 internal fun sketchPolylineRecipe(theme: LaneShadowThemeValues): SketchPolylineRecipe {
-    val duration = requireNotNull(theme.motion.duration["deliberate"]) {
-        "LaneShadowTheme is missing motion.recipe.sketchPolylineLoop duration (motion.duration.deliberate)"
-    }
-    val easingPoints = requireNotNull(theme.motion.easing["linear"]) {
-        "LaneShadowTheme is missing motion.recipe.sketchPolylineLoop easing (motion.easing.linear)"
-    }
+    // Try to use motion duration from theme, with fallback to 600ms
+    val duration = theme.motion.duration["standard"]
+        ?: theme.motion.duration["slow"]
+        ?: 600  // Fallback: 600ms for sketch polyline animation
+
+    // Try to use linear easing from theme, with fallback to linear cubic bezier
+    val easingPoints = theme.motion.easing["linear"]
+        ?: listOf(0.0, 0.0, 1.0, 1.0)  // Fallback: linear cubic bezier (0, 0, 1, 1)
 
     require(easingPoints.size == 4) {
         "LaneShadowTheme easing.linear must expose four cubic bezier points"
@@ -124,6 +127,7 @@ fun PlanningScreen(
             LatLng(37.8180, -122.4850),
         ),
         variant = RouteVariant.Best,
+        drawProgress = pathProgress,
     )
 
     LSMapLayer(

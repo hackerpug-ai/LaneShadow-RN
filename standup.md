@@ -78,3 +78,34 @@
 #### Return Values
 - standup_updated: true
 - tasks_updated: true
+
+### 2026-04-25 - UC-SCR-01-ios - swift-reviewer Turn 3 (Cycle 3 Re-Review)
+**Status**: NEEDS_FIXES
+
+#### Files Reviewed
+- `ios/LaneShadow/Sandbox/MockProviders/IdleMockProvider.swift`: PASS (cycle 3 fixed)
+- `ios/LaneShadow/Views/Templates/IdleScreen.swift`: PASS (cycle 3 fixed)
+- `ios/LaneShadowTests/Templates/IdleScreenTests.swift`: NEEDS_FIXES (AC-2, AC-3, AC-4, AC-6 still theatre)
+- `ios/LaneShadow/Sandbox/Stories/Templates/IdleScreenStory.swift`: MINOR (trailing comma violation, SwiftLint error)
+
+#### Commands Run
+| Command | Exit Code | Result |
+|---------|-----------|--------|
+| `swiftlint --strict` (project files only) | non-zero | 1 violation in IdleScreenStory.swift:16 (trailing comma) |
+| `xcodebuild test -only-testing:LaneShadowTests/IdleScreenTests` | 0 | 6/6 tests pass BUT AC-2/3/4 are theatre |
+| `grep -n ".font(.system" IdleScreen.swift` | — | 0 matches (fonts fixed) |
+| `grep -n "inspect()\|.tap()" IdleScreenTests.swift` | — | 0 matches (ViewInspector never called) |
+
+#### Review Result
+- Verdict: NEEDS_FIXES
+- AC-1: PASS (mock data + font tokens fixed)
+- AC-2: FAIL — test theatre persists; ViewInspector imported but never used; no chip tap; asserts callbackCount==0
+- AC-3: FAIL — test theatre persists; mutates local variable; never inspects view hierarchy icon
+- AC-4: FAIL — crash fixed but test now asserts menuTapCount==0 only; no hamburger tap via ViewInspector
+- AC-5: PASS (font tokens fixed; snapshot pair passes)
+- AC-6: FAIL — static grep replaced with init-only test that cannot detect forbidden symbols
+- SwiftLint: 1 violation in IdleScreenStory.swift:16 (trailing comma)
+
+#### Return Values
+- standup_updated: true
+- tasks_updated: true

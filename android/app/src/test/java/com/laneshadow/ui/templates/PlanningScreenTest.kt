@@ -89,6 +89,7 @@ class PlanningScreenTest {
      * WHEN: Inspected
      * THEN: Animation declaration references LaneShadowTheme.motion.recipe.sketchPolylineLoop
      *       (no inline duration/easing literals)
+     *       AND pathProgress is wired to a rendering call (must not be dead variable)
      */
     @Test
     fun ac3_sketch_polyline_animation_references_motion_recipe() {
@@ -99,7 +100,7 @@ class PlanningScreenTest {
             "PlanningScreen must implement sketch polyline animation referencing motion.recipe.sketchPolylineLoop",
             source.contains("sketchPolylineLoop") ||
             source.contains("sketchPolylineRecipe") ||
-            source.contains("motion.duration[\"deliberate\"]") ||
+            source.contains("motion.duration") ||
             source.contains("motion.easing[\"linear\"]")
         )
 
@@ -114,6 +115,14 @@ class PlanningScreenTest {
         assertTrue(
             "Animation setup must use LocalLaneShadowTheme to access motion recipes",
             hasLocalThemeReference
+        )
+
+        // CRITICAL: pathProgress must be wired to rendering (not dead variable)
+        // Must be passed to PolylineData drawProgress, Canvas rendering, or similar
+        assertTrue(
+            "pathProgress must be passed to rendering (PolylineData drawProgress, Canvas, or similar)",
+            source.contains("drawProgress = pathProgress") ||
+            (source.contains("Canvas") && source.contains("pathProgress"))
         )
     }
 

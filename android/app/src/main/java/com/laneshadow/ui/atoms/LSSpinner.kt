@@ -5,6 +5,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -31,6 +32,7 @@ fun LSSpinner(
     CircularProgressIndicator(
         modifier = modifier
             .size(resolvedSize)
+            .testTag("ls-spinner")
             .semantics {
                 lsSpinnerSize = resolvedSize.value
                 lsSpinnerTint = tint

@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.semantics
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme.IconName
 import com.laneshadow.ui.atoms.ButtonState
@@ -60,7 +62,11 @@ fun LSChatInput(
     val inputHeight = theme.sizing.touchTarget
 
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .then(
+                if (!isEnabled) Modifier.semantics { disabled() }
+                else Modifier
+            ),
         verticalArrangement = Arrangement.spacedBy(theme.space.sm),
     ) {
         // Location context bar (top optional layer)

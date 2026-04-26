@@ -79,11 +79,17 @@ sealed class RouteVariant {
 
 /**
  * Polyline data for rendering route lines.
+ *
+ * @param coordinates List of map coordinates for the polyline path
+ * @param variant Route variant (color scheme)
+ * @param strokeWidth Stroke width size token
+ * @param drawProgress Progress of path drawing animation (0f = none, 1f = full) - used for sketch animation
  */
 data class PolylineData(
     val coordinates: List<LatLng>,
     val variant: RouteVariant,
     val strokeWidth: StrokeSize? = StrokeSize.Md,
+    val drawProgress: Float = 1f,
 )
 
 /**
@@ -118,6 +124,7 @@ internal data class LSMapPolylineSpec(
     val coordinates: List<LatLng>,
     val color: Color,
     val strokeWidth: Dp,
+    val drawProgress: Float = 1f,
 )
 
 internal data class LSMapAnnotationVisualSpec(
@@ -217,6 +224,7 @@ internal fun resolveLSMapPolylineSpec(
         coordinates = polyline.coordinates,
         color = resolveLSMapRouteColor(polyline.variant, isDarkTheme),
         strokeWidth = resolveLSMapStrokeWidth(polyline.strokeWidth ?: StrokeSize.Md),
+        drawProgress = polyline.drawProgress,
     )
 
 internal fun resolveLSMapAnnotationSpec(
