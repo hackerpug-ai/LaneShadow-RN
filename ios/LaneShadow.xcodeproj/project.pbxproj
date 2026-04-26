@@ -14,6 +14,7 @@
 		0B45673D740CC18D7C34929C /* LSButtonStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05416F03B3657341F705522A /* LSButtonStories.swift */; };
 		1030D0562B837B78A06D138D /* LSBottomSheetStory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3A089B3C507033B7B2BEF8 /* LSBottomSheetStory.swift */; };
 		1952669D73F48496CFB75791 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = A82A70CA01368BECA5189F19 /* LaneShadowTheme */; };
+		19B2E80084FD9A981F497DB5 /* ViewInspector in Frameworks */ = {isa = PBXBuildFile; productRef = 97E29B716CED481799DD0795 /* ViewInspector */; };
 		1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534D26C275878552CD82E5FE /* LSDisplayStories.swift */; };
 		1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8ABC117BB7538D9D09E1F6 /* LSPhaseDotStories.swift */; };
 		24E92B6C2FD5880E27973B68 /* ChatTranscript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9585186566089A7EAF681DDB /* ChatTranscript.swift */; };
@@ -23,6 +24,7 @@
 		329EEE4B089D016554E2F75B /* LSToastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7996DA2EBA1763B4956D788D /* LSToastTests.swift */; };
 		34177B113250A9B068F8E3EA /* LSEmptyStateStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA14A4A60BB921AEF31B1BE7 /* LSEmptyStateStories.swift */; };
 		35821980B5053707A9A97CDE /* LSRouteSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEDACF6EC8AA820E5E31C40 /* LSRouteSheet.swift */; };
+		3607457D8D985DC783EDA889 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = E4B9E7FB06EF17E9BD9B418A /* SnapshotTesting */; };
 		3D2143A67410FB5D8D2F3B45 /* LSInputStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE8CB573821E0981D725E364 /* LSInputStories.swift */; };
 		40979501CCACCFB156F25EB5 /* LaneShadowSandboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C289172CD246D71CC0E6BB /* LaneShadowSandboxEntry.swift */; };
 		44945380093B96A3F672A526 /* LSModalStory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0880B419366B8C13DDE80143 /* LSModalStory.swift */; };
@@ -182,6 +184,16 @@
 			path = Sandbox;
 			sourceTree = "<group>";
 		};
+		0E516A6442C2AA10AA5009F5 /* Templates */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Templates;
+			path = Templates;
+			sourceTree = "<group>";
+		};
 		244E36879200004067F64629 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			explicitFileTypes = {
@@ -230,6 +242,16 @@
 			);
 			name = Atoms;
 			path = Atoms;
+			sourceTree = "<group>";
+		};
+		5D43661EA5776DD985956D8D /* Templates */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Templates;
+			path = Templates;
 			sourceTree = "<group>";
 		};
 		9B1969E887592C82E1672459 /* Launch */ = {
@@ -284,6 +306,16 @@
 			path = Atoms;
 			sourceTree = "<group>";
 		};
+		CF77ECAB776F34B039A160CA /* Templates */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Templates;
+			path = Templates;
+			sourceTree = "<group>";
+		};
 		D026D3B873FDE7B7153F206F /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			explicitFileTypes = {
@@ -324,6 +356,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				C20B40ADB8746BAD7B7A3FF1 /* LaneShadowTheme in Frameworks */,
+				3607457D8D985DC783EDA889 /* SnapshotTesting in Frameworks */,
+				19B2E80084FD9A981F497DB5 /* ViewInspector in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -371,6 +405,7 @@
 				25E9207CB7FFB02863C96FDE /* Infrastructure */,
 				8C41ED0E046EE966A32C67CB /* Molecules */,
 				D026D3B873FDE7B7153F206F /* Organisms */,
+				CF77ECAB776F34B039A160CA /* Templates */,
 				3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */,
 				BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */,
 				05416F03B3657341F705522A /* LSButtonStories.swift */,
@@ -461,6 +496,7 @@
 				ABBAFDBD7FF159A58193899A /* Molecules */,
 				244E36879200004067F64629 /* Organisms */,
 				0B23304A78B886F9A286C5E4 /* Sandbox */,
+				5D43661EA5776DD985956D8D /* Templates */,
 				5C592B52392DEEACF2D91C3B /* LaneShadowTests.swift */,
 			);
 			path = LaneShadowTests;
@@ -488,6 +524,7 @@
 				55726301A0BAEC18C69036BC /* Molecules */,
 				69700BB3265ED56EFE4BCD8E /* Organisms */,
 				4C8A8E02554AE3D5AC4FAC51 /* Organisms */,
+				0E516A6442C2AA10AA5009F5 /* Templates */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -545,6 +582,8 @@
 				3CE2AE4772ABC9D4A3699741 /* MockProviders */,
 				D026D3B873FDE7B7153F206F /* Organisms */,
 				4C8A8E02554AE3D5AC4FAC51 /* Organisms */,
+				CF77ECAB776F34B039A160CA /* Templates */,
+				0E516A6442C2AA10AA5009F5 /* Templates */,
 				E5E2F792F8318B064762B018 /* Theme */,
 			);
 			name = LaneShadow;
@@ -597,10 +636,13 @@
 				5B8A253F72C6B3D6A21D5422 /* Atoms */,
 				244E36879200004067F64629 /* Organisms */,
 				0B23304A78B886F9A286C5E4 /* Sandbox */,
+				5D43661EA5776DD985956D8D /* Templates */,
 			);
 			name = LaneShadowTests;
 			packageProductDependencies = (
 				5B658B1BAB40A50AE36EE201 /* LaneShadowTheme */,
+				E4B9E7FB06EF17E9BD9B418A /* SnapshotTesting */,
+				97E29B716CED481799DD0795 /* ViewInspector */,
 			);
 			productName = LaneShadowTests;
 			productReference = ED792B4C270AB975C34CB118 /* LaneShadowTests.xctest */;
@@ -640,6 +682,8 @@
 			packageReferences = (
 				2448E52A67F9CA102454EA73 /* XCRemoteSwiftPackageReference "convex-swift" */,
 				B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */,
+				15EF0D9EB05071BCFDAB5F3D /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
+				E60D5EE87AD2B6F3ECB752C9 /* XCRemoteSwiftPackageReference "ViewInspector" */,
 				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */,
 				587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */,
 			);
@@ -1129,6 +1173,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		15EF0D9EB05071BCFDAB5F3D /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.15.0;
+			};
+		};
 		2448E52A67F9CA102454EA73 /* XCRemoteSwiftPackageReference "convex-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/get-convex/convex-swift";
@@ -1145,12 +1197,25 @@
 				minimumVersion = 11.6.0;
 			};
 		};
+		E60D5EE87AD2B6F3ECB752C9 /* XCRemoteSwiftPackageReference "ViewInspector" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nalexn/ViewInspector";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		5B658B1BAB40A50AE36EE201 /* LaneShadowTheme */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = LaneShadowTheme;
+		};
+		97E29B716CED481799DD0795 /* ViewInspector */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E60D5EE87AD2B6F3ECB752C9 /* XCRemoteSwiftPackageReference "ViewInspector" */;
+			productName = ViewInspector;
 		};
 		9DD5E01C1B4FE6A3686813CA /* NativeSandbox */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1169,6 +1234,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */;
 			productName = MapboxMaps;
+		};
+		E4B9E7FB06EF17E9BD9B418A /* SnapshotTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 15EF0D9EB05071BCFDAB5F3D /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
+			productName = SnapshotTesting;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

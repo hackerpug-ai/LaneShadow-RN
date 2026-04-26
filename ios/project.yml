@@ -24,6 +24,12 @@ packages:
   MapboxMaps:
     url: https://github.com/mapbox/mapbox-maps-ios
     from: 11.6.0
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing
+    from: 1.15.0
+  ViewInspector:
+    url: https://github.com/nalexn/ViewInspector
+    from: 0.9.0
 
 settings:
   base:
@@ -159,6 +165,9 @@ targets:
       # Sprint 05 organism stories
       - path: LaneShadow/Sandbox/Stories/Organisms
         type: syncedFolder
+      # Sprint 06 template stories
+      - path: LaneShadow/Sandbox/Stories/Templates
+        type: syncedFolder
       - path: LaneShadow/Views/Atoms
         type: syncedFolder
         excludes:
@@ -188,6 +197,9 @@ targets:
       - path: LaneShadow/Views/Organisms/LSRouteSheet.swift
       - path: LaneShadow/Views/Organisms/LSSessionsDrawer.swift
       - path: LaneShadow/Views/Organisms
+        type: syncedFolder
+      # Sprint 06 templates
+      - path: LaneShadow/Views/Templates
         type: syncedFolder
     dependencies:
       - package: ConvexMobile
@@ -244,6 +256,9 @@ targets:
       # Sprint 05 organism tests
       - path: LaneShadowTests/Organisms
         type: syncedFolder
+      # Sprint 06 template tests
+      - path: LaneShadowTests/Templates
+        type: syncedFolder
       # Sprint 06 sandbox infrastructure tests
       - path: LaneShadowTests/Sandbox
         type: syncedFolder
@@ -252,6 +267,8 @@ targets:
     dependencies:
       - target: LaneShadow
       - package: LaneShadowTheme
+      - package: SnapshotTesting
+      - package: ViewInspector
     settings:
       base:
         BUNDLE_LOADER: $(TEST_HOST)

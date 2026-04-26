@@ -7,6 +7,9 @@ import Foundation
 public enum IdleMockProvider: MockProvider {
     public static let variants = ["default", "empty", "overflow", "long-copy"]
 
+    // Singleton instances for convenience
+    public static var `default`: IdleMockProvider.Type { IdleMockProvider.self }
+
     public static func value(variant: String = "default") -> IdleScreenState {
         switch variant {
         case "empty":
