@@ -15,6 +15,7 @@ public struct RouteResultsScreen: View {
 
     @State private var chatInputValue: String = ""
     @State private var selectedRouteId: String
+    @State private var drawProgress: [String: Double] = [:]
 
     public init(
         provider: RouteResultsMockProvider.Type = RouteResultsMockProvider.self,
@@ -54,6 +55,9 @@ public struct RouteResultsScreen: View {
             }
         )
         .accessibilityIdentifier("route-resultsscreen")
+        .onAppear {
+            startRouteDrawAnimation()
+        }
     }
 
     // MARK: - Map
@@ -74,8 +78,20 @@ public struct RouteResultsScreen: View {
 
     private var routePolylines: [PolylineData] {
         state.routes.map { route in
-            PolylineData(
-                coordinates: decodePolyline(route.polyline),
+            let progress = drawProgress[route.id] ?? 0.0
+            let coordinates = decodePolyline(route.polyline)
+
+            // Apply animation progress by trimming coordinates
+            let animatedCoordinates: [LatLng]
+            if progress < 1.0 {
+                let count = max(1, Int(Double(coordinates.count) * progress))
+                animatedCoordinates = Array(coordinates.prefix(count))
+            } else {
+                animatedCoordinates = coordinates
+            }
+
+            return PolylineData(
+                coordinates: animatedCoordinates,
                 variant: routeVariant(from: route.variant),
                 strokeWidth: .lg
             )
@@ -99,16 +115,16 @@ public struct RouteResultsScreen: View {
     }
 
     private func routeVariant(from variant: String?) -> RouteVariant {
-        guard let variant else { return .custom(ColorToken(path: "color.route.alt2")) }
+        guard let variant else { return .alt2 }
         switch variant {
         case "best":
-            return .custom(ColorToken(path: "color.route.best"))
+            return .best
         case "alt1":
-            return .custom(ColorToken(path: "color.route.alt1"))
+            return .alt1
         case "alt2":
-            return .custom(ColorToken(path: "color.route.alt2"))
+            return .alt2
         default:
-            return .custom(ColorToken(path: "color.route.alt2"))
+            return .alt2
         }
     }
 
@@ -120,6 +136,26 @@ public struct RouteResultsScreen: View {
             LatLng(lat: 37.7849, lon: -122.4094),
             LatLng(lat: 37.7949, lon: -122.3994)
         ]
+    }
+
+    private func startRouteDrawAnimation() {
+        // Reset draw progress
+        drawProgress = Dictionary(uniqueKeysWithValues: state.routes.map { ($0.id, 0.0) })
+
+        // Animate each route with stagger
+        let staggerMs: Double = 120 // 120ms stagger between routes
+        let durationMs: Double = 600 // deliberate duration from motion tokens
+
+        for (index, route) in state.routes.enumerated() {
+            let delayMs = Double(index) * staggerMs
+            let totalDuration = delayMs + durationMs
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(Int(delayMs))) {
+                withAnimation(.easeOut(duration: durationMs / 1000.0)) {
+                    drawProgress[route.id] = 1.0
+                }
+            }
+        }
     }
 
     // MARK: - Navigator Message Overlay

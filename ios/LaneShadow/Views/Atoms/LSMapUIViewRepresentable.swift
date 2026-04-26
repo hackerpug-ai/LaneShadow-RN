@@ -39,6 +39,7 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         context.coordinator.mapView = mapView
         configureGestures(on: mapView)
         applyStyleAndCamera(to: mapView, coordinator: context.coordinator)
+        renderPolylines(polylines, on: mapView, coordinator: context.coordinator)
     }
 
     func makeCoordinator() -> Coordinator {
@@ -81,10 +82,63 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         mapView.mapboxMap.setCamera(to: cameraOptions)
     }
 
+    private func renderPolylines(_ polylines: [PolylineData], on mapView: MapView, coordinator: Coordinator) {
+        // Initialize polyline annotation manager if needed
+        if coordinator.polylineAnnotationManager == nil {
+            coordinator.polylineAnnotationManager = mapView.annotations.makePolylineAnnotationManager()
+        }
+
+        guard let manager = coordinator.polylineAnnotationManager else { return }
+
+        // Calculate new polyline IDs
+        let newPolylineIds = Set(polylines.indices.map { "polyline-\($0)" })
+
+        // Remove polylines that are no longer present
+        let toRemove = coordinator.currentPolylineIds.subtracting(newPolylineIds)
+        if !toRemove.isEmpty {
+            manager.annotations.removeAll { annotation in
+                toRemove.contains(annotation.id)
+            }
+        }
+
+        // Update or create polylines
+        var annotations: [PolylineAnnotation] = []
+        for (index, polyline) in polylines.enumerated() {
+            let id = "polyline-\(index)"
+            let lineCoordinates = polyline.coordinates.map { coord in
+                CLLocationCoordinate2D(latitude: coord.lat, longitude: coord.lon)
+            }
+
+            // Create annotation with custom ID
+            var annotation = PolylineAnnotation(id: id, lineCoordinates: lineCoordinates)
+
+            // Get color from renderModel polylines
+            if index < renderModel.polylines.count {
+                let style = renderModel.polylines[index]
+                // Convert SwiftUI Color to UIColor to StyleColor
+                let uiColor = UIColor(style.color)
+                annotation.lineColor = StyleColor(uiColor)
+                annotation.lineWidth = style.lineWidth
+            } else {
+                // Fallback colors if not in renderModel
+                annotation.lineColor = StyleColor(UIColor(red: 0.93, green: 0.49, blue: 0.17, alpha: 1.0))
+                annotation.lineWidth = 2.0
+            }
+
+            annotations.append(annotation)
+        }
+
+        // Update annotations
+        manager.annotations = annotations
+        coordinator.currentPolylineIds = newPolylineIds
+    }
+
     final class Coordinator: NSObject {
         let onTap: ((LatLng) -> Void)?
         weak var mapView: MapView?
         var currentStyleURI: String?
+        var polylineAnnotationManager: PolylineAnnotationManager?
+        var currentPolylineIds: Set<String> = []
 
         init(onTap: ((LatLng) -> Void)?) {
             self.onTap = onTap
