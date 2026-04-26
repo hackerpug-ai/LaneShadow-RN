@@ -281,10 +281,8 @@ struct PolylineShape: Shape {
         var path = Path()
 
         // Use theme space tokens for semantic spacing
-        let offsetXl = theme.space.xl * 2
         let offsetLg = theme.space.lg * 2
         let offsetMd = theme.space.md * 2
-        let offsetSm = theme.space.sm * 2
 
         // Start point
         path.move(to: CGPoint(x: rect.midX - offsetLg, y: rect.midY - offsetMd))
