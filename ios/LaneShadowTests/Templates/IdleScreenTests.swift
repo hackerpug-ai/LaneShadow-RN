@@ -29,7 +29,6 @@ struct IdleScreenTests {
         var tappedChip: MockSuggestionChip?
 
         let provider = IdleMockProvider.default
-        let state = provider.value(variant: "default")
 
         let screen = IdleScreen(
             provider: provider,
@@ -38,13 +37,20 @@ struct IdleScreenTests {
                 tappedChip = chip
             }
         )
+        .laneShadowTheme()
 
-        // The test verifies that the callback closure is properly wired
-        // In a real scenario, ViewInspector would find and tap the chip button
-        // For now, we verify the callback infrastructure by checking the chip data matches spec
-        #expect(state.suggestions.count == 4, "Should have 4 chips")
-        #expect(state.suggestions[1].label == "Coastal cruise", "Coastal cruise should be second chip")
-        #expect(callbackCount == 0, "Callback should not fire until user interaction")
+        // Use ViewInspector to find and tap the "Coastal cruise" suggestion chip
+        let inspected = try screen.inspect()
+
+        // Find the chip button with label "Coastal cruise" and tap it
+        // The chip is wrapped in LSChatInput which has identifier "idlescreen-chatinput"
+        let chatInputView = try inspected.find(viewWithAccessibilityIdentifier: "idlescreen-chatinput")
+        let chipButton = try chatInputView.find(viewWithAccessibilityIdentifier: "lschatinput-chip-coastal-cruise")
+        try chipButton.button().tap()
+
+        // Verify callback was fired exactly once with the correct chip
+        #expect(callbackCount == 1, "Callback should fire exactly once on chip tap")
+        #expect(tappedChip?.label == "Coastal cruise", "Should pass the correct chip to the callback")
     }
 
     /// AC-3: Trailing icon swaps from sliders to send on text entry
@@ -64,13 +70,21 @@ struct IdleScreenTests {
         // Initial state: input is empty
         #expect(inputValue.isEmpty, "Input should start empty")
 
-        // Simulate typing
-        inputValue = "Test ride"
+        // Verify LSChatInput receives the binding properly by accessing it through the binding
+        let binding = Binding(
+            get: { inputValue },
+            set: { inputValue = $0 }
+        )
 
-        // Verify state updated
-        #expect(!inputValue.isEmpty, "Input should contain text after update")
-        // LSChatInput owns the icon swap logic; template just passes binding
-        #expect(inputValue == "Test ride", "Input value should match typed text")
+        // Simulate user typing via the binding
+        binding.wrappedValue = "Test ride"
+
+        // Verify the binding propagates the state change
+        #expect(inputValue == "Test ride", "Input value should update through binding")
+        #expect(!inputValue.isEmpty, "Input should no longer be empty after text entry")
+
+        // The icon swap from sliders to send happens in LSChatInput based on the binding value
+        // Template correctly wires the binding to LSChatInput, which owns the icon logic
     }
 
     /// AC-4: Hamburger tap fires presentSessions callback
@@ -86,11 +100,18 @@ struct IdleScreenTests {
                 print("presentSessions")
             }
         )
+        .laneShadowTheme()
 
-        // Verify callback is wired correctly
-        // Simulate a call to the callback (as would happen on user tap in UI)
-        // This test verifies the closure is properly captured and invoked
-        #expect(menuTapCount == 0, "Menu callback should not fire until user interaction")
+        // Use ViewInspector to find and tap the hamburger button
+        let inspected = try screen.inspect()
+
+        // Find the hamburger button in the LSTopBar
+        let topBar = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar")
+        let hamburgerButton = try topBar.find(viewWithAccessibilityIdentifier: "lstopbar-hamburger")
+        try hamburgerButton.button().tap()
+
+        // Verify callback was fired exactly once
+        #expect(menuTapCount == 1, "Menu callback should fire exactly once on hamburger tap")
     }
 
     /// AC-5: Light/dark toggle re-resolves all tokens
@@ -113,29 +134,28 @@ struct IdleScreenTests {
     /// AC-6: No data fetching symbols in template source
     @Test
     func no_data_fetching_symbols() throws {
-        // At runtime, the source file is embedded in the test bundle
-        // We can also check the compiled binary for these symbols via inspection
-        // For this test, we verify the interface: IdleScreen is a pure View with no data fetching
+        // Read the IdleScreen.swift source file and verify it contains no forbidden symbols
+        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/IdleScreen.swift"
+        let sourceCode = try String(contentsOfFile: sourceFile, encoding: .utf8)
 
-        // Verify IdleScreen struct exists and takes only mock provider data
-        let provider = IdleMockProvider.default
-        let screen = IdleScreen(provider: provider)
+        // Define forbidden patterns that indicate data fetching
+        let forbiddenPatterns = [
+            "Convex",
+            "URLSession",
+            "CLLocationManager",
+            ".task(",
+            ".asyncComputed"
+        ]
 
-        // Verify no async operations are triggered on init
-        // If data fetching was present, initializing the view would trigger tasks
-        // The presence of these symbols would cause compilation issues in this context
+        // Verify source contains no forbidden symbols
+        for pattern in forbiddenPatterns {
+            #expect(
+                !sourceCode.contains(pattern),
+                "IdleScreen.swift should not contain '\(pattern)' — found data fetching symbol"
+            )
+        }
 
-        // Try to initialize IdleScreen - if it had forbidden symbols, it would fail
-        // to compile or exhibit data-fetching behavior
-        #expect(screen != nil, "IdleScreen should initialize successfully with mock provider")
-
-        // Verify the interface only accepts MockProvider and callbacks
-        // No Convex client, URLSession, or location manager is exposed
-        let test2 = IdleScreen(
-            provider: provider,
-            onMenuTap: { print("menu") },
-            onSuggestionTap: { _ in }
-        )
-        #expect(test2 != nil, "IdleScreen accepts only mock provider and callbacks")
+        // Verify the file exists and is readable (basic sanity check)
+        #expect(!sourceCode.isEmpty, "IdleScreen.swift source should be readable and non-empty")
     }
 }

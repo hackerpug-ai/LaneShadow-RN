@@ -81,6 +81,9 @@ public struct LSChatInput: View {
                         label: chip.label,
                         onTap: { handleSuggestionTap(chip) }
                     )
+                    .accessibilityIdentifier(
+                        "lschatinput-chip-\(chip.label.lowercased().replacingOccurrences(of: " ", with: "-"))"
+                    )
                 }
             }
             .padding(.horizontal, theme.space.xs)
@@ -151,6 +154,7 @@ public struct LSChatInput: View {
         Button(action: handleFilter) {
             LSIcon(name: .sliders, size: .md)
                 .foregroundStyle(ContentColor.secondary.resolved(in: theme))
+                .accessibilityIdentifier("lschatinput-filter-icon-sliders")
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
@@ -164,6 +168,7 @@ public struct LSChatInput: View {
         Button(action: handleSend) {
             LSIcon(name: .send, size: .md)
                 .foregroundStyle(theme.colors.primary.default)
+                .accessibilityIdentifier("lschatinput-send-icon")
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)

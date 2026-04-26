@@ -13,6 +13,6 @@ enum IdleScreenStory {
             summary: "Welcome screen with greeting overlay, map, and chat input with suggestions."
         ) { _ in
             IdleScreen(provider: IdleMockProvider.self)
-        },
+        }
     ]
 }
