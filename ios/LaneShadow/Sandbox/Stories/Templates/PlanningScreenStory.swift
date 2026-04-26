@@ -33,7 +33,7 @@ enum PlanningScreenStory {
                     label: "Active Phase",
                     control: .range(min: 1, max: 5, step: 1),
                     summary: "Which planning phase is active (1–5)"
-                )
+                ),
             ],
             initialArgs: ArgValues(["activePhase": 2])
         ) { args in

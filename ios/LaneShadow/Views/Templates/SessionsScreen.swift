@@ -110,7 +110,7 @@ public struct SessionsScreen: View {
             LinearGradient(
                 gradient: Gradient(colors: [
                     theme.colors.surface.default,
-                    theme.colors.background.default
+                    theme.colors.background.default,
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing

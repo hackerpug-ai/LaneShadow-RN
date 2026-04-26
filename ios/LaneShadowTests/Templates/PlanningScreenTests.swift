@@ -53,12 +53,18 @@ struct PlanningScreenTests {
 
         // Verify motion recipe is referenced
         let containsRecipeReference = source.contains("sketchPolylineLoopAnimation")
-        #expect(containsRecipeReference, "Source should reference motion.recipe.sketchPolylineLoop via sketchPolylineLoopAnimation")
+        #expect(
+            containsRecipeReference,
+            "Source should reference motion.recipe.sketchPolylineLoop via sketchPolylineLoopAnimation"
+        )
 
         // Verify NO literal Animation.easeInOut(duration:) for breathing dot
         let hasLiteralBreathingDotDuration = source.contains("Animation.easeInOut(duration:") &&
             source.contains("breathingDot")
-        #expect(!hasLiteralBreathingDotDuration, "Breathing dot animation should NOT use literal Animation.easeInOut(duration:)")
+        #expect(
+            !hasLiteralBreathingDotDuration,
+            "Breathing dot animation should NOT use literal Animation.easeInOut(duration:)"
+        )
 
         // Verify breathing dot recipe is used instead
         let containsBreathingRecipe = source.contains("breathingDotAnimationRecipe")

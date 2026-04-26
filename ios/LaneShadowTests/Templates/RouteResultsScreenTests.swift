@@ -18,7 +18,7 @@ struct RouteResultsScreenTests {
             UITraitCollection(userInterfaceStyle: .light),
             UITraitCollection(userInterfaceIdiom: .phone),
             UITraitCollection(horizontalSizeClass: .compact),
-            UITraitCollection(verticalSizeClass: .regular)
+            UITraitCollection(verticalSizeClass: .regular),
         ])))
     }
 
@@ -33,7 +33,7 @@ struct RouteResultsScreenTests {
         let requiredColorTokens = [
             "color.route.best",
             "color.route.alt1",
-            "color.route.alt2"
+            "color.route.alt2",
         ]
 
         for token in requiredColorTokens {
@@ -148,7 +148,7 @@ struct RouteResultsScreenTests {
                 UITraitCollection(userInterfaceStyle: .dark),
                 UITraitCollection(userInterfaceIdiom: .phone),
                 UITraitCollection(horizontalSizeClass: .compact),
-                UITraitCollection(verticalSizeClass: .regular)
+                UITraitCollection(verticalSizeClass: .regular),
             ]))
         )
     }
@@ -165,7 +165,7 @@ struct RouteResultsScreenTests {
             "URLSession",
             "CLLocationManager",
             ".task(",
-            ".asyncComputed"
+            ".asyncComputed",
         ]
 
         // Verify source contains no forbidden symbols

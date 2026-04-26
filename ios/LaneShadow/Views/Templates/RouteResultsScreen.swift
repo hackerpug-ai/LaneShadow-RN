@@ -38,13 +38,13 @@ public struct RouteResultsScreen: View {
                 GlassOverlaySlot(
                     id: "navigator-message",
                     content: { navigatorMessageOverlay }
-                )
+                ),
             ],
             bottomOverlays: [
                 GlassOverlaySlot(
                     id: "chatinput",
                     content: { chatInputView }
-                )
+                ),
             ],
             topBar: {
                 LSTopBar(
@@ -106,7 +106,7 @@ public struct RouteResultsScreen: View {
                 if let first = coords.first, let last = coords.last {
                     return [
                         Annotation(kind: .start, coordinate: first, label: nil),
-                        Annotation(kind: .end, coordinate: last, label: nil)
+                        Annotation(kind: .end, coordinate: last, label: nil),
                     ]
                 }
             }
@@ -134,7 +134,7 @@ public struct RouteResultsScreen: View {
         [
             LatLng(lat: 37.7749, lon: -122.4194),
             LatLng(lat: 37.7849, lon: -122.4094),
-            LatLng(lat: 37.7949, lon: -122.3994)
+            LatLng(lat: 37.7949, lon: -122.3994),
         ]
     }
 

@@ -20,7 +20,7 @@ struct RouteDetailsScreenTests {
                 UITraitCollection(userInterfaceStyle: .light),
                 UITraitCollection(userInterfaceIdiom: .phone),
                 UITraitCollection(horizontalSizeClass: .compact),
-                UITraitCollection(verticalSizeClass: .regular)
+                UITraitCollection(verticalSizeClass: .regular),
             ]))
         )
     }
@@ -88,7 +88,7 @@ struct RouteDetailsScreenTests {
                 UITraitCollection(userInterfaceStyle: .dark),
                 UITraitCollection(userInterfaceIdiom: .phone),
                 UITraitCollection(horizontalSizeClass: .compact),
-                UITraitCollection(verticalSizeClass: .regular)
+                UITraitCollection(verticalSizeClass: .regular),
             ]))
         )
     }
