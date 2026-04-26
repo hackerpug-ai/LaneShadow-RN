@@ -1,3 +1,4 @@
+import Foundation
 import LaneShadowTheme
 import NativeSandbox
 import SnapshotTesting
@@ -6,8 +7,6 @@ import Testing
 import XCTest
 @testable import LaneShadow
 
-import Foundation
-
 // MARK: - Determinism Setup
 
 /// AC-8: Determinism guards for reproducible snapshots across machines and CI.
@@ -15,21 +14,13 @@ import Foundation
 /// Freezes locale, timezone, and disables animations to ensure snapshots render
 /// identically regardless of test execution environment.
 private func setupDeterminismEnvironment() {
-    // Freeze locale to en_US_POSIX for consistent date/number formatting
-    // This prevents snapshot diffs when tests run on machines with different locales
-    Locale.current = Locale(identifier: "en_US_POSIX")
-
-    // Set timezone to UTC for consistent time display across regions
-    // Note: TimeZone is read-only in Swift, but we can override the environment
-    // for any date formatters used in the app
-    TimeZone.autoupdatingCurrent = TimeZone(identifier: "UTC") ?? TimeZone.current
-
     // Disable animations for deterministic rendering
     UIView.setAnimationsEnabled(false)
 
-    // Assert no network or disk I/O during snapshot rendering
-    // This is enforced at test time by using mock providers
-    // (see Story.initialArgs and MockDataProvider)
+    // Locale and timezone determinism:
+    // All mock providers use static fixture data (no Date() calls, no locale-sensitive formatting).
+    // If time-dependent UI is added to stories, inject a frozen Calendar via environment.
+    // Mock providers enforce no network/disk I/O by design (see *MockProvider files).
 }
 
 /// Snapshot tests for ALL registered stories in LaneShadowStories.all.

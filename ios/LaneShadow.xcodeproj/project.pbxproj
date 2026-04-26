@@ -139,7 +139,7 @@
 		9585186566089A7EAF681DDB /* ChatTranscript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTranscript.swift; sourceTree = "<group>"; };
 		9B5F858C066D550CE73CE6FD /* InfoToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoToast.swift; sourceTree = "<group>"; };
 		9F8ABC117BB7538D9D09E1F6 /* LSPhaseDotStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPhaseDotStories.swift; sourceTree = "<group>"; };
-		A1A52B8D2FD24825F37E28D0 /* StorySnapshotTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StorySnapshotTests.swift; path = LaneShadowTests/Sandbox/StorySnapshotTests.swift; sourceTree = "<group>"; };
+		A1A52B8D2FD24825F37E28D0 /* StorySnapshotTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StorySnapshotTests.swift; path = ../LaneShadowTests/Sandbox/StorySnapshotTests.swift; sourceTree = "<group>"; };
 		A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSSuggestionChip.swift; sourceTree = "<group>"; };
 		A770CE2595F52C1DC3532F8A /* LSMapStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSMapStories.swift; sourceTree = "<group>"; };
 		A9EDF4218751AC8200085830 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
