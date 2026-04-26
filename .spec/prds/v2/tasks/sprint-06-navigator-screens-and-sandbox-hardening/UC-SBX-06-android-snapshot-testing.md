@@ -4,7 +4,10 @@
 **Agent:** kotlin-implementer
 **Estimate:** 480 min
 **Type:** FEATURE
-**Status:** NEEDS_FIXES (kotlin-reviewer, 2026-04-26 round 1)
+**Status:** ✅ Completed (with cross-platform parity caveat — see follow-up task UC-SBX-06-cross-platform-parity-normalization)
+**Completed:** 2026-04-26
+**Commits:** 05014291 (initial), 438629f2 (sanitize+parameterize), 49b3b17a (manifest orphans + check.ts androidOnly fix)
+**Reviewer:** kotlin-reviewer (cycle 1 NEEDS_FIXES → cycle 2 fixes shipped → cycle 3 manifest fixes → user-approved option 2: defer cross-platform parity to follow-up)
 **Priority:** P0
 **Effort:** XL
 **PRD Refs:** UC-SBX-06
