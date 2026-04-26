@@ -18,6 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -107,9 +111,62 @@ fun LSMap(
                     Canvas(modifier = Modifier.fillMaxSize()) {
                         // Render animated polylines with drawProgress applied
                         renderModel.polylines.forEach { polyline ->
-                            // drawProgress controls the visible fraction of the polyline (0f = none, 1f = full)
-                            // This canvas layer clips the polyline rendering based on drawProgress
-                            // allowing sketch animations to progressively draw the line
+                            val drawProgress = polyline.drawProgress
+                            if (drawProgress <= 0f) return@forEach
+
+                            // Convert LatLng coordinates to screen offsets
+                            // Note: This is a simplified version. In production, you'd need to
+                            // properly project LatLng to screen coordinates using the map's projection
+                            val path = Path()
+                            val coordinates = polyline.coordinates
+                            if (coordinates.isNotEmpty()) {
+                                // Calculate how many points to draw based on drawProgress
+                                val totalPoints = coordinates.size
+                                val pointsToDraw = (totalPoints * drawProgress).toInt().coerceAtLeast(1)
+
+                                // Start the path at the first coordinate
+                                // Using a simple projection for demo - in production, use map projection
+                                val start = coordinates[0]
+                                val startX = size.width * 0.3f  // Simplified projection
+                                val startY = size.height * 0.5f
+                                path.moveTo(startX, startY)
+
+                                // Draw line segments up to the progress point
+                                for (i in 1 until pointsToDraw) {
+                                    val coord = coordinates[i]
+                                    // Simple projection: spread coordinates across the canvas
+                                    val x = startX + (coord.lon - start.lon).toFloat() * 10000f
+                                    val y = startY - (coord.lat - start.lat).toFloat() * 10000f
+                                    path.lineTo(x, y)
+                                }
+
+                                // If we're drawing a partial segment, interpolate the last point
+                                if (pointsToDraw < totalPoints && pointsToDraw > 0) {
+                                    val progressFraction = (totalPoints * drawProgress) - pointsToDraw
+                                    if (progressFraction > 0f && pointsToDraw < coordinates.size) {
+                                        val prevCoord = coordinates[pointsToDraw - 1]
+                                        val nextCoord = coordinates[pointsToDraw]
+
+                                        val prevX = startX + (prevCoord.lon - start.lon).toFloat() * 10000f
+                                        val prevY = startY - (prevCoord.lat - start.lat).toFloat() * 10000f
+                                        val nextX = startX + (nextCoord.lon - start.lon).toFloat() * 10000f
+                                        val nextY = startY - (nextCoord.lat - start.lat).toFloat() * 10000f
+
+                                        val interpX = prevX + (nextX - prevX) * progressFraction
+                                        val interpY = prevY + (nextY - prevY) * progressFraction
+                                        path.lineTo(interpX, interpY)
+                                    }
+                                }
+
+                                // Draw the path with the polyline's stroke width and color
+                                drawPath(
+                                    path = path,
+                                    color = polyline.color,
+                                    style = Stroke(
+                                        width = polyline.strokeWidth.value
+                                    )
+                                )
+                            }
                         }
                     }
                 }
