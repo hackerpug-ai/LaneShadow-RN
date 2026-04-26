@@ -84,7 +84,7 @@ public struct IdleScreen: View {
         VStack(alignment: .leading, spacing: theme.space.sm) {
             // Meta label (e.g., "FRIDAY · 68°F · CLEAR")
             Text(state.greeting.meta)
-                .font(.system(size: 12, weight: .medium, design: .default))
+                .font(theme.type.label.sm.font)
                 .foregroundStyle(theme.colors.onSurface.default)
                 .accessibilityIdentifier("idlescreen-greeting-meta")
 
@@ -108,7 +108,7 @@ public struct IdleScreen: View {
                     }
                 }
             }
-            .font(.system(size: 24, weight: .semibold, design: .default))
+            .font(theme.type.heading.md.font)
             .foregroundStyle(theme.colors.onSurface.default)
             .accessibilityIdentifier("idlescreen-greeting-headline")
         }

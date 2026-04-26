@@ -7,8 +7,10 @@ import Foundation
 public enum IdleMockProvider: MockProvider {
     public static let variants = ["default", "empty", "overflow", "long-copy"]
 
-    // Singleton instances for convenience
-    public static var `default`: IdleMockProvider.Type { IdleMockProvider.self }
+    /// Singleton instances for convenience
+    public static var `default`: IdleMockProvider.Type {
+        IdleMockProvider.self
+    }
 
     public static func value(variant: String = "default") -> IdleScreenState {
         switch variant {
@@ -33,12 +35,12 @@ public enum IdleMockProvider: MockProvider {
             suggestions: [
                 MockSuggestionChip(id: "chip-001", label: "Twisty back roads"),
                 MockSuggestionChip(id: "chip-002", label: "Coastal cruise"),
-                MockSuggestionChip(id: "chip-003", label: "Try inland"),
-                MockSuggestionChip(id: "chip-004", label: "End at Big Sur"),
+                MockSuggestionChip(id: "chip-003", label: "Half-day loop"),
+                MockSuggestionChip(id: "chip-004", label: "Mountain passes")
             ],
             locationContext: MockLocationContext(
                 label: "Near Santa Cruz, CA",
-                mode: "auto"
+                mode: "manual"
             )
         )
     }
@@ -68,8 +70,8 @@ public enum IdleMockProvider: MockProvider {
             suggestions: [
                 MockSuggestionChip(id: "chip-001", label: "Twisty back roads"),
                 MockSuggestionChip(id: "chip-002", label: "Coastal cruise"),
-                MockSuggestionChip(id: "chip-003", label: "Try inland"),
-                MockSuggestionChip(id: "chip-004", label: "End at Big Sur"),
+                MockSuggestionChip(id: "chip-003", label: "Half-day loop"),
+                MockSuggestionChip(id: "chip-004", label: "Mountain passes"),
                 MockSuggestionChip(id: "chip-005", label: "Mountain pass"),
                 MockSuggestionChip(id: "chip-006", label: "Valley roads"),
                 MockSuggestionChip(id: "chip-007", label: "Forest trails"),
@@ -77,20 +79,24 @@ public enum IdleMockProvider: MockProvider {
                 MockSuggestionChip(id: "chip-009", label: "Wine country"),
                 MockSuggestionChip(id: "chip-010", label: "Historic towns"),
                 MockSuggestionChip(id: "chip-011", label: "Waterfall route"),
-                MockSuggestionChip(id: "chip-012", label: "Sunset spot"),
+                MockSuggestionChip(id: "chip-012", label: "Sunset spot")
             ],
             locationContext: MockLocationContext(
                 label: "Near Santa Cruz, CA",
-                mode: "auto"
+                mode: "manual"
             )
         )
     }
 
     private static func longCopyState() -> IdleScreenState {
-        IdleScreenState(
+        let longMeta = "FRIDAY · APRIL 25TH · 68 DEGREES FAHRENHEIT · CLEAR SKIES WITH " +
+            "UNLIMITED VISIBILITY AND PERFECT RIDING CONDITIONS"
+        let longHeadline = "Where are we riding on this beautiful and absolutely perfect " +
+            "day for a motorcycle adventure?"
+        return IdleScreenState(
             greeting: Greeting(
-                meta: "FRIDAY · APRIL 25TH · 68 DEGREES FAHRENHEIT · CLEAR SKIES WITH UNLIMITED VISIBILITY AND PERFECT RIDING CONDITIONS",
-                headline: "Where are we riding on this beautiful and absolutely perfect day for a motorcycle adventure?",
+                meta: longMeta,
+                headline: longHeadline,
                 emphasis: "today"
             ),
             suggestions: [
@@ -104,16 +110,16 @@ public enum IdleMockProvider: MockProvider {
                 ),
                 MockSuggestionChip(
                     id: "chip-003",
-                    label: "Try inland routes through valleys and farmland with gentle curves"
+                    label: "Half-day loop routes through valleys and farmland with gentle curves"
                 ),
                 MockSuggestionChip(
                     id: "chip-004",
-                    label: "End at Big Sur with dinner at the famous restaurant overlooking the Pacific"
-                ),
+                    label: "Mountain passes with dinner at the famous restaurant overlooking the Pacific"
+                )
             ],
             locationContext: MockLocationContext(
                 label: "Near Santa Cruz, California, United States of America, North America",
-                mode: "auto"
+                mode: "manual"
             )
         )
     }
