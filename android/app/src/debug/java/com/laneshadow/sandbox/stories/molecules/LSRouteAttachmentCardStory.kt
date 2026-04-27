@@ -12,7 +12,7 @@ import com.nativesandbox.model.Story
 object LSRouteAttachmentCardStory {
     val all: List<Story> = listOf(
         routeStory(
-            id = "molecules.routeattachment.bestSelected",
+            id = "molecules.routeattachmentcard.best-selected",
             name = "Best Selected",
             summary = "Selected best route shows signal border, best badge, and weather.",
         ) {
@@ -22,7 +22,7 @@ object LSRouteAttachmentCardStory {
             )
         },
         routeStory(
-            id = "molecules.routeattachment.bestCompact",
+            id = "molecules.routeattachmentcard.best-compact",
             name = "Best Compact",
             summary = "Compact layout hides best and weather badges while keeping metrics.",
         ) {
@@ -32,21 +32,21 @@ object LSRouteAttachmentCardStory {
             )
         },
         routeStory(
-            id = "molecules.routeattachment.alt1",
+            id = "molecules.routeattachmentcard.alt-1",
             name = "Alt1",
             summary = "Alternate route one uses the alt1 leading stripe.",
         ) {
             LSRouteAttachmentCard(route = route(variant = RouteVariant.Alt1))
         },
         routeStory(
-            id = "molecules.routeattachment.alt2",
+            id = "molecules.routeattachmentcard.alt-2",
             name = "Alt2",
             summary = "Alternate route two uses the alt2 leading stripe.",
         ) {
             LSRouteAttachmentCard(route = route(variant = RouteVariant.Alt2))
         },
         routeStory(
-            id = "molecules.routeattachment.favoriteFlag",
+            id = "molecules.routeattachmentcard.with-favorite-flag",
             name = "With Favorite Flag",
             summary = "Favorite label row renders below the metrics row.",
         ) {
@@ -58,7 +58,7 @@ object LSRouteAttachmentCardStory {
             )
         },
         routeStory(
-            id = "molecules.routeattachment.longTitle",
+            id = "molecules.routeattachmentcard.long-title",
             name = "Long Title (Overflow)",
             summary = "Long route titles wrap within the card content column.",
         ) {

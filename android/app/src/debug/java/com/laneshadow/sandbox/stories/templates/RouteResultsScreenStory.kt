@@ -13,7 +13,7 @@ import com.nativesandbox.model.Story
 object RouteResultsScreenStory {
     val all: List<Story> = listOf(
         Story(
-            id = "templates.routeResults.default",
+            id = "templates.route-results.default",
             tier = ComponentTier.Template,
             component = "RouteResultsScreen",
             name = "Default",

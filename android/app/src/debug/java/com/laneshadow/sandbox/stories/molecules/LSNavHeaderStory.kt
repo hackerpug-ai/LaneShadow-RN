@@ -19,7 +19,7 @@ object LSNavHeaderStory {
             )
         },
         story(
-            id = "molecules.navheader.largeTitle",
+            id = "molecules.navheader.large-title",
             name = "Large Title",
             summary = "Static Android large-title style using opinion typography.",
         ) {
@@ -29,7 +29,7 @@ object LSNavHeaderStory {
             )
         },
         story(
-            id = "molecules.navheader.largeTitleSubtitle",
+            id = "molecules.navheader.large-title-with-subtitle",
             name = "Large Title With Subtitle",
             summary = "Large-title style with supporting subtitle copy.",
         ) {

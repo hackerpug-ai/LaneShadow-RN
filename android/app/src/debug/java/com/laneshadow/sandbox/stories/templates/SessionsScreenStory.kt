@@ -79,7 +79,7 @@ object SessionsScreenStory {
             },
         ),
         Story(
-            id = "templates.sessions.longCopy",
+            id = "templates.sessions.long-copy",
             tier = ComponentTier.Template,
             component = "SessionsScreen",
             name = "Sessions Screen (Long Copy)",

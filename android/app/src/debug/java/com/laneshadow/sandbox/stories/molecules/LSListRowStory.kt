@@ -11,7 +11,7 @@ import com.nativesandbox.model.Story
 object LSListRowStory {
     val all: List<Story> = listOf(
         story(
-            id = "molecules.listrow.leadingIcon",
+            id = "molecules.listrow.leading-icon",
             name = "Leading Icon",
             summary = "Row with icon-leading content.",
         ) {
@@ -21,7 +21,7 @@ object LSListRowStory {
             )
         },
         story(
-            id = "molecules.listrow.leadingAvatar",
+            id = "molecules.listrow.leading-avatar",
             name = "Leading Avatar",
             summary = "Row with avatar-leading content.",
         ) {
@@ -31,7 +31,7 @@ object LSListRowStory {
             )
         },
         story(
-            id = "molecules.listrow.withSubtitle",
+            id = "molecules.listrow.with-subtitle",
             name = "With Subtitle",
             summary = "Row with subtitle under title text.",
         ) {
@@ -42,7 +42,7 @@ object LSListRowStory {
             )
         },
         story(
-            id = "molecules.listrow.withToggle",
+            id = "molecules.listrow.with-toggle",
             name = "With Toggle",
             summary = "Row with trailing toggle indicator variant.",
         ) {
@@ -53,7 +53,7 @@ object LSListRowStory {
             )
         },
         story(
-            id = "molecules.listrow.withChevron",
+            id = "molecules.listrow.with-chevron",
             name = "With Chevron",
             summary = "Row with default trailing chevron affordance.",
         ) {
@@ -64,7 +64,7 @@ object LSListRowStory {
             )
         },
         story(
-            id = "molecules.listrow.withTrailingButton",
+            id = "molecules.listrow.with-trailing-button",
             name = "With Trailing Button",
             summary = "Row with trailing button-style label treatment.",
         ) {

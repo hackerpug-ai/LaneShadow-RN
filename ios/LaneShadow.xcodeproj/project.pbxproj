@@ -12,7 +12,6 @@
 		078589B1255FE42AA7459089 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */; };
 		0A215149AE7AF5FBBCB5409E /* ConvexStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */; };
 		0B45673D740CC18D7C34929C /* LSButtonStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05416F03B3657341F705522A /* LSButtonStories.swift */; };
-		1030D0562B837B78A06D138D /* LSBottomSheetStory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3A089B3C507033B7B2BEF8 /* LSBottomSheetStory.swift */; };
 		1952669D73F48496CFB75791 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = A82A70CA01368BECA5189F19 /* LaneShadowTheme */; };
 		19B2E80084FD9A981F497DB5 /* ViewInspector in Frameworks */ = {isa = PBXBuildFile; productRef = 97E29B716CED481799DD0795 /* ViewInspector */; };
 		1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534D26C275878552CD82E5FE /* LSDisplayStories.swift */; };
@@ -22,22 +21,17 @@
 		2A685A9BE84EC13D3483B8C8 /* TemplateStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCE935E865EBECBA195F949 /* TemplateStories.swift */; };
 		323F22288BE45E90ACCC8B5C /* InfrastructureControlsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F70ECDFAA1C996A2AF6FEA1C /* InfrastructureControlsStories.swift */; };
 		329EEE4B089D016554E2F75B /* LSToastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7996DA2EBA1763B4956D788D /* LSToastTests.swift */; };
-		34177B113250A9B068F8E3EA /* LSEmptyStateStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA14A4A60BB921AEF31B1BE7 /* LSEmptyStateStories.swift */; };
 		35821980B5053707A9A97CDE /* LSRouteSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEDACF6EC8AA820E5E31C40 /* LSRouteSheet.swift */; };
 		3607457D8D985DC783EDA889 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = E4B9E7FB06EF17E9BD9B418A /* SnapshotTesting */; };
 		3D2143A67410FB5D8D2F3B45 /* LSInputStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE8CB573821E0981D725E364 /* LSInputStories.swift */; };
 		40979501CCACCFB156F25EB5 /* LaneShadowSandboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C289172CD246D71CC0E6BB /* LaneShadowSandboxEntry.swift */; };
-		44945380093B96A3F672A526 /* LSModalStory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0880B419366B8C13DDE80143 /* LSModalStory.swift */; };
 		47CC25D1D29279914E05235A /* LSBottomSheetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7360EC93AFB89C2E49D267 /* LSBottomSheetTests.swift */; };
 		4BFD443A4E64B7C1A81AF04E /* LSFormFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1BDF769396CF5EB37B55B9 /* LSFormFieldTests.swift */; };
 		4CDBE631CAAFA6685708C14B /* ConvexMobile in Frameworks */ = {isa = PBXBuildFile; productRef = CE666EC279651E6E31EE5FBE /* ConvexMobile */; };
 		5029E341AA188CA5E844D5EC /* LSToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02BC467210742F6F3E603FFA /* LSToast.swift */; };
-		5579899B4D154308A5587154 /* LSPhaseIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F96295534BC4A8CB4B3C330 /* LSPhaseIndicator.swift */; };
 		5E2C1E120480203DDF3939E8 /* LSToolbarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E444532E22B318AA5B8E61E2 /* LSToolbarTests.swift */; };
 		616DD39EE36B30266B875E68 /* PlaceholderInfrastructureStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4AF39CEF8D705CF349C8B30 /* PlaceholderInfrastructureStories.swift */; };
 		65B25E1FD1EB3DA2BCF92572 /* LSLocationContextBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */; };
-		65C11E528E73546DE7A92630 /* LSToolbarStory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15E783920D0C7F446CD2A1C7 /* LSToolbarStory.swift */; };
-		67E11B124F365ECBE356E456 /* LSTabItemStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31658B6BC3E9D3BE680EB5C8 /* LSTabItemStories.swift */; };
 		67E4FE6F8B713FEF68326B97 /* LSTabItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1261D8D753487C4CE27B783 /* LSTabItemTests.swift */; };
 		6BB3BD5F5C744CD42F5DF5C6 /* LSChatInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3123362FBC613B11809CE348 /* LSChatInputTests.swift */; };
 		762FB79AB5AE6050179BB785 /* LSScrimStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F281656D06513E78E57D10D /* LSScrimStories.swift */; };
@@ -52,15 +46,12 @@
 		95572DAE37FCF32B9BDE4BC4 /* LSMapStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = A770CE2595F52C1DC3532F8A /* LSMapStories.swift */; };
 		95DD81C1CEF88FF460DA7A6E /* InfoToastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20AC933B1DF7AFFC89BD22E0 /* InfoToastTests.swift */; };
 		96D64305E0336CAB29EDE308 /* LSChatInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19695B8A9932BA0DADCBEADF /* LSChatInput.swift */; };
-		9FCE01BFE6E270FC78FCF05A /* LSFormFieldStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC4A7D452F312F54C6748C22 /* LSFormFieldStories.swift */; };
 		A09AB47FC330215325A9F4F1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDF4218751AC8200085830 /* Foundation.framework */; };
 		A71A81EDC8563AFD14EE83FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95CA989BE1243B1021F83D3 /* ContentView.swift */; };
-		AB76A5DDC894FEE5240E0AA2 /* LSChatInputStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = E78086BF19CF8443A4664599 /* LSChatInputStories.swift */; };
 		B55D247513D3B4742E36D92B /* AtomsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */; };
 		B5FF9B8BF6CCCBF0478B2A77 /* LaneShadowStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */; };
 		B6A59F8B49C2AD8ECBFB7A18 /* LSRouteAttachmentCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70071A35653D217D4EB4A4B8 /* LSRouteAttachmentCard.swift */; };
 		C20B40ADB8746BAD7B7A3FF1 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = 5B658B1BAB40A50AE36EE201 /* LaneShadowTheme */; };
-		C24598DF57B2992BA1D59501 /* LSToastStory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B452143E44AAB17CB9164E3 /* LSToastStory.swift */; };
 		C431BDCE02738DEAD857663D /* LSToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFFB033EDA463052A650A51D /* LSToolbar.swift */; };
 		C815D55CC39819958EAC1ED1 /* LSWeatherTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EE8B6BD461E65A5DD1F948 /* LSWeatherTimeline.swift */; };
 		C9108535DE88E44D62CC2AE6 /* MarkdownTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5107D4267204A230D572AB9 /* MarkdownTextTests.swift */; };
@@ -72,7 +63,6 @@
 		E868E14CF971E572F61A614E /* MoleculesStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */; };
 		EA035D37C13A73B7C213068C /* LSBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4783B461B5B9EC6A5AA6F1DF /* LSBottomSheet.swift */; };
 		ED9DF59A25970507B80D1720 /* MapboxMaps in Frameworks */ = {isa = PBXBuildFile; productRef = DA5E21A6F8345673A1101414 /* MapboxMaps */; };
-		F5EEDBEA7373BA0542774071 /* StorySnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1A52B8D2FD24825F37E28D0 /* StorySnapshotTests.swift */; };
 		F93C7EA30338ABCA88DEE925 /* InfrastructureStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */; };
 		F994D017357EA5F2EAA9D72F /* LSModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94AB21A076699921AC328EE9 /* LSModal.swift */; };
 		F9E41F8A8E5435B9BCD67D40 /* InfoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5F858C066D550CE73CE6FD /* InfoToast.swift */; };
@@ -99,12 +89,9 @@
 /* Begin PBXFileReference section */
 		02BC467210742F6F3E603FFA /* LSToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToast.swift; sourceTree = "<group>"; };
 		05416F03B3657341F705522A /* LSButtonStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSButtonStories.swift; sourceTree = "<group>"; };
-		0880B419366B8C13DDE80143 /* LSModalStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSModalStory.swift; sourceTree = "<group>"; };
 		0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		0B452143E44AAB17CB9164E3 /* LSToastStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToastStory.swift; sourceTree = "<group>"; };
 		0E259B982ADB47ABE53D132D /* LSTextStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTextStories.swift; sourceTree = "<group>"; };
 		15A4BF96B7AD1B8F8BABF061 /* LSSessionsDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSSessionsDrawer.swift; sourceTree = "<group>"; };
-		15E783920D0C7F446CD2A1C7 /* LSToolbarStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbarStory.swift; sourceTree = "<group>"; };
 		19695B8A9932BA0DADCBEADF /* LSChatInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSChatInput.swift; sourceTree = "<group>"; };
 		1C18F36042134628BD1BF30B /* LSTabItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTabItem.swift; sourceTree = "<group>"; };
 		1E4B5E214B40EA6C2A95441B /* LSInstrumentReadout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSInstrumentReadout.swift; sourceTree = "<group>"; };
@@ -113,11 +100,9 @@
 		220BC64128EB0A24188F4C65 /* LSPillStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPillStories.swift; sourceTree = "<group>"; };
 		307F61C56AD06224E9F93B51 /* LaneShadow.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LaneShadow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3123362FBC613B11809CE348 /* LSChatInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSChatInputTests.swift; sourceTree = "<group>"; };
-		31658B6BC3E9D3BE680EB5C8 /* LSTabItemStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTabItemStories.swift; sourceTree = "<group>"; };
 		324B26FB2DE3F759B489CB7B /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		3B4E8EF6472F1ABEBBC33DFB /* ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ios; path = "../../native-sandbox/ios"; sourceTree = SOURCE_ROOT; };
 		3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomsStories.swift; sourceTree = "<group>"; };
-		3F96295534BC4A8CB4B3C330 /* LSPhaseIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPhaseIndicator.swift; sourceTree = "<group>"; };
 		3FCE935E865EBECBA195F949 /* TemplateStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateStories.swift; sourceTree = "<group>"; };
 		4783B461B5B9EC6A5AA6F1DF /* LSBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSBottomSheet.swift; sourceTree = "<group>"; };
 		478C8C03ABF1E0F4AFEF0836 /* LSWeatherBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSWeatherBadge.swift; sourceTree = "<group>"; };
@@ -139,13 +124,10 @@
 		9585186566089A7EAF681DDB /* ChatTranscript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTranscript.swift; sourceTree = "<group>"; };
 		9B5F858C066D550CE73CE6FD /* InfoToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoToast.swift; sourceTree = "<group>"; };
 		9F8ABC117BB7538D9D09E1F6 /* LSPhaseDotStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPhaseDotStories.swift; sourceTree = "<group>"; };
-		A1A52B8D2FD24825F37E28D0 /* StorySnapshotTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StorySnapshotTests.swift; path = ../LaneShadowTests/Sandbox/StorySnapshotTests.swift; sourceTree = "<group>"; };
 		A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSSuggestionChip.swift; sourceTree = "<group>"; };
 		A770CE2595F52C1DC3532F8A /* LSMapStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSMapStories.swift; sourceTree = "<group>"; };
 		A9EDF4218751AC8200085830 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		AC4A7D452F312F54C6748C22 /* LSFormFieldStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFormFieldStories.swift; sourceTree = "<group>"; };
 		B95CA989BE1243B1021F83D3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		BB3A089B3C507033B7B2BEF8 /* LSBottomSheetStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSBottomSheetStory.swift; sourceTree = "<group>"; };
 		BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfrastructureStories.swift; sourceTree = "<group>"; };
 		BD7360EC93AFB89C2E49D267 /* LSBottomSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSBottomSheetTests.swift; sourceTree = "<group>"; };
 		C4AF39CEF8D705CF349C8B30 /* PlaceholderInfrastructureStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderInfrastructureStories.swift; sourceTree = "<group>"; };
@@ -155,8 +137,6 @@
 		DA1BDF769396CF5EB37B55B9 /* LSFormFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFormFieldTests.swift; sourceTree = "<group>"; };
 		E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoleculesStories.swift; sourceTree = "<group>"; };
 		E444532E22B318AA5B8E61E2 /* LSToolbarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbarTests.swift; sourceTree = "<group>"; };
-		E78086BF19CF8443A4664599 /* LSChatInputStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSChatInputStories.swift; sourceTree = "<group>"; };
-		EA14A4A60BB921AEF31B1BE7 /* LSEmptyStateStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSEmptyStateStories.swift; sourceTree = "<group>"; };
 		EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSLocationContextBar.swift; sourceTree = "<group>"; };
 		ED792B4C270AB975C34CB118 /* LaneShadowTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LaneShadowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE8CB573821E0981D725E364 /* LSInputStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSInputStories.swift; sourceTree = "<group>"; };
@@ -168,7 +148,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		58099F917373377216261552 /* Exceptions for "Atoms" folder in "LaneShadow" target */ = {
+		58099F917373377216261552 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Button.swift,
@@ -180,118 +160,116 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0B23304A78B886F9A286C5E4 /* Sandbox */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Sandbox;
 			path = Sandbox;
 			sourceTree = "<group>";
 		};
 		0E516A6442C2AA10AA5009F5 /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		244E36879200004067F64629 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		3BC11B009ED26B33FC7A0333 /* Entry */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Entry;
 			path = Entry;
 			sourceTree = "<group>";
 		};
 		3CE2AE4772ABC9D4A3699741 /* MockProviders */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = MockProviders;
 			path = MockProviders;
 			sourceTree = "<group>";
 		};
 		4C8A8E02554AE3D5AC4FAC51 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		5B8A253F72C6B3D6A21D5422 /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Atoms;
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		5D43661EA5776DD985956D8D /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Templates;
 			path = Templates;
+			sourceTree = "<group>";
+		};
+		7290175E358A1C93D4A90231 /* Molecules */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Molecules;
+			path = Molecules;
 			sourceTree = "<group>";
 		};
 		9B1969E887592C82E1672459 /* Launch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Launch;
 			path = Launch;
 			sourceTree = "<group>";
 		};
 		A1DA24033B9915EAB116ED62 /* Generated */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Generated;
 			path = Generated;
 			sourceTree = "<group>";
 		};
 		A8E49074235FCF05900AA173 /* LaneShadowUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
@@ -301,57 +279,54 @@
 		};
 		B92913E9843A5845817A3DBD /* Controls */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Controls;
 			path = Controls;
 			sourceTree = "<group>";
 		};
 		CE8B4DF54243DD52953C7CFE /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				58099F917373377216261552 /* Exceptions for "Atoms" folder in "LaneShadow" target */,
+				58099F917373377216261552 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
 			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Atoms;
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		CF77ECAB776F34B039A160CA /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		D026D3B873FDE7B7153F206F /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		E5E2F792F8318B064762B018 /* Theme */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Theme;
 			path = Theme;
 			sourceTree = "<group>";
 		};
@@ -383,14 +358,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1B387CA5F50D74B5BD47F92D /* LaneShadowTests */ = {
-			isa = PBXGroup;
-			children = (
-				A1A52B8D2FD24825F37E28D0 /* StorySnapshotTests.swift */,
-			);
-			name = LaneShadowTests;
-			sourceTree = "<group>";
-		};
 		1F10FC2E199EFDF6EFDFEDA8 /* Sandbox */ = {
 			isa = PBXGroup;
 			children = (
@@ -430,7 +397,7 @@
 			isa = PBXGroup;
 			children = (
 				25E9207CB7FFB02863C96FDE /* Infrastructure */,
-				8C41ED0E046EE966A32C67CB /* Molecules */,
+				7290175E358A1C93D4A90231 /* Molecules */,
 				D026D3B873FDE7B7153F206F /* Organisms */,
 				CF77ECAB776F34B039A160CA /* Templates */,
 				3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */,
@@ -463,7 +430,6 @@
 				1E4B5E214B40EA6C2A95441B /* LSInstrumentReadout.swift */,
 				EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */,
 				94AB21A076699921AC328EE9 /* LSModal.swift */,
-				3F96295534BC4A8CB4B3C330 /* LSPhaseIndicator.swift */,
 				70071A35653D217D4EB4A4B8 /* LSRouteAttachmentCard.swift */,
 				A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */,
 				1C18F36042134628BD1BF30B /* LSTabItem.swift */,
@@ -487,7 +453,6 @@
 				0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */,
 				B95CA989BE1243B1021F83D3 /* ContentView.swift */,
 				F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */,
-				1B387CA5F50D74B5BD47F92D /* LaneShadowTests */,
 			);
 			path = LaneShadow;
 			sourceTree = "<group>";
@@ -529,21 +494,6 @@
 				5C592B52392DEEACF2D91C3B /* LaneShadowTests.swift */,
 			);
 			path = LaneShadowTests;
-			sourceTree = "<group>";
-		};
-		8C41ED0E046EE966A32C67CB /* Molecules */ = {
-			isa = PBXGroup;
-			children = (
-				BB3A089B3C507033B7B2BEF8 /* LSBottomSheetStory.swift */,
-				E78086BF19CF8443A4664599 /* LSChatInputStories.swift */,
-				EA14A4A60BB921AEF31B1BE7 /* LSEmptyStateStories.swift */,
-				AC4A7D452F312F54C6748C22 /* LSFormFieldStories.swift */,
-				0880B419366B8C13DDE80143 /* LSModalStory.swift */,
-				31658B6BC3E9D3BE680EB5C8 /* LSTabItemStories.swift */,
-				0B452143E44AAB17CB9164E3 /* LSToastStory.swift */,
-				15E783920D0C7F446CD2A1C7 /* LSToolbarStory.swift */,
-			);
-			path = Molecules;
 			sourceTree = "<group>";
 		};
 		9A00239A316DF9BC49914EC8 /* Views */ = {
@@ -609,6 +559,7 @@
 				A1DA24033B9915EAB116ED62 /* Generated */,
 				9B1969E887592C82E1672459 /* Launch */,
 				3CE2AE4772ABC9D4A3699741 /* MockProviders */,
+				7290175E358A1C93D4A90231 /* Molecules */,
 				D026D3B873FDE7B7153F206F /* Organisms */,
 				4C8A8E02554AE3D5AC4FAC51 /* Organisms */,
 				CF77ECAB776F34B039A160CA /* Templates */,
@@ -642,6 +593,8 @@
 				A8E49074235FCF05900AA173 /* LaneShadowUITests */,
 			);
 			name = LaneShadowUITests;
+			packageProductDependencies = (
+			);
 			productName = LaneShadowUITests;
 			productReference = EF4B1C18D8FD1069B42CB70D /* LaneShadowUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -711,8 +664,8 @@
 				B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */,
 				15EF0D9EB05071BCFDAB5F3D /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
 				E60D5EE87AD2B6F3ECB752C9 /* XCRemoteSwiftPackageReference "ViewInspector" */,
-				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "swift" */,
-				587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "ios" */,
+				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */,
+				587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A409E156DCE522478E497BB1 /* Products */;
@@ -808,37 +761,28 @@
 				323F22288BE45E90ACCC8B5C /* InfrastructureControlsStories.swift in Sources */,
 				F93C7EA30338ABCA88DEE925 /* InfrastructureStories.swift in Sources */,
 				EA035D37C13A73B7C213068C /* LSBottomSheet.swift in Sources */,
-				1030D0562B837B78A06D138D /* LSBottomSheetStory.swift in Sources */,
 				0B45673D740CC18D7C34929C /* LSButtonStories.swift in Sources */,
 				96D64305E0336CAB29EDE308 /* LSChatInput.swift in Sources */,
-				AB76A5DDC894FEE5240E0AA2 /* LSChatInputStories.swift in Sources */,
 				1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */,
 				E59A273AD62956C2EFAC59C9 /* LSEmptyState.swift in Sources */,
-				34177B113250A9B068F8E3EA /* LSEmptyStateStories.swift in Sources */,
 				8DD1E5F229561147AA644B21 /* LSFormField.swift in Sources */,
-				9FCE01BFE6E270FC78FCF05A /* LSFormFieldStories.swift in Sources */,
 				E38D09C5CE8E05B40EC425E5 /* LSIconStories.swift in Sources */,
 				3D2143A67410FB5D8D2F3B45 /* LSInputStories.swift in Sources */,
 				94E60FEB07AEEC72B08535A1 /* LSInstrumentReadout.swift in Sources */,
 				65B25E1FD1EB3DA2BCF92572 /* LSLocationContextBar.swift in Sources */,
 				95572DAE37FCF32B9BDE4BC4 /* LSMapStories.swift in Sources */,
 				F994D017357EA5F2EAA9D72F /* LSModal.swift in Sources */,
-				44945380093B96A3F672A526 /* LSModalStory.swift in Sources */,
 				1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */,
 				91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */,
-				5579899B4D154308A5587154 /* LSPhaseIndicator.swift in Sources */,
 				B6A59F8B49C2AD8ECBFB7A18 /* LSRouteAttachmentCard.swift in Sources */,
 				35821980B5053707A9A97CDE /* LSRouteSheet.swift in Sources */,
 				762FB79AB5AE6050179BB785 /* LSScrimStories.swift in Sources */,
 				DA5A4BD4334BFB5A70AC36EB /* LSSessionsDrawer.swift in Sources */,
 				FCAE00CC74E427BDB51D7F65 /* LSSuggestionChip.swift in Sources */,
 				938A965D4FEDD3713546A274 /* LSTabItem.swift in Sources */,
-				67E11B124F365ECBE356E456 /* LSTabItemStories.swift in Sources */,
 				D3FCBC758470A7571618AF4A /* LSTextStories.swift in Sources */,
 				5029E341AA188CA5E844D5EC /* LSToast.swift in Sources */,
-				C24598DF57B2992BA1D59501 /* LSToastStory.swift in Sources */,
 				C431BDCE02738DEAD857663D /* LSToolbar.swift in Sources */,
-				65C11E528E73546DE7A92630 /* LSToolbarStory.swift in Sources */,
 				7F07F9ABF0C419E0E2BA5CEA /* LSWeatherBadge.swift in Sources */,
 				C815D55CC39819958EAC1ED1 /* LSWeatherTimeline.swift in Sources */,
 				40979501CCACCFB156F25EB5 /* LaneShadowSandboxEntry.swift in Sources */,
@@ -873,7 +817,6 @@
 				5E2C1E120480203DDF3939E8 /* LSToolbarTests.swift in Sources */,
 				06E6D012390862D9ABF3488C /* LaneShadowTests.swift in Sources */,
 				C9108535DE88E44D62CC2AE6 /* MarkdownTextTests.swift in Sources */,
-				F5EEDBEA7373BA0542774071 /* StorySnapshotTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -929,10 +872,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LaneShadow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app;
 				SDKROOT = iphoneos;
@@ -977,10 +917,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LaneShadow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app;
 				SDKROOT = iphoneos;
@@ -1197,11 +1134,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "swift" */ = {
+		47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../tokens/platforms/swift;
 		};
-		587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "ios" */ = {
+		587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "/Users/justinrich/Projects/native-sandbox/ios";
 		};

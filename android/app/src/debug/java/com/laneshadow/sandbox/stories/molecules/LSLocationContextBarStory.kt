@@ -21,7 +21,7 @@ object LSLocationContextBarStory {
             )
         },
         moleculeStory(
-            id = "molecules.locationcontextbar.manual",
+            id = "molecules.locationcontextbar.manual-mode",
             component = "LSLocationContextBar",
             name = "Manual Mode",
             summary = "Manual override highlights the trailing mode pill.",
@@ -33,7 +33,7 @@ object LSLocationContextBarStory {
             )
         },
         moleculeStory(
-            id = "molecules.locationcontextbar.longLabel",
+            id = "molecules.locationcontextbar.long-location-label",
             component = "LSLocationContextBar",
             name = "Long Location Label",
             summary = "Long location copy stays in the two-pill row.",

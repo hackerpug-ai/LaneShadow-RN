@@ -21,7 +21,7 @@ object LSNavigatorMoleculesStory {
     val all: List<Story> = listOf(
         // LSPhaseIndicator stories
         Story(
-            id = "molecules.phase.default",
+            id = "molecules.phaseindicator.default",
             tier = ComponentTier.Molecule,
             component = "LSPhaseIndicator",
             name = "Default",
@@ -29,7 +29,7 @@ object LSNavigatorMoleculesStory {
             content = { PhaseIndicatorDefaultStory() },
         ),
         Story(
-            id = "molecules.phase.all-done",
+            id = "molecules.phaseindicator.all-done",
             tier = ComponentTier.Molecule,
             component = "LSPhaseIndicator",
             name = "All Done",
@@ -37,7 +37,7 @@ object LSNavigatorMoleculesStory {
             content = { PhaseIndicatorAllDoneStory() },
         ),
         Story(
-            id = "molecules.phase.all-pending",
+            id = "molecules.phaseindicator.all-pending",
             tier = ComponentTier.Molecule,
             component = "LSPhaseIndicator",
             name = "All Pending",
@@ -47,7 +47,7 @@ object LSNavigatorMoleculesStory {
 
         // LSWeatherTimeline stories
         Story(
-            id = "molecules.weather.timeline.6-hours",
+            id = "molecules.weathertimeline.six-hours",
             tier = ComponentTier.Molecule,
             component = "LSWeatherTimeline",
             name = "6 Hours",
@@ -55,7 +55,7 @@ object LSNavigatorMoleculesStory {
             content = { WeatherTimeline6HoursStory() },
         ),
         Story(
-            id = "molecules.weather.timeline.mixed",
+            id = "molecules.weathertimeline.mixed-weather",
             tier = ComponentTier.Molecule,
             component = "LSWeatherTimeline",
             name = "Mixed Weather",
@@ -63,7 +63,7 @@ object LSNavigatorMoleculesStory {
             content = { WeatherTimelineMixedStory() },
         ),
         Story(
-            id = "molecules.weather.timeline.all-clear",
+            id = "molecules.weathertimeline.all-clear",
             tier = ComponentTier.Molecule,
             component = "LSWeatherTimeline",
             name = "All Clear",
@@ -73,7 +73,7 @@ object LSNavigatorMoleculesStory {
 
         // LSInstrumentReadout stories
         Story(
-            id = "molecules.instrument.4-metrics",
+            id = "molecules.instrumentreadout.four-metrics",
             tier = ComponentTier.Molecule,
             component = "LSInstrumentReadout",
             name = "4 Metrics",
@@ -81,7 +81,7 @@ object LSNavigatorMoleculesStory {
             content = { InstrumentReadout4MetricsStory() },
         ),
         Story(
-            id = "molecules.instrument.3-metrics",
+            id = "molecules.instrumentreadout.three-metrics",
             tier = ComponentTier.Molecule,
             component = "LSInstrumentReadout",
             name = "3 Metrics",
@@ -89,7 +89,7 @@ object LSNavigatorMoleculesStory {
             content = { InstrumentReadout3MetricsStory() },
         ),
         Story(
-            id = "molecules.instrument.long-values",
+            id = "molecules.instrumentreadout.long-values",
             tier = ComponentTier.Molecule,
             component = "LSInstrumentReadout",
             name = "Long Values",

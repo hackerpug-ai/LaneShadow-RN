@@ -70,7 +70,7 @@ object LSBadgeStories {
             summary = "Weather badge with wind icon and cold token colors.",
         ) { LSBadge(label = "COLD", variant = BadgeVariant.Weather.Cold) },
         badgeStory(
-            id = "atoms.badge.bestForToday",
+            id = "atoms.best-badge.default",
             name = "Best For Today",
             summary = "Signal badge with filled star prefix.",
         ) { LSBestBadge() },

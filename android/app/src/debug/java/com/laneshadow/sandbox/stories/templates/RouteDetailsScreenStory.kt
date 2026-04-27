@@ -13,7 +13,7 @@ import com.nativesandbox.model.Story
 object RouteDetailsScreenStory {
     val all: List<Story> = listOf(
         Story(
-            id = "templates.routeDetails.default",
+            id = "templates.route-details.default",
             tier = ComponentTier.Template,
             component = "RouteDetailsScreen",
             name = "Default",
@@ -21,7 +21,7 @@ object RouteDetailsScreenStory {
             content = { DefaultStory() },
         ),
         Story(
-            id = "templates.routeDetails.mixed-weather",
+            id = "templates.route-details.mixed-weather",
             tier = ComponentTier.Template,
             component = "RouteDetailsScreen",
             name = "Mixed Weather",
@@ -29,7 +29,7 @@ object RouteDetailsScreenStory {
             content = { MixedWeatherStory() },
         ),
         Story(
-            id = "templates.routeDetails.alt-route",
+            id = "templates.route-details.alt-route",
             tier = ComponentTier.Template,
             component = "RouteDetailsScreen",
             name = "Alt Route",

@@ -45,7 +45,7 @@ object LSToolbarStory {
             )
         },
         story(
-            id = "molecules.toolbar.noBack",
+            id = "molecules.toolbar.no-back-button",
             name = "No Back Button",
             summary = "Single trailing action and no leading back affordance.",
         ) {

@@ -28,7 +28,7 @@ object LSScrimStories {
             summary = "Blocking scrim variant that captures taps.",
         ) { LSScrim(blocking = true) },
         scrimStory(
-            id = "atoms.scrim.customOpacity",
+            id = "atoms.scrim.opacity-heavy",
             name = "Custom Opacity",
             summary = "Scrim with a stronger custom opacity override.",
         ) { LSScrim(opacity = 0.5f) },

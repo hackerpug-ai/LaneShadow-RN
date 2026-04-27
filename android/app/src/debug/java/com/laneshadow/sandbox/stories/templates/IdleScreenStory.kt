@@ -90,7 +90,7 @@ object IdleScreenStory {
             },
         ),
         Story(
-            id = "templates.idle.longCopy",
+            id = "templates.idle.long-copy",
             tier = ComponentTier.Template,
             component = "IdleScreen",
             name = "Idle Screen (Long Copy)",

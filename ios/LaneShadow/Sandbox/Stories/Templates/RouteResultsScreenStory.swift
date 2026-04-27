@@ -6,7 +6,7 @@ import SwiftUI
 enum RouteResultsScreenStory {
     static let all: [Story] = [
         Story(
-            id: "templates.routeresults.default",
+            id: "templates.route-results.default",
             tier: .template,
             component: "RouteResultsScreen",
             name: "Default — 3 Routes",

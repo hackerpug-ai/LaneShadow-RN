@@ -78,7 +78,7 @@ object PlanningScreenStory {
             },
         ),
         Story(
-            id = "templates.planning.longCopy",
+            id = "templates.planning.long-copy",
             tier = ComponentTier.Template,
             component = "PlanningScreen",
             name = "Planning Screen (Long Copy)",

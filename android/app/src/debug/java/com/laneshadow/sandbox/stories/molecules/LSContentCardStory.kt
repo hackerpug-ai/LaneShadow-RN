@@ -16,7 +16,7 @@ import com.nativesandbox.model.Story
 object LSContentCardStory {
     val all: List<Story> = listOf(
         story(
-            id = "molecules.contentcard.withImageHeader",
+            id = "molecules.contentcard.with-image-header",
             name = "With Image Header",
             summary = "Card with optional header slot and primary text body.",
         ) {
@@ -37,7 +37,7 @@ object LSContentCardStory {
             )
         },
         story(
-            id = "molecules.contentcard.titleOnly",
+            id = "molecules.contentcard.title-only",
             name = "Title Only",
             summary = "Minimal card body with title only.",
         ) {
@@ -46,7 +46,7 @@ object LSContentCardStory {
             )
         },
         story(
-            id = "molecules.contentcard.titleSubtitleChips",
+            id = "molecules.contentcard.title-subtitle-chips",
             name = "Title+Subtitle+Chips",
             summary = "Title and subtitle with metadata chips rendered in actions slot.",
         ) {
@@ -71,7 +71,7 @@ object LSContentCardStory {
             )
         },
         story(
-            id = "molecules.contentcard.withActions",
+            id = "molecules.contentcard.with-actions",
             name = "With Actions",
             summary = "Card footer action slot composition.",
         ) {

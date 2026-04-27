@@ -34,7 +34,7 @@ object LSRouteCardStory {
             content = { SavedStory() },
         ),
         Story(
-            id = "organisms.routecard.alt-variant",
+            id = "organisms.routecard.alt1",
             tier = ComponentTier.Organism,
             component = "LSRouteCard",
             name = "Alt Variant",

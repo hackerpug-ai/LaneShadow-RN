@@ -30,7 +30,7 @@ import com.nativesandbox.model.Story
 object LSPillStories {
     val all: List<Story> = listOf(
         Story(
-            id = "atoms.pill.small",
+            id = "atoms.pill.sm",
             tier = ComponentTier.Atom,
             component = "LSPill",
             name = "Small",
@@ -38,7 +38,7 @@ object LSPillStories {
             content = { PillTextStory(size = PillSize.Sm, label = "Quiet road") },
         ),
         Story(
-            id = "atoms.pill.medium",
+            id = "atoms.pill.md",
             tier = ComponentTier.Atom,
             component = "LSPill",
             name = "Medium",
@@ -46,7 +46,7 @@ object LSPillStories {
             content = { PillTextStory(size = PillSize.Md, label = "Scenic route") },
         ),
         Story(
-            id = "atoms.pill.large",
+            id = "atoms.pill.lg",
             tier = ComponentTier.Atom,
             component = "LSPill",
             name = "Large",
@@ -54,7 +54,7 @@ object LSPillStories {
             content = { PillTextStory(size = PillSize.Lg, label = "Touring weekend") },
         ),
         Story(
-            id = "atoms.pill.withIconLabel",
+            id = "atoms.pill.icon-label",
             tier = ComponentTier.Atom,
             component = "LSPill",
             name = "With Icon + Label",
@@ -62,7 +62,7 @@ object LSPillStories {
             content = { PillIconLabelStory() },
         ),
         Story(
-            id = "atoms.pill.withIconOnly",
+            id = "atoms.pill.icon-only",
             tier = ComponentTier.Atom,
             component = "LSPill",
             name = "With Icon Only",

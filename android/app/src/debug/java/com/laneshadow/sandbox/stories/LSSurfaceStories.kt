@@ -56,7 +56,7 @@ object LSSurfaceStories {
             },
         ),
         Story(
-            id = "atoms.glasspanel.callout.signal",
+            id = "atoms.glasspanel.callout-signal",
             tier = ComponentTier.Atom,
             component = "LSGlassPanel",
             name = "Callout Signal",
@@ -70,7 +70,7 @@ object LSSurfaceStories {
             },
         ),
         Story(
-            id = "atoms.glasspanel.callout.warning",
+            id = "atoms.glasspanel.callout-warning",
             tier = ComponentTier.Atom,
             component = "LSGlassPanel",
             name = "Callout Warning",

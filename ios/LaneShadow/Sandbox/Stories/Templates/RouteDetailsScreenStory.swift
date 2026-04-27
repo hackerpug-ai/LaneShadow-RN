@@ -6,7 +6,7 @@ import SwiftUI
 enum RouteDetailsScreenStory {
     static let all: [Story] = [
         Story(
-            id: "templates.routedetails.default",
+            id: "templates.route-details.default",
             tier: .template,
             component: "RouteDetailsScreen",
             name: "Default — Skyline Spine",
@@ -15,7 +15,7 @@ enum RouteDetailsScreenStory {
             RouteDetailsScreen(provider: RouteDetailsMockProvider.self)
         },
         Story(
-            id: "templates.routedetails.mixed-weather",
+            id: "templates.route-details.mixed-weather",
             tier: .template,
             component: "RouteDetailsScreen",
             name: "Mixed Weather — Coast & Ridge",

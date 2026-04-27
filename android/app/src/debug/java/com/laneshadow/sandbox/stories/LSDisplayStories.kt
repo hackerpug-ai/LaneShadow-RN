@@ -35,7 +35,7 @@ object LSDisplayStories {
             content = { AvatarInitialsStory() },
         ),
         Story(
-            id = "atoms.avatar.sizes",
+            id = "atoms.avatar.size-matrix",
             tier = ComponentTier.Atom,
             component = "LSAvatar",
             name = "Avatar Sizes",
@@ -43,7 +43,7 @@ object LSDisplayStories {
             content = { AvatarSizesStory() },
         ),
         Story(
-            id = "atoms.divider.horizontal",
+            id = "atoms.divider.default",
             tier = ComponentTier.Atom,
             component = "LSDivider",
             name = "Horizontal Divider",
@@ -51,7 +51,7 @@ object LSDisplayStories {
             content = { DividerStory() },
         ),
         Story(
-            id = "atoms.spinner.md",
+            id = "atoms.spinner.default",
             tier = ComponentTier.Atom,
             component = "LSSpinner",
             name = "Medium Spinner",
