@@ -108,7 +108,7 @@ public struct IdleScreen: View {
                     }
                 }
             }
-            .font(theme.type.heading.md.font)
+            .font(theme.type.opinion.xl.font)
             .foregroundStyle(theme.colors.onSurface.default)
             .accessibilityIdentifier("idlescreen-greeting-headline")
         }

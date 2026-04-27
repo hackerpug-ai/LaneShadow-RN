@@ -32,7 +32,7 @@ public struct LSNavigatorMessage: View {
             VStack(alignment: .leading, spacing: theme.space.sm) {
                 headerRow
 
-                LSText(messageBody, variant: .heading.md)
+                LSText(messageBody, variant: .opinion.md)
                     .foregroundStyle(LaneShadowTheme.color.content.primary)
 
                 if !attachments.isEmpty {

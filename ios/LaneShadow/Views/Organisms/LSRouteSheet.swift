@@ -2,16 +2,6 @@ import LaneShadowTheme
 import NativeTheme
 import SwiftUI
 
-// MARK: - TypographyVariant Extensions
-
-public extension TypographyVariant {
-    struct OpinionVariants: Sendable {
-        public let lg = TypographyVariant.heading.lg
-    }
-
-    static let opinion = OpinionVariants()
-}
-
 /// Route sheet organism showing route details with instrument readout and weather timeline
 ///
 /// Composes from LSBestBadge, LSInstrumentReadout, LSWeatherTimeline, and LSButton.

@@ -36,7 +36,7 @@ public struct LSTopBar: View {
             // Center: Optional title
             if let title {
                 Spacer()
-                LSText(title, variant: .title.md)
+                LSText(title, variant: .opinion.md)
                     .lineLimit(1)
                 Spacer()
             } else {

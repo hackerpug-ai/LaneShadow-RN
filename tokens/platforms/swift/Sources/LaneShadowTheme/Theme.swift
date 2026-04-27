@@ -92,6 +92,7 @@ public struct ThemeTypeScale: Sendable {
     public let sm: TypographyStyle
     public let md: TypographyStyle
     public let lg: TypographyStyle
+    public let xl: TypographyStyle
 }
 
 public struct ThemeType: Sendable {
@@ -100,6 +101,7 @@ public struct ThemeType: Sendable {
     public let title: ThemeTypeScale
     public let heading: ThemeTypeScale
     public let display: ThemeTypeScale
+    public let opinion: ThemeTypeScale
 }
 
 public struct ThemeElevation: Sendable {
@@ -313,27 +315,58 @@ private extension Theme {
             label: ThemeTypeScale(
                 sm: typographyStyle(from: t.label.sm, fontFamily: "Geist"),
                 md: typographyStyle(from: t.label.md, fontFamily: "Geist"),
-                lg: typographyStyle(from: t.label.lg, fontFamily: "Geist")
+                lg: typographyStyle(from: t.label.lg, fontFamily: "Geist"),
+                xl: typographyStyle(from: t.label.lg, fontFamily: "Geist")
             ),
             body: ThemeTypeScale(
                 sm: typographyStyle(from: t.body.sm, fontFamily: "Geist"),
                 md: typographyStyle(from: t.body.md, fontFamily: "Geist"),
-                lg: typographyStyle(from: t.body.lg, fontFamily: "Geist")
+                lg: typographyStyle(from: t.body.lg, fontFamily: "Geist"),
+                xl: typographyStyle(from: t.body.lg, fontFamily: "Geist")
             ),
             title: ThemeTypeScale(
                 sm: typographyStyle(from: t.title.sm, fontFamily: "Geist"),
                 md: typographyStyle(from: t.title.md, fontFamily: "Geist"),
-                lg: typographyStyle(from: t.title.lg, fontFamily: "Geist")
+                lg: typographyStyle(from: t.title.lg, fontFamily: "Geist"),
+                xl: typographyStyle(from: t.title.lg, fontFamily: "Geist")
             ),
             heading: ThemeTypeScale(
                 sm: typographyStyle(from: t.heading.sm, fontFamily: "Newsreader"),
                 md: typographyStyle(from: t.heading.md, fontFamily: "Newsreader"),
-                lg: typographyStyle(from: t.heading.lg, fontFamily: "Newsreader")
+                lg: typographyStyle(from: t.heading.lg, fontFamily: "Newsreader"),
+                xl: typographyStyle(from: t.heading.lg, fontFamily: "Newsreader")
             ),
             display: ThemeTypeScale(
                 sm: typographyStyle(from: t.display.sm, fontFamily: "Newsreader"),
                 md: typographyStyle(from: t.display.md, fontFamily: "Newsreader"),
-                lg: typographyStyle(from: t.display.lg, fontFamily: "Newsreader")
+                lg: typographyStyle(from: t.display.lg, fontFamily: "Newsreader"),
+                xl: typographyStyle(from: t.display.lg, fontFamily: "Newsreader")
+            ),
+            opinion: ThemeTypeScale(
+                sm: TypographyStyle(
+                    fontSize: LaneShadowTheme.typography.opinionSm.fontSize,
+                    lineHeight: LaneShadowTheme.typography.opinionSm.lineHeight,
+                    fontWeight: LaneShadowTheme.typography.opinionSm.fontWeight,
+                    fontFamily: "Newsreader"
+                ),
+                md: TypographyStyle(
+                    fontSize: LaneShadowTheme.typography.opinionMd.fontSize,
+                    lineHeight: LaneShadowTheme.typography.opinionMd.lineHeight,
+                    fontWeight: LaneShadowTheme.typography.opinionMd.fontWeight,
+                    fontFamily: "Newsreader"
+                ),
+                lg: TypographyStyle(
+                    fontSize: LaneShadowTheme.typography.opinionLg.fontSize,
+                    lineHeight: LaneShadowTheme.typography.opinionLg.lineHeight,
+                    fontWeight: LaneShadowTheme.typography.opinionLg.fontWeight,
+                    fontFamily: "Newsreader"
+                ),
+                xl: TypographyStyle(
+                    fontSize: LaneShadowTheme.typography.opinionXl.fontSize,
+                    lineHeight: LaneShadowTheme.typography.opinionXl.lineHeight,
+                    fontWeight: LaneShadowTheme.typography.opinionXl.fontWeight,
+                    fontFamily: "Newsreader"
+                )
             )
         )
     }

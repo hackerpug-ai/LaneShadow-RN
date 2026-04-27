@@ -14,8 +14,6 @@ import SwiftUI
 public struct LSRouteCard: View {
     @Environment(\.theme) private var theme
 
-    private let mapPreviewHeight: CGFloat = 160
-
     private let route: Route
 
     public init(route: Route) {
@@ -23,8 +21,8 @@ public struct LSRouteCard: View {
     }
 
     public var body: some View {
-        LSCard(padding: .spacing4) {
-            VStack(alignment: .leading, spacing: theme.space.sm) {
+        LSCard(padding: .zero) {
+            VStack(alignment: .leading, spacing: 0) {
                 // Map preview
                 mapPreview
 
@@ -53,14 +51,12 @@ public struct LSRouteCard: View {
                     ],
                     annotations: mapAnnotations
                 )
-                .frame(height: mapPreviewHeight)
-                .clipShape(RoundedRectangle(cornerRadius: theme.radius.md))
+                .aspectRatio(9.0 / 4.0, contentMode: .fill)
             } else {
                 // Fallback placeholder when no polyline
                 Rectangle()
                     .fill(LSSurfaceColorToken.card.resolved(in: theme))
-                    .frame(height: mapPreviewHeight)
-                    .clipShape(RoundedRectangle(cornerRadius: theme.radius.md))
+                    .aspectRatio(9.0 / 4.0, contentMode: .fill)
                     .overlay {
                         VStack(spacing: theme.space.xs) {
                             LSIcon(name: .map, size: .md, color: .tertiary)
@@ -106,6 +102,7 @@ public struct LSRouteCard: View {
                 }
             }
         }
+        .padding(theme.space.md)
     }
 
     // MARK: - Computed Properties

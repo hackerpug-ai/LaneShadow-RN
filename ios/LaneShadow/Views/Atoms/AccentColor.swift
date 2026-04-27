@@ -26,12 +26,15 @@ public enum AccentColor: CaseIterable, Hashable, Sendable {
 }
 
 public enum Spacing: CaseIterable, Hashable, Sendable {
+    case zero
     case spacing3
     case spacing4
     case spacing5
 
     func value(in theme: Theme) -> CGFloat {
         switch self {
+        case .zero:
+            0
         case .spacing3:
             theme.space.md
         case .spacing4:

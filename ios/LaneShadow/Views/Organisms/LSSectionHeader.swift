@@ -20,26 +20,35 @@ extension LSSectionHeaderTrailing: Equatable {
     }
 }
 
+public enum LSSectionHeaderStyle: Sendable {
+    case standard
+    case caps
+}
+
 public struct LSSectionHeader: View {
     @Environment(\.theme) private var theme
 
     private let title: String
     private let trailing: LSSectionHeaderTrailing
+    private let titleStyle: LSSectionHeaderStyle
     private let leadingInset: CGFloat
 
     public init(
         title: String,
         trailing: LSSectionHeaderTrailing = .none,
+        titleStyle: LSSectionHeaderStyle = .standard,
         inset: CGFloat = 12
     ) {
         self.title = title
         self.trailing = trailing
+        self.titleStyle = titleStyle
         leadingInset = inset
     }
 
     public var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: theme.space.xs) {
-            LSText(title, variant: .title.md)
+            LSText(title, variant: titleStyle == .caps ? .label.sm : .title.md)
+                .foregroundStyle(titleStyle == .caps ? LaneShadowTheme.color.content.tertiary : LaneShadowTheme.color.content.primary)
 
             Spacer()
 

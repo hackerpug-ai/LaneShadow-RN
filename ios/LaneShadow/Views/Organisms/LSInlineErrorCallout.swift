@@ -50,8 +50,7 @@ extension LSInlineErrorCallout {
                 LSText("THE NAVIGATOR", variant: .label.sm)
                     .foregroundStyle(LaneShadowTheme.color.status.warning.default)
 
-                // Use heading.md as proxy for opinion.md (Newsreader serif 17pt)
-                LSText(messageBody, variant: .heading.md)
+                LSText(messageBody, variant: .opinion.md)
                     .foregroundStyle(LaneShadowTheme.color.content.primary)
             }
         }

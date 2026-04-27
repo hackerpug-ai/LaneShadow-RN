@@ -74,7 +74,8 @@ public struct LSSessionsDrawer<Session: Identifiable>: View where Session.ID == 
 
     private var header: some View {
         HStack(alignment: .center, spacing: theme.space.sm) {
-            LSText("Rides", variant: .title.lg)
+            LSText("Rides", variant: .opinion.lg)
+                .italic()
 
             Spacer()
 
