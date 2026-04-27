@@ -14,6 +14,6 @@ enum IdleScreenStory {
             previewMode: .fullScreen
         ) { _ in
             IdleScreen(provider: IdleMockProvider.self)
-        }
+        },
     ]
 }

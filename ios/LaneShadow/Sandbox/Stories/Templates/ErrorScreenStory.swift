@@ -14,6 +14,6 @@ enum ErrorScreenStory {
             previewMode: .fullScreen
         ) { _ in
             ErrorScreen(provider: ErrorMockProvider.self)
-        }
+        },
     ]
 }
