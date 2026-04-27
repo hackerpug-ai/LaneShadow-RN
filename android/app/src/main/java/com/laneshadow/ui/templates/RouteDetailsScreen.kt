@@ -22,6 +22,7 @@ import com.laneshadow.ui.organisms.LSRouteSheet
 import com.laneshadow.ui.organisms.LSTopBar
 import com.laneshadow.ui.organisms.RouteDetails
 import com.laneshadow.ui.organisms.SheetDetent
+import com.laneshadow.ui.util.PolylineDecoder
 
 /**
  * RouteDetailsScreen template — single polyline + LSRouteSheet.
@@ -87,7 +88,7 @@ fun RouteDetailsScreen(
     // Convert mock route polyline to PolylineData
     val polylines = listOf(
         PolylineData(
-            coordinates = emptyList(), // Mock data doesn't have real coordinates
+            coordinates = PolylineDecoder.decodeOrNull(state.route.polyline),
             variant = when (state.route.variant) {
                 "best" -> RouteVariant.Best
                 "alt1" -> RouteVariant.Alt1
