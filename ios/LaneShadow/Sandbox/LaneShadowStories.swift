@@ -6,9 +6,9 @@ import NativeSandbox
 enum LaneShadowStories {
     static let all: [Story] =
         AtomsStories.all
-        + MoleculesStories.all
-        + OrganismStories.all
-        + TemplateStories.all
-        + ModifierStories.all
-        + InfrastructureStories.all
+            + MoleculesStories.all
+            + OrganismStories.all
+            + TemplateStories.all
+            + ModifierStories.all
+            + InfrastructureStories.all
 }

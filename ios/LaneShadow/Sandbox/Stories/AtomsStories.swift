@@ -74,14 +74,14 @@ import SwiftUI
 enum AtomsStories {
     static let all: [Story] =
         LSIconStories.all
-        + LSTextStories.all
-        + LSBadgeStories.all
-        + LSButtonStories.all
-        + LSDisplayStories.all
-        + LSInputStories.all
-        + LSMapStories.all
-        + LSPillStories.all
-        + LSScrimStories.all
-        + LSPhaseDotStories.all
-        + LSSurfaceStories.all
+            + LSTextStories.all
+            + LSBadgeStories.all
+            + LSButtonStories.all
+            + LSDisplayStories.all
+            + LSInputStories.all
+            + LSMapStories.all
+            + LSPillStories.all
+            + LSScrimStories.all
+            + LSPhaseDotStories.all
+            + LSSurfaceStories.all
 }
