@@ -1,0 +1,135 @@
+{
+  "$comment": "UC-SBX-08 C-bucket triage — sidecar exemption manifest (tier-scoped). Each entry is a story id intentionally registered on only one platform. Cross-platform parity tooling MUST treat these as out-of-pool when computing tier-scoped percentage. Do not hand-edit without re-running triage.",
+  "version": "2",
+  "generated": "2026-04-26",
+  "scope_update_applied": "tier-scoped 95% (atoms+molecules+organisms gates; templates advisory; infrastructure+modifiers exempt)",
+  "source": ".tmp/UC-SBX-08-cbucket-triage/triage-report.md",
+  "tier_targets": {
+    "atoms": ">= 95%",
+    "molecules": ">= 95%",
+    "organisms": ">= 90%",
+    "templates": ">= 50% (advisory, no gate)",
+    "infrastructure": "EXEMPT (sandbox scaffolding)",
+    "modifiers": "EXEMPT (sandbox scaffolding)",
+    "tokens": ">= 100% (already met)"
+  },
+  "ios_only_exemptions": [
+    {
+      "id": "organisms.maplayer.full-stack-dark",
+      "tier": "organisms",
+      "reason": "iOS-only dark-theme variant of the full map stack. Organisms tier is already at 91.5% (above target); building a parallel Android dark variant is not gate-blocking and the dark theme is iOS-product-led."
+    },
+    {
+      "id": "organisms.maplayer.map-only-dark",
+      "tier": "organisms",
+      "reason": "iOS-only dark-theme variant of the map-only layer. Same rationale as full-stack-dark."
+    },
+    {
+      "id": "templates.planning.dark",
+      "tier": "templates",
+      "reason": "Templates tier is advisory (target 50%, no gate). iOS-only dark-theme planning template is a screen-level UX choice that does not need cross-platform parity."
+    },
+    {
+      "id": "templates.planning.phase1",
+      "tier": "templates",
+      "reason": "iOS-only planning-phase walkthrough state. Templates tier is advisory; cross-platform screen-level UX may legitimately diverge."
+    },
+    {
+      "id": "templates.planning.phase3",
+      "tier": "templates",
+      "reason": "iOS-only planning-phase walkthrough state. Templates tier is advisory."
+    },
+    {
+      "id": "templates.planning.phase4",
+      "tier": "templates",
+      "reason": "iOS-only planning-phase walkthrough state. Templates tier is advisory."
+    },
+    {
+      "id": "templates.planning.phase5",
+      "tier": "templates",
+      "reason": "iOS-only planning-phase walkthrough state. Templates tier is advisory."
+    },
+    {
+      "id": "infrastructure.controls.demo",
+      "tier": "infrastructure",
+      "reason": "tier-exempt: sandbox scaffolding, not user-facing component"
+    },
+    {
+      "id": "infrastructure.controls.color-token",
+      "tier": "infrastructure",
+      "reason": "tier-exempt: sandbox scaffolding, not user-facing component"
+    },
+    {
+      "id": "infrastructure.theme.controller",
+      "tier": "infrastructure",
+      "reason": "tier-exempt: sandbox scaffolding, not user-facing component"
+    },
+    {
+      "id": "infrastructure.registry.parity-manifest",
+      "tier": "infrastructure",
+      "reason": "tier-exempt: sandbox scaffolding, not user-facing component (self-referential parity meta-story)"
+    }
+  ],
+  "android_only_exemptions": [
+    {
+      "id": "templates.error.network",
+      "tier": "templates",
+      "reason": "Templates tier is advisory; cross-platform error-presentation may legitimately diverge. Android-built error variant; iOS may use a different error pattern."
+    },
+    {
+      "id": "templates.error.impossible",
+      "tier": "templates",
+      "reason": "Templates tier is advisory; cross-platform error-presentation may legitimately diverge."
+    },
+    {
+      "id": "templates.error.safety-gate",
+      "tier": "templates",
+      "reason": "Templates tier is advisory; cross-platform error-presentation may legitimately diverge."
+    },
+    {
+      "id": "templates.error.long-detail",
+      "tier": "templates",
+      "reason": "Templates tier is advisory; cross-platform error-presentation may legitimately diverge."
+    },
+    {
+      "id": "templates.error.no-suggestions",
+      "tier": "templates",
+      "reason": "Templates tier is advisory; cross-platform error-presentation may legitimately diverge."
+    },
+    {
+      "id": "templates.idle.empty",
+      "tier": "templates",
+      "reason": "Templates tier is advisory; cross-platform idle-state UX may legitimately diverge."
+    },
+    {
+      "id": "templates.idle.overflow",
+      "tier": "templates",
+      "reason": "Templates tier is advisory; cross-platform idle-state UX may legitimately diverge."
+    },
+    {
+      "id": "templates.sessions.empty",
+      "tier": "templates",
+      "reason": "Templates tier is advisory; cross-platform sessions-state UX may legitimately diverge."
+    },
+    {
+      "id": "templates.sessions.overflow",
+      "tier": "templates",
+      "reason": "Templates tier is advisory; cross-platform sessions-state UX may legitimately diverge."
+    },
+    {
+      "id": "templates.placeholder.comingSoon",
+      "tier": "templates",
+      "reason": "Android-only stub template used to anchor the templates/* hierarchy. iOS does not have a parallel placeholder."
+    },
+    {
+      "id": "infrastructure.placeholder.comingSoon",
+      "tier": "infrastructure",
+      "reason": "tier-exempt: sandbox scaffolding, not user-facing component"
+    },
+    {
+      "id": "modifiers.placeholder.comingSoon",
+      "tier": "modifiers",
+      "reason": "tier-exempt: sandbox scaffolding, not user-facing component"
+    }
+  ]
+}
