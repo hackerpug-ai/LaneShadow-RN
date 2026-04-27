@@ -141,11 +141,12 @@ targets:
       - path: LaneShadow/Sandbox/Stories/LSDisplayStories.swift
       - path: LaneShadow/Sandbox/Stories/LSInputStories.swift
       - path: LaneShadow/Sandbox/Stories/LSIconStories.swift
-      - path: LaneShadow/Sandbox/Stories/LSInputStories.swift
       - path: LaneShadow/Sandbox/Stories/LSMapStories.swift
       - path: LaneShadow/Sandbox/Stories/LSPillStories.swift
       - path: LaneShadow/Sandbox/Stories/LSScrimStories.swift
+      - path: LaneShadow/Sandbox/Stories/LSBadgeStories.swift
       - path: LaneShadow/Sandbox/Stories/LSPhaseDotStories.swift
+      - path: LaneShadow/Sandbox/Stories/LSSurfaceStories.swift
       - path: LaneShadow/Sandbox/Stories/LSTextStories.swift
       - path: LaneShadow/Sandbox/Stories/MoleculesStories.swift
       - path: LaneShadow/Sandbox/Stories/Molecules
@@ -156,6 +157,7 @@ targets:
       - path: LaneShadow/Sandbox/Stories/InfrastructureStories.swift
       - path: LaneShadow/Sandbox/Stories/Infrastructure/PlaceholderInfrastructureStories.swift
       - path: LaneShadow/Sandbox/Stories/Infrastructure/InfrastructureControlsStories.swift
+      - path: LaneShadow/Sandbox/Stories/Infrastructure/LSTokenStories.swift
       # Sprint 05 organism stories
       - path: LaneShadow/Sandbox/Stories/Organisms
         type: syncedFolder

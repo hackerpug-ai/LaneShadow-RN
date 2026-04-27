@@ -1,3 +1,4 @@
+import LaneShadowTheme
 import NativeSandbox
 import SwiftUI
 
@@ -18,8 +19,8 @@ import SwiftUI
 @MainActor
 enum LSBadgeStories {
     static let all: [Story] =
-        BadgeStatusVariant.allCases.map(statusStory) +
-        BadgeWeatherVariant.allCases.map(weatherStory) +
+        BadgeStatusVariant.allCases.map { statusStory($0) } +
+        BadgeWeatherVariant.allCases.map { weatherStory($0) } +
         [
             Story(
                 id: "atoms.best-badge.default",
