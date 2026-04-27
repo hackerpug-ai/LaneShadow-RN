@@ -182,6 +182,15 @@ Story(id: "templates.planning.default", tier: .template, component: "PlanningScr
 
 ---
 
+
+## Error States (V3 Deferred)
+
+These error states are documented for V3 planning. They are NOT implemented in Sprint 6.
+
+- **Map init failure:** Show `LSInlineErrorCallout` with warn-stripe + recovery message. Map surface falls back to static placeholder. See UC-SCR-06 for canonical error UI pattern.
+- **Malformed fixture data:** Sandbox: display empty state with console warning. In production (V3), validate fixture schema and surface descriptive error to user.
+- **Animation failure:** Graceful degradation to static render. If motion recipe fails to initialize, render the final frame without animation. No error surface needed.
+
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {"requirements":[
