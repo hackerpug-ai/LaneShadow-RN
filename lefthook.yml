@@ -43,6 +43,12 @@ pre-commit:
       glob: "*.swift"
       run: swiftformat --quiet {staged_files}
 
+    # Native token compliance: reject hardcoded color literals in Swift/Kotlin
+    # outside allowed paths (tokens/platforms/, *MockProvider*, *Test*, etc.).
+    - name: tokens:native-compliance
+      glob: "*.{swift,kt}"
+      run: scripts/tokens/enforce-native-compliance.sh
+
     # Xcode project generation: project internals are generated from ios/project.yml.
     - name: ios-project-generated
       glob: "ios/project.yml"
