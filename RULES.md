@@ -111,6 +111,42 @@ Agents and reviewers must run all applicable checks for the platform they are wo
 
 ---
 
+## Accessibility Standards
+
+All user-facing components must meet **WCAG 2.1 AA** accessibility requirements. Reviewers must verify accessibility compliance as part of every UI task review.
+
+### iOS (SwiftUI)
+
+- Every interactive element must have an `accessibilityLabel`. Buttons with icon-only content must describe the action (e.g., `"Navigate back"`, `"Dismiss message"`).
+- Use `accessibilityHint` for non-obvious actions (e.g., `"Double tap to change sort order"`).
+- Use `accessibilityIdentifier` for UI testing selectors (not `accessibilityLabel`).
+- Support **Dynamic Type** — layouts must not clip or overlap at largest accessibility content sizes. Use `ScrollView` and flexible stacks; avoid fixed heights on text containers.
+
+**Canonical examples:**
+- `ios/LaneShadow/Views/Molecules/AppHeader.swift` — `.accessibilityLabel("Back")` + `.accessibilityHint("Navigate back")` on back button
+- `ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift` — `.accessibilityLabel("Unpin message")` / `.accessibilityLabel("Dismiss message")` on action icons
+- `ios/LaneShadow/Views/Molecules/NewSessionButton.swift` — parameterized `accessibilityLabel` with computed fallback
+
+### Android (Compose)
+
+- Every interactive element must have a `contentDescription` or `semantics` modifier. Icon-only buttons must describe the action.
+- Use `semantics { contentDescription = ... }` for custom composable accessibility.
+- All touch targets must be at least **48dp** (Material 3 default; verify for custom composables).
+- Support **font scaling** — use `scaleable` text styles; test at 200% scale. Avoid fixed `dp` heights on text containers.
+
+**Canonical examples:**
+- `android/app/src/main/java/com/laneshadow/ui/molecules/LSSuggestionChip.kt` — `contentDescription = label` on chip composable
+- `android/app/src/main/java/com/laneshadow/ui/molecules/LSListRow.kt` — `contentDescription` on list row elements + trailing actions
+- `android/app/src/main/java/com/laneshadow/ui/molecules/LSNavHeader.kt` — `.semantics { }` block for navigation header
+
+### Both Platforms
+
+- **Color contrast:** Text must meet WCAG AA contrast ratios (4.5:1 for normal text, 3:1 for large text). Use theme tokens exclusively — never hardcode colors (enforced by `scripts/tokens/enforce-native-compliance.sh`).
+- **Focus order:** Interactive elements must be navigable in logical reading order.
+- **State announcements:** Use `accessibilityValue` (iOS) / `stateDescription` (Android) for dynamic state (e.g., "Expanded" / "Collapsed").
+
+---
+
 ## Multi-Agent Dispatch (iOS + Android)
 
 Background: holocron research doc `js74ct16xh8dq06zpcysqggd25858fac` — "Multi-Agent Orchestration for iOS (Xcode) + Android Studio Codebases."
