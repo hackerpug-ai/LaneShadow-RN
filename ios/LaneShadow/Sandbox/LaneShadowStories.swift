@@ -9,7 +9,7 @@ enum LaneShadowStories {
         // MARK: - Token Swatch Stories (infrastructure tier for design-system documentation)
 
         Story(
-            id: "infrastructure.tokens.color-swatches.all",
+            id: "tokens.color-swatches.all",
             tier: .infrastructure,
             component: "ColorTokens",
             name: "All Colors",
@@ -19,7 +19,7 @@ enum LaneShadowStories {
         },
 
         Story(
-            id: "infrastructure.tokens.typography.all-families",
+            id: "tokens.typography.all-families",
             tier: .infrastructure,
             component: "TypographyTokens",
             name: "All Families & Sizes",
@@ -29,7 +29,7 @@ enum LaneShadowStories {
         },
 
         Story(
-            id: "infrastructure.tokens.spacing.rungs",
+            id: "tokens.spacing.rungs",
             tier: .infrastructure,
             component: "SpacingTokens",
             name: "Spacing Scale",
@@ -39,7 +39,7 @@ enum LaneShadowStories {
         },
 
         Story(
-            id: "infrastructure.tokens.radius.shapes",
+            id: "tokens.radius.shapes",
             tier: .infrastructure,
             component: "RadiusTokens",
             name: "Corner Radii",
@@ -49,7 +49,7 @@ enum LaneShadowStories {
         },
 
         Story(
-            id: "infrastructure.tokens.elevation.levels",
+            id: "tokens.elevation.levels",
             tier: .infrastructure,
             component: "ElevationTokens",
             name: "Elevation Levels",
