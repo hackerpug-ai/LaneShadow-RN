@@ -7,7 +7,7 @@ enum LSMapLayerStory {
     static let all: [Story] = [
         // Story 1: Map Only
         Story(
-            id: "organisms.maplayer.mapOnly",
+            id: "organisms.maplayer.map-only",
             tier: .organism,
             component: "MapLayer",
             name: "Map Only",
@@ -27,7 +27,7 @@ enum LSMapLayerStory {
 
         // Story 2: Map + TopBar
         Story(
-            id: "organisms.maplayer.mapTopBar",
+            id: "organisms.maplayer.map-topbar",
             tier: .organism,
             component: "MapLayer",
             name: "Map + TopBar",
@@ -53,7 +53,7 @@ enum LSMapLayerStory {
 
         // Story 3: Map + Top Overlay
         Story(
-            id: "organisms.maplayer.mapTopOverlay",
+            id: "organisms.maplayer.map-top-overlay",
             tier: .organism,
             component: "MapLayer",
             name: "Map + Top Overlay",
@@ -93,7 +93,7 @@ enum LSMapLayerStory {
 
         // Story 4: Map + Bottom Overlay
         Story(
-            id: "organisms.maplayer.mapBottomOverlay",
+            id: "organisms.maplayer.map-bottom-overlay",
             tier: .organism,
             component: "MapLayer",
             name: "Map + Bottom Overlay",
@@ -134,7 +134,7 @@ enum LSMapLayerStory {
 
         // Story 5: Map + Scrim + Drawer
         Story(
-            id: "organisms.maplayer.mapScrimDrawer",
+            id: "organisms.maplayer.map-scrim-drawer",
             tier: .organism,
             component: "MapLayer",
             name: "Map + Scrim + Drawer",
@@ -175,7 +175,7 @@ enum LSMapLayerStory {
 
         // Story 6: Map + Sheet
         Story(
-            id: "organisms.maplayer.mapSheet",
+            id: "organisms.maplayer.map-sheet",
             tier: .organism,
             component: "MapLayer",
             name: "Map + Sheet",
@@ -215,7 +215,7 @@ enum LSMapLayerStory {
 
         // Story 7: Full Stack
         Story(
-            id: "organisms.maplayer.fullStack",
+            id: "organisms.maplayer.full-stack",
             tier: .organism,
             component: "MapLayer",
             name: "Full Stack",
@@ -279,7 +279,7 @@ enum LSMapLayerStory {
 
         // Dark mode variants
         Story(
-            id: "organisms.maplayer.mapOnlyDark",
+            id: "organisms.maplayer.map-only-dark",
             tier: .organism,
             component: "MapLayer",
             name: "Map Only · Dark",
@@ -299,7 +299,7 @@ enum LSMapLayerStory {
         },
 
         Story(
-            id: "organisms.maplayer.fullStackDark",
+            id: "organisms.maplayer.full-stack-dark",
             tier: .organism,
             component: "MapLayer",
             name: "Full Stack · Dark",

@@ -6,7 +6,7 @@ import SwiftUI
 enum LSRouteAttachmentCardStory {
     static let all: [Story] = [
         story(
-            id: "molecules.routeAttachmentCard.bestSelected",
+            id: "molecules.routeattachmentcard.best-selected",
             name: "Best Selected",
             summary: "Best route card with selected border, best badge, and weather badge.",
             route: baseBestRoute(),
@@ -14,7 +14,7 @@ enum LSRouteAttachmentCardStory {
             compact: false
         ),
         story(
-            id: "molecules.routeAttachmentCard.bestCompact",
+            id: "molecules.routeattachmentcard.best-compact",
             name: "Best Compact",
             summary: "Compact best route card without best or weather badges.",
             route: baseBestRoute(),
@@ -22,7 +22,7 @@ enum LSRouteAttachmentCardStory {
             compact: true
         ),
         story(
-            id: "molecules.routeAttachmentCard.alt1",
+            id: "molecules.routeattachmentcard.alt-1",
             name: "Alt1",
             summary: "Alternate route card with the alt1 stripe token.",
             route: alt1Route(),
@@ -30,7 +30,7 @@ enum LSRouteAttachmentCardStory {
             compact: false
         ),
         story(
-            id: "molecules.routeAttachmentCard.alt2",
+            id: "molecules.routeattachmentcard.alt-2",
             name: "Alt2",
             summary: "Alternate route card with the alt2 stripe token.",
             route: alt2Route(),
@@ -38,7 +38,7 @@ enum LSRouteAttachmentCardStory {
             compact: false
         ),
         story(
-            id: "molecules.routeAttachmentCard.withFavoriteFlag",
+            id: "molecules.routeattachmentcard.with-favorite-flag",
             name: "With Favorite Flag",
             summary: "Route card with an optional favorite row.",
             route: favoriteRoute(),
@@ -46,7 +46,7 @@ enum LSRouteAttachmentCardStory {
             compact: false
         ),
         story(
-            id: "molecules.routeAttachmentCard.longTitle",
+            id: "molecules.routeattachmentcard.long-title",
             name: "Long Title",
             summary: "Long title and subtitle wrapping stress case.",
             route: longTitleRoute(),

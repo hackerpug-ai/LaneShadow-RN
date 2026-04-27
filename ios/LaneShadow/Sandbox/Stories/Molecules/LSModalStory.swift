@@ -20,7 +20,7 @@ enum LSModalStory {
             )
         },
         Story(
-            id: "molecules.modal.primaryGhost",
+            id: "molecules.modal.primary-ghost",
             tier: .molecule,
             component: "LSModal",
             name: "Primary + Ghost",

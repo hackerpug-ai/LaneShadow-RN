@@ -6,7 +6,7 @@ import SwiftUI
 enum LSSectionHeaderStory {
     static let all: [Story] = [
         Story(
-            id: "organisms.sectionheader.titleOnly",
+            id: "organisms.sectionheader.title-only",
             tier: .organism,
             component: "SectionHeader",
             name: "Title Only",
@@ -15,7 +15,7 @@ enum LSSectionHeaderStory {
             LSSectionHeader(title: "Nearby Routes")
         },
         Story(
-            id: "organisms.sectionheader.titlePlusSeeAll",
+            id: "organisms.sectionheader.title-with-see-all",
             tier: .organism,
             component: "SectionHeader",
             name: "Title + See All",
@@ -27,7 +27,7 @@ enum LSSectionHeaderStory {
             )
         },
         Story(
-            id: "organisms.sectionheader.capsLabel",
+            id: "organisms.sectionheader.caps-label",
             tier: .organism,
             component: "SectionHeader",
             name: "Caps Label",
@@ -36,7 +36,7 @@ enum LSSectionHeaderStory {
             LSSectionHeader(title: "THIS WEEK")
         },
         Story(
-            id: "organisms.sectionheader.customInset",
+            id: "organisms.sectionheader.custom-inset",
             tier: .organism,
             component: "SectionHeader",
             name: "Custom Inset",
@@ -55,7 +55,7 @@ enum LSSectionHeaderStory {
             }
         },
         Story(
-            id: "organisms.sectionheader.darkMode",
+            id: "organisms.sectionheader.dark-mode",
             tier: .organism,
             component: "SectionHeader",
             name: "Dark Mode",

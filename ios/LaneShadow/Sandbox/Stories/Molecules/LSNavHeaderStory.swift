@@ -6,7 +6,7 @@ import SwiftUI
 enum LSNavHeaderStory {
     static let all: [Story] = [
         Story(
-            id: "molecules.navHeader.default",
+            id: "molecules.navheader.default",
             tier: .molecule,
             component: "NavHeader",
             name: "Default",
@@ -20,7 +20,7 @@ enum LSNavHeaderStory {
             )
         },
         Story(
-            id: "molecules.navHeader.largeTitle",
+            id: "molecules.navheader.large-title",
             tier: .molecule,
             component: "NavHeader",
             name: "Large Title",
@@ -34,7 +34,7 @@ enum LSNavHeaderStory {
             )
         },
         Story(
-            id: "molecules.navHeader.largeTitleWithSubtitle",
+            id: "molecules.navheader.large-title-with-subtitle",
             tier: .molecule,
             component: "NavHeader",
             name: "Large Title With Subtitle",

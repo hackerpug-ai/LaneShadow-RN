@@ -23,7 +23,7 @@ enum LSSessionsDrawerStory {
             )
         },
         Story(
-            id: "organisms.sessionsdrawer.emptyState",
+            id: "organisms.sessionsdrawer.empty",
             tier: .organism,
             component: "SessionsDrawer",
             name: "Empty State",
@@ -40,7 +40,7 @@ enum LSSessionsDrawerStory {
             )
         },
         Story(
-            id: "organisms.sessionsdrawer.longList",
+            id: "organisms.sessionsdrawer.long-list",
             tier: .organism,
             component: "SessionsDrawer",
             name: "Long List",
@@ -57,7 +57,7 @@ enum LSSessionsDrawerStory {
             )
         },
         Story(
-            id: "organisms.sessionsdrawer.noActiveSession",
+            id: "organisms.sessionsdrawer.no-active",
             tier: .organism,
             component: "SessionsDrawer",
             name: "No Active Session",
@@ -74,7 +74,7 @@ enum LSSessionsDrawerStory {
             )
         },
         Story(
-            id: "organisms.sessionsdrawer.darkMode",
+            id: "organisms.sessionsdrawer.dark-mode",
             tier: .organism,
             component: "SessionsDrawer",
             name: "Dark Mode",

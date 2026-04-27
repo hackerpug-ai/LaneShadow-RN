@@ -6,7 +6,7 @@ import SwiftUI
 enum LSRouteSheetStory {
     static let all: [Story] = [
         Story(
-            id: "organisms.routesheet.best",
+            id: "organisms.routesheet.best-route",
             tier: .organism,
             component: "RouteSheet",
             name: "Best Route",
@@ -39,7 +39,7 @@ enum LSRouteSheetStory {
             )
         },
         Story(
-            id: "organisms.routesheet.altRoute",
+            id: "organisms.routesheet.alt-route",
             tier: .organism,
             component: "RouteSheet",
             name: "Alt Route",
@@ -72,7 +72,7 @@ enum LSRouteSheetStory {
             )
         },
         Story(
-            id: "organisms.routesheet.longTitle",
+            id: "organisms.routesheet.long-title",
             tier: .organism,
             component: "RouteSheet",
             name: "Long Title + Via",
@@ -98,7 +98,7 @@ enum LSRouteSheetStory {
             )
         },
         Story(
-            id: "organisms.routesheet.mixedWeather",
+            id: "organisms.routesheet.mixed-weather",
             tier: .organism,
             component: "RouteSheet",
             name: "Mixed Weather",
@@ -131,7 +131,7 @@ enum LSRouteSheetStory {
             )
         },
         Story(
-            id: "organisms.routesheet.darkMode",
+            id: "organisms.routesheet.dark-mode",
             tier: .organism,
             component: "RouteSheet",
             name: "Dark Mode",

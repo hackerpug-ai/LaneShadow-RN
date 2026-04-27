@@ -24,19 +24,19 @@ enum LSRouteCardStory {
             route: alt1Route()
         ),
         story(
-            id: "organisms.routecard.longTitle",
+            id: "organisms.routecard.long-title-overflow",
             name: "Long Title Overflow",
             summary: "Title truncates with ellipsis on one line. Multiple tags wrap if needed.",
             route: longTitleRoute()
         ),
         story(
-            id: "organisms.routecard.missingData",
+            id: "organisms.routecard.missing-optional-data",
             name: "Missing Optional Data",
             summary: "No polyline, no distance, no difficulty tag. Graceful fallback: placeholder map, em-dash values.",
             route: missingOptionalDataRoute()
         ),
         story(
-            id: "organisms.routecard.darkMode",
+            id: "organisms.routecard.dark-mode",
             name: "Dark Mode",
             summary: "Surface resolves to ink-700. Map paper to dark style. Copper polyline remains vivid.",
             route: defaultRoute()

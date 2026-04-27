@@ -16,7 +16,7 @@ enum LSIconStories {
         },
 
         Story(
-            id: "atoms.icon.colorOverrides",
+            id: "atoms.icon.color-overrides",
             tier: .atom,
             component: "LSIcon",
             name: "Color Overrides",

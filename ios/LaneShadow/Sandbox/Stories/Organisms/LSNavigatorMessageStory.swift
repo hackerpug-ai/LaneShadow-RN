@@ -6,7 +6,7 @@ import SwiftUI
 enum LSNavigatorMessageStory {
     static let all: [Story] = [
         Story(
-            id: "organisms.navigatormessage.messageOnly",
+            id: "organisms.navigatormessage.message-only",
             tier: .organism,
             component: "NavigatorMessage",
             name: "Message Only",
@@ -20,7 +20,7 @@ enum LSNavigatorMessageStory {
             )
         },
         Story(
-            id: "organisms.navigatormessage.withOneAttachment",
+            id: "organisms.navigatormessage.with-one-attachment",
             tier: .organism,
             component: "NavigatorMessage",
             name: "With One Attachment",
@@ -45,7 +45,7 @@ enum LSNavigatorMessageStory {
             )
         },
         Story(
-            id: "organisms.navigatormessage.withThreeAttachments",
+            id: "organisms.navigatormessage.with-three-attachments",
             tier: .organism,
             component: "NavigatorMessage",
             name: "With Three Attachments",
@@ -102,7 +102,7 @@ enum LSNavigatorMessageStory {
             )
         },
         Story(
-            id: "organisms.navigatormessage.longBody",
+            id: "organisms.navigatormessage.long-body",
             tier: .organism,
             component: "NavigatorMessage",
             name: "Long Body",
@@ -116,7 +116,7 @@ enum LSNavigatorMessageStory {
             )
         },
         Story(
-            id: "organisms.navigatormessage.darkMode",
+            id: "organisms.navigatormessage.dark-mode",
             tier: .organism,
             component: "NavigatorMessage",
             name: "Dark Mode",

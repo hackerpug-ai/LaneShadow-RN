@@ -16,7 +16,7 @@ enum LSScrimStories {
         },
 
         Story(
-            id: "atoms.scrim.opacityHeavy",
+            id: "atoms.scrim.opacity-heavy",
             tier: .atom,
             component: "LSScrim",
             name: "Opacity 0.6",

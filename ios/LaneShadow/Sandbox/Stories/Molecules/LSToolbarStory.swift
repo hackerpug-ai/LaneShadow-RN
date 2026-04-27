@@ -6,7 +6,7 @@ import SwiftUI
 enum LSToolbarStory {
     static let all: [Story] = [
         Story(
-            id: "molecules.toolbar.backTitleAction",
+            id: "molecules.toolbar.back-title-action",
             tier: .molecule,
             component: "Toolbar",
             name: "Back+Title+Action",
@@ -19,7 +19,7 @@ enum LSToolbarStory {
             )
         },
         Story(
-            id: "molecules.toolbar.titleOnly",
+            id: "molecules.toolbar.title-only",
             tier: .molecule,
             component: "Toolbar",
             name: "Title Only",
@@ -28,7 +28,7 @@ enum LSToolbarStory {
             LSToolbar(title: "Overview")
         },
         Story(
-            id: "molecules.toolbar.titleTwoActions",
+            id: "molecules.toolbar.title-two-actions",
             tier: .molecule,
             component: "Toolbar",
             name: "Title+Two Actions",
@@ -43,7 +43,7 @@ enum LSToolbarStory {
             )
         },
         Story(
-            id: "molecules.toolbar.noBackButton",
+            id: "molecules.toolbar.no-back-button",
             tier: .molecule,
             component: "Toolbar",
             name: "No Back Button",

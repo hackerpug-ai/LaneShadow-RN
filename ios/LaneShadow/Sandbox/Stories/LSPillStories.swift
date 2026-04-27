@@ -42,7 +42,7 @@ enum LSPillStories {
         },
 
         Story(
-            id: "atoms.pill.iconLabel",
+            id: "atoms.pill.icon-label",
             tier: .atom,
             component: "LSPill",
             name: "Pill with Icon + Label",
@@ -58,7 +58,7 @@ enum LSPillStories {
         },
 
         Story(
-            id: "atoms.pill.iconOnly",
+            id: "atoms.pill.icon-only",
             tier: .atom,
             component: "LSPill",
             name: "Pill with Icon Only",

@@ -6,19 +6,19 @@ import SwiftUI
 enum LSBottomSheetStory {
     static let all: [Story] = [
         story(
-            id: "molecules.bottomSheet.small",
+            id: "molecules.bottomsheet.small",
             name: "Small",
             summary: "Bottom sheet presented at the 25% detent with overlay surface tokens.",
             detent: .small
         ),
         story(
-            id: "molecules.bottomSheet.medium",
+            id: "molecules.bottomsheet.medium",
             name: "Medium",
             summary: "Bottom sheet presented at the 50% detent for the primary working state.",
             detent: .medium
         ),
         story(
-            id: "molecules.bottomSheet.large",
+            id: "molecules.bottomsheet.large",
             name: "Large",
             summary: "Bottom sheet presented at the 90% detent for full-detail editing flows.",
             detent: .large

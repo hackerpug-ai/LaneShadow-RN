@@ -6,7 +6,7 @@ import SwiftUI
 enum LSPillSemanticsStory {
     static let all: [Story] = [
         Story(
-            id: "molecules.pillSemantics.tagPill.default",
+            id: "molecules.pillsemantics.tag-pill.default",
             tier: .molecule,
             component: "Pill Semantics",
             name: "TagPill Default",
@@ -17,7 +17,7 @@ enum LSPillSemanticsStory {
         },
 
         Story(
-            id: "molecules.pillSemantics.filterChip.unselected",
+            id: "molecules.pillsemantics.filter-chip.unselected",
             tier: .molecule,
             component: "Pill Semantics",
             name: "FilterChip Unselected",
@@ -28,7 +28,7 @@ enum LSPillSemanticsStory {
         },
 
         Story(
-            id: "molecules.pillSemantics.filterChip.selected",
+            id: "molecules.pillsemantics.filter-chip.selected",
             tier: .molecule,
             component: "Pill Semantics",
             name: "FilterChip Selected",
@@ -39,7 +39,7 @@ enum LSPillSemanticsStory {
         },
 
         Story(
-            id: "molecules.pillSemantics.suggestionChip.default",
+            id: "molecules.pillsemantics.suggestion-chip.default",
             tier: .molecule,
             component: "Pill Semantics",
             name: "SuggestionChip Default",
@@ -49,18 +49,18 @@ enum LSPillSemanticsStory {
                 .padding(Theme.shared.space.lg)
         },
     ] + [
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.clear.sm", condition: .clear, size: .sm),
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.clear.md", condition: .clear, size: .md),
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.rain.sm", condition: .rain, size: .sm),
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.rain.md", condition: .rain, size: .md),
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.wind.sm", condition: .wind, size: .sm),
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.wind.md", condition: .wind, size: .md),
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.storm.sm", condition: .storm, size: .sm),
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.storm.md", condition: .storm, size: .md),
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.hot.sm", condition: .hot, size: .sm),
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.hot.md", condition: .hot, size: .md),
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.cold.sm", condition: .cold, size: .sm),
-        weatherStory(id: "molecules.pillSemantics.weatherBadge.cold.md", condition: .cold, size: .md),
+        weatherStory(id: "molecules.pillsemantics.weather-badge.clear.sm", condition: .clear, size: .sm),
+        weatherStory(id: "molecules.pillsemantics.weather-badge.clear.md", condition: .clear, size: .md),
+        weatherStory(id: "molecules.pillsemantics.weather-badge.rain.sm", condition: .rain, size: .sm),
+        weatherStory(id: "molecules.pillsemantics.weather-badge.rain.md", condition: .rain, size: .md),
+        weatherStory(id: "molecules.pillsemantics.weather-badge.wind.sm", condition: .wind, size: .sm),
+        weatherStory(id: "molecules.pillsemantics.weather-badge.wind.md", condition: .wind, size: .md),
+        weatherStory(id: "molecules.pillsemantics.weather-badge.storm.sm", condition: .storm, size: .sm),
+        weatherStory(id: "molecules.pillsemantics.weather-badge.storm.md", condition: .storm, size: .md),
+        weatherStory(id: "molecules.pillsemantics.weather-badge.hot.sm", condition: .hot, size: .sm),
+        weatherStory(id: "molecules.pillsemantics.weather-badge.hot.md", condition: .hot, size: .md),
+        weatherStory(id: "molecules.pillsemantics.weather-badge.cold.sm", condition: .cold, size: .sm),
+        weatherStory(id: "molecules.pillsemantics.weather-badge.cold.md", condition: .cold, size: .md),
     ]
 
     private static func weatherStory(

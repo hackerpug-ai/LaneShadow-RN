@@ -6,7 +6,7 @@ import SwiftUI
 enum LSListRowStory {
     static let all: [Story] = [
         Story(
-            id: "molecules.listRow.leadingIcon",
+            id: "molecules.listrow.leading-icon",
             tier: .molecule,
             component: "LSListRow",
             name: "Leading Icon",
@@ -20,7 +20,7 @@ enum LSListRowStory {
             .padding(Theme.shared.space.lg)
         },
         Story(
-            id: "molecules.listRow.leadingAvatar",
+            id: "molecules.listrow.leading-avatar",
             tier: .molecule,
             component: "LSListRow",
             name: "Leading Avatar",
@@ -34,7 +34,7 @@ enum LSListRowStory {
             .padding(Theme.shared.space.lg)
         },
         Story(
-            id: "molecules.listRow.withSubtitle",
+            id: "molecules.listrow.with-subtitle",
             tier: .molecule,
             component: "LSListRow",
             name: "With Subtitle",
@@ -49,7 +49,7 @@ enum LSListRowStory {
             .padding(Theme.shared.space.lg)
         },
         Story(
-            id: "molecules.listRow.withToggle",
+            id: "molecules.listrow.with-toggle",
             tier: .molecule,
             component: "LSListRow",
             name: "With Toggle",
@@ -64,7 +64,7 @@ enum LSListRowStory {
             .padding(Theme.shared.space.lg)
         },
         Story(
-            id: "molecules.listRow.withChevron",
+            id: "molecules.listrow.with-chevron",
             tier: .molecule,
             component: "LSListRow",
             name: "With Chevron",
@@ -79,7 +79,7 @@ enum LSListRowStory {
             .padding(Theme.shared.space.lg)
         },
         Story(
-            id: "molecules.listRow.withTrailingButton",
+            id: "molecules.listrow.with-trailing-button",
             tier: .molecule,
             component: "LSListRow",
             name: "With Trailing Button",

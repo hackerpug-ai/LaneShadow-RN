@@ -12,7 +12,7 @@ enum LSNavigatorMoleculesStories {
     static var phaseIndicatorStories: [Story] {
         [
             Story(
-                id: "molecules.phaseIndicator.default",
+                id: "molecules.phaseindicator.default",
                 tier: .molecule,
                 component: "LSPhaseIndicator",
                 name: "Phase Indicator - In Progress",
@@ -30,7 +30,7 @@ enum LSNavigatorMoleculesStories {
             },
 
             Story(
-                id: "molecules.phaseIndicator.allDone",
+                id: "molecules.phaseindicator.all-done",
                 tier: .molecule,
                 component: "LSPhaseIndicator",
                 name: "Phase Indicator - All Done",
@@ -48,7 +48,7 @@ enum LSNavigatorMoleculesStories {
             },
 
             Story(
-                id: "molecules.phaseIndicator.allPending",
+                id: "molecules.phaseindicator.all-pending",
                 tier: .molecule,
                 component: "LSPhaseIndicator",
                 name: "Phase Indicator - All Pending",
@@ -71,7 +71,7 @@ enum LSNavigatorMoleculesStories {
     static var weatherTimelineStories: [Story] {
         [
             Story(
-                id: "molecules.weatherTimeline.sixHours",
+                id: "molecules.weathertimeline.six-hours",
                 tier: .molecule,
                 component: "LSWeatherTimeline",
                 name: "Weather Timeline - 6 Hours",
@@ -92,7 +92,7 @@ enum LSNavigatorMoleculesStories {
             },
 
             Story(
-                id: "molecules.weatherTimeline.mixedWeather",
+                id: "molecules.weathertimeline.mixed-weather",
                 tier: .molecule,
                 component: "LSWeatherTimeline",
                 name: "Weather Timeline - Mixed Weather",
@@ -113,7 +113,7 @@ enum LSNavigatorMoleculesStories {
             },
 
             Story(
-                id: "molecules.weatherTimeline.allClear",
+                id: "molecules.weathertimeline.all-clear",
                 tier: .molecule,
                 component: "LSWeatherTimeline",
                 name: "Weather Timeline - All Clear",
@@ -140,7 +140,7 @@ enum LSNavigatorMoleculesStories {
     static var instrumentReadoutStories: [Story] {
         [
             Story(
-                id: "molecules.instrumentReadout.fourMetrics",
+                id: "molecules.instrumentreadout.four-metrics",
                 tier: .molecule,
                 component: "LSInstrumentReadout",
                 name: "Instrument Readout - 4 Metrics",
@@ -157,7 +157,7 @@ enum LSNavigatorMoleculesStories {
             },
 
             Story(
-                id: "molecules.instrumentReadout.threeMetrics",
+                id: "molecules.instrumentreadout.three-metrics",
                 tier: .molecule,
                 component: "LSInstrumentReadout",
                 name: "Instrument Readout - 3 Metrics",
@@ -173,7 +173,7 @@ enum LSNavigatorMoleculesStories {
             },
 
             Story(
-                id: "molecules.instrumentReadout.longValues",
+                id: "molecules.instrumentreadout.long-values",
                 tier: .molecule,
                 component: "LSInstrumentReadout",
                 name: "Instrument Readout - Long Values",

@@ -6,7 +6,7 @@ import SwiftUI
 enum LSContentCardStory {
     static let all: [Story] = [
         Story(
-            id: "molecules.contentCard.withImageHeader",
+            id: "molecules.contentcard.with-image-header",
             tier: .molecule,
             component: "LSContentCard",
             name: "With Image Header",
@@ -28,7 +28,7 @@ enum LSContentCardStory {
             .padding(Theme.shared.space.lg)
         },
         Story(
-            id: "molecules.contentCard.titleOnly",
+            id: "molecules.contentcard.title-only",
             tier: .molecule,
             component: "LSContentCard",
             name: "Title Only",
@@ -38,7 +38,7 @@ enum LSContentCardStory {
                 .padding(Theme.shared.space.lg)
         },
         Story(
-            id: "molecules.contentCard.titleSubtitleChips",
+            id: "molecules.contentcard.title-subtitle-chips",
             tier: .molecule,
             component: "LSContentCard",
             name: "Title+Subtitle+Chips",
@@ -53,7 +53,7 @@ enum LSContentCardStory {
             .padding(Theme.shared.space.lg)
         },
         Story(
-            id: "molecules.contentCard.withActions",
+            id: "molecules.contentcard.with-actions",
             tier: .molecule,
             component: "LSContentCard",
             name: "With Actions",

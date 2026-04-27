@@ -6,7 +6,7 @@ import SwiftUI
 enum LSLocationContextBarStory {
     static let all: [Story] = [
         Story(
-            id: "molecules.locationContextBar.default",
+            id: "molecules.locationcontextbar.default",
             tier: .molecule,
             component: "LocationContextBar",
             name: "Default (Auto)",
@@ -21,7 +21,7 @@ enum LSLocationContextBarStory {
         },
 
         Story(
-            id: "molecules.locationContextBar.manualMode",
+            id: "molecules.locationcontextbar.manual-mode",
             tier: .molecule,
             component: "LocationContextBar",
             name: "Manual Mode",
@@ -36,7 +36,7 @@ enum LSLocationContextBarStory {
         },
 
         Story(
-            id: "molecules.locationContextBar.longLocationLabel",
+            id: "molecules.locationcontextbar.long-location-label",
             tier: .molecule,
             component: "LocationContextBar",
             name: "Long Location Label",

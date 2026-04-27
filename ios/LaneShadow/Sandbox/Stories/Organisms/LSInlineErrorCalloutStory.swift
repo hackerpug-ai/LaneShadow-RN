@@ -6,7 +6,7 @@ import SwiftUI
 enum LSInlineErrorCalloutStory {
     static let all: [Story] = [
         Story(
-            id: "organisms.inlineerror.errorOnly",
+            id: "organisms.inlineerror.error-only",
             tier: .organism,
             component: "InlineErrorCallout",
             name: "Error Only",
@@ -18,7 +18,7 @@ enum LSInlineErrorCalloutStory {
             )
         },
         Story(
-            id: "organisms.inlineerror.withDetail",
+            id: "organisms.inlineerror.with-detail",
             tier: .organism,
             component: "InlineErrorCallout",
             name: "With Detail",
@@ -31,7 +31,7 @@ enum LSInlineErrorCalloutStory {
             )
         },
         Story(
-            id: "organisms.inlineerror.withSuggestions",
+            id: "organisms.inlineerror.with-suggestions",
             tier: .organism,
             component: "InlineErrorCallout",
             name: "With Suggestions",
@@ -45,7 +45,7 @@ enum LSInlineErrorCalloutStory {
             )
         },
         Story(
-            id: "organisms.inlineerror.longBodyAndSuggestions",
+            id: "organisms.inlineerror.long-body-suggestions",
             tier: .organism,
             component: "InlineErrorCallout",
             name: "Long Body + Long Suggestions",
@@ -59,7 +59,7 @@ enum LSInlineErrorCalloutStory {
             )
         },
         Story(
-            id: "organisms.inlineerror.darkMode",
+            id: "organisms.inlineerror.dark-mode",
             tier: .organism,
             component: "InlineErrorCallout",
             name: "Dark Mode",

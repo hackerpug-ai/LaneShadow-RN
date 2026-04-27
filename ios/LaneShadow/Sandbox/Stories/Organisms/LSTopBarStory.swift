@@ -19,7 +19,7 @@ enum LSTopBarStory {
             )
         },
         Story(
-            id: "organisms.topbar.withTitle",
+            id: "organisms.topbar.with-title",
             tier: .organism,
             component: "TopBar",
             name: "With Title",
@@ -33,7 +33,7 @@ enum LSTopBarStory {
             )
         },
         Story(
-            id: "organisms.topbar.hamburgerOnly",
+            id: "organisms.topbar.hamburger-only",
             tier: .organism,
             component: "TopBar",
             name: "Hamburger Only",
@@ -46,7 +46,7 @@ enum LSTopBarStory {
             )
         },
         Story(
-            id: "organisms.topbar.recordHighlight",
+            id: "organisms.topbar.record-highlight",
             tier: .organism,
             component: "TopBar",
             name: "Record Highlight",

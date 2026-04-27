@@ -93,16 +93,35 @@ function extractStoryIdAndThemeFromFileName(fileName: string): {
   storyId: string
   theme: 'light' | 'dark'
 } {
-  // File format: test_allStories_lightAndDark_snapshots.{storyId}-{theme}.png
-  // where storyId can contain hyphens and theme is always 'light' or 'dark'
-  const prefix = 'test_allStories_lightAndDark_snapshots.'
-  const suffix = '.png'
+  // iOS snapshot file format (canonical, cross-platform parity):
+  // {storyId}.{theme}.png (e.g., atoms.avatar.image.light.png)
+  // Previously (legacy): test_allStories_lightAndDark_snapshots.{storyId}-{theme}.png
 
-  if (!fileName.startsWith(prefix) || !fileName.endsWith(suffix)) {
+  const suffix = '.png'
+  if (!fileName.endsWith(suffix)) {
     throw new Error(`Invalid snapshot file name format: ${fileName}`)
   }
 
-  // Remove prefix and suffix
+  const nameWithoutSuffix = fileName.slice(0, -suffix.length)
+
+  // Try new canonical format first: ends with .light or .dark
+  const canonicalMatch = nameWithoutSuffix.match(/^(.+)\.(light|dark)$/)
+  if (canonicalMatch) {
+    const [, storyId, theme] = canonicalMatch
+    if (theme !== 'light' && theme !== 'dark') {
+      throw new Error(
+        `Invalid theme in snapshot file name: ${fileName} (got '${theme}', expected 'light' or 'dark')`,
+      )
+    }
+    return { storyId, theme: theme as 'light' | 'dark' }
+  }
+
+  // Fallback to legacy format: test_allStories_lightAndDark_snapshots.{storyId}-{theme}
+  const prefix = 'test_allStories_lightAndDark_snapshots.'
+  if (!fileName.startsWith(prefix)) {
+    throw new Error(`Invalid snapshot file name format: ${fileName}`)
+  }
+
   const middle = fileName.slice(prefix.length, -suffix.length)
 
   // Extract theme (last hyphen-separated part must be 'light' or 'dark')
