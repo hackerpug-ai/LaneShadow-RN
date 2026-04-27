@@ -82,3 +82,12 @@ pre-push:
     # Snapshot parity check — ensures all stories have light + dark baselines.
     - name: snapshots:check
       run: pnpm snapshots:check
+
+    # Snapshot parity coverage — measures shared / (shared + ios_only + android_only).
+    # WARN-ONLY mode: `--threshold 30 || true` keeps the gate non-blocking while we
+    # work toward the 95% parity goal (UC-SBX-08 plan, Phase 1+). Phase 5 will
+    # promote this to a fail-on-violation gate at the default 95% threshold by
+    # removing both the explicit `--threshold 30` argument and the `|| true` swallow.
+    - name: snapshots:parity-coverage
+      glob: "{ios,android,tokens/sandbox}/**/*"
+      run: pnpm snapshots:parity-coverage --threshold 30 || true

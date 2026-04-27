@@ -34,6 +34,8 @@
     "snapshots:record:android": "bash scripts/snapshots/record-android.sh",
     "snapshots:check": "pnpm tsx scripts/snapshots/check.ts",
     "snapshots:parity-report": "pnpm tsx scripts/snapshots/parity-report.ts",
+    "snapshots:sync-manifest": "pnpm tsx scripts/snapshots/sync-manifest.ts",
+    "snapshots:parity-coverage": "pnpm tsx scripts/snapshots/parity-coverage.ts",
     "ui:diff": "pnpm tsx scripts/ui-diff/capture-rn.ts && pnpm tsx scripts/ui-diff/capture-android.ts && pnpm tsx scripts/ui-diff/capture-ios.ts && pnpm tsx scripts/ui-diff/compare.ts",
     "capture:design": "pnpm tsx scripts/capture-design-system.ts"
   },
