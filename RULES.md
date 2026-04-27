@@ -136,6 +136,57 @@ Background: holocron research doc `js74ct16xh8dq06zpcysqggd25858fac` — "Multi-
 
 ---
 
+## Cross-Platform Component Parity
+
+**The canonical sandbox story ID is the cross-platform parity key.** When a component is implemented on both iOS (`ios/LaneShadow/Sandbox/Stories/...`) and Android (`android/app/src/debug/.../sandbox/stories/...`), both platforms MUST register the same `id` string for the same conceptual variant. The snapshot test infrastructure uses this id literally as the PNG filename stem; mismatched ids silently fall into `*_only` arrays and never get cross-platform visual review.
+
+### Canonical naming spec
+
+```
+{tier}.{component}.{subgroup?}.{variant}    — all lowercase
+- segments separated by dots (.)
+- multi-word inside a segment: kebab-case (hyphens)
+- tier ∈ { atoms, molecules, organisms, templates, modifiers, tokens } (NO `infrastructure.` prefix)
+- component: lowercase kebab-case (e.g. badge, route-attachment-card, phase-dot, glasspanel)
+- subgroup (optional, used when one component has 4+ variants on a single dimension): lowercase kebab-case (e.g. status, weather, callout)
+- variant: lowercase kebab-case (e.g. error, primary-ghost, with-icon, color-overrides)
+- size shorthand: prefer sm, md, lg, xl (matches token naming) — not small/medium/large
+```
+
+#### Examples
+
+| Canonical | Anti-pattern | Why |
+|---|---|---|
+| `atoms.badge.status.error` | `atoms.badge.statusError` | Variants must be kebab-case; subgroup REQUIRED when 4+ variants share a dimension |
+| `atoms.pill.sm`, `atoms.pill.md`, `atoms.pill.lg` | `atoms.pill.small`, `.medium`, `.large` | Size shorthand matches design token naming |
+| `molecules.toolbar.back-title-action` | `molecules.toolbar.backTitleAction` | Variants kebab-case |
+| `tokens.color-swatches.all` | `infrastructure.tokens.color-swatches.all` | No `infrastructure.` prefix on tokens |
+| `templates.route-details.default` | `templates.routeDetails.default` | Component name kebab-case |
+
+### Parallel maintenance rule
+
+When adding, renaming, or removing a story on one platform, the SAME change must land on the other platform in the same PR. If a variant is genuinely platform-specific (e.g. an iOS-only system overlay or an Android-only modifier), add it to `tokens/sandbox/parity-exemptions.json` with an explicit `reason` field — never silently leave it in the `ios_only` / `android_only` arrays without justification.
+
+### Verification
+
+`pnpm snapshots:check` enforces the manifest contract. `pnpm snapshots:parity-coverage` reports the cross-platform parity rate (default threshold: 95%). Both run in `lefthook` pre-push; do not bypass.
+
+### PNG filename contract
+
+Both platforms write `{id}.{theme}.png` where theme is `light` or `dark`:
+- iOS: custom UIImage capture in `ios/LaneShadowTests/Sandbox/StorySnapshotTests.swift` (overrides swift-snapshot-testing's default sanitizer)
+- Android: dropshots `assertSnapshot(name = sanitizedId)` in `android/app/src/androidTest/java/com/laneshadow/sandbox/snapshots/SandboxSnapshotTestBase.kt` (sanitizes `/` → `.`)
+
+Resulting paths:
+- iOS PNGs: `ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/{id}.{theme}.png`
+- Android PNGs: `android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/{id}.{theme}.png`
+
+### Sprint 6 / 8 post-mortem
+
+The parity contract emerged from real incidents — see commits `b434433f` (iOS canonicalization), `4c474f40` (parity tooling), `87fe018e` (Android baseline restoration after a cycle that broke parity). Future drift is gated by the `lefthook` pre-push hook plus this rule.
+
+---
+
 ## .spec Directory — Progressive Disclosure Guide
 
 The `.spec/` directory is your centralized artifact store for planning, research, designs, and specifications. It's organized for progressive disclosure: start shallow, dig deeper as needed.
