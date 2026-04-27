@@ -10,7 +10,8 @@ enum IdleScreenStory {
             tier: .template,
             component: "IdleScreen",
             name: "Default",
-            summary: "Welcome screen with greeting overlay, map, and chat input with suggestions."
+            summary: "Welcome screen with greeting overlay, map, and chat input with suggestions.",
+            previewMode: .fullScreen
         ) { _ in
             IdleScreen(provider: IdleMockProvider.self)
         }

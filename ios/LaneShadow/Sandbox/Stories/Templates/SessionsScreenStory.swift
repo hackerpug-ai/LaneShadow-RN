@@ -10,7 +10,8 @@ enum SessionsScreenStory {
             tier: .template,
             component: "SessionsScreen",
             name: "Default — This Week",
-            summary: "Sessions drawer with scrim at 0.35 opacity, 'Rides' header, NEW button, THIS WEEK section, and 5 session rows with Santa Cruz loop marked active"
+            summary: "Sessions drawer with scrim at 0.35 opacity, 'Rides' header, NEW button, THIS WEEK section, and 5 session rows with Santa Cruz loop marked active",
+            previewMode: .fullScreen
         ) { _ in
             SessionsScreen(provider: SessionsMockProvider.self)
         },

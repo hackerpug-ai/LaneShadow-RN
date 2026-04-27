@@ -6,6 +6,7 @@ import com.laneshadow.sandbox.mockproviders.ErrorMockProvider
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.templates.ErrorScreen
 import com.nativesandbox.model.ComponentTier
+import com.nativesandbox.model.PreviewMode
 import com.nativesandbox.model.Story
 
 /**
@@ -26,6 +27,7 @@ object ErrorScreenStory {
             component = "ErrorScreen",
             name = "Error Screen (Default)",
             summary = "Navigator error recovery screen with broken segment error, 2 suggestion chips, and recovery chat input",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = ErrorMockProvider.value("default")
                 LaneShadowTheme {
@@ -52,6 +54,7 @@ object ErrorScreenStory {
             component = "ErrorScreen",
             name = "Error Screen (Network Timeout)",
             summary = "Network timeout error with 3 suggestion chips drawn from recent rides",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = ErrorMockProvider.value("network")
                 LaneShadowTheme {
@@ -76,6 +79,7 @@ object ErrorScreenStory {
             component = "ErrorScreen",
             name = "Error Screen (Constraint Impossible)",
             summary = "Geographically impossible route error with 3 constraint-relaxation chips",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = ErrorMockProvider.value("impossible")
                 LaneShadowTheme {
@@ -100,6 +104,7 @@ object ErrorScreenStory {
             component = "ErrorScreen",
             name = "Error Screen (Safety Gate)",
             summary = "Storm-blocked route error with 3 rescheduling chips",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = ErrorMockProvider.value("safety-gate")
                 LaneShadowTheme {
@@ -124,6 +129,7 @@ object ErrorScreenStory {
             component = "ErrorScreen",
             name = "Error Screen (Long Detail)",
             summary = "Error with long detail text (tests text wrapping)",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = ErrorMockProvider.value("long-detail")
                 LaneShadowTheme {
@@ -148,6 +154,7 @@ object ErrorScreenStory {
             component = "ErrorScreen",
             name = "Error Screen (No Suggestions)",
             summary = "Generic error with no suggestion chips",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = ErrorMockProvider.value("no-suggestions")
                 LaneShadowTheme {

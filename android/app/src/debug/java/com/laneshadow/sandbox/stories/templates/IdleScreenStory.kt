@@ -6,6 +6,7 @@ import com.laneshadow.sandbox.mockproviders.IdleMockProvider
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.templates.IdleScreen
 import com.nativesandbox.model.ComponentTier
+import com.nativesandbox.model.PreviewMode
 import com.nativesandbox.model.Story
 
 /**
@@ -25,6 +26,7 @@ object IdleScreenStory {
             component = "IdleScreen",
             name = "Idle Screen (Default)",
             summary = "Dormant Navigator idle screen with map, greeting overlay, top bar, and chat input with 4 suggestion chips + location badge",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = IdleMockProvider.value("default")
                 LaneShadowTheme {
@@ -51,6 +53,7 @@ object IdleScreenStory {
             component = "IdleScreen",
             name = "Idle Screen (Empty Suggestions)",
             summary = "Idle screen with no suggestion chips",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = IdleMockProvider.value("empty")
                 LaneShadowTheme {
@@ -73,6 +76,7 @@ object IdleScreenStory {
             component = "IdleScreen",
             name = "Idle Screen (Overflow Chips)",
             summary = "Idle screen with many suggestion chips (tests scrolling)",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = IdleMockProvider.value("overflow")
                 LaneShadowTheme {
@@ -95,6 +99,7 @@ object IdleScreenStory {
             component = "IdleScreen",
             name = "Idle Screen (Long Copy)",
             summary = "Idle screen with long greeting text (tests text wrapping)",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = IdleMockProvider.value("longCopy")
                 LaneShadowTheme {

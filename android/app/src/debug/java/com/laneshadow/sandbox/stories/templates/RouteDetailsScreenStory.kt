@@ -5,6 +5,7 @@ import com.laneshadow.sandbox.mockproviders.RouteDetailsMockProvider
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.templates.RouteDetailsScreen
 import com.nativesandbox.model.ComponentTier
+import com.nativesandbox.model.PreviewMode
 import com.nativesandbox.model.Story
 
 /**
@@ -18,6 +19,7 @@ object RouteDetailsScreenStory {
             component = "RouteDetailsScreen",
             name = "Default",
             summary = "Single best polyline with LSRouteSheet showing best badge, opinion title, 4-column readout, 6-hour weather timeline, and Save/Ride actions.",
+            previewMode = PreviewMode.FullScreen,
             content = { DefaultStory() },
         ),
         Story(
@@ -26,6 +28,7 @@ object RouteDetailsScreenStory {
             component = "RouteDetailsScreen",
             name = "Mixed Weather",
             summary = "Route with mixed weather conditions (clear → wind → rain) showing per-condition tints.",
+            previewMode = PreviewMode.FullScreen,
             content = { MixedWeatherStory() },
         ),
         Story(
@@ -34,6 +37,7 @@ object RouteDetailsScreenStory {
             component = "RouteDetailsScreen",
             name = "Alt Route",
             summary = "Alternative route without best badge, showing alt variant styling.",
+            previewMode = PreviewMode.FullScreen,
             content = { AltRouteStory() },
         ),
     )

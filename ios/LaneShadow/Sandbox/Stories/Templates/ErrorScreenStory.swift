@@ -10,7 +10,8 @@ enum ErrorScreenStory {
             tier: .template,
             component: "ErrorScreen",
             name: "Default — Lucia Segment",
-            summary: "Error screen with warn-stripe callout showing Lucia segment failure, recovery suggestions, and chat input."
+            summary: "Error screen with warn-stripe callout showing Lucia segment failure, recovery suggestions, and chat input.",
+            previewMode: .fullScreen
         ) { _ in
             ErrorScreen(provider: ErrorMockProvider.self)
         }

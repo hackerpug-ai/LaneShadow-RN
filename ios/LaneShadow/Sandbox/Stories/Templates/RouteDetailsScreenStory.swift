@@ -10,7 +10,8 @@ enum RouteDetailsScreenStory {
             tier: .template,
             component: "RouteDetailsScreen",
             name: "Default — Skyline Spine",
-            summary: "Route details with best badge, instrument readout, weather timeline, and Save/Ride actions."
+            summary: "Route details with best badge, instrument readout, weather timeline, and Save/Ride actions.",
+            previewMode: .fullScreen
         ) { _ in
             RouteDetailsScreen(provider: RouteDetailsMockProvider.self)
         },
@@ -19,7 +20,8 @@ enum RouteDetailsScreenStory {
             tier: .template,
             component: "RouteDetailsScreen",
             name: "Mixed Weather — Coast & Ridge",
-            summary: "Route details with mixed weather timeline (clear → wind → rain)."
+            summary: "Route details with mixed weather timeline (clear → wind → rain).",
+            previewMode: .fullScreen
         ) { _ in
             RouteDetailsScreen(provider: RouteDetailsMockProvider.self)
         },

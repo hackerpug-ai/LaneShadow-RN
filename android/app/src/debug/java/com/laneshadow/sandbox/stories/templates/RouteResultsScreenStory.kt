@@ -5,6 +5,7 @@ import com.laneshadow.sandbox.mockproviders.RouteResultsMockProvider
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.templates.RouteResultsScreen
 import com.nativesandbox.model.ComponentTier
+import com.nativesandbox.model.PreviewMode
 import com.nativesandbox.model.Story
 
 /**
@@ -18,6 +19,7 @@ object RouteResultsScreenStory {
             component = "RouteResultsScreen",
             name = "Default",
             summary = "Three polylines with NavigatorMessage and refine chat input.",
+            previewMode = PreviewMode.FullScreen,
             content = { DefaultStory() },
         ),
         Story(
@@ -26,6 +28,7 @@ object RouteResultsScreenStory {
             component = "RouteResultsScreen",
             name = "Empty",
             summary = "No routes found state.",
+            previewMode = PreviewMode.FullScreen,
             content = { EmptyStory() },
         ),
         Story(
@@ -34,6 +37,7 @@ object RouteResultsScreenStory {
             component = "RouteResultsScreen",
             name = "Overflow",
             summary = "Many route options.",
+            previewMode = PreviewMode.FullScreen,
             content = { OverflowStory() },
         ),
     )

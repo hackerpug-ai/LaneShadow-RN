@@ -6,6 +6,7 @@ import com.laneshadow.sandbox.mockproviders.PlanningMockProvider
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.templates.PlanningScreen
 import com.nativesandbox.model.ComponentTier
+import com.nativesandbox.model.PreviewMode
 import com.nativesandbox.model.Story
 
 /**
@@ -26,6 +27,7 @@ object PlanningScreenStory {
             component = "PlanningScreen",
             name = "Planning Screen (Default)",
             summary = "Planning screen with 5 phases, active on 'Validating', sketching polyline animation, and thinking spinner in chat input",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = PlanningMockProvider.value("default")
                 LaneShadowTheme {
@@ -45,6 +47,7 @@ object PlanningScreenStory {
             component = "PlanningScreen",
             name = "Planning Screen (Empty)",
             summary = "Planning screen with no phases",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = PlanningMockProvider.value("empty")
                 LaneShadowTheme {
@@ -64,6 +67,7 @@ object PlanningScreenStory {
             component = "PlanningScreen",
             name = "Planning Screen (Overflow Phases)",
             summary = "Planning screen with 8 phases (tests scrolling)",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = PlanningMockProvider.value("overflow")
                 LaneShadowTheme {
@@ -83,6 +87,7 @@ object PlanningScreenStory {
             component = "PlanningScreen",
             name = "Planning Screen (Long Copy)",
             summary = "Planning screen with long phase labels and message (tests text wrapping)",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = PlanningMockProvider.value("long-copy")
                 LaneShadowTheme {

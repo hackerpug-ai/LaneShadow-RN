@@ -10,7 +10,8 @@ enum RouteResultsScreenStory {
             tier: .template,
             component: "RouteResultsScreen",
             name: "Default — 3 Routes",
-            summary: "Three polylines on map, pinned NavigatorMessage with 3 route attachments (best selected), refine chat input."
+            summary: "Three polylines on map, pinned NavigatorMessage with 3 route attachments (best selected), refine chat input.",
+            previewMode: .fullScreen
         ) { _ in
             RouteResultsScreen(provider: RouteResultsMockProvider.self)
         },

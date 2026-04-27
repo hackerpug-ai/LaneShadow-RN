@@ -6,6 +6,7 @@ import com.laneshadow.sandbox.mockproviders.SessionsMockProvider
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.templates.SessionsScreen
 import com.nativesandbox.model.ComponentTier
+import com.nativesandbox.model.PreviewMode
 import com.nativesandbox.model.Story
 
 /**
@@ -27,6 +28,7 @@ object SessionsScreenStory {
             component = "SessionsScreen",
             name = "Sessions Screen (Default)",
             summary = "Sessions screen with 5 sessions, 1 active (Santa Cruz loop), scrim at 0.35, drawer slides in from left",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = SessionsMockProvider.value("default")
                 LaneShadowTheme {
@@ -46,6 +48,7 @@ object SessionsScreenStory {
             component = "SessionsScreen",
             name = "Sessions Screen (Empty)",
             summary = "Sessions screen with no sessions (empty state with compass icon and prose)",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = SessionsMockProvider.value("empty")
                 LaneShadowTheme {
@@ -65,6 +68,7 @@ object SessionsScreenStory {
             component = "SessionsScreen",
             name = "Sessions Screen (Overflow)",
             summary = "Sessions screen with 12 sessions (tests scrolling and sticky section labels)",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = SessionsMockProvider.value("overflow")
                 LaneShadowTheme {
@@ -84,6 +88,7 @@ object SessionsScreenStory {
             component = "SessionsScreen",
             name = "Sessions Screen (Long Copy)",
             summary = "Sessions screen with long titles and previews (tests text wrapping and truncation)",
+            previewMode = PreviewMode.FullScreen,
             content = {
                 val state = SessionsMockProvider.value("long-copy")
                 LaneShadowTheme {

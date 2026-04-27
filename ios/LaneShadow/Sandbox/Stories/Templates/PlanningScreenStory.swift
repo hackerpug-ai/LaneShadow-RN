@@ -12,7 +12,8 @@ enum PlanningScreenStory {
             tier: .template,
             component: "PlanningScreen",
             name: "Phase 1 · Scouting",
-            summary: "Region scan — sketching stub growing, phase 1 active pulsing"
+            summary: "Region scan — sketching stub growing, phase 1 active pulsing",
+            previewMode: .fullScreen
         ) { args in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
@@ -35,7 +36,8 @@ enum PlanningScreenStory {
                     summary: "Which planning phase is active (1–5)"
                 ),
             ],
-            initialArgs: ArgValues(["activePhase": 2])
+            initialArgs: ArgValues(["activePhase": 2]),
+            previewMode: .fullScreen
         ) { args in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
@@ -49,7 +51,8 @@ enum PlanningScreenStory {
             tier: .template,
             component: "PlanningScreen",
             name: "Phase 3 · Weather",
-            summary: "Sun & wind check — weather icons along route, phase 3 active"
+            summary: "Sun & wind check — weather icons along route, phase 3 active",
+            previewMode: .fullScreen
         ) { args in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
@@ -63,7 +66,8 @@ enum PlanningScreenStory {
             tier: .template,
             component: "PlanningScreen",
             name: "Phase 4 · Scoring",
-            summary: "Ranking candidates — three polylines visible, phase 4 active"
+            summary: "Ranking candidates — three polylines visible, phase 4 active",
+            previewMode: .fullScreen
         ) { args in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
@@ -77,7 +81,8 @@ enum PlanningScreenStory {
             tier: .template,
             component: "PlanningScreen",
             name: "Phase 5 · Picking",
-            summary: "Selecting best — final evaluation, phase 5 active"
+            summary: "Selecting best — final evaluation, phase 5 active",
+            previewMode: .fullScreen
         ) { args in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
@@ -91,7 +96,8 @@ enum PlanningScreenStory {
             tier: .template,
             component: "PlanningScreen",
             name: "Dark Mode — Phase 2",
-            summary: "Phase 2 in dark mode — all surfaces re-resolve to dark tokens"
+            summary: "Phase 2 in dark mode — all surfaces re-resolve to dark tokens",
+            previewMode: .fullScreen
         ) { args in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
