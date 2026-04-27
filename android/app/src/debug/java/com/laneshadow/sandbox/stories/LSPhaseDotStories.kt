@@ -14,19 +14,19 @@ import com.nativesandbox.model.Story
 object LSPhaseDotStories {
     val all: List<Story> = listOf(
         phaseDotStory(
-            id = "atoms.phaseDot.pending",
+            id = "atoms.phase-dot.pending",
             name = "Pending",
             summary = "Pending ride phase with hollow border-strong treatment.",
             state = PhaseDotState.Pending,
         ),
         phaseDotStory(
-            id = "atoms.phaseDot.active",
+            id = "atoms.phase-dot.active",
             name = "Active",
             summary = "Active ride phase with signal fill and pulse ring.",
             state = PhaseDotState.Active,
         ),
         phaseDotStory(
-            id = "atoms.phaseDot.done",
+            id = "atoms.phase-dot.done",
             name = "Done",
             summary = "Done ride phase with success fill and no pulse.",
             state = PhaseDotState.Done,

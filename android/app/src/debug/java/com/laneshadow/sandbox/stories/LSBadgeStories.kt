@@ -15,57 +15,57 @@ import com.nativesandbox.model.Story
 object LSBadgeStories {
     val all: List<Story> = listOf(
         badgeStory(
-            id = "atoms.badge.statusInfo",
+            id = "atoms.badge.status.info",
             name = "Status Info",
             summary = "Status badge using info tokens.",
         ) { LSBadge(label = "INFO", variant = BadgeVariant.Status.Info) },
         badgeStory(
-            id = "atoms.badge.statusSuccess",
+            id = "atoms.badge.status.success",
             name = "Status Success",
             summary = "Status badge using success tokens.",
         ) { LSBadge(label = "ON", variant = BadgeVariant.Status.Success) },
         badgeStory(
-            id = "atoms.badge.statusWarning",
+            id = "atoms.badge.status.warning",
             name = "Status Warning",
             summary = "Status badge using warning tokens.",
         ) { LSBadge(label = "WATCH", variant = BadgeVariant.Status.Warning) },
         badgeStory(
-            id = "atoms.badge.statusError",
+            id = "atoms.badge.status.error",
             name = "Status Error",
             summary = "Status badge using error tokens.",
         ) { LSBadge(label = "ERROR", variant = BadgeVariant.Status.Error) },
         badgeStory(
-            id = "atoms.badge.statusRecording",
+            id = "atoms.badge.status.recording",
             name = "Status Recording",
             summary = "Count-only recording badge using recording tokens.",
         ) { LSBadge(count = 3, variant = BadgeVariant.Status.Recording) },
         badgeStory(
-            id = "atoms.badge.weatherClear",
+            id = "atoms.badge.weather.clear",
             name = "Weather Clear",
             summary = "Weather badge with sun icon and clear token colors.",
         ) { LSBadge(label = "CLEAR", variant = BadgeVariant.Weather.Clear) },
         badgeStory(
-            id = "atoms.badge.weatherRain",
+            id = "atoms.badge.weather.rain",
             name = "Weather Rain",
             summary = "Weather badge with rain icon and rain token colors.",
         ) { LSBadge(label = "RAIN", variant = BadgeVariant.Weather.Rain) },
         badgeStory(
-            id = "atoms.badge.weatherWind",
+            id = "atoms.badge.weather.wind",
             name = "Weather Wind",
             summary = "Weather badge with wind icon and wind token colors.",
         ) { LSBadge(label = "GUSTS", variant = BadgeVariant.Weather.Wind) },
         badgeStory(
-            id = "atoms.badge.weatherStorm",
+            id = "atoms.badge.weather.storm",
             name = "Weather Storm",
             summary = "Weather badge with storm icon and storm token colors.",
         ) { LSBadge(label = "STORM", variant = BadgeVariant.Weather.Storm) },
         badgeStory(
-            id = "atoms.badge.weatherHot",
+            id = "atoms.badge.weather.hot",
             name = "Weather Hot",
             summary = "Weather badge with therm icon and hot token colors.",
         ) { LSBadge(label = "HOT", variant = BadgeVariant.Weather.Hot) },
         badgeStory(
-            id = "atoms.badge.weatherCold",
+            id = "atoms.badge.weather.cold",
             name = "Weather Cold",
             summary = "Weather badge with wind icon and cold token colors.",
         ) { LSBadge(label = "COLD", variant = BadgeVariant.Weather.Cold) },

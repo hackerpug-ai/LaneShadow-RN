@@ -12,7 +12,7 @@ import com.nativesandbox.model.Story
 object LSToolbarStory {
     val all: List<Story> = listOf(
         story(
-            id = "molecules.toolbar.backTitleAction",
+            id = "molecules.toolbar.back-title-action",
             name = "Back + Title + Action",
             summary = "Back affordance, centered title, and single trailing action.",
         ) {
@@ -23,7 +23,7 @@ object LSToolbarStory {
             )
         },
         story(
-            id = "molecules.toolbar.titleOnly",
+            id = "molecules.toolbar.title-only",
             name = "Title Only",
             summary = "Title-centered toolbar with no leading or trailing actions.",
         ) {
@@ -32,7 +32,7 @@ object LSToolbarStory {
             )
         },
         story(
-            id = "molecules.toolbar.titleTwoActions",
+            id = "molecules.toolbar.title-two-actions",
             name = "Title + Two Actions",
             summary = "Centered title with two trailing action buttons.",
         ) {

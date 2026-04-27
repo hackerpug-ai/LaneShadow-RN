@@ -32,7 +32,7 @@ object LSIconStories {
             content = { LSIconCatalogStory() },
         ),
         Story(
-            id = "atoms.icon.colorOverrides",
+            id = "atoms.icon.color-overrides",
             tier = ComponentTier.Atom,
             component = "LSIcon",
             name = "Color Overrides",
