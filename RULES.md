@@ -169,7 +169,15 @@ When adding, renaming, or removing a story on one platform, the SAME change must
 
 ### Verification
 
-`pnpm snapshots:check` enforces the manifest contract. `pnpm snapshots:parity-coverage` reports the cross-platform parity rate (default threshold: 95%). Both run in `lefthook` pre-push; do not bypass.
+`pnpm snapshots:check` enforces the manifest contract (filename completeness).
+`pnpm snapshots:parity-coverage` reports cross-platform parity with **per-tier thresholds** defined in `tokens/sandbox/parity-thresholds.json`:
+- atoms / molecules: ≥ 95% (enforced)
+- organisms: ≥ 90% (enforced)
+- tokens: 100% (enforced)
+- templates: ≥ 50% (advisory; legitimately platform-specific UX patterns may diverge)
+- infrastructure / modifiers: exempt (sandbox scaffolding, not user-facing)
+
+Both checks run in `lefthook` pre-push. Do not bypass.
 
 ### PNG filename contract
 
