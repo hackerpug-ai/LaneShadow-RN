@@ -152,3 +152,6 @@ android/app/src/main/res/values/secrets.xml
 # Dropshots diff outputs (comparison failures) — not committed
 android/app/src/androidTest/screenshots/**/_failure_*.png
 
+# Xcode project backup files
+*.pbxproj.backup
+
