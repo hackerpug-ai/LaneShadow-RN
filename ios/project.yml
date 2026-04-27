@@ -187,6 +187,12 @@ targets:
       - path: LaneShadow/Views/Molecules/LSWeatherTimeline.swift
       - path: LaneShadow/Views/Molecules/ChatTranscript.swift
       - path: LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift
+      - path: LaneShadow/Views/Molecules/LSContentCard.swift
+      - path: LaneShadow/Views/Molecules/LSFilterChip.swift
+      - path: LaneShadow/Views/Molecules/LSListRow.swift
+      - path: LaneShadow/Views/Molecules/LSNavHeader.swift
+      - path: LaneShadow/Views/Molecules/LSPhaseIndicator.swift
+      - path: LaneShadow/Views/Molecules/LSTagPill.swift
       # Sprint 05 organisms
       - path: LaneShadow/Views/Organisms/LSRouteSheet.swift
       - path: LaneShadow/Views/Organisms/LSSessionsDrawer.swift

@@ -21,7 +21,7 @@ enum MoleculesStories {
         stories += LSLocationContextBarStory.all
         stories += LSRouteAttachmentCardStory.all
         stories += LSChatInputStories.all
-        stories += LSNavigatorMoleculesStory.all
+        stories += LSNavigatorMoleculesStories.all
         return stories
     }()
 }

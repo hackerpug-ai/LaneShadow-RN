@@ -11,12 +11,7 @@ public extension TypographyVariant {
         public let title = UITitleVariants()
     }
 
-    struct OpinionVariants: Sendable {
-        public let lg = TypographyVariant.heading.lg
-    }
-
     static let ui = UIVariants()
-    static let opinion = OpinionVariants()
 }
 
 public enum LSNavHeaderVariant {
