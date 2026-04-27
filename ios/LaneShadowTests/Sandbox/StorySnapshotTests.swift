@@ -8,6 +8,11 @@ import UIKit
 import XCTest
 @testable import LaneShadow
 
+// Snapshot Determinism: See `.spec/prds/v2/11-technical-requirements.md` section
+// "Snapshot Determinism" for the contract on acceptable vs. unacceptable diffs.
+// Mapbox tile loading is the primary non-determinism source; map-region pixel
+// variance < 1% is acceptable, any diff in chrome/overlays is a regression.
+
 // MARK: - Determinism Setup
 
 /// AC-8: Determinism guards for reproducible snapshots across machines and CI.

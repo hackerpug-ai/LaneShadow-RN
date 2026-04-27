@@ -412,3 +412,37 @@ See UC-TOK-01 through UC-TOK-05 for exhaustive token lists. All tokens live in `
 - `lefthook` pre-push:
   - `pnpm sandbox:parity-check` (per UC-SBX-01).
   - `pnpm snapshots:check` (per UC-SBX-06 — verifies every story has light+dark snapshots on both platforms, no orphans).
+
+## Snapshot Determinism
+
+Screen stories include Mapbox map views that load external vector tiles. The snapshot harness disables animations and freezes locale/timezone (see `ios/LaneShadowTests/Sandbox/StorySnapshotTests.swift`), but cannot fully control Mapbox tile rendering. This section defines what constitutes an actionable snapshot diff versus expected noise.
+
+### Known non-determinism source
+
+**Mapbox tile loading.** Map views render raster tiles fetched from Mapbox's CDN. Tile appearance can vary based on CDN edge cache, network latency during test execution, and Mapbox Studio style deployment propagation. This produces pixel-level diffs in map regions that are not caused by code changes.
+
+### Mitigations
+
+- **Static camera position:** All snapshot tests use fixed camera center + zoom (no dynamic framing).
+- **Tile wait strategy:** Tests wait for Mapbox `mapView didFinishLoading` before capturing. This reduces (but does not eliminate) tile variance.
+- **Deterministic test fixtures:** Mock providers use static fixture data with no `Date()`, `Random`, or locale-sensitive formatting.
+- **Single device profile per platform:** iOS uses iPhone 16 (375x667), Android uses Pixel 5 (393x851) -- consistent geometry within each platform's snapshot set.
+
+### Acceptable variance
+
+- **< 1% pixel diff in map tile regions only** -- differences confined to the map layer that do not affect overlays, chrome, or UI elements.
+- **No diff in chrome/overlays** -- any pixel difference in `LSTopBar`, `LSChatInput`, `LSNavigatorMessage`, `LSBottomSheet`, `LSInlineErrorCallout`, badges, pills, buttons, or any non-map UI element is an **unacceptable** regression.
+
+### Unacceptable variance
+
+- Any diff in non-map UI elements (structural change, color shift, text change).
+- Missing or extra UI elements.
+- Layout regressions (spacing, alignment, sizing).
+
+### Fallback strategy
+
+If Mapbox tile diffs become noisy enough to cause false-positive CI failures:
+
+1. **Short-term:** Add a map-region mask to the snapshot comparison so only non-map pixels are compared. This preserves regression detection for chrome/overlays while ignoring map noise.
+2. **Medium-term:** Switch to a solid-color Mapbox style (no tiles) for snapshot tests. This eliminates tile variance entirely while preserving map viewport and overlay positioning.
+3. **Long-term:** Use a local tile server with baked tiles for deterministic map rendering.
