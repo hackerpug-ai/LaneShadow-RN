@@ -13,5 +13,12 @@ import com.nativesandbox.model.Story
  * See UC-SCR-01 through UC-SCR-06 for detailed screen stories.
  */
 object TemplateStories {
-    val all: List<Story> = IdleScreenStory.all + PlanningScreenStory.all + SessionsScreenStory.all + ErrorScreenStory.all + RouteDetailsScreenStory.all + PlaceholderTemplateStories.all
+    val all: List<Story> =
+        IdleScreenStory.all +
+            PlanningScreenStory.all +
+            RouteResultsScreenStory.all +
+            SessionsScreenStory.all +
+            ErrorScreenStory.all +
+            RouteDetailsScreenStory.all +
+            PlaceholderTemplateStories.all
 }
