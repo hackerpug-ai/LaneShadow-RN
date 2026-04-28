@@ -115,6 +115,10 @@ fun RouteDetailsScreen(
                 LSRouteSheet(
                     route = routeDetails,
                     weatherTimeline = weatherTimeline,
+                    timeRange = Pair(
+                        weatherTimeline.firstOrNull()?.hour ?: "",
+                        weatherTimeline.lastOrNull()?.hour ?: ""
+                    ),
                     onSave = onSave,
                     onRide = onRide,
                     onDismiss = onDismiss,

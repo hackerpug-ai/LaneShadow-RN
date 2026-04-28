@@ -63,11 +63,11 @@ class SessionsDrawerTests {
     )
 
     /**
-     * AC-1: Drawer background is solid surface.card (not glass-panel translucent)
+     * AC-1: Drawer background is solid surface.default (not glass-panel translucent)
      *
      * GIVEN: LSSessionsDrawer is displayed
      * WHEN: The drawer container renders
-     * THEN: Background is opaque surface.card with no map content visible behind
+     * THEN: Background is opaque surface.default with no map content visible behind
      */
     @Test
     fun testDrawerSolidBackground() {
@@ -175,12 +175,12 @@ class SessionsDrawerTests {
      *
      * GIVEN: SessionsScreen with hamburger button visible
      * WHEN: The hamburger chip renders at 40dp visual size
-     * THEN: Tap target area is ≥48dp via Modifier.minimumTouchTargetSize()
+     * THEN: Tap target area is ≥48dp via Modifier.minimumInteractiveComponentSize()
      */
     @Test
     fun testHamburger48dpTapTarget() {
         // This test verifies the hamburger button has adequate tap target
-        // The implementation should use Modifier.minimumTouchTargetSize(48.dp)
+        // The implementation should use Modifier.minimumInteractiveComponentSize()
         // while keeping the visual size at 40dp
 
         val minTapTarget = 48.dp

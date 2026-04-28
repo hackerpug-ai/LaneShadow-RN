@@ -65,6 +65,7 @@ data class RouteDetails(
  *
  * @param route Route details including title, via, isBest flag, and metrics
  * @param weatherTimeline List of weather timeline entries for the route
+ * @param timeRange Time range for the weather timeline header as Pair<from, to>
  * @param onSave Callback when Save button is tapped
  * @param onRide Callback when Ride this button is tapped
  * @param onDismiss Callback when sheet is dismissed (drag-down or backdrop tap)
@@ -74,6 +75,7 @@ data class RouteDetails(
 fun LSRouteSheet(
     route: RouteDetails,
     weatherTimeline: List<WeatherTimelineEntry>,
+    timeRange: Pair<String, String>,
     onSave: () -> Unit,
     onRide: () -> Unit,
     onDismiss: () -> Unit,
@@ -142,8 +144,8 @@ fun LSRouteSheet(
             // Weather timeline
             com.laneshadow.ui.molecules.LSWeatherTimeline(
                 entries = weatherTimeline,
-                from = weatherTimeline.firstOrNull()?.hour ?: "",
-                to = weatherTimeline.lastOrNull()?.hour ?: "",
+                from = timeRange.first,
+                to = timeRange.second,
                 modifier = Modifier.testTag(ROUTE_SHEET_WEATHER_TAG),
             )
 

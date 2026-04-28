@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
@@ -156,7 +157,7 @@ fun LSTopBar(
 
 /**
  * Hamburger menu chip - 40x40 circular glass chrome chip.
- * AC-4: Tap target ≥48dp via padding while keeping visual at 40dp
+ * AC-4: Tap target ≥48dp via minimumInteractiveComponentSize while keeping visual at 40dp
  */
 @Composable
 private fun HamburgerChip(
@@ -165,11 +166,9 @@ private fun HamburgerChip(
 ) {
     val theme = LocalLaneShadowTheme.current
 
-    // AC-4: Ensure tap target is ≥48dp by adding padding to the 40dp visual
-    // 48dp - 40dp = 8dp, so 4dp padding on each side
     Box(
         modifier = modifier
-            .padding(4.dp) // Increase tap target to 48dp (40 + 4 + 4)
+            .minimumInteractiveComponentSize()
             .size(chipHeight)
             .clickable(onClick = onTap)
             .semantics {

@@ -188,6 +188,7 @@ class TokenCorrectionTests {
                             condition = WeatherCondition.Clear,
                         ),
                     ),
+                    timeRange = Pair("8am", "2pm"),
                     onSave = {},
                     onRide = {},
                     onDismiss = {},
@@ -199,9 +200,9 @@ class TokenCorrectionTests {
         composeTestRule.onNodeWithTag("ls-weather-timeline")
             .assertExists()
 
-        // Implementation verified: from = weatherTimeline.firstOrNull()?.hour
-        //                        to = weatherTimeline.lastOrNull()?.hour
-        // (LSRouteSheet.kt:145-146)
+        // Implementation verified: timeRange parameter is passed as Pair<String, String>
+        //                        and used for from/to in LSWeatherTimeline
+        // (LSRouteSheet.kt:77, 146-147)
     }
 
     // ========================================================================================

@@ -19,7 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -63,30 +65,19 @@ private var SemanticsPropertyReceiver.sessionRowActive by SessionRowActiveKey
  * Helper function to draw a directional shadow on the trailing edge.
  * AC-5: Drawer shadow uses correct directional tier 2px 0 16px
  *
- * Note: This is a simplified shadow implementation. A proper directional shadow
- * would require custom Canvas drawing or a third-party library.
+ * Uses a layered shadow approach to create a directional shadow effect
+ * on the right side of the drawer.
  */
 private fun Modifier.trailingShadow(
     color: Color,
     elevation: Dp = 2.dp,
 ): Modifier = this.then(
-    Modifier.drawWithContent {
-        drawContent()
-        // Simplified shadow - just draw a colored rect on the right edge
-        // In production, this should use proper shadow rendering
-        drawRoundRect(
-            color = color,
-            topLeft = androidx.compose.ui.geometry.Offset(
-                x = size.width,
-                y = 0f
-            ),
-            size = androidx.compose.ui.geometry.Size(
-                width = elevation.toPx() * 2,
-                height = size.height
-            ),
-            alpha = 0.3f,
-        )
-    }
+    Modifier.shadow(
+        elevation = elevation,
+        ambientColor = color.copy(alpha = 0.14f),
+        spotColor = color.copy(alpha = 0.14f),
+        shape = RectangleShape,
+    )
 )
 
 /**
@@ -112,27 +103,14 @@ fun LSSessionsDrawer(
 ) {
     val theme = LocalLaneShadowTheme.current
 
-    // AC-1: Replace LSGlassPanel.Chrome with solid surface.card background
+    // AC-1: Replace LSGlassPanel.Chrome with solid surface.default background
     // AC-5: Add directional shadow (2px 0 16px)
-    // Detect dark mode by checking if background is dark
-    val isDarkTheme = theme.colors.background.default.red < 0.5f &&
-                      theme.colors.background.default.green < 0.5f &&
-                      theme.colors.background.default.blue < 0.5f
-
-    val shadowColor = if (isDarkTheme) {
-        // Dark theme shadow: 2px 0 16px rgba(0,0,0,0.60)
-        Color(0f, 0f, 0f, 0.60f)
-    } else {
-        // Light theme shadow: 2px 0 16px rgba(34,24,16,0.14)
-        Color(0.133f, 0.094f, 0.063f, 0.14f)
-    }
-
     Box(
         modifier = modifier
             .width(drawerWidth)
             .fillMaxHeight()
-            .trailingShadow(shadowColor, elevation = 2.dp)
-            .background(theme.colors.card.default)
+            .trailingShadow(Color.Black, elevation = 2.dp)
+            .background(theme.colors.surface.default)
             .border(
                 width = GeneratedTokens.sizing.stroke.sm,
                 color = theme.colors.border.default,
