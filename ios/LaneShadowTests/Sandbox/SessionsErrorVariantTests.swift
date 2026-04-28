@@ -1,7 +1,6 @@
 import LaneShadowTheme
 import SwiftUI
 import Testing
-
 @testable import LaneShadow
 
 /// Sessions + Error Variant Tests
@@ -15,11 +14,10 @@ import Testing
 /// - AC-6: LSSessionsDrawer sections parameter
 @MainActor
 struct SessionsErrorVariantTests {
-
     // MARK: - AC-1: Sessions S05 new-confirm dialog
 
     @Test("AC-1: S05 new-confirm dialog renders with surface.scrim backdrop and surface.card dialog")
-    func testSessionsS05NewConfirm() async throws {
+    func sessionsS05NewConfirm() {
         // GIVEN: SessionsScreen S05 story is rendered with an active session present
         let provider = SessionsMockProvider.self
         let state = provider.value(variant: "s05-new-confirm")
@@ -40,7 +38,7 @@ struct SessionsErrorVariantTests {
     // MARK: - AC-2: Sessions date grouping
 
     @Test("AC-2: Sessions date grouping renders multiple section headers")
-    func testSessionsDateGrouping() async throws {
+    func sessionsDateGrouping() {
         // GIVEN: SessionsScreen S04 grouped story is rendered with sessions across multiple date buckets
         let provider = SessionsMockProvider.self
         let state = provider.value(variant: "s04-grouped")
@@ -58,7 +56,7 @@ struct SessionsErrorVariantTests {
     // MARK: - AC-3: Error S04 recovered state
 
     @Test("AC-3: Error S04 recovered state fades callout and reveals send button")
-    func testErrorS04Recovered() async throws {
+    func errorS04Recovered() {
         // GIVEN: ErrorScreen S04 recovered story is rendered
         let provider = ErrorMockProvider.self
         let state = provider.value(variant: "s04-recovered")
@@ -77,7 +75,7 @@ struct SessionsErrorVariantTests {
     // MARK: - AC-4: Error V01 offline
 
     @Test("AC-4: Error V01 offline renders wifi-off watermark and disabled chat")
-    func testErrorV01Offline() async throws {
+    func errorV01Offline() {
         // GIVEN: ErrorScreen V01 offline story is rendered
         let provider = ErrorMockProvider.self
         let state = provider.value(variant: "v01-offline")
@@ -93,7 +91,7 @@ struct SessionsErrorVariantTests {
     // MARK: - AC-5: Error chip FlowLayout wrap
 
     @Test("AC-5: FlowLayout wraps chips to multiple lines when content overflows")
-    func testErrorSuggestionFlowWrap() async throws {
+    func errorSuggestionFlowWrap() {
         // GIVEN: LSInlineErrorCallout suggestion-chip story with 6+ chips rendered
         let provider = ErrorMockProvider.self
         let state = provider.value(variant: "overflow")
@@ -109,7 +107,7 @@ struct SessionsErrorVariantTests {
     // MARK: - AC-6: LSSessionsDrawer sections parameter
 
     @Test("AC-6: LSSessionsDrawer accepts sections parameter with back-compat")
-    func testSessionsDrawerSectionsParameter() async throws {
+    func sessionsDrawerSectionsParameter() {
         // GIVEN: An existing caller of LSSessionsDrawer(groupLabel: ...)
         let sessions = [
             Session(
@@ -121,7 +119,7 @@ struct SessionsErrorVariantTests {
                 active: true,
                 routeIds: ["route-001"],
                 createdAt: "2025-04-28T10:00:00Z"
-            )
+            ),
         ]
 
         // WHEN: The drawer signature is updated to accept sections: [SessionSection]

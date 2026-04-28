@@ -12,6 +12,7 @@
 		078589B1255FE42AA7459089 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */; };
 		0A215149AE7AF5FBBCB5409E /* ConvexStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */; };
 		0B45673D740CC18D7C34929C /* LSButtonStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05416F03B3657341F705522A /* LSButtonStories.swift */; };
+		14005CD37453A72B08058094 /* SessionsErrorVariantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBCE1562B0561A4607A0F2F7 /* SessionsErrorVariantTests.swift */; };
 		1952669D73F48496CFB75791 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = A82A70CA01368BECA5189F19 /* LaneShadowTheme */; };
 		19B2E80084FD9A981F497DB5 /* ViewInspector in Frameworks */ = {isa = PBXBuildFile; productRef = 97E29B716CED481799DD0795 /* ViewInspector */; };
 		1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534D26C275878552CD82E5FE /* LSDisplayStories.swift */; };
@@ -45,6 +46,7 @@
 		7A212938CD543DDC0BCC626E /* NavBarVariantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C8ADF5253CDE6E402B7ACC /* NavBarVariantTests.swift */; };
 		7D4F7230A93BF39451BC7BB6 /* LSModalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 690C1B6B480FD345A05807B0 /* LSModalTests.swift */; };
 		7E8799D5CE1C5FFCE3D09066 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324B26FB2DE3F759B489CB7B /* App.swift */; };
+		7E9AD9C25A308FE261EF0A4E /* FlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB4A8AF42C2E1C69BDB5B164 /* FlowLayout.swift */; };
 		7F07F9ABF0C419E0E2BA5CEA /* LSWeatherBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478C8C03ABF1E0F4AFEF0836 /* LSWeatherBadge.swift */; };
 		8DD1E5F229561147AA644B21 /* LSFormField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0D7B9F463A28F5B5936751 /* LSFormField.swift */; };
 		907972E45BE14D56A5F09878 /* LSAdvisoryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1CE95A1677A6E6B2FC3752 /* LSAdvisoryCard.swift */; };
@@ -62,6 +64,7 @@
 		B55D247513D3B4742E36D92B /* AtomsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */; };
 		B5FF9B8BF6CCCBF0478B2A77 /* LaneShadowStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */; };
 		B6A59F8B49C2AD8ECBFB7A18 /* LSRouteAttachmentCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70071A35653D217D4EB4A4B8 /* LSRouteAttachmentCard.swift */; };
+		B8958F0FF76F2362F76A9554 /* LSWifiOffWatermark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5513E6D40BF0C0BFC4A284BF /* LSWifiOffWatermark.swift */; };
 		BE5B3CA2636D5E37C57D3868 /* LSScenicDotStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E16C5B6F4121EB1CA3D72D /* LSScenicDotStrip.swift */; };
 		C20B40ADB8746BAD7B7A3FF1 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = 5B658B1BAB40A50AE36EE201 /* LaneShadowTheme */; };
 		C431BDCE02738DEAD857663D /* LSToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFFB033EDA463052A650A51D /* LSToolbar.swift */; };
@@ -81,6 +84,7 @@
 		F93C7EA30338ABCA88DEE925 /* InfrastructureStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */; };
 		F994D017357EA5F2EAA9D72F /* LSModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94AB21A076699921AC328EE9 /* LSModal.swift */; };
 		F9E41F8A8E5435B9BCD67D40 /* InfoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5F858C066D550CE73CE6FD /* InfoToast.swift */; };
+		FB05778E9837B3DE16575272 /* LSConfirmDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C937D24266792DB4F2CD257 /* LSConfirmDialog.swift */; };
 		FCAE00CC74E427BDB51D7F65 /* LSSuggestionChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */; };
 /* End PBXBuildFile section */
 
@@ -105,6 +109,7 @@
 		02BC467210742F6F3E603FFA /* LSToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToast.swift; sourceTree = "<group>"; };
 		05416F03B3657341F705522A /* LSButtonStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSButtonStories.swift; sourceTree = "<group>"; };
 		0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0C937D24266792DB4F2CD257 /* LSConfirmDialog.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LSConfirmDialog.swift; path = Views/Molecules/LSConfirmDialog.swift; sourceTree = "<group>"; };
 		0E259B982ADB47ABE53D132D /* LSTextStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTextStories.swift; sourceTree = "<group>"; };
 		19695B8A9932BA0DADCBEADF /* LSChatInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSChatInput.swift; sourceTree = "<group>"; };
 		1C18F36042134628BD1BF30B /* LSTabItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTabItem.swift; sourceTree = "<group>"; };
@@ -123,6 +128,7 @@
 		4F130DF4421118EE59843068 /* ModifierStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModifierStories.swift; sourceTree = "<group>"; };
 		4F137157E747643E3C5CB9F7 /* LSNavHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSNavHeader.swift; sourceTree = "<group>"; };
 		534D26C275878552CD82E5FE /* LSDisplayStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSDisplayStories.swift; sourceTree = "<group>"; };
+		5513E6D40BF0C0BFC4A284BF /* LSWifiOffWatermark.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LSWifiOffWatermark.swift; path = Views/Atoms/LSWifiOffWatermark.swift; sourceTree = "<group>"; };
 		5C592B52392DEEACF2D91C3B /* LaneShadowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowTests.swift; sourceTree = "<group>"; };
 		5FB23C9E4DF31CC4E50E47AB /* swift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = swift; path = ../tokens/platforms/swift; sourceTree = SOURCE_ROOT; };
 		6089A65C4DD27D71FDFC6B91 /* MarkdownText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownText.swift; sourceTree = "<group>"; };
@@ -149,6 +155,7 @@
 		A8FC588254B2DE58F4742ED7 /* LSFavoritePinDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFavoritePinDot.swift; sourceTree = "<group>"; };
 		A9EDF4218751AC8200085830 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		AB1CE95A1677A6E6B2FC3752 /* LSAdvisoryCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LSAdvisoryCard.swift; path = Views/Molecules/LSAdvisoryCard.swift; sourceTree = "<group>"; };
+		AB4A8AF42C2E1C69BDB5B164 /* FlowLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FlowLayout.swift; path = Views/Layout/FlowLayout.swift; sourceTree = "<group>"; };
 		AF1B423136CAE461D37777B4 /* MotionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MotionTests.swift; path = Sandbox/MotionTests.swift; sourceTree = "<group>"; };
 		B0E16C5B6F4121EB1CA3D72D /* LSScenicDotStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScenicDotStrip.swift; sourceTree = "<group>"; };
 		B95CA989BE1243B1021F83D3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -157,6 +164,7 @@
 		C4AF39CEF8D705CF349C8B30 /* PlaceholderInfrastructureStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderInfrastructureStories.swift; sourceTree = "<group>"; };
 		C7D0D2BB3D9A32CB9A700EFC /* LSPhaseIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPhaseIndicator.swift; sourceTree = "<group>"; };
 		C7D7D85AC834967019608CDE /* LSTagPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTagPill.swift; sourceTree = "<group>"; };
+		CBCE1562B0561A4607A0F2F7 /* SessionsErrorVariantTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SessionsErrorVariantTests.swift; path = LaneShadowTests/Sandbox/SessionsErrorVariantTests.swift; sourceTree = "<group>"; };
 		CFFB033EDA463052A650A51D /* LSToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbar.swift; sourceTree = "<group>"; };
 		D1261D8D753487C4CE27B783 /* LSTabItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTabItemTests.swift; sourceTree = "<group>"; };
 		D5107D4267204A230D572AB9 /* MarkdownTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextTests.swift; sourceTree = "<group>"; };
@@ -514,6 +522,9 @@
 				87BAB9F9BB8FFBBEEE6B98F5 /* LaneShadowTests */,
 				AB1CE95A1677A6E6B2FC3752 /* LSAdvisoryCard.swift */,
 				E507521BD4D5F91252B71C42 /* LSCancelConfirmSheet.swift */,
+				5513E6D40BF0C0BFC4A284BF /* LSWifiOffWatermark.swift */,
+				AB4A8AF42C2E1C69BDB5B164 /* FlowLayout.swift */,
+				0C937D24266792DB4F2CD257 /* LSConfirmDialog.swift */,
 			);
 			path = LaneShadow;
 			sourceTree = "<group>";
@@ -554,6 +565,7 @@
 				AF1B423136CAE461D37777B4 /* MotionTests.swift */,
 				E79150F1AF6EC81E9C67E1F8 /* IdlePlanningVariantTests.swift */,
 				F0C8ADF5253CDE6E402B7ACC /* NavBarVariantTests.swift */,
+				CBCE1562B0561A4607A0F2F7 /* SessionsErrorVariantTests.swift */,
 			);
 			name = LaneShadowTests;
 			sourceTree = "<group>";
@@ -863,6 +875,9 @@
 				2A685A9BE84EC13D3483B8C8 /* TemplateStories.swift in Sources */,
 				907972E45BE14D56A5F09878 /* LSAdvisoryCard.swift in Sources */,
 				B1392F3D06CECB20CAFB88DF /* LSCancelConfirmSheet.swift in Sources */,
+				B8958F0FF76F2362F76A9554 /* LSWifiOffWatermark.swift in Sources */,
+				7E9AD9C25A308FE261EF0A4E /* FlowLayout.swift in Sources */,
+				FB05778E9837B3DE16575272 /* LSConfirmDialog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -891,6 +906,7 @@
 				438455EC368DDBC19B77B0E8 /* MotionTests.swift in Sources */,
 				1EA4C9EA2DD25DC093E79078 /* IdlePlanningVariantTests.swift in Sources */,
 				7A212938CD543DDC0BCC626E /* NavBarVariantTests.swift in Sources */,
+				14005CD37453A72B08058094 /* SessionsErrorVariantTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

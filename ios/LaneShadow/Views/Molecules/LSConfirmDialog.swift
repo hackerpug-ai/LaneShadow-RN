@@ -57,7 +57,7 @@ public struct LSConfirmDialog: View {
                     if let message {
                         LSText(message, variant: .body.md)
                             .multilineTextAlignment(.center)
-                            .foregroundStyle(theme.colors.content.secondary)
+                            .foregroundStyle(ContentColor.secondary.resolved(in: theme))
                             .accessibilityIdentifier("confirmdialog-message")
                     }
 
@@ -66,7 +66,7 @@ public struct LSConfirmDialog: View {
                         // Cancel button
                         LSButton(
                             cancelTitle,
-                            variant: .tertiary,
+                            variant: .ghost,
                             size: .md,
                             action: onCancel
                         )
@@ -75,7 +75,7 @@ public struct LSConfirmDialog: View {
                         // Confirm button
                         LSButton(
                             confirmTitle,
-                            variant: .signal,
+                            variant: .primary,
                             size: .md,
                             action: onConfirm
                         )
@@ -83,7 +83,7 @@ public struct LSConfirmDialog: View {
                     }
                 }
                 .padding(theme.space.xl)
-                .background(theme.colors.surface.card)
+                .background(LaneShadowTheme.color.surface.card)
                 .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))
                 .shadow(
                     color: theme.elevation.level4.shadowColor.opacity(theme.opacity.values["20"]!),

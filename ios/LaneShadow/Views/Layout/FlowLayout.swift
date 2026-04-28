@@ -66,7 +66,7 @@ public struct FlowLayout: Layout {
 
             for size in sizes {
                 // Check if we need to wrap to next line
-                if currentX + size.width > maxWidth && currentX > 0 {
+                if currentX + size.width > maxWidth, currentX > 0 {
                     currentX = 0
                     currentY += rowHeight + spacing
                     rowHeight = 0
@@ -79,7 +79,7 @@ public struct FlowLayout: Layout {
             }
 
             self.positions = positions
-            self.size = CGSize(width: maxWidth, height: currentY + rowHeight)
+            size = CGSize(width: maxWidth, height: currentY + rowHeight)
         }
     }
 }
