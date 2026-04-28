@@ -35,7 +35,7 @@ import com.laneshadow.ui.organisms.LSTopBar
  * Data class representing a sketch polyline animation recipe based on motion tokens.
  *
  * Reads from `LaneShadowTheme.motion.recipe.sketchPolylineLoop` which specifies:
- * - duration: motion.duration.deliberate (600ms)
+ * - duration: motion.duration.verySlow (1400ms)
  * - easing: motion.easing.linear
  * - iteration: loop
  */
@@ -49,15 +49,15 @@ internal data class SketchPolylineRecipe(
  * Build a SketchPolylineRecipe from theme motion tokens.
  *
  * References `motion.recipe.sketchPolylineLoop` which uses:
- * - motion.duration["deliberate"] (600ms)
+ * - motion.duration["verySlow"] (1400ms)
  * - motion.easing["linear"]
  *
  * Fails hard if tokens are unavailable (no fallback to hardcoded values).
  */
 internal fun sketchPolylineRecipe(theme: LaneShadowThemeValues): SketchPolylineRecipe {
-    // Must use deliberate (600ms) for sketch polyline loop animation
-    val duration = requireNotNull(theme.motion.duration["deliberate"]) {
-        "LaneShadowTheme is missing motion.duration[\"deliberate\"] for sketch polyline loop (600ms)"
+    // Must use verySlow (1400ms) for sketch polyline loop animation
+    val duration = requireNotNull(theme.motion.duration["verySlow"]) {
+        "LaneShadowTheme is missing motion.duration[\"verySlow\"] for sketch polyline loop (1400ms)"
     }
 
     // Must use linear easing

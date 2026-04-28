@@ -20,10 +20,6 @@
       "deliberate": {
         "$type": "duration",
         "$value": 600
-      },
-      "verySlow": {
-        "$type": "duration",
-        "$value": 1400
       }
     },
     "easing": {
@@ -64,19 +60,9 @@
       "iteration": "once"
     },
     "sketchPolylineLoop": {
-      "duration": 1400,
+      "duration": "{motion.duration.deliberate}",
       "easing": "{motion.easing.linear}",
       "iteration": "loop"
-    },
-    "breathingHeadDot": {
-      "duration": 1400,
-      "easing": "{motion.easing.standard}",
-      "iteration": "reverse"
-    },
-    "recordDotPulse": {
-      "duration": 1400,
-      "easing": "{motion.easing.standard}",
-      "iteration": "reverse"
     },
     "routeDrawOn": {
       "duration": "{motion.duration.deliberate}",
@@ -84,8 +70,8 @@
       "iteration": "once"
     },
     "bestBadgeEnter": {
-      "duration": 200,
-      "easing": "spring",
+      "duration": "{motion.duration.standard}",
+      "easing": "{motion.easing.emphasized}",
       "iteration": "once"
     },
     "phaseDotPulse": {

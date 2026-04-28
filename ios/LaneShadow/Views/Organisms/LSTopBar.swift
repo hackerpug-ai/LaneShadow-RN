@@ -5,13 +5,14 @@ import SwiftUI
 // MARK: - Animation Motion Extensions
 
 extension Animation {
-    /// Record dot pulse animation: 1400ms ease-in-out, autoreversing
-    ///
-    /// TOKEN GAP: Design specifies 1400ms, but tokens only provide up to 600ms ("deliberate").
-    /// Using 1400ms as specified in design until tokens are updated.
+    /// Record dot pulse animation: reads from motion.recipe.recordDotPulse token
+    /// - Duration: 1400ms (from token)
+    /// - Easing: ease-in-out (from token)
+    /// - Repeat: forever with autoreverse (from token)
     static func recordDotPulse(theme: Theme) -> Animation {
-        let duration: TimeInterval = 1.4 // 1400ms
-        let easing = theme.motion.easing["standard"] ?? [0.4, 0.0, 0.2, 1.0]
+        let recipe = theme.motion.recipes["recordDotPulse"]
+        let duration: TimeInterval = TimeInterval(recipe?.duration ?? 1400) / 1000
+        let easing = recipe?.easing ?? [0.4, 0.0, 0.2, 1.0]
         return Animation.timingCurve(
             easing[0],
             easing[1],

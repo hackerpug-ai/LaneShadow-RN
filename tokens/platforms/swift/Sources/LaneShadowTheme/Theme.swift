@@ -144,6 +144,12 @@ public struct ThemeIconSize: Sendable {
 public struct ThemeMotion: Sendable {
     public let duration: [String: Int]
     public let easing: [String: [Double]]
+    public let recipes: [String: MotionRecipe]
+}
+
+public struct MotionRecipe: Sendable {
+    public let duration: Int
+    public let easing: [Double]
 }
 
 public struct ThemeOpacity: Sendable {
@@ -450,9 +456,16 @@ private extension Theme {
         let easingDict = m.easing.reduce(into: [String: [Double]]()) { dict, item in
             dict[item.key] = item.value.value
         }
+        let recipesDict = m.recipes?.reduce(into: [String: MotionRecipe]()) { dict, item in
+            dict[item.key] = MotionRecipe(
+                duration: Int(item.value.duration ?? 0),
+                easing: item.value.easing ?? []
+            )
+        } ?? [:]
         return ThemeMotion(
             duration: durationDict,
-            easing: easingDict
+            easing: easingDict,
+            recipes: recipesDict
         )
     }
 

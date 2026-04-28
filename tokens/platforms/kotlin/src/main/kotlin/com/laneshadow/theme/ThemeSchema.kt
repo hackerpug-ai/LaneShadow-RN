@@ -9,6 +9,7 @@ package com.laneshadow.theme
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class ColorTokenDto(@SerialName("\$value") val value: String)
@@ -87,11 +88,19 @@ data class ElevationModesDto(
 )
 
 @Serializable
+data class MotionRecipeDto(
+    val duration: JsonElement?,
+    val easing: JsonElement?,
+    val iteration: String? = null,
+)
+
+@Serializable
 data class MotionDto(
     val duration: Map<String, DimensionTokenDto>,
     val delay: Map<String, DimensionTokenDto>? = null,
     val scale: Map<String, DimensionTokenDto>? = null,
     val easing: Map<String, EasingTokenDto>,
+    val recipes: Map<String, MotionRecipeDto>? = null,
 )
 
 @Serializable

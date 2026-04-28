@@ -155,8 +155,8 @@ private fun BreathingHeadDot(
 ) {
     val theme = LocalLaneShadowTheme.current
 
-    // Use "slow" duration (400ms) as placeholder for 1400ms spec requirement
-    val durationMillis = theme.motion.duration["slow"] ?: 400
+    // Use "verySlow" duration (1400ms) as specified in design
+    val durationMillis = theme.motion.duration["verySlow"] ?: 1400
     val easingPoints = theme.motion.easing["standard"] ?: listOf(0.4, 0.0, 0.2, 1.0)
 
     // Create easing from token points

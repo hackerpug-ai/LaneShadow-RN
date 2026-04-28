@@ -4,22 +4,23 @@ import SwiftUI
 // MARK: - Animation Motion Extensions
 
 extension Animation {
-    /// Sketch polyline loop animation: 1400ms linear, repeating forever
-    ///
-    /// TOKEN GAP: Design specifies 1400ms, but tokens only provide up to 600ms ("deliberate").
-    /// Using 1400ms as specified in design until tokens are updated.
+    /// Sketch polyline loop animation: reads from motion.recipe.sketchPolylineLoop token
+    /// - Duration: 1400ms (from token)
+    /// - Easing: linear (from token)
+    /// - Repeat: forever (from token)
     static func sketchPolylineLoop(theme: Theme) -> Animation {
-        let duration: TimeInterval = 1.4 // 1400ms
+        let duration: TimeInterval = TimeInterval(theme.motion.recipes["sketchPolylineLoop"]?.duration ?? 1400) / 1000
         return Animation.linear(duration: duration).repeatForever(autoreverses: false)
     }
 
-    /// Breathing head dot animation: 1400ms ease-in-out, autoreversing
-    ///
-    /// TOKEN GAP: Design specifies 1400ms, but tokens only provide up to 600ms ("deliberate").
-    /// Using 1400ms as specified in design until tokens are updated.
+    /// Breathing head dot animation: reads from motion.recipe.breathingHeadDot token
+    /// - Duration: 1400ms (from token)
+    /// - Easing: ease-in-out (from token)
+    /// - Repeat: forever with autoreverse (from token)
     static func breathingHeadDot(theme: Theme) -> Animation {
-        let duration: TimeInterval = 1.4 // 1400ms
-        let easing = theme.motion.easing["standard"] ?? [0.4, 0.0, 0.2, 1.0]
+        let recipe = theme.motion.recipes["breathingHeadDot"]
+        let duration: TimeInterval = TimeInterval(recipe?.duration ?? 1400) / 1000
+        let easing = recipe?.easing ?? [0.4, 0.0, 0.2, 1.0]
         return Animation.timingCurve(
             easing[0],
             easing[1],
@@ -344,17 +345,15 @@ struct SketchingPolyline: View {
     // MARK: - Motion Recipes
 
     private func sketchPolylineLoopAnimation(in theme: Theme) -> Animation {
-        // Use 1400ms linear animation as specified in design
-        // TOKEN GAP: Tokens only provide up to 600ms, design requires 1400ms
+        // Reads from motion.recipe.sketchPolylineLoop token
         Animation.sketchPolylineLoop(theme: theme)
     }
 
     private func breathingDotAnimationRecipe(in theme: Theme) -> BreathingDotRecipe {
-        // Create breathing dot animation recipe from theme tokens
-        // Uses 1400ms ease-in-out animation as specified in design
-        // TOKEN GAP: Tokens only provide up to 600ms, design requires 1400ms
-        let duration = 1400 // 1400ms as per design spec
-        let easing = theme.motion.easing["standard"] ?? [0.4, 0, 0.2, 1]
+        // Reads from motion.recipe.breathingHeadDot token
+        let recipe = theme.motion.recipes["breathingHeadDot"]
+        let duration = recipe?.duration ?? 1400
+        let easing = recipe?.easing ?? [0.4, 0, 0.2, 1]
 
         return BreathingDotRecipe(
             name: "motion.recipe.breathingHeadDot",

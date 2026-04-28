@@ -27,6 +27,12 @@ public struct EasingToken: Decodable, Sendable {
     private enum CodingKeys: String, CodingKey { case value = "$value" }
 }
 
+public struct MotionRecipeDto: Decodable, Sendable {
+    public let duration: Double?
+    public let easing: [Double]?
+    public let iteration: String?
+}
+
 // MARK: - Color group (states per group — default required, others optional)
 
 public struct ColorStatesDef: Decodable, Sendable {
@@ -96,6 +102,7 @@ public struct ElevationModes: Decodable, Sendable {
 public struct MotionDef: Decodable, Sendable {
     public let duration: [String: DimensionToken]
     public let easing: [String: EasingToken]
+    public let recipes: [String: MotionRecipeDto]?
 }
 
 // MARK: - Root
