@@ -167,6 +167,18 @@ private struct SessionRow<Session: Identifiable>: View where Session.ID == Strin
     }
 }
 
+// MARK: - Session Section
+
+public struct SessionSection: Sendable {
+    public let label: String
+    public let sessionIds: [String]
+
+    public init(label: String, sessionIds: [String]) {
+        self.label = label
+        self.sessionIds = sessionIds
+    }
+}
+
 // MARK: - Session Data Protocols
 
 public protocol SessionTitleProvider {
