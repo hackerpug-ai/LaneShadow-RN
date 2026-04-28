@@ -5,144 +5,902 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class UsersDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val clerkUserId: String,
+  val email: String,
+  val name: String,
+  val createdAt: Double,
+  val updatedAt: Double,
+  val lastLocalUpdateAt: Double,
+  val _id: String,
 )
 
 @Serializable
 data class OrgsDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val clerkOrgId: String,
+  val name: String,
+  val slug: String,
+  val imageUrl: String,
+  val createdAt: Double,
+  val updatedAt: Double,
+  val lastLocalUpdateAt: Double,
 )
 
 @Serializable
 data class OrgMembershipsDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val orgId: String,
+  val userId: String,
+  val role: String,
+  val clerkMembershipId: String,
+  val createdAt: Double,
+  val updatedAt: Double,
+)
+
+@Serializable
+data class SavedRoutesPlanInputStart(
+  val lat: Double,
+  val lng: Double,
+  val label: String,
+  val placeId: String,
+)
+
+@Serializable
+data class SavedRoutesPlanInputEnd(
+  val lat: Double,
+  val lng: Double,
+  val label: String,
+  val placeId: String,
+)
+
+@Serializable
+data class SavedRoutesPlanInputPreferences(
+  val scenicBias: String,
+  val avoidHighways: Boolean,
+  val avoidTolls: Boolean,
+)
+
+@Serializable
+data class SavedRoutesPlanInput(
+  val start: SavedRoutesPlanInputStart,
+  val end: SavedRoutesPlanInputEnd,
+  val departureTime: Double,
+  val preferences: SavedRoutesPlanInputPreferences,
+  val nlpText: String,
+  val includeFavorites: Boolean,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotBounds(
+  val north: Double,
+  val south: Double,
+  val east: Double,
+  val west: Double,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOrigin(
+  val lat: Double,
+  val lng: Double,
+  val label: String,
+  val placeId: String,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotDestination(
+  val lat: Double,
+  val lng: Double,
+  val label: String,
+  val placeId: String,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotWaypoints(
+  val lat: Double,
+  val lng: Double,
+  val label: String,
+  val placeId: String,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverviewGeometry(
+  val format: String,
+  val encoding: String,
+  val precision: Double,
+  val value: String,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotLegsStart(
+  val lat: Double,
+  val lng: Double,
+  val label: String,
+  val placeId: String,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotLegsEnd(
+  val lat: Double,
+  val lng: Double,
+  val label: String,
+  val placeId: String,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotLegsGeometry(
+  val format: String,
+  val encoding: String,
+  val precision: Double,
+  val value: String,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotLegsStepsStartLocation(
+  val lat: Double,
+  val lng: Double,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotLegsStepsEndLocation(
+  val lat: Double,
+  val lng: Double,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotLegsSteps(
+  val stepIndex: Double,
+  val distanceMeters: Double,
+  val durationSeconds: Double,
+  val instruction: String,
+  val startLocation: SavedRoutesRouteSnapshotLegsStepsStartLocation,
+  val endLocation: SavedRoutesRouteSnapshotLegsStepsEndLocation,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotLegs(
+  val legIndex: Double,
+  val start: SavedRoutesRouteSnapshotLegsStart,
+  val end: SavedRoutesRouteSnapshotLegsEnd,
+  val distanceMeters: Double,
+  val durationSeconds: Double,
+  val geometry: SavedRoutesRouteSnapshotLegsGeometry,
+  val steps: List<SavedRoutesRouteSnapshotLegsSteps>,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotAnnotations(
+  val id: String,
+  val annotationKind: String,
+  val label: String,
+  val lat: Double,
+  val lng: Double,
+  val placeRef: String,
+  val conditionRef: String,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysWindLegendRange(
+  val min: Double,
+  val max: Double,
+  val unit: String,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysWindLegend(
+  val level: String,
+  val label: String,
+  val range: SavedRoutesRouteSnapshotOverlaysWindLegendRange,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysWindByLegSegments(
+  val startMeters: Double,
+  val endMeters: Double,
+  val level: String,
+  val reason: String,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysWindByLeg(
+  val legIndex: Double,
+  val segments: List<SavedRoutesRouteSnapshotOverlaysWindByLegSegments>,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysWind(
+  val generatedAt: Double,
+  val modelVersion: String,
+  val legend: List<SavedRoutesRouteSnapshotOverlaysWindLegend>,
+  val byLeg: List<SavedRoutesRouteSnapshotOverlaysWindByLeg>,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysRainLegendRange(
+  val min: Double,
+  val max: Double,
+  val unit: String,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysRainLegend(
+  val level: String,
+  val label: String,
+  val range: SavedRoutesRouteSnapshotOverlaysRainLegendRange,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysRainByLegSegments(
+  val startMeters: Double,
+  val endMeters: Double,
+  val level: String,
+  val probability: Double,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysRainByLeg(
+  val legIndex: Double,
+  val segments: List<SavedRoutesRouteSnapshotOverlaysRainByLegSegments>,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysRain(
+  val generatedAt: Double,
+  val modelVersion: String,
+  val legend: List<SavedRoutesRouteSnapshotOverlaysRainLegend>,
+  val byLeg: List<SavedRoutesRouteSnapshotOverlaysRainByLeg>,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysTemperatureLegendRange(
+  val min: Double,
+  val max: Double,
+  val unit: String,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysTemperatureLegend(
+  val level: String,
+  val label: String,
+  val range: SavedRoutesRouteSnapshotOverlaysTemperatureLegendRange,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysTemperatureByLegSegments(
+  val startMeters: Double,
+  val endMeters: Double,
+  val level: String,
+  val temperatureCelsius: Double,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysTemperatureByLeg(
+  val legIndex: Double,
+  val segments: List<SavedRoutesRouteSnapshotOverlaysTemperatureByLegSegments>,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlaysTemperature(
+  val generatedAt: Double,
+  val modelVersion: String,
+  val legend: List<SavedRoutesRouteSnapshotOverlaysTemperatureLegend>,
+  val byLeg: List<SavedRoutesRouteSnapshotOverlaysTemperatureByLeg>,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshotOverlays(
+  val wind: SavedRoutesRouteSnapshotOverlaysWind,
+  val rain: SavedRoutesRouteSnapshotOverlaysRain,
+  val temperature: SavedRoutesRouteSnapshotOverlaysTemperature,
+)
+
+@Serializable
+data class SavedRoutesRouteSnapshot(
+  val provider: String,
+  val bounds: SavedRoutesRouteSnapshotBounds,
+  val origin: SavedRoutesRouteSnapshotOrigin,
+  val destination: SavedRoutesRouteSnapshotDestination,
+  val waypoints: List<SavedRoutesRouteSnapshotWaypoints>,
+  val overviewGeometry: SavedRoutesRouteSnapshotOverviewGeometry,
+  val legs: List<SavedRoutesRouteSnapshotLegs>,
+  val annotations: List<SavedRoutesRouteSnapshotAnnotations>,
+  val overlays: SavedRoutesRouteSnapshotOverlays,
+)
+
+@Serializable
+data class SavedRoutesRouteIndexSampledPoints(
+  val lat: Double,
+  val lng: Double,
+  val distanceFromStartMeters: Double,
+)
+
+@Serializable
+data class SavedRoutesRouteIndex(
+  val routeFingerprint: String,
+  val sampledPoints: List<SavedRoutesRouteIndexSampledPoints>,
+)
+
+@Serializable
+data class SavedRoutesSnapshotMetaOverlaysWind(
+  val generatedAt: Double,
+  val modelVersion: String,
+)
+
+@Serializable
+data class SavedRoutesSnapshotMetaOverlays(
+  val wind: SavedRoutesSnapshotMetaOverlaysWind,
+)
+
+@Serializable
+data class SavedRoutesSnapshotMeta(
+  val savedAt: Double,
+  val routingProvider: String,
+  val overlays: SavedRoutesSnapshotMetaOverlays,
+  val conditionsStatus: String,
+  val metaVersion: Double,
+)
+
+@Serializable
+data class SavedRoutesRouteProvenance(
+  val sourceLabel: String,
+  val designation: String,
+  val description: String,
+  val sourceUrl: String,
 )
 
 @Serializable
 data class SavedRoutesDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val ownerType: String,
+  val ownerId: String,
+  val createdByUserId: String,
+  val visibility: String,
+  val name: String,
+  val planInput: SavedRoutesPlanInput,
+  val routeSnapshot: SavedRoutesRouteSnapshot,
+  val routeIndex: SavedRoutesRouteIndex,
+  val snapshotMeta: SavedRoutesSnapshotMeta,
+  val routeProvenance: SavedRoutesRouteProvenance,
+  val createdAt: Double,
+  val updatedAt: Double,
+  val deletedAt: Double,
+  val scheduledDeletionId: String,
+)
+
+@Serializable
+data class FavoriteRoadsBounds(
+  val north: Double,
+  val south: Double,
+  val east: Double,
+  val west: Double,
 )
 
 @Serializable
 data class FavoriteRoadsDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val clerkUserId: String,
+  val name: String,
+  val geometry: String,
+  val bounds: FavoriteRoadsBounds,
+  val createdAt: Double,
+  val updatedAt: Double,
+)
+
+@Serializable
+data class RoutePlansPlanInputStart(
+  val lat: Double,
+  val lng: Double,
+  val label: String,
+  val placeId: String,
+)
+
+@Serializable
+data class RoutePlansPlanInputEnd(
+  val lat: Double,
+  val lng: Double,
+  val label: String,
+  val placeId: String,
+)
+
+@Serializable
+data class RoutePlansPlanInputPreferences(
+  val scenicBias: String,
+  val avoidHighways: Boolean,
+  val avoidTolls: Boolean,
+)
+
+@Serializable
+data class RoutePlansPlanInput(
+  val start: RoutePlansPlanInputStart,
+  val end: RoutePlansPlanInputEnd,
+  val departureTime: Double,
+  val preferences: RoutePlansPlanInputPreferences,
+  val nlpText: String,
+  val includeFavorites: Boolean,
 )
 
 @Serializable
 data class RoutePlansDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val clerkUserId: String,
+  val planningSessionId: String,
+  val planInput: RoutePlansPlanInput,
+  val startLabel: String,
+  val endLabel: String,
+  val status: String,
+  val statusMessage: String,
+  val phase: String,
+  val result: String,
+  val errorCode: String,
+  val errorMessage: String,
+  val scheduledActionId: String,
+  val createdAt: Double,
+  val updatedAt: Double,
+  val completedAt: Double,
+  val acknowledged: Boolean,
 )
 
 @Serializable
 data class PlanUsageDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val clerkUserId: String,
+  val month: String,
+  val planCount: Double,
+)
+
+@Serializable
+data class PlanningSessionsLastKnownLocation(
+  val lat: Double,
+  val lng: Double,
+  val updatedAt: Double,
 )
 
 @Serializable
 data class PlanningSessionsDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val clerkUserId: String,
+  val title: String,
+  val status: String,
+  val createdAt: Double,
+  val updatedAt: Double,
+  val lastKnownLocation: PlanningSessionsLastKnownLocation,
+  val deletedAt: Double,
+)
+
+@Serializable
+data class SessionMessagesAttachments(
+  val type: String,
+  val routePlanId: String,
+)
+
+@Serializable
+data class SessionMessagesThinkingSteps(
+  val type: String,
+  val toolName: String,
+  val summary: String,
+  val detail: String,
+  val timestamp: Double,
 )
 
 @Serializable
 data class SessionMessagesDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val sessionId: String,
+  val role: String,
+  val content: String,
+  val attachments: List<SessionMessagesAttachments>,
+  val createdAt: Double,
+  val kind: String,
+  val status: String,
+  val piMessage: String,
+  val thinkingSteps: List<SessionMessagesThinkingSteps>,
 )
 
 @Serializable
 data class PerformanceDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val processType: String,
+  val agent: String,
+  val model: String,
+  val sessionId: String,
+  val input: String,
+  val output: String,
+  val steps: Double,
+  val toolCalls: Double,
+  val tools: List<String>,
+  val durationMs: Double,
+  val inputTokens: Double,
+  val outputTokens: Double,
+  val cacheReadTokens: Double,
+  val totalCostUsd: Double,
+  val success: Boolean,
+  val error: String,
+  val createdAt: Double,
 )
 
 @Serializable
 data class OsmNodesDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val osmId: Double,
+  val type: String,
+  val name: String,
+  val lat: Double,
+  val lon: Double,
+  val tags: String,
+  val s2Token: String,
+  val importedAt: Double,
+)
+
+@Serializable
+data class OsmWaysBounds(
+  val south: Double,
+  val west: Double,
+  val north: Double,
+  val east: Double,
 )
 
 @Serializable
 data class OsmWaysDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val osmId: Double,
+  val name: String,
+  val highwayClass: String,
+  val surface: String,
+  val geometry: List<List<Double>>,
+  val bounds: OsmWaysBounds,
+  val s2Tokens: List<String>,
+  val importedAt: Double,
 )
 
 @Serializable
 data class OsmImportJobsDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val status: String,
+  val region: String,
+  val sourceUrl: String,
+  val startedAt: Double,
+  val completedAt: Double,
+  val nodesImported: Double,
+  val waysImported: Double,
+  val error: String,
+)
+
+@Serializable
+data class TripPlansPlanInputStart(
+  val lat: Double,
+  val lng: Double,
+  val label: String,
+  val placeId: String,
+)
+
+@Serializable
+data class TripPlansPlanInputEnd(
+  val lat: Double,
+  val lng: Double,
+  val label: String,
+  val placeId: String,
+)
+
+@Serializable
+data class TripPlansPlanInputPreferences(
+  val scenicBias: String,
+  val avoidHighways: Boolean,
+  val avoidTolls: Boolean,
+)
+
+@Serializable
+data class TripPlansPlanInput(
+  val start: TripPlansPlanInputStart,
+  val end: TripPlansPlanInputEnd,
+  val departureTime: Double,
+  val preferences: TripPlansPlanInputPreferences,
+  val nlpText: String,
+  val includeFavorites: Boolean,
+)
+
+@Serializable
+data class TripPlansResultLegs(
+  val legIndex: Double,
+  val from: String,
+  val to: String,
+  val via: String,
+  val distanceNote: String,
+  val character: String,
+  val googleMapsQuery: String,
+  val confidence: String,
+  val status: String,
+  val failureReason: String,
+  val persistedWaypoint: String,
+)
+
+@Serializable
+data class TripPlansResult(
+  val label: String,
+  val rationale: String,
+  val legs: List<TripPlansResultLegs>,
+  val totalDistanceNote: String,
+  val totalTimeNote: String,
+  val generationAttempt: Double,
+  val failedLegIndexes: List<Double>,
+  val warnings: List<String>,
 )
 
 @Serializable
 data class TripPlansDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val clerkUserId: String,
+  val planInput: TripPlansPlanInput,
+  val status: String,
+  val result: TripPlansResult,
+  val attemptCount: Double,
+  val error: String,
+  val createdAt: Double,
+  val updatedAt: Double,
+)
+
+@Serializable
+data class RouteEnrichmentsEnrichments(
+  val routeOptionId: String,
+  val label: String,
+  val rationale: String,
+  val highlights: List<String>,
+  val elevation: String,
+  val weather: String,
 )
 
 @Serializable
 data class RouteEnrichmentsDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val routePlanId: String,
+  val planningSessionId: String,
+  val clerkUserId: String,
+  val contentFingerprint: String,
+  val phase: String,
+  val status: String,
+  val scheduledJobId: String,
+  val enrichments: List<RouteEnrichmentsEnrichments>,
+  val error: String,
+  val createdAt: Double,
+  val updatedAt: Double,
+  val completedAt: Double,
+)
+
+@Serializable
+data class WaypointsLocation(
+  val lat: Double,
+  val lng: Double,
+)
+
+@Serializable
+data class WaypointsDetourInfo(
+  val distanceKm: Double,
+  val durationMinutes: Double,
+  val reason: String,
 )
 
 @Serializable
 data class WaypointsDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val routePlanId: String,
+  val kind: String,
+  val status: String,
+  val location: WaypointsLocation,
+  val name: String,
+  val description: String,
+  val order: Double,
+  val detourInfo: WaypointsDetourInfo,
+  val createdAt: Double,
+  val updatedAt: Double,
+)
+
+@Serializable
+data class CuratedRoutesLocation(
+  val type: String,
+  val coordinates: List<Double>,
+)
+
+@Serializable
+data class CuratedRoutesLlmReconciliationLog(
+  val runId: String,
+  val reconciledAt: Double,
+  val conflictsResolved: Double,
+  val notes: String,
 )
 
 @Serializable
 data class CuratedRoutesDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val routeId: String,
+  val name: String,
+  val state: String,
+  val source: String,
+  val primaryArchetype: String,
+  val secondaryTags: List<String>,
+  val centroidLat: Double,
+  val centroidLng: Double,
+  val boundsNeLat: Double,
+  val boundsNeLng: Double,
+  val boundsSwLat: Double,
+  val boundsSwLng: Double,
+  val lengthMiles: Double,
+  val compositeScore: Double,
+  val curvatureScore: Double,
+  val scenicScore: Double,
+  val technicalScore: Double,
+  val trafficScore: Double,
+  val remotenessScore: Double,
+  val oneLiner: String,
+  val summary: String,
+  val badges: List<String>,
+  val season: String,
+  val contentVersion: Double,
+  val enrichmentVersion: Double,
+  val seededAt: Double,
+  val location: CuratedRoutesLocation,
+  val name_lower: String,
+  val searchEmbedding: List<Double>,
+  val searchText: String,
+  val candidateIdentifiers: List<String>,
+  val matchConfidence: Double,
+  val llmReconciliationLog: List<CuratedRoutesLlmReconciliationLog>,
+  val description: String,
+  val descriptiveSummary: String,
+  val rating: Double,
+  val designation: String,
+  val sourceLabel: String,
+  val sourceUrl: String,
+  val sourceRefs: List<String>,
+  val groundTruth: Boolean,
+  val groundTruthSource: String,
+  val groundTruthProvider: String,
+  val editorialRank: Double,
+  val sourceRank: Double,
+  val sourceRankKind: String,
+  val sourceCollection: String,
+  val sourceCollectionTitle: String,
+  val groundTruthNotes: String,
+  val relatedArticleUrl: String,
+  val relatedArticleTitle: String,
+  val stateRaw: String,
+  val statesAll: List<String>,
+  val highwayNumber: String,
+  val elevationGainM: Double,
+  val surface: String,
+  val aadt: Double,
+  val aadtMedian: Double,
+  val aadtMax: Double,
+  val pavementIri: Double,
+  val mentionFrequency: Double,
+  val mentionFrequencyScore: Double,
+  val designationScore: Double,
+  val elevationDramaScore: Double,
+  val roadQualityScore: Double,
+  val lowTrafficScore: Double,
+  val weatherSuitability: Double,
+  val bestMonths: List<String>,
+  val sourceCount: Double,
+  val qualityTier: String,
+  val routePolyline: String,
+  val waypointCount: Double,
+  val geometrySource: String,
+)
+
+@Serializable
+data class CuratedRouteEnrichmentsPhotos(
+  val url: String,
+  val caption: String,
+  val attribution: String,
+)
+
+@Serializable
+data class CuratedRouteEnrichmentsSources(
+  val site: String,
+  val url: String,
+  val lastFetched: Double,
+  val extractionConfidence: Double,
 )
 
 @Serializable
 data class CuratedRouteEnrichmentsDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val routeId: String,
+  val fullDescription: String,
+  val history: String,
+  val roadClassification: String,
+  val surfaceMaterial: String,
+  val totalElevationGainM: Double,
+  val elevationProfile: String,
+  val nearestCities: List<String>,
+  val ridershipLevel: String,
+  val seasonalNotes: String,
+  val safetyWarnings: String,
+  val gpxUrl: String,
+  val photos: List<CuratedRouteEnrichmentsPhotos>,
+  val sources: List<CuratedRouteEnrichmentsSources>,
+  val recommendedStarts: List<String>,
+  val fuelStops: List<String>,
+  val extractedBy: String,
+  val extractedAt: Double,
+  val extractionSchemaVersion: Double,
+  val enrichmentVersion: Double,
+  val lastEnrichedAt: Double,
 )
 
 @Serializable
 data class RouteFeedbackDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val routeId: String,
+  val userId: String,
+  val action: String,
+  val rating: Double,
+  val locationLat: Double,
+  val locationLng: Double,
+  val archetypeFilter: String,
+  val timestamp: Double,
+)
+
+@Serializable
+data class RoutePostsRawPayload(
+  val roadNameMentions: List<String>,
+  val highwayRefs: List<String>,
+  val stateRefs: List<String>,
+  val landmarkRefs: List<String>,
+  val sentiment: String,
+  val aspectScores: String,
+  val attributes: String,
+  val warnings: List<String>,
 )
 
 @Serializable
 data class RoutePostsRawDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val postId: String,
+  val source: String,
+  val postUrl: String,
+  val postAuthor: String,
+  val postScore: Double,
+  val postedAt: Double,
+  val rawText: String,
+  val extractionSchemaVersion: Double,
+  val extractionModel: String,
+  val extractionCost: Double,
+  val extractedAt: Double,
+  val extractionConfidence: Double,
+  val postEmbedding: List<Double>,
+  val payload: RoutePostsRawPayload,
 )
 
 @Serializable
 data class RouteMatchesDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val matchId: String,
+  val postId: String,
+  val routeId: String,
+  val matchConfidence: Double,
+  val cosineSimilarity: Double,
+  val matchReasoning: String,
+  val rerankModel: String,
+  val rerankCost: Double,
+  val matchedAt: Double,
+  val isArbitrated: Boolean,
+  val arbitrationNotes: String,
 )
 
 @Serializable
 data class CommunityWaypointMentionsDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val postId: String,
+  val postUrl: String,
+  val name: String,
+  val lat: Double? = null,
+  val lng: Double? = null,
+  val region: String,
+  val proposedCategory: String,
+  val riderQuote: String,
+  val confidenceScore: Double,
+  val extractedAt: Double,
 )
 
 @Serializable
 data class CurationArtifactReleasesDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val source: String,
+  val releaseId: String,
+  val manifestStorageId: String,
+  val fullArtifactStorageId: String,
+  val rowCount: Double,
+  val sha256: String,
+  val generatedAt: Double,
+  val active: Boolean,
+  val createdAt: Double,
+  val updatedAt: Double,
 )
 
 @Serializable
 data class CurationArtifactShardsDocument(
-  val _id: String? = null,
-  val _creationTime: Long? = null,
+  val source: String,
+  val releaseId: String,
+  val state: String,
+  val storageId: String,
+  val rowCount: Double,
+  val sha256: String,
+  val createdAt: Double,
+  val updatedAt: Double,
 )

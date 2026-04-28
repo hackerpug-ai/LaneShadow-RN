@@ -1,4 +1,0 @@
-
-> laneshadow@1.0.0 server:codegen /Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T02
-> npx tsx server/scripts/generate-mobile-types.ts
-
