@@ -19,7 +19,7 @@ import XCTest
 final class TypographyTests: XCTestCase {
     // MARK: - AC-1: IdleScreen Greeting Headline uses opinion-xl
 
-    func testIdleScreenGreetingOpinionXL() {
+    func testIdleScreenGreetingOpinionXL() throws {
         // GIVEN: IdleScreen is displayed
         let idleScreen = IdleScreen().laneShadowTheme()
 
@@ -40,11 +40,18 @@ final class TypographyTests: XCTestCase {
                 UITraitCollection(verticalSizeClass: .regular),
             ]))
         )
+
+        // Programmatic verification: IdleScreen uses opinion.xl token
+        let source = try source(named: "IdleScreen.swift", in: "Templates")
+        XCTAssertTrue(
+            source.contains("opinion.xl") || source.contains("opinionXl"),
+            "IdleScreen MUST use opinion.xl typography token for greeting headline"
+        )
     }
 
     // MARK: - AC-2: SessionsDrawer "Rides" Header uses opinion-lg italic
 
-    func testSessionsDrawerRidesOpinionLGItalic() {
+    func testSessionsDrawerRidesOpinionLGItalic() throws {
         // GIVEN: LSSessionsDrawer is displayed
         let sessions: [MockSession] = [
             MockSession(id: "1", title: "Morning Ride", preview: "15mi route", when: "Today"),
@@ -74,11 +81,18 @@ final class TypographyTests: XCTestCase {
                 UITraitCollection(verticalSizeClass: .regular),
             ]))
         )
+
+        // Programmatic verification: LSSessionsDrawer uses opinion.lg token
+        let source = try source(named: "LSSessionsDrawer.swift", in: "Organisms")
+        XCTAssertTrue(
+            source.contains("opinion.lg") || source.contains("opinionLg"),
+            "LSSessionsDrawer MUST use opinion.lg typography token for 'Rides' header"
+        )
     }
 
     // MARK: - AC-3: Error Callout uses opinion-md
 
-    func testCalloutBodyOpinionMD() {
+    func testCalloutBodyOpinionMD() throws {
         // GIVEN: LSInlineErrorCallout is displayed
         let errorCallout = LSInlineErrorCallout(
             body: "Test error message",
@@ -103,9 +117,16 @@ final class TypographyTests: XCTestCase {
                 UITraitCollection(verticalSizeClass: .regular),
             ]))
         )
+
+        // Programmatic verification: LSInlineErrorCallout uses opinion.md token
+        let source = try source(named: "LSInlineErrorCallout.swift", in: "Organisms")
+        XCTAssertTrue(
+            source.contains("opinion.md") || source.contains("opinionMd"),
+            "LSInlineErrorCallout MUST use opinion.md typography token for body text"
+        )
     }
 
-    func testNavigatorMessageBodyOpinionMD() {
+    func testNavigatorMessageBodyOpinionMD() throws {
         // GIVEN: LSNavigatorMessage is displayed
         let navigatorMessage = LSNavigatorMessage(
             body: "Test navigator message",
@@ -128,11 +149,18 @@ final class TypographyTests: XCTestCase {
                 UITraitCollection(verticalSizeClass: .regular),
             ]))
         )
+
+        // Programmatic verification: LSNavigatorMessage uses opinion.md token
+        let source = try source(named: "LSNavigatorMessage.swift", in: "Organisms")
+        XCTAssertTrue(
+            source.contains("opinion.md") || source.contains("opinionMd"),
+            "LSNavigatorMessage MUST use opinion.md typography token for body text"
+        )
     }
 
     // MARK: - AC-4: LSTopBar Centered Title uses opinion-md
 
-    func testTopBarTitleOpinionMD() {
+    func testTopBarTitleOpinionMD() throws {
         // GIVEN: LSTopBar is displayed with a centered title
         let topBar = LSTopBar(
             title: "Test Title",
@@ -156,11 +184,18 @@ final class TypographyTests: XCTestCase {
                 UITraitCollection(verticalSizeClass: .regular),
             ]))
         )
+
+        // Programmatic verification: LSTopBar uses opinion.md token
+        let source = try source(named: "LSTopBar.swift", in: "Organisms")
+        XCTAssertTrue(
+            source.contains("opinion.md") || source.contains("opinionMd"),
+            "LSTopBar MUST use opinion.md typography token for centered title"
+        )
     }
 
     // MARK: - AC-5: LSSectionHeader Caps uses label-sm
 
-    func testSectionHeaderCapsLabelSM() {
+    func testSectionHeaderCapsLabelSM() throws {
         // GIVEN: LSSectionHeader is displayed with caps style
         let sectionHeader = LSSectionHeader(
             title: "TEST SECTION",
@@ -182,6 +217,13 @@ final class TypographyTests: XCTestCase {
                 UITraitCollection(horizontalSizeClass: .compact),
                 UITraitCollection(verticalSizeClass: .regular),
             ]))
+        )
+
+        // Programmatic verification: LSSectionHeader uses label.sm token
+        let source = try source(named: "LSSectionHeader.swift", in: "Organisms")
+        XCTAssertTrue(
+            source.contains("label.sm") || source.contains("labelSm"),
+            "LSSectionHeader MUST use label.sm typography token for caps style"
         )
     }
 
@@ -332,5 +374,12 @@ final class TypographyTests: XCTestCase {
             "TEST SECTION",
             "SectionHeader should have caps title"
         )
+    }
+
+    // MARK: - Helpers
+
+    private func source(named name: String, in directory: String = "Organisms") throws -> String {
+        let path = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/\(directory)/\(name)"
+        return try String(contentsOfFile: path, encoding: .utf8)
     }
 }
