@@ -105,7 +105,10 @@ object RouteResultsMockProvider : MockProvider<RouteResultsScreenState> {
                 pinned = true
             ),
             routes = routes,
-            selectedRouteId = "route-001"
+            selectedRouteId = "route-001",
+            mode = null,
+            showRecallChip = false,
+            primerChips = emptyList()
         )
     }
 
@@ -122,7 +125,10 @@ object RouteResultsMockProvider : MockProvider<RouteResultsScreenState> {
                 pinned = false
             ),
             routes = emptyList(),
-            selectedRouteId = null
+            selectedRouteId = null,
+            mode = null,
+            showRecallChip = false,
+            primerChips = emptyList()
         )
     }
 
@@ -168,7 +174,10 @@ object RouteResultsMockProvider : MockProvider<RouteResultsScreenState> {
                 pinned = true
             ),
             routes = routes,
-            selectedRouteId = "route-1"
+            selectedRouteId = "route-1",
+            mode = null,
+            showRecallChip = false,
+            primerChips = emptyList()
         )
     }
 
@@ -210,7 +219,10 @@ object RouteResultsMockProvider : MockProvider<RouteResultsScreenState> {
                 pinned = true
             ),
             routes = routes,
-            selectedRouteId = "route-001"
+            selectedRouteId = "route-001",
+            mode = null,
+            showRecallChip = false,
+            primerChips = emptyList()
         )
     }
 
@@ -298,7 +310,10 @@ object RouteResultsMockProvider : MockProvider<RouteResultsScreenState> {
                 pinned = true
             ),
             routes = routes,
-            selectedRouteId = "route-002" // Alt1 selected, not best
+            selectedRouteId = "route-002", // Alt1 selected, not best
+            mode = null,
+            showRecallChip = false,
+            primerChips = emptyList()
         )
     }
 
@@ -358,7 +373,14 @@ object RouteResultsMockProvider : MockProvider<RouteResultsScreenState> {
                 pinned = false
             ),
             routes = routes,
-            selectedRouteId = "route-001"
+            selectedRouteId = "route-001",
+            mode = "refining",
+            showRecallChip = false,
+            primerChips = listOf(
+                SuggestionChip(id = "chip-1", label = "Make it shorter"),
+                SuggestionChip(id = "chip-2", label = "Less climbing"),
+                SuggestionChip(id = "chip-3", label = "Add coffee stop")
+            )
         )
     }
 
@@ -404,7 +426,10 @@ object RouteResultsMockProvider : MockProvider<RouteResultsScreenState> {
                 pinned = true
             ),
             routes = routes,
-            selectedRouteId = "route-001"
+            selectedRouteId = "route-001",
+            mode = null,
+            showRecallChip = true,
+            primerChips = emptyList()
         )
     }
 }
