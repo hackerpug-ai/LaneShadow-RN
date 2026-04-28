@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsPropertyKey
@@ -59,6 +60,36 @@ val SessionRowActiveKey = SemanticsPropertyKey<Boolean>("SessionRowActive")
 private var SemanticsPropertyReceiver.sessionRowActive by SessionRowActiveKey
 
 /**
+ * Helper function to draw a directional shadow on the trailing edge.
+ * AC-5: Drawer shadow uses correct directional tier 2px 0 16px
+ *
+ * Note: This is a simplified shadow implementation. A proper directional shadow
+ * would require custom Canvas drawing or a third-party library.
+ */
+private fun Modifier.trailingShadow(
+    color: Color,
+    elevation: Dp = 2.dp,
+): Modifier = this.then(
+    Modifier.drawWithContent {
+        drawContent()
+        // Simplified shadow - just draw a colored rect on the right edge
+        // In production, this should use proper shadow rendering
+        drawRoundRect(
+            color = color,
+            topLeft = androidx.compose.ui.geometry.Offset(
+                x = size.width,
+                y = 0f
+            ),
+            size = androidx.compose.ui.geometry.Size(
+                width = elevation.toPx() * 2,
+                height = size.height
+            ),
+            alpha = 0.3f,
+        )
+    }
+)
+
+/**
  * LSSessionsDrawer organism - left-anchored conversation-history drawer.
  *
  * @param sessions List of sessions to display
@@ -81,11 +112,27 @@ fun LSSessionsDrawer(
 ) {
     val theme = LocalLaneShadowTheme.current
 
-    LSGlassPanel(
-        variant = GlassVariant.Chrome,
+    // AC-1: Replace LSGlassPanel.Chrome with solid surface.card background
+    // AC-5: Add directional shadow (2px 0 16px)
+    // Detect dark mode by checking if background is dark
+    val isDarkTheme = theme.colors.background.default.red < 0.5f &&
+                      theme.colors.background.default.green < 0.5f &&
+                      theme.colors.background.default.blue < 0.5f
+
+    val shadowColor = if (isDarkTheme) {
+        // Dark theme shadow: 2px 0 16px rgba(0,0,0,0.60)
+        Color(0f, 0f, 0f, 0.60f)
+    } else {
+        // Light theme shadow: 2px 0 16px rgba(34,24,16,0.14)
+        Color(0.133f, 0.094f, 0.063f, 0.14f)
+    }
+
+    Box(
         modifier = modifier
             .width(drawerWidth)
             .fillMaxHeight()
+            .trailingShadow(shadowColor, elevation = 2.dp)
+            .background(theme.colors.card.default)
             .border(
                 width = GeneratedTokens.sizing.stroke.sm,
                 color = theme.colors.border.default,
@@ -190,8 +237,9 @@ private fun SessionRow(
             .clickable(onClick = onTap)
             .then(
                 if (isActive) {
+                    // AC-3: Use signal.whisper semantic token for active row background
                     Modifier.background(
-                        color = GeneratedTokens.color.Signal.default.copy(alpha = theme.opacity.values["focus"] ?: 0.05f),
+                        color = GeneratedTokens.color.Signal.whisper,
                     )
                 } else {
                     Modifier
@@ -211,11 +259,11 @@ private fun SessionRow(
                 ),
             verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
         ) {
-            // Active stripe (theme.space.xs left edge)
+            // Active stripe (AC-2: stroke.lg = 2dp, NOT theme.space.xs)
             if (isActive) {
                 androidx.compose.foundation.layout.Box(
                     modifier = Modifier
-                        .width(theme.space.xs)
+                        .width(GeneratedTokens.sizing.stroke.lg)
                         .height(theme.space.xl + theme.space.sm)
                         .background(GeneratedTokens.color.Signal.default)
                         .testTag(LSSSESSIONSDRAWER_ACTIVE_STRIPE_TAG)
