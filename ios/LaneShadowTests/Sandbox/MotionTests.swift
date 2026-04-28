@@ -1,4 +1,5 @@
 import LaneShadowTheme
+import SnapshotTesting
 import SwiftUI
 import XCTest
 @testable import LaneShadow
@@ -19,6 +20,9 @@ import XCTest
  * - AC-3: LSBestBadge entrance 200ms spring scale+opacity
  * - AC-4: Record dot pulse 1400ms easeInOut 1.0↔0.45
  * - AC-5: Suggestion chips slide-up 8pt + fade-in
+ *
+ * NOTE: Motion recipes are not yet defined in theme tokens (tracked in FID-S02-R01).
+ * These tests verify the fallback values are correct and views render successfully.
  */
 @MainActor
 final class MotionTests: XCTestCase {
@@ -36,20 +40,14 @@ final class MotionTests: XCTestCase {
 
         // THEN: Sketch polyline animation uses 1400ms linear repeatForever
         // Verify view renders without crashing
-        XCTAssertNotNil(view)
+        XCTAssertNotNil(view, "PlanningScreen should render")
 
-        // Verify the sketch polyline view is present
+        // Verify the sketching polyline exists in the view hierarchy
         let themedView = planningScreen.laneShadowTheme()
-        XCTAssertNotNil(themedView)
-
-        // Verify the animation reads from theme.motion tokens
-        // The Animation.sketchPolylineLoop(theme:) extension reads from theme.motion.recipes["sketchPolylineLoop"]
-        // We verify this by checking that the view contains the sketching polyline with animation
         let hostingController = UIHostingController(rootView: themedView)
         hostingController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
         hostingController.loadViewIfNeeded()
 
-        // Verify the sketching polyline exists in the view hierarchy
         let sketchPolylineExists = hostingController.view.subviews.contains { view in
             String(describing: type(of: view)).contains("SketchingPolyline")
         }
@@ -80,19 +78,14 @@ final class MotionTests: XCTestCase {
         let view = planningScreen.body
 
         // THEN: Breathing dot uses 1400ms easeInOut repeatForever(autoreverses:true)
-        XCTAssertNotNil(view)
+        XCTAssertNotNil(view, "PlanningScreen should render")
 
         // Verify the breathing dot is present in the sketching polyline
         let themedView = planningScreen.laneShadowTheme()
-        XCTAssertNotNil(themedView)
-
-        // Verify the breathing dot animation reads from theme.motion.recipes["breathingHeadDot"]
-        // The BreathingDotRecipe reads: duration 1400ms, easing [0.4, 0, 0.2, 1], opacity 1.0→0.55
         let hostingController = UIHostingController(rootView: themedView)
         hostingController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
         hostingController.loadViewIfNeeded()
 
-        // Verify the sketching polyline with breathing dot exists
         let sketchPolylineExists = hostingController.view.subviews.contains { view in
             String(describing: type(of: view)).contains("SketchingPolyline")
         }
@@ -138,19 +131,14 @@ final class MotionTests: XCTestCase {
         let view = routeSheet.body
 
         // THEN: LSBestBadge has entrance animation
-        XCTAssertNotNil(view)
+        XCTAssertNotNil(view, "LSRouteSheet should render")
 
         // Verify best badge is present
         let themedView = routeSheet.laneShadowTheme()
-        XCTAssertNotNil(themedView)
-
-        // Verify the best badge entrance animation uses spring with scale 0.8→1.0 and opacity 0→1
-        // The animation reads from theme.motion.recipes["bestBadgeEnter"] (200ms spring)
         let hostingController = UIHostingController(rootView: themedView)
         hostingController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
         hostingController.loadViewIfNeeded()
 
-        // Verify the route sheet renders successfully
         XCTAssertNotNil(hostingController.view, "LSRouteSheet with best badge should render successfully")
 
         // Verify via snapshot that best badge spring animation is correct
@@ -180,19 +168,14 @@ final class MotionTests: XCTestCase {
         let view = topBar.body
 
         // THEN: Record dot pulses 1.0↔0.45 at 1400ms easeInOut
-        XCTAssertNotNil(view)
+        XCTAssertNotNil(view, "LSTopBar should render")
 
         // Verify record dot is present
         let themedView = topBar.laneShadowTheme()
-        XCTAssertNotNil(themedView)
-
-        // Verify the record dot pulse animation reads from theme.motion.recipes["recordDotPulse"]
-        // The animation uses: duration 1400ms, easeInOut, opacity 1.0↔0.45
         let hostingController = UIHostingController(rootView: themedView)
         hostingController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 100)
         hostingController.loadViewIfNeeded()
 
-        // Verify the top bar renders successfully with record dot
         XCTAssertNotNil(hostingController.view, "LSTopBar with record highlight should render successfully")
 
         // Verify via snapshot that record dot pulse animation is correct
@@ -222,19 +205,14 @@ final class MotionTests: XCTestCase {
         let view = callout.body
 
         // THEN: Suggestion chips have slide-up 8pt + fade-in animation
-        XCTAssertNotNil(view)
+        XCTAssertNotNil(view, "LSInlineErrorCallout should render")
 
         // Verify suggestion chips are present
         let themedView = callout.laneShadowTheme()
-        XCTAssertNotNil(themedView)
-
-        // Verify the suggestion chips entrance animation reads from theme.motion.recipes["chatOverlayEnter"]
-        // The animation uses: slide-up 8pt + fade-in 0→1
         let hostingController = UIHostingController(rootView: themedView)
         hostingController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 200)
         hostingController.loadViewIfNeeded()
 
-        // Verify the callout renders successfully with suggestion chips
         XCTAssertNotNil(hostingController.view, "LSInlineErrorCallout with chips should render successfully")
 
         // Verify via snapshot that chip entrance animation is correct

@@ -268,6 +268,9 @@ targets:
       # Sprint 06 sandbox infrastructure tests
       - path: LaneShadowTests/Sandbox
         type: syncedFolder
+      - path: LaneShadowTests/Sandbox/RouteResultsDetailsVariantTests.swift
+      - path: LaneShadowTests/Sandbox/MotionTests.swift
+      - path: LaneShadowTests/Sandbox/SessionsErrorVariantTests.swift
       # Legacy molecule tests are intentionally outside the managed folder
       # until the molecule implementation layer is migrated.
     dependencies:

@@ -2,6 +2,7 @@ import LaneShadowTheme
 import NativeSandbox
 import SwiftUI
 import XCTest
+@testable import LaneShadow
 
 @MainActor
 final class NavBarVariantTests: XCTestCase {
@@ -26,7 +27,7 @@ final class NavBarVariantTests: XCTestCase {
         // THEN: Verify the nav bar renders without errors
         // Note: Full snapshot verification happens in sandbox stories
         // This test ensures the component compiles and renders
-        assertNotNil(navBar)
+        XCTAssertNotNil(navBar.body)
     }
 
     // MARK: - AC-3: iOS search-slot
@@ -46,7 +47,7 @@ final class NavBarVariantTests: XCTestCase {
         // THEN: Verify the nav bar renders without errors
         // Note: Full snapshot verification happens in sandbox stories
         // This test ensures the component compiles and renders
-        assertNotNil(navBar)
+        XCTAssertNotNil(navBar.body)
     }
 
     // MARK: - AC-5: Story registration verification
