@@ -28,7 +28,7 @@ public struct LSSessionsDrawer<Session: Identifiable & Sendable>: View where Ses
         self.sessions = sessions
         self.activeSessionId = activeSessionId
         // Back-compat: wrap single group in sections array
-        self.sections = [SessionSection(label: groupLabel, sessions: sessions)]
+        sections = [SessionSection(label: groupLabel, sessions: sessions)]
         self.onSelect = onSelect
         self.onNew = onNew
         self.onDismiss = onDismiss
@@ -42,7 +42,7 @@ public struct LSSessionsDrawer<Session: Identifiable & Sendable>: View where Ses
         onDismiss: @Sendable @escaping () -> Void
     ) {
         // Flatten sessions from all sections
-        self.sessions = sections.flatMap { $0.sessions }
+        sessions = sections.flatMap(\.sessions)
         self.activeSessionId = activeSessionId
         self.sections = sections
         self.onSelect = onSelect

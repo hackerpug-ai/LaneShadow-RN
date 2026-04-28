@@ -56,7 +56,7 @@ public enum SessionsMockProvider: MockProvider {
                     active: false,
                     routeIds: ["route-006", "route-007", "route-008", "route-009"],
                     createdAt: "2025-04-12T09:15:00Z"
-                )
+                ),
             ],
             activeSessionId: "session-003"
         )
@@ -76,7 +76,7 @@ public enum SessionsMockProvider: MockProvider {
             "Morning mountain run", "Coastal sunset cruise", "Wine country tour",
             "Redwood forest adventure", "Desert loop", "City escape",
             "Border run", "Pass storm chasing", "Peak bagging",
-            "Valley cruise", "River road romp", "Lake loop tour"
+            "Valley cruise", "River road romp", "Lake loop tour",
         ]
 
         for (index, title) in titles.enumerated() {
@@ -141,7 +141,7 @@ public enum SessionsMockProvider: MockProvider {
                     active: false,
                     routeIds: ["route-006", "route-007", "route-008", "route-009"],
                     createdAt: "2025-04-12T09:15:00Z"
-                )
+                ),
             ],
             activeSessionId: "session-003"
         )
@@ -159,7 +159,7 @@ public enum SessionsMockProvider: MockProvider {
                     active: true,
                     routeIds: ["route-001", "route-002", "route-003"],
                     createdAt: "2025-04-25T10:30:00Z"
-                )
+                ),
             ],
             activeSessionId: "session-001"
         )
@@ -221,7 +221,7 @@ public enum SessionsMockProvider: MockProvider {
                     active: false,
                     routeIds: ["route-006", "route-007", "route-008", "route-009"],
                     createdAt: "2025-04-12T09:15:00Z"
-                )
+                ),
             ],
             activeSessionId: "session-003"
         )
