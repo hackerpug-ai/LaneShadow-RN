@@ -45,5 +45,46 @@ enum ErrorScreenStory {
                 onSuggestionTap: { _ in }
             )
         },
+
+        // S02: Dark mode / storm gate
+        Story(
+            id: "templates.error-screen.s02-dark",
+            tier: .template,
+            component: "ErrorScreen",
+            name: "S02 — Dark / Storm Gate",
+            summary: "Dark mode error with storm gate warning.",
+            previewMode: .fullScreen
+        ) { _ in
+            ErrorScreen(provider: ErrorMockProvider.self)
+        },
+
+        // S03: Extended error
+        Story(
+            id: "templates.error-screen.s03-extended",
+            tier: .template,
+            component: "ErrorScreen",
+            name: "S03 — Extended",
+            summary: "Extended error with detailed recovery suggestions.",
+            previewMode: .fullScreen
+        ) { _ in
+            ErrorScreen(provider: ErrorMockProvider.self)
+        },
+
+        // V02: Generic fallback
+        Story(
+            id: "templates.error-screen.v02-generic",
+            tier: .template,
+            component: "ErrorScreen",
+            name: "V02 — Generic Fallback",
+            summary: "Generic error fallback for unknown error states.",
+            previewMode: .fullScreen
+        ) { _ in
+            ErrorScreen(
+                provider: ErrorMockProvider.self,
+                variant: "empty",
+                onMenuTap: {},
+                onSuggestionTap: { _ in }
+            )
+        },
     ]
 }

@@ -47,5 +47,29 @@ enum SessionsScreenStory {
                 onDismiss: {}
             )
         },
+
+        // S02: Dark mode
+        Story(
+            id: "templates.sessions-screen.s02-dark",
+            tier: .template,
+            component: "SessionsScreen",
+            name: "S02 — Dark Mode",
+            summary: "Dark mode variant of sessions list.",
+            previewMode: .fullScreen
+        ) { _ in
+            SessionsScreen(provider: SessionsMockProvider.self)
+        },
+
+        // S03: Empty state
+        Story(
+            id: "templates.sessions-screen.s03-empty",
+            tier: .template,
+            component: "SessionsScreen",
+            name: "S03 — Empty",
+            summary: "No sessions — empty state with NEW button.",
+            previewMode: .fullScreen
+        ) { _ in
+            SessionsScreen(provider: SessionsMockProvider.self, variant: "empty")
+        },
     ]
 }

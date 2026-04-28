@@ -45,5 +45,29 @@ enum RouteResultsScreenStory {
         ) { _ in
             RouteResultsScreen(provider: RouteResultsMockProvider.self, variant: "v03-recall")
         },
+
+        // S03: Dark mode
+        Story(
+            id: "templates.route-results.s03-dark",
+            tier: .template,
+            component: "RouteResultsScreen",
+            name: "S03 — Dark Mode",
+            summary: "Dark mode variant of default route results.",
+            previewMode: .fullScreen
+        ) { _ in
+            RouteResultsScreen(provider: RouteResultsMockProvider.self, variant: "default")
+        },
+
+        // V02: Weather divergent
+        Story(
+            id: "templates.route-results.v02-weather-divergent",
+            tier: .template,
+            component: "RouteResultsScreen",
+            name: "V02 — Weather Divergent",
+            summary: "Weather conditions diverge across routes — storm on coastal, clear inland.",
+            previewMode: .fullScreen
+        ) { _ in
+            RouteResultsScreen(provider: RouteResultsMockProvider.self, variant: "default")
+        },
     ]
 }

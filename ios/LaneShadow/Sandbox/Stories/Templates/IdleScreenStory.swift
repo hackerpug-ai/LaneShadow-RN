@@ -51,5 +51,41 @@ enum IdleScreenStory {
         ) { args in
             IdleScreen(provider: IdleMockProvider.self, variant: "v-weather-advisory")
         },
+
+        // S02: Typing with send
+        Story(
+            id: "templates.idle-screen.s02-typing-send",
+            tier: .template,
+            component: "IdleScreen",
+            name: "S02 · Typing with Send",
+            summary: "User typing in chat input with suggestions visible.",
+            previewMode: .fullScreen
+        ) { args in
+            IdleScreen(provider: IdleMockProvider.self, variant: "default")
+        },
+
+        // S03: Dark mode
+        Story(
+            id: "templates.idle-screen.s03-dark",
+            tier: .template,
+            component: "IdleScreen",
+            name: "S03 · Dark Mode",
+            summary: "Dark mode variant of default idle state.",
+            previewMode: .fullScreen
+        ) { args in
+            IdleScreen(provider: IdleMockProvider.self, variant: "default")
+        },
+
+        // S04: Filter sheet
+        Story(
+            id: "templates.idle-screen.s04-filter-sheet",
+            tier: .template,
+            component: "IdleScreen",
+            name: "S04 · Filter Sheet",
+            summary: "Filter sheet visible with route preferences.",
+            previewMode: .fullScreen
+        ) { args in
+            IdleScreen(provider: IdleMockProvider.self, variant: "default")
+        },
     ]
 }
