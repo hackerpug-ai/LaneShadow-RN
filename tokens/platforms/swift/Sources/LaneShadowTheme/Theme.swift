@@ -536,7 +536,7 @@ private extension Theme {
     }
 
     static func buildMapColors(from tokens: SemanticTokens) -> ThemeMapColors {
-        return ThemeMapColors(
+        ThemeMapColors(
             paper: LaneShadowTheme.color.map.paper,
             contour: LaneShadowTheme.color.map.contour,
             contourFaint: LaneShadowTheme.color.map.contourFaint
