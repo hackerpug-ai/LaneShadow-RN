@@ -46,6 +46,18 @@ enum RouteResultsScreenStory {
             RouteResultsScreen(provider: RouteResultsMockProvider.self, variant: "v03-recall")
         },
 
+        // V01: Base variant
+        Story(
+            id: "templates.route-results.v01-default",
+            tier: .template,
+            component: "RouteResultsScreen",
+            name: "V01 — Default Variant",
+            summary: "Base variant with default mock data.",
+            previewMode: .fullScreen
+        ) { _ in
+            RouteResultsScreen(provider: RouteResultsMockProvider.self, variant: "default")
+        },
+
         // S03: Dark mode
         Story(
             id: "templates.route-results.s03-dark",

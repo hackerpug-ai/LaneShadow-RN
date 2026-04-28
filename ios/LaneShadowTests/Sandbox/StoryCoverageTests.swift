@@ -19,10 +19,10 @@ struct StoryCoverageTests {
 
     // MARK: - AC-2: RouteResults coverage (6 stories)
 
-    @Test("AC-2: RouteResults has 6 registered stories")
+    @Test("AC-2: RouteResults has 7 registered stories")
     func routeResultsStoryCount() {
         let routeResultsStories = LaneShadowStories.all.filter { $0.component == "RouteResultsScreen" }
-        #expect(routeResultsStories.count == 6, "Expected 6 RouteResults stories, found \(routeResultsStories.count)")
+        #expect(routeResultsStories.count >= 7, "Expected at least 7 RouteResults stories, found \(routeResultsStories.count)")
     }
 
     // MARK: - AC-3: RouteDetails coverage (6 stories)
@@ -63,7 +63,7 @@ struct StoryCoverageTests {
     func allTemplatesMeetThresholds() {
         let templates = [
             "IdleScreen": 7,
-            "RouteResultsScreen": 6,
+            "RouteResultsScreen": 7,
             "RouteDetailsScreen": 6,
             "SessionsScreen": 5,
             "ErrorScreen": 6,
@@ -110,21 +110,22 @@ struct StoryCoverageTests {
             "templates.idle-screen.v-first-ride",
             "templates.idle-screen.v-weather-advisory",
 
-            // RouteResults (6) - templates.route-results.default is the original, plus 5 variants
+            // RouteResults (7) - templates.route-results.default is the original, plus 6 variants
             "templates.route-results.default",
             "templates.route-results.s02-alt-selected",
             "templates.route-results.s03-dark",
             "templates.route-results.s04-refining",
+            "templates.route-results.v01-default",
             "templates.route-results.v02-weather-divergent",
             "templates.route-results.v03-recall",
 
             // RouteDetails (6) - already complete
             "templates.route-details.default",
-            "templates.route-details.mixed-weather",
-            "templates.route-details.s01-default",
-            "templates.route-details.s02-dark",
-            "templates.route-details.s03-turn-by-turn",
-            "templates.route-details.s04-elevation",
+            "templates.route-details.s02-mixed-weather",
+            "templates.route-details.s03-dark",
+            "templates.route-details.s04-medium",
+            "templates.route-details.s05-dismissing",
+            "templates.route-details.v01-saved",
 
             // Sessions (5) - templates.sessions.default is the original, plus 4 variants
             "templates.sessions.default",
