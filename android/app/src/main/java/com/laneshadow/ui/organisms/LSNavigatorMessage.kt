@@ -260,7 +260,7 @@ private fun PinnedIndicator(
         Box(
             modifier = Modifier
                 .size(indicatorDotSize)
-                .background(theme.colors.primary.default.copy(alpha = theme.opacity.values["focus"] ?: 0.12f), CircleShape),
+                .background(com.laneshadow.theme.generated.LaneShadowTheme.color.Signal.default, CircleShape),
         )
 
         LSText(

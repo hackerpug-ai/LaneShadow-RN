@@ -142,8 +142,8 @@ fun LSRouteSheet(
             // Weather timeline
             com.laneshadow.ui.molecules.LSWeatherTimeline(
                 entries = weatherTimeline,
-                from = "9am",
-                to = "3pm",
+                from = weatherTimeline.firstOrNull()?.hour ?: "",
+                to = weatherTimeline.lastOrNull()?.hour ?: "",
                 modifier = Modifier.testTag(ROUTE_SHEET_WEATHER_TAG),
             )
 

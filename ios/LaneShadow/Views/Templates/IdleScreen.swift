@@ -37,13 +37,13 @@ public struct IdleScreen: View {
                 GlassOverlaySlot(
                     id: "greeting",
                     content: { greetingOverlay }
-                )
+                ),
             ],
             bottomOverlays: [
                 GlassOverlaySlot(
                     id: "chatinput",
                     content: { chatInputView }
-                )
+                ),
             ],
             topBar: {
                 LSTopBar(
@@ -64,7 +64,7 @@ public struct IdleScreen: View {
             LinearGradient(
                 gradient: Gradient(colors: [
                     theme.colors.surface.default,
-                    theme.colors.background.default
+                    theme.colors.background.default,
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing

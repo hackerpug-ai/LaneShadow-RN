@@ -48,7 +48,8 @@ public struct LSSectionHeader: View {
     public var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: theme.space.xs) {
             LSText(title, variant: titleStyle == .caps ? .label.sm : .title.md)
-                .foregroundStyle(titleStyle == .caps ? LaneShadowTheme.color.content.tertiary : LaneShadowTheme.color.content.primary)
+                .foregroundStyle(titleStyle == .caps ? LaneShadowTheme.color.content.tertiary : LaneShadowTheme.color
+                    .content.primary)
 
             Spacer()
 

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
@@ -56,7 +57,7 @@ fun LSRouteCard(
             Box(
                 modifier = Modifier
                     .testTag("ls-map-preview")
-                    .height(mapPreviewHeight)
+                    .aspectRatio(9f / 4f)
             ) {
                 mapContent()
             }
@@ -75,7 +76,7 @@ fun LSRouteCard(
                     LSIcon(
                         name = IconName.HeartFill,
                         size = IconSize.Sm,
-                        color = IconColor.Content(ContentColor.Primary),
+                        color = IconColor.Signal,
                         contentDescription = "Saved route",
                     )
                 }
