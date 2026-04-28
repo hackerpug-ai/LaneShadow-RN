@@ -1,147 +1,190 @@
-# FID-S01-T08 — Android remaining HIGH-severity token corrections
+================================================================================
+TASK: FID-S01-T08 - Android Remaining HIGH-Severity Token Corrections
+================================================================================
 
-**Sprint:** [SPRINT.md](./SPRINT.md) · **Agent:** kotlin-implementer · **Estimate:** 180 min · **Type:** FEATURE · **Priority:** P0 · **Effort:** M · **Status:** Backlog
+TASK_TYPE:  FEATURE
+STATUS:     Backlog
+PRIORITY:   P0
+EFFORT:     M
+AGENT:      implementer=kotlin-implementer | reviewer=kotlin-reviewer
 
-## BACKGROUND
+RUNTIME_COMMANDS:
+  typecheck: cd android && ./gradlew :app:compileDebugKotlin
+  test: cd android && ./gradlew test
+  native-compliance: scripts/tokens/enforce-native-compliance.sh
 
-Five Android organism gaps remain after T06/T07: pinned indicator dot uses `primary.default.copy(alpha = 0.12f)` instead of `signal.default` full opacity; LSRouteCard saved-state heart uses `IconColor.Content(Primary)` not `IconColor.Signal`; LSRouteCard map preview uses fixed `.height(160.dp)` instead of `aspectRatio(9f/4f)`; LSRouteSheet hardcodes `'9am'`/`'3pm'` instead of accepting `timeRange: Pair<String, String>`; LSSectionHeader Row uses `verticalAlignment = CenterVertically` instead of `alignBy(LastBaseline)`.
+PROGRESS: AC-1..AC-5 not started
 
-## CRITICAL CONSTRAINTS
+--------------------------------------------------------------------------------
+OUTCOME
+--------------------------------------------------------------------------------
 
-- MUST source every color from `theme.colors.signal.* / status.*` — NEVER `copy(alpha = 0.12f)` hacks; pinned dot becomes `signal.default` at full opacity.
-- MUST replace LSRouteCard map `.height(160.dp)` (or equivalent fixed-height modifier) with `Modifier.aspectRatio(9f/4f)`.
-- MUST add `timeRange: Pair<String, String>` parameter to LSRouteSheet WITHOUT removing existing `weatherTimeline` param; thread to LSWeatherTimeline `from`/`to` props.
-- MUST switch LSSectionHeader Row from `verticalAlignment = Alignment.CenterVertically` to per-child `Modifier.alignBy(LastBaseline)`.
-- STRICTLY do NOT modify `ios/**`, `server/**`, `react-native/**`, `web/**`, `tokens/**`.
-- MUST keep all Android sandbox story IDs identical to iOS (organisms.routecard.*, organisms.routesheet.*, organisms.sectionheader.*, organisms.navigatormessage.*) per RULES.md#cross-platform-component-parity.
-- NEVER lower assertion strength to make a token-compliance test pass; if a literal is required, allowlist explicitly.
+Android LSRouteCard, LSRouteSheet, LSNavigatorMessage, and LSSectionHeader use correct semantic tokens: full-opacity pinned dot, Signal-colored heart, 9:4 map aspect ratio, dynamic timeRange, and baseline-aligned section headers.
 
-## SPECIFICATION
+--------------------------------------------------------------------------------
+🚫 CRITICAL CONSTRAINTS
+--------------------------------------------------------------------------------
 
-**Objective:** Close the remaining 5 HIGH/MED-severity Android token & layout gaps in the content-organism layer (LSNavigatorMessage pinned dot, LSRouteCard heart + map aspect, LSRouteSheet timeRange wiring, LSSectionHeader baseline alignment) so Android matches `.spec/design/system/` and reaches story parity with iOS for these four organisms.
+- MUST render pinned-indicator dot at full opacity using `theme.colors.signal.default` — NOT `primary.default` at 12% alpha
+- MUST use `IconColor.Signal` (copper) for LSRouteCard saved-state heart — NOT `IconColor.Content(ContentColor.Primary)`
+- MUST use `Modifier.aspectRatio(9f / 4f)` for LSRouteCard map preview — NOT hardcoded `mapPreviewHeight = 160`
+- MUST derive LSRouteSheet weather timeline time range from actual data via `timeRange: Pair<String, String>` — NOT hardcoded "9am"/"3pm"
+- MUST align LSSectionHeader text baselines across title and trailing action using `Modifier.align(Alignment.CenterVertically)`
 
-**Success state:** (1) LSNavigatorMessage pinned dot renders at full opacity using `theme.colors.signal.default`. (2) LSRouteCard saved heart uses `IconColor.Signal`. (3) LSRouteCard map preview honors `aspectRatio(9f/4f)`. (4) LSRouteSheet accepts `timeRange: Pair<String, String>` and threads into LSWeatherTimeline (no more `'9am'/'3pm'` literals). (5) LSSectionHeader Row aligns title + see-all link by `LastBaseline`. All four organisms have Android sandbox stories with IDs matching iOS verbatim. `pnpm snapshots:check` passes.
+--------------------------------------------------------------------------------
+DONE WHEN
+--------------------------------------------------------------------------------
 
-## ACCEPTANCE CRITERIA
+- [ ] Pinned indicator dot renders at full opacity signal.default (AC-1 PRIMARY)
+- [ ] LSRouteCard heart icon uses IconColor.Signal copper (AC-2)
+- [ ] LSRouteCard map preview uses aspectRatio(9f/4f) (AC-3)
+- [ ] LSRouteSheet weather time range derived from data (AC-4)
+- [ ] LSSectionHeader title and trailing action baseline-aligned (AC-5)
+- [ ] ./gradlew :app:compileDebugKotlin passes + native-compliance clean
+- [ ] Only SCOPE.writeAllowed files modified
 
-- **AC-1** GIVEN LSNavigatorMessage rendered with `isPinned = true`, WHEN pinned indicator dot laid out, THEN dot background equals `theme.colors.signal.default` at full opacity (`alpha == 1.0f`); NOT `theme.colors.primary.default.copy(alpha = 0.12f)`.
-  - verify: `cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSNavigatorMessageTest.pinnedDotIsSignalDefaultFullOpacity'`
-- **AC-2** GIVEN LSRouteCard rendered with `isSaved = true`, WHEN heart icon composed, THEN LSIcon color resolves to `IconColor.Signal` — NOT `IconColor.Content(ContentColor.Primary)`.
-  - verify: `cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSRouteCardTest.savedHeartUsesIconColorSignal'`
-- **AC-3** GIVEN LSRouteCard rendered at any width (e.g. 360.dp), WHEN map preview measured, THEN height equals width × (4f/9f) within 1px tolerance and NO `Modifier.height(160.dp)` literal remains.
-  - verify: `cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSRouteCardTest.mapPreviewHasNineByFourAspectRatio'`
-- **AC-4** GIVEN LSRouteSheet invoked with `timeRange = '7am'` to `'1pm'`, WHEN weather timeline section rendered, THEN from/to labels passed to LSWeatherTimeline equal `'7am'`/`'1pm'` (no `'9am'`/`'3pm'` literals reachable).
-  - verify: `cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSRouteSheetTest.timeRangeIsForwardedToWeatherTimeline'`
-- **AC-5** GIVEN LSSectionHeader rendered with title and see-all link, WHEN Row composed, THEN title text and see-all text share same `LastBaseline` y-coordinate (per Compose `alignBy` semantics) and `verticalAlignment = Alignment.CenterVertically` is removed.
-  - verify: `cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSectionHeaderTest.titleAndSeeAllShareLastBaseline'`
-- **AC-6** GIVEN Android sandbox built, WHEN `AppStories.all` enumerated, THEN story IDs for `organisms.routecard.{default,saved,alt1,long-title-overflow,missing-optional-data,dark-mode}`, `organisms.routesheet.{best-route,alt-route,long-title,mixed-weather,dark-mode}`, `organisms.sectionheader.{title-only,title-with-see-all,caps-label,custom-inset,dark-mode}`, `organisms.navigatormessage.{message-only,one-attachment,three-attachments,pinned,long-body,dark-mode}` are present and match iOS verbatim.
-  - verify: `cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.sandbox.stories.ContentOrganismStoryParityTest' && pnpm snapshots:check`
+--------------------------------------------------------------------------------
+ACCEPTANCE CRITERIA
+--------------------------------------------------------------------------------
 
-## TEST CRITERIA
+AC-1: Pinned indicator dot full opacity [PRIMARY]
+  GIVEN: LSNavigatorMessage is displayed with a pinned route indicator
+  WHEN:  The pinned dot renders
+  THEN:  Dot uses `theme.colors.signal.default` at full opacity (not `primary.default` at 12% alpha)
 
-| ID | Statement | Maps to | Verify |
-|---|---|---|---|
-| TC-1 | LSNavigatorMessageTest.pinnedDotIsSignalDefaultFullOpacity asserts dot bg = signal.default alpha 1.0f | AC-1 | gradle test |
-| TC-2 | LSRouteCardTest.savedHeartUsesIconColorSignal asserts IconColor.Signal | AC-2 | gradle test |
-| TC-3 | LSRouteCardTest.mapPreviewHasNineByFourAspectRatio asserts measured height = width × 4/9 ±1px | AC-3 | gradle test |
-| TC-4 | LSRouteSheetTest.timeRangeIsForwardedToWeatherTimeline asserts from='7am', to='1pm' | AC-4 | gradle test |
-| TC-5 | LSSectionHeaderTest.titleAndSeeAllShareLastBaseline asserts bottom y match within 1px | AC-5 | gradle test |
-| TC-6 | ContentOrganismStoryParityTest asserts 4 organism story sets match iOS | AC-6 | gradle test + `pnpm snapshots:check` |
-| TC-7 | Token compliance script returns exit 0 against 4 modified organism files | AC-1 | `scripts/tokens/enforce-native-compliance.sh` |
+  TDD_STATE:     none
+  TEST_FILE:     android/app/src/test/java/com/laneshadow/sandbox/TokenCorrectionTests.kt
+  TEST_FUNCTION: testPinnedDotFullOpacity
 
-## READING LIST
+AC-2: LSRouteCard heart IconColor.Signal
+  GIVEN: LSRouteCard is displayed in saved state
+  WHEN:  The heart icon renders
+  THEN:  Icon uses `IconColor.Signal` (copper), not `IconColor.Content(ContentColor.Primary)` (charcoal/white)
 
-- `[PHASE: RED]` `.spec/prds/v3-integration/remediations/05-organisms-content.md` — gaps E1-04, E3-04, E3-03 (Android), E2-05, E4-03
-- `[PHASE: GREEN]` `android/app/src/main/java/com/laneshadow/ui/organisms/LSNavigatorMessage.kt` — pinned dot color fix line ~262
-- `[PHASE: GREEN]` `android/app/src/main/java/com/laneshadow/ui/organisms/LSRouteCard.kt` — heart IconColor lines 74-80 + map aspectRatio
-- `[PHASE: GREEN]` `android/app/src/main/java/com/laneshadow/ui/organisms/LSRouteSheet.kt` — add timeRange param; remove '9am'/'3pm' lines 143-148
-- `[PHASE: GREEN]` `android/app/src/main/java/com/laneshadow/ui/organisms/LSSectionHeader.kt` — replace CenterVertically with alignBy(LastBaseline)
-- `[PHASE: GREEN]` `android/app/src/debug/java/com/laneshadow/sandbox/stories/AppStories.kt` — register newly-added story entries
-- `[PHASE: GREEN]` `android/app/src/debug/java/com/laneshadow/sandbox/stories/organisms/` — author/extend Android story files
-- `[PHASE: RED]` `ios/LaneShadow/Sandbox/Stories/Organisms/` — source of truth for parity story IDs (read-only)
-- `[PHASE: RED]` `RULES.md` — Cross-Platform Component Parity rule + accessibility
-- `[PHASE: RED]` `tokens/platforms/kotlin/` — verify signal.default availability + IconColor.Signal enum
+  TDD_STATE:     none
+  TEST_FILE:     android/app/src/test/java/com/laneshadow/sandbox/TokenCorrectionTests.kt
+  TEST_FUNCTION: testRouteCardHeartSignalColor
 
-## GUARDRAILS
+AC-3: LSRouteCard map aspectRatio
+  GIVEN: LSRouteCard is displayed at any width
+  WHEN:  Map preview height is calculated
+  THEN:  Map uses `Modifier.aspectRatio(9f / 4f)` so height scales proportionally with card width
 
-**WRITE-ALLOWED:**
-- `android/app/src/main/java/com/laneshadow/ui/organisms/LSNavigatorMessage.kt`
-- `android/app/src/main/java/com/laneshadow/ui/organisms/LSRouteCard.kt`
-- `android/app/src/main/java/com/laneshadow/ui/organisms/LSRouteSheet.kt`
-- `android/app/src/main/java/com/laneshadow/ui/organisms/LSSectionHeader.kt`
-- `android/app/src/main/java/com/laneshadow/ui/templates/RouteDetailsScreen.kt`
-- `android/app/src/debug/java/com/laneshadow/sandbox/stories/AppStories.kt`
-- `android/app/src/debug/java/com/laneshadow/sandbox/stories/organisms/LSRouteCardStory.kt`
-- `android/app/src/debug/java/com/laneshadow/sandbox/stories/organisms/LSRouteSheetStory.kt`
-- `android/app/src/debug/java/com/laneshadow/sandbox/stories/organisms/LSSectionHeaderStory.kt`
-- `android/app/src/debug/java/com/laneshadow/sandbox/stories/organisms/LSNavigatorMessageStory.kt`
-- `android/app/src/test/java/com/laneshadow/ui/organisms/LSNavigatorMessageTest.kt`
-- `android/app/src/test/java/com/laneshadow/ui/organisms/LSRouteCardTest.kt`
-- `android/app/src/test/java/com/laneshadow/ui/organisms/LSRouteSheetTest.kt`
-- `android/app/src/test/java/com/laneshadow/ui/organisms/LSSectionHeaderTest.kt`
-- `android/app/src/test/java/com/laneshadow/sandbox/stories/ContentOrganismStoryParityTest.kt`
-- `.spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/snapshots/android/organisms.{routecard,routesheet,sectionheader,navigatormessage}.*.png`
+  TDD_STATE:     none
+  TEST_FILE:     android/app/src/test/java/com/laneshadow/sandbox/TokenCorrectionTests.kt
+  TEST_FUNCTION: testRouteCardMapAspectRatio
 
-**WRITE-PROHIBITED:** `ios/**`, `server/**`, `react-native/**`, `web/**`, `tokens/**`, `LSSessionsDrawer.kt` (owned by T06/T07), `LSTopBar.kt` (owned by T06)
+AC-4: LSRouteSheet dynamic timeRange
+  GIVEN: LSRouteSheet weather timeline with actual time data
+  WHEN:  The time range header renders
+  THEN:  Labels derive from `timeRange: Pair<String, String>` parameter, not hardcoded "9am"/"3pm"
 
-## DESIGN
+  TDD_STATE:     none
+  TEST_FILE:     android/app/src/test/java/com/laneshadow/sandbox/TokenCorrectionTests.kt
+  TEST_FUNCTION: testRouteSheetDynamicTimeRange
 
-**References:**
-- `.spec/design/system/organisms/navigator-callouts/navigator-callouts.html` (pinned indicator)
-- `.spec/design/system/organisms/route-card/route-card.html` (heart, aspect-ratio)
-- `.spec/design/system/organisms/route-sheet/route-sheet.html` (weather timeline params)
-- `.spec/design/system/organisms/section-header/section-header.html` (baseline alignment)
-- `.spec/prds/v3-integration/12-uc-fid.md` UC-FID-01 HIGH-severity AC subset
-- `.spec/prds/v3-integration/remediations/05-organisms-content.md` E1-04 / E3-04 / E3-03 (Android) / E2-05 / E4-03
+AC-5: LSSectionHeader baseline alignment
+  GIVEN: LSSectionHeader with title and trailing action
+  WHEN:  The header renders
+  THEN:  Title and trailing action text share a common baseline via `Modifier.align(Alignment.CenterVertically)`
 
-**Pattern:** Token-driven semantic styling + Compose layout primitives (`Modifier.aspectRatio`, `Modifier.alignBy(LastBaseline)`) + slot-based prop forwarding for testability.
-**Pattern source:** Material 3 Compose layout APIs; existing LSRouteCard story patterns on iOS; LSWeatherTimeline existing API surface.
-**Anti-pattern:** Hardcoding alpha factors (`0.12f`) to dim brand colors instead of using muted semantic tokens. Fixed-height map previews. String-literal time labels not reflecting actual weather window. CenterVertically alignment on mixed-typography rows producing visible vertical drift.
+  TDD_STATE:     none
+  TEST_FILE:     android/app/src/test/java/com/laneshadow/sandbox/TokenCorrectionTests.kt
+  TEST_FUNCTION: testSectionHeaderBaselineAlignment
 
-## RED PHASE INSTRUCTIONS
+--------------------------------------------------------------------------------
+SCOPE
+--------------------------------------------------------------------------------
 
-Author 5 Robolectric / `createComposeRule` unit test files (one per organism) under `android/app/src/test/java/com/laneshadow/ui/organisms/`. Use `SemanticsNodeInteraction.fetchSemanticsNode()` + captured Modifier inspection to assert color/icon/aspect/baseline. For TC-4 inject CompositionLocal-based LSWeatherTimeline spy OR refactor LSRouteSheet to accept a `weatherTimelineSlot` lambda for testability. For TC-5 use `composeTestRule.onNodeWithTag(LSSECTIONHEADER_TITLE_TAG).getUnclippedBoundsInRoot().bottom` and compare see-all bottom within 1.dp tolerance. For TC-6 add `ContentOrganismStoryParityTest` under `android/app/src/test/java/com/laneshadow/sandbox/stories/` that loads `AppStories.all` and asserts each of the four organisms' story id sets matches iOS hardcoded reference list. All six TCs MUST fail before implementation.
+writeAllowed:
+- android/app/src/main/java/com/laneshadow/ui/organisms/LSNavigatorMessage.kt (MODIFY — pinned dot color)
+- android/app/src/main/java/com/laneshadow/ui/organisms/LSRouteCard.kt (MODIFY — heart color, map aspectRatio)
+- android/app/src/main/java/com/laneshadow/ui/organisms/LSRouteSheet.kt (MODIFY — timeRange parameter)
+- android/app/src/main/java/com/laneshadow/ui/organisms/LSSectionHeader.kt (MODIFY — baseline alignment)
+- android/app/src/test/java/com/laneshadow/sandbox/TokenCorrectionTests.kt (NEW)
 
-## GREEN PHASE INSTRUCTIONS
+writeProhibited:
+- ios/**, server/**, react-native/**, any file not listed above
 
-1. **LSNavigatorMessage.kt** line ~262: replace `theme.colors.primary.default.copy(alpha = 0.12f)` with `theme.colors.signal.default` (full opacity).
-2. **LSRouteCard.kt** lines 74-80: change `IconColor.Content(ContentColor.Primary)` → `IconColor.Signal`.
-3. **LSRouteCard.kt** map slot: remove `.height(160.dp)` and apply `Modifier.aspectRatio(9f / 4f)` to same Box.
-4. **LSRouteSheet.kt:** add `timeRange: Pair<String, String>` param to public composable signature (positional after weatherTimeline; default null OR required based on existing call sites — RouteDetailsScreen.kt is the consumer). Lines 143-148: replace `from = "9am", to = "3pm"` with `from = timeRange.first, to = timeRange.second`. Update RouteDetailsScreen.kt to pass `timeRange` derived from `state.weatherTimeline.firstOrNull()?.hour to state.weatherTimeline.lastOrNull()?.hour` (with safe fallback).
-5. **LSSectionHeader.kt** line 52: remove `verticalAlignment = Alignment.CenterVertically` from Row; on each child (title + see-all link) apply `Modifier.alignBy(LastBaseline)`. Add `Modifier.padding(vertical = theme.space.md)` to Row container per remediation E4-04.
-6. Author Android sandbox stories: `LSRouteCardStory.kt` (6 stories), `LSRouteSheetStory.kt` (5), `LSSectionHeaderStory.kt` (5), `LSNavigatorMessageStory.kt` (6) — IDs verbatim from iOS sources. Register each in `AppStories.all`.
-7. Run all gates; regenerate snapshot fixtures; confirm `pnpm snapshots:check` passes.
+--------------------------------------------------------------------------------
+DELIVERABLE
+--------------------------------------------------------------------------------
 
-## REVIEW NOTES
+- android/app/src/main/java/com/laneshadow/ui/organisms/LSNavigatorMessage.kt (MODIFY): Full-opacity signal.default pinned dot
+- android/app/src/main/java/com/laneshadow/ui/organisms/LSRouteCard.kt (MODIFY): IconColor.Signal heart, aspectRatio(9f/4f) map
+- android/app/src/main/java/com/laneshadow/ui/organisms/LSRouteSheet.kt (MODIFY): timeRange: Pair<String, String> parameter
+- android/app/src/main/java/com/laneshadow/ui/organisms/LSSectionHeader.kt (MODIFY): Baseline alignment
 
-- **Cross-platform parity:** grep iOS `Stories/Organisms` for `id:` and Android stories for `id =`; the four organism families MUST have identical lowercase.dot.kebab-case ids per RULES.md#cross-platform-component-parity.
-- **Token compliance:** `scripts/tokens/enforce-native-compliance.sh` against the 4 modified organism files MUST exit 0.
-- **Accessibility:** aspectRatio change preserves LSRouteCard map preview minimum touch area. LSSectionHeader baseline alignment improves screen-reader reading order — verify TalkBack via androidTest if time permits.
-- **Boy Scout:** while in LSRouteCard, check for missing separator pipe between subtitle and meta (gap E3-06) — if 1-line fix, include and note in commit body. Do not expand into difficulty-pill rework (gap E3-05).
-- **API change risk:** adding required `timeRange` param to LSRouteSheet breaks call sites — grep codebase for `LSRouteSheet(` and update each or default the param to derived fallback. RouteDetailsScreen.kt is the only known consumer.
+--------------------------------------------------------------------------------
+READING LIST
+--------------------------------------------------------------------------------
 
-## VERIFICATION GATES
+1. android/app/src/main/java/com/laneshadow/ui/organisms/LSNavigatorMessage.kt [PRIMARY PATTERN]
+   - Focus: Current pinned dot color (primary.default at 12% alpha), where to change to signal.default
 
-| Gate | Command | Expected |
-|---|---|---|
-| kotlin-compile | `cd android && ./gradlew :app:compileDebugKotlin` | BUILD SUCCESSFUL exit 0 |
-| unit-tests | `cd android && ./gradlew test` | all 6 organism test classes pass |
-| assemble-debug | `cd android && ./gradlew assembleDebug` | BUILD SUCCESSFUL exit 0 |
-| token-compliance | `scripts/tokens/enforce-native-compliance.sh` | exit 0 |
-| snapshot-parity | `pnpm snapshots:check` | exit 0 |
+2. android/app/src/main/java/com/laneshadow/ui/organisms/LSRouteCard.kt
+   - Focus: Current heart icon color, mapPreviewHeight = 160 hardcoded value
 
-## CODING STANDARDS
+3. android/app/src/main/java/com/laneshadow/ui/organisms/LSRouteSheet.kt
+   - Focus: Current hardcoded "9am"/"3pm" time range, weatherTimeline data access
 
-`RULES.md#accessibility-standards`, `RULES.md#cross-platform-component-parity`
+4. android/app/src/main/java/com/laneshadow/ui/organisms/LSSectionHeader.kt
+   - Focus: Current Row layout, text baseline misalignment
 
-## DEPENDENCIES
+5. .spec/prds/v3-integration/remediations/04-organisms.md
+   - Sections: Gap E1-04 (pinned dot), Gap E3-04 (heart), Gap E3-03 (aspectRatio), Gap E2-05 (timeRange)
 
-- **depends_on:** [FID-S01-T07] (T07 unblocks the Android compile)
-- **blocks:** [FID-S01-T09]
+--------------------------------------------------------------------------------
+EVIDENCE GATES
+--------------------------------------------------------------------------------
 
-> **Rationale:** Independent of T06 at the file level, but shares `AppStories.kt` registry — coordinate merge order to avoid conflicts.
+Gate 1: RED evidence in TDD_STATE
+Gate 2: One test per AC
+Gate 3: ./gradlew test exits 0
+Gate 4: ./gradlew :app:compileDebugKotlin exits 0
+Gate 5: native-compliance exits 0
+Gate 6: git diff --name-only ⊆ writeAllowed
+
+--------------------------------------------------------------------------------
+OUT OF SCOPE
+--------------------------------------------------------------------------------
+
+- LSRouteCard difficulty tags as LSTagPill (Sprint 02)
+- LSRouteCard subtitle separator pipe (Sprint 02)
+- LSNavigatorMessage compass chip signal.whisper background (Sprint 02)
+- LSNavigatorMessage pinned-bar dashed divider (Sprint 02)
+
+--------------------------------------------------------------------------------
+CONTEXT
+--------------------------------------------------------------------------------
+
+**Current state:** Android LSNavigatorMessage pinned dot is nearly invisible (12% alpha on primary.default). LSRouteCard heart uses charcoal/white instead of copper Signal color. Map preview hardcodes 160dp height instead of proportional 9:4. Weather timeline time range is hardcoded "9am—3pm". Section header title and trailing action don't baseline-align.
+**Gap:** Each of these produces a visible token/color/geometry mismatch against the design system specs.
+
+--------------------------------------------------------------------------------
+DEPENDENCIES
+--------------------------------------------------------------------------------
+
+Depends on: FID-S01-T07 (Android build blockers — must compile first)
+Blocks:     FID-S01-T09
+Parallel:   FID-S01-T01..T06
+
+================================================================================
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
-{"requirements":[{"id":"AC-1","type":"acceptance_criterion","description":"Pinned dot signal.default full opacity","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSNavigatorMessageTest.pinnedDotIsSignalDefaultFullOpacity'","phase":"green"},{"id":"AC-2","type":"acceptance_criterion","description":"Saved heart uses IconColor.Signal","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSRouteCardTest.savedHeartUsesIconColorSignal'","phase":"green"},{"id":"AC-3","type":"acceptance_criterion","description":"Map preview aspectRatio 9f/4f","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSRouteCardTest.mapPreviewHasNineByFourAspectRatio'","phase":"green"},{"id":"AC-4","type":"acceptance_criterion","description":"timeRange forwarded to LSWeatherTimeline","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSRouteSheetTest.timeRangeIsForwardedToWeatherTimeline'","phase":"green"},{"id":"AC-5","type":"acceptance_criterion","description":"SectionHeader title+see-all share LastBaseline","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSectionHeaderTest.titleAndSeeAllShareLastBaseline'","phase":"green"},{"id":"AC-6","type":"acceptance_criterion","description":"4 organism story sets match iOS verbatim","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.sandbox.stories.ContentOrganismStoryParityTest' && pnpm snapshots:check","phase":"green"},{"id":"TC-1","type":"test_criterion","description":"pinnedDotIsSignalDefaultFullOpacity","maps_to_ac":"AC-1","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSNavigatorMessageTest.pinnedDotIsSignalDefaultFullOpacity'","phase":"red"},{"id":"TC-2","type":"test_criterion","description":"savedHeartUsesIconColorSignal","maps_to_ac":"AC-2","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSRouteCardTest.savedHeartUsesIconColorSignal'","phase":"red"},{"id":"TC-3","type":"test_criterion","description":"mapPreviewHasNineByFourAspectRatio","maps_to_ac":"AC-3","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSRouteCardTest.mapPreviewHasNineByFourAspectRatio'","phase":"red"},{"id":"TC-4","type":"test_criterion","description":"timeRangeIsForwardedToWeatherTimeline","maps_to_ac":"AC-4","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSRouteSheetTest.timeRangeIsForwardedToWeatherTimeline'","phase":"red"},{"id":"TC-5","type":"test_criterion","description":"titleAndSeeAllShareLastBaseline","maps_to_ac":"AC-5","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSectionHeaderTest.titleAndSeeAllShareLastBaseline'","phase":"red"},{"id":"TC-6","type":"test_criterion","description":"ContentOrganismStoryParityTest + snapshots:check","maps_to_ac":"AC-6","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.sandbox.stories.ContentOrganismStoryParityTest' && pnpm snapshots:check","phase":"red"},{"id":"TC-7","type":"test_criterion","description":"Token compliance","maps_to_ac":"AC-1","verify":"scripts/tokens/enforce-native-compliance.sh","phase":"green"}]}
+{
+  "requirements": [
+    { "id": "AC-1", "type": "acceptance_criterion", "description": "GIVEN LSNavigatorMessage with pinned indicator WHEN dot renders THEN uses signal.default at full opacity not primary.default at 12% alpha", "verify": "./gradlew test" },
+    { "id": "AC-2", "type": "acceptance_criterion", "description": "GIVEN LSRouteCard saved state WHEN heart renders THEN uses IconColor.Signal copper not IconColor.Content(ContentColor.Primary)", "verify": "./gradlew test" },
+    { "id": "AC-3", "type": "acceptance_criterion", "description": "GIVEN LSRouteCard at any width WHEN map height calculated THEN uses Modifier.aspectRatio(9f/4f) not fixed height", "verify": "./gradlew test" },
+    { "id": "AC-4", "type": "acceptance_criterion", "description": "GIVEN LSRouteSheet weather timeline WHEN header renders THEN timeRange derived from data not hardcoded 9am/3pm", "verify": "./gradlew test" },
+    { "id": "AC-5", "type": "acceptance_criterion", "description": "GIVEN LSSectionHeader with title and trailing WHEN header renders THEN text baselines aligned via CenterVertically", "verify": "./gradlew test" },
+    { "id": "TC-1", "type": "test_criterion", "description": "Pinned dot color is theme.colors.signal.default at full alpha", "maps_to_ac": "AC-1", "verify": "./gradlew test --tests '*.TokenCorrectionTests.testPinnedDotFullOpacity'" },
+    { "id": "TC-2", "type": "test_criterion", "description": "Route card heart icon uses IconColor.Signal", "maps_to_ac": "AC-2", "verify": "./gradlew test --tests '*.TokenCorrectionTests.testRouteCardHeartSignalColor'" },
+    { "id": "TC-3", "type": "test_criterion", "description": "Route card map preview uses aspectRatio(9f/4f)", "maps_to_ac": "AC-3", "verify": "./gradlew test --tests '*.TokenCorrectionTests.testRouteCardMapAspectRatio'" },
+    { "id": "TC-4", "type": "test_criterion", "description": "Route sheet timeRange derived from weatherTimeline data", "maps_to_ac": "AC-4", "verify": "./gradlew test --tests '*.TokenCorrectionTests.testRouteSheetDynamicTimeRange'" },
+    { "id": "TC-5", "type": "test_criterion", "description": "Section header title and trailing action baseline-aligned", "maps_to_ac": "AC-5", "verify": "./gradlew test --tests '*.TokenCorrectionTests.testSectionHeaderBaselineAlignment'" }
+  ]
+}
 -->

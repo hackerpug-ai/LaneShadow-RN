@@ -9,7 +9,6 @@ public struct LSScenicDotStrip: View {
     @Environment(\.theme) private var theme
 
     private let scenicScore: Double
-    private let dotSize: CGFloat = 8
 
     public init(scenicScore: Double) {
         self.scenicScore = scenicScore
@@ -37,6 +36,10 @@ public struct LSScenicDotStrip: View {
                     .stroke(theme.colors.border.default, lineWidth: 1)
             )
             .frame(width: dotSize, height: dotSize)
+    }
+
+    private var dotSize: CGFloat {
+        theme.iconSize.small / 2 // 8pt (half of small icon size)
     }
 }
 

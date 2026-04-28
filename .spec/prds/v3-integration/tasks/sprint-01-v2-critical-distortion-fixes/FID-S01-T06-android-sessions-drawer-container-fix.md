@@ -1,128 +1,188 @@
-# FID-S01-T06 — Android Sessions drawer container fix + token corrections
+================================================================================
+TASK: FID-S01-T06 - Android Sessions Drawer Container Fix + Token Corrections
+================================================================================
 
-**Sprint:** [SPRINT.md](./SPRINT.md) · **Agent:** kotlin-implementer · **Estimate:** 240 min · **Type:** FEATURE · **Priority:** P0 · **Effort:** M · **Status:** Backlog
+TASK_TYPE:  FEATURE
+STATUS:     Backlog
+PRIORITY:   P0
+EFFORT:     L
+AGENT:      implementer=kotlin-implementer | reviewer=kotlin-reviewer
 
-## BACKGROUND
+RUNTIME_COMMANDS:
+  typecheck: cd android && ./gradlew :app:compileDebugKotlin
+  test: cd android && ./gradlew test
+  native-compliance: scripts/tokens/enforce-native-compliance.sh
 
-Android `LSSessionsDrawer` wraps in `LSGlassPanel(Chrome)` causing map content to bleed through; uses raw alpha derivative for active row instead of `signal.whisper` semantic token; active stripe uses raw `theme.space.xs` not `stroke.lg` (2dp); LSTopBar hamburger lacks Material 3 minimum touch target enforcement; drawer shadow recipe missing.
+PROGRESS: AC-1..AC-5 not started
 
-## CRITICAL CONSTRAINTS
+--------------------------------------------------------------------------------
+OUTCOME
+--------------------------------------------------------------------------------
 
-- MUST replace `LSGlassPanel(Chrome)` wrapper with solid `Column + background(theme.colors.surface.card)` — never re-introduce glass blur on the drawer container.
-- MUST source every color/dimension from `LocalLaneShadowTheme` or `GeneratedTokens` — NEVER use `Color(0xFF...)`, `.dp` literals for tokenized sizes, or raw alpha factors. Token compliance enforced by `scripts/tokens/enforce-native-compliance.sh`.
-- MUST keep Android story IDs identical to iOS counterparts (`organisms.sessionsdrawer.default / .empty / .long-list / .no-active / .dark-mode`) per RULES.md#cross-platform-component-parity.
-- STRICTLY do NOT modify `ios/**`, `server/**`, `react-native/**`, `web/**`, `tokens/**`.
-- NEVER lower hamburger Box hit target below 48.dp; use `Modifier.minimumInteractiveComponentSize()` or explicit `.size(48.dp).contentShape(Rectangle)`.
-- NEVER bypass lefthook hooks (`--no-verify`).
+Android LSSessionsDrawer uses solid surface.card background (not glass), active stripe at stroke.lg, active row in signal.whisper, hamburger at 48dp tap target, and correct drawer shadow tier.
 
-## SPECIFICATION
+--------------------------------------------------------------------------------
+🚫 CRITICAL CONSTRAINTS
+--------------------------------------------------------------------------------
 
-**Objective:** Bring Android LSSessionsDrawer to design fidelity against `.spec/design/system/organisms/sessions-drawer/` — solid surface container, correct stroke width, semantic active-row tint, accessible hit target on hamburger entry, spec'd directional drawer shadow.
+- MUST replace `LSGlassPanel.Chrome` wrapper with solid `surface.card` background + directional shadow + 1dp right-edge separator
+- MUST set active-row left stripe to `GeneratedTokens.sizing.stroke.lg` (2dp) — NOT `theme.space.xs` or hardcoded 3dp
+- MUST use `theme.colors.signal.whisper` for active-row background — NOT raw alpha on `Signal.default`
+- MUST set hamburger button tap target ≥48dp via `Modifier.minimumTouchTargetSize()` while keeping visual at 40dp
+- NEVER use glass-panel backdrop blur for sessions drawer — this IS the container distortion
 
-**Success state:** LSSessionsDrawer renders an opaque copper-card container (no map bleed-through), active stripe is exactly `stroke.lg` wide using `signal.default`, active row background is `theme.colors.signal.whisper` (auto-resolves dark mode), LSTopBar hamburger has ≥48dp Box hit target, and a `2dp 0 16dp` shadow projects to the right edge. Snapshot tests for `sessionsdrawer.default` and `sessionsdrawer.no-active` pass against PNG fixtures parallel to iOS.
+--------------------------------------------------------------------------------
+DONE WHEN
+--------------------------------------------------------------------------------
 
-## ACCEPTANCE CRITERIA
+- [ ] SessionsDrawer background is solid surface.card (not glass-panel translucent) (AC-1 PRIMARY)
+- [ ] Active-row left stripe is stroke.lg (2dp, not theme.space.xs) (AC-2)
+- [ ] Active-row background uses signal.whisper semantic token (AC-3)
+- [ ] Hamburger tap target ≥48dp with visual chip at 40dp (AC-4)
+- [ ] Drawer shadow uses correct directional tier 2px 0 16px (AC-5)
+- [ ] ./gradlew :app:compileDebugKotlin passes + native-compliance clean
+- [ ] Only SCOPE.writeAllowed files modified
 
-- **AC-1** GIVEN LSSessionsDrawer rendered with non-empty session list, WHEN composable renders in sandbox, THEN root container is NOT wrapped in `LSGlassPanel` and exposes `surface.card` as its background; map content behind the drawer is not visible through the body.
-  - verify: `cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSessionsDrawerTest.containerIsSolidSurfaceCard'`
-- **AC-2** GIVEN session row rendered with `isActive = true`, WHEN active stripe laid out, THEN width equals `GeneratedTokens.sizing.stroke.lg` (2.dp) and row background equals `theme.colors.signal.whisper`.
-  - verify: `cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSessionsDrawerTest.activeRowUsesSignalWhisperAndStrokeLg'`
-- **AC-3** GIVEN LSTopBar hamburger chip rendered, WHEN instrumentation/Robolectric measurement taken, THEN hit target Box ≥48.dp × 48.dp via `Modifier.minimumInteractiveComponentSize()` or explicit size, and chip height literal `40.dp` is replaced with token reference.
-  - verify: `cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSTopBarTest.hamburgerHitTargetIs48dp'`
-- **AC-4** GIVEN drawer rendered, WHEN `Modifier.shadow` applied, THEN directional shadow with elevation 2.dp blur 16.dp ambient color rgba(34,24,16,0.14) applied to right edge.
-  - verify: `cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSessionsDrawerTest.drawerHasTrailingShadow'`
-- **AC-5** GIVEN Android sandbox built, WHEN OrganismStories registry enumerated, THEN story IDs `organisms.sessionsdrawer.{default,empty,long-list,no-active,dark-mode}` present and match iOS LSSessionsDrawerStory.swift verbatim.
-  - verify: `cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.sandbox.stories.LSSessionsDrawerStoryParityTest' && pnpm snapshots:check`
+--------------------------------------------------------------------------------
+ACCEPTANCE CRITERIA
+--------------------------------------------------------------------------------
 
-## TEST CRITERIA
+AC-1: Solid container background [PRIMARY]
+  GIVEN: LSSessionsDrawer is displayed in sandbox on Android Emulator
+  WHEN:  The drawer container renders
+  THEN:  Background is opaque `surface.card` with no map content visible behind drawer text
 
-| ID | Statement | Maps to | Verify |
-|---|---|---|---|
-| TC-1 | containerIsSolidSurfaceCard asserts no LSGlassPanelVariant key + root background = surface.card | AC-1 | `cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSessionsDrawerTest.containerIsSolidSurfaceCard'` |
-| TC-2 | activeRowUsesSignalWhisperAndStrokeLg measures stripe width and active-row background | AC-2 | `cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSessionsDrawerTest.activeRowUsesSignalWhisperAndStrokeLg'` |
-| TC-3 | hamburgerHitTargetIs48dp asserts width/height ≥48dp | AC-3 | `cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSTopBarTest.hamburgerHitTargetIs48dp'` |
-| TC-4 | drawerHasTrailingShadow asserts Modifier.shadow elevation 2dp + ambient color | AC-4 | `cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSessionsDrawerTest.drawerHasTrailingShadow'` |
-| TC-5 | LSSessionsDrawerStoryParityTest enumerates AppStories.all and asserts 5 ids match iOS + snapshots:check passes | AC-5 | `cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.sandbox.stories.LSSessionsDrawerStoryParityTest' && pnpm snapshots:check` |
-| TC-6 | Token compliance script returns exit 0 against modified files | AC-1 | `scripts/tokens/enforce-native-compliance.sh android/app/src/main/java/com/laneshadow/ui/organisms/LSSessionsDrawer.kt android/app/src/main/java/com/laneshadow/ui/organisms/LSTopBar.kt` |
+  TDD_STATE:     none
+  TEST_FILE:     android/app/src/test/java/com/laneshadow/sandbox/SessionsDrawerTests.kt
+  TEST_FUNCTION: testDrawerSolidBackground
 
-## READING LIST
+AC-2: Active stripe stroke.lg
+  GIVEN: LSSessionsDrawer with an active session row
+  WHEN:  The left stripe renders
+  THEN:  Stripe width is exactly `GeneratedTokens.sizing.stroke.lg` (2dp), not `theme.space.xs`
 
-- `[PHASE: RED]` `.spec/prds/v3-integration/remediations/04-organisms-chrome.md` — sessions-drawer container/stripe/shadow/hamburger gaps
-- `[PHASE: RED]` `.spec/prds/v3-integration/remediations/03-views-sessions-error.md` — active-row signal.whisper + stroke.lg requirement at view layer
-- `[PHASE: GREEN]` `android/app/src/main/java/com/laneshadow/ui/organisms/LSSessionsDrawer.kt` — strip LSGlassPanel, swap stripe + bg tokens, add shadow
-- `[PHASE: GREEN]` `android/app/src/main/java/com/laneshadow/ui/organisms/LSTopBar.kt` — remove hardcoded 40.dp, add minimumInteractiveComponentSize()
-- `[PHASE: GREEN]` `android/app/src/debug/java/com/laneshadow/sandbox/stories/organisms/LSSessionsDrawerStory.kt` — align five sandbox stories with iOS IDs
-- `[PHASE: RED]` `ios/LaneShadow/Sandbox/Stories/Organisms/LSSessionsDrawerStory.swift` — source of truth for parity story IDs (read-only)
-- `[PHASE: RED]` `tokens/platforms/kotlin/` — verify signal.whisper, stroke.lg, surface.card available
-- `[PHASE: RED]` `RULES.md` — Cross-Platform Component Parity rule + 48dp accessibility
+  TDD_STATE:     none
+  TEST_FILE:     android/app/src/test/java/com/laneshadow/sandbox/SessionsDrawerTests.kt
+  TEST_FUNCTION: testActiveStripeStrokeLg
 
-## GUARDRAILS
+AC-3: Active row signal.whisper background
+  GIVEN: LSSessionsDrawer with an active session row
+  WHEN:  The row background renders in light and dark mode
+  THEN:  Background uses `theme.colors.signal.whisper` (auto-resolves to copper-100 light / rgba copper dark)
 
-**WRITE-ALLOWED:**
-- `android/app/src/main/java/com/laneshadow/ui/organisms/LSSessionsDrawer.kt`
-- `android/app/src/main/java/com/laneshadow/ui/organisms/LSTopBar.kt`
-- `android/app/src/debug/java/com/laneshadow/sandbox/stories/organisms/LSSessionsDrawerStory.kt`
-- `android/app/src/test/java/com/laneshadow/ui/organisms/LSSessionsDrawerTest.kt`
-- `android/app/src/test/java/com/laneshadow/ui/organisms/LSTopBarTest.kt`
-- `android/app/src/test/java/com/laneshadow/sandbox/stories/LSSessionsDrawerStoryParityTest.kt`
-- `.spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/snapshots/android/organisms.sessionsdrawer.*.png`
+  TDD_STATE:     none
+  TEST_FILE:     android/app/src/test/java/com/laneshadow/sandbox/SessionsDrawerTests.kt
+  TEST_FUNCTION: testActiveRowSignalWhisper
 
-**WRITE-PROHIBITED:** `ios/**`, `server/**`, `react-native/**`, `web/**`, `tokens/**`
+AC-4: Hamburger 48dp tap target
+  GIVEN: SessionsScreen with hamburger button visible
+  WHEN:  The hamburger chip renders at 40dp visual size
+  THEN:  Tap target area is ≥48dp via `Modifier.minimumTouchTargetSize()`
 
-## DESIGN
+  TDD_STATE:     none
+  TEST_FILE:     android/app/src/test/java/com/laneshadow/sandbox/SessionsDrawerTests.kt
+  TEST_FUNCTION: testHamburger48dpTapTarget
 
-**References:**
-- `.spec/design/system/organisms/sessions-drawer/sessions-drawer.html`
-- `.spec/design/system/organisms/sessions-drawer/README.md`
-- `.spec/prds/v3-integration/12-uc-fid.md` UC-FID-01 HIGH-severity AC subset
-- `.spec/prds/v3-integration/remediations/04-organisms-chrome.md` gaps C-01/C-03/C-04/D1-06/B-06
-- `.spec/prds/v3-integration/remediations/03-views-sessions-error.md` gaps C1-03/D1-04/D1-06
+AC-5: Drawer shadow tier
+  GIVEN: LSSessionsDrawer is displayed in sandbox
+  WHEN:  The drawer trailing edge renders
+  THEN:  Shadow is `2px 0 16px rgba(34,24,16,0.14)` on light theme and `2px 0 16px rgba(0,0,0,0.60)` on dark theme
 
-**Pattern:** Solid surface organism with directional elevation shadow + token-driven active-state styling; Material 3 hit-target compliance via `minimumInteractiveComponentSize()`.
-**Pattern source:** Material 3 Compose accessibility guidelines + LSCard/LSGlassPanel decomposition pattern (LSCard for solid, LSGlassPanel only for glass-blur chrome).
-**Anti-pattern:** Wrapping any solid-card surface in LSGlassPanel just to inherit shadow/border behavior — leaks blur where design specifies opacity. Sourcing active-row tint via `Color.copy(alpha=…)` instead of `signal.whisper` semantic token (breaks dark mode).
+  TDD_STATE:     none
+  TEST_FILE:     android/app/src/test/java/com/laneshadow/sandbox/SessionsDrawerTests.kt
+  TEST_FUNCTION: testDrawerShadowTier
 
-## RED PHASE INSTRUCTIONS
+--------------------------------------------------------------------------------
+SCOPE
+--------------------------------------------------------------------------------
 
-Author Robolectric / `createComposeRule` unit tests in `android/app/src/test/java/com/laneshadow/ui/organisms/LSSessionsDrawerTest.kt` covering TC-1..TC-4. Use `SemanticsMatcher` to assert `LSGlassPanelVariant` key is absent (TC-1). Use `onNodeWithTag(LSSSESSIONSDRAWER_ACTIVE_STRIPE_TAG).getBoundsInRoot().width` and assert `== GeneratedTokens.sizing.stroke.lg.toPx()` (TC-2). For TC-3 add `LSTopBarTest.kt` and assert `assertWidthIsAtLeast(48.dp).assertHeightIsAtLeast(48.dp)` on hamburger node. For TC-4 inspect captured Modifier chain via `Modifier.foldIn` for `ShadowElement` with elevation 2.dp. Run gradle test — all four MUST fail before implementation. For TC-5 add `LSSessionsDrawerStoryParityTest.kt` under `android/app/src/test/java/com/laneshadow/sandbox/stories/` that loads `OrganismStories` registry and asserts the five expected ids. Snapshot fixtures should be authored as empty placeholders so `pnpm snapshots:check` fails until GREEN regenerates them.
+writeAllowed:
+- android/app/src/main/java/com/laneshadow/ui/organisms/LSSessionsDrawer.kt (MODIFY)
+- android/app/src/main/java/com/laneshadow/ui/molecules/AppHeader.kt (MODIFY — hamburger tap target)
+- android/app/src/test/java/com/laneshadow/sandbox/SessionsDrawerTests.kt (NEW)
 
-## GREEN PHASE INSTRUCTIONS
+writeProhibited:
+- ios/**, server/**, react-native/**, any file not listed above
 
-1. In LSSessionsDrawer.kt: replace `LSGlassPanel(variant = GlassVariant.Chrome, ...)` wrapper at lines 84-94 with `Column` modifier chain: `Modifier.width(drawerWidth).fillMaxHeight().background(theme.colors.surface.card).shadow(elevation = 2.dp, ambientColor = Color(0xFF221810).copy(alpha = 0.14f), spotColor = ...).border(width = GeneratedTokens.sizing.stroke.sm, color = theme.colors.border.default)`. NOTE: shadow color literal MUST be sourced via private val constant if token-compliance flags raw `Color()` — wrap in `tokens/platforms/kotlin` allowlist OR introduce `theme.elevation.drawer` alias.
-2. Active stripe (lines 215-225): swap `.width(theme.space.xs)` → `.width(GeneratedTokens.sizing.stroke.lg)`.
-3. Active row background (lines 192-199): replace `GeneratedTokens.color.Signal.default.copy(alpha = ...)` with `theme.colors.signal.whisper`.
-4. In LSTopBar.kt: remove `chipHeight = 40.dp` literal, replace with `Modifier.minimumInteractiveComponentSize()` on hamburger Box; alternately wrap in `Box(Modifier.size(48.dp).contentShape(RectangleShape))`.
-5. Update LSSessionsDrawerStory.kt to register all 5 stories with exact IDs from iOS source.
-6. Re-run gradle test until green; regenerate snapshot PNG fixtures via existing capture pipeline; run `pnpm snapshots:check`.
+--------------------------------------------------------------------------------
+DELIVERABLE
+--------------------------------------------------------------------------------
 
-## REVIEW NOTES
+- android/app/src/main/java/com/laneshadow/ui/organisms/LSSessionsDrawer.kt (MODIFY): Solid background, 2dp stripe, signal.whisper, directional shadow
+- android/app/src/main/java/com/laneshadow/ui/molecules/AppHeader.kt (MODIFY): Hamburger 48dp tap target via minimumTouchTargetSize
 
-- **Cross-platform parity:** confirm story ids `organisms.sessionsdrawer.{default,empty,long-list,no-active,dark-mode}` match iOS LSSessionsDrawerStory.swift exactly — diff with grep on both files.
-- **Token compliance:** `scripts/tokens/enforce-native-compliance.sh` against the 3 modified .kt files MUST exit 0; raw shadow color may need `tokens/platforms/kotlin` allowlist entry — note in commit body if introduced.
-- **Accessibility:** hamburger hit target ≥48.dp per RULES.md#accessibility-standards (Material 3 minimum); verify with `assertWidthIsAtLeast(48.dp)` not just visual inspection.
-- **Snapshot determinism:** regenerate `sessionsdrawer.*` PNG fixtures and confirm `pnpm snapshots:check` passes both iOS+Android.
-- **Boy Scout:** if `LSGlassPanelVariantKey` semantics property is now orphaned post-refactor, remove its declaration to avoid dead code.
+--------------------------------------------------------------------------------
+READING LIST
+--------------------------------------------------------------------------------
 
-## VERIFICATION GATES
+1. .spec/design/system/organisms/sessions-drawer/sessions-drawer.html [PRIMARY PATTERN]
+   - Focus: Solid container, active stripe, signal.whisper, shadow spec
 
-| Gate | Command | Expected |
-|---|---|---|
-| kotlin-compile | `cd android && ./gradlew :app:compileDebugKotlin` | BUILD SUCCESSFUL exit 0 |
-| unit-tests | `cd android && ./gradlew test` | BUILD SUCCESSFUL with all LSSessionsDrawerTest + LSTopBarTest cases passing |
-| assemble-debug | `cd android && ./gradlew assembleDebug` | BUILD SUCCESSFUL exit 0 |
-| token-compliance | `scripts/tokens/enforce-native-compliance.sh` | exit 0 |
-| snapshot-parity | `pnpm snapshots:check` | exit 0 |
+2. android/app/src/main/java/com/laneshadow/ui/organisms/LSSessionsDrawer.kt
+   - Focus: Current LSGlassPanel.Chrome wrapper, theme.space.xs stripe, raw alpha background, no shadow
 
-## CODING STANDARDS
+3. .spec/prds/v3-integration/remediations/03-views-sessions-error.md
+   - Sections: Gap C1-03, C1-04, D1-06
 
-`RULES.md#accessibility-standards`, `RULES.md#cross-platform-component-parity`
+4. android/app/src/main/java/com/laneshadow/ui/molecules/AppHeader.kt
+   - Focus: Hamburger button implementation and tap target
 
-## DEPENDENCIES
+5. android/app/src/main/java/com/laneshadow/theme/GeneratedTokens.kt
+   - Focus: Token definitions for stroke.lg, signal.whisper, surface.card
 
-- **depends_on:** [FID-S01-T07] (T07 unblocks Android compile so this task's tests can run)
-- **blocks:** [FID-S01-T09]
+--------------------------------------------------------------------------------
+EVIDENCE GATES
+--------------------------------------------------------------------------------
+
+Gate 1: RED evidence in TDD_STATE
+Gate 2: One test per AC
+Gate 3: ./gradlew test exits 0
+Gate 4: ./gradlew :app:compileDebugKotlin exits 0
+Gate 5: native-compliance exits 0
+Gate 6: git diff --name-only ⊆ writeAllowed
+
+--------------------------------------------------------------------------------
+OUT OF SCOPE
+--------------------------------------------------------------------------------
+
+- SessionsDrawer date grouping (Sprint 02)
+- SessionsDrawer sections parameter (Sprint 02)
+- Third meta-row line variant dots (Sprint 02)
+- Session row content-sizing (Sprint 02)
+- iOS drawer fix (FID-S01-T05)
+- "Rides" header typography fix (included in T01)
+
+--------------------------------------------------------------------------------
+CONTEXT
+--------------------------------------------------------------------------------
+
+**Current state:** Android LSSessionsDrawer wraps content in LSGlassPanel.Chrome — translucent glass that lets map content bleed through. Active stripe uses `theme.space.xs` (wrong token), active row uses raw alpha on Signal.default, hamburger hardcodes 40.dp with no minimumTouchTargetSize, no shadow applied at all.
+**Gap:** Design specifies solid opaque container, 2dp stripe via stroke.lg, semantic signal.whisper, 48dp tap target, directional shadow.
+
+--------------------------------------------------------------------------------
+DEPENDENCIES
+--------------------------------------------------------------------------------
+
+Depends on: FID-S01-T07 (Android build blockers — Session data class declaration)
+Blocks:     FID-S01-T09
+Parallel:   FID-S01-T01..T05, FID-S01-T08
+
+================================================================================
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
-{"requirements":[{"id":"AC-1","type":"acceptance_criterion","description":"Container is solid surface.card no LSGlassPanel","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSessionsDrawerTest.containerIsSolidSurfaceCard'","phase":"green"},{"id":"AC-2","type":"acceptance_criterion","description":"Active row uses signal.whisper + stroke.lg","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSessionsDrawerTest.activeRowUsesSignalWhisperAndStrokeLg'","phase":"green"},{"id":"AC-3","type":"acceptance_criterion","description":"Hamburger hit target ≥48dp","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSTopBarTest.hamburgerHitTargetIs48dp'","phase":"green"},{"id":"AC-4","type":"acceptance_criterion","description":"Drawer trailing shadow elevation 2dp","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSessionsDrawerTest.drawerHasTrailingShadow'","phase":"green"},{"id":"AC-5","type":"acceptance_criterion","description":"5 story IDs match iOS","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.sandbox.stories.LSSessionsDrawerStoryParityTest' && pnpm snapshots:check","phase":"green"},{"id":"TC-1","type":"test_criterion","description":"containerIsSolidSurfaceCard","maps_to_ac":"AC-1","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSessionsDrawerTest.containerIsSolidSurfaceCard'","phase":"red"},{"id":"TC-2","type":"test_criterion","description":"activeRowUsesSignalWhisperAndStrokeLg","maps_to_ac":"AC-2","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSessionsDrawerTest.activeRowUsesSignalWhisperAndStrokeLg'","phase":"red"},{"id":"TC-3","type":"test_criterion","description":"hamburgerHitTargetIs48dp","maps_to_ac":"AC-3","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSTopBarTest.hamburgerHitTargetIs48dp'","phase":"red"},{"id":"TC-4","type":"test_criterion","description":"drawerHasTrailingShadow","maps_to_ac":"AC-4","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSSessionsDrawerTest.drawerHasTrailingShadow'","phase":"red"},{"id":"TC-5","type":"test_criterion","description":"Story parity test + snapshots:check","maps_to_ac":"AC-5","verify":"cd /Users/justinrich/Projects/LaneShadow/android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.sandbox.stories.LSSessionsDrawerStoryParityTest' && pnpm snapshots:check","phase":"red"},{"id":"TC-6","type":"test_criterion","description":"Token compliance","maps_to_ac":"AC-1","verify":"scripts/tokens/enforce-native-compliance.sh android/app/src/main/java/com/laneshadow/ui/organisms/LSSessionsDrawer.kt android/app/src/main/java/com/laneshadow/ui/organisms/LSTopBar.kt","phase":"green"}]}
+{
+  "requirements": [
+    { "id": "AC-1", "type": "acceptance_criterion", "description": "GIVEN LSSessionsDrawer displayed WHEN container renders THEN background is opaque surface.card with no map content visible behind text", "verify": "./gradlew test" },
+    { "id": "AC-2", "type": "acceptance_criterion", "description": "GIVEN active session row WHEN left stripe renders THEN width is exactly GeneratedTokens.sizing.stroke.lg (2dp) not theme.space.xs", "verify": "./gradlew test" },
+    { "id": "AC-3", "type": "acceptance_criterion", "description": "GIVEN active session row in light/dark WHEN background renders THEN uses theme.colors.signal.whisper token", "verify": "./gradlew test" },
+    { "id": "AC-4", "type": "acceptance_criterion", "description": "GIVEN hamburger button WHEN chip renders at 40dp visual THEN tap target is ≥48dp via minimumTouchTargetSize", "verify": "./gradlew test" },
+    { "id": "AC-5", "type": "acceptance_criterion", "description": "GIVEN LSSessionsDrawer WHEN trailing edge renders THEN directional shadow matches spec in light and dark", "verify": "./gradlew test" },
+    { "id": "TC-1", "type": "test_criterion", "description": "Drawer background color equals theme.colors.surface.card token", "maps_to_ac": "AC-1", "verify": "./gradlew test --tests '*.SessionsDrawerTests.testDrawerSolidBackground'" },
+    { "id": "TC-2", "type": "test_criterion", "description": "Active stripe width equals GeneratedTokens.sizing.stroke.lg (2dp)", "maps_to_ac": "AC-2", "verify": "./gradlew test --tests '*.SessionsDrawerTests.testActiveStripeStrokeLg'" },
+    { "id": "TC-3", "type": "test_criterion", "description": "Active row background color resolves to signal.whisper in both themes", "maps_to_ac": "AC-3", "verify": "./gradlew test --tests '*.SessionsDrawerTests.testActiveRowSignalWhisper'" },
+    { "id": "TC-4", "type": "test_criterion", "description": "Hamburger tap target area ≥48dp", "maps_to_ac": "AC-4", "verify": "./gradlew test --tests '*.SessionsDrawerTests.testHamburger48dpTapTarget'" },
+    { "id": "TC-5", "type": "test_criterion", "description": "Drawer shadow matches 2px 0 16px spec", "maps_to_ac": "AC-5", "verify": "./gradlew test --tests '*.SessionsDrawerTests.testDrawerShadowTier'" }
+  ]
+}
 -->

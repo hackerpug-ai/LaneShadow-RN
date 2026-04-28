@@ -1,121 +1,154 @@
-# FID-S01-T09 — Sprint 01 verification
+================================================================================
+TASK: FID-S01-T09 - Sprint 01 Verification (Screenshots + Visual Comparison)
+================================================================================
 
-**Sprint:** [SPRINT.md](./SPRINT.md) · **Agent:** qa-engineer · **Estimate:** 60 min · **Type:** VERIFICATION · **Priority:** P0 · **Effort:** S · **Status:** Backlog
+TASK_TYPE:  VERIFICATION
+STATUS:     Backlog
+PRIORITY:   P1
+EFFORT:     S
+AGENT:      implementer=qa-engineer | reviewer=code-reviewer
 
-## BACKGROUND
+RUNTIME_COMMANDS:
+  ios-sandbox: cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' build
+  android-sandbox: cd android && ./gradlew assembleDebug
+  native-compliance: scripts/tokens/enforce-native-compliance.sh
 
-Sibling tasks T01–T08 modify iOS and Android UI components to close UC-FID-01 HIGH-severity distortion gaps. This task is the sprint gate: capture sandbox screenshots on both platforms, visually compare against `.spec/design/system/` HTML/PNG references, verify cross-platform parity, and produce VERIFICATION.md with a verdict per component.
+PROGRESS: AC-1..AC-3 not started
 
-## CRITICAL CONSTRAINTS
+--------------------------------------------------------------------------------
+OUTCOME
+--------------------------------------------------------------------------------
 
-- MUST capture iOS sandbox screenshots for EVERY component modified by FID-S01-T01..T08.
-- MUST capture Android sandbox screenshots for EVERY component modified by FID-S01-T01..T08.
-- MUST compare each captured screenshot side-by-side against the corresponding HTML/PNG mockup in `.spec/design/system/`.
-- NEVER mark any sibling task or sprint complete without recorded visual evidence (PNG file path + verdict).
-- STRICTLY require cross-platform story-id parity: iOS and Android stories MUST share identical lowercase/dot-separated/kebab-case id strings (RULES.md#cross-platform-component-parity).
-- NEVER edit `ios/`, `android/`, `react-native/`, or `server/` source code — verification only; if a regression is found, file a remediation task and STOP.
-- NEVER soften a verdict: a component that does not match the mockup is FAIL, even if the deviation is small.
+Sprint 01 verification captures screenshots of every modified component on both platforms and visually compares against `.spec/design/system/` HTML/PNG references, recording findings in a sprint summary.
 
-## SPECIFICATION
+--------------------------------------------------------------------------------
+🚫 CRITICAL CONSTRAINTS
+--------------------------------------------------------------------------------
 
-**Objective:** Produce a sprint-level verification report at `.spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md` containing, for every component touched by FID-S01-T01..T08: (a) iOS sandbox screenshot path, (b) Android sandbox screenshot path, (c) reference mockup path under `.spec/design/system/`, (d) PASS/FAIL verdict, (e) one-sentence rationale tied to the originating task's gate sentence. Sprint cannot be declared Done until this report shows PASS for every component and `pnpm snapshots:check` is green.
+- MUST capture screenshots on both iOS Simulator (iPhone 16) AND Android Emulator
+- MUST compare each screenshot against the authoritative `.spec/design/system/` HTML/PNG reference
+- MUST record findings with PASS/FAIL per AC per task and attach screenshot evidence
+- NEVER mark an AC PASS without visual evidence — "looks right" is not evidence
+- NEVER skip a platform — both iOS and Android must be verified
 
-**Success state:** VERIFICATION.md exists with one row per modified component, all rows show PASS, screenshots/ subdirectory contains all referenced PNGs for both platforms, `pnpm snapshots:check` exits 0, `pnpm snapshots:parity-coverage` shows no orphan stories, and every iOS story id has a matching Android story id.
+--------------------------------------------------------------------------------
+DONE WHEN
+--------------------------------------------------------------------------------
 
-## ACCEPTANCE CRITERIA
+- [ ] Screenshots captured for all T01-T08 modified components on iOS Simulator (AC-1)
+- [ ] Screenshots captured for all T06-T08 modified components on Android Emulator (AC-2)
+- [ ] Visual comparison report produced with PASS/FAIL per AC per task (AC-3)
+- [ ] Report committed to sprint folder
 
-- **AC-1** GIVEN T09 picked up, WHEN qa-engineer inspects sprint task board, THEN all 8 sibling tasks (T01..T08) are status Done with completion artifacts committed; if any sibling not Done, T09 halts and reports the blocker.
-  - verify: `grep -l 'status: Done' .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/FID-S01-T0[1-8]*.md | wc -l` (expect 8)
-- **AC-2** GIVEN iOS sandbox app is built and runnable, WHEN qa-engineer runs iOS snapshot capture flow for each modified component, THEN a PNG exists under sprint `screenshots/ios/` named after canonical story id.
-  - verify: `ls .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/ios/*.png`
-- **AC-3** GIVEN Android sandbox built and runnable, WHEN qa-engineer runs Android snapshot capture flow, THEN PNG exists under `screenshots/android/` named identically to iOS counterpart.
-  - verify: `ls .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/android/*.png`
-- **AC-4** GIVEN screenshots captured, WHEN qa-engineer compares each to corresponding reference under `.spec/design/system/`, THEN VERIFICATION.md is written to sprint folder with one table row per component containing component id, iOS screenshot path, Android screenshot path, mockup reference path, PASS/FAIL verdict, and rationale referencing originating task's gate sentence.
-  - verify: `test -f .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md`
-- **AC-5** GIVEN all screenshots captured and report written, WHEN qa-engineer runs `pnpm snapshots:check`, THEN command exits 0 (cross-platform parity holds, no orphan stories, no missing snapshots).
-  - verify: `pnpm snapshots:check`
-- **AC-6** GIVEN VERIFICATION.md complete, WHEN report reviewed, THEN every row shows PASS; if any row FAIL, sprint NOT Done and remediation task filed referencing failing component and originating task.
-  - verify: `! grep -i 'FAIL' .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md`
+--------------------------------------------------------------------------------
+ACCEPTANCE CRITERIA
+--------------------------------------------------------------------------------
 
-## TEST CRITERIA
+AC-1: iOS screenshot capture
+  GIVEN: All iOS tasks (T01-T05) are complete and committed
+  WHEN:  Verification runs on iOS Simulator
+  THEN:  Screenshots exist for: IdleScreen (typography + map), PlanningScreen (map), ErrorScreen (map + callout), LSRouteCard, LSRouteSheet, LSSessionsDrawer, AppHeader hamburger
 
-| ID | Statement | Maps to | Verify |
-|---|---|---|---|
-| TC-1 | All 8 sibling task files show status: Done | AC-1 | `grep -l 'status: Done' .../FID-S01-T0[1-8]*.md \| wc -l  # expect 8` |
-| TC-2 | iOS screenshots exist under sprint `screenshots/ios/` | AC-2 | `ls .../screenshots/ios/*.png` |
-| TC-3 | Android screenshots exist under sprint `screenshots/android/` | AC-3 | `ls .../screenshots/android/*.png` |
-| TC-4 | Every iOS screenshot filename has identical Android counterpart | AC-3 | `diff <(ls .../screenshots/ios/ \| sort) <(ls .../screenshots/android/ \| sort)` |
-| TC-5 | VERIFICATION.md exists with one row per modified component | AC-4 | `test -f .../VERIFICATION.md` |
-| TC-6 | Cross-platform snapshot parity check passes | AC-5 | `pnpm snapshots:check` |
-| TC-7 | Snapshot coverage report shows no orphan stories | AC-5 | `pnpm snapshots:parity-coverage` |
-| TC-8 | VERIFICATION.md contains zero FAIL verdicts | AC-6 | `! grep -i 'FAIL' .../VERIFICATION.md` |
+  TDD_STATE:     n/a (verification task)
+  TEST_FILE:     .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md
+  TEST_FUNCTION: n/a
 
-## READING LIST
+AC-2: Android screenshot capture
+  GIVEN: All Android tasks (T06-T08) are complete and committed
+  WHEN:  Verification runs on Android Emulator
+  THEN:  Screenshots exist for: LSSessionsDrawer, AppHeader hamburger, RouteDetailsScreen (polyline), LSRouteCard (heart + map), LSRouteSheet (timeRange), LSNavigatorMessage (pinned dot), LSSectionHeader
 
-- `[PHASE: RED]` `.spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/SPRINT.md` — sprint scope, gate sentences
-- `[PHASE: GREEN]` `.spec/design/system/` — source of truth for visual comparison
-- `[PHASE: RED]` `.spec/prds/v3-integration/12-uc-fid.md` — UC-FID-01 user-visible outcome
-- `[PHASE: BOTH]` `.../FID-S01-T01..T08.md` — sibling task gate sentences and completion artifacts
-- `[PHASE: RED]` `RULES.md` — Cross-Platform Component Parity rule
+  TDD_STATE:     n/a (verification task)
+  TEST_FILE:     .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md
+  TEST_FUNCTION: n/a
 
-## GUARDRAILS
+AC-3: Visual comparison report
+  GIVEN: All screenshots are captured
+  WHEN:  Report is generated
+  THEN:  VERIFICATION.md contains PASS/FAIL per AC per task with screenshot paths and comparison notes against `.spec/design/system/` references
 
-**WRITE-ALLOWED:**
-- `.spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md`
-- `.spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/ios/*.png`
-- `.spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/android/*.png`
-- `.spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/REMEDIATION-*.md` (only if FAIL verdicts)
+  TDD_STATE:     n/a (verification task)
+  TEST_FILE:     .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md
+  TEST_FUNCTION: n/a
 
-**WRITE-PROHIBITED:** `ios/**`, `android/**`, `server/**`, `react-native/**`, `.spec/design/system/**`, any FID-S01-T01..T08 task file
+--------------------------------------------------------------------------------
+SCOPE
+--------------------------------------------------------------------------------
 
-## DESIGN
+writeAllowed:
+- .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md (NEW)
+- .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/ (NEW — directory)
 
-**References:** `.spec/design/system/` HTML/PNG mockups for every component touched by FID-S01-T01..T08 (specific files identified during reading pass).
+writeProhibited:
+- ios/**, android/**, server/**, react-native/**, any source code files
 
-**Pattern:** Sprint summary doc at sprint root named `VERIFICATION.md`, with header describing scope, "Gate Commands" section showing exit codes, and verdict table. Mirrors prior sprint closure artifacts under `.spec/prds/v3-integration/tasks/`.
+--------------------------------------------------------------------------------
+DELIVERABLE
+--------------------------------------------------------------------------------
 
-**Anti-pattern:** Rubber-stamping the sprint by running `pnpm snapshots:check` and declaring Done without producing screenshots or visual comparison. Snapshot parity proves iOS == Android; it does NOT prove either matches the design mockup. Visual diff against `.spec/design/system/` is the load-bearing step.
+- .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md (NEW): PASS/FAIL matrix with screenshot evidence
+- .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/ (NEW): Platform-specific screenshot captures
 
-## RED PHASE INSTRUCTIONS
+--------------------------------------------------------------------------------
+READING LIST
+--------------------------------------------------------------------------------
 
-VERIFICATION tasks do not author new tests. The "red" phase here is verifying the existing snapshot harness is wired and all 8 sibling tasks are Done. Concretely: (1) confirm each sibling task file shows `status: Done`; (2) confirm `pnpm sandbox:ios:snapshot` and `pnpm sandbox:android:snapshot` scripts exist (check workspace `package.json`); (3) confirm `pnpm snapshots:check` exists. If any missing, halt and escalate — do not invent a workaround.
+1. .spec/design/system/views/ [PRIMARY REFERENCE]
+   - Focus: HTML/PNG authoritative mockups for visual comparison
 
-## GREEN PHASE INSTRUCTIONS
+2. .spec/design/system/organisms/ [PRIMARY REFERENCE]
+   - Focus: Organism-level HTML/PNG mockups
 
-1. From repo root, run `pnpm sandbox:ios:snapshot` and direct PNGs into `.spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/ios/`.
-2. Run `pnpm sandbox:android:snapshot` writing into parallel `screenshots/android/` directory. Filenames MUST be canonical story id with `.png` extension and byte-identical between platforms.
-3. Open each iOS/Android pair next to the referenced HTML/PNG mockup under `.spec/design/system/` and record verdict.
-4. Author `VERIFICATION.md` in sprint root with markdown table: `| Component (story id) | iOS PNG | Android PNG | Mockup Ref | Verdict | Rationale | Originating Task |`.
-5. Run `pnpm snapshots:check` and `pnpm snapshots:parity-coverage`; paste exit codes into VERIFICATION.md "Gate Commands" section.
-6. If everything passes, commit `screenshots/` and VERIFICATION.md with message `verify(sprint-01): visual parity report — all components PASS`. If any FAIL, do NOT mark sprint Done; file a remediation task and report.
+3. .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/SPRINT.md
+   - Focus: Human Testing Gate steps 1-7
 
-## REVIEW NOTES
+4. .spec/prds/v3-integration/remediations/00-summary.md
+   - Focus: Gap severity rollup for context on what to look for
 
-- Verify cross-platform story IDs match before declaring parity — diff iOS and Android screenshot directory listings; any asymmetry is a hard fail.
-- Sprint summary must reference each gate sentence test step from the originating sibling task — do not write generic "looks good" rationales.
-- Watch for subagent rationalization in sibling task notes ("pre-existing", "out of scope") — if a sibling task waved off a regression, T09 must catch it visually.
-- Do NOT soften verdicts; a FAIL is a FAIL even if the deviation is one pixel. File remediation, do not paper over.
-- If `snapshots:check` passes but visual review fails, the snapshot test is incomplete — note in VERIFICATION.md as follow-up to harden the harness.
+--------------------------------------------------------------------------------
+EVIDENCE GATES
+--------------------------------------------------------------------------------
 
-## VERIFICATION GATES
+Gate 1: Screenshots directory contains images for both platforms
+Gate 2: VERIFICATION.md exists with PASS/FAIL per AC
+Gate 3: Every T01-T08 AC has a corresponding entry in the report
+Gate 4: git diff --name-only ⊆ writeAllowed
 
-| Gate | Command | Expected |
-|---|---|---|
-| snapshots-check | `pnpm snapshots:check` | exit 0 |
-| parity-coverage | `pnpm snapshots:parity-coverage` | no orphan or missing stories |
-| story-id-diff | `diff <(ls screenshots/ios/) <(ls screenshots/android/)` | empty |
-| no-fail-verdicts | `! grep -i 'FAIL' VERIFICATION.md` | exit 0 |
+--------------------------------------------------------------------------------
+OUT OF SCOPE
+--------------------------------------------------------------------------------
 
-## CODING STANDARDS
+- Automated pixel-diff testing (future tooling)
+- Performance profiling
+- Accessibility audit (Sprint 02)
 
-`RULES.md#cross-platform-component-parity`
+--------------------------------------------------------------------------------
+CONTEXT
+--------------------------------------------------------------------------------
 
-## DEPENDENCIES
+**Current state:** Sprint 01 tasks T01-T08 modify iOS typography, map slots, route card geometry, route sheet shell, sessions drawer container, Android build blockers, Android token corrections, and Android drawer container. No visual verification exists yet.
+**Gap:** Need human-readable evidence that the distortion fixes actually match the design system references before marking the sprint complete.
 
-- **depends_on:** [FID-S01-T01, FID-S01-T02, FID-S01-T03, FID-S01-T04, FID-S01-T05, FID-S01-T06, FID-S01-T07, FID-S01-T08]
-- **blocks:** []
+--------------------------------------------------------------------------------
+DEPENDENCIES
+--------------------------------------------------------------------------------
+
+Depends on: FID-S01-T01..T08 (all implementation tasks must complete first)
+Blocks:     None
+Parallel:   None (runs after all tasks)
+
+================================================================================
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
-{"requirements":[{"id":"AC-1","type":"acceptance_criterion","description":"All 8 sibling tasks Done","verify":"grep -l 'status: Done' .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/FID-S01-T0[1-8]*.md | wc -l","phase":"review"},{"id":"AC-2","type":"acceptance_criterion","description":"iOS screenshots captured","verify":"ls .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/ios/*.png","phase":"green"},{"id":"AC-3","type":"acceptance_criterion","description":"Android screenshots captured with matching ids","verify":"ls .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/android/*.png","phase":"green"},{"id":"AC-4","type":"acceptance_criterion","description":"VERIFICATION.md written with verdict per component","verify":"test -f .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md","phase":"green"},{"id":"AC-5","type":"acceptance_criterion","description":"snapshots:check passes","verify":"pnpm snapshots:check","phase":"green"},{"id":"AC-6","type":"acceptance_criterion","description":"Zero FAIL verdicts","verify":"! grep -i 'FAIL' .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md","phase":"review"},{"id":"TC-1","type":"test_criterion","description":"8 siblings status Done","maps_to_ac":"AC-1","verify":"grep -l 'status: Done' .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/FID-S01-T0[1-8]*.md | wc -l","phase":"review"},{"id":"TC-2","type":"test_criterion","description":"iOS PNGs exist","maps_to_ac":"AC-2","verify":"ls .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/ios/*.png","phase":"green"},{"id":"TC-3","type":"test_criterion","description":"Android PNGs exist","maps_to_ac":"AC-3","verify":"ls .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/android/*.png","phase":"green"},{"id":"TC-4","type":"test_criterion","description":"iOS+Android filename diff is empty","maps_to_ac":"AC-3","verify":"diff <(ls .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/ios/ | sort) <(ls .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/android/ | sort)","phase":"green"},{"id":"TC-5","type":"test_criterion","description":"VERIFICATION.md exists","maps_to_ac":"AC-4","verify":"test -f .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md","phase":"green"},{"id":"TC-6","type":"test_criterion","description":"snapshots:check passes","maps_to_ac":"AC-5","verify":"pnpm snapshots:check","phase":"green"},{"id":"TC-7","type":"test_criterion","description":"parity-coverage no orphans","maps_to_ac":"AC-5","verify":"pnpm snapshots:parity-coverage","phase":"green"},{"id":"TC-8","type":"test_criterion","description":"Zero FAIL in report","maps_to_ac":"AC-6","verify":"! grep -i 'FAIL' .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md","phase":"review"}]}
+{
+  "requirements": [
+    { "id": "AC-1", "type": "acceptance_criterion", "description": "GIVEN iOS tasks T01-T05 complete WHEN verification runs THEN screenshots captured for all modified components on iOS Simulator", "verify": "ls .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/ios/" },
+    { "id": "AC-2", "type": "acceptance_criterion", "description": "GIVEN Android tasks T06-T08 complete WHEN verification runs THEN screenshots captured for all modified components on Android Emulator", "verify": "ls .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/android/" },
+    { "id": "AC-3", "type": "acceptance_criterion", "description": "GIVEN all screenshots captured WHEN report generated THEN VERIFICATION.md contains PASS/FAIL per AC per task with evidence", "verify": "cat .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md" },
+    { "id": "TC-1", "type": "test_criterion", "description": "iOS screenshot count matches expected component list from T01-T05", "maps_to_ac": "AC-1", "verify": "ls .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/ios/ | wc -l" },
+    { "id": "TC-2", "type": "test_criterion", "description": "Android screenshot count matches expected component list from T06-T08", "maps_to_ac": "AC-2", "verify": "ls .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/screenshots/android/ | wc -l" },
+    { "id": "TC-3", "type": "test_criterion", "description": "VERIFICATION.md has PASS or FAIL entry for every AC in T01-T08", "maps_to_ac": "AC-3", "verify": "grep -c 'PASS\\|FAIL' .spec/prds/v3-integration/tasks/sprint-01-v2-critical-distortion-fixes/VERIFICATION.md" }
+  ]
+}
 -->

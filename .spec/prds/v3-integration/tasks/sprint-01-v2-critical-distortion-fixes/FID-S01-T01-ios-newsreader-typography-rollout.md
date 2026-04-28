@@ -1,134 +1,308 @@
-# FID-S01-T01 — iOS Newsreader serif typography rollout
+================================================================================
+TASK: FID-S01-T01 - iOS Newsreader Serif Typography Rollout
+================================================================================
 
-**Sprint:** [SPRINT.md](./SPRINT.md) · **Agent:** swift-implementer · **Estimate:** 240 min · **Type:** FEATURE · **Priority:** P0 · **Effort:** M · **Status:** Backlog
+TASK_TYPE:  FEATURE
+STATUS:     Backlog
+PRIORITY:   P0
+EFFORT:     M
+AGENT:      implementer=swift-implementer | reviewer=swift-reviewer
 
-## BACKGROUND
+RUNTIME_COMMANDS:
+  typecheck: cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO SWIFT_COMPILATION_MODE=incremental build
+  lint: swiftformat --lint {files}
+  test: xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'
+  native-compliance: scripts/tokens/enforce-native-compliance.sh
 
-Six iOS surfaces (IdleScreen greeting, Sessions "Rides" header, ErrorScreen callout body, NavigatorMessage body, TopBar centered title, SectionHeader caps variant) currently render in Geist sans (heading.md / title.lg / etc.) used as a "proxy" for the Newsreader serif `opinion.*` family. This is the most visible distortion in the iOS sandbox — the Navigator voice is mute. Replace every misuse with the correct token.
+PROGRESS: AC-1..AC-6 not started
 
-## CRITICAL CONSTRAINTS
+--------------------------------------------------------------------------------
+OUTCOME (1 sentence, ≤30 words — observable success)
+--------------------------------------------------------------------------------
 
-- MUST resolve typography exclusively via `theme.type.opinion.{xl|lg|md}` / `theme.type.label.sm` — NEVER hardcode font names, sizes, or italic toggles outside `tokens/platforms/ios/`.
-- MUST keep iOS sandbox story `id` strings byte-identical to Android counterparts per RULES.md#cross-platform-component-parity.
-- STRICTLY do NOT modify `android/**`, `server/**`, `react-native/**`, `web/**`, or any `*.pbxproj` file.
-- MUST remove the `// Use heading.md as proxy for opinion.md` comment in LSInlineErrorCallout.swift and LSNavigatorMessage.swift — the proxy is the bug.
-- NEVER weaken assertions or skip snapshot tests; if a test reveals a token gap, fix the production code or escalate.
+All six designated iOS components render body/headline text in Newsreader serif typography (opinion-xl/lg/md, label-sm) instead of Geist sans proxies.
 
-## SPECIFICATION
+--------------------------------------------------------------------------------
+🚫 CRITICAL CONSTRAINTS (Never tier — read before acting)
+--------------------------------------------------------------------------------
 
-**Objective:** Replace every misused Geist-sans typography variant on the six designated iOS surfaces with the correct Newsreader serif `opinion.*` (or `label.sm`) variant so the iOS sandbox renders the Navigator voice consistently with `.spec/design/system/` HTML.
+- NEVER use Geist `heading.md` as a proxy for `opinion.md` — this IS the distortion
+- NEVER hardcode font family names — use theme typography tokens (`.t-opinion-xl`, `.t-opinion-lg`, `.t-opinion-md`, `.t-label-sm`)
+- MUST read each component's current typography implementation before changing
+- MUST use the theme's type system: `theme.type.opinion.xl`, `theme.type.opinion.lg`, `theme.type.opinion.md`
+- STRICTLY preserve existing layout, spacing, and color — only change font family/weight/style
 
-**Success state:** On iPhone 16 Simulator, IdleScreen greeting headline reads in Newsreader italic at opinion-xl; LSSessionsDrawer "Rides" header is opinion-lg italic; LSInlineErrorCallout body is opinion-md serif (no proxy comment remains); LSNavigatorMessage body is opinion-md serif and collocated inside the headerRow VStack; LSTopBar centered title is opinion-md serif; LSSectionHeader honors a new `titleStyle` enum with `.caps` rendering label-sm tertiary. All six snapshot tests pass against re-recorded baselines.
+--------------------------------------------------------------------------------
+DONE WHEN
+--------------------------------------------------------------------------------
 
-## ACCEPTANCE CRITERIA
+- [ ] IdleScreen greeting headline renders in Newsreader opinion-xl italic serif (AC-1 PRIMARY)
+- [ ] SessionsDrawer "Rides" header renders in Newsreader opinion-lg italic (AC-2)
+- [ ] LSInlineErrorCallout + LSNavigatorMessage body text renders in Newsreader opinion-md (AC-3)
+- [ ] LSTopBar centered title renders in Newsreader opinion-md (AC-4)
+- [ ] LSSectionHeader caps variant renders in label-sm (AC-5)
+- [ ] Dark mode renders correctly with all serif changes (AC-6)
+- [ ] `cd ios && xcodebuild build` passes + native-compliance clean
+- [ ] Only SCOPE.writeAllowed files modified (git diff --name-only)
 
-- **AC-1** GIVEN the iOS sandbox is running and the user taps `templates.idle.default`, WHEN IdleScreen renders, THEN the greeting headline `Text` uses `theme.type.opinion.xl.font` (Newsreader italic) and the emphasis word renders in `theme.colors.signal.default` via AttributedString — not `theme.type.heading.md.font`.
-  - verify: `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/IdleScreenSnapshotTests/test_default_matchesDesign`
-- **AC-2** GIVEN `templates.sessions.default`, WHEN LSSessionsDrawer renders, THEN the "Rides" header LSText uses `theme.type.opinion.lg.font` italic — not `theme.type.title.lg.font`.
-  - verify: `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/LSSessionsDrawerSnapshotTests/test_ridesHeader_isOpinionLgItalic`
-- **AC-3** GIVEN `templates.error.default`, WHEN LSInlineErrorCallout renders, THEN the callout body resolves to `theme.type.opinion.md.font` and the file no longer contains "Use heading.md as proxy for opinion.md".
-  - verify: `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/LSInlineErrorCalloutSnapshotTests/test_body_usesOpinionMd`
-- **AC-4** GIVEN `organisms.navigator-message.default`, WHEN LSNavigatorMessage renders, THEN the body LSText is collocated inside the headerRow inner VStack alongside "THE NAVIGATOR" and uses `theme.type.opinion.md.font`.
-  - verify: `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/LSNavigatorMessageSnapshotTests/test_body_collocatedAndOpinionMd`
-- **AC-5** GIVEN `organisms.topbar.default`, WHEN LSTopBar renders with a centered title, THEN the title LSText uses `theme.type.opinion.md.font` — not `theme.type.title.md.font`.
-  - verify: `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/LSTopBarSnapshotTests/test_centeredTitle_isOpinionMd`
-- **AC-6** GIVEN `organisms.section-header.caps`, WHEN LSSectionHeader receives `titleStyle: .caps`, THEN the title renders in `theme.type.label.sm.font` with `theme.colors.content.tertiary`; default `titleStyle` keeps `theme.type.title.md.font`.
-  - verify: `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/LSSectionHeaderSnapshotTests/test_capsVariant_isLabelSmTertiary`
+--------------------------------------------------------------------------------
+ACCEPTANCE CRITERIA (TDD Beads — ordered happy-path first)
+--------------------------------------------------------------------------------
 
-## TEST CRITERIA
+AC-1: IdleScreen greeting headline typography [PRIMARY]
+  GIVEN: IdleScreen is displayed in sandbox on iOS Simulator
+  WHEN:  The greeting headline ("Where are we riding today?") renders
+  THEN:  Text uses Newsreader serif font family at opinion-xl size with italic style
 
-| ID | Statement | Maps to | Verify |
-|---|---|---|---|
-| TC-1 | IdleScreen.swift greeting references `opinion.xl` and not `heading.md` | AC-1 | `grep -n 'opinion.xl' ios/LaneShadow/Views/Templates/IdleScreen.swift && ! grep -n 'heading.md' ios/LaneShadow/Views/Templates/IdleScreen.swift` |
-| TC-2 | LSSessionsDrawer.swift "Rides" LSText uses `opinion.lg` italic | AC-2 | `grep -nE 'opinion\.lg' ios/LaneShadow/Views/Organisms/LSSessionsDrawer.swift` |
-| TC-3 | LSInlineErrorCallout.swift body uses `opinion.md` and proxy comment removed | AC-3 | `grep -n 'opinion.md' ios/LaneShadow/Views/Organisms/LSInlineErrorCallout.swift && ! grep -n 'proxy for opinion' ios/LaneShadow/Views/Organisms/LSInlineErrorCallout.swift` |
-| TC-4 | LSNavigatorMessage.swift body inside headerRow VStack and uses `opinion.md` | AC-4 | `grep -n 'opinion.md' ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift` |
-| TC-5 | LSTopBar.swift centered title uses `opinion.md` | AC-5 | `grep -n 'opinion.md' ios/LaneShadow/Views/Organisms/LSTopBar.swift` |
-| TC-6 | LSSectionHeader.swift exposes `TitleStyle` enum and renders label.sm + content.tertiary on `.caps` | AC-6 | `grep -nE 'TitleStyle\|titleStyle' ios/LaneShadow/Views/Organisms/LSSectionHeader.swift` |
-| TC-7 | Token compliance script passes | AC-1..AC-6 | `scripts/tokens/enforce-native-compliance.sh` |
-| TC-8 | Cross-platform parity check passes | AC-1..AC-6 | `pnpm snapshots:check` |
+  TDD_STATE:     none
+  TEST_FILE:     ios/LaneShadowTests/Sandbox/TypographyTests.swift
+  TEST_FUNCTION: testIdleScreenGreetingOpinionXL
 
-## READING LIST
+AC-2: SessionsDrawer "Rides" header typography
+  GIVEN: SessionsDrawer is displayed in sandbox on iOS Simulator
+  WHEN:  The "Rides" header text renders
+  THEN:  Text uses Newsreader serif font family at opinion-lg size with italic style
 
-- `[PHASE: RED]` `.spec/prds/v3-integration/12-uc-fid.md` — authoritative AC list
-- `[PHASE: RED]` `.spec/prds/v3-integration/remediations/01-views-idle-planning.md` — Gap E-01 / D-01
-- `[PHASE: RED]` `.spec/prds/v3-integration/remediations/03-views-sessions-error.md` — Gap E1-02 / E2-01
-- `[PHASE: RED]` `.spec/prds/v3-integration/remediations/04-organisms-chrome.md` — Gap B-01 TopBar
-- `[PHASE: RED]` `.spec/prds/v3-integration/remediations/05-organisms-content.md` — Gaps E1-01 / E4-01
-- `[PHASE: RED]` `.spec/design/system/views/idle-screen/idle-screen.html` — line 548 `.t-opinion-xl`
-- `[PHASE: GREEN]` `ios/LaneShadow/Views/Templates/IdleScreen.swift` — line 111 greeting headline
-- `[PHASE: GREEN]` `ios/LaneShadow/Views/Organisms/LSSessionsDrawer.swift` — line 77 Rides header
-- `[PHASE: GREEN]` `ios/LaneShadow/Views/Organisms/LSInlineErrorCallout.swift` — line 54 body
-- `[PHASE: GREEN]` `ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift` — line 35 body
-- `[PHASE: GREEN]` `ios/LaneShadow/Views/Organisms/LSTopBar.swift` — line 39 centered title
-- `[PHASE: GREEN]` `ios/LaneShadow/Views/Organisms/LSSectionHeader.swift` — add TitleStyle enum
-- `[PHASE: BOTH]` `tokens/platforms/ios/` — confirm `theme.type.opinion.{xl,lg,md}` and `theme.type.label.sm` exist
-- `[PHASE: BOTH]` `ios/LaneShadow/Sandbox/Stories/Templates/IdleScreenStory.swift` — story id is parity key
+  TDD_STATE:     none
+  TEST_FILE:     ios/LaneShadowTests/Sandbox/TypographyTests.swift
+  TEST_FUNCTION: testSessionsDrawerRidesOpinionLGItalic
 
-## GUARDRAILS
+AC-3: Error callout + navigator message body typography
+  GIVEN: LSInlineErrorCallout and LSNavigatorMessage are displayed in sandbox
+  WHEN:  The body text paragraph renders in both components
+  THEN:  Text uses Newsreader serif font family at opinion-md size
 
-**WRITE-ALLOWED:**
-- `ios/LaneShadow/Views/Templates/IdleScreen.swift`
-- `ios/LaneShadow/Views/Organisms/LSSessionsDrawer.swift`
-- `ios/LaneShadow/Views/Organisms/LSInlineErrorCallout.swift`
-- `ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift`
-- `ios/LaneShadow/Views/Organisms/LSTopBar.swift`
-- `ios/LaneShadow/Views/Organisms/LSSectionHeader.swift`
-- `ios/LaneShadowTests/Snapshots/**/*.swift`
+  TDD_STATE:     none
+  TEST_FILE:     ios/LaneShadowTests/Sandbox/TypographyTests.swift
+  TEST_FUNCTION: testCalloutBodyOpinionMD
 
-**WRITE-PROHIBITED:** `android/**`, `server/**`, `react-native/**`, `web/**`, `tokens/**`, `**/*.pbxproj`, `ios/project.yml`
+AC-4: LSTopBar centered title typography
+  GIVEN: LSTopBar is displayed with a centered title
+  WHEN:  The title text renders
+  THEN:  Text uses Newsreader serif font family at opinion-md size
 
-## DESIGN
+  TDD_STATE:     none
+  TEST_FILE:     ios/LaneShadowTests/Sandbox/TypographyTests.swift
+  TEST_FUNCTION: testTopBarTitleOpinionMD
 
-**References:**
-- `.spec/prds/v3-integration/12-uc-fid.md` (UC-FID-01 IdleScreen / Sessions / Error / Navigator / TopBar / SectionHeader)
-- `.spec/prds/v3-integration/remediations/01-views-idle-planning.md` Gap E-01
-- `.spec/prds/v3-integration/remediations/03-views-sessions-error.md` Gaps E1-02, E2-01
-- `.spec/prds/v3-integration/remediations/04-organisms-chrome.md` Gap B-01, C-02
-- `.spec/prds/v3-integration/remediations/05-organisms-content.md` Gaps E1-01, E1-07, E4-01
-- `.spec/design/system/views/idle-screen/idle-screen.html` (line 548)
-- `.spec/design/system/organisms/sessions-drawer/sessions-drawer.html`
+AC-5: LSSectionHeader caps variant typography
+  GIVEN: LSSectionHeader is displayed with caps titleStyle variant
+  WHEN:  The title text renders
+  THEN:  Text uses label-sm typography with tertiary color (not title.md)
 
-**Pattern:** Theme-token-only typography lookup via `theme.type.{family}.{size}.font` and `theme.colors.{semantic}`.
-**Pattern source:** `PlanningScreen.swift` already correctly references `theme.type.opinion.sm` for the phase indicator header.
-**Anti-pattern:** Hardcoding `Font(name: 'Newsreader-Italic', size: 28)` or applying `.italic()` to a non-serif variant as a "proxy" for opinion.md.
+  TDD_STATE:     none
+  TEST_FILE:     ios/LaneShadowTests/Sandbox/TypographyTests.swift
+  TEST_FUNCTION: testSectionHeaderCapsLabelSM
 
-## RED PHASE INSTRUCTIONS
+AC-6: Dark mode typography consistency
+  GIVEN: Device is in dark mode and all six components are displayed
+  WHEN:  Each component renders its text
+  THEN:  All serif typography renders correctly with proper dark-mode color tokens
 
-Author or update XCTest snapshot tests under `ios/LaneShadowTests/Snapshots/` (pattern: `*SnapshotTests.swift`) for each AC. Use `swift-snapshot-testing`'s `assertSnapshot(of:as:.image(layout: .device(config: .iPhone16)))` against design PNG baselines under `.spec/design/system/views/{view}/` where present, else record-then-compare. The first run MUST FAIL because the production typography is currently wrong — this is the red signal. NEVER write a snapshot test that compares output to itself (vanity test); diff against the design PNG or a freshly-recorded baseline an implementer reviewed visually. If a test passes on first run before any production change, the test is broken — discard and re-author with stronger assertions (e.g., view inspection asserting `font.fontName == "Newsreader-Italic"` rather than image-only diff).
+  TDD_STATE:     none
+  TEST_FILE:     ios/LaneShadowTests/Sandbox/TypographyTests.swift
+  TEST_FUNCTION: testDarkModeTypographyConsistency
 
-## GREEN PHASE INSTRUCTIONS
+--------------------------------------------------------------------------------
+SCOPE (file-level write permissions)
+--------------------------------------------------------------------------------
 
-For each file in the GREEN reading list, change the typography variant token reference. Pattern reference: `PlanningScreen.swift` already passes `header: phaseHeader` with opinion-sm italic correctly — mirror its `theme.type.opinion.*` lookup. For the AttributedString emphasis-word fix in `IdleScreen.swift`, replace the HStack-of-Text word-split with a single `Text(attributedGreeting)` where `attributedGreeting` is an AttributedString built once and cached; range-style the emphasis word with `.foregroundColor = theme.colors.signal.default` and `.font = theme.type.opinion.xl.italic`. For LSSectionHeader, introduce `enum TitleStyle { case regular, caps }` defaulting to `.regular`; only the `.caps` branch swaps to label.sm + content.tertiary. After edits: swiftformat, xcodebuild build, re-run snapshot tests — they must now pass.
+writeAllowed:
+- ios/LaneShadow/Views/Screens/IdleScreen.swift (MODIFY)
+- ios/LaneShadow/Views/Organisms/LSSessionsDrawer.swift (MODIFY)
+- ios/LaneShadow/Views/Organisms/LSInlineErrorCallout.swift (MODIFY)
+- ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift (MODIFY)
+- ios/LaneShadow/Views/Molecules/AppHeader.swift (MODIFY)
+- ios/LaneShadow/Views/Organisms/LSSectionHeader.swift (MODIFY)
+- ios/LaneShadowTests/Sandbox/TypographyTests.swift (NEW)
 
-## REVIEW NOTES
+writeProhibited:
+- android/** — this is iOS-specific work
+- server/** — no backend changes in this sprint
+- react-native/** — read-only reference
+- Any file not explicitly listed above
 
-- **Cross-platform parity:** confirm the 6 affected story IDs exist on Android with byte-identical strings. Run `pnpm snapshots:check` and inspect parity-coverage report — any drift fails the gate.
-- **Token compliance:** run `scripts/tokens/enforce-native-compliance.sh` and confirm zero hardcoded font literals introduced. Grep diff for `Font(` and `.system(` — both must be absent.
-- **Accessibility regressions:** verify Dynamic Type still scales (no `.fixedSize()` added). Newsreader at opinion-xl must not clip at AX1 — visual confirm in Simulator.
+--------------------------------------------------------------------------------
+BOUNDARIES (✅ Always / ⚠️ Ask First) — Never tier lives at CRITICAL CONSTRAINTS above
+--------------------------------------------------------------------------------
 
-## VERIFICATION GATES
+✅ Always:
+- Use theme typography tokens for all font changes
+- Verify each component renders in sandbox after changes
+- Preserve existing layout constraints and spacing
 
-| Gate | Command | Expected |
-|---|---|---|
-| swift-format | `swiftformat --quiet ios/**/*.swift` | exit 0, no diffs |
-| ios-build | `xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build` | BUILD SUCCEEDED |
-| ios-tests | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` | AC-1..AC-6 snapshot tests pass |
-| token-compliance | `scripts/tokens/enforce-native-compliance.sh` | exit 0 |
-| snapshot-parity | `pnpm snapshots:check` | exit 0 |
+⚠️ Ask First:
+- Adding new theme token definitions if opinion tokens don't exist yet
+- Changing any color tokens (this task is typography-only)
 
-## CODING STANDARDS
+--------------------------------------------------------------------------------
+DELIVERABLE
+--------------------------------------------------------------------------------
 
-- `RULES.md#accessibility-standards`
-- `RULES.md#cross-platform-component-parity`
-- `styles/RULES.md`
+- ios/LaneShadow/Views/Screens/IdleScreen.swift (MODIFY): Replace heading.md proxy with opinion-xl serif for greeting
+- ios/LaneShadow/Views/Organisms/LSSessionsDrawer.swift (MODIFY): Replace title.lg with opinion-lg italic for "Rides"
+- ios/LaneShadow/Views/Organisms/LSInlineErrorCallout.swift (MODIFY): Replace heading.md proxy with opinion-md serif
+- ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift (MODIFY): Replace heading.md proxy with opinion-md serif
+- ios/LaneShadow/Views/Molecules/AppHeader.swift (MODIFY): Replace title.md with opinion-md serif for centered title
+- ios/LaneShadow/Views/Organisms/LSSectionHeader.swift (MODIFY): Add titleStyle enum, use label-sm for caps variant
+- ios/LaneShadowTests/Sandbox/TypographyTests.swift (NEW): Typography verification tests
 
-## DEPENDENCIES
+--------------------------------------------------------------------------------
+AGENT INSTRUCTIONS (TDD Flow)
+--------------------------------------------------------------------------------
 
-- **depends_on:** []
-- **blocks:** [FID-S01-T09]
+## FOR EACH ACCEPTANCE CRITERION:
+
+### RED PHASE
+  READ:   Current AC definition, existing typography usage in target file, theme type system
+  WRITE:  ONE test that verifies the component uses the correct typography token
+  RUN:    xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'
+  VERIFY: Test FAILS (component currently uses wrong font)
+  RETURN: { phase: "RED", test_file, test_function, failure_output }
+
+  Always: Show actual test failure output.
+  Never:  Write ANY implementation code in RED phase.
+
+### GREEN PHASE
+  READ:   Failing test, AC definition, theme type definitions
+  WRITE:  MINIMAL code to swap the typography token (e.g., .font(theme.type.opinion.xl))
+  RUN:    xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'
+  VERIFY: Test PASSES
+  RETURN: { phase: "GREEN", files_changed, test_output }
+
+  Always: Write the smallest change that turns the test green.
+  Never:  Add features beyond the current AC.
+
+### REFACTOR PHASE
+  READ:   Implementation just written
+  WRITE:  Improved code (if needed — e.g., extract shared serif helper if patterns repeat)
+  RUN:    xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'
+  VERIFY: Tests still pass
+  RETURN: { phase: "REFACTOR", files_changed, still_passing }
+
+  Always: Keep tests green throughout.
+  Never:  Introduce new behavior in REFACTOR.
+
+## AFTER ALL ACs COMPLETE:
+  Run full iOS build: xcodebuild build
+  Run native compliance: scripts/tokens/enforce-native-compliance.sh
+  Verify in sandbox: open each modified component story and confirm serif renders
+
+--------------------------------------------------------------------------------
+READING LIST (max 5 files — canonical pattern first)
+--------------------------------------------------------------------------------
+
+1. ios/LaneShadow/Theme/LSTypography.swift [PRIMARY PATTERN]
+   - Lines: all
+   - Focus: How theme.type tokens are defined — look for opinion-xl/lg/md and label-sm
+
+2. ios/LaneShadow/Views/Screens/IdleScreen.swift
+   - Lines: all
+   - Focus: Current greeting headline typography (likely using heading.md)
+
+3. ios/LaneShadow/Views/Organisms/LSSessionsDrawer.swift
+   - Lines: all
+   - Focus: Current "Rides" header typography (likely using title.lg)
+
+4. .spec/design/system/views/idle-screen/idle-screen.html
+   - Sections: greeting headline, meta row
+   - Focus: Newsreader serif reference for opinion-xl
+
+5. .spec/prds/v3-integration/remediations/01-views-idle-planning.md
+   - Sections: Gap E-01 (typography), Gap D-01 (meta color)
+   - Focus: Detailed description of what's wrong and what to fix
+
+--------------------------------------------------------------------------------
+EVIDENCE GATES (fast/cheap first — fail fast)
+--------------------------------------------------------------------------------
+
+Gate 1: RED phase evidence
+  Required: TDD_STATE values show each test went red before green.
+
+Gate 2: Each AC has a test
+  Verify: TypographyTests.swift contains one test per AC.
+
+Gate 3: All tests pass
+  Command: xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'
+  Expected: Exit 0.
+
+Gate 4: Type check / build
+  Command: cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build
+  Expected: Exit 0.
+
+Gate 5: Native compliance
+  Command: scripts/tokens/enforce-native-compliance.sh
+  Expected: Exit 0, no hardcoded tokens.
+
+Gate 6: Scope compliance
+  Command: git diff --name-only
+  Expected: Only SCOPE.writeAllowed files modified.
+
+--------------------------------------------------------------------------------
+OUT OF SCOPE
+--------------------------------------------------------------------------------
+
+- Changing any color tokens (meta row copper is T05 scope)
+- Map slot replacement (T02)
+- Android typography (separate sprint tasks)
+- Adding new theme tokens if opinion tokens already exist
+
+--------------------------------------------------------------------------------
+CONTEXT (read if unclear)
+--------------------------------------------------------------------------------
+
+**Current state:** iOS uses Geist `heading.md` / `title.md` / `title.lg` as proxies for Newsreader serif opinion variants across 6 components. Comments in code say "Use heading.md as proxy for opinion.md."
+
+**Gap:** The design system defines Newsreader serif at opinion-xl/lg/md sizes for these elements, but iOS native implementations substitute Geist sans equivalents, producing the most visible typographic distortion in the sandbox.
+
+--------------------------------------------------------------------------------
+REVIEW (for swift-reviewer)
+--------------------------------------------------------------------------------
+
+Must pass (≤5, evidence-gate-backed):
+- One test per AC; tests verify font-family token usage not implementation details
+- RED evidence present in TDD_STATE history
+- Minimal implementation; only typography tokens changed
+- Pattern consistent with READING LIST theme type system
+- SCOPE respected (git diff --name-only ⊆ writeAllowed)
+
+Should verify (≤5, judgment):
+- No layout regressions from font family change (serif is wider than sans)
+- Dark mode renders correctly with new fonts
+- Accessibility: Dynamic Type still works with opinion tokens
+
+Verdict: [APPROVED | NEEDS_FIXES]
+Feedback (required if NEEDS_FIXES):
+```
+[Specific, actionable issues — reference file:line where possible]
+```
+
+--------------------------------------------------------------------------------
+DEPENDENCIES
+--------------------------------------------------------------------------------
+
+Depends on: None
+Blocks:     FID-S01-T09 (verification needs serif rendering confirmed)
+Parallel:   FID-S01-T02, FID-S01-T03, FID-S01-T04, FID-S01-T05, FID-S01-T06, FID-S01-T07
+
+================================================================================
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
-{"requirements":[{"id":"AC-1","type":"acceptance_criterion","description":"IdleScreen greeting uses opinion.xl Newsreader italic","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/IdleScreenSnapshotTests/test_default_matchesDesign","phase":"review"},{"id":"AC-2","type":"acceptance_criterion","description":"LSSessionsDrawer Rides header uses opinion.lg italic","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/LSSessionsDrawerSnapshotTests/test_ridesHeader_isOpinionLgItalic","phase":"review"},{"id":"AC-3","type":"acceptance_criterion","description":"LSInlineErrorCallout body uses opinion.md, proxy comment removed","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/LSInlineErrorCalloutSnapshotTests/test_body_usesOpinionMd","phase":"review"},{"id":"AC-4","type":"acceptance_criterion","description":"LSNavigatorMessage body collocated inside headerRow and uses opinion.md","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/LSNavigatorMessageSnapshotTests/test_body_collocatedAndOpinionMd","phase":"review"},{"id":"AC-5","type":"acceptance_criterion","description":"LSTopBar centered title uses opinion.md","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/LSTopBarSnapshotTests/test_centeredTitle_isOpinionMd","phase":"review"},{"id":"AC-6","type":"acceptance_criterion","description":"LSSectionHeader caps variant uses label.sm + content.tertiary","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/LSSectionHeaderSnapshotTests/test_capsVariant_isLabelSmTertiary","phase":"review"},{"id":"TC-1","type":"test_criterion","description":"IdleScreen.swift greeting references opinion.xl not heading.md","maps_to_ac":"AC-1","verify":"grep -n 'opinion.xl' ios/LaneShadow/Views/Templates/IdleScreen.swift && ! grep -n 'heading.md' ios/LaneShadow/Views/Templates/IdleScreen.swift","phase":"green"},{"id":"TC-2","type":"test_criterion","description":"LSSessionsDrawer.swift Rides LSText uses opinion.lg","maps_to_ac":"AC-2","verify":"grep -nE 'opinion\\.lg' ios/LaneShadow/Views/Organisms/LSSessionsDrawer.swift","phase":"green"},{"id":"TC-3","type":"test_criterion","description":"LSInlineErrorCallout.swift body uses opinion.md and proxy comment removed","maps_to_ac":"AC-3","verify":"grep -n 'opinion.md' ios/LaneShadow/Views/Organisms/LSInlineErrorCallout.swift && ! grep -n 'proxy for opinion' ios/LaneShadow/Views/Organisms/LSInlineErrorCallout.swift","phase":"green"},{"id":"TC-4","type":"test_criterion","description":"LSNavigatorMessage.swift body uses opinion.md","maps_to_ac":"AC-4","verify":"grep -n 'opinion.md' ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift","phase":"green"},{"id":"TC-5","type":"test_criterion","description":"LSTopBar.swift centered title uses opinion.md","maps_to_ac":"AC-5","verify":"grep -n 'opinion.md' ios/LaneShadow/Views/Organisms/LSTopBar.swift","phase":"green"},{"id":"TC-6","type":"test_criterion","description":"LSSectionHeader.swift exposes TitleStyle enum","maps_to_ac":"AC-6","verify":"grep -nE 'TitleStyle|titleStyle' ios/LaneShadow/Views/Organisms/LSSectionHeader.swift","phase":"green"},{"id":"TC-7","type":"test_criterion","description":"Token compliance passes","maps_to_ac":"AC-1","verify":"scripts/tokens/enforce-native-compliance.sh","phase":"green"},{"id":"TC-8","type":"test_criterion","description":"Snapshot parity passes","maps_to_ac":"AC-1","verify":"pnpm snapshots:check","phase":"green"}]}
+{
+  "requirements": [
+    { "id": "AC-1", "type": "acceptance_criterion", "description": "GIVEN IdleScreen is displayed WHEN greeting headline renders THEN text uses Newsreader serif opinion-xl italic", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'" },
+    { "id": "AC-2", "type": "acceptance_criterion", "description": "GIVEN SessionsDrawer is displayed WHEN Rides header renders THEN text uses Newsreader serif opinion-lg italic", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'" },
+    { "id": "AC-3", "type": "acceptance_criterion", "description": "GIVEN LSInlineErrorCallout and LSNavigatorMessage display WHEN body text renders THEN text uses Newsreader serif opinion-md", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'" },
+    { "id": "AC-4", "type": "acceptance_criterion", "description": "GIVEN LSTopBar displays centered title WHEN title renders THEN text uses Newsreader serif opinion-md", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'" },
+    { "id": "AC-5", "type": "acceptance_criterion", "description": "GIVEN LSSectionHeader displays caps variant WHEN title renders THEN text uses label-sm with tertiary color", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'" },
+    { "id": "AC-6", "type": "acceptance_criterion", "description": "GIVEN device in dark mode and all six components displayed WHEN text renders THEN all serif typography renders correctly with dark-mode color tokens", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'" },
+    { "id": "TC-1", "type": "test_criterion", "description": "IdleScreen greeting font family is Newsreader at opinion-xl size", "maps_to_ac": "AC-1", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' --only-testing:LaneShadowTests/TypographyTests/testIdleScreenGreetingOpinionXL" },
+    { "id": "TC-2", "type": "test_criterion", "description": "SessionsDrawer Rides header font family is Newsreader at opinion-lg italic", "maps_to_ac": "AC-2", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' --only-testing:LaneShadowTests/TypographyTests/testSessionsDrawerRidesOpinionLGItalic" },
+    { "id": "TC-3", "type": "test_criterion", "description": "Error callout body font family is Newsreader at opinion-md", "maps_to_ac": "AC-3", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' --only-testing:LaneShadowTests/TypographyTests/testCalloutBodyOpinionMD" },
+    { "id": "TC-4", "type": "test_criterion", "description": "TopBar title font family is Newsreader at opinion-md", "maps_to_ac": "AC-4", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' --only-testing:LaneShadowTests/TypographyTests/testTopBarTitleOpinionMD" },
+    { "id": "TC-5", "type": "test_criterion", "description": "SectionHeader caps title uses label-sm token with tertiary color", "maps_to_ac": "AC-5", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' --only-testing:LaneShadowTests/TypographyTests/testSectionHeaderCapsLabelSM" },
+    { "id": "TC-6", "type": "test_criterion", "description": "Dark mode renders all serif typography without layout breakage", "maps_to_ac": "AC-6", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' --only-testing:LaneShadowTests/TypographyTests/testDarkModeTypographyConsistency" }
+  ]
+}
 -->

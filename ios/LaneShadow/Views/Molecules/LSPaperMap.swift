@@ -51,8 +51,9 @@ public struct LSPaperMap: View {
     // MARK: - Paper Substrate
 
     private var paperSubstrate: some View {
-        // Use surface.default as paper substrate (closest to map.paper token)
-        theme.colors.surface.default
+        // Use card.default as paper substrate (closest semantic equivalent to map.paper token)
+        // TODO: Add theme.colors.map.paper token for map-specific paper substrate color (#1B140E)
+        theme.colors.card.default
             .accessibilityIdentifier("paper-substrate")
     }
 

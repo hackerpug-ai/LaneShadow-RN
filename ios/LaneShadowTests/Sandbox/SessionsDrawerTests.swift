@@ -155,6 +155,12 @@ final class SessionsDrawerTests: XCTestCase {
             "LSTopBar MUST use .contentShape(Rectangle()) to expand hamburger tap target to 44pt minimum"
         )
 
+        // MUST have tapTargetSize computed property ≥44pt
+        XCTAssertTrue(
+            source.contains("tapTargetSize") || source.contains("44"),
+            "LSTopBar MUST define tapTargetSize ≥44pt for iOS HIG compliance"
+        )
+
         // The visual size should still be 40pt (chipSize), not 44pt
         // Verify we're not hardcoding 44pt for the visual
         let lines = source.components(separatedBy: "\n")
@@ -165,6 +171,10 @@ final class SessionsDrawerTests: XCTestCase {
         let hamburgerLines = lines.filter { $0.contains("hamburgerChip") }
         let hasContentShape = hamburgerLines.contains { $0.contains("contentShape") }
         XCTAssertTrue(hasContentShape, "hamburgerChip should use contentShape for tap target expansion")
+
+        // Verify tapTargetSize is used in frame
+        let hasTapTargetFrame = source.contains("frame(width: tapTargetSize, height: tapTargetSize)")
+        XCTAssertTrue(hasTapTargetFrame, "hamburgerChip should use tapTargetSize for frame dimensions")
     }
 
     // MARK: - AC-5: Drawer shadow tier

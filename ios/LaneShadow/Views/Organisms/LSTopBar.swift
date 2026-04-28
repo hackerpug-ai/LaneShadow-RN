@@ -62,7 +62,7 @@ public struct LSTopBar: View {
                 LSIcon(name: .menu, size: .sm, color: .primary)
             }
             .fixedSize(horizontal: true, vertical: false)
-            .frame(width: chipSize, height: chipSize)
+            .frame(width: tapTargetSize, height: tapTargetSize)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
@@ -75,7 +75,7 @@ public struct LSTopBar: View {
         switch trailing {
         case .none:
             Color.clear
-                .frame(width: chipSize, height: chipSize)
+                .frame(width: tapTargetSize, height: tapTargetSize)
                 .accessibilityHidden(true)
         case let .newChip(action):
             newChip(action: action)
@@ -118,6 +118,10 @@ public struct LSTopBar: View {
 
     private var chipSize: CGFloat {
         theme.space.xl + theme.space.md + theme.space.xs // 24 + 12 + 4 = 40
+    }
+
+    private var tapTargetSize: CGFloat {
+        max(44, chipSize) // iOS HIG minimum tap target
     }
 
     private var recordingDotSize: CGFloat {

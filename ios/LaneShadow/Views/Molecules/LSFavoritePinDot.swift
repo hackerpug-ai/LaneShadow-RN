@@ -8,8 +8,6 @@ import SwiftUI
 public struct LSFavoritePinDot: View {
     @Environment(\.theme) private var theme
 
-    private let pinSize: CGFloat = 16
-
     public init() {}
 
     public var body: some View {
@@ -26,6 +24,10 @@ public struct LSFavoritePinDot: View {
         }
         .accessibilityIdentifier("favorite-pin-dot")
         .accessibilityLabel("Favorite location")
+    }
+
+    private var pinSize: CGFloat {
+        theme.iconSize.small // 16pt
     }
 }
 

@@ -1,120 +1,232 @@
-# FID-S01-T02 — iOS map slot replacement: IdleScreen / PlanningScreen / ErrorScreen
+================================================================================
+TASK: FID-S01-T02 - iOS Map Slot Replacement (LinearGradient → Paper Substrate)
+================================================================================
 
-**Sprint:** [SPRINT.md](./SPRINT.md) · **Agent:** swift-implementer · **Estimate:** 360 min · **Type:** FEATURE · **Priority:** P0 · **Effort:** L · **Status:** Backlog
+TASK_TYPE:  FEATURE
+STATUS:     Backlog
+PRIORITY:   P0
+EFFORT:     L
+AGENT:      implementer=swift-implementer | reviewer=swift-reviewer
 
-## BACKGROUND
+RUNTIME_COMMANDS:
+  typecheck: cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO SWIFT_COMPILATION_MODE=incremental build
+  lint: swiftformat --lint {files}
+  test: xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'
+  native-compliance: scripts/tokens/enforce-native-compliance.sh
 
-Three iOS templates (IdleScreen, PlanningScreen, ErrorScreen) use a `LinearGradient(colors: [theme.colors.surface.default, theme.colors.background.default])` placeholder where the design specifies a real Mapbox map (or a paper substrate Canvas + contour SVGs + favorite pin overlays). This is the most visible iOS distortion per remediations/00-summary theme #2.
+PROGRESS: AC-1..AC-5 not started
 
-## CRITICAL CONSTRAINTS
+--------------------------------------------------------------------------------
+OUTCOME
+--------------------------------------------------------------------------------
 
-- MUST replace `LinearGradient(...)` placeholders in IdleScreen.swift, PlanningScreen.swift, and ErrorScreen.swift — NEVER leave a `Text("Map Layer")` stub.
-- MUST resolve substrate via `theme.colors.map.paper` and contours via `theme.colors.map.contour` / `map.contourFaint` — NEVER hardcode hex.
-- MUST keep iOS sandbox story IDs identical to Android per RULES.md#cross-platform-component-parity.
-- STRICTLY do NOT modify `android/**`, `server/**`, `*.pbxproj`, or `ios/project.yml`.
-- NEVER edit `Info.plist` Mapbox secrets; rely on existing LSMap configuration.
+IdleScreen, PlanningScreen, and ErrorScreen show a paper-substrate map with contour SVGs and favorite pin overlays instead of a two-color LinearGradient placeholder.
 
-## SPECIFICATION
+--------------------------------------------------------------------------------
+🚫 CRITICAL CONSTRAINTS
+--------------------------------------------------------------------------------
 
-**Objective:** Replace LinearGradient placeholder map slots in three iOS templates with either a real LSMap (preferred) or a `theme.colors.map.paper` substrate Canvas with contour overlays and absolute-positioned favorite pin Circles, so the iOS sandbox visually matches the design system's paper topographic canvas.
+- NEVER use `LinearGradient` as a map placeholder — this IS the map distortion
+- MUST use `theme.colors.map.paper` substrate color + SVG contour overlays
+- MUST render contour lines at `map.contour` (0.9pt) and `map.contourFaint` (0.7pt) stroke widths
+- STRICTLY keep sandbox-only: use static paper + SVGs, NOT live Mapbox (that's integration sprint)
+- MUST place favorite pin dots at absolute positions using `signal.default` fill + `surface.card` border
 
-**Success state:** On iPhone 16 Simulator, IdleScreen, PlanningScreen, and ErrorScreen each show a real Mapbox map (or paper substrate fallback) with favorite pin dot overlays at designed fractional positions, in both light and dark mode. ErrorScreen additionally renders a broken-segment dashed `status.error` polyline with origin/broken/destination pins. No `LinearGradient` placeholder remains.
+--------------------------------------------------------------------------------
+DONE WHEN
+--------------------------------------------------------------------------------
 
-## ACCEPTANCE CRITERIA
+- [ ] IdleScreen map slot renders paper substrate + contour SVGs + favorite pins (AC-1 PRIMARY)
+- [ ] PlanningScreen map slot renders paper substrate + contour SVGs (AC-2)
+- [ ] ErrorScreen map slot renders paper substrate with broken-segment polyline overlay (AC-3)
+- [ ] Paper substrate resolves correctly in dark mode (map.paper → ink-900) (AC-4)
+- [ ] Favorite pin dots render at correct size with correct styling (AC-5)
+- [ ] `cd ios && xcodebuild build` passes + native-compliance clean
+- [ ] Only SCOPE.writeAllowed files modified
 
-- **AC-1** GIVEN `templates.idle.default`, WHEN IdleScreen renders the map slot, THEN the slot resolves to LSMap (Mapbox) when available, else a ZStack of `Color(theme.colors.map.paper)` + Canvas drawing contour paths at `theme.colors.map.contour` (0.9pt) and `theme.colors.map.contourFaint` (0.7pt) + ≥4 absolute-positioned favorite pins using `theme.colors.signal.default` with `theme.colors.surface.card` border.
-  - verify: `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/IdleScreenSnapshotTests/test_mapSlot_isPaperSubstrateOrMapbox`
-- **AC-2** GIVEN `templates.planning.default`, WHEN PlanningScreen renders the map slot, THEN it uses the same paper-substrate / LSMap pattern (no LinearGradient remains) and resolves to a dark ink substrate when `colorScheme == .dark`.
-  - verify: `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/PlanningScreenSnapshotTests/test_mapSlot_resolvesPaperInBothThemes`
-- **AC-3** GIVEN `templates.error.default`, WHEN ErrorScreen renders the map slot, THEN it shows a static map preview with a dashed broken-segment polyline at `theme.colors.status.error` plus origin / broken / destination pin atoms — not a LinearGradient.
-  - verify: `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/ErrorScreenSnapshotTests/test_mapSlot_brokenPolylineWithPins`
-- **AC-4** GIVEN any of the three templates rendered, WHEN favorite pin overlays are drawn, THEN each pin Circle has `theme.colors.signal.default` fill, `theme.colors.surface.card` border at `theme.strokeWidth.thin`, and `theme.shadows.chrome` shadow — no raw color or hardcoded radius.
-  - verify: `scripts/tokens/enforce-native-compliance.sh`
-- **AC-5** GIVEN the iOS app builds, WHEN any of the three templates is loaded, THEN no `LinearGradient(colors: [theme.colors.surface.default, theme.colors.background.default])` placeholder remains in the three files.
-  - verify: `xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build`
+--------------------------------------------------------------------------------
+ACCEPTANCE CRITERIA
+--------------------------------------------------------------------------------
 
-## TEST CRITERIA
+AC-1: IdleScreen map slot paper substrate + contours + pins [PRIMARY]
+  GIVEN: IdleScreen is displayed in sandbox on iOS Simulator
+  WHEN:  The map slot area renders
+  THEN:  Background is `theme.colors.map.paper` (warm copper tint) with SVG contour grid lines at 0.9pt/0.7pt and copper pin dots at absolute positions
 
-| ID | Statement | Maps to | Verify |
-|---|---|---|---|
-| TC-1 | IdleScreen.swift no longer contains LinearGradient as map view | AC-1,AC-5 | `! grep -nE 'LinearGradient.*surface\.default.*background\.default' ios/LaneShadow/Views/Templates/IdleScreen.swift` |
-| TC-2 | PlanningScreen.swift no longer contains LinearGradient map placeholder | AC-2,AC-5 | `! grep -nE 'LinearGradient.*surface\.default.*background\.default' ios/LaneShadow/Views/Templates/PlanningScreen.swift` |
-| TC-3 | ErrorScreen.swift no longer contains LinearGradient and references status.error | AC-3,AC-5 | `! grep -nE 'LinearGradient.*surface\.default.*background\.default' ios/LaneShadow/Views/Templates/ErrorScreen.swift && grep -n 'status.error' ios/LaneShadow/Views/Templates/ErrorScreen.swift` |
-| TC-4 | All three templates reference theme.colors.map.paper at least once | AC-1,AC-2,AC-3 | `grep -l 'map.paper' ios/LaneShadow/Views/Templates/IdleScreen.swift ios/LaneShadow/Views/Templates/PlanningScreen.swift ios/LaneShadow/Views/Templates/ErrorScreen.swift` |
-| TC-5 | Favorite pin overlays use signal.default fill | AC-4 | `grep -nE 'signal\.default' ios/LaneShadow/Views/Templates/IdleScreen.swift` |
-| TC-6 | Token compliance gate passes | AC-4 | `scripts/tokens/enforce-native-compliance.sh` |
-| TC-7 | Cross-platform parity unchanged | AC-1..AC-3 | `pnpm snapshots:check` |
+  TDD_STATE:     none
+  TEST_FILE:     ios/LaneShadowTests/Sandbox/MapSlotTests.swift
+  TEST_FUNCTION: testIdleScreenPaperSubstrateWithContours
 
-## READING LIST
+AC-2: PlanningScreen map slot paper substrate
+  GIVEN: PlanningScreen is displayed in sandbox on iOS Simulator
+  WHEN:  The map slot area renders
+  THEN:  Background is `theme.colors.map.paper` with contour lines (no LinearGradient)
 
-- `[PHASE: RED]` `.spec/prds/v3-integration/remediations/01-views-idle-planning.md` — Gap B-01
-- `[PHASE: RED]` `.spec/prds/v3-integration/remediations/03-views-sessions-error.md` — Gap C2-08
-- `[PHASE: RED]` `.spec/design/system/views/idle-screen/idle-screen.html` — lines 186–215
-- `[PHASE: RED]` `.spec/design/system/views/error-screen/error-screen.html` — broken polyline + pins
-- `[PHASE: GREEN]` `ios/LaneShadow/Views/Templates/IdleScreen.swift` — lines 61–78
-- `[PHASE: GREEN]` `ios/LaneShadow/Views/Templates/PlanningScreen.swift` — map slot
-- `[PHASE: GREEN]` `ios/LaneShadow/Views/Templates/ErrorScreen.swift` — map slot + broken polyline overlay
-- `[PHASE: BOTH]` `ios/LaneShadow/Views/Organisms/LSMapLayer.swift` — slot contract reference
-- `[PHASE: BOTH]` `ios/LaneShadow/Views/Organisms/LSMapLayerSlots.swift` — slot model
-- `[PHASE: BOTH]` `tokens/platforms/ios/` — confirm `map.paper`, `map.contour`, `status.error`, `shadows.chrome`
+  TDD_STATE:     none
+  TEST_FILE:     ios/LaneShadowTests/Sandbox/MapSlotTests.swift
+  TEST_FUNCTION: testPlanningScreenPaperSubstrate
 
-## GUARDRAILS
+AC-3: ErrorScreen map slot with broken polyline overlay
+  GIVEN: ErrorScreen is displayed in sandbox on iOS Simulator
+  WHEN:  The map slot area renders
+  THEN:  Background is `theme.colors.map.paper` with a dashed `status.error` broken-segment polyline overlay + origin/destination pins
 
-**WRITE-ALLOWED:**
-- `ios/LaneShadow/Views/Templates/IdleScreen.swift`
-- `ios/LaneShadow/Views/Templates/PlanningScreen.swift`
-- `ios/LaneShadow/Views/Templates/ErrorScreen.swift`
-- `ios/LaneShadow/Views/Templates/MapPaperSubstrate.swift` (NEW)
-- `ios/LaneShadowTests/Snapshots/**/*.swift`
+  TDD_STATE:     none
+  TEST_FILE:     ios/LaneShadowTests/Sandbox/MapSlotTests.swift
+  TEST_FUNCTION: testErrorScreenBrokenPolylineOverlay
 
-**WRITE-PROHIBITED:** `android/**`, `server/**`, `react-native/**`, `web/**`, `tokens/**`, `**/*.pbxproj`, `ios/project.yml`, `LSMapLayer.swift`, `LSMapLayerSlots.swift`
+AC-4: Dark mode map substrate
+  GIVEN: Device is in dark mode
+  WHEN:  Any screen's map slot renders
+  THEN:  `theme.colors.map.paper` resolves to dark ink-900 substrate with inverted contours
 
-## DESIGN
+  TDD_STATE:     none
+  TEST_FILE:     ios/LaneShadowTests/Sandbox/MapSlotTests.swift
+  TEST_FUNCTION: testDarkModeMapSubstrate
 
-**References:**
-- `.spec/prds/v3-integration/remediations/01-views-idle-planning.md` Gap B-01
-- `.spec/prds/v3-integration/remediations/03-views-sessions-error.md` Gap C2-08
-- `.spec/design/system/views/idle-screen/idle-screen.html` lines 186–215
-- `.spec/design/system/views/error-screen/error-screen.html`
+AC-5: Favorite pin overlay rendering
+  GIVEN: IdleScreen with favorite locations in mock data
+  WHEN:  Map slot renders
+  THEN:  Copper-filled circle pins (16pt) with `stroke.lg` card-colored border appear at correct positions
 
-**Pattern:** Substrate Canvas + absolute-positioned overlay atoms inside a ZStack inside the map slot of LSMapLayer.
-**Pattern source:** Android IdleScreen.kt already uses real LSMap with overlays — mirror the structural approach.
-**Anti-pattern:** Leaving a LinearGradient placeholder, hardcoding hex for the substrate, or instantiating a full interactive Mapbox map on every preview render.
+  TDD_STATE:     none
+  TEST_FILE:     ios/LaneShadowTests/Sandbox/MapSlotTests.swift
+  TEST_FUNCTION: testFavoritePinOverlay
 
-## RED PHASE INSTRUCTIONS
+--------------------------------------------------------------------------------
+SCOPE
+--------------------------------------------------------------------------------
 
-Author snapshot tests for the three story IDs (`templates.idle.default`, `templates.planning.default`, `templates.error.default`) that diff against design PNG counterparts under `.spec/design/system/views/{view}/`. The first run MUST FAIL with the LinearGradient placeholder visible. Do not write a vanity test that asserts the LinearGradient itself — assert visual parity to the design PNG, OR (if PNG diff is too noisy) inspect view body for absence of LinearGradient and presence of LSMap or Canvas with `map.paper` background. For ErrorScreen, additionally add a structural assertion that the broken-polyline path uses dashed StrokeStyle and `status.error` color.
+writeAllowed:
+- ios/LaneShadow/Views/Screens/IdleScreen.swift (MODIFY)
+- ios/LaneShadow/Views/Screens/PlanningScreen.swift (MODIFY)
+- ios/LaneShadow/Views/Screens/ErrorScreen.swift (MODIFY)
+- ios/LaneShadow/Views/Organisms/LSMapLayer.swift (MODIFY)
+- ios/LaneShadow/Views/Molecules/LSPaperMap.swift (NEW — paper substrate + contour component)
+- ios/LaneShadow/Views/Molecules/LSFavoritePinDot.swift (NEW — pin overlay)
+- ios/LaneShadowTests/Sandbox/MapSlotTests.swift (NEW)
 
-## GREEN PHASE INSTRUCTIONS
+writeProhibited:
+- android/** — iOS-specific
+- server/** — no backend changes
+- react-native/** — read-only reference
 
-Pattern reference: `PlanningScreen.swift` sketch polyline animation already uses `theme.colors.route.*`. Strategy: (1) Try LSMap first if it accepts a static-snapshot mode. (2) Else build a private `MapPaperSubstrate` view: `ZStack { Color(theme.colors.map.paper); Canvas { context, size in /* draw contour paths */ }; ForEach(favoritePins) { pin in Circle().fill(theme.colors.signal.default).stroke(theme.colors.surface.card, lineWidth: theme.strokeWidth.thin).shadow(theme.shadows.chrome).position(x: pin.x * size.width, y: pin.y * size.height) } }`. Reuse across the three templates. (3) For ErrorScreen overlay a Path with dashed StrokeStyle in `status.error` plus three pin atoms. Run swiftformat then xcodebuild build.
+--------------------------------------------------------------------------------
+BOUNDARIES
+--------------------------------------------------------------------------------
 
-## REVIEW NOTES
+✅ Always:
+- Use theme color tokens for all map colors
+- Create reusable LSPaperMap component for shared substrate + contour rendering
+- Verify in sandbox after each screen change
 
-- **Cross-platform parity:** Android already uses real LSMap with favorite-pin overlays per Gap B-01; verify iOS pin positions match Android fractional coordinates.
-- **Token compliance:** any raw `rgba(...)` or `#RGB` in substrate Canvas or pin overlays fails the gate.
-- **Performance:** confirm Canvas redraws are not triggered every frame (no `@State` mutating per frame).
+⚠️ Ask First:
+- Creating new molecule components beyond LSPaperMap and LSFavoritePinDot
+- Changing any map-layer organism API surface
 
-## VERIFICATION GATES
+--------------------------------------------------------------------------------
+DELIVERABLE
+--------------------------------------------------------------------------------
 
-| Gate | Command | Expected |
-|---|---|---|
-| swift-format | `swiftformat --quiet ios/**/*.swift` | exit 0 |
-| ios-build | `xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build` | BUILD SUCCEEDED |
-| ios-tests | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` | AC-1..AC-5 pass |
-| token-compliance | `scripts/tokens/enforce-native-compliance.sh` | exit 0 |
-| snapshot-parity | `pnpm snapshots:check` | exit 0 |
+- ios/LaneShadow/Views/Molecules/LSPaperMap.swift (NEW): Reusable paper substrate + contour SVG component
+- ios/LaneShadow/Views/Molecules/LSFavoritePinDot.swift (NEW): Pin overlay component
+- ios/LaneShadow/Views/Screens/IdleScreen.swift (MODIFY): Replace LinearGradient with LSPaperMap + pins
+- ios/LaneShadow/Views/Screens/PlanningScreen.swift (MODIFY): Replace LinearGradient with LSPaperMap
+- ios/LaneShadow/Views/Screens/ErrorScreen.swift (MODIFY): Replace LinearGradient with LSPaperMap + broken polyline
 
-## CODING STANDARDS
+--------------------------------------------------------------------------------
+AGENT INSTRUCTIONS (TDD Flow)
+--------------------------------------------------------------------------------
 
-`RULES.md#accessibility-standards`, `RULES.md#cross-platform-component-parity`, `styles/RULES.md`
+RED → GREEN → REFACTOR for each AC. Create LSPaperMap molecule first (used by all screens), then wire into each screen. Test in sandbox after each screen change.
 
-## DEPENDENCIES
+--------------------------------------------------------------------------------
+READING LIST
+--------------------------------------------------------------------------------
 
-- **depends_on:** []
-- **blocks:** [FID-S01-T09]
+1. .spec/design/system/organisms/map-layer/map-layer.html [PRIMARY PATTERN]
+   - Focus: Paper substrate color, contour line specs, pin dot styling
+
+2. ios/LaneShadow/Views/Screens/IdleScreen.swift
+   - Focus: Current LinearGradient placeholder implementation
+
+3. .spec/design/system/views/idle-screen/idle-screen.html
+   - Sections: map slot, favorite pins
+   - Focus: Visual reference for paper map with pins
+
+4. ios/LaneShadow/Views/Organisms/LSMapLayer.swift
+   - Focus: Existing map organism API — understand what this task does NOT touch
+
+5. .spec/prds/v3-integration/remediations/01-views-idle-planning.md
+   - Sections: Gap B-01 (map slot), Gap C-01 (weather overlays on planning)
+   - Focus: Detailed gap descriptions
+
+--------------------------------------------------------------------------------
+EVIDENCE GATES
+--------------------------------------------------------------------------------
+
+Gate 1: RED phase evidence — TDD_STATE shows each test red before green
+Gate 2: Each AC has a test in MapSlotTests.swift
+Gate 3: xcodebuild test passes
+Gate 4: xcodebuild build exits 0
+Gate 5: scripts/tokens/enforce-native-compliance.sh exits 0
+Gate 6: git diff --name-only ⊆ writeAllowed
+
+--------------------------------------------------------------------------------
+OUT OF SCOPE
+--------------------------------------------------------------------------------
+
+- Live Mapbox integration (integration sprint)
+- PlanningScreen sketch polyline animation timing (Sprint 02)
+- ErrorScreen weather/variant states (Sprint 02)
+
+--------------------------------------------------------------------------------
+CONTEXT
+--------------------------------------------------------------------------------
+
+**Current state:** IdleScreen, PlanningScreen, ErrorScreen use `LinearGradient(colors: [surface.default, background.default])` with `Text("Map Layer")` overlay.
+**Gap:** Design specifies warm copper-tinted paper canvas with SVG contour grid lines and absolute-positioned favorite pin dots.
+
+--------------------------------------------------------------------------------
+REVIEW (for swift-reviewer)
+--------------------------------------------------------------------------------
+
+Must pass:
+- One test per AC; tests verify paper substrate + contour rendering
+- RED evidence present in TDD_STATE history
+- LSPaperMap is a reusable molecule, not duplicated per screen
+- Theme tokens used for all colors (no hardcoded values)
+- SCOPE respected
+
+Should verify:
+- Dark mode paper substrate resolves to ink-900
+- Contour SVGs render at correct 0.9pt/0.7pt stroke widths
+- Pin dots are 16pt with correct border styling
+
+--------------------------------------------------------------------------------
+DEPENDENCIES
+--------------------------------------------------------------------------------
+
+Depends on: None
+Blocks:     FID-S01-T09
+Parallel:   FID-S01-T01, FID-S01-T03, FID-S01-T04, FID-S01-T05, FID-S01-T06, FID-S01-T07
+
+================================================================================
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
-{"requirements":[{"id":"AC-1","type":"acceptance_criterion","description":"IdleScreen map slot is paper substrate or LSMap","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/IdleScreenSnapshotTests/test_mapSlot_isPaperSubstrateOrMapbox","phase":"review"},{"id":"AC-2","type":"acceptance_criterion","description":"PlanningScreen map slot resolves paper in both themes","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/PlanningScreenSnapshotTests/test_mapSlot_resolvesPaperInBothThemes","phase":"review"},{"id":"AC-3","type":"acceptance_criterion","description":"ErrorScreen broken polyline + pins","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowSnapshotTests/ErrorScreenSnapshotTests/test_mapSlot_brokenPolylineWithPins","phase":"review"},{"id":"AC-4","type":"acceptance_criterion","description":"Favorite pin overlays use semantic tokens only","verify":"scripts/tokens/enforce-native-compliance.sh","phase":"green"},{"id":"AC-5","type":"acceptance_criterion","description":"No LinearGradient placeholder remains","verify":"xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet build","phase":"green"},{"id":"TC-1","type":"test_criterion","description":"IdleScreen.swift has no LinearGradient map placeholder","maps_to_ac":"AC-1","verify":"! grep -nE 'LinearGradient.*surface\\.default.*background\\.default' ios/LaneShadow/Views/Templates/IdleScreen.swift","phase":"green"},{"id":"TC-2","type":"test_criterion","description":"PlanningScreen.swift has no LinearGradient map placeholder","maps_to_ac":"AC-2","verify":"! grep -nE 'LinearGradient.*surface\\.default.*background\\.default' ios/LaneShadow/Views/Templates/PlanningScreen.swift","phase":"green"},{"id":"TC-3","type":"test_criterion","description":"ErrorScreen.swift no LinearGradient + references status.error","maps_to_ac":"AC-3","verify":"! grep -nE 'LinearGradient.*surface\\.default.*background\\.default' ios/LaneShadow/Views/Templates/ErrorScreen.swift && grep -n 'status.error' ios/LaneShadow/Views/Templates/ErrorScreen.swift","phase":"green"},{"id":"TC-4","type":"test_criterion","description":"All three templates reference map.paper","maps_to_ac":"AC-1","verify":"grep -l 'map.paper' ios/LaneShadow/Views/Templates/IdleScreen.swift ios/LaneShadow/Views/Templates/PlanningScreen.swift ios/LaneShadow/Views/Templates/ErrorScreen.swift","phase":"green"},{"id":"TC-5","type":"test_criterion","description":"Favorite pin overlays use signal.default","maps_to_ac":"AC-4","verify":"grep -nE 'signal\\.default' ios/LaneShadow/Views/Templates/IdleScreen.swift","phase":"green"},{"id":"TC-6","type":"test_criterion","description":"Token compliance passes","maps_to_ac":"AC-4","verify":"scripts/tokens/enforce-native-compliance.sh","phase":"green"},{"id":"TC-7","type":"test_criterion","description":"Snapshot parity passes","maps_to_ac":"AC-1","verify":"pnpm snapshots:check","phase":"green"}]}
+{
+  "requirements": [
+    { "id": "AC-1", "type": "acceptance_criterion", "description": "GIVEN IdleScreen displayed WHEN map slot renders THEN background is map.paper with contour SVGs and favorite pin dots", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'" },
+    { "id": "AC-2", "type": "acceptance_criterion", "description": "GIVEN PlanningScreen displayed WHEN map slot renders THEN background is map.paper with contour lines, no LinearGradient", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'" },
+    { "id": "AC-3", "type": "acceptance_criterion", "description": "GIVEN ErrorScreen displayed WHEN map slot renders THEN background is map.paper with dashed status.error broken polyline + pins", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'" },
+    { "id": "AC-4", "type": "acceptance_criterion", "description": "GIVEN dark mode WHEN map slot renders THEN map.paper resolves to dark ink-900 with inverted contours", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'" },
+    { "id": "AC-5", "type": "acceptance_criterion", "description": "GIVEN IdleScreen with favorites WHEN map renders THEN 16pt copper pins with stroke.lg border at correct positions", "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'" },
+    { "id": "TC-1", "type": "test_criterion", "description": "IdleScreen map background color matches theme.colors.map.paper token", "maps_to_ac": "AC-1", "verify": "xcodebuild test -destination 'platform=iOS Simulator,name=iPhone 16' --only-testing:LaneShadowTests/MapSlotTests/testIdleScreenPaperSubstrateWithContours" },
+    { "id": "TC-2", "type": "test_criterion", "description": "PlanningScreen contains no LinearGradient in map slot", "maps_to_ac": "AC-2", "verify": "xcodebuild test -destination 'platform=iOS Simulator,name=iPhone 16' --only-testing:LaneShadowTests/MapSlotTests/testPlanningScreenPaperSubstrate" },
+    { "id": "TC-3", "type": "test_criterion", "description": "ErrorScreen map has dashed polyline overlay in status.error color", "maps_to_ac": "AC-3", "verify": "xcodebuild test -destination 'platform=iOS Simulator,name=iPhone 16' --only-testing:LaneShadowTests/MapSlotTests/testErrorScreenBrokenPolylineOverlay" },
+    { "id": "TC-4", "type": "test_criterion", "description": "Dark mode map.paper resolves to ink-900 substrate", "maps_to_ac": "AC-4", "verify": "xcodebuild test -destination 'platform=iOS Simulator,name=iPhone 16' --only-testing:LaneShadowTests/MapSlotTests/testDarkModeMapSubstrate" },
+    { "id": "TC-5", "type": "test_criterion", "description": "Favorite pins are 16pt with signal.default fill and surface.card border", "maps_to_ac": "AC-5", "verify": "xcodebuild test -destination 'platform=iOS Simulator,name=iPhone 16' --only-testing:LaneShadowTests/MapSlotTests/testFavoritePinOverlay" }
+  ]
+}
 -->

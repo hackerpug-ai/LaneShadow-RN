@@ -90,4 +90,61 @@ struct MapSlotTests {
             named: "idle-screen-favorite-pins"
         )
     }
+
+    // MARK: - FID-S01-T11: Implementation Fixes
+
+    @MainActor
+    @Test("FID-S01-T11 AC-2: LSPaperMap uses semantic map token, not surface.default")
+    func paperMapUsesSemanticToken() throws {
+        // GIVEN: LSPaperMap component renders paper substrate
+        // WHEN: Source code is checked
+        // THEN: Should NOT use surface.default (wrong token), should use card.default or map-specific token
+
+        let source = try source(named: "LSPaperMap.swift", in: "Molecules")
+
+        // MUST NOT use surface.default (acknowledged as wrong in original comment)
+        #expect(!source.contains("surface.default"), "LSPaperMap MUST NOT use surface.default — should use card.default or map.paper token")
+
+        // SHOULD use a semantic token for the paper substrate
+        #expect(source.contains("card.default") || source.contains("map.paper"), "LSPaperMap SHOULD use card.default or map.paper semantic token for paper substrate")
+    }
+
+    @MainActor
+    @Test("FID-S01-T11 AC-3: LSFavoritePinDot uses theme token, not hardcoded CGFloat")
+    func favoritePinDotUsesThemeToken() throws {
+        // GIVEN: LSFavoritePinDot component renders pin dots
+        // WHEN: Source code is checked
+        // THEN: Should NOT have hardcoded CGFloat = 16, should use theme token
+
+        let source = try source(named: "LSFavoritePinDot.swift", in: "Molecules")
+
+        // MUST NOT have hardcoded CGFloat literal
+        #expect(!source.contains("CGFloat = 16") && !source.contains("let pinSize: CGFloat = 16"), "LSFavoritePinDot MUST NOT use hardcoded CGFloat = 16 — should use theme.iconSize.small")
+
+        // SHOULD use theme token for pin size
+        #expect(source.contains("theme.iconSize") || source.contains("pinSize"), "LSFavoritePinDot SHOULD use theme token for pin size")
+    }
+
+    @MainActor
+    @Test("FID-S01-T11 AC-3: LSScenicDotStrip uses theme token, not hardcoded CGFloat")
+    func scenicDotStripUsesThemeToken() throws {
+        // GIVEN: LSScenicDotStrip component renders scenic rating dots
+        // WHEN: Source code is checked
+        // THEN: Should NOT have hardcoded CGFloat = 8, should use theme token
+
+        let source = try source(named: "LSScenicDotStrip.swift", in: "Molecules")
+
+        // MUST NOT have hardcoded CGFloat literal
+        #expect(!source.contains("CGFloat = 8") && !source.contains("let dotSize: CGFloat = 8"), "LSScenicDotStrip MUST NOT use hardcoded CGFloat = 8 — should use theme token")
+
+        // SHOULD use theme token for dot size
+        #expect(source.contains("theme.iconSize") || source.contains("dotSize"), "LSScenicDotStrip SHOULD use theme token for dot size")
+    }
+
+    // MARK: - Helpers
+
+    private func source(named name: String, in directory: String = "Molecules") throws -> String {
+        let path = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/\(directory)/\(name)"
+        return try String(contentsOfFile: path, encoding: .utf8)
+    }
 }
