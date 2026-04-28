@@ -132,6 +132,9 @@ data class IdleScreenState(
     val greeting: Greeting,
     val suggestions: List<SuggestionChip>,
     val locationContext: LocationContext,
+    val showAdvisoryCard: Boolean = false,           // V03: show weather advisory card
+    val advisoryMessage: String? = null,             // V03: advisory card message
+    val isNoLocation: Boolean = false,               // V01: show "Tap to set start" pill
 )
 
 /**
@@ -150,6 +153,10 @@ data class PlanningScreenState(
     val phases: List<PlanningPhase>,
     val message: NavigatorMessage,
     val isThinking: Boolean,
+    val slowApology: String? = null,                // V01: italic apology message
+    val showCancelConfirm: Boolean = false,         // V02: show cancel confirmation modal
+    val warningBorder: Boolean = false,             // V03: show warning border on phase indicator
+    val phaseHeaders: Map<String, String>? = null,  // V03: phase header strings (phase ID -> header text)
 )
 
 /**
@@ -159,6 +166,9 @@ data class RouteResultsScreenState(
     val message: NavigatorMessage,
     val routes: List<Route>,
     val selectedRouteId: String?,
+    val mode: String? = null, // "refining" for S04
+    val showRecallChip: Boolean = false, // V03
+    val primerChips: List<SuggestionChip> = emptyList(), // S04
 )
 
 /**
@@ -167,6 +177,10 @@ data class RouteResultsScreenState(
 data class RouteDetailsScreenState(
     val route: Route,
     val weatherTimeline: List<WeatherTimelineEntry>,
+    val darkTheme: Boolean = false, // S03
+    val detent: String? = null, // "medium" for S04
+    val isDismissing: Boolean = false, // S05
+    val isSaved: Boolean = false, // V01
 )
 
 /**

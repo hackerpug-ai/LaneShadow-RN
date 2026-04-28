@@ -8,13 +8,19 @@ package com.laneshadow.sandbox.mockproviders
  */
 object PlanningMockProvider : MockProvider<PlanningScreenState> {
 
-    override val variants: List<String> = listOf("default", "empty", "overflow", "long-copy")
+    override val variants: List<String> = listOf(
+        "default", "empty", "overflow", "long-copy",
+        "v-slow", "v-cancel-confirm", "v-single-candidate"
+    )
 
     override fun value(variant: String): PlanningScreenState {
         return when (variant) {
             "empty" -> emptyState()
             "overflow" -> overflowState()
             "long-copy" -> longCopyState()
+            "v-slow" -> slowState()
+            "v-cancel-confirm" -> cancelConfirmState()
+            "v-single-candidate" -> singleCandidateState()
             else -> defaultState()
         }
     }
@@ -125,6 +131,93 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
                 pinned = false
             ),
             isThinking = true
+        )
+    }
+
+    /**
+     * V01: slow variant
+     * Italic apology message + dashed border
+     */
+    private fun slowState(): PlanningScreenState {
+        return PlanningScreenState(
+            phases = listOf(
+                PlanningPhase(id = "reading", label = "Reading your ride", status = "done"),
+                PlanningPhase(id = "sketching", label = "Sketching roads", status = "active"),
+                PlanningPhase(id = "validating", label = "Checking they connect", status = "pending"),
+                PlanningPhase(id = "weather", label = "Reading the sky", status = "pending"),
+                PlanningPhase(id = "building", label = "Ranking your options", status = "pending")
+            ),
+            message = NavigatorMessage(
+                id = "msg-planning-slow",
+                sessionId = "session-slow",
+                body = "Scenic 2-hour ride, avoid highways",
+                timestamp = "2026-04-25T10:30:00Z",
+                kind = "prompt",
+                attachments = null,
+                detail = null,
+                pinned = false
+            ),
+            isThinking = true,
+            slowApology = "Taking a moment to think"
+        )
+    }
+
+    /**
+     * V02: cancel-confirm variant
+     * Show cancel confirmation modal
+     */
+    private fun cancelConfirmState(): PlanningScreenState {
+        return PlanningScreenState(
+            phases = listOf(
+                PlanningPhase(id = "reading", label = "Reading your ride", status = "done"),
+                PlanningPhase(id = "sketching", label = "Sketching roads", status = "done"),
+                PlanningPhase(id = "validating", label = "Checking they connect", status = "active"),
+                PlanningPhase(id = "weather", label = "Reading the sky", status = "pending"),
+                PlanningPhase(id = "building", label = "Ranking your options", status = "pending")
+            ),
+            message = NavigatorMessage(
+                id = "msg-planning-cancel",
+                sessionId = "session-cancel",
+                body = "Scenic 2-hour ride, avoid highways",
+                timestamp = "2026-04-25T10:30:00Z",
+                kind = "prompt",
+                attachments = null,
+                detail = null,
+                pinned = false
+            ),
+            isThinking = true,
+            showCancelConfirm = true
+        )
+    }
+
+    /**
+     * V03: single-candidate variant
+     * Warning border + phase headers
+     */
+    private fun singleCandidateState(): PlanningScreenState {
+        return PlanningScreenState(
+            phases = listOf(
+                PlanningPhase(id = "reading", label = "Reading your ride", status = "done"),
+                PlanningPhase(id = "sketching", label = "Sketching roads", status = "done"),
+                PlanningPhase(id = "validating", label = "Checking they connect", status = "active")
+            ),
+            message = NavigatorMessage(
+                id = "msg-planning-single",
+                sessionId = "session-single",
+                body = "Scenic 2-hour ride, avoid highways",
+                timestamp = "2026-04-25T10:30:00Z",
+                kind = "prompt",
+                attachments = null,
+                detail = null,
+                pinned = false
+            ),
+            isThinking = true,
+            warningBorder = true,
+            phaseHeaders = mapOf(
+                "reading" to "Checking your preferences",
+                "sketching" to "Drawing the route",
+                "validating" to "Finding the best path"
+            )
         )
     }
 }

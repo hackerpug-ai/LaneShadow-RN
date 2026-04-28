@@ -5,7 +5,6 @@ import SwiftUI
 // MARK: - Animation Motion Extensions
 
 extension Animation {
-
     /// Chat overlay enter animation: slide-up with fade
     ///
     /// Reads from theme.motion.chatOverlayEnter (uses "standard" duration and "decelerated" easing)
@@ -100,7 +99,7 @@ extension LSInlineErrorCallout {
             ForEach(Array(suggestions.enumerated()), id: \.offset) { index, suggestion in
                 SuggestionChipEnter(
                     label: suggestion,
-                    delay: Double(index) * 0.05  // Stagger each chip by 50ms
+                    delay: Double(index) * 0.05 // Stagger each chip by 50ms
                 ) {
                     onSuggestionTap(suggestion)
                 }
@@ -129,8 +128,8 @@ struct SuggestionChipEnter: View {
         LSSuggestionChip(label: label) {
             action()
         }
-        .offset(y: isAppeared ? 0 : 8)  // Slide up 8pt
-        .opacity(isAppeared ? 1.0 : 0.0)  // Fade in
+        .offset(y: isAppeared ? 0 : 8) // Slide up 8pt
+        .opacity(isAppeared ? 1.0 : 0.0) // Fade in
         .animation(Animation.chatOverlayEnter(theme: theme).delay(delay), value: isAppeared)
         .onAppear {
             isAppeared = true

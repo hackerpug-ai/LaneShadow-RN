@@ -3,7 +3,10 @@ TASK: FID-S01-T10 - iOS Test Infrastructure + Programmatic Assertions
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     ✅ Completed
+Completed:  2026-04-27T23:10:00Z
+Commit:     369e9b81d808ef99b234baf89af146ee86d3372f
+Reviewer:   swift-reviewer (cycle 2)
 PRIORITY:   P0
 EFFORT:     M
 AGENT:      implementer=swift-implementer | reviewer=swift-reviewer
@@ -12,7 +15,7 @@ RUNTIME_COMMANDS:
   typecheck: cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO build
   test: xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'
 
-PROGRESS: AC-1..AC-4 not started
+PROGRESS: AC-1 ✅, AC-2 ✅, AC-3 ✅, AC-4 ✅
 
 --------------------------------------------------------------------------------
 OUTCOME (1 sentence, ≤30 words — observable success)

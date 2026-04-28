@@ -5,7 +5,6 @@ import SwiftUI
 // MARK: - Animation Motion Extensions
 
 extension Animation {
-
     /// Record dot pulse animation: 1400ms ease-in-out, autoreversing
     ///
     /// TOKEN GAP: Design specifies 1400ms, but tokens only provide up to 600ms ("deliberate").

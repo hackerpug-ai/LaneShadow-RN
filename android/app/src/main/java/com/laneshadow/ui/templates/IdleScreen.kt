@@ -28,6 +28,7 @@ import com.laneshadow.ui.atoms.MapMode
 import com.laneshadow.ui.atoms.TextColor
 import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.molecules.LSChatInput
+import com.laneshadow.ui.molecules.LSAdvisoryCard
 import com.laneshadow.ui.molecules.LocationContext as UILocationContext
 import com.laneshadow.ui.molecules.LocationMode
 import com.laneshadow.ui.molecules.SuggestionChip as UISuggestionChip
@@ -112,6 +113,8 @@ fun IdleScreen(
                     GreetingOverlay(
                         meta = state.greeting.meta,
                         headline = greetingHeadline,
+                        showAdvisoryCard = state.showAdvisoryCard,
+                        advisoryMessage = state.advisoryMessage,
                         modifier = Modifier.testTag("greeting-overlay"),
                     )
                 }
@@ -141,6 +144,7 @@ fun IdleScreen(
                             onSuggestionTap(originalChip ?: MockSuggestionChip(id = "", label = uiChip.label))
                         },
                         locationBadge = state.locationContext.toUiLocationContext(),
+                        isEnabled = !state.isNoLocation,  // V01: disable chat input in no-location variant
                         modifier = Modifier.testTag("chat-input"),
                     )
                 }
@@ -164,12 +168,16 @@ fun IdleScreen(
  *
  * @param meta Meta text (e.g., "FRIDAY · 68°F · CLEAR")
  * @param headline Headline text with emphasis (annotated string)
+ * @param showAdvisoryCard Whether to show the weather advisory card
+ * @param advisoryMessage Advisory card message (if showAdvisoryCard is true)
  * @param modifier Modifier for the root composable
  */
 @Composable
 private fun GreetingOverlay(
     meta: String,
     headline: AnnotatedString,
+    showAdvisoryCard: Boolean = false,
+    advisoryMessage: String? = null,
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
@@ -182,7 +190,7 @@ private fun GreetingOverlay(
         Text(
             text = meta,
             style = theme.typography.ui.label.sm,
-            color = theme.colors.primary.default,
+            color = if (showAdvisoryCard) theme.colors.warning.default else theme.colors.primary.default,
             modifier = Modifier.testTag("greeting-meta"),
         )
 
@@ -193,6 +201,14 @@ private fun GreetingOverlay(
             color = theme.content.primary,
             modifier = Modifier.testTag("greeting-headline"),
         )
+
+        // Advisory card (V03: weather-advisory)
+        if (showAdvisoryCard && advisoryMessage != null) {
+            LSAdvisoryCard(
+                message = advisoryMessage,
+                modifier = Modifier.testTag("advisory-card"),
+            )
+        }
     }
 }
 

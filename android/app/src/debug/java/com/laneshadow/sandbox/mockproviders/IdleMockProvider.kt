@@ -8,13 +8,19 @@ package com.laneshadow.sandbox.mockproviders
  */
 object IdleMockProvider : MockProvider<IdleScreenState> {
 
-    override val variants: List<String> = listOf("default", "empty", "overflow", "long-copy")
+    override val variants: List<String> = listOf(
+        "default", "empty", "overflow", "long-copy",
+        "v-no-location", "v-first-ride", "v-weather-advisory"
+    )
 
     override fun value(variant: String): IdleScreenState {
         return when (variant) {
             "empty" -> emptyState()
             "overflow" -> overflowState()
             "long-copy" -> longCopyState()
+            "v-no-location" -> noLocationState()
+            "v-first-ride" -> firstRideState()
+            "v-weather-advisory" -> weatherAdvisoryState()
             else -> defaultState()
         }
     }
@@ -111,6 +117,79 @@ object IdleMockProvider : MockProvider<IdleScreenState> {
                 label = "Near Santa Cruz, California, United States of America, North America",
                 mode = "auto"
             )
+        )
+    }
+
+    /**
+     * V01: no-location variant
+     * Copper-bordered "Tap to set start" pill + dim chat input
+     */
+    private fun noLocationState(): IdleScreenState {
+        return IdleScreenState(
+            greeting = Greeting(
+                meta = "FRIDAY · 68°F · CLEAR",
+                headline = "Where are we riding today?",
+                emphasis = "today"
+            ),
+            suggestions = listOf(
+                SuggestionChip(id = "chip-001", label = "Twisty back roads"),
+                SuggestionChip(id = "chip-002", label = "Coastal cruise"),
+                SuggestionChip(id = "chip-003", label = "Half-day loop"),
+                SuggestionChip(id = "chip-004", label = "Mountain passes")
+            ),
+            locationContext = LocationContext(
+                label = "Tap to set start",
+                mode = "manual"
+            ),
+            isNoLocation = true
+        )
+    }
+
+    /**
+     * V02: first-ride variant
+     * No favorite pin overlays + onboarding suggestion chips
+     */
+    private fun firstRideState(): IdleScreenState {
+        return IdleScreenState(
+            greeting = Greeting(
+                meta = "FRIDAY · 68°F · CLEAR",
+                headline = "Where are we riding today?",
+                emphasis = "today"
+            ),
+            suggestions = listOf(
+                SuggestionChip(id = "chip-onboarding-001", label = "Short & scenic"),
+                SuggestionChip(id = "chip-onboarding-002", label = "Learn the roads")
+            ),
+            locationContext = LocationContext(
+                label = "Near Santa Cruz, CA",
+                mode = "auto"
+            )
+        )
+    }
+
+    /**
+     * V03: weather-advisory variant
+     * Meta row in status.warning + advisory card
+     */
+    private fun weatherAdvisoryState(): IdleScreenState {
+        return IdleScreenState(
+            greeting = Greeting(
+                meta = "FRIDAY · 58°F · RAIN EXPECTED",
+                headline = "Where are we riding today?",
+                emphasis = "today"
+            ),
+            suggestions = listOf(
+                SuggestionChip(id = "chip-001", label = "Twisty back roads"),
+                SuggestionChip(id = "chip-002", label = "Coastal cruise"),
+                SuggestionChip(id = "chip-003", label = "Half-day loop"),
+                SuggestionChip(id = "chip-004", label = "Mountain passes")
+            ),
+            locationContext = LocationContext(
+                label = "Near Santa Cruz, CA",
+                mode = "auto"
+            ),
+            showAdvisoryCard = true,
+            advisoryMessage = "Rain expected"
         )
     }
 }

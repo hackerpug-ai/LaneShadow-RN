@@ -116,5 +116,77 @@ object IdleScreenStory {
                 }
             },
         ),
+        // V01: no-location
+        Story(
+            id = "templates.idle-screen.v-no-location",
+            tier = ComponentTier.Template,
+            component = "IdleScreen",
+            name = "Idle Screen V01 (No Location)",
+            summary = "Copper-bordered 'Tap to set start' pill + dim chat input",
+            previewMode = PreviewMode.FullScreen,
+            content = {
+                val state = IdleMockProvider.value("v-no-location")
+                LaneShadowTheme {
+                    IdleScreen(
+                        state = state,
+                        onMenuTap = {},
+                        onSuggestionTap = {},
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            },
+        ),
+        // V02: first-ride
+        Story(
+            id = "templates.idle-screen.v-first-ride",
+            tier = ComponentTier.Template,
+            component = "IdleScreen",
+            name = "Idle Screen V02 (First Ride)",
+            summary = "No favorite pin overlays + onboarding suggestion chips",
+            previewMode = PreviewMode.FullScreen,
+            content = {
+                val state = IdleMockProvider.value("v-first-ride")
+                LaneShadowTheme {
+                    IdleScreen(
+                        state = state,
+                        onMenuTap = {},
+                        onSuggestionTap = {},
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            },
+        ),
+        // V03: weather-advisory
+        Story(
+            id = "templates.idle-screen.v-weather-advisory",
+            tier = ComponentTier.Template,
+            component = "IdleScreen",
+            name = "Idle Screen V03 (Weather Advisory)",
+            summary = "Meta row in status.warning + advisory card",
+            previewMode = PreviewMode.FullScreen,
+            content = {
+                val state = IdleMockProvider.value("v-weather-advisory")
+                LaneShadowTheme {
+                    IdleScreen(
+                        state = state,
+                        onMenuTap = {},
+                        onSuggestionTap = {},
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            },
+        ),
     )
 }

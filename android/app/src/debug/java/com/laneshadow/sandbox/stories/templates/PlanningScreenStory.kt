@@ -101,5 +101,68 @@ object PlanningScreenStory {
                 }
             },
         ),
+        // V01: slow
+        Story(
+            id = "templates.planning-screen.v-slow",
+            tier = ComponentTier.Template,
+            component = "PlanningScreen",
+            name = "Planning Screen V01 (Slow)",
+            summary = "Italic apology in content.tertiary + dashed border",
+            previewMode = PreviewMode.FullScreen,
+            content = {
+                val state = PlanningMockProvider.value("v-slow")
+                LaneShadowTheme {
+                    PlanningScreen(
+                        state = state,
+                        onMenuTap = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            },
+        ),
+        // V02: cancel-confirm
+        Story(
+            id = "templates.planning-screen.v-cancel-confirm",
+            tier = ComponentTier.Template,
+            component = "PlanningScreen",
+            name = "Planning Screen V02 (Cancel Confirm)",
+            summary = "Phase card alpha disabled + scrim overlay + confirm sheet",
+            previewMode = PreviewMode.FullScreen,
+            content = {
+                val state = PlanningMockProvider.value("v-cancel-confirm")
+                LaneShadowTheme {
+                    PlanningScreen(
+                        state = state,
+                        onMenuTap = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            },
+        ),
+        // V03: single-candidate
+        Story(
+            id = "templates.planning-screen.v-single-candidate",
+            tier = ComponentTier.Template,
+            component = "PlanningScreen",
+            name = "Planning Screen V03 (Single Candidate)",
+            summary = "Warning border + compass chip tint + phase headers",
+            previewMode = PreviewMode.FullScreen,
+            content = {
+                val state = PlanningMockProvider.value("v-single-candidate")
+                LaneShadowTheme {
+                    PlanningScreen(
+                        state = state,
+                        onMenuTap = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            },
+        ),
     )
 }

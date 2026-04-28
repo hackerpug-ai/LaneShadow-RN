@@ -4,7 +4,6 @@ import SwiftUI
 // MARK: - Animation Motion Extensions
 
 extension Animation {
-
     /// Best badge entrance animation: 200ms spring
     ///
     /// Reads from theme.motion.bestBadgeEnter (uses "standard" duration = 240ms and "emphasized" easing)

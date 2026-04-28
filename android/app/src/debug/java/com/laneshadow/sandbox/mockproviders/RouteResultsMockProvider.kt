@@ -8,13 +8,19 @@ package com.laneshadow.sandbox.mockproviders
  */
 object RouteResultsMockProvider : MockProvider<RouteResultsScreenState> {
 
-    override val variants: List<String> = listOf("default", "empty", "overflow", "long-copy")
+    override val variants: List<String> = listOf(
+        "default", "empty", "overflow", "long-copy",
+        "s02-alt-selected", "s04-refining", "v03-recall"
+    )
 
     override fun value(variant: String): RouteResultsScreenState {
         return when (variant) {
             "empty" -> emptyState()
             "overflow" -> overflowState()
             "long-copy" -> longCopyState()
+            "s02-alt-selected" -> s02AltSelectedState()
+            "s04-refining" -> s04RefiningState()
+            "v03-recall" -> v03RecallState()
             else -> defaultState()
         }
     }
@@ -198,6 +204,200 @@ object RouteResultsMockProvider : MockProvider<RouteResultsScreenState> {
                         scenic = 5,
                         includesFavorite = true,
                         includesFavoriteLabel = "INCLUDES THE LEGENDARY SUNSET CLIMB SECTION"
+                    )
+                ),
+                detail = null,
+                pinned = true
+            ),
+            routes = routes,
+            selectedRouteId = "route-001"
+        )
+    }
+
+    /**
+     * S02: alt-selection re-promote
+     * Alt1 route is selected (not best)
+     */
+    private fun s02AltSelectedState(): RouteResultsScreenState {
+        val routes = listOf(
+            Route(
+                id = "route-001",
+                name = "The Skyline Spine",
+                via = "280 → 92 → Skyline to Alice's",
+                distance = 42500,
+                estimatedTime = 5400,
+                climb = 3200,
+                scenicScore = 9,
+                difficulty = "advanced",
+                polyline = "q`xwF|~kjVAo@f@e@lBiYfOaMnJcZ`FoOnFyDtL}DnK{DvB{FbEyE~CyC`Dy@hCq@|A}@jC]lBg@fBs@bBc@|@a@r@U`@O`@If@E\\G\\I`@Mf@Ul@Uz@w@hBe@f@i@`@c@x@]t@Qr@Op@M`@K`@I\\G",
+                variant = "best"
+            ),
+            Route(
+                id = "route-002",
+                name = "Coastal Highway 1 Classic",
+                via = "Great Highway → Hwy 1 → Pacifica",
+                distance = 38000,
+                estimatedTime = 4800,
+                climb = 2100,
+                scenicScore = 10,
+                difficulty = "moderate",
+                polyline = "y|rwFv`ojVHELGFWAYOu@i@sAo@aAk@eA]oAEk@Ai@Aa@?W@W@UBQ@OBODQBKDQFSF]H_@Da@Ba@?[@KBK@I@I@G@E@G@E?G?E?C?A?A?@?@?",
+                variant = "alt1"
+            ),
+            Route(
+                id = "route-003",
+                name = "Mount Hamilton Loop",
+                via = "Alum Rock → Mt Hamilton → San Antonio",
+                distance = 56000,
+                estimatedTime = 7200,
+                climb = 4500,
+                scenicScore = 8,
+                difficulty = "advanced",
+                polyline = "kvswFzcbjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+                variant = "alt2"
+            )
+        )
+
+        return RouteResultsScreenState(
+            message = NavigatorMessage(
+                id = "msg-s02",
+                sessionId = "session-s02",
+                body = "I found three great options for your Santa Cruz ride. The Skyline Spine is the most scenic - it'll take you through the redwoods with incredible views. Highway 1 is the classic coastal route if you want ocean vistas the whole way. Mt Hamilton is a challenging climb with rewarding panoramas at the summit.",
+                timestamp = "2026-04-25T10:31:00Z",
+                kind = "response",
+                attachments = listOf(
+                    RouteAttachment(
+                        routeId = "route-001",
+                        variant = "best",
+                        isBest = true,
+                        weather = WeatherSummary(condition = "clear", label = "Clear"),
+                        scenic = 5,
+                        includesFavorite = true,
+                        includesFavoriteLabel = "INCLUDES SUNSET CLIMB"
+                    ),
+                    RouteAttachment(
+                        routeId = "route-002",
+                        variant = "alt1",
+                        isBest = false,
+                        weather = WeatherSummary(condition = "clear", label = "Clear"),
+                        scenic = 5,
+                        includesFavorite = null,
+                        includesFavoriteLabel = null
+                    ),
+                    RouteAttachment(
+                        routeId = "route-003",
+                        variant = "alt2",
+                        isBest = false,
+                        weather = WeatherSummary(condition = "wind", label = "18mph NW"),
+                        scenic = 4,
+                        includesFavorite = null,
+                        includesFavoriteLabel = null
+                    )
+                ),
+                detail = null,
+                pinned = true
+            ),
+            routes = routes,
+            selectedRouteId = "route-002" // Alt1 selected, not best
+        )
+    }
+
+    /**
+     * S04: refining state
+     * Surface scrim overlay, polyline alpha 0.4, hidden callout, primer chips, send button
+     */
+    private fun s04RefiningState(): RouteResultsScreenState {
+        val routes = listOf(
+            Route(
+                id = "route-001",
+                name = "The Skyline Spine",
+                via = "280 → 92 → Skyline to Alice's",
+                distance = 42500,
+                estimatedTime = 5400,
+                climb = 3200,
+                scenicScore = 9,
+                difficulty = "advanced",
+                polyline = "q`xwF|~kjVAo@f@e@lBiYfOaMnJcZ`FoOnFyDtL}DnK{DvB{FbEyE~CyC`Dy@hCq@|A}@jC]lBg@fBs@bBc@|@a@r@U`@O`@If@E\\G\\I`@Mf@Ul@Uz@w@hBe@f@i@`@c@x@]t@Qr@Op@M`@K`@I\\G",
+                variant = "best"
+            ),
+            Route(
+                id = "route-002",
+                name = "Coastal Highway 1 Classic",
+                via = "Great Highway → Hwy 1 → Pacifica",
+                distance = 38000,
+                estimatedTime = 4800,
+                climb = 2100,
+                scenicScore = 10,
+                difficulty = "moderate",
+                polyline = "y|rwFv`ojVHELGFWAYOu@i@sAo@aAk@eA]oAEk@Ai@Aa@?W@W@UBQ@OBODQBKDQFSF]H_@Da@Ba@?[@KBK@I@I@G@E@G@E?G?E?C?A?A?@?@?",
+                variant = "alt1"
+            ),
+            Route(
+                id = "route-003",
+                name = "Mount Hamilton Loop",
+                via = "Alum Rock → Mt Hamilton → San Antonio",
+                distance = 56000,
+                estimatedTime = 7200,
+                climb = 4500,
+                scenicScore = 8,
+                difficulty = "advanced",
+                polyline = "kvswFzcbjV~@p@~@t@|@l@p@n@p@t@x@z@x@z@|@~@p@n@l@j@h@f@d@`@^\\V^\\Z",
+                variant = "alt2"
+            )
+        )
+
+        return RouteResultsScreenState(
+            message = NavigatorMessage(
+                id = "msg-s04",
+                sessionId = "session-s04",
+                body = "Refining your route selection...",
+                timestamp = "2026-04-25T10:31:00Z",
+                kind = "response",
+                attachments = null, // Hidden in refining mode
+                detail = null,
+                pinned = false
+            ),
+            routes = routes,
+            selectedRouteId = "route-001"
+        )
+    }
+
+    /**
+     * V03: Recall chip
+     * Callout is hidden, Recall pill should be shown
+     */
+    private fun v03RecallState(): RouteResultsScreenState {
+        val routes = listOf(
+            Route(
+                id = "route-001",
+                name = "The Skyline Spine",
+                via = "280 → 92 → Skyline to Alice's",
+                distance = 42500,
+                estimatedTime = 5400,
+                climb = 3200,
+                scenicScore = 9,
+                difficulty = "advanced",
+                polyline = "q`xwF|~kjVAo@f@e@lBiYfOaMnJcZ`FoOnFyDtL}DnK{DvB{FbEyE~CyC`Dy@hCq@|A}@jC]lBg@fBs@bBc@|@a@r@U`@O`@If@E\\G\\I`@Mf@Ul@Uz@w@hBe@f@i@`@c@x@]t@Qr@Op@M`@K`@I\\G",
+                variant = "best"
+            )
+        )
+
+        return RouteResultsScreenState(
+            message = NavigatorMessage(
+                id = "msg-v03",
+                sessionId = "session-v03",
+                body = "I found three great options for your Santa Cruz ride. The Skyline Spine is the most scenic - it'll take you through the redwoods with incredible views.",
+                timestamp = "2026-04-25T10:31:00Z",
+                kind = "response",
+                attachments = listOf(
+                    RouteAttachment(
+                        routeId = "route-001",
+                        variant = "best",
+                        isBest = true,
+                        weather = WeatherSummary(condition = "clear", label = "Clear"),
+                        scenic = 5,
+                        includesFavorite = true,
+                        includesFavoriteLabel = "INCLUDES SUNSET CLIMB"
                     )
                 ),
                 detail = null,

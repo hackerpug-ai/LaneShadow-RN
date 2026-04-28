@@ -22,7 +22,6 @@ import XCTest
  */
 @MainActor
 final class MotionTests: XCTestCase {
-
     // MARK: - AC-1: Sketch polyline loop runs at 1400ms linear
 
     func testSketchPolylineLoop1400Linear() {
