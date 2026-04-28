@@ -6,6 +6,7 @@ import XCTest
 @testable import LaneShadow
 
 // MARK: - REAL Behavioral Geometry Tests
+
 //
 // These tests use ViewInspector and frame inspection to verify actual rendered
 // geometry of LSRouteCard. If the implementation regresses (e.g., card padding
@@ -16,10 +17,9 @@ import XCTest
 
 @MainActor
 final class RouteCardGeometryTests: XCTestCase {
-
     // MARK: - Test Fixtures
 
-    private struct RouteCardFixtures {
+    private enum RouteCardFixtures {
         static func bestRoute() -> LSRouteCard.Route {
             LSRouteCard.Route(
                 id: "route-1",
@@ -44,7 +44,7 @@ final class RouteCardGeometryTests: XCTestCase {
                 distance: 0,
                 duration: 0,
                 polyline: [],
-                variant: .default,
+                variant: .best,
                 difficulty: nil,
                 isSaved: false
             )
@@ -110,7 +110,7 @@ final class RouteCardGeometryTests: XCTestCase {
 
     // MARK: - AC-3: 9:4 aspect ratio map preview
 
-    func testMapAspectRatioNineFour() throws {
+    func testMapAspectRatioNineFour() {
         // GIVEN: LSRouteCard is displayed at known widths
         let route = RouteCardFixtures.bestRoute()
 
