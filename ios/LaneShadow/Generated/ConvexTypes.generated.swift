@@ -2,816 +2,816 @@
 import Foundation
 
 public struct UsersDocument: Codable {
-  public let clerkUserId: String
-  public let email: String
-  public let name: String
-  public let createdAt: Double
-  public let updatedAt: Double
-  public let lastLocalUpdateAt: Double
-  public let _id: String
+    public let clerkUserId: String
+    public let email: String
+    public let name: String
+    public let createdAt: Double
+    public let updatedAt: Double
+    public let lastLocalUpdateAt: Double
+    public let _id: String
 }
 
 public struct OrgsDocument: Codable {
-  public let clerkOrgId: String
-  public let name: String
-  public let slug: String
-  public let imageUrl: String
-  public let createdAt: Double
-  public let updatedAt: Double
-  public let lastLocalUpdateAt: Double
+    public let clerkOrgId: String
+    public let name: String
+    public let slug: String
+    public let imageUrl: String
+    public let createdAt: Double
+    public let updatedAt: Double
+    public let lastLocalUpdateAt: Double
 }
 
 public struct OrgMembershipsDocument: Codable {
-  public let orgId: String
-  public let userId: String
-  public let role: String
-  public let clerkMembershipId: String
-  public let createdAt: Double
-  public let updatedAt: Double
+    public let orgId: String
+    public let userId: String
+    public let role: String
+    public let clerkMembershipId: String
+    public let createdAt: Double
+    public let updatedAt: Double
 }
 
 public struct SavedRoutesPlanInputStart: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let label: String
-  public let placeId: String
+    public let lat: Double
+    public let lng: Double
+    public let label: String
+    public let placeId: String
 }
 
 public struct SavedRoutesPlanInputEnd: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let label: String
-  public let placeId: String
+    public let lat: Double
+    public let lng: Double
+    public let label: String
+    public let placeId: String
 }
 
 public struct SavedRoutesPlanInputPreferences: Codable {
-  public let scenicBias: String
-  public let avoidHighways: Bool
-  public let avoidTolls: Bool
+    public let scenicBias: String
+    public let avoidHighways: Bool
+    public let avoidTolls: Bool
 }
 
 public struct SavedRoutesPlanInput: Codable {
-  public let start: SavedRoutesPlanInputStart
-  public let end: SavedRoutesPlanInputEnd
-  public let departureTime: Double
-  public let preferences: SavedRoutesPlanInputPreferences
-  public let nlpText: String
-  public let includeFavorites: Bool
+    public let start: SavedRoutesPlanInputStart
+    public let end: SavedRoutesPlanInputEnd
+    public let departureTime: Double
+    public let preferences: SavedRoutesPlanInputPreferences
+    public let nlpText: String
+    public let includeFavorites: Bool
 }
 
 public struct SavedRoutesRouteSnapshotBounds: Codable {
-  public let north: Double
-  public let south: Double
-  public let east: Double
-  public let west: Double
+    public let north: Double
+    public let south: Double
+    public let east: Double
+    public let west: Double
 }
 
 public struct SavedRoutesRouteSnapshotOrigin: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let label: String
-  public let placeId: String
+    public let lat: Double
+    public let lng: Double
+    public let label: String
+    public let placeId: String
 }
 
 public struct SavedRoutesRouteSnapshotDestination: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let label: String
-  public let placeId: String
+    public let lat: Double
+    public let lng: Double
+    public let label: String
+    public let placeId: String
 }
 
 public struct SavedRoutesRouteSnapshotWaypoints: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let label: String
-  public let placeId: String
+    public let lat: Double
+    public let lng: Double
+    public let label: String
+    public let placeId: String
 }
 
 public struct SavedRoutesRouteSnapshotOverviewGeometry: Codable {
-  public let format: String
-  public let encoding: String
-  public let precision: Double
-  public let value: String
+    public let format: String
+    public let encoding: String
+    public let precision: Double
+    public let value: String
 }
 
 public struct SavedRoutesRouteSnapshotLegsStart: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let label: String
-  public let placeId: String
+    public let lat: Double
+    public let lng: Double
+    public let label: String
+    public let placeId: String
 }
 
 public struct SavedRoutesRouteSnapshotLegsEnd: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let label: String
-  public let placeId: String
+    public let lat: Double
+    public let lng: Double
+    public let label: String
+    public let placeId: String
 }
 
 public struct SavedRoutesRouteSnapshotLegsGeometry: Codable {
-  public let format: String
-  public let encoding: String
-  public let precision: Double
-  public let value: String
+    public let format: String
+    public let encoding: String
+    public let precision: Double
+    public let value: String
 }
 
 public struct SavedRoutesRouteSnapshotLegsStepsStartLocation: Codable {
-  public let lat: Double
-  public let lng: Double
+    public let lat: Double
+    public let lng: Double
 }
 
 public struct SavedRoutesRouteSnapshotLegsStepsEndLocation: Codable {
-  public let lat: Double
-  public let lng: Double
+    public let lat: Double
+    public let lng: Double
 }
 
 public struct SavedRoutesRouteSnapshotLegsSteps: Codable {
-  public let stepIndex: Double
-  public let distanceMeters: Double
-  public let durationSeconds: Double
-  public let instruction: String
-  public let startLocation: SavedRoutesRouteSnapshotLegsStepsStartLocation
-  public let endLocation: SavedRoutesRouteSnapshotLegsStepsEndLocation
+    public let stepIndex: Double
+    public let distanceMeters: Double
+    public let durationSeconds: Double
+    public let instruction: String
+    public let startLocation: SavedRoutesRouteSnapshotLegsStepsStartLocation
+    public let endLocation: SavedRoutesRouteSnapshotLegsStepsEndLocation
 }
 
 public struct SavedRoutesRouteSnapshotLegs: Codable {
-  public let legIndex: Double
-  public let start: SavedRoutesRouteSnapshotLegsStart
-  public let end: SavedRoutesRouteSnapshotLegsEnd
-  public let distanceMeters: Double
-  public let durationSeconds: Double
-  public let geometry: SavedRoutesRouteSnapshotLegsGeometry
-  public let steps: [SavedRoutesRouteSnapshotLegsSteps]
+    public let legIndex: Double
+    public let start: SavedRoutesRouteSnapshotLegsStart
+    public let end: SavedRoutesRouteSnapshotLegsEnd
+    public let distanceMeters: Double
+    public let durationSeconds: Double
+    public let geometry: SavedRoutesRouteSnapshotLegsGeometry
+    public let steps: [SavedRoutesRouteSnapshotLegsSteps]
 }
 
 public struct SavedRoutesRouteSnapshotAnnotations: Codable {
-  public let id: String
-  public let annotationKind: String
-  public let label: String
-  public let lat: Double
-  public let lng: Double
-  public let placeRef: String
-  public let conditionRef: String
+    public let id: String
+    public let annotationKind: String
+    public let label: String
+    public let lat: Double
+    public let lng: Double
+    public let placeRef: String
+    public let conditionRef: String
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysWindLegendRange: Codable {
-  public let min: Double
-  public let max: Double
-  public let unit: String
+    public let min: Double
+    public let max: Double
+    public let unit: String
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysWindLegend: Codable {
-  public let level: String
-  public let label: String
-  public let range: SavedRoutesRouteSnapshotOverlaysWindLegendRange
+    public let level: String
+    public let label: String
+    public let range: SavedRoutesRouteSnapshotOverlaysWindLegendRange
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysWindByLegSegments: Codable {
-  public let startMeters: Double
-  public let endMeters: Double
-  public let level: String
-  public let reason: String
+    public let startMeters: Double
+    public let endMeters: Double
+    public let level: String
+    public let reason: String
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysWindByLeg: Codable {
-  public let legIndex: Double
-  public let segments: [SavedRoutesRouteSnapshotOverlaysWindByLegSegments]
+    public let legIndex: Double
+    public let segments: [SavedRoutesRouteSnapshotOverlaysWindByLegSegments]
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysWind: Codable {
-  public let generatedAt: Double
-  public let modelVersion: String
-  public let legend: [SavedRoutesRouteSnapshotOverlaysWindLegend]
-  public let byLeg: [SavedRoutesRouteSnapshotOverlaysWindByLeg]
+    public let generatedAt: Double
+    public let modelVersion: String
+    public let legend: [SavedRoutesRouteSnapshotOverlaysWindLegend]
+    public let byLeg: [SavedRoutesRouteSnapshotOverlaysWindByLeg]
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysRainLegendRange: Codable {
-  public let min: Double
-  public let max: Double
-  public let unit: String
+    public let min: Double
+    public let max: Double
+    public let unit: String
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysRainLegend: Codable {
-  public let level: String
-  public let label: String
-  public let range: SavedRoutesRouteSnapshotOverlaysRainLegendRange
+    public let level: String
+    public let label: String
+    public let range: SavedRoutesRouteSnapshotOverlaysRainLegendRange
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysRainByLegSegments: Codable {
-  public let startMeters: Double
-  public let endMeters: Double
-  public let level: String
-  public let probability: Double
+    public let startMeters: Double
+    public let endMeters: Double
+    public let level: String
+    public let probability: Double
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysRainByLeg: Codable {
-  public let legIndex: Double
-  public let segments: [SavedRoutesRouteSnapshotOverlaysRainByLegSegments]
+    public let legIndex: Double
+    public let segments: [SavedRoutesRouteSnapshotOverlaysRainByLegSegments]
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysRain: Codable {
-  public let generatedAt: Double
-  public let modelVersion: String
-  public let legend: [SavedRoutesRouteSnapshotOverlaysRainLegend]
-  public let byLeg: [SavedRoutesRouteSnapshotOverlaysRainByLeg]
+    public let generatedAt: Double
+    public let modelVersion: String
+    public let legend: [SavedRoutesRouteSnapshotOverlaysRainLegend]
+    public let byLeg: [SavedRoutesRouteSnapshotOverlaysRainByLeg]
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysTemperatureLegendRange: Codable {
-  public let min: Double
-  public let max: Double
-  public let unit: String
+    public let min: Double
+    public let max: Double
+    public let unit: String
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysTemperatureLegend: Codable {
-  public let level: String
-  public let label: String
-  public let range: SavedRoutesRouteSnapshotOverlaysTemperatureLegendRange
+    public let level: String
+    public let label: String
+    public let range: SavedRoutesRouteSnapshotOverlaysTemperatureLegendRange
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysTemperatureByLegSegments: Codable {
-  public let startMeters: Double
-  public let endMeters: Double
-  public let level: String
-  public let temperatureCelsius: Double
+    public let startMeters: Double
+    public let endMeters: Double
+    public let level: String
+    public let temperatureCelsius: Double
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysTemperatureByLeg: Codable {
-  public let legIndex: Double
-  public let segments: [SavedRoutesRouteSnapshotOverlaysTemperatureByLegSegments]
+    public let legIndex: Double
+    public let segments: [SavedRoutesRouteSnapshotOverlaysTemperatureByLegSegments]
 }
 
 public struct SavedRoutesRouteSnapshotOverlaysTemperature: Codable {
-  public let generatedAt: Double
-  public let modelVersion: String
-  public let legend: [SavedRoutesRouteSnapshotOverlaysTemperatureLegend]
-  public let byLeg: [SavedRoutesRouteSnapshotOverlaysTemperatureByLeg]
+    public let generatedAt: Double
+    public let modelVersion: String
+    public let legend: [SavedRoutesRouteSnapshotOverlaysTemperatureLegend]
+    public let byLeg: [SavedRoutesRouteSnapshotOverlaysTemperatureByLeg]
 }
 
 public struct SavedRoutesRouteSnapshotOverlays: Codable {
-  public let wind: SavedRoutesRouteSnapshotOverlaysWind
-  public let rain: SavedRoutesRouteSnapshotOverlaysRain
-  public let temperature: SavedRoutesRouteSnapshotOverlaysTemperature
+    public let wind: SavedRoutesRouteSnapshotOverlaysWind
+    public let rain: SavedRoutesRouteSnapshotOverlaysRain
+    public let temperature: SavedRoutesRouteSnapshotOverlaysTemperature
 }
 
 public struct SavedRoutesRouteSnapshot: Codable {
-  public let provider: String
-  public let bounds: SavedRoutesRouteSnapshotBounds
-  public let origin: SavedRoutesRouteSnapshotOrigin
-  public let destination: SavedRoutesRouteSnapshotDestination
-  public let waypoints: [SavedRoutesRouteSnapshotWaypoints]
-  public let overviewGeometry: SavedRoutesRouteSnapshotOverviewGeometry
-  public let legs: [SavedRoutesRouteSnapshotLegs]
-  public let annotations: [SavedRoutesRouteSnapshotAnnotations]
-  public let overlays: SavedRoutesRouteSnapshotOverlays
+    public let provider: String
+    public let bounds: SavedRoutesRouteSnapshotBounds
+    public let origin: SavedRoutesRouteSnapshotOrigin
+    public let destination: SavedRoutesRouteSnapshotDestination
+    public let waypoints: [SavedRoutesRouteSnapshotWaypoints]
+    public let overviewGeometry: SavedRoutesRouteSnapshotOverviewGeometry
+    public let legs: [SavedRoutesRouteSnapshotLegs]
+    public let annotations: [SavedRoutesRouteSnapshotAnnotations]
+    public let overlays: SavedRoutesRouteSnapshotOverlays
 }
 
 public struct SavedRoutesRouteIndexSampledPoints: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let distanceFromStartMeters: Double
+    public let lat: Double
+    public let lng: Double
+    public let distanceFromStartMeters: Double
 }
 
 public struct SavedRoutesRouteIndex: Codable {
-  public let routeFingerprint: String
-  public let sampledPoints: [SavedRoutesRouteIndexSampledPoints]
+    public let routeFingerprint: String
+    public let sampledPoints: [SavedRoutesRouteIndexSampledPoints]
 }
 
 public struct SavedRoutesSnapshotMetaOverlaysWind: Codable {
-  public let generatedAt: Double
-  public let modelVersion: String
+    public let generatedAt: Double
+    public let modelVersion: String
 }
 
 public struct SavedRoutesSnapshotMetaOverlays: Codable {
-  public let wind: SavedRoutesSnapshotMetaOverlaysWind
+    public let wind: SavedRoutesSnapshotMetaOverlaysWind
 }
 
 public struct SavedRoutesSnapshotMeta: Codable {
-  public let savedAt: Double
-  public let routingProvider: String
-  public let overlays: SavedRoutesSnapshotMetaOverlays
-  public let conditionsStatus: String
-  public let metaVersion: Double
+    public let savedAt: Double
+    public let routingProvider: String
+    public let overlays: SavedRoutesSnapshotMetaOverlays
+    public let conditionsStatus: String
+    public let metaVersion: Double
 }
 
 public struct SavedRoutesRouteProvenance: Codable {
-  public let sourceLabel: String
-  public let designation: String
-  public let description: String
-  public let sourceUrl: String
+    public let sourceLabel: String
+    public let designation: String
+    public let description: String
+    public let sourceUrl: String
 }
 
 public struct SavedRoutesDocument: Codable {
-  public let ownerType: String
-  public let ownerId: String
-  public let createdByUserId: String
-  public let visibility: String
-  public let name: String
-  public let planInput: SavedRoutesPlanInput
-  public let routeSnapshot: SavedRoutesRouteSnapshot
-  public let routeIndex: SavedRoutesRouteIndex
-  public let snapshotMeta: SavedRoutesSnapshotMeta
-  public let routeProvenance: SavedRoutesRouteProvenance
-  public let createdAt: Double
-  public let updatedAt: Double
-  public let deletedAt: Double
-  public let scheduledDeletionId: String
+    public let ownerType: String
+    public let ownerId: String
+    public let createdByUserId: String
+    public let visibility: String
+    public let name: String
+    public let planInput: SavedRoutesPlanInput
+    public let routeSnapshot: SavedRoutesRouteSnapshot
+    public let routeIndex: SavedRoutesRouteIndex
+    public let snapshotMeta: SavedRoutesSnapshotMeta
+    public let routeProvenance: SavedRoutesRouteProvenance
+    public let createdAt: Double
+    public let updatedAt: Double
+    public let deletedAt: Double
+    public let scheduledDeletionId: String
 }
 
 public struct FavoriteRoadsBounds: Codable {
-  public let north: Double
-  public let south: Double
-  public let east: Double
-  public let west: Double
+    public let north: Double
+    public let south: Double
+    public let east: Double
+    public let west: Double
 }
 
 public struct FavoriteRoadsDocument: Codable {
-  public let clerkUserId: String
-  public let name: String
-  public let geometry: String
-  public let bounds: FavoriteRoadsBounds
-  public let createdAt: Double
-  public let updatedAt: Double
+    public let clerkUserId: String
+    public let name: String
+    public let geometry: String
+    public let bounds: FavoriteRoadsBounds
+    public let createdAt: Double
+    public let updatedAt: Double
 }
 
 public struct RoutePlansPlanInputStart: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let label: String
-  public let placeId: String
+    public let lat: Double
+    public let lng: Double
+    public let label: String
+    public let placeId: String
 }
 
 public struct RoutePlansPlanInputEnd: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let label: String
-  public let placeId: String
+    public let lat: Double
+    public let lng: Double
+    public let label: String
+    public let placeId: String
 }
 
 public struct RoutePlansPlanInputPreferences: Codable {
-  public let scenicBias: String
-  public let avoidHighways: Bool
-  public let avoidTolls: Bool
+    public let scenicBias: String
+    public let avoidHighways: Bool
+    public let avoidTolls: Bool
 }
 
 public struct RoutePlansPlanInput: Codable {
-  public let start: RoutePlansPlanInputStart
-  public let end: RoutePlansPlanInputEnd
-  public let departureTime: Double
-  public let preferences: RoutePlansPlanInputPreferences
-  public let nlpText: String
-  public let includeFavorites: Bool
+    public let start: RoutePlansPlanInputStart
+    public let end: RoutePlansPlanInputEnd
+    public let departureTime: Double
+    public let preferences: RoutePlansPlanInputPreferences
+    public let nlpText: String
+    public let includeFavorites: Bool
 }
 
 public struct RoutePlansDocument: Codable {
-  public let clerkUserId: String
-  public let planningSessionId: String
-  public let planInput: RoutePlansPlanInput
-  public let startLabel: String
-  public let endLabel: String
-  public let status: String
-  public let statusMessage: String
-  public let phase: String
-  public let result: String
-  public let errorCode: String
-  public let errorMessage: String
-  public let scheduledActionId: String
-  public let createdAt: Double
-  public let updatedAt: Double
-  public let completedAt: Double
-  public let acknowledged: Bool
+    public let clerkUserId: String
+    public let planningSessionId: String
+    public let planInput: RoutePlansPlanInput
+    public let startLabel: String
+    public let endLabel: String
+    public let status: String
+    public let statusMessage: String
+    public let phase: String
+    public let result: String
+    public let errorCode: String
+    public let errorMessage: String
+    public let scheduledActionId: String
+    public let createdAt: Double
+    public let updatedAt: Double
+    public let completedAt: Double
+    public let acknowledged: Bool
 }
 
 public struct PlanUsageDocument: Codable {
-  public let clerkUserId: String
-  public let month: String
-  public let planCount: Double
+    public let clerkUserId: String
+    public let month: String
+    public let planCount: Double
 }
 
 public struct PlanningSessionsLastKnownLocation: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let updatedAt: Double
+    public let lat: Double
+    public let lng: Double
+    public let updatedAt: Double
 }
 
 public struct PlanningSessionsDocument: Codable {
-  public let clerkUserId: String
-  public let title: String
-  public let status: String
-  public let createdAt: Double
-  public let updatedAt: Double
-  public let lastKnownLocation: PlanningSessionsLastKnownLocation
-  public let deletedAt: Double
+    public let clerkUserId: String
+    public let title: String
+    public let status: String
+    public let createdAt: Double
+    public let updatedAt: Double
+    public let lastKnownLocation: PlanningSessionsLastKnownLocation
+    public let deletedAt: Double
 }
 
 public struct SessionMessagesAttachments: Codable {
-  public let type: String
-  public let routePlanId: String
+    public let type: String
+    public let routePlanId: String
 }
 
 public struct SessionMessagesThinkingSteps: Codable {
-  public let type: String
-  public let toolName: String
-  public let summary: String
-  public let detail: String
-  public let timestamp: Double
+    public let type: String
+    public let toolName: String
+    public let summary: String
+    public let detail: String
+    public let timestamp: Double
 }
 
 public struct SessionMessagesDocument: Codable {
-  public let sessionId: String
-  public let role: String
-  public let content: String
-  public let attachments: [SessionMessagesAttachments]
-  public let createdAt: Double
-  public let kind: String
-  public let status: String
-  public let piMessage: String
-  public let thinkingSteps: [SessionMessagesThinkingSteps]
+    public let sessionId: String
+    public let role: String
+    public let content: String
+    public let attachments: [SessionMessagesAttachments]
+    public let createdAt: Double
+    public let kind: String
+    public let status: String
+    public let piMessage: String
+    public let thinkingSteps: [SessionMessagesThinkingSteps]
 }
 
 public struct PerformanceDocument: Codable {
-  public let processType: String
-  public let agent: String
-  public let model: String
-  public let sessionId: String
-  public let input: String
-  public let output: String
-  public let steps: Double
-  public let toolCalls: Double
-  public let tools: [String]
-  public let durationMs: Double
-  public let inputTokens: Double
-  public let outputTokens: Double
-  public let cacheReadTokens: Double
-  public let totalCostUsd: Double
-  public let success: Bool
-  public let error: String
-  public let createdAt: Double
+    public let processType: String
+    public let agent: String
+    public let model: String
+    public let sessionId: String
+    public let input: String
+    public let output: String
+    public let steps: Double
+    public let toolCalls: Double
+    public let tools: [String]
+    public let durationMs: Double
+    public let inputTokens: Double
+    public let outputTokens: Double
+    public let cacheReadTokens: Double
+    public let totalCostUsd: Double
+    public let success: Bool
+    public let error: String
+    public let createdAt: Double
 }
 
 public struct OsmNodesDocument: Codable {
-  public let osmId: Double
-  public let type: String
-  public let name: String
-  public let lat: Double
-  public let lon: Double
-  public let tags: String
-  public let s2Token: String
-  public let importedAt: Double
+    public let osmId: Double
+    public let type: String
+    public let name: String
+    public let lat: Double
+    public let lon: Double
+    public let tags: String
+    public let s2Token: String
+    public let importedAt: Double
 }
 
 public struct OsmWaysBounds: Codable {
-  public let south: Double
-  public let west: Double
-  public let north: Double
-  public let east: Double
+    public let south: Double
+    public let west: Double
+    public let north: Double
+    public let east: Double
 }
 
 public struct OsmWaysDocument: Codable {
-  public let osmId: Double
-  public let name: String
-  public let highwayClass: String
-  public let surface: String
-  public let geometry: [[Double]]
-  public let bounds: OsmWaysBounds
-  public let s2Tokens: [String]
-  public let importedAt: Double
+    public let osmId: Double
+    public let name: String
+    public let highwayClass: String
+    public let surface: String
+    public let geometry: [[Double]]
+    public let bounds: OsmWaysBounds
+    public let s2Tokens: [String]
+    public let importedAt: Double
 }
 
 public struct OsmImportJobsDocument: Codable {
-  public let status: String
-  public let region: String
-  public let sourceUrl: String
-  public let startedAt: Double
-  public let completedAt: Double
-  public let nodesImported: Double
-  public let waysImported: Double
-  public let error: String
+    public let status: String
+    public let region: String
+    public let sourceUrl: String
+    public let startedAt: Double
+    public let completedAt: Double
+    public let nodesImported: Double
+    public let waysImported: Double
+    public let error: String
 }
 
 public struct TripPlansPlanInputStart: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let label: String
-  public let placeId: String
+    public let lat: Double
+    public let lng: Double
+    public let label: String
+    public let placeId: String
 }
 
 public struct TripPlansPlanInputEnd: Codable {
-  public let lat: Double
-  public let lng: Double
-  public let label: String
-  public let placeId: String
+    public let lat: Double
+    public let lng: Double
+    public let label: String
+    public let placeId: String
 }
 
 public struct TripPlansPlanInputPreferences: Codable {
-  public let scenicBias: String
-  public let avoidHighways: Bool
-  public let avoidTolls: Bool
+    public let scenicBias: String
+    public let avoidHighways: Bool
+    public let avoidTolls: Bool
 }
 
 public struct TripPlansPlanInput: Codable {
-  public let start: TripPlansPlanInputStart
-  public let end: TripPlansPlanInputEnd
-  public let departureTime: Double
-  public let preferences: TripPlansPlanInputPreferences
-  public let nlpText: String
-  public let includeFavorites: Bool
+    public let start: TripPlansPlanInputStart
+    public let end: TripPlansPlanInputEnd
+    public let departureTime: Double
+    public let preferences: TripPlansPlanInputPreferences
+    public let nlpText: String
+    public let includeFavorites: Bool
 }
 
 public struct TripPlansResultLegs: Codable {
-  public let legIndex: Double
-  public let from: String
-  public let to: String
-  public let via: String
-  public let distanceNote: String
-  public let character: String
-  public let googleMapsQuery: String
-  public let confidence: String
-  public let status: String
-  public let failureReason: String
-  public let persistedWaypoint: String
+    public let legIndex: Double
+    public let from: String
+    public let to: String
+    public let via: String
+    public let distanceNote: String
+    public let character: String
+    public let googleMapsQuery: String
+    public let confidence: String
+    public let status: String
+    public let failureReason: String
+    public let persistedWaypoint: String
 }
 
 public struct TripPlansResult: Codable {
-  public let label: String
-  public let rationale: String
-  public let legs: [TripPlansResultLegs]
-  public let totalDistanceNote: String
-  public let totalTimeNote: String
-  public let generationAttempt: Double
-  public let failedLegIndexes: [Double]
-  public let warnings: [String]
+    public let label: String
+    public let rationale: String
+    public let legs: [TripPlansResultLegs]
+    public let totalDistanceNote: String
+    public let totalTimeNote: String
+    public let generationAttempt: Double
+    public let failedLegIndexes: [Double]
+    public let warnings: [String]
 }
 
 public struct TripPlansDocument: Codable {
-  public let clerkUserId: String
-  public let planInput: TripPlansPlanInput
-  public let status: String
-  public let result: TripPlansResult
-  public let attemptCount: Double
-  public let error: String
-  public let createdAt: Double
-  public let updatedAt: Double
+    public let clerkUserId: String
+    public let planInput: TripPlansPlanInput
+    public let status: String
+    public let result: TripPlansResult
+    public let attemptCount: Double
+    public let error: String
+    public let createdAt: Double
+    public let updatedAt: Double
 }
 
 public struct RouteEnrichmentsEnrichments: Codable {
-  public let routeOptionId: String
-  public let label: String
-  public let rationale: String
-  public let highlights: [String]
-  public let elevation: String
-  public let weather: String
+    public let routeOptionId: String
+    public let label: String
+    public let rationale: String
+    public let highlights: [String]
+    public let elevation: String
+    public let weather: String
 }
 
 public struct RouteEnrichmentsDocument: Codable {
-  public let routePlanId: String
-  public let planningSessionId: String
-  public let clerkUserId: String
-  public let contentFingerprint: String
-  public let phase: String
-  public let status: String
-  public let scheduledJobId: String
-  public let enrichments: [RouteEnrichmentsEnrichments]
-  public let error: String
-  public let createdAt: Double
-  public let updatedAt: Double
-  public let completedAt: Double
+    public let routePlanId: String
+    public let planningSessionId: String
+    public let clerkUserId: String
+    public let contentFingerprint: String
+    public let phase: String
+    public let status: String
+    public let scheduledJobId: String
+    public let enrichments: [RouteEnrichmentsEnrichments]
+    public let error: String
+    public let createdAt: Double
+    public let updatedAt: Double
+    public let completedAt: Double
 }
 
 public struct WaypointsLocation: Codable {
-  public let lat: Double
-  public let lng: Double
+    public let lat: Double
+    public let lng: Double
 }
 
 public struct WaypointsDetourInfo: Codable {
-  public let distanceKm: Double
-  public let durationMinutes: Double
-  public let reason: String
+    public let distanceKm: Double
+    public let durationMinutes: Double
+    public let reason: String
 }
 
 public struct WaypointsDocument: Codable {
-  public let routePlanId: String
-  public let kind: String
-  public let status: String
-  public let location: WaypointsLocation
-  public let name: String
-  public let description: String
-  public let order: Double
-  public let detourInfo: WaypointsDetourInfo
-  public let createdAt: Double
-  public let updatedAt: Double
+    public let routePlanId: String
+    public let kind: String
+    public let status: String
+    public let location: WaypointsLocation
+    public let name: String
+    public let description: String
+    public let order: Double
+    public let detourInfo: WaypointsDetourInfo
+    public let createdAt: Double
+    public let updatedAt: Double
 }
 
 public struct CuratedRoutesLocation: Codable {
-  public let type: String
-  public let coordinates: [Double]
+    public let type: String
+    public let coordinates: [Double]
 }
 
 public struct CuratedRoutesLlmReconciliationLog: Codable {
-  public let runId: String
-  public let reconciledAt: Double
-  public let conflictsResolved: Double
-  public let notes: String
+    public let runId: String
+    public let reconciledAt: Double
+    public let conflictsResolved: Double
+    public let notes: String
 }
 
 public struct CuratedRoutesDocument: Codable {
-  public let routeId: String
-  public let name: String
-  public let state: String
-  public let source: String
-  public let primaryArchetype: String
-  public let secondaryTags: [String]
-  public let centroidLat: Double
-  public let centroidLng: Double
-  public let boundsNeLat: Double
-  public let boundsNeLng: Double
-  public let boundsSwLat: Double
-  public let boundsSwLng: Double
-  public let lengthMiles: Double
-  public let compositeScore: Double
-  public let curvatureScore: Double
-  public let scenicScore: Double
-  public let technicalScore: Double
-  public let trafficScore: Double
-  public let remotenessScore: Double
-  public let oneLiner: String
-  public let summary: String
-  public let badges: [String]
-  public let season: String
-  public let contentVersion: Double
-  public let enrichmentVersion: Double
-  public let seededAt: Double
-  public let location: CuratedRoutesLocation
-  public let name_lower: String
-  public let searchEmbedding: [Double]
-  public let searchText: String
-  public let candidateIdentifiers: [String]
-  public let matchConfidence: Double
-  public let llmReconciliationLog: [CuratedRoutesLlmReconciliationLog]
-  public let description: String
-  public let descriptiveSummary: String
-  public let rating: Double
-  public let designation: String
-  public let sourceLabel: String
-  public let sourceUrl: String
-  public let sourceRefs: [String]
-  public let groundTruth: Bool
-  public let groundTruthSource: String
-  public let groundTruthProvider: String
-  public let editorialRank: Double
-  public let sourceRank: Double
-  public let sourceRankKind: String
-  public let sourceCollection: String
-  public let sourceCollectionTitle: String
-  public let groundTruthNotes: String
-  public let relatedArticleUrl: String
-  public let relatedArticleTitle: String
-  public let stateRaw: String
-  public let statesAll: [String]
-  public let highwayNumber: String
-  public let elevationGainM: Double
-  public let surface: String
-  public let aadt: Double
-  public let aadtMedian: Double
-  public let aadtMax: Double
-  public let pavementIri: Double
-  public let mentionFrequency: Double
-  public let mentionFrequencyScore: Double
-  public let designationScore: Double
-  public let elevationDramaScore: Double
-  public let roadQualityScore: Double
-  public let lowTrafficScore: Double
-  public let weatherSuitability: Double
-  public let bestMonths: [String]
-  public let sourceCount: Double
-  public let qualityTier: String
-  public let routePolyline: String
-  public let waypointCount: Double
-  public let geometrySource: String
+    public let routeId: String
+    public let name: String
+    public let state: String
+    public let source: String
+    public let primaryArchetype: String
+    public let secondaryTags: [String]
+    public let centroidLat: Double
+    public let centroidLng: Double
+    public let boundsNeLat: Double
+    public let boundsNeLng: Double
+    public let boundsSwLat: Double
+    public let boundsSwLng: Double
+    public let lengthMiles: Double
+    public let compositeScore: Double
+    public let curvatureScore: Double
+    public let scenicScore: Double
+    public let technicalScore: Double
+    public let trafficScore: Double
+    public let remotenessScore: Double
+    public let oneLiner: String
+    public let summary: String
+    public let badges: [String]
+    public let season: String
+    public let contentVersion: Double
+    public let enrichmentVersion: Double
+    public let seededAt: Double
+    public let location: CuratedRoutesLocation
+    public let name_lower: String
+    public let searchEmbedding: [Double]
+    public let searchText: String
+    public let candidateIdentifiers: [String]
+    public let matchConfidence: Double
+    public let llmReconciliationLog: [CuratedRoutesLlmReconciliationLog]
+    public let description: String
+    public let descriptiveSummary: String
+    public let rating: Double
+    public let designation: String
+    public let sourceLabel: String
+    public let sourceUrl: String
+    public let sourceRefs: [String]
+    public let groundTruth: Bool
+    public let groundTruthSource: String
+    public let groundTruthProvider: String
+    public let editorialRank: Double
+    public let sourceRank: Double
+    public let sourceRankKind: String
+    public let sourceCollection: String
+    public let sourceCollectionTitle: String
+    public let groundTruthNotes: String
+    public let relatedArticleUrl: String
+    public let relatedArticleTitle: String
+    public let stateRaw: String
+    public let statesAll: [String]
+    public let highwayNumber: String
+    public let elevationGainM: Double
+    public let surface: String
+    public let aadt: Double
+    public let aadtMedian: Double
+    public let aadtMax: Double
+    public let pavementIri: Double
+    public let mentionFrequency: Double
+    public let mentionFrequencyScore: Double
+    public let designationScore: Double
+    public let elevationDramaScore: Double
+    public let roadQualityScore: Double
+    public let lowTrafficScore: Double
+    public let weatherSuitability: Double
+    public let bestMonths: [String]
+    public let sourceCount: Double
+    public let qualityTier: String
+    public let routePolyline: String
+    public let waypointCount: Double
+    public let geometrySource: String
 }
 
 public struct CuratedRouteEnrichmentsPhotos: Codable {
-  public let url: String
-  public let caption: String
-  public let attribution: String
+    public let url: String
+    public let caption: String
+    public let attribution: String
 }
 
 public struct CuratedRouteEnrichmentsSources: Codable {
-  public let site: String
-  public let url: String
-  public let lastFetched: Double
-  public let extractionConfidence: Double
+    public let site: String
+    public let url: String
+    public let lastFetched: Double
+    public let extractionConfidence: Double
 }
 
 public struct CuratedRouteEnrichmentsDocument: Codable {
-  public let routeId: String
-  public let fullDescription: String
-  public let history: String
-  public let roadClassification: String
-  public let surfaceMaterial: String
-  public let totalElevationGainM: Double
-  public let elevationProfile: String
-  public let nearestCities: [String]
-  public let ridershipLevel: String
-  public let seasonalNotes: String
-  public let safetyWarnings: String
-  public let gpxUrl: String
-  public let photos: [CuratedRouteEnrichmentsPhotos]
-  public let sources: [CuratedRouteEnrichmentsSources]
-  public let recommendedStarts: [String]
-  public let fuelStops: [String]
-  public let extractedBy: String
-  public let extractedAt: Double
-  public let extractionSchemaVersion: Double
-  public let enrichmentVersion: Double
-  public let lastEnrichedAt: Double
+    public let routeId: String
+    public let fullDescription: String
+    public let history: String
+    public let roadClassification: String
+    public let surfaceMaterial: String
+    public let totalElevationGainM: Double
+    public let elevationProfile: String
+    public let nearestCities: [String]
+    public let ridershipLevel: String
+    public let seasonalNotes: String
+    public let safetyWarnings: String
+    public let gpxUrl: String
+    public let photos: [CuratedRouteEnrichmentsPhotos]
+    public let sources: [CuratedRouteEnrichmentsSources]
+    public let recommendedStarts: [String]
+    public let fuelStops: [String]
+    public let extractedBy: String
+    public let extractedAt: Double
+    public let extractionSchemaVersion: Double
+    public let enrichmentVersion: Double
+    public let lastEnrichedAt: Double
 }
 
 public struct RouteFeedbackDocument: Codable {
-  public let routeId: String
-  public let userId: String
-  public let action: String
-  public let rating: Double
-  public let locationLat: Double
-  public let locationLng: Double
-  public let archetypeFilter: String
-  public let timestamp: Double
+    public let routeId: String
+    public let userId: String
+    public let action: String
+    public let rating: Double
+    public let locationLat: Double
+    public let locationLng: Double
+    public let archetypeFilter: String
+    public let timestamp: Double
 }
 
 public struct RoutePostsRawPayload: Codable {
-  public let roadNameMentions: [String]
-  public let highwayRefs: [String]
-  public let stateRefs: [String]
-  public let landmarkRefs: [String]
-  public let sentiment: String
-  public let aspectScores: String
-  public let attributes: String
-  public let warnings: [String]
+    public let roadNameMentions: [String]
+    public let highwayRefs: [String]
+    public let stateRefs: [String]
+    public let landmarkRefs: [String]
+    public let sentiment: String
+    public let aspectScores: String
+    public let attributes: String
+    public let warnings: [String]
 }
 
 public struct RoutePostsRawDocument: Codable {
-  public let postId: String
-  public let source: String
-  public let postUrl: String
-  public let postAuthor: String
-  public let postScore: Double
-  public let postedAt: Double
-  public let rawText: String
-  public let extractionSchemaVersion: Double
-  public let extractionModel: String
-  public let extractionCost: Double
-  public let extractedAt: Double
-  public let extractionConfidence: Double
-  public let postEmbedding: [Double]
-  public let payload: RoutePostsRawPayload
+    public let postId: String
+    public let source: String
+    public let postUrl: String
+    public let postAuthor: String
+    public let postScore: Double
+    public let postedAt: Double
+    public let rawText: String
+    public let extractionSchemaVersion: Double
+    public let extractionModel: String
+    public let extractionCost: Double
+    public let extractedAt: Double
+    public let extractionConfidence: Double
+    public let postEmbedding: [Double]
+    public let payload: RoutePostsRawPayload
 }
 
 public struct RouteMatchesDocument: Codable {
-  public let matchId: String
-  public let postId: String
-  public let routeId: String
-  public let matchConfidence: Double
-  public let cosineSimilarity: Double
-  public let matchReasoning: String
-  public let rerankModel: String
-  public let rerankCost: Double
-  public let matchedAt: Double
-  public let isArbitrated: Bool
-  public let arbitrationNotes: String
+    public let matchId: String
+    public let postId: String
+    public let routeId: String
+    public let matchConfidence: Double
+    public let cosineSimilarity: Double
+    public let matchReasoning: String
+    public let rerankModel: String
+    public let rerankCost: Double
+    public let matchedAt: Double
+    public let isArbitrated: Bool
+    public let arbitrationNotes: String
 }
 
 public struct CommunityWaypointMentionsDocument: Codable {
-  public let postId: String
-  public let postUrl: String
-  public let name: String
-  public let lat: Double?
-  public let lng: Double?
-  public let region: String
-  public let proposedCategory: String
-  public let riderQuote: String
-  public let confidenceScore: Double
-  public let extractedAt: Double
+    public let postId: String
+    public let postUrl: String
+    public let name: String
+    public let lat: Double?
+    public let lng: Double?
+    public let region: String
+    public let proposedCategory: String
+    public let riderQuote: String
+    public let confidenceScore: Double
+    public let extractedAt: Double
 }
 
 public struct CurationArtifactReleasesDocument: Codable {
-  public let source: String
-  public let releaseId: String
-  public let manifestStorageId: String
-  public let fullArtifactStorageId: String
-  public let rowCount: Double
-  public let sha256: String
-  public let generatedAt: Double
-  public let active: Bool
-  public let createdAt: Double
-  public let updatedAt: Double
+    public let source: String
+    public let releaseId: String
+    public let manifestStorageId: String
+    public let fullArtifactStorageId: String
+    public let rowCount: Double
+    public let sha256: String
+    public let generatedAt: Double
+    public let active: Bool
+    public let createdAt: Double
+    public let updatedAt: Double
 }
 
 public struct CurationArtifactShardsDocument: Codable {
-  public let source: String
-  public let releaseId: String
-  public let state: String
-  public let storageId: String
-  public let rowCount: Double
-  public let sha256: String
-  public let createdAt: Double
-  public let updatedAt: Double
+    public let source: String
+    public let releaseId: String
+    public let state: String
+    public let storageId: String
+    public let rowCount: Double
+    public let sha256: String
+    public let createdAt: Double
+    public let updatedAt: Double
 }

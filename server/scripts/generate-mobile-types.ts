@@ -222,7 +222,7 @@ function renderSwiftStruct(
     }
     const baseType = swiftTypeForField(fieldSchema, nestedTypeName)
     const propertyType = fieldSchema.optional ? `${baseType}?` : baseType
-    properties.push(`  public let ${fieldName}: ${propertyType}`)
+    properties.push(`    public let ${fieldName}: ${propertyType}`)
   }
 
   return `${nestedStructs.join('\n\n')}${nestedStructs.length > 0 ? '\n\n' : ''}public struct ${typeName}: Codable {\n${properties.join('\n')}\n}`
