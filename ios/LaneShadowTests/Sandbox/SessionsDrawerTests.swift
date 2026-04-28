@@ -17,7 +17,6 @@ struct TestSession: Identifiable, SessionTitleProvider, SessionPreviewProvider, 
 
 @MainActor
 final class SessionsDrawerTests: XCTestCase {
-
     // MARK: - AC-1: Solid container background [PRIMARY]
 
     func testDrawerSolidBackground() throws {
@@ -28,7 +27,7 @@ final class SessionsDrawerTests: XCTestCase {
                     title: "Santa Cruz Loop",
                     preview: "Take 1 south to Davenport...",
                     when: "Today"
-                )
+                ),
             ],
             activeSessionId: "session-1",
             groupLabel: "THIS WEEK",
@@ -72,7 +71,7 @@ final class SessionsDrawerTests: XCTestCase {
                     title: "Santa Cruz Loop",
                     preview: "Take 1 south to Davenport...",
                     when: "Today"
-                )
+                ),
             ],
             activeSessionId: "session-1",
             groupLabel: "THIS WEEK",
@@ -116,7 +115,7 @@ final class SessionsDrawerTests: XCTestCase {
                     title: "Santa Cruz Loop",
                     preview: "Take 1 south to Davenport...",
                     when: "Today"
-                )
+                ),
             ],
             activeSessionId: "session-1",
             groupLabel: "THIS WEEK",
@@ -178,7 +177,7 @@ final class SessionsDrawerTests: XCTestCase {
                     title: "Santa Cruz Loop",
                     preview: "Take 1 south to Davenport...",
                     when: "Today"
-                )
+                ),
             ],
             activeSessionId: "session-1",
             groupLabel: "THIS WEEK",

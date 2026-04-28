@@ -2,7 +2,6 @@ import LaneShadowTheme
 import SnapshotTesting
 import SwiftUI
 import Testing
-
 @testable import LaneShadow
 
 /// Map slot tests for paper substrate + contour rendering.
@@ -18,7 +17,7 @@ import Testing
 struct MapSlotTests {
     @MainActor
     @Test("AC-1: IdleScreen renders paper substrate with contours and pins", .snapshot())
-    func idleScreenPaperSubstrateWithContours() async throws {
+    func idleScreenPaperSubstrateWithContours() {
         // GIVEN: IdleScreen is displayed in sandbox
         let idleScreen = IdleScreen()
 
@@ -33,7 +32,7 @@ struct MapSlotTests {
 
     @MainActor
     @Test("AC-2: PlanningScreen renders paper substrate with contours", .snapshot())
-    func planningScreenPaperSubstrate() async throws {
+    func planningScreenPaperSubstrate() {
         // GIVEN: PlanningScreen is displayed
         let planningScreen = PlanningScreen()
 
@@ -48,7 +47,7 @@ struct MapSlotTests {
 
     @MainActor
     @Test("AC-3: ErrorScreen renders paper with broken polyline overlay", .snapshot())
-    func errorScreenBrokenPolylineOverlay() async throws {
+    func errorScreenBrokenPolylineOverlay() {
         // GIVEN: ErrorScreen is displayed
         let errorScreen = ErrorScreen()
 
@@ -63,7 +62,7 @@ struct MapSlotTests {
 
     @MainActor
     @Test("AC-4: Dark mode map substrate resolves correctly", .snapshot())
-    func darkModeMapSubstrate() async throws {
+    func darkModeMapSubstrate() {
         // GIVEN: Device is in dark mode
         // WHEN: Any screen's map slot renders
         // THEN: Paper substrate resolves to dark ink-900 with inverted contours
@@ -79,7 +78,7 @@ struct MapSlotTests {
 
     @MainActor
     @Test("AC-5: Favorite pin overlay rendering", .snapshot())
-    func favoritePinOverlay() async throws {
+    func favoritePinOverlay() {
         // GIVEN: IdleScreen with favorite locations
         // WHEN: Map slot renders
         // THEN: Copper-filled circle pins (16pt) with card-colored border
