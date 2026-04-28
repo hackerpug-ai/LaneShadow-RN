@@ -63,7 +63,9 @@ public struct LSTopBar: View {
             }
             .fixedSize(horizontal: true, vertical: false)
             .frame(width: chipSize, height: chipSize)
+            .contentShape(Rectangle())
         }
+        .buttonStyle(PlainButtonStyle())
         .accessibilityLabel("Menu")
         .accessibilityIdentifier("lstopbar-hamburger")
     }
@@ -92,7 +94,9 @@ public struct LSTopBar: View {
             }
             .fixedSize(horizontal: true, vertical: false)
             .frame(height: chipSize)
+            .contentShape(Rectangle())
         }
+        .buttonStyle(PlainButtonStyle())
         .accessibilityLabel("New")
         .accessibilityIdentifier("lstopbar-new")
     }

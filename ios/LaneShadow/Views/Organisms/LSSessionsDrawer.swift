@@ -35,29 +35,28 @@ public struct LSSessionsDrawer<Session: Identifiable>: View where Session.ID == 
 
     public var body: some View {
         VStack(spacing: 0) {
-            LSGlassPanel(variant: .chrome, padding: .spacing4) {
-                VStack(spacing: 0) {
-                    // Sticky header
-                    header
+            VStack(spacing: 0) {
+                // Sticky header
+                header
 
-                    // Section label
-                    LSSectionHeader(title: groupLabel)
+                // Section label
+                LSSectionHeader(title: groupLabel)
 
-                    // Scrollable session rows
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            ForEach(sessions, id: \.id) { session in
-                                SessionRow(
-                                    session: session,
-                                    isActive: session.id == activeSessionId,
-                                    onSelect: { onSelect(session.id) }
-                                )
-                            }
+                // Scrollable session rows
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(sessions, id: \.id) { session in
+                            SessionRow(
+                                session: session,
+                                isActive: session.id == activeSessionId,
+                                onSelect: { onSelect(session.id) }
+                            )
                         }
                     }
                 }
             }
             .frame(width: drawerWidth)
+            .background(LaneShadowTheme.color.surface.card)
             .overlay(alignment: .trailing) {
                 Rectangle()
                     .fill(LaneShadowTheme.color.border.default)
@@ -133,7 +132,7 @@ private struct SessionRow<Session: Identifiable>: View where Session.ID == Strin
                 if isActive {
                     Rectangle()
                         .fill(LaneShadowTheme.color.signal.default)
-                        .frame(width: 3)
+                        .frame(width: theme.strokeWidth.thick)
                 }
 
                 // Row content
@@ -157,7 +156,7 @@ private struct SessionRow<Session: Identifiable>: View where Session.ID == Strin
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     isActive
-                        ? LaneShadowTheme.color.signal.default.opacity(theme.opacity.values["5"]!)
+                        ? LaneShadowTheme.color.signal.whisper
                         : Color.clear
                 )
             }

@@ -79,6 +79,8 @@
 		F994D017357EA5F2EAA9D72F /* LSModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94AB21A076699921AC328EE9 /* LSModal.swift */; };
 		F9E41F8A8E5435B9BCD67D40 /* InfoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5F858C066D550CE73CE6FD /* InfoToast.swift */; };
 		FCAE00CC74E427BDB51D7F65 /* LSSuggestionChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */; };
+		002303B5C6FBF74A485C0A42 /* LSPaperMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30B560FA48085ACB5AC84 /* LSPaperMap.swift */; };
+		BD69BA947D14A97B9213483D /* LSFavoritePinDot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C8E7950F466389067A631F /* LSFavoritePinDot.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -169,6 +171,8 @@
 		F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvexStore.swift; sourceTree = "<group>"; };
 		F70ECDFAA1C996A2AF6FEA1C /* InfrastructureControlsStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfrastructureControlsStories.swift; sourceTree = "<group>"; };
 		F7C289172CD246D71CC0E6BB /* LaneShadowSandboxEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowSandboxEntry.swift; sourceTree = "<group>"; };
+		4FF30B560FA48085ACB5AC84 /* LSPaperMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPaperMap.swift; sourceTree = "<group>"; };
+		19C8E7950F466389067A631F /* LSFavoritePinDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFavoritePinDot.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -477,6 +481,8 @@
 				EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */,
 				94AB21A076699921AC328EE9 /* LSModal.swift */,
 				4F137157E747643E3C5CB9F7 /* LSNavHeader.swift */,
+				4FF30B560FA48085ACB5AC84 /* LSPaperMap.swift */,
+				19C8E7950F466389067A631F /* LSFavoritePinDot.swift */,
 				C7D0D2BB3D9A32CB9A700EFC /* LSPhaseIndicator.swift */,
 				70071A35653D217D4EB4A4B8 /* LSRouteAttachmentCard.swift */,
 				A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */,
@@ -835,6 +841,8 @@
 				95572DAE37FCF32B9BDE4BC4 /* LSMapStories.swift in Sources */,
 				F994D017357EA5F2EAA9D72F /* LSModal.swift in Sources */,
 				B4F9EB30336D5595D5388973 /* LSNavHeader.swift in Sources */,
+				002303B5C6FBF74A485C0A42 /* LSPaperMap.swift in Sources */,
+				BD69BA947D14A97B9213483D /* LSFavoritePinDot.swift in Sources */,
 				1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */,
 				6D0C6A870476786F7228EA13 /* LSPhaseIndicator.swift in Sources */,
 				91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */,
