@@ -37,7 +37,8 @@
     "snapshots:sync-manifest": "pnpm tsx scripts/snapshots/sync-manifest.ts",
     "snapshots:parity-coverage": "pnpm tsx scripts/snapshots/parity-coverage.ts",
     "ui:diff": "pnpm tsx scripts/ui-diff/capture-rn.ts && pnpm tsx scripts/ui-diff/capture-android.ts && pnpm tsx scripts/ui-diff/capture-ios.ts && pnpm tsx scripts/ui-diff/compare.ts",
-    "capture:design": "pnpm tsx scripts/capture-design-system.ts"
+    "capture:design": "pnpm tsx scripts/capture-design-system.ts",
+    "server:codegen": "npx tsx server/scripts/generate-mobile-types.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1026.0",

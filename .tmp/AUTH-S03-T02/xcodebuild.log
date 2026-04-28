@@ -1,0 +1,33 @@
+/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T02/ios/LaneShadow/Sandbox/Stories/Templates/PlanningScreenStory.swift:44:54: warning: left side of nil coalescing operator '??' has non-optional type 'Int', so the right side is never used
+                activePhase: args.int("activePhase") ?? 2
+                             ~~~~~~~~~~~~~~~~~~~~~~~~^~~~
+                                                    
+/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T02/ios/LaneShadow/Views/Templates/ErrorScreen.swift:92:21: warning: main actor-isolated property 'onSuggestionTap' can not be referenced from a Sendable closure
+                    onSuggestionTap(chip)
+                    ^
+/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T02/ios/LaneShadow/Views/Templates/ErrorScreen.swift:16:17: note: property declared here
+    private let onSuggestionTap: (MockSuggestionChip) -> Void
+                ^
+/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T02/ios/LaneShadow/Views/Templates/ErrorScreen.swift:94:21: warning: main actor-isolated property 'chatInputValue' can not be mutated from a Sendable closure
+                    chatInputValue = tappedLabel
+                    ^
+/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T02/ios/LaneShadow/Views/Templates/ErrorScreen.swift:14:24: note: mutation of this property is only permitted within the actor
+    @State private var chatInputValue: String = ""
+                       ^
+/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T02/ios/LaneShadow/Views/Templates/RouteResultsScreen.swift:183:17: warning: main actor-isolated property 'selectedRouteId' can not be mutated from a Sendable closure
+                selectedRouteId = routeId
+                ^
+/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T02/ios/LaneShadow/Views/Templates/RouteResultsScreen.swift:18:24: note: mutation of this property is only permitted within the actor
+    @State private var selectedRouteId: String
+                       ^
+/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T02/ios/LaneShadow/Sandbox/Stories/Templates/PlanningScreenStory.swift:44:54: warning: left side of nil coalescing operator '??' has non-optional type 'Int', so the right side is never used
+                activePhase: args.int("activePhase") ?? 2
+                             ~~~~~~~~~~~~~~~~~~~~~~~~^~~~
+                                                    
+/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T02/ios/LaneShadow/Sandbox/LaneShadowSandboxEntry.swift:33:10: warning: 'onChange(of:perform:)' was deprecated in iOS 17.0: Use `onChange` with a two or zero parameter action closure instead.
+        .onChange(of: selectedStoryId) { newValue in
+         ^
+/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T02/ios/LaneShadow/Views/Molecules/MarkdownText.swift:97:27: warning: value 'link' was defined but never used; consider replacing with boolean test
+            } else if let link = run.link {
+                      ~~~~^~~~~~~
+                                          != nil
