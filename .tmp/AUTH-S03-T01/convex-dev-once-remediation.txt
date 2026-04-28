@@ -1,0 +1,4 @@
+
+> @laneshadow/server@0.0.0 convex:dev /Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T01/server
+> sh -c 'if [ ! -d convex ]; then echo "Missing server/convex. Establish backend code in a downstream restructure task before running Convex commands."; exit 1; fi; if [ "${1:-}" = "--" ]; then shift; fi; npx convex dev "$@"' -- "--" "--once"
+

@@ -1,0 +1,3 @@
+undefined
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "biome" not found
+exit_code=1

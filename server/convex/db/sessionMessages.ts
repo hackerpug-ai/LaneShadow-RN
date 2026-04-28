@@ -138,7 +138,7 @@ export const sendHandler = async (
 
 export const listHandler = async (
   ctx: ListMessagesCtx,
-  args: { sessionId: Id<'planning_sessions'> },
+  args: { sessionId: Id<'planning_sessions'>; limit?: number },
   clerkUserId: string,
 ): Promise<SessionMessageDoc[]> => {
   // CRITICAL: Validate session ownership first
@@ -154,7 +154,11 @@ export const listHandler = async (
     .collect()
 
   // Sort by createdAt ascending (oldest first)
-  return messages.sort((a: SessionMessageDoc, b: SessionMessageDoc) => a.createdAt - b.createdAt)
+  const sorted = messages.sort(
+    (a: SessionMessageDoc, b: SessionMessageDoc) => a.createdAt - b.createdAt,
+  )
+  const limit = args.limit ?? 50
+  return sorted.slice(0, limit)
 }
 
 export const addSystemMessageHandler = async (
@@ -403,6 +407,7 @@ export const send = mutation({
 export const list = query({
   args: {
     sessionId: v.id('planning_sessions'),
+    limit: v.optional(v.number()),
   },
   returns: v.any(),
   handler: async (ctx, args) => {
