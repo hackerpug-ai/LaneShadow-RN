@@ -58,15 +58,8 @@ public struct PlanningScreen: View {
 
     private var mapView: some View {
         ZStack {
-            // Placeholder map background
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    theme.colors.surface.default,
-                    theme.colors.background.default,
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            // Paper substrate with contour grid
+            LSPaperMap(overlayStyle: .contours)
 
             // Sketching polyline animation
             sketchingPolyline

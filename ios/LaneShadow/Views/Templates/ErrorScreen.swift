@@ -63,23 +63,8 @@ public struct ErrorScreen: View {
     // MARK: - Map
 
     private var mapView: some View {
-        ZStack {
-            // Placeholder map background
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    theme.colors.surface.default,
-                    theme.colors.background.default,
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-
-            // Map content (using neutral placeholder)
-            Text("Map Layer")
-                .foregroundStyle(theme.colors.onSurface.default)
-                .font(.body)
-        }
-        .accessibilityIdentifier("errorscreen-map")
+        LSPaperMap(overlayStyle: .brokenPolyline)
+            .accessibilityIdentifier("errorscreen-map")
     }
 
     // MARK: - Error Callout
