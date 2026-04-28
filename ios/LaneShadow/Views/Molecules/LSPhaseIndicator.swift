@@ -41,7 +41,8 @@ public struct LSPhaseIndicator: View {
                 LSIcon(name: .compass, size: .xs, color: .signal)
             }
             .background(compassChipBackground)
-            .foregroundStyle(showWarningChrome ? LaneShadowTheme.color.status.warning.default : LaneShadowTheme.color.signal.default)
+            .foregroundStyle(showWarningChrome ? LaneShadowTheme.color.status.warning.default : LaneShadowTheme.color
+                .signal.default)
             .overlay {
                 RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
                     .stroke(compassChipBorderColor, lineWidth: theme.borderWidth.hairline)

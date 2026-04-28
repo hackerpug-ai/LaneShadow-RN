@@ -42,10 +42,12 @@
 		7428AF73F12DDBD3824E9BDE /* LSBadgeStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C14284F7C5546B178E7CA7 /* LSBadgeStories.swift */; };
 		762FB79AB5AE6050179BB785 /* LSScrimStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F281656D06513E78E57D10D /* LSScrimStories.swift */; };
 		796603EE7DD1C76F8E2D5C00 /* LSSurfaceStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A48CAA6BB2E860CDDF3E18 /* LSSurfaceStories.swift */; };
+		7A212938CD543DDC0BCC626E /* NavBarVariantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C8ADF5253CDE6E402B7ACC /* NavBarVariantTests.swift */; };
 		7D4F7230A93BF39451BC7BB6 /* LSModalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 690C1B6B480FD345A05807B0 /* LSModalTests.swift */; };
 		7E8799D5CE1C5FFCE3D09066 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324B26FB2DE3F759B489CB7B /* App.swift */; };
 		7F07F9ABF0C419E0E2BA5CEA /* LSWeatherBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478C8C03ABF1E0F4AFEF0836 /* LSWeatherBadge.swift */; };
 		8DD1E5F229561147AA644B21 /* LSFormField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0D7B9F463A28F5B5936751 /* LSFormField.swift */; };
+		907972E45BE14D56A5F09878 /* LSAdvisoryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB1CE95A1677A6E6B2FC3752 /* LSAdvisoryCard.swift */; };
 		91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220BC64128EB0A24188F4C65 /* LSPillStories.swift */; };
 		925CA576235653EA9D6CE109 /* NativeSandbox in Frameworks */ = {isa = PBXBuildFile; productRef = 9DD5E01C1B4FE6A3686813CA /* NativeSandbox */; };
 		938A965D4FEDD3713546A274 /* LSTabItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C18F36042134628BD1BF30B /* LSTabItem.swift */; };
@@ -55,6 +57,7 @@
 		96D64305E0336CAB29EDE308 /* LSChatInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19695B8A9932BA0DADCBEADF /* LSChatInput.swift */; };
 		A09AB47FC330215325A9F4F1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDF4218751AC8200085830 /* Foundation.framework */; };
 		A71A81EDC8563AFD14EE83FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95CA989BE1243B1021F83D3 /* ContentView.swift */; };
+		B1392F3D06CECB20CAFB88DF /* LSCancelConfirmSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E507521BD4D5F91252B71C42 /* LSCancelConfirmSheet.swift */; };
 		B4F9EB30336D5595D5388973 /* LSNavHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F137157E747643E3C5CB9F7 /* LSNavHeader.swift */; };
 		B55D247513D3B4742E36D92B /* AtomsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */; };
 		B5FF9B8BF6CCCBF0478B2A77 /* LaneShadowStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */; };
@@ -145,6 +148,7 @@
 		A770CE2595F52C1DC3532F8A /* LSMapStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSMapStories.swift; sourceTree = "<group>"; };
 		A8FC588254B2DE58F4742ED7 /* LSFavoritePinDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFavoritePinDot.swift; sourceTree = "<group>"; };
 		A9EDF4218751AC8200085830 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		AB1CE95A1677A6E6B2FC3752 /* LSAdvisoryCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LSAdvisoryCard.swift; path = Views/Molecules/LSAdvisoryCard.swift; sourceTree = "<group>"; };
 		AF1B423136CAE461D37777B4 /* MotionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MotionTests.swift; path = LaneShadowTests/Sandbox/MotionTests.swift; sourceTree = "<group>"; };
 		B0E16C5B6F4121EB1CA3D72D /* LSScenicDotStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScenicDotStrip.swift; sourceTree = "<group>"; };
 		B95CA989BE1243B1021F83D3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -159,12 +163,14 @@
 		DA1BDF769396CF5EB37B55B9 /* LSFormFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFormFieldTests.swift; sourceTree = "<group>"; };
 		E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoleculesStories.swift; sourceTree = "<group>"; };
 		E444532E22B318AA5B8E61E2 /* LSToolbarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbarTests.swift; sourceTree = "<group>"; };
+		E507521BD4D5F91252B71C42 /* LSCancelConfirmSheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LSCancelConfirmSheet.swift; path = Views/Molecules/LSCancelConfirmSheet.swift; sourceTree = "<group>"; };
 		E79150F1AF6EC81E9C67E1F8 /* IdlePlanningVariantTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IdlePlanningVariantTests.swift; path = LaneShadowTests/Sandbox/IdlePlanningVariantTests.swift; sourceTree = "<group>"; };
 		EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSLocationContextBar.swift; sourceTree = "<group>"; };
 		ECE0D6D9002157D332688E90 /* LSTokenStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTokenStories.swift; sourceTree = "<group>"; };
 		ED792B4C270AB975C34CB118 /* LaneShadowTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LaneShadowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE8CB573821E0981D725E364 /* LSInputStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSInputStories.swift; sourceTree = "<group>"; };
 		EF4B1C18D8FD1069B42CB70D /* LaneShadowUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LaneShadowUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F0C8ADF5253CDE6E402B7ACC /* NavBarVariantTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NavBarVariantTests.swift; path = LaneShadowTests/Sandbox/NavBarVariantTests.swift; sourceTree = "<group>"; };
 		F0EE8B6BD461E65A5DD1F948 /* LSWeatherTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSWeatherTimeline.swift; sourceTree = "<group>"; };
 		F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvexStore.swift; sourceTree = "<group>"; };
 		F70ECDFAA1C996A2AF6FEA1C /* InfrastructureControlsStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfrastructureControlsStories.swift; sourceTree = "<group>"; };
@@ -506,6 +512,8 @@
 				B95CA989BE1243B1021F83D3 /* ContentView.swift */,
 				F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */,
 				87BAB9F9BB8FFBBEEE6B98F5 /* LaneShadowTests */,
+				AB1CE95A1677A6E6B2FC3752 /* LSAdvisoryCard.swift */,
+				E507521BD4D5F91252B71C42 /* LSCancelConfirmSheet.swift */,
 			);
 			path = LaneShadow;
 			sourceTree = "<group>";
@@ -545,6 +553,7 @@
 			children = (
 				AF1B423136CAE461D37777B4 /* MotionTests.swift */,
 				E79150F1AF6EC81E9C67E1F8 /* IdlePlanningVariantTests.swift */,
+				F0C8ADF5253CDE6E402B7ACC /* NavBarVariantTests.swift */,
 			);
 			name = LaneShadowTests;
 			sourceTree = "<group>";
@@ -852,6 +861,8 @@
 				E868E14CF971E572F61A614E /* MoleculesStories.swift in Sources */,
 				616DD39EE36B30266B875E68 /* PlaceholderInfrastructureStories.swift in Sources */,
 				2A685A9BE84EC13D3483B8C8 /* TemplateStories.swift in Sources */,
+				907972E45BE14D56A5F09878 /* LSAdvisoryCard.swift in Sources */,
+				B1392F3D06CECB20CAFB88DF /* LSCancelConfirmSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -879,6 +890,7 @@
 				C9108535DE88E44D62CC2AE6 /* MarkdownTextTests.swift in Sources */,
 				438455EC368DDBC19B77B0E8 /* MotionTests.swift in Sources */,
 				1EA4C9EA2DD25DC093E79078 /* IdlePlanningVariantTests.swift in Sources */,
+				7A212938CD543DDC0BCC626E /* NavBarVariantTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,7 +9,7 @@ public struct LSCancelConfirmSheet: View {
     @Environment(\.theme) private var theme
 
     private let title: String
-    private let body: String
+    private let sheetBody: String
     private let keepLabel: String
     private let cancelLabel: String
     private let onKeep: () -> Void
@@ -24,7 +24,7 @@ public struct LSCancelConfirmSheet: View {
         onCancel: @escaping () -> Void
     ) {
         self.title = title
-        self.body = body
+        sheetBody = body
         self.keepLabel = keepLabel
         self.cancelLabel = cancelLabel
         self.onKeep = onKeep
@@ -36,14 +36,14 @@ public struct LSCancelConfirmSheet: View {
             // Title
             Text(title)
                 .font(theme.type.opinion.lg.font)
-                .foregroundStyle(theme.colors.content.primary)
+                .foregroundStyle(theme.colors.onSurface.default)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             // Body
-            Text(body)
+            Text(sheetBody)
                 .font(theme.type.opinion.sm.font)
                 .italic()
-                .foregroundStyle(theme.colors.content.secondary)
+                .foregroundStyle(theme.colors.onSurface.default.opacity(0.7))
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             // Actions
@@ -52,14 +52,14 @@ public struct LSCancelConfirmSheet: View {
                 Button(action: onKeep) {
                     Text(keepLabel)
                         .font(theme.type.title.sm.font)
-                        .foregroundStyle(theme.colors.content.secondary)
+                        .foregroundStyle(theme.colors.onSurface.default.opacity(0.7))
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                         .background(
                             RoundedRectangle(cornerRadius: theme.radius.lg)
                                 .strokeBorder(
                                     theme.colors.border.default,
-                                    lineWidth: theme.borderWidth.sm
+                                    lineWidth: theme.borderWidth.thin
                                 )
                         )
                 }
@@ -69,12 +69,12 @@ public struct LSCancelConfirmSheet: View {
                 Button(action: onCancel) {
                     Text(cancelLabel)
                         .font(theme.type.title.sm.font)
-                        .foregroundStyle(theme.colors.content.primary)
+                        .foregroundStyle(theme.colors.onSurface.default)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                         .background(
                             RoundedRectangle(cornerRadius: theme.radius.lg)
-                                .fill(theme.colors.surface.inset)
+                                .fill(theme.colors.surface.default)
                         )
                 }
                 .accessibilityIdentifier("cancel-confirm-cancel")
@@ -83,9 +83,14 @@ public struct LSCancelConfirmSheet: View {
         .padding(theme.space.lg)
         .background(
             RoundedRectangle(cornerRadius: theme.radius.xl)
-                .fill(theme.colors.surface.card)
+                .fill(theme.colors.surface.default)
         )
-        .shadow(radius: theme.elevation.overlay)
+        .shadow(
+            color: theme.elevation.level2.shadowColor,
+            radius: theme.elevation.level2.radius,
+            x: theme.elevation.level2.offsetX,
+            y: theme.elevation.level2.offsetY
+        )
         .padding(.horizontal, theme.space.md)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Cancel planning confirmation")
