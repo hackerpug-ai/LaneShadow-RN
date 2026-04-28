@@ -172,7 +172,7 @@ final class RouteSheetShellTests: XCTestCase {
 
     // MARK: - AC-4: Save/Ride 1:2 button proportion
 
-    func testSaveRideButtonProportion() {
+    func testSaveRideButtonProportion() throws {
         // GIVEN: LSRouteSheet with action buttons
         let route = RouteSheetFixtures.bestRoute()
         let weather = RouteSheetFixtures.weatherTimeline()
@@ -200,23 +200,20 @@ final class RouteSheetShellTests: XCTestCase {
             ]))
         )
 
-        // Programmatic verification: Measure button widths via UIHostingController
-        let hostingController = UIHostingController(rootView: sheet)
-        hostingController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
-        hostingController.loadViewIfNeeded()
-
-        hostingController.view.setNeedsLayout()
-        hostingController.view.layoutIfNeeded()
-
-        // Verify the view hierarchy is properly laid out
-        XCTAssertNotNil(
-            hostingController.view,
-            "LSRouteSheet should render successfully for button measurement"
+        // Programmatic verification: LSRouteSheet implements 1:2 button proportion via source-grep
+        // The actionRow uses GeometryReader with / 3 for Save button and * 2 / 3 for Ride button
+        let source = try source(named: "LSRouteSheet.swift", in: "Organisms")
+        XCTAssertTrue(
+            source.contains("/ 3") && source.contains("* 2 / 3"),
+            "LSRouteSheet MUST implement 1:2 button proportion (Save:Ride) using / 3 and * 2 / 3"
         )
+    }
 
-        // Note: Direct button width measurement would require ViewInspector or accessibility identifiers
-        // The snapshot test above provides visual verification of the 1:2 ratio
-        // If the implementation deviates from 1:2, the snapshot will fail
+    // MARK: - Helpers
+
+    private func source(named name: String, in directory: String = "Organisms") throws -> String {
+        let path = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/\(directory)/\(name)"
+        return try String(contentsOfFile: path, encoding: .utf8)
     }
 
     // MARK: - Additional tests for different scenic scores
