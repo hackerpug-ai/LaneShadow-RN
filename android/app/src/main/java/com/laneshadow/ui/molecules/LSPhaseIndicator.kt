@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.laneshadow.theme.LSMotion
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import com.laneshadow.ui.atoms.ContentColor
@@ -166,14 +167,14 @@ private fun BreathingHeadDot(
         easingPoints[3].toFloat(),
     )
 
-    // Breathing animation: alpha oscillates 1.0 -> 0.45 -> 1.0
+    // Breathing animation: alpha oscillates 1.0 -> 0.45 -> 1.0 using LSMotion helper
     val infiniteTransition = rememberInfiniteTransition(label = "breathing_head_dot")
     val alpha by infiniteTransition.animateFloat(
         initialValue = 1.0f,
         targetValue = 0.45f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis, easing = easing),
-            repeatMode = RepeatMode.Reverse,
+        animationSpec = LSMotion.breathingHeadDot(
+            durationMillis = durationMillis,
+            easing = easing
         ),
         label = "breathing_alpha",
     )

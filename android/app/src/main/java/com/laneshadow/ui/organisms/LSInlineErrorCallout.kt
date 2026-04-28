@@ -23,6 +23,7 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.laneshadow.theme.LSMotion
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme.IconName
 import com.laneshadow.ui.atoms.AccentColor
@@ -138,17 +139,16 @@ fun LSInlineErrorCallout(
             if (suggestions.isNotEmpty()) {
                 // AC-6: Use AnimatedVisibility for suggestion chip enter animation
                 val density = LocalDensity.current
+                val enterDuration = LSMotion.chatOverlayEnter(
+                    durationMillis = theme.motion.duration["standard"] ?: 240
+                )
                 AnimatedVisibility(
                     visible = true,
                     enter = slideInVertically(
                         initialOffsetY = { with(density) { 8.dp.toPx().toInt() } },
-                        animationSpec = tween(
-                            durationMillis = theme.motion.duration["standard"] ?: 240
-                        )
+                        animationSpec = tween(durationMillis = enterDuration)
                     ) + fadeIn(
-                        animationSpec = tween(
-                            durationMillis = theme.motion.duration["standard"] ?: 240
-                        )
+                        animationSpec = tween(durationMillis = enterDuration)
                     ),
                     modifier = Modifier.fillMaxWidth()
                 ) {

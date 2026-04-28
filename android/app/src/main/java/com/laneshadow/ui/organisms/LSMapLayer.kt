@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.laneshadow.theme.LSMotion
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.atoms.LSScrim
 import com.laneshadow.ui.molecules.BottomSheetDetent
@@ -135,15 +136,15 @@ fun LSMapLayer(
                     enter = slideInHorizontally(
                         initialOffsetX = { -it },
                         animationSpec = spring(
-                            dampingRatio = 0.85f,
-                            stiffness = androidx.compose.animation.core.Spring.StiffnessMedium,
+                            dampingRatio = LSMotion.drawerSlide().dampingRatio,
+                            stiffness = LSMotion.drawerSlide().stiffness,
                         ),
                     ),
                     exit = slideOutHorizontally(
                         targetOffsetX = { -it },
                         animationSpec = spring(
-                            dampingRatio = 0.85f,
-                            stiffness = androidx.compose.animation.core.Spring.StiffnessMedium,
+                            dampingRatio = LSMotion.drawerSlide().dampingRatio,
+                            stiffness = LSMotion.drawerSlide().stiffness,
                         ),
                     ),
                 ) {

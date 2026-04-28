@@ -24,6 +24,7 @@ import com.laneshadow.ui.molecules.LSRouteAttachmentCard
 import com.laneshadow.ui.molecules.RouteAttachment
 import com.laneshadow.ui.molecules.RouteAttachmentWeather
 import com.laneshadow.ui.molecules.WeatherCondition
+import com.laneshadow.theme.LSMotion
 import com.laneshadow.ui.organisms.GlassOverlaySlot
 import com.laneshadow.ui.organisms.LSMapLayer
 import com.laneshadow.ui.organisms.LSNavigatorMessage
@@ -102,11 +103,10 @@ fun RouteResultsScreen(
 
         polylines.forEachIndexed { index, _ ->
             delay(staggerDelay) // Wait for stagger delay before starting this polyline
-            // AC-4: Use Animatable.animateTo with tween spec from motion tokens
-            val animSpec = TweenSpec<Float>(durationMillis = animationDuration)
+            // AC-4: Use Animatable.animateTo with LSMotion.polylineDrawOn helper
             drawProgressList[index].animateTo(
                 targetValue = 1f,
-                animationSpec = animSpec,
+                animationSpec = LSMotion.polylineDrawOn(durationMillis = animationDuration),
             )
         }
     }

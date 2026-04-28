@@ -25,6 +25,7 @@ import com.laneshadow.ui.atoms.RouteVariant
 import com.laneshadow.ui.molecules.LSChatInput
 import com.laneshadow.ui.molecules.LSPhaseIndicator
 import com.laneshadow.ui.molecules.PlanningPhase
+import com.laneshadow.theme.LSMotion
 import com.laneshadow.ui.organisms.GlassOverlaySlot
 import com.laneshadow.ui.organisms.LSMapLayer
 import com.laneshadow.ui.organisms.LSTopBar
@@ -108,14 +109,14 @@ fun PlanningScreen(
     val theme = LocalLaneShadowTheme.current
     val sketchRecipe = sketchPolylineRecipe(theme)
 
-    // Animate polyline path-draw progress using the sketch recipe
+    // Animate polyline path-draw progress using LSMotion helper
     val infiniteTransition = rememberInfiniteTransition(label = "sketch_polyline_loop")
     val pathProgress by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(sketchRecipe.durationMillis, easing = sketchRecipe.easing),
-            repeatMode = RepeatMode.Restart,
+        animationSpec = LSMotion.sketchPolylineLoop(
+            durationMillis = sketchRecipe.durationMillis,
+            easing = sketchRecipe.easing
         ),
         label = "sketch_polyline_progress",
     )

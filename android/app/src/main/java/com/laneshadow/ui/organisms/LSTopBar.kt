@@ -33,6 +33,7 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.laneshadow.theme.LSMotion
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme.IconName
 import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
@@ -295,14 +296,14 @@ private fun RecordingDot(
         easingPoints[3].toFloat(),
     )
 
-    // AC-5: Pulse animation: alpha oscillates 1.0 -> 0.45 -> 1.0
+    // AC-5: Pulse animation: alpha oscillates 1.0 -> 0.45 -> 1.0 using LSMotion helper
     val infiniteTransition = rememberInfiniteTransition(label = "record_dot_pulse")
     val alpha by infiniteTransition.animateFloat(
         initialValue = 1.0f,
         targetValue = 0.45f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis, easing = easing),
-            repeatMode = RepeatMode.Reverse,
+        animationSpec = LSMotion.recordDotPulse(
+            durationMillis = durationMillis,
+            easing = easing
         ),
         label = "record_dot_alpha",
     )
