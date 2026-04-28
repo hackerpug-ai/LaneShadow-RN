@@ -171,5 +171,82 @@ object ErrorScreenStory {
                 }
             },
         ),
+        Story(
+            id = "templates.error-screen.s04-recovered",
+            tier = ComponentTier.Template,
+            component = "ErrorScreen",
+            name = "Error Screen (S04 Recovered)",
+            summary = "Recovered state after tapping suggestion chip - callout fades to 0.55, chat populated, send button revealed",
+            previewMode = PreviewMode.FullScreen,
+            content = {
+                val state = ErrorMockProvider.value("s04-recovered")
+                LaneShadowTheme {
+                    ErrorScreen(
+                        state = state,
+                        onMenuTap = {},
+                        onSuggestionTap = { chip ->
+                            println("Suggestion tapped: ${chip.label}")
+                        },
+                        onSend = { value ->
+                            println("Send: $value")
+                        },
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            },
+        ),
+        Story(
+            id = "templates.error-screen.v01-offline",
+            tier = ComponentTier.Template,
+            component = "ErrorScreen",
+            name = "Error Screen (V01 Offline)",
+            summary = "Offline state with wifi-off watermark, dim chat input, and disabled buttons",
+            previewMode = PreviewMode.FullScreen,
+            content = {
+                val state = ErrorMockProvider.value("v01-offline")
+                LaneShadowTheme {
+                    ErrorScreen(
+                        state = state,
+                        onMenuTap = {},
+                        onSuggestionTap = { chip ->
+                            println("Suggestion tapped: ${chip.label}")
+                        },
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            },
+        ),
+        Story(
+            id = "templates.error-screen.s02-storm-gate",
+            tier = ComponentTier.Template,
+            component = "ErrorScreen",
+            name = "Error Screen (S02 Storm Gate)",
+            summary = "Storm-gate variant with wx.storm purple theming (Android-only)",
+            previewMode = PreviewMode.FullScreen,
+            content = {
+                val state = ErrorMockProvider.value("s02-storm-gate")
+                LaneShadowTheme {
+                    ErrorScreen(
+                        state = state,
+                        onMenuTap = {},
+                        onSuggestionTap = { chip ->
+                            println("Suggestion tapped: ${chip.label}")
+                        },
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            },
+        ),
     )
 }

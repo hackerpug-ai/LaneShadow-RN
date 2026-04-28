@@ -54,6 +54,11 @@ fun ErrorScreen(
     val theme = LocalLaneShadowTheme.current
     var inputValue by remember { mutableStateOf("") }
 
+    // Determine chat input state based on error state
+    val isChatEnabled = !state.isOffline
+    val isRecovered = state.isRecovered
+    val showFilterButton = !isRecovered
+
     LSMapLayer(
         map = {
             LSMap(
@@ -74,7 +79,7 @@ fun ErrorScreen(
                         suggestions = state.suggestions.map { mockChip ->
                             com.laneshadow.ui.organisms.SuggestionChip(
                                 label = mockChip.label,
-                                isPrimary = true
+                                isPrimary = mockChip.isPrimary
                             )
                         },
                         onSuggestionTap = { uiChip ->
@@ -82,6 +87,7 @@ fun ErrorScreen(
                             val originalChip = state.suggestions.firstOrNull { it.label == uiChip.label }
                             onSuggestionTap(originalChip ?: MockSuggestionChip(id = "", label = uiChip.label))
                         },
+                        isRecovered = isRecovered,
                         modifier = Modifier.testTag("error-callout"),
                     )
                 }
@@ -101,6 +107,7 @@ fun ErrorScreen(
                         onSend = onSend,
                         onCollapse = onCollapse,
                         onFilter = onFilter,
+                        isEnabled = isChatEnabled,
                         modifier = Modifier.testTag("chat-input"),
                     )
                 }

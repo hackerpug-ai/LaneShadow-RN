@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.laneshadow.sandbox.mockproviders.SessionsScreenState
+import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.atoms.CameraPosition
 import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.ui.atoms.LSMap
@@ -46,6 +47,8 @@ private fun toUiSession(mockSession: com.laneshadow.sandbox.mockproviders.Sessio
  * @param onSelect Callback when a session row is tapped
  * @param onNew Callback when NEW button is tapped
  * @param onDismiss Callback when scrim is tapped (dismisses drawer)
+ * @param onConfirmNew Callback when user confirms starting a new ride
+ * @param onCancelNew Callback when user cancels starting a new ride
  * @param modifier Modifier for the root composable
  */
 @Composable
@@ -54,8 +57,12 @@ fun SessionsScreen(
     onSelect: (String) -> Unit,
     onNew: () -> Unit,
     onDismiss: () -> Unit,
+    onConfirmNew: () -> Unit = {},
+    onCancelNew: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    val theme = LocalLaneShadowTheme.current
+
     LSMapLayer(
         map = {
             // Non-interactive map preview (static camera, no user gestures)
@@ -76,7 +83,13 @@ fun SessionsScreen(
                 LSSessionsDrawer(
                     sessions = state.sessions.map { toUiSession(it) },
                     activeSessionId = state.activeSessionId,
-                    groupLabel = "THIS WEEK",
+                    groupLabel = state.groupLabel ?: "THIS WEEK",
+                    sections = state.sections?.map { section ->
+                        com.laneshadow.ui.organisms.SessionSection(
+                            label = section.label,
+                            sessions = section.sessions.map { toUiSession(it) }
+                        )
+                    },
                     onSelect = onSelect,
                     onNew = onNew,
                     onDismiss = onDismiss,
@@ -86,4 +99,15 @@ fun SessionsScreen(
         ),
         modifier = modifier.fillMaxSize(),
     )
+
+    // S05: Show confirm dialog if requested
+    if (state.showConfirmDialog) {
+        com.laneshadow.ui.molecules.LSConfirmDialog(
+            title = "Start a new ride?",
+            onConfirm = onConfirmNew,
+            onDismiss = onCancelNew,
+            confirmText = "Start new",
+            cancelText = "Cancel",
+        )
+    }
 }

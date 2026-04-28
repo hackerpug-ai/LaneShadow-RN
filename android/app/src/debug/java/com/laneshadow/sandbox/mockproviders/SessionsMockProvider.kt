@@ -8,13 +8,18 @@ package com.laneshadow.sandbox.mockproviders
  */
 object SessionsMockProvider : MockProvider<SessionsScreenState> {
 
-    override val variants: List<String> = listOf("default", "empty", "overflow", "long-copy")
+    override val variants: List<String> = listOf(
+        "default", "empty", "overflow", "long-copy",
+        "s05-new-confirm", "s04-grouped"
+    )
 
     override fun value(variant: String): SessionsScreenState {
         return when (variant) {
             "empty" -> emptyState()
             "overflow" -> overflowState()
             "long-copy" -> longCopyState()
+            "s05-new-confirm" -> s05NewConfirmState()
+            "s04-grouped" -> s04GroupedState()
             else -> defaultState()
         }
     }
@@ -128,6 +133,122 @@ object SessionsMockProvider : MockProvider<SessionsScreenState> {
         return SessionsScreenState(
             sessions = sessions,
             activeSessionId = "session-001"
+        )
+    }
+
+    /**
+     * S05 new-confirm state — shows "Start a new ride?" confirm dialog
+     */
+    private fun s05NewConfirmState(): SessionsScreenState {
+        val sessions = listOf(
+            Session(
+                id = "session-001",
+                title = "Santa Cruz loop",
+                preview = "Scenic 2-hour ride, avoid highways",
+                meta = "3 routes · Active",
+                `when` = "Now",
+                active = true,
+                routeIds = listOf("route-001", "route-002", "route-003"),
+                createdAt = "2026-04-25T10:30:00Z"
+            )
+        )
+
+        return SessionsScreenState(
+            sessions = sessions,
+            activeSessionId = "session-001",
+            showConfirmDialog = true
+        )
+    }
+
+    /**
+     * S04 grouped state — shows sessions grouped by date
+     */
+    private fun s04GroupedState(): SessionsScreenState {
+        val tonight = listOf(
+            Session(
+                id = "session-001",
+                title = "Sunset coastal run",
+                preview = "Evening ride along the coast",
+                meta = "2 routes · Active",
+                `when` = "TONIGHT",
+                active = true,
+                routeIds = listOf("route-001", "route-002"),
+                createdAt = "2026-04-28T18:00:00Z"
+            )
+        )
+
+        val today = listOf(
+            Session(
+                id = "session-002",
+                title = "Morning coffee run",
+                preview = "Niles Canyon with coffee stop",
+                meta = "1 route",
+                `when` = "TODAY",
+                active = false,
+                routeIds = listOf("route-003"),
+                createdAt = "2026-04-28T08:00:00Z"
+            ),
+            Session(
+                id = "session-003",
+                title = "Lunch loop",
+                preview = "Quick spin through the hills",
+                meta = "1 route",
+                `when` = "TODAY",
+                active = false,
+                routeIds = listOf("route-004"),
+                createdAt = "2026-04-28T12:00:00Z"
+            )
+        )
+
+        val thisWeek = listOf(
+            Session(
+                id = "session-004",
+                title = "Diablo summit",
+                preview = "Early morning climb",
+                meta = "1 route",
+                `when` = "THIS WEEK",
+                active = false,
+                routeIds = listOf("route-005"),
+                createdAt = "2026-04-25T06:00:00Z"
+            ),
+            Session(
+                id = "session-005",
+                title = "Santa Cruz scenic",
+                preview = "Coastal highway cruise",
+                meta = "3 routes",
+                `when` = "THIS WEEK",
+                active = false,
+                routeIds = listOf("route-006", "route-007", "route-008"),
+                createdAt = "2026-04-24T10:00:00Z"
+            )
+        )
+
+        val lastWeek = listOf(
+            Session(
+                id = "session-006",
+                title = "Wine country tour",
+                preview = "Backroads through Napa",
+                meta = "2 routes",
+                `when` = "LAST WEEK",
+                active = false,
+                routeIds = listOf("route-009", "route-010"),
+                createdAt = "2026-04-15T09:00:00Z"
+            )
+        )
+
+        val sections = listOf(
+            com.laneshadow.sandbox.mockproviders.SessionSection(label = "TONIGHT", sessions = tonight),
+            com.laneshadow.sandbox.mockproviders.SessionSection(label = "TODAY", sessions = today),
+            com.laneshadow.sandbox.mockproviders.SessionSection(label = "THIS WEEK", sessions = thisWeek),
+            com.laneshadow.sandbox.mockproviders.SessionSection(label = "LAST WEEK", sessions = lastWeek)
+        )
+
+        val allSessions = tonight + today + thisWeek + lastWeek
+
+        return SessionsScreenState(
+            sessions = allSessions,
+            activeSessionId = "session-001",
+            sections = sections
         )
     }
 }

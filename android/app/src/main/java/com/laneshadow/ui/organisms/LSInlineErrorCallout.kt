@@ -7,15 +7,21 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsPropertyKey
@@ -70,14 +76,17 @@ data class SuggestionChip(
  * @param detail Optional detailed error explanation
  * @param suggestions Optional list of suggestion chips
  * @param onSuggestionTap Callback when a suggestion chip is tapped
+ * @param isRecovered Whether the callout is in recovered state (fade to 0.55)
  * @param modifier Modifier for the root composable
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LSInlineErrorCallout(
     body: String,
     detail: String? = null,
     suggestions: List<SuggestionChip> = emptyList(),
     onSuggestionTap: (SuggestionChip) -> Unit,
+    isRecovered: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
@@ -86,6 +95,7 @@ fun LSInlineErrorCallout(
         variant = GlassVariant.Callout(accent = AccentColor.Warning),
         modifier = modifier
             .testTag(LS_INLINE_ERROR_CALLOUT_TAG)
+            .alpha(if (isRecovered) 0.55f else 1.0f)
             .semantics {
                 lsInlineErrorCalloutDetail = detail ?: ""
                 lsInlineErrorCalloutSuggestionCount = suggestions.size
@@ -138,6 +148,7 @@ fun LSInlineErrorCallout(
             // Suggestion chips
             if (suggestions.isNotEmpty()) {
                 // AC-6: Use AnimatedVisibility for suggestion chip enter animation
+                // AC-6: Use FlowRow for chip wrapping
                 val density = LocalDensity.current
                 val enterDuration = LSMotion.chatOverlayEnter(
                     durationMillis = theme.motion.duration["standard"] ?: 240
@@ -152,11 +163,12 @@ fun LSInlineErrorCallout(
                     ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Row(
+                    FlowRow(
                         modifier = Modifier
                             .testTag(INLINE_ERROR_SUGGESTIONS_TAG)
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(theme.space.sm),
+                        verticalArrangement = Arrangement.spacedBy(theme.space.xs),
                     ) {
                         suggestions.forEach { chip ->
                             SuggestionChip(
@@ -195,6 +207,8 @@ private fun ErrorCompassChip(
 
 /**
  * Suggestion chip - clickable pill with label text.
+ *
+ * AC-7: Primary chips use warning-amber styling, tertiary chips use glass styling.
  */
 @Composable
 private fun SuggestionChip(
@@ -204,6 +218,8 @@ private fun SuggestionChip(
 ) {
     val theme = LocalLaneShadowTheme.current
 
+    // For now, use a simpler approach with ContentColor.Primary/Secondary
+    // TODO: Use proper token-based styling once theme structure is confirmed
     LSPill(
         size = PillSize.Lg,
         padding = PaddingValues(horizontal = theme.space.md, vertical = theme.space.xs),

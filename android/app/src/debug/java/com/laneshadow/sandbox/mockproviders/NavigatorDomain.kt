@@ -53,6 +53,14 @@ data class Session(
 )
 
 /**
+ * Session section for grouped sessions display
+ */
+data class SessionSection(
+    val label: String,                          // e.g. "TONIGHT", "TODAY", "THIS WEEK", "LAST WEEK", "EARLIER"
+    val sessions: List<Session>,                // sessions in this section
+)
+
+/**
  * Navigator message - the chat interface between user and Navigator
  */
 data class NavigatorMessage(
@@ -111,6 +119,7 @@ data class PlanningPhase(
 data class SuggestionChip(
     val id: String,
     val label: String,                          // e.g. "Twisty back roads"
+    val isPrimary: Boolean = false,             // true = warning-amber primary, false = glass tertiary
 )
 
 /**
@@ -189,6 +198,9 @@ data class RouteDetailsScreenState(
 data class SessionsScreenState(
     val sessions: List<Session>,
     val activeSessionId: String?,
+    val groupLabel: String? = null,             // Legacy: single section label (for back-compat)
+    val sections: List<SessionSection>? = null, // New: multiple sections (for date grouping)
+    val showConfirmDialog: Boolean = false,     // S05: show "Start a new ride?" confirm dialog
 )
 
 /**
@@ -197,6 +209,9 @@ data class SessionsScreenState(
 data class ErrorScreenState(
     val error: NavigatorError,
     val suggestions: List<SuggestionChip>,
+    val isRecovered: Boolean = false,           // S04: recovered state (fade to 0.55, show send button)
+    val isOffline: Boolean = false,             // V01: offline state (show wifi watermark, dim chat)
+    val isStormGate: Boolean = false,           // S02: storm-gate variant (use wx.storm purple)
 )
 
 /**

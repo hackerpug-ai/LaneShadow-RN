@@ -45,6 +45,14 @@ import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.TextColor
 import com.laneshadow.ui.atoms.TypographyVariant
 
+/**
+ * Session section data class for grouped sessions display.
+ */
+data class SessionSection(
+    val label: String,
+    val sessions: List<Session>,
+)
+
 // Test tags
 const val LSSSESSIONSDRAWER_TAG = "ls-sessions-drawer"
 const val LSSSESSIONSDRAWER_HEADER_TAG = "ls-sessions-drawer-header"
@@ -83,9 +91,10 @@ private fun Modifier.trailingShadow(
 /**
  * LSSessionsDrawer organism - left-anchored conversation-history drawer.
  *
- * @param sessions List of sessions to display
+ * @param sessions List of sessions to display (legacy, for back-compat)
  * @param activeSessionId ID of the currently active session (null if none)
- * @param groupLabel Section header label (e.g., "THIS WEEK")
+ * @param groupLabel Section header label (e.g., "THIS WEEK") - legacy, for back-compat
+ * @param sections List of session sections for date grouping (new)
  * @param onSelect Callback when a session row is tapped
  * @param onNew Callback when NEW button is tapped
  * @param onDismiss Callback when drawer should be dismissed
@@ -99,9 +108,13 @@ fun LSSessionsDrawer(
     onSelect: (String) -> Unit,
     onNew: () -> Unit,
     onDismiss: () -> Unit,
+    sections: List<SessionSection>? = null,
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
+
+    // Determine if we're using sections or legacy single-group mode
+    val useSections = sections != null
 
     // AC-1: Replace LSGlassPanel.Chrome with solid surface.default background
     // AC-5: Add directional shadow (2px 0 16px)
@@ -129,28 +142,62 @@ fun LSSessionsDrawer(
                 modifier = Modifier.testTag(LSSSESSIONSDRAWER_HEADER_TAG),
             )
 
-            // Section label
-            LSSectionHeader(
-                title = groupLabel,
-                modifier = Modifier.testTag(LSSECTIONHEADER_TAG),
-            )
-
             // Session list (scrollable)
-            if (sessions.isEmpty()) {
-                EmptyState(modifier = Modifier.weight(1f))
+            if (useSections) {
+                // New grouped mode
+                if (sections!!.isEmpty()) {
+                    EmptyState(modifier = Modifier.weight(1f))
+                } else {
+                    val scrollState = rememberScrollState()
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(scrollState),
+                    ) {
+                        sections.forEach { section ->
+                            if (section.sessions.isNotEmpty()) {
+                                // Section header
+                                LSSectionHeader(
+                                    title = section.label,
+                                    modifier = Modifier.testTag(LSSECTIONHEADER_TAG),
+                                )
+
+                                // Sessions in this section
+                                section.sessions.forEach { session ->
+                                    SessionRow(
+                                        session = session,
+                                        isActive = session.id == activeSessionId,
+                                        onTap = { onSelect(session.id) },
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
-                val scrollState = rememberScrollState()
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .verticalScroll(scrollState),
-                ) {
-                    sessions.forEach { session ->
-                        SessionRow(
-                            session = session,
-                            isActive = session.id == activeSessionId,
-                            onTap = { onSelect(session.id) },
-                        )
+                // Legacy single-group mode
+                // Section label
+                LSSectionHeader(
+                    title = groupLabel,
+                    modifier = Modifier.testTag(LSSECTIONHEADER_TAG),
+                )
+
+                if (sessions.isEmpty()) {
+                    EmptyState(modifier = Modifier.weight(1f))
+                } else {
+                    val scrollState = rememberScrollState()
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(scrollState),
+                    ) {
+                        sessions.forEach { session ->
+                            SessionRow(
+                                session = session,
+                                isActive = session.id == activeSessionId,
+                                onTap = { onSelect(session.id) },
+                            )
+                        }
                     }
                 }
             }

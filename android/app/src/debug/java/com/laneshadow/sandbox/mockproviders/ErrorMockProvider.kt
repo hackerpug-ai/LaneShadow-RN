@@ -14,7 +14,10 @@ object ErrorMockProvider : MockProvider<ErrorScreenState> {
         "impossible",
         "safety-gate",
         "long-detail",
-        "no-suggestions"
+        "no-suggestions",
+        "s04-recovered",
+        "v01-offline",
+        "s02-storm-gate"
     )
 
     override fun value(variant: String): ErrorScreenState {
@@ -24,6 +27,9 @@ object ErrorMockProvider : MockProvider<ErrorScreenState> {
             "safety-gate" -> safetyGateState()
             "long-detail" -> longDetailState()
             "no-suggestions" -> noSuggestionsState()
+            "s04-recovered" -> s04RecoveredState()
+            "v01-offline" -> v01OfflineState()
+            "s02-storm-gate" -> s02StormGateState()
             else -> defaultState()
         }
     }
@@ -39,8 +45,8 @@ object ErrorMockProvider : MockProvider<ErrorScreenState> {
                 detail = "Try a different end point, or let me route you inland via Carmel Valley Rd instead?"
             ),
             suggestions = listOf(
-                SuggestionChip(id = "chip-inland", label = "Try inland"),
-                SuggestionChip(id = "chip-bigsur", label = "End at Big Sur")
+                SuggestionChip(id = "chip-inland", label = "Try inland", isPrimary = true),
+                SuggestionChip(id = "chip-bigsur", label = "End at Big Sur", isPrimary = false)
             )
         )
     }
@@ -56,9 +62,9 @@ object ErrorMockProvider : MockProvider<ErrorScreenState> {
                 detail = "You're offline. Suggestions below are drawn from your last 14 days of rides."
             ),
             suggestions = listOf(
-                SuggestionChip(id = "chip-retry", label = "Retry when online"),
-                SuggestionChip(id = "chip-santa-cruz", label = "Santa Cruz loop (recent)"),
-                SuggestionChip(id = "chip-coast", label = "Coast after dark (recent)")
+                SuggestionChip(id = "chip-retry", label = "Retry when online", isPrimary = true),
+                SuggestionChip(id = "chip-santa-cruz", label = "Santa Cruz loop (recent)", isPrimary = false),
+                SuggestionChip(id = "chip-coast", label = "Coast after dark (recent)", isPrimary = false)
             )
         )
     }
@@ -74,9 +80,9 @@ object ErrorMockProvider : MockProvider<ErrorScreenState> {
                 detail = "The route you asked for would require teleportation. One of these should loosen it:"
             ),
             suggestions = listOf(
-                SuggestionChip(id = "chip-hwy1", label = "Allow Hwy 1"),
-                SuggestionChip(id = "chip-closer", label = "Closer end point"),
-                SuggestionChip(id = "chip-100miles", label = "Open 100 miles")
+                SuggestionChip(id = "chip-hwy1", label = "Allow Hwy 1", isPrimary = true),
+                SuggestionChip(id = "chip-closer", label = "Closer end point", isPrimary = false),
+                SuggestionChip(id = "chip-100miles", label = "Open 100 miles", isPrimary = false)
             )
         )
     }
@@ -92,9 +98,9 @@ object ErrorMockProvider : MockProvider<ErrorScreenState> {
                 detail = "The safety gate blocked every candidate. Weather clears after midnight — I can hold the ask until then."
             ),
             suggestions = listOf(
-                SuggestionChip(id = "chip-midnight", label = "Remind me at midnight"),
-                SuggestionChip(id = "chip-tomorrow", label = "Ride tomorrow"),
-                SuggestionChip(id = "chip-indoors", label = "Something indoors")
+                SuggestionChip(id = "chip-midnight", label = "Remind me at midnight", isPrimary = true),
+                SuggestionChip(id = "chip-tomorrow", label = "Ride tomorrow", isPrimary = false),
+                SuggestionChip(id = "chip-indoors", label = "Something indoors", isPrimary = false)
             )
         )
     }
@@ -110,9 +116,9 @@ object ErrorMockProvider : MockProvider<ErrorScreenState> {
                 detail = "I tried three shapes: a tight coastal-only loop, a start-side detour, and a bluff overlook. Each needed at least 55 minutes one-way. If you can flex the time limit to an hour I have a 58-minute coastal version ready."
             ),
             suggestions = listOf(
-                SuggestionChip(id = "chip-60min", label = "Flex to 60 min"),
-                SuggestionChip(id = "chip-skip-coast", label = "Skip the coast"),
-                SuggestionChip(id = "chip-rewrite", label = "Rewrite")
+                SuggestionChip(id = "chip-60min", label = "Flex to 60 min", isPrimary = true),
+                SuggestionChip(id = "chip-skip-coast", label = "Skip the coast", isPrimary = false),
+                SuggestionChip(id = "chip-rewrite", label = "Rewrite", isPrimary = false)
             )
         )
     }
@@ -128,6 +134,62 @@ object ErrorMockProvider : MockProvider<ErrorScreenState> {
                 detail = "Please rewrite the ask — a slightly different prompt usually works."
             ),
             suggestions = emptyList()
+        )
+    }
+
+    /**
+     * S04 recovered state — user tapped a suggestion chip
+     */
+    private fun s04RecoveredState(): ErrorScreenState {
+        return ErrorScreenState(
+            error = NavigatorError(
+                title = "THE NAVIGATOR",
+                body = "I lost the signal mid-thought. Let's try that again when you're back on data.",
+                detail = "You're offline. Suggestions below are drawn from your last 14 days of rides."
+            ),
+            suggestions = listOf(
+                SuggestionChip(id = "chip-retry", label = "Retry when online", isPrimary = true),
+                SuggestionChip(id = "chip-santa-cruz", label = "Santa Cruz loop (recent)", isPrimary = false),
+                SuggestionChip(id = "chip-coast", label = "Coast after dark (recent)", isPrimary = false)
+            ),
+            isRecovered = true
+        )
+    }
+
+    /**
+     * V01 offline state — wifi watermark + dim chat
+     */
+    private fun v01OfflineState(): ErrorScreenState {
+        return ErrorScreenState(
+            error = NavigatorError(
+                title = "THE NAVIGATOR",
+                body = "I lost the signal mid-thought. Let's try that again when you're back on data.",
+                detail = "You're offline. Suggestions below are drawn from your last 14 days of rides."
+            ),
+            suggestions = listOf(
+                SuggestionChip(id = "chip-retry", label = "Retry when online", isPrimary = true),
+                SuggestionChip(id = "chip-santa-cruz", label = "Santa Cruz loop (recent)", isPrimary = false)
+            ),
+            isOffline = true
+        )
+    }
+
+    /**
+     * S02 storm-gate variant — wx.storm purple theme
+     */
+    private fun s02StormGateState(): ErrorScreenState {
+        return ErrorScreenState(
+            error = NavigatorError(
+                title = "THE NAVIGATOR",
+                body = "Thunderstorm across the entire region. I won't plan a ride through that.",
+                detail = "The safety gate blocked every candidate. Weather clears after midnight — I can hold the ask until then."
+            ),
+            suggestions = listOf(
+                SuggestionChip(id = "chip-midnight", label = "Remind me at midnight", isPrimary = true),
+                SuggestionChip(id = "chip-tomorrow", label = "Ride tomorrow", isPrimary = false),
+                SuggestionChip(id = "chip-indoors", label = "Something indoors", isPrimary = false)
+            ),
+            isStormGate = true
         )
     }
 }

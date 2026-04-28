@@ -102,5 +102,47 @@ object SessionsScreenStory {
                 }
             },
         ),
+        Story(
+            id = "templates.sessions-screen.s05-new-confirm",
+            tier = ComponentTier.Template,
+            component = "SessionsScreen",
+            name = "Sessions Screen (S05 New Confirm)",
+            summary = "Sessions screen with active session, shows 'Start a new ride?' confirm dialog when tapping NEW button",
+            previewMode = PreviewMode.FullScreen,
+            content = {
+                val state = SessionsMockProvider.value("s05-new-confirm")
+                LaneShadowTheme {
+                    SessionsScreen(
+                        state = state,
+                        onSelect = { sessionId -> println("Session selected: $sessionId") },
+                        onNew = { println("NEW button tapped") },
+                        onDismiss = { println("Scrim tapped, dismissing drawer") },
+                        onConfirmNew = { println("Confirmed: Start new ride") },
+                        onCancelNew = { println("Cancelled: Start new ride") },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            },
+        ),
+        Story(
+            id = "templates.sessions-screen.s04-grouped",
+            tier = ComponentTier.Template,
+            component = "SessionsScreen",
+            name = "Sessions Screen (S04 Grouped)",
+            summary = "Sessions screen with date-grouped sections (TONIGHT, TODAY, THIS WEEK, LAST WEEK, EARLIER)",
+            previewMode = PreviewMode.FullScreen,
+            content = {
+                val state = SessionsMockProvider.value("s04-grouped")
+                LaneShadowTheme {
+                    SessionsScreen(
+                        state = state,
+                        onSelect = { sessionId -> println("Session selected: $sessionId") },
+                        onNew = { println("NEW button tapped") },
+                        onDismiss = { println("Scrim tapped, dismissing drawer") },
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            },
+        ),
     )
 }
