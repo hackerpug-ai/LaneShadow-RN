@@ -31,7 +31,7 @@ public struct LSScenicDotStrip: View {
 
     private func dotView(isFilled: Bool) -> some View {
         Circle()
-            .fill(isFilled ? theme.colors.primary.default : Color.clear)
+            .fill(isFilled ? theme.domain.orange.default : Color.clear)
             .overlay(
                 Circle()
                     .stroke(theme.colors.border.default, lineWidth: 1)

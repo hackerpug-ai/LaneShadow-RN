@@ -10,6 +10,7 @@ public struct LSRouteSheet: View {
     @Environment(\.theme) private var theme
 
     public typealias Route = RouteDetails
+    public typealias WeatherEntry = LaneShadow.WeatherEntry
 
     private let route: Route
     private let weatherTimeline: [WeatherEntry]
@@ -53,9 +54,6 @@ public struct LSRouteSheet: View {
         .background(LaneShadowTheme.color.surface.card)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Route details")
-        .presentationDetents([.fraction(0.9)])
-        .presentationDragIndicator(.visible)
-        .presentationBackground(.clear)
     }
 
     /// Wrapper for presenting as bottom sheet

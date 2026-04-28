@@ -43,7 +43,7 @@ final class RouteSheetShellTests: XCTestCase {
             )
         }
 
-        static func weatherTimeline() -> [LSRouteSheet.WeatherEntry] {
+        static func weatherTimeline() -> [WeatherEntry] {
             [
                 WeatherEntry(hour: "9A", condition: .clear, temp: "62°"),
                 WeatherEntry(hour: "10A", condition: .clear, temp: "65°"),
@@ -272,16 +272,3 @@ final class RouteSheetShellTests: XCTestCase {
     }
 }
 
-// MARK: - WeatherEntry Helper
-
-struct WeatherEntry: LSRouteSheet.WeatherEntry {
-    let hour: String
-    let condition: WeatherCondition
-    let temp: String
-}
-
-enum WeatherCondition {
-    case clear
-    case wind
-    case rain
-}
