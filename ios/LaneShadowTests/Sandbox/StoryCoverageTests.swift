@@ -22,7 +22,10 @@ struct StoryCoverageTests {
     @Test("AC-2: RouteResults has 7 registered stories")
     func routeResultsStoryCount() {
         let routeResultsStories = LaneShadowStories.all.filter { $0.component == "RouteResultsScreen" }
-        #expect(routeResultsStories.count >= 7, "Expected at least 7 RouteResults stories, found \(routeResultsStories.count)")
+        #expect(
+            routeResultsStories.count >= 7,
+            "Expected at least 7 RouteResults stories, found \(routeResultsStories.count)"
+        )
     }
 
     // MARK: - AC-3: RouteDetails coverage (6 stories)
