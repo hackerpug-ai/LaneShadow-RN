@@ -3,7 +3,7 @@ TASK: AUTH-S03-T01 - Backend additions — db.users.getCurrentUser public query
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     Completed
 PRIORITY:   P1
 EFFORT:     XS
 AGENT:      implementer=convex-implementer | reviewer=convex-reviewer
@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: pnpm --dir server exec tsc --noEmit
   lint:      pnpm exec biome check server/
 
-PROGRESS: 0/4 AC · not started
+PROGRESS: 4/4 AC · complete
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -35,11 +35,11 @@ Deploy db.users.getCurrentUser query and optional limit arg on db.sessionMessage
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] getCurrentUser query exists in server/convex/users/ and returns user document or null
-- [ ] sessionMessages.list accepts optional limit arg with default 50
-- [ ] Deployed to Convex dev: pnpm --dir server run convex:dev -- --once succeeds
-- [ ] pnpm --dir server exec tsc --noEmit passes
-- [ ] Only SCOPE.writeAllowed files modified (git diff --name-only)
+- [x] getCurrentUser query exists in server/convex/db/users.ts and returns user document or null
+- [x] sessionMessages.list accepts optional limit arg with default 50
+- [x] Deployed to Convex dev: pnpm --dir server run convex:dev -- --once succeeds
+- [x] pnpm --dir server exec tsc --noEmit passes
+- [x] Only SCOPE.writeAllowed files modified (git diff --name-only)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
@@ -86,8 +86,10 @@ SCOPE
 --------------------------------------------------------------------------------
 
 writeAllowed:
-- server/convex/users/getCurrentUser.ts (CREATE)
-- server/convex/sessionMessages/list.ts (MODIFY)
+- server/convex/db/users.ts (MODIFY)
+- server/convex/db/users.test.ts (MODIFY)
+- server/convex/db/sessionMessages.ts (MODIFY)
+- server/convex/db/__tests__/session/session.messages.test.ts (MODIFY)
 
 writeProhibited:
 - server/convex/auth.config.ts — Clerk JWT issuer already configured
@@ -110,8 +112,8 @@ BOUNDARIES
 DELIVERABLE
 --------------------------------------------------------------------------------
 
-- server/convex/users/getCurrentUser.ts (CREATE): Public query returning authenticated user or null
-- server/convex/sessionMessages/list.ts (MODIFY): Add optional limit arg with default 50
+- server/convex/db/users.ts (MODIFY): Public query returning authenticated user or null
+- server/convex/db/sessionMessages.ts (MODIFY): Add optional limit arg with default 50
 
 --------------------------------------------------------------------------------
 AGENT INSTRUCTIONS (TDD Flow)

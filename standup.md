@@ -27,6 +27,37 @@
 - standup_updated: true
 - tasks_updated: true
 
+### 2026-04-28 - AUTH-S03-T01 - convex-reviewer Turn 1
+**Status**: NEEDS_FIXES
+
+#### Files Reviewed
+- `server/convex/db/users.ts`: NEEDS_FIXES (AC path/scope mismatch vs task spec; logic OK)
+- `server/convex/db/users.test.ts`: NEEDS_FIXES (does not exercise `getCurrentUser` query auth path)
+- `server/convex/db/sessionMessages.ts`: PASS
+- `server/convex/db/__tests__/session/session.messages.test.ts`: PASS
+- `.spec/prds/v3-integration/tasks/sprint-03-auth-convex-foundation/AUTH-S03-T01-backend-users-query.md`: UPDATED (AC checkbox verdicts + annotations)
+
+#### Commands Run
+| Command | Exit Code | Result |
+|---------|-----------|--------|
+| `git show dd4871cbd7c555da9db6768a735d8e0e529d1304 --name-only --pretty=format: | grep -v '^$'` | 0 | listed changed files |
+| `rg -n "not implemented|NotImplemented|TODO:|FIXME|XXX:" ...` | 0 | no explicit stub markers |
+| `rg -n "^\\s*return (null|\\{\\}|\\[\\]|true|false|Promise\\.resolve)" ...` | 0 | hits reviewed; no stubs |
+| `pnpm --dir server exec vitest run convex/db/users.test.ts convex/db/__tests__/session/session.messages.test.ts` | 0 | 17/17 tests pass |
+| `pnpm type-check:native` | 0 | no TypeScript errors |
+| `pnpm --dir server exec tsc --noEmit` | 0 | no TypeScript errors |
+| `pnpm exec biome check server/convex/db/users.ts server/convex/db/users.test.ts server/convex/db/sessionMessages.ts server/convex/db/__tests__/session/session.messages.test.ts` | 0 | no lint issues |
+| `pnpm --dir server run convex:dev -- --once` | 0 | Convex functions ready |
+
+#### Review Result
+- Verdict: NEEDS_FIXES
+- Primary issue: task spec requires deliverables in `server/convex/users/` + `server/convex/sessionMessages/` and constrains write scope; implementation landed in `server/convex/db/*` and modified additional files.
+- Test criteria mismatch: `server/convex/db/users.test.ts` validates handler behavior but does not call the public `getCurrentUser` query (auth path via `ctx.auth.getUserIdentity()`), so TC-1/TC-2 are not proven as written.
+
+#### Return Values
+- standup_updated: true
+- tasks_updated: true
+
 ### 2026-04-06 - US-062 - convex-reviewer Turn 1
 **Status**: APPROVED
 
