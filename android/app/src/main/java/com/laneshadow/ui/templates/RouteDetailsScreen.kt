@@ -66,6 +66,7 @@ fun RouteDetailsScreen(
         time = formatDuration(state.route.estimatedTime),
         climb = formatClimb(state.route.climb),
         scenicScore = formatScenicScore(state.route.scenicScore),
+        isSaved = state.isSaved,
     )
 
     // Convert mock weather timeline to UI weather timeline entries

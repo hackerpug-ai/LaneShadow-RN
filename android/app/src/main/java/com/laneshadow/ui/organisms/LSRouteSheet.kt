@@ -19,6 +19,7 @@ import com.laneshadow.ui.atoms.ButtonVariant
 import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.atoms.LSBestBadge
 import com.laneshadow.ui.atoms.LSButton
+import com.laneshadow.ui.atoms.LSSavedPill
 import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.TypographyVariant
 import com.laneshadow.ui.molecules.BottomSheetDetent
@@ -55,6 +56,7 @@ data class RouteDetails(
     val time: String,
     val climb: String,
     val scenicScore: String,
+    val isSaved: Boolean = false,
 )
 
 /**
@@ -92,20 +94,30 @@ fun LSRouteSheet(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(theme.space.md),
         ) {
-            // Header row: best badge (optional) + title + subtitle
+            // Header row: best badge (optional) + saved pill + title + subtitle
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag(ROUTE_SHEET_HEADER_TAG),
                 verticalArrangement = Arrangement.spacedBy(theme.space.xs),
             ) {
-                // Best badge (only when route.isBest == true)
-                if (route.isBest) {
-                    Box(
-                        modifier = Modifier.testTag(ROUTE_SHEET_BADGE_TAG),
-                        contentAlignment = Alignment.CenterStart,
-                    ) {
-                        LSBestBadge()
+                // Badges row: best badge (optional) + saved pill (optional)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(theme.space.sm),
+                ) {
+                    // Best badge (only when route.isBest == true)
+                    if (route.isBest) {
+                        Box(
+                            modifier = Modifier.testTag(ROUTE_SHEET_BADGE_TAG),
+                        ) {
+                            LSBestBadge()
+                        }
+                    }
+
+                    // Saved pill (only when route.isSaved == true)
+                    if (route.isSaved) {
+                        LSSavedPill()
                     }
                 }
 
