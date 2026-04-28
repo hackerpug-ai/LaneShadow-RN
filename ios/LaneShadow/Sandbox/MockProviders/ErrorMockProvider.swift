@@ -5,7 +5,7 @@ import Foundation
 /// Provides navigator error and recovery suggestions
 /// for the Error/recovery screen.
 public enum ErrorMockProvider: MockProvider {
-    public static let variants = ["default", "empty", "overflow", "long-copy"]
+    public static let variants = ["default", "empty", "overflow", "long-copy", "s04-recovered", "v01-offline"]
 
     public static func value(variant: String = "default") -> ErrorScreenState {
         switch variant {
@@ -15,6 +15,10 @@ public enum ErrorMockProvider: MockProvider {
             overflowState()
         case "long-copy":
             longCopyState()
+        case "s04-recovered":
+            recoveredState()
+        case "v01-offline":
+            offlineState()
         default:
             defaultState()
         }
@@ -90,6 +94,31 @@ public enum ErrorMockProvider: MockProvider {
                     label: "Start from north of the closure at Point Sur"
                 ),
             ]
+        )
+    }
+
+    private static func recoveredState() -> ErrorScreenState {
+        ErrorScreenState(
+            error: NavigatorError(
+                title: "THE NAVIGATOR",
+                body: "I found a workaround — let me route you inland via Carmel Valley Road.",
+                detail: "It's a bit longer but the roads are fantastic."
+            ),
+            suggestions: [
+                MockSuggestionChip(id: "chip-001", label: "That works"),
+                MockSuggestionChip(id: "chip-002", label: "How much longer?"),
+            ]
+        )
+    }
+
+    private static func offlineState() -> ErrorScreenState {
+        ErrorScreenState(
+            error: NavigatorError(
+                title: "THE NAVIGATOR",
+                body: "You're offline. Check your connection and try again.",
+                detail: nil
+            ),
+            suggestions: []
         )
     }
 }

@@ -15,5 +15,37 @@ enum SessionsScreenStory {
         ) { _ in
             SessionsScreen(provider: SessionsMockProvider.self)
         },
+        Story(
+            id: "templates.sessions-screen.s05-new-confirm",
+            tier: .template,
+            component: "SessionsScreen",
+            name: "S05 — New Confirm Dialog",
+            summary: "Sessions screen with active session, tapping NEW shows confirmation dialog with surface.scrim backdrop and surface.card dialog",
+            previewMode: .fullScreen
+        ) { _ in
+            SessionsScreen(
+                provider: SessionsMockProvider.self,
+                variant: "s05-new-confirm",
+                onSelect: { _ in },
+                onNew: {},
+                onDismiss: {}
+            )
+        },
+        Story(
+            id: "templates.sessions-screen.s04-grouped",
+            tier: .template,
+            component: "SessionsScreen",
+            name: "S04 — Grouped by Date",
+            summary: "Sessions drawer with multiple date sections (TONIGHT, TODAY, THIS WEEK, LAST WEEK, EARLIER)",
+            previewMode: .fullScreen
+        ) { _ in
+            SessionsScreen(
+                provider: SessionsMockProvider.self,
+                variant: "s04-grouped",
+                onSelect: { _ in },
+                onNew: {},
+                onDismiss: {}
+            )
+        },
     ]
 }

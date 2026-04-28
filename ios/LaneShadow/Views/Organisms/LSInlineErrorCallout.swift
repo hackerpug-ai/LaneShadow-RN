@@ -28,17 +28,20 @@ public struct LSInlineErrorCallout: View {
     private let detail: String?
     private let suggestions: [String]
     private let onSuggestionTap: @Sendable (String) -> Void
+    private let isRecovered: Bool
 
     public init(
         body: String,
         detail: String? = nil,
         suggestions: [String] = [],
+        isRecovered: Bool = false,
         onSuggestionTap: @Sendable @escaping (String) -> Void
     ) {
         messageBody = body
         self.detail = detail
         self.suggestions = suggestions
         self.onSuggestionTap = onSuggestionTap
+        self.isRecovered = isRecovered
     }
 
     public var body: some View {
@@ -55,6 +58,7 @@ public struct LSInlineErrorCallout: View {
                 }
             }
         }
+        .opacity(isRecovered ? 0.55 : 1.0)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("lsinlineerrorcallout")
     }
@@ -95,7 +99,7 @@ extension LSInlineErrorCallout {
     }
 
     private var suggestionsRow: some View {
-        HStack(spacing: theme.space.sm) {
+        FlowLayout(spacing: theme.space.sm, alignment: .leading) {
             ForEach(Array(suggestions.enumerated()), id: \.offset) { index, suggestion in
                 SuggestionChipEnter(
                     label: suggestion,

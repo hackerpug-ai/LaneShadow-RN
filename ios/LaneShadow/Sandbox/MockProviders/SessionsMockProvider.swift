@@ -5,7 +5,7 @@ import Foundation
 /// Provides a list of past and active sessions
 /// for the Sessions/history screen.
 public enum SessionsMockProvider: MockProvider {
-    public static let variants = ["default", "empty", "overflow", "long-copy"]
+    public static let variants = ["default", "empty", "overflow", "long-copy", "s05-new-confirm", "s04-grouped"]
 
     public static func value(variant: String = "default") -> SessionsScreenState {
         switch variant {
@@ -15,6 +15,10 @@ public enum SessionsMockProvider: MockProvider {
             overflowState()
         case "long-copy":
             longCopyState()
+        case "s05-new-confirm":
+            newConfirmState()
+        case "s04-grouped":
+            groupedState()
         default:
             defaultState()
         }
@@ -133,6 +137,86 @@ public enum SessionsMockProvider: MockProvider {
                         "Eagle, with a specially planned route through the Silverado Trail and " +
                         "lunch at the French Laundry",
                     meta: "4 unique routes covering different AVAs",
+                    when: "Apr 12",
+                    active: false,
+                    routeIds: ["route-006", "route-007", "route-008", "route-009"],
+                    createdAt: "2025-04-12T09:15:00Z"
+                )
+            ],
+            activeSessionId: "session-003"
+        )
+    }
+
+    private static func newConfirmState() -> SessionsScreenState {
+        SessionsScreenState(
+            sessions: [
+                Session(
+                    id: "session-001",
+                    title: "Santa Cruz loop",
+                    preview: "Twisty roads down to Santa Cruz and back via 9",
+                    meta: "3 routes · Active",
+                    when: "Now",
+                    active: true,
+                    routeIds: ["route-001", "route-002", "route-003"],
+                    createdAt: "2025-04-25T10:30:00Z"
+                )
+            ],
+            activeSessionId: "session-001"
+        )
+    }
+
+    private static func groupedState() -> SessionsScreenState {
+        SessionsScreenState(
+            sessions: [
+                // TONIGHT
+                Session(
+                    id: "session-005",
+                    title: "Evening canyon run",
+                    preview: "Sunset cruise through the canyons",
+                    meta: "2 routes",
+                    when: "Tonight",
+                    active: false,
+                    routeIds: ["route-010", "route-011"],
+                    createdAt: "2025-04-28T18:00:00Z"
+                ),
+                // TODAY
+                Session(
+                    id: "session-004",
+                    title: "Morning mountain run",
+                    preview: "Early morning twisties",
+                    meta: "1 route",
+                    when: "Today",
+                    active: false,
+                    routeIds: ["route-009"],
+                    createdAt: "2025-04-28T08:00:00Z"
+                ),
+                // THIS WEEK
+                Session(
+                    id: "session-003",
+                    title: "Santa Cruz loop",
+                    preview: "Twisty roads down to Santa Cruz and back via 9",
+                    meta: "3 routes · Active",
+                    when: "Tue",
+                    active: true,
+                    routeIds: ["route-001", "route-002", "route-003"],
+                    createdAt: "2025-04-25T10:30:00Z"
+                ),
+                Session(
+                    id: "session-002",
+                    title: "Big Sur weekend",
+                    preview: "Coastal cruise with overnight stay",
+                    meta: "2 routes",
+                    when: "Wed",
+                    active: false,
+                    routeIds: ["route-004", "route-005"],
+                    createdAt: "2025-04-22T14:20:00Z"
+                ),
+                // LAST WEEK
+                Session(
+                    id: "session-001",
+                    title: "Wine country tour",
+                    preview: "Napa Valley backroads",
+                    meta: "4 routes",
                     when: "Apr 12",
                     active: false,
                     routeIds: ["route-006", "route-007", "route-008", "route-009"],

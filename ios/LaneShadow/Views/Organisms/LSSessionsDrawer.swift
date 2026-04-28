@@ -4,7 +4,7 @@ import SwiftUI
 
 // MARK: - Public API
 
-public struct LSSessionsDrawer<Session: Identifiable>: View where Session.ID == String {
+public struct LSSessionsDrawer<Session: Identifiable & Sendable>: View where Session.ID == String {
     @Environment(\.theme) private var theme
 
     private let drawerWidth: CGFloat = 312
@@ -12,7 +12,7 @@ public struct LSSessionsDrawer<Session: Identifiable>: View where Session.ID == 
 
     private let sessions: [Session]
     private let activeSessionId: String?
-    private let groupLabel: String
+    private let sections: [SessionSection<Session>]
     private let onSelect: @Sendable (String) -> Void
     private let onNew: @Sendable () -> Void
     private let onDismiss: @Sendable () -> Void
@@ -27,7 +27,24 @@ public struct LSSessionsDrawer<Session: Identifiable>: View where Session.ID == 
     ) {
         self.sessions = sessions
         self.activeSessionId = activeSessionId
-        self.groupLabel = groupLabel
+        // Back-compat: wrap single group in sections array
+        self.sections = [SessionSection(label: groupLabel, sessions: sessions)]
+        self.onSelect = onSelect
+        self.onNew = onNew
+        self.onDismiss = onDismiss
+    }
+
+    public init(
+        sections: [SessionSection<Session>],
+        activeSessionId: String?,
+        onSelect: @Sendable @escaping (String) -> Void,
+        onNew: @Sendable @escaping () -> Void,
+        onDismiss: @Sendable @escaping () -> Void
+    ) {
+        // Flatten sessions from all sections
+        self.sessions = sections.flatMap { $0.sessions }
+        self.activeSessionId = activeSessionId
+        self.sections = sections
         self.onSelect = onSelect
         self.onNew = onNew
         self.onDismiss = onDismiss
@@ -39,17 +56,14 @@ public struct LSSessionsDrawer<Session: Identifiable>: View where Session.ID == 
                 // Sticky header
                 header
 
-                // Section label
-                LSSectionHeader(title: groupLabel)
-
-                // Scrollable session rows
+                // Scrollable session rows grouped by sections
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        ForEach(sessions, id: \.id) { session in
-                            SessionRow(
-                                session: session,
-                                isActive: session.id == activeSessionId,
-                                onSelect: { onSelect(session.id) }
+                        ForEach(sections, id: \.label) { section in
+                            SectionGroup(
+                                section: section,
+                                activeSessionId: activeSessionId,
+                                onSelect: onSelect
                             )
                         }
                     }
@@ -91,9 +105,45 @@ public struct LSSessionsDrawer<Session: Identifiable>: View where Session.ID == 
     }
 }
 
+// MARK: - Section Group (Internal)
+
+private struct SectionGroup<Session: Identifiable & Sendable>: View where Session.ID == String {
+    @Environment(\.theme) private var theme
+
+    private let section: SessionSection<Session>
+    private let activeSessionId: String?
+    private let onSelect: @Sendable (String) -> Void
+
+    init(
+        section: SessionSection<Session>,
+        activeSessionId: String?,
+        onSelect: @Sendable @escaping (String) -> Void
+    ) {
+        self.section = section
+        self.activeSessionId = activeSessionId
+        self.onSelect = onSelect
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Section label
+            LSSectionHeader(title: section.label)
+
+            // Session rows
+            ForEach(section.sessions, id: \.id) { session in
+                SessionRow(
+                    session: session,
+                    isActive: session.id == activeSessionId,
+                    onSelect: { onSelect(session.id) }
+                )
+            }
+        }
+    }
+}
+
 // MARK: - Session Row (Internal)
 
-private struct SessionRow<Session: Identifiable>: View where Session.ID == String {
+private struct SessionRow<Session: Identifiable & Sendable>: View where Session.ID == String {
     @Environment(\.theme) private var theme
 
     private let rowHeight: CGFloat = 72
@@ -169,13 +219,13 @@ private struct SessionRow<Session: Identifiable>: View where Session.ID == Strin
 
 // MARK: - Session Section
 
-public struct SessionSection: Sendable {
+public struct SessionSection<Session: Identifiable & Sendable>: Sendable where Session.ID == String {
     public let label: String
-    public let sessionIds: [String]
+    public let sessions: [Session]
 
-    public init(label: String, sessionIds: [String]) {
+    public init(label: String, sessions: [Session]) {
         self.label = label
-        self.sessionIds = sessionIds
+        self.sessions = sessions
     }
 }
 
@@ -213,9 +263,25 @@ extension LSSessionsDrawer {
             onDismiss: onDismiss
         )
     }
+
+    static func mock(
+        sections: [SessionSection<MockSession>],
+        activeSessionId: String?,
+        onSelect: @Sendable @escaping (String) -> Void,
+        onNew: @Sendable @escaping () -> Void,
+        onDismiss: @Sendable @escaping () -> Void
+    ) -> LSSessionsDrawer<MockSession> {
+        LSSessionsDrawer<MockSession>(
+            sections: sections,
+            activeSessionId: activeSessionId,
+            onSelect: onSelect,
+            onNew: onNew,
+            onDismiss: onDismiss
+        )
+    }
 }
 
-public struct MockSession: Identifiable, SessionTitleProvider, SessionPreviewProvider, SessionWhenProvider {
+public struct MockSession: Identifiable, Sendable, SessionTitleProvider, SessionPreviewProvider, SessionWhenProvider {
     public let id: String
     public let title: String
     public let preview: String

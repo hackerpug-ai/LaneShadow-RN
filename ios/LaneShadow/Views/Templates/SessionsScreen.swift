@@ -8,6 +8,7 @@ import SwiftUI
 public struct SessionsScreen: View {
     @Environment(\.theme) private var theme
     @State private var isDrawerPresented: Bool = true
+    @State private var showConfirmDialog: Bool = false
 
     private let provider: SessionsMockProvider.Type
     private let state: SessionsScreenState
@@ -17,12 +18,13 @@ public struct SessionsScreen: View {
 
     public init(
         provider: SessionsMockProvider.Type = SessionsMockProvider.self,
+        variant: String = "default",
         onSelect: @escaping @Sendable (String) -> Void = { _ in },
         onNew: @escaping @Sendable () -> Void = {},
         onDismiss: @escaping @Sendable () -> Void = {}
     ) {
         self.provider = provider
-        state = provider.value(variant: "default")
+        state = provider.value(variant: variant)
         self.onSelect = onSelect
         self.onNew = onNew
         self.onDismiss = onDismiss
@@ -53,6 +55,29 @@ public struct SessionsScreen: View {
                 .accessibilityIdentifier("sessionsscreen-scrim")
                 .transition(.opacity)
             }
+
+            // Confirm dialog for new session when active session exists (AC-1)
+            if showConfirmDialog {
+                LSConfirmDialog(
+                    title: "Start a new ride?",
+                    message: "You have an active ride. Starting a new one will pause the current ride.",
+                    cancelTitle: "Cancel",
+                    confirmTitle: "Start new",
+                    isPresented: showConfirmDialog,
+                    onCancel: {
+                        Task { @MainActor in
+                            showConfirmDialog = false
+                        }
+                    },
+                    onConfirm: {
+                        Task { @MainActor in
+                            showConfirmDialog = false
+                            onNew()
+                        }
+                    }
+                )
+                .accessibilityIdentifier("sessionsscreen-confirmdialog")
+            }
         }
     }
 
@@ -64,7 +89,7 @@ public struct SessionsScreen: View {
             activeSessionId: state.activeSessionId,
             groupLabel: "THIS WEEK",
             onSelect: onSelect,
-            onNew: onNew,
+            onNew: handleNewTap,
             onDismiss: onDismiss
         )
         .transition(sidebarSlideInTransition)
@@ -100,6 +125,19 @@ public struct SessionsScreen: View {
         }
         // Call onDismiss immediately (scrim tap is user action)
         onDismiss()
+    }
+
+    // MARK: - New Session Handler
+
+    private nonisolated func handleNewTap() {
+        // Show confirm dialog if there's an active session (AC-1)
+        Task { @MainActor in
+            if state.activeSessionId != nil {
+                showConfirmDialog = true
+            } else {
+                onNew()
+            }
+        }
     }
 
     // MARK: - Map
