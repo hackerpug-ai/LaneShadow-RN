@@ -19,6 +19,12 @@ describe('generate-mobile-types', () => {
     expect(result.swiftSource).toContain('struct UsersDocument')
   })
 
+  it('test_swiftEmptyStructsUseSingleLineStyle', () => {
+    const result = generateMobileTypes()
+    expect(result.swiftSource).toContain('public struct UsersDocument: Codable {}')
+    expect(result.swiftSource).not.toMatch(/Codable \{\n\}/)
+  })
+
   it('test_kotlinSerializableDataClassesGenerated', () => {
     const result = generateMobileTypes()
     expect(

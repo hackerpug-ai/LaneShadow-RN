@@ -66,7 +66,7 @@ function generateSwiftSource(tableNames: string[]): string {
   const structs = tableNames
     .map((tableName) => {
       const structName = `${toPascalCase(tableName)}Document`
-      return `public struct ${structName}: Codable {\n}\n`
+      return `public struct ${structName}: Codable {}\n`
     })
     .join('\n')
 
