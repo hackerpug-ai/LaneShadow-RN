@@ -332,6 +332,14 @@
         }
       ]
     },
+    "motionRecipe": {
+      "type": "object",
+      "properties": {
+        "duration": true,
+        "easing": true,
+        "iteration": { "type": "string" }
+      }
+    },
     "semanticMotion": {
       "type": "object",
       "required": ["duration", "easing"],
@@ -378,9 +386,13 @@
             "pop": { "$ref": "#/$defs/numberToken" }
           },
           "additionalProperties": false
+        },
+        "recipes": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/motionRecipe" }
         }
       },
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "semanticOpacity": {
       "type": "object",

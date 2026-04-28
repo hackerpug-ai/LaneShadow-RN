@@ -31,6 +31,13 @@ struct IdlePlanningVariantTests {
         // Verify the idle screen renders successfully
         #expect(hostingController.view != nil, "IdleScreen V01 should render successfully")
 
+        // Verify view hierarchy contains location pill component
+        let hasLocationIndicator = hostingController.view.subviews.contains { view in
+            let description = String(describing: type(of: view))
+            return description.contains("LocationIndicator") || description.contains("Pill")
+        }
+        #expect(hasLocationIndicator, "V01 should contain location pill component")
+
         // Verify via snapshot that copper pill and dim chat input are present
         assertSnapshot(
             matching: themedView,
@@ -67,6 +74,13 @@ struct IdlePlanningVariantTests {
         // Verify the idle screen renders successfully
         #expect(hostingController.view != nil, "IdleScreen V02 should render successfully")
 
+        // Verify view hierarchy contains suggestion chips
+        let hasSuggestionChips = hostingController.view.subviews.contains { view in
+            let description = String(describing: type(of: view))
+            return description.contains("Chip") || description.contains("Suggestion")
+        }
+        #expect(hasSuggestionChips, "V02 should contain suggestion chips")
+
         // Verify via snapshot that onboarding chips are present and no favorite pins
         assertSnapshot(
             matching: themedView,
@@ -101,6 +115,14 @@ struct IdlePlanningVariantTests {
 
         // Verify the idle screen renders successfully
         #expect(hostingController.view != nil, "IdleScreen V03 should render successfully")
+
+        // Verify view hierarchy contains advisory card component
+        let hasAdvisoryCard = hostingController.view.subviews.contains { view in
+            let description = String(describing: type(of: view))
+            return description.contains("Advisory") || description.contains("Weather") || description
+                .contains("Warning")
+        }
+        #expect(hasAdvisoryCard, "V03 should contain weather advisory card")
 
         // Verify via snapshot that warning meta and advisory card are present
         assertSnapshot(
@@ -138,6 +160,13 @@ struct IdlePlanningVariantTests {
         // Verify the planning screen renders successfully
         #expect(hostingController.view != nil, "PlanningScreen V01 should render successfully")
 
+        // Verify view hierarchy contains message component with apology
+        let hasMessageView = hostingController.view.subviews.contains { view in
+            let description = String(describing: type(of: view))
+            return description.contains("Message") || description.contains("Planning")
+        }
+        #expect(hasMessageView, "V01 should contain planning message view")
+
         // Verify via snapshot that italic apology note is present
         assertSnapshot(
             matching: themedView,
@@ -172,6 +201,13 @@ struct IdlePlanningVariantTests {
         // Verify the planning screen renders successfully with cancel sheet
         #expect(hostingController.view != nil, "PlanningScreen V02 should render successfully")
 
+        // Verify view hierarchy contains sheet/confirmation component
+        let hasConfirmationSheet = hostingController.view.subviews.contains { view in
+            let description = String(describing: type(of: view))
+            return description.contains("Sheet") || description.contains("Confirm") || description.contains("Alert")
+        }
+        #expect(hasConfirmationSheet, "V02 should contain cancel confirmation sheet")
+
         // Verify via snapshot that cancel confirm sheet is rendered
         assertSnapshot(
             matching: themedView,
@@ -204,6 +240,13 @@ struct IdlePlanningVariantTests {
 
         // Verify the planning screen renders successfully
         #expect(hostingController.view != nil, "PlanningScreen V03 should render successfully")
+
+        // Verify view hierarchy contains warning/chrome component
+        let hasWarningChrome = hostingController.view.subviews.contains { view in
+            let description = String(describing: type(of: view))
+            return description.contains("Warning") || description.contains("Chrome") || description.contains("Border")
+        }
+        #expect(hasWarningChrome, "V03 should contain warning chrome")
 
         // Verify via snapshot that warning chrome is rendered
         assertSnapshot(

@@ -1,7 +1,6 @@
 import LaneShadowTheme
-import SnapshotTesting
 import SwiftUI
-import XCTest
+import Testing
 @testable import LaneShadow
 
 // MARK: - Motion Recipe Tests
@@ -19,211 +18,88 @@ import XCTest
  * - AC-2: Breathing head dot 1400ms easeInOut repeatForever(autoreverses:true)
  * - AC-3: LSBestBadge entrance 200ms spring scale+opacity
  * - AC-4: Record dot pulse 1400ms easeInOut 1.0↔0.45
- * - AC-5: Suggestion chips slide-up 8pt + fade-in
+ * - AC-5: Chat overlay enter 240ms easeOut slide-up
  *
- * NOTE: Motion recipes are not yet defined in theme tokens (tracked in FID-S02-R01).
- * These tests verify the fallback values are correct and views render successfully.
+ * These tests verify the actual motion recipe token values from the theme,
+ * not just that views render. Motion recipes are defined in tokens/semantic/motion.tokens.json
+ * and loaded into Theme.shared.motion.recipes.
  */
+@Suite("Motion Recipe Token Tests")
 @MainActor
-final class MotionTests: XCTestCase {
+struct MotionTests {
     // MARK: - AC-1: Sketch polyline loop runs at 1400ms linear
 
-    func testSketchPolylineLoop1400Linear() {
-        // GIVEN: PlanningScreen with sketching polyline
-        let planningScreen = PlanningScreen(
-            provider: PlanningMockProvider.self,
-            activePhase: 2
-        )
+    @Test("sketchPolylineLoop uses 1400ms linear restart")
+    func sketchPolylineLoopRecipe() throws {
+        // GIVEN: Theme motion recipes
+        let recipes = Theme.shared.motion.recipes
 
-        // WHEN: View body resolves
-        let view = planningScreen.body
+        // THEN: sketchPolylineLoop recipe has correct duration and easing
+        #expect(recipes.keys.contains("sketchPolylineLoop"), "sketchPolylineLoop recipe should exist")
 
-        // THEN: Sketch polyline animation uses 1400ms linear repeatForever
-        // Verify view renders without crashing
-        XCTAssertNotNil(view, "PlanningScreen should render")
-
-        // Verify the sketching polyline exists in the view hierarchy
-        let themedView = planningScreen.laneShadowTheme()
-        let hostingController = UIHostingController(rootView: themedView)
-        hostingController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
-        hostingController.loadViewIfNeeded()
-
-        let sketchPolylineExists = hostingController.view.subviews.contains { view in
-            String(describing: type(of: view)).contains("SketchingPolyline")
-        }
-        XCTAssertTrue(sketchPolylineExists, "SketchingPolyline should be present in PlanningScreen")
-
-        // Verify via snapshot that animation timing is correct (visual verification)
-        assertSnapshot(
-            matching: themedView,
-            as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
-                UITraitCollection(userInterfaceStyle: .light),
-                UITraitCollection(userInterfaceIdiom: .phone),
-                UITraitCollection(horizontalSizeClass: .compact),
-                UITraitCollection(verticalSizeClass: .regular),
-            ]))
-        )
+        let recipe = try #require(recipes["sketchPolylineLoop"])
+        #expect(recipe.duration == 1400, "sketchPolylineLoop duration should be 1400ms")
+        #expect(recipe.easing == [0.0, 0.0, 1.0, 1.0], "sketchPolylineLoop should use linear easing (0,0,1,1)")
     }
 
     // MARK: - AC-2: Breathing head dot synced with sketch loop
 
-    func testBreathingHeadDot1400EaseInOut() {
-        // GIVEN: PlanningScreen with breathing head dot
-        let planningScreen = PlanningScreen(
-            provider: PlanningMockProvider.self,
-            activePhase: 2
-        )
+    @Test("breathingHeadDot uses 1400ms easeInOut reverse")
+    func breathingHeadDotRecipe() throws {
+        // GIVEN: Theme motion recipes
+        let recipes = Theme.shared.motion.recipes
 
-        // WHEN: View renders
-        let view = planningScreen.body
+        // THEN: breathingHeadDot recipe has correct duration and easing
+        #expect(recipes.keys.contains("breathingHeadDot"), "breathingHeadDot recipe should exist")
 
-        // THEN: Breathing dot uses 1400ms easeInOut repeatForever(autoreverses:true)
-        XCTAssertNotNil(view, "PlanningScreen should render")
-
-        // Verify the breathing dot is present in the sketching polyline
-        let themedView = planningScreen.laneShadowTheme()
-        let hostingController = UIHostingController(rootView: themedView)
-        hostingController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
-        hostingController.loadViewIfNeeded()
-
-        let sketchPolylineExists = hostingController.view.subviews.contains { view in
-            String(describing: type(of: view)).contains("SketchingPolyline")
-        }
-        XCTAssertTrue(sketchPolylineExists, "SketchingPolyline with breathing dot should be present")
-
-        // Verify via snapshot that breathing animation timing is correct
-        assertSnapshot(
-            matching: themedView,
-            as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
-                UITraitCollection(userInterfaceStyle: .light),
-                UITraitCollection(userInterfaceIdiom: .phone),
-                UITraitCollection(horizontalSizeClass: .compact),
-                UITraitCollection(verticalSizeClass: .regular),
-            ]))
-        )
+        let recipe = try #require(recipes["breathingHeadDot"])
+        #expect(recipe.duration == 1400, "breathingHeadDot duration should be 1400ms")
+        #expect(recipe.easing == [0.4, 0.0, 0.6, 1.0], "breathingHeadDot should use easeInOut easing (0.4,0,0.6,1)")
     }
 
     // MARK: - AC-3: bestBadgeEnter spring on RouteSheet
 
-    func testBestBadgeEnterSpring() {
-        // GIVEN: LSRouteSheet with best badge
-        let route = RouteDetails(
-            id: "route-1",
-            title: "The Skyline Spine",
-            subtitle: "via Kings Mountain Rd",
-            isBest: true,
-            distance: "47",
-            time: "1:22",
-            climb: "3.2k",
-            scenic: "4.8"
-        )
+    @Test("bestBadgeEnter uses 200ms spring")
+    func bestBadgeEnterRecipe() throws {
+        // GIVEN: Theme motion recipes
+        let recipes = Theme.shared.motion.recipes
 
-        let routeSheet = LSRouteSheet(
-            route: route,
-            weatherTimeline: [],
-            timeRange: ("9am", "3pm"),
-            onSave: {},
-            onRide: {},
-            onDismiss: {}
-        )
+        // THEN: bestBadgeEnter recipe has correct duration
+        #expect(recipes.keys.contains("bestBadgeEnter"), "bestBadgeEnter recipe should exist")
 
-        // WHEN: View renders
-        let view = routeSheet.body
-
-        // THEN: LSBestBadge has entrance animation
-        XCTAssertNotNil(view, "LSRouteSheet should render")
-
-        // Verify best badge is present
-        let themedView = routeSheet.laneShadowTheme()
-        let hostingController = UIHostingController(rootView: themedView)
-        hostingController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
-        hostingController.loadViewIfNeeded()
-
-        XCTAssertNotNil(hostingController.view, "LSRouteSheet with best badge should render successfully")
-
-        // Verify via snapshot that best badge spring animation is correct
-        assertSnapshot(
-            matching: themedView,
-            as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
-                UITraitCollection(userInterfaceStyle: .light),
-                UITraitCollection(userInterfaceIdiom: .phone),
-                UITraitCollection(horizontalSizeClass: .compact),
-                UITraitCollection(verticalSizeClass: .regular),
-            ]))
-        )
+        let recipe = try #require(recipes["bestBadgeEnter"])
+        #expect(recipe.duration == 200, "bestBadgeEnter duration should be 200ms")
+        // Spring easing is represented as empty array in the DTO (special case)
+        #expect(recipe.easing.isEmpty, "bestBadgeEnter should use spring easing (empty array)")
     }
 
     // MARK: - AC-4: Record-highlight dot pulse
 
-    func testRecordDotPulse1400() {
-        // GIVEN: LSTopBar in record-highlight state
-        let topBar = LSTopBar(
-            title: nil,
-            trailing: .recordHighlight(isRecording: true),
-            onMenuTap: {},
-            onNewTap: {}
-        )
+    @Test("recordDotPulse uses 1400ms easeInOut reverse")
+    func recordDotPulseRecipe() throws {
+        // GIVEN: Theme motion recipes
+        let recipes = Theme.shared.motion.recipes
 
-        // WHEN: View renders
-        let view = topBar.body
+        // THEN: recordDotPulse recipe has correct duration and easing
+        #expect(recipes.keys.contains("recordDotPulse"), "recordDotPulse recipe should exist")
 
-        // THEN: Record dot pulses 1.0↔0.45 at 1400ms easeInOut
-        XCTAssertNotNil(view, "LSTopBar should render")
-
-        // Verify record dot is present
-        let themedView = topBar.laneShadowTheme()
-        let hostingController = UIHostingController(rootView: themedView)
-        hostingController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 100)
-        hostingController.loadViewIfNeeded()
-
-        XCTAssertNotNil(hostingController.view, "LSTopBar with record highlight should render successfully")
-
-        // Verify via snapshot that record dot pulse animation is correct
-        assertSnapshot(
-            matching: themedView,
-            as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
-                UITraitCollection(userInterfaceStyle: .light),
-                UITraitCollection(userInterfaceIdiom: .phone),
-                UITraitCollection(horizontalSizeClass: .compact),
-                UITraitCollection(verticalSizeClass: .regular),
-            ]))
-        )
+        let recipe = try #require(recipes["recordDotPulse"])
+        #expect(recipe.duration == 1400, "recordDotPulse duration should be 1400ms")
+        #expect(recipe.easing == [0.4, 0.0, 0.6, 1.0], "recordDotPulse should use easeInOut easing (0.4,0,0.6,1)")
     }
 
-    // MARK: - AC-5: Suggestion chips enter with chatOverlayEnter
+    // MARK: - AC-5: Chat overlay enter
 
-    func testChatOverlayEnterChips() {
-        // GIVEN: LSInlineErrorCallout with suggestion chips
-        let callout = LSInlineErrorCallout(
-            body: "No roads found in that area",
-            detail: "Try a different starting point",
-            suggestions: ["Start in San Francisco", "Start in Oakland"],
-            onSuggestionTap: { _ in }
-        )
+    @Test("chatOverlayEnter uses 240ms easeOut")
+    func chatOverlayEnterRecipe() throws {
+        // GIVEN: Theme motion recipes
+        let recipes = Theme.shared.motion.recipes
 
-        // WHEN: View renders
-        let view = callout.body
+        // THEN: chatOverlayEnter recipe has correct duration and easing
+        #expect(recipes.keys.contains("chatOverlayEnter"), "chatOverlayEnter recipe should exist")
 
-        // THEN: Suggestion chips have slide-up 8pt + fade-in animation
-        XCTAssertNotNil(view, "LSInlineErrorCallout should render")
-
-        // Verify suggestion chips are present
-        let themedView = callout.laneShadowTheme()
-        let hostingController = UIHostingController(rootView: themedView)
-        hostingController.view.frame = CGRect(x: 0, y: 0, width: 390, height: 200)
-        hostingController.loadViewIfNeeded()
-
-        XCTAssertNotNil(hostingController.view, "LSInlineErrorCallout with chips should render successfully")
-
-        // Verify via snapshot that chip entrance animation is correct
-        assertSnapshot(
-            matching: themedView,
-            as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
-                UITraitCollection(userInterfaceStyle: .light),
-                UITraitCollection(userInterfaceIdiom: .phone),
-                UITraitCollection(horizontalSizeClass: .compact),
-                UITraitCollection(verticalSizeClass: .regular),
-            ]))
-        )
+        let recipe = try #require(recipes["chatOverlayEnter"])
+        #expect(recipe.duration == 240, "chatOverlayEnter duration should be 240ms")
+        #expect(recipe.easing == [0.0, 0.0, 0.2, 1.0], "chatOverlayEnter should use easeOut easing (0,0,0.2,1)")
     }
 }

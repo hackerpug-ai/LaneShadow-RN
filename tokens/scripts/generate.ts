@@ -1503,6 +1503,15 @@ function emitBundledJSON(tokens: SemanticTokens): object {
   // --- MOTION ---
   const v2Durations = v2Motion.duration ?? {}
   const v2Easings = v2Motion.easing ?? {}
+
+  // Extract motion recipes (all keys except duration and easing)
+  const motionRecipes: Record<string, any> = {}
+  for (const [key, value] of Object.entries(v2Motion)) {
+    if (key !== 'duration' && key !== 'easing') {
+      motionRecipes[key] = value
+    }
+  }
+
   const motion = {
     duration: {
       instant: dimToken(v2Durations.instant?.$value ?? 0),
@@ -1520,6 +1529,7 @@ function emitBundledJSON(tokens: SemanticTokens): object {
       accelerate: easingToken(v2Easings.accelerated?.$value ?? [0.4, 0, 1, 1]),
       sharp: easingToken([0.4, 0, 0.6, 1]),
     },
+    recipes: motionRecipes,
   }
 
   // --- OPACITY ---

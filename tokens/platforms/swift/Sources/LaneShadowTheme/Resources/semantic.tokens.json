@@ -1262,6 +1262,58 @@
           "$type": "cubicBezier",
           "$value": [0.4, 0, 0.6, 1]
         }
+      },
+      "recipes": {
+        "chatOverlayEnter": {
+          "duration": "{motion.duration.standard}",
+          "easing": "{motion.easing.easeOut}",
+          "iteration": "once"
+        },
+        "chatOverlayDismiss": {
+          "duration": "{motion.duration.fast}",
+          "easing": "{motion.easing.linear}",
+          "iteration": "once"
+        },
+        "sidebarSlideIn": {
+          "duration": "{motion.duration.standard}",
+          "easing": "{motion.easing.decelerated}",
+          "iteration": "once"
+        },
+        "sketchPolylineLoop": {
+          "duration": 1400,
+          "easing": "{motion.easing.linear}",
+          "iteration": "restart"
+        },
+        "breathingHeadDot": {
+          "duration": 1400,
+          "easing": "{motion.easing.easeInOut}",
+          "iteration": "reverse"
+        },
+        "recordDotPulse": {
+          "duration": 1400,
+          "easing": "{motion.easing.easeInOut}",
+          "iteration": "reverse"
+        },
+        "routeDrawOn": {
+          "duration": "{motion.duration.deliberate}",
+          "easing": "{motion.easing.decelerated}",
+          "iteration": "once"
+        },
+        "bestBadgeEnter": {
+          "duration": 200,
+          "easing": "spring",
+          "iteration": "once"
+        },
+        "phaseDotPulse": {
+          "duration": "{motion.duration.slow}",
+          "easing": "{motion.easing.standard}",
+          "iteration": "loop"
+        },
+        "mapTapDismiss": {
+          "duration": "{motion.duration.fast}",
+          "easing": "{motion.easing.linear}",
+          "iteration": "once"
+        }
       }
     },
     "opacity": {

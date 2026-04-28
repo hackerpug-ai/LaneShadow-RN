@@ -457,9 +457,48 @@ private extension Theme {
             dict[item.key] = item.value.value
         }
         let recipesDict = m.recipes?.reduce(into: [String: MotionRecipe]()) { dict, item in
+            // Resolve duration references like "{motion.duration.standard}" to actual values
+            var durationValue = 0
+            if let duration = item.value.duration {
+                switch duration {
+                case let .number(num):
+                    durationValue = Int(num)
+                case let .string(str):
+                    // Handle string references like "{motion.duration.standard}"
+                    if str.contains("{motion.duration.") {
+                        let key = str.replacingOccurrences(of: "{motion.duration.", with: "").replacingOccurrences(
+                            of: "}",
+                            with: ""
+                        )
+                        durationValue = Int(m.duration[key]?.value ?? 0)
+                    }
+                }
+            }
+
+            // Resolve easing references like "{motion.easing.linear}" to actual values
+            var easingArray: [Double] = []
+            if let easingValue = item.value.easing {
+                switch easingValue {
+                case let .array(arr):
+                    easingArray = arr
+                case let .string(str):
+                    // Handle string references like "{motion.easing.linear}"
+                    if str.contains("{motion.easing.") {
+                        let key = str.replacingOccurrences(of: "{motion.easing.", with: "").replacingOccurrences(
+                            of: "}",
+                            with: ""
+                        )
+                        easingArray = m.easing[key]?.value ?? []
+                    } else if str == "spring" {
+                        // Spring easing is represented as empty array (special case)
+                        easingArray = []
+                    }
+                }
+            }
+
             dict[item.key] = MotionRecipe(
-                duration: Int(item.value.duration ?? 0),
-                easing: item.value.easing ?? []
+                duration: durationValue,
+                easing: easingArray
             )
         } ?? [:]
         return ThemeMotion(

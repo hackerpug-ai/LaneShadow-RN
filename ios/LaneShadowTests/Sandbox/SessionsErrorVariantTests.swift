@@ -162,7 +162,11 @@ final class SessionsErrorVariantTests: XCTestCase {
         XCTAssertNotNil(hostingController.view, "ErrorScreen V01 should render successfully")
 
         // Verify offline state is reflected in provider (variant name indicates offline)
-        XCTAssertEqual(provider.value(variant: "v01-offline").error.body, "You're offline. Check your connection and try again.", "V01 variant should indicate offline state")
+        XCTAssertEqual(
+            provider.value(variant: "v01-offline").error.body,
+            "You're offline. Check your connection and try again.",
+            "V01 variant should indicate offline state"
+        )
 
         // Verify via snapshot that wifi-off watermark and disabled chat are present
         assertSnapshot(

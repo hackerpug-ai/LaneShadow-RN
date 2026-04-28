@@ -28,9 +28,75 @@ public struct EasingToken: Decodable, Sendable {
 }
 
 public struct MotionRecipeDto: Decodable, Sendable {
-    public let duration: Double?
-    public let easing: [Double]?
+    public let duration: DurationValue?
+    public let easing: EasingValue?
     public let iteration: String?
+
+    /// Duration can be either a number (ms) or a string reference like "{motion.duration.standard}"
+    public enum DurationValue: Decodable, Sendable {
+        case number(Double)
+        case string(String)
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+
+            if let number = try? container.decode(Double.self) {
+                self = .number(number)
+            } else if let string = try? container.decode(String.self) {
+                self = .string(string)
+            } else {
+                throw DecodingError.typeMismatch(DurationValue.self, DecodingError.Context(
+                    codingPath: container.codingPath,
+                    debugDescription: "Expected duration to be either Double or String"
+                ))
+            }
+        }
+
+        /// Helper to get the raw number value if it's a number, or nil otherwise
+        public var numberValue: Double? {
+            if case let .number(num) = self { return num }
+            return nil
+        }
+
+        /// Helper to get the string value
+        public var stringValue: String? {
+            if case let .string(str) = self { return str }
+            return nil
+        }
+    }
+
+    /// Easing can be either a string reference ("{motion.easing.linear}") or "spring"
+    public enum EasingValue: Decodable, Sendable {
+        case array([Double])
+        case string(String)
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+
+            if let array = try? container.decode([Double].self) {
+                self = .array(array)
+            } else if let string = try? container.decode(String.self) {
+                self = .string(string)
+            } else {
+                throw DecodingError.typeMismatch(EasingValue.self, DecodingError.Context(
+                    codingPath: container.codingPath,
+                    debugDescription: "Expected easing to be either [Double] or String"
+                ))
+            }
+        }
+
+        /// Helper to get the raw array value if it's an array, or nil otherwise
+        public var arrayValue: [Double]? {
+            if case let .array(arr) = self { return arr }
+            return nil
+        }
+
+        /// Helper to get the string value
+        public var stringValue: String? {
+            if case let .string(str) = self { return str }
+            return nil
+        }
+    }
 }
 
 // MARK: - Color group (states per group — default required, others optional)
