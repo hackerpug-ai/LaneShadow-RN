@@ -1,0 +1,479 @@
+server/convex/__tests__/curationAdmin.test.ts(9,25): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/__tests__/curationArtifacts.test.ts(2,25): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/__tests__/curationMetrics.test.ts(8,25): error TS2307: Cannot find module '../_generated/dataModel.js' or its corresponding type declarations.
+server/convex/__tests__/routeFeedback.test.ts(10,25): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/__tests__/semanticSearch.test.ts(21,25): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/__tests__/executePlan.test.ts(5,25): error TS2307: Cannot find module '../../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/__tests__/planningIntegration.test.ts(4,25): error TS2307: Cannot find module '../../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/__tests__/planRide.favorites.test.ts(11,25): error TS2307: Cannot find module '../../../../convex/_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/__tests__/planRide.integration.test.ts(15,25): error TS2307: Cannot find module '../../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/__tests__/ridePlanningAgent.test.ts(668,53): error TS2307: Cannot find module '../../../_generated/api.js' or its corresponding type declarations.
+server/convex/actions/agent/__tests__/sendMessage.test.ts(4,25): error TS2307: Cannot find module '../../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/agents/orchestrator.ts(10,25): error TS2307: Cannot find module '../../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/agents/routingAgent.ts(4,26): error TS2307: Cannot find module '../../../_generated/api.js' or its corresponding type declarations.
+server/convex/actions/agent/agents/routingAgent.ts(5,25): error TS2307: Cannot find module '../../../_generated/dataModel.js' or its corresponding type declarations.
+server/convex/actions/agent/agents/types.ts(3,25): error TS2307: Cannot find module '../../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/enrichment/__tests__/runEnrichmentJob.test.ts(125,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/enrichment/__tests__/runEnrichmentJob.test.ts(185,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/enrichment/__tests__/runEnrichmentJob.test.ts(213,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/enrichment/__tests__/runEnrichmentJob.test.ts(317,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/enrichment/__tests__/runEnrichmentJob.test.ts(386,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/enrichment/__tests__/runEnrichmentJob.test.ts(433,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/enrichment/runEnrichmentJob.ts(5,26): error TS2307: Cannot find module '../../../_generated/api' or its corresponding type declarations.
+server/convex/actions/agent/enrichment/runEnrichmentJob.ts(6,25): error TS2307: Cannot find module '../../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/enrichment/runEnrichmentJob.ts(7,32): error TS2307: Cannot find module '../../../_generated/server' or its corresponding type declarations.
+server/convex/actions/agent/generateTripPlan.ts(9,31): error TS2307: Cannot find module '../../_generated/api' or its corresponding type declarations.
+server/convex/actions/agent/generateTripPlan.ts(10,25): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/generateTripPlan.ts(11,24): error TS2307: Cannot find module '../../_generated/server' or its corresponding type declarations.
+server/convex/actions/agent/generateTripPlan.ts(250,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/agent/generateTripPlan.ts(250,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/actions/agent/lib/__tests__/planRideOrchestrator.enrichment.test.ts(9,25): error TS2307: Cannot find module '../../../../../convex/_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/lib/planningEvents.ts(3,26): error TS2307: Cannot find module '../../../_generated/api' or its corresponding type declarations.
+server/convex/actions/agent/lib/planningEvents.ts(4,25): error TS2307: Cannot find module '../../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/planRide.ts(18,26): error TS2307: Cannot find module '../../_generated/api' or its corresponding type declarations.
+server/convex/actions/agent/planRide.ts(19,25): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/planRide.ts(20,40): error TS2307: Cannot find module '../../_generated/server' or its corresponding type declarations.
+server/convex/actions/agent/planRide.ts(170,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/agent/planRide.ts(170,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/actions/agent/planRide.ts(421,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/agent/planRide.ts(421,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/actions/agent/ridePlanningAgent.ts(15,25): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/ridePlanningAgent.ts(16,32): error TS2307: Cannot find module '../../_generated/server' or its corresponding type declarations.
+server/convex/actions/agent/sendMessage.ts(6,31): error TS2307: Cannot find module '../../_generated/api' or its corresponding type declarations.
+server/convex/actions/agent/sendMessage.ts(7,25): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/sendMessage.ts(8,24): error TS2307: Cannot find module '../../_generated/server' or its corresponding type declarations.
+server/convex/actions/agent/sendMessage.ts(386,5): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/agent/sendMessage.ts(387,5): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/actions/agent/sessionContext.ts(4,26): error TS2307: Cannot find module '../../_generated/api' or its corresponding type declarations.
+server/convex/actions/agent/sessionContext.ts(5,25): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(36,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(70,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(99,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(119,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(133,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(135,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(149,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(152,11): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(154,11): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(156,11): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(158,11): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(175,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(186,9): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(189,11): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(191,11): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts(193,11): error TS2578: Unused '@ts-expect-error' directive.
+server/convex/actions/agent/tools/manageWaypoints.ts(5,31): error TS2307: Cannot find module '../../../_generated/api' or its corresponding type declarations.
+server/convex/actions/agent/tools/manageWaypoints.ts(6,25): error TS2307: Cannot find module '../../../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/curation/intentExtraction.ts(13,24): error TS2307: Cannot find module '../../_generated/server' or its corresponding type declarations.
+server/convex/actions/curation/intentExtraction.ts(45,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/curation/intentExtraction.ts(45,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/actions/mapData.ts(21,32): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/actions/mapData.ts(179,5): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/mapData.ts(266,5): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/mapData.ts(333,19): error TS7006: Parameter '_ctx' implicitly has an 'any' type.
+server/convex/actions/mapData.ts(333,25): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/actions/monitoring.ts(11,32): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/actions/osm.ts(12,26): error TS2307: Cannot find module '../_generated/api' or its corresponding type declarations.
+server/convex/actions/osm.ts(13,32): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/actions/osm.ts(30,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/osm.ts(30,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/actions/osm.ts(69,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/osm.ts(69,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/actions/osm.ts(108,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/osm.ts(108,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/actions/osm.ts(132,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/osm.ts(132,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/actions/osm.ts(144,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/osm.ts(144,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/actions/users.ts(5,26): error TS2307: Cannot find module '../_generated/api' or its corresponding type declarations.
+server/convex/actions/users.ts(6,25): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/actions/users.ts(7,24): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/actions/users.ts(29,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/actions/users.ts(29,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/crons.ts(2,26): error TS2307: Cannot find module './_generated/api' or its corresponding type declarations.
+server/convex/curationAdmin.ts(4,34): error TS2307: Cannot find module './_generated/server' or its corresponding type declarations.
+server/convex/curationAdmin.ts(131,26): error TS2307: Cannot find module './_generated/server' or its corresponding type declarations.
+server/convex/curationAdmin.ts(156,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/curationAdmin.ts(156,26): error TS7031: Binding element 'updates' implicitly has an 'any' type.
+server/convex/curationArtifacts.ts(11,25): error TS2307: Cannot find module './_generated/dataModel' or its corresponding type declarations.
+server/convex/curationArtifacts.ts(12,66): error TS2307: Cannot find module './_generated/server' or its corresponding type declarations.
+server/convex/curationMetrics.ts(2,31): error TS2307: Cannot find module './_generated/server' or its corresponding type declarations.
+server/convex/db/__tests__/favoriteRoads.test.ts(13,30): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/__tests__/planningSessions.test.ts(10,25): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/__tests__/planUsage.integration.test.ts(12,25): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/__tests__/planUsage.test.ts(13,30): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/__tests__/planUsage.test.ts(14,44): error TS2307: Cannot find module '../../_generated/server' or its corresponding type declarations.
+server/convex/db/__tests__/routeEnrichments.test.ts(9,25): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/__tests__/routePlans.test.ts(10,25): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/__tests__/savedRoutes.softDelete.test.ts(11,25): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/__tests__/session/session.messages.test.ts(10,25): error TS2307: Cannot find module '../../../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/__tests__/sessionMessages.validation.test.ts(11,25): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/__tests__/thinkingCard.test.ts(10,25): error TS2307: Cannot find module '../../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/clerkSync.ts(4,25): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/clerkSync.ts(5,34): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/clerkSync.ts(6,34): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/clerkSync.ts(102,35): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(113,34): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(132,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(132,26): error TS7031: Binding element 'data' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(142,37): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(169,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(169,26): error TS7031: Binding element 'data' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(172,37): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(182,32): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(205,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(205,26): error TS7031: Binding element 'data' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(210,36): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(238,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(238,26): error TS7031: Binding element 'data' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(241,36): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(251,31): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(282,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(282,26): error TS7031: Binding element 'data' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(318,42): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(345,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(345,26): error TS7031: Binding element 'data' implicitly has an 'any' type.
+server/convex/db/clerkSync.ts(359,42): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/curation.ts(11,26): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/curation.ts(12,31): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/curation.ts(76,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/curation.ts(76,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/curation.ts(152,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/curation.ts(152,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/curation.ts(160,35): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/curation.ts(184,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/curation.ts(184,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/curation.ts(192,35): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/curation.ts(230,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/curation.ts(251,51): error TS7006: Parameter 'r' implicitly has an 'any' type.
+server/convex/db/curation.ts(255,30): error TS7006: Parameter 'f' implicitly has an 'any' type.
+server/convex/db/curation.ts(256,30): error TS7006: Parameter 'f' implicitly has an 'any' type.
+server/convex/db/curation.ts(257,34): error TS7006: Parameter 'f' implicitly has an 'any' type.
+server/convex/db/curation.ts(258,30): error TS7006: Parameter 'f' implicitly has an 'any' type.
+server/convex/db/favoriteRoads.ts(4,30): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/favoriteRoads.ts(5,33): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/favoriteRoads.ts(113,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/favoriteRoads.ts(113,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/favoriteRoads.ts(121,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/favoriteRoads.ts(135,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/favoriteRoads.ts(135,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/osm.ts(9,34): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/osm.ts(17,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/osm.ts(17,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/osm.ts(24,33): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/osm.ts(46,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/osm.ts(46,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/osm.ts(53,33): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/osm.ts(86,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/osm.ts(86,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/osm.ts(92,16): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/performance.ts(2,34): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/performance.ts(22,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/performance.ts(22,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(8,30): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/planningSessions.ts(9,51): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/planningSessions.ts(201,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(201,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(221,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(239,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(239,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(252,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(252,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(261,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(261,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(271,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(271,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(284,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(284,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/planningSessions.ts(350,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/planUsage.ts(7,44): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/planUsage.ts(8,49): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/planUsage.ts(49,45): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/planUsage.ts(87,45): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/planUsage.ts(144,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/planUsage.ts(144,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/planUsage.ts(160,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/planUsage.ts(160,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(10,26): error TS2307: Cannot find module '../_generated/api' or its corresponding type declarations.
+server/convex/db/routeEnrichments.ts(11,30): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/routeEnrichments.ts(12,56): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/routeEnrichments.ts(293,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(293,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(301,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(301,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(312,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(312,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(324,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(324,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(347,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(347,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(364,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(364,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(375,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(375,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(386,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(386,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(400,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(400,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(413,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(413,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(424,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routeEnrichments.ts(424,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routeFeedback.ts(11,30): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/routeFeedback.ts(12,26): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/routeFeedback.ts(89,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routeFeedback.ts(89,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(10,26): error TS2307: Cannot find module '../_generated/api' or its corresponding type declarations.
+server/convex/db/routePlans.ts(11,30): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/routePlans.ts(12,66): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/routePlans.ts(258,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(258,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(267,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(276,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(276,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(292,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(292,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(301,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(301,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(325,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(325,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(334,18): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(367,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(367,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(454,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(454,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(576,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(576,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(596,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(596,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(599,54): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(602,16): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/routePlans.ts(605,22): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+server/convex/db/routesPlan.ts(4,23): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/routesPlan.ts(19,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(16,26): error TS2307: Cannot find module '../_generated/api' or its corresponding type declarations.
+server/convex/db/savedRoutes.ts(17,30): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/savedRoutes.ts(18,66): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/savedRoutes.ts(220,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(220,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(243,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(243,26): error TS7031: Binding element 'limit' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(243,33): error TS7031: Binding element 'searchQuery' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(243,46): error TS7031: Binding element 'afterDate' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(243,57): error TS7031: Binding element 'beforeDate' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(248,47): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(256,16): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(257,13): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(265,42): error TS2345: Argument of type '{ name: string; }[]' is not assignable to parameter of type '{ createdAt: number; }[]'.
+  Property 'createdAt' is missing in type '{ name: string; }' but required in type '{ createdAt: number; }'.
+server/convex/db/savedRoutes.ts(267,26): error TS2339: Property 'savedRouteId' does not exist on type '{ createdAt: number; }'.
+server/convex/db/savedRoutes.ts(267,40): error TS2339: Property 'savedRoute' does not exist on type '{ createdAt: number; }'.
+server/convex/db/savedRoutes.ts(281,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(281,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(290,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(290,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(314,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(314,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(350,5): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(351,7): error TS7031: Binding element 'limit' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(351,14): error TS7031: Binding element 'searchQuery' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(351,27): error TS7031: Binding element 'afterDate' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(351,38): error TS7031: Binding element 'beforeDate' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(399,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(399,26): error TS7031: Binding element 'savedRouteId' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(433,5): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(434,5): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(452,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(452,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(462,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(462,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(471,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(471,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(480,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/savedRoutes.ts(480,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.test.ts(10,25): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/sessionMessages.ts(11,25): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/sessionMessages.ts(12,66): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/sessionMessages.ts(399,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(399,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(411,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(411,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(432,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(432,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(445,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(445,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(458,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(458,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(469,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(469,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(480,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(480,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(514,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(514,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(525,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(525,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(536,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(536,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(548,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(548,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(559,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(559,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(663,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(663,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(674,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(674,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(685,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(685,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(695,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/sessionMessages.ts(695,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/tripPlans.ts(4,30): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/tripPlans.ts(5,51): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/tripPlans.ts(128,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/tripPlans.ts(128,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/tripPlans.ts(151,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/tripPlans.ts(151,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/tripPlans.ts(160,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/tripPlans.ts(160,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/tripPlans.ts(169,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/users.test.ts(2,25): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/users.test.ts(39,38): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './users.js'?
+server/convex/db/users.test.ts(52,38): error TS2835: Relative import paths need explicit file extensions in ECMAScript imports when '--moduleResolution' is 'node16' or 'nodenext'. Did you mean './users.js'?
+server/convex/db/users.ts(3,25): error TS2307: Cannot find module '../_generated/dataModel' or its corresponding type declarations.
+server/convex/db/users.ts(4,56): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/users.ts(54,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/users.ts(66,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/users.ts(67,35): error TS2304: Cannot find name 'requireIdentity'.
+server/convex/db/users.ts(71,37): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/users.ts(90,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/users.ts(90,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/users.ts(96,37): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/users.ts(127,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/users.ts(138,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/users.ts(138,26): error TS7031: Binding element 'clerkUserId' implicitly has an 'any' type.
+server/convex/db/users.ts(141,37): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(2,33): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/db/waypoints.ts(26,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(26,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(51,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(51,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(63,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(63,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(66,37): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(87,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(87,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(90,48): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(112,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(112,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(117,16): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(150,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(150,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(171,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/db/waypoints.ts(171,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/geospatialIndex.ts(3,28): error TS2307: Cannot find module './_generated/api' or its corresponding type declarations.
+server/convex/geospatialValidation.ts(2,23): error TS2307: Cannot find module './_generated/server' or its corresponding type declarations.
+server/convex/geospatialValidation.ts(14,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/geospatialValidation.ts(38,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/geospatialValidation.ts(70,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/guards.ts(4,31): error TS2307: Cannot find module './_generated/api' or its corresponding type declarations.
+server/convex/guards.ts(5,55): error TS2307: Cannot find module './_generated/server' or its corresponding type declarations.
+server/convex/http.ts(3,31): error TS2307: Cannot find module './_generated/api' or its corresponding type declarations.
+server/convex/http.ts(4,28): error TS2307: Cannot find module './_generated/server' or its corresponding type declarations.
+server/convex/http.ts(16,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(16,35): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/convex/http.ts(65,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(65,35): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/convex/http.ts(114,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(114,35): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/convex/http.ts(162,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(162,35): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/convex/http.ts(211,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(211,35): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/convex/http.ts(241,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(241,35): error TS7006: Parameter 'request' implicitly has an 'any' type.
+server/convex/http.ts(271,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(271,35): error TS7006: Parameter 'request' implicitly has an 'any' type.
+server/convex/http.ts(313,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(313,35): error TS7006: Parameter 'request' implicitly has an 'any' type.
+server/convex/http.ts(353,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(353,35): error TS7006: Parameter 'request' implicitly has an 'any' type.
+server/convex/http.ts(393,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(393,35): error TS7006: Parameter 'request' implicitly has an 'any' type.
+server/convex/http.ts(452,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(452,35): error TS7006: Parameter 'request' implicitly has an 'any' type.
+server/convex/http.ts(493,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(493,35): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/convex/http.ts(508,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(508,35): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/convex/http.ts(523,30): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/http.ts(523,35): error TS7006: Parameter 'req' implicitly has an 'any' type.
+server/convex/migrations/backfillSessionMessageKindStatus.ts(25,34): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/migrations/backfillSessionMessageKindStatus.ts(60,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/migrations/deleteEmptyAssistantMessages.ts(35,49): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/migrations/deleteEmptyAssistantMessages.ts(91,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/migrations/deleteEmptyAssistantMessages.ts(102,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/queries/osm.ts(8,31): error TS2307: Cannot find module '../_generated/server' or its corresponding type declarations.
+server/convex/queries/osm.ts(14,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/queries/osm.ts(23,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/queries/osm.ts(35,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/queries/osm.ts(35,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/queries/osm.ts(38,30): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/seedGeospatialTest.ts(2,33): error TS2307: Cannot find module './_generated/server' or its corresponding type declarations.
+server/convex/seedGeospatialTest.ts(133,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/seedGeospatialTest.ts(190,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/seedGeospatialTest.ts(193,16): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/seedGeospatialTest.ts(202,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/seedGeospatialTest.ts(205,16): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/seedGeospatialTest.ts(208,40): error TS7006: Parameter 'r' implicitly has an 'any' type.
+server/convex/seedGeospatialTest.ts(215,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/seedGeospatialTest.ts(218,16): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(15,42): error TS2307: Cannot find module './_generated/dataModel' or its corresponding type declarations.
+server/convex/semanticSearch.ts(16,33): error TS2307: Cannot find module './_generated/server' or its corresponding type declarations.
+server/convex/semanticSearch.ts(66,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(66,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(142,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(142,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(151,38): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(156,42): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(163,37): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(210,66): error TS7006: Parameter 'id' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(256,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(256,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(314,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(314,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(375,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(375,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(381,32): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(385,19): error TS7006: Parameter 'a' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(385,22): error TS7006: Parameter 'b' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(430,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(430,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(439,48): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(445,16): error TS7006: Parameter 'match' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(475,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(478,42): error TS7006: Parameter 'r' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(480,8): error TS7006: Parameter 'r' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(539,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(539,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(547,31): error TS7006: Parameter 'route' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(551,24): error TS7006: Parameter 'route' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(630,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(630,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(636,48): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(642,26): error TS7006: Parameter 'match' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(645,36): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(696,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(696,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(717,38): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(722,42): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(729,37): error TS7006: Parameter 'q' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(801,66): error TS7006: Parameter 'id' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(895,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/semanticSearch.ts(895,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/convex/types.ts(10,48): error TS2307: Cannot find module './_generated/dataModel' or its corresponding type declarations.
+server/convex/users.ts(12,25): error TS2307: Cannot find module './_generated/dataModel' or its corresponding type declarations.
+server/convex/users.ts(13,33): error TS2307: Cannot find module './_generated/server' or its corresponding type declarations.
+server/convex/users.ts(33,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/users.ts(56,19): error TS7006: Parameter 'ctx' implicitly has an 'any' type.
+server/convex/users.ts(56,24): error TS7006: Parameter 'args' implicitly has an 'any' type.
+server/lib/storage/upload-to-convex.ts(9,21): error TS2307: Cannot find module '../../convex/_generated/api' or its corresponding type declarations.
+exit_code=2

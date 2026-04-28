@@ -9,6 +9,30 @@ import { ConvexError } from 'convex/values'
 import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../../_generated/dataModel'
 import { ERROR_CODES } from '../../../errors'
+
+vi.mock('../_generated/server', () => ({
+  mutation: (def: unknown) => def,
+  query: (def: unknown) => def,
+  internalMutation: (def: unknown) => def,
+  internalQuery: (def: unknown) => def,
+}))
+
+vi.mock('./_generated/server', () => ({
+  mutation: (def: unknown) => def,
+  query: (def: unknown) => def,
+  internalMutation: (def: unknown) => def,
+  internalQuery: (def: unknown) => def,
+}))
+
+vi.mock('./_generated/api', () => ({
+  api: { db: { users: { getSession: {} } } },
+  internal: { db: { users: { upsertCurrent: {}, getFirstUser: {} } } },
+}))
+
+vi.mock('../guards', () => ({
+  requireIdentity: vi.fn(),
+}))
+
 import { addSystemMessageHandler, listHandler, sendHandler } from '../../sessionMessages'
 
 // ---------------------------------------------------------------------------
@@ -270,6 +294,40 @@ describe('listHandler', () => {
     expect(result[1].content).toBe('Second message')
     expect(result[2]._id).toBe('msg3') // Newest (highest createdAt)
     expect(result[2].content).toBe('Third message')
+  })
+
+  it('AC-3: respects optional limit argument and defaults to 50', async () => {
+    const session = makeSessionDoc()
+    const sixtyMessages = Array.from({ length: 60 }, (_, index) =>
+      makeMessageDoc({ _id: `msg_${index}` as Id<'session_messages'>, createdAt: index + 1 }),
+    )
+
+    const makeCtx = () => ({
+      db: {
+        get: vi.fn().mockResolvedValue(session),
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              collect: vi.fn().mockResolvedValue(sixtyMessages),
+            }),
+          }),
+        }),
+      },
+    })
+
+    const defaultResult = await listHandler(
+      makeCtx() as any,
+      { sessionId: SESSION_ID },
+      CLERK_USER_ID,
+    )
+    expect(defaultResult).toHaveLength(50)
+
+    const customResult = await listHandler(
+      makeCtx() as any,
+      { sessionId: SESSION_ID, limit: 10 } as any,
+      CLERK_USER_ID,
+    )
+    expect(customResult).toHaveLength(10)
   })
 
   it('AC-2: returns empty array when session has no messages', async () => {

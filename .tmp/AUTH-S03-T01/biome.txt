@@ -1,0 +1,216 @@
+server/convex/actions/agent/__tests__/sendMessage.test.ts:532:13 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable getTextMessageId is unused.
+  
+    530 │     runMutation.mockResolvedValueOnce(undefined)
+    531 │ 
+  > 532 │     const { getTextMessageId, executeCtx, finalizeOk } = await buildAgentCallbacks(
+        │             ^^^^^^^^^^^^^^^^
+    533 │       sessionId,
+    534 │       runMutation,
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+
+server/convex/actions/agent/enrichment/runEnrichmentJob.ts:111:11 lint/correctness/noUnusedVariables ━━━━━━━━━━
+
+  ! This variable phase is unused.
+  
+    109 │   }[]
+    110 │ > {
+  > 111 │   const { phase, routePlan, planInput } = params
+        │           ^^^^^
+    112 │ 
+    113 │   // Extract leg context for AI labeling
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+
+server/convex/actions/monitoring.ts:73:25 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    72 │   const consoleFn =
+  > 73 │     level === 'error' ? console.error : level === 'warn' ? console.warn : console.info
+       │                         ^^^^^^^^^^^^^
+    74 │   consoleFn('[LOG]', JSON.stringify(logEntry))
+    75 │ }
+  
+  i The use of console is often reserved for debugging.
+  
+
+server/convex/actions/monitoring.ts:73:60 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    72 │   const consoleFn =
+  > 73 │     level === 'error' ? console.error : level === 'warn' ? console.warn : console.info
+       │                                                            ^^^^^^^^^^^^
+    74 │   consoleFn('[LOG]', JSON.stringify(logEntry))
+    75 │ }
+  
+  i The use of console is often reserved for debugging.
+  
+
+server/convex/actions/monitoring.ts:73:75 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    72 │   const consoleFn =
+  > 73 │     level === 'error' ? console.error : level === 'warn' ? console.warn : console.info
+       │                                                                           ^^^^^^^^^^^^
+    74 │   consoleFn('[LOG]', JSON.stringify(logEntry))
+    75 │ }
+  
+  i The use of console is often reserved for debugging.
+  
+
+server/convex/db/__tests__/planUsage.test.ts:26:6 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━
+
+  ! This type alias MockGet is unused.
+  
+    24 │   }
+    25 │ }
+  > 26 │ type MockGet = (id: Id<'plan_usage'>) => Promise<Doc<'plan_usage'> | null>
+       │      ^^^^^^^
+    27 │ type MockInsert = (table: string, fields: object) => Promise<Id<'plan_usage'>>
+    28 │ type MockPatch = (id: Id<'plan_usage'>, patch: object) => Promise<void>
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+
+server/convex/db/curation.ts:16:6 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This type alias CuratedRouteEnrichmentDoc is unused.
+  
+    15 │ type CuratedRouteDoc = Doc<'curated_routes'>
+  > 16 │ type CuratedRouteEnrichmentDoc = Doc<'curated_route_enrichments'>
+       │      ^^^^^^^^^^^^^^^^^^^^^^^^^
+    17 │ 
+    18 │ // ---------------------------------------------------------------------------
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+
+server/convex/db/routeFeedback.ts:15:6 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This type alias RouteFeedbackDoc is unused.
+  
+    13 │ import { requireIdentity } from '../guards'
+    14 │ 
+  > 15 │ type RouteFeedbackDoc = Doc<'route_feedback'>
+       │      ^^^^^^^^^^^^^^^^
+    16 │ 
+    17 │ // ---------------------------------------------------------------------------
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+
+server/convex/semanticSearch.ts:27:6 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This type alias RouteMatchDoc is unused.
+  
+    25 │ // Proper Convex types for our document tables
+    26 │ type CuratedRouteDoc = Doc<'curated_routes'>
+  > 27 │ type RouteMatchDoc = Doc<'route_matches'>
+       │      ^^^^^^^^^^^^^
+    28 │ type RoutePostRawDoc = Doc<'route_posts_raw'>
+    29 │ 
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+
+server/convex/semanticSearch.ts:28:6 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! This type alias RoutePostRawDoc is unused.
+  
+    26 │ type CuratedRouteDoc = Doc<'curated_routes'>
+    27 │ type RouteMatchDoc = Doc<'route_matches'>
+  > 28 │ type RoutePostRawDoc = Doc<'route_posts_raw'>
+       │      ^^^^^^^^^^^^^^^
+    29 │ 
+    30 │ // Vector search result types
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
+
+server/lib/logger/frontend-logger.ts:20:33 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    18 │   if (__DEV__ && config.includeConsole) {
+    19 │     const consoleMethod =
+  > 20 │       entry.level === 'error' ? console.error : entry.level === 'warn' ? console.warn : console.log
+       │                                 ^^^^^^^^^^^^^
+    21 │     consoleMethod(
+    22 │       `[${entry.level.toUpperCase()}] ${entry.category}: ${entry.message}`,
+  
+  i The use of console is often reserved for debugging.
+  
+
+server/lib/logger/frontend-logger.ts:20:74 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    18 │   if (__DEV__ && config.includeConsole) {
+    19 │     const consoleMethod =
+  > 20 │       entry.level === 'error' ? console.error : entry.level === 'warn' ? console.warn : console.log
+       │                                                                          ^^^^^^^^^^^^
+    21 │     consoleMethod(
+    22 │       `[${entry.level.toUpperCase()}] ${entry.category}: ${entry.message}`,
+  
+  i The use of console is often reserved for debugging.
+  
+
+server/lib/logger/frontend-logger.ts:20:89 lint/suspicious/noConsole ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Don't use console.
+  
+    18 │   if (__DEV__ && config.includeConsole) {
+    19 │     const consoleMethod =
+  > 20 │       entry.level === 'error' ? console.error : entry.level === 'warn' ? console.warn : console.log
+       │                                                                                         ^^^^^^^^^^^
+    21 │     consoleMethod(
+    22 │       `[${entry.level.toUpperCase()}] ${entry.category}: ${entry.message}`,
+  
+  i The use of console is often reserved for debugging.
+  
+
+server/convex/db/__tests__/session/session.messages.test.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+    316 316 │       })
+    317 317 │   
+    318     │ - ····const·defaultResult·=·await·listHandler(makeCtx()·as·any,·{·sessionId:·SESSION_ID·},·CLERK_USER_ID)
+        318 │ + ····const·defaultResult·=·await·listHandler(
+        319 │ + ······makeCtx()·as·any,
+        320 │ + ······{·sessionId:·SESSION_ID·},
+        321 │ + ······CLERK_USER_ID,
+        322 │ + ····)
+    319 323 │       expect(defaultResult).toHaveLength(50)
+    320 324 │   
+  
+
+server/convex/db/sessionMessages.ts format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Formatter would have printed the following content:
+  
+    155 155 │   
+    156 156 │     // Sort by createdAt ascending (oldest first)
+    157     │ - ··const·sorted·=·messages.sort((a:·SessionMessageDoc,·b:·SessionMessageDoc)·=>·a.createdAt·-·b.createdAt)
+        157 │ + ··const·sorted·=·messages.sort(
+        158 │ + ····(a:·SessionMessageDoc,·b:·SessionMessageDoc)·=>·a.createdAt·-·b.createdAt,
+        159 │ + ··)
+    158 160 │     const limit = args.limit ?? 50
+    159 161 │     return sorted.slice(0, limit)
+  
+
+Checked 229 files in 52ms. No fixes applied.
+Found 2 errors.
+Found 13 warnings.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

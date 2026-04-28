@@ -1,0 +1,12 @@
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T01
+
+ ✓ server/convex/db/users.test.ts (2 tests) 31ms
+ ✓ server/convex/db/__tests__/session/session.messages.test.ts (15 tests) 5ms
+
+ Test Files  2 passed (2)
+      Tests  17 passed (17)
+   Start at  16:57:09
+   Duration  263ms (transform 66ms, setup 0ms, collect 70ms, tests 36ms, environment 0ms, prepare 85ms)
+
+exit_code=0
