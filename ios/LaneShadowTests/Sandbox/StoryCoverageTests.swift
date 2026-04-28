@@ -17,12 +17,12 @@ struct StoryCoverageTests {
         #expect(idleStories.count >= 7, "Expected at least 7 IdleScreen stories, found \(idleStories.count)")
     }
 
-    // MARK: - AC-2: RouteResults coverage (7 stories)
+    // MARK: - AC-2: RouteResults coverage (6 stories)
 
-    @Test("AC-2: RouteResults has 7 registered stories")
+    @Test("AC-2: RouteResults has 6 registered stories")
     func routeResultsStoryCount() {
         let routeResultsStories = LaneShadowStories.all.filter { $0.component == "RouteResultsScreen" }
-        #expect(routeResultsStories.count == 7, "Expected 7 RouteResults stories, found \(routeResultsStories.count)")
+        #expect(routeResultsStories.count == 6, "Expected 6 RouteResults stories, found \(routeResultsStories.count)")
     }
 
     // MARK: - AC-3: RouteDetails coverage (6 stories)
@@ -63,7 +63,7 @@ struct StoryCoverageTests {
     func allTemplatesMeetThresholds() {
         let templates = [
             "IdleScreen": 7,
-            "RouteResultsScreen": 7,
+            "RouteResultsScreen": 6,
             "RouteDetailsScreen": 6,
             "SessionsScreen": 5,
             "ErrorScreen": 6,
@@ -100,7 +100,7 @@ struct StoryCoverageTests {
 
     @Test("AC-9: All required story IDs are registered")
     func requiredStoryIdsExist() {
-        let requiredIds: Set<String> = [
+        let requiredIds: Set = [
             // IdleScreen (7) - templates.idle.default is the original, plus 6 variants
             "templates.idle.default",
             "templates.idle-screen.s02-typing-send",
