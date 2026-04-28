@@ -6,6 +6,7 @@ import XCTest
 @testable import LaneShadow
 
 // MARK: - REAL Behavioral Typography Tests
+
 //
 // These tests use SnapshotTesting for visual verification and ViewInspector
 // for structural verification. If the implementation regresses (e.g., IdleScreen
@@ -16,7 +17,6 @@ import XCTest
 
 @MainActor
 final class TypographyTests: XCTestCase {
-
     // MARK: - AC-1: IdleScreen Greeting Headline uses opinion-xl
 
     func testIdleScreenGreetingOpinionXL() {
