@@ -232,15 +232,32 @@ public struct IdleScreenState: Sendable, Equatable {
     public let greeting: Greeting
     public let suggestions: [MockSuggestionChip]
     public let locationContext: MockLocationContext
+    public let showFavoritePins: Bool
+    public let weatherAdvisory: WeatherAdvisory?
 
     public init(
         greeting: Greeting,
         suggestions: [MockSuggestionChip],
-        locationContext: MockLocationContext
+        locationContext: MockLocationContext,
+        showFavoritePins: Bool = true,
+        weatherAdvisory: WeatherAdvisory? = nil
     ) {
         self.greeting = greeting
         self.suggestions = suggestions
         self.locationContext = locationContext
+        self.showFavoritePins = showFavoritePins
+        self.weatherAdvisory = weatherAdvisory
+    }
+}
+
+/// Weather advisory for Idle V03
+public struct WeatherAdvisory: Sendable, Equatable {
+    public let label: String
+    public let body: String
+
+    public init(label: String, body: String) {
+        self.label = label
+        self.body = body
     }
 }
 
@@ -262,15 +279,24 @@ public struct PlanningScreenState: Sendable, Equatable {
     public let phases: [PlanningPhaseData]
     public let message: NavigatorMessage
     public let isThinking: Bool
+    public let showSlowApology: Bool
+    public let showCancelConfirm: Bool
+    public let showWarningChrome: Bool
 
     public init(
         phases: [PlanningPhaseData],
         message: NavigatorMessage,
-        isThinking: Bool
+        isThinking: Bool,
+        showSlowApology: Bool = false,
+        showCancelConfirm: Bool = false,
+        showWarningChrome: Bool = false
     ) {
         self.phases = phases
         self.message = message
         self.isThinking = isThinking
+        self.showSlowApology = showSlowApology
+        self.showCancelConfirm = showCancelConfirm
+        self.showWarningChrome = showWarningChrome
     }
 }
 

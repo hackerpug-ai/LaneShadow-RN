@@ -8,13 +8,16 @@ public struct LSPhaseIndicator: View {
 
     private let phases: [Phase]
     private let header: String
+    private let showWarningChrome: Bool
 
     public init(
         phases: [Phase],
-        header: String
+        header: String,
+        showWarningChrome: Bool = false
     ) {
         self.phases = phases
         self.header = header
+        self.showWarningChrome = showWarningChrome
     }
 
     public var body: some View {
@@ -38,9 +41,10 @@ public struct LSPhaseIndicator: View {
                 LSIcon(name: .compass, size: .xs, color: .signal)
             }
             .background(compassChipBackground)
+            .foregroundStyle(showWarningChrome ? LaneShadowTheme.color.status.warning.default : LaneShadowTheme.color.signal.default)
             .overlay {
                 RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
-                    .stroke(LaneShadowTheme.color.border.default, lineWidth: theme.borderWidth.hairline)
+                    .stroke(compassChipBorderColor, lineWidth: theme.borderWidth.hairline)
             }
 
             LSText(header, variant: .heading.sm, color: .primary)
@@ -73,6 +77,9 @@ public struct LSPhaseIndicator: View {
     }
 
     private var topBorderColor: Color {
+        if showWarningChrome {
+            return LaneShadowTheme.color.status.warning.default
+        }
         if phases.allSatisfy({ $0.state == .done }) {
             return LaneShadowTheme.color.status.success.default
         }
@@ -80,10 +87,20 @@ public struct LSPhaseIndicator: View {
     }
 
     private var compassChipBackground: Color {
+        if showWarningChrome {
+            return LaneShadowTheme.color.status.warning.default.opacity(0.1)
+        }
         if phases.allSatisfy({ $0.state == .done }) {
             return LaneShadowTheme.color.status.success.default.opacity(0.1)
         }
         return LaneShadowTheme.color.signal.default.opacity(0.22)
+    }
+
+    private var compassChipBorderColor: Color {
+        if showWarningChrome {
+            return LaneShadowTheme.color.status.warning.default.opacity(0.35)
+        }
+        return LaneShadowTheme.color.border.default
     }
 
     private var currentStepLabel: String {

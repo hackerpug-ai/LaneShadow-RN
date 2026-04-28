@@ -57,31 +57,113 @@ public struct PlanningScreen: View {
     }
 
     public var body: some View {
-        LSMapLayer(
-            map: {
-                mapView
-            },
-            topOverlays: [
-                GlassOverlaySlot(
-                    id: "phase-indicator",
-                    content: { phaseIndicatorView }
-                ),
-            ],
-            bottomOverlays: [
-                GlassOverlaySlot(
-                    id: "chat-input",
-                    content: { chatInputView }
-                ),
-            ],
-            topBar: {
-                LSTopBar(
-                    trailing: .none,
-                    onMenuTap: onMenuTap,
-                    onNewTap: {}
-                )
+        ZStack {
+            // Main content
+            LSMapLayer(
+                map: {
+                    mapView
+                },
+                topOverlays: [
+                    GlassOverlaySlot(
+                        id: "phase-indicator",
+                        content: { phaseIndicatorView }
+                    ),
+                ],
+                bottomOverlays: [
+                    GlassOverlaySlot(
+                        id: "chat-input",
+                        content: { chatInputView }
+                    ),
+                ],
+                topBar: {
+                    LSTopBar(
+                        trailing: .none,
+                        onMenuTap: onMenuTap,
+                        onNewTap: {}
+                    )
+                }
+            )
+            .accessibilityIdentifier("planningscreen")
+            .opacity(state.showCancelConfirm ? theme.opacity.disabled : 1.0) // V02: Dim phase card
+
+            // V02: Cancel confirm overlay
+            if state.showCancelConfirm {
+                // Scrim
+                LSScrim(blocking: true)
+                    .ignoresSafeArea()
+                    .accessibilityIdentifier("planningscreen-scrim")
+
+                // Cancel confirm sheet (inline implementation since LSCancelConfirmSheet is not in project)
+                VStack {
+                    Spacer()
+
+                    VStack(spacing: theme.space.md) {
+                        // Title
+                        Text("Cancel this plan?")
+                            .font(theme.type.opinion.lg.font)
+                            .foregroundStyle(LaneShadowTheme.color.content.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        // Body
+                        Text("I've drawn one route already. You can back out now — but I'll toss what I have.")
+                            .font(theme.type.opinion.sm.font)
+                            .italic()
+                            .foregroundStyle(LaneShadowTheme.color.content.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        // Actions
+                        HStack(spacing: theme.space.md) {
+                            // Keep button (tertiary)
+                            Button(action: {}) {
+                                Text("Keep thinking")
+                                    .font(theme.type.title.sm.font)
+                                    .foregroundStyle(LaneShadowTheme.color.content.secondary)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 44)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: theme.radius.lg)
+                                            .strokeBorder(
+                                                LaneShadowTheme.color.border.default,
+                                                lineWidth: theme.borderWidth.hairline
+                                            )
+                                    )
+                            }
+                            .accessibilityIdentifier("cancel-confirm-keep")
+
+                            // Cancel button (signal)
+                            Button(action: {}) {
+                                Text("Cancel plan")
+                                    .font(theme.type.title.sm.font)
+                                    .foregroundStyle(LaneShadowTheme.color.content.primary)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 44)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: theme.radius.lg)
+                                            .fill(LaneShadowTheme.color.surface.inset)
+                                    )
+                            }
+                            .accessibilityIdentifier("cancel-confirm-cancel")
+                        }
+                    }
+                    .padding(theme.space.lg)
+                    .background(
+                        RoundedRectangle(cornerRadius: theme.radius.xl)
+                            .fill(LaneShadowTheme.color.surface.card)
+                    )
+                    .shadow(
+                        color: theme.elevation.level1.shadowColor,
+                        radius: theme.elevation.level1.radius,
+                        x: theme.elevation.level1.offsetX,
+                        y: theme.elevation.level1.offsetY
+                    )
+                    .padding(.horizontal, theme.space.md)
+                    .accessibilityIdentifier("planningscreen-cancel-confirm")
+
+                    Spacer()
+                        .frame(height: theme.space.xl * 2) // Position from bottom
+                }
             }
-        )
-        .accessibilityIdentifier("planningscreen")
+        }
     }
 
     // MARK: - Map
@@ -126,11 +208,40 @@ public struct PlanningScreen: View {
     // MARK: - Phase Indicator
 
     private var phaseIndicatorView: some View {
-        LSPhaseIndicator(
-            phases: convertedPhases,
-            header: phaseHeader
-        )
-        .accessibilityIdentifier("planningscreen-phase-indicator")
+        VStack(alignment: .leading, spacing: 0) {
+            LSPhaseIndicator(
+                phases: convertedPhases,
+                header: phaseHeader,
+                showWarningChrome: state.showWarningChrome // V03: Show warning chrome
+            )
+            .accessibilityIdentifier("planningscreen-phase-indicator")
+
+            // V01: Slow planning apology note
+            if state.showSlowApology, let apology = state.message.detail {
+                Text(apology)
+                    .font(theme.type.opinion.sm.font)
+                    .italic()
+                    .foregroundStyle(LaneShadowTheme.color.content.tertiary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, theme.space.md)
+                    .padding(.horizontal, theme.space.sm)
+                    .overlay(
+                        Rectangle()
+                            .frame(height: theme.borderWidth.thin)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [LaneShadowTheme.color.border.default, Color.clear],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .offset(y: -theme.space.md)
+                            .frame(maxWidth: .infinity, alignment: .top)
+                            .padding(.top, theme.space.sm)
+                    )
+                    .accessibilityIdentifier("planningscreen-slow-apology")
+            }
+        }
     }
 
     private var phaseHeader: String {

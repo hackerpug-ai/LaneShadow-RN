@@ -55,7 +55,8 @@ public enum IdleMockProvider: MockProvider {
             locationContext: MockLocationContext(
                 label: "Near Santa Cruz, CA",
                 mode: "manual"
-            )
+            ),
+            showFavoritePins: true
         )
     }
 
@@ -70,7 +71,8 @@ public enum IdleMockProvider: MockProvider {
             locationContext: MockLocationContext(
                 label: "Near Santa Cruz, CA",
                 mode: "auto"
-            )
+            ),
+            showFavoritePins: true
         )
     }
 
@@ -98,7 +100,8 @@ public enum IdleMockProvider: MockProvider {
             locationContext: MockLocationContext(
                 label: "Near Santa Cruz, CA",
                 mode: "manual"
-            )
+            ),
+            showFavoritePins: true
         )
     }
 
@@ -134,7 +137,8 @@ public enum IdleMockProvider: MockProvider {
             locationContext: MockLocationContext(
                 label: "Near Santa Cruz, California, United States of America, North America",
                 mode: "manual"
-            )
+            ),
+            showFavoritePins: true
         )
     }
 
@@ -151,7 +155,8 @@ public enum IdleMockProvider: MockProvider {
             locationContext: MockLocationContext(
                 label: "Tap to set start",
                 mode: "needed"
-            )
+            ),
+            showFavoritePins: false
         )
     }
 
@@ -173,7 +178,8 @@ public enum IdleMockProvider: MockProvider {
             locationContext: MockLocationContext(
                 label: "Near Santa Cruz, CA",
                 mode: "auto"
-            )
+            ),
+            showFavoritePins: false // No favorites on first ride
         )
     }
 
@@ -194,6 +200,11 @@ public enum IdleMockProvider: MockProvider {
             locationContext: MockLocationContext(
                 label: "Near Santa Cruz, CA",
                 mode: "auto"
+            ),
+            showFavoritePins: true,
+            weatherAdvisory: WeatherAdvisory(
+                label: "Weather advisory",
+                body: "I can still plan something, but shorter loops near home will beat anything with a pass today."
             )
         )
     }

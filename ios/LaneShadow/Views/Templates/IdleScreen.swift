@@ -62,7 +62,7 @@ public struct IdleScreen: View {
     private var mapView: some View {
         LSPaperMap(
             overlayStyle: .contours,
-            showPins: true
+            showPins: state.showFavoritePins
         )
         .accessibilityIdentifier("idlescreen-map")
     }
@@ -74,7 +74,7 @@ public struct IdleScreen: View {
             // Meta label (e.g., "FRIDAY · 68°F · CLEAR")
             Text(state.greeting.meta)
                 .font(theme.type.label.sm.font)
-                .foregroundStyle(theme.colors.onSurface.default)
+                .foregroundStyle(metaColor)
                 .accessibilityIdentifier("idlescreen-greeting-meta")
 
             // Headline with italicized emphasis word
@@ -100,11 +100,55 @@ public struct IdleScreen: View {
             .font(theme.type.opinion.xl.font)
             .foregroundStyle(theme.colors.onSurface.default)
             .accessibilityIdentifier("idlescreen-greeting-headline")
+
+            // Weather advisory card (V03 only)
+            if let advisory = state.weatherAdvisory {
+                HStack(alignment: .top, spacing: 0) {
+                    // Left border stripe (rain color)
+                    Rectangle()
+                        .fill(Color.blue.opacity(0.6)) // Fallback for wx.rain
+                        .frame(width: 4) // Fallback for borderWidth.lg
+
+                    // Content area
+                    VStack(alignment: .leading, spacing: theme.space.sm) {
+                        // Label
+                        Text(advisory.label)
+                            .font(theme.type.label.sm.font)
+                            .foregroundStyle(Color.blue.opacity(0.8)) // Fallback for wx.rain
+
+                        // Body
+                        Text(advisory.body)
+                            .font(theme.type.opinion.sm.font)
+                            .italic()
+                            .foregroundStyle(LaneShadowTheme.color.content.primary)
+                    }
+                    .padding(theme.space.md)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        Color.blue.opacity(0.1) // Fallback for wx.rain.tint
+                    )
+                }
+                .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Advisory: \(advisory.label)")
+                .accessibilityValue(advisory.body)
+                .accessibilityIdentifier("idlescreen-advisory-card")
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, theme.space.md)
         .padding(.vertical, theme.space.md)
         .accessibilityIdentifier("idlescreen-greeting")
+    }
+
+    // MARK: - Helper Properties
+
+    private var metaColor: Color {
+        // V03: Use warning color for weather advisory
+        if state.weatherAdvisory != nil {
+            return LaneShadowTheme.color.status.warning.default
+        }
+        return LaneShadowTheme.color.signal.default
     }
 
     // MARK: - Chat Input
@@ -119,9 +163,11 @@ public struct IdleScreen: View {
             mode: state.locationContext.mode == "auto" ? .auto : .manual
         )
 
+        let isLocationNeeded = state.locationContext.mode == "needed"
+
         return LSChatInput(
             value: $chatInputValue,
-            placeholder: "Plan a ride…",
+            placeholder: isLocationNeeded ? "Set a start point to begin…" : "Plan a ride…",
             onSend: { _ in },
             onCollapse: {},
             onFilter: {},
@@ -133,8 +179,10 @@ public struct IdleScreen: View {
                     onSuggestionTap(mockChip)
                 }
             },
-            locationBadge: locationContext
+            locationBadge: locationContext,
+            isEnabled: !isLocationNeeded // V01: Disable chat input when location is needed
         )
+        .opacity(isLocationNeeded ? theme.opacity.disabled : 1.0) // V01: Dim when location needed
         .padding(.horizontal, theme.space.md)
         .accessibilityIdentifier("idlescreen-chatinput")
     }

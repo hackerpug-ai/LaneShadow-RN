@@ -53,7 +53,10 @@ public enum PlanningMockProvider: MockProvider {
                 detail: nil,
                 pinned: false
             ),
-            isThinking: true
+            isThinking: true,
+            showSlowApology: false,
+            showCancelConfirm: false,
+            showWarningChrome: false
         )
     }
 
@@ -70,7 +73,10 @@ public enum PlanningMockProvider: MockProvider {
                 detail: nil,
                 pinned: false
             ),
-            isThinking: false
+            isThinking: false,
+            showSlowApology: false,
+            showCancelConfirm: false,
+            showWarningChrome: false
         )
     }
 
@@ -99,7 +105,10 @@ public enum PlanningMockProvider: MockProvider {
                 detail: "I've found 47 potential routes so far and am evaluating each one.",
                 pinned: false
             ),
-            isThinking: true
+            isThinking: true,
+            showSlowApology: false,
+            showCancelConfirm: false,
+            showWarningChrome: false
         )
     }
 
@@ -142,7 +151,10 @@ public enum PlanningMockProvider: MockProvider {
                 detail: "I'm particularly focused on finding routes with optimal corner sequences and scenic overlooks while avoiding any construction or road maintenance areas.",
                 pinned: false
             ),
-            isThinking: true
+            isThinking: true,
+            showSlowApology: false,
+            showCancelConfirm: false,
+            showWarningChrome: false
         )
     }
 
@@ -167,7 +179,10 @@ public enum PlanningMockProvider: MockProvider {
                 detail: "Still scouting… this area is surprisingly complex.",
                 pinned: false
             ),
-            isThinking: true
+            isThinking: true,
+            showSlowApology: true, // V01: Show slow apology
+            showCancelConfirm: false,
+            showWarningChrome: false
         )
     }
 
@@ -192,7 +207,10 @@ public enum PlanningMockProvider: MockProvider {
                 detail: nil,
                 pinned: false
             ),
-            isThinking: true
+            isThinking: true,
+            showSlowApology: false,
+            showCancelConfirm: true, // V02: Show cancel confirm
+            showWarningChrome: false
         )
     }
 
@@ -217,7 +235,10 @@ public enum PlanningMockProvider: MockProvider {
                 detail: "Only one candidate meets your criteria — the coastal route via Hwy 1.",
                 pinned: false
             ),
-            isThinking: true
+            isThinking: true,
+            showSlowApology: false,
+            showCancelConfirm: false,
+            showWarningChrome: true // V03: Show warning chrome
         )
     }
 }
