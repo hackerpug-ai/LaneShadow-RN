@@ -12,19 +12,16 @@
 		078589B1255FE42AA7459089 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */; };
 		0A215149AE7AF5FBBCB5409E /* ConvexStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */; };
 		0B45673D740CC18D7C34929C /* LSButtonStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05416F03B3657341F705522A /* LSButtonStories.swift */; };
-		0EEC9FA8B5E4E5E404EA05AC /* RouteCardGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89719BC4A9494448E27BFDED /* RouteCardGeometryTests.swift */; };
 		1952669D73F48496CFB75791 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = A82A70CA01368BECA5189F19 /* LaneShadowTheme */; };
 		19B2E80084FD9A981F497DB5 /* ViewInspector in Frameworks */ = {isa = PBXBuildFile; productRef = 97E29B716CED481799DD0795 /* ViewInspector */; };
 		1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534D26C275878552CD82E5FE /* LSDisplayStories.swift */; };
 		1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8ABC117BB7538D9D09E1F6 /* LSPhaseDotStories.swift */; };
-		2037DFFD981B27BF79D056AE /* MapSlotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C813E9F520885AED21F032 /* MapSlotTests.swift */; };
 		24E92B6C2FD5880E27973B68 /* ChatTranscript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9585186566089A7EAF681DDB /* ChatTranscript.swift */; };
 		260AE5B2889B2C4DCE1F1C38 /* LSEmptyStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68571E06FBCE8232271D1DB2 /* LSEmptyStateTests.swift */; };
 		293E7CA38C0EA35CD1365886 /* LSTagPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D7D85AC834967019608CDE /* LSTagPill.swift */; };
 		2A685A9BE84EC13D3483B8C8 /* TemplateStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCE935E865EBECBA195F949 /* TemplateStories.swift */; };
 		323F22288BE45E90ACCC8B5C /* InfrastructureControlsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F70ECDFAA1C996A2AF6FEA1C /* InfrastructureControlsStories.swift */; };
 		329EEE4B089D016554E2F75B /* LSToastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7996DA2EBA1763B4956D788D /* LSToastTests.swift */; };
-		35821980B5053707A9A97CDE /* LSRouteSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EEDACF6EC8AA820E5E31C40 /* LSRouteSheet.swift */; };
 		3607457D8D985DC783EDA889 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = E4B9E7FB06EF17E9BD9B418A /* SnapshotTesting */; };
 		3D2143A67410FB5D8D2F3B45 /* LSInputStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE8CB573821E0981D725E364 /* LSInputStories.swift */; };
 		40979501CCACCFB156F25EB5 /* LaneShadowSandboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C289172CD246D71CC0E6BB /* LaneShadowSandboxEntry.swift */; };
@@ -39,6 +36,7 @@
 		67E4FE6F8B713FEF68326B97 /* LSTabItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1261D8D753487C4CE27B783 /* LSTabItemTests.swift */; };
 		6BB3BD5F5C744CD42F5DF5C6 /* LSChatInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3123362FBC613B11809CE348 /* LSChatInputTests.swift */; };
 		6D0C6A870476786F7228EA13 /* LSPhaseIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D0D2BB3D9A32CB9A700EFC /* LSPhaseIndicator.swift */; };
+		713845C65B102A6F3B324AF0 /* LSPaperMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CB7F6034D1229777B67DCE5 /* LSPaperMap.swift */; };
 		7428AF73F12DDBD3824E9BDE /* LSBadgeStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C14284F7C5546B178E7CA7 /* LSBadgeStories.swift */; };
 		762FB79AB5AE6050179BB785 /* LSScrimStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F281656D06513E78E57D10D /* LSScrimStories.swift */; };
 		796603EE7DD1C76F8E2D5C00 /* LSSurfaceStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A48CAA6BB2E860CDDF3E18 /* LSSurfaceStories.swift */; };
@@ -59,28 +57,26 @@
 		B55D247513D3B4742E36D92B /* AtomsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */; };
 		B5FF9B8BF6CCCBF0478B2A77 /* LaneShadowStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */; };
 		B6A59F8B49C2AD8ECBFB7A18 /* LSRouteAttachmentCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70071A35653D217D4EB4A4B8 /* LSRouteAttachmentCard.swift */; };
-		B80F80613B357D97008E6A1D /* TypographyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66CBFE6273130D36E77E40E /* TypographyTests.swift */; };
+		BE5B3CA2636D5E37C57D3868 /* LSScenicDotStrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E16C5B6F4121EB1CA3D72D /* LSScenicDotStrip.swift */; };
 		C20B40ADB8746BAD7B7A3FF1 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = 5B658B1BAB40A50AE36EE201 /* LaneShadowTheme */; };
 		C431BDCE02738DEAD857663D /* LSToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFFB033EDA463052A650A51D /* LSToolbar.swift */; };
 		C815D55CC39819958EAC1ED1 /* LSWeatherTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EE8B6BD461E65A5DD1F948 /* LSWeatherTimeline.swift */; };
 		C9108535DE88E44D62CC2AE6 /* MarkdownTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5107D4267204A230D572AB9 /* MarkdownTextTests.swift */; };
 		CB54A220F967529F6BE52E80 /* LSContentCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890F8AE171354CCC932518BC /* LSContentCard.swift */; };
 		D3FCBC758470A7571618AF4A /* LSTextStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E259B982ADB47ABE53D132D /* LSTextStories.swift */; };
-		DA5A4BD4334BFB5A70AC36EB /* LSSessionsDrawer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A4BF96B7AD1B8F8BABF061 /* LSSessionsDrawer.swift */; };
 		E2B1C40DCB7D1C33CC729331 /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6089A65C4DD27D71FDFC6B91 /* MarkdownText.swift */; };
 		E38D09C5CE8E05B40EC425E5 /* LSIconStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */; };
 		E598577D82A3CB9A09831FB6 /* LSTokenStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE0D6D9002157D332688E90 /* LSTokenStories.swift */; };
 		E59A273AD62956C2EFAC59C9 /* LSEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A2AE4E90D3718200E3AB248 /* LSEmptyState.swift */; };
 		E868E14CF971E572F61A614E /* MoleculesStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */; };
 		EA035D37C13A73B7C213068C /* LSBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4783B461B5B9EC6A5AA6F1DF /* LSBottomSheet.swift */; };
+		EB7EC54CA53EB7DEE5E84F0E /* LSFavoritePinDot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FC588254B2DE58F4742ED7 /* LSFavoritePinDot.swift */; };
 		ED9DF59A25970507B80D1720 /* MapboxMaps in Frameworks */ = {isa = PBXBuildFile; productRef = DA5E21A6F8345673A1101414 /* MapboxMaps */; };
 		EE8BD0D9BE845A817F4B5599 /* LSListRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7B16DBC24DD75C64F8C744 /* LSListRow.swift */; };
 		F93C7EA30338ABCA88DEE925 /* InfrastructureStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */; };
 		F994D017357EA5F2EAA9D72F /* LSModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94AB21A076699921AC328EE9 /* LSModal.swift */; };
 		F9E41F8A8E5435B9BCD67D40 /* InfoToast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5F858C066D550CE73CE6FD /* InfoToast.swift */; };
 		FCAE00CC74E427BDB51D7F65 /* LSSuggestionChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */; };
-		002303B5C6FBF74A485C0A42 /* LSPaperMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF30B560FA48085ACB5AC84 /* LSPaperMap.swift */; };
-		BD69BA947D14A97B9213483D /* LSFavoritePinDot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C8E7950F466389067A631F /* LSFavoritePinDot.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,11 +101,9 @@
 		05416F03B3657341F705522A /* LSButtonStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSButtonStories.swift; sourceTree = "<group>"; };
 		0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0E259B982ADB47ABE53D132D /* LSTextStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTextStories.swift; sourceTree = "<group>"; };
-		15A4BF96B7AD1B8F8BABF061 /* LSSessionsDrawer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSSessionsDrawer.swift; sourceTree = "<group>"; };
 		19695B8A9932BA0DADCBEADF /* LSChatInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSChatInput.swift; sourceTree = "<group>"; };
 		1C18F36042134628BD1BF30B /* LSTabItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTabItem.swift; sourceTree = "<group>"; };
 		1E4B5E214B40EA6C2A95441B /* LSInstrumentReadout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSInstrumentReadout.swift; sourceTree = "<group>"; };
-		1EEDACF6EC8AA820E5E31C40 /* LSRouteSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSRouteSheet.swift; sourceTree = "<group>"; };
 		20AC933B1DF7AFFC89BD22E0 /* InfoToastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoToastTests.swift; sourceTree = "<group>"; };
 		220BC64128EB0A24188F4C65 /* LSPillStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPillStories.swift; sourceTree = "<group>"; };
 		307F61C56AD06224E9F93B51 /* LaneShadow.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LaneShadow.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -130,13 +124,13 @@
 		612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSIconStories.swift; sourceTree = "<group>"; };
 		68571E06FBCE8232271D1DB2 /* LSEmptyStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSEmptyStateTests.swift; sourceTree = "<group>"; };
 		690C1B6B480FD345A05807B0 /* LSModalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSModalTests.swift; sourceTree = "<group>"; };
+		6CB7F6034D1229777B67DCE5 /* LSPaperMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPaperMap.swift; sourceTree = "<group>"; };
 		6E0D7B9F463A28F5B5936751 /* LSFormField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFormField.swift; sourceTree = "<group>"; };
 		70071A35653D217D4EB4A4B8 /* LSRouteAttachmentCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSRouteAttachmentCard.swift; sourceTree = "<group>"; };
 		76A48CAA6BB2E860CDDF3E18 /* LSSurfaceStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSSurfaceStories.swift; sourceTree = "<group>"; };
 		7996DA2EBA1763B4956D788D /* LSToastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToastTests.swift; sourceTree = "<group>"; };
 		85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowStories.swift; sourceTree = "<group>"; };
 		890F8AE171354CCC932518BC /* LSContentCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSContentCard.swift; sourceTree = "<group>"; };
-		89719BC4A9494448E27BFDED /* RouteCardGeometryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RouteCardGeometryTests.swift; path = ../LaneShadowTests/Sandbox/RouteCardGeometryTests.swift; sourceTree = "<group>"; };
 		8F281656D06513E78E57D10D /* LSScrimStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScrimStories.swift; sourceTree = "<group>"; };
 		94AB21A076699921AC328EE9 /* LSModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSModal.swift; sourceTree = "<group>"; };
 		9585186566089A7EAF681DDB /* ChatTranscript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTranscript.swift; sourceTree = "<group>"; };
@@ -147,13 +141,13 @@
 		A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSSuggestionChip.swift; sourceTree = "<group>"; };
 		A4C14284F7C5546B178E7CA7 /* LSBadgeStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSBadgeStories.swift; sourceTree = "<group>"; };
 		A770CE2595F52C1DC3532F8A /* LSMapStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSMapStories.swift; sourceTree = "<group>"; };
-		A9C813E9F520885AED21F032 /* MapSlotTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MapSlotTests.swift; path = LaneShadowTests/Sandbox/MapSlotTests.swift; sourceTree = "<group>"; };
+		A8FC588254B2DE58F4742ED7 /* LSFavoritePinDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFavoritePinDot.swift; sourceTree = "<group>"; };
 		A9EDF4218751AC8200085830 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		B0E16C5B6F4121EB1CA3D72D /* LSScenicDotStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScenicDotStrip.swift; sourceTree = "<group>"; };
 		B95CA989BE1243B1021F83D3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfrastructureStories.swift; sourceTree = "<group>"; };
 		BD7360EC93AFB89C2E49D267 /* LSBottomSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSBottomSheetTests.swift; sourceTree = "<group>"; };
 		C4AF39CEF8D705CF349C8B30 /* PlaceholderInfrastructureStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderInfrastructureStories.swift; sourceTree = "<group>"; };
-		C66CBFE6273130D36E77E40E /* TypographyTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TypographyTests.swift; path = ../LaneShadowTests/Sandbox/TypographyTests.swift; sourceTree = "<group>"; };
 		C7D0D2BB3D9A32CB9A700EFC /* LSPhaseIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPhaseIndicator.swift; sourceTree = "<group>"; };
 		C7D7D85AC834967019608CDE /* LSTagPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTagPill.swift; sourceTree = "<group>"; };
 		CFFB033EDA463052A650A51D /* LSToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbar.swift; sourceTree = "<group>"; };
@@ -171,12 +165,10 @@
 		F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvexStore.swift; sourceTree = "<group>"; };
 		F70ECDFAA1C996A2AF6FEA1C /* InfrastructureControlsStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfrastructureControlsStories.swift; sourceTree = "<group>"; };
 		F7C289172CD246D71CC0E6BB /* LaneShadowSandboxEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowSandboxEntry.swift; sourceTree = "<group>"; };
-		4FF30B560FA48085ACB5AC84 /* LSPaperMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPaperMap.swift; sourceTree = "<group>"; };
-		19C8E7950F466389067A631F /* LSFavoritePinDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFavoritePinDot.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		58099F917373377216261552 /* Exceptions for "Atoms" folder in "LaneShadow" target */ = {
+		58099F917373377216261552 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Button.swift,
@@ -188,129 +180,116 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0B23304A78B886F9A286C5E4 /* Sandbox */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Sandbox;
 			path = Sandbox;
 			sourceTree = "<group>";
 		};
 		0E516A6442C2AA10AA5009F5 /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		244E36879200004067F64629 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		3BC11B009ED26B33FC7A0333 /* Entry */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Entry;
 			path = Entry;
 			sourceTree = "<group>";
 		};
 		3CE2AE4772ABC9D4A3699741 /* MockProviders */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = MockProviders;
 			path = MockProviders;
 			sourceTree = "<group>";
 		};
 		4C8A8E02554AE3D5AC4FAC51 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		5B8A253F72C6B3D6A21D5422 /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Atoms;
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		5D43661EA5776DD985956D8D /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		7290175E358A1C93D4A90231 /* Molecules */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Molecules;
 			path = Molecules;
 			sourceTree = "<group>";
 		};
 		9B1969E887592C82E1672459 /* Launch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Launch;
 			path = Launch;
 			sourceTree = "<group>";
 		};
 		A1DA24033B9915EAB116ED62 /* Generated */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Generated;
 			path = Generated;
 			sourceTree = "<group>";
 		};
 		A8E49074235FCF05900AA173 /* LaneShadowUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
@@ -320,57 +299,54 @@
 		};
 		B92913E9843A5845817A3DBD /* Controls */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Controls;
 			path = Controls;
 			sourceTree = "<group>";
 		};
 		CE8B4DF54243DD52953C7CFE /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				58099F917373377216261552 /* Exceptions for "Atoms" folder in "LaneShadow" target */,
+				58099F917373377216261552 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
 			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Atoms;
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		CF77ECAB776F34B039A160CA /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		D026D3B873FDE7B7153F206F /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		E5E2F792F8318B064762B018 /* Theme */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (
 			);
+			name = Theme;
 			path = Theme;
 			sourceTree = "<group>";
 		};
@@ -474,6 +450,7 @@
 				19695B8A9932BA0DADCBEADF /* LSChatInput.swift */,
 				890F8AE171354CCC932518BC /* LSContentCard.swift */,
 				4A2AE4E90D3718200E3AB248 /* LSEmptyState.swift */,
+				A8FC588254B2DE58F4742ED7 /* LSFavoritePinDot.swift */,
 				A1130AFDFD500511DD417BC8 /* LSFilterChip.swift */,
 				6E0D7B9F463A28F5B5936751 /* LSFormField.swift */,
 				1E4B5E214B40EA6C2A95441B /* LSInstrumentReadout.swift */,
@@ -481,10 +458,10 @@
 				EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */,
 				94AB21A076699921AC328EE9 /* LSModal.swift */,
 				4F137157E747643E3C5CB9F7 /* LSNavHeader.swift */,
-				4FF30B560FA48085ACB5AC84 /* LSPaperMap.swift */,
-				19C8E7950F466389067A631F /* LSFavoritePinDot.swift */,
+				6CB7F6034D1229777B67DCE5 /* LSPaperMap.swift */,
 				C7D0D2BB3D9A32CB9A700EFC /* LSPhaseIndicator.swift */,
 				70071A35653D217D4EB4A4B8 /* LSRouteAttachmentCard.swift */,
+				B0E16C5B6F4121EB1CA3D72D /* LSScenicDotStrip.swift */,
 				A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */,
 				1C18F36042134628BD1BF30B /* LSTabItem.swift */,
 				C7D7D85AC834967019608CDE /* LSTagPill.swift */,
@@ -508,7 +485,6 @@
 				0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */,
 				B95CA989BE1243B1021F83D3 /* ContentView.swift */,
 				F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */,
-				C90EACB9054E6E7EC29B3712 /* LaneShadowTests */,
 			);
 			path = LaneShadow;
 			sourceTree = "<group>";
@@ -519,15 +495,6 @@
 				A9EDF4218751AC8200085830 /* Foundation.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		69700BB3265ED56EFE4BCD8E /* Organisms */ = {
-			isa = PBXGroup;
-			children = (
-				1EEDACF6EC8AA820E5E31C40 /* LSRouteSheet.swift */,
-				15A4BF96B7AD1B8F8BABF061 /* LSSessionsDrawer.swift */,
-			);
-			path = Organisms;
 			sourceTree = "<group>";
 		};
 		74C87109A86D746141753D0A /* Packages */ = {
@@ -557,7 +524,6 @@
 			children = (
 				CE8B4DF54243DD52953C7CFE /* Atoms */,
 				55726301A0BAEC18C69036BC /* Molecules */,
-				69700BB3265ED56EFE4BCD8E /* Organisms */,
 				4C8A8E02554AE3D5AC4FAC51 /* Organisms */,
 				0E516A6442C2AA10AA5009F5 /* Templates */,
 			);
@@ -589,16 +555,6 @@
 				D5107D4267204A230D572AB9 /* MarkdownTextTests.swift */,
 			);
 			path = Molecules;
-			sourceTree = "<group>";
-		};
-		C90EACB9054E6E7EC29B3712 /* LaneShadowTests */ = {
-			isa = PBXGroup;
-			children = (
-				C66CBFE6273130D36E77E40E /* TypographyTests.swift */,
-				89719BC4A9494448E27BFDED /* RouteCardGeometryTests.swift */,
-				A9C813E9F520885AED21F032 /* MapSlotTests.swift */,
-			);
-			name = LaneShadowTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -659,6 +615,8 @@
 				A8E49074235FCF05900AA173 /* LaneShadowUITests */,
 			);
 			name = LaneShadowUITests;
+			packageProductDependencies = (
+			);
 			productName = LaneShadowUITests;
 			productReference = EF4B1C18D8FD1069B42CB70D /* LaneShadowUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -728,8 +686,8 @@
 				B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */,
 				15EF0D9EB05071BCFDAB5F3D /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
 				E60D5EE87AD2B6F3ECB752C9 /* XCRemoteSwiftPackageReference "ViewInspector" */,
-				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "swift" */,
-				587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "ios" */,
+				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */,
+				587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A409E156DCE522478E497BB1 /* Products */;
@@ -831,6 +789,7 @@
 				CB54A220F967529F6BE52E80 /* LSContentCard.swift in Sources */,
 				1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */,
 				E59A273AD62956C2EFAC59C9 /* LSEmptyState.swift in Sources */,
+				EB7EC54CA53EB7DEE5E84F0E /* LSFavoritePinDot.swift in Sources */,
 				4C05ABB5C49D2E72EFB85198 /* LSFilterChip.swift in Sources */,
 				8DD1E5F229561147AA644B21 /* LSFormField.swift in Sources */,
 				E38D09C5CE8E05B40EC425E5 /* LSIconStories.swift in Sources */,
@@ -841,15 +800,13 @@
 				95572DAE37FCF32B9BDE4BC4 /* LSMapStories.swift in Sources */,
 				F994D017357EA5F2EAA9D72F /* LSModal.swift in Sources */,
 				B4F9EB30336D5595D5388973 /* LSNavHeader.swift in Sources */,
-				002303B5C6FBF74A485C0A42 /* LSPaperMap.swift in Sources */,
-				BD69BA947D14A97B9213483D /* LSFavoritePinDot.swift in Sources */,
+				713845C65B102A6F3B324AF0 /* LSPaperMap.swift in Sources */,
 				1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */,
 				6D0C6A870476786F7228EA13 /* LSPhaseIndicator.swift in Sources */,
 				91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */,
 				B6A59F8B49C2AD8ECBFB7A18 /* LSRouteAttachmentCard.swift in Sources */,
-				35821980B5053707A9A97CDE /* LSRouteSheet.swift in Sources */,
+				BE5B3CA2636D5E37C57D3868 /* LSScenicDotStrip.swift in Sources */,
 				762FB79AB5AE6050179BB785 /* LSScrimStories.swift in Sources */,
-				DA5A4BD4334BFB5A70AC36EB /* LSSessionsDrawer.swift in Sources */,
 				FCAE00CC74E427BDB51D7F65 /* LSSuggestionChip.swift in Sources */,
 				796603EE7DD1C76F8E2D5C00 /* LSSurfaceStories.swift in Sources */,
 				938A965D4FEDD3713546A274 /* LSTabItem.swift in Sources */,
@@ -892,9 +849,6 @@
 				5E2C1E120480203DDF3939E8 /* LSToolbarTests.swift in Sources */,
 				06E6D012390862D9ABF3488C /* LaneShadowTests.swift in Sources */,
 				C9108535DE88E44D62CC2AE6 /* MarkdownTextTests.swift in Sources */,
-				B80F80613B357D97008E6A1D /* TypographyTests.swift in Sources */,
-				0EEC9FA8B5E4E5E404EA05AC /* RouteCardGeometryTests.swift in Sources */,
-				2037DFFD981B27BF79D056AE /* MapSlotTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -950,10 +904,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LaneShadow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app;
 				SDKROOT = iphoneos;
@@ -998,10 +949,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LaneShadow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app;
 				SDKROOT = iphoneos;
@@ -1218,11 +1166,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "swift" */ = {
+		47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../tokens/platforms/swift;
 		};
-		587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "ios" */ = {
+		587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "/Users/justinrich/Projects/native-sandbox/ios";
 		};

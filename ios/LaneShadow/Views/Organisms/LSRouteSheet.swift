@@ -4,8 +4,8 @@ import SwiftUI
 
 /// Route sheet organism showing route details with instrument readout and weather timeline
 ///
-/// Composes from LSBestBadge, LSInstrumentReadout, LSWeatherTimeline, and LSButton.
-/// Presented via LSBottomSheet with .large detent.
+/// Composes from LSBestBadge, LSScenicDotStrip, LSInstrumentReadout, LSWeatherTimeline, and LSButton.
+/// Wraps content in LSBottomSheet presentation with .large detent.
 public struct LSRouteSheet: View {
     @Environment(\.theme) private var theme
 
@@ -53,23 +53,52 @@ public struct LSRouteSheet: View {
         .background(LaneShadowTheme.color.surface.card)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Route details")
+        .presentationDetents([.fraction(0.9)])
+        .presentationDragIndicator(.visible)
+        .presentationBackground(.clear)
+    }
+
+    /// Wrapper for presenting as bottom sheet
+    public func bottomSheet(
+        isPresented: Binding<Bool>,
+        onDismiss: @escaping () -> Void = {}
+    ) -> some View {
+        LSBottomSheet(
+            isPresented: isPresented,
+            detent: .large,
+            onDismiss: onDismiss
+        ) {
+            self
+        }
     }
 
     // MARK: - Header Section
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: theme.space.xs) {
-            // Best badge (if applicable)
+            // Best badge + scenic strip row
             if route.isBest {
-                LSBestBadge()
+                HStack(spacing: theme.space.sm) {
+                    LSBestBadge()
+
+                    // Scenic dot strip
+                    if let scenicValue = Double(route.scenic) {
+                        LSScenicDotStrip(scenicScore: scenicValue)
+                    }
+                }
+            } else {
+                // Just scenic strip for non-best routes
+                if let scenicValue = Double(route.scenic) {
+                    LSScenicDotStrip(scenicScore: scenicValue)
+                }
             }
 
             // Title
             LSText(route.title, variant: .opinion.lg, color: .primary)
                 .lineLimit(2)
 
-            // Subtitle
-            LSText(route.subtitle, variant: .body.md, color: .secondary)
+            // Subtitle (body.sm, not body.md)
+            LSText(route.subtitle, variant: .body.sm, color: .secondary)
                 .lineLimit(2)
         }
     }
@@ -98,27 +127,30 @@ public struct LSRouteSheet: View {
     // MARK: - Action Row
 
     private var actionRow: some View {
-        HStack(spacing: theme.space.sm) {
-            // Save button (flex 1)
-            LSButton(
-                "Save",
-                variant: .outline,
-                size: .md,
-                leadingIcon: .bookmark,
-                action: onSave
-            )
-            .frame(maxWidth: .infinity)
+        GeometryReader { geometry in
+            HStack(spacing: theme.space.sm) {
+                // Save button (width 1/3 of available space)
+                LSButton(
+                    "Save",
+                    variant: .outline,
+                    size: .md,
+                    leadingIcon: .bookmark,
+                    action: onSave
+                )
+                .frame(width: (geometry.size.width - theme.space.sm) / 3)
 
-            // Ride this button (flex 2)
-            LSButton(
-                "Ride this",
-                variant: .primary,
-                size: .md,
-                trailingIcon: .chevR,
-                action: onRide
-            )
-            .frame(maxWidth: .infinity)
+                // Ride this button (width 2/3 of available space)
+                LSButton(
+                    "Ride this",
+                    variant: .primary,
+                    size: .md,
+                    trailingIcon: .chevR,
+                    action: onRide
+                )
+                .frame(width: (geometry.size.width - theme.space.sm) * 2 / 3)
+            }
         }
+        .frame(height: 48) // Fixed height for GeometryReader
         .padding(theme.space.md)
         .background(LaneShadowTheme.color.surface.card)
     }

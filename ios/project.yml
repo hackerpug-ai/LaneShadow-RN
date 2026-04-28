@@ -187,6 +187,7 @@ targets:
       - path: LaneShadow/Views/Molecules/LSWeatherBadge.swift
       - path: LaneShadow/Views/Molecules/LSInstrumentReadout.swift
       - path: LaneShadow/Views/Molecules/LSWeatherTimeline.swift
+      - path: LaneShadow/Views/Molecules/LSScenicDotStrip.swift
       - path: LaneShadow/Views/Molecules/ChatTranscript.swift
       - path: LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift
       - path: LaneShadow/Views/Molecules/LSContentCard.swift
@@ -195,9 +196,9 @@ targets:
       - path: LaneShadow/Views/Molecules/LSNavHeader.swift
       - path: LaneShadow/Views/Molecules/LSPhaseIndicator.swift
       - path: LaneShadow/Views/Molecules/LSTagPill.swift
+      - path: LaneShadow/Views/Molecules/LSPaperMap.swift
+      - path: LaneShadow/Views/Molecules/LSFavoritePinDot.swift
       # Sprint 05 organisms
-      - path: LaneShadow/Views/Organisms/LSRouteSheet.swift
-      - path: LaneShadow/Views/Organisms/LSSessionsDrawer.swift
       - path: LaneShadow/Views/Organisms
         type: syncedFolder
       # Sprint 06 templates
