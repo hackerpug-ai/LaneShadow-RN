@@ -11,7 +11,7 @@ extension Animation {
     /// - Repeat: forever with autoreverse (from token)
     static func recordDotPulse(theme: Theme) -> Animation {
         let recipe = theme.motion.recipes["recordDotPulse"]
-        let duration: TimeInterval = TimeInterval(recipe?.duration ?? 1400) / 1000
+        let duration = TimeInterval(recipe?.duration ?? 1400) / 1000
         let easing = recipe?.easing ?? [0.4, 0.0, 0.2, 1.0]
         return Animation.timingCurve(
             easing[0],

@@ -9,7 +9,7 @@ extension Animation {
     /// - Easing: linear (from token)
     /// - Repeat: forever (from token)
     static func sketchPolylineLoop(theme: Theme) -> Animation {
-        let duration: TimeInterval = TimeInterval(theme.motion.recipes["sketchPolylineLoop"]?.duration ?? 1400) / 1000
+        let duration = TimeInterval(theme.motion.recipes["sketchPolylineLoop"]?.duration ?? 1400) / 1000
         return Animation.linear(duration: duration).repeatForever(autoreverses: false)
     }
 
@@ -19,7 +19,7 @@ extension Animation {
     /// - Repeat: forever with autoreverse (from token)
     static func breathingHeadDot(theme: Theme) -> Animation {
         let recipe = theme.motion.recipes["breathingHeadDot"]
-        let duration: TimeInterval = TimeInterval(recipe?.duration ?? 1400) / 1000
+        let duration = TimeInterval(recipe?.duration ?? 1400) / 1000
         let easing = recipe?.easing ?? [0.4, 0.0, 0.2, 1.0]
         return Animation.timingCurve(
             easing[0],

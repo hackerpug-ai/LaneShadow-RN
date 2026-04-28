@@ -46,11 +46,19 @@
       "linear": {
         "$type": "cubicBezier",
         "$value": [0.0, 0.0, 1.0, 1.0]
+      },
+      "easeInOut": {
+        "$type": "cubicBezier",
+        "$value": [0.4, 0.0, 0.6, 1.0]
+      },
+      "easeOut": {
+        "$type": "cubicBezier",
+        "$value": [0.0, 0.0, 0.2, 1.0]
       }
     },
     "chatOverlayEnter": {
       "duration": "{motion.duration.standard}",
-      "easing": "{motion.easing.decelerated}",
+      "easing": "{motion.easing.easeOut}",
       "iteration": "once"
     },
     "chatOverlayDismiss": {
@@ -66,16 +74,16 @@
     "sketchPolylineLoop": {
       "duration": 1400,
       "easing": "{motion.easing.linear}",
-      "iteration": "loop"
+      "iteration": "restart"
     },
     "breathingHeadDot": {
       "duration": 1400,
-      "easing": "{motion.easing.standard}",
+      "easing": "{motion.easing.easeInOut}",
       "iteration": "reverse"
     },
     "recordDotPulse": {
       "duration": 1400,
-      "easing": "{motion.easing.standard}",
+      "easing": "{motion.easing.easeInOut}",
       "iteration": "reverse"
     },
     "routeDrawOn": {
