@@ -1220,6 +1220,10 @@
           "$type": "dimension",
           "$value": 120
         },
+        "standard": {
+          "$type": "dimension",
+          "$value": 240
+        },
         "normal": {
           "$type": "dimension",
           "$value": 200
@@ -1229,6 +1233,10 @@
           "$value": 400
         },
         "slower": {
+          "$type": "dimension",
+          "$value": 600
+        },
+        "deliberate": {
           "$type": "dimension",
           "$value": 600
         },
@@ -1254,13 +1262,33 @@
           "$type": "cubicBezier",
           "$value": [0, 0, 0.2, 1]
         },
+        "decelerated": {
+          "$type": "cubicBezier",
+          "$value": [0, 0, 0.2, 1]
+        },
         "accelerate": {
+          "$type": "cubicBezier",
+          "$value": [0.4, 0, 1, 1]
+        },
+        "accelerated": {
           "$type": "cubicBezier",
           "$value": [0.4, 0, 1, 1]
         },
         "sharp": {
           "$type": "cubicBezier",
           "$value": [0.4, 0, 0.6, 1]
+        },
+        "linear": {
+          "$type": "cubicBezier",
+          "$value": [0.0, 0.0, 1.0, 1.0]
+        },
+        "easeInOut": {
+          "$type": "cubicBezier",
+          "$value": [0.4, 0.0, 0.6, 1.0]
+        },
+        "easeOut": {
+          "$type": "cubicBezier",
+          "$value": [0.0, 0.0, 0.2, 1.0]
         }
       },
       "recipes": {
