@@ -17,6 +17,7 @@
 		19B2E80084FD9A981F497DB5 /* ViewInspector in Frameworks */ = {isa = PBXBuildFile; productRef = 97E29B716CED481799DD0795 /* ViewInspector */; };
 		1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534D26C275878552CD82E5FE /* LSDisplayStories.swift */; };
 		1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8ABC117BB7538D9D09E1F6 /* LSPhaseDotStories.swift */; };
+		2037DFFD981B27BF79D056AE /* MapSlotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C813E9F520885AED21F032 /* MapSlotTests.swift */; };
 		24E92B6C2FD5880E27973B68 /* ChatTranscript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9585186566089A7EAF681DDB /* ChatTranscript.swift */; };
 		260AE5B2889B2C4DCE1F1C38 /* LSEmptyStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68571E06FBCE8232271D1DB2 /* LSEmptyStateTests.swift */; };
 		293E7CA38C0EA35CD1365886 /* LSTagPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D7D85AC834967019608CDE /* LSTagPill.swift */; };
@@ -144,6 +145,7 @@
 		A46A985C643A99B580C53E4E /* LSSuggestionChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSSuggestionChip.swift; sourceTree = "<group>"; };
 		A4C14284F7C5546B178E7CA7 /* LSBadgeStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSBadgeStories.swift; sourceTree = "<group>"; };
 		A770CE2595F52C1DC3532F8A /* LSMapStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSMapStories.swift; sourceTree = "<group>"; };
+		A9C813E9F520885AED21F032 /* MapSlotTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MapSlotTests.swift; path = LaneShadowTests/Sandbox/MapSlotTests.swift; sourceTree = "<group>"; };
 		A9EDF4218751AC8200085830 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		B95CA989BE1243B1021F83D3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfrastructureStories.swift; sourceTree = "<group>"; };
@@ -588,6 +590,7 @@
 			children = (
 				C66CBFE6273130D36E77E40E /* TypographyTests.swift */,
 				89719BC4A9494448E27BFDED /* RouteCardGeometryTests.swift */,
+				A9C813E9F520885AED21F032 /* MapSlotTests.swift */,
 			);
 			name = LaneShadowTests;
 			sourceTree = "<group>";
@@ -883,6 +886,7 @@
 				C9108535DE88E44D62CC2AE6 /* MarkdownTextTests.swift in Sources */,
 				B80F80613B357D97008E6A1D /* TypographyTests.swift in Sources */,
 				0EEC9FA8B5E4E5E404EA05AC /* RouteCardGeometryTests.swift in Sources */,
+				2037DFFD981B27BF79D056AE /* MapSlotTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
