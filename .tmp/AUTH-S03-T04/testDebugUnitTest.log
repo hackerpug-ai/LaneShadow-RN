@@ -1,117 +1,105 @@
-> Task :android:library:preBuild UP-TO-DATE
 > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
 > Task :kotlin:primitives:preBuild UP-TO-DATE
-> Task :android:library:preDebugBuild UP-TO-DATE
+> Task :android:library:preBuild UP-TO-DATE
 > Task :kotlin:primitives:preDebugBuild UP-TO-DATE
-> Task :android:library:writeDebugAarMetadata UP-TO-DATE
-> Task :kotlin:primitives:writeDebugAarMetadata UP-TO-DATE
+> Task :android:library:preDebugBuild UP-TO-DATE
 > Task :app:generateSecretsXml UP-TO-DATE
-> Task :android:library:generateDebugResValues UP-TO-DATE
-> Task :kotlin:primitives:generateDebugResValues UP-TO-DATE
 > Task :app:preBuild UP-TO-DATE
 > Task :app:preDebugBuild UP-TO-DATE
-> Task :kotlin:primitives:generateDebugResources UP-TO-DATE
-> Task :android:library:generateDebugResources UP-TO-DATE
 > Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :kotlin:primitives:writeDebugAarMetadata UP-TO-DATE
+> Task :android:library:writeDebugAarMetadata UP-TO-DATE
 > Task :theme:preBuild UP-TO-DATE
+> Task :kotlin:primitives:generateDebugResValues UP-TO-DATE
 > Task :theme:preDebugBuild UP-TO-DATE
+> Task :android:library:generateDebugResValues UP-TO-DATE
 > Task :theme:writeDebugAarMetadata UP-TO-DATE
+> Task :kotlin:primitives:generateDebugResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :android:library:generateDebugResources UP-TO-DATE
 > Task :android:library:packageDebugResources UP-TO-DATE
 > Task :kotlin:primitives:packageDebugResources UP-TO-DATE
-> Task :android:library:extractDeepLinksDebug UP-TO-DATE
 > Task :kotlin:primitives:extractDeepLinksDebug UP-TO-DATE
-> Task :android:library:processDebugManifest UP-TO-DATE
+> Task :android:library:extractDeepLinksDebug UP-TO-DATE
 > Task :kotlin:primitives:processDebugManifest UP-TO-DATE
+> Task :android:library:processDebugManifest UP-TO-DATE
 > Task :kotlin:primitives:parseDebugLocalResources UP-TO-DATE
 > Task :android:library:parseDebugLocalResources UP-TO-DATE
-> Task :kotlin:primitives:generateDebugRFile UP-TO-DATE
 > Task :android:library:generateDebugRFile UP-TO-DATE
-> Task :kotlin:primitives:compileDebugLibraryResources UP-TO-DATE
+> Task :kotlin:primitives:generateDebugRFile UP-TO-DATE
 > Task :android:library:compileDebugLibraryResources UP-TO-DATE
 > Task :android:library:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :kotlin:primitives:compileDebugLibraryResources UP-TO-DATE
 > Task :kotlin:primitives:checkKotlinGradlePluginConfigurationErrors SKIPPED
 > Task :android:library:javaPreCompileDebug UP-TO-DATE
-> Task :android:library:mergeDebugShaders
+> Task :android:library:mergeDebugShaders UP-TO-DATE
 > Task :android:library:compileDebugShaders NO-SOURCE
 > Task :android:library:generateDebugAssets UP-TO-DATE
-> Task :android:library:mergeDebugAssets
-> Task :kotlin:primitives:compileDebugKotlin UP-TO-DATE
-> Task :kotlin:primitives:javaPreCompileDebug UP-TO-DATE
+> Task :android:library:mergeDebugAssets UP-TO-DATE
 > Task :app:checkDebugAarMetadata UP-TO-DATE
-> Task :app:generateDebugResValues UP-TO-DATE
-> Task :kotlin:primitives:compileDebugJavaWithJavac NO-SOURCE
 > Task :theme:generateDebugResValues UP-TO-DATE
-> Task :kotlin:primitives:bundleLibCompileToJarDebug UP-TO-DATE
 > Task :theme:generateDebugResources UP-TO-DATE
 > Task :theme:packageDebugResources UP-TO-DATE
-> Task :kotlin:primitives:mergeDebugShaders
-> Task :kotlin:primitives:compileDebugShaders NO-SOURCE
-> Task :kotlin:primitives:generateDebugAssets UP-TO-DATE
-> Task :kotlin:primitives:mergeDebugAssets
+> Task :kotlin:primitives:compileDebugKotlin UP-TO-DATE
 > Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :kotlin:primitives:javaPreCompileDebug UP-TO-DATE
 > Task :app:generateDebugResources UP-TO-DATE
-> Task :kotlin:primitives:processDebugJavaRes
-> Task :kotlin:primitives:bundleLibRuntimeToJarDebug
-> Task :android:library:compileDebugKotlin UP-TO-DATE
-> Task :android:library:compileDebugJavaWithJavac NO-SOURCE
-> Task :android:library:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :kotlin:primitives:compileDebugJavaWithJavac NO-SOURCE
 > Task :app:mergeDebugResources UP-TO-DATE
-> Task :android:library:processDebugJavaRes
 > Task :app:packageDebugResources UP-TO-DATE
+> Task :kotlin:primitives:bundleLibCompileToJarDebug UP-TO-DATE
 > Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :kotlin:primitives:mergeDebugShaders UP-TO-DATE
 > Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :kotlin:primitives:compileDebugShaders NO-SOURCE
 > Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :kotlin:primitives:generateDebugAssets UP-TO-DATE
 > Task :theme:extractDeepLinksDebug UP-TO-DATE
+> Task :kotlin:primitives:mergeDebugAssets UP-TO-DATE
 > Task :theme:processDebugManifest UP-TO-DATE
+> Task :kotlin:primitives:processDebugJavaRes UP-TO-DATE
+> Task :kotlin:primitives:bundleLibRuntimeToJarDebug UP-TO-DATE
 > Task :app:processDebugMainManifest UP-TO-DATE
 > Task :app:processDebugManifest UP-TO-DATE
 > Task :app:processDebugManifestForPackage UP-TO-DATE
 > Task :theme:compileDebugLibraryResources UP-TO-DATE
 > Task :theme:parseDebugLocalResources UP-TO-DATE
 > Task :theme:generateDebugRFile UP-TO-DATE
-> Task :android:library:bundleLibRuntimeToJarDebug
 > Task :app:processDebugResources UP-TO-DATE
 > Task :theme:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :android:library:compileDebugKotlin UP-TO-DATE
+> Task :android:library:compileDebugJavaWithJavac NO-SOURCE
+> Task :android:library:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :android:library:processDebugJavaRes UP-TO-DATE
+> Task :android:library:bundleLibRuntimeToJarDebug UP-TO-DATE
 > Task :theme:compileDebugKotlin UP-TO-DATE
 > Task :theme:javaPreCompileDebug UP-TO-DATE
 > Task :theme:compileDebugJavaWithJavac NO-SOURCE
 > Task :theme:bundleLibCompileToJarDebug UP-TO-DATE
 > Task :app:compileDebugKotlin UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:bundleDebugClassesToRuntimeJar UP-TO-DATE
+> Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
+> Task :app:compileDebugUnitTestKotlin UP-TO-DATE
 > Task :app:preDebugUnitTestBuild UP-TO-DATE
-> Task :app:javaPreCompileDebug
-> Task :app:javaPreCompileDebugUnitTest
-> Task :app:compileDebugJavaWithJavac
-> Task :app:mergeDebugShaders
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:mergeDebugShaders UP-TO-DATE
 > Task :app:compileDebugShaders NO-SOURCE
 > Task :app:generateDebugAssets UP-TO-DATE
-> Task :theme:mergeDebugShaders
+> Task :theme:mergeDebugShaders UP-TO-DATE
 > Task :theme:compileDebugShaders NO-SOURCE
 > Task :theme:generateDebugAssets UP-TO-DATE
-> Task :theme:mergeDebugAssets
-> Task :app:mergeDebugAssets
-> Task :app:packageDebugUnitTestForUnitTest
-> Task :app:bundleDebugClassesToCompileJar
-> Task :app:bundleDebugClassesToRuntimeJar
-> Task :app:processDebugUnitTestManifest
-> Task :app:generateDebugUnitTestConfig
-> Task :app:processDebugJavaRes
-> Task :theme:processDebugJavaRes
-> Task :theme:bundleLibRuntimeToJarDebug
-
-> Task :app:compileDebugUnitTestKotlin
-w: file:///Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T04/android/app/src/test/java/com/laneshadow/models/GatekeeperDownloadManagerTest.kt:75:33 Check for instance is always 'true'.
-w: file:///Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T04/android/app/src/test/java/com/laneshadow/models/GatekeeperDownloadManagerTest.kt:80:13 Check for instance is always 'true'.
-w: file:///Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T04/android/app/src/test/java/com/laneshadow/models/WeatherOptimizationTest.kt:32:57 Check for instance is always 'true'.
-w: file:///Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T04/android/app/src/test/java/com/laneshadow/models/WeatherOptimizationTest.kt:42:75 Check for instance is always 'true'.
-w: file:///Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T04/android/app/src/test/java/com/laneshadow/models/WeatherOptimizationTest.kt:53:85 Check for instance is always 'true'.
-w: file:///Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T04/android/app/src/test/java/com/laneshadow/sandbox/MotionTests.kt:53:55 Check for instance is always 'true'.
-w: file:///Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T04/android/app/src/test/java/com/laneshadow/sandbox/MotionTests.kt:82:55 Check for instance is always 'true'.
-w: file:///Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T04/android/app/src/test/java/com/laneshadow/sandbox/MotionTests.kt:106:43 Check for instance is always 'true'.
-w: file:///Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T04/android/app/src/test/java/com/laneshadow/sandbox/MotionTests.kt:127:42 Check for instance is always 'true'.
-w: file:///Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T04/android/app/src/test/java/com/laneshadow/sandbox/MotionTests.kt:155:55 Check for instance is always 'true'.
-
-> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
-> Task :app:processDebugUnitTestJavaRes
+> Task :theme:mergeDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:packageDebugUnitTestForUnitTest UP-TO-DATE
+> Task :app:processDebugUnitTestManifest UP-TO-DATE
+> Task :app:generateDebugUnitTestConfig UP-TO-DATE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :theme:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :theme:processDebugJavaRes UP-TO-DATE
 
 > Task :app:testDebugUnitTest
 
@@ -154,5 +142,21 @@ LSRouteAttachmentCardTest > compact_mode_keeps_layout_contracts_and_badge_gate F
 PlanningScreenTest > ac3_sketch_polyline_animation_references_motion_recipe FAILED
     java.lang.AssertionError at PlanningScreenTest.kt:150
 
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
 > Task :app:testDebugUnitTest FAILED
-78 actionable tasks: 26 executed, 52 up-to-date
+
+370 tests completed, 13 failed
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:testDebugUnitTest'.
+> There were failing tests. See the report at: file:///Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T04/android/app/build/reports/tests/testDebugUnitTest/index.html
+
+* Try:
+> Run with --scan to get full insights.
+
+BUILD FAILED in 11s
+78 actionable tasks: 1 executed, 77 up-to-date
