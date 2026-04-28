@@ -5,7 +5,7 @@ import Foundation
 /// Provides navigator message, route list, and selected route
 /// for the Route Results/route-selection screen.
 public enum RouteResultsMockProvider: MockProvider {
-    public static let variants = ["default", "empty", "overflow", "long-copy"]
+    public static let variants = ["default", "empty", "overflow", "long-copy", "s02-alt-selected", "s04-refining", "v03-recall"]
 
     public static func value(variant: String = "default") -> RouteResultsScreenState {
         switch variant {
@@ -15,6 +15,12 @@ public enum RouteResultsMockProvider: MockProvider {
             overflowState()
         case "long-copy":
             longCopyState()
+        case "s02-alt-selected":
+            s02AltSelectedState()
+        case "s04-refining":
+            s04RefiningState()
+        case "v03-recall":
+            v03RecallState()
         default:
             defaultState()
         }
@@ -236,6 +242,230 @@ public enum RouteResultsMockProvider: MockProvider {
                     id: "route-003",
                     name: "Forest to Coast: The Balanced Experience",
                     via: "9 → 236 through Big Basin → 84 → 1 South",
+                    distance: 55000,
+                    estimatedTime: 5700,
+                    climb: 3500,
+                    scenicScore: 6,
+                    difficulty: "moderate",
+                    polyline: "encoded_polyline_here",
+                    variant: "alt2"
+                ),
+            ],
+            selectedRouteId: "route-001"
+        )
+    }
+
+    // MARK: - S02: Alt-selected state
+
+    private static func s02AltSelectedState() -> RouteResultsScreenState {
+        RouteResultsScreenState(
+            message: NavigatorMessage(
+                id: "msg-s02",
+                sessionId: "session-001",
+                body: "I found 3 great routes. You selected the Coastal Highway Classic — it's a bit shorter but still has fantastic ocean views.",
+                timestamp: "2025-04-25T10:31:00Z",
+                kind: "response",
+                attachments: [
+                    RouteAttachment(
+                        routeId: "route-001",
+                        variant: "best",
+                        isBest: true,
+                        weather: WeatherSummary(condition: "clear", label: "Clear"),
+                        scenic: 5,
+                        includesFavorite: true,
+                        includesFavoriteLabel: "Includes your favorite: Stage Road"
+                    ),
+                    RouteAttachment(
+                        routeId: "route-002",
+                        variant: "alt1",
+                        isBest: false,
+                        weather: WeatherSummary(condition: "clear", label: "Clear"),
+                        scenic: 4,
+                        includesFavorite: nil,
+                        includesFavoriteLabel: nil
+                    ),
+                    RouteAttachment(
+                        routeId: "route-003",
+                        variant: "alt2",
+                        isBest: false,
+                        weather: WeatherSummary(condition: "wind", label: "18mph NW"),
+                        scenic: 3,
+                        includesFavorite: nil,
+                        includesFavoriteLabel: nil
+                    ),
+                ],
+                detail: "All routes avoid current roadwork on Highway 1.",
+                pinned: true
+            ),
+            routes: [
+                Route(
+                    id: "route-001",
+                    name: "The Skyline Spine",
+                    via: "280 → 92 → Skyline to Alice's",
+                    distance: 52000,
+                    estimatedTime: 5400,
+                    climb: 4200,
+                    scenicScore: 10,
+                    difficulty: "advanced",
+                    polyline: "encoded_polyline_here",
+                    variant: "best"
+                ),
+                Route(
+                    id: "route-002",
+                    name: "Coastal Highway Classic",
+                    via: "Highway 1 all the way",
+                    distance: 48000,
+                    estimatedTime: 5100,
+                    climb: 2800,
+                    scenicScore: 8,
+                    difficulty: "moderate",
+                    polyline: "encoded_polyline_here",
+                    variant: "alt1"
+                ),
+                Route(
+                    id: "route-003",
+                    name: "Valley Loop",
+                    via: "9 → 236 → 84 → 1",
+                    distance: 55000,
+                    estimatedTime: 5700,
+                    climb: 3500,
+                    scenicScore: 6,
+                    difficulty: "moderate",
+                    polyline: "encoded_polyline_here",
+                    variant: "alt2"
+                ),
+            ],
+            selectedRouteId: "route-002" // Alt route selected
+        )
+    }
+
+    // MARK: - S04: Refining state
+
+    private static func s04RefiningState() -> RouteResultsScreenState {
+        RouteResultsScreenState(
+            message: NavigatorMessage(
+                id: "msg-s04",
+                sessionId: "session-001",
+                body: "Refining your route preferences...",
+                timestamp: "2025-04-25T10:31:00Z",
+                kind: "response",
+                attachments: nil, // No attachments in refining mode
+                detail: "Adjusting routes based on your feedback.",
+                pinned: false
+            ),
+            routes: [
+                Route(
+                    id: "route-001",
+                    name: "The Skyline Spine",
+                    via: "280 → 92 → Skyline to Alice's",
+                    distance: 52000,
+                    estimatedTime: 5400,
+                    climb: 4200,
+                    scenicScore: 10,
+                    difficulty: "advanced",
+                    polyline: "encoded_polyline_here",
+                    variant: "best"
+                ),
+                Route(
+                    id: "route-002",
+                    name: "Coastal Highway Classic",
+                    via: "Highway 1 all the way",
+                    distance: 48000,
+                    estimatedTime: 5100,
+                    climb: 2800,
+                    scenicScore: 8,
+                    difficulty: "moderate",
+                    polyline: "encoded_polyline_here",
+                    variant: "alt1"
+                ),
+                Route(
+                    id: "route-003",
+                    name: "Valley Loop",
+                    via: "9 → 236 → 84 → 1",
+                    distance: 55000,
+                    estimatedTime: 5700,
+                    climb: 3500,
+                    scenicScore: 6,
+                    difficulty: "moderate",
+                    polyline: "encoded_polyline_here",
+                    variant: "alt2"
+                ),
+            ],
+            selectedRouteId: "route-001"
+        )
+    }
+
+    // MARK: - V03: Recall state
+
+    private static func v03RecallState() -> RouteResultsScreenState {
+        RouteResultsScreenState(
+            message: NavigatorMessage(
+                id: "msg-v03",
+                sessionId: "session-001",
+                body: "Found 3 great routes for your coastal adventure. The Skyline Spine offers the best technical riding with sweeping mountain vistas.",
+                timestamp: "2025-04-25T10:31:00Z",
+                kind: "response",
+                attachments: [
+                    RouteAttachment(
+                        routeId: "route-001",
+                        variant: "best",
+                        isBest: true,
+                        weather: WeatherSummary(condition: "clear", label: "Clear"),
+                        scenic: 5,
+                        includesFavorite: true,
+                        includesFavoriteLabel: "Includes your favorite: Stage Road"
+                    ),
+                    RouteAttachment(
+                        routeId: "route-002",
+                        variant: "alt1",
+                        isBest: false,
+                        weather: WeatherSummary(condition: "clear", label: "Clear"),
+                        scenic: 4,
+                        includesFavorite: nil,
+                        includesFavoriteLabel: nil
+                    ),
+                    RouteAttachment(
+                        routeId: "route-003",
+                        variant: "alt2",
+                        isBest: false,
+                        weather: WeatherSummary(condition: "wind", label: "18mph NW"),
+                        scenic: 3,
+                        includesFavorite: nil,
+                        includesFavoriteLabel: nil
+                    ),
+                ],
+                detail: "All routes avoid current roadwork on Highway 1.",
+                pinned: true
+            ),
+            routes: [
+                Route(
+                    id: "route-001",
+                    name: "The Skyline Spine",
+                    via: "280 → 92 → Skyline to Alice's",
+                    distance: 52000,
+                    estimatedTime: 5400,
+                    climb: 4200,
+                    scenicScore: 10,
+                    difficulty: "advanced",
+                    polyline: "encoded_polyline_here",
+                    variant: "best"
+                ),
+                Route(
+                    id: "route-002",
+                    name: "Coastal Highway Classic",
+                    via: "Highway 1 all the way",
+                    distance: 48000,
+                    estimatedTime: 5100,
+                    climb: 2800,
+                    scenicScore: 8,
+                    difficulty: "moderate",
+                    polyline: "encoded_polyline_here",
+                    variant: "alt1"
+                ),
+                Route(
+                    id: "route-003",
+                    name: "Valley Loop",
+                    via: "9 → 236 → 84 → 1",
                     distance: 55000,
                     estimatedTime: 5700,
                     climb: 3500,

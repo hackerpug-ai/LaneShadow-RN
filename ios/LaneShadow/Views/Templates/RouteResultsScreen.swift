@@ -9,21 +9,25 @@ public struct RouteResultsScreen: View {
     @Environment(\.theme) private var theme
 
     private let provider: RouteResultsMockProvider.Type
-    private let state: RouteResultsScreenState
+    private let variant: String
     private let onPin: @Sendable () -> Void
     private let onDismiss: @Sendable () -> Void
+    private let state: RouteResultsScreenState
 
     @State private var chatInputValue: String = ""
     @State private var selectedRouteId: String
     @State private var drawProgress: [String: Double] = [:]
+    @State private var isCalloutVisible: Bool = true
 
     public init(
         provider: RouteResultsMockProvider.Type = RouteResultsMockProvider.self,
+        variant: String = "default",
         onPin: @escaping @Sendable () -> Void = {},
         onDismiss: @escaping @Sendable () -> Void = {}
     ) {
         self.provider = provider
-        state = provider.value(variant: "default")
+        self.variant = variant
+        state = provider.value(variant: variant)
         self.onPin = onPin
         self.onDismiss = onDismiss
         _selectedRouteId = State(initialValue: state.selectedRouteId ?? "")
@@ -174,7 +178,10 @@ public struct RouteResultsScreen: View {
             attachments: routeAttachments,
             pinned: state.message.pinned,
             onPin: onPin,
-            onDismiss: onDismiss
+            onDismiss: onDismiss,
+            onRouteCardTap: { routeId in
+                selectedRouteId = routeId
+            }
         )
         .accessibilityIdentifier("maplayer.topOverlay.navigator-message")
     }

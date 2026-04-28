@@ -12,44 +12,50 @@ public struct LSNavigatorMessage: View {
     private let pinned: Bool
     private let onPin: @Sendable () -> Void
     private let onDismiss: @Sendable () -> Void
+    private let onRouteCardTap: @Sendable (String) -> Void
+    @State private var isVisible: Bool = true
 
     public init(
         body: String,
         attachments: [LSRouteAttachment] = [],
         pinned: Bool = false,
         onPin: @Sendable @escaping () -> Void,
-        onDismiss: @Sendable @escaping () -> Void
+        onDismiss: @Sendable @escaping () -> Void,
+        onRouteCardTap: @Sendable @escaping (String) -> Void = { _ in }
     ) {
         messageBody = body
         self.attachments = attachments
         self.pinned = pinned
         self.onPin = onPin
         self.onDismiss = onDismiss
+        self.onRouteCardTap = onRouteCardTap
     }
 
     public var body: some View {
-        LSGlassPanel(variant: .callout(accent: .signal)) {
-            VStack(alignment: .leading, spacing: theme.space.sm) {
-                headerRow
+        if isVisible {
+            LSGlassPanel(variant: .callout(accent: .signal)) {
+                VStack(alignment: .leading, spacing: theme.space.sm) {
+                    headerRow
 
-                LSText(messageBody, variant: .opinion.md)
-                    .foregroundStyle(LaneShadowTheme.color.content.primary)
+                    LSText(messageBody, variant: .opinion.md)
+                        .foregroundStyle(LaneShadowTheme.color.content.primary)
 
-                if !attachments.isEmpty {
-                    attachmentStack
-                }
+                    if !attachments.isEmpty {
+                        attachmentStack
+                    }
 
-                if pinned {
-                    pinnedIndicator
+                    if pinned {
+                        pinnedIndicator
+                    }
                 }
             }
-        }
-        .task {
-            // Auto-dismiss after 5000ms for unpinned messages
-            try? await Task.sleep(nanoseconds: 5_000_000_000)
-            guard !Task.isCancelled else { return }
-            if !pinned {
-                onDismiss()
+            .task {
+                // Auto-dismiss after 5000ms for unpinned messages
+                try? await Task.sleep(nanoseconds: 5_000_000_000)
+                guard !Task.isCancelled else { return }
+                if !pinned {
+                    onDismiss()
+                }
             }
         }
     }
@@ -78,7 +84,7 @@ extension LSNavigatorMessage {
                     ),
                     selected: index == 0, // First attachment is selected
                     compact: false,
-                    onTap: nil
+                    onTap: { onRouteCardTap(attachment.id) }
                 )
             }
         }

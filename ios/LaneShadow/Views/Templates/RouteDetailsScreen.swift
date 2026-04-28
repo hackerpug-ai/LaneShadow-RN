@@ -12,6 +12,7 @@ public struct RouteDetailsScreen: View {
     @Environment(\.theme) private var theme
 
     private let provider: RouteDetailsMockProvider.Type
+    private let variant: String
     private let data: RouteDetailsData
     private let onSave: @Sendable () -> Void
     private let onRide: @Sendable () -> Void
@@ -19,12 +20,14 @@ public struct RouteDetailsScreen: View {
 
     public init(
         provider: RouteDetailsMockProvider.Type = RouteDetailsMockProvider.self,
+        variant: String = "default",
         onSave: @escaping @Sendable () -> Void = {},
         onRide: @escaping @Sendable () -> Void = {},
         onDismiss: @escaping @Sendable () -> Void = {}
     ) {
         self.provider = provider
-        data = provider.value(variant: "default")
+        self.variant = variant
+        data = provider.value(variant: variant)
         self.onSave = onSave
         self.onRide = onRide
         self.onDismiss = onDismiss

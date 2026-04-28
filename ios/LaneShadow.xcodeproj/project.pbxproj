@@ -149,7 +149,7 @@
 		A8FC588254B2DE58F4742ED7 /* LSFavoritePinDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFavoritePinDot.swift; sourceTree = "<group>"; };
 		A9EDF4218751AC8200085830 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		AB1CE95A1677A6E6B2FC3752 /* LSAdvisoryCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LSAdvisoryCard.swift; path = Views/Molecules/LSAdvisoryCard.swift; sourceTree = "<group>"; };
-		AF1B423136CAE461D37777B4 /* MotionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MotionTests.swift; path = LaneShadowTests/Sandbox/MotionTests.swift; sourceTree = "<group>"; };
+		AF1B423136CAE461D37777B4 /* MotionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MotionTests.swift; path = Sandbox/MotionTests.swift; sourceTree = "<group>"; };
 		B0E16C5B6F4121EB1CA3D72D /* LSScenicDotStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScenicDotStrip.swift; sourceTree = "<group>"; };
 		B95CA989BE1243B1021F83D3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfrastructureStories.swift; sourceTree = "<group>"; };
@@ -164,13 +164,13 @@
 		E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoleculesStories.swift; sourceTree = "<group>"; };
 		E444532E22B318AA5B8E61E2 /* LSToolbarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbarTests.swift; sourceTree = "<group>"; };
 		E507521BD4D5F91252B71C42 /* LSCancelConfirmSheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LSCancelConfirmSheet.swift; path = Views/Molecules/LSCancelConfirmSheet.swift; sourceTree = "<group>"; };
-		E79150F1AF6EC81E9C67E1F8 /* IdlePlanningVariantTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IdlePlanningVariantTests.swift; path = LaneShadowTests/Sandbox/IdlePlanningVariantTests.swift; sourceTree = "<group>"; };
+		E79150F1AF6EC81E9C67E1F8 /* IdlePlanningVariantTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = IdlePlanningVariantTests.swift; path = Sandbox/IdlePlanningVariantTests.swift; sourceTree = "<group>"; };
 		EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSLocationContextBar.swift; sourceTree = "<group>"; };
 		ECE0D6D9002157D332688E90 /* LSTokenStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTokenStories.swift; sourceTree = "<group>"; };
 		ED792B4C270AB975C34CB118 /* LaneShadowTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LaneShadowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE8CB573821E0981D725E364 /* LSInputStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSInputStories.swift; sourceTree = "<group>"; };
 		EF4B1C18D8FD1069B42CB70D /* LaneShadowUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LaneShadowUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		F0C8ADF5253CDE6E402B7ACC /* NavBarVariantTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NavBarVariantTests.swift; path = LaneShadowTests/Sandbox/NavBarVariantTests.swift; sourceTree = "<group>"; };
+		F0C8ADF5253CDE6E402B7ACC /* NavBarVariantTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = NavBarVariantTests.swift; path = Sandbox/NavBarVariantTests.swift; sourceTree = "<group>"; };
 		F0EE8B6BD461E65A5DD1F948 /* LSWeatherTimeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSWeatherTimeline.swift; sourceTree = "<group>"; };
 		F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvexStore.swift; sourceTree = "<group>"; };
 		F70ECDFAA1C996A2AF6FEA1C /* InfrastructureControlsStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfrastructureControlsStories.swift; sourceTree = "<group>"; };
