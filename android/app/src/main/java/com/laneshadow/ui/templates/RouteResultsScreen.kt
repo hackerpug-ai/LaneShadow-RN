@@ -1,13 +1,12 @@
 package com.laneshadow.ui.templates
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.laneshadow.sandbox.mockproviders.RouteResultsScreenState
@@ -91,24 +90,24 @@ fun RouteResultsScreen(
     }
 
     // Track draw progress for each polyline (0f = hidden, 1f = fully drawn)
-    val drawProgressList = remember { mutableStateListOf<Float>() }
-    repeat(polylines.size) { drawProgressList.add(0f) }
+    // AC-4: Use Animatable instead of manual delay loop
+    val drawProgressList = remember(polylines.size) {
+        List(polylines.size) { Animatable(0f) }
+    }
 
-    // Staggered route draw-on animation per AC-3
-    // motion.recipe.routeDrawOn fires with ROUTE_DRAW_ON_STAGGER_MS between paths
+    // Staggered route draw-on animation per AC-4
     LaunchedEffect(polylines) {
         val staggerDelay = ROUTE_DRAW_ON_STAGGER_MS
-        val animationDuration = theme.motion.duration["routeDrawOn"]?.toLong() ?: 600L
+        val animationDuration = theme.motion.duration["deliberate"] ?: 600 // routeDrawOn uses "deliberate"
 
         polylines.forEachIndexed { index, _ ->
             delay(staggerDelay) // Wait for stagger delay before starting this polyline
-            // Animate from 0f to 1f over the animation duration
-            val steps = 30 // Smooth animation
-            val stepDuration = animationDuration / steps
-            repeat(steps) { step ->
-                drawProgressList[index] = (step + 1).toFloat() / steps
-                delay(stepDuration)
-            }
+            // AC-4: Use Animatable.animateTo with tween spec from motion tokens
+            val animSpec = TweenSpec<Float>(durationMillis = animationDuration)
+            drawProgressList[index].animateTo(
+                targetValue = 1f,
+                animationSpec = animSpec,
+            )
         }
     }
 
@@ -156,7 +155,7 @@ fun RouteResultsScreen(
                     PolylineData(
                         coordinates = coordinates,
                         variant = variant,
-                        drawProgress = drawProgressList.getOrElse(index) { 1f },
+                        drawProgress = drawProgressList.getOrNull(index)?.value ?: 1f,
                     )
                 },
             )

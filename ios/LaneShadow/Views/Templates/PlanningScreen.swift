@@ -1,6 +1,35 @@
 import LaneShadowTheme
 import SwiftUI
 
+// MARK: - Animation Motion Extensions
+
+extension Animation {
+    /// Sketch polyline loop animation: 1400ms linear, repeating forever
+    ///
+    /// TOKEN GAP: Design specifies 1400ms, but tokens only provide up to 600ms ("deliberate").
+    /// Using 1400ms as specified in design until tokens are updated.
+    static func sketchPolylineLoop(theme: Theme) -> Animation {
+        let duration: TimeInterval = 1.4 // 1400ms
+        return Animation.linear(duration: duration).repeatForever(autoreverses: false)
+    }
+
+    /// Breathing head dot animation: 1400ms ease-in-out, autoreversing
+    ///
+    /// TOKEN GAP: Design specifies 1400ms, but tokens only provide up to 600ms ("deliberate").
+    /// Using 1400ms as specified in design until tokens are updated.
+    static func breathingHeadDot(theme: Theme) -> Animation {
+        let duration: TimeInterval = 1.4 // 1400ms
+        let easing = theme.motion.easing["standard"] ?? [0.4, 0.0, 0.2, 1.0]
+        return Animation.timingCurve(
+            easing[0],
+            easing[1],
+            easing[2],
+            easing[3],
+            duration: duration
+        ).repeatForever(autoreverses: true)
+    }
+}
+
 /// PlanningScreen — the thinking-state Navigator screen.
 ///
 /// Composes `LSMapLayer`, `LSTopBar`, `LSPhaseIndicator`, sketching polyline animation,
@@ -17,12 +46,13 @@ public struct PlanningScreen: View {
 
     public init(
         provider: PlanningMockProvider.Type = PlanningMockProvider.self,
+        variant: String = "default",
         activePhase: Int = 2,
         onMenuTap: @escaping () -> Void = {}
     ) {
         self.provider = provider
         self.activePhase = activePhase
-        state = provider.value(variant: "default")
+        state = provider.value(variant: variant)
         self.onMenuTap = onMenuTap
     }
 
@@ -190,10 +220,8 @@ struct SketchingPolyline: View {
                 .frame(width: theme.type.label.sm.fontSize, height: theme.type.label.sm.fontSize)
                 .shadow(color: theme.colors.primary.default.opacity(0.25), radius: theme.space.sm)
                 .shadow(color: theme.colors.primary.default.opacity(0.4), radius: theme.space.md)
-                .scaleEffect(isAnimating ? breathingRecipe.scaleRange.upperBound : breathingRecipe.scaleRange
-                    .lowerBound)
                 .opacity(isAnimating ? breathingRecipe.endOpacity : breathingRecipe.startOpacity)
-                .animation(breathingRecipe.animation, value: isAnimating)
+                .animation(Animation.breathingHeadDot(theme: theme), value: isAnimating)
                 .position(
                     x: UIScreen.main.bounds.width / 2 - theme.space.xl * 2,
                     y: UIScreen.main.bounds.height / 2 - theme.space.md
@@ -205,35 +233,25 @@ struct SketchingPolyline: View {
     // MARK: - Motion Recipes
 
     private func sketchPolylineLoopAnimation(in theme: Theme) -> Animation {
-        // Reference motion.recipe.sketchPolylineLoop
-        // Uses "slower" duration (600ms) and linear easing
-        let duration = theme.motion.duration["slower"] ?? 600
-        let easing = theme.motion.easing["standard"] ?? [0.4, 0, 0.2, 1]
-
-        return Animation
-            .timingCurve(
-                easing[0],
-                easing[1],
-                easing[2],
-                easing[3],
-                duration: Double(duration) / 1000
-            )
-            .repeatForever(autoreverses: false)
+        // Use 1400ms linear animation as specified in design
+        // TOKEN GAP: Tokens only provide up to 600ms, design requires 1400ms
+        Animation.sketchPolylineLoop(theme: theme)
     }
 
     private func breathingDotAnimationRecipe(in theme: Theme) -> BreathingDotRecipe {
         // Create breathing dot animation recipe from theme tokens
-        // Uses "slow" duration and "standard" easing
-        let duration = theme.motion.duration["slow"] ?? 400
+        // Uses 1400ms ease-in-out animation as specified in design
+        // TOKEN GAP: Tokens only provide up to 600ms, design requires 1400ms
+        let duration = 1400 // 1400ms as per design spec
         let easing = theme.motion.easing["standard"] ?? [0.4, 0, 0.2, 1]
 
         return BreathingDotRecipe(
-            name: "motion.recipe.breathingDot",
+            name: "motion.recipe.breathingHeadDot",
             duration: duration,
             easing: easing,
-            scaleRange: 1.0 ... 1.25,
+            scaleRange: 1.0 ... 1.0, // No scale change, only opacity
             startOpacity: 1.0,
-            endOpacity: 0.75,
+            endOpacity: 0.55, // Breaths from 1.0 to 0.55
             repeats: true,
             autoreverses: true
         )

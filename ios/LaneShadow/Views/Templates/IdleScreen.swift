@@ -17,12 +17,13 @@ public struct IdleScreen: View {
 
     public init(
         provider: IdleMockProvider.Type = IdleMockProvider.self,
+        variant: String = "default",
         chatInputValue: Binding<String>? = nil,
         onMenuTap: @escaping () -> Void = {},
         onSuggestionTap: @escaping (MockSuggestionChip) -> Void = { _ in }
     ) {
         self.provider = provider
-        state = provider.value(variant: "default")
+        state = provider.value(variant: variant)
         _chatInputValue = State(initialValue: chatInputValue?.wrappedValue ?? "")
         self.onMenuTap = onMenuTap
         self.onSuggestionTap = onSuggestionTap

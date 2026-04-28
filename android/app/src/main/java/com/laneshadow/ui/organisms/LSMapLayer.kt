@@ -2,6 +2,7 @@ package com.laneshadow.ui.organisms
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -121,15 +122,8 @@ fun LSMapLayer(
         }
 
         // Z-index 4: Leading drawer (SessionsDrawer)
+        // AC-3: Drawer slide uses spring(dampingRatio = 0.85f, stiffness = StiffnessMedium)
         leadingDrawer?.let { spec ->
-            val theme = LocalLaneShadowTheme.current
-            val motionRecipe = remember(theme.motion) {
-                theme.motion.duration["standard"]?.toInt() ?: 240
-            }
-            val easingPoints = remember(theme.motion) {
-                theme.motion.easing["decelerated"]?.map(Double::toFloat) ?: listOf(0f, 0f, 0.2f, 1f)
-            }
-
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -140,26 +134,16 @@ fun LSMapLayer(
                     visible = true,
                     enter = slideInHorizontally(
                         initialOffsetX = { -it },
-                        animationSpec = tween(
-                            durationMillis = motionRecipe,
-                            easing = CubicBezierEasing(
-                                easingPoints[0],
-                                easingPoints[1],
-                                easingPoints[2],
-                                easingPoints[3],
-                            ),
+                        animationSpec = spring(
+                            dampingRatio = 0.85f,
+                            stiffness = androidx.compose.animation.core.Spring.StiffnessMedium,
                         ),
                     ),
                     exit = slideOutHorizontally(
                         targetOffsetX = { -it },
-                        animationSpec = tween(
-                            durationMillis = motionRecipe,
-                            easing = CubicBezierEasing(
-                                easingPoints[0],
-                                easingPoints[1],
-                                easingPoints[2],
-                                easingPoints[3],
-                            ),
+                        animationSpec = spring(
+                            dampingRatio = 0.85f,
+                            stiffness = androidx.compose.animation.core.Spring.StiffnessMedium,
                         ),
                     ),
                 ) {

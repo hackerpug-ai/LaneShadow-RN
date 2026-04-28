@@ -5,7 +5,15 @@ import Foundation
 /// Provides planning phases, navigator message, and thinking state
 /// for the Planning/route-building screen.
 public enum PlanningMockProvider: MockProvider {
-    public static let variants = ["default", "empty", "overflow", "long-copy"]
+    public static let variants = [
+        "default",
+        "empty",
+        "overflow",
+        "long-copy",
+        "v-slow",
+        "v-cancel-confirm",
+        "v-single-candidate",
+    ]
 
     public static func value(variant: String = "default") -> PlanningScreenState {
         switch variant {
@@ -15,6 +23,12 @@ public enum PlanningMockProvider: MockProvider {
             overflowState()
         case "long-copy":
             longCopyState()
+        case "v-slow":
+            slowPlanningState()
+        case "v-cancel-confirm":
+            cancelConfirmState()
+        case "v-single-candidate":
+            singleCandidateState()
         default:
             defaultState()
         }
@@ -126,6 +140,81 @@ public enum PlanningMockProvider: MockProvider {
                 kind: "response",
                 attachments: nil,
                 detail: "I'm particularly focused on finding routes with optimal corner sequences and scenic overlooks while avoiding any construction or road maintenance areas.",
+                pinned: false
+            ),
+            isThinking: true
+        )
+    }
+
+    // MARK: - V01: Slow Planning
+
+    private static func slowPlanningState() -> PlanningScreenState {
+        PlanningScreenState(
+            phases: [
+                PlanningPhaseData(id: "reading", label: "Reading your ride", status: "done"),
+                PlanningPhaseData(id: "sketching", label: "Sketching routes", status: "active"),
+                PlanningPhaseData(id: "validating", label: "Validating roads", status: "pending"),
+                PlanningPhaseData(id: "weather", label: "Checking conditions", status: "pending"),
+                PlanningPhaseData(id: "building", label: "Building your rides", status: "pending"),
+            ],
+            message: NavigatorMessage(
+                id: "msg-001",
+                sessionId: "session-001",
+                body: "Looking for the best twisty roads between Santa Cruz and Big Sur...",
+                timestamp: "2025-04-25T10:30:00Z",
+                kind: "response",
+                attachments: nil,
+                detail: "Still scouting… this area is surprisingly complex.",
+                pinned: false
+            ),
+            isThinking: true
+        )
+    }
+
+    // MARK: - V02: Cancel Confirm
+
+    private static func cancelConfirmState() -> PlanningScreenState {
+        PlanningScreenState(
+            phases: [
+                PlanningPhaseData(id: "reading", label: "Reading your ride", status: "done"),
+                PlanningPhaseData(id: "sketching", label: "Sketching routes", status: "active"),
+                PlanningPhaseData(id: "validating", label: "Validating roads", status: "pending"),
+                PlanningPhaseData(id: "weather", label: "Checking conditions", status: "pending"),
+                PlanningPhaseData(id: "building", label: "Building your rides", status: "pending"),
+            ],
+            message: NavigatorMessage(
+                id: "msg-001",
+                sessionId: "session-001",
+                body: "Looking for the best twisty roads between Santa Cruz and Big Sur...",
+                timestamp: "2025-04-25T10:30:00Z",
+                kind: "response",
+                attachments: nil,
+                detail: nil,
+                pinned: false
+            ),
+            isThinking: true
+        )
+    }
+
+    // MARK: - V03: Single Candidate
+
+    private static func singleCandidateState() -> PlanningScreenState {
+        PlanningScreenState(
+            phases: [
+                PlanningPhaseData(id: "reading", label: "Reading your ride", status: "done"),
+                PlanningPhaseData(id: "sketching", label: "Sketching routes", status: "done"),
+                PlanningPhaseData(id: "validating", label: "Validating roads", status: "active"),
+                PlanningPhaseData(id: "weather", label: "Checking conditions", status: "pending"),
+                PlanningPhaseData(id: "building", label: "Building your rides", status: "pending"),
+            ],
+            message: NavigatorMessage(
+                id: "msg-001",
+                sessionId: "session-001",
+                body: "Found one solid option that matches your constraints.",
+                timestamp: "2025-04-25T10:30:00Z",
+                kind: "response",
+                attachments: nil,
+                detail: "Only one candidate meets your criteria — the coastal route via Hwy 1.",
                 pinned: false
             ),
             isThinking: true

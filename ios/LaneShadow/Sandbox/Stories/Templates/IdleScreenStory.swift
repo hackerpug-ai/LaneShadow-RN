@@ -15,5 +15,41 @@ enum IdleScreenStory {
         ) { _ in
             IdleScreen(provider: IdleMockProvider.self)
         },
+
+        // V01: No Location
+        Story(
+            id: "templates.idle-screen.v-no-location",
+            tier: .template,
+            component: "IdleScreen",
+            name: "V01 · No Location",
+            summary: "GPS denied — copper-framed 'Tap to set start' pill, dimmed chat input.",
+            previewMode: .fullScreen
+        ) { args in
+            IdleScreen(provider: IdleMockProvider.self, variant: "v-no-location")
+        },
+
+        // V02: First Ride
+        Story(
+            id: "templates.idle-screen.v-first-ride",
+            tier: .template,
+            component: "IdleScreen",
+            name: "V02 · First Ride",
+            summary: "No saved favorites yet — onboarding suggestion chips.",
+            previewMode: .fullScreen
+        ) { args in
+            IdleScreen(provider: IdleMockProvider.self, variant: "v-first-ride")
+        },
+
+        // V03: Weather Advisory
+        Story(
+            id: "templates.idle-screen.v-weather-advisory",
+            tier: .template,
+            component: "IdleScreen",
+            name: "V03 · Weather Advisory",
+            summary: "Heavy rain — warning meta, advisory card, short/dry suggestions.",
+            previewMode: .fullScreen
+        ) { args in
+            IdleScreen(provider: IdleMockProvider.self, variant: "v-weather-advisory")
+        },
     ]
 }

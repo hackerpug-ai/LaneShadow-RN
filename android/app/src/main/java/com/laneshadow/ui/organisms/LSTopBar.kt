@@ -1,5 +1,11 @@
 package com.laneshadow.ui.organisms
 
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,8 +22,10 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsPropertyKey
@@ -261,15 +269,47 @@ private fun RecordHighlightChip(
 
 /**
  * Pulsing recording indicator dot.
+ *
+ * AC-5: Record dot pulses with infiniteRepeatable animation.
+ * Alpha oscillates between 1.0 and 0.45 per spec.
+ *
+ * Note: Spec requires 1400ms duration, but current tokens only have "slow" (400ms).
+ * Using "slow" as placeholder until token is updated.
  */
 @Composable
 private fun RecordingDot(
     color: Color,
     modifier: Modifier = Modifier,
 ) {
-    // Simple implementation - pulsing animation would be added in production
+    val theme = LocalLaneShadowTheme.current
+
+    // Use "slow" duration (400ms) as placeholder for 1400ms spec requirement
+    val durationMillis = theme.motion.duration["slow"] ?: 400
+    val easingPoints = theme.motion.easing["standard"] ?: listOf(0.4, 0.0, 0.2, 1.0)
+
+    // Create easing from token points
+    val easing = androidx.compose.animation.core.CubicBezierEasing(
+        easingPoints[0].toFloat(),
+        easingPoints[1].toFloat(),
+        easingPoints[2].toFloat(),
+        easingPoints[3].toFloat(),
+    )
+
+    // AC-5: Pulse animation: alpha oscillates 1.0 -> 0.45 -> 1.0
+    val infiniteTransition = rememberInfiniteTransition(label = "record_dot_pulse")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 1.0f,
+        targetValue = 0.45f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis, easing = easing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "record_dot_alpha",
+    )
+
     Box(
         modifier = modifier
+            .alpha(alpha)
             .background(
                 color = color,
                 shape = CircleShape,

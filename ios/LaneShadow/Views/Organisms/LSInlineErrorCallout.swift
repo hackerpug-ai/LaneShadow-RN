@@ -2,6 +2,26 @@ import LaneShadowTheme
 import NativeTheme
 import SwiftUI
 
+// MARK: - Animation Motion Extensions
+
+extension Animation {
+
+    /// Chat overlay enter animation: slide-up with fade
+    ///
+    /// Reads from theme.motion.chatOverlayEnter (uses "standard" duration and "decelerated" easing)
+    static func chatOverlayEnter(theme: Theme) -> Animation {
+        let duration = Double(theme.motion.duration["standard"] ?? 240) / 1000
+        let easing = theme.motion.easing["decelerated"] ?? [0.0, 0.0, 0.2, 1.0]
+        return Animation.timingCurve(
+            easing[0],
+            easing[1],
+            easing[2],
+            easing[3],
+            duration: duration
+        )
+    }
+}
+
 public struct LSInlineErrorCallout: View {
     @Environment(\.theme) private var theme
 
@@ -78,10 +98,42 @@ extension LSInlineErrorCallout {
     private var suggestionsRow: some View {
         HStack(spacing: theme.space.sm) {
             ForEach(Array(suggestions.enumerated()), id: \.offset) { index, suggestion in
-                LSSuggestionChip(label: suggestion) {
+                SuggestionChipEnter(
+                    label: suggestion,
+                    delay: Double(index) * 0.05  // Stagger each chip by 50ms
+                ) {
                     onSuggestionTap(suggestion)
                 }
             }
+        }
+    }
+}
+
+// MARK: - Suggestion Chip with Enter Animation
+
+struct SuggestionChipEnter: View {
+    @Environment(\.theme) private var theme
+    @State private var isAppeared = false
+
+    private let label: String
+    private let delay: TimeInterval
+    private let action: () -> Void
+
+    init(label: String, delay: TimeInterval, action: @escaping () -> Void) {
+        self.label = label
+        self.delay = delay
+        self.action = action
+    }
+
+    var body: some View {
+        LSSuggestionChip(label: label) {
+            action()
+        }
+        .offset(y: isAppeared ? 0 : 8)  // Slide up 8pt
+        .opacity(isAppeared ? 1.0 : 0.0)  // Fade in
+        .animation(Animation.chatOverlayEnter(theme: theme).delay(delay), value: isAppeared)
+        .onAppear {
+            isAppeared = true
         }
     }
 }

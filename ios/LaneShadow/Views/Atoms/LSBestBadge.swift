@@ -1,6 +1,26 @@
 import LaneShadowTheme
 import SwiftUI
 
+// MARK: - Animation Motion Extensions
+
+extension Animation {
+
+    /// Best badge entrance animation: 200ms spring
+    ///
+    /// Reads from theme.motion.bestBadgeEnter (uses "standard" duration = 240ms and "emphasized" easing)
+    static func bestBadgeEnter(theme: Theme) -> Animation {
+        let duration = Double(theme.motion.duration["standard"] ?? 240) / 1000
+        let easing = theme.motion.easing["emphasized"] ?? [0.2, 0.0, 0.0, 1.0]
+        return Animation.timingCurve(
+            easing[0],
+            easing[1],
+            easing[2],
+            easing[3],
+            duration: duration
+        )
+    }
+}
+
 public struct LSBestBadgeResolvedStyle: Equatable, Sendable {
     let backgroundToken: String
     let foregroundToken: String
@@ -18,6 +38,8 @@ public struct LSBestBadge: View {
     @Environment(\.theme) private var theme
 
     static let labelText = "BEST FOR TODAY"
+
+    @State private var isAppeared = false
 
     public init() {}
 
@@ -39,6 +61,12 @@ public struct LSBestBadge: View {
             }
             .padding(.horizontal, theme.space.xs)
             .background(style.backgroundColor, in: Capsule(style: .continuous))
+        }
+        .scaleEffect(isAppeared ? 1.0 : 0.8)
+        .opacity(isAppeared ? 1.0 : 0.0)
+        .animation(Animation.bestBadgeEnter(theme: theme), value: isAppeared)
+        .onAppear {
+            isAppeared = true
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Self.labelText)

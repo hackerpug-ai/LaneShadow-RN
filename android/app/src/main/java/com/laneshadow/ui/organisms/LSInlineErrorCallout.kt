@@ -1,13 +1,22 @@
 package com.laneshadow.ui.organisms
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -127,18 +136,35 @@ fun LSInlineErrorCallout(
 
             // Suggestion chips
             if (suggestions.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .testTag(INLINE_ERROR_SUGGESTIONS_TAG)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(theme.space.sm),
-                ) {
-                    suggestions.forEach { chip ->
-                        SuggestionChip(
-                            label = chip.label,
-                            onTap = { onSuggestionTap(chip) },
-                            isPrimary = chip.isPrimary,
+                // AC-6: Use AnimatedVisibility for suggestion chip enter animation
+                val density = LocalDensity.current
+                AnimatedVisibility(
+                    visible = true,
+                    enter = slideInVertically(
+                        initialOffsetY = { with(density) { 8.dp.toPx().toInt() } },
+                        animationSpec = tween(
+                            durationMillis = theme.motion.duration["standard"] ?: 240
                         )
+                    ) + fadeIn(
+                        animationSpec = tween(
+                            durationMillis = theme.motion.duration["standard"] ?: 240
+                        )
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .testTag(INLINE_ERROR_SUGGESTIONS_TAG)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(theme.space.sm),
+                    ) {
+                        suggestions.forEach { chip ->
+                            SuggestionChip(
+                                label = chip.label,
+                                onTap = { onSuggestionTap(chip) },
+                                isPrimary = chip.isPrimary,
+                            )
+                        }
                     }
                 }
             }

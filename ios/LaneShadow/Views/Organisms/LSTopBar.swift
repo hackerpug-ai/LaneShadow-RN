@@ -2,6 +2,27 @@ import LaneShadowTheme
 import NativeTheme
 import SwiftUI
 
+// MARK: - Animation Motion Extensions
+
+extension Animation {
+
+    /// Record dot pulse animation: 1400ms ease-in-out, autoreversing
+    ///
+    /// TOKEN GAP: Design specifies 1400ms, but tokens only provide up to 600ms ("deliberate").
+    /// Using 1400ms as specified in design until tokens are updated.
+    static func recordDotPulse(theme: Theme) -> Animation {
+        let duration: TimeInterval = 1.4 // 1400ms
+        let easing = theme.motion.easing["standard"] ?? [0.4, 0.0, 0.2, 1.0]
+        return Animation.timingCurve(
+            easing[0],
+            easing[1],
+            easing[2],
+            easing[3],
+            duration: duration
+        ).repeatForever(autoreverses: true)
+    }
+}
+
 public enum LSTopBarTrailing {
     case none
     case newChip(action: () -> Void)
@@ -104,9 +125,7 @@ public struct LSTopBar: View {
     private var recordHighlightChip: some View {
         LSGlassPanel(variant: .chrome, padding: .spacing3, cornerRadius: .md) {
             HStack(spacing: theme.space.xs) {
-                Circle()
-                    .fill(LaneShadowTheme.color.status.recording)
-                    .frame(width: recordingDotSize, height: recordingDotSize)
+                RecordPulsingDot()
                 LSText("REC", variant: .label.md, color: .primary)
             }
         }
@@ -126,5 +145,25 @@ public struct LSTopBar: View {
 
     private var recordingDotSize: CGFloat {
         theme.space.sm - theme.space.xs // 8 - 4 = 6, or keep as specific UI element size
+    }
+}
+
+// MARK: - Record Pulsing Dot
+
+struct RecordPulsingDot: View {
+    @Environment(\.theme) private var theme
+    @State private var isPulsing = false
+
+    private let recordingDotSize: CGFloat = 6
+
+    var body: some View {
+        Circle()
+            .fill(LaneShadowTheme.color.status.recording)
+            .frame(width: recordingDotSize, height: recordingDotSize)
+            .opacity(isPulsing ? 0.45 : 1.0)
+            .animation(Animation.recordDotPulse(theme: theme), value: isPulsing)
+            .onAppear {
+                isPulsing = true
+            }
     }
 }
