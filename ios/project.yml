@@ -168,6 +168,8 @@ targets:
         type: syncedFolder
         excludes:
           - Button.swift
+      - path: LaneShadow/Views/Layout
+        type: syncedFolder
       # Legacy molecule files are not yet build-clean as a folder. Keep only
       # the files that were already target members until that layer is migrated.
       # - path: LaneShadow/Views/Molecules/EmptyState.swift # Superseded by Sprint 04 LSEmptyState.swift
@@ -189,6 +191,7 @@ targets:
       - path: LaneShadow/Views/Molecules/LSWeatherTimeline.swift
       - path: LaneShadow/Views/Molecules/LSScenicDotStrip.swift
       - path: LaneShadow/Views/Molecules/ChatTranscript.swift
+      - path: LaneShadow/Views/Molecules/LSConfirmDialog.swift
       - path: LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift
       - path: LaneShadow/Views/Molecules/LSContentCard.swift
       - path: LaneShadow/Views/Molecules/LSFilterChip.swift
