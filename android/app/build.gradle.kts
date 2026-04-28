@@ -155,6 +155,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     implementation("com.mapbox.maps:android:11.22.0")
+    implementation("dev.convex:android-convexmobile:0.8.0")
+    implementation("com.google.dagger:hilt-android:2.56.2")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation(project(":theme"))
