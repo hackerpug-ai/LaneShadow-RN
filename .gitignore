@@ -39,11 +39,17 @@ yarn-error.*
 app-example
 
 # generated native folders (Expo prebuild output — not tracked)
-/ios
 /android
 /react-native/ios
 /react-native/android
-!/ios/
+# iOS: ignore build artifacts but track source
+/ios/build/
+/ios/DerivedData/
+/ios/*.xcworkspace/xcuserdata/
+/ios/*.xcodeproj/xcuserdata/
+/ios/Pods/
+/ios/*.xcworkspace/
+!/ios/*.xcodeproj
 !/ios/LaneShadow/
 !/ios/LaneShadow/**
 !/ios/LaneShadowTests/
