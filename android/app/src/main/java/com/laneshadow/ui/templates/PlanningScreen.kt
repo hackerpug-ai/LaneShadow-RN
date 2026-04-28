@@ -97,6 +97,9 @@ internal fun sketchPolylineRecipe(theme: LaneShadowThemeValues): SketchPolylineR
  * @param onMenuTap Callback when hamburger menu is tapped
  * @param onCollapse Callback when collapse button is tapped
  * @param onFilter Callback when filter button is tapped
+ * @param onDismissCancelConfirm Callback when cancel confirm dialog is dismissed (V02)
+ * @param onKeepPlanning Callback when "Keep thinking" is tapped (V02)
+ * @param onCancelPlan Callback when "Cancel plan" is tapped (V02)
  * @param modifier Modifier for the root composable
  */
 @Composable
@@ -105,6 +108,9 @@ fun PlanningScreen(
     onMenuTap: () -> Unit,
     onCollapse: () -> Unit,
     onFilter: () -> Unit,
+    onDismissCancelConfirm: () -> Unit = {},
+    onKeepPlanning: () -> Unit = {},
+    onCancelPlan: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
@@ -201,9 +207,9 @@ fun PlanningScreen(
             body = "I've drawn one route already. You can back out now — but I'll toss what I have.",
             keepLabel = "Keep thinking",
             cancelLabel = "Cancel plan",
-            onKeep = { println("Keep thinking tapped") },
-            onCancel = { println("Cancel plan tapped") },
-            onDismiss = { println("Cancel confirm dismissed") },
+            onKeep = onKeepPlanning,
+            onCancel = onCancelPlan,
+            onDismiss = onDismissCancelConfirm,
         )
     }
 }

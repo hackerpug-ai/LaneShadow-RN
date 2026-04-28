@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.LocalLaneShadowTheme
+import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 
 /**
  * LSSavedPill — A small "Saved" pill atom for RouteDetails V01 saved-state.
@@ -33,7 +34,7 @@ fun LSSavedPill(
                 shape = RoundedCornerShape(theme.radius.sm),
             )
             .border(
-                width = 1.dp,
+                width = GeneratedTokens.sizing.stroke.sm,
                 color = theme.colors.primary.default,
                 shape = RoundedCornerShape(theme.radius.sm),
             )
