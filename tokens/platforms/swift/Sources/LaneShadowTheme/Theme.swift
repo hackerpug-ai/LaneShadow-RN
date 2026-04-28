@@ -191,6 +191,12 @@ public struct ThemeTouchTarget: Sendable {
     public let minTouchTarget: CGFloat
 }
 
+public struct ThemeMapColors: Sendable {
+    public let paper: Color
+    public let contour: Color
+    public let contourFaint: Color
+}
+
 public struct Theme: Sendable {
     public let colors: ThemeColors
     public let space: ThemeSpace
@@ -208,6 +214,7 @@ public struct Theme: Sendable {
     public let size: ThemeSize
     public let strokeWidth: ThemeStrokeWidth
     public let touchTarget: ThemeTouchTarget
+    public let mapColors: ThemeMapColors
 
     /// Resolved once at first access by decoding the bundled semantic.tokens.json.
     public static let shared: Theme = build(from: ThemeLoader.loadSemanticTokens())
@@ -234,7 +241,8 @@ private extension Theme {
             shadow: buildShadow(from: tokens),
             size: buildSize(from: tokens),
             strokeWidth: buildStrokeWidth(from: tokens),
-            touchTarget: buildTouchTarget(from: tokens)
+            touchTarget: buildTouchTarget(from: tokens),
+            mapColors: buildMapColors(from: tokens)
         )
     }
 
@@ -524,6 +532,14 @@ private extension Theme {
         let tt = tokens.touchTarget
         return ThemeTouchTarget(
             minTouchTarget: CGFloat(tt["minTouchTarget"]!.value)
+        )
+    }
+
+    static func buildMapColors(from tokens: SemanticTokens) -> ThemeMapColors {
+        return ThemeMapColors(
+            paper: LaneShadowTheme.color.map.paper,
+            contour: LaneShadowTheme.color.map.contour,
+            contourFaint: LaneShadowTheme.color.map.contourFaint
         )
     }
 }
