@@ -85,6 +85,7 @@ fun LaneShadowApp(authViewModel: AuthViewModel = hiltViewModel()) {
     LaunchedEffect(authViewModel) {
         DeepLinkBus.callbacks.collect { callbackUri ->
             authViewModel.handleOAuthCallback(callbackUri)
+            DeepLinkBus.consumeLatest()
         }
     }
 
