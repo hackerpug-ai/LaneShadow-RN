@@ -13,6 +13,7 @@ import com.laneshadow.ui.organisms.DrawerSpec
 import com.laneshadow.ui.organisms.LSMapLayer
 import com.laneshadow.ui.organisms.LSSessionsDrawer
 import com.laneshadow.ui.organisms.Session
+import com.laneshadow.ui.organisms.SessionSection
 import com.laneshadow.ui.organisms.ScrimSpec
 
 /**
@@ -29,6 +30,42 @@ private fun toUiSession(mockSession: com.laneshadow.sandbox.mockproviders.Sessio
         routeIds = mockSession.routeIds,
         createdAt = mockSession.createdAt
     )
+}
+
+/**
+ * Release builds can compile against state variants without grouped sections.
+ * Resolve grouped sections reflectively when the property exists.
+ */
+private fun resolveSections(state: SessionsScreenState): List<SessionSection>? {
+    val rawSections = runCatching {
+        state.javaClass.methods.firstOrNull { it.name == "getSections" }?.invoke(state)
+    }.getOrNull() as? List<*> ?: return null
+
+    val mappedSections = rawSections.mapNotNull { section ->
+        val label = runCatching {
+            section?.javaClass?.methods?.firstOrNull { it.name == "getLabel" }?.invoke(section)
+        }.getOrNull() as? String ?: return@mapNotNull null
+
+        val rawSessions = runCatching {
+            section?.javaClass?.methods?.firstOrNull { it.name == "getSessions" }?.invoke(section)
+        }.getOrNull() as? List<*> ?: return@mapNotNull null
+
+        val sessions = rawSessions
+            .mapNotNull { it as? com.laneshadow.sandbox.mockproviders.Session }
+            .map(::toUiSession)
+
+        SessionSection(label = label, sessions = sessions)
+    }
+
+    return mappedSections.ifEmpty { null }
+}
+
+private fun resolveShowConfirmDialog(state: SessionsScreenState): Boolean {
+    val getter = state.javaClass.methods.firstOrNull { method ->
+        method.name == "getShowConfirmDialog" || method.name == "isShowConfirmDialog"
+    } ?: return false
+
+    return (runCatching { getter.invoke(state) }.getOrNull() as? Boolean) == true
 }
 
 /**
@@ -84,12 +121,7 @@ fun SessionsScreen(
                     sessions = state.sessions.map { toUiSession(it) },
                     activeSessionId = state.activeSessionId,
                     groupLabel = state.groupLabel ?: "THIS WEEK",
-                    sections = state.sections?.map { section ->
-                        com.laneshadow.ui.organisms.SessionSection(
-                            label = section.label,
-                            sessions = section.sessions.map { toUiSession(it) }
-                        )
-                    },
+                    sections = resolveSections(state),
                     onSelect = onSelect,
                     onNew = onNew,
                     onDismiss = onDismiss,
@@ -101,7 +133,7 @@ fun SessionsScreen(
     )
 
     // S05: Show confirm dialog if requested
-    if (state.showConfirmDialog) {
+    if (resolveShowConfirmDialog(state)) {
         com.laneshadow.ui.molecules.LSConfirmDialog(
             title = "Start a new ride?",
             onConfirm = onConfirmNew,
