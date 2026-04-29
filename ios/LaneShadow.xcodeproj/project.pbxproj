@@ -57,6 +57,7 @@
 		A09AB47FC330215325A9F4F1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDF4218751AC8200085830 /* Foundation.framework */; };
 		A35AB3F139C3CDEBBED3C838 /* MotionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CF47A809462A646D139202 /* MotionTests.swift */; };
 		A43E874CF8FDDF5E7B4BD8CA /* Clerk in Frameworks */ = {isa = PBXBuildFile; productRef = ED1675F2464975FEDC2C2346 /* Clerk */; };
+		A71A81EDC8563AFD14EE83FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95CA989BE1243B1021F83D3 /* ContentView.swift */; };
 		B4F9EB30336D5595D5388973 /* LSNavHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F137157E747643E3C5CB9F7 /* LSNavHeader.swift */; };
 		B55D247513D3B4742E36D92B /* AtomsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */; };
 		B5FF9B8BF6CCCBF0478B2A77 /* LaneShadowStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */; };
@@ -154,6 +155,7 @@
 		A8FC588254B2DE58F4742ED7 /* LSFavoritePinDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFavoritePinDot.swift; sourceTree = "<group>"; };
 		A9EDF4218751AC8200085830 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		B0E16C5B6F4121EB1CA3D72D /* LSScenicDotStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScenicDotStrip.swift; sourceTree = "<group>"; };
+		B95CA989BE1243B1021F83D3 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfrastructureStories.swift; sourceTree = "<group>"; };
 		BD7360EC93AFB89C2E49D267 /* LSBottomSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSBottomSheetTests.swift; sourceTree = "<group>"; };
 		C4AF39CEF8D705CF349C8B30 /* PlaceholderInfrastructureStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderInfrastructureStories.swift; sourceTree = "<group>"; };
@@ -567,6 +569,7 @@
 				9A00239A316DF9BC49914EC8 /* Views */,
 				324B26FB2DE3F759B489CB7B /* App.swift */,
 				0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */,
+				B95CA989BE1243B1021F83D3 /* ContentView.swift */,
 				F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */,
 				93E2A5636744C52173464018 /* RootView.swift */,
 			);
@@ -885,6 +888,7 @@
 				7E8799D5CE1C5FFCE3D09066 /* App.swift in Sources */,
 				B55D247513D3B4742E36D92B /* AtomsStories.swift in Sources */,
 				24E92B6C2FD5880E27973B68 /* ChatTranscript.swift in Sources */,
+				A71A81EDC8563AFD14EE83FB /* ContentView.swift in Sources */,
 				0A215149AE7AF5FBBCB5409E /* ConvexStore.swift in Sources */,
 				F9E41F8A8E5435B9BCD67D40 /* InfoToast.swift in Sources */,
 				323F22288BE45E90ACCC8B5C /* InfrastructureControlsStories.swift in Sources */,

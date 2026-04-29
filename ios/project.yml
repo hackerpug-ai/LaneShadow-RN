@@ -122,6 +122,7 @@ targets:
       # under these synchronized folders are picked up by Xcode 16 without
       # hand-editing project.pbxproj.
       - path: LaneShadow/App.swift
+      - path: LaneShadow/ContentView.swift
       - path: LaneShadow/RootView.swift
       - path: LaneShadow/ConvexStore.swift
       - path: LaneShadow/Assets.xcassets
