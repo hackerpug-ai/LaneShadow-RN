@@ -89,11 +89,15 @@ private class ClerkSdkGateway : ClerkGateway {
         }.successOrNull() ?: return Result.failure(IllegalStateException("verification required"))
 
         val resolvedUser = Clerk.user?.toModel("password")
-            ?: ClerkUser(signUp.createdUserId ?: "pending-user", email, name, "password")
+            ?: signUp.createdUserId?.let { createdUserId ->
+                ClerkUser(createdUserId, email, name, "password")
+            }
         pendingSignUpUser = resolvedUser
 
         return if (signUp.createdSessionId.isNullOrBlank()) {
             Result.failure(IllegalStateException("verification required"))
+        } else if (resolvedUser == null) {
+            Result.failure(IllegalStateException("Sign-up completed without user identity"))
         } else {
             Result.success(resolvedUser)
         }
@@ -107,8 +111,8 @@ private class ClerkSdkGateway : ClerkGateway {
         if (verifiedSignUp.createdSessionId.isNullOrBlank()) {
             return Result.failure(IllegalStateException("Verification completed without session"))
         }
-        val resolvedUser = pendingSignUpUser
-            ?: Clerk.user?.toModel("password")
+        val resolvedUser = Clerk.user?.toModel("password")
+            ?: pendingSignUpUser
             ?: return Result.failure(
                 IllegalStateException("Verification completed but no authenticated user was available"),
             )
