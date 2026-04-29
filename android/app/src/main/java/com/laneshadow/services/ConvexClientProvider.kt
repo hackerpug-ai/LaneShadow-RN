@@ -37,8 +37,11 @@ constructor(
                 token
             }
 
-        @Suppress("UNCHECKED_CAST")
-        override suspend fun logout(context: Context): Result<Void> = Result.success(null) as Result<Void>
+        override suspend fun logout(context: Context): Result<Void> =
+            authRepository.signOut().fold(
+                onSuccess = { Result.success(java.lang.Void.TYPE.cast(null)) },
+                onFailure = { error -> Result.failure(error) },
+            )
 
         override fun extractIdToken(authData: String): String {
             return authData
