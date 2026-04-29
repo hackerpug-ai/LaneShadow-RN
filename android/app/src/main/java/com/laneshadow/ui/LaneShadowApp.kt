@@ -81,13 +81,13 @@ fun LaneShadowApp(authViewModel: AuthViewModel = hiltViewModel()) {
     val navController = rememberNavController()
 
     when (authState) {
-        is AuthState.Loading,
+        is AuthState.Loading -> SplashScreen()
+        is AuthState.SignedIn -> MainNavGraph(navController = navController, authViewModel = authViewModel)
+        AuthState.SignedOut,
         is AuthState.OAuthPending,
         AuthState.VerificationRequired,
         is AuthState.Error,
-        -> SplashScreen()
-        AuthState.SignedOut -> AuthNavGraph(navController = navController, authViewModel = authViewModel)
-        is AuthState.SignedIn -> MainNavGraph(navController = navController, authViewModel = authViewModel)
+        -> AuthNavGraph(navController = navController, authViewModel = authViewModel)
     }
 }
 

@@ -3,10 +3,9 @@ package com.laneshadow.navigation
 import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.material3.Text
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -24,10 +24,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.laneshadow.data.model.AuthState
+import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.AuthViewModel
+import com.laneshadow.ui.atoms.ButtonVariant
+import com.laneshadow.ui.atoms.ContentColor
+import com.laneshadow.ui.atoms.InputState
+import com.laneshadow.ui.atoms.LSButton
+import com.laneshadow.ui.atoms.LSText
+import com.laneshadow.ui.atoms.LSTextField
+import com.laneshadow.ui.atoms.TypographyVariant
 import com.laneshadow.ui.auth.OAuthCallbackScreen
 import com.laneshadow.ui.auth.SignInScreen
 import com.laneshadow.ui.auth.SignUpScreen
+import com.laneshadow.ui.organisms.LSInlineErrorCallout
 
 @Composable
 fun AuthNavGraph(
@@ -110,11 +119,56 @@ private fun VerifyRoute(
     onNavigateToSignIn: () -> Unit,
 ) {
     var code by rememberSaveable { mutableStateOf("") }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
+    val theme = LocalLaneShadowTheme.current
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(text = "Verify", style = MaterialTheme.typography.headlineSmall)
-        OutlinedTextField(value = code, onValueChange = { code = it }, label = { Text("Verification code") })
-        Button(onClick = { onVerify(code) }) { Text("Verify") }
-        Button(onClick = onNavigateToSignIn) { Text("Back to sign in") }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(theme.space.lg),
+    ) {
+        LSText(
+            text = "Verify",
+            variant = TypographyVariant.Opinion.Lg,
+            color = ContentColor.Primary,
+        )
+
+        error?.let { message ->
+            LSInlineErrorCallout(
+                body = message,
+                onSuggestionTap = {},
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
+        LSTextField(
+            value = code,
+            onValueChange = {
+                code = it
+                error = null
+            },
+            placeholder = "Verification code",
+            state = if (error != null) InputState.Error else InputState.Default,
+        )
+
+        LSButton(
+            label = "Verify",
+            variant = ButtonVariant.Primary,
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                if (code.isBlank()) {
+                    error = "Enter your verification code."
+                } else {
+                    onVerify(code)
+                }
+            },
+        )
+
+        LSButton(
+            label = "Back to sign in",
+            variant = ButtonVariant.Ghost,
+            onClick = onNavigateToSignIn,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
