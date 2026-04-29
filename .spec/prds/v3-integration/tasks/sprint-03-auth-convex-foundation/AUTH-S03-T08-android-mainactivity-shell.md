@@ -38,18 +38,18 @@ Android MainActivity with @HiltAndroidApp, LaneShadowApp observes AuthViewModel 
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] LaneShadowApplication.kt exists with @HiltAndroidApp
-- [ ] MainActivity.kt exists with @AndroidEntryPoint
-- [ ] LaneShadowApp composable observes AuthViewModel.authState
-- [ ] Loading state shows SplashScreen
-- [ ] SignedOut state routes to AuthNavGraph
-- [ ] SignedIn state routes to MainNavGraph
-- [ ] Navigation Compose 2.8+ dependency added
-- [ ] 12 @Serializable routes defined (typed navigation)
-- [ ] DeepLinkBus for OAuth callback wiring exists
-- [ ] DEBUG sandbox path preserved
-- [ ] ./gradlew :app:compileDebugKotlin succeeds
-- [ ] Only SCOPE.writeAllowed files modified
+- [x] LaneShadowApplication.kt exists with @HiltAndroidApp
+- [x] MainActivity.kt exists with @AndroidEntryPoint
+- [x] LaneShadowApp composable observes AuthViewModel.authState
+- [x] Loading state shows SplashScreen
+- [ ] SignedOut state routes to AuthNavGraph ← FAIL: routes to stubbed placeholder graph (evidence: android/app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt:8)
+- [ ] SignedIn state routes to MainNavGraph ← FAIL: routes to stubbed placeholder graph (evidence: android/app/src/main/java/com/laneshadow/navigation/MainNavGraph.kt:8)
+- [x] Navigation Compose 2.8+ dependency added
+- [x] 12 @Serializable routes defined (typed navigation)
+- [x] DeepLinkBus for OAuth callback wiring exists
+- [x] DEBUG sandbox path preserved
+- [x] ./gradlew :app:compileDebugKotlin succeeds
+- [ ] Only SCOPE.writeAllowed files modified ← FAIL: out-of-scope files modified (evidence: git diff --name-only main..27d00628d7b6e1b1edde1d0f55fb12b5a6f2e3b4)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
