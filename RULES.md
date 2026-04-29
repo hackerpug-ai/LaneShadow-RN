@@ -111,6 +111,16 @@ Agents and reviewers must run all applicable checks for the platform they are wo
 
 ---
 
+## Real Device E2E Testing
+
+Human testing gates for **non-sandbox code** must include real-device E2E steps. This applies to live app flows such as auth, Convex subscriptions/mutations, Mapbox rendering, persistence, location, offline data, and external-service integration. Simulator/emulator checks can support the gate, but they do not replace real-device evidence for non-sandbox behavior.
+
+LaneShadow's iOS real-device automation pattern is direct WebDriverAgent (WDA) over HTTP, modeled after `../hitch`: run WDA on a physical iPhone with `go-ios`, forward port `8100`, then execute a dependency-free Node script under `ios/E2E/` that records PASS/FAIL/BLOCKED/MANUAL per human test step. See [`docs/REAL_DEVICE_E2E.md`](docs/REAL_DEVICE_E2E.md) for setup, result artifacts, and evidence expectations.
+
+Until Android has an equivalent physical-device automation harness, Android-only real-device observations must be recorded as MANUAL or BLOCKED with exact evidence instructions. Do not mark Android-only steps PASS from iOS WDA evidence.
+
+---
+
 ## Accessibility Standards
 
 All user-facing components must meet **WCAG 2.1 AA** accessibility requirements. Reviewers must verify accessibility compliance as part of every UI task review.
