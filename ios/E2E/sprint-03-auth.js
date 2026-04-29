@@ -1,4 +1,4 @@
-import { writeFileSync } from "node:fs";
+import { existsSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { StepTracker, WdaClient, ensureDir, writeJson } from "./lib/wda-helpers.js";
 
@@ -13,6 +13,13 @@ const screenshotsDir = join(outputRoot, "screenshots", "sprint-03-auth");
 ensureDir(join(outputRoot, "results"));
 ensureDir(diagnosticsDir);
 ensureDir(screenshotsDir);
+
+for (const legacyPath of [
+  join(diagnosticsDir, "S03.1-failure.png"),
+  join(diagnosticsDir, "S03.1-source.xml"),
+]) {
+  if (existsSync(legacyPath)) unlinkSync(legacyPath);
+}
 
 const tracker = new StepTracker();
 const client = new WdaClient(baseUrl, screenshotsDir);
@@ -33,9 +40,60 @@ const manualUnsupportedDetail = {
   s038: "Run `pnpm server:codegen` and inspect generated iOS/Android files manually.",
 };
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function waitForAccessibilityId(id, timeoutMs = 12000, intervalMs = 1000) {
+  const started = Date.now();
+  let lastError = null;
+  while (Date.now() - started < timeoutMs) {
+    try {
+      return await client.findByAccessibilityId(id);
+    } catch (error) {
+      lastError = error;
+      await sleep(intervalMs);
+    }
+  }
+  throw new Error(`Timed out waiting for accessibility id '${id}'. Last error: ${String(lastError?.message || lastError)}`);
+}
+
+async function captureDiagnostics(prefix, detail, remediation) {
+  const sourceXmlPath = join(diagnosticsDir, `${prefix}-source.xml`);
+  const sourceTxtPath = join(diagnosticsDir, `${prefix}-source.txt`);
+  const screenshotTxtPath = join(diagnosticsDir, `${prefix}-screenshot.txt`);
+  const remediationPath = join(diagnosticsDir, `${prefix}-remediation.txt`);
+
+  let sourcePath = sourceTxtPath;
+  try {
+    sourcePath = await client.source(sourceXmlPath);
+  } catch (error) {
+    writeFileSync(sourceTxtPath, `source unavailable\n${String(error?.message || error)}\n`);
+  }
+
+  let screenshotPath = screenshotTxtPath;
+  try {
+    screenshotPath = await client.screenshot(`${prefix}.png`);
+  } catch (error) {
+    writeFileSync(screenshotTxtPath, `screenshot unavailable\n${String(error?.message || error)}\n`);
+  }
+
+  writeFileSync(remediationPath, `${remediation}\n${detail}\n`);
+  return { screenshot: screenshotPath, source: sourcePath, remediation: remediationPath };
+}
+
+async function observeAuthenticatedIndicator() {
+  try {
+    const idle = await waitForAccessibilityId(ids.idleGreeting, 10000, 1000);
+    return { indicator: ids.idleGreeting, element: idle };
+  } catch {
+    const settings = await waitForAccessibilityId(ids.settingsEntry, 4000, 1000);
+    return { indicator: ids.settingsEntry, element: settings };
+  }
+}
+
 async function main() {
   let readinessFailed = false;
   let readinessEvidence = {};
+  let authenticated = false;
   try {
     await client.status();
     await client.createSession(bundleId, ["-UITesting"]);
@@ -49,11 +107,11 @@ async function main() {
     });
   } catch (error) {
     readinessFailed = true;
-    const dumpPath = join(diagnosticsDir, "S03.1-source.xml");
-    const shotPath = join(diagnosticsDir, "S03.1-failure.png");
-    try { await client.source(dumpPath); } catch { writeFileSync(dumpPath, "<diagnostic>source unavailable</diagnostic>"); }
-    try { await client.screenshot("S03.1-failure.png"); } catch { writeFileSync(shotPath, "screenshot unavailable"); }
-    readinessEvidence = { screenshot: shotPath, source: dumpPath };
+    readinessEvidence = await captureDiagnostics(
+      "S03.1-failure",
+      String(error?.message || error),
+      "Run scripts/ios/setup-wda.sh and verify port forward on 127.0.0.1:8100"
+    );
     tracker.record({
       id: "S03.1",
       step: "iOS Apple sign-in launches and reaches app",
@@ -74,69 +132,149 @@ async function main() {
     remediation: "Use Android device/emulator runbook for cross-platform verification",
   });
 
-  try {
-    if (!readinessFailed) {
-      await client.findByAccessibilityId(ids.signInRoot);
-      await client.findByAccessibilityId(ids.appleButton);
-      await client.findByAccessibilityId(ids.idleGreeting);
-    }
+  if (readinessFailed) {
     tracker.record({
       id: "S03.3",
       step: "IdleScreen greeting interpolates rider name",
-      status: readinessFailed ? "BLOCKED" : "PASS",
-      detail: readinessFailed ? "Blocked by S03.1" : "Auth + greeting identifiers resolved",
-      dependsOn: ["S03.1"],
-      evidence: { identifiers: [ids.signInRoot, ids.appleButton, ids.idleGreeting] },
-      remediation: readinessFailed ? "Resolve WDA readiness first" : "",
-    });
-  } catch (error) {
-    tracker.record({
-      id: "S03.3",
-      step: "IdleScreen greeting interpolates rider name",
-      status: "FAIL",
-      detail: String(error?.message || error),
+      status: "BLOCKED",
+      detail: "Blocked by S03.1",
       dependsOn: ["S03.1"],
       evidence: readinessEvidence,
-      remediation: "Verify auth and idle identifiers are present in production UI",
+      remediation: "Resolve WDA readiness first",
     });
-  }
-
-  try {
-    if (!readinessFailed) {
-      await client.findByAccessibilityId(ids.settingsEntry);
-      await client.findByAccessibilityId(ids.signOutAction);
-      await client.findByAccessibilityId(ids.signOutConfirm);
+  } else {
+    try {
+      const appleButton = await waitForAccessibilityId(ids.appleButton);
+      await client.tapElement(appleButton);
+      const authIndicator = await observeAuthenticatedIndicator();
+      authenticated = true;
+      tracker.record({
+        id: "S03.3",
+        step: "IdleScreen greeting interpolates rider name",
+        status: "PASS",
+        detail: `Apple sign-in tap completed and authenticated indicator observed: ${authIndicator.indicator}`,
+        dependsOn: ["S03.1"],
+        evidence: {
+          tapped: ids.appleButton,
+          authenticatedIndicator: authIndicator.indicator,
+          screenshot: await client.screenshot("S03.3-authenticated.png"),
+        },
+      });
+    } catch (error) {
+      const diag = await captureDiagnostics(
+        "S03.3-blocked",
+        String(error?.message || error),
+        "Apple sign-in may require Apple ID sheet approval, credentials, or simulator hardware/account prerequisites"
+      );
+      tracker.record({
+        id: "S03.3",
+        step: "IdleScreen greeting interpolates rider name",
+        status: "BLOCKED",
+        detail: `Unable to verify post-sign-in authenticated state: ${String(error?.message || error)}`,
+        dependsOn: ["S03.1"],
+        evidence: { ...diag, tapped: ids.appleButton },
+        remediation: "Provision simulator Apple ID/credentials and rerun against real Apple auth sheet",
+      });
     }
-    tracker.record({
-      id: "S03.4",
-      step: "Cold-start relaunch keeps rider signed in",
-      status: readinessFailed ? "BLOCKED" : "PASS",
-      detail: readinessFailed ? "Blocked by S03.1" : "Relaunch path covered by authenticated UI assertions",
-      dependsOn: ["S03.1"],
-      evidence: { identifiers: [ids.settingsEntry, ids.signOutAction, ids.signOutConfirm] },
-      remediation: readinessFailed ? "Resolve WDA readiness first" : "",
-    });
-  } catch (error) {
-    tracker.record({
-      id: "S03.4",
-      step: "Cold-start relaunch keeps rider signed in",
-      status: "FAIL",
-      detail: String(error?.message || error),
-      dependsOn: ["S03.1"],
-      evidence: readinessEvidence,
-      remediation: "Confirm settings/sign-out identifiers and auth restore contract",
-    });
   }
 
-  tracker.record({
-    id: "S03.5",
-    step: "Sign out clears state and returns to SignIn",
-    status: readinessFailed ? "BLOCKED" : "PASS",
-    detail: readinessFailed ? "Blocked by S03.1" : "Sign-out controls asserted via stable identifiers",
-    dependsOn: ["S03.1"],
-    evidence: readinessFailed ? readinessEvidence : { identifiers: [ids.settingsEntry, ids.signOutAction, ids.signOutConfirm, ids.signInRoot] },
-    remediation: readinessFailed ? "Resolve WDA readiness first" : "",
-  });
+  if (!authenticated) {
+    tracker.record({
+      id: "S03.4",
+      step: "Cold-start relaunch keeps rider signed in",
+      status: "BLOCKED",
+      detail: "Cannot validate restore because authenticated session was not established",
+      dependsOn: ["S03.3"],
+      evidence: readinessEvidence,
+      remediation: "Unblock S03.3 first to exercise cold-start restore",
+    });
+  } else {
+    try {
+      await client.terminateApp(bundleId);
+      await client.launchApp(bundleId, ["-UITesting"]);
+      await client.activateApp(bundleId);
+      const restored = await observeAuthenticatedIndicator();
+      tracker.record({
+        id: "S03.4",
+        step: "Cold-start relaunch keeps rider signed in",
+        status: "PASS",
+        detail: `App terminate/launch/activate executed and authenticated indicator remained: ${restored.indicator}`,
+        dependsOn: ["S03.3"],
+        evidence: {
+          terminated: true,
+          launched: true,
+          activated: true,
+          authenticatedIndicator: restored.indicator,
+          screenshot: await client.screenshot("S03.4-restored.png"),
+        },
+      });
+    } catch (error) {
+      const diag = await captureDiagnostics(
+        "S03.4-blocked",
+        String(error?.message || error),
+        "WDA app lifecycle endpoints or session restore preconditions may be unavailable"
+      );
+      tracker.record({
+        id: "S03.4",
+        step: "Cold-start relaunch keeps rider signed in",
+        status: "BLOCKED",
+        detail: `Unable to verify cold-start restore: ${String(error?.message || error)}`,
+        dependsOn: ["S03.3"],
+        evidence: diag,
+        remediation: "Ensure WDA supports terminate/launch/activate and auth session persistence on simulator",
+      });
+    }
+  }
+
+  const s034 = tracker.all().find((step) => step.id === "S03.4")?.status;
+  if (s034 !== "PASS") {
+    tracker.record({
+      id: "S03.5",
+      step: "Sign out clears state and returns to SignIn",
+      status: "BLOCKED",
+      detail: "Cannot run sign-out path because authenticated state after restore is unavailable",
+      dependsOn: ["S03.4"],
+      evidence: readinessEvidence,
+      remediation: "Unblock S03.4 and rerun to exercise sign-out flow",
+    });
+  } else {
+    try {
+      const settings = await waitForAccessibilityId(ids.settingsEntry, 8000, 1000);
+      await client.tapElement(settings);
+      const signOut = await waitForAccessibilityId(ids.signOutAction, 8000, 1000);
+      await client.tapElement(signOut);
+      const confirm = await waitForAccessibilityId(ids.signOutConfirm, 8000, 1000);
+      await client.tapElement(confirm);
+      await waitForAccessibilityId(ids.signInRoot, 10000, 1000);
+      tracker.record({
+        id: "S03.5",
+        step: "Sign out clears state and returns to SignIn",
+        status: "PASS",
+        detail: "Settings/sign-out taps executed and SignIn root returned",
+        dependsOn: ["S03.4"],
+        evidence: {
+          tapped: [ids.settingsEntry, ids.signOutAction, ids.signOutConfirm],
+          postcondition: ids.signInRoot,
+          screenshot: await client.screenshot("S03.5-signed-out.png"),
+        },
+      });
+    } catch (error) {
+      const diag = await captureDiagnostics(
+        "S03.5-blocked",
+        String(error?.message || error),
+        "Authenticated sign-out route may be unavailable due to auth/app preconditions"
+      );
+      tracker.record({
+        id: "S03.5",
+        step: "Sign out clears state and returns to SignIn",
+        status: "BLOCKED",
+        detail: `Sign-out flow could not be verified end-to-end: ${String(error?.message || error)}`,
+        dependsOn: ["S03.4"],
+        evidence: diag,
+        remediation: "Ensure authenticated settings route is reachable and sign-out controls are hittable",
+      });
+    }
+  }
 
   tracker.record({
     id: "S03.6",

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-29T22:29:46.281Z",
+  "generatedAt": "2026-04-29T22:43:10.940Z",
   "bundleId": "com.laneshadow.app",
   "wdaBaseUrl": "http://127.0.0.1:8100",
   "steps": [
@@ -9,10 +9,11 @@
       "status": "FAIL",
       "detail": "fetch failed",
       "dependsOn": [],
-      "timestamp": "2026-04-29T22:29:46.280Z",
+      "timestamp": "2026-04-29T22:43:10.939Z",
       "evidence": {
-        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure.png",
-        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-source.xml"
+        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-screenshot.txt",
+        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-source.txt",
+        "remediation": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-remediation.txt"
       },
       "remediation": "Run scripts/ios/setup-wda.sh and verify port forward on 127.0.0.1:8100"
     },
@@ -24,10 +25,11 @@
       "dependsOn": [
         "S03.1"
       ],
-      "timestamp": "2026-04-29T22:29:46.281Z",
+      "timestamp": "2026-04-29T22:43:10.940Z",
       "evidence": {
-        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure.png",
-        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-source.xml"
+        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-screenshot.txt",
+        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-source.txt",
+        "remediation": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-remediation.txt"
       },
       "remediation": "Use Android device/emulator runbook for cross-platform verification"
     },
@@ -39,13 +41,11 @@
       "dependsOn": [
         "S03.1"
       ],
-      "timestamp": "2026-04-29T22:29:46.281Z",
+      "timestamp": "2026-04-29T22:43:10.940Z",
       "evidence": {
-        "identifiers": [
-          "auth.signIn.root",
-          "auth.signIn.apple",
-          "idlescreen-greeting"
-        ]
+        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-screenshot.txt",
+        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-source.txt",
+        "remediation": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-remediation.txt"
       },
       "remediation": "Resolve WDA readiness first"
     },
@@ -53,34 +53,33 @@
       "id": "S03.4",
       "step": "Cold-start relaunch keeps rider signed in",
       "status": "BLOCKED",
-      "detail": "Blocked by S03.1 (blocked by: S03.1)",
+      "detail": "Cannot validate restore because authenticated session was not established (blocked by: S03.3)",
       "dependsOn": [
-        "S03.1"
+        "S03.3"
       ],
-      "timestamp": "2026-04-29T22:29:46.281Z",
+      "timestamp": "2026-04-29T22:43:10.940Z",
       "evidence": {
-        "identifiers": [
-          "settings.entry",
-          "settings.signOut",
-          "auth.signOut.confirm"
-        ]
+        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-screenshot.txt",
+        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-source.txt",
+        "remediation": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-remediation.txt"
       },
-      "remediation": "Resolve WDA readiness first"
+      "remediation": "Unblock S03.3 first to exercise cold-start restore"
     },
     {
       "id": "S03.5",
       "step": "Sign out clears state and returns to SignIn",
       "status": "BLOCKED",
-      "detail": "Blocked by S03.1 (blocked by: S03.1)",
+      "detail": "Cannot run sign-out path because authenticated state after restore is unavailable (blocked by: S03.4)",
       "dependsOn": [
-        "S03.1"
+        "S03.4"
       ],
-      "timestamp": "2026-04-29T22:29:46.281Z",
+      "timestamp": "2026-04-29T22:43:10.940Z",
       "evidence": {
-        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure.png",
-        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-source.xml"
+        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-screenshot.txt",
+        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-source.txt",
+        "remediation": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-remediation.txt"
       },
-      "remediation": "Resolve WDA readiness first"
+      "remediation": "Unblock S03.4 and rerun to exercise sign-out flow"
     },
     {
       "id": "S03.6",
@@ -88,10 +87,11 @@
       "status": "MANUAL",
       "detail": "Run `cd server && pnpm convex dev` and capture getCurrentUser observation manually.",
       "dependsOn": [],
-      "timestamp": "2026-04-29T22:29:46.281Z",
+      "timestamp": "2026-04-29T22:43:10.940Z",
       "evidence": {
-        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure.png",
-        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-source.xml"
+        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-screenshot.txt",
+        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-source.txt",
+        "remediation": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-remediation.txt"
       },
       "remediation": "Collect server-side witness logs from convex dev output"
     },
@@ -101,10 +101,11 @@
       "status": "MANUAL",
       "detail": "Revoke token in Clerk dashboard and verify redirect manually.",
       "dependsOn": [],
-      "timestamp": "2026-04-29T22:29:46.281Z",
+      "timestamp": "2026-04-29T22:43:10.940Z",
       "evidence": {
-        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure.png",
-        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-source.xml"
+        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-screenshot.txt",
+        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-source.txt",
+        "remediation": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-remediation.txt"
       },
       "remediation": "Collect Clerk dashboard revocation screenshot and app redirect witness"
     },
@@ -114,10 +115,11 @@
       "status": "MANUAL",
       "detail": "Run `pnpm server:codegen` and inspect generated iOS/Android files manually.",
       "dependsOn": [],
-      "timestamp": "2026-04-29T22:29:46.281Z",
+      "timestamp": "2026-04-29T22:43:10.940Z",
       "evidence": {
-        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure.png",
-        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-source.xml"
+        "screenshot": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-screenshot.txt",
+        "source": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-source.txt",
+        "remediation": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-remediation.txt"
       },
       "remediation": "Attach codegen command output and generated file diffs"
     }

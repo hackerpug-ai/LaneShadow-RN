@@ -92,12 +92,35 @@ export class WdaClient {
     return this.request(method, `/session/${this.sessionId}${path}`, body);
   }
 
+  extractElementId(value) {
+    if (!value || typeof value !== "object") return null;
+    return value["element-6066-11e4-a52e-4f735466cecf"] || value.ELEMENT || null;
+  }
+
   async findByAccessibilityId(value) {
     const res = await this.sessionRequest("POST", "/element", {
       using: "accessibility id",
       value,
     });
     return res.value;
+  }
+
+  async tapElement(element) {
+    const elementId = typeof element === "string" ? element : this.extractElementId(element);
+    if (!elementId) throw new Error("Unable to resolve WDA element id for tap");
+    await this.sessionRequest("POST", `/element/${elementId}/click`, {});
+  }
+
+  async launchApp(bundleId, args = ["-UITesting"]) {
+    return this.sessionRequest("POST", "/wda/apps/launch", { bundleId, arguments: args });
+  }
+
+  async activateApp(bundleId) {
+    return this.sessionRequest("POST", "/wda/apps/activate", { bundleId });
+  }
+
+  async terminateApp(bundleId) {
+    return this.sessionRequest("POST", "/wda/apps/terminate", { bundleId });
   }
 
   async screenshot(name) {

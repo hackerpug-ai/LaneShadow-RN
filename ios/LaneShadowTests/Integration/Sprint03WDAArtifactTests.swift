@@ -16,6 +16,10 @@ final class Sprint03WDAArtifactTests: XCTestCase {
         XCTAssertTrue(script.contains("createSession"), "Script should create a WDA app session")
         XCTAssertTrue(script.contains("-UITesting"), "Script should launch app with -UITesting argument")
         XCTAssertTrue(script.contains("readiness"), "Script should capture readiness screenshot evidence")
+        XCTAssertTrue(script.contains("tapElement"), "Script should tap interactive elements through WDA")
+        XCTAssertTrue(script.contains("terminateApp"), "Script should terminate app for cold-start restore")
+        XCTAssertTrue(script.contains("launchApp"), "Script should launch app for cold-start restore")
+        XCTAssertTrue(script.contains("activateApp"), "Script should activate app for cold-start restore")
     }
 
     func testSprint03WdaResultsCoverEveryHumanStep() throws {
@@ -67,8 +71,39 @@ final class Sprint03WDAArtifactTests: XCTestCase {
         let script = try String(contentsOf: scriptURL, encoding: .utf8)
         XCTAssertTrue(script.contains("diagnosticsDir"))
         XCTAssertTrue(script.contains("BLOCKED"))
-        XCTAssertTrue(script.contains("S03.1-source.xml"))
-        XCTAssertTrue(script.contains("S03.1-failure.png"))
+        XCTAssertTrue(script.contains("-source.xml"))
+        XCTAssertTrue(script.contains("-screenshot.txt"))
         XCTAssertTrue(script.contains("remediation"))
+    }
+
+    func testSprint03ArtifactsDoNotUseFakePngDiagnostics() throws {
+        let diagnosticsURL = repositoryRoot.appendingPathComponent("ios/E2E/diagnostics/sprint-03-auth")
+        let fm = FileManager.default
+        let files = try fm.contentsOfDirectory(at: diagnosticsURL, includingPropertiesForKeys: nil)
+
+        for file in files where file.pathExtension.lowercased() == "png" {
+            let data = try Data(contentsOf: file)
+            let pngSignature = Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
+            XCTAssertTrue(data.starts(with: pngSignature), "PNG file has invalid signature: \(file.lastPathComponent)")
+        }
+
+        let resultURL = repositoryRoot.appendingPathComponent("ios/E2E/results/sprint-03-auth.json")
+        let data = try Data(contentsOf: resultURL)
+        let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let steps = try XCTUnwrap(payload["steps"] as? [[String: Any]])
+
+        for step in steps {
+            guard let evidence = step["evidence"] as? [String: Any],
+                  let screenshotPath = evidence["screenshot"] as? String else {
+                continue
+            }
+            let screenshotURL = repositoryRoot.appendingPathComponent(screenshotPath)
+            XCTAssertTrue(fm.fileExists(atPath: screenshotURL.path), "Evidence screenshot path missing: \(screenshotPath)")
+            if screenshotPath.hasSuffix(".png") {
+                let screenshotData = try Data(contentsOf: screenshotURL)
+                let pngSignature = Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
+                XCTAssertTrue(screenshotData.starts(with: pngSignature), "Evidence uses .png extension but not PNG content: \(screenshotPath)")
+            }
+        }
     }
 }
