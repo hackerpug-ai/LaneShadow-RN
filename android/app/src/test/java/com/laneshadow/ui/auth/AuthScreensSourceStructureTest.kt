@@ -1,15 +1,17 @@
 package com.laneshadow.ui.auth
 
 import android.net.Uri
-import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performClick
 import com.laneshadow.data.model.AuthState
 import com.laneshadow.data.model.ClerkUser
@@ -48,12 +50,10 @@ class AuthScreensSourceStructureTest {
         continueButton.assertIsDisplayed()
         continueButton.assertIsNotEnabled()
 
-        composeTestRule.onNodeWithTag("signin_email_field")
-            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("invalid-email")) }
+        enterTextInField("signin_email_field", "invalid-email")
         continueButton.assertIsNotEnabled()
 
-        composeTestRule.onNodeWithTag("signin_email_field")
-            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("rider@laneshadow.com")) }
+        enterTextInField("signin_email_field", "rider@laneshadow.com")
         continueButton.assertIsEnabled()
 
         continueButton.performClick()
@@ -81,21 +81,15 @@ class AuthScreensSourceStructureTest {
         val createAccountButton = composeTestRule.onNodeWithTag("signup_create_account_button")
         createAccountButton.assertIsNotEnabled()
 
-        composeTestRule.onNodeWithTag("signup_name_field")
-            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("Avery Rider")) }
-        composeTestRule.onNodeWithTag("signup_email_field")
-            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("invalid-email")) }
-        composeTestRule.onNodeWithTag("signup_password_field")
-            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("secret123")) }
-        composeTestRule.onNodeWithTag("signup_confirm_password_field")
-            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("secret124")) }
+        enterTextInField("signup_name_field", "Avery Rider")
+        enterTextInField("signup_email_field", "invalid-email")
+        enterTextInField("signup_password_field", "secret123")
+        enterTextInField("signup_confirm_password_field", "secret124")
 
         createAccountButton.assertIsNotEnabled()
 
-        composeTestRule.onNodeWithTag("signup_email_field")
-            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("rider@laneshadow.com")) }
-        composeTestRule.onNodeWithTag("signup_confirm_password_field")
-            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("secret123")) }
+        enterTextInField("signup_email_field", "rider@laneshadow.com")
+        enterTextInField("signup_confirm_password_field", "secret123")
 
         createAccountButton.assertIsEnabled()
     }
@@ -125,6 +119,21 @@ class AuthScreensSourceStructureTest {
         composeTestRule.onNodeWithText("Callback failed").assertIsDisplayed()
         composeTestRule.onNodeWithText("Retry callback").assertIsDisplayed()
     }
+}
+
+private fun AuthScreensSourceStructureTest.enterTextInField(fieldTag: String, value: String) {
+    composeTestRule
+        .onNode(
+            matcher = hasSetTextAction() and hasAnyAncestor(hasTestTag(fieldTag)),
+            useUnmergedTree = true,
+        )
+        .performTextClearance()
+    composeTestRule
+        .onNode(
+            matcher = hasSetTextAction() and hasAnyAncestor(hasTestTag(fieldTag)),
+            useUnmergedTree = true,
+        )
+        .performTextInput(value)
 }
 
 private class FakeAuthRepository : AuthRepository {
