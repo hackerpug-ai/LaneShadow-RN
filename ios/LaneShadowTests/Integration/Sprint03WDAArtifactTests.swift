@@ -106,4 +106,46 @@ final class Sprint03WDAArtifactTests: XCTestCase {
             }
         }
     }
+
+    func testSprintClosureArtifactSeparatesNativeE2ELanes() throws {
+        let closureURL = repositoryRoot.appendingPathComponent("ios/E2E/results/sprint-03-closure.json")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: closureURL.path), "Expected sprint-03-closure.json artifact")
+
+        let data = try Data(contentsOf: closureURL)
+        let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let lanes = try XCTUnwrap(payload["lanes"] as? [[String: Any]])
+        XCTAssertEqual(lanes.count, 4, "Closure artifact should include iOS+Android simulator/device lanes")
+
+        let requiredKeys = ["platform", "framework", "target", "command", "status", "timestamp", "evidence"]
+        for lane in lanes {
+            for key in requiredKeys {
+                XCTAssertNotNil(lane[key], "Lane is missing required key \(key): \(lane)")
+            }
+        }
+
+        let laneIndex = Dictionary(uniqueKeysWithValues: lanes.compactMap { lane -> (String, [String: Any])? in
+            guard let platform = lane["platform"] as? String,
+                  let target = lane["target"] as? String else {
+                return nil
+            }
+            return ("\(platform):\(target)", lane)
+        })
+
+        let iosSimulator = try XCTUnwrap(laneIndex["ios:simulator"])
+        XCTAssertEqual(iosSimulator["framework"] as? String, "xctest")
+
+        let iosReal = try XCTUnwrap(laneIndex["ios:real-ios-device"])
+        XCTAssertEqual(iosReal["framework"] as? String, "wda")
+
+        let androidEmulator = try XCTUnwrap(laneIndex["android:emulator"])
+        XCTAssertEqual(androidEmulator["framework"] as? String, "espresso")
+
+        let androidReal = try XCTUnwrap(laneIndex["android:real-android-device"])
+        XCTAssertEqual(androidReal["framework"] as? String, "espresso")
+
+        for lane in [androidEmulator, androidReal] {
+            let status = lane["status"] as? String
+            XCTAssertTrue(["PASS", "FAIL", "BLOCKED"].contains(status ?? ""))
+        }
+    }
 }

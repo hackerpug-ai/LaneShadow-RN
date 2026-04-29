@@ -1,0 +1,68 @@
+{
+  "generatedAt": "2026-04-29T23:00:00Z",
+  "taskId": "AUTH-S03-T12",
+  "lanes": [
+    {
+      "platform": "ios",
+      "framework": "xctest",
+      "target": "simulator",
+      "command": "cd ios && xcodebuild test -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowUITests/LaneShadowUITests",
+      "status": "PASS",
+      "timestamp": "2026-04-29T22:57:55Z",
+      "evidence": {
+        "summary": "LaneShadowUITests passed on iPhone 16 simulator (3 tests, 0 failures)",
+        "log": "xcodebuild stdout (required verification command)",
+        "xcresult": "/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-dbjwywqohpellqaxpzekaoobqndx/Logs/Test/Test-LaneShadow-2026.04.29_16-57-34--0600.xcresult"
+      }
+    },
+    {
+      "platform": "ios",
+      "framework": "wda",
+      "target": "real-ios-device",
+      "command": "LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth.js",
+      "status": "BLOCKED",
+      "timestamp": "2026-04-29T22:57:31Z",
+      "evidence": {
+        "summary": "WDA lane could not reach physical-device WDA endpoint (S03.1 fetch failed)",
+        "resultArtifact": "ios/E2E/results/sprint-03-auth.json",
+        "diagnostics": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-remediation.txt",
+        "prerequisites": [
+          "Physical iPhone connected with WebDriverAgent running",
+          "Port forward to 127.0.0.1:8100",
+          "LaneShadow installed with bundle id com.laneshadow.app"
+        ],
+        "t11Evidence": "ios/E2E/results/sprint-03-auth.json"
+      }
+    },
+    {
+      "platform": "android",
+      "framework": "espresso",
+      "target": "emulator",
+      "command": "cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest",
+      "status": "BLOCKED",
+      "timestamp": "2026-04-29T23:00:00Z",
+      "evidence": {
+        "summary": "pending_kotlin_slice: Android closure lane owned by Kotlin implementer for AUTH-S03-T12",
+        "prerequisites": [
+          "Android emulator booted and visible in adb devices",
+          "Kotlin slice must execute and record Espresso results"
+        ]
+      }
+    },
+    {
+      "platform": "android",
+      "framework": "espresso",
+      "target": "real-android-device",
+      "command": "adb devices && cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest",
+      "status": "BLOCKED",
+      "timestamp": "2026-04-29T23:00:00Z",
+      "evidence": {
+        "summary": "pending_kotlin_slice: Android physical-device lane owned by Kotlin implementer for AUTH-S03-T12",
+        "prerequisites": [
+          "Authorized physical Android device connected",
+          "Kotlin slice must execute and record physical-device Espresso evidence"
+        ]
+      }
+    }
+  ]
+}
