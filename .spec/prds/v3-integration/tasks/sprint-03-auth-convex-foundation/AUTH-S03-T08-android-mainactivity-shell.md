@@ -42,14 +42,14 @@ DONE WHEN
 - [x] MainActivity.kt exists with @AndroidEntryPoint
 - [x] LaneShadowApp composable observes AuthViewModel.authState
 - [x] Loading state shows SplashScreen
-- [ ] SignedOut state routes to AuthNavGraph ← FAIL: routes to stubbed placeholder graph (evidence: android/app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt:8)
-- [ ] SignedIn state routes to MainNavGraph ← FAIL: routes to stubbed placeholder graph (evidence: android/app/src/main/java/com/laneshadow/navigation/MainNavGraph.kt:8)
+- [x] SignedOut state routes to AuthNavGraph
+- [x] SignedIn state routes to MainNavGraph
 - [x] Navigation Compose 2.8+ dependency added
 - [x] 12 @Serializable routes defined (typed navigation)
 - [x] DeepLinkBus for OAuth callback wiring exists
 - [x] DEBUG sandbox path preserved
 - [x] ./gradlew :app:compileDebugKotlin succeeds
-- [ ] Only SCOPE.writeAllowed files modified ← FAIL: out-of-scope files modified (evidence: git diff --name-only main..27d00628d7b6e1b1edde1d0f55fb12b5a6f2e3b4)
+- [ ] Only SCOPE.writeAllowed files modified ← FAIL: out-of-scope files modified: `android/app/src/main/java/com/laneshadow/LaneShadowApp.kt`, `android/app/src/test/java/com/laneshadow/appshell/MainActivityShellContractTest.kt`, `ai-specs/AUTH-S03-T08/android-learnings.md` (evidence: git diff --name-only main..a0c2ca5ad7e24ad9996378cd2b8677314a02b174)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
