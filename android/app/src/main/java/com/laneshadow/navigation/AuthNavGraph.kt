@@ -19,7 +19,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.laneshadow.data.model.AuthState
 import com.laneshadow.theme.LocalLaneShadowTheme
@@ -91,45 +90,43 @@ fun AuthNavGraph(
                 )
             }
         }
-        navigation<Route.SignIn>(startDestination = Route.SignIn) {
-            composable<Route.SignIn> {
-                SignInScreen(
-                    viewModel = authViewModel,
-                    onNavigateToSignUp = { navController.navigate(Route.SignUp) },
-                )
-            }
-            composable<Route.SignUp> {
-                SignUpScreen(
-                    viewModel = authViewModel,
-                    onNavigateToSignIn = {
-                        navController.navigate(Route.SignIn) {
-                            popUpTo(Route.SignUp) { inclusive = true }
-                        }
-                    },
-                )
-            }
-            composable<Route.OAuthCallback> {
-                OAuthCallbackScreen(
-                    deepLinkUri = callbackUri,
-                    onNavigateToSignIn = {
-                        navController.navigate(Route.SignIn) {
-                            popUpTo(Route.OAuthCallback) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                    },
-                    viewModel = authViewModel,
-                )
-            }
-            composable<Route.Verify> {
-                VerifyRoute(
-                    onVerify = authViewModel::completeSignUpVerification,
-                    onNavigateToSignIn = {
-                        navController.navigate(Route.SignIn) {
-                            popUpTo(Route.SignIn) { inclusive = true }
-                        }
-                    },
-                )
-            }
+        composable<Route.SignIn> {
+            SignInScreen(
+                viewModel = authViewModel,
+                onNavigateToSignUp = { navController.navigate(Route.SignUp) },
+            )
+        }
+        composable<Route.SignUp> {
+            SignUpScreen(
+                viewModel = authViewModel,
+                onNavigateToSignIn = {
+                    navController.navigate(Route.SignIn) {
+                        popUpTo(Route.SignUp) { inclusive = true }
+                    }
+                },
+            )
+        }
+        composable<Route.OAuthCallback> {
+            OAuthCallbackScreen(
+                deepLinkUri = callbackUri,
+                onNavigateToSignIn = {
+                    navController.navigate(Route.SignIn) {
+                        popUpTo(Route.OAuthCallback) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                viewModel = authViewModel,
+            )
+        }
+        composable<Route.Verify> {
+            VerifyRoute(
+                onVerify = authViewModel::completeSignUpVerification,
+                onNavigateToSignIn = {
+                    navController.navigate(Route.SignIn) {
+                        popUpTo(Route.SignIn) { inclusive = true }
+                    }
+                },
+            )
         }
     }
 }

@@ -49,7 +49,7 @@ DONE WHEN
 - [x] Apple OAuth button triggers OAuth flow
 - [x] SignUpScreen variant exists with name + confirm password
 - [x] OAuthCallbackScreen exists for deep-link handling; `AuthNavGraph` remains mounted during `AuthState.OAuthPending` so callback collection cannot deadlock
-- [ ] Visual parity verified with iOS screenshots ← FAIL: screenshots not provided (BLOCKED: emulator/device unavailable) (evidence: —)
+- [ ] Visual parity verified with iOS screenshots (evidence: `.tmp/AUTH-S03-T10/screenshots/android-signin-initial-unlocked-fixed.png`)
 - [x] All V2 atoms reused (no custom UI components); `VerifyRoute` uses `LSTextField`, `LSButton`, `LSText`, and `LSInlineErrorCallout`
 - [x] ./gradlew :app:compileDebugKotlin succeeds
 - [x] Only SCOPE.writeAllowed production files modified; task file updates are orchestration metadata remediation requested in reviewer blockers
@@ -283,7 +283,7 @@ Blocks: Sprint 04 tasks
     {"id": "AC-9", "type": "acceptance", "description": "AuthViewModel.signInWithApple() called", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-10", "type": "acceptance", "description": "Screen includes name, email, password, confirm password fields", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-11", "type": "acceptance", "description": "Screen parses token, completes auth, routes to main app", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-12", "type": "acceptance", "description": "Layout, spacing, colors, typography match iOS design", "satisfied": false, "evidence": null, "remediation": null},
+    {"id": "AC-12", "type": "acceptance", "description": "Layout, spacing, colors, typography match iOS design", "satisfied": false, "evidence": ".tmp/AUTH-S03-T10/screenshots/android-signin-initial-unlocked-fixed.png", "remediation": null},
     {"id": "AC-13", "type": "acceptance", "description": "All UI elements use V2 atoms (LSTextField, LSButton, LSText, LSSpinner)", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "TC-1", "type": "test", "description": "SignInScreen.kt exists with multi-step flow", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "TC-2", "type": "test", "description": "SignInUiState tracks all required fields", "satisfied": false, "evidence": null, "remediation": null},
