@@ -11,6 +11,8 @@ struct AuthFlowView: View {
         NavigationStack {
             if route == .signUp {
                 SignUpView()
+            } else if route == .oauthCallback {
+                SignInView()
             } else {
                 SignInView()
                     .toolbar {

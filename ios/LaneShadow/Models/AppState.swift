@@ -7,10 +7,12 @@ final class AppState {
     enum AuthRoute: Equatable {
         case signIn
         case signUp
+        case oauthCallback
     }
 
     enum AppRoute: Equatable {
         case home
+        case session(id: String)
     }
 
     var isAuthenticated: Bool
@@ -35,17 +37,40 @@ final class AppState {
         updateAuthenticationState(from: clerkAuth)
 
         let host = (url.host ?? "").lowercased()
-        let path = url.path.lowercased()
+        let path = url.path
 
-        if isAuthenticated {
-            appRoute = .home
+        if host == "oauth-callback" {
+            if isAuthenticated {
+                appRoute = .home
+                authRoute = nil
+            } else {
+                authRoute = .oauthCallback
+                appRoute = nil
+            }
             return
         }
 
-        if host == "auth", path == "/signup" {
+        if isAuthenticated {
+            if host == "session" {
+                let sessionID = path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                if !sessionID.isEmpty {
+                    appRoute = .session(id: sessionID)
+                    authRoute = nil
+                    return
+                }
+            }
+
+            appRoute = .home
+            authRoute = nil
+            return
+        }
+
+        if host == "auth", path.lowercased() == "/signup" {
             authRoute = .signUp
+            appRoute = nil
         } else {
             authRoute = .signIn
+            appRoute = nil
         }
     }
 }
