@@ -166,6 +166,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     implementation("com.mapbox.maps:android:11.22.0")
+    implementation("dev.convex:android-convexmobile:0.8.0")
     implementation("com.clerk:clerk-android-api:1.0.13")
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     implementation("androidx.browser:browser:1.8.0")
