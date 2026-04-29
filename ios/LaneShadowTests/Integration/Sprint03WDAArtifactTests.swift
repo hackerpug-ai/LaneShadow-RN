@@ -186,6 +186,24 @@ final class Sprint03WDAArtifactTests: XCTestCase {
 
         let data = try Data(contentsOf: closureURL)
         let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let closureVerification = try XCTUnwrap(
+            payload["closureVerification"] as? [String: Any],
+            "Closure artifact should include top-level closureVerification evidence"
+        )
+        let closureLogPath = try XCTUnwrap(
+            closureVerification["log"] as? String,
+            "closureVerification.log must be present"
+        )
+        XCTAssertFalse(
+            isAbsoluteHostPath(closureLogPath),
+            "closureVerification.log must be repo-relative: \(closureLogPath)"
+        )
+        let closureLogURL = repositoryRoot.appendingPathComponent(closureLogPath)
+        XCTAssertTrue(
+            FileManager.default.fileExists(atPath: closureLogURL.path),
+            "closureVerification.log missing file: \(closureLogPath)"
+        )
+
         let lanes = try XCTUnwrap(payload["lanes"] as? [[String: Any]])
         XCTAssertEqual(lanes.count, 4, "Closure artifact should include iOS+Android simulator/device lanes")
         let allowedStatuses = Set(["PASS", "FAIL", "BLOCKED", "MANUAL"])

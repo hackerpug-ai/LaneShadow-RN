@@ -1,6 +1,12 @@
 {
   "generatedAt": "2026-04-29T23:00:00Z",
   "taskId": "AUTH-S03-T12",
+  "closureVerification": {
+    "command": "cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:LaneShadowTests/Sprint03WDAArtifactTests/testSprintClosureArtifactSeparatesNativeE2ELanes 2>&1 | tee E2E/diagnostics/sprint-03-closure/closure-artifact-xcodebuild.log",
+    "status": "PASS",
+    "timestamp": "2026-04-29T23:44:29Z",
+    "log": "ios/E2E/diagnostics/sprint-03-closure/closure-artifact-xcodebuild.log"
+  },
   "lanes": [
     {
       "platform": "ios",
