@@ -16,7 +16,7 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertEqual(url, callbackURL)
     }
 
-    func testSignUpViewModelSubmitsAndTransitionsToSignedIn() async throws {
+    func testSignUpViewModelSubmitsAndTransitionsToSignedIn() async {
         let auth = ClerkAuth(client: AuthScreensFakeClient())
         let viewModel = SignUpViewModel(auth: auth)
         viewModel.name = "Rider"
