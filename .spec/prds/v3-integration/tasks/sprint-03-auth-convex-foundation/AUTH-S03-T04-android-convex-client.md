@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: cd android && ./gradlew :app:compileDebugKotlin
   lint:      cd android && ./gradlew :app:ktlintCheck
 
-PROGRESS: 0/6 AC · not started
+PROGRESS: 5/6 AC · in review (Cycle 2)
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -36,13 +36,13 @@ DONE WHEN
 --------------------------------------------------------------------------------
 
 - [x] ConvexClientProvider.kt exists at android/app/src/main/java/com/laneshadow/services/ (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:1)
-- [x] Gradle dependency for Convex SDK declared in build.gradle.kts (evidence: android/app/build.gradle.kts:158)
-- [ ] ConvexModule Hilt module binds ConvexClientProvider as @Singleton ← PARTIAL: module exists, but Hilt is not wired (no `dagger.hilt.android.plugin` + compiler/kapt configured) so DI registration is not actually effective (evidence: android/app/src/main/java/com/laneshadow/di/ConvexModule.kt:10; android/app/build.gradle.kts:1)
+- [x] Gradle dependency for Convex SDK declared in build.gradle.kts (evidence: android/app/build.gradle.kts:169)
+- [x] ConvexModule Hilt module binds ConvexClientProvider as @Singleton (evidence: android/app/src/main/java/com/laneshadow/di/ConvexModule.kt:10; android/app/build.gradle.kts:8)
 - [x] Flow<List<Session>> session subscription method compiles (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:33)
-- [ ] Suspend mutation functions (sendMessage, createSession) compile ← PARTIAL: `sendMessage` uses `convexClient.action(...)` not a mutation call (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:41)
-- [ ] setAuth callback receives JWT from AuthRepository ← FAIL: `AuthRepository` is re-declared as a local interface (stub) and auth wiring is best-effort reflection that can silently no-op (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:13; android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:64)
+- [x] Suspend mutation functions (sendMessage, createSession) compile (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:62)
+- [ ] setAuth callback receives JWT from AuthRepository ← PARTIAL: `login/loginFromCache` call `AuthRepository.getJwtForConvex()`, but `logout()` is a no-op with unsafe cast; no clear-auth behavior is demonstrated for Convex auth lifecycle (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:28; android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:41)
 - [x] ./gradlew :app:compileDebugKotlin succeeds (verified 2026-04-28)
-- [ ] Only SCOPE.writeAllowed files modified ← FAIL: out-of-scope files were modified/added (evidence: android/app/src/test/java/com/laneshadow/services/ConvexClientProviderContractTest.kt:1; .tmp/AUTH-S03-T04/pre-existing-issues.md:1)
+- [x] Only SCOPE.writeAllowed files modified (evidence: git diff --name-only 216be7bee1f3a52b6b5289c7af8926565f71f4e8..bb2fdca66e47bfb7cc95a730439782402ff2829d)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
