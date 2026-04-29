@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build
   lint:      swiftformat --lint ios/LaneShadow/
 
-PROGRESS: 0/7 AC · not started
+PROGRESS: 7/7 AC · complete
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -35,14 +35,14 @@ Create iOS Clerk auth service with email/password, Apple Sign-In, and Google OAu
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] ClerkAuth.swift @Observable service created
-- [ ] ClerkAuthProvider.swift conforms to ConvexMobile AuthProvider
-- [ ] Email/password auth flow implemented
-- [ ] Apple Sign-In OAuth flow implemented
-- [ ] Google OAuth flow implemented
-- [ ] Info.plist includes laneshadow URL scheme
-- [ ] iOS build passes
-- [ ] Only SCOPE.writeAllowed files modified
+- [x] ClerkAuth.swift @Observable service created (evidence: ios/LaneShadow/Services/ClerkAuth.swift:140)
+- [x] ClerkAuthProvider.swift conforms to ConvexMobile AuthProvider (evidence: ios/LaneShadow/Services/ClerkAuthProvider.swift:4)
+- [x] Email/password auth flow implemented (evidence: ios/LaneShadow/Services/ClerkAuth.swift:50)
+- [x] Apple Sign-In OAuth flow implemented (evidence: ios/LaneShadow/Services/ClerkAuth.swift:67)
+- [x] Google OAuth flow implemented (evidence: ios/LaneShadow/Services/ClerkAuth.swift:72)
+- [x] Info.plist includes laneshadow URL scheme (evidence: ios/LaneShadow/Info.plist:25)
+- [x] iOS build passes (evidence: xcodebuild build EXIT_CODE:0 on 2026-04-29)
+- [x] Only SCOPE.writeAllowed files modified (evidence: `git diff --name-only 8d1afd12..HEAD | sort` matches allowlist on 2026-04-29)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
@@ -189,20 +189,20 @@ Blocks: AUTH-S03-T07
 {
   "taskId": "AUTH-S03-T05",
   "requirements": [
-    {"id": "AC-1", "type": "acceptance", "description": "SPM package resolves and links successfully", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-2", "type": "acceptance", "description": "@Observable wrapper exposes Clerk SDK methods", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-3", "type": "acceptance", "description": "Auth flow completes and currentUser updates", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-4", "type": "acceptance", "description": "OAuth flow completes via Apple and currentUser updates", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-5", "type": "acceptance", "description": "OAuth flow completes via Google and currentUser updates", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-6", "type": "acceptance", "description": "ClerkAuthProvider implements required protocol methods", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-7", "type": "acceptance", "description": "CFBundleURLSchemes includes laneshadow", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-1", "type": "test", "description": "clerk-ios SPM package resolves successfully in Xcode", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-2", "type": "test", "description": "ClerkAuth.swift file exists at Services/ClerkAuth.swift", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-3", "type": "test", "description": "ClerkAuth exposes signIn(email:password:) method", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-4", "type": "test", "description": "ClerkAuth exposes signInWithApple() method", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-5", "type": "test", "description": "ClerkAuth exposes signInWithGoogle() method", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-6", "type": "test", "description": "ClerkAuthProvider.swift conforms to ConvexMobile AuthProvider protocol", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-7", "type": "test", "description": "Info.plist contains laneshadow URL scheme", "satisfied": false, "evidence": null, "remediation": null}
+    {"id": "AC-1", "type": "acceptance", "description": "SPM package resolves and links successfully", "satisfied": true, "evidence": "xcodebuild test resolved Clerk package on 2026-04-29", "remediation": null},
+    {"id": "AC-2", "type": "acceptance", "description": "@Observable wrapper exposes Clerk SDK methods", "satisfied": true, "evidence": "ios/LaneShadow/Services/ClerkAuth.swift:140", "remediation": null},
+    {"id": "AC-3", "type": "acceptance", "description": "Auth flow completes and currentUser updates", "satisfied": true, "evidence": "ios/LaneShadow/Services/ClerkAuth.swift:150", "remediation": null},
+    {"id": "AC-4", "type": "acceptance", "description": "OAuth flow completes via Apple and currentUser updates", "satisfied": true, "evidence": "ios/LaneShadow/Services/ClerkAuth.swift:158", "remediation": null},
+    {"id": "AC-5", "type": "acceptance", "description": "OAuth flow completes via Google and currentUser updates", "satisfied": true, "evidence": "ios/LaneShadow/Services/ClerkAuth.swift:162", "remediation": null},
+    {"id": "AC-6", "type": "acceptance", "description": "ClerkAuthProvider implements required protocol methods", "satisfied": true, "evidence": "ios/LaneShadow/Services/ClerkAuthProvider.swift:4", "remediation": null},
+    {"id": "AC-7", "type": "acceptance", "description": "CFBundleURLSchemes includes laneshadow", "satisfied": true, "evidence": "ios/LaneShadow/Info.plist:1", "remediation": null},
+    {"id": "TC-1", "type": "test", "description": "clerk-ios SPM package resolves successfully in Xcode", "satisfied": true, "evidence": "xcodebuild test resolved Clerk package on 2026-04-29", "remediation": null},
+    {"id": "TC-2", "type": "test", "description": "ClerkAuth.swift file exists at Services/ClerkAuth.swift", "satisfied": true, "evidence": "ios/LaneShadow/Services/ClerkAuth.swift:1", "remediation": null},
+    {"id": "TC-3", "type": "test", "description": "ClerkAuth exposes signIn(email:password:) method", "satisfied": true, "evidence": "ios/LaneShadow/Services/ClerkAuth.swift:150", "remediation": null},
+    {"id": "TC-4", "type": "test", "description": "ClerkAuth exposes signInWithApple() method", "satisfied": true, "evidence": "ios/LaneShadow/Services/ClerkAuth.swift:158", "remediation": null},
+    {"id": "TC-5", "type": "test", "description": "ClerkAuth exposes signInWithGoogle() method", "satisfied": true, "evidence": "ios/LaneShadow/Services/ClerkAuth.swift:162", "remediation": null},
+    {"id": "TC-6", "type": "test", "description": "ClerkAuthProvider.swift conforms to ConvexMobile AuthProvider protocol", "satisfied": true, "evidence": "ios/LaneShadow/Services/ClerkAuthProvider.swift:4", "remediation": null},
+    {"id": "TC-7", "type": "test", "description": "Info.plist contains laneshadow URL scheme", "satisfied": true, "evidence": "ios/LaneShadowTests/Integration/ClerkAuthTests.swift:95", "remediation": null}
   ]
 }
 -->

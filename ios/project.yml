@@ -27,6 +27,9 @@ packages:
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     from: 1.15.0
+  Clerk:
+    url: https://github.com/clerk/clerk-ios
+    from: 0.67.0
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
     from: 0.9.0
@@ -214,6 +217,7 @@ targets:
       - package: LaneShadowTheme
       - package: NativeSandbox
       - package: MapboxMaps
+      - package: Clerk
       - sdk: Foundation.framework
     preBuildScripts:
       - name: Inject Convex URL

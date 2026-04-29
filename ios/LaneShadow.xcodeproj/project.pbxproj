@@ -55,6 +55,7 @@
 		96D64305E0336CAB29EDE308 /* LSChatInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19695B8A9932BA0DADCBEADF /* LSChatInput.swift */; };
 		A09AB47FC330215325A9F4F1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9EDF4218751AC8200085830 /* Foundation.framework */; };
 		A35AB3F139C3CDEBBED3C838 /* MotionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CF47A809462A646D139202 /* MotionTests.swift */; };
+		A43E874CF8FDDF5E7B4BD8CA /* Clerk in Frameworks */ = {isa = PBXBuildFile; productRef = ED1675F2464975FEDC2C2346 /* Clerk */; };
 		A71A81EDC8563AFD14EE83FB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95CA989BE1243B1021F83D3 /* ContentView.swift */; };
 		B4F9EB30336D5595D5388973 /* LSNavHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F137157E747643E3C5CB9F7 /* LSNavHeader.swift */; };
 		B55D247513D3B4742E36D92B /* AtomsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */; };
@@ -399,6 +400,7 @@
 				1952669D73F48496CFB75791 /* LaneShadowTheme in Frameworks */,
 				925CA576235653EA9D6CE109 /* NativeSandbox in Frameworks */,
 				ED9DF59A25970507B80D1720 /* MapboxMaps in Frameworks */,
+				A43E874CF8FDDF5E7B4BD8CA /* Clerk in Frameworks */,
 				A09AB47FC330215325A9F4F1 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -649,6 +651,7 @@
 				A82A70CA01368BECA5189F19 /* LaneShadowTheme */,
 				9DD5E01C1B4FE6A3686813CA /* NativeSandbox */,
 				DA5E21A6F8345673A1101414 /* MapboxMaps */,
+				ED1675F2464975FEDC2C2346 /* Clerk */,
 			);
 			productName = LaneShadow;
 			productReference = 307F61C56AD06224E9F93B51 /* LaneShadow.app */;
@@ -738,6 +741,7 @@
 			mainGroup = 298F12991DC33BF22132567F;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				8DCCB7122A38A84D46600EB9 /* XCRemoteSwiftPackageReference "clerk-ios" */,
 				2448E52A67F9CA102454EA73 /* XCRemoteSwiftPackageReference "convex-swift" */,
 				B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */,
 				15EF0D9EB05071BCFDAB5F3D /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
@@ -1253,6 +1257,14 @@
 				minimumVersion = 0.7.0;
 			};
 		};
+		8DCCB7122A38A84D46600EB9 /* XCRemoteSwiftPackageReference "clerk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/clerk/clerk-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.67.0;
+			};
+		};
 		B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mapbox/mapbox-maps-ios";
@@ -1303,6 +1315,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 15EF0D9EB05071BCFDAB5F3D /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
 			productName = SnapshotTesting;
+		};
+		ED1675F2464975FEDC2C2346 /* Clerk */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8DCCB7122A38A84D46600EB9 /* XCRemoteSwiftPackageReference "clerk-ios" */;
+			productName = Clerk;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
