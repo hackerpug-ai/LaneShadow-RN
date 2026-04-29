@@ -1,4 +1,3 @@
-$ swiftformat --lint ios/LaneShadow/
 Running SwiftFormat...
 (lint mode - no files will be changed.)
 Reading config file at /Users/justinrich/Projects/LaneShadow/.swiftformat
@@ -8,5 +7,4 @@ Reading config file at /Users/justinrich/Projects/LaneShadow/.swiftformat
 /Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Sandbox/MockProviders/RouteResultsMockProvider.swift:9:1: error: (wrap) Wrap lines that exceed the specified maximum width.
 SwiftFormat completed in 0.15s.
 Source input did not pass lint check.
-2/238 files require formatting.
-EXIT_CODE=1
+2/237 files require formatting.

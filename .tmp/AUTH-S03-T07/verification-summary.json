@@ -1,28 +1,23 @@
 {
   "task_id": "AUTH-S03-T07",
   "branch": "task/AUTH-S03-T07-remediation",
-  "base_sha": "5cdd9193e2ec525da573e08c52599ee318ae1551",
-  "tests": {
-    "command": "cd ios && xcodebuild test -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/RootViewTests",
-    "status": "passed"
+  "head_before": "32d8cc056d1c399d11a29c1f976f868944c49ef1",
+  "checks": {
+    "contentview_references": "pass",
+    "rootview_tests": "pass",
+    "ios_build": "pass",
+    "swiftformat_lint": "fail_preexisting"
   },
-  "build": {
-    "command": "cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build",
-    "status": "passed"
+  "artifacts": {
+    "test_output": ".tmp/AUTH-S03-T07/test-output.txt",
+    "typecheck_output": ".tmp/AUTH-S03-T07/typecheck-output.txt",
+    "lint_output": ".tmp/AUTH-S03-T07/lint-output.txt",
+    "pre_existing_issues": ".tmp/AUTH-S03-T07/pre-existing-issues.md"
   },
-  "lint": {
-    "command": "swiftformat --lint ios/LaneShadow/",
-    "status": "failed_pre_existing",
-    "details_file": ".tmp/AUTH-S03-T07/pre-existing-issues.md"
-  },
-  "files_changed_scope": [
-    "ios/LaneShadowTests/Integration/RootViewTests.swift",
-    "ios/LaneShadow/RootView.swift",
-    ".spec/prds/v3-integration/tasks/sprint-03-auth-convex-foundation/AUTH-S03-T07-ios-rootview-auth-gate.md",
-    ".tmp/AUTH-S03-T07/test-output.txt",
-    ".tmp/AUTH-S03-T07/typecheck-output.txt",
-    ".tmp/AUTH-S03-T07/lint-output.txt",
-    ".tmp/AUTH-S03-T07/pre-existing-issues.md",
-    ".tmp/AUTH-S03-T07/verification-summary.json"
+  "remediation": [
+    "Deleted ios/LaneShadow/ContentView.swift",
+    "Removed LaneShadow/ContentView.swift from ios/project.yml and regenerated ios/LaneShadow.xcodeproj",
+    "Added RootView-level open URL seam used by .onOpenURL and covered by RootView test",
+    "Updated task spec status/evidence for AC-1 and AC-7"
   ]
 }

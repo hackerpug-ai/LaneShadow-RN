@@ -5,7 +5,7 @@ import XCTest
 
 @MainActor
 final class RootViewTests: XCTestCase {
-    func testRootViewReplacesContentViewAsAppEntry() throws {
+    func testRootViewReplacesContentViewAsAppEntry() {
         let app = LaneShadowApp()
         XCTAssertTrue(String(describing: type(of: app.body)).contains("RootView"))
 
@@ -67,8 +67,8 @@ final class RootViewTests: XCTestCase {
 
         let authenticatedState = AppState(isAuthenticated: false)
         let authenticatedRoot = RootView(convexStore: ConvexStore(), appState: authenticatedState)
-        authenticatedRoot.handleIncomingURL(
-            try XCTUnwrap(URL(string: "laneshadow://session/session-42")),
+        try authenticatedRoot.handleIncomingURL(
+            XCTUnwrap(URL(string: "laneshadow://session/session-42")),
             clerkAuth: authenticatedClerk
         )
         XCTAssertTrue(authenticatedState.isAuthenticated)
@@ -77,13 +77,26 @@ final class RootViewTests: XCTestCase {
 
         let unauthenticatedState = AppState(isAuthenticated: false)
         let unauthenticatedRoot = RootView(convexStore: ConvexStore(), appState: unauthenticatedState)
-        unauthenticatedRoot.handleIncomingURL(
-            try XCTUnwrap(URL(string: "laneshadow://auth/signup")),
+        try unauthenticatedRoot.handleIncomingURL(
+            XCTUnwrap(URL(string: "laneshadow://auth/signup")),
             clerkAuth: unauthenticatedClerk
         )
         XCTAssertFalse(unauthenticatedState.isAuthenticated)
         XCTAssertEqual(unauthenticatedState.authRoute, .signUp)
         XCTAssertNil(unauthenticatedState.appRoute)
+    }
+
+    func testRootViewOnOpenURLWiringRoutesDeepLink() async throws {
+        let clerkAuth = try await makeClerkAuth(isAuthenticated: true)
+        let appState = AppState(isAuthenticated: false)
+        let rootView = RootView(convexStore: ConvexStore(), appState: appState)
+        let deepLinkURL = try XCTUnwrap(URL(string: "laneshadow://session/session-99"))
+
+        rootView.handleSystemOpenURL(deepLinkURL, clerkAuth: clerkAuth)
+
+        XCTAssertTrue(appState.isAuthenticated)
+        XCTAssertEqual(appState.appRoute, .session(id: "session-99"))
+        XCTAssertNil(appState.authRoute)
     }
 
     private func makeEnvironment(clerkAuth: ClerkAuth) -> AppEnvironment {

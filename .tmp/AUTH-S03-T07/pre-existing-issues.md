@@ -1,11 +1,9 @@
 # Pre-existing Issues
 
-## SwiftFormat lint failures (pre-existing, out of scope)
-- `ios/LaneShadow/Views/Atoms/LSMapUIViewRepresentable.swift` (`wrapMultilineStatementBraces`)
-- `ios/LaneShadow/Sandbox/MockProviders/RouteResultsMockProvider.swift` (`wrap`, `trailingCommas`)
+## swiftformat --lint ios/LaneShadow/
+Command fails due to existing formatting violations outside this remediation scope:
+- ios/LaneShadow/Views/Atoms/LSMapUIViewRepresentable.swift:67
+- ios/LaneShadow/Sandbox/MockProviders/RouteResultsMockProvider.swift:8
+- ios/LaneShadow/Sandbox/MockProviders/RouteResultsMockProvider.swift:9
 
-## Build warnings (pre-existing, out of scope)
-- Duplicate compile source warnings in `LaneShadowTests` target:
-  - `ios/LaneShadowTests/Sandbox/MotionTests.swift`
-  - `ios/LaneShadowTests/Sandbox/RouteResultsDetailsVariantTests.swift`
-  - `ios/LaneShadowTests/Sandbox/SessionsErrorVariantTests.swift`
+These files were not modified by AUTH-S03-T07 remediation.

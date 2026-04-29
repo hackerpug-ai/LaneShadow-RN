@@ -1,2 +1,0 @@
-$ xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination platform=iOS\ Simulator,name=iPhone\ 16 -quiet ONLY_ACTIVE_ARCH=YES build
-EXIT_CODE=0
