@@ -4,6 +4,7 @@ package com.laneshadow
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.lifecycleScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,8 +23,6 @@ import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.data.repository.AuthRepository
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -66,7 +65,7 @@ class MainActivity : ComponentActivity() {
     private fun dispatchOAuthCallbackIfPresent(intent: android.content.Intent?) {
         val callbackUri = intent?.data ?: return
         if (callbackUri.scheme == "laneshadow" && callbackUri.host == "oauth-callback") {
-            CoroutineScope(Dispatchers.Main.immediate).launch {
+            lifecycleScope.launch {
                 authRepository.handleOAuthCallback(callbackUri)
             }
         }

@@ -3,8 +3,10 @@ package com.laneshadow.di
 import android.net.Uri
 import com.clerk.api.Clerk
 import com.clerk.api.auth.builders.SignInWithPasswordBuilder
+import com.clerk.api.auth.types.VerificationType
 import com.clerk.api.network.serialization.successOrNull
 import com.clerk.api.sso.OAuthProvider
+import com.clerk.api.signup.verifyCode
 import com.laneshadow.data.model.ClerkUser
 import com.laneshadow.data.repository.AuthRepository
 import com.laneshadow.data.repository.ClerkAuthRepository
@@ -100,14 +102,10 @@ private class ClerkSdkGateway : ClerkGateway {
     override suspend fun completeSignUpVerification(code: String): Result<ClerkUser> {
         val currentSignUp = Clerk.auth.currentSignUp
             ?: return Result.failure(IllegalStateException("No active sign-up to verify"))
-        val verificationAttempt = runCatching {
-            val method = currentSignUp::class.java.methods.firstOrNull {
-                it.name.contains("attempt", ignoreCase = true) && it.name.contains("verification", ignoreCase = true)
-            } ?: throw IllegalStateException("Clerk SignUp verification method unavailable")
-            method.invoke(currentSignUp, code)
-        }
-        if (verificationAttempt.isFailure) {
-            return Result.failure(verificationAttempt.exceptionOrNull() ?: IllegalStateException("Verification failed"))
+        val verifiedSignUp = currentSignUp.verifyCode(code, VerificationType.EMAIL).successOrNull()
+            ?: return Result.failure(IllegalStateException("Verification failed"))
+        if (verifiedSignUp.createdSessionId.isNullOrBlank()) {
+            return Result.failure(IllegalStateException("Verification completed without session"))
         }
         return Result.success(
             pendingSignUpUser
@@ -138,6 +136,7 @@ private class ClerkSdkGateway : ClerkGateway {
 private class ClerkSdkOAuthGateway : OAuthGateway {
     private val pendingMutex = Mutex()
     private var pendingResult: CompletableDeferred<OAuthResult>? = null
+    private var pendingProvider: String? = null
 
     override suspend fun signInWithGoogle(): OAuthResult = launchOAuth(OAuthProvider.GOOGLE)
 
@@ -155,22 +154,32 @@ private class ClerkSdkOAuthGateway : OAuthGateway {
         val result = if (jwt.isBlank() || user == null) {
             OAuthResult(Result.failure(IllegalStateException("OAuth callback completed without user session")), "")
         } else {
-            OAuthResult(Result.success(user.toModel("oauth")), jwt)
+            val provider = pendingMutex.withLock { pendingProvider ?: "oauth" }
+            OAuthResult(Result.success(user.toModel(provider)), jwt)
         }
-        pendingResult?.complete(result)
+        pendingMutex.withLock {
+            pendingResult?.complete(result)
+            pendingResult = null
+            pendingProvider = null
+        }
         return result
     }
 
     private suspend fun launchOAuth(provider: OAuthProvider): OAuthResult {
         val deferred = pendingMutex.withLock {
             pendingResult?.cancel()
+            pendingProvider = provider.toProviderValue()
             CompletableDeferred<OAuthResult>().also { pendingResult = it }
         }
 
         val launchResult = Clerk.auth.signInWithOAuth(provider).successOrNull()
         if (launchResult == null) {
             val failed = OAuthResult(Result.failure(IllegalStateException("Failed to start OAuth flow")), "")
-            deferred.complete(failed)
+            pendingMutex.withLock {
+                deferred.complete(failed)
+                pendingResult = null
+                pendingProvider = null
+            }
         }
 
         return deferred.await()
@@ -185,4 +194,10 @@ private fun com.clerk.api.user.User.toModel(provider: String): ClerkUser {
         name = fullName,
         provider = provider,
     )
+}
+
+private fun OAuthProvider.toProviderValue(): String = when (this) {
+    OAuthProvider.GOOGLE -> "google"
+    OAuthProvider.APPLE -> "apple"
+    else -> "oauth"
 }
