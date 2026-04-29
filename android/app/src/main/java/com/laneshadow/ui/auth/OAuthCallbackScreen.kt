@@ -29,7 +29,6 @@ import com.laneshadow.ui.atoms.LSSpinner
 import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.SpinnerSize
 import com.laneshadow.ui.atoms.TypographyVariant
-import kotlinx.coroutines.delay
 
 @Composable
 fun OAuthCallbackScreen(
@@ -41,6 +40,8 @@ fun OAuthCallbackScreen(
     val authState by viewModel.authState.collectAsStateWithLifecycle()
     var lastCallbackUri by remember { mutableStateOf<Uri?>(null) }
     var isProcessingCallback by remember { mutableStateOf(false) }
+    // Debug-only screenshot hook: when `screen=loading` is passed, keep callback UI in loading.
+    // Release behavior is unaffected because BuildConfig.DEBUG is false in non-debug builds.
     val forceLoadingPreview = BuildConfig.DEBUG && (deepLinkUri?.getQueryParameter("screen") == "loading")
 
     LaunchedEffect(deepLinkUri) {
@@ -50,7 +51,6 @@ fun OAuthCallbackScreen(
         deepLinkUri?.let {
             lastCallbackUri = it
             isProcessingCallback = true
-            delay(500)
             viewModel.handleOAuthCallback(it)
             DeepLinkBus.consumeLatest()
             isProcessingCallback = false

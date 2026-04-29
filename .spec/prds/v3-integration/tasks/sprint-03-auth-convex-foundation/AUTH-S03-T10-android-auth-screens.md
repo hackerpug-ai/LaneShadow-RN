@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: cd android && ./gradlew :app:compileDebugKotlin
   lint:      cd android && ./gradlew :app:ktlintCheck
 
-PROGRESS: 0/13 AC · not started
+PROGRESS: 13/13 AC implemented · remediation cycle 6 evidence update in progress
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -58,6 +58,10 @@ DONE WHEN
 - [x] All V2 atoms reused (no custom UI components); `VerifyRoute` uses `LSTextField`, `LSButton`, `LSText`, and `LSInlineErrorCallout`
 - [x] ./gradlew :app:compileDebugKotlin succeeds
 - [x] Only SCOPE.writeAllowed production files modified; task file updates are orchestration metadata remediation requested in reviewer blockers
+- [x] Auth test evidence added in remediation:
+  - `android/app/src/test/java/com/laneshadow/ui/auth/AuthScreensSourceStructureTest.kt`
+  - RED evidence captured: callback test failed while `delay(500)` existed
+  - GREEN evidence captured: callback delay removed; targeted test class passes
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
@@ -196,6 +200,8 @@ writeAllowed:
 - android/app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt (MODIFY — wire new auth screens into live SignedOut navigation)
 - android/app/src/main/java/com/laneshadow/navigation/Route.kt (MODIFY — add OAuthCallback typed route)
 - android/app/src/main/java/com/laneshadow/ui/LaneShadowApp.kt (MODIFY — move direct callback handling into OAuthCallbackScreen/AuthNavGraph path)
+- android/app/src/main/java/com/laneshadow/navigation/DeepLinkBus.kt (MODIFY — scope expansion approved for OAuth callback cold-start/replay reliability and replay-cache consumption behavior)
+- android/app/src/main/java/com/laneshadow/ui/molecules/LSFormField.kt (MODIFY — scope expansion approved for minimal pass-through keyboard/password options required to reuse existing V2 molecule without duplicating auth-specific field components)
 
 writeProhibited:
 - Do not create custom UI components that duplicate V2 atoms
@@ -258,7 +264,16 @@ EVIDENCE GATES
 --------------------------------------------------------------------------------
 
 Gate 1: RED phase evidence
-Gate 2: Each AC has a test
+  - `cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.auth.AuthScreensSourceStructureTest'`
+  - Failing assertion captured: `oauth_callback_screen_has_processing_and_error_ui_and_no_artificial_delay` failed while `delay(500)` existed.
+Gate 2: Each AC has a test (truthful remediation state)
+  - AC coverage from remediation test file:
+    - SignInScreen structure/labels/validation/loading/error/OAuth wiring
+    - SignUpScreen required fields/loading/error rendering
+    - OAuthCallbackScreen processing/loading/error rendering and callback wiring
+    - AuthNavGraph + DeepLinkBus callback replay/cold-start routing source structure
+  - Evidence test file: `android/app/src/test/java/com/laneshadow/ui/auth/AuthScreensSourceStructureTest.kt`
+  - GREEN result: same filtered test class passes after callback delay removal.
 Gate 3: Kotlin compilation
   Command: cd android && ./gradlew :app:compileDebugKotlin
   Expected: Exit 0.
