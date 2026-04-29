@@ -44,19 +44,19 @@ fun AuthNavGraph(
 ) {
     var callbackUri by remember { mutableStateOf<Uri?>(null) }
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(navController) {
-        DeepLinkBus.callbacks.collect { uri ->
+    val navigateToOAuthCallback = remember(navController) {
+        { uri: Uri ->
             callbackUri = uri
-            navController.navigate(Route.OAuthCallback)
+            navController.navigate(Route.OAuthCallback) {
+                popUpTo(Route.Splash) { inclusive = true }
+                launchSingleTop = true
+            }
         }
     }
 
-    LaunchedEffect(Unit) {
-        val pendingCallback = DeepLinkBus.latestCallbackUri
-        if (pendingCallback != null) {
-            callbackUri = pendingCallback
-            navController.navigate(Route.OAuthCallback)
+    LaunchedEffect(navController) {
+        DeepLinkBus.callbacks.collect { uri ->
+            navigateToOAuthCallback(uri)
         }
     }
 
@@ -68,13 +68,7 @@ fun AuthNavGraph(
         composable<Route.Splash> {
             val theme = LocalLaneShadowTheme.current
             LaunchedEffect(Unit) {
-                val pendingCallback = DeepLinkBus.latestCallbackUri
-                if (pendingCallback != null) {
-                    callbackUri = pendingCallback
-                    navController.navigate(Route.OAuthCallback) {
-                        popUpTo(Route.Splash) { inclusive = true }
-                    }
-                } else {
+                if (DeepLinkBus.latestCallbackUri == null) {
                     navController.navigate(Route.SignIn) {
                         popUpTo(Route.Splash) { inclusive = true }
                     }

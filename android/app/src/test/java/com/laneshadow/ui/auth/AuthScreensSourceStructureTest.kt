@@ -22,10 +22,12 @@ import com.laneshadow.ui.auth.viewmodels.SignInViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
 class AuthScreensSourceStructureTest {
@@ -118,6 +120,23 @@ class AuthScreensSourceStructureTest {
         composeTestRule.onNodeWithText("Sign-in callback failed").assertIsDisplayed()
         composeTestRule.onNodeWithText("Callback failed").assertIsDisplayed()
         composeTestRule.onNodeWithText("Retry callback").assertIsDisplayed()
+    }
+
+    @Test
+    fun authNavGraph_oauth_callback_navigation_is_single_top_and_centralized() {
+        val source = File("src/main/java/com/laneshadow/navigation/AuthNavGraph.kt").readText()
+
+        assertTrue(
+            "OAuth callback route should be navigated through a single-top option",
+            Regex(
+                "navController\\.navigate\\(Route\\.OAuthCallback\\) \\{[\\s\\S]*?launchSingleTop = true",
+            ).containsMatchIn(source),
+        )
+        assertEquals(
+            "AuthNavGraph should only contain one explicit OAuth callback navigation call site",
+            1,
+            source.split("navController.navigate(Route.OAuthCallback)").size - 1,
+        )
     }
 }
 
