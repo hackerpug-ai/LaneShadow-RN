@@ -40,12 +40,16 @@
       "target": "emulator",
       "command": "cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest",
       "status": "BLOCKED",
-      "timestamp": "2026-04-29T23:00:00Z",
+      "timestamp": "2026-04-29T23:04:04Z",
       "evidence": {
-        "summary": "pending_kotlin_slice: Android closure lane owned by Kotlin implementer for AUTH-S03-T12",
+        "summary": "No Android emulator detected in adb devices; emulator Espresso lane blocked.",
+        "adbDevices": "List of devices attached\n\nEXIT_CODE:0",
+        "diagnostics": "ios/E2E/diagnostics/sprint-03-closure/android-adb-devices.txt",
+        "commandAttempted": false,
+        "reason": "Required target unavailable",
         "prerequisites": [
-          "Android emulator booted and visible in adb devices",
-          "Kotlin slice must execute and record Espresso results"
+          "Boot an Android emulator and ensure it appears in `adb devices` as `device`.",
+          "Then run: cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest"
         ]
       }
     },
@@ -55,12 +59,16 @@
       "target": "real-android-device",
       "command": "adb devices && cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest",
       "status": "BLOCKED",
-      "timestamp": "2026-04-29T23:00:00Z",
+      "timestamp": "2026-04-29T23:04:04Z",
       "evidence": {
-        "summary": "pending_kotlin_slice: Android physical-device lane owned by Kotlin implementer for AUTH-S03-T12",
+        "summary": "No authorized physical Android device detected in adb devices; physical-device Espresso lane blocked.",
+        "adbDevices": "List of devices attached\n\nEXIT_CODE:0",
+        "diagnostics": "ios/E2E/diagnostics/sprint-03-closure/android-adb-devices.txt",
+        "commandAttempted": false,
+        "reason": "Required target unavailable",
         "prerequisites": [
-          "Authorized physical Android device connected",
-          "Kotlin slice must execute and record physical-device Espresso evidence"
+          "Connect and authorize a physical Android device so it appears in `adb devices` as `device` (not `unauthorized`/`offline`).",
+          "Then run: cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest"
         ]
       }
     }
