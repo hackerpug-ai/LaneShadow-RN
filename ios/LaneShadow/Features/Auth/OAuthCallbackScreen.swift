@@ -22,22 +22,20 @@ struct OAuthCallbackScreen: View {
             }
             .padding(theme.space.lg)
             .task {
-                completeAuth()
+                await completeAuth()
             }
         }
         .navigationTitle("OAuth")
     }
 
-    func completeAuth() {
+    private func completeAuth() async {
         guard let token = Self.parseToken(from: callbackURL) else {
             statusMessage = "Missing auth token."
             return
         }
 
-        Task {
-            await onAuthenticated(token)
-            statusMessage = "Signed in"
-        }
+        await onAuthenticated(token)
+        statusMessage = "Signed in"
     }
 
     static func parseToken(from url: URL?) -> String? {
@@ -47,14 +45,12 @@ struct OAuthCallbackScreen: View {
             .queryItems?
             .first(where: { $0.name == "token" })?
             .value,
-            !tokenQuery.isEmpty
-        {
+            !tokenQuery.isEmpty {
             return tokenQuery
         }
 
         if let fragment = URLComponents(url: url, resolvingAgainstBaseURL: false)?.fragment,
-           fragment.contains("token=")
-        {
+           fragment.contains("token=") {
             let fragmentComponents = URLComponents(string: "https://laneshadow.app?\(fragment)")
             return fragmentComponents?.queryItems?.first(where: { $0.name == "token" })?.value
         }

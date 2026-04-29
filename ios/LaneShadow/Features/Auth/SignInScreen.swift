@@ -109,8 +109,7 @@ struct AuthBackgroundContainer<Content: View>: View {
 
     private var authBackgroundImage: Image {
         if Self.resolveImageSource(imageLoader: { UIImage(named: $0) }) == .authBackground,
-           let image = UIImage(named: "AuthBackground")
-        {
+           let image = UIImage(named: "AuthBackground") {
             Image(uiImage: image)
         } else {
             Image(systemName: "mountain.2.fill")

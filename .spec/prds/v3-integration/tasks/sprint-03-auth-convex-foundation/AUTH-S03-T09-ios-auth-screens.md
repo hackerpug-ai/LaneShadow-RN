@@ -41,14 +41,14 @@ DONE WHEN
 - [x] SignInScreen.swift exists with multi-step flow (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:20)
 - [x] Email step shows email LSTextField with validation (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:21; ios/LaneShadow/Features/Auth/ViewModels/SignInViewModel.swift:19)
 - [x] Password step shows password LSTextField with visibility toggle (evidence: ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift:11; ios/LaneShadow/Views/Atoms/LSTextField.swift:195)
-- [x] Submitting state shows LSSpainer during auth (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:36)
+- [x] Submitting state shows LSSpinner during auth (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:44)
 - [x] LSAuthProviderButton molecule exists for Google/Apple (evidence: ios/LaneShadow/DesignSystem/Molecules/LSAuthProviderButton.swift:27)
 - [x] SignUpScreen variant exists with name + confirm password (evidence: ios/LaneShadow/Features/Auth/SignUpScreen.swift:16)
 - [x] OAuthCallbackScreen exists for deep-link handling (evidence: ios/LaneShadow/Services/ClerkAuth.swift:90; ios/LaneShadow/Features/Auth/OAuthCallbackCompletion.swift:10)
 - [x] Background image applied per design spec (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:98; ios/LaneShadow/Assets.xcassets/AuthBackground.imageset/AuthBackground.png)
 - [x] Errors display via LSText danger color (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:41)
 - [x] All V2 atoms reused (no custom UI components) (evidence: wrappers `AuthBackgroundContainer` and `AuthSecureTextEntry` are composition-only and delegate UI primitives to V2 atoms/molecules; no custom primitive controls introduced)
-- [x] xcodebuild build succeeds (evidence: `cd ios && xcodebuild ... build` exit 0 on 2026-04-29)
+- [x] xcodebuild build succeeds (evidence: `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build` exit 0 on 2026-04-29)
 - [x] Only SCOPE.writeAllowed files modified (evidence: `git diff --name-only 705e386a6e53e36b86b39c672264fa36e22a44ea..HEAD`)
 
 --------------------------------------------------------------------------------
@@ -126,10 +126,28 @@ writeAllowed:
 - ios/LaneShadow/Features/Auth/SignInScreen.swift (CREATE)
 - ios/LaneShadow/Features/Auth/SignUpScreen.swift (CREATE)
 - ios/LaneShadow/Features/Auth/OAuthCallbackScreen.swift (CREATE)
+- ios/LaneShadow/Features/Auth/OAuthCallbackCompletion.swift (CREATE): deep-link completion + routing
+- ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift (CREATE): secure-entry composition wrapper
+- ios/LaneShadow/Features/Auth/Models/AuthPasswordVisibilityState.swift (CREATE): password visibility state
+- ios/LaneShadow/Features/Auth/ViewModels/SignUpViewModel.swift (CREATE): sign-up logic
 - ios/LaneShadow/DesignSystem/Molecules/LSAuthProviderButton.swift (CREATE)
 - ios/LaneShadow/Features/Auth/Models/SignInStep.swift (CREATE — step enum)
 - ios/LaneShadow/Features/Auth/Models/SignUpField.swift (CREATE — field state)
 - ios/LaneShadow/Features/Auth/ViewModels/SignInViewModel.swift (CREATE or MODIFY)
+- ios/LaneShadow/Models/AppState.swift (MODIFY): shared auth routing state
+- ios/LaneShadow/RootView.swift (MODIFY): auth/app flow gate uses shared ClerkAuth
+- ios/LaneShadow/Services/ClerkAuth.swift (MODIFY): native sign-in/sign-up + ticket callback
+- ios/LaneShadow/Views/AuthFlow/AuthFlowView.swift (MODIFY): screen wiring + OAuth callback routing
+- ios/LaneShadow/Views/AuthFlow/SignInView.swift (MODIFY): inject shared appState/auth
+- ios/LaneShadow/Views/AuthFlow/SignUpView.swift (MODIFY): inject shared appState/auth
+- ios/LaneShadow/Views/Atoms/LSTextField.swift (MODIFY): secure-entry support (no feature-local TextField/SecureField)
+- ios/LaneShadow/Assets.xcassets/AuthBackground.imageset/AuthBackground.png (ADD): auth background image
+- ios/LaneShadow/Assets.xcassets/AuthBackground.imageset/Contents.json (MODIFY): asset catalog entry
+- ios/LaneShadowTests/Integration/AuthScreensTests.swift (CREATE/MODIFY)
+- ios/LaneShadowTests/Integration/RootViewTests.swift (MODIFY)
+- ios/LaneShadowTests/Integration/ClerkAuthTests.swift (MODIFY)
+- ios/project.yml (MODIFY): generated project inputs
+- ios/LaneShadow.xcodeproj/project.pbxproj (MODIFY): generated project output
 
 writeProhibited:
 - Do not create custom UI components that duplicate V2 atoms
@@ -165,7 +183,7 @@ Gates run (re-review):
 - `xcodebuild test -only-testing:LaneShadowTests/AuthScreensTests` passed on 2026-04-29
 - `xcodebuild build` passed on 2026-04-29
 - `swiftformat --lint ios/LaneShadow/` reports unrelated pre-existing issues in `ios/LaneShadow/Views/Atoms/LSMapUIViewRepresentable.swift` and `ios/LaneShadow/Sandbox/MockProviders/RouteResultsMockProvider.swift`
-- `swiftlint lint LaneShadow` reports many pre-existing violations repo-wide; this task adds warnings in `ios/LaneShadow/Features/Auth/OAuthCallbackScreen.swift` and `ios/LaneShadow/Features/Auth/SignInScreen.swift`
+- `swiftlint lint LaneShadow` reports many pre-existing violations repo-wide; this task must not add new warnings in `ios/LaneShadow/Features/Auth/OAuthCallbackScreen.swift` and `ios/LaneShadow/Features/Auth/SignInScreen.swift`
 
 --------------------------------------------------------------------------------
 DELIVERABLE

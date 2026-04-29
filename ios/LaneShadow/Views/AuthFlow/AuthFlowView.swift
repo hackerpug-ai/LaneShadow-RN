@@ -17,13 +17,11 @@ struct AuthFlowView: View {
                 SignUpView(appState: appState)
             } else if case let .oauthCallback(callbackURL) = route {
                 OAuthCallbackScreen(callbackURL: callbackURL) { _ in
-                    Task {
-                        _ = await OAuthCallbackCompletion.complete(
-                            callbackURL: callbackURL,
-                            appState: appState,
-                            auth: clerkAuth
-                        )
-                    }
+                    _ = await OAuthCallbackCompletion.complete(
+                        callbackURL: callbackURL,
+                        appState: appState,
+                        auth: clerkAuth
+                    )
                 }
             } else {
                 SignInView(appState: appState)
