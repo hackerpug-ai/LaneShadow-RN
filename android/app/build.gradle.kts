@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("kotlin-kapt")
     id("com.dropbox.dropshots") version "0.6.0"
 }
 
@@ -155,10 +156,16 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     implementation("com.mapbox.maps:android:11.22.0")
+    implementation("com.clerk:clerk-android:0.1.22")
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    implementation("androidx.browser:browser:1.8.0")
+    implementation("com.google.dagger:hilt-android:2.57.2")
+    kapt("com.google.dagger:hilt-android-compiler:2.57.2")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation(project(":theme"))
     testImplementation("androidx.compose.ui:ui-test-junit4")
+    testImplementation("com.google.truth:truth:1.4.4")
     testImplementation("androidx.test.ext:junit:1.2.1")
     testImplementation("androidx.test:core:1.5.0")
     testImplementation("androidx.test:runner:1.5.2")
