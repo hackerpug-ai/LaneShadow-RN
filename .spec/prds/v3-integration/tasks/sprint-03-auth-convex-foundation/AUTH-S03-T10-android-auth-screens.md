@@ -38,21 +38,21 @@ Android SignInScreen, SignUpScreen, OAuthCallbackScreen Compose composables matc
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] SignInScreen.kt exists with multi-step flow
-- [ ] SignInUiState tracks step, email, password, loading, error
-- [ ] Email entry step shows LSInputField with validation
-- [ ] Password entry step shows LSInputField with visibility toggle
-- [ ] Submitting state shows LSSpinner during auth
-- [ ] Error state shows LSInlineErrorCallout
-- [ ] LSAuthProviderButton molecule exists for Google/Apple
-- [ ] Google OAuth button triggers OAuth flow
-- [ ] Apple OAuth button triggers OAuth flow
-- [ ] SignUpScreen variant exists with name + confirm password
-- [ ] OAuthCallbackScreen exists for deep-link handling
-- [ ] Visual parity verified with iOS screenshots
-- [ ] All V2 atoms reused (no custom UI components)
-- [ ] ./gradlew :app:compileDebugKotlin succeeds
-- [ ] Only SCOPE.writeAllowed files modified
+- [x] SignInScreen.kt exists with multi-step flow
+- [x] SignInUiState tracks step, email, password, loading, error
+- [ ] Email entry step shows LSInputField with validation ← FAIL: uses `LSTextField` (no `LSInputField` exists) + validation only on continue (evidence: android/app/src/main/java/com/laneshadow/ui/auth/SignInScreen.kt:94, android/app/src/main/java/com/laneshadow/ui/auth/viewmodels/SignInViewModel.kt:22)
+- [ ] Password entry step shows LSInputField with visibility toggle ← FAIL: uses `LSTextField` + separate "Show/Hide password" button, not `LSInputField` (evidence: android/app/src/main/java/com/laneshadow/ui/auth/SignInScreen.kt:114)
+- [x] Submitting state shows LSSpinner during auth
+- [x] Error state shows LSInlineErrorCallout
+- [ ] LSAuthProviderButton molecule exists for Google/Apple ← PARTIAL: `LSButton` label only (no provider icon; contract expects icon+label) (evidence: android/app/src/main/java/com/laneshadow/ui/components/LSAuthProviderButton.kt:15)
+- [x] Google OAuth button triggers OAuth flow
+- [x] Apple OAuth button triggers OAuth flow
+- [x] SignUpScreen variant exists with name + confirm password
+- [ ] OAuthCallbackScreen exists for deep-link handling ← FAIL: `LaneShadowApp` renders `SplashScreen()` for `AuthState.OAuthPending`, so `AuthNavGraph` (which collects `DeepLinkBus` and navigates to `Route.OAuthCallback`) is not active during the callback window (evidence: android/app/src/main/java/com/laneshadow/ui/LaneShadowApp.kt:83, android/app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt:41)
+- [ ] Visual parity verified with iOS screenshots ← FAIL: no emulator/screenshot evidence in task/PR (evidence: .spec/prds/v3-integration/tasks/sprint-03-auth-convex-foundation/AUTH-S03-T10-android-auth-screens.md:52)
+- [ ] All V2 atoms reused (no custom UI components) ← FAIL: `VerifyRoute` uses Material3 `OutlinedTextField`/`Button`/`Text` instead of V2 atoms (evidence: android/app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt:114)
+- [x] ./gradlew :app:compileDebugKotlin succeeds
+- [ ] Only SCOPE.writeAllowed files modified ← PARTIAL: prod changes are in writeAllowed, but this task file itself is modified and not listed in writeAllowed (evidence: git diff --name-only main..3fa8663)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
