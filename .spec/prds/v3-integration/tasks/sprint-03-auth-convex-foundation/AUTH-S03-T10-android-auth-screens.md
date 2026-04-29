@@ -188,6 +188,9 @@ writeAllowed:
 - android/app/src/main/java/com/laneshadow/ui/auth/models/SignInUiState.kt (CREATE — UI state)
 - android/app/src/main/java/com/laneshadow/ui/auth/models/SignUpField.kt (CREATE — field state)
 - android/app/src/main/java/com/laneshadow/ui/auth/viewmodels/SignInViewModel.kt (CREATE or MODIFY)
+- android/app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt (MODIFY — wire new auth screens into live SignedOut navigation)
+- android/app/src/main/java/com/laneshadow/navigation/Route.kt (MODIFY — add OAuthCallback typed route)
+- android/app/src/main/java/com/laneshadow/ui/LaneShadowApp.kt (MODIFY — move direct callback handling into OAuthCallbackScreen/AuthNavGraph path)
 
 writeProhibited:
 - Do not create custom UI components that duplicate V2 atoms
