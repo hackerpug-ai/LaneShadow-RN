@@ -94,22 +94,32 @@ final class Sprint03WDAArtifactTests: XCTestCase {
 
         for step in steps {
             guard let evidence = step["evidence"] as? [String: Any],
-                  let screenshotPath = evidence["screenshot"] as? String else {
+                  let screenshotPath = evidence["screenshot"] as? String
+            else {
                 continue
             }
             let screenshotURL = repositoryRoot.appendingPathComponent(screenshotPath)
-            XCTAssertTrue(fm.fileExists(atPath: screenshotURL.path), "Evidence screenshot path missing: \(screenshotPath)")
+            XCTAssertTrue(
+                fm.fileExists(atPath: screenshotURL.path),
+                "Evidence screenshot path missing: \(screenshotPath)"
+            )
             if screenshotPath.hasSuffix(".png") {
                 let screenshotData = try Data(contentsOf: screenshotURL)
                 let pngSignature = Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
-                XCTAssertTrue(screenshotData.starts(with: pngSignature), "Evidence uses .png extension but not PNG content: \(screenshotPath)")
+                XCTAssertTrue(
+                    screenshotData.starts(with: pngSignature),
+                    "Evidence uses .png extension but not PNG content: \(screenshotPath)"
+                )
             }
         }
     }
 
     func testSprintClosureArtifactSeparatesNativeE2ELanes() throws {
         let closureURL = repositoryRoot.appendingPathComponent("ios/E2E/results/sprint-03-closure.json")
-        XCTAssertTrue(FileManager.default.fileExists(atPath: closureURL.path), "Expected sprint-03-closure.json artifact")
+        XCTAssertTrue(
+            FileManager.default.fileExists(atPath: closureURL.path),
+            "Expected sprint-03-closure.json artifact"
+        )
 
         let data = try Data(contentsOf: closureURL)
         let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
@@ -128,11 +138,17 @@ final class Sprint03WDAArtifactTests: XCTestCase {
             XCTAssertTrue(allowedStatuses.contains(status), "Lane status must be one of \(allowedStatuses): \(status)")
 
             let timestamp = try XCTUnwrap(lane["timestamp"] as? String, "Lane timestamp must be a string")
-            XCTAssertNotNil(iso8601Formatter.date(from: timestamp), "Lane timestamp must be ISO8601 parseable: \(timestamp)")
+            XCTAssertNotNil(
+                iso8601Formatter.date(from: timestamp),
+                "Lane timestamp must be ISO8601 parseable: \(timestamp)"
+            )
 
             let evidence = try XCTUnwrap(lane["evidence"] as? [String: Any], "Lane evidence must be an object")
             if status == "BLOCKED" {
-                let prerequisites = try XCTUnwrap(evidence["prerequisites"] as? [String], "Blocked lane requires prerequisites array")
+                let prerequisites = try XCTUnwrap(
+                    evidence["prerequisites"] as? [String],
+                    "Blocked lane requires prerequisites array"
+                )
                 XCTAssertFalse(prerequisites.isEmpty, "Blocked lane prerequisites cannot be empty")
                 XCTAssertTrue(prerequisites.allSatisfy { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty },
                               "Blocked lane prerequisites must contain non-empty strings")
@@ -141,7 +157,8 @@ final class Sprint03WDAArtifactTests: XCTestCase {
 
         let laneIndex = Dictionary(uniqueKeysWithValues: lanes.compactMap { lane -> (String, [String: Any])? in
             guard let platform = lane["platform"] as? String,
-                  let target = lane["target"] as? String else {
+                  let target = lane["target"] as? String
+            else {
                 return nil
             }
             return ("\(platform):\(target)", lane)
@@ -166,7 +183,10 @@ final class Sprint03WDAArtifactTests: XCTestCase {
         for evidence in blockedLaneEvidences {
             XCTAssertNotNil(evidence["summary"] as? String, "Blocked lane evidence should include summary")
             XCTAssertNotNil(evidence["diagnostics"] as? String, "Blocked lane evidence should include diagnostics path")
-            XCTAssertNotNil(evidence["prerequisites"] as? [String], "Blocked lane evidence should include prerequisites")
+            XCTAssertNotNil(
+                evidence["prerequisites"] as? [String],
+                "Blocked lane evidence should include prerequisites"
+            )
         }
     }
 }
