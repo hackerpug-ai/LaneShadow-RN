@@ -2,31 +2,38 @@ import XCTest
 
 @MainActor
 final class LaneShadowUITests: XCTestCase {
-    let app = XCUIApplication()
+    private var app: XCUIApplication!
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        app.launchEnvironment["LANESHADOW_LAUNCH_SANDBOX"] = "0"
-        app.launch()
+        app = XCUIApplication()
+        AppLauncher.launchApp(app)
     }
 
     func testAppLaunchesWithoutCrash() {
         XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10))
     }
 
-    func testAppTitleVisible() {
-        let title = app.staticTexts["LaneShadow"]
+    func testUnauthenticatedLaunchShowsSignInFlow() {
+        let title = app.staticTexts["Sign In"]
         XCTAssertTrue(
             title.waitForExistence(timeout: 15),
-            "App should display LaneShadow title"
+            "Unauthenticated app launch should display the Sign In flow"
         )
+        XCTAssertFalse(app.staticTexts["App Home"].exists)
     }
 
-    func testNavigationTitleVisible() {
-        let navTitle = app.navigationBars.staticTexts["LaneShadow"]
+    func testUnauthenticatedUserCanNavigateToSignUpFlow() {
+        let createAccount = app.buttons["Create Account"]
         XCTAssertTrue(
-            navTitle.waitForExistence(timeout: 15),
-            "Navigation bar should display LaneShadow title"
+            createAccount.waitForExistence(timeout: 15),
+            "Sign In flow should expose sign-up navigation"
+        )
+        createAccount.tap()
+
+        XCTAssertTrue(
+            app.staticTexts["Sign Up"].waitForExistence(timeout: 10),
+            "Create Account should navigate to the Sign Up flow"
         )
     }
 }
