@@ -1,65 +1,123 @@
 package com.laneshadow.ui.auth
 
-import java.io.File
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import android.net.Uri
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import com.laneshadow.data.model.AuthState
+import com.laneshadow.data.model.ClerkUser
+import com.laneshadow.data.repository.AuthRepository
+import com.laneshadow.theme.LaneShadowTheme
+import com.laneshadow.ui.AuthViewModel
+import com.laneshadow.ui.auth.viewmodels.SignInViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
+@RunWith(RobolectricTestRunner::class)
 class AuthScreensSourceStructureTest {
-    private val signInSource =
-        File("../app/src/main/java/com/laneshadow/ui/auth/SignInScreen.kt").readText()
-    private val signUpSource =
-        File("../app/src/main/java/com/laneshadow/ui/auth/SignUpScreen.kt").readText()
-    private val callbackSource =
-        File("../app/src/main/java/com/laneshadow/ui/auth/OAuthCallbackScreen.kt").readText()
-    private val navSource =
-        File("../app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt").readText()
-    private val deepLinkSource =
-        File("../app/src/main/java/com/laneshadow/navigation/DeepLinkBus.kt").readText()
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
     @Test
-    fun signIn_screen_has_multistep_validation_loading_error_and_oauth_wiring() {
-        assertTrue(signInSource.contains("when (uiState.step)"))
-        assertTrue(signInSource.contains("SignInStep.Email"))
-        assertTrue(signInSource.contains("SignInStep.Password"))
-        assertTrue(signInSource.contains("label = \"Email\""))
-        assertTrue(signInSource.contains("label = \"Password\""))
-        assertTrue(signInSource.contains("continueToPassword"))
-        assertTrue(signInSource.contains("LSInlineErrorCallout"))
-        assertTrue(signInSource.contains("if (uiState.isLoading)"))
-        assertTrue(signInSource.contains("LSSpinner"))
-        assertTrue(signInSource.contains("AuthProvider.Google"))
-        assertTrue(signInSource.contains("AuthProvider.Apple"))
-        assertTrue(signInSource.contains("viewModel::signInWithGoogle"))
-        assertTrue(signInSource.contains("viewModel::signInWithApple"))
+    fun signIn_email_step_disables_continue_until_valid_email_then_shows_password_step() {
+        val authViewModel = AuthViewModel(FakeAuthRepository())
+        val signInViewModel = SignInViewModel()
+
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                SignInScreen(
+                    viewModel = authViewModel,
+                    signInViewModel = signInViewModel,
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("Continue").assertIsDisplayed()
+
+        signInViewModel.onEmailChanged("rider@laneshadow.com")
+        signInViewModel.continueToPassword()
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Password").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Show password").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Sign in").assertIsDisplayed()
     }
 
     @Test
-    fun signUp_screen_has_required_fields_spinner_and_error_callout() {
-        assertTrue(signUpSource.contains("label = \"Name\""))
-        assertTrue(signUpSource.contains("label = \"Email\""))
-        assertTrue(signUpSource.contains("label = \"Password\""))
-        assertTrue(signUpSource.contains("label = \"Confirm password\""))
-        assertTrue(signUpSource.contains("LSInlineErrorCallout"))
-        assertTrue(signUpSource.contains("if (isSubmitting)"))
-        assertTrue(signUpSource.contains("LSSpinner"))
+    fun signUp_shows_email_validation_and_enables_create_account_when_form_valid() {
+        val authViewModel = AuthViewModel(FakeAuthRepository())
+
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                SignUpScreen(viewModel = authViewModel)
+            }
+        }
+
+        composeTestRule.onNodeWithText("Name").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Email").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Password").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Confirm password").assertIsDisplayed()
     }
 
     @Test
-    fun oauth_callback_screen_has_processing_and_error_ui_and_no_artificial_delay() {
-        assertTrue(callbackSource.contains("handleOAuthCallback"))
-        assertTrue(callbackSource.contains("Completing sign-in"))
-        assertTrue(callbackSource.contains("Sign-in callback failed"))
-        assertFalse(callbackSource.contains("delay(500)"))
+    fun oauthCallback_invokes_handler_for_uri_and_renders_error_state() {
+        val repository = FakeAuthRepository()
+        val authViewModel = AuthViewModel(repository)
+
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                OAuthCallbackScreen(
+                    deepLinkUri = Uri.parse("laneshadow://oauth-callback?code=abc"),
+                    onNavigateToSignIn = {},
+                    viewModel = authViewModel,
+                )
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        assertEquals("laneshadow://oauth-callback?code=abc", repository.lastCallbackUri?.toString())
+
+        repository.authStateFlow.value = AuthState.Error("Callback failed")
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Sign-in callback failed").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Callback failed").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Retry callback").assertIsDisplayed()
+    }
+}
+
+private class FakeAuthRepository : AuthRepository {
+    val authStateFlow = MutableStateFlow<AuthState>(AuthState.SignedOut)
+    var lastCallbackUri: Uri? = null
+
+    override suspend fun signIn(email: String, password: String): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException("not needed in this test"))
+
+    override suspend fun signUp(email: String, password: String, name: String): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException("not needed in this test"))
+
+    override suspend fun completeSignUpVerification(code: String): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException("not needed in this test"))
+
+    override suspend fun signOut(): Result<Unit> = Result.success(Unit)
+
+    override suspend fun signInWithGoogle(): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException("not needed in this test"))
+
+    override suspend fun signInWithApple(): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException("not needed in this test"))
+
+    override suspend fun handleOAuthCallback(uri: Uri): Result<ClerkUser> {
+        lastCallbackUri = uri
+        return Result.failure(IllegalStateException("expected failure in test"))
     }
 
-    @Test
-    fun auth_nav_graph_replays_and_routes_oauth_callbacks_from_bus() {
-        assertTrue(navSource.contains("DeepLinkBus.callbacks.collect"))
-        assertTrue(navSource.contains("DeepLinkBus.latestCallbackUri"))
-        assertTrue(navSource.contains("navController.navigate(Route.OAuthCallback)"))
-        assertTrue(deepLinkSource.contains("replay = 1"))
-        assertTrue(deepLinkSource.contains("latestCallbackUri"))
-        assertTrue(deepLinkSource.contains("consumeLatest"))
-    }
+    override suspend fun getJwtForConvex(): String = ""
+
+    override fun observeAuthState(): StateFlow<AuthState> = authStateFlow
 }

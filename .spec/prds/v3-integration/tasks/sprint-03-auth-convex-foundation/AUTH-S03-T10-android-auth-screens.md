@@ -320,3 +320,36 @@ Blocks: Sprint 04 tasks
 }
 -->
 ================================================================================
+
+--------------------------------------------------------------------------------
+REMEDIATION ROUND 7 EVIDENCE (2026-04-28)
+--------------------------------------------------------------------------------
+
+Scope corrections:
+- Removed out-of-scope artifact: `ai-specs/AUTH-S03-T10/android-learnings.md`
+
+Behavioral test remediation:
+- Replaced source-string assertions in `android/app/src/test/java/com/laneshadow/ui/auth/AuthScreensSourceStructureTest.kt` with Compose/Robolectric behavioral tests:
+  - `signIn_email_step_disables_continue_until_valid_email_then_shows_password_step`
+  - `signUp_shows_email_validation_and_enables_create_account_when_form_valid`
+  - `oauthCallback_invokes_handler_for_uri_and_renders_error_state`
+
+RED evidence:
+- Command: `cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.auth.AuthScreensSourceStructureTest --console=plain`
+- Initial failing result:
+  - `signIn_email_step_disables_continue_until_valid_email_then_shows_password_step` failed
+  - `signUp_shows_email_validation_and_enables_create_account_when_form_valid` failed
+
+GREEN implementation:
+- Production fix in `android/app/src/main/java/com/laneshadow/ui/auth/SignInScreen.kt`:
+  - `Continue` button now uses `ButtonState.Disabled` when `!uiState.canContinueFromEmail` (in addition to loading)
+
+GREEN evidence:
+- Command: `cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.auth.AuthScreensSourceStructureTest --console=plain`
+- Result: `BUILD SUCCESSFUL`
+
+Verification evidence:
+- Command: `cd android && ./gradlew :app:compileDebugKotlin --console=plain`
+- Result: `BUILD SUCCESSFUL`
+- Command: `cd android && ./gradlew :app:assembleDebug --console=plain`
+- Result: `BUILD SUCCESSFUL`

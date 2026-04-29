@@ -104,7 +104,11 @@ fun SignInScreen(
                 LSButton(
                     label = "Continue",
                     variant = ButtonVariant.Primary,
-                    state = if (uiState.isLoading) ButtonState.Disabled else ButtonState.Default,
+                    state = if (uiState.isLoading || !uiState.canContinueFromEmail) {
+                        ButtonState.Disabled
+                    } else {
+                        ButtonState.Default
+                    },
                     onClick = signInViewModel::continueToPassword,
                     modifier = Modifier.fillMaxWidth(),
                 )
