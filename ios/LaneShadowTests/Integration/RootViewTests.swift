@@ -27,7 +27,7 @@ final class RootViewTests: XCTestCase {
         let clerkAuth = try await makeClerkAuth(isAuthenticated: false)
         let state = AppState(isAuthenticated: false)
 
-        state.handleDeepLink(URL(string: "laneshadow://auth/signup")!, clerkAuth: clerkAuth)
+        try state.handleDeepLink(XCTUnwrap(URL(string: "laneshadow://auth/signup")), clerkAuth: clerkAuth)
 
         XCTAssertFalse(state.isAuthenticated)
         XCTAssertEqual(state.authRoute, .signUp)
@@ -38,7 +38,7 @@ final class RootViewTests: XCTestCase {
         let clerkAuth = try await makeClerkAuth(isAuthenticated: true)
         let state = AppState(isAuthenticated: false)
 
-        state.handleDeepLink(URL(string: "laneshadow://app/home")!, clerkAuth: clerkAuth)
+        try state.handleDeepLink(XCTUnwrap(URL(string: "laneshadow://app/home")), clerkAuth: clerkAuth)
 
         XCTAssertTrue(state.isAuthenticated)
         XCTAssertEqual(state.appRoute, .home)
