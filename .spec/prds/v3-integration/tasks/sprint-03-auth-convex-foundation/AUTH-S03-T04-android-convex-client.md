@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: cd android && ./gradlew :app:compileDebugKotlin
   lint:      cd android && ./gradlew :app:ktlintCheck
 
-PROGRESS: 5/6 AC · in review (Cycle 2)
+PROGRESS: 6/6 AC · in review (Cycle 3)
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -37,12 +37,12 @@ DONE WHEN
 
 - [x] ConvexClientProvider.kt exists at android/app/src/main/java/com/laneshadow/services/ (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:1)
 - [x] Gradle dependency for Convex SDK declared in build.gradle.kts (evidence: android/app/build.gradle.kts:169)
-- [x] ConvexModule Hilt module binds ConvexClientProvider as @Singleton (evidence: android/app/src/main/java/com/laneshadow/di/ConvexModule.kt:10; android/app/build.gradle.kts:8)
+- [x] ConvexClientProvider is provided by Hilt as @Singleton via @Inject constructor (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:19)
 - [x] Flow<List<Session>> session subscription method compiles (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:33)
 - [x] Suspend mutation functions (sendMessage, createSession) compile (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:62)
-- [ ] setAuth callback receives JWT from AuthRepository ← PARTIAL: `login/loginFromCache` call `AuthRepository.getJwtForConvex()`, but `logout()` is a no-op with unsafe cast; no clear-auth behavior is demonstrated for Convex auth lifecycle (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:28; android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:41)
+- [x] setAuth callback receives JWT from AuthRepository and logout clears auth via AuthRepository.signOut() (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:28; android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:40; android/app/src/main/java/com/laneshadow/data/repository/ClerkAuthRepository.kt:71)
 - [x] ./gradlew :app:compileDebugKotlin succeeds (verified 2026-04-28)
-- [x] Only SCOPE.writeAllowed files modified (evidence: git diff --name-only 216be7bee1f3a52b6b5289c7af8926565f71f4e8..bb2fdca66e47bfb7cc95a730439782402ff2829d)
+- [x] Only SCOPE.writeAllowed files modified (evidence: git diff --name-only 216be7bee1f3a52b6b5289c7af8926565f71f4e8..bb20f3e533b8d9c8aca85976537ec4a481a361fc)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
