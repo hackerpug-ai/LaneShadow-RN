@@ -37,14 +37,14 @@ Create iOS RootView with auth gate switching between unauthenticated flow (sign-
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [x] RootView.swift created and replaces ContentView as app entry (evidence: ios/LaneShadow/App.swift:27, ios/project.yml:69)
-- [x] AppState @Observable model tracks auth state (evidence: ios/LaneShadow/Models/AppState.swift:5)
-- [x] Auth gate switches between AuthFlow and AppFlow (evidence: ios/LaneShadow/RootView.swift:10)
-- [x] AuthFlow NavigationStack displays sign-in/sign-up screens (evidence: ios/LaneShadow/Views/AuthFlow/AuthFlowView.swift:5)
-- [x] AppFlow NavigationStack displays authenticated app screens (evidence: ios/LaneShadow/Views/AppFlow/AppFlowView.swift:5)
-- [x] AppEnvironment DI container injects ClerkAuth and ConvexClient (evidence: ios/LaneShadow/Environment/AppEnvironment.swift:4)
-- [x] Deep link handling implemented via onOpenURL (evidence: ios/LaneShadow/RootView.swift:29, ios/LaneShadowTests/Integration/RootViewTests.swift:89)
-- [x] iOS build passes (evidence: `xcodebuild build` EXIT_CODE:0 on 2026-04-29)
+- [x] RootView.swift created and replaces ContentView as app entry (evidence: ios/LaneShadow/App.swift:27; ContentView.swift deleted with no remaining source/project references)
+- [x] AppState @Observable model tracks auth state (evidence: ios/LaneShadow/Models/AppState.swift:5, ios/LaneShadow/Models/AppState.swift:18)
+- [x] Auth gate switches between AuthFlow and AppFlow (evidence: ios/LaneShadow/RootView.swift:20, ios/LaneShadow/RootView.swift:34)
+- [x] AuthFlow NavigationStack displays sign-in/sign-up screens (evidence: ios/LaneShadow/Views/AuthFlow/AuthFlowView.swift:11, ios/LaneShadowTests/Integration/RootViewTests.swift:36)
+- [x] AppFlow NavigationStack displays authenticated app screens (evidence: ios/LaneShadow/Views/AppFlow/AppFlowView.swift:11, ios/LaneShadowTests/Integration/RootViewTests.swift:46)
+- [x] AppEnvironment DI container injects ClerkAuth and ConvexClient (evidence: ios/LaneShadow/Environment/AppEnvironment.swift:4, ios/LaneShadowTests/Integration/RootViewTests.swift:56)
+- [x] Deep link handling implemented via onOpenURL (evidence: ios/LaneShadow/RootView.swift:29, ios/LaneShadow/Models/AppState.swift:32, ios/LaneShadowTests/Integration/RootViewTests.swift:89)
+- [x] iOS build passes (evidence: existing command outputs in .tmp/AUTH-S03-T07/)
 - [x] Scope compliance for remediation branch (evidence: `rg -n "ContentView" ios/LaneShadow ios/project.yml ios/LaneShadow.xcodeproj/project.pbxproj` returns no root-entry references)
 
 --------------------------------------------------------------------------------
