@@ -1,0 +1,10 @@
+Running SwiftFormat...
+(lint mode - no files will be changed.)
+Reading config file at /Users/justinrich/Projects/LaneShadow/.swiftformat
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Atoms/LSMapUIViewRepresentable.swift:67:1: error: (wrapMultilineStatementBraces) Wrap the opening brace of multiline statements.
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Sandbox/MockProviders/RouteResultsMockProvider.swift:8:1: error: (wrap) Wrap lines that exceed the specified maximum width.
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Sandbox/MockProviders/RouteResultsMockProvider.swift:9:1: error: (trailingCommas) Add or remove trailing commas in comma-separated lists.
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Sandbox/MockProviders/RouteResultsMockProvider.swift:9:1: error: (wrap) Wrap lines that exceed the specified maximum width.
+SwiftFormat completed in 0.15s.
+Source input did not pass lint check.
+2/237 files require formatting.

@@ -1,0 +1,23 @@
+{
+  "task_id": "AUTH-S03-T07",
+  "branch": "task/AUTH-S03-T07-remediation",
+  "head_before": "32d8cc056d1c399d11a29c1f976f868944c49ef1",
+  "checks": {
+    "contentview_references": "pass",
+    "rootview_tests": "pass",
+    "ios_build": "pass",
+    "swiftformat_lint": "fail_preexisting"
+  },
+  "artifacts": {
+    "test_output": ".tmp/AUTH-S03-T07/test-output.txt",
+    "typecheck_output": ".tmp/AUTH-S03-T07/typecheck-output.txt",
+    "lint_output": ".tmp/AUTH-S03-T07/lint-output.txt",
+    "pre_existing_issues": ".tmp/AUTH-S03-T07/pre-existing-issues.md"
+  },
+  "remediation": [
+    "Deleted ios/LaneShadow/ContentView.swift",
+    "Removed LaneShadow/ContentView.swift from ios/project.yml and regenerated ios/LaneShadow.xcodeproj",
+    "Added RootView-level open URL seam used by .onOpenURL and covered by RootView test",
+    "Updated task spec status/evidence for AC-1 and AC-7"
+  ]
+}
