@@ -35,14 +35,14 @@ Android ConvexClient Hilt singleton wrapper exposes Flow<List<Session>> and susp
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] ConvexClientProvider.kt exists at android/app/src/main/java/com/laneshadow/services/
-- [ ] Gradle dependency for Convex SDK declared in build.gradle.kts
-- [ ] ConvexModule Hilt module binds ConvexClientProvider as @Singleton
-- [ ] Flow<List<Session>> session subscription method compiles
-- [ ] Suspend mutation functions (sendMessage, createSession) compile
-- [ ] setAuth callback receives JWT from AuthRepository
-- [ ] ./gradlew :app:compileDebugKotlin succeeds
-- [ ] Only SCOPE.writeAllowed files modified
+- [x] ConvexClientProvider.kt exists at android/app/src/main/java/com/laneshadow/services/ (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:1)
+- [x] Gradle dependency for Convex SDK declared in build.gradle.kts (evidence: android/app/build.gradle.kts:158)
+- [ ] ConvexModule Hilt module binds ConvexClientProvider as @Singleton ← PARTIAL: module exists, but Hilt is not wired (no `dagger.hilt.android.plugin` + compiler/kapt configured) so DI registration is not actually effective (evidence: android/app/src/main/java/com/laneshadow/di/ConvexModule.kt:10; android/app/build.gradle.kts:1)
+- [x] Flow<List<Session>> session subscription method compiles (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:33)
+- [ ] Suspend mutation functions (sendMessage, createSession) compile ← PARTIAL: `sendMessage` uses `convexClient.action(...)` not a mutation call (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:41)
+- [ ] setAuth callback receives JWT from AuthRepository ← FAIL: `AuthRepository` is re-declared as a local interface (stub) and auth wiring is best-effort reflection that can silently no-op (evidence: android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:13; android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:64)
+- [x] ./gradlew :app:compileDebugKotlin succeeds (verified 2026-04-28)
+- [ ] Only SCOPE.writeAllowed files modified ← FAIL: out-of-scope files were modified/added (evidence: android/app/src/test/java/com/laneshadow/services/ConvexClientProviderContractTest.kt:1; .tmp/AUTH-S03-T04/pre-existing-issues.md:1)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
