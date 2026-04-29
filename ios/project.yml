@@ -207,6 +207,8 @@ targets:
       # Sprint 06 templates
       - path: LaneShadow/Views/Templates
         type: syncedFolder
+      - path: LaneShadow/Services
+        type: syncedFolder
     dependencies:
       - package: ConvexMobile
       - package: LaneShadowTheme
@@ -264,6 +266,8 @@ targets:
         type: syncedFolder
       # Sprint 06 template tests
       - path: LaneShadowTests/Templates
+        type: syncedFolder
+      - path: LaneShadowTests/Integration
         type: syncedFolder
       # Sprint 06 sandbox infrastructure tests
       - path: LaneShadowTests/Sandbox
