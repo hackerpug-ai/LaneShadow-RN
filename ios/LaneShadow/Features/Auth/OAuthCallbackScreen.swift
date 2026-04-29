@@ -40,19 +40,18 @@ struct OAuthCallbackScreen: View {
 
     static func parseToken(from url: URL?) -> String? {
         guard let url else { return nil }
-
-        if let tokenQuery = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let tokenQuery = components?
             .queryItems?
             .first(where: { $0.name == "token" })?
-            .value,
-            !tokenQuery.isEmpty
-        {
+            .value
+
+        if let tokenQuery, !tokenQuery.isEmpty {
             return tokenQuery
         }
 
-        if let fragment = URLComponents(url: url, resolvingAgainstBaseURL: false)?.fragment,
-           fragment.contains("token=")
-        {
+        let fragment = components?.fragment
+        if let fragment, fragment.contains("token=") {
             let fragmentComponents = URLComponents(string: "https://laneshadow.app?\(fragment)")
             return fragmentComponents?.queryItems?.first(where: { $0.name == "token" })?.value
         }
