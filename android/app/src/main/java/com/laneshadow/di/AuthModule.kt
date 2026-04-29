@@ -107,11 +107,12 @@ private class ClerkSdkGateway : ClerkGateway {
         if (verifiedSignUp.createdSessionId.isNullOrBlank()) {
             return Result.failure(IllegalStateException("Verification completed without session"))
         }
-        return Result.success(
-            pendingSignUpUser
-                ?: Clerk.user?.toModel("password")
-                ?: ClerkUser("pending-user", "", "", "password"),
-        )
+        val resolvedUser = pendingSignUpUser
+            ?: Clerk.user?.toModel("password")
+            ?: return Result.failure(
+                IllegalStateException("Verification completed but no authenticated user was available"),
+            )
+        return Result.success(resolvedUser)
     }
 
     override suspend fun signOut(): Result<Unit> {

@@ -101,6 +101,26 @@ class ClerkAuthRepositoryTest {
         )
         assertThat(tokenStore.readJwt()).isEqualTo("verify_jwt")
     }
+
+    @Test
+    fun completeSignUpVerification_whenNoResolvedUser_transitionsToError() = runTest {
+        val repository = ClerkAuthRepository(
+            tokenStore = FakeTokenStore(),
+            clerkGateway = FakeClerkGateway(
+                signUpError = IllegalStateException("verification required"),
+                verificationError = IllegalStateException("Verification completed but no authenticated user was available"),
+            ),
+            oauthGateway = PendingOAuthGateway(),
+        )
+
+        repository.signUp("rider@example.com", "password", "Rider One")
+        val completion = repository.completeSignUpVerification("123456")
+
+        assertThat(completion.isFailure).isTrue()
+        assertThat(repository.observeAuthState().value).isEqualTo(
+            AuthState.Error("Verification completed but no authenticated user was available"),
+        )
+    }
 }
 
 private class PendingOAuthGateway : OAuthGateway {
@@ -141,6 +161,7 @@ private class FakeClerkGateway(
     private val signUpError: Throwable? = null,
     private val jwt: String = "jwt",
     private val verificationJwt: String = "jwt",
+    private val verificationError: Throwable? = null,
 ) : ClerkGateway {
     private var signedUpUser: ClerkUser? = null
 
@@ -153,8 +174,10 @@ private class FakeClerkGateway(
         return signUpError?.let { Result.failure(it) } ?: Result.success(user)
     }
 
-    override suspend fun completeSignUpVerification(code: String): Result<ClerkUser> =
-        Result.success(signedUpUser ?: ClerkUser("id", "rider@example.com", "Rider One", "password"))
+    override suspend fun completeSignUpVerification(code: String): Result<ClerkUser> {
+        verificationError?.let { return Result.failure(it) }
+        return Result.success(signedUpUser ?: ClerkUser("id", "rider@example.com", "Rider One", "password"))
+    }
 
     override suspend fun signOut(): Result<Unit> = Result.success(Unit)
 
