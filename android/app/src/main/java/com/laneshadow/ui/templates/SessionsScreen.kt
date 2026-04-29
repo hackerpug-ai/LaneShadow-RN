@@ -87,7 +87,7 @@ fun SessionsScreen(
                     sections = state.sections?.map { section ->
                         com.laneshadow.ui.organisms.SessionSection(
                             label = section.label,
-                            sessions = section.sessions.map { toUiSession(it) }
+                            sessions = section.sessions.map(::toUiSession)
                         )
                     },
                     onSelect = onSelect,

@@ -7,6 +7,69 @@ final class Sprint03WDAArtifactTests: XCTestCase {
         .deletingLastPathComponent()
         .deletingLastPathComponent()
 
+    private let evidencePathKeys = Set(["log", "diagnostics", "resultArtifact", "t11Evidence", "xcresult"])
+
+    private func isAbsoluteHostPath(_ value: String) -> Bool {
+        value.hasPrefix("/") ||
+            value.hasPrefix("file://") ||
+            value.range(of: #"^[A-Za-z]:\\"#, options: .regularExpression) != nil
+    }
+
+    private func collectStringValues(_ value: Any) -> [String] {
+        if let string = value as? String {
+            return [string]
+        }
+        if let dict = value as? [String: Any] {
+            return dict.values.flatMap(collectStringValues)
+        }
+        if let array = value as? [Any] {
+            return array.flatMap(collectStringValues)
+        }
+        return []
+    }
+
+    private func assertEvidencePathsAreRelativeAndExist(
+        _ evidence: [String: Any],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        for stringValue in collectStringValues(evidence) {
+            XCTAssertFalse(
+                isAbsoluteHostPath(stringValue),
+                "Closure artifact evidence must not include absolute host paths: \(stringValue)",
+                file: file,
+                line: line
+            )
+        }
+
+        for (key, rawValue) in evidence where evidencePathKeys.contains(key) {
+            guard let relativePath = rawValue as? String else {
+                XCTFail("Evidence path field \(key) must be a string", file: file, line: line)
+                continue
+            }
+            XCTAssertFalse(
+                relativePath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                "Evidence path field \(key) cannot be empty",
+                file: file,
+                line: line
+            )
+            XCTAssertFalse(
+                isAbsoluteHostPath(relativePath),
+                "Evidence path field \(key) must be repo-relative: \(relativePath)",
+                file: file,
+                line: line
+            )
+
+            let fileURL = repositoryRoot.appendingPathComponent(relativePath)
+            XCTAssertTrue(
+                FileManager.default.fileExists(atPath: fileURL.path),
+                "Evidence path field \(key) is missing file: \(relativePath)",
+                file: file,
+                line: line
+            )
+        }
+    }
+
     func testSprint03WdaScriptCreatesRealDeviceSession() throws {
         let scriptURL = repositoryRoot.appendingPathComponent("ios/E2E/sprint-03-auth.js")
         XCTAssertTrue(FileManager.default.fileExists(atPath: scriptURL.path), "Expected sprint-03-auth.js to exist")
@@ -78,8 +141,8 @@ final class Sprint03WDAArtifactTests: XCTestCase {
 
     func testSprint03ArtifactsDoNotUseFakePngDiagnostics() throws {
         let diagnosticsURL = repositoryRoot.appendingPathComponent("ios/E2E/diagnostics/sprint-03-auth")
-        let fm = FileManager.default
-        let files = try fm.contentsOfDirectory(at: diagnosticsURL, includingPropertiesForKeys: nil)
+        let fileManager = FileManager.default
+        let files = try fileManager.contentsOfDirectory(at: diagnosticsURL, includingPropertiesForKeys: nil)
 
         for file in files where file.pathExtension.lowercased() == "png" {
             let data = try Data(contentsOf: file)
@@ -94,16 +157,140 @@ final class Sprint03WDAArtifactTests: XCTestCase {
 
         for step in steps {
             guard let evidence = step["evidence"] as? [String: Any],
-                  let screenshotPath = evidence["screenshot"] as? String else {
+                  let screenshotPath = evidence["screenshot"] as? String
+            else {
                 continue
             }
             let screenshotURL = repositoryRoot.appendingPathComponent(screenshotPath)
-            XCTAssertTrue(fm.fileExists(atPath: screenshotURL.path), "Evidence screenshot path missing: \(screenshotPath)")
+            XCTAssertTrue(
+                fileManager.fileExists(atPath: screenshotURL.path),
+                "Evidence screenshot path missing: \(screenshotPath)"
+            )
             if screenshotPath.hasSuffix(".png") {
                 let screenshotData = try Data(contentsOf: screenshotURL)
                 let pngSignature = Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
-                XCTAssertTrue(screenshotData.starts(with: pngSignature), "Evidence uses .png extension but not PNG content: \(screenshotPath)")
+                XCTAssertTrue(
+                    screenshotData.starts(with: pngSignature),
+                    "Evidence uses .png extension but not PNG content: \(screenshotPath)"
+                )
             }
+        }
+    }
+
+    func testSprintClosureArtifactSeparatesNativeE2ELanes() throws {
+        let closureURL = repositoryRoot.appendingPathComponent("ios/E2E/results/sprint-03-closure.json")
+        XCTAssertTrue(
+            FileManager.default.fileExists(atPath: closureURL.path),
+            "Expected sprint-03-closure.json artifact"
+        )
+
+        let data = try Data(contentsOf: closureURL)
+        let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let closureVerification = try XCTUnwrap(
+            payload["closureVerification"] as? [String: Any],
+            "Closure artifact should include top-level closureVerification evidence"
+        )
+        let closureLogPath = try XCTUnwrap(
+            closureVerification["log"] as? String,
+            "closureVerification.log must be present"
+        )
+        XCTAssertFalse(
+            isAbsoluteHostPath(closureLogPath),
+            "closureVerification.log must be repo-relative: \(closureLogPath)"
+        )
+        let closureLogURL = repositoryRoot.appendingPathComponent(closureLogPath)
+        XCTAssertTrue(
+            FileManager.default.fileExists(atPath: closureLogURL.path),
+            "closureVerification.log missing file: \(closureLogPath)"
+        )
+        let closureLogContents = try String(contentsOf: closureLogURL, encoding: .utf8)
+        XCTAssertTrue(
+            closureLogContents.contains("testSprintClosureArtifactSeparatesNativeE2ELanes"),
+            "closureVerification.log must include the specific passing test case"
+        )
+        XCTAssertTrue(
+            closureLogContents.contains("Executed 1 test, with 0 failures"),
+            "closureVerification.log must include xcodebuild pass summary"
+        )
+        XCTAssertTrue(
+            closureLogContents.contains("** TEST SUCCEEDED **"),
+            "closureVerification.log must include terminal success marker"
+        )
+        XCTAssertFalse(
+            closureLogContents.contains("/Users/") ||
+                closureLogContents.contains("/Applications/") ||
+                closureLogContents.contains("file://"),
+            "closureVerification.log must not contain absolute host paths"
+        )
+
+        let lanes = try XCTUnwrap(payload["lanes"] as? [[String: Any]])
+        XCTAssertEqual(lanes.count, 4, "Closure artifact should include iOS+Android simulator/device lanes")
+        let allowedStatuses = Set(["PASS", "FAIL", "BLOCKED", "MANUAL"])
+        let iso8601Formatter = ISO8601DateFormatter()
+
+        let requiredKeys = ["platform", "framework", "target", "command", "status", "timestamp", "evidence"]
+        for lane in lanes {
+            for key in requiredKeys {
+                XCTAssertNotNil(lane[key], "Lane is missing required key \(key): \(lane)")
+            }
+
+            let status = try XCTUnwrap(lane["status"] as? String, "Lane status must be a string")
+            XCTAssertTrue(allowedStatuses.contains(status), "Lane status must be one of \(allowedStatuses): \(status)")
+
+            let timestamp = try XCTUnwrap(lane["timestamp"] as? String, "Lane timestamp must be a string")
+            XCTAssertNotNil(
+                iso8601Formatter.date(from: timestamp),
+                "Lane timestamp must be ISO8601 parseable: \(timestamp)"
+            )
+
+            let evidence = try XCTUnwrap(lane["evidence"] as? [String: Any], "Lane evidence must be an object")
+            assertEvidencePathsAreRelativeAndExist(evidence)
+
+            if status == "BLOCKED" {
+                let prerequisites = try XCTUnwrap(
+                    evidence["prerequisites"] as? [String],
+                    "Blocked lane requires prerequisites array"
+                )
+                XCTAssertFalse(prerequisites.isEmpty, "Blocked lane prerequisites cannot be empty")
+                XCTAssertTrue(
+                    prerequisites.allSatisfy { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty },
+                    "Blocked lane prerequisites must contain non-empty strings"
+                )
+            }
+        }
+
+        let laneIndex = Dictionary(uniqueKeysWithValues: lanes.compactMap { lane -> (String, [String: Any])? in
+            guard let platform = lane["platform"] as? String,
+                  let target = lane["target"] as? String
+            else {
+                return nil
+            }
+            return ("\(platform):\(target)", lane)
+        })
+
+        let iosSimulator = try XCTUnwrap(laneIndex["ios:simulator"])
+        XCTAssertEqual(iosSimulator["framework"] as? String, "xctest")
+
+        let iosReal = try XCTUnwrap(laneIndex["ios:real-ios-device"])
+        XCTAssertEqual(iosReal["framework"] as? String, "wda")
+
+        let androidEmulator = try XCTUnwrap(laneIndex["android:emulator"])
+        XCTAssertEqual(androidEmulator["framework"] as? String, "espresso")
+
+        let androidReal = try XCTUnwrap(laneIndex["android:real-android-device"])
+        XCTAssertEqual(androidReal["framework"] as? String, "espresso")
+
+        let blockedLaneEvidences = [iosReal, androidEmulator, androidReal]
+            .filter { ($0["status"] as? String) == "BLOCKED" }
+            .compactMap { $0["evidence"] as? [String: Any] }
+        XCTAssertFalse(blockedLaneEvidences.isEmpty, "Expected blocked lanes to provide remediation evidence")
+        for evidence in blockedLaneEvidences {
+            XCTAssertNotNil(evidence["summary"] as? String, "Blocked lane evidence should include summary")
+            XCTAssertNotNil(evidence["diagnostics"] as? String, "Blocked lane evidence should include diagnostics path")
+            XCTAssertNotNil(
+                evidence["prerequisites"] as? [String],
+                "Blocked lane evidence should include prerequisites"
+            )
         }
     }
 }

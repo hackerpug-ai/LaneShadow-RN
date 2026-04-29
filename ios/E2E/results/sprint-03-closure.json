@@ -1,0 +1,82 @@
+{
+  "generatedAt": "2026-04-29T23:00:00Z",
+  "taskId": "AUTH-S03-T12",
+  "closureVerification": {
+    "command": "cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:LaneShadowTests/Sprint03WDAArtifactTests/testSprintClosureArtifactSeparatesNativeE2ELanes 2>&1 | tee E2E/diagnostics/sprint-03-closure/closure-artifact-xcodebuild.log",
+    "status": "PASS",
+    "timestamp": "2026-04-29T23:44:29Z",
+    "log": "ios/E2E/diagnostics/sprint-03-closure/closure-artifact-xcodebuild.log"
+  },
+  "lanes": [
+    {
+      "platform": "ios",
+      "framework": "xctest",
+      "target": "simulator",
+      "command": "cd ios && xcodebuild test -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowUITests/LaneShadowUITests",
+      "status": "PASS",
+      "timestamp": "2026-04-29T23:12:28Z",
+      "evidence": {
+        "summary": "LaneShadowUITests passed on iPhone 16 simulator (3 tests, 0 failures)",
+        "log": "ios/E2E/diagnostics/sprint-03-closure/ios-simulator-xcodebuild.log"
+      }
+    },
+    {
+      "platform": "ios",
+      "framework": "wda",
+      "target": "real-ios-device",
+      "command": "LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth.js",
+      "status": "BLOCKED",
+      "timestamp": "2026-04-29T22:57:31Z",
+      "evidence": {
+        "summary": "WDA lane could not reach physical-device WDA endpoint (S03.1 fetch failed)",
+        "resultArtifact": "ios/E2E/results/sprint-03-auth.json",
+        "diagnostics": "ios/E2E/diagnostics/sprint-03-auth/S03.1-failure-remediation.txt",
+        "prerequisites": [
+          "Physical iPhone connected with WebDriverAgent running",
+          "Port forward to 127.0.0.1:8100",
+          "LaneShadow installed with bundle id com.laneshadow.app"
+        ],
+        "t11Evidence": "ios/E2E/results/sprint-03-auth.json"
+      }
+    },
+    {
+      "platform": "android",
+      "framework": "espresso",
+      "target": "emulator",
+      "command": "cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest",
+      "status": "PASS",
+      "timestamp": "2026-04-29T23:39:00Z",
+      "evidence": {
+        "summary": "Emulator Espresso lane passed on Pixel_7_API_34 AVD (4 tests, 0 failures).",
+        "diagnostics": "ios/E2E/diagnostics/sprint-03-closure/android-adb-devices.txt",
+        "log": "ios/E2E/diagnostics/sprint-03-closure/android-emulator-connectedDebugAndroidTest.log",
+        "adbDeviceSerial": "emulator-5554",
+        "adbDeviceState": "device",
+        "gradleResult": "BUILD SUCCESSFUL in 22s",
+        "testExecution": [
+          "Starting 4 tests on Pixel_7_API_34(AVD) - 14",
+          "Finished 4 tests on Pixel_7_API_34(AVD) - 14"
+        ]
+      }
+    },
+    {
+      "platform": "android",
+      "framework": "espresso",
+      "target": "real-android-device",
+      "command": "adb devices && cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest",
+      "status": "BLOCKED",
+      "timestamp": "2026-04-29T23:39:00Z",
+      "evidence": {
+        "summary": "Physical Android device lane intentionally skipped per PO decision as non-blocking; no physical-device serial captured.",
+        "diagnostics": "ios/E2E/diagnostics/sprint-03-closure/android-adb-devices.txt",
+        "commandAttempted": false,
+        "reason": "Skipped by product-owner instruction (non-blocking physical-device validation)",
+        "physicalDeviceSerialRecorded": false,
+        "prerequisites": [
+          "Connect and authorize a physical Android device so it appears in `adb devices` as `device`.",
+          "Then run: cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest"
+        ]
+      }
+    }
+  ]
+}
