@@ -27,11 +27,15 @@ struct RootView: View {
             appState.updateAuthenticationState(from: appEnvironment.clerkAuth)
         }
         .onOpenURL { url in
-            appState.handleDeepLink(url, clerkAuth: appEnvironment.clerkAuth)
+            handleIncomingURL(url, clerkAuth: appEnvironment.clerkAuth)
         }
     }
 
     var activeFlow: ActiveFlow {
         appState.isAuthenticated ? .app : .auth
+    }
+
+    func handleIncomingURL(_ url: URL, clerkAuth: ClerkAuth) {
+        appState.handleDeepLink(url, clerkAuth: clerkAuth)
     }
 }

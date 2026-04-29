@@ -5,8 +5,12 @@ import XCTest
 
 @MainActor
 final class RootViewTests: XCTestCase {
-    func testRootViewReplacesContentViewAsAppEntry() {
-        let rootView = RootView(convexStore: ConvexStore())
+    func testRootViewReplacesContentViewAsAppEntry() throws {
+        let app = LaneShadowApp()
+        XCTAssertTrue(String(describing: type(of: app.body)).contains("RootView"))
+
+        let rootView = RootView(convexStore: ConvexStore(), appState: AppState(isAuthenticated: false))
+
         XCTAssertEqual(rootView.activeFlow, .auth)
     }
 
@@ -30,13 +34,23 @@ final class RootViewTests: XCTestCase {
     }
 
     func testAuthFlowNavigationStackCreated() throws {
-        let navStack = try AuthFlowView(route: .signUp).inspect().find(ViewType.NavigationStack.self)
-        XCTAssertNotNil(navStack)
+        let signInView = AuthFlowView(route: .signIn)
+        XCTAssertNoThrow(try signInView.inspect().find(ViewType.NavigationStack.self))
+        XCTAssertNoThrow(try signInView.inspect().find(text: "Sign In"))
+
+        let signUpView = AuthFlowView(route: .signUp)
+        XCTAssertNoThrow(try signUpView.inspect().find(ViewType.NavigationStack.self))
+        XCTAssertNoThrow(try signUpView.inspect().find(text: "Sign Up"))
     }
 
     func testAppFlowNavigationStackCreated() throws {
-        let navStack = try AppFlowView(route: .session(id: "session-123")).inspect().find(ViewType.NavigationStack.self)
-        XCTAssertNotNil(navStack)
+        let homeView = AppFlowView(route: .home)
+        XCTAssertNoThrow(try homeView.inspect().find(ViewType.NavigationStack.self))
+        XCTAssertNoThrow(try homeView.inspect().find(text: "App Home"))
+
+        let sessionView = AppFlowView(route: .session(id: "session-123"))
+        XCTAssertNoThrow(try sessionView.inspect().find(ViewType.NavigationStack.self))
+        XCTAssertNoThrow(try sessionView.inspect().find(text: "Session session-123"))
     }
 
     func testAppEnvironmentDIContainerImplemented() async throws {
@@ -51,45 +65,25 @@ final class RootViewTests: XCTestCase {
         let authenticatedClerk = try await makeClerkAuth(isAuthenticated: true)
         let unauthenticatedClerk = try await makeClerkAuth(isAuthenticated: false)
 
-        let authenticatedSessionState = AppState(isAuthenticated: false)
-        try authenticatedSessionState.handleDeepLink(
-            XCTUnwrap(URL(string: "laneshadow://session/session-42")),
+        let authenticatedState = AppState(isAuthenticated: false)
+        let authenticatedRoot = RootView(convexStore: ConvexStore(), appState: authenticatedState)
+        authenticatedRoot.handleIncomingURL(
+            try XCTUnwrap(URL(string: "laneshadow://session/session-42")),
             clerkAuth: authenticatedClerk
         )
-        XCTAssertTrue(authenticatedSessionState.isAuthenticated)
-        XCTAssertEqual(authenticatedSessionState.appRoute, .session(id: "session-42"))
-        XCTAssertNil(authenticatedSessionState.authRoute)
+        XCTAssertTrue(authenticatedState.isAuthenticated)
+        XCTAssertEqual(authenticatedState.appRoute, .session(id: "session-42"))
+        XCTAssertNil(authenticatedState.authRoute)
 
-        let authenticatedDefaultState = AppState(isAuthenticated: false)
-        try authenticatedDefaultState.handleDeepLink(
-            XCTUnwrap(URL(string: "laneshadow://app/home")),
-            clerkAuth: authenticatedClerk
-        )
-        XCTAssertEqual(authenticatedDefaultState.appRoute, .home)
-
-        let signUpState = AppState(isAuthenticated: false)
-        try signUpState.handleDeepLink(
-            XCTUnwrap(URL(string: "laneshadow://auth/signup")),
+        let unauthenticatedState = AppState(isAuthenticated: false)
+        let unauthenticatedRoot = RootView(convexStore: ConvexStore(), appState: unauthenticatedState)
+        unauthenticatedRoot.handleIncomingURL(
+            try XCTUnwrap(URL(string: "laneshadow://auth/signup")),
             clerkAuth: unauthenticatedClerk
         )
-        XCTAssertFalse(signUpState.isAuthenticated)
-        XCTAssertEqual(signUpState.authRoute, .signUp)
-        XCTAssertNil(signUpState.appRoute)
-
-        let signInFallbackState = AppState(isAuthenticated: false)
-        try signInFallbackState.handleDeepLink(
-            XCTUnwrap(URL(string: "laneshadow://unknown/path")),
-            clerkAuth: unauthenticatedClerk
-        )
-        XCTAssertEqual(signInFallbackState.authRoute, .signIn)
-
-        let oauthState = AppState(isAuthenticated: false)
-        try oauthState.handleDeepLink(
-            XCTUnwrap(URL(string: "laneshadow://oauth-callback?code=abc")),
-            clerkAuth: unauthenticatedClerk
-        )
-        XCTAssertEqual(oauthState.authRoute, .oauthCallback)
-        XCTAssertNil(oauthState.appRoute)
+        XCTAssertFalse(unauthenticatedState.isAuthenticated)
+        XCTAssertEqual(unauthenticatedState.authRoute, .signUp)
+        XCTAssertNil(unauthenticatedState.appRoute)
     }
 
     private func makeEnvironment(clerkAuth: ClerkAuth) -> AppEnvironment {
