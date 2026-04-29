@@ -20,7 +20,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import java.util.UUID
+import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
@@ -40,13 +44,23 @@ abstract class AuthBindingsModule {
     abstract fun bindTokenStore(store: EncryptedTokenStore): TokenStore
 
     @Binds
+    @PrimaryAuthRepository
     @Singleton
-    abstract fun bindAuthRepository(repository: ClerkAuthRepository): AuthRepository
+    abstract fun bindPrimaryAuthRepository(repository: ClerkAuthRepository): AuthRepository
+
+    @Binds
+    @FallbackAuthRepository
+    @Singleton
+    abstract fun bindFallbackAuthRepository(repository: com.laneshadow.data.repository.CustomTabsAuthRepository): AuthRepository
 }
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AuthModule {
+    @Provides
+    @Singleton
+    fun provideAuthRepository(@PrimaryAuthRepository repository: AuthRepository): AuthRepository = repository
+
     @Provides
     @Singleton
     fun provideClerkGateway(): ClerkGateway = ClerkHttpGateway()
@@ -56,6 +70,14 @@ object AuthModule {
     fun provideOAuthGateway(@ApplicationContext context: Context): OAuthGateway =
         CustomTabsOAuthGateway(context)
 }
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class PrimaryAuthRepository
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class FallbackAuthRepository
 
 private class ClerkHttpGateway : ClerkGateway {
     private val client = OkHttpClient()
@@ -159,40 +181,51 @@ private class CustomTabsOAuthGateway(
 ) : OAuthGateway {
     private var pendingState: String? = null
     private var pendingProvider: String? = null
+    private val pendingResultMutex = Mutex()
+    private var pendingResult: CompletableDeferred<OAuthResult>? = null
 
-    override suspend fun signInWithGoogle(): OAuthResult = launch("google")
+    override suspend fun signInWithGoogle(): OAuthResult = launchAndAwait("google")
 
-    override suspend fun signInWithApple(): OAuthResult = launch("apple")
+    override suspend fun signInWithApple(): OAuthResult = launchAndAwait("apple")
 
     override suspend fun completeOAuthCallback(uri: Uri): OAuthResult {
         val expectedState = pendingState
         val callbackState = uri.getQueryParameter("state")
         if (expectedState.isNullOrBlank() || expectedState != callbackState) {
-            return OAuthResult(Result.failure(IllegalArgumentException("OAuth state mismatch")), "")
+            val mismatch = OAuthResult(Result.failure(IllegalArgumentException("OAuth state mismatch")), "")
+            pendingResult?.complete(mismatch)
+            return mismatch
         }
 
         val jwt = uri.getQueryParameter("token") ?: uri.getQueryParameter("jwt")
         if (jwt.isNullOrBlank()) {
-            return OAuthResult(Result.failure(IllegalArgumentException("OAuth callback missing token/jwt")), "")
+            val noToken = OAuthResult(Result.failure(IllegalArgumentException("OAuth callback missing token/jwt")), "")
+            pendingResult?.complete(noToken)
+            return noToken
         }
 
         val userId = uri.getQueryParameter("user_id")
         val email = uri.getQueryParameter("email")
         val name = uri.getQueryParameter("name")
         if (userId.isNullOrBlank() || email.isNullOrBlank() || name.isNullOrBlank()) {
-            return OAuthResult(Result.failure(IllegalArgumentException("OAuth callback missing required user fields")), "")
+            val noFields = OAuthResult(Result.failure(IllegalArgumentException("OAuth callback missing required user fields")), "")
+            pendingResult?.complete(noFields)
+            return noFields
         }
 
         val provider = uri.getQueryParameter("provider") ?: pendingProvider ?: "oauth"
+        val callbackResult =
+            OAuthResult(
+                userResult = Result.success(ClerkUser(userId, email, name, provider)),
+                jwt = jwt,
+            )
+        pendingResult?.complete(callbackResult)
         pendingState = null
         pendingProvider = null
-        return OAuthResult(
-            userResult = Result.success(ClerkUser(userId, email, name, provider)),
-            jwt = jwt,
-        )
+        return callbackResult
     }
 
-    private fun launch(provider: String): OAuthResult {
+    private suspend fun launchAndAwait(provider: String): OAuthResult {
         val startUrl = BuildConfig.CLERK_OAUTH_START_URL
         if (startUrl.isBlank()) {
             return OAuthResult(Result.failure(IllegalStateException("CLERK_OAUTH_START_URL is missing")), "")
@@ -211,6 +244,10 @@ private class CustomTabsOAuthGateway(
         customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         customTabsIntent.launchUrl(context, launchUri)
 
-        return OAuthResult(Result.failure(IllegalStateException("OAuth flow launched; complete via callback")), "pending")
+        val deferred = pendingResultMutex.withLock {
+            pendingResult?.cancel()
+            CompletableDeferred<OAuthResult>().also { pendingResult = it }
+        }
+        return deferred.await()
     }
 }

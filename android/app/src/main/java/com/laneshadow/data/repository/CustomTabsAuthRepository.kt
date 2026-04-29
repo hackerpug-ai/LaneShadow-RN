@@ -11,9 +11,12 @@ import com.laneshadow.data.store.TokenStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class CustomTabsAuthRepository @Inject constructor(
     private val tokenStore: TokenStore,
@@ -22,6 +25,8 @@ class CustomTabsAuthRepository @Inject constructor(
     private val authState = MutableStateFlow<AuthState>(AuthState.SignedOut)
     private var pendingState: String? = null
     private var pendingProvider: String? = null
+    private val pendingResultMutex = Mutex()
+    private var pendingResult: CompletableDeferred<Result<ClerkUser>>? = null
 
     override suspend fun signIn(email: String, password: String): Result<ClerkUser> =
         Result.failure(IllegalStateException("Email/password auth is handled by ClerkAuthRepository"))
@@ -45,14 +50,18 @@ class CustomTabsAuthRepository @Inject constructor(
         if (expectedState.isNullOrBlank() || callbackState != expectedState) {
             val error = IllegalArgumentException("OAuth callback state mismatch")
             authState.value = AuthState.Error(error.message ?: "OAuth failed")
-            return Result.failure(error)
+            val result: Result<ClerkUser> = Result.failure(error)
+            pendingResult?.complete(result)
+            return result
         }
 
         val jwt = uri.getQueryParameter("token") ?: uri.getQueryParameter("jwt")
         if (jwt.isNullOrBlank()) {
             val error = IllegalArgumentException("OAuth callback missing token/jwt parameter")
             authState.value = AuthState.Error(error.message ?: "OAuth failed")
-            return Result.failure(error)
+            val result: Result<ClerkUser> = Result.failure(error)
+            pendingResult?.complete(result)
+            return result
         }
 
         val userId = uri.getQueryParameter("user_id")
@@ -61,7 +70,9 @@ class CustomTabsAuthRepository @Inject constructor(
         if (userId.isNullOrBlank() || email.isNullOrBlank() || name.isNullOrBlank()) {
             val error = IllegalArgumentException("OAuth callback missing required user fields")
             authState.value = AuthState.Error(error.message ?: "OAuth failed")
-            return Result.failure(error)
+            val result: Result<ClerkUser> = Result.failure(error)
+            pendingResult?.complete(result)
+            return result
         }
 
         val provider = uri.getQueryParameter("provider") ?: pendingProvider ?: "oauth"
@@ -70,7 +81,9 @@ class CustomTabsAuthRepository @Inject constructor(
         authState.value = AuthState.SignedIn(user)
         pendingState = null
         pendingProvider = null
-        return Result.success(user)
+        val result = Result.success(user)
+        pendingResult?.complete(result)
+        return result
     }
 
     override suspend fun getJwtForConvex(): String {
@@ -81,7 +94,7 @@ class CustomTabsAuthRepository @Inject constructor(
 
     override fun observeAuthState(): StateFlow<AuthState> = authState.asStateFlow()
 
-    private fun launchOAuth(provider: String): Result<ClerkUser> {
+    private suspend fun launchOAuth(provider: String): Result<ClerkUser> {
         val startUrl = BuildConfig.CLERK_OAUTH_START_URL
         if (startUrl.isBlank()) {
             val error = IllegalStateException("CLERK_OAUTH_START_URL is required for Custom Tabs OAuth fallback")
@@ -92,7 +105,7 @@ class CustomTabsAuthRepository @Inject constructor(
         val state = UUID.randomUUID().toString()
         pendingState = state
         pendingProvider = provider
-        authState.value = AuthState.Loading
+        authState.value = AuthState.OAuthPending(provider)
 
         val launchUri = Uri.parse(startUrl).buildUpon()
             .appendQueryParameter("provider", provider)
@@ -104,6 +117,10 @@ class CustomTabsAuthRepository @Inject constructor(
         customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         customTabsIntent.launchUrl(context, launchUri)
 
-        return Result.failure(IllegalStateException("OAuth flow launched in Custom Tabs; complete via callback"))
+        val deferred = pendingResultMutex.withLock {
+            pendingResult?.cancel()
+            CompletableDeferred<Result<ClerkUser>>().also { pendingResult = it }
+        }
+        return deferred.await()
     }
 }

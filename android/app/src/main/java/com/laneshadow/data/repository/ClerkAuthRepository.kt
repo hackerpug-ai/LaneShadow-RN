@@ -52,12 +52,12 @@ class ClerkAuthRepository @Inject constructor(
     }
 
     override suspend fun signInWithGoogle(): Result<ClerkUser> {
-        authState.value = AuthState.Loading
+        authState.value = AuthState.OAuthPending("google")
         return handleOAuthResult(oauthGateway.signInWithGoogle())
     }
 
     override suspend fun signInWithApple(): Result<ClerkUser> {
-        authState.value = AuthState.Loading
+        authState.value = AuthState.OAuthPending("apple")
         return handleOAuthResult(oauthGateway.signInWithApple())
     }
 
@@ -87,6 +87,10 @@ class ClerkAuthRepository @Inject constructor(
             }
         },
         onFailure = { error ->
+            if (error.message?.contains("verification", ignoreCase = true) == true) {
+                authState.value = AuthState.VerificationRequired
+                return@fold Result.failure(error)
+            }
             authState.value = AuthState.Error(error.message ?: "Authentication failed")
             Result.failure(error)
         },
