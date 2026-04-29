@@ -6,10 +6,12 @@ struct SignInScreen: View {
     @Environment(\.theme) private var theme
     @Environment(\.appEnvironment) private var appEnvironment
 
+    let appState: AppState
     @State private var viewModel: SignInViewModel
     @State private var passwordVisibility = AuthPasswordVisibilityState()
 
-    init(viewModel: SignInViewModel) {
+    init(appState: AppState, viewModel: SignInViewModel) {
+        self.appState = appState
         _viewModel = State(initialValue: viewModel)
     }
 
@@ -34,6 +36,7 @@ struct SignInScreen: View {
                     LSButton("Sign in", isDisabled: viewModel.isSubmitting) {
                         Task {
                             await viewModel.submit()
+                            updateRoutingFromSharedAuth()
                         }
                     }
                 }
@@ -50,7 +53,7 @@ struct SignInScreen: View {
                     Task {
                         do {
                             try await appEnvironment.clerkAuth.signInWithApple()
-                            viewModel.step = .signedIn
+                            updateRoutingFromSharedAuth()
                         } catch {
                             viewModel.errorMessage = error.localizedDescription
                         }
@@ -61,7 +64,7 @@ struct SignInScreen: View {
                     Task {
                         do {
                             try await appEnvironment.clerkAuth.signInWithGoogle()
-                            viewModel.step = .signedIn
+                            updateRoutingFromSharedAuth()
                         } catch {
                             viewModel.errorMessage = error.localizedDescription
                         }
@@ -71,6 +74,15 @@ struct SignInScreen: View {
             .padding(theme.space.lg)
         }
         .navigationTitle("Sign In")
+    }
+
+    private func updateRoutingFromSharedAuth() {
+        appState.updateAuthenticationState(from: appEnvironment.clerkAuth)
+        if appState.isAuthenticated {
+            appState.authRoute = nil
+            appState.appRoute = .home
+            viewModel.step = .signedIn
+        }
     }
 }
 
@@ -97,8 +109,7 @@ struct AuthBackgroundContainer<Content: View>: View {
 
     private var authBackgroundImage: Image {
         if Self.resolveImageSource(imageLoader: { UIImage(named: $0) }) == .authBackground,
-           let image = UIImage(named: "AuthBackground")
-        {
+           let image = UIImage(named: "AuthBackground") {
             Image(uiImage: image)
         } else {
             Image(systemName: "mountain.2.fill")

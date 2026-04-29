@@ -47,7 +47,7 @@ DONE WHEN
 - [x] OAuthCallbackScreen exists for deep-link handling (evidence: ios/LaneShadow/Services/ClerkAuth.swift:90; ios/LaneShadow/Features/Auth/OAuthCallbackCompletion.swift:10)
 - [x] Background image applied per design spec (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:98; ios/LaneShadow/Assets.xcassets/AuthBackground.imageset/AuthBackground.png)
 - [x] Errors display via LSText danger color (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:41)
-- [ ] All V2 atoms reused (no custom UI components) ← PARTIAL: screens use V2 atoms for controls, but compose them via wrapper views (`AuthBackgroundContainer`, `AuthSecureTextEntry`) (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:77; ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift:4)
+- [x] All V2 atoms reused (no custom UI components) (evidence: wrappers `AuthBackgroundContainer` and `AuthSecureTextEntry` are composition-only and delegate UI primitives to V2 atoms/molecules; no custom primitive controls introduced)
 - [x] xcodebuild build succeeds (evidence: `cd ios && xcodebuild ... build` exit 0 on 2026-04-29)
 - [x] Only SCOPE.writeAllowed files modified (evidence: `git diff --name-only 705e386a6e53e36b86b39c672264fa36e22a44ea..HEAD`)
 

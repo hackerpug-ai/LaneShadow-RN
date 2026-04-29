@@ -3,17 +3,16 @@ import SwiftUI
 
 struct SignUpScreen: View {
     @Environment(\.theme) private var theme
+    @Environment(\.appEnvironment) private var appEnvironment
 
+    let appState: AppState
     @State private var viewModel: SignUpViewModel
     @State private var passwordVisibility = AuthPasswordVisibilityState()
     @State private var confirmPasswordVisibility = AuthPasswordVisibilityState()
 
-    init(viewModel: SignUpViewModel? = nil) {
-        if let viewModel {
-            _viewModel = State(initialValue: viewModel)
-        } else {
-            _viewModel = State(initialValue: SignUpViewModel(auth: ClerkAuth()))
-        }
+    init(appState: AppState, viewModel: SignUpViewModel) {
+        self.appState = appState
+        _viewModel = State(initialValue: viewModel)
     }
 
     var body: some View {
@@ -35,6 +34,7 @@ struct SignUpScreen: View {
                 LSButton("Create account", isDisabled: viewModel.isSubmitting) {
                     Task {
                         await viewModel.submit()
+                        updateRoutingFromSharedAuth()
                     }
                 }
                 if viewModel.isSubmitting {
@@ -47,5 +47,13 @@ struct SignUpScreen: View {
             .padding(theme.space.lg)
         }
         .navigationTitle("Sign Up")
+    }
+
+    private func updateRoutingFromSharedAuth() {
+        appState.updateAuthenticationState(from: appEnvironment.clerkAuth)
+        if appState.isAuthenticated {
+            appState.authRoute = nil
+            appState.appRoute = .home
+        }
     }
 }

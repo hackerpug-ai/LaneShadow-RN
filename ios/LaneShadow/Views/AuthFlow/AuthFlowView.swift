@@ -2,10 +2,10 @@ import SwiftUI
 
 struct AuthFlowView: View {
     let route: AppState.AuthRoute?
-    let appState: AppState?
-    let clerkAuth: ClerkAuth?
+    let appState: AppState
+    let clerkAuth: ClerkAuth
 
-    init(route: AppState.AuthRoute? = nil, appState: AppState? = nil, clerkAuth: ClerkAuth? = nil) {
+    init(route: AppState.AuthRoute? = nil, appState: AppState, clerkAuth: ClerkAuth) {
         self.route = route
         self.appState = appState
         self.clerkAuth = clerkAuth
@@ -14,21 +14,22 @@ struct AuthFlowView: View {
     var body: some View {
         NavigationStack {
             if route == .signUp {
-                SignUpView()
+                SignUpView(appState: appState)
             } else if case let .oauthCallback(callbackURL) = route {
                 OAuthCallbackScreen(callbackURL: callbackURL) { _ in
-                    guard let appState, let clerkAuth else { return }
-                    _ = await OAuthCallbackCompletion.complete(
-                        callbackURL: callbackURL,
-                        appState: appState,
-                        auth: clerkAuth
-                    )
+                    Task {
+                        _ = await OAuthCallbackCompletion.complete(
+                            callbackURL: callbackURL,
+                            appState: appState,
+                            auth: clerkAuth
+                        )
+                    }
                 }
             } else {
-                SignInView()
+                SignInView(appState: appState)
                     .toolbar {
                         NavigationLink("Create Account") {
-                            SignUpView()
+                            SignUpView(appState: appState)
                         }
                     }
             }
