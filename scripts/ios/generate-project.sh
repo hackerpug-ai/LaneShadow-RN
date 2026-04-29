@@ -12,3 +12,8 @@ fi
 
 cd "${IOS_DIR}"
 xcodegen generate --spec project.yml --project .
+
+# Normalize NativeSandbox folder reference path so generated pbxproj is stable
+# across main checkout and deeper agent worktrees.
+perl -0pi -e 's#path = "\.\./(?:\.\./)+native-sandbox/ios"; sourceTree = SOURCE_ROOT;#path = "../../native-sandbox/ios"; sourceTree = SOURCE_ROOT;#g' \
+  "${IOS_DIR}/LaneShadow.xcodeproj/project.pbxproj"

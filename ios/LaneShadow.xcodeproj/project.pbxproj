@@ -256,6 +256,16 @@
 			path = Organisms;
 			sourceTree = "<group>";
 		};
+		537AF6CF40C4418539754A5D /* Services */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Services;
+			path = Services;
+			sourceTree = "<group>";
+		};
 		5B8A253F72C6B3D6A21D5422 /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			explicitFileTypes = {
@@ -284,6 +294,16 @@
 			);
 			name = Molecules;
 			path = Molecules;
+			sourceTree = "<group>";
+		};
+		755D85BE7B8692E8CCE9B7D0 /* Integration */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Integration;
+			path = Integration;
 			sourceTree = "<group>";
 		};
 		9B1969E887592C82E1672459 /* Launch */ = {
@@ -499,6 +519,7 @@
 				A1DA24033B9915EAB116ED62 /* Generated */,
 				9B1969E887592C82E1672459 /* Launch */,
 				1F10FC2E199EFDF6EFDFEDA8 /* Sandbox */,
+				537AF6CF40C4418539754A5D /* Services */,
 				9A00239A316DF9BC49914EC8 /* Views */,
 				324B26FB2DE3F759B489CB7B /* App.swift */,
 				0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */,
@@ -529,6 +550,7 @@
 			isa = PBXGroup;
 			children = (
 				5B8A253F72C6B3D6A21D5422 /* Atoms */,
+				755D85BE7B8692E8CCE9B7D0 /* Integration */,
 				ABBAFDBD7FF159A58193899A /* Molecules */,
 				244E36879200004067F64629 /* Organisms */,
 				D7065A2A2689E3B640127541 /* Sandbox */,
@@ -616,6 +638,7 @@
 				7290175E358A1C93D4A90231 /* Molecules */,
 				D026D3B873FDE7B7153F206F /* Organisms */,
 				4C8A8E02554AE3D5AC4FAC51 /* Organisms */,
+				537AF6CF40C4418539754A5D /* Services */,
 				CF77ECAB776F34B039A160CA /* Templates */,
 				0E516A6442C2AA10AA5009F5 /* Templates */,
 				E5E2F792F8318B064762B018 /* Theme */,
@@ -668,6 +691,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				5B8A253F72C6B3D6A21D5422 /* Atoms */,
+				755D85BE7B8692E8CCE9B7D0 /* Integration */,
 				244E36879200004067F64629 /* Organisms */,
 				0B23304A78B886F9A286C5E4 /* Sandbox */,
 				5D43661EA5776DD985956D8D /* Templates */,
