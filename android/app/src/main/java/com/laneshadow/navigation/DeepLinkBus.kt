@@ -13,12 +13,16 @@ object DeepLinkBus {
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
     val callbacks: SharedFlow<Uri> = _callbacks.asSharedFlow()
+    var latestCallbackUri: Uri? = null
+        private set
 
     fun publish(callbackUri: Uri) {
+        latestCallbackUri = callbackUri
         _callbacks.tryEmit(callbackUri)
     }
 
     fun consumeLatest() {
+        latestCallbackUri = null
         _callbacks.resetReplayCache()
     }
 }

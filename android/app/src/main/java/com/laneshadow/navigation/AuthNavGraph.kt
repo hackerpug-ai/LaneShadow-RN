@@ -52,13 +52,11 @@ fun AuthNavGraph(
         }
     }
 
-    LaunchedEffect(authState) {
-        if (authState is AuthState.SignedOut && navController.currentDestination?.route == Route.OAuthCallback::class.qualifiedName) {
-            navController.navigate(Route.SignIn) {
-                popUpTo(Route.OAuthCallback) { inclusive = true }
-                launchSingleTop = true
-            }
-            DeepLinkBus.consumeLatest()
+    LaunchedEffect(Unit) {
+        val pendingCallback = DeepLinkBus.latestCallbackUri
+        if (pendingCallback != null) {
+            callbackUri = pendingCallback
+            navController.navigate(Route.OAuthCallback)
         }
     }
 
@@ -70,8 +68,16 @@ fun AuthNavGraph(
         composable<Route.Splash> {
             val theme = LocalLaneShadowTheme.current
             LaunchedEffect(Unit) {
-                navController.navigate(Route.SignIn) {
-                    popUpTo(Route.Splash) { inclusive = true }
+                val pendingCallback = DeepLinkBus.latestCallbackUri
+                if (pendingCallback != null) {
+                    callbackUri = pendingCallback
+                    navController.navigate(Route.OAuthCallback) {
+                        popUpTo(Route.Splash) { inclusive = true }
+                    }
+                } else {
+                    navController.navigate(Route.SignIn) {
+                        popUpTo(Route.Splash) { inclusive = true }
+                    }
                 }
             }
             Column(

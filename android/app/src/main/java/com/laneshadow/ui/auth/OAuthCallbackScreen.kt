@@ -29,6 +29,7 @@ import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.SpinnerSize
 import com.laneshadow.ui.atoms.TypographyVariant
 import com.laneshadow.ui.organisms.LSInlineErrorCallout
+import kotlinx.coroutines.delay
 
 @Composable
 fun OAuthCallbackScreen(
@@ -39,12 +40,16 @@ fun OAuthCallbackScreen(
     val theme = LocalLaneShadowTheme.current
     val authState by viewModel.authState.collectAsStateWithLifecycle()
     var lastCallbackUri by remember { mutableStateOf<Uri?>(null) }
+    var isProcessingCallback by remember { mutableStateOf(false) }
 
     LaunchedEffect(deepLinkUri) {
         deepLinkUri?.let {
             lastCallbackUri = it
+            isProcessingCallback = true
+            delay(500)
             viewModel.handleOAuthCallback(it)
             DeepLinkBus.consumeLatest()
+            isProcessingCallback = false
         }
     }
 
@@ -55,7 +60,7 @@ fun OAuthCallbackScreen(
         verticalArrangement = Arrangement.spacedBy(theme.space.md, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (authState is AuthState.Error) {
+        if (authState is AuthState.Error && !isProcessingCallback) {
             LSInlineErrorCallout(
                 body = (authState as AuthState.Error).message,
                 onSuggestionTap = {},
