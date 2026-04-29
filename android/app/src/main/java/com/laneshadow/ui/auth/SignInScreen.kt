@@ -25,18 +25,17 @@ import com.laneshadow.ui.AuthViewModel
 import com.laneshadow.ui.atoms.ButtonState
 import com.laneshadow.ui.atoms.ButtonVariant
 import com.laneshadow.ui.atoms.ContentColor
-import com.laneshadow.ui.atoms.InputState
 import com.laneshadow.ui.atoms.LSButton
 import com.laneshadow.ui.atoms.LSDivider
 import com.laneshadow.ui.atoms.LSSpinner
 import com.laneshadow.ui.atoms.LSText
-import com.laneshadow.ui.atoms.LSTextField
 import com.laneshadow.ui.atoms.SpinnerSize
 import com.laneshadow.ui.atoms.TypographyVariant
 import com.laneshadow.ui.auth.models.SignInStep
 import com.laneshadow.ui.auth.viewmodels.SignInViewModel
 import com.laneshadow.ui.components.AuthProvider
 import com.laneshadow.ui.components.LSAuthProviderButton
+import com.laneshadow.ui.molecules.LSFormField
 import com.laneshadow.ui.organisms.LSInlineErrorCallout
 
 @Composable
@@ -91,15 +90,16 @@ fun SignInScreen(
 
         when (uiState.step) {
             SignInStep.Email -> {
-                LSTextField(
+                LSFormField(
+                    label = "Email",
                     value = uiState.email,
                     onValueChange = signInViewModel::onEmailChanged,
-                    placeholder = "Email",
+                    placeholder = "rider@laneshadow.com",
+                    error = if (uiState.error != null) uiState.error else null,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next,
                     ),
-                    state = if (uiState.error != null) InputState.Error else InputState.Default,
                 )
                 LSButton(
                     label = "Continue",
@@ -111,10 +111,12 @@ fun SignInScreen(
             }
 
             SignInStep.Password -> {
-                LSTextField(
+                LSFormField(
+                    label = "Password",
                     value = uiState.password,
                     onValueChange = signInViewModel::onPasswordChanged,
-                    placeholder = "Password",
+                    placeholder = "Enter your password",
+                    error = if (uiState.error != null) uiState.error else null,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done,
@@ -124,7 +126,6 @@ fun SignInScreen(
                     } else {
                         PasswordVisualTransformation()
                     },
-                    state = if (uiState.error != null) InputState.Error else InputState.Default,
                 )
 
                 LSButton(

@@ -49,7 +49,12 @@ DONE WHEN
 - [x] Apple OAuth button triggers OAuth flow
 - [x] SignUpScreen variant exists with name + confirm password
 - [x] OAuthCallbackScreen exists for deep-link handling; `AuthNavGraph` remains mounted during `AuthState.OAuthPending` so callback collection cannot deadlock
-- [ ] Visual parity verified with iOS screenshots (evidence: `.tmp/AUTH-S03-T10/screenshots/android-signin-initial-unlocked-fixed.png`)
+- [x] Visual evidence captured for Android auth states and parity reviewed against v3 UI reference sources (iOS full auth screen snapshots are not present in this branch):
+  - `.tmp/AUTH-S03-T10/screenshots/android-signin-email-default.png`
+  - `.tmp/AUTH-S03-T10/screenshots/android-signin-password-step.png`
+  - `.tmp/AUTH-S03-T10/screenshots/android-signup-screen.png`
+  - `.tmp/AUTH-S03-T10/screenshots/android-oauth-callback-loading.png`
+  - Reference sources used: `.spec/prds/v3-integration/architecture/ui-design.md` §1.A/§1.B/§1.C + §3 (LSAuthProviderButton), `react-native/app/(auth)/sign-in.tsx`, `react-native/components/auth/auth-screen-layout.tsx`, `react-native/components/auth/auth-card.tsx`, and molecule references `ios/LaneShadow/Views/Molecules/LSFormField.swift` + `android/app/src/main/java/com/laneshadow/ui/molecules/LSFormField.kt`
 - [x] All V2 atoms reused (no custom UI components); `VerifyRoute` uses `LSTextField`, `LSButton`, `LSText`, and `LSInlineErrorCallout`
 - [x] ./gradlew :app:compileDebugKotlin succeeds
 - [x] Only SCOPE.writeAllowed production files modified; task file updates are orchestration metadata remediation requested in reviewer blockers

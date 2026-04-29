@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.laneshadow.data.model.AuthState
@@ -26,9 +27,9 @@ import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.atoms.LSButton
 import com.laneshadow.ui.atoms.LSSpinner
 import com.laneshadow.ui.atoms.LSText
-import com.laneshadow.ui.atoms.LSTextField
 import com.laneshadow.ui.atoms.SpinnerSize
 import com.laneshadow.ui.atoms.TypographyVariant
+import com.laneshadow.ui.molecules.LSFormField
 import com.laneshadow.ui.organisms.LSInlineErrorCallout
 
 @Composable
@@ -82,19 +83,21 @@ fun SignUpScreen(
             )
         }
 
-        LSTextField(
+        LSFormField(
+            label = "Name",
             value = name,
             onValueChange = { name = it },
-            placeholder = "Name",
+            placeholder = "Avery Rider",
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         )
-        LSTextField(
+        LSFormField(
+            label = "Email",
             value = email,
             onValueChange = {
                 email = it
                 authError = null
             },
-            placeholder = "Email",
+            placeholder = "rider@laneshadow.com",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
         )
         if (email.isNotBlank() && !isEmailValid) {
@@ -104,17 +107,21 @@ fun SignUpScreen(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-        LSTextField(
+        LSFormField(
+            label = "Password",
             value = password,
             onValueChange = { password = it },
-            placeholder = "Password",
+            placeholder = "Create a password",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+            visualTransformation = PasswordVisualTransformation(),
         )
-        LSTextField(
+        LSFormField(
+            label = "Confirm password",
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            placeholder = "Confirm password",
+            placeholder = "Re-enter your password",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+            visualTransformation = PasswordVisualTransformation(),
         )
 
         LSButton(
