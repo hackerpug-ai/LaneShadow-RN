@@ -75,6 +75,22 @@ struct ConvexClientTests {
         }
     }
 
+    actor FakeClerkJWTProvider: LaneShadowClerkJWTProviding {
+        private var token: String?
+
+        init(token: String?) {
+            self.token = token
+        }
+
+        func convexJWT() async throws -> String? {
+            token
+        }
+
+        func setToken(_ token: String?) {
+            self.token = token
+        }
+    }
+
     @Test
     func convexSwiftPackageIntegrated() {
         let endpoint = LaneShadowConvexQuery.listSessions.rawValue
@@ -126,6 +142,36 @@ struct ConvexClientTests {
         let callbackToken = try await client.debugLoginTokenForTesting()
 
         #expect(callbackToken == "token-b")
+    }
+
+    @Test
+    func setAuthClerkJWTProviderBridgesToLoginCallbackThroughWrapper() async throws {
+        let client = LaneShadowConvexClient(
+            deploymentURL: "http://localhost:3210",
+            tokenProvider: { "token-a" },
+            transport: FakeTransport()
+        )
+        let clerkProvider = FakeClerkJWTProvider(token: "clerk-token-b")
+
+        await client.setAuth(clerkJWTProvider: clerkProvider)
+        let callbackToken = try await client.debugLoginTokenForTesting()
+
+        #expect(callbackToken == "clerk-token-b")
+    }
+
+    @Test
+    func logoutClearsAuthProviderToken() async throws {
+        let client = LaneShadowConvexClient(
+            deploymentURL: "http://localhost:3210",
+            tokenProvider: { "token-a" },
+            transport: FakeTransport()
+        )
+
+        #expect(try await client.debugLoginTokenForTesting() == "token-a")
+
+        try await client.logout()
+
+        #expect(try await client.debugLoginTokenForTesting() == nil)
     }
 
     @Test

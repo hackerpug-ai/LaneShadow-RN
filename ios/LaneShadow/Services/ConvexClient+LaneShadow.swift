@@ -20,6 +20,10 @@ struct LaneShadowAuthSession {
     let jwt: String?
 }
 
+protocol LaneShadowClerkJWTProviding: Sendable {
+    func convexJWT() async throws -> String?
+}
+
 actor LaneShadowTokenProviderBox {
     private var tokenProvider: @Sendable () async throws -> String?
 
@@ -61,7 +65,9 @@ final class LaneShadowAuthProvider: AuthProvider {
         return LaneShadowAuthSession(jwt: token)
     }
 
-    func logout() async throws {}
+    func logout() async throws {
+        await tokenBox.set { nil }
+    }
 
     func extractIdToken(from authResult: LaneShadowAuthSession) -> String {
         authResult.jwt ?? ""
@@ -172,6 +178,16 @@ final class LaneShadowConvexClient {
 
     func setAuth(tokenProvider: @escaping @Sendable () async throws -> String?) async {
         await authProvider.setAuthTokenProvider(tokenProvider)
+    }
+
+    func setAuth(clerkJWTProvider: any LaneShadowClerkJWTProviding) async {
+        await authProvider.setAuthTokenProvider {
+            try await clerkJWTProvider.convexJWT()
+        }
+    }
+
+    func logout() async throws {
+        try await authProvider.logout()
     }
 
     func debugCurrentAuthTokenForTesting() async throws -> String? {
