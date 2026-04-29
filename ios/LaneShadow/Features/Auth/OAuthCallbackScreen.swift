@@ -47,12 +47,14 @@ struct OAuthCallbackScreen: View {
             .queryItems?
             .first(where: { $0.name == "token" })?
             .value,
-            !tokenQuery.isEmpty {
+            !tokenQuery.isEmpty
+        {
             return tokenQuery
         }
 
         if let fragment = URLComponents(url: url, resolvingAgainstBaseURL: false)?.fragment,
-           fragment.contains("token=") {
+           fragment.contains("token=")
+        {
             let fragmentComponents = URLComponents(string: "https://laneshadow.app?\(fragment)")
             return fragmentComponents?.queryItems?.first(where: { $0.name == "token" })?.value
         }
