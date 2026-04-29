@@ -116,7 +116,7 @@
 		307F61C56AD06224E9F93B51 /* LaneShadow.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LaneShadow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3123362FBC613B11809CE348 /* LSChatInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSChatInputTests.swift; sourceTree = "<group>"; };
 		324B26FB2DE3F759B489CB7B /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
-		3B4E8EF6472F1ABEBBC33DFB /* ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ios; path = "../../../../../native-sandbox/ios"; sourceTree = SOURCE_ROOT; };
+		3B4E8EF6472F1ABEBBC33DFB /* ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ios; path = "../../native-sandbox/ios"; sourceTree = SOURCE_ROOT; };
 		3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomsStories.swift; sourceTree = "<group>"; };
 		3FCE935E865EBECBA195F949 /* TemplateStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateStories.swift; sourceTree = "<group>"; };
 		4283E0B2FE9FD9CE99770202 /* RouteResultsDetailsVariantTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteResultsDetailsVariantTests.swift; sourceTree = "<group>"; };

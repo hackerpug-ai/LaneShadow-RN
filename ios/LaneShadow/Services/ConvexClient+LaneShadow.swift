@@ -178,6 +178,31 @@ final class LaneShadowConvexClient {
         try await authProvider.debugCurrentTokenForTesting()
     }
 
+    func debugLoginTokenForTesting() async throws -> String? {
+        final class TokenBox: @unchecked Sendable {
+            private let lock = NSLock()
+            private var value: String?
+
+            func set(_ token: String?) {
+                lock.lock()
+                value = token
+                lock.unlock()
+            }
+
+            func get() -> String? {
+                lock.lock()
+                defer { lock.unlock() }
+                return value
+            }
+        }
+
+        let tokenBox = TokenBox()
+        _ = try await authProvider.login { token in
+            tokenBox.set(token)
+        }
+        return tokenBox.get()
+    }
+
     func subscribe<T: Decodable & Sendable>(
         _ query: LaneShadowConvexQuery,
         args: [String: ConvexEncodable?]? = nil,

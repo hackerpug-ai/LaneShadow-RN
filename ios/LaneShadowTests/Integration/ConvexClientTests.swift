@@ -115,6 +115,20 @@ struct ConvexClientTests {
     }
 
     @Test
+    func setAuthBridgesToLoginCallbackThroughWrapper() async throws {
+        let client = LaneShadowConvexClient(
+            deploymentURL: "http://localhost:3210",
+            tokenProvider: { "token-a" },
+            transport: FakeTransport()
+        )
+
+        await client.setAuth(tokenProvider: { "token-b" })
+        let callbackToken = try await client.debugLoginTokenForTesting()
+
+        #expect(callbackToken == "token-b")
+    }
+
+    @Test
     func subscribeToSessionsEmitsAsyncStreamUpdates() async {
         let transport = FakeTransport()
         let client = LaneShadowConvexClient(
