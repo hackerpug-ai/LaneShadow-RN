@@ -62,7 +62,7 @@ DONE WHEN
   - `android/app/src/test/java/com/laneshadow/ui/auth/AuthScreensSourceStructureTest.kt`
   - RED evidence captured: callback test failed while `delay(500)` existed
   - GREEN evidence captured: callback delay removed; targeted test class passes
-  - ⚠️ REVIEW NOTE (2026-04-29): `AuthNavGraph` currently has multiple cold-start navigation triggers to `Route.OAuthCallback` (see `android/app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt:55` and `android/app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt:70`). This can create duplicate `OAuthCallbackScreen` instances and double-invoke `AuthViewModel.handleOAuthCallback(...)`. Consolidate to a single trigger and use `launchSingleTop` before merge.
+  - ✅ REVIEW NOTE RESOLVED (2026-04-29): cold-start navigation to `Route.OAuthCallback` is centralized through a single `navigateToOAuthCallback` lambda and uses `launchSingleTop = true` (evidence: `android/app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt:47`).
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
