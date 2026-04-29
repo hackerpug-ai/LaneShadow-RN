@@ -220,6 +220,10 @@ targets:
         type: syncedFolder
       - path: LaneShadow/Views/AppFlow
         type: syncedFolder
+      - path: LaneShadow/Features
+        type: syncedFolder
+      - path: LaneShadow/DesignSystem
+        type: syncedFolder
     dependencies:
       - package: ConvexMobile
       - package: LaneShadowTheme

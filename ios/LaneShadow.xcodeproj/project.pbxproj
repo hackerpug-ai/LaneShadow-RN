@@ -327,6 +327,16 @@
 			path = Environment;
 			sourceTree = "<group>";
 		};
+		803C67E4953872CB5CCA0FA9 /* DesignSystem */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = DesignSystem;
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
 		8460D5ABD7FFE129DB373103 /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			explicitFileTypes = {
@@ -374,6 +384,16 @@
 			explicitFolders = (
 			);
 			path = LaneShadowUITests;
+			sourceTree = "<group>";
+		};
+		B6F7522A945FCE6E9220905B /* Features */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Features;
+			path = Features;
 			sourceTree = "<group>";
 		};
 		B92913E9843A5845817A3DBD /* Controls */ = {
@@ -558,7 +578,9 @@
 		559DE46475FFF70C1C60C52B /* LaneShadow */ = {
 			isa = PBXGroup;
 			children = (
+				803C67E4953872CB5CCA0FA9 /* DesignSystem */,
 				7658177809845BD7EAFD2B5F /* Environment */,
+				B6F7522A945FCE6E9220905B /* Features */,
 				A1DA24033B9915EAB116ED62 /* Generated */,
 				9B1969E887592C82E1672459 /* Launch */,
 				8460D5ABD7FFE129DB373103 /* Models */,
@@ -678,8 +700,10 @@
 				CE8B4DF54243DD52953C7CFE /* Atoms */,
 				8F5AC0DC38D5B1239FAA340F /* AuthFlow */,
 				B92913E9843A5845817A3DBD /* Controls */,
+				803C67E4953872CB5CCA0FA9 /* DesignSystem */,
 				3BC11B009ED26B33FC7A0333 /* Entry */,
 				7658177809845BD7EAFD2B5F /* Environment */,
+				B6F7522A945FCE6E9220905B /* Features */,
 				A1DA24033B9915EAB116ED62 /* Generated */,
 				9B1969E887592C82E1672459 /* Launch */,
 				0AB6BCC041176229C63DBB62 /* Layout */,

@@ -34,13 +34,21 @@ final class RootViewTests: XCTestCase {
     }
 
     func testAuthFlowNavigationStackCreated() throws {
-        let signInView = AuthFlowView(route: .signIn)
+        let signInView = AuthFlowView(
+            route: .signIn,
+            appState: AppState(isAuthenticated: false),
+            clerkAuth: ClerkAuth(client: RootViewTestsAuthClient())
+        )
         XCTAssertNoThrow(try signInView.inspect().find(ViewType.NavigationStack.self))
-        XCTAssertNoThrow(try signInView.inspect().find(text: "Sign In"))
+        XCTAssertNoThrow(try signInView.inspect().find(text: "Sign in"))
 
-        let signUpView = AuthFlowView(route: .signUp)
+        let signUpView = AuthFlowView(
+            route: .signUp,
+            appState: AppState(isAuthenticated: false),
+            clerkAuth: ClerkAuth(client: RootViewTestsAuthClient())
+        )
         XCTAssertNoThrow(try signUpView.inspect().find(ViewType.NavigationStack.self))
-        XCTAssertNoThrow(try signUpView.inspect().find(text: "Sign Up"))
+        XCTAssertNoThrow(try signUpView.inspect().find(text: "Create account"))
     }
 
     func testAppFlowNavigationStackCreated() throws {
@@ -137,6 +145,10 @@ actor RootViewTestsAuthClient: ClerkAuthClient {
 
     func getJWT() async throws -> String? {
         "jwt"
+    }
+
+    func completeOAuthCallback(token _: String) async throws -> ClerkAuthUser? {
+        nil
     }
 }
 

@@ -85,6 +85,16 @@ struct ClerkAuthTests {
     }
 
     @Test
+    func liveClientForwardsOAuthCallbackTokenToSDK() async throws {
+        let sdk = MockClerkSDK()
+        let client = LiveClerkAuthClient(sdk: sdk)
+
+        _ = try await client.completeOAuthCallback(token: "oauth-ticket-token")
+
+        #expect(sdk.recordedCallbackToken == "oauth-ticket-token")
+    }
+
+    @Test
     func clerkAuthProviderConformsToConvexMobile() {
         let provider = ClerkAuthProvider(auth: ClerkAuth(client: FakeClerkAuthClient()))
         let authProvider: any AuthProvider = provider
@@ -134,6 +144,10 @@ actor FakeClerkAuthClient: ClerkAuthClient {
     func getJWT() async throws -> String? {
         "jwt-token"
     }
+
+    func completeOAuthCallback(token _: String) async throws -> ClerkAuthUser? {
+        nil
+    }
 }
 
 @MainActor
@@ -149,6 +163,7 @@ final class MockClerkSDK: ClerkSDKClient {
     var appleUser = ClerkAuthUser(id: "apple-user", email: "apple@example.com")
     var googleUser = ClerkAuthUser(id: "google-user", email: "google@example.com")
     var jwtToReturn: String?
+    var recordedCallbackToken: String?
 
     func signIn(email: String, password: String) async throws -> ClerkAuthUser {
         recordedEmailSignIn = (email, password)
@@ -176,5 +191,10 @@ final class MockClerkSDK: ClerkSDKClient {
 
     func getJWT() async throws -> String? {
         jwtToReturn
+    }
+
+    func completeOAuthCallback(token: String) async throws -> ClerkAuthUser? {
+        recordedCallbackToken = token
+        return emailSignInUser
     }
 }

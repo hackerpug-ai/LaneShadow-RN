@@ -7,7 +7,7 @@ final class AppState {
     enum AuthRoute: Equatable {
         case signIn
         case signUp
-        case oauthCallback
+        case oauthCallback(URL)
     }
 
     enum AppRoute: Equatable {
@@ -44,7 +44,7 @@ final class AppState {
                 appRoute = .home
                 authRoute = nil
             } else {
-                authRoute = .oauthCallback
+                authRoute = .oauthCallback(url)
                 appRoute = nil
             }
             return
