@@ -12,7 +12,7 @@ struct AuthFlowView: View {
             if route == .signUp {
                 SignUpView()
             } else if route == .oauthCallback {
-                SignInView()
+                OAuthCallbackScreen(callbackURL: nil)
             } else {
                 SignInView()
                     .toolbar {
