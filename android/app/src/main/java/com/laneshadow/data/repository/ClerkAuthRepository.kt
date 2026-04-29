@@ -12,8 +12,10 @@ import kotlinx.coroutines.flow.asStateFlow
 interface ClerkGateway {
     suspend fun signIn(email: String, password: String): Result<ClerkUser>
     suspend fun signUp(email: String, password: String, name: String): Result<ClerkUser>
+    suspend fun completeSignUpVerification(code: String): Result<ClerkUser>
     suspend fun signOut(): Result<Unit>
     suspend fun getJwt(): Result<String>
+    suspend fun getVerificationJwt(): Result<String>
 }
 
 data class OAuthResult(
@@ -31,8 +33,8 @@ class ClerkAuthRepository @Inject constructor(
     private val tokenStore: TokenStore,
     private val clerkGateway: ClerkGateway,
     private val oauthGateway: OAuthGateway,
-    private val authState: MutableStateFlow<AuthState> = MutableStateFlow(AuthState.SignedOut),
 ) : AuthRepository {
+    private val authState = MutableStateFlow<AuthState>(AuthState.SignedOut)
 
     override suspend fun signIn(email: String, password: String): Result<ClerkUser> {
         authState.value = AuthState.Loading
@@ -42,6 +44,28 @@ class ClerkAuthRepository @Inject constructor(
     override suspend fun signUp(email: String, password: String, name: String): Result<ClerkUser> {
         authState.value = AuthState.Loading
         return handlePrimaryResult(clerkGateway.signUp(email, password, name))
+    }
+
+    override suspend fun completeSignUpVerification(code: String): Result<ClerkUser> {
+        authState.value = AuthState.Loading
+        return clerkGateway.completeSignUpVerification(code).fold(
+            onSuccess = { user ->
+                val jwt = clerkGateway.getVerificationJwt().getOrElse { "" }
+                if (jwt.isBlank()) {
+                    val error = IllegalStateException("Verification completed without JWT")
+                    authState.value = AuthState.Error(error.message ?: "Verification failed")
+                    Result.failure(error)
+                } else {
+                    tokenStore.saveJwt(jwt)
+                    authState.value = AuthState.SignedIn(user)
+                    Result.success(user)
+                }
+            },
+            onFailure = { error ->
+                authState.value = AuthState.Error(error.message ?: "Verification failed")
+                Result.failure(error)
+            },
+        )
     }
 
     override suspend fun signOut(): Result<Unit> {
@@ -61,9 +85,8 @@ class ClerkAuthRepository @Inject constructor(
         return handleOAuthResult(oauthGateway.signInWithApple())
     }
 
-    override suspend fun handleOAuthCallback(uri: Uri): Result<ClerkUser> {
-        return handleOAuthResult(oauthGateway.completeOAuthCallback(uri))
-    }
+    override suspend fun handleOAuthCallback(uri: Uri): Result<ClerkUser> =
+        handleOAuthResult(oauthGateway.completeOAuthCallback(uri))
 
     override suspend fun getJwtForConvex(): String {
         val jwt = tokenStore.readJwt()

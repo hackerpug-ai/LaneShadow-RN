@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 interface AuthRepository {
     suspend fun signIn(email: String, password: String): Result<ClerkUser>
     suspend fun signUp(email: String, password: String, name: String): Result<ClerkUser>
+    suspend fun completeSignUpVerification(code: String): Result<ClerkUser>
     suspend fun signOut(): Result<Unit>
     suspend fun signInWithGoogle(): Result<ClerkUser>
     suspend fun signInWithApple(): Result<ClerkUser>

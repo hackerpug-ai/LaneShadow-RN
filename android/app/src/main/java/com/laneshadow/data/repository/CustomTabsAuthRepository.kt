@@ -34,6 +34,9 @@ class CustomTabsAuthRepository @Inject constructor(
     override suspend fun signUp(email: String, password: String, name: String): Result<ClerkUser> =
         Result.failure(IllegalStateException("Sign-up is handled by ClerkAuthRepository"))
 
+    override suspend fun completeSignUpVerification(code: String): Result<ClerkUser> =
+        Result.failure(IllegalStateException("Sign-up verification is handled by ClerkAuthRepository"))
+
     override suspend fun signOut(): Result<Unit> {
         tokenStore.clear()
         authState.value = AuthState.SignedOut
