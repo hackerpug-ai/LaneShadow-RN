@@ -7,6 +7,65 @@ final class Sprint03WDAArtifactTests: XCTestCase {
         .deletingLastPathComponent()
         .deletingLastPathComponent()
 
+    private let evidencePathKeys = Set(["log", "diagnostics", "resultArtifact", "t11Evidence", "xcresult"])
+
+    private func isAbsoluteHostPath(_ value: String) -> Bool {
+        value.hasPrefix("/") ||
+            value.hasPrefix("file://") ||
+            value.range(of: #"^[A-Za-z]:\\"#, options: .regularExpression) != nil
+    }
+
+    private func collectStringValues(_ value: Any) -> [String] {
+        if let string = value as? String {
+            return [string]
+        }
+        if let dict = value as? [String: Any] {
+            return dict.values.flatMap(collectStringValues)
+        }
+        if let array = value as? [Any] {
+            return array.flatMap(collectStringValues)
+        }
+        return []
+    }
+
+    private func assertEvidencePathsAreRelativeAndExist(_ evidence: [String: Any], file: StaticString = #filePath, line: UInt = #line) {
+        for stringValue in collectStringValues(evidence) {
+            XCTAssertFalse(
+                isAbsoluteHostPath(stringValue),
+                "Closure artifact evidence must not include absolute host paths: \(stringValue)",
+                file: file,
+                line: line
+            )
+        }
+
+        for (key, rawValue) in evidence where evidencePathKeys.contains(key) {
+            guard let relativePath = rawValue as? String else {
+                XCTFail("Evidence path field \(key) must be a string", file: file, line: line)
+                continue
+            }
+            XCTAssertFalse(
+                relativePath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                "Evidence path field \(key) cannot be empty",
+                file: file,
+                line: line
+            )
+            XCTAssertFalse(
+                isAbsoluteHostPath(relativePath),
+                "Evidence path field \(key) must be repo-relative: \(relativePath)",
+                file: file,
+                line: line
+            )
+
+            let fileURL = repositoryRoot.appendingPathComponent(relativePath)
+            XCTAssertTrue(
+                FileManager.default.fileExists(atPath: fileURL.path),
+                "Evidence path field \(key) is missing file: \(relativePath)",
+                file: file,
+                line: line
+            )
+        }
+    }
+
     func testSprint03WdaScriptCreatesRealDeviceSession() throws {
         let scriptURL = repositoryRoot.appendingPathComponent("ios/E2E/sprint-03-auth.js")
         XCTAssertTrue(FileManager.default.fileExists(atPath: scriptURL.path), "Expected sprint-03-auth.js to exist")
@@ -78,8 +137,8 @@ final class Sprint03WDAArtifactTests: XCTestCase {
 
     func testSprint03ArtifactsDoNotUseFakePngDiagnostics() throws {
         let diagnosticsURL = repositoryRoot.appendingPathComponent("ios/E2E/diagnostics/sprint-03-auth")
-        let fm = FileManager.default
-        let files = try fm.contentsOfDirectory(at: diagnosticsURL, includingPropertiesForKeys: nil)
+        let fileManager = FileManager.default
+        let files = try fileManager.contentsOfDirectory(at: diagnosticsURL, includingPropertiesForKeys: nil)
 
         for file in files where file.pathExtension.lowercased() == "png" {
             let data = try Data(contentsOf: file)
@@ -100,7 +159,7 @@ final class Sprint03WDAArtifactTests: XCTestCase {
             }
             let screenshotURL = repositoryRoot.appendingPathComponent(screenshotPath)
             XCTAssertTrue(
-                fm.fileExists(atPath: screenshotURL.path),
+                fileManager.fileExists(atPath: screenshotURL.path),
                 "Evidence screenshot path missing: \(screenshotPath)"
             )
             if screenshotPath.hasSuffix(".png") {
@@ -144,14 +203,18 @@ final class Sprint03WDAArtifactTests: XCTestCase {
             )
 
             let evidence = try XCTUnwrap(lane["evidence"] as? [String: Any], "Lane evidence must be an object")
+            assertEvidencePathsAreRelativeAndExist(evidence)
+
             if status == "BLOCKED" {
                 let prerequisites = try XCTUnwrap(
                     evidence["prerequisites"] as? [String],
                     "Blocked lane requires prerequisites array"
                 )
                 XCTAssertFalse(prerequisites.isEmpty, "Blocked lane prerequisites cannot be empty")
-                XCTAssertTrue(prerequisites.allSatisfy { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty },
-                              "Blocked lane prerequisites must contain non-empty strings")
+                XCTAssertTrue(
+                    prerequisites.allSatisfy { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty },
+                    "Blocked lane prerequisites must contain non-empty strings"
+                )
             }
         }
 

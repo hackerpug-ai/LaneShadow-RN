@@ -11,8 +11,7 @@
       "timestamp": "2026-04-29T23:12:28Z",
       "evidence": {
         "summary": "LaneShadowUITests passed on iPhone 16 simulator (3 tests, 0 failures)",
-        "log": "ios/E2E/diagnostics/sprint-03-closure/ios-simulator-xcodebuild.log",
-        "xcresult": "/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-dbjwywqohpellqaxpzekaoobqndx/Logs/Test/Test-LaneShadow-2026.04.29_17-12-03--0600.xcresult"
+        "log": "ios/E2E/diagnostics/sprint-03-closure/ios-simulator-xcodebuild.log"
       }
     },
     {
