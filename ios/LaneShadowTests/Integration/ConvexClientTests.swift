@@ -6,6 +6,23 @@ import Testing
 
 @MainActor
 struct ConvexClientTests {
+    final class TokenCapture: @unchecked Sendable {
+        private let lock = NSLock()
+        private var value: String?
+
+        func set(_ token: String?) {
+            lock.lock()
+            value = token
+            lock.unlock()
+        }
+
+        func token() -> String? {
+            lock.lock()
+            defer { lock.unlock() }
+            return value
+        }
+    }
+
     final class FakeTransport: LaneShadowConvexTransporting {
         var subscribeSessionsSubject = PassthroughSubject<[LaneShadowSessionRecord], ClientError>()
         var mutationPayloadByEndpoint: [String: Data] = [:]
@@ -81,6 +98,20 @@ struct ConvexClientTests {
         await client.setAuth(tokenProvider: { "token-b" })
 
         #expect(try await client.debugCurrentAuthTokenForTesting() == "token-b")
+    }
+
+    @Test
+    func authProviderLoginUsesUpdatedTokenProvider() async throws {
+        let provider = LaneShadowAuthProvider(tokenProvider: { "token-a" })
+        let tokenCapture = TokenCapture()
+
+        await provider.setAuthTokenProvider { "token-b" }
+
+        _ = try await provider.login { token in
+            tokenCapture.set(token)
+        }
+
+        #expect(tokenCapture.token() == "token-b")
     }
 
     @Test

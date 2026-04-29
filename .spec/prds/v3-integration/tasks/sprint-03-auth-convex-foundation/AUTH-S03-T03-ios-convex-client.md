@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build
   lint:      swiftformat --lint ios/LaneShadow/
 
-PROGRESS: 0/5 AC · not started
+PROGRESS: 5/5 AC · completed
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -35,12 +35,12 @@ Integrate ConvexMobile Swift SDK via SPM and create typed wrapper exposing queri
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] convex-swift SPM dependency added to project
-- [ ] ConvexClient+LaneShadow.swift wrapper created with typed API
-- [ ] setAuth callback bridged to Clerk JWT provider
-- [ ] subscribeToSessions() -> AsyncStream<[Session]> implemented
-- [ ] iOS build passes
-- [ ] Only SCOPE.writeAllowed files modified
+- [x] convex-swift SPM dependency added to project (evidence: ios/project.yml:17)
+- [x] ConvexClient+LaneShadow.swift wrapper created with typed API (evidence: ios/LaneShadow/Services/ConvexClient+LaneShadow.swift:5)
+- [x] setAuth callback bridged to Clerk JWT provider (evidence: ios/LaneShadow/Services/ConvexClient+LaneShadow.swift:52)
+- [x] subscribeToSessions() -> AsyncStream<[Session]> implemented (evidence: ios/LaneShadow/Services/ConvexClient+LaneShadow.swift:206)
+- [x] iOS build passes (evidence: `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build` EXIT_CODE:0 on 2026-04-29)
+- [x] Only SCOPE.writeAllowed files modified, plus generated project artifact (`ios/LaneShadow.xcodeproj/project.pbxproj`) reconciled from `ios/project.yml` (evidence: `scripts/ios/check-project-generated.sh` EXIT_CODE:0 on 2026-04-29, output in `.tmp/AUTH-S03-T03/project-generated-check.txt`)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
@@ -51,7 +51,7 @@ AC-1: convex-swift SPM package integrated
   WHEN:  Developer adds convex-swift package dependency
   THEN:  SPM package resolves and links successfully
 
-  TDD_STATE:     none
+  TDD_STATE:     RED→GREEN
   TEST_FILE:     ios/LaneShadowTests/Integration/ConvexClientTests.swift
   TEST_FUNCTION: testConvexSwiftPackageIntegrated
 
@@ -60,7 +60,7 @@ AC-2: ConvexClient+LaneShadow typed wrapper created [PRIMARY]
   WHEN:  Developer creates ConvexClient+LaneShadow.swift extension
   THEN:  Typed wrapper exposes enum-based API for queries/mutations
 
-  TDD_STATE:     none
+  TDD_STATE:     RED→GREEN
   TEST_FILE:     ios/LaneShadowTests/Integration/ConvexClientTests.swift
   TEST_FUNCTION: testConvexClientLaneShadowWrapperCreated
 
@@ -69,7 +69,7 @@ AC-3: setAuth callback bridges Clerk JWT [PRIMARY]
   WHEN:  Developer calls setAuth with token closure
   THEN:  Convex client receives JWT token from Clerk provider
 
-  TDD_STATE:     none
+  TDD_STATE:     RED→GREEN→REFACTOR
   TEST_FILE:     ios/LaneShadowTests/Integration/ConvexClientTests.swift
   TEST_FUNCTION: testSetAuthBridgesClerkJWT
 
@@ -78,7 +78,7 @@ AC-4: subscribeToSessions returns AsyncStream [PRIMARY]
   WHEN:  Developer calls subscribeToSessions()
   THEN:  AsyncStream<[Session]> emits session array updates
 
-  TDD_STATE:     none
+  TDD_STATE:     RED→GREEN
   TEST_FILE:     ios/LaneShadowTests/Integration/ConvexClientTests.swift
   TEST_FUNCTION: testSubscribeToSessionsEmitsAsyncStream
 
@@ -87,7 +87,7 @@ AC-5: Typed query/mutation methods exposed
   WHEN:  Developer inspects wrapper API
   THEN:  Query and mutation methods are typed and callable
 
-  TDD_STATE:     none
+  TDD_STATE:     RED→GREEN
   TEST_FILE:     ios/LaneShadowTests/Integration/ConvexClientTests.swift
   TEST_FUNCTION: testTypedQueryMutationMethodsExposed
 
@@ -168,6 +168,9 @@ EVIDENCE GATES
 
 Gate 1: RED phase evidence
   Required: TDD_STATE values show each test went red before green.
+  Evidence:
+  - Prior RED (2026-04-29): `xcodebuild test ... -only-testing:LaneShadowTests/ConvexClientTests` failed with compile errors while introducing behavioral test seams (`Cannot find type 'LaneShadowSessionRecord' in scope`, `Extra argument 'transport' in call`), then passed after GREEN implementation.
+  - AC-3 RED/GREEN (2026-04-29): Added login-path assertion test `authProviderLoginUsesUpdatedTokenProvider`; GREEN verified by focused test run in `.tmp/AUTH-S03-T03/test-output.txt` with `✔ Test authProviderLoginUsesUpdatedTokenProvider() passed`.
 
 Gate 2: Each AC has a test
   Verify: Test file contains one test per AC.
