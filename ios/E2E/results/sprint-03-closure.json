@@ -38,17 +38,18 @@
       "framework": "espresso",
       "target": "emulator",
       "command": "cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest",
-      "status": "BLOCKED",
-      "timestamp": "2026-04-29T23:04:04Z",
+      "status": "PASS",
+      "timestamp": "2026-04-29T23:39:00Z",
       "evidence": {
-        "summary": "No Android emulator detected in adb devices; emulator Espresso lane blocked.",
-        "adbDevices": "List of devices attached\n\nEXIT_CODE:0",
+        "summary": "Emulator Espresso lane passed on Pixel_7_API_34 AVD (4 tests, 0 failures).",
         "diagnostics": "ios/E2E/diagnostics/sprint-03-closure/android-adb-devices.txt",
-        "commandAttempted": false,
-        "reason": "Required target unavailable",
-        "prerequisites": [
-          "Boot an Android emulator and ensure it appears in `adb devices` as `device`.",
-          "Then run: cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest"
+        "log": "ios/E2E/diagnostics/sprint-03-closure/android-emulator-connectedDebugAndroidTest.log",
+        "adbDeviceSerial": "emulator-5554",
+        "adbDeviceState": "device",
+        "gradleResult": "BUILD SUCCESSFUL in 22s",
+        "testExecution": [
+          "Starting 4 tests on Pixel_7_API_34(AVD) - 14",
+          "Finished 4 tests on Pixel_7_API_34(AVD) - 14"
         ]
       }
     },
@@ -58,15 +59,15 @@
       "target": "real-android-device",
       "command": "adb devices && cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest",
       "status": "BLOCKED",
-      "timestamp": "2026-04-29T23:04:04Z",
+      "timestamp": "2026-04-29T23:39:00Z",
       "evidence": {
-        "summary": "No authorized physical Android device detected in adb devices; physical-device Espresso lane blocked.",
-        "adbDevices": "List of devices attached\n\nEXIT_CODE:0",
+        "summary": "Physical Android device lane intentionally skipped per PO decision as non-blocking; no physical-device serial captured.",
         "diagnostics": "ios/E2E/diagnostics/sprint-03-closure/android-adb-devices.txt",
         "commandAttempted": false,
-        "reason": "Required target unavailable",
+        "reason": "Skipped by product-owner instruction (non-blocking physical-device validation)",
+        "physicalDeviceSerialRecorded": false,
         "prerequisites": [
-          "Connect and authorize a physical Android device so it appears in `adb devices` as `device` (not `unauthorized`/`offline`).",
+          "Connect and authorize a physical Android device so it appears in `adb devices` as `device`.",
           "Then run: cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.SmokeInstrumentedTest,com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest"
         ]
       }

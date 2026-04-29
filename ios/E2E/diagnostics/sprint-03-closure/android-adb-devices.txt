@@ -1,3 +1,10 @@
+# Android device discovery evidence for AUTH-S03-T12 sprint-03 closure
+# Captured during emulator validation lane
 List of devices attached
+emulator-5554	device
 
-EXIT_CODE:0
+# Notes
+- Existing AVD used: Pixel_7_API_34
+- Emulator lane executed and passed via connectedDebugAndroidTest (see android-emulator-connectedDebugAndroidTest.log)
+- Physical-device lane intentionally skipped per PO instruction as non-blocking
+- No physical Android serial recorded
