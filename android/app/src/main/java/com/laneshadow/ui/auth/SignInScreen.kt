@@ -13,10 +13,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.semantics
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.laneshadow.data.model.AuthState
@@ -100,6 +103,7 @@ fun SignInScreen(
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next,
                     ),
+                    inputModifier = Modifier.testTag("signin_email_field"),
                 )
                 LSButton(
                     label = "Continue",
@@ -110,7 +114,14 @@ fun SignInScreen(
                         ButtonState.Default
                     },
                     onClick = signInViewModel::continueToPassword,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("signin_continue_button")
+                        .semantics {
+                            if (uiState.isLoading || !uiState.canContinueFromEmail) {
+                                disabled()
+                            }
+                        },
                 )
             }
 
@@ -130,6 +141,7 @@ fun SignInScreen(
                     } else {
                         PasswordVisualTransformation()
                     },
+                    inputModifier = Modifier.testTag("signin_password_field"),
                 )
 
                 LSButton(

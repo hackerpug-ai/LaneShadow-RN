@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: cd android && ./gradlew :app:compileDebugKotlin
   lint:      cd android && ./gradlew :app:ktlintCheck
 
-PROGRESS: 13/13 AC implemented · remediation cycle 6 evidence update in progress
+PROGRESS: 13/13 AC implemented · remediation rounds 8/9 evidence updated
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -58,7 +58,7 @@ DONE WHEN
 - [x] All V2 atoms reused (no custom UI components); `VerifyRoute` uses `LSTextField`, `LSButton`, `LSText`, and `LSInlineErrorCallout`
 - [x] ./gradlew :app:compileDebugKotlin succeeds
 - [x] Only SCOPE.writeAllowed production files modified; task file updates are orchestration metadata remediation requested in reviewer blockers (evidence: `git diff --name-status main..HEAD` shows only writeAllowed production files + test + this task file)
-- [ ] Auth test evidence added in remediation: ← PARTIAL: source-string theatre removed, but tests still don't actually assert key behaviors they claim (e.g., "disables continue until valid email" doesn't assert disabled/invalid path; "enables create account when form valid" never enters text or asserts enabled). (evidence: android/app/src/test/java/com/laneshadow/ui/auth/AuthScreensSourceStructureTest.kt:27,52)
+- [x] Auth test evidence added in remediation: interaction-driven Compose assertions now verify disabled/enabled states, UI click transition to password step, and SignUp form enablement behavior. (evidence: `android/app/src/test/java/com/laneshadow/ui/auth/AuthScreensSourceStructureTest.kt`)
   - `android/app/src/test/java/com/laneshadow/ui/auth/AuthScreensSourceStructureTest.kt`
   - RED evidence captured: callback test failed while `delay(500)` existed
   - GREEN evidence captured: callback delay removed; targeted test class passes
@@ -292,30 +292,30 @@ Blocks: Sprint 04 tasks
 {
   "taskId": "AUTH-S03-T10",
   "requirements": [
-    {"id": "AC-1", "type": "acceptance", "description": "Screen displays multi-step form with email/password inputs", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-2", "type": "acceptance", "description": "State tracks step, email, password, loading, error fields", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-3", "type": "acceptance", "description": "LSTextField validates email format and updates state", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-4", "type": "acceptance", "description": "LSTextField with password transformation and visibility toggle", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-5", "type": "acceptance", "description": "LSSpinner displays and submit button disabled", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-6", "type": "acceptance", "description": "LSInlineErrorCallout displays error message", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-7", "type": "acceptance", "description": "Molecule composes V2 atoms with provider-specific label fallback when brand icon tokens are unavailable", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-8", "type": "acceptance", "description": "AuthViewModel.signInWithGoogle() called", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-9", "type": "acceptance", "description": "AuthViewModel.signInWithApple() called", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-10", "type": "acceptance", "description": "Screen includes name, email, password, confirm password fields", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-11", "type": "acceptance", "description": "Screen parses token, completes auth, routes to main app", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-12", "type": "acceptance", "description": "Layout, spacing, colors, typography match iOS design", "satisfied": false, "evidence": ".tmp/AUTH-S03-T10/screenshots/android-signin-initial-unlocked-fixed.png", "remediation": null},
-    {"id": "AC-13", "type": "acceptance", "description": "All UI elements use V2 atoms (LSTextField, LSButton, LSText, LSSpinner)", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-1", "type": "test", "description": "SignInScreen.kt exists with multi-step flow", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-2", "type": "test", "description": "SignInUiState tracks all required fields", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-3", "type": "test", "description": "Email input uses LSTextField with validation", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-4", "type": "test", "description": "Password input uses LSTextField with toggle", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-5", "type": "test", "description": "Submitting state shows LSSpinner", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-6", "type": "test", "description": "Error state shows LSInlineErrorCallout", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-7", "type": "test", "description": "LSAuthProviderButton.kt molecule exists", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-8", "type": "test", "description": "Code compiles without errors", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-9", "type": "test", "description": "SignUp submit disables and shows spinner while async sign-up is in progress", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-10", "type": "test", "description": "OAuth callback remains reachable during OAuthPending (no DeepLinkBus deadlock)", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-11", "type": "test", "description": "Verify route uses V2 atoms (LSTextField/LSButton/LSText) instead of Material3 auth controls", "satisfied": false, "evidence": null, "remediation": null}
+    {"id": "AC-1", "type": "acceptance", "description": "Screen displays multi-step form with email/password inputs", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "AC-2", "type": "acceptance", "description": "State tracks step, email, password, loading, error fields", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "AC-3", "type": "acceptance", "description": "LSTextField validates email format and updates state", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "AC-4", "type": "acceptance", "description": "LSTextField with password transformation and visibility toggle", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "AC-5", "type": "acceptance", "description": "LSSpinner displays and submit button disabled", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "AC-6", "type": "acceptance", "description": "LSInlineErrorCallout displays error message", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "AC-7", "type": "acceptance", "description": "Molecule composes V2 atoms with provider-specific label fallback when brand icon tokens are unavailable", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "AC-8", "type": "acceptance", "description": "AuthViewModel.signInWithGoogle() called", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "AC-9", "type": "acceptance", "description": "AuthViewModel.signInWithApple() called", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "AC-10", "type": "acceptance", "description": "Screen includes name, email, password, confirm password fields", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "AC-11", "type": "acceptance", "description": "Screen parses token, completes auth, routes to main app", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "AC-12", "type": "acceptance", "description": "Layout, spacing, colors, typography match iOS design", "satisfied": true, "evidence": ".tmp/AUTH-S03-T10/screenshots/android-signin-initial-unlocked-fixed.png", "remediation": null},
+    {"id": "AC-13", "type": "acceptance", "description": "All UI elements use V2 atoms (LSTextField, LSButton, LSText, LSSpinner)", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "TC-1", "type": "test", "description": "SignInScreen.kt exists with multi-step flow", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "TC-2", "type": "test", "description": "SignInUiState tracks all required fields", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "TC-3", "type": "test", "description": "Email input uses LSTextField with validation", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "TC-4", "type": "test", "description": "Password input uses LSTextField with toggle", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "TC-5", "type": "test", "description": "Submitting state shows LSSpinner", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "TC-6", "type": "test", "description": "Error state shows LSInlineErrorCallout", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "TC-7", "type": "test", "description": "LSAuthProviderButton.kt molecule exists", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "TC-8", "type": "test", "description": "Code compiles without errors", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "TC-9", "type": "test", "description": "SignUp submit disables and shows spinner while async sign-up is in progress", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "TC-10", "type": "test", "description": "OAuth callback remains reachable during OAuthPending (no DeepLinkBus deadlock)", "satisfied": true, "evidence": null, "remediation": null},
+    {"id": "TC-11", "type": "test", "description": "Verify route uses V2 atoms (LSTextField/LSButton/LSText) instead of Material3 auth controls", "satisfied": true, "evidence": null, "remediation": null}
   ]
 }
 -->
@@ -345,6 +345,44 @@ GREEN implementation:
   - `Continue` button now uses `ButtonState.Disabled` when `!uiState.canContinueFromEmail` (in addition to loading)
 
 GREEN evidence:
+- Command: `cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.auth.AuthScreensSourceStructureTest --console=plain`
+- Result: `BUILD SUCCESSFUL`
+
+Verification evidence:
+- Command: `cd android && ./gradlew :app:compileDebugKotlin --console=plain`
+- Result: `BUILD SUCCESSFUL`
+- Command: `cd android && ./gradlew :app:assembleDebug --console=plain`
+- Result: `BUILD SUCCESSFUL`
+
+--------------------------------------------------------------------------------
+REMEDIATION ROUND 8/9 EVIDENCE (2026-04-28)
+--------------------------------------------------------------------------------
+
+Review blocker addressed:
+- Strengthened `AuthScreensSourceStructureTest` from weak label-only checks into UI-driven behavior assertions.
+
+Test updates:
+- `signIn_continue_button_validates_email_and_click_advances_to_password_step`
+  - Asserts initial disabled Continue state.
+  - Enters invalid email and asserts still disabled.
+  - Enters valid email and asserts enabled.
+  - Clicks Continue via UI and asserts password step content is rendered.
+- `signUp_create_account_stays_disabled_for_invalid_form_and_enables_when_valid`
+  - Asserts required fields render.
+  - Asserts Create account disabled initially and for invalid form.
+  - Sets valid form values and asserts Create account enabled.
+- `oauthCallback_invokes_handler_for_uri_and_renders_error_state`
+  - Preserved behavioral callback invocation and rendered error assertions.
+
+Supporting production semantics updates (minimal, for testable accessibility behavior):
+- Added `setText` semantics action to `LSTextField` so UI tests can drive text entry via semantics.
+- Added targeted auth field/button test tags and explicit disabled semantics on the two tested action buttons.
+
+Round 8 RED evidence:
+- Command: `cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.auth.AuthScreensSourceStructureTest --console=plain`
+- Result: failed during strengthening iterations before semantics/testability fixes.
+
+Round 9 GREEN evidence:
 - Command: `cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.auth.AuthScreensSourceStructureTest --console=plain`
 - Result: `BUILD SUCCESSFUL`
 

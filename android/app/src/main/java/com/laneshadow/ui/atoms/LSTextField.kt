@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.editableText
+import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.AnnotatedString
@@ -88,6 +89,10 @@ fun LSTextField(
             .semantics(mergeDescendants = true) {
                 contentDescription = placeholder ?: "Text field"
                 editableText = AnnotatedString(value)
+                setText { newText ->
+                    onValueChange(newText.text)
+                    true
+                }
                 stateDescription = visualState.name
                 if (!isEnabled) {
                     disabled()

@@ -13,9 +13,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.semantics
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.laneshadow.data.model.AuthState
@@ -89,6 +92,7 @@ fun SignUpScreen(
             onValueChange = { name = it },
             placeholder = "Avery Rider",
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            inputModifier = Modifier.testTag("signup_name_field"),
         )
         LSFormField(
             label = "Email",
@@ -99,6 +103,7 @@ fun SignUpScreen(
             },
             placeholder = "rider@laneshadow.com",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
+            inputModifier = Modifier.testTag("signup_email_field"),
         )
         if (email.isNotBlank() && !isEmailValid) {
             LSInlineErrorCallout(
@@ -114,6 +119,7 @@ fun SignUpScreen(
             placeholder = "Create a password",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
             visualTransformation = PasswordVisualTransformation(),
+            inputModifier = Modifier.testTag("signup_password_field"),
         )
         LSFormField(
             label = "Confirm password",
@@ -122,6 +128,7 @@ fun SignUpScreen(
             placeholder = "Re-enter your password",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
             visualTransformation = PasswordVisualTransformation(),
+            inputModifier = Modifier.testTag("signup_confirm_password_field"),
         )
 
         LSButton(
@@ -129,7 +136,14 @@ fun SignUpScreen(
             variant = ButtonVariant.Primary,
             state = if (canSubmit) ButtonState.Default else ButtonState.Disabled,
             onClick = { viewModel.signUp(email = email, password = password, name = name) },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("signup_create_account_button")
+                .semantics {
+                    if (!canSubmit) {
+                        disabled()
+                    }
+                },
         )
 
         if (isSubmitting) {

@@ -1,9 +1,16 @@
 package com.laneshadow.ui.auth
 
 import android.net.Uri
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performClick
 import com.laneshadow.data.model.AuthState
 import com.laneshadow.data.model.ClerkUser
 import com.laneshadow.data.repository.AuthRepository
@@ -24,7 +31,7 @@ class AuthScreensSourceStructureTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun signIn_email_step_disables_continue_until_valid_email_then_shows_password_step() {
+    fun signIn_continue_button_validates_email_and_click_advances_to_password_step() {
         val authViewModel = AuthViewModel(FakeAuthRepository())
         val signInViewModel = SignInViewModel()
 
@@ -37,11 +44,19 @@ class AuthScreensSourceStructureTest {
             }
         }
 
-        composeTestRule.onNodeWithText("Continue").assertIsDisplayed()
+        val continueButton = composeTestRule.onNodeWithTag("signin_continue_button")
+        continueButton.assertIsDisplayed()
+        continueButton.assertIsNotEnabled()
 
-        signInViewModel.onEmailChanged("rider@laneshadow.com")
-        signInViewModel.continueToPassword()
-        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithTag("signin_email_field")
+            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("invalid-email")) }
+        continueButton.assertIsNotEnabled()
+
+        composeTestRule.onNodeWithTag("signin_email_field")
+            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("rider@laneshadow.com")) }
+        continueButton.assertIsEnabled()
+
+        continueButton.performClick()
 
         composeTestRule.onNodeWithText("Password").assertIsDisplayed()
         composeTestRule.onNodeWithText("Show password").assertIsDisplayed()
@@ -49,7 +64,7 @@ class AuthScreensSourceStructureTest {
     }
 
     @Test
-    fun signUp_shows_email_validation_and_enables_create_account_when_form_valid() {
+    fun signUp_create_account_stays_disabled_for_invalid_form_and_enables_when_valid() {
         val authViewModel = AuthViewModel(FakeAuthRepository())
 
         composeTestRule.setContent {
@@ -62,6 +77,27 @@ class AuthScreensSourceStructureTest {
         composeTestRule.onNodeWithText("Email").assertIsDisplayed()
         composeTestRule.onNodeWithText("Password").assertIsDisplayed()
         composeTestRule.onNodeWithText("Confirm password").assertIsDisplayed()
+
+        val createAccountButton = composeTestRule.onNodeWithTag("signup_create_account_button")
+        createAccountButton.assertIsNotEnabled()
+
+        composeTestRule.onNodeWithTag("signup_name_field")
+            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("Avery Rider")) }
+        composeTestRule.onNodeWithTag("signup_email_field")
+            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("invalid-email")) }
+        composeTestRule.onNodeWithTag("signup_password_field")
+            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("secret123")) }
+        composeTestRule.onNodeWithTag("signup_confirm_password_field")
+            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("secret124")) }
+
+        createAccountButton.assertIsNotEnabled()
+
+        composeTestRule.onNodeWithTag("signup_email_field")
+            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("rider@laneshadow.com")) }
+        composeTestRule.onNodeWithTag("signup_confirm_password_field")
+            .performSemanticsAction(SemanticsActions.SetText) { it(AnnotatedString("secret123")) }
+
+        createAccountButton.assertIsEnabled()
     }
 
     @Test

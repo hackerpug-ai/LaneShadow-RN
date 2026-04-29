@@ -36,6 +36,7 @@ fun LSFormField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    inputModifier: Modifier = Modifier,
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
@@ -57,6 +58,7 @@ fun LSFormField(
             onValueChange = onValueChange,
             state = if (error != null) InputState.Error else InputState.Default,
             placeholder = placeholder,
+            modifier = inputModifier,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             visualTransformation = visualTransformation,
