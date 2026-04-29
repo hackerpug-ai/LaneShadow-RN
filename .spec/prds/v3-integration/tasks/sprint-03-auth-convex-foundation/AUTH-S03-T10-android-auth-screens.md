@@ -48,9 +48,9 @@ DONE WHEN
 - [x] Google OAuth button triggers OAuth flow
 - [x] Apple OAuth button triggers OAuth flow
 - [x] SignUpScreen variant exists with name + confirm password
-- [ ] OAuthCallbackScreen exists for deep-link handling; `AuthNavGraph` remains mounted during `AuthState.OAuthPending` so callback collection cannot deadlock ← PARTIAL: reachable, but callback failure can leave user stuck on spinner (evidence: android/app/src/main/java/com/laneshadow/ui/auth/OAuthCallbackScreen.kt:29, android/app/src/main/java/com/laneshadow/ui/LaneShadowApp.kt:83)
-- [ ] Visual parity verified with iOS screenshots ← BLOCKED: emulator screenshot capture unavailable in this remediation cycle; build/compile/test evidence provided
-- [ ] All V2 atoms reused (no custom UI components); `VerifyRoute` uses `LSTextField`, `LSButton`, `LSText`, and `LSInlineErrorCallout` ← PARTIAL: auth screens use V2 atoms, but auth-flow splash uses Material3 `Text` / `CircularProgressIndicator` (evidence: android/app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt:71, android/app/src/main/java/com/laneshadow/ui/LaneShadowApp.kt:95)
+- [x] OAuthCallbackScreen exists for deep-link handling; `AuthNavGraph` remains mounted during `AuthState.OAuthPending` so callback collection cannot deadlock
+- [ ] Visual parity verified with iOS screenshots ← FAIL: screenshots not provided (BLOCKED: emulator/device unavailable) (evidence: —)
+- [x] All V2 atoms reused (no custom UI components); `VerifyRoute` uses `LSTextField`, `LSButton`, `LSText`, and `LSInlineErrorCallout`
 - [x] ./gradlew :app:compileDebugKotlin succeeds
 - [x] Only SCOPE.writeAllowed production files modified; task file updates are orchestration metadata remediation requested in reviewer blockers
 
