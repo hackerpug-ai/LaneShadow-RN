@@ -73,6 +73,7 @@ struct SignInScreen: View {
             }
             .padding(theme.space.lg)
         }
+        .accessibilityIdentifier("auth.signIn.root")
         .navigationTitle("Sign In")
     }
 
