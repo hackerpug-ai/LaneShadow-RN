@@ -1,9 +1,11 @@
 package com.laneshadow.ui.molecules
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.VisualTransformation
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.atoms.InputState
 import com.laneshadow.ui.atoms.LSText
@@ -31,6 +33,10 @@ fun LSFormField(
     onValueChange: (String) -> Unit,
     error: String? = null,
     placeholder: String? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    inputModifier: Modifier = Modifier,
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
@@ -52,6 +58,10 @@ fun LSFormField(
             onValueChange = onValueChange,
             state = if (error != null) InputState.Error else InputState.Default,
             placeholder = placeholder,
+            modifier = inputModifier,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            visualTransformation = visualTransformation,
         )
 
         // Error text (only when error is non-null)
