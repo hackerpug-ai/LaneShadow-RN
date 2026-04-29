@@ -4,6 +4,7 @@ package com.laneshadow
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.lifecycleScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,12 +20,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.theme.LocalLaneShadowTheme
+import com.laneshadow.data.repository.AuthRepository
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject
+    lateinit var authRepository: AuthRepository
+
     private var currentIntent: android.content.Intent? by mutableStateOf(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        dispatchOAuthCallbackIfPresent(intent)
         currentIntent = intent
         setContent {
             val shouldShowSandbox = if (BuildConfig.DEBUG) {
@@ -48,7 +58,17 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        dispatchOAuthCallbackIfPresent(intent)
         currentIntent = intent
+    }
+
+    private fun dispatchOAuthCallbackIfPresent(intent: android.content.Intent?) {
+        val callbackUri = intent?.data ?: return
+        if (callbackUri.scheme == "laneshadow" && callbackUri.host == "oauth-callback") {
+            lifecycleScope.launch {
+                authRepository.handleOAuthCallback(callbackUri)
+            }
+        }
     }
 }
 
