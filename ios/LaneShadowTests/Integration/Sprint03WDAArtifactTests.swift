@@ -203,6 +203,25 @@ final class Sprint03WDAArtifactTests: XCTestCase {
             FileManager.default.fileExists(atPath: closureLogURL.path),
             "closureVerification.log missing file: \(closureLogPath)"
         )
+        let closureLogContents = try String(contentsOf: closureLogURL, encoding: .utf8)
+        XCTAssertTrue(
+            closureLogContents.contains("testSprintClosureArtifactSeparatesNativeE2ELanes"),
+            "closureVerification.log must include the specific passing test case"
+        )
+        XCTAssertTrue(
+            closureLogContents.contains("Executed 1 test, with 0 failures"),
+            "closureVerification.log must include xcodebuild pass summary"
+        )
+        XCTAssertTrue(
+            closureLogContents.contains("** TEST SUCCEEDED **"),
+            "closureVerification.log must include terminal success marker"
+        )
+        XCTAssertFalse(
+            closureLogContents.contains("/Users/") ||
+                closureLogContents.contains("/Applications/") ||
+                closureLogContents.contains("file://"),
+            "closureVerification.log must not contain absolute host paths"
+        )
 
         let lanes = try XCTUnwrap(payload["lanes"] as? [[String: Any]])
         XCTAssertEqual(lanes.count, 4, "Closure artifact should include iOS+Android simulator/device lanes")
