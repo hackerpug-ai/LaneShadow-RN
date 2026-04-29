@@ -17,7 +17,8 @@ struct ConvexClientTests {
             yielding: T.Type
         ) -> AnyPublisher<T, ClientError> {
             if endpoint == LaneShadowConvexQuery.listSessions.rawValue,
-               T.self == [LaneShadowSessionRecord].self {
+               T.self == [LaneShadowSessionRecord].self
+            {
                 return subscribeSessionsSubject
                     .map { $0 as! T }
                     .eraseToAnyPublisher()
@@ -120,9 +121,10 @@ struct ConvexClientTests {
         }
 
         let transport = FakeTransport()
-        transport.mutationPayloadByEndpoint[LaneShadowConvexMutation.createSession.rawValue] = try JSONSerialization.data(
-            withJSONObject: ["payload": "mutation-ok"]
-        )
+        transport.mutationPayloadByEndpoint[LaneShadowConvexMutation.createSession.rawValue] = try JSONSerialization
+            .data(
+                withJSONObject: ["payload": "mutation-ok"]
+            )
         transport.actionPayloadByEndpoint[LaneShadowConvexAction.sendMessage.rawValue] = try JSONSerialization.data(
             withJSONObject: ["payload": "action-ok"]
         )
