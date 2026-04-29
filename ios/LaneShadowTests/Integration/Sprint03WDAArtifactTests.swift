@@ -28,7 +28,11 @@ final class Sprint03WDAArtifactTests: XCTestCase {
         return []
     }
 
-    private func assertEvidencePathsAreRelativeAndExist(_ evidence: [String: Any], file: StaticString = #filePath, line: UInt = #line) {
+    private func assertEvidencePathsAreRelativeAndExist(
+        _ evidence: [String: Any],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
         for stringValue in collectStringValues(evidence) {
             XCTAssertFalse(
                 isAbsoluteHostPath(stringValue),
