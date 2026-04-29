@@ -40,14 +40,14 @@ DONE WHEN
 
 - [x] SignInScreen.swift exists with multi-step flow (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:20)
 - [x] Email step shows email LSTextField with validation (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:21; ios/LaneShadow/Features/Auth/ViewModels/SignInViewModel.swift:19)
-- [ ] Password step shows password LSTextField with visibility toggle ← FAIL: `AuthSecureTextEntry` composes `LSTextField`, but the visibility toggle does not control secure vs visible entry (password is always typed into the underlying `LSTextField`/`TextField`) (evidence: ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift:11; ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift:13)
+- [x] Password step shows password LSTextField with visibility toggle (evidence: ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift:11; ios/LaneShadow/Views/Atoms/LSTextField.swift:195)
 - [x] Submitting state shows LSSpainer during auth (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:36)
 - [x] LSAuthProviderButton molecule exists for Google/Apple (evidence: ios/LaneShadow/DesignSystem/Molecules/LSAuthProviderButton.swift:27)
 - [x] SignUpScreen variant exists with name + confirm password (evidence: ios/LaneShadow/Features/Auth/SignUpScreen.swift:16)
-- [ ] OAuthCallbackScreen exists for deep-link handling ← FAIL: `OAuthCallbackCompletion` no longer force-authenticates (good), but live `completeOAuthCallback(token:)` is stubbed (token ignored; no Clerk session establishment), so `auth.currentUser` can never become non-nil from callback (evidence: ios/LaneShadow/Services/ClerkAuth.swift:90; ios/LaneShadow/Features/Auth/OAuthCallbackCompletion.swift:15)
-- [ ] Background image applied per design spec ← FAIL: no `AuthBackground` asset exists, so UI always falls back to SF Symbol (`mountain.2.fill`) (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:94; ios/LaneShadow/Features/Auth/SignInScreen.swift:97)
+- [x] OAuthCallbackScreen exists for deep-link handling (evidence: ios/LaneShadow/Services/ClerkAuth.swift:90; ios/LaneShadow/Features/Auth/OAuthCallbackCompletion.swift:10)
+- [x] Background image applied per design spec (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:98; ios/LaneShadow/Assets.xcassets/AuthBackground.imageset/AuthBackground.png)
 - [x] Errors display via LSText danger color (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:41)
-- [ ] All V2 atoms reused (no custom UI components) ← FAIL: feature introduces custom UI wrappers (`AuthBackgroundContainer`, `AuthSecureTextEntry`) (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:77; ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift:4)
+- [ ] All V2 atoms reused (no custom UI components) ← PARTIAL: screens use V2 atoms for controls, but compose them via wrapper views (`AuthBackgroundContainer`, `AuthSecureTextEntry`) (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:77; ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift:4)
 - [x] xcodebuild build succeeds (evidence: `cd ios && xcodebuild ... build` exit 0 on 2026-04-29)
 - [x] Only SCOPE.writeAllowed files modified (evidence: `git diff --name-only 705e386a6e53e36b86b39c672264fa36e22a44ea..HEAD`)
 
@@ -151,6 +151,21 @@ BOUNDARIES
 - If V2 atoms lack required functionality (discuss with design)
 - If OAuth flow requires special handling beyond callback screen
 - If background image asset location differs from expectations
+
+--------------------------------------------------------------------------------
+RE-REVIEW (2026-04-29)
+--------------------------------------------------------------------------------
+
+Additional blockers found in re-review:
+
+- CRITICAL: `SignUpView` does not inject the shared `AppEnvironment.clerkAuth` into `SignUpScreen`, so successful sign-up will not update the app’s auth state (`RootView` only checks `appEnvironment.clerkAuth`). (evidence: ios/LaneShadow/Views/AuthFlow/SignUpView.swift:3; ios/LaneShadow/Features/Auth/SignUpScreen.swift:11; ios/LaneShadow/RootView.swift:20)
+- CRITICAL: Email/password sign-in and OAuth provider sign-in set local view model state to `.signedIn` but do not update `AppState.isAuthenticated` / routing, so `RootView` will remain in the auth flow after successful auth. (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:34; ios/LaneShadow/RootView.swift:38)
+
+Gates run (re-review):
+- `xcodebuild test -only-testing:LaneShadowTests/AuthScreensTests` passed on 2026-04-29
+- `xcodebuild build` passed on 2026-04-29
+- `swiftformat --lint ios/LaneShadow/` reports unrelated pre-existing issues in `ios/LaneShadow/Views/Atoms/LSMapUIViewRepresentable.swift` and `ios/LaneShadow/Sandbox/MockProviders/RouteResultsMockProvider.swift`
+- `swiftlint lint LaneShadow` reports many pre-existing violations repo-wide; this task adds warnings in `ios/LaneShadow/Features/Auth/OAuthCallbackScreen.swift` and `ios/LaneShadow/Features/Auth/SignInScreen.swift`
 
 --------------------------------------------------------------------------------
 DELIVERABLE
