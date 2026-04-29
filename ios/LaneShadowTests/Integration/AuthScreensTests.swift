@@ -3,6 +3,11 @@ import XCTest
 
 @MainActor
 final class AuthScreensTests: XCTestCase {
+    private let authSecureTextEntrySourcePath = "/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T09/ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift"
+    private let signInScreenSourcePath = "/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T09/ios/LaneShadow/Features/Auth/SignInScreen.swift"
+    private let signUpScreenSourcePath = "/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T09/ios/LaneShadow/Features/Auth/SignUpScreen.swift"
+    private let oauthCallbackScreenSourcePath = "/Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T09/ios/LaneShadow/Features/Auth/OAuthCallbackScreen.swift"
+
     func testAppStateRoutesOAuthCallbackWithURLPayload() throws {
         let appState = AppState(isAuthenticated: false)
         let auth = ClerkAuth(client: AuthScreensFakeClient())
@@ -57,8 +62,27 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertTrue(state.isSecureEntry)
     }
 
-    func testOAuthCallbackCompletionMarksAuthenticatedAndRoutesHome() async throws {
-        let auth = ClerkAuth(client: AuthScreensFakeClient())
+    func testOAuthCallbackCompletionDoesNotAuthenticateWhenCallbackDoesNotYieldUser() async throws {
+        let auth = ClerkAuth(client: AuthScreensFakeClient(callbackCompletionUser: nil))
+        let appState = AppState(isAuthenticated: false)
+        let callbackURL = try XCTUnwrap(URL(string: "laneshadow://oauth-callback?token=abc123"))
+
+        let result = await OAuthCallbackCompletion.complete(
+            callbackURL: callbackURL,
+            appState: appState,
+            auth: auth
+        )
+
+        XCTAssertEqual(result, .success)
+        XCTAssertFalse(appState.isAuthenticated)
+        XCTAssertNil(appState.appRoute)
+        XCTAssertNotNil(appState.authRoute)
+    }
+
+    func testOAuthCallbackCompletionRoutesHomeWhenCallbackProducesAuthenticatedUser() async throws {
+        let auth = ClerkAuth(client: AuthScreensFakeClient(
+            callbackCompletionUser: ClerkAuthUser(id: "oauth-user", email: "rider@example.com")
+        ))
         let appState = AppState(isAuthenticated: false)
         let callbackURL = try XCTUnwrap(URL(string: "laneshadow://oauth-callback?token=abc123"))
 
@@ -96,9 +120,34 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertFalse(viewModel.isSubmitting)
         XCTAssertNil(viewModel.errorMessage)
     }
+
+    func testAuthSecureTextEntryComposesLSTextFieldAndNoRawFields() throws {
+        let source = try String(contentsOfFile: authSecureTextEntrySourcePath, encoding: .utf8)
+        let sourceWithoutV2Atom = source.replacingOccurrences(of: "LSTextField(", with: "")
+
+        XCTAssertTrue(source.contains("LSTextField("))
+        XCTAssertFalse(source.contains("SecureField("))
+        XCTAssertFalse(sourceWithoutV2Atom.contains("TextField("))
+    }
+
+    func testAuthScreensUseAuthBackgroundContainer() throws {
+        let signInSource = try String(contentsOfFile: signInScreenSourcePath, encoding: .utf8)
+        let signUpSource = try String(contentsOfFile: signUpScreenSourcePath, encoding: .utf8)
+        let callbackSource = try String(contentsOfFile: oauthCallbackScreenSourcePath, encoding: .utf8)
+
+        XCTAssertTrue(signInSource.contains("AuthBackgroundContainer"))
+        XCTAssertTrue(signUpSource.contains("AuthBackgroundContainer"))
+        XCTAssertTrue(callbackSource.contains("AuthBackgroundContainer"))
+    }
 }
 
 actor AuthScreensFakeClient: ClerkAuthClient {
+    private let callbackCompletionUser: ClerkAuthUser?
+
+    init(callbackCompletionUser: ClerkAuthUser? = ClerkAuthUser(id: "callback-user", email: "callback@example.com")) {
+        self.callbackCompletionUser = callbackCompletionUser
+    }
+
     func signIn(email: String, password: String) async throws -> ClerkAuthUser {
         ClerkAuthUser(id: "email-user", email: email)
     }
@@ -119,5 +168,9 @@ actor AuthScreensFakeClient: ClerkAuthClient {
 
     func getJWT() async throws -> String? {
         "jwt-token"
+    }
+
+    func completeOAuthCallback(token: String) async throws -> ClerkAuthUser? {
+        callbackCompletionUser
     }
 }

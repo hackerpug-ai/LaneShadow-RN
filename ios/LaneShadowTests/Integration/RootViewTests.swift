@@ -138,6 +138,10 @@ actor RootViewTestsAuthClient: ClerkAuthClient {
     func getJWT() async throws -> String? {
         "jwt"
     }
+
+    func completeOAuthCallback(token _: String) async throws -> ClerkAuthUser? {
+        nil
+    }
 }
 
 extension RootView: Inspectable {}

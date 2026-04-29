@@ -8,17 +8,21 @@ enum OAuthCallbackCompletion {
 
     @MainActor
     static func complete(callbackURL: URL?, appState: AppState, auth: ClerkAuth) async -> Result {
-        guard OAuthCallbackScreen.parseToken(from: callbackURL) != nil else {
+        guard let token = OAuthCallbackScreen.parseToken(from: callbackURL) else {
             return .missingToken
         }
 
-        appState.isAuthenticated = true
-        appState.authRoute = nil
-        appState.appRoute = .home
+        await auth.completeOAuthCallback(token: token)
         appState.updateAuthenticationState(from: auth)
-        if !appState.isAuthenticated {
-            appState.isAuthenticated = true
+
+        if appState.isAuthenticated {
+            appState.authRoute = nil
+            appState.appRoute = .home
+        } else if let callbackURL {
+            appState.authRoute = .oauthCallback(callbackURL)
+            appState.appRoute = nil
         }
+
         return .success
     }
 }

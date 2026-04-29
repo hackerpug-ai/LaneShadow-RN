@@ -14,6 +14,7 @@ protocol ClerkAuthClient: Sendable {
     func signInWithGoogle() async throws -> ClerkAuthUser
     func signOut() async throws
     func getJWT() async throws -> String?
+    func completeOAuthCallback(token: String) async throws -> ClerkAuthUser?
 }
 
 enum ClerkAuthError: LocalizedError {
@@ -37,6 +38,7 @@ protocol ClerkSDKClient: Sendable {
     func signInWithGoogle() async throws -> ClerkAuthUser
     func signOut() async throws
     func getJWT() async throws -> String?
+    func completeOAuthCallback(token: String) async throws -> ClerkAuthUser?
 }
 
 @MainActor
@@ -83,6 +85,13 @@ final class LiveClerkSDKClient: ClerkSDKClient {
             return nil
         }
         return try await session.getToken(.init(template: "convex"))?.jwt
+    }
+
+    func completeOAuthCallback(token _: String) async throws -> ClerkAuthUser? {
+        guard let user = clerk.user else {
+            return nil
+        }
+        return ClerkAuthUser(id: user.id, email: user.primaryEmailAddress?.emailAddress)
     }
 
     private func currentUser() throws -> ClerkAuthUser {
@@ -134,6 +143,10 @@ final class LiveClerkAuthClient: ClerkAuthClient {
     func getJWT() async throws -> String? {
         try await sdk.getJWT()
     }
+
+    func completeOAuthCallback(token: String) async throws -> ClerkAuthUser? {
+        try await sdk.completeOAuthCallback(token: token)
+    }
 }
 
 @MainActor
@@ -174,5 +187,13 @@ final class ClerkAuth: LaneShadowClerkJWTProviding {
 
     func convexJWT() async throws -> String? {
         try await getJWT()
+    }
+
+    func completeOAuthCallback(token: String) async {
+        do {
+            currentUser = try await client.completeOAuthCallback(token: token)
+        } catch {
+            currentUser = nil
+        }
     }
 }

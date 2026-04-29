@@ -134,6 +134,10 @@ actor FakeClerkAuthClient: ClerkAuthClient {
     func getJWT() async throws -> String? {
         "jwt-token"
     }
+
+    func completeOAuthCallback(token _: String) async throws -> ClerkAuthUser? {
+        nil
+    }
 }
 
 @MainActor
@@ -176,5 +180,9 @@ final class MockClerkSDK: ClerkSDKClient {
 
     func getJWT() async throws -> String? {
         jwtToReturn
+    }
+
+    func completeOAuthCallback(token _: String) async throws -> ClerkAuthUser? {
+        emailSignInUser
     }
 }
