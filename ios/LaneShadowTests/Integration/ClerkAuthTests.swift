@@ -148,7 +148,7 @@ final class MockClerkSDK: ClerkSDKClient {
     var signUpUser = ClerkAuthUser(id: "signup-user", email: "signup@example.com")
     var appleUser = ClerkAuthUser(id: "apple-user", email: "apple@example.com")
     var googleUser = ClerkAuthUser(id: "google-user", email: "google@example.com")
-    var jwtToReturn: String? = nil
+    var jwtToReturn: String?
 
     func signIn(email: String, password: String) async throws -> ClerkAuthUser {
         recordedEmailSignIn = (email, password)
