@@ -1,16 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import ts from 'typescript'
-import schema from '../convex/schema'
-
-type ValidatorLike = {
-  kind: string
-  fields?: Record<string, ValidatorLike>
-  members?: ValidatorLike[]
-  value?: unknown
-  element?: ValidatorLike
-  isOptional?: boolean
-}
 
 export type FieldSchema = {
   type: string
@@ -55,93 +45,180 @@ function toPascalCase(input: string): string {
     .join('')
 }
 
-function toSchemaField(validator: ValidatorLike): FieldSchema {
-  if (validator.kind === 'object') {
-    const fields: Record<string, FieldSchema> = {}
-    for (const [fieldName, fieldValidator] of Object.entries(validator.fields ?? {})) {
-      fields[fieldName] = toSchemaField(fieldValidator)
-    }
-    return { type: 'object', optional: validator.isOptional === true, fields }
-  }
-
-  if (validator.kind === 'array') {
-    const items = validator.element
-      ? toSchemaField(validator.element)
-      : { type: 'any', optional: false }
-    return { type: 'array', optional: validator.isOptional === true, items }
-  }
-
-  if (validator.kind === 'union') {
-    const members = validator.members ?? []
-    const nonNullMembers = members.filter((member) => member.kind !== 'null')
-    if (
-      nonNullMembers.length > 0 &&
-      nonNullMembers.every(
-        (member) => member.kind === 'literal' && typeof member.value === 'string',
-      )
-    ) {
-      return {
-        type: 'string',
-        optional: validator.isOptional === true || members.some((member) => member.kind === 'null'),
-      }
-    }
-    if (nonNullMembers.length === 1) {
-      const inner = toSchemaField(nonNullMembers[0] as ValidatorLike)
-      return {
-        ...inner,
-        optional:
-          inner.optional ||
-          validator.isOptional === true ||
-          members.some((member) => member.kind === 'null'),
-      }
-    }
-    return { type: 'any', optional: validator.isOptional === true }
-  }
-
-  if (validator.kind === 'id') {
-    return { type: 'id', optional: validator.isOptional === true }
-  }
-
-  if (validator.kind === 'float64' || validator.kind === 'int64') {
-    return { type: 'number', optional: validator.isOptional === true }
-  }
-
-  if (validator.kind === 'literal') {
-    const valueType = typeof validator.value
-    if (valueType === 'string') {
-      return { type: 'string', optional: validator.isOptional === true }
-    }
-    if (valueType === 'number') {
-      return { type: 'number', optional: validator.isOptional === true }
-    }
-    if (valueType === 'boolean') {
-      return { type: 'boolean', optional: validator.isOptional === true }
-    }
-  }
-
-  if (validator.kind === 'string' || validator.kind === 'boolean' || validator.kind === 'bytes') {
-    return { type: validator.kind, optional: validator.isOptional === true }
-  }
-
-  return { type: 'any', optional: validator.isOptional === true }
+function isOptionalSymbol(symbol: ts.Symbol): boolean {
+  return (symbol.flags & ts.SymbolFlags.Optional) !== 0
 }
 
-function extractTableSchemas(): Record<string, TableSchema> {
-  const tableSchemas: Record<string, TableSchema> = {}
-  const tableEntries = Object.entries(
-    (schema as unknown as { tables: Record<string, { validator: ValidatorLike }> }).tables,
-  )
+function toFieldSchemaFromType(
+  checker: ts.TypeChecker,
+  type: ts.Type,
+  seen: Set<number>,
+): FieldSchema {
+  if (type.isIntersection()) {
+    const parts = type.types
+    const hasStringPart = parts.some((inner) => (inner.flags & ts.TypeFlags.StringLike) !== 0)
+    const hasTableBrand = parts.some((inner) => checker.typeToString(inner).includes('__tableName'))
+    if (hasStringPart && hasTableBrand) {
+      return { type: 'id', optional: false }
+    }
+    const scalarPart = parts.find(
+      (inner) =>
+        (inner.flags & ts.TypeFlags.StringLike) !== 0 ||
+        (inner.flags & ts.TypeFlags.NumberLike) !== 0 ||
+        (inner.flags & ts.TypeFlags.BooleanLike) !== 0 ||
+        (inner.flags & ts.TypeFlags.BigIntLike) !== 0,
+    )
+    if (scalarPart) {
+      return toFieldSchemaFromType(checker, scalarPart, seen)
+    }
+  }
 
-  for (const [tableName, tableDef] of tableEntries) {
-    const tableValidator = tableDef.validator
-    if (!tableValidator || tableValidator.kind !== 'object') {
-      continue
+  if (type.isUnion()) {
+    const nonNullishTypes = type.types.filter(
+      (inner) =>
+        (inner.flags & ts.TypeFlags.Null) === 0 && (inner.flags & ts.TypeFlags.Undefined) === 0,
+    )
+    const hasNullish = nonNullishTypes.length !== type.types.length
+    if (nonNullishTypes.length === 1) {
+      const innerField = toFieldSchemaFromType(checker, nonNullishTypes[0] as ts.Type, seen)
+      return { ...innerField, optional: innerField.optional || hasNullish }
+    }
+    if (
+      nonNullishTypes.length > 0 &&
+      nonNullishTypes.every((inner) => (inner.flags & ts.TypeFlags.StringLiteral) !== 0)
+    ) {
+      return { type: 'string', optional: hasNullish }
+    }
+    if (
+      nonNullishTypes.length > 0 &&
+      nonNullishTypes.every(
+        (inner) =>
+          (inner.flags & ts.TypeFlags.NumberLike) !== 0 ||
+          (inner.flags & ts.TypeFlags.BigIntLike) !== 0,
+      )
+    ) {
+      return { type: 'number', optional: hasNullish }
+    }
+    if (
+      nonNullishTypes.length > 0 &&
+      nonNullishTypes.every((inner) => (inner.flags & ts.TypeFlags.BooleanLike) !== 0)
+    ) {
+      return { type: 'boolean', optional: hasNullish }
+    }
+    return { type: 'any', optional: hasNullish }
+  }
+
+  if (checker.isArrayType(type) || checker.isTupleType(type)) {
+    const typeId = (type as ts.Type & { id?: number }).id
+    if (typeof typeId === 'number') {
+      if (seen.has(typeId)) return { type: 'any', optional: false }
+      seen.add(typeId)
+    }
+    const refType = type as ts.TypeReference
+    const itemType = checker.getTypeArguments(refType)[0] ?? checker.getAnyType()
+    return {
+      type: 'array',
+      optional: false,
+      items: toFieldSchemaFromType(checker, itemType, seen),
+    }
+  }
+
+  if (type.flags & ts.TypeFlags.StringLike) {
+    return { type: 'string', optional: false }
+  }
+  if (type.flags & ts.TypeFlags.NumberLike) {
+    return { type: 'number', optional: false }
+  }
+  if (type.flags & ts.TypeFlags.BooleanLike) {
+    return { type: 'boolean', optional: false }
+  }
+  if (type.flags & ts.TypeFlags.BigIntLike) {
+    return { type: 'number', optional: false }
+  }
+
+  const typeString = checker.typeToString(type)
+  if (typeString.startsWith('Id<') || typeString === 'Id') {
+    return { type: 'id', optional: false }
+  }
+  if (typeString === 'ArrayBuffer' || typeString === 'Uint8Array') {
+    return { type: 'bytes', optional: false }
+  }
+
+  const properties = checker.getPropertiesOfType(type)
+  if (properties.length > 0) {
+    const typeId = (type as ts.Type & { id?: number }).id
+    if (typeof typeId === 'number') {
+      if (seen.has(typeId)) return { type: 'any', optional: false }
+      seen.add(typeId)
     }
     const fields: Record<string, FieldSchema> = {}
-    for (const [fieldName, fieldValidator] of Object.entries(tableValidator.fields ?? {})) {
-      fields[fieldName] = toSchemaField(fieldValidator)
+    for (const property of properties) {
+      const declaration =
+        property.valueDeclaration ?? property.declarations?.[0] ?? type.symbol?.declarations?.[0]
+      if (!declaration) {
+        continue
+      }
+      const propertyType = checker.getTypeOfSymbolAtLocation(property, declaration)
+      const propertyField = toFieldSchemaFromType(checker, propertyType, seen)
+      fields[property.name] = {
+        ...propertyField,
+        optional: propertyField.optional || isOptionalSymbol(property),
+      }
     }
-    tableSchemas[tableName] = { name: tableName, fields }
+    return { type: 'object', optional: false, fields }
+  }
+
+  return { type: 'any', optional: false }
+}
+
+function extractTableSchemasFromGeneratedTypes(apiPath: string): Record<string, TableSchema> {
+  const dataModelPath = path.resolve(path.dirname(apiPath), 'dataModel.d.ts')
+  const schemaTsPath = path.resolve(path.dirname(dataModelPath), '..', 'schema.ts')
+  const program = ts.createProgram([apiPath, dataModelPath, schemaTsPath], {
+    allowJs: false,
+    checkJs: false,
+    strict: false,
+    strictNullChecks: true,
+    skipLibCheck: true,
+    noEmit: true,
+    module: ts.ModuleKind.NodeNext,
+    moduleResolution: ts.ModuleResolutionKind.NodeNext,
+    target: ts.ScriptTarget.ESNext,
+  })
+  const checker = program.getTypeChecker()
+  const dataModelSource = program.getSourceFile(dataModelPath)
+  if (!dataModelSource) {
+    throw new Error(`Missing generated Convex data model declaration at ${dataModelPath}`)
+  }
+  const dataModelAlias = dataModelSource.statements.find(
+    (statement): statement is ts.TypeAliasDeclaration =>
+      ts.isTypeAliasDeclaration(statement) && statement.name.text === 'DataModel',
+  )
+  if (!dataModelAlias) {
+    throw new Error(
+      `Invalid Convex generated data model file at ${dataModelPath}: missing DataModel`,
+    )
+  }
+
+  const dataModelType = checker.getApparentType(checker.getTypeFromTypeNode(dataModelAlias.type))
+  const tableSchemas: Record<string, TableSchema> = {}
+
+  for (const tableSymbol of checker.getPropertiesOfType(dataModelType)) {
+    const tableDeclaration =
+      tableSymbol.valueDeclaration ?? tableSymbol.declarations?.[0] ?? dataModelAlias
+    const tableType = checker.getTypeOfSymbolAtLocation(tableSymbol, tableDeclaration)
+    const documentSymbol = tableType.getProperty('document')
+    if (!documentSymbol) {
+      continue
+    }
+    const documentDeclaration =
+      documentSymbol.valueDeclaration ?? documentSymbol.declarations?.[0] ?? tableDeclaration
+    const documentType = checker.getTypeOfSymbolAtLocation(documentSymbol, documentDeclaration)
+    const documentSchema = toFieldSchemaFromType(checker, documentType, new Set())
+    tableSchemas[tableSymbol.name] = {
+      name: tableSymbol.name,
+      fields: documentSchema.fields ?? {},
+    }
   }
 
   return tableSchemas
@@ -170,7 +247,7 @@ export function parseConvexApiTypes(
     )
   }
 
-  const tables = extractTableSchemas()
+  const tables = extractTableSchemasFromGeneratedTypes(apiPath)
   return { apiPath, moduleImports, tables }
 }
 

@@ -1,4 +1,5 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -56,5 +57,44 @@ describe('generate-mobile-types', () => {
     expect(packageJson.scripts?.['server:codegen']).toBe(
       'npx tsx server/scripts/generate-mobile-types.ts',
     )
+  })
+
+  it('test_usesGeneratedDataModelWithoutSchemaSource', () => {
+    const fixtureDir = mkdtempSync(path.join(os.tmpdir(), 'mobile-types-generated-'))
+    const generatedDir = path.join(fixtureDir, 'convex', '_generated')
+    const apiPath = path.join(generatedDir, 'api.d.ts')
+    const dataModelPath = path.join(generatedDir, 'dataModel.d.ts')
+    mkdirSync(generatedDir, { recursive: true })
+
+    writeFileSync(
+      apiPath,
+      'import type { DataModel } from "./dataModel.js";\nexport declare const api: unknown;\n',
+      'utf8',
+    )
+    writeFileSync(
+      dataModelPath,
+      [
+        'export type DataModel = {',
+        '  users: {',
+        '    document: {',
+        '      email: string;',
+        '      profile?: {',
+        '        displayName: string;',
+        '      };',
+        '      tags: string[];',
+        '      location: { lat: number; lng?: number } | null;',
+        '    };',
+        '  };',
+        '};',
+        '',
+      ].join('\n'),
+      'utf8',
+    )
+
+    const parsed = parseConvexApiTypes(apiPath)
+    expect(parsed.tables.users.fields.email.type).toBe('string')
+    expect(parsed.tables.users.fields.profile.optional).toBe(true)
+    expect(parsed.tables.users.fields.tags.type).toBe('array')
+    expect(parsed.tables.users.fields.location.optional).toBe(true)
   })
 })
