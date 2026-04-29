@@ -39,6 +39,42 @@ class AuthViewModel @Inject constructor(
             authRepository.handleOAuthCallback(callbackUri)
         }
     }
+
+    fun signIn(email: String, password: String) {
+        viewModelScope.launch {
+            authRepository.signIn(email = email, password = password)
+        }
+    }
+
+    fun signUp(email: String, password: String, name: String) {
+        viewModelScope.launch {
+            authRepository.signUp(email = email, password = password, name = name)
+        }
+    }
+
+    fun completeSignUpVerification(code: String) {
+        viewModelScope.launch {
+            authRepository.completeSignUpVerification(code)
+        }
+    }
+
+    fun signInWithGoogle() {
+        viewModelScope.launch {
+            authRepository.signInWithGoogle()
+        }
+    }
+
+    fun signInWithApple() {
+        viewModelScope.launch {
+            authRepository.signInWithApple()
+        }
+    }
+
+    fun signOut() {
+        viewModelScope.launch {
+            authRepository.signOut()
+        }
+    }
 }
 
 @Composable
@@ -58,8 +94,8 @@ fun LaneShadowApp(authViewModel: AuthViewModel = hiltViewModel()) {
         AuthState.VerificationRequired,
         is AuthState.Error,
         -> SplashScreen()
-        AuthState.SignedOut -> AuthNavGraph(navController)
-        is AuthState.SignedIn -> MainNavGraph(navController)
+        AuthState.SignedOut -> AuthNavGraph(navController = navController, authViewModel = authViewModel)
+        is AuthState.SignedIn -> MainNavGraph(navController = navController, authViewModel = authViewModel)
     }
 }
 
