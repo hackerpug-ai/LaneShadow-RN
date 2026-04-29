@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.laneshadow.data.model.AuthState
+import com.laneshadow.BuildConfig
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.navigation.DeepLinkBus
 import com.laneshadow.ui.AuthViewModel
@@ -28,7 +29,6 @@ import com.laneshadow.ui.atoms.LSSpinner
 import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.SpinnerSize
 import com.laneshadow.ui.atoms.TypographyVariant
-import com.laneshadow.ui.organisms.LSInlineErrorCallout
 import kotlinx.coroutines.delay
 
 @Composable
@@ -41,8 +41,12 @@ fun OAuthCallbackScreen(
     val authState by viewModel.authState.collectAsStateWithLifecycle()
     var lastCallbackUri by remember { mutableStateOf<Uri?>(null) }
     var isProcessingCallback by remember { mutableStateOf(false) }
+    val forceLoadingPreview = BuildConfig.DEBUG && (deepLinkUri?.getQueryParameter("screen") == "loading")
 
     LaunchedEffect(deepLinkUri) {
+        if (forceLoadingPreview) {
+            return@LaunchedEffect
+        }
         deepLinkUri?.let {
             lastCallbackUri = it
             isProcessingCallback = true
@@ -60,10 +64,17 @@ fun OAuthCallbackScreen(
         verticalArrangement = Arrangement.spacedBy(theme.space.md, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (authState is AuthState.Error && !isProcessingCallback) {
-            LSInlineErrorCallout(
-                body = (authState as AuthState.Error).message,
-                onSuggestionTap = {},
+        val showLoadingState = forceLoadingPreview || isProcessingCallback || authState !is AuthState.Error
+        if (!showLoadingState) {
+            LSText(
+                text = "Sign-in callback failed",
+                variant = TypographyVariant.Ui.Title.Md,
+                color = ContentColor.Primary,
+            )
+            LSText(
+                text = (authState as AuthState.Error).message,
+                variant = TypographyVariant.Ui.Body.Md,
+                color = ContentColor.Secondary,
                 modifier = Modifier.fillMaxWidth(),
             )
             LSButton(
