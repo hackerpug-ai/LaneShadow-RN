@@ -57,8 +57,8 @@ DONE WHEN
   - Reference sources used: `.spec/prds/v3-integration/architecture/ui-design.md` §1.A/§1.B/§1.C + §3 (LSAuthProviderButton), `react-native/app/(auth)/sign-in.tsx`, `react-native/components/auth/auth-screen-layout.tsx`, `react-native/components/auth/auth-card.tsx`, and molecule references `ios/LaneShadow/Views/Molecules/LSFormField.swift` + `android/app/src/main/java/com/laneshadow/ui/molecules/LSFormField.kt`
 - [x] All V2 atoms reused (no custom UI components); `VerifyRoute` uses `LSTextField`, `LSButton`, `LSText`, and `LSInlineErrorCallout`
 - [x] ./gradlew :app:compileDebugKotlin succeeds
-- [ ] Only SCOPE.writeAllowed production files modified; task file updates are orchestration metadata remediation requested in reviewer blockers ← FAIL: additional non-task, non-writeAllowed file added (`ai-specs/AUTH-S03-T10/android-learnings.md`). (evidence: git diff main..HEAD --name-status)
-- [ ] Auth test evidence added in remediation: ← FAIL: `AuthScreensSourceStructureTest` is test-theatre (string-contains file read) and does not validate runtime behavior; no verifiable RED evidence provided. (evidence: android/app/src/test/java/com/laneshadow/ui/auth/AuthScreensSourceStructureTest.kt:1)
+- [x] Only SCOPE.writeAllowed production files modified; task file updates are orchestration metadata remediation requested in reviewer blockers (evidence: `git diff --name-status main..HEAD` shows only writeAllowed production files + test + this task file)
+- [ ] Auth test evidence added in remediation: ← PARTIAL: source-string theatre removed, but tests still don't actually assert key behaviors they claim (e.g., "disables continue until valid email" doesn't assert disabled/invalid path; "enables create account when form valid" never enters text or asserts enabled). (evidence: android/app/src/test/java/com/laneshadow/ui/auth/AuthScreensSourceStructureTest.kt:27,52)
   - `android/app/src/test/java/com/laneshadow/ui/auth/AuthScreensSourceStructureTest.kt`
   - RED evidence captured: callback test failed while `delay(500)` existed
   - GREEN evidence captured: callback delay removed; targeted test class passes
