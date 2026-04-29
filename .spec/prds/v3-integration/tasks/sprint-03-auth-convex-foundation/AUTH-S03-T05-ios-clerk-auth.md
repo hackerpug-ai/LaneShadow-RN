@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build
   lint:      swiftformat --lint ios/LaneShadow/
 
-PROGRESS: 0/7 AC · not started
+PROGRESS: 7/7 AC · complete
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -42,7 +42,7 @@ DONE WHEN
 - [x] Google OAuth flow implemented (evidence: ios/LaneShadow/Services/ClerkAuth.swift:72)
 - [x] Info.plist includes laneshadow URL scheme (evidence: ios/LaneShadow/Info.plist:25)
 - [x] iOS build passes (evidence: xcodebuild build EXIT_CODE:0 on 2026-04-29)
-- [ ] Only SCOPE.writeAllowed files modified ← FAIL: `ai-specs/AUTH-S03-T05/ios-learnings.md` is outside `writeAllowed` (evidence: .claude/worktrees/AUTH-S03-T05/.spec/prds/v3-integration/tasks/sprint-03-auth-convex-foundation/AUTH-S03-T05-ios-clerk-auth.md:118)
+- [x] Only SCOPE.writeAllowed files modified (evidence: `git diff --name-only 8d1afd12..HEAD | sort` matches allowlist on 2026-04-29)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
