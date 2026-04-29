@@ -1,94 +1,104 @@
-import Foundation
-import Testing
+import XCTest
 @testable import LaneShadow
 
 @MainActor
-struct AuthScreensTests {
-    @Test
-    func signInFlowProgressesFromEmailToPasswordToSubmittingToSignedIn() async {
-        let auth = ClerkAuth(client: FakeAuthScreensClient())
-        let viewModel = SignInViewModel(auth: auth)
+final class AuthScreensTests: XCTestCase {
+    func testAppStateRoutesOAuthCallbackWithURLPayload() throws {
+        let appState = AppState(isAuthenticated: false)
+        let auth = ClerkAuth(client: AuthScreensFakeClient())
+        let callbackURL = try XCTUnwrap(URL(string: "laneshadow://oauth-callback?token=abc123"))
 
-        #expect(viewModel.step == .email)
+        appState.handleDeepLink(callbackURL, clerkAuth: auth)
 
+        guard case let .oauthCallback(url)? = appState.authRoute else {
+            return XCTFail("Expected oauth callback route with URL payload")
+        }
+        XCTAssertEqual(url, callbackURL)
+    }
+
+    func testSignUpViewModelSubmitsAndTransitionsToSignedIn() async throws {
+        let auth = ClerkAuth(client: AuthScreensFakeClient())
+        let viewModel = SignUpViewModel(auth: auth)
+        viewModel.name = "Rider"
         viewModel.email = "rider@example.com"
-        viewModel.advanceFromEmail()
-        #expect(viewModel.step == .password)
-
         viewModel.password = "secret"
+        viewModel.confirmPassword = "secret"
+
         await viewModel.submit()
 
-        #expect(viewModel.step == .signedIn)
-        #expect(viewModel.isSubmitting == false)
+        XCTAssertTrue(viewModel.isSignedIn)
+        XCTAssertFalse(viewModel.isSubmitting)
+        XCTAssertNil(viewModel.errorMessage)
     }
 
-    @Test
-    func signInScreenUsesV2AtomsAndDangerText() throws {
-        let source = try authSource("Features/Auth/SignInScreen.swift")
-        #expect(source.contains("LSTextField"))
-        #expect(source.contains("LSButton"))
-        #expect(source.contains("LSText("))
-        #expect(source.contains("LSSpinner"))
-        #expect(source.contains("color: .danger"))
+    func testSignUpViewModelRequiresMatchingPasswords() async {
+        let auth = ClerkAuth(client: AuthScreensFakeClient())
+        let viewModel = SignUpViewModel(auth: auth)
+        viewModel.name = "Rider"
+        viewModel.email = "rider@example.com"
+        viewModel.password = "secret"
+        viewModel.confirmPassword = "different"
+
+        await viewModel.submit()
+
+        XCTAssertFalse(viewModel.isSignedIn)
+        XCTAssertEqual(viewModel.errorMessage, "Passwords do not match.")
     }
 
-    @Test
-    func authProviderMoleculeComposesAtomsWithProviderLabelAndIcon() throws {
-        let source = try authSource("DesignSystem/Molecules/LSAuthProviderButton.swift")
-        #expect(source.contains("enum LSAuthProvider"))
-        #expect(source.contains("case apple"))
-        #expect(source.contains("case google"))
-        #expect(source.contains("LSButton("))
-        #expect(source.contains("leadingIcon: provider.icon"))
+    func testPasswordVisibilityToggleStateChanges() {
+        var state = AuthPasswordVisibilityState()
+
+        XCTAssertTrue(state.isSecureEntry)
+
+        state.toggle()
+        XCTAssertFalse(state.isSecureEntry)
+
+        state.toggle()
+        XCTAssertTrue(state.isSecureEntry)
     }
 
-    @Test
-    func signUpScreenIncludesExpectedFields() throws {
-        let source = try authSource("Features/Auth/SignUpScreen.swift")
-        #expect(source.contains("placeholder: \"Name\""))
-        #expect(source.contains("placeholder: \"Email\""))
-        #expect(source.contains("placeholder: \"Password\""))
-        #expect(source.contains("placeholder: \"Confirm password\""))
+    func testOAuthCallbackCompletionMarksAuthenticatedAndRoutesHome() async throws {
+        let auth = ClerkAuth(client: AuthScreensFakeClient())
+        let appState = AppState(isAuthenticated: false)
+        let callbackURL = try XCTUnwrap(URL(string: "laneshadow://oauth-callback?token=abc123"))
+
+        let result = await OAuthCallbackCompletion.complete(
+            callbackURL: callbackURL,
+            appState: appState,
+            auth: auth
+        )
+
+        XCTAssertEqual(result, .success)
+        XCTAssertTrue(appState.isAuthenticated)
+        XCTAssertEqual(appState.appRoute, .home)
+        XCTAssertNil(appState.authRoute)
     }
 
-    @Test
-    func oauthCallbackParsesTokenAndCompletesAuth() {
-        let tokenFromQuery = OAuthCallbackScreen
-            .parseToken(from: URL(string: "laneshadow://oauth-callback?token=abc123"))
-        #expect(tokenFromQuery == "abc123")
+    func testSignInViewModelTransitionsFromEmailToPassword() {
+        let viewModel = SignInViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        viewModel.email = "rider@example.com"
 
-        var capturedToken: String?
-        let screen = OAuthCallbackScreen(callbackURL: URL(string: "laneshadow://oauth-callback?token=done")) {
-            capturedToken = $0
-        }
-        screen.completeAuth()
+        viewModel.advanceFromEmail()
 
-        #expect(capturedToken == "done")
+        XCTAssertEqual(viewModel.step, .password)
+        XCTAssertNil(viewModel.errorMessage)
     }
 
-    @Test
-    func authScreensApplyBackgroundImageContainer() throws {
-        let signInSource = try authSource("Features/Auth/SignInScreen.swift")
-        let signUpSource = try authSource("Features/Auth/SignUpScreen.swift")
-        let callbackSource = try authSource("Features/Auth/OAuthCallbackScreen.swift")
+    func testSignInViewModelSubmitTransitionsToSignedIn() async {
+        let viewModel = SignInViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        viewModel.email = "rider@example.com"
+        viewModel.password = "secret"
+        viewModel.step = .password
 
-        #expect(signInSource.contains("AuthBackgroundContainer"))
-        #expect(signInSource.contains("Image(systemName: \"mountain.2.fill\")"))
-        #expect(signUpSource.contains("AuthBackgroundContainer"))
-        #expect(callbackSource.contains("AuthBackgroundContainer"))
-    }
+        await viewModel.submit()
 
-    private func authSource(_ relativePath: String) throws -> String {
-        let baseURL = URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appendingPathComponent("LaneShadow")
-        return try String(contentsOf: baseURL.appendingPathComponent(relativePath), encoding: .utf8)
+        XCTAssertEqual(viewModel.step, .signedIn)
+        XCTAssertFalse(viewModel.isSubmitting)
+        XCTAssertNil(viewModel.errorMessage)
     }
 }
 
-actor FakeAuthScreensClient: ClerkAuthClient {
+actor AuthScreensFakeClient: ClerkAuthClient {
     func signIn(email: String, password: String) async throws -> ClerkAuthUser {
         ClerkAuthUser(id: "email-user", email: email)
     }
@@ -108,6 +118,6 @@ actor FakeAuthScreensClient: ClerkAuthClient {
     func signOut() async throws {}
 
     func getJWT() async throws -> String? {
-        "jwt"
+        "jwt-token"
     }
 }

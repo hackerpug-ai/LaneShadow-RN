@@ -7,6 +7,7 @@ struct SignInScreen: View {
     @Environment(\.appEnvironment) private var appEnvironment
 
     @State private var viewModel: SignInViewModel
+    @State private var passwordVisibility = AuthPasswordVisibilityState()
 
     init(viewModel: SignInViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -25,7 +26,11 @@ struct SignInScreen: View {
                 }
 
                 if viewModel.step == .password || viewModel.step == .submitting {
-                    LSTextField(value: $viewModel.password, placeholder: "Password")
+                    AuthSecureTextEntry(
+                        value: $viewModel.password,
+                        placeholder: "Password",
+                        visibility: $passwordVisibility
+                    )
                     LSButton("Sign in", isDisabled: viewModel.isSubmitting) {
                         Task {
                             await viewModel.submit()

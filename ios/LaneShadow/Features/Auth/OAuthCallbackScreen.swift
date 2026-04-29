@@ -5,11 +5,11 @@ struct OAuthCallbackScreen: View {
     @Environment(\.theme) private var theme
 
     let callbackURL: URL?
-    let onAuthenticated: (String) -> Void
+    let onAuthenticated: (String) async -> Void
 
     @State private var statusMessage = "Completing sign in..."
 
-    init(callbackURL: URL?, onAuthenticated: @escaping (String) -> Void = { _ in }) {
+    init(callbackURL: URL?, onAuthenticated: @escaping (String) async -> Void = { _ in }) {
         self.callbackURL = callbackURL
         self.onAuthenticated = onAuthenticated
     }
@@ -34,8 +34,10 @@ struct OAuthCallbackScreen: View {
             return
         }
 
-        onAuthenticated(token)
-        statusMessage = "Signed in"
+        Task {
+            await onAuthenticated(token)
+            statusMessage = "Signed in"
+        }
     }
 
     static func parseToken(from url: URL?) -> String? {

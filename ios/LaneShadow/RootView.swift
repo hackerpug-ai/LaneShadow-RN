@@ -20,7 +20,11 @@ struct RootView: View {
             if activeFlow == .app {
                 AppFlowView(route: appState.appRoute)
             } else {
-                AuthFlowView(route: appState.authRoute)
+                AuthFlowView(
+                    route: appState.authRoute,
+                    appState: appState,
+                    clerkAuth: appEnvironment.clerkAuth
+                )
             }
         }
         .onAppear {
