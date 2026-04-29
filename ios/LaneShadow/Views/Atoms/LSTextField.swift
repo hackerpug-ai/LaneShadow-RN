@@ -27,6 +27,7 @@ public struct LSTextField: View {
     @Binding private var value: String
     private let placeholder: String?
     private let state: InputState
+    private let isSecureEntry: Bool
     private let leadingIcon: IconName?
     private let trailingIcon: IconName?
     private let helperText: String?
@@ -35,6 +36,7 @@ public struct LSTextField: View {
         value: Binding<String>,
         placeholder: String? = nil,
         state: InputState = .default,
+        isSecureEntry: Bool = false,
         leadingIcon: IconName? = nil,
         trailingIcon: IconName? = nil,
         helperText: String? = nil
@@ -42,6 +44,7 @@ public struct LSTextField: View {
         _value = value
         self.placeholder = placeholder
         self.state = state
+        self.isSecureEntry = isSecureEntry
         self.leadingIcon = leadingIcon
         self.trailingIcon = trailingIcon
         self.helperText = helperText
@@ -57,11 +60,7 @@ public struct LSTextField: View {
                         .frame(width: tokens.iconSize, height: tokens.iconSize)
                 }
 
-                TextField("", text: editableBinding, prompt: prompt(tokens: tokens))
-                    .font(tokens.textStyle.font)
-                    .foregroundStyle(tokens.textColor)
-                    .focused($isFocused)
-                    .disabled(state == .disabled)
+                inputField(tokens: tokens)
 
                 if let trailingIcon {
                     LSIcon(name: trailingIcon, size: .sm, resolvedColorOverride: tokens.iconColor)
@@ -190,5 +189,22 @@ public struct LSTextField: View {
         return Text(placeholder)
             .font(tokens.textStyle.font)
             .foregroundStyle(tokens.placeholderColor)
+    }
+
+    @ViewBuilder
+    private func inputField(tokens: ResolvedTokens) -> some View {
+        if isSecureEntry {
+            SecureField("", text: editableBinding, prompt: prompt(tokens: tokens))
+                .font(tokens.textStyle.font)
+                .foregroundStyle(tokens.textColor)
+                .focused($isFocused)
+                .disabled(state == .disabled)
+        } else {
+            TextField("", text: editableBinding, prompt: prompt(tokens: tokens))
+                .font(tokens.textStyle.font)
+                .foregroundStyle(tokens.textColor)
+                .focused($isFocused)
+                .disabled(state == .disabled)
+        }
     }
 }

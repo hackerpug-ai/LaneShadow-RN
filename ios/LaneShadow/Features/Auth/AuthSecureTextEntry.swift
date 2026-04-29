@@ -8,7 +8,11 @@ struct AuthSecureTextEntry: View {
 
     var body: some View {
         HStack {
-            LSTextField(value: $value, placeholder: placeholder)
+            LSTextField(
+                value: $value,
+                placeholder: placeholder,
+                isSecureEntry: visibility.isSecureEntry
+            )
 
             Button {
                 visibility.toggle()

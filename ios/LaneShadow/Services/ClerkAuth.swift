@@ -87,7 +87,13 @@ final class LiveClerkSDKClient: ClerkSDKClient {
         return try await session.getToken(.init(template: "convex"))?.jwt
     }
 
-    func completeOAuthCallback(token _: String) async throws -> ClerkAuthUser? {
+    func completeOAuthCallback(token: String) async throws -> ClerkAuthUser? {
+        let signIn = try await SignIn.create(strategy: .ticket(token))
+
+        if let createdSessionId = signIn.createdSessionId {
+            try await clerk.setActive(sessionId: createdSessionId)
+        }
+
         guard let user = clerk.user else {
             return nil
         }

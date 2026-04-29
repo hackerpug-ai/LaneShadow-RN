@@ -75,6 +75,11 @@ struct SignInScreen: View {
 }
 
 struct AuthBackgroundContainer<Content: View>: View {
+    enum ImageSource: Equatable {
+        case authBackground
+        case fallback
+    }
+
     @Environment(\.theme) private var theme
     @ViewBuilder let content: Content
 
@@ -91,10 +96,16 @@ struct AuthBackgroundContainer<Content: View>: View {
     }
 
     private var authBackgroundImage: Image {
-        if let image = UIImage(named: "AuthBackground") {
+        if Self.resolveImageSource(imageLoader: { UIImage(named: $0) }) == .authBackground,
+           let image = UIImage(named: "AuthBackground")
+        {
             Image(uiImage: image)
         } else {
             Image(systemName: "mountain.2.fill")
         }
+    }
+
+    static func resolveImageSource(imageLoader: (String) -> UIImage?) -> ImageSource {
+        imageLoader("AuthBackground") == nil ? .fallback : .authBackground
     }
 }
