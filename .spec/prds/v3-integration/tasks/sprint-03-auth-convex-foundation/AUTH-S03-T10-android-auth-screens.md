@@ -202,6 +202,7 @@ writeAllowed:
 - android/app/src/main/java/com/laneshadow/ui/LaneShadowApp.kt (MODIFY — move direct callback handling into OAuthCallbackScreen/AuthNavGraph path)
 - android/app/src/main/java/com/laneshadow/navigation/DeepLinkBus.kt (MODIFY — scope expansion approved for OAuth callback cold-start/replay reliability and replay-cache consumption behavior)
 - android/app/src/main/java/com/laneshadow/ui/molecules/LSFormField.kt (MODIFY — scope expansion approved for minimal pass-through keyboard/password options required to reuse existing V2 molecule without duplicating auth-specific field components)
+- android/app/src/test/java/com/laneshadow/ui/auth/AuthScreensSourceStructureTest.kt (CREATE — interaction-driven Compose test evidence)
 
 writeProhibited:
 - Do not create custom UI components that duplicate V2 atoms
@@ -237,6 +238,7 @@ DELIVERABLE
 - android/app/src/main/java/com/laneshadow/ui/auth/models/SignInUiState.kt (CREATE): UI state
 - android/app/src/main/java/com/laneshadow/ui/auth/models/SignUpField.kt (CREATE): Field state
 - android/app/src/main/java/com/laneshadow/ui/auth/viewmodels/SignInViewModel.kt (CREATE or MODIFY): Logic
+- android/app/src/test/java/com/laneshadow/ui/auth/AuthScreensSourceStructureTest.kt (CREATE): UI-driven auth screen tests
 
 --------------------------------------------------------------------------------
 AGENT INSTRUCTIONS (TDD Flow)
