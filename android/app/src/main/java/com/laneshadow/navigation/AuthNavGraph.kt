@@ -7,6 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -28,9 +29,17 @@ fun AuthNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Route.SignIn,
+        startDestination = Route.Splash,
         modifier = Modifier.semantics { testTagsAsResourceId = true },
     ) {
+        composable<Route.Splash> {
+            LaunchedEffect(Unit) {
+                navController.navigate(Route.SignIn) {
+                    popUpTo(Route.Splash) { inclusive = true }
+                }
+            }
+            Text(text = "Loading", style = MaterialTheme.typography.bodyMedium)
+        }
         navigation<Route.SignIn>(startDestination = Route.SignIn) {
             composable<Route.SignIn> {
                 SignInRoute(

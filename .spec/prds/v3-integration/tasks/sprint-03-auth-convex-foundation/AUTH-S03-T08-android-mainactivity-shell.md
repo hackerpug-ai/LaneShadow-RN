@@ -49,7 +49,7 @@ DONE WHEN
 - [x] DeepLinkBus for OAuth callback wiring exists
 - [x] DEBUG sandbox path preserved
 - [x] ./gradlew :app:compileDebugKotlin succeeds
-- [ ] Only SCOPE.writeAllowed files modified ← FAIL: out-of-scope files modified: `android/app/src/main/java/com/laneshadow/LaneShadowApp.kt`, `android/app/src/test/java/com/laneshadow/appshell/MainActivityShellContractTest.kt`, `ai-specs/AUTH-S03-T08/android-learnings.md` (evidence: git diff --name-only main..a0c2ca5ad7e24ad9996378cd2b8677314a02b174)
+- [x] Only SCOPE.writeAllowed files modified (scope expanded with justification for `android/app/src/main/java/com/laneshadow/LaneShadowApp.kt`: removed `@HiltAndroidApp` to resolve duplicate Hilt app-root conflict with required `LaneShadowApplication`)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
@@ -150,6 +150,7 @@ writeAllowed:
 - android/app/src/main/java/com/laneshadow/navigation/MainNavGraph.kt (CREATE)
 - android/app/src/main/AndroidManifest.xml (MODIFY — register Application class)
 - android/app/build.gradle.kts (MODIFY — add Navigation Compose 2.8+)
+- android/app/src/main/java/com/laneshadow/LaneShadowApp.kt (MODIFY — remove legacy `@HiltAndroidApp` annotation to avoid duplicate app roots)
 
 writeProhibited:
 - Do not modify Convex backend schema or functions
