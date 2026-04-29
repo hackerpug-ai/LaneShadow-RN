@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".LaneShadowApp"
+        android:name=".LaneShadowApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -23,13 +23,23 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        <intent-filter>
-    <data android:scheme="app-sandbox" android:host="sandbox" />
-    <action android:name="android.intent.action.VIEW" />
-    <category android:name="android.intent.category.DEFAULT" />
-    <category android:name="android.intent.category.BROWSABLE" />
-</intent-filter>
-</activity>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="sandbox"
+                    android:scheme="app-sandbox" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="oauth-callback"
+                    android:scheme="laneshadow" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
