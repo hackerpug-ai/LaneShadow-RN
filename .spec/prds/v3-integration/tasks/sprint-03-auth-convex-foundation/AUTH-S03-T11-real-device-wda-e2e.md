@@ -249,3 +249,28 @@ blocks: [Sprint 04]
   ]
 }
 -->
+
+--------------------------------------------------------------------------------
+SWIFT REVIEW CHECKLIST (swift-reviewer)
+--------------------------------------------------------------------------------
+
+Review date: 2026-04-29
+Reviewed commits: 1c427b1e530017b4ad57507a8aa06b7a82ae61b7..6924823dc0fe73e34f4d907535987a7d415df929
+
+- [x] AC-1: WDA harness boots app + readiness evidence (evidence: ios/E2E/sprint-03-auth.js:98)
+- [x] AC-2: Results cover S03.1..S03.8 (evidence: ios/LaneShadowTests/Integration/Sprint03WDAArtifactTests.swift:25)
+- [x] AC-3: Auth/restore/sign-out uses stable accessibility ids + real WDA interactions (evidence: ios/E2E/sprint-03-auth.js:147)
+- [x] AC-4: Unsupported evidence is MANUAL/BLOCKED, never PASS (evidence: ios/E2E/sprint-03-auth.js:125)
+- [x] AC-5: Failed prerequisites produce BLOCKED + diagnostics (evidence: ios/E2E/sprint-03-auth.js:109)
+
+- [x] TC-1: /status checked before session (evidence: ios/E2E/sprint-03-auth.js:98)
+- [x] TC-2: Schema includes S03.1..S03.8 (evidence: ios/LaneShadowTests/Integration/Sprint03WDAArtifactTests.swift:25)
+- [x] TC-3: Uses accessibility id queries for auth/settings controls (evidence: ios/E2E/lib/wda-helpers.js:100)
+- [x] TC-4: Unsupported steps never PASS (evidence: ios/LaneShadowTests/Integration/Sprint03WDAArtifactTests.swift:53)
+- [x] TC-5: Readiness failure blocks downstream steps with diagnostics paths (evidence: ios/E2E/sprint-03-auth.js:135)
+
+MANDATORY GATES (reviewer run):
+- [x] Simulator tests: `xcodebuild ... test -only-testing:LaneShadowTests/Sprint03WDAArtifactTests` (Exit 0)
+- [x] Simulator build: `xcodebuild ... -destination 'platform=iOS Simulator,name=iPhone 16' build` (Exit 0)
+- [ ] Device build: `xcodebuild ... -destination 'generic/platform=iOS' build` ← BLOCKED: requires DEVELOPMENT_TEAM for signing in this environment (Exit 65)
+- [x] Project generation: `scripts/ios/generate-project.sh --check` (Exit 0)

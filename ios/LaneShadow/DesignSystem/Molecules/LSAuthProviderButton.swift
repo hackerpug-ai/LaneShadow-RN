@@ -22,6 +22,15 @@ enum LSAuthProvider: CaseIterable {
             .circle
         }
     }
+
+    var accessibilityIdentifier: String {
+        switch self {
+        case .apple:
+            "auth.signIn.apple"
+        case .google:
+            "auth.signIn.google"
+        }
+    }
 }
 
 struct LSAuthProviderButton: View {
@@ -36,6 +45,6 @@ struct LSAuthProviderButton: View {
             leadingIcon: provider.icon,
             action: action
         )
-        .accessibilityIdentifier("auth-provider-\(provider.title)")
+        .accessibilityIdentifier(provider.accessibilityIdentifier)
     }
 }
