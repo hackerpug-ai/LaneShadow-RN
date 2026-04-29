@@ -3,7 +3,7 @@ TASK: AUTH-S03-T02 - Type-gen pipeline
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     In Review
 PRIORITY:   P1
 EFFORT:     L
 AGENT:      implementer=convex-implementer | reviewer=convex-reviewer
@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: pnpm --dir server exec tsc --noEmit
   lint:      pnpm exec biome check server/
 
-PROGRESS: 0/5 AC · not started
+PROGRESS: 4/5 AC · blocked on AC-1
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -35,12 +35,12 @@ Create server/scripts/generate-mobile-types.ts that emits Swift and Kotlin type 
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] server/scripts/generate-mobile-types.ts script exists and runs
-- [ ] ios/LaneShadow/Generated/ConvexTypes.generated.swift generated
-- [ ] android/app/src/main/.../generated/ConvexTypes.kt generated
-- [ ] pnpm server:codegen script added to package.json
-- [ ] Generated files compile on both platforms
-- [ ] pnpm --dir server exec tsc --noEmit passes
+- [ ] server/scripts/generate-mobile-types.ts script exists and runs ← FAIL: still includes `server/convex/schema.ts` as a TypeScript program root, so table/field shapes can be derived from schema source rather than only the generated declarations (evidence: server/scripts/generate-mobile-types.ts:174,176-177; server/convex/_generated/dataModel.d.ts:17,57)
+- [x] ios/LaneShadow/Generated/ConvexTypes.generated.swift generated (evidence: ios/LaneShadow/Generated/ConvexTypes.generated.swift:4)
+- [x] android/app/src/main/.../generated/ConvexTypes.kt generated (evidence: android/app/src/main/java/com/laneshadow/generated/ConvexTypes.kt:7)
+- [x] pnpm server:codegen script added to package.json (evidence: package.json:41)
+- [x] Generated files compile on both platforms (evidence: `pnpm ios:build` exit 0; `pnpm android:build` exit 0)
+- [x] pnpm --dir server exec tsc --noEmit passes (evidence: `pnpm --dir server exec tsc --noEmit` exit 0)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
@@ -51,7 +51,7 @@ AC-1: Script reads Convex types from _generated/api.d.ts
   WHEN:  Developer runs pnpm server:codegen
   THEN:  Script parses Convex types successfully
 
-  TDD_STATE:     none
+  TDD_STATE:     RED: `pnpm --dir server exec vitest run scripts/generate-mobile-types.test.ts` failed at `test_throwsWhenGeneratedDataModelRequiresSchemaResolution` (expected throw, got none) on 2026-04-28; GREEN: same command passed after removing `schema.ts` from strict TS roots and adding strict guard
   TEST_FILE:     server/scripts/generate-mobile-types.test.ts
   TEST_FUNCTION: test_scriptReadsConvexTypesFromGeneratedApi
 

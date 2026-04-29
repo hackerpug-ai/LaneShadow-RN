@@ -20,6 +20,10 @@ export type ParsedConvexApiTypes = {
   tables: Record<string, TableSchema>
 }
 
+export type ParseConvexApiTypesOptions = {
+  allowSchemaFallback?: boolean
+}
+
 export type GenerateMobileTypesResult = {
   swiftOutputPath: string
   kotlinOutputPath: string
@@ -171,10 +175,21 @@ function toFieldSchemaFromType(
   return { type: 'any', optional: false }
 }
 
-function extractTableSchemasFromGeneratedTypes(apiPath: string): Record<string, TableSchema> {
+function hasSchemaBasedDataModel(dataModelSource: ts.SourceFile): boolean {
+  return dataModelSource.text.includes('DataModelFromSchemaDefinition<typeof schema>')
+}
+
+function extractTableSchemasFromGeneratedTypes(
+  apiPath: string,
+  options: ParseConvexApiTypesOptions = {},
+): Record<string, TableSchema> {
+  const { allowSchemaFallback = false } = options
   const dataModelPath = path.resolve(path.dirname(apiPath), 'dataModel.d.ts')
   const schemaTsPath = path.resolve(path.dirname(dataModelPath), '..', 'schema.ts')
-  const program = ts.createProgram([apiPath, dataModelPath, schemaTsPath], {
+  const programRoots = allowSchemaFallback
+    ? [apiPath, dataModelPath, schemaTsPath]
+    : [apiPath, dataModelPath]
+  const program = ts.createProgram(programRoots, {
     allowJs: false,
     checkJs: false,
     strict: false,
@@ -189,6 +204,11 @@ function extractTableSchemasFromGeneratedTypes(apiPath: string): Record<string, 
   const dataModelSource = program.getSourceFile(dataModelPath)
   if (!dataModelSource) {
     throw new Error(`Missing generated Convex data model declaration at ${dataModelPath}`)
+  }
+  if (hasSchemaBasedDataModel(dataModelSource) && !allowSchemaFallback) {
+    throw new Error(
+      `Generated data model at ${dataModelPath} depends on schema.js and cannot be parsed from generated declarations only. Run with allowSchemaFallback=true to permit schema-derived extraction.`,
+    )
   }
   const dataModelAlias = dataModelSource.statements.find(
     (statement): statement is ts.TypeAliasDeclaration =>
@@ -226,6 +246,7 @@ function extractTableSchemasFromGeneratedTypes(apiPath: string): Record<string, 
 
 export function parseConvexApiTypes(
   apiPath = path.resolve(resolveServerDir(process.cwd()), 'convex/_generated/api.d.ts'),
+  options: ParseConvexApiTypesOptions = {},
 ): ParsedConvexApiTypes {
   const sourceText = readFileSync(apiPath, 'utf8')
   const sourceFile = ts.createSourceFile(apiPath, sourceText, ts.ScriptTarget.Latest, true)
@@ -247,7 +268,7 @@ export function parseConvexApiTypes(
     )
   }
 
-  const tables = extractTableSchemasFromGeneratedTypes(apiPath)
+  const tables = extractTableSchemasFromGeneratedTypes(apiPath, options)
   return { apiPath, moduleImports, tables }
 }
 
@@ -367,7 +388,9 @@ function generateKotlinSource(tables: Record<string, TableSchema>): string {
 export function generateMobileTypes(rootDir = process.cwd()): GenerateMobileTypesResult {
   const repoRoot = resolveRepoRoot(rootDir)
   const serverDir = resolveServerDir(rootDir)
-  const parsedApi = parseConvexApiTypes(path.resolve(serverDir, 'convex/_generated/api.d.ts'))
+  const parsedApi = parseConvexApiTypes(path.resolve(serverDir, 'convex/_generated/api.d.ts'), {
+    allowSchemaFallback: true,
+  })
 
   const swiftSource = generateSwiftSource(parsedApi.tables)
   const kotlinSource = generateKotlinSource(parsedApi.tables)

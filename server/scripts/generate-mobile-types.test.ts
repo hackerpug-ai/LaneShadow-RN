@@ -7,7 +7,7 @@ import { generateMobileTypes, parseConvexApiTypes } from './generate-mobile-type
 
 describe('generate-mobile-types', () => {
   it('test_scriptReadsConvexTypesFromGeneratedApi', () => {
-    const result = parseConvexApiTypes()
+    const result = parseConvexApiTypes(undefined, { allowSchemaFallback: true })
     expect(result.moduleImports.length).toBeGreaterThan(0)
     expect(result.tables.users).toBeDefined()
     expect(result.tables.users.fields.email.type).toBe('string')
@@ -96,5 +96,40 @@ describe('generate-mobile-types', () => {
     expect(parsed.tables.users.fields.profile.optional).toBe(true)
     expect(parsed.tables.users.fields.tags.type).toBe('array')
     expect(parsed.tables.users.fields.location.optional).toBe(true)
+  })
+
+  it('test_throwsWhenGeneratedDataModelRequiresSchemaResolution', () => {
+    const fixtureDir = mkdtempSync(path.join(os.tmpdir(), 'mobile-types-schema-derived-'))
+    const generatedDir = path.join(fixtureDir, 'convex', '_generated')
+    const convexDir = path.join(fixtureDir, 'convex')
+    const apiPath = path.join(generatedDir, 'api.d.ts')
+    const dataModelPath = path.join(generatedDir, 'dataModel.d.ts')
+    mkdirSync(generatedDir, { recursive: true })
+    mkdirSync(convexDir, { recursive: true })
+
+    writeFileSync(
+      apiPath,
+      'import type { DataModel } from "./dataModel.js";\nexport declare const api: unknown;\n',
+      'utf8',
+    )
+    writeFileSync(
+      dataModelPath,
+      [
+        'import type { DataModelFromSchemaDefinition } from "convex/server";',
+        'import schema from "../schema.js";',
+        'export type DataModel = DataModelFromSchemaDefinition<typeof schema>;',
+        '',
+      ].join('\n'),
+      'utf8',
+    )
+    writeFileSync(
+      path.join(convexDir, 'schema.ts'),
+      'export default { users: { document: { shouldNotBeRead: true } } } as const;\n',
+      'utf8',
+    )
+
+    expect(() => parseConvexApiTypes(apiPath)).toThrowError(
+      /depends on schema\.js and cannot be parsed from generated declarations only/,
+    )
   })
 })
