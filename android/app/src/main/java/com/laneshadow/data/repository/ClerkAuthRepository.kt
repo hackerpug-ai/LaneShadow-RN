@@ -24,6 +24,7 @@ data class OAuthResult(
 interface OAuthGateway {
     suspend fun signInWithGoogle(): OAuthResult
     suspend fun signInWithApple(): OAuthResult
+    suspend fun completeOAuthCallback(uri: Uri): OAuthResult
 }
 
 class ClerkAuthRepository @Inject constructor(
@@ -61,34 +62,29 @@ class ClerkAuthRepository @Inject constructor(
     }
 
     override suspend fun handleOAuthCallback(uri: Uri): Result<ClerkUser> {
-        val jwt = uri.getQueryParameter("token")
-            ?: uri.getQueryParameter("jwt")
-            ?: return Result.failure(IllegalArgumentException("Missing token"))
-
-        val user = ClerkUser(
-            id = uri.getQueryParameter("user_id") ?: "oauth-user",
-            email = uri.getQueryParameter("email") ?: "unknown@oauth.local",
-            name = uri.getQueryParameter("name") ?: "OAuth User",
-            provider = uri.getQueryParameter("provider") ?: "oauth",
-        )
-
-        tokenStore.saveJwt(jwt)
-        authState.value = AuthState.SignedIn(user)
-        return Result.success(user)
+        return handleOAuthResult(oauthGateway.completeOAuthCallback(uri))
     }
 
-    override suspend fun getJwtForConvex(): String = tokenStore.readJwt().orEmpty()
+    override suspend fun getJwtForConvex(): String {
+        val jwt = tokenStore.readJwt()
+        require(!jwt.isNullOrBlank()) { "Missing JWT for Convex" }
+        return jwt
+    }
 
     override fun observeAuthState(): StateFlow<AuthState> = authState.asStateFlow()
 
     private suspend fun handlePrimaryResult(result: Result<ClerkUser>): Result<ClerkUser> = result.fold(
         onSuccess = { user ->
             val jwt = clerkGateway.getJwt().getOrElse { "" }
-            if (jwt.isNotBlank()) {
+            if (jwt.isBlank()) {
+                val error = IllegalStateException("Clerk session token unavailable after auth")
+                authState.value = AuthState.Error(error.message ?: "Authentication failed")
+                Result.failure(error)
+            } else {
                 tokenStore.saveJwt(jwt)
+                authState.value = AuthState.SignedIn(user)
+                Result.success(user)
             }
-            authState.value = AuthState.SignedIn(user)
-            Result.success(user)
         },
         onFailure = { error ->
             authState.value = AuthState.Error(error.message ?: "Authentication failed")
@@ -98,11 +94,15 @@ class ClerkAuthRepository @Inject constructor(
 
     private suspend fun handleOAuthResult(oauth: OAuthResult): Result<ClerkUser> = oauth.userResult.fold(
         onSuccess = { user ->
-            if (oauth.jwt.isNotBlank()) {
+            if (oauth.jwt.isBlank()) {
+                val error = IllegalStateException("OAuth callback completed without JWT")
+                authState.value = AuthState.Error(error.message ?: "OAuth failed")
+                Result.failure(error)
+            } else {
                 tokenStore.saveJwt(oauth.jwt)
+                authState.value = AuthState.SignedIn(user)
+                Result.success(user)
             }
-            authState.value = AuthState.SignedIn(user)
-            Result.success(user)
         },
         onFailure = { error ->
             authState.value = AuthState.Error(error.message ?: "OAuth failed")

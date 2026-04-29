@@ -1,9 +1,15 @@
 package com.laneshadow.data.repository
 
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import androidx.browser.customtabs.CustomTabsIntent
+import com.laneshadow.BuildConfig
 import com.laneshadow.data.model.AuthState
 import com.laneshadow.data.model.ClerkUser
 import com.laneshadow.data.store.TokenStore
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,14 +17,17 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class CustomTabsAuthRepository @Inject constructor(
     private val tokenStore: TokenStore,
+    @ApplicationContext private val context: Context,
 ) : AuthRepository {
     private val authState = MutableStateFlow<AuthState>(AuthState.SignedOut)
+    private var pendingState: String? = null
+    private var pendingProvider: String? = null
 
     override suspend fun signIn(email: String, password: String): Result<ClerkUser> =
-        Result.failure(UnsupportedOperationException("Use OAuth for fallback auth"))
+        Result.failure(IllegalStateException("Email/password auth is handled by ClerkAuthRepository"))
 
     override suspend fun signUp(email: String, password: String, name: String): Result<ClerkUser> =
-        Result.failure(UnsupportedOperationException("Use Clerk primary implementation"))
+        Result.failure(IllegalStateException("Sign-up is handled by ClerkAuthRepository"))
 
     override suspend fun signOut(): Result<Unit> {
         tokenStore.clear()
@@ -26,28 +35,75 @@ class CustomTabsAuthRepository @Inject constructor(
         return Result.success(Unit)
     }
 
-    override suspend fun signInWithGoogle(): Result<ClerkUser> =
-        Result.failure(UnsupportedOperationException("Complete flow via callback"))
+    override suspend fun signInWithGoogle(): Result<ClerkUser> = launchOAuth(provider = "google")
 
-    override suspend fun signInWithApple(): Result<ClerkUser> =
-        Result.failure(UnsupportedOperationException("Complete flow via callback"))
+    override suspend fun signInWithApple(): Result<ClerkUser> = launchOAuth(provider = "apple")
 
     override suspend fun handleOAuthCallback(uri: Uri): Result<ClerkUser> {
-        val jwt = uri.getQueryParameter("token")
-            ?: uri.getQueryParameter("jwt")
-            ?: return Result.failure(IllegalArgumentException("Missing token"))
-        val provider = uri.getQueryParameter("provider") ?: "oauth"
-        val userId = uri.getQueryParameter("user_id") ?: "oauth-user"
-        val email = uri.getQueryParameter("email") ?: "unknown@oauth.local"
-        val name = uri.getQueryParameter("name") ?: "OAuth User"
+        val expectedState = pendingState
+        val callbackState = uri.getQueryParameter("state")
+        if (expectedState.isNullOrBlank() || callbackState != expectedState) {
+            val error = IllegalArgumentException("OAuth callback state mismatch")
+            authState.value = AuthState.Error(error.message ?: "OAuth failed")
+            return Result.failure(error)
+        }
 
+        val jwt = uri.getQueryParameter("token") ?: uri.getQueryParameter("jwt")
+        if (jwt.isNullOrBlank()) {
+            val error = IllegalArgumentException("OAuth callback missing token/jwt parameter")
+            authState.value = AuthState.Error(error.message ?: "OAuth failed")
+            return Result.failure(error)
+        }
+
+        val userId = uri.getQueryParameter("user_id")
+        val email = uri.getQueryParameter("email")
+        val name = uri.getQueryParameter("name")
+        if (userId.isNullOrBlank() || email.isNullOrBlank() || name.isNullOrBlank()) {
+            val error = IllegalArgumentException("OAuth callback missing required user fields")
+            authState.value = AuthState.Error(error.message ?: "OAuth failed")
+            return Result.failure(error)
+        }
+
+        val provider = uri.getQueryParameter("provider") ?: pendingProvider ?: "oauth"
         tokenStore.saveJwt(jwt)
         val user = ClerkUser(userId, email, name, provider)
         authState.value = AuthState.SignedIn(user)
+        pendingState = null
+        pendingProvider = null
         return Result.success(user)
     }
 
-    override suspend fun getJwtForConvex(): String = tokenStore.readJwt().orEmpty()
+    override suspend fun getJwtForConvex(): String {
+        val jwt = tokenStore.readJwt()
+        require(!jwt.isNullOrBlank()) { "Missing JWT for Convex" }
+        return jwt
+    }
 
     override fun observeAuthState(): StateFlow<AuthState> = authState.asStateFlow()
+
+    private fun launchOAuth(provider: String): Result<ClerkUser> {
+        val startUrl = BuildConfig.CLERK_OAUTH_START_URL
+        if (startUrl.isBlank()) {
+            val error = IllegalStateException("CLERK_OAUTH_START_URL is required for Custom Tabs OAuth fallback")
+            authState.value = AuthState.Error(error.message ?: "OAuth failed")
+            return Result.failure(error)
+        }
+
+        val state = UUID.randomUUID().toString()
+        pendingState = state
+        pendingProvider = provider
+        authState.value = AuthState.Loading
+
+        val launchUri = Uri.parse(startUrl).buildUpon()
+            .appendQueryParameter("provider", provider)
+            .appendQueryParameter("state", state)
+            .appendQueryParameter("redirect_uri", BuildConfig.CLERK_OAUTH_REDIRECT_URI)
+            .build()
+
+        val customTabsIntent = CustomTabsIntent.Builder().build()
+        customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        customTabsIntent.launchUrl(context, launchUri)
+
+        return Result.failure(IllegalStateException("OAuth flow launched in Custom Tabs; complete via callback"))
+    }
 }

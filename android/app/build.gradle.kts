@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
     id("com.dropbox.dropshots") version "0.6.0"
 }
@@ -42,6 +43,11 @@ fun readEnvValue(vararg keys: String): String {
 
     return ""
 }
+
+fun asBuildConfigString(raw: String): String =
+    raw
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
 
 // Generate secrets.xml from environment variables before build
 val generateSecretsXml by tasks.registering {
@@ -92,7 +98,10 @@ android {
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "CONVEX_DEPLOYMENT", "\"${readConvexDeployment()}\"")
+        buildConfigField("String", "CONVEX_DEPLOYMENT", "\"${asBuildConfigString(readConvexDeployment())}\"")
+        buildConfigField("String", "CLERK_PUBLISHABLE_KEY", "\"${asBuildConfigString(readEnvValue("CLERK_PUBLISHABLE_KEY", "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"))}\"")
+        buildConfigField("String", "CLERK_OAUTH_START_URL", "\"${asBuildConfigString(readEnvValue("CLERK_OAUTH_START_URL"))}\"")
+        buildConfigField("String", "CLERK_OAUTH_REDIRECT_URI", "\"laneshadow://oauth-callback\"")
     }
 
     buildTypes {
@@ -141,6 +150,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
     implementation("dev.chrisbanes.haze:haze:1.7.1")
     implementation("com.google.android.material:material:1.12.0")
 
@@ -156,11 +166,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     implementation("com.mapbox.maps:android:11.22.0")
-    implementation("com.clerk:clerk-android:0.1.22")
+    implementation("com.clerk:clerk-android-api:1.0.13")
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     implementation("androidx.browser:browser:1.8.0")
-    implementation("com.google.dagger:hilt-android:2.57.2")
-    kapt("com.google.dagger:hilt-android-compiler:2.57.2")
+    implementation("com.google.dagger:hilt-android:2.58")
+    kapt("com.google.dagger:hilt-android-compiler:2.58")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation(project(":theme"))
