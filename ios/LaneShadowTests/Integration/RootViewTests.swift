@@ -52,27 +52,42 @@ final class RootViewTests: XCTestCase {
         let unauthenticatedClerk = try await makeClerkAuth(isAuthenticated: false)
 
         let authenticatedSessionState = AppState(isAuthenticated: false)
-        try authenticatedSessionState.handleDeepLink(XCTUnwrap(URL(string: "laneshadow://session/session-42")), clerkAuth: authenticatedClerk)
+        try authenticatedSessionState.handleDeepLink(
+            XCTUnwrap(URL(string: "laneshadow://session/session-42")),
+            clerkAuth: authenticatedClerk
+        )
         XCTAssertTrue(authenticatedSessionState.isAuthenticated)
         XCTAssertEqual(authenticatedSessionState.appRoute, .session(id: "session-42"))
         XCTAssertNil(authenticatedSessionState.authRoute)
 
         let authenticatedDefaultState = AppState(isAuthenticated: false)
-        try authenticatedDefaultState.handleDeepLink(XCTUnwrap(URL(string: "laneshadow://app/home")), clerkAuth: authenticatedClerk)
+        try authenticatedDefaultState.handleDeepLink(
+            XCTUnwrap(URL(string: "laneshadow://app/home")),
+            clerkAuth: authenticatedClerk
+        )
         XCTAssertEqual(authenticatedDefaultState.appRoute, .home)
 
         let signUpState = AppState(isAuthenticated: false)
-        try signUpState.handleDeepLink(XCTUnwrap(URL(string: "laneshadow://auth/signup")), clerkAuth: unauthenticatedClerk)
+        try signUpState.handleDeepLink(
+            XCTUnwrap(URL(string: "laneshadow://auth/signup")),
+            clerkAuth: unauthenticatedClerk
+        )
         XCTAssertFalse(signUpState.isAuthenticated)
         XCTAssertEqual(signUpState.authRoute, .signUp)
         XCTAssertNil(signUpState.appRoute)
 
         let signInFallbackState = AppState(isAuthenticated: false)
-        try signInFallbackState.handleDeepLink(XCTUnwrap(URL(string: "laneshadow://unknown/path")), clerkAuth: unauthenticatedClerk)
+        try signInFallbackState.handleDeepLink(
+            XCTUnwrap(URL(string: "laneshadow://unknown/path")),
+            clerkAuth: unauthenticatedClerk
+        )
         XCTAssertEqual(signInFallbackState.authRoute, .signIn)
 
         let oauthState = AppState(isAuthenticated: false)
-        try oauthState.handleDeepLink(XCTUnwrap(URL(string: "laneshadow://oauth-callback?code=abc")), clerkAuth: unauthenticatedClerk)
+        try oauthState.handleDeepLink(
+            XCTUnwrap(URL(string: "laneshadow://oauth-callback?code=abc")),
+            clerkAuth: unauthenticatedClerk
+        )
         XCTAssertEqual(oauthState.authRoute, .oauthCallback)
         XCTAssertNil(oauthState.appRoute)
     }
