@@ -37,15 +37,15 @@ Create iOS RootView with auth gate switching between unauthenticated flow (sign-
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] RootView.swift created and replaces ContentView as app entry
-- [ ] AppState @Observable model tracks auth state
-- [ ] Auth gate switches between AuthFlow and AppFlow
-- [ ] AuthFlow NavigationStack displays sign-in/sign-up screens
-- [ ] AppFlow NavigationStack displays authenticated app screens
-- [ ] AppEnvironment DI container injects ClerkAuth and ConvexClient
-- [ ] Deep link handling implemented via onOpenURL
-- [ ] iOS build passes
-- [ ] Only SCOPE.writeAllowed files modified
+- [x] RootView.swift created and replaces ContentView as app entry (evidence: ios/LaneShadow/App.swift:27, ios/LaneShadow/ContentView.swift deleted)
+- [x] AppState @Observable model tracks auth state (evidence: ios/LaneShadow/Models/AppState.swift:5)
+- [x] Auth gate switches between AuthFlow and AppFlow (evidence: ios/LaneShadow/RootView.swift:20)
+- [x] AuthFlow NavigationStack displays sign-in/sign-up screens (evidence: ios/LaneShadow/Views/AuthFlow/AuthFlowView.swift:11, ios/LaneShadow/Views/AuthFlow/SignUpView.swift:4)
+- [x] AppFlow NavigationStack displays authenticated app screens (evidence: ios/LaneShadow/Views/AppFlow/AppFlowView.swift:11, ios/LaneShadow/Views/AppFlow/AppHomeView.swift:4)
+- [x] AppEnvironment DI container injects ClerkAuth and ConvexClient (evidence: ios/LaneShadow/Environment/AppEnvironment.swift:3, ios/LaneShadow/App.swift:28)
+- [x] Deep link handling implemented via onOpenURL (evidence: ios/LaneShadow/RootView.swift:29, ios/LaneShadow/Models/AppState.swift:32)
+- [x] iOS build passes (evidence: xcodebuild test/build EXIT_CODE:0 on 2026-04-29)
+- [x] Only SCOPE.writeAllowed files modified (evidence: git diff --name-only d1f1afde..HEAD on 2026-04-29)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
