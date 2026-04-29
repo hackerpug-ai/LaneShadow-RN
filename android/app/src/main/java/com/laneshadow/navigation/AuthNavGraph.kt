@@ -3,7 +3,6 @@ package com.laneshadow.navigation
 import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -16,7 +15,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.material3.Text
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -30,8 +28,10 @@ import com.laneshadow.ui.atoms.ButtonVariant
 import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.atoms.InputState
 import com.laneshadow.ui.atoms.LSButton
+import com.laneshadow.ui.atoms.LSSpinner
 import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.LSTextField
+import com.laneshadow.ui.atoms.SpinnerSize
 import com.laneshadow.ui.atoms.TypographyVariant
 import com.laneshadow.ui.auth.OAuthCallbackScreen
 import com.laneshadow.ui.auth.SignInScreen
@@ -69,12 +69,27 @@ fun AuthNavGraph(
         modifier = Modifier.semantics { testTagsAsResourceId = true },
     ) {
         composable<Route.Splash> {
+            val theme = LocalLaneShadowTheme.current
             LaunchedEffect(Unit) {
                 navController.navigate(Route.SignIn) {
                     popUpTo(Route.Splash) { inclusive = true }
                 }
             }
-            Text(text = "Loading", style = MaterialTheme.typography.bodyMedium)
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
+                    theme.space.md,
+                    androidx.compose.ui.Alignment.CenterVertically,
+                ),
+            ) {
+                LSSpinner(size = SpinnerSize.Md)
+                LSText(
+                    text = "Loading",
+                    variant = TypographyVariant.Ui.Body.Md,
+                    color = ContentColor.Primary,
+                )
+            }
         }
         navigation<Route.SignIn>(startDestination = Route.SignIn) {
             composable<Route.SignIn> {
@@ -96,6 +111,12 @@ fun AuthNavGraph(
             composable<Route.OAuthCallback> {
                 OAuthCallbackScreen(
                     deepLinkUri = callbackUri,
+                    onNavigateToSignIn = {
+                        navController.navigate(Route.SignIn) {
+                            popUpTo(Route.OAuthCallback) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
                     viewModel = authViewModel,
                 )
             }

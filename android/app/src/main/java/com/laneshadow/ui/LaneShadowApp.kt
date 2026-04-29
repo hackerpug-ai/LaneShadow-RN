@@ -1,8 +1,8 @@
 package com.laneshadow.ui
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -16,6 +16,12 @@ import com.laneshadow.data.model.AuthState
 import com.laneshadow.data.repository.AuthRepository
 import com.laneshadow.navigation.AuthNavGraph
 import com.laneshadow.navigation.MainNavGraph
+import com.laneshadow.theme.LocalLaneShadowTheme
+import com.laneshadow.ui.atoms.ContentColor
+import com.laneshadow.ui.atoms.LSSpinner
+import com.laneshadow.ui.atoms.LSText
+import com.laneshadow.ui.atoms.SpinnerSize
+import com.laneshadow.ui.atoms.TypographyVariant
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.StateFlow
@@ -93,7 +99,17 @@ fun LaneShadowApp(authViewModel: AuthViewModel = hiltViewModel()) {
 
 @Composable
 fun SplashScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator()
+    val theme = LocalLaneShadowTheme.current
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(theme.space.md, Alignment.CenterVertically),
+    ) {
+        LSSpinner(size = SpinnerSize.Md)
+        LSText(
+            text = "Loading",
+            variant = TypographyVariant.Ui.Body.Md,
+            color = ContentColor.Primary,
+        )
     }
 }
