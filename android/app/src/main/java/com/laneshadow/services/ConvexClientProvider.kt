@@ -1,18 +1,20 @@
 package com.laneshadow.services
 
+import android.content.Context
 import com.laneshadow.BuildConfig
+import com.laneshadow.data.repository.AuthRepository
 import com.laneshadow.ui.organisms.Session
-import dev.convex.android.ConvexClient
+import dev.convex.android.AuthProvider
+import dev.convex.android.ConvexClientWithAuth
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-
-interface AuthRepository {
-    suspend fun getJwtForConvex(): String?
-}
 
 @Singleton
 class ConvexClientProvider
@@ -20,15 +22,34 @@ class ConvexClientProvider
 constructor(
     private val authRepository: AuthRepository,
 ) {
-    private val convexClient: ConvexClient = ConvexClient(BuildConfig.CONVEX_DEPLOYMENT)
+    private val convexAuthProvider = object : AuthProvider<String> {
+        override suspend fun login(context: Context, onIdToken: (String?) -> Unit): Result<String> =
+            runCatching {
+                val token = authRepository.getJwtForConvex()
+                onIdToken(token)
+                token
+            }
 
-    private val authTokenProvider: suspend () -> String? = {
-        authRepository.getJwtForConvex()
+        override suspend fun loginFromCache(onIdToken: (String?) -> Unit): Result<String> =
+            runCatching {
+                val token = authRepository.getJwtForConvex()
+                onIdToken(token)
+                token
+            }
+
+        @Suppress("UNCHECKED_CAST")
+        override suspend fun logout(context: Context): Result<Void> = Result.success(null) as Result<Void>
+
+        override fun extractIdToken(authData: String): String {
+            return authData
+        }
     }
 
-    init {
-        bindAuthCallbackIfSupported()
-    }
+    private val convexClient = ConvexClientWithAuth(
+        BuildConfig.CONVEX_DEPLOYMENT,
+        convexAuthProvider,
+        CoroutineScope(SupervisorJob() + Dispatchers.IO),
+    )
 
     fun observeSessions(): Flow<List<Session>> {
         return convexClient.subscribe<List<PlanningSessionDto>>(
@@ -42,37 +63,24 @@ constructor(
         sessionId: String,
         content: String,
     ): Result<Unit> = runCatching {
-        convexClient.action<Unit>(
-            name = "actions/agent/sendMessage:sendMessage",
+        convexClient.mutation<Map<String, String>>(
+            name = "db/sessionMessages:send",
             args = mapOf(
                 "sessionId" to sessionId,
                 "content" to content,
             ),
         )
+        Unit
     }
 
     suspend fun createSession(
         firstMessage: String = "",
     ): Result<String> = runCatching {
-        convexClient.mutation<String>(
-            name = "db/planningSessions:create",
+        val result = convexClient.mutation<CreateSessionResponse>(
+            name = "db/planningSessions:createSession",
             args = mapOf("firstMessage" to firstMessage),
         )
-    }
-
-    @Suppress("TooGenericExceptionCaught")
-    private fun bindAuthCallbackIfSupported() {
-        try {
-            val setAuth = convexClient.javaClass.methods.firstOrNull { method ->
-                method.name == "setAuth"
-            }
-            if (setAuth != null) {
-                setAuth.invoke(convexClient, authTokenProvider)
-            }
-        } catch (_: Throwable) {
-            // Current Convex SDK versions may not expose setAuth directly.
-            // Keep callback wiring intent colocated with provider for forward compatibility.
-        }
+        result.sessionId
     }
 }
 
@@ -100,3 +108,8 @@ private data class PlanningSessionDto(
         )
     }
 }
+
+@Serializable
+private data class CreateSessionResponse(
+    val sessionId: String,
+)
