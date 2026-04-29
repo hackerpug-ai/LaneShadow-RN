@@ -40,16 +40,16 @@ DONE WHEN
 
 - [x] SignInScreen.swift exists with multi-step flow (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:20)
 - [x] Email step shows email LSTextField with validation (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:21; ios/LaneShadow/Features/Auth/ViewModels/SignInViewModel.swift:19)
-- [ ] Password step shows password LSTextField with visibility toggle ← FAIL: no visibility toggle implemented (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:28)
+- [ ] Password step shows password LSTextField with visibility toggle ← FAIL: password field uses `AuthSecureTextEntry` (SwiftUI `SecureField`/`TextField`) instead of V2 atom `LSTextField` (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:29; ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift:15)
 - [x] Submitting state shows LSSpainer during auth (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:36)
 - [x] LSAuthProviderButton molecule exists for Google/Apple (evidence: ios/LaneShadow/DesignSystem/Molecules/LSAuthProviderButton.swift:27)
 - [x] SignUpScreen variant exists with name + confirm password (evidence: ios/LaneShadow/Features/Auth/SignUpScreen.swift:16)
-- [ ] OAuthCallbackScreen exists for deep-link handling ← FAIL: does not complete auth or route; AuthFlow passes `callbackURL: nil` so it can never succeed (evidence: ios/LaneShadow/Features/Auth/OAuthCallbackScreen.swift:31; ios/LaneShadow/Views/AuthFlow/AuthFlowView.swift:15)
+- [ ] OAuthCallbackScreen exists for deep-link handling ← FAIL: completion is effectively hardcoded; token is parsed but not used to establish a Clerk session, and `OAuthCallbackCompletion.complete` forces `appState.isAuthenticated = true` even if `auth.currentUser` is still nil (evidence: ios/LaneShadow/Features/Auth/OAuthCallbackCompletion.swift:10; ios/LaneShadow/Views/AuthFlow/AuthFlowView.swift:19)
 - [ ] Background image applied per design spec ← PARTIAL: falls back to SF Symbol (`mountain.2.fill`) when asset missing (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:88)
 - [x] Errors display via LSText danger color (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:41)
 - [x] All V2 atoms reused (no custom UI components) (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:21)
 - [x] xcodebuild build succeeds (evidence: `cd ios && xcodebuild ... build` exit 0 on 2026-04-29)
-- [ ] Only SCOPE.writeAllowed files modified ← FAIL: modified out-of-scope files `ai-specs/AUTH-S03-T09/ios-learnings.md`, `ios/LaneShadow/Views/AuthFlow/*`, `ios/LaneShadowTests/Integration/AuthScreensTests.swift` (evidence: git diff --name-only 7d2d1b10^..7d2d1b10)
+- [x] Only SCOPE.writeAllowed files modified (evidence: `git diff --name-only 705e386a6e53e36b86b39c672264fa36e22a44ea..HEAD`)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
