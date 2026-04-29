@@ -40,14 +40,14 @@ DONE WHEN
 
 - [x] SignInScreen.swift exists with multi-step flow (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:20)
 - [x] Email step shows email LSTextField with validation (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:21; ios/LaneShadow/Features/Auth/ViewModels/SignInViewModel.swift:19)
-- [ ] Password step shows password LSTextField with visibility toggle ← FAIL: password field uses `AuthSecureTextEntry` (SwiftUI `SecureField`/`TextField`) instead of V2 atom `LSTextField` (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:29; ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift:15)
+- [ ] Password step shows password LSTextField with visibility toggle ← FAIL: `AuthSecureTextEntry` composes `LSTextField`, but the visibility toggle does not control secure vs visible entry (password is always typed into the underlying `LSTextField`/`TextField`) (evidence: ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift:11; ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift:13)
 - [x] Submitting state shows LSSpainer during auth (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:36)
 - [x] LSAuthProviderButton molecule exists for Google/Apple (evidence: ios/LaneShadow/DesignSystem/Molecules/LSAuthProviderButton.swift:27)
 - [x] SignUpScreen variant exists with name + confirm password (evidence: ios/LaneShadow/Features/Auth/SignUpScreen.swift:16)
-- [ ] OAuthCallbackScreen exists for deep-link handling ← FAIL: completion is effectively hardcoded; token is parsed but not used to establish a Clerk session, and `OAuthCallbackCompletion.complete` forces `appState.isAuthenticated = true` even if `auth.currentUser` is still nil (evidence: ios/LaneShadow/Features/Auth/OAuthCallbackCompletion.swift:10; ios/LaneShadow/Views/AuthFlow/AuthFlowView.swift:19)
-- [ ] Background image applied per design spec ← PARTIAL: falls back to SF Symbol (`mountain.2.fill`) when asset missing (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:88)
+- [ ] OAuthCallbackScreen exists for deep-link handling ← FAIL: `OAuthCallbackCompletion` no longer force-authenticates (good), but live `completeOAuthCallback(token:)` is stubbed (token ignored; no Clerk session establishment), so `auth.currentUser` can never become non-nil from callback (evidence: ios/LaneShadow/Services/ClerkAuth.swift:90; ios/LaneShadow/Features/Auth/OAuthCallbackCompletion.swift:15)
+- [ ] Background image applied per design spec ← FAIL: no `AuthBackground` asset exists, so UI always falls back to SF Symbol (`mountain.2.fill`) (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:94; ios/LaneShadow/Features/Auth/SignInScreen.swift:97)
 - [x] Errors display via LSText danger color (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:41)
-- [x] All V2 atoms reused (no custom UI components) (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:21)
+- [ ] All V2 atoms reused (no custom UI components) ← FAIL: feature introduces custom UI wrappers (`AuthBackgroundContainer`, `AuthSecureTextEntry`) (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:77; ios/LaneShadow/Features/Auth/AuthSecureTextEntry.swift:4)
 - [x] xcodebuild build succeeds (evidence: `cd ios && xcodebuild ... build` exit 0 on 2026-04-29)
 - [x] Only SCOPE.writeAllowed files modified (evidence: `git diff --name-only 705e386a6e53e36b86b39c672264fa36e22a44ea..HEAD`)
 
