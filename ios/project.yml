@@ -123,6 +123,7 @@ targets:
       # hand-editing project.pbxproj.
       - path: LaneShadow/App.swift
       - path: LaneShadow/ContentView.swift
+      - path: LaneShadow/RootView.swift
       - path: LaneShadow/ConvexStore.swift
       - path: LaneShadow/Assets.xcassets
       - path: LaneShadow/Generated
@@ -211,6 +212,14 @@ targets:
       - path: LaneShadow/Views/Templates
         type: syncedFolder
       - path: LaneShadow/Services
+        type: syncedFolder
+      - path: LaneShadow/Models
+        type: syncedFolder
+      - path: LaneShadow/Environment
+        type: syncedFolder
+      - path: LaneShadow/Views/AuthFlow
+        type: syncedFolder
+      - path: LaneShadow/Views/AppFlow
         type: syncedFolder
     dependencies:
       - package: ConvexMobile

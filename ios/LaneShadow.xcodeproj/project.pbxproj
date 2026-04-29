@@ -45,6 +45,7 @@
 		7D4F7230A93BF39451BC7BB6 /* LSModalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 690C1B6B480FD345A05807B0 /* LSModalTests.swift */; };
 		7E8799D5CE1C5FFCE3D09066 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324B26FB2DE3F759B489CB7B /* App.swift */; };
 		7F07F9ABF0C419E0E2BA5CEA /* LSWeatherBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478C8C03ABF1E0F4AFEF0836 /* LSWeatherBadge.swift */; };
+		8454A1BC9D540D4875749ED1 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E2A5636744C52173464018 /* RootView.swift */; };
 		8DD1E5F229561147AA644B21 /* LSFormField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0D7B9F463A28F5B5936751 /* LSFormField.swift */; };
 		91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220BC64128EB0A24188F4C65 /* LSPillStories.swift */; };
 		925CA576235653EA9D6CE109 /* NativeSandbox in Frameworks */ = {isa = PBXBuildFile; productRef = 9DD5E01C1B4FE6A3686813CA /* NativeSandbox */; };
@@ -141,6 +142,7 @@
 		85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowStories.swift; sourceTree = "<group>"; };
 		890F8AE171354CCC932518BC /* LSContentCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSContentCard.swift; sourceTree = "<group>"; };
 		8F281656D06513E78E57D10D /* LSScrimStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScrimStories.swift; sourceTree = "<group>"; };
+		93E2A5636744C52173464018 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		94AB21A076699921AC328EE9 /* LSModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSModal.swift; sourceTree = "<group>"; };
 		9585186566089A7EAF681DDB /* ChatTranscript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTranscript.swift; sourceTree = "<group>"; };
 		9B5F858C066D550CE73CE6FD /* InfoToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoToast.swift; sourceTree = "<group>"; };
@@ -287,6 +289,16 @@
 			path = Templates;
 			sourceTree = "<group>";
 		};
+		688955BA957298D0AAE2948E /* AppFlow */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = AppFlow;
+			path = AppFlow;
+			sourceTree = "<group>";
+		};
 		7290175E358A1C93D4A90231 /* Molecules */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			explicitFileTypes = {
@@ -305,6 +317,36 @@
 			);
 			name = Integration;
 			path = Integration;
+			sourceTree = "<group>";
+		};
+		7658177809845BD7EAFD2B5F /* Environment */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Environment;
+			path = Environment;
+			sourceTree = "<group>";
+		};
+		8460D5ABD7FFE129DB373103 /* Models */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Models;
+			path = Models;
+			sourceTree = "<group>";
+		};
+		8F5AC0DC38D5B1239FAA340F /* AuthFlow */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = AuthFlow;
+			path = AuthFlow;
 			sourceTree = "<group>";
 		};
 		9B1969E887592C82E1672459 /* Launch */ = {
@@ -518,8 +560,10 @@
 		559DE46475FFF70C1C60C52B /* LaneShadow */ = {
 			isa = PBXGroup;
 			children = (
+				7658177809845BD7EAFD2B5F /* Environment */,
 				A1DA24033B9915EAB116ED62 /* Generated */,
 				9B1969E887592C82E1672459 /* Launch */,
+				8460D5ABD7FFE129DB373103 /* Models */,
 				1F10FC2E199EFDF6EFDFEDA8 /* Sandbox */,
 				537AF6CF40C4418539754A5D /* Services */,
 				9A00239A316DF9BC49914EC8 /* Views */,
@@ -527,6 +571,7 @@
 				0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */,
 				B95CA989BE1243B1021F83D3 /* ContentView.swift */,
 				F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */,
+				93E2A5636744C52173464018 /* RootView.swift */,
 			);
 			path = LaneShadow;
 			sourceTree = "<group>";
@@ -566,7 +611,9 @@
 		9A00239A316DF9BC49914EC8 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				688955BA957298D0AAE2948E /* AppFlow */,
 				CE8B4DF54243DD52953C7CFE /* Atoms */,
+				8F5AC0DC38D5B1239FAA340F /* AuthFlow */,
 				0AB6BCC041176229C63DBB62 /* Layout */,
 				55726301A0BAEC18C69036BC /* Molecules */,
 				4C8A8E02554AE3D5AC4FAC51 /* Organisms */,
@@ -630,13 +677,17 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				688955BA957298D0AAE2948E /* AppFlow */,
 				CE8B4DF54243DD52953C7CFE /* Atoms */,
+				8F5AC0DC38D5B1239FAA340F /* AuthFlow */,
 				B92913E9843A5845817A3DBD /* Controls */,
 				3BC11B009ED26B33FC7A0333 /* Entry */,
+				7658177809845BD7EAFD2B5F /* Environment */,
 				A1DA24033B9915EAB116ED62 /* Generated */,
 				9B1969E887592C82E1672459 /* Launch */,
 				0AB6BCC041176229C63DBB62 /* Layout */,
 				3CE2AE4772ABC9D4A3699741 /* MockProviders */,
+				8460D5ABD7FFE129DB373103 /* Models */,
 				7290175E358A1C93D4A90231 /* Molecules */,
 				D026D3B873FDE7B7153F206F /* Organisms */,
 				4C8A8E02554AE3D5AC4FAC51 /* Organisms */,
@@ -884,6 +935,7 @@
 				0088B7B8DE44EAB0E681D685 /* ModifierStories.swift in Sources */,
 				E868E14CF971E572F61A614E /* MoleculesStories.swift in Sources */,
 				616DD39EE36B30266B875E68 /* PlaceholderInfrastructureStories.swift in Sources */,
+				8454A1BC9D540D4875749ED1 /* RootView.swift in Sources */,
 				2A685A9BE84EC13D3483B8C8 /* TemplateStories.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
