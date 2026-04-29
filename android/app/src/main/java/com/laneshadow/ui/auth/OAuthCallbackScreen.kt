@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.laneshadow.theme.LocalLaneShadowTheme
+import com.laneshadow.navigation.DeepLinkBus
 import com.laneshadow.ui.AuthViewModel
 import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.atoms.LSSpinner
@@ -26,7 +27,10 @@ fun OAuthCallbackScreen(
     val theme = LocalLaneShadowTheme.current
 
     LaunchedEffect(deepLinkUri) {
-        deepLinkUri?.let(viewModel::handleOAuthCallback)
+        deepLinkUri?.let {
+            viewModel.handleOAuthCallback(it)
+            DeepLinkBus.consumeLatest()
+        }
     }
 
     Column(

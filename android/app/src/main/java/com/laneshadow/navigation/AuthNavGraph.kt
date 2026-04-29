@@ -1,5 +1,6 @@
 package com.laneshadow.navigation
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
@@ -10,23 +11,49 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.laneshadow.data.model.AuthState
 import com.laneshadow.ui.AuthViewModel
+import com.laneshadow.ui.auth.OAuthCallbackScreen
+import com.laneshadow.ui.auth.SignInScreen
+import com.laneshadow.ui.auth.SignUpScreen
 
 @Composable
 fun AuthNavGraph(
     navController: NavHostController = rememberNavController(),
     authViewModel: AuthViewModel,
 ) {
+    var callbackUri by remember { mutableStateOf<Uri?>(null) }
+    val authState by authViewModel.authState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(navController) {
+        DeepLinkBus.callbacks.collect { uri ->
+            callbackUri = uri
+            navController.navigate(Route.OAuthCallback)
+        }
+    }
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.SignedOut && navController.currentDestination?.route == Route.OAuthCallback::class.qualifiedName) {
+            navController.navigate(Route.SignIn) {
+                popUpTo(Route.OAuthCallback) { inclusive = true }
+                launchSingleTop = true
+            }
+            DeepLinkBus.consumeLatest()
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = Route.Splash,
@@ -42,17 +69,25 @@ fun AuthNavGraph(
         }
         navigation<Route.SignIn>(startDestination = Route.SignIn) {
             composable<Route.SignIn> {
-                SignInRoute(
-                    onSignIn = authViewModel::signIn,
-                    onGoogleSignIn = authViewModel::signInWithGoogle,
-                    onAppleSignIn = authViewModel::signInWithApple,
+                SignInScreen(
+                    viewModel = authViewModel,
                     onNavigateToSignUp = { navController.navigate(Route.SignUp) },
                 )
             }
             composable<Route.SignUp> {
-                SignUpRoute(
-                    onSignUp = authViewModel::signUp,
-                    onNavigateToVerify = { navController.navigate(Route.Verify) },
+                SignUpScreen(
+                    viewModel = authViewModel,
+                    onNavigateToSignIn = {
+                        navController.navigate(Route.SignIn) {
+                            popUpTo(Route.SignUp) { inclusive = true }
+                        }
+                    },
+                )
+            }
+            composable<Route.OAuthCallback> {
+                OAuthCallbackScreen(
+                    deepLinkUri = callbackUri,
+                    viewModel = authViewModel,
                 )
             }
             composable<Route.Verify> {
@@ -66,48 +101,6 @@ fun AuthNavGraph(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun SignInRoute(
-    onSignIn: (String, String) -> Unit,
-    onGoogleSignIn: () -> Unit,
-    onAppleSignIn: () -> Unit,
-    onNavigateToSignUp: () -> Unit,
-) {
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(text = "Sign in", style = MaterialTheme.typography.headlineSmall)
-        OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
-        OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Password") })
-        Button(onClick = { onSignIn(email, password) }) { Text("Sign in") }
-        Button(onClick = onGoogleSignIn) { Text("Continue with Google") }
-        Button(onClick = onAppleSignIn) { Text("Continue with Apple") }
-        Button(onClick = onNavigateToSignUp) { Text("Create account") }
-    }
-}
-
-@Composable
-private fun SignUpRoute(
-    onSignUp: (String, String, String) -> Unit,
-    onNavigateToVerify: () -> Unit,
-) {
-    var name by rememberSaveable { mutableStateOf("") }
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(text = "Sign up", style = MaterialTheme.typography.headlineSmall)
-        OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") })
-        OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
-        OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Password") })
-        Button(onClick = {
-            onSignUp(email, password, name)
-            onNavigateToVerify()
-        }) { Text("Create account") }
     }
 }
 

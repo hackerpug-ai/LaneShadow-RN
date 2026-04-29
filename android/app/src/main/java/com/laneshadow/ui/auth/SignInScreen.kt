@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -18,6 +18,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.laneshadow.data.model.AuthState
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.AuthViewModel
 import com.laneshadow.ui.atoms.ButtonState
@@ -41,10 +43,25 @@ import com.laneshadow.ui.organisms.LSInlineErrorCallout
 fun SignInScreen(
     viewModel: AuthViewModel = hiltViewModel(),
     signInViewModel: SignInViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    onNavigateToSignUp: () -> Unit = {},
 ) {
-    val uiState by signInViewModel.uiState.collectAsState()
+    val uiState by signInViewModel.uiState.collectAsStateWithLifecycle()
+    val authState by viewModel.authState.collectAsStateWithLifecycle()
     var passwordVisible by remember { mutableStateOf(false) }
     val theme = LocalLaneShadowTheme.current
+
+    LaunchedEffect(authState) {
+        when (val state = authState) {
+            is AuthState.Loading,
+            is AuthState.OAuthPending,
+            -> signInViewModel.setLoading(true)
+            is AuthState.Error -> signInViewModel.setError(state.message)
+            AuthState.SignedOut,
+            AuthState.VerificationRequired,
+            -> signInViewModel.setLoading(false)
+            is AuthState.SignedIn -> signInViewModel.setLoading(false)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -159,6 +176,13 @@ fun SignInScreen(
             onClick = viewModel::signInWithApple,
             modifier = Modifier.fillMaxWidth(),
             enabled = !uiState.isLoading,
+        )
+
+        LSButton(
+            label = "Create account",
+            variant = ButtonVariant.Ghost,
+            onClick = onNavigateToSignUp,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

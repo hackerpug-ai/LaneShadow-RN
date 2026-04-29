@@ -26,7 +26,10 @@ import com.laneshadow.ui.atoms.LSTextField
 import com.laneshadow.ui.atoms.TypographyVariant
 
 @Composable
-fun SignUpScreen(viewModel: AuthViewModel = hiltViewModel()) {
+fun SignUpScreen(
+    viewModel: AuthViewModel = hiltViewModel(),
+    onNavigateToSignIn: () -> Unit = {},
+) {
     val theme = LocalLaneShadowTheme.current
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
@@ -81,6 +84,13 @@ fun SignUpScreen(viewModel: AuthViewModel = hiltViewModel()) {
                 ButtonState.Disabled
             },
             onClick = { viewModel.signUp(email = email, password = password, name = name) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        LSButton(
+            label = "Back to sign in",
+            variant = ButtonVariant.Ghost,
+            onClick = onNavigateToSignIn,
             modifier = Modifier.fillMaxWidth(),
         )
     }
