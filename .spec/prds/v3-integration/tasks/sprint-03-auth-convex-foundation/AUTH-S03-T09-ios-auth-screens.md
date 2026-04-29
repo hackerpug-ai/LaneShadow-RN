@@ -38,18 +38,18 @@ Create iOS auth screens composed from V2 atoms + new LSAuthProviderButton molecu
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] SignInScreen.swift exists with multi-step flow
-- [ ] Email step shows email LSTextField with validation
-- [ ] Password step shows password LSTextField with visibility toggle
-- [ ] Submitting state shows LSSpainer during auth
-- [ ] LSAuthProviderButton molecule exists for Google/Apple
-- [ ] SignUpScreen variant exists with name + confirm password
-- [ ] OAuthCallbackScreen exists for deep-link handling
-- [ ] Background image applied per design spec
-- [ ] Errors display via LSText danger color
-- [ ] All V2 atoms reused (no custom UI components)
-- [ ] xcodebuild build succeeds
-- [ ] Only SCOPE.writeAllowed files modified
+- [x] SignInScreen.swift exists with multi-step flow (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:20)
+- [x] Email step shows email LSTextField with validation (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:21; ios/LaneShadow/Features/Auth/ViewModels/SignInViewModel.swift:19)
+- [ ] Password step shows password LSTextField with visibility toggle ← FAIL: no visibility toggle implemented (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:28)
+- [x] Submitting state shows LSSpainer during auth (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:36)
+- [x] LSAuthProviderButton molecule exists for Google/Apple (evidence: ios/LaneShadow/DesignSystem/Molecules/LSAuthProviderButton.swift:27)
+- [x] SignUpScreen variant exists with name + confirm password (evidence: ios/LaneShadow/Features/Auth/SignUpScreen.swift:16)
+- [ ] OAuthCallbackScreen exists for deep-link handling ← FAIL: does not complete auth or route; AuthFlow passes `callbackURL: nil` so it can never succeed (evidence: ios/LaneShadow/Features/Auth/OAuthCallbackScreen.swift:31; ios/LaneShadow/Views/AuthFlow/AuthFlowView.swift:15)
+- [ ] Background image applied per design spec ← PARTIAL: falls back to SF Symbol (`mountain.2.fill`) when asset missing (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:88)
+- [x] Errors display via LSText danger color (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:41)
+- [x] All V2 atoms reused (no custom UI components) (evidence: ios/LaneShadow/Features/Auth/SignInScreen.swift:21)
+- [x] xcodebuild build succeeds (evidence: `cd ios && xcodebuild ... build` exit 0 on 2026-04-29)
+- [ ] Only SCOPE.writeAllowed files modified ← FAIL: modified out-of-scope files `ai-specs/AUTH-S03-T09/ios-learnings.md`, `ios/LaneShadow/Views/AuthFlow/*`, `ios/LaneShadowTests/Integration/AuthScreensTests.swift` (evidence: git diff --name-only 7d2d1b10^..7d2d1b10)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
