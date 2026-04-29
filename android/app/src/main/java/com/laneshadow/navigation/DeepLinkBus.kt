@@ -1,6 +1,7 @@
 package com.laneshadow.navigation
 
 import android.net.Uri
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -21,6 +22,7 @@ object DeepLinkBus {
         _callbacks.tryEmit(callbackUri)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun consumeLatest() {
         latestCallbackUri = null
         _callbacks.resetReplayCache()
