@@ -374,9 +374,9 @@ Test updates:
 - `oauthCallback_invokes_handler_for_uri_and_renders_error_state`
   - Preserved behavioral callback invocation and rendered error assertions.
 
-Supporting production semantics updates (minimal, for testable accessibility behavior):
-- Added `setText` semantics action to `LSTextField` so UI tests can drive text entry via semantics.
+Supporting production semantics updates (minimal, scoped to auth/molecule files):
 - Added targeted auth field/button test tags and explicit disabled semantics on the two tested action buttons.
+- Kept `LSTextField` unchanged; tests drive descendant editable nodes with `useUnmergedTree` + `performTextInput`.
 
 Round 8 RED evidence:
 - Command: `cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.auth.AuthScreensSourceStructureTest --console=plain`
