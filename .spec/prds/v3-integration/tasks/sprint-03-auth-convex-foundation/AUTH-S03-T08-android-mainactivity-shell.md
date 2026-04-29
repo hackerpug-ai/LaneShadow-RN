@@ -46,7 +46,7 @@ DONE WHEN
 - [x] SignedIn state routes to MainNavGraph
 - [x] Navigation Compose 2.8+ dependency added
 - [x] 12 @Serializable routes defined (typed navigation)
-- [x] DeepLinkBus for OAuth callback wiring exists
+- [ ] DeepLinkBus for OAuth callback wiring exists ← FAIL: cold-start deep link can be dropped because `DeepLinkBus` uses `MutableSharedFlow` with `replay=0`; MainActivity publishes before LaneShadowApp collector starts (evidence: android/app/src/main/java/com/laneshadow/MainActivity.kt:22 and android/app/src/main/java/com/laneshadow/navigation/DeepLinkBus.kt:9)
 - [x] DEBUG sandbox path preserved
 - [x] ./gradlew :app:compileDebugKotlin succeeds
 - [x] Only SCOPE.writeAllowed files modified (scope expanded with justification for `android/app/src/main/java/com/laneshadow/LaneShadowApp.kt`: removed `@HiltAndroidApp` to resolve duplicate Hilt app-root conflict with required `LaneShadowApplication`)
