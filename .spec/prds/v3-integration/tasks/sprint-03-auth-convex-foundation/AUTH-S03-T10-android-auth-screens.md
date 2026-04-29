@@ -48,9 +48,9 @@ DONE WHEN
 - [x] Google OAuth button triggers OAuth flow
 - [x] Apple OAuth button triggers OAuth flow
 - [x] SignUpScreen variant exists with name + confirm password
-- [x] OAuthCallbackScreen exists for deep-link handling; `AuthNavGraph` remains mounted during `AuthState.OAuthPending` so callback collection cannot deadlock
+- [ ] OAuthCallbackScreen exists for deep-link handling; `AuthNavGraph` remains mounted during `AuthState.OAuthPending` so callback collection cannot deadlock ← PARTIAL: reachable, but callback failure can leave user stuck on spinner (evidence: android/app/src/main/java/com/laneshadow/ui/auth/OAuthCallbackScreen.kt:29, android/app/src/main/java/com/laneshadow/ui/LaneShadowApp.kt:83)
 - [ ] Visual parity verified with iOS screenshots ← BLOCKED: emulator screenshot capture unavailable in this remediation cycle; build/compile/test evidence provided
-- [x] All V2 atoms reused (no custom UI components); `VerifyRoute` uses `LSTextField`, `LSButton`, `LSText`, and `LSInlineErrorCallout`
+- [ ] All V2 atoms reused (no custom UI components); `VerifyRoute` uses `LSTextField`, `LSButton`, `LSText`, and `LSInlineErrorCallout` ← PARTIAL: auth screens use V2 atoms, but auth-flow splash uses Material3 `Text` / `CircularProgressIndicator` (evidence: android/app/src/main/java/com/laneshadow/navigation/AuthNavGraph.kt:71, android/app/src/main/java/com/laneshadow/ui/LaneShadowApp.kt:95)
 - [x] ./gradlew :app:compileDebugKotlin succeeds
 - [x] Only SCOPE.writeAllowed production files modified; task file updates are orchestration metadata remediation requested in reviewer blockers
 
@@ -278,7 +278,7 @@ Blocks: Sprint 04 tasks
     {"id": "AC-4", "type": "acceptance", "description": "LSTextField with password transformation and visibility toggle", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-5", "type": "acceptance", "description": "LSSpinner displays and submit button disabled", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-6", "type": "acceptance", "description": "LSInlineErrorCallout displays error message", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-7", "type": "acceptance", "description": "Molecule composes V2 atoms with provider icon and label", "satisfied": false, "evidence": null, "remediation": null},
+    {"id": "AC-7", "type": "acceptance", "description": "Molecule composes V2 atoms with provider-specific label fallback when brand icon tokens are unavailable", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-8", "type": "acceptance", "description": "AuthViewModel.signInWithGoogle() called", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-9", "type": "acceptance", "description": "AuthViewModel.signInWithApple() called", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-10", "type": "acceptance", "description": "Screen includes name, email, password, confirm password fields", "satisfied": false, "evidence": null, "remediation": null},
