@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build
   lint:      swiftformat --lint ios/LaneShadow/
 
-PROGRESS: 7/7 AC · completed
+PROGRESS: 5/7 AC · in progress
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -37,15 +37,15 @@ Create iOS RootView with auth gate switching between unauthenticated flow (sign-
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [x] RootView.swift created and replaces ContentView as app entry (evidence: ios/LaneShadow/App.swift:27)
+- [ ] RootView.swift created and replaces ContentView as app entry ← FAIL: ContentView still exists; task requires deletion (evidence: ios/LaneShadow/ContentView.swift:1, ios/LaneShadow/App.swift:27)
 - [x] AppState @Observable model tracks auth state (evidence: ios/LaneShadow/Models/AppState.swift:5)
 - [x] Auth gate switches between AuthFlow and AppFlow (evidence: ios/LaneShadow/RootView.swift:10)
 - [x] AuthFlow NavigationStack displays sign-in/sign-up screens (evidence: ios/LaneShadow/Views/AuthFlow/AuthFlowView.swift:5)
 - [x] AppFlow NavigationStack displays authenticated app screens (evidence: ios/LaneShadow/Views/AppFlow/AppFlowView.swift:5)
 - [x] AppEnvironment DI container injects ClerkAuth and ConvexClient (evidence: ios/LaneShadow/Environment/AppEnvironment.swift:4)
-- [x] Deep link handling implemented via onOpenURL (evidence: ios/LaneShadow/RootView.swift:29, ios/LaneShadowTests/Integration/RootViewTests.swift:66)
+- [ ] Deep link handling implemented via onOpenURL ← PARTIAL: RootView defines `.onOpenURL`, but tests call `handleIncomingURL` directly and do not assert `.onOpenURL` wiring (evidence: ios/LaneShadow/RootView.swift:29, ios/LaneShadowTests/Integration/RootViewTests.swift:64)
 - [x] iOS build passes (evidence: `xcodebuild build` EXIT_CODE:0 on 2026-04-29)
-- [x] Scope compliance for remediation branch (evidence: `git diff --name-only HEAD` includes only remediation-scoped files)
+- [ ] Scope compliance for remediation branch ← FAIL: ContentView deletion is required by scope (`writeProhibited`) but has not occurred (evidence: ios/LaneShadow/ContentView.swift:1, this task file: SCOPE/writeProhibited)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
