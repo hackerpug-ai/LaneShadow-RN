@@ -24,11 +24,13 @@ struct LaneShadowApp: App {
                     if sandboxPresentation.isPresented {
                         LaneShadowSandboxEntry(selectedStoryId: sandboxPresentation.storyId)
                     } else {
-                        ContentView(convexStore: convexStore)
+                        RootView(convexStore: convexStore)
+                            .environment(\.appEnvironment, AppEnvironment.live())
                             .laneShadowTheme()
                     }
                 #else
-                    ContentView(convexStore: convexStore)
+                    RootView(convexStore: convexStore)
+                        .environment(\.appEnvironment, AppEnvironment.live())
                         .laneShadowTheme()
                 #endif
             }

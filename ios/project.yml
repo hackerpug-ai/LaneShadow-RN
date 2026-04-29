@@ -122,7 +122,7 @@ targets:
       # under these synchronized folders are picked up by Xcode 16 without
       # hand-editing project.pbxproj.
       - path: LaneShadow/App.swift
-      - path: LaneShadow/ContentView.swift
+      - path: LaneShadow/RootView.swift
       - path: LaneShadow/ConvexStore.swift
       - path: LaneShadow/Assets.xcassets
       - path: LaneShadow/Generated
@@ -212,6 +212,21 @@ targets:
         type: syncedFolder
       - path: LaneShadow/Services
         type: syncedFolder
+      - path: LaneShadow/Models
+        type: syncedFolder
+      - path: LaneShadow/Environment
+        type: syncedFolder
+      - path: LaneShadow/Views/AuthFlow
+        type: syncedFolder
+      - path: LaneShadow/Views/AppFlow
+        type: syncedFolder
+      - path: LaneShadow/Models/AppState.swift
+      - path: LaneShadow/Environment/AppEnvironment.swift
+      - path: LaneShadow/Views/AuthFlow/AuthFlowView.swift
+      - path: LaneShadow/Views/AuthFlow/SignInView.swift
+      - path: LaneShadow/Views/AuthFlow/SignUpView.swift
+      - path: LaneShadow/Views/AppFlow/AppFlowView.swift
+      - path: LaneShadow/Views/AppFlow/AppHomeView.swift
     dependencies:
       - package: ConvexMobile
       - package: LaneShadowTheme
