@@ -1,4 +1,6 @@
 import SwiftUI
+import UIKit
+import ViewInspector
 import XCTest
 @testable import LaneShadow
 
@@ -22,15 +24,20 @@ final class LaneShadowTests: XCTestCase {
     }
 
     @MainActor
-    func test_auth_provider_buttons_expose_expected_accessibility_contract() {
+    func test_auth_provider_buttons_expose_expected_accessibility_contract() throws {
         let providers: [(LSAuthProvider, String, String)] = [
             (.apple, "auth.signIn.apple", "Continue with Apple"),
             (.google, "auth.signIn.google", "Continue with Google"),
         ]
 
         for (provider, identifier, label) in providers {
-            XCTAssertEqual(provider.accessibilityIdentifier, identifier)
-            XCTAssertEqual(provider.accessibilityLabel, label)
+            let button = LSAuthProviderButton(provider: provider) {}
+            let hostedView = button.laneShadowTheme().frame(width: 280)
+            _ = host(hostedView)
+            let inspectedButton = try hostedView.inspect().find(ViewType.Button.self)
+
+            XCTAssertEqual(try inspectedButton.accessibilityIdentifier(), identifier)
+            XCTAssertEqual(try inspectedButton.accessibilityLabel().string(), label)
         }
     }
 
@@ -104,4 +111,26 @@ final class LaneShadowTests: XCTestCase {
 
         return try String(contentsOf: fileURL, encoding: .utf8)
     }
+
+    @MainActor
+    private func host(_ rootView: some View) -> HostedHarness {
+        let controller = UIHostingController(rootView: AnyView(rootView))
+        controller.loadViewIfNeeded()
+        controller.view.frame = CGRect(x: 0, y: 0, width: 320, height: 80)
+        let window = UIWindow(frame: controller.view.frame)
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+        window.layoutIfNeeded()
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.01))
+        return HostedHarness(window: window, controller: controller)
+    }
 }
+
+private struct HostedHarness {
+    let window: UIWindow
+    let controller: UIHostingController<AnyView>
+}
+
+extension LSAuthProviderButton: Inspectable {}

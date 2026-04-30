@@ -40,7 +40,7 @@ struct LSAuthProviderButton: View {
         Button(action: action) {
             HStack(spacing: theme.space.sm) {
                 providerMark
-                LSText(provider.title, variant: .label.md, color: providerLabelColor)
+                providerLabel
             }
             .frame(maxWidth: .infinity, minHeight: theme.control.minHeight)
             .padding(.horizontal, theme.space.md)
@@ -51,12 +51,15 @@ struct LSAuthProviderButton: View {
         .accessibilityIdentifier(provider.accessibilityIdentifier)
     }
 
-    private var providerLabelColor: ContentColor {
+    @ViewBuilder
+    private var providerLabel: some View {
         switch provider {
         case .apple:
-            colorScheme == .dark ? .onSignal : .primary
+            Text(provider.title)
+                .font(theme.type.label.md.font)
+                .foregroundStyle(appleForegroundColor)
         case .google:
-            .primary
+            LSText(provider.title, variant: .label.md, color: .primary)
         }
     }
 
@@ -66,7 +69,7 @@ struct LSAuthProviderButton: View {
         case .apple:
             Image(systemName: "applelogo")
                 .font(theme.type.label.md.font)
-                .foregroundStyle(colorScheme == .dark ? Color.black : Color.white)
+                .foregroundStyle(appleForegroundColor)
                 .frame(width: theme.iconSize.small, height: theme.iconSize.small)
                 .accessibilityHidden(true)
         case .google:
@@ -74,6 +77,10 @@ struct LSAuthProviderButton: View {
                 .frame(width: theme.iconSize.small, height: theme.iconSize.small)
                 .accessibilityHidden(true)
         }
+    }
+
+    private var appleForegroundColor: Color {
+        colorScheme == .dark ? .black : .white
     }
 }
 
