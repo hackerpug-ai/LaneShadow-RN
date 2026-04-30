@@ -25,11 +25,6 @@ struct AuthFlowView: View {
                 }
             } else {
                 SignInView(appState: appState)
-                    .toolbar {
-                        NavigationLink("Create Account") {
-                            SignUpView(appState: appState)
-                        }
-                    }
             }
         }
     }

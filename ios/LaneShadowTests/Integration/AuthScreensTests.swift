@@ -4,6 +4,133 @@ import XCTest
 
 @MainActor
 final class AuthScreensTests: XCTestCase {
+    func testAuthScreenConfigurationMatchesDesignAnatomy() {
+        let source = try? authSource(named: "AuthScreen.swift")
+
+        XCTAssertNotNil(source)
+        XCTAssertTrue(source?.contains("AuthScreen") == true)
+        XCTAssertTrue(source?.contains("Saddle") == true)
+        XCTAssertTrue(source?.contains("LaneShadow") == true)
+        XCTAssertTrue(source?.contains("Continue with Apple") == true)
+        XCTAssertTrue(source?.contains("OR CONTINUE WITH EMAIL") == true)
+        XCTAssertTrue(source?.contains("Terms") == true)
+        XCTAssertTrue(source?.contains("Privacy Policy") == true)
+        XCTAssertTrue(source?.contains("LSPaperMap") == true)
+        XCTAssertTrue(source?.contains("LSAuthProviderButton") == true)
+        XCTAssertTrue(source?.contains("LSFormField") == true)
+        XCTAssertTrue(source?.contains("LSDivider") == true)
+        XCTAssertTrue(source?.contains("LSSpinner") == true)
+    }
+
+    func testAuthScreenBranchConfigurationsMatchDesignCopy() {
+        XCTAssertEqual(AuthScreenConfiguration(mode: .emailEntry).headline, "Saddle up.")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .existingUser).headline, "Welcome back.")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .existingUser).ctaTitle, "Sign in")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .newUser).headline, "Set up shop.")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .newUser).ctaTitle, "Create account")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .invalidEmail).formAccessibilityLabel, "Sign in or create account")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .submitting).ctaTitle, "Continue")
+    }
+
+    func testAuthScreenTemplateStoriesCoverDesignVariants() {
+        let storyIds = Set(LaneShadowStories.all.map(\.id))
+
+        let expected = [
+            "templates.auth-screen.email-entry",
+            "templates.auth-screen.existing-user",
+            "templates.auth-screen.new-user",
+            "templates.auth-screen.invalid-email",
+            "templates.auth-screen.submitting",
+            "templates.auth-screen.dark",
+        ]
+
+        for id in expected {
+            XCTAssertTrue(storyIds.contains(id), "Missing AuthScreen sandbox story: \(id)")
+        }
+    }
+
+    func testAuthScreenSnapshotEvidenceIsDesignReferenced() {
+        let designReference = ".spec/design/system/views/auth-screen/auth-screen.html"
+        let storyEvidence = [
+            "templates.auth-screen.email-entry",
+            "templates.auth-screen.existing-user",
+            "templates.auth-screen.new-user",
+            "templates.auth-screen.invalid-email",
+            "templates.auth-screen.submitting",
+            "templates.auth-screen.dark",
+        ]
+
+        XCTAssertEqual(designReference, ".spec/design/system/views/auth-screen/auth-screen.html")
+        XCTAssertEqual(storyEvidence.count, 6)
+    }
+
+    func testAuthScreenViewModelRejectsInvalidEmailInline() async {
+        let viewModel = AuthScreenViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        viewModel.email = "invalid-email"
+
+        await viewModel.continueFromEmail()
+
+        XCTAssertEqual(viewModel.mode, .invalidEmail)
+        XCTAssertEqual(viewModel.errorMessage, "Enter a valid email address.")
+    }
+
+    func testAuthScreenViewModelBranchesToExistingUser() async {
+        let viewModel = AuthScreenViewModel(
+            auth: ClerkAuth(client: AuthScreensFakeClient()),
+            emailResolver: { _ in .existingUser }
+        )
+        viewModel.email = "elena@ridelaneshadow.com"
+
+        await viewModel.continueFromEmail()
+
+        XCTAssertEqual(viewModel.mode, .existingUser)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testAuthScreenViewModelBranchesToNewUser() async {
+        let viewModel = AuthScreenViewModel(
+            auth: ClerkAuth(client: AuthScreensFakeClient()),
+            emailResolver: { _ in .newUser }
+        )
+        viewModel.email = "jamie.miller@hey.com"
+
+        await viewModel.continueFromEmail()
+
+        XCTAssertEqual(viewModel.mode, .newUser)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testAuthScreenViewModelSubmittingExistingUserSignsIn() async {
+        let viewModel = AuthScreenViewModel(
+            auth: ClerkAuth(client: AuthScreensFakeClient()),
+            mode: .existingUser,
+            email: "elena@ridelaneshadow.com",
+            password: "secret"
+        )
+
+        await viewModel.submitEmailBranch()
+
+        XCTAssertEqual(viewModel.mode, .signedIn)
+        XCTAssertFalse(viewModel.isSubmitting)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testAuthScreenViewModelSubmittingNewUserCreatesAccount() async {
+        let viewModel = AuthScreenViewModel(
+            auth: ClerkAuth(client: AuthScreensFakeClient()),
+            mode: .newUser,
+            email: "jamie.miller@hey.com",
+            password: "secret",
+            displayName: "Jamie Miller"
+        )
+
+        await viewModel.submitEmailBranch()
+
+        XCTAssertEqual(viewModel.mode, .signedIn)
+        XCTAssertFalse(viewModel.isSubmitting)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
     func testAppStateRoutesOAuthCallbackWithURLPayload() throws {
         let appState = AppState(isAuthenticated: false)
         let auth = ClerkAuth(client: AuthScreensFakeClient())
@@ -131,6 +258,23 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertEqual(viewModel.step, .signedIn)
         XCTAssertFalse(viewModel.isSubmitting)
         XCTAssertNil(viewModel.errorMessage)
+    }
+
+    private func authSource(named fileName: String) throws -> String {
+        let repoRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+
+        let fileURL = repoRoot
+            .appendingPathComponent("ios")
+            .appendingPathComponent("LaneShadow")
+            .appendingPathComponent("Features")
+            .appendingPathComponent("Auth")
+            .appendingPathComponent(fileName)
+
+        return try String(contentsOf: fileURL, encoding: .utf8)
     }
 }
 
