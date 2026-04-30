@@ -12,6 +12,13 @@ import org.junit.Test
 
 class ConvexClientProviderAuthTest {
     @Test
+    fun successfulConvexLogoutResultDoesNotThrowForNullVoidValue() {
+        val result = successfulConvexLogoutResult()
+
+        assertThat(result.isSuccess).isTrue()
+    }
+
+    @Test
     fun getCurrentUserBindsClerkJwtBeforeQueryingConvex() = runTest {
         val convexGateway = RecordingConvexGateway(
             currentUser = ConvexCurrentUser(id = "user_1", displayName = "Elena Ride"),
@@ -49,6 +56,24 @@ class ConvexClientProviderAuthTest {
             AuthState.Error("Your session expired. Please sign in again."),
         )
     }
+
+    @Test
+    fun signOutClearsRepositoryAuthAndConvexAuth() = runTest {
+        val authRepository = FakeAuthRepository(jwt = "session_jwt")
+        val convexGateway = RecordingConvexGateway()
+        val provider = ConvexClientProvider(
+            authRepository = authRepository,
+            appContext = android.app.Application(),
+            convexGateway = convexGateway,
+        )
+
+        val result = provider.signOut()
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(authRepository.signOutCount).isEqualTo(1)
+        assertThat(authRepository.observeAuthState().value).isEqualTo(AuthState.SignedOut)
+        assertThat(convexGateway.logoutCount).isEqualTo(1)
+    }
 }
 
 private class RecordingConvexGateway(
@@ -79,6 +104,9 @@ private class RecordingConvexGateway(
 private class FakeAuthRepository(
     private val jwt: String,
 ) : AuthRepository {
+    var signOutCount = 0
+        private set
+
     private val authState = MutableStateFlow<AuthState>(
         AuthState.SignedIn(ClerkUser("id", "rider@example.com", "Rider", "password")),
     )
@@ -93,6 +121,7 @@ private class FakeAuthRepository(
         Result.success(ClerkUser("id", "rider@example.com", "Rider", "password"))
 
     override suspend fun signOut(): Result<Unit> {
+        signOutCount += 1
         authState.value = AuthState.SignedOut
         return Result.success(Unit)
     }

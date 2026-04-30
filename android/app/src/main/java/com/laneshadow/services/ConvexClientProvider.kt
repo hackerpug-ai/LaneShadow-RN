@@ -146,7 +146,7 @@ private class RealConvexGateway(
 
         override suspend fun logout(context: Context): Result<Void> =
             authRepository.signOut().fold(
-                onSuccess = { Result.success(null as Void) },
+                onSuccess = { successfulConvexLogoutResult() },
                 onFailure = { error -> Result.failure(error) },
             )
 
@@ -199,6 +199,9 @@ private class RealConvexGateway(
         result.sessionId
     }
 }
+
+internal fun successfulConvexLogoutResult(): Result<Void> =
+    Result.success(java.lang.Void.TYPE.cast(null))
 
 @Serializable
 private data class CurrentUserDto(

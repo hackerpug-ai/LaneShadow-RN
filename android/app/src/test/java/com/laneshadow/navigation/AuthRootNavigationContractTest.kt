@@ -25,13 +25,4 @@ class AuthRootNavigationContractTest {
         assertThat(authGraphSource).contains("Route.SignIn")
         assertThat(authGraphSource).contains("AuthScreen")
     }
-
-    @Test
-    fun signOutClearsMainRouteSessionAndCameraState() {
-        val source = File("src/main/java/com/laneshadow/navigation/MainNavGraph.kt").readText()
-
-        assertThat(source).contains("lastSessionId = null")
-        assertThat(source).contains("cameraState = null")
-        assertThat(source).contains("signOut")
-    }
 }

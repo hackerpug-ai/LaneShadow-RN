@@ -73,10 +73,7 @@ class MainNavViewModel @Inject constructor(
     }
 
     fun signOut() {
-        _routeState.value = MainRouteState(
-            lastSessionId = null,
-            cameraState = null,
-        )
+        _routeState.value = MainRouteState()
         viewModelScope.launch {
             convexClientProvider.signOut()
         }
@@ -87,8 +84,6 @@ data class MainRouteState(
     val currentUser: ConvexCurrentUser? = null,
     val isLoadingCurrentUser: Boolean = true,
     val errorMessage: String? = null,
-    val lastSessionId: String? = null,
-    val cameraState: String? = null,
 )
 
 @Composable
