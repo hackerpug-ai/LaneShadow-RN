@@ -2,6 +2,8 @@ package com.laneshadow.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.laneshadow.ui.atoms.ButtonState
 import com.laneshadow.ui.atoms.ButtonVariant
 import com.laneshadow.ui.atoms.LSButton
@@ -18,16 +20,19 @@ fun LSAuthProviderButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
-    // Brand glyph tokens are not available in the generated icon set yet; keep provider-specific
-    // copy and omit misleading placeholder icons.
+    val label = when (provider) {
+        AuthProvider.Google -> "Continue with Google"
+        AuthProvider.Apple -> "Continue with Apple"
+    }
+
     LSButton(
-        label = when (provider) {
-            AuthProvider.Google -> "Continue with Google"
-            AuthProvider.Apple -> "Continue with Apple"
+        label = label,
+        variant = when (provider) {
+            AuthProvider.Google -> ButtonVariant.Secondary
+            AuthProvider.Apple -> ButtonVariant.Primary
         },
-        variant = ButtonVariant.Secondary,
         state = if (enabled) ButtonState.Default else ButtonState.Disabled,
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.semantics { contentDescription = label },
     )
 }

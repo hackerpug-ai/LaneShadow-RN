@@ -42,4 +42,15 @@ class LSFormFieldTest {
         // Error text must use typography.ui.body.sm
         assertTrue(source.contains("TypographyVariant.Ui.Body.Sm"))
     }
+
+    @Test
+    fun auth_states_support_icons_helper_disabled_and_secure_entry() {
+        val source = File("../app/src/main/java/com/laneshadow/ui/molecules/LSFormField.kt").readText()
+
+        assertTrue(source.contains("leadingIcon"))
+        assertTrue(source.contains("trailingIcon"))
+        assertTrue(source.contains("helper"))
+        assertTrue(source.contains("enabled"))
+        assertTrue(source.contains("visualTransformation"))
+    }
 }
