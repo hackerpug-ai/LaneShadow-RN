@@ -1,7 +1,7 @@
 # TASK: AUTH-S03-R03 - Android Auth Atoms and Social-Button Molecule Parity
 
 TASK_TYPE: FEATURE
-STATUS: Backlog
+STATUS: Completed
 PRIORITY: P0
 EFFORT: M
 AGENT: implementer=kotlin-implementer | reviewer=kotlin-reviewer
@@ -126,3 +126,19 @@ blocks: [AUTH-S03-R05, AUTH-S03-R08]
 {"id":"TC-5","type":"test_criterion","description":"Snapshot manifest checking passes after auth primitive stories are added.","maps_to_ac":"AC-5","verify":"pnpm snapshots:check"}
 ]}
 -->
+
+## Review (kotlin-reviewer) — 2026-04-29
+
+- [x] AC-1: Android icon catalog covers AuthScreen glyphs. Cycle 2 fixed `"eye"`/`"visibility"` to map to `Glyphs.Filled.Visibility` instead of `Info` (evidence: `android/app/src/main/java/com/laneshadow/ui/components/atoms/IconSymbolIOS.kt`, `android/app/src/main/java/com/laneshadow/ui/atoms/Glyphs.kt`; verify: `rg "Compass|Mail|Lock|Eye|Sparkle|Check|Chevron" ...`).
+- [x] AC-2: Android form fields support auth states (evidence: `android/app/src/main/java/com/laneshadow/ui/molecules/LSFormField.kt`; verify: `cd android && ./gradlew :app:testDebugUnitTest --tests '*Auth*' --tests '*TextField*'` passed).
+- [x] AC-3: Android social provider button matches design molecule with runtime content-description/click behavior coverage (evidence: `android/app/src/main/java/com/laneshadow/ui/components/LSAuthProviderButton.kt`, `android/app/src/test/java/com/laneshadow/ui/components/LSAuthProviderButtonTest.kt`).
+- [x] AC-4: Android sandbox story coverage exists with canonical IDs (evidence: `android/app/src/debug/java/com/laneshadow/sandbox/stories/molecules/LSAuthProviderButtonStory.kt`, `android/app/src/debug/java/com/laneshadow/sandbox/stories/molecules/LSFormFieldStory.kt`).
+- [x] AC-5: Android snapshots and parity checks include auth primitives (evidence: auth PNG baselines, `tokens/sandbox/snapshots.parity.json`; verify: `pnpm snapshots:check` passed).
+
+- [x] TC-1 maps to AC-1: Auth glyph names and concrete mappings verified.
+- [x] TC-2 maps to AC-2: Auth field states covered by stories/tests.
+- [x] TC-3 maps to AC-3: Provider buttons expose Apple/Google content descriptions with behavioral tests.
+- [x] TC-4 maps to AC-4: Provider story IDs registered in sandbox.
+- [x] TC-5 maps to AC-5: Snapshot manifest checking passed.
+
+Implementation commits: `6846d0c49c09f94e7a4a6a8b1175bfae3a05d1a1`, `edd16d5fc9c92021064bc596d826bc399c8cba6c`; merged via `main`.
