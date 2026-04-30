@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct AuthFlowView: View {
+    @Environment(\.appEnvironment) private var appEnvironment
+
     let route: AppState.AuthRoute?
     let appState: AppState
     let clerkAuth: ClerkAuth
@@ -20,7 +22,8 @@ struct AuthFlowView: View {
                     _ = await OAuthCallbackCompletion.complete(
                         callbackURL: callbackURL,
                         appState: appState,
-                        auth: clerkAuth
+                        auth: clerkAuth,
+                        convexClient: appEnvironment.convexClient
                     )
                 }
             } else {

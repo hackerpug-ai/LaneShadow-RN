@@ -1,3 +1,5 @@
+import Combine
+import ConvexMobile
 import SwiftUI
 import XCTest
 @testable import LaneShadow
@@ -214,7 +216,8 @@ final class AuthScreensTests: XCTestCase {
         let result = await OAuthCallbackCompletion.complete(
             callbackURL: callbackURL,
             appState: appState,
-            auth: auth
+            auth: auth,
+            convexClient: makeConvexClient(currentUser: nil)
         )
 
         XCTAssertEqual(result, .success)
@@ -236,7 +239,8 @@ final class AuthScreensTests: XCTestCase {
         let result = await OAuthCallbackCompletion.complete(
             callbackURL: callbackURL,
             appState: appState,
-            auth: auth
+            auth: auth,
+            convexClient: makeConvexClient(currentUser: .jamie)
         )
 
         XCTAssertEqual(result, .success)
@@ -299,7 +303,8 @@ final class AuthScreensTests: XCTestCase {
     }
 
     func testSignInViewModelSubmitTransitionsToSignedIn() async {
-        let viewModel = SignInViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        let auth = ClerkAuth(client: AuthScreensFakeClient())
+        let viewModel = SignInViewModel(auth: auth)
         viewModel.email = "rider@example.com"
         viewModel.password = "secret"
         viewModel.step = .password
@@ -307,8 +312,22 @@ final class AuthScreensTests: XCTestCase {
         await viewModel.submit()
 
         XCTAssertEqual(viewModel.step, .signedIn)
+        XCTAssertEqual(auth.currentUser?.email, "rider@example.com")
         XCTAssertFalse(viewModel.isSubmitting)
         XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testAuthScreenProviderSignInUpdatesSharedClerkAuthInstance() async throws {
+        let auth = ClerkAuth(client: AuthScreensFakeClient())
+        let viewModel = AuthScreenViewModel(
+            auth: auth,
+            emailResolver: AuthScreenViewModel.neutralPreviewEmailResolver
+        )
+
+        try await viewModel.signInWithApple()
+
+        XCTAssertEqual(viewModel.mode, .signedIn)
+        XCTAssertEqual(auth.currentUser?.id, "apple-user")
     }
 
     private func makeAuthScreenViewModel(
@@ -344,6 +363,14 @@ final class AuthScreensTests: XCTestCase {
 
         return try String(contentsOf: fileURL, encoding: .utf8)
     }
+
+    private func makeConvexClient(currentUser: LaneShadowCurrentUser?) -> LaneShadowConvexClient {
+        LaneShadowConvexClient(
+            deploymentURL: "http://localhost:3210",
+            tokenProvider: { nil },
+            transport: AuthScreensConvexTransport(currentUser: currentUser)
+        )
+    }
 }
 
 actor AuthScreensFakeClient: ClerkAuthClient {
@@ -376,8 +403,67 @@ actor AuthScreensFakeClient: ClerkAuthClient {
         "jwt-token"
     }
 
+    func restoreSession() async throws -> ClerkAuthUser? {
+        nil
+    }
+
     func completeOAuthCallback(token: String) async throws -> ClerkAuthUser? {
         receivedCallbackTokens.append(token)
         return callbackCompletionUser
     }
+}
+
+final class AuthScreensConvexTransport: LaneShadowConvexTransporting {
+    private let currentUser: LaneShadowCurrentUser?
+
+    init(currentUser: LaneShadowCurrentUser?) {
+        self.currentUser = currentUser
+    }
+
+    func subscribe<T: Decodable & Sendable>(
+        to endpoint: String,
+        with _: [String: ConvexEncodable?]?,
+        yielding _: T.Type
+    ) -> AnyPublisher<T, ClientError> {
+        if endpoint == LaneShadowConvexQuery.getCurrentUser.rawValue {
+            return Just(currentUser as! T)
+                .setFailureType(to: ClientError.self)
+                .eraseToAnyPublisher()
+        }
+
+        return Empty<T, ClientError>().eraseToAnyPublisher()
+    }
+
+    func mutation<T: Decodable>(
+        _: String,
+        with _: [String: ConvexEncodable?]?
+    ) async throws -> T {
+        fatalError("Unexpected mutation in AuthScreensConvexTransport")
+    }
+
+    func mutation(
+        _: String,
+        with _: [String: ConvexEncodable?]?
+    ) async throws {}
+
+    func action<T: Decodable>(
+        _: String,
+        with _: [String: ConvexEncodable?]?
+    ) async throws -> T {
+        fatalError("Unexpected action in AuthScreensConvexTransport")
+    }
+
+    func action(
+        _: String,
+        with _: [String: ConvexEncodable?]?
+    ) async throws {}
+}
+
+private extension LaneShadowCurrentUser {
+    static let jamie = LaneShadowCurrentUser(
+        id: "user-1",
+        clerkUserId: "clerk-user-1",
+        email: "jamie@example.com",
+        name: "Jamie Miller"
+    )
 }

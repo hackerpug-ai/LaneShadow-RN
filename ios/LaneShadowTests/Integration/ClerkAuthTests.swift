@@ -30,6 +30,32 @@ struct ClerkAuthTests {
     }
 
     @Test
+    func restoreSessionUpdatesSharedClerkAuthUser() async throws {
+        let auth = ClerkAuth(client: FakeClerkAuthClient(restoredUser: ClerkAuthUser(
+            id: "restored-user",
+            email: "restored@example.com"
+        )))
+
+        try await auth.restoreSession()
+
+        #expect(auth.currentUser?.id == "restored-user")
+    }
+
+    @Test
+    func clerkAuthProviderReturnsClerkJWTForConvexQueries() async throws {
+        let auth = ClerkAuth(client: FakeClerkAuthClient(jwt: "clerk-convex-jwt"))
+        let provider = ClerkAuthProvider(auth: auth)
+        let receivedToken = ClerkAuthTokenCapture()
+
+        let session = try await provider.login { token in
+            receivedToken.set(token)
+        }
+
+        #expect(receivedToken.token() == "clerk-convex-jwt")
+        #expect(provider.extractIdToken(from: session) == "clerk-convex-jwt")
+    }
+
+    @Test
     func appleSignInOAuthFlowImplemented() async throws {
         let auth = ClerkAuth(client: FakeClerkAuthClient())
 
@@ -119,8 +145,32 @@ struct ClerkAuthTests {
     }
 }
 
+final class ClerkAuthTokenCapture: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value: String?
+
+    func set(_ token: String?) {
+        lock.lock()
+        value = token
+        lock.unlock()
+    }
+
+    func token() -> String? {
+        lock.lock()
+        defer { lock.unlock() }
+        return value
+    }
+}
+
 actor FakeClerkAuthClient: ClerkAuthClient {
     var lastEmail: String?
+    private let jwt: String?
+    private let restoredUser: ClerkAuthUser?
+
+    init(jwt: String? = "jwt-token", restoredUser: ClerkAuthUser? = nil) {
+        self.jwt = jwt
+        self.restoredUser = restoredUser
+    }
 
     func signIn(email: String, password _: String) async throws -> ClerkAuthUser {
         lastEmail = email
@@ -142,7 +192,11 @@ actor FakeClerkAuthClient: ClerkAuthClient {
     func signOut() async throws {}
 
     func getJWT() async throws -> String? {
-        "jwt-token"
+        jwt
+    }
+
+    func restoreSession() async throws -> ClerkAuthUser? {
+        restoredUser
     }
 
     func completeOAuthCallback(token _: String) async throws -> ClerkAuthUser? {
@@ -191,6 +245,10 @@ final class MockClerkSDK: ClerkSDKClient {
 
     func getJWT() async throws -> String? {
         jwtToReturn
+    }
+
+    func restoreSession() async throws -> ClerkAuthUser? {
+        emailSignInUser
     }
 
     func completeOAuthCallback(token: String) async throws -> ClerkAuthUser? {

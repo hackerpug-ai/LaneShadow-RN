@@ -7,18 +7,20 @@ enum OAuthCallbackCompletion {
     }
 
     @MainActor
-    static func complete(callbackURL: URL?, appState: AppState, auth: ClerkAuth) async -> Result {
+    static func complete(
+        callbackURL: URL?,
+        appState: AppState,
+        auth: ClerkAuth,
+        convexClient: LaneShadowConvexClient
+    ) async -> Result {
         guard let token = OAuthCallbackScreen.parseToken(from: callbackURL) else {
             return .missingToken
         }
 
         await auth.completeOAuthCallback(token: token)
-        appState.updateAuthenticationState(from: auth)
+        await appState.completeAuthentication(clerkAuth: auth, convexClient: convexClient)
 
-        if appState.isAuthenticated {
-            appState.authRoute = nil
-            appState.appRoute = .home
-        } else if let callbackURL {
+        if !appState.isAuthenticated, let callbackURL {
             appState.authRoute = .oauthCallback(callbackURL)
             appState.appRoute = nil
         }

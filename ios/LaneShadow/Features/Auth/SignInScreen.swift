@@ -53,11 +53,15 @@ struct SignInScreen: View {
     }
 
     private func updateRoutingFromSharedAuth() {
-        appState.updateAuthenticationState(from: appEnvironment.clerkAuth)
-        if appState.isAuthenticated {
-            appState.authRoute = nil
-            appState.appRoute = .home
-            viewModel.step = .signedIn
+        let environment = appEnvironment
+        Task {
+            await appState.completeAuthentication(
+                clerkAuth: environment.clerkAuth,
+                convexClient: environment.convexClient
+            )
+            if appState.isAuthenticated {
+                viewModel.step = .signedIn
+            }
         }
     }
 }

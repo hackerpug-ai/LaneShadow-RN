@@ -18,7 +18,7 @@ struct RootView: View {
     var body: some View {
         Group {
             if activeFlow == .app {
-                AppFlowView(route: appState.appRoute)
+                authenticatedFlow
             } else {
                 AuthFlowView(
                     route: appState.authRoute,
@@ -30,13 +30,70 @@ struct RootView: View {
         .onAppear {
             appState.updateAuthenticationState(from: appEnvironment.clerkAuth)
         }
+        .task(id: appEnvironment.clerkAuth.currentUser?.id) {
+            await registerConvexUnauthenticatedHandler(
+                clerkAuth: appEnvironment.clerkAuth,
+                convexClient: appEnvironment.convexClient
+            )
+            await synchronizeAuthentication()
+        }
         .onOpenURL { url in
             handleSystemOpenURL(url)
         }
     }
 
     var activeFlow: ActiveFlow {
-        appState.isAuthenticated ? .app : .auth
+        appState.hasClerkSession ? .app : .auth
+    }
+
+    @ViewBuilder
+    private var authenticatedFlow: some View {
+        if appState.isAuthenticated, let currentUser = appState.currentUser {
+            switch appState.appRoute {
+            case let .session(id):
+                AppFlowView(route: .session(id: id))
+            case .home, .none:
+                IdleScreen()
+                    .overlay(alignment: .topLeading) {
+                        Text("Where are we riding today, \(currentUser.displayName)?")
+                            .font(.headline)
+                            .padding(12)
+                            .background(.ultraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                            .padding()
+                            .accessibilityIdentifier("idlescreen-current-user-greeting")
+                    }
+            }
+        } else {
+            ProgressView("Loading rider profile")
+                .accessibilityIdentifier("auth.current-user.loading")
+        }
+    }
+
+    func synchronizeAuthentication() async {
+        if appEnvironment.clerkAuth.currentUser == nil {
+            await appState.restoreAuthentication(
+                clerkAuth: appEnvironment.clerkAuth,
+                convexClient: appEnvironment.convexClient
+            )
+        } else {
+            await appState.completeAuthentication(
+                clerkAuth: appEnvironment.clerkAuth,
+                convexClient: appEnvironment.convexClient
+            )
+        }
+    }
+
+    func registerConvexUnauthenticatedHandler(
+        clerkAuth: ClerkAuth,
+        convexClient: LaneShadowConvexClient
+    ) async {
+        await convexClient.setUnauthenticatedHandler {
+            await appState.handleUnauthenticatedConvexError(
+                clerkAuth: clerkAuth,
+                convexClient: convexClient
+            )
+        }
     }
 
     func handleSystemOpenURL(_ url: URL) {

@@ -14,6 +14,7 @@ protocol ClerkAuthClient: Sendable {
     func signInWithGoogle() async throws -> ClerkAuthUser
     func signOut() async throws
     func getJWT() async throws -> String?
+    func restoreSession() async throws -> ClerkAuthUser?
     func completeOAuthCallback(token: String) async throws -> ClerkAuthUser?
 }
 
@@ -38,6 +39,7 @@ protocol ClerkSDKClient: Sendable {
     func signInWithGoogle() async throws -> ClerkAuthUser
     func signOut() async throws
     func getJWT() async throws -> String?
+    func restoreSession() async throws -> ClerkAuthUser?
     func completeOAuthCallback(token: String) async throws -> ClerkAuthUser?
 }
 
@@ -85,6 +87,14 @@ final class LiveClerkSDKClient: ClerkSDKClient {
             return nil
         }
         return try await session.getToken(.init(template: "convex"))?.jwt
+    }
+
+    func restoreSession() async throws -> ClerkAuthUser? {
+        try await clerk.load()
+        guard let user = clerk.user else {
+            return nil
+        }
+        return ClerkAuthUser(id: user.id, email: user.primaryEmailAddress?.emailAddress)
     }
 
     func completeOAuthCallback(token: String) async throws -> ClerkAuthUser? {
@@ -150,6 +160,10 @@ final class LiveClerkAuthClient: ClerkAuthClient {
         try await sdk.getJWT()
     }
 
+    func restoreSession() async throws -> ClerkAuthUser? {
+        try await sdk.restoreSession()
+    }
+
     func completeOAuthCallback(token: String) async throws -> ClerkAuthUser? {
         try await sdk.completeOAuthCallback(token: token)
     }
@@ -184,7 +198,7 @@ final class ClerkAuth: LaneShadowClerkJWTProviding {
 
     func signOut() async throws {
         try await client.signOut()
-        currentUser = nil
+        clearLocalSession()
     }
 
     func getJWT() async throws -> String? {
@@ -195,11 +209,19 @@ final class ClerkAuth: LaneShadowClerkJWTProviding {
         try await getJWT()
     }
 
+    func restoreSession() async throws {
+        currentUser = try await client.restoreSession()
+    }
+
+    func clearLocalSession() {
+        currentUser = nil
+    }
+
     func completeOAuthCallback(token: String) async {
         do {
             currentUser = try await client.completeOAuthCallback(token: token)
         } catch {
-            currentUser = nil
+            clearLocalSession()
         }
     }
 }

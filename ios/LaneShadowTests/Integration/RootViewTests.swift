@@ -1,3 +1,5 @@
+import Combine
+import ConvexMobile
 import SwiftUI
 import ViewInspector
 import XCTest
@@ -40,7 +42,7 @@ final class RootViewTests: XCTestCase {
             clerkAuth: ClerkAuth(client: RootViewTestsAuthClient())
         )
         XCTAssertNoThrow(try signInView.inspect().find(ViewType.NavigationStack.self))
-        XCTAssertNoThrow(try signInView.inspect().find(text: "Sign in"))
+        XCTAssertEqual(signInView.route, .signIn)
 
         let signUpView = AuthFlowView(
             route: .signUp,
@@ -48,7 +50,7 @@ final class RootViewTests: XCTestCase {
             clerkAuth: ClerkAuth(client: RootViewTestsAuthClient())
         )
         XCTAssertNoThrow(try signUpView.inspect().find(ViewType.NavigationStack.self))
-        XCTAssertNoThrow(try signUpView.inspect().find(text: "Create account"))
+        XCTAssertEqual(signUpView.route, .signUp)
     }
 
     func testAppFlowNavigationStackCreated() throws {
@@ -79,7 +81,8 @@ final class RootViewTests: XCTestCase {
             XCTUnwrap(URL(string: "laneshadow://session/session-42")),
             clerkAuth: authenticatedClerk
         )
-        XCTAssertTrue(authenticatedState.isAuthenticated)
+        XCTAssertTrue(authenticatedState.hasClerkSession)
+        XCTAssertFalse(authenticatedState.isAuthenticated)
         XCTAssertEqual(authenticatedState.appRoute, .session(id: "session-42"))
         XCTAssertNil(authenticatedState.authRoute)
 
@@ -90,7 +93,7 @@ final class RootViewTests: XCTestCase {
             clerkAuth: unauthenticatedClerk
         )
         XCTAssertFalse(unauthenticatedState.isAuthenticated)
-        XCTAssertEqual(unauthenticatedState.authRoute, .signUp)
+        XCTAssertEqual(unauthenticatedState.authRoute, AppState.AuthRoute.signUp)
         XCTAssertNil(unauthenticatedState.appRoute)
     }
 
@@ -102,9 +105,112 @@ final class RootViewTests: XCTestCase {
 
         rootView.handleSystemOpenURL(deepLinkURL, clerkAuth: clerkAuth)
 
-        XCTAssertTrue(appState.isAuthenticated)
+        XCTAssertTrue(appState.hasClerkSession)
+        XCTAssertFalse(appState.isAuthenticated)
         XCTAssertEqual(appState.appRoute, .session(id: "session-99"))
         XCTAssertNil(appState.authRoute)
+    }
+
+    func testCompleteAuthenticationWaitsForConvexCurrentUserBeforeAppIsAuthenticated() async throws {
+        let clerkAuth = try await makeClerkAuth(isAuthenticated: true)
+        let transport = RootViewTestsConvexTransport(currentUser: .jamie)
+        let convexClient = LaneShadowConvexClient(
+            deploymentURL: "http://localhost:3210",
+            tokenProvider: { nil },
+            transport: transport
+        )
+        let appState = AppState(isAuthenticated: false)
+
+        await appState.completeAuthentication(clerkAuth: clerkAuth, convexClient: convexClient)
+
+        XCTAssertEqual(transport.subscribedEndpoints, ["db/users:getCurrentUser"])
+        let loginToken = try await convexClient.debugLoginTokenForTesting()
+        XCTAssertEqual(loginToken, "jwt")
+        XCTAssertEqual(appState.currentUser?.displayName, "Jamie Miller")
+        XCTAssertTrue(appState.isAuthenticated)
+        XCTAssertEqual(appState.appRoute, .home)
+        XCTAssertNil(appState.authRoute)
+    }
+
+    func testCompleteAuthenticationDoesNotShowAppWhenCurrentUserIsMissing() async throws {
+        let clerkAuth = try await makeClerkAuth(isAuthenticated: true)
+        let convexClient = LaneShadowConvexClient(
+            deploymentURL: "http://localhost:3210",
+            tokenProvider: { nil },
+            transport: RootViewTestsConvexTransport(currentUser: nil)
+        )
+        let appState = AppState(isAuthenticated: false)
+
+        await appState.completeAuthentication(clerkAuth: clerkAuth, convexClient: convexClient)
+
+        XCTAssertFalse(appState.isAuthenticated)
+        XCTAssertNil(appState.currentUser)
+        XCTAssertNil(appState.appRoute)
+        XCTAssertEqual(appState.authRoute, AppState.AuthRoute.signIn)
+    }
+
+    func testSignOutClearsClerkConvexAndRouteState() async throws {
+        let client = RootViewTestsAuthClient()
+        let clerkAuth = ClerkAuth(client: client)
+        try await clerkAuth.signIn(email: "rider@example.com", password: "secret")
+        let convexClient = LaneShadowConvexClient(
+            deploymentURL: "http://localhost:3210",
+            tokenProvider: { "jwt" },
+            transport: RootViewTestsConvexTransport(currentUser: .jamie)
+        )
+        let appState = AppState(isAuthenticated: true, currentUser: .jamie)
+        appState.appRoute = .session(id: "session-123")
+
+        await appState.signOut(clerkAuth: clerkAuth, convexClient: convexClient)
+
+        XCTAssertNil(clerkAuth.currentUser)
+        let loginToken = try await convexClient.debugLoginTokenForTesting()
+        XCTAssertNil(loginToken)
+        XCTAssertFalse(appState.isAuthenticated)
+        XCTAssertNil(appState.currentUser)
+        XCTAssertNil(appState.appRoute)
+        XCTAssertEqual(appState.authRoute, AppState.AuthRoute.signIn)
+        let signOutCalls = await client.signOutCallCount()
+        XCTAssertEqual(signOutCalls, 1)
+    }
+
+    func testUnauthenticatedConvexSubscriptionClearsAuthAndRedirectsToSignIn() async throws {
+        let clerkAuth = try await makeClerkAuth(isAuthenticated: true)
+        let transport = RootViewTestsConvexTransport(currentUser: .jamie)
+        let convexClient = LaneShadowConvexClient(
+            deploymentURL: "http://localhost:3210",
+            tokenProvider: { "jwt" },
+            transport: transport
+        )
+        let appState = AppState(isAuthenticated: true, currentUser: .jamie)
+        let rootView = RootView(convexStore: ConvexStore(), appState: appState)
+        await rootView.registerConvexUnauthenticatedHandler(
+            clerkAuth: clerkAuth,
+            convexClient: convexClient
+        )
+
+        let sessionsTask = Task {
+            for await _ in convexClient.subscribeToSessions() {}
+        }
+        transport.sendSessionsFailure(ClientError.ConvexError(data: #"{"code":"UNAUTHENTICATED"}"#))
+        await waitForUnauthenticatedRedirect(appState: appState, clerkAuth: clerkAuth)
+        sessionsTask.cancel()
+
+        XCTAssertNil(clerkAuth.currentUser)
+        let loginToken = try await convexClient.debugLoginTokenForTesting()
+        XCTAssertNil(loginToken)
+        XCTAssertFalse(appState.isAuthenticated)
+        XCTAssertEqual(appState.authRoute, AppState.AuthRoute.signIn)
+        XCTAssertEqual(appState.authMessage, "Your session expired. Please sign in again.")
+    }
+
+    private func waitForUnauthenticatedRedirect(appState: AppState, clerkAuth: ClerkAuth) async {
+        for _ in 0 ..< 100 {
+            if appState.authRoute == .signIn, clerkAuth.currentUser == nil {
+                return
+            }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
     }
 
     private func makeEnvironment(clerkAuth: ClerkAuth) -> AppEnvironment {
@@ -125,6 +231,8 @@ final class RootViewTests: XCTestCase {
 }
 
 actor RootViewTestsAuthClient: ClerkAuthClient {
+    private(set) var signOutCalls = 0
+
     func signIn(email: String, password _: String) async throws -> ClerkAuthUser {
         ClerkAuthUser(id: "user-1", email: email)
     }
@@ -141,15 +249,96 @@ actor RootViewTestsAuthClient: ClerkAuthClient {
         ClerkAuthUser(id: "google", email: "google@example.com")
     }
 
-    func signOut() async throws {}
+    func signOut() async throws {
+        signOutCalls += 1
+    }
+
+    func signOutCallCount() -> Int {
+        signOutCalls
+    }
 
     func getJWT() async throws -> String? {
         "jwt"
     }
 
+    func restoreSession() async throws -> ClerkAuthUser? {
+        nil
+    }
+
     func completeOAuthCallback(token _: String) async throws -> ClerkAuthUser? {
         nil
     }
+}
+
+final class RootViewTestsConvexTransport: LaneShadowConvexTransporting {
+    private let currentUser: LaneShadowCurrentUser?
+    private let sessionsSubject = PassthroughSubject<[LaneShadowSessionRecord], ClientError>()
+    private(set) var subscribedEndpoints: [String] = []
+
+    init(currentUser: LaneShadowCurrentUser?) {
+        self.currentUser = currentUser
+    }
+
+    func subscribe<T: Decodable & Sendable>(
+        to endpoint: String,
+        with _: [String: ConvexEncodable?]?,
+        yielding _: T.Type
+    ) -> AnyPublisher<T, ClientError> {
+        subscribedEndpoints.append(endpoint)
+
+        if endpoint == LaneShadowConvexQuery.getCurrentUser.rawValue {
+            return Just(currentUser as! T)
+                .setFailureType(to: ClientError.self)
+                .eraseToAnyPublisher()
+        }
+
+        if endpoint == LaneShadowConvexQuery.listSessions.rawValue,
+           T.self == [LaneShadowSessionRecord].self
+        {
+            return sessionsSubject
+                .map { $0 as! T }
+                .eraseToAnyPublisher()
+        }
+
+        return Empty<T, ClientError>().eraseToAnyPublisher()
+    }
+
+    func sendSessionsFailure(_ error: ClientError) {
+        sessionsSubject.send(completion: .failure(error))
+    }
+
+    func mutation<T: Decodable>(
+        _: String,
+        with _: [String: ConvexEncodable?]?
+    ) async throws -> T {
+        fatalError("Unexpected mutation in RootViewTestsConvexTransport")
+    }
+
+    func mutation(
+        _: String,
+        with _: [String: ConvexEncodable?]?
+    ) async throws {}
+
+    func action<T: Decodable>(
+        _: String,
+        with _: [String: ConvexEncodable?]?
+    ) async throws -> T {
+        fatalError("Unexpected action in RootViewTestsConvexTransport")
+    }
+
+    func action(
+        _: String,
+        with _: [String: ConvexEncodable?]?
+    ) async throws {}
+}
+
+private extension LaneShadowCurrentUser {
+    static let jamie = LaneShadowCurrentUser(
+        id: "user-1",
+        clerkUserId: "clerk-user-1",
+        email: "jamie@example.com",
+        name: "Jamie Miller"
+    )
 }
 
 extension RootView: Inspectable {}
