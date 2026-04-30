@@ -5,9 +5,13 @@ import com.laneshadow.data.model.AuthState
 import com.laneshadow.data.model.ClerkUser
 import com.laneshadow.data.store.TokenStore
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 interface ClerkGateway {
     suspend fun signIn(email: String, password: String): Result<ClerkUser>
@@ -34,19 +38,26 @@ class ClerkAuthRepository @Inject constructor(
     private val clerkGateway: ClerkGateway,
     private val oauthGateway: OAuthGateway,
 ) : AuthRepository {
-    private val authState = MutableStateFlow<AuthState>(AuthState.SignedOut)
+    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val authState = MutableStateFlow<AuthState>(AuthState.Loading)
+    private val restoreJob = repositoryScope.launch {
+        restorePersistedSession()
+    }
 
     override suspend fun signIn(email: String, password: String): Result<ClerkUser> {
+        restoreJob.join()
         authState.value = AuthState.Loading
         return handlePrimaryResult(clerkGateway.signIn(email, password))
     }
 
     override suspend fun signUp(email: String, password: String, name: String): Result<ClerkUser> {
+        restoreJob.join()
         authState.value = AuthState.Loading
         return handlePrimaryResult(clerkGateway.signUp(email, password, name))
     }
 
     override suspend fun completeSignUpVerification(code: String): Result<ClerkUser> {
+        restoreJob.join()
         authState.value = AuthState.Loading
         return clerkGateway.completeSignUpVerification(code).fold(
             onSuccess = { user ->
@@ -69,32 +80,62 @@ class ClerkAuthRepository @Inject constructor(
     }
 
     override suspend fun signOut(): Result<Unit> {
+        restoreJob.join()
         val result = clerkGateway.signOut()
         tokenStore.clear()
         authState.value = AuthState.SignedOut
         return result
     }
 
+    override suspend fun handleUnauthenticated(message: String): Result<Unit> {
+        restoreJob.join()
+        val result = clerkGateway.signOut()
+        tokenStore.clear()
+        authState.value = AuthState.Error(message)
+        return result
+    }
+
     override suspend fun signInWithGoogle(): Result<ClerkUser> {
+        restoreJob.join()
         authState.value = AuthState.OAuthPending("google")
         return handleOAuthResult(oauthGateway.signInWithGoogle())
     }
 
     override suspend fun signInWithApple(): Result<ClerkUser> {
+        restoreJob.join()
         authState.value = AuthState.OAuthPending("apple")
         return handleOAuthResult(oauthGateway.signInWithApple())
     }
 
-    override suspend fun handleOAuthCallback(uri: Uri): Result<ClerkUser> =
-        handleOAuthResult(oauthGateway.completeOAuthCallback(uri))
+    override suspend fun handleOAuthCallback(uri: Uri): Result<ClerkUser> {
+        restoreJob.join()
+        return handleOAuthResult(oauthGateway.completeOAuthCallback(uri))
+    }
 
     override suspend fun getJwtForConvex(): String {
+        restoreJob.join()
         val jwt = tokenStore.readJwt()
         require(!jwt.isNullOrBlank()) { "Missing JWT for Convex" }
         return jwt
     }
 
     override fun observeAuthState(): StateFlow<AuthState> = authState.asStateFlow()
+
+    private suspend fun restorePersistedSession() {
+        val jwt = tokenStore.readJwt()
+        authState.value = if (jwt.isNullOrBlank()) {
+            AuthState.SignedOut
+        } else {
+            AuthState.SignedIn(
+                ClerkUser(
+                    id = RESTORED_SESSION_USER_ID,
+                    email = "",
+                    name = "",
+                    provider = "clerk",
+                ),
+            )
+        }
+    }
 
     private suspend fun handlePrimaryResult(result: Result<ClerkUser>): Result<ClerkUser> = result.fold(
         onSuccess = { user ->
@@ -136,4 +177,8 @@ class ClerkAuthRepository @Inject constructor(
             Result.failure(error)
         },
     )
+
+    private companion object {
+        const val RESTORED_SESSION_USER_ID = "restored-clerk-session"
+    }
 }

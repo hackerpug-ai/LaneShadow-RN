@@ -43,6 +43,12 @@ class CustomTabsAuthRepository @Inject constructor(
         return Result.success(Unit)
     }
 
+    override suspend fun handleUnauthenticated(message: String): Result<Unit> {
+        tokenStore.clear()
+        authState.value = AuthState.Error(message)
+        return Result.success(Unit)
+    }
+
     override suspend fun signInWithGoogle(): Result<ClerkUser> = launchOAuth(provider = "google")
 
     override suspend fun signInWithApple(): Result<ClerkUser> = launchOAuth(provider = "apple")

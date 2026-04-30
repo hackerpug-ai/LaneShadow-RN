@@ -10,6 +10,7 @@ interface AuthRepository {
     suspend fun signUp(email: String, password: String, name: String): Result<ClerkUser>
     suspend fun completeSignUpVerification(code: String): Result<ClerkUser>
     suspend fun signOut(): Result<Unit>
+    suspend fun handleUnauthenticated(message: String): Result<Unit>
     suspend fun signInWithGoogle(): Result<ClerkUser>
     suspend fun signInWithApple(): Result<ClerkUser>
     suspend fun handleOAuthCallback(uri: Uri): Result<ClerkUser>
