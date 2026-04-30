@@ -1,7 +1,7 @@
 # TASK: AUTH-S03-R01 - Missing Auth Component Inventory and Cross-Platform Story Contract
 
 TASK_TYPE: DESIGN_SYSTEM
-STATUS: Backlog
+STATUS: Completed
 PRIORITY: P0
 EFFORT: S
 AGENT: implementer=swift-planner + kotlin-planner | reviewer=swift-reviewer + kotlin-reviewer
@@ -98,6 +98,16 @@ anti_pattern: Planning from the existing native SignInScreen appearance instead 
 
 depends_on: []
 blocks: [AUTH-S03-R02, AUTH-S03-R03, AUTH-S03-R04, AUTH-S03-R05, AUTH-S03-R08]
+
+## Reviewer Verification (2026-04-29)
+
+- AC-1 PASS: Contract inventory lists concrete iOS + Android file paths and missing states (evidence: `.spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md`:52, 63-64).
+- AC-2 PASS: Story IDs are canonical (lowercase dot-separated) and explicitly shared across iOS + Android (evidence: `.spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md`:81, 86).
+- AC-3 PASS: R02-R08 table threads design sources (`auth-screen.html`, `social-button/README.md`) and expected evidence outputs (evidence: `.spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md`:19-21, 98-107).
+- AC-4 PASS: Weak tests are labeled support-only and the WDA/human gate is called out for R08 (evidence: `.spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md`:50, 115-120, 124).
+- Baseline gates: `pnpm type-check:native` and `pnpm lint` fail due to missing generated Convex modules and missing `node_modules`/`biome`; reproduced as pre-existing in `.tmp/AUTH-S03-R01/pre-existing-issues.md`.
+- Implementation commit: `fe7d3f57de1bddec259c1c80f8792c3c411e48fe`; merged via `main`.
+- Reviewers: `swift-reviewer` and `kotlin-reviewer`.
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
