@@ -31,6 +31,10 @@ struct RootView: View {
             appState.updateAuthenticationState(from: appEnvironment.clerkAuth)
         }
         .task(id: appEnvironment.clerkAuth.currentUser?.id) {
+            await registerConvexUnauthenticatedHandler(
+                clerkAuth: appEnvironment.clerkAuth,
+                convexClient: appEnvironment.convexClient
+            )
             await synchronizeAuthentication()
         }
         .onOpenURL { url in
@@ -80,18 +84,16 @@ struct RootView: View {
         }
     }
 
-    func handleConvexError(
-        _ error: Error,
+    func registerConvexUnauthenticatedHandler(
         clerkAuth: ClerkAuth,
         convexClient: LaneShadowConvexClient
     ) async {
-        guard LaneShadowError.map(error).isUnauthenticated else {
-            return
+        await convexClient.setUnauthenticatedHandler {
+            await appState.handleUnauthenticatedConvexError(
+                clerkAuth: clerkAuth,
+                convexClient: convexClient
+            )
         }
-
-        clerkAuth.clearLocalSession()
-        try? await convexClient.logout()
-        appState.handleUnauthenticatedConvexError()
     }
 
     func handleSystemOpenURL(_ url: URL) {

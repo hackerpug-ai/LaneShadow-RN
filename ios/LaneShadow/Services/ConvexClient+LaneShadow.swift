@@ -75,6 +75,20 @@ enum LaneShadowError: LocalizedError, Equatable {
     }
 }
 
+typealias LaneShadowUnauthenticatedHandler = @MainActor @Sendable () async -> Void
+
+actor LaneShadowUnauthenticatedHandlerBox {
+    private var handler: LaneShadowUnauthenticatedHandler?
+
+    func set(_ handler: LaneShadowUnauthenticatedHandler?) {
+        self.handler = handler
+    }
+
+    func handle() async {
+        await handler?()
+    }
+}
+
 protocol LaneShadowClerkJWTProviding: Sendable {
     func convexJWT() async throws -> String?
 }
@@ -216,6 +230,7 @@ final class LaneShadowConvexClient: @unchecked Sendable {
 
     private let transport: LaneShadowConvexTransporting
     private let authProvider: LaneShadowAuthProvider
+    private let unauthenticatedHandlerBox = LaneShadowUnauthenticatedHandlerBox()
 
     init(
         deploymentURL: String = ConvexConfig.deploymentURL,
@@ -243,6 +258,10 @@ final class LaneShadowConvexClient: @unchecked Sendable {
 
     func logout() async throws {
         try await authProvider.logout()
+    }
+
+    func setUnauthenticatedHandler(_ handler: LaneShadowUnauthenticatedHandler?) async {
+        await unauthenticatedHandlerBox.set(handler)
     }
 
     func debugCurrentAuthTokenForTesting() async throws -> String? {
@@ -284,7 +303,10 @@ final class LaneShadowConvexClient: @unchecked Sendable {
             cancellableBox.cancellable = transport
                 .subscribe(to: query.rawValue, with: args, yielding: T.self)
                 .sink(
-                    receiveCompletion: { _ in
+                    receiveCompletion: { [weak self] completion in
+                        if case let .failure(error) = completion {
+                            self?.notifyUnauthenticatedIfNeeded(error)
+                        }
                         continuation.finish()
                     },
                     receiveValue: { value in
@@ -321,36 +343,79 @@ final class LaneShadowConvexClient: @unchecked Sendable {
             with: nil,
             yielding: LaneShadowCurrentUser?.self
         )
-        var iterator = publisher.values.makeAsyncIterator()
-        return try await iterator.next() ?? nil
+        do {
+            var iterator = publisher.values.makeAsyncIterator()
+            return try await iterator.next() ?? nil
+        } catch {
+            await handleUnauthenticatedIfNeeded(error)
+            throw error
+        }
     }
 
     func mutation<T: Decodable>(
         _ endpoint: LaneShadowConvexMutation,
         args: [String: ConvexEncodable?]? = nil
     ) async throws -> T {
-        try await transport.mutation(endpoint.rawValue, with: args)
+        do {
+            return try await transport.mutation(endpoint.rawValue, with: args)
+        } catch {
+            await handleUnauthenticatedIfNeeded(error)
+            throw error
+        }
     }
 
     func mutation(
         _ endpoint: LaneShadowConvexMutation,
         args: [String: ConvexEncodable?]? = nil
     ) async throws {
-        try await transport.mutation(endpoint.rawValue, with: args)
+        do {
+            try await transport.mutation(endpoint.rawValue, with: args)
+        } catch {
+            await handleUnauthenticatedIfNeeded(error)
+            throw error
+        }
     }
 
     func action<T: Decodable>(
         _ endpoint: LaneShadowConvexAction,
         args: [String: ConvexEncodable?]? = nil
     ) async throws -> T {
-        try await transport.action(endpoint.rawValue, with: args)
+        do {
+            return try await transport.action(endpoint.rawValue, with: args)
+        } catch {
+            await handleUnauthenticatedIfNeeded(error)
+            throw error
+        }
     }
 
     func action(
         _ endpoint: LaneShadowConvexAction,
         args: [String: ConvexEncodable?]? = nil
     ) async throws {
-        try await transport.action(endpoint.rawValue, with: args)
+        do {
+            try await transport.action(endpoint.rawValue, with: args)
+        } catch {
+            await handleUnauthenticatedIfNeeded(error)
+            throw error
+        }
+    }
+
+    private func notifyUnauthenticatedIfNeeded(_ error: Error) {
+        guard LaneShadowError.map(error).isUnauthenticated else {
+            return
+        }
+
+        Task {
+            await unauthenticatedHandlerBox.handle()
+        }
+    }
+
+    private func handleUnauthenticatedIfNeeded(_ error: Error) async {
+        guard LaneShadowError.map(error).isUnauthenticated else {
+            return
+        }
+
+        await unauthenticatedHandlerBox.handle()
     }
 }
 

@@ -99,6 +99,12 @@ final class AppState {
         authMessage = LaneShadowError.unauthenticated.localizedDescription
     }
 
+    func handleUnauthenticatedConvexError(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
+        clerkAuth.clearLocalSession()
+        try? await convexClient.logout()
+        handleUnauthenticatedConvexError()
+    }
+
     func handleDeepLink(_ url: URL, clerkAuth: ClerkAuth) {
         guard url.scheme == "laneshadow" else {
             return
