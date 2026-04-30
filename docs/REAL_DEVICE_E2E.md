@@ -28,11 +28,11 @@ The Makefile has headed entry points for the current auth evidence flows:
 
 ```bash
 make e2e_vars
-make ios_e2e_auth_headed IOS_UDID=<UDID> LANESHADOW_AUTH_EMAIL='<email>' LANESHADOW_AUTH_PASSWORD='<password>'
+make ios_e2e_auth_headed IOS_UDID=<UDID>
 make android_e2e_auth_headed
 ```
 
-`ios_e2e_auth_headed` builds and installs the iOS app by default, starts WDA and local port forwarding, runs the auth remediation evidence script, then cleans up the WDA processes. Set `IOS_E2E_INSTALL=0` to skip the build/install step when the app is already current on the device.
+`ios_e2e_auth_headed` reads `.env.local` when present and maps `CLERK_TEST_EMAIL` / `CLERK_TEST_PASSWORD` into the auth evidence script. It builds and installs the iOS app by default, starts WDA and local port forwarding, runs the auth remediation evidence script, then cleans up the WDA processes. Set `IOS_E2E_INSTALL=0` to skip the build/install step when the app is already current on the device.
 
 `android_e2e_auth_headed` starts the first configured emulator when no Android device is connected, installs the debug app by default, launches LaneShadow, then runs the auth instrumentation classes. Set `ANDROID_SERIAL=<adb-serial>` to target a specific connected device or `ANDROID_E2E_INSTALL=0` to skip reinstalling.
 

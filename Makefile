@@ -22,7 +22,7 @@ IOS_E2E_FLOW ?= ios/E2E/sprint-03-auth-remediation.js
 IOS_E2E_INSTALL ?= 1
 IOS_DEVICE_APP_PATH ?= ios/build/DerivedData/Build/Products/Debug-iphoneos/LaneShadow.app
 LANESHADOW_AUTH_PROVIDER ?= apple
-LANESHADOW_AUTH_EMAIL ?= auth-remediation-reviewer+clerk@laneshadow.test
+LANESHADOW_AUTH_EMAIL ?=
 LANESHADOW_AUTH_PASSWORD ?=
 LANESHADOW_AUTH_DISPLAY_NAME ?= Auth Remediation Reviewer
 
@@ -170,24 +170,32 @@ ios_test: ## Run iOS unit tests
 		-only-testing:LaneShadowUITests
 
 e2e_vars: ## Show variables for headed iOS/Android E2E
-	@echo "Headed iOS E2E variables:"
-	@echo "  IOS_UDID=$(IOS_UDID)"
-	@echo "  IOS_WDA_PORT=$(IOS_WDA_PORT)"
-	@echo "  WDA_BASE_URL=$(WDA_BASE_URL)"
-	@echo "  LANESHADOW_BUNDLE_ID=$(LANESHADOW_BUNDLE_ID)"
-	@echo "  IOS_E2E_FLOW=$(IOS_E2E_FLOW)"
-	@echo "  IOS_E2E_INSTALL=$(IOS_E2E_INSTALL)"
-	@echo "  IOS_DEVICE_APP_PATH=$(IOS_DEVICE_APP_PATH)"
-	@echo "  LANESHADOW_AUTH_PROVIDER=$(LANESHADOW_AUTH_PROVIDER)"
-	@echo "  LANESHADOW_AUTH_EMAIL=$(LANESHADOW_AUTH_EMAIL)"
-	@echo "  LANESHADOW_AUTH_PASSWORD=$(if $(LANESHADOW_AUTH_PASSWORD),<set>,<empty>)"
-	@echo "  LANESHADOW_AUTH_DISPLAY_NAME=$(LANESHADOW_AUTH_DISPLAY_NAME)"
+	@set -a; \
+	if [ -f .env.local ]; then . ./.env.local; fi; \
+	set +a; \
+	LANESHADOW_AUTH_EMAIL_VALUE="$${LANESHADOW_AUTH_EMAIL:-$${CLERK_TEST_EMAIL:-}}"; \
+	LANESHADOW_AUTH_PASSWORD_VALUE="$${LANESHADOW_AUTH_PASSWORD:-$${CLERK_TEST_PASSWORD:-}}"; \
+	echo "Headed iOS E2E variables:"; \
+	echo "  IOS_UDID=$(IOS_UDID)"; \
+	echo "  IOS_WDA_PORT=$(IOS_WDA_PORT)"; \
+	echo "  WDA_BASE_URL=$(WDA_BASE_URL)"; \
+	echo "  LANESHADOW_BUNDLE_ID=$(LANESHADOW_BUNDLE_ID)"; \
+	echo "  IOS_E2E_FLOW=$(IOS_E2E_FLOW)"; \
+	echo "  IOS_E2E_INSTALL=$(IOS_E2E_INSTALL)"; \
+	echo "  IOS_DEVICE_APP_PATH=$(IOS_DEVICE_APP_PATH)"; \
+	echo "  LANESHADOW_AUTH_PROVIDER=$(LANESHADOW_AUTH_PROVIDER)"; \
+	echo "  LANESHADOW_AUTH_EMAIL=$$LANESHADOW_AUTH_EMAIL_VALUE"; \
+	echo "  LANESHADOW_AUTH_PASSWORD=$$(if [ -n "$$LANESHADOW_AUTH_PASSWORD_VALUE" ]; then echo '<set>'; else echo '<empty>'; fi)"; \
+	echo "  CLERK_TEST_EMAIL=$${CLERK_TEST_EMAIL:-}"; \
+	echo "  CLERK_TEST_PASSWORD=$$(if [ -n "$${CLERK_TEST_PASSWORD:-}" ]; then echo '<set>'; else echo '<empty>'; fi)"; \
+	echo "  LANESHADOW_AUTH_DISPLAY_NAME=$(LANESHADOW_AUTH_DISPLAY_NAME)"
 	@echo ""
 	@echo "List devices:"
 	@echo "  make ios_e2e_devices"
 	@echo ""
 	@echo "Run headed auth E2E:"
-	@echo "  make ios_e2e_auth_headed IOS_UDID=<device-udid> LANESHADOW_AUTH_EMAIL='<email>' LANESHADOW_AUTH_PASSWORD='<password>'"
+	@echo "  make ios_e2e_auth_headed IOS_UDID=<device-udid>"
+	@echo "  # reads CLERK_TEST_EMAIL and CLERK_TEST_PASSWORD from .env.local"
 	@echo ""
 	@echo "Headed Android E2E variables:"
 	@echo "  ANDROID_SERIAL=$(ANDROID_SERIAL)"
@@ -234,9 +242,6 @@ ios_e2e_auth_headed: ## Run headed iOS auth E2E on a real device (set IOS_UDID=.
 		echo "ERROR: set IOS_UDID=<device-udid>. Run: make ios_e2e_devices"; \
 		exit 1; \
 	fi
-	@if [ -z "$(LANESHADOW_AUTH_PASSWORD)" ]; then \
-		echo "WARN: LANESHADOW_AUTH_PASSWORD is empty; email/password auth will be recorded as BLOCKED unless provider auth succeeds."; \
-	fi
 	@command -v ios >/dev/null || { echo "ERROR: go-ios is missing. Install with: npm install -g go-ios"; exit 1; }
 	@command -v node >/dev/null || { echo "ERROR: node is missing"; exit 1; }
 	@if [ "$(IOS_E2E_INSTALL)" = "1" ]; then \
@@ -244,6 +249,14 @@ ios_e2e_auth_headed: ## Run headed iOS auth E2E on a real device (set IOS_UDID=.
 	fi
 	@echo "==> Starting WDA on device $(IOS_UDID)..."
 	@set -e; \
+	set -a; \
+	if [ -f .env.local ]; then . ./.env.local; fi; \
+	set +a; \
+	LANESHADOW_AUTH_EMAIL_VALUE="$${LANESHADOW_AUTH_EMAIL:-$${CLERK_TEST_EMAIL:-}}"; \
+	LANESHADOW_AUTH_PASSWORD_VALUE="$${LANESHADOW_AUTH_PASSWORD:-$${CLERK_TEST_PASSWORD:-}}"; \
+	if [ -z "$$LANESHADOW_AUTH_PASSWORD_VALUE" ]; then \
+		echo "WARN: CLERK_TEST_PASSWORD/LANESHADOW_AUTH_PASSWORD is empty; email/password auth will be recorded as BLOCKED unless provider auth succeeds."; \
+	fi; \
 	mkdir -p ios/E2E/diagnostics; \
 	ios runwda --udid "$(IOS_UDID)" > ios/E2E/diagnostics/wda-runwda.log 2>&1 & \
 	WDA_PID=$$!; \
@@ -270,8 +283,8 @@ ios_e2e_auth_headed: ## Run headed iOS auth E2E on a real device (set IOS_UDID=.
 	LANESHADOW_BUNDLE_ID="$(LANESHADOW_BUNDLE_ID)" \
 	WDA_BASE_URL="$(WDA_BASE_URL)" \
 	LANESHADOW_AUTH_PROVIDER="$(LANESHADOW_AUTH_PROVIDER)" \
-	LANESHADOW_AUTH_EMAIL="$(LANESHADOW_AUTH_EMAIL)" \
-	LANESHADOW_AUTH_PASSWORD="$(LANESHADOW_AUTH_PASSWORD)" \
+	LANESHADOW_AUTH_EMAIL="$$LANESHADOW_AUTH_EMAIL_VALUE" \
+	LANESHADOW_AUTH_PASSWORD="$$LANESHADOW_AUTH_PASSWORD_VALUE" \
 	LANESHADOW_AUTH_DISPLAY_NAME="$(LANESHADOW_AUTH_DISPLAY_NAME)" \
 	node "$(IOS_E2E_FLOW)"
 
