@@ -6,9 +6,25 @@
 .PHONY: help build start clean install \
         lint format typecheck check \
         server_build server_dev server_start \
+        e2e_vars \
         ios_build ios_dev ios_start ios_sandbox ios_sandbox_story ios_test \
+        ios_e2e_vars ios_e2e_devices ios_e2e_install_device ios_e2e_wda_status ios_e2e_auth_headed \
         android_build android_dev android_start android_sandbox android_sandbox_story android_test \
+        android_e2e_auth_headed \
         test
+
+LANESHADOW_BUNDLE_ID ?= com.laneshadow.app
+
+IOS_UDID ?=
+IOS_WDA_PORT ?= 8100
+WDA_BASE_URL ?= http://127.0.0.1:$(IOS_WDA_PORT)
+IOS_E2E_FLOW ?= ios/E2E/sprint-03-auth-remediation.js
+IOS_E2E_INSTALL ?= 1
+IOS_DEVICE_APP_PATH ?= ios/build/DerivedData/Build/Products/Debug-iphoneos/LaneShadow.app
+LANESHADOW_AUTH_PROVIDER ?= apple
+LANESHADOW_AUTH_EMAIL ?= auth-remediation-reviewer+clerk@laneshadow.test
+LANESHADOW_AUTH_PASSWORD ?=
+LANESHADOW_AUTH_DISPLAY_NAME ?= Auth Remediation Reviewer
 
 # ── All Projects ──────────────────────────────────────
 
@@ -153,6 +169,112 @@ ios_test: ## Run iOS unit tests
 		-only-testing:LaneShadowTests \
 		-only-testing:LaneShadowUITests
 
+e2e_vars: ## Show variables for headed iOS/Android E2E
+	@echo "Headed iOS E2E variables:"
+	@echo "  IOS_UDID=$(IOS_UDID)"
+	@echo "  IOS_WDA_PORT=$(IOS_WDA_PORT)"
+	@echo "  WDA_BASE_URL=$(WDA_BASE_URL)"
+	@echo "  LANESHADOW_BUNDLE_ID=$(LANESHADOW_BUNDLE_ID)"
+	@echo "  IOS_E2E_FLOW=$(IOS_E2E_FLOW)"
+	@echo "  IOS_E2E_INSTALL=$(IOS_E2E_INSTALL)"
+	@echo "  IOS_DEVICE_APP_PATH=$(IOS_DEVICE_APP_PATH)"
+	@echo "  LANESHADOW_AUTH_PROVIDER=$(LANESHADOW_AUTH_PROVIDER)"
+	@echo "  LANESHADOW_AUTH_EMAIL=$(LANESHADOW_AUTH_EMAIL)"
+	@echo "  LANESHADOW_AUTH_PASSWORD=$(if $(LANESHADOW_AUTH_PASSWORD),<set>,<empty>)"
+	@echo "  LANESHADOW_AUTH_DISPLAY_NAME=$(LANESHADOW_AUTH_DISPLAY_NAME)"
+	@echo ""
+	@echo "List devices:"
+	@echo "  make ios_e2e_devices"
+	@echo ""
+	@echo "Run headed auth E2E:"
+	@echo "  make ios_e2e_auth_headed IOS_UDID=<device-udid> LANESHADOW_AUTH_EMAIL='<email>' LANESHADOW_AUTH_PASSWORD='<password>'"
+	@echo ""
+	@echo "Headed Android E2E variables:"
+	@echo "  ANDROID_SERIAL=$(ANDROID_SERIAL)"
+	@echo "  ANDROID_AVD=$(ANDROID_AVD)"
+	@echo "  ANDROID_PACKAGE=$(ANDROID_PACKAGE)"
+	@echo "  ANDROID_ACTIVITY=$(ANDROID_ACTIVITY)"
+	@echo "  ANDROID_E2E_INSTALL=$(ANDROID_E2E_INSTALL)"
+	@echo "  ANDROID_E2E_TEST_CLASSES=$(ANDROID_E2E_TEST_CLASSES)"
+	@echo ""
+	@echo "Run headed auth E2E:"
+	@echo "  make android_e2e_auth_headed"
+	@echo "  make android_e2e_auth_headed ANDROID_SERIAL=<adb-serial>"
+
+ios_e2e_vars: e2e_vars ## Show variables for headed iOS/Android E2E
+
+ios_e2e_devices: ## List connected iOS devices for IOS_UDID
+	@command -v ios >/dev/null || { echo "ERROR: go-ios is missing. Install with: npm install -g go-ios"; exit 1; }
+	ios list
+
+ios_e2e_install_device: ## Build and install iOS app on a real device (set IOS_UDID=...)
+	@if [ -z "$(IOS_UDID)" ]; then \
+		echo "ERROR: set IOS_UDID=<device-udid>. Run: make ios_e2e_devices"; \
+		exit 1; \
+	fi
+	@command -v xcodebuild >/dev/null || { echo "ERROR: xcodebuild is missing"; exit 1; }
+	@command -v xcrun >/dev/null || { echo "ERROR: xcrun is missing"; exit 1; }
+	@echo "==> Building LaneShadow for device $(IOS_UDID)..."
+	cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow \
+		-derivedDataPath build/DerivedData \
+		-destination "id=$(IOS_UDID)" \
+		build
+	@if [ ! -d "$(IOS_DEVICE_APP_PATH)" ]; then \
+		echo "ERROR: missing $(IOS_DEVICE_APP_PATH)"; \
+		exit 1; \
+	fi
+	@echo "==> Installing $(IOS_DEVICE_APP_PATH) on $(IOS_UDID)..."
+	xcrun devicectl device install app --device "$(IOS_UDID)" "$(IOS_DEVICE_APP_PATH)"
+
+ios_e2e_wda_status: ## Check local WDA status endpoint
+	@curl -fsS "$(WDA_BASE_URL)/status"
+
+ios_e2e_auth_headed: ## Run headed iOS auth E2E on a real device (set IOS_UDID=...)
+	@if [ -z "$(IOS_UDID)" ]; then \
+		echo "ERROR: set IOS_UDID=<device-udid>. Run: make ios_e2e_devices"; \
+		exit 1; \
+	fi
+	@if [ -z "$(LANESHADOW_AUTH_PASSWORD)" ]; then \
+		echo "WARN: LANESHADOW_AUTH_PASSWORD is empty; email/password auth will be recorded as BLOCKED unless provider auth succeeds."; \
+	fi
+	@command -v ios >/dev/null || { echo "ERROR: go-ios is missing. Install with: npm install -g go-ios"; exit 1; }
+	@command -v node >/dev/null || { echo "ERROR: node is missing"; exit 1; }
+	@if [ "$(IOS_E2E_INSTALL)" = "1" ]; then \
+		$(MAKE) ios_e2e_install_device IOS_UDID="$(IOS_UDID)" IOS_DEVICE_APP_PATH="$(IOS_DEVICE_APP_PATH)"; \
+	fi
+	@echo "==> Starting WDA on device $(IOS_UDID)..."
+	@set -e; \
+	mkdir -p ios/E2E/diagnostics; \
+	ios runwda --udid "$(IOS_UDID)" > ios/E2E/diagnostics/wda-runwda.log 2>&1 & \
+	WDA_PID=$$!; \
+	ios forward "$(IOS_WDA_PORT)" 8100 --udid "$(IOS_UDID)" > ios/E2E/diagnostics/wda-forward.log 2>&1 & \
+	FORWARD_PID=$$!; \
+	cleanup() { \
+		kill $$WDA_PID $$FORWARD_PID >/dev/null 2>&1 || true; \
+		wait $$WDA_PID $$FORWARD_PID >/dev/null 2>&1 || true; \
+	}; \
+	trap cleanup EXIT INT TERM; \
+	echo "==> Waiting for WDA at $(WDA_BASE_URL)/status..."; \
+	for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do \
+		if curl -fsS "$(WDA_BASE_URL)/status" >/dev/null; then \
+			echo "==> WDA is ready."; \
+			break; \
+		fi; \
+		if [ "$$attempt" = "15" ]; then \
+			echo "ERROR: WDA did not become ready. See ios/E2E/diagnostics/wda-runwda.log and ios/E2E/diagnostics/wda-forward.log"; \
+			exit 1; \
+		fi; \
+		sleep 2; \
+	done; \
+	echo "==> Running $(IOS_E2E_FLOW) against $(LANESHADOW_BUNDLE_ID)..."; \
+	LANESHADOW_BUNDLE_ID="$(LANESHADOW_BUNDLE_ID)" \
+	WDA_BASE_URL="$(WDA_BASE_URL)" \
+	LANESHADOW_AUTH_PROVIDER="$(LANESHADOW_AUTH_PROVIDER)" \
+	LANESHADOW_AUTH_EMAIL="$(LANESHADOW_AUTH_EMAIL)" \
+	LANESHADOW_AUTH_PASSWORD="$(LANESHADOW_AUTH_PASSWORD)" \
+	LANESHADOW_AUTH_DISPLAY_NAME="$(LANESHADOW_AUTH_DISPLAY_NAME)" \
+	node "$(IOS_E2E_FLOW)"
+
 # ── Android (Kotlin/Compose) ─────────────────────────
 
 android_build: ## Build Android debug APK
@@ -161,6 +283,9 @@ android_build: ## Build Android debug APK
 ANDROID_PACKAGE := com.laneshadow.app
 ANDROID_ACTIVITY := com.laneshadow.MainActivity
 ANDROID_AVD ?= $(shell emulator -list-avds | head -n 1)
+ANDROID_SERIAL ?=
+ANDROID_E2E_INSTALL ?= 1
+ANDROID_E2E_TEST_CLASSES ?= com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest
 
 android_dev: ## Build, install, and launch Android app on emulator
 	@echo "==> Checking for running Android emulator..."
@@ -231,6 +356,37 @@ android_sandbox_story: ## Launch Android sandbox directly to one story (set STOR
 android_test: ## Run Android instrumented tests
 	cd android && ./gradlew connectedDebugAndroidTest
 
+android_e2e_auth_headed: ## Run headed Android auth E2E on a device/emulator
+	@command -v adb >/dev/null || { echo "ERROR: adb is missing"; exit 1; }
+	@echo "==> Checking for a connected Android device/emulator..."
+	@adb devices 2>/dev/null | awk 'NR > 1 && $$2 == "device" { found = 1 } END { exit found ? 0 : 1 }' || { \
+		if [ -z "$(ANDROID_AVD)" ]; then \
+			echo "ERROR: No Android device/emulator connected and no ANDROID_AVD found. Create one in Android Studio or set ANDROID_AVD=<name>."; \
+			exit 1; \
+		fi; \
+		echo "No Android device found. Starting headed emulator $(ANDROID_AVD)..."; \
+		emulator -avd "$(ANDROID_AVD)" -no-snapshot-load & \
+		adb wait-for-device; \
+		adb shell 'while [[ -z $$(getprop sys.boot_completed) ]]; do sleep 1; done'; \
+		echo "Emulator ready."; \
+	}
+	@if [ "$(ANDROID_E2E_INSTALL)" = "1" ]; then \
+		echo "==> Building and installing Android debug app..."; \
+		cd android && ./gradlew installDebug; \
+	fi
+	@echo "==> Launching LaneShadow before instrumentation..."
+	@ADB_CMD="adb"; \
+	if [ -n "$(ANDROID_SERIAL)" ]; then ADB_CMD="adb -s $(ANDROID_SERIAL)"; fi; \
+	$$ADB_CMD shell am start -W -n "$(ANDROID_PACKAGE)/$(ANDROID_ACTIVITY)"
+	@echo "==> Running Android auth instrumentation: $(ANDROID_E2E_TEST_CLASSES)"
+	@cd android && if [ -n "$(ANDROID_SERIAL)" ]; then \
+		ANDROID_SERIAL="$(ANDROID_SERIAL)" ./gradlew :app:connectedDebugAndroidTest \
+			-Pandroid.testInstrumentationRunnerArguments.class="$(ANDROID_E2E_TEST_CLASSES)"; \
+	else \
+		./gradlew :app:connectedDebugAndroidTest \
+			-Pandroid.testInstrumentationRunnerArguments.class="$(ANDROID_E2E_TEST_CLASSES)"; \
+	fi
+
 test: ## Run all platform tests (iOS + Android)
 	@echo "Running iOS tests..."
 	$(MAKE) ios_test
@@ -240,5 +396,5 @@ test: ## Run all platform tests (iOS + Android)
 # ── Help ──────────────────────────────────────────────
 
 help: ## Show all available commands
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-25s\033[0m %s\n", $$1, $$2}'
