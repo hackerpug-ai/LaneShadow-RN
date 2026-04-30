@@ -25,6 +25,20 @@ final class LSTextFieldTests: XCTestCase {
         XCTAssertEqual(LSTextField.commitChange(current: "ab", proposed: "abc", state: .default), "abc")
     }
 
+    func test_formfield_exposes_auth_states_secure_icons_and_helper() throws {
+        let formFieldPath = URL(fileURLWithPath: sourceFilePath)
+            .deletingLastPathComponent()
+            .appendingPathComponent("../Molecules/LSFormField.swift")
+            .standardized.path
+        let source = try String(contentsOfFile: formFieldPath, encoding: .utf8)
+
+        XCTAssertTrue(source.contains("leadingIcon"))
+        XCTAssertTrue(source.contains("trailingIcon"))
+        XCTAssertTrue(source.contains("isSecureEntry"))
+        XCTAssertTrue(source.contains("helperText"))
+        XCTAssertTrue(source.contains("state"))
+    }
+
     private var sourceFilePath: String {
         URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()

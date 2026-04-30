@@ -23,6 +23,42 @@ final class LaneShadowTests: XCTestCase {
         XCTAssertTrue(appSource?.contains("environment[\"LANESHADOW_LAUNCH_SANDBOX\"] == \"1\"") == true)
     }
 
+    func test_auth_provider_button_matches_provider_contract_source() throws {
+        let source = try designSystemSource(named: "LSAuthProviderButton.swift")
+
+        XCTAssertTrue(source.contains("Continue with Apple"))
+        XCTAssertTrue(source.contains("Continue with Google"))
+        XCTAssertTrue(source.contains("accessibilityLabel"))
+        XCTAssertTrue(source.contains("apple"))
+        XCTAssertTrue(source.contains("google"))
+    }
+
+    func test_auth_primitive_snapshot_baselines_exist() {
+        let root = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let snapshotDir = root
+            .appendingPathComponent("ios")
+            .appendingPathComponent("LaneShadowTests")
+            .appendingPathComponent("__Snapshots__")
+            .appendingPathComponent("StorySnapshotTests")
+
+        let expected = [
+            "molecules.auth-provider-button.apple.light.png",
+            "molecules.auth-provider-button.apple.dark.png",
+            "molecules.auth-provider-button.google.light.png",
+            "molecules.auth-provider-button.google.dark.png",
+        ]
+
+        for file in expected {
+            XCTAssertTrue(
+                FileManager.default.fileExists(atPath: snapshotDir.appendingPathComponent(file).path),
+                "Missing snapshot baseline: \(file)"
+            )
+        }
+    }
+
     private func sandboxSource(named fileName: String) throws -> String {
         let repoRoot = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
@@ -63,6 +99,22 @@ final class LaneShadowTests: XCTestCase {
         let fileURL = repoRoot
             .appendingPathComponent("ios")
             .appendingPathComponent("LaneShadow")
+            .appendingPathComponent(fileName)
+
+        return try String(contentsOf: fileURL, encoding: .utf8)
+    }
+
+    private func designSystemSource(named fileName: String) throws -> String {
+        let repoRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+
+        let fileURL = repoRoot
+            .appendingPathComponent("ios")
+            .appendingPathComponent("LaneShadow")
+            .appendingPathComponent("DesignSystem")
+            .appendingPathComponent("Molecules")
             .appendingPathComponent(fileName)
 
         return try String(contentsOf: fileURL, encoding: .utf8)

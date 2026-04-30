@@ -145,6 +145,14 @@ struct StoryCoverageTests {
             "templates.error-screen.v01-offline",
             "templates.error-screen.v02-generic",
 
+            // Auth primitives
+            "molecules.auth-provider-button.apple",
+            "molecules.auth-provider-button.google",
+            "molecules.formfield.auth.email-default",
+            "molecules.formfield.auth.password-secure",
+            "molecules.formfield.auth.error",
+            "molecules.formfield.auth.disabled",
+
             // RouteCard (6) - already complete
         ]
 
@@ -155,5 +163,11 @@ struct StoryCoverageTests {
             missingIds.isEmpty,
             "Missing required story IDs: \(missingIds.sorted())"
         )
+    }
+
+    @Test("AC-10: Auth provider stories exist for parity")
+    func authProviderStoryCount() {
+        let stories = LaneShadowStories.all.filter { $0.id.contains("molecules.auth-provider-button.") }
+        #expect(stories.count == 2, "Expected 2 auth provider button stories, found \(stories.count)")
     }
 }

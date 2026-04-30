@@ -8,20 +8,35 @@ public struct LSFormField: View {
     private let label: String
     private let placeholder: String?
     private let error: String?
+    private let helperText: String?
     private let isRequired: Bool
+    private let state: InputState
+    private let isSecureEntry: Bool
+    private let leadingIcon: IconName?
+    private let trailingIcon: IconName?
 
     public init(
         label: String,
         value: Binding<String>,
         placeholder: String? = nil,
         error: String? = nil,
-        isRequired: Bool = false
+        helperText: String? = nil,
+        isRequired: Bool = false,
+        state: InputState = .default,
+        isSecureEntry: Bool = false,
+        leadingIcon: IconName? = nil,
+        trailingIcon: IconName? = nil
     ) {
         self.label = label
         _value = value
         self.placeholder = placeholder
         self.error = error
+        self.helperText = helperText
         self.isRequired = isRequired
+        self.state = state
+        self.isSecureEntry = isSecureEntry
+        self.leadingIcon = leadingIcon
+        self.trailingIcon = trailingIcon
     }
 
     public var body: some View {
@@ -39,7 +54,11 @@ public struct LSFormField: View {
             LSTextField(
                 value: $value,
                 placeholder: placeholder,
-                state: error != nil ? .error : .default
+                state: error != nil ? .error : state,
+                isSecureEntry: isSecureEntry,
+                leadingIcon: leadingIcon,
+                trailingIcon: trailingIcon,
+                helperText: error == nil ? helperText : nil
             )
 
             // Error text
