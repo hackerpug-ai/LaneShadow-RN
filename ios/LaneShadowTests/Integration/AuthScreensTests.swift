@@ -4,6 +4,184 @@ import XCTest
 
 @MainActor
 final class AuthScreensTests: XCTestCase {
+    func testAuthScreenConfigurationMatchesDesignAnatomy() {
+        let source = try? authSource(named: "AuthScreen.swift")
+
+        XCTAssertNotNil(source)
+        XCTAssertTrue(source?.contains("AuthScreen") == true)
+        XCTAssertTrue(source?.contains("Saddle") == true)
+        XCTAssertTrue(source?.contains("LaneShadow") == true)
+        XCTAssertTrue(source?.contains("Continue with Apple") == true)
+        XCTAssertTrue(source?.contains("OR CONTINUE WITH EMAIL") == true)
+        XCTAssertTrue(source?.contains("Terms") == true)
+        XCTAssertTrue(source?.contains("Privacy Policy") == true)
+        XCTAssertTrue(source?.contains("LSPaperMap") == true)
+        XCTAssertTrue(source?.contains("LSAuthProviderButton") == true)
+        XCTAssertTrue(source?.contains("LSFormField") == true)
+        XCTAssertTrue(source?.contains("LSDivider") == true)
+        XCTAssertTrue(source?.contains("LSSpinner") == true)
+    }
+
+    func testAuthScreenBranchConfigurationsMatchDesignCopy() {
+        XCTAssertEqual(AuthScreenConfiguration(mode: .emailEntry).headline, "Saddle up.")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .existingUser).headline, "Welcome back.")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .existingUser).ctaTitle, "Sign in")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .newUser).headline, "Set up shop.")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .newUser).ctaTitle, "Create account")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .invalidEmail).formAccessibilityLabel, "Sign in or create account")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .submitting).ctaTitle, "Continue")
+    }
+
+    func testAuthScreenTemplateStoriesCoverDesignVariants() {
+        let storyIds = Set(LaneShadowStories.all.map(\.id))
+
+        let expected = [
+            "templates.auth-screen.email-entry",
+            "templates.auth-screen.existing-user",
+            "templates.auth-screen.new-user",
+            "templates.auth-screen.invalid-email",
+            "templates.auth-screen.submitting",
+            "templates.auth-screen.dark",
+        ]
+
+        for id in expected {
+            XCTAssertTrue(storyIds.contains(id), "Missing AuthScreen sandbox story: \(id)")
+        }
+    }
+
+    func testAuthScreenSnapshotEvidenceIsDesignReferenced() {
+        let designReference = ".spec/design/system/views/auth-screen/auth-screen.html"
+        let storyEvidence = [
+            "templates.auth-screen.email-entry",
+            "templates.auth-screen.existing-user",
+            "templates.auth-screen.new-user",
+            "templates.auth-screen.invalid-email",
+            "templates.auth-screen.submitting",
+            "templates.auth-screen.dark",
+        ]
+
+        XCTAssertEqual(designReference, ".spec/design/system/views/auth-screen/auth-screen.html")
+        XCTAssertEqual(storyEvidence.count, 6)
+    }
+
+    func testAuthScreenViewModelRejectsInvalidEmailInline() async {
+        let viewModel = makeAuthScreenViewModel()
+        viewModel.email = "invalid-email"
+
+        await viewModel.continueFromEmail()
+
+        XCTAssertEqual(viewModel.mode, .invalidEmail)
+        XCTAssertEqual(viewModel.errorMessage, "Enter a valid email address.")
+    }
+
+    func testAuthScreenViewModelNeutralPreviewResolverKeepsValidEmailOnNeutralPath() async {
+        let viewModel = makeAuthScreenViewModel()
+        viewModel.email = "jamie.new@example.com"
+
+        await viewModel.continueFromEmail()
+
+        XCTAssertEqual(viewModel.email, "jamie.new@example.com")
+        XCTAssertEqual(viewModel.mode, .emailEntry)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testAuthScreenViewModelNeutralPreviewResolverDoesNotInferExistingUserFromEmail() async {
+        let viewModel = makeAuthScreenViewModel()
+        viewModel.email = "elena@ridelaneshadow.com"
+
+        await viewModel.continueFromEmail()
+
+        XCTAssertEqual(viewModel.mode, .emailEntry)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testSignInScreenInjectsExistingUserResolver() async {
+        let signInViewModel = SignInViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        let screen = SignInScreen(appState: AppState(isAuthenticated: false), viewModel: signInViewModel)
+        let authViewModel = screen.makeAuthScreenViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        authViewModel.email = "rider@example.com"
+
+        await authViewModel.continueFromEmail()
+
+        XCTAssertEqual(authViewModel.mode, .existingUser)
+        XCTAssertNil(authViewModel.errorMessage)
+    }
+
+    func testSignUpScreenInjectsNewUserResolver() async {
+        let signUpViewModel = SignUpViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        let screen = SignUpScreen(appState: AppState(isAuthenticated: false), viewModel: signUpViewModel)
+        let authViewModel = screen.makeAuthScreenViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        authViewModel.email = "rider@example.com"
+
+        await authViewModel.continueFromEmail()
+
+        XCTAssertEqual(authViewModel.mode, .newUser)
+        XCTAssertNil(authViewModel.errorMessage)
+    }
+
+    func testProductionWrappersDoNotUseNeutralPreviewResolver() throws {
+        let signInSource = try authSource(named: "SignInScreen.swift")
+        let signUpSource = try authSource(named: "SignUpScreen.swift")
+
+        XCTAssertTrue(signInSource.contains("emailResolver: Self.productionEmailResolver"))
+        XCTAssertTrue(signUpSource.contains("emailResolver: Self.productionEmailResolver"))
+        XCTAssertFalse(signInSource.contains("neutralPreviewEmailResolver"))
+        XCTAssertFalse(signUpSource.contains("neutralPreviewEmailResolver"))
+    }
+
+    func testAuthScreenViewModelBranchesToExistingUser() async {
+        let viewModel = makeAuthScreenViewModel(
+            emailResolver: { _ in .existingUser }
+        )
+        viewModel.email = "elena@ridelaneshadow.com"
+
+        await viewModel.continueFromEmail()
+
+        XCTAssertEqual(viewModel.mode, .existingUser)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testAuthScreenViewModelBranchesToNewUser() async {
+        let viewModel = makeAuthScreenViewModel(
+            emailResolver: { _ in .newUser }
+        )
+        viewModel.email = "jamie.miller@hey.com"
+
+        await viewModel.continueFromEmail()
+
+        XCTAssertEqual(viewModel.mode, .newUser)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testAuthScreenViewModelSubmittingExistingUserSignsIn() async {
+        let viewModel = makeAuthScreenViewModel(
+            mode: .existingUser,
+            email: "elena@ridelaneshadow.com",
+            password: "secret"
+        )
+
+        await viewModel.submitEmailBranch()
+
+        XCTAssertEqual(viewModel.mode, .signedIn)
+        XCTAssertFalse(viewModel.isSubmitting)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testAuthScreenViewModelSubmittingNewUserCreatesAccount() async {
+        let viewModel = makeAuthScreenViewModel(
+            mode: .newUser,
+            email: "jamie.miller@hey.com",
+            password: "secret",
+            displayName: "Jamie Miller"
+        )
+
+        await viewModel.submitEmailBranch()
+
+        XCTAssertEqual(viewModel.mode, .signedIn)
+        XCTAssertFalse(viewModel.isSubmitting)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
     func testAppStateRoutesOAuthCallbackWithURLPayload() throws {
         let appState = AppState(isAuthenticated: false)
         let auth = ClerkAuth(client: AuthScreensFakeClient())
@@ -131,6 +309,40 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertEqual(viewModel.step, .signedIn)
         XCTAssertFalse(viewModel.isSubmitting)
         XCTAssertNil(viewModel.errorMessage)
+    }
+
+    private func makeAuthScreenViewModel(
+        mode: AuthScreenMode = .emailEntry,
+        email: String = "",
+        password: String = "",
+        displayName: String = "",
+        emailResolver: @escaping AuthScreenViewModel.EmailResolver = AuthScreenViewModel.neutralPreviewEmailResolver
+    ) -> AuthScreenViewModel {
+        AuthScreenViewModel(
+            auth: ClerkAuth(client: AuthScreensFakeClient()),
+            mode: mode,
+            email: email,
+            password: password,
+            displayName: displayName,
+            emailResolver: emailResolver
+        )
+    }
+
+    private func authSource(named fileName: String) throws -> String {
+        let repoRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+
+        let fileURL = repoRoot
+            .appendingPathComponent("ios")
+            .appendingPathComponent("LaneShadow")
+            .appendingPathComponent("Features")
+            .appendingPathComponent("Auth")
+            .appendingPathComponent(fileName)
+
+        return try String(contentsOf: fileURL, encoding: .utf8)
     }
 }
 

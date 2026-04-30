@@ -154,6 +154,14 @@ struct StoryCoverageTests {
             "molecules.formfield.auth.focused",
             "molecules.formfield.auth.disabled",
 
+            // AuthScreen templates
+            "templates.auth-screen.email-entry",
+            "templates.auth-screen.existing-user",
+            "templates.auth-screen.new-user",
+            "templates.auth-screen.invalid-email",
+            "templates.auth-screen.submitting",
+            "templates.auth-screen.dark",
+
             // RouteCard (6) - already complete
         ]
 

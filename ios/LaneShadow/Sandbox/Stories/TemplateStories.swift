@@ -15,6 +15,7 @@ enum TemplateStories {
         stories.append(contentsOf: RouteDetailsScreenStory.all)
         stories.append(contentsOf: RouteResultsScreenStory.all)
         stories.append(contentsOf: SessionsScreenStory.all)
+        stories.append(contentsOf: AuthScreenStory.all)
 
         return stories
     }()

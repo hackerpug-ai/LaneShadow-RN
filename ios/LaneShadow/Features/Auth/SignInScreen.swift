@@ -3,12 +3,10 @@ import SwiftUI
 import UIKit
 
 struct SignInScreen: View {
-    @Environment(\.theme) private var theme
     @Environment(\.appEnvironment) private var appEnvironment
 
     let appState: AppState
     @State private var viewModel: SignInViewModel
-    @State private var passwordVisibility = AuthPasswordVisibilityState()
 
     init(appState: AppState, viewModel: SignInViewModel) {
         self.appState = appState
@@ -16,65 +14,42 @@ struct SignInScreen: View {
     }
 
     var body: some View {
-        AuthBackgroundContainer {
-            VStack(spacing: theme.space.md) {
-                LSText("Sign in", variant: .title.md)
-
-                if viewModel.step == .email {
-                    LSTextField(value: $viewModel.email, placeholder: "Email")
-                    LSButton("Continue") {
-                        viewModel.advanceFromEmail()
-                    }
-                }
-
-                if viewModel.step == .password || viewModel.step == .submitting {
-                    AuthSecureTextEntry(
-                        value: $viewModel.password,
-                        placeholder: "Password",
-                        visibility: $passwordVisibility
-                    )
-                    LSButton("Sign in", isDisabled: viewModel.isSubmitting) {
-                        Task {
-                            await viewModel.submit()
-                            updateRoutingFromSharedAuth()
-                        }
-                    }
-                }
-
-                if viewModel.step == .submitting {
-                    LSSpinner()
-                }
-
-                if let errorMessage = viewModel.errorMessage {
-                    LSText(errorMessage, variant: .body.sm, color: .danger)
-                }
-
-                LSAuthProviderButton(provider: .apple) {
-                    Task {
-                        do {
-                            try await appEnvironment.clerkAuth.signInWithApple()
-                            updateRoutingFromSharedAuth()
-                        } catch {
-                            viewModel.errorMessage = error.localizedDescription
-                        }
-                    }
-                }
-
-                LSAuthProviderButton(provider: .google) {
-                    Task {
-                        do {
-                            try await appEnvironment.clerkAuth.signInWithGoogle()
-                            updateRoutingFromSharedAuth()
-                        } catch {
-                            viewModel.errorMessage = error.localizedDescription
-                        }
-                    }
-                }
-            }
-            .padding(theme.space.lg)
+        AuthScreen(
+            viewModel: makeAuthScreenViewModel(auth: appEnvironment.clerkAuth)
+        ) {
+            updateRoutingFromSharedAuth()
         }
         .accessibilityIdentifier("auth.signIn.root")
         .navigationTitle("Sign In")
+    }
+
+    func makeAuthScreenViewModel(auth: ClerkAuth) -> AuthScreenViewModel {
+        AuthScreenViewModel(
+            auth: auth,
+            mode: authScreenMode,
+            email: viewModel.email,
+            password: viewModel.password,
+            errorMessage: viewModel.errorMessage,
+            isSubmitting: viewModel.isSubmitting,
+            emailResolver: Self.productionEmailResolver
+        )
+    }
+
+    static func productionEmailResolver(_: String) async -> AuthEmailResolution {
+        .existingUser
+    }
+
+    private var authScreenMode: AuthScreenMode {
+        switch viewModel.step {
+        case .email:
+            .emailEntry
+        case .password:
+            .existingUser
+        case .submitting:
+            .submitting
+        case .signedIn:
+            .signedIn
+        }
     }
 
     private func updateRoutingFromSharedAuth() {

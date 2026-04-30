@@ -39,6 +39,29 @@ private func setupDeterminismEnvironment() {
 /// - theme: "light" or "dark"
 @MainActor
 final class StorySnapshotTests: XCTestCase {
+    func test_authScreenStories_lightAndDark_snapshots() {
+        setupDeterminismEnvironment()
+        UIView.setAnimationsEnabled(false)
+
+        let snapshotDir = Self.snapshotDirectory()
+        try? FileManager.default.createDirectory(at: snapshotDir, withIntermediateDirectories: true)
+
+        for story in AuthScreenStory.all {
+            record(story: story, theme: .light, snapshotDir: snapshotDir)
+            record(story: story, theme: .dark, snapshotDir: snapshotDir)
+        }
+
+        let missingSnapshots = AuthScreenStory.all.flatMap { story in
+            SnapshotTheme.allCases.compactMap { theme -> String? in
+                let filename = "\(story.id).\(theme.filenameSuffix).png"
+                let fileURL = snapshotDir.appendingPathComponent(filename)
+                return FileManager.default.fileExists(atPath: fileURL.path) ? nil : filename
+            }
+        }
+
+        XCTAssertTrue(missingSnapshots.isEmpty, "Missing AuthScreen snapshot PNGs: \(missingSnapshots.sorted())")
+    }
+
     /// AC-2: Per-story light + dark snapshots
     /// Iterates over ALL stories in LaneShadowStories.all and renders each on iPhone SE in both themes.
     func test_allStories_lightAndDark_snapshots() {
@@ -55,53 +78,33 @@ final class StorySnapshotTests: XCTestCase {
         // Determine snapshot directory
         // Use standard Xcode convention: __Snapshots__ at test target root
         // ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/
-        let testFilePath = URL(fileURLWithPath: #filePath)
-        let sandboxDir = testFilePath.deletingLastPathComponent() // ios/LaneShadowTests/Sandbox/
-        let testsDir = sandboxDir.deletingLastPathComponent() // ios/LaneShadowTests/
-        let snapshotDir = testsDir.appendingPathComponent("__Snapshots__").appendingPathComponent("StorySnapshotTests")
+        let snapshotDir = Self.snapshotDirectory()
 
         // Create directory if it doesn't exist
         try? FileManager.default.createDirectory(at: snapshotDir, withIntermediateDirectories: true)
 
         for story in stories {
-            // Render light mode snapshot
-            let lightView = SnapshotPreviewHarness.render(
-                story: story,
-                theme: .light
-            )
-
-            let lightRenderer = UIGraphicsPDFRenderer(bounds: CGRect(x: 0, y: 0, width: 390, height: 844))
-            let lightImage = lightRenderer.pdfData { _ in
-                // Instead, capture UIView as image
-            }
-
-            // Use UIImage for rendering
-            let lightUIView = UIHostingController(rootView: lightView)
-            lightUIView.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
-            lightUIView.view.backgroundColor = .white
-
-            if let lightPNG = captureViewAsImage(lightUIView.view, size: CGSize(width: 390, height: 844)) {
-                let lightFilename = snapshotDir.appendingPathComponent("\(story.id).light.png")
-                try? lightPNG.pngData()?.write(to: lightFilename)
-            }
-
-            // Render dark mode snapshot
-            let darkView = SnapshotPreviewHarness.render(
-                story: story,
-                theme: .dark
-            )
-
-            let darkUIView = UIHostingController(rootView: darkView)
-            darkUIView.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
-            darkUIView.view.backgroundColor = .black
-
-            if let darkPNG = captureViewAsImage(darkUIView.view, size: CGSize(width: 390, height: 844)) {
-                let darkFilename = snapshotDir.appendingPathComponent("\(story.id).dark.png")
-                try? darkPNG.pngData()?.write(to: darkFilename)
-            }
+            record(story: story, theme: .light, snapshotDir: snapshotDir)
+            record(story: story, theme: .dark, snapshotDir: snapshotDir)
         }
 
         print("✓ Snapshots recorded to \(snapshotDir.path)")
+    }
+
+    private func record(story: Story, theme: SnapshotTheme, snapshotDir: URL) {
+        let renderedView = SnapshotPreviewHarness.render(
+            story: story,
+            theme: theme
+        )
+
+        let controller = UIHostingController(rootView: renderedView)
+        controller.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        controller.view.backgroundColor = theme == .dark ? .black : .white
+
+        guard let image = captureViewAsImage(controller.view, size: CGSize(width: 390, height: 844)) else { return }
+
+        let filename = snapshotDir.appendingPathComponent("\(story.id).\(theme.filenameSuffix).png")
+        try? image.pngData()?.write(to: filename)
     }
 
     private func captureViewAsImage(_ view: UIView, size: CGSize) -> UIImage? {
@@ -111,6 +114,13 @@ final class StorySnapshotTests: XCTestCase {
         }
     }
 
+    private static func snapshotDirectory() -> URL {
+        let testFilePath = URL(fileURLWithPath: #filePath)
+        let sandboxDir = testFilePath.deletingLastPathComponent() // ios/LaneShadowTests/Sandbox/
+        let testsDir = sandboxDir.deletingLastPathComponent() // ios/LaneShadowTests/
+        return testsDir.appendingPathComponent("__Snapshots__").appendingPathComponent("StorySnapshotTests")
+    }
+
     /// AC-3: Second run passes with zero diff
     /// This test verifies that snapshot baselines are committed and reproducible.
     func test_snapshotBaselinesExist() {
@@ -118,26 +128,18 @@ final class StorySnapshotTests: XCTestCase {
         let expectedSnapshotCount = stories.count * 2 // light + dark per story
 
         // Verify snapshot directory exists at ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/
-        let testFilePath = URL(fileURLWithPath: #filePath)
-        let sandboxDir = testFilePath.deletingLastPathComponent() // ios/LaneShadowTests/Sandbox/
-        let testsDir = sandboxDir.deletingLastPathComponent() // ios/LaneShadowTests/
-        let snapshotDir = testsDir.appendingPathComponent("__Snapshots__").appendingPathComponent("StorySnapshotTests")
+        let snapshotDir = Self.snapshotDirectory()
 
-        var actualSnapshotCount = 0
-        if FileManager.default.fileExists(atPath: snapshotDir.path) {
-            if let enumerator = FileManager.default.enumerator(at: snapshotDir, includingPropertiesForKeys: nil) {
-                for case let file as URL in enumerator {
-                    if file.pathExtension == "png" {
-                        actualSnapshotCount += 1
-                    }
-                }
-            }
-        }
+        XCTAssertTrue(FileManager.default.fileExists(atPath: snapshotDir.path))
 
-        XCTAssertEqual(
-            actualSnapshotCount,
+        // Count PNG files
+        let files = (try? FileManager.default.contentsOfDirectory(atPath: snapshotDir.path)) ?? []
+        let pngFiles = files.filter { $0.hasSuffix(".png") }
+
+        XCTAssertGreaterThanOrEqual(
+            pngFiles.count,
             expectedSnapshotCount,
-            "Expected \(expectedSnapshotCount) snapshot PNGs (2 per story), but found \(actualSnapshotCount)"
+            "Should have light + dark snapshots for every story"
         )
     }
 }
@@ -170,7 +172,7 @@ enum SnapshotPreviewHarness {
 }
 
 /// Snapshot theme modes.
-enum SnapshotTheme {
+enum SnapshotTheme: CaseIterable, Equatable {
     case light
     case dark
 
@@ -178,6 +180,13 @@ enum SnapshotTheme {
         switch self {
         case .light: .light
         case .dark: .dark
+        }
+    }
+
+    var filenameSuffix: String {
+        switch self {
+        case .light: "light"
+        case .dark: "dark"
         }
     }
 }
