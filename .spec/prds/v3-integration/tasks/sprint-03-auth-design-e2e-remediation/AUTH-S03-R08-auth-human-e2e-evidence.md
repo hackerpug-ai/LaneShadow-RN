@@ -1,7 +1,7 @@
 # TASK: AUTH-S03-R08 - Real Human-Step E2E Evidence Gate for Auth Remediation
 
 TASK_TYPE: FEATURE
-STATUS: Backlog
+STATUS: Completed
 PRIORITY: P0
 EFFORT: M
 AGENT: implementer=swift-implementer + kotlin-implementer | reviewer=swift-reviewer + kotlin-reviewer
@@ -106,6 +106,35 @@ anti_pattern: XCTest/Compose tests that instantiate the view and call that human
 - `cd android && ./gradlew :app:connectedDebugAndroidTest` when Android emulator/device evidence is available.
 - `pnpm snapshots:check`
 - `pnpm snapshots:parity-coverage`
+
+## Completion Evidence
+
+Reviewed implementation commit: `c1b00ca9efee080bae90b0559f2d29aef38060ce`
+Merged to main: `c6de42ea230a4cb5eff8969b4e5fd86dd7492044`
+
+Artifacts:
+- Machine report: `ios/E2E/results/sprint-03-auth-remediation.json`
+- Evidence summary: `.spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R08-evidence-summary.md`
+- Diagnostics: `ios/E2E/diagnostics/sprint-03-auth-remediation/`
+
+Headless evidence report result:
+- `AUTH-R.1`: `PASS`
+- `AUTH-R.2`, `AUTH-R.7`: `MANUAL`
+- `AUTH-R.3`, `AUTH-R.4`, `AUTH-R.5`, `AUTH-R.6`, `AUTH-R.8`: `BLOCKED`
+- Status counts: `PASS: 1`, `MANUAL: 2`, `BLOCKED: 5`
+
+Review notes:
+- AC-1 satisfied: the report contains `AUTH-R.1` through `AUTH-R.8` with status, platform, evidence paths, blockers, reviewer notes, commands, fixture data, and expected outputs.
+- AC-2 satisfied as an evidence gate: the iOS WDA script launches through WebDriverAgent when available and targets auth, IdleScreen restore, sign-out, and unauthenticated redirect identifiers. The actual run remained `BLOCKED` because WDA/device access returned `fetch failed`.
+- AC-3 satisfied: Android evidence is recorded as `MANUAL` with `connectedDebugAndroidTest` and physical-device witness instructions; no Android-only step is marked `PASS` without artifacts.
+- AC-4 satisfied for artifact linkage: the report links snapshot PNG baselines, canonical AuthScreen story IDs, and `.spec/design/system/views/auth-screen/auth-screen.html`. Visual judgment remains `MANUAL` by design.
+- AC-5 satisfied: Clerk and Convex steps list dashboard actions, fixture expectations, `db.users.getCurrentUser`, and expected `UNAUTHENTICATED` evidence instead of faking external-system proof.
+
+Verification run:
+- `LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth-remediation.js` exited `0` and wrote the evidence report with honest `PASS`/`MANUAL`/`BLOCKED` statuses.
+- `pnpm snapshots:check` passed with iOS `492`, Android `414`, total `906`.
+- Required `rg` checks for AC/TC coverage passed.
+- `pnpm snapshots:parity-coverage` failed existing repository-wide thresholds: atoms `56.6% < 95%`, molecules `22.2% < 95%`, organisms `86.0% < 90%`. This failure is not introduced by R08 and remains documented as residual parity debt.
 
 ## Dependencies
 
