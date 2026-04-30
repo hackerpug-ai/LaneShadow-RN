@@ -10,7 +10,7 @@
         ios_build ios_dev ios_start ios_sandbox ios_sandbox_story ios_test \
         ios_e2e_vars ios_e2e_devices ios_e2e_install_device ios_e2e_wda_status ios_e2e_headed ios_e2e_auth_headed \
         android_build android_dev android_start android_sandbox android_sandbox_story android_test \
-        android_e2e_auth_headed \
+        android_e2e_headed android_e2e_auth_headed \
         test
 
 LANESHADOW_BUNDLE_ID ?= com.laneshadow.app
@@ -196,7 +196,7 @@ e2e_vars: ## Show variables for headed iOS/Android E2E
 	@echo "List devices:"
 	@echo "  make ios_e2e_devices"
 	@echo ""
-	@echo "Run headed auth E2E:"
+	@echo "Run headed E2E:"
 	@echo "  make ios_e2e_headed"
 	@echo "  # auto-detects IOS_UDID and reads CLERK_TEST_EMAIL / CLERK_TEST_PASSWORD from .env.local"
 	@echo "  # override with IOS_UDID=<device-udid> when needed"
@@ -209,9 +209,9 @@ e2e_vars: ## Show variables for headed iOS/Android E2E
 	@echo "  ANDROID_E2E_INSTALL=$(ANDROID_E2E_INSTALL)"
 	@echo "  ANDROID_E2E_TEST_CLASSES=$(ANDROID_E2E_TEST_CLASSES)"
 	@echo ""
-	@echo "Run headed auth E2E:"
-	@echo "  make android_e2e_auth_headed"
-	@echo "  make android_e2e_auth_headed ANDROID_SERIAL=<adb-serial>"
+	@echo "Run headed E2E:"
+	@echo "  make android_e2e_headed"
+	@echo "  make android_e2e_headed ANDROID_SERIAL=<adb-serial>"
 
 ios_e2e_vars: e2e_vars ## Show variables for headed iOS/Android E2E
 
@@ -281,22 +281,54 @@ ios_e2e_headed: ## Run headed iOS E2E on a real device (set IOS_UDID=...)
 		echo "WARN: CLERK_TEST_PASSWORD/LANESHADOW_AUTH_PASSWORD is empty; email/password auth will be recorded as BLOCKED unless provider auth succeeds."; \
 	fi; \
 	mkdir -p ios/E2E/diagnostics; \
-	ios runwda --udid "$(IOS_UDID)" > ios/E2E/diagnostics/wda-runwda.log 2>&1 & \
+	IOS_TUNNEL_PORT=$$(ios tunnel ls --udid "$(IOS_UDID)" 2>/dev/null | node -e 'let input = ""; process.stdin.on("data", c => input += c); process.stdin.on("end", () => { try { const rows = JSON.parse(input); const row = Array.isArray(rows) ? rows[0] : null; if (row?.userspaceTunPort) process.stdout.write(String(row.userspaceTunPort)); } catch {} });'); \
+	if [ -z "$$IOS_TUNNEL_PORT" ]; then \
+		echo "==> Starting iOS userspace tunnel for $(IOS_UDID)..."; \
+		ios tunnel start --userspace --udid "$(IOS_UDID)" > ios/E2E/diagnostics/wda-tunnel.log 2>&1 & \
+		TUNNEL_PID=$$!; \
+		for attempt in 1 2 3 4 5 6 7 8 9 10; do \
+			IOS_TUNNEL_PORT=$$(ios tunnel ls --udid "$(IOS_UDID)" 2>/dev/null | node -e 'let input = ""; process.stdin.on("data", c => input += c); process.stdin.on("end", () => { try { const rows = JSON.parse(input); const row = Array.isArray(rows) ? rows[0] : null; if (row?.userspaceTunPort) process.stdout.write(String(row.userspaceTunPort)); } catch {} });'); \
+			if [ -n "$$IOS_TUNNEL_PORT" ]; then break; fi; \
+			sleep 1; \
+		done; \
+	else \
+		TUNNEL_PID=""; \
+	fi; \
+	if [ -n "$$IOS_TUNNEL_PORT" ]; then \
+		echo "==> Using iOS userspace tunnel port $$IOS_TUNNEL_PORT"; \
+		IOS_TUNNEL_ARGS="--userspace-port=$$IOS_TUNNEL_PORT"; \
+	else \
+		echo "WARN: No iOS userspace tunnel discovered; trying standard go-ios forwarding."; \
+		IOS_TUNNEL_ARGS=""; \
+	fi; \
+	ios runwda --udid "$(IOS_UDID)" $$IOS_TUNNEL_ARGS > ios/E2E/diagnostics/wda-runwda.log 2>&1 & \
 	WDA_PID=$$!; \
-	ios forward "$(IOS_WDA_PORT)" 8100 --udid "$(IOS_UDID)" > ios/E2E/diagnostics/wda-forward.log 2>&1 & \
+	sleep 3; \
+	ios forward "$(IOS_WDA_PORT)" 8100 --udid "$(IOS_UDID)" $$IOS_TUNNEL_ARGS > ios/E2E/diagnostics/wda-forward.log 2>&1 & \
 	FORWARD_PID=$$!; \
 	cleanup() { \
 		kill $$WDA_PID $$FORWARD_PID >/dev/null 2>&1 || true; \
+		if [ -n "$$TUNNEL_PID" ]; then kill $$TUNNEL_PID >/dev/null 2>&1 || true; fi; \
 		wait $$WDA_PID $$FORWARD_PID >/dev/null 2>&1 || true; \
 	}; \
 	trap cleanup EXIT INT TERM; \
 	echo "==> Waiting for WDA at $(WDA_BASE_URL)/status..."; \
-	for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do \
-		if curl -fsS "$(WDA_BASE_URL)/status" >/dev/null; then \
+	for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30; do \
+		if ! kill -0 $$WDA_PID >/dev/null 2>&1; then \
+			echo "ERROR: WDA exited before becoming ready. See ios/E2E/diagnostics/wda-runwda.log"; \
+			tail -n 40 ios/E2E/diagnostics/wda-runwda.log || true; \
+			exit 1; \
+		fi; \
+		if ! kill -0 $$FORWARD_PID >/dev/null 2>&1; then \
+			echo "ERROR: WDA port forward exited before WDA became ready. See ios/E2E/diagnostics/wda-forward.log"; \
+			tail -n 40 ios/E2E/diagnostics/wda-forward.log || true; \
+			exit 1; \
+		fi; \
+		if curl -fsS "$(WDA_BASE_URL)/status" >/dev/null 2>&1; then \
 			echo "==> WDA is ready."; \
 			break; \
 		fi; \
-		if [ "$$attempt" = "15" ]; then \
+		if [ "$$attempt" = "30" ]; then \
 			echo "ERROR: WDA did not become ready. See ios/E2E/diagnostics/wda-runwda.log and ios/E2E/diagnostics/wda-forward.log"; \
 			exit 1; \
 		fi; \
@@ -394,7 +426,7 @@ android_sandbox_story: ## Launch Android sandbox directly to one story (set STOR
 android_test: ## Run Android instrumented tests
 	cd android && ./gradlew connectedDebugAndroidTest
 
-android_e2e_auth_headed: ## Run headed Android auth E2E on a device/emulator
+android_e2e_headed: ## Run headed Android E2E on a device/emulator
 	@command -v adb >/dev/null || { echo "ERROR: adb is missing"; exit 1; }
 	@echo "==> Checking for a connected Android device/emulator..."
 	@adb devices 2>/dev/null | awk 'NR > 1 && $$2 == "device" { found = 1 } END { exit found ? 0 : 1 }' || { \
@@ -410,6 +442,9 @@ android_e2e_auth_headed: ## Run headed Android auth E2E on a device/emulator
 	}
 	@if [ "$(ANDROID_E2E_INSTALL)" = "1" ]; then \
 		echo "==> Building and installing Android debug app..."; \
+		set -a; \
+		if [ -f .env.local ]; then . ./.env.local; fi; \
+		set +a; \
 		cd android && ./gradlew installDebug; \
 	fi
 	@echo "==> Launching LaneShadow before instrumentation..."
@@ -417,13 +452,18 @@ android_e2e_auth_headed: ## Run headed Android auth E2E on a device/emulator
 	if [ -n "$(ANDROID_SERIAL)" ]; then ADB_CMD="adb -s $(ANDROID_SERIAL)"; fi; \
 	$$ADB_CMD shell am start -W -n "$(ANDROID_PACKAGE)/$(ANDROID_ACTIVITY)"
 	@echo "==> Running Android auth instrumentation: $(ANDROID_E2E_TEST_CLASSES)"
-	@cd android && if [ -n "$(ANDROID_SERIAL)" ]; then \
+	@set -a; \
+	if [ -f .env.local ]; then . ./.env.local; fi; \
+	set +a; \
+	cd android && if [ -n "$(ANDROID_SERIAL)" ]; then \
 		ANDROID_SERIAL="$(ANDROID_SERIAL)" ./gradlew :app:connectedDebugAndroidTest \
 			-Pandroid.testInstrumentationRunnerArguments.class="$(ANDROID_E2E_TEST_CLASSES)"; \
 	else \
 		./gradlew :app:connectedDebugAndroidTest \
 			-Pandroid.testInstrumentationRunnerArguments.class="$(ANDROID_E2E_TEST_CLASSES)"; \
 	fi
+
+android_e2e_auth_headed: android_e2e_headed ## Alias for android_e2e_headed
 
 test: ## Run all platform tests (iOS + Android)
 	@echo "Running iOS tests..."
