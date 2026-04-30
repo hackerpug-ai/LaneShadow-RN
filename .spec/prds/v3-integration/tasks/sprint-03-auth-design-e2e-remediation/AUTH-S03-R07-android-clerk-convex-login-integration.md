@@ -1,7 +1,7 @@
 # TASK: AUTH-S03-R07 - Android Clerk-to-Convex Login Integration and Routing Proof
 
 TASK_TYPE: FEATURE
-STATUS: Backlog
+STATUS: Completed
 PRIORITY: P0
 EFFORT: M
 AGENT: implementer=kotlin-implementer | reviewer=kotlin-reviewer
@@ -106,6 +106,29 @@ anti_pattern: setting repository state to SignedIn while app navigation or Conve
 - `cd android && ./gradlew :app:compileDebugKotlin`
 - `cd android && ./gradlew :app:testDebugUnitTest --tests '*Auth*'`
 - `cd android && ./gradlew :app:connectedDebugAndroidTest` when emulator/device evidence is available.
+
+## Review (kotlin-reviewer contract) - 2026-04-30
+
+Final reviewed commit: `301b9ecce17702e226f7fc75dfd202ce56d6cb68`
+Merged to `main`: `8a019d620db8cdbf28e36bc2e21fa1d08c5f66e0`
+
+Acceptance Criteria:
+- [x] AC-1: Sign-in and OAuth update the app auth Flow. Evidence: `ClerkAuthRepository` restores persisted JWT state and updates the navigation-observed `AuthState` Flow for sign-in, OAuth, restore, sign-out, and unauthenticated errors.
+- [x] AC-2: Convex auth receives the Clerk JWT. Evidence: `ConvexClientProvider` binds the Clerk JWT before authenticated queries; focused Convex/auth tests passed.
+- [x] AC-3: IdleScreen greeting waits for current user. Evidence: `MainNavViewModel` calls `getCurrentUser()` and renders `IdleScreen` only after `displayName` is available.
+- [x] AC-4: Restore and sign-out clear the correct state. Evidence: repository restore/sign-out tests and `ConvexClientProvider.signOut()` behavior tests passed.
+- [x] AC-5: Convex unauthenticated errors redirect to AuthScreen. Evidence: `ConvexClientProvider` maps `UNAUTHENTICATED`, clears Convex/auth state, and sets the session-expired auth error observed by the auth graph.
+
+Test Criteria:
+- [x] TC-1: Android successful sign-in mutates navigation-observed auth state.
+- [x] TC-2: Android Convex auth provider returns a Clerk JWT for authenticated queries.
+- [x] TC-3: Android IdleScreen greeting depends on Convex current user data.
+- [x] TC-4: Android sign-out clears auth and local app state.
+- [x] TC-5: Android unauthenticated Convex errors route back to AuthScreen.
+
+Notes:
+- First review found a runtime crash in the Convex logout success path and source-string-only sign-out clearing coverage. The follow-up commit fixed the `Void` result path and added behavioral sign-out coverage.
+- Review and remediation were run headless with CLI Gradle and `rg` verification.
 
 ## Dependencies
 

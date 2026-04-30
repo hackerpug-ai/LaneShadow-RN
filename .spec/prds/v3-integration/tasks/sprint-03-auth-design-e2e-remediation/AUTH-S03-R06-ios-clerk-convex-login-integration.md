@@ -1,7 +1,7 @@
 # TASK: AUTH-S03-R06 - iOS Clerk-to-Convex Login Integration and Routing Proof
 
 TASK_TYPE: FEATURE
-STATUS: Backlog
+STATUS: Completed
 PRIORITY: P0
 EFFORT: M
 AGENT: implementer=swift-implementer | reviewer=swift-reviewer
@@ -108,6 +108,29 @@ anti_pattern: setting a local SignInViewModel state to signed-in while RootView 
 - `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:LaneShadowTests/AuthScreensTests`
 - `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:LaneShadowTests/ClerkAuthTests`
 - `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' build`
+
+## Review (swift-reviewer contract) - 2026-04-30
+
+Final reviewed commit: `f40355e26b9b2278cb674f4d73ed46ce6ed85bbb`
+Merged to `main`: `ff0f564e69830111bab9ac8e903e526e8e967a00`
+
+Acceptance Criteria:
+- [x] AC-1: Sign-in and OAuth update the RootView auth source. Evidence: AuthScreen completion calls shared `AppState.completeAuthentication` with the environment `ClerkAuth` and `LaneShadowConvexClient`; `AuthScreensTests` passed.
+- [x] AC-2: Convex auth receives the Clerk JWT. Evidence: `LaneShadowConvexClient.setAuth(clerkJWTProvider:)` bridges Clerk JWTs into the Convex auth provider; `ClerkAuthTests` passed.
+- [x] AC-3: IdleScreen greeting waits for current user. Evidence: auth completion fetches `db/users:getCurrentUser` before setting `isAuthenticated`, stores `displayName`, and renders the personalized IdleScreen greeting.
+- [x] AC-4: Restore and sign-out clear the correct state. Evidence: restore, sign-out, token clearing, route clearing, and current-user hydration are covered by `RootViewTests`.
+- [x] AC-5: Convex unauthenticated errors redirect to AuthScreen. Evidence: `LaneShadowConvexClient` now invokes a registered handler for `UNAUTHENTICATED` subscription/query/mutation/action failures; RootView registers the production handler and a regression test drives a failing `subscribeToSessions()` path.
+
+Test Criteria:
+- [x] TC-1: iOS successful sign-in mutates RootView-observed auth state.
+- [x] TC-2: iOS Convex auth provider returns a Clerk JWT for authenticated queries.
+- [x] TC-3: iOS IdleScreen greeting depends on Convex current user data.
+- [x] TC-4: iOS sign-out clears auth and local app state.
+- [x] TC-5: iOS unauthenticated Convex errors route back to AuthScreen.
+
+Notes:
+- First review found AC-5 was test-only plumbing. The follow-up commit wired `UNAUTHENTICATED` handling into production Convex subscription/error paths.
+- Review and remediation were run headless with CLI `xcodebuild` and `rg` verification.
 
 ## Dependencies
 
