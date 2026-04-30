@@ -117,7 +117,7 @@ private fun mapNameToMaterialIcon(name: String): ImageVector {
 
         // Security icons
         "lock", "locked" -> Glyphs.Filled.Lock
-        "eye", "visibility" -> Glyphs.Filled.Info
+        "eye", "visibility" -> Glyphs.Filled.Visibility
 
         // Location icons
         "location", "map", "pin", "place" -> Glyphs.Filled.Place
