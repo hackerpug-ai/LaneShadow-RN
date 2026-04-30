@@ -5,6 +5,8 @@ import com.laneshadow.ui.auth.models.AuthScreenStep
 import com.laneshadow.ui.auth.viewmodels.AuthEmailBranchResolver
 import com.laneshadow.ui.auth.viewmodels.AuthEmailBranchResult
 import com.laneshadow.ui.auth.viewmodels.AuthScreenViewModel
+import com.laneshadow.ui.auth.viewmodels.SignInRouteAuthEmailBranchResolver
+import com.laneshadow.ui.auth.viewmodels.SignUpRouteAuthEmailBranchResolver
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,7 +41,19 @@ class AuthScreenViewModelTest {
     }
 
     @Test
-    fun continueFromEmail_usesResolverExistingUserResult() = runTest {
+    fun signInRouteResolver_returnsExistingUserForValidRouteEmail() = runTest {
+        assertThat(SignInRouteAuthEmailBranchResolver.resolve("same.email@example.com"))
+            .isEqualTo(AuthEmailBranchResult.ExistingUser)
+    }
+
+    @Test
+    fun signUpRouteResolver_returnsNewUserForValidRouteEmail() = runTest {
+        assertThat(SignUpRouteAuthEmailBranchResolver.resolve("same.email@example.com"))
+            .isEqualTo(AuthEmailBranchResult.NewUser)
+    }
+
+    @Test
+    fun continueFromEmail_usesResolverExistingUserResultWithoutEmailHeuristics() = runTest {
         val resolver = RecordingEmailBranchResolver(AuthEmailBranchResult.ExistingUser)
         val viewModel = AuthScreenViewModel(resolver)
 
@@ -53,15 +67,15 @@ class AuthScreenViewModelTest {
     }
 
     @Test
-    fun continueFromEmail_usesResolverNewUserResult() = runTest {
+    fun continueFromEmail_usesResolverNewUserResultWithoutEmailHeuristics() = runTest {
         val resolver = RecordingEmailBranchResolver(AuthEmailBranchResult.NewUser)
         val viewModel = AuthScreenViewModel(resolver)
 
-        viewModel.onEmailChanged("jamie.miller@hey.com")
+        viewModel.onEmailChanged("elena@ridelaneshadow.com")
         viewModel.continueFromEmail()
         advanceUntilIdle()
 
-        assertThat(resolver.requests).containsExactly("jamie.miller@hey.com")
+        assertThat(resolver.requests).containsExactly("elena@ridelaneshadow.com")
         assertThat(viewModel.uiState.value.step).isEqualTo(AuthScreenStep.NewUser)
         assertThat(viewModel.uiState.value.isSubmitting).isFalse()
     }

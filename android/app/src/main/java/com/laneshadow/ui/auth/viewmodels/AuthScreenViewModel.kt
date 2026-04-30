@@ -1,6 +1,7 @@
 package com.laneshadow.ui.auth.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.laneshadow.ui.auth.models.AuthScreenStep
 import com.laneshadow.ui.auth.models.AuthScreenUiState
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AuthScreenViewModel(
-    private val emailBranchResolver: AuthEmailBranchResolver = ExistingUserAuthEmailBranchResolver,
+    private val emailBranchResolver: AuthEmailBranchResolver,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(AuthScreenUiState())
     val uiState: StateFlow<AuthScreenUiState> = _uiState.asStateFlow()
@@ -94,6 +95,18 @@ class AuthScreenViewModel(
         _uiState.value = state
     }
 
+    companion object {
+        fun factory(emailBranchResolver: AuthEmailBranchResolver): ViewModelProvider.Factory =
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    if (modelClass.isAssignableFrom(AuthScreenViewModel::class.java)) {
+                        return AuthScreenViewModel(emailBranchResolver) as T
+                    }
+                    throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+                }
+            }
+    }
 }
 
 interface AuthEmailBranchResolver {
@@ -106,7 +119,12 @@ sealed interface AuthEmailBranchResult {
     data class Unavailable(val message: String) : AuthEmailBranchResult
 }
 
-object ExistingUserAuthEmailBranchResolver : AuthEmailBranchResolver {
+object SignInRouteAuthEmailBranchResolver : AuthEmailBranchResolver {
     override suspend fun resolve(email: String): AuthEmailBranchResult =
         AuthEmailBranchResult.ExistingUser
+}
+
+object SignUpRouteAuthEmailBranchResolver : AuthEmailBranchResolver {
+    override suspend fun resolve(email: String): AuthEmailBranchResult =
+        AuthEmailBranchResult.NewUser
 }

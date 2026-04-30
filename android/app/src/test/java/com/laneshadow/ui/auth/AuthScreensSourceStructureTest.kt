@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.platform.UriHandler
 import com.laneshadow.data.model.AuthState
 import com.laneshadow.data.model.ClerkUser
 import com.laneshadow.data.repository.AuthRepository
@@ -94,6 +95,30 @@ class AuthScreensSourceStructureTest {
         composeTestRule.onNodeWithText("Display name").assertIsDisplayed()
         composeTestRule.onNodeWithText("Create password").fetchSemanticsNode()
         composeTestRule.onNodeWithTag("auth_create_account_button").fetchSemanticsNode()
+    }
+
+    @Test
+    fun authLegalLink_opensConfiguredUri() {
+        val uriHandler = RecordingUriHandler()
+
+        openAuthLegalLink(uriHandler, AuthTermsUrl)
+        openAuthLegalLink(uriHandler, AuthPrivacyUrl)
+
+        assertEquals(listOf(AuthTermsUrl, AuthPrivacyUrl), uriHandler.openedUris)
+    }
+
+    @Test
+    fun authScreen_productionWiresRouteResolversAndLegalHandlers() {
+        val authScreenSource = File("src/main/java/com/laneshadow/ui/auth/AuthScreen.kt").readText()
+        val signInSource = File("src/main/java/com/laneshadow/ui/auth/SignInScreen.kt").readText()
+        val signUpSource = File("src/main/java/com/laneshadow/ui/auth/SignUpScreen.kt").readText()
+
+        assertTrue(authScreenSource.contains("emailBranchResolver: AuthEmailBranchResolver = SignInRouteAuthEmailBranchResolver"))
+        assertTrue(signInSource.contains("AuthScreenViewModel.factory(SignInRouteAuthEmailBranchResolver)"))
+        assertTrue(signUpSource.contains("emailBranchResolver = SignUpRouteAuthEmailBranchResolver"))
+        assertTrue(authScreenSource.contains("onTerms = onTerms"))
+        assertTrue(authScreenSource.contains("onPrivacy = onPrivacy"))
+        assertTrue(authScreenSource.contains("LocalUriHandler.current"))
     }
 
     @Test
@@ -202,4 +227,12 @@ private class FakeAuthRepository : AuthRepository {
     override suspend fun getJwtForConvex(): String = ""
 
     override fun observeAuthState(): StateFlow<AuthState> = authStateFlow
+}
+
+private class RecordingUriHandler : UriHandler {
+    val openedUris = mutableListOf<String>()
+
+    override fun openUri(uri: String) {
+        openedUris += uri
+    }
 }

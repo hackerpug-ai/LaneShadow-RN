@@ -31,6 +31,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -72,15 +74,23 @@ import com.laneshadow.ui.atoms.SpinnerSize
 import com.laneshadow.ui.atoms.TypographyVariant
 import com.laneshadow.ui.auth.models.AuthScreenStep
 import com.laneshadow.ui.auth.models.AuthScreenUiState
+import com.laneshadow.ui.auth.viewmodels.AuthEmailBranchResolver
 import com.laneshadow.ui.auth.viewmodels.AuthScreenViewModel
+import com.laneshadow.ui.auth.viewmodels.SignInRouteAuthEmailBranchResolver
 import com.laneshadow.ui.components.AuthProvider
 import com.laneshadow.ui.components.LSAuthProviderButton
 import com.laneshadow.ui.molecules.LSFormField
 
+internal const val AuthTermsUrl = "https://laneshadow.com/terms"
+internal const val AuthPrivacyUrl = "https://laneshadow.com/privacy"
+
 @Composable
 fun AuthScreen(
     viewModel: AuthViewModel = hiltViewModel(),
-    authScreenViewModel: AuthScreenViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    emailBranchResolver: AuthEmailBranchResolver = SignInRouteAuthEmailBranchResolver,
+    authScreenViewModel: AuthScreenViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+        factory = AuthScreenViewModel.factory(emailBranchResolver),
+    ),
     initialState: AuthScreenUiState? = null,
     showBackButton: Boolean = true,
     onBack: () -> Unit = {},
@@ -88,6 +98,13 @@ fun AuthScreen(
 ) {
     val uiState by authScreenViewModel.uiState.collectAsStateWithLifecycle()
     val authState by viewModel.authState.collectAsStateWithLifecycle()
+    val uriHandler = LocalUriHandler.current
+    val onTerms = remember(uriHandler) {
+        { openAuthLegalLink(uriHandler, AuthTermsUrl) }
+    }
+    val onPrivacy = remember(uriHandler) {
+        { openAuthLegalLink(uriHandler, AuthPrivacyUrl) }
+    }
 
     LaunchedEffect(initialState) {
         initialState?.let(authScreenViewModel::setPreviewState)
@@ -129,8 +146,14 @@ fun AuthScreen(
         },
         onApple = viewModel::signInWithApple,
         onGoogle = viewModel::signInWithGoogle,
+        onTerms = onTerms,
+        onPrivacy = onPrivacy,
         modifier = modifier,
     )
+}
+
+internal fun openAuthLegalLink(uriHandler: UriHandler, url: String) {
+    uriHandler.openUri(url)
 }
 
 @Composable
