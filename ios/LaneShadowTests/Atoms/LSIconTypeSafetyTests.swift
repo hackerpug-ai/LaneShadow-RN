@@ -1,51 +1,27 @@
+import LaneShadowTheme
+import SnapshotTesting
+import SwiftUI
 import XCTest
 @testable import LaneShadow
 
+@MainActor
 final class LSIconTypeSafetyTests: XCTestCase {
     func test_color_param_rejects_raw_Color() {
-        let expectedCases: [IconContentColor] = [
-            .primary,
-            .secondary,
-            .tertiary,
-            .subtle,
-            .onSignal,
-            .signal,
-        ]
-
+        let expectedCases: [IconContentColor] = [.primary, .secondary, .tertiary, .subtle, .onSignal, .signal]
         XCTAssertEqual(IconContentColor.allCases, expectedCases)
-
-        let icon = LSIcon(name: .star, size: .sm, color: .signal)
-        XCTAssertNotNil(icon)
-
-        // Compile-time gate: this intentionally remains commented because it must not compile.
-        // let _ = LSIcon(name: .star, size: .sm, color: Color.red)
+        XCTAssertNotNil(LSIcon(name: .star, size: .sm, color: .signal))
     }
 
-    func test_authscreen_glyphs_supported_by_icon_layers() throws {
-        let lsIconSource = try String(
-            contentsOfFile: sourceFilePath("LaneShadow/Views/Atoms/LSIcon.swift"),
-            encoding: .utf8
-        )
-        let adapterSource = try String(
-            contentsOfFile: sourceFilePath("LaneShadow/Views/Atoms/IconSymbolIOS.swift"),
-            encoding: .utf8
-        )
+    func test_authscreen_glyphs_render_via_ios_symbol_adapter() {
+        let view = HStack(spacing: Theme.shared.space.sm) {
+            LSIconSymbolIOS(name: "mail", testID: "mail")
+            LSIconSymbolIOS(name: "lock", testID: "lock")
+            LSIconSymbolIOS(name: "eye", testID: "eye")
+            LSIconSymbolIOS(name: "check", testID: "check")
+        }
+        .padding(Theme.shared.space.lg)
+        .laneShadowTheme()
 
-        XCTAssertTrue(lsIconSource.contains("case .compass"))
-        XCTAssertTrue(lsIconSource.contains("case .chevL"))
-        XCTAssertTrue(lsIconSource.contains("case .sparkle"))
-        XCTAssertTrue(adapterSource.contains("\"mail\""))
-        XCTAssertTrue(adapterSource.contains("\"lock\""))
-        XCTAssertTrue(adapterSource.contains("\"eye\""))
-        XCTAssertTrue(adapterSource.contains("\"check\""))
-    }
-
-    private func sourceFilePath(_ relativePath: String) -> String {
-        URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appendingPathComponent(relativePath)
-            .path
+        assertSnapshot(matching: view, as: .image(precision: 0.95, traits: .init(userInterfaceStyle: .light)))
     }
 }

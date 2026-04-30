@@ -151,6 +151,7 @@ struct StoryCoverageTests {
             "molecules.formfield.auth.email-default",
             "molecules.formfield.auth.password-secure",
             "molecules.formfield.auth.error",
+            "molecules.formfield.auth.focused",
             "molecules.formfield.auth.disabled",
 
             // RouteCard (6) - already complete

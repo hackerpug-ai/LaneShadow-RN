@@ -14,6 +14,8 @@ public struct LSFormField: View {
     private let isSecureEntry: Bool
     private let leadingIcon: IconName?
     private let trailingIcon: IconName?
+    private let leadingSymbolName: String?
+    private let trailingSymbolName: String?
 
     public init(
         label: String,
@@ -25,7 +27,9 @@ public struct LSFormField: View {
         state: InputState = .default,
         isSecureEntry: Bool = false,
         leadingIcon: IconName? = nil,
-        trailingIcon: IconName? = nil
+        trailingIcon: IconName? = nil,
+        leadingSymbolName: String? = nil,
+        trailingSymbolName: String? = nil
     ) {
         self.label = label
         _value = value
@@ -37,6 +41,8 @@ public struct LSFormField: View {
         self.isSecureEntry = isSecureEntry
         self.leadingIcon = leadingIcon
         self.trailingIcon = trailingIcon
+        self.leadingSymbolName = leadingSymbolName
+        self.trailingSymbolName = trailingSymbolName
     }
 
     public var body: some View {
@@ -56,10 +62,24 @@ public struct LSFormField: View {
                 placeholder: placeholder,
                 state: error != nil ? .error : state,
                 isSecureEntry: isSecureEntry,
-                leadingIcon: leadingIcon,
-                trailingIcon: trailingIcon,
+                leadingIcon: leadingIcon ?? (leadingSymbolName != nil ? .circle : nil),
+                trailingIcon: trailingIcon ?? (trailingSymbolName != nil ? .circle : nil),
                 helperText: error == nil ? helperText : nil
             )
+            .overlay(alignment: .leading) {
+                if let leadingSymbolName {
+                    LSIconSymbolIOS(name: leadingSymbolName, size: theme.iconSize.small, color: .secondary)
+                        .padding(.leading, theme.space.md)
+                        .accessibilityIdentifier("lsformfield-leading-symbol")
+                }
+            }
+            .overlay(alignment: .trailing) {
+                if let trailingSymbolName {
+                    LSIconSymbolIOS(name: trailingSymbolName, size: theme.iconSize.small, color: .secondary)
+                        .padding(.trailing, theme.space.md)
+                        .accessibilityIdentifier("lsformfield-trailing-symbol")
+                }
+            }
 
             // Error text
             if let error {

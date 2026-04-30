@@ -60,6 +60,15 @@ enum LSFormFieldStories {
             AuthErrorFormFieldStory()
         },
         Story(
+            id: "molecules.formfield.auth.focused",
+            tier: .molecule,
+            component: "LSFormField",
+            name: "Auth Focused",
+            summary: "Focused auth field with mail symbol."
+        ) { _ in
+            AuthFocusedFormFieldStory()
+        },
+        Story(
             id: "molecules.formfield.auth.disabled",
             tier: .molecule,
             component: "LSFormField",
@@ -142,7 +151,7 @@ private struct AuthEmailFormFieldStory: View {
                 value: $email,
                 placeholder: "you@example.com",
                 helperText: "We’ll check if this account already exists.",
-                leadingIcon: .route
+                leadingSymbolName: "mail"
             )
         }
     }
@@ -159,8 +168,8 @@ private struct AuthPasswordFormFieldStory: View {
                 placeholder: "••••••••",
                 helperText: "At least 8 characters.",
                 isSecureEntry: true,
-                leadingIcon: .star,
-                trailingIcon: .circle
+                leadingSymbolName: "lock",
+                trailingSymbolName: "eye"
             )
         }
     }
@@ -176,7 +185,25 @@ private struct AuthErrorFormFieldStory: View {
                 value: $email,
                 placeholder: "you@example.com",
                 error: "Enter a valid email address.",
-                leadingIcon: .route
+                leadingSymbolName: "mail"
+            )
+        }
+    }
+}
+
+private struct AuthFocusedFormFieldStory: View {
+    @State private var email = "rider@example.com"
+
+    var body: some View {
+        MoleculeStoryFrame {
+            LSFormField(
+                label: "Email",
+                value: $email,
+                placeholder: "you@example.com",
+                helperText: "Ready to continue.",
+                state: .focused,
+                leadingSymbolName: "mail",
+                trailingSymbolName: "check"
             )
         }
     }
@@ -193,7 +220,7 @@ private struct AuthDisabledFormFieldStory: View {
                 placeholder: "you@example.com",
                 helperText: "Field is disabled while submitting.",
                 state: .disabled,
-                leadingIcon: .route
+                leadingSymbolName: "mail"
             )
         }
     }

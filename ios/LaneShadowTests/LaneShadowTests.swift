@@ -1,10 +1,6 @@
 import XCTest
 
 final class LaneShadowTests: XCTestCase {
-    func testBootstrapSanity() {
-        XCTAssertTrue(true)
-    }
-
     func test_sandbox_sources_exist() {
         XCTAssertNotNil(try? sandboxSource(named: "LaneShadowStories.swift"))
         XCTAssertNotNil(try? sandboxSource(named: "LaneShadowSandboxEntry.swift"))
