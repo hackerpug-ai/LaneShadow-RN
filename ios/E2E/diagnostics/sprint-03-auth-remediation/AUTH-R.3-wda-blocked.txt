@@ -1,6 +1,0 @@
-WDA/device unavailable or app did not reach AuthScreen: fetch failed
-Expected setup:
-ios runwda --udid <UDID> &
-ios forward 8100 8100 --udid <UDID> &
-curl -s http://127.0.0.1:8100/status
-LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth-remediation.js

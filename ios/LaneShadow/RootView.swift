@@ -9,6 +9,9 @@ struct RootView: View {
     @Bindable var convexStore: ConvexStore
     @State private var appState: AppState
     @Environment(\.appEnvironment) private var appEnvironment
+    #if DEBUG
+        @State private var didHandleUITestResetAuth = false
+    #endif
 
     init(convexStore: ConvexStore, appState: AppState = AppState()) {
         _convexStore = Bindable(convexStore)
@@ -35,6 +38,14 @@ struct RootView: View {
                 clerkAuth: appEnvironment.clerkAuth,
                 convexClient: appEnvironment.convexClient
             )
+            #if DEBUG
+                if await resetAuthForUITestingIfNeeded(
+                    clerkAuth: appEnvironment.clerkAuth,
+                    convexClient: appEnvironment.convexClient
+                ) {
+                    return
+                }
+            #endif
             await synchronizeAuthentication()
         }
         .onOpenURL { url in
@@ -107,4 +118,23 @@ struct RootView: View {
     func handleIncomingURL(_ url: URL, clerkAuth: ClerkAuth) {
         appState.handleDeepLink(url, clerkAuth: clerkAuth)
     }
+
+    #if DEBUG
+        static func shouldResetAuthForUITesting(arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
+            arguments.contains("-LaneShadowUITestResetAuth")
+        }
+
+        func resetAuthForUITestingIfNeeded(
+            clerkAuth: ClerkAuth,
+            convexClient: LaneShadowConvexClient
+        ) async -> Bool {
+            guard Self.shouldResetAuthForUITesting(), !didHandleUITestResetAuth else {
+                return false
+            }
+
+            didHandleUITestResetAuth = true
+            await appState.signOut(clerkAuth: clerkAuth, convexClient: convexClient)
+            return true
+        }
+    #endif
 }

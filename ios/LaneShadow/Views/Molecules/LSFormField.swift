@@ -16,6 +16,7 @@ public struct LSFormField: View {
     private let trailingIcon: IconName?
     private let leadingSymbolName: String?
     private let trailingSymbolName: String?
+    private let inputAccessibilityIdentifier: String?
 
     public init(
         label: String,
@@ -29,7 +30,8 @@ public struct LSFormField: View {
         leadingIcon: IconName? = nil,
         trailingIcon: IconName? = nil,
         leadingSymbolName: String? = nil,
-        trailingSymbolName: String? = nil
+        trailingSymbolName: String? = nil,
+        inputAccessibilityIdentifier: String? = nil
     ) {
         self.label = label
         _value = value
@@ -43,6 +45,7 @@ public struct LSFormField: View {
         self.trailingIcon = trailingIcon
         self.leadingSymbolName = leadingSymbolName
         self.trailingSymbolName = trailingSymbolName
+        self.inputAccessibilityIdentifier = inputAccessibilityIdentifier
     }
 
     public var body: some View {
@@ -64,7 +67,8 @@ public struct LSFormField: View {
                 isSecureEntry: isSecureEntry,
                 leadingIcon: leadingIcon ?? (leadingSymbolName != nil ? .circle : nil),
                 trailingIcon: trailingIcon ?? (trailingSymbolName != nil ? .circle : nil),
-                helperText: error == nil ? helperText : nil
+                helperText: error == nil ? helperText : nil,
+                inputAccessibilityIdentifier: inputAccessibilityIdentifier
             )
             .overlay(alignment: .leading) {
                 if let leadingSymbolName {
@@ -89,7 +93,7 @@ public struct LSFormField: View {
                 }
             }
         }
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("lsformfield")
     }
 }

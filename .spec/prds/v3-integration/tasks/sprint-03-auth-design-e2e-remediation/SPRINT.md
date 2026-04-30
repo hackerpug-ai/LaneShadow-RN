@@ -19,7 +19,7 @@ The native auth flow is missing or under-specifies these component and behavior 
 - Auth-specific molecule support: Apple and Google `LSAuthProviderButton`/social button parity with the HTML `mol-social-btn` recipe, full-width provider stack, brand glyphs, disabled/focused/pressed states, and cross-platform sandbox story IDs.
 - Auth view support: a single email-first AuthScreen with S01 email entry, S02 existing-user password, S03 new-user create account, S04 dark, V01 invalid email, and V02 submitting/loading variants. Separate generic SignIn/SignUp pages are not sufficient.
 - Clerk/Convex integration: successful email, OAuth, and sign-up paths must update shared auth state, bind Clerk JWT into Convex `setAuth`, wait for `db.users.getCurrentUser`, route to IdleScreen with the real rider name, restore after cold start, and sign out cleanly.
-- Human evidence: tests must drive the same steps a reviewer would perform. Snapshot/view render tests support the gate but do not replace WDA/device evidence for auth, OAuth, Convex, restore, sign-out, and unauthenticated-error handling.
+- Human evidence: tests must drive the same steps a reviewer would perform. Snapshot/view render tests support the gate but do not replace real-device XCTest evidence for auth, Convex, restore, and unauthenticated-error handling.
 
 ## Human Testing Gate
 
@@ -30,7 +30,7 @@ The native auth flow is missing or under-specifies these component and behavior 
 **Test Steps:**
 1. Open the iOS and Android sandbox catalogs and confirm these story IDs exist with light/dark PNG baselines: `molecules.auth-provider-button.apple`, `molecules.auth-provider-button.google`, `templates.auth-screen.email-entry`, `templates.auth-screen.existing-user`, `templates.auth-screen.new-user`, `templates.auth-screen.invalid-email`, `templates.auth-screen.submitting`, and `templates.auth-screen.dark`.
 2. Compare native AuthScreen screenshots against `.spec/design/system/views/auth-screen/auth-screen.html` and confirm the paper contour background, scrim, back glass chip, brand mark, Newsreader headline, social buttons, divider, field rows, primary CTA, legal footer, error state, and loading spinner all match the design.
-3. On a real iOS device through WDA, launch a clean app install, tap Apple or Google auth, complete or record the provider-blocked step honestly, then sign in with a Clerk test email/password account.
+3. On a real iOS device through native XCUITest, launch with a clean auth state and sign in with a Clerk test email/password account.
 4. Confirm the iOS app routes to IdleScreen only after Convex auth is bound and `db.users.getCurrentUser` returns the rider's real display name.
 5. Kill and relaunch the iOS app; confirm the session restores from secure storage and the IdleScreen greeting still includes the Convex user name.
 6. Sign out through Settings on iOS; confirm Clerk tokens, Convex auth, persisted route/session state, and local auth route state clear and the app returns to AuthScreen.

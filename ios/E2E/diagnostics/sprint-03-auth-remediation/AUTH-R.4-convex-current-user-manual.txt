@@ -1,7 +1,0 @@
-Blocked until AUTH-R.3 establishes a real authenticated iOS session.
-Manual Convex witness:
-pnpm --dir server convex dev --once
-pnpm --dir server run convex:dev -- --once
-pnpm server:codegen
-Expected query/function observation: db.users.getCurrentUser returns the fixture display name before IdleScreen personalization.
-Expected IdleScreen text: rider display name from Convex, not a hardcoded local fallback.

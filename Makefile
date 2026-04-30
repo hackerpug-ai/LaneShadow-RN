@@ -8,24 +8,16 @@
         server_build server_dev server_start \
         e2e_vars \
         ios_build ios_dev ios_start ios_sandbox ios_sandbox_story ios_test \
-        ios_e2e_vars ios_e2e_devices ios_e2e_install_device ios_e2e_wda_status ios_e2e_headed ios_e2e_auth_headed \
+        ios_e2e_vars ios_e2e_devices ios_e2e_headed ios_e2e_auth_headed \
         android_build android_dev android_start android_sandbox android_sandbox_story android_test \
         android_e2e_headed android_e2e_auth_headed \
         test
 
 LANESHADOW_BUNDLE_ID ?= com.laneshadow.app
 
-IOS_UDID ?= $(shell if command -v ios >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then ios list 2>/dev/null | node -e 'let input = ""; process.stdin.on("data", (chunk) => input += chunk); process.stdin.on("end", () => { try { const parsed = JSON.parse(input); const devices = Array.isArray(parsed) ? parsed : (parsed.deviceList || []); const device = devices[0]; if (typeof device === "string") process.stdout.write(device); else if (device) process.stdout.write(device.udid || device.UDID || device.identifier || device.DeviceIdentifier || ""); } catch {} });'; fi)
-IOS_WDA_PORT ?= 8100
-WDA_BASE_URL ?= http://127.0.0.1:$(IOS_WDA_PORT)
-IOS_E2E_FLOW ?= ios/E2E/sprint-03-auth-remediation.js
-IOS_E2E_INSTALL ?= 1
-IOS_DEVICE_APP_PATH ?= ios/build/DerivedData/Build/Products/Debug-iphoneos/LaneShadow.app
-IOS_DEVELOPMENT_TEAM ?= $(shell security find-identity -v -p codesigning 2>/dev/null | sed -nE 's/.*"Apple Development:.*\(([A-Z0-9]{10})\)".*/\1/p' | head -1)
-LANESHADOW_AUTH_PROVIDER ?= apple
-LANESHADOW_AUTH_EMAIL ?=
-LANESHADOW_AUTH_PASSWORD ?=
-LANESHADOW_AUTH_DISPLAY_NAME ?= Auth Remediation Reviewer
+IOS_UDID ?= $(shell if command -v xcrun >/dev/null 2>&1; then xcrun xctrace list devices 2>/dev/null | sed '/^== Simulators ==/,$$d' | sed -nE 's/.*iPhone.*\(([0-9A-Fa-f-]{25,})\).*/\1/p' | head -1; fi)
+IOS_E2E_RESULT_BUNDLE ?= ios/build/xcresults/ios-e2e-headed.xcresult
+IOS_E2E_XCODEBUILD_LOG ?= ios/build/logs/ios-e2e-headed-xcodebuild.log
 
 # ── All Projects ──────────────────────────────────────
 
@@ -174,31 +166,24 @@ e2e_vars: ## Show variables for headed iOS/Android E2E
 	@set -a; \
 	if [ -f .env.local ]; then . ./.env.local; fi; \
 	set +a; \
-	LANESHADOW_AUTH_EMAIL_VALUE="$${LANESHADOW_AUTH_EMAIL:-$${CLERK_TEST_EMAIL:-}}"; \
-	LANESHADOW_AUTH_PASSWORD_VALUE="$${LANESHADOW_AUTH_PASSWORD:-$${CLERK_TEST_PASSWORD:-}}"; \
-	IOS_DEVELOPMENT_TEAM_VALUE="$${IOS_DEVELOPMENT_TEAM:-$${DEVELOPMENT_TEAM:-$${APPLE_DEVELOPMENT_TEAM:-$(IOS_DEVELOPMENT_TEAM)}}}"; \
+	IOS_AUTH_EMAIL_VALUE="$${CLERK_TEST_EMAIL:-$${LANESHADOW_AUTH_EMAIL:-}}"; \
+	IOS_AUTH_PASSWORD_VALUE="$${CLERK_TEST_PASSWORD:-$${LANESHADOW_AUTH_PASSWORD:-}}"; \
+	IOS_DEVELOPMENT_TEAM_VALUE="$${IOS_DEVELOPMENT_TEAM:-$${DEVELOPMENT_TEAM:-$${APPLE_DEVELOPMENT_TEAM:-}}}"; \
 	echo "Headed iOS E2E variables:"; \
-	echo "  IOS_UDID=$(if $(IOS_UDID),$(IOS_UDID),<auto: no device detected>)"; \
-	echo "  IOS_WDA_PORT=$(IOS_WDA_PORT)"; \
-	echo "  WDA_BASE_URL=$(WDA_BASE_URL)"; \
+	echo "  IOS_UDID=$(if $(IOS_UDID),$(IOS_UDID),<auto: no real iPhone detected>)"; \
 	echo "  LANESHADOW_BUNDLE_ID=$(LANESHADOW_BUNDLE_ID)"; \
-	echo "  IOS_E2E_FLOW=$(IOS_E2E_FLOW)"; \
-	echo "  IOS_E2E_INSTALL=$(IOS_E2E_INSTALL)"; \
-	echo "  IOS_DEVICE_APP_PATH=$(IOS_DEVICE_APP_PATH)"; \
+	echo "  IOS_E2E_RESULT_BUNDLE=$(IOS_E2E_RESULT_BUNDLE)"; \
+	echo "  IOS_E2E_XCODEBUILD_LOG=$(IOS_E2E_XCODEBUILD_LOG)"; \
 	echo "  IOS_DEVELOPMENT_TEAM=$$(if [ -n "$$IOS_DEVELOPMENT_TEAM_VALUE" ]; then echo "$$IOS_DEVELOPMENT_TEAM_VALUE"; else echo '<empty>'; fi)"; \
-	echo "  LANESHADOW_AUTH_PROVIDER=$(LANESHADOW_AUTH_PROVIDER)"; \
-	echo "  LANESHADOW_AUTH_EMAIL=$$LANESHADOW_AUTH_EMAIL_VALUE"; \
-	echo "  LANESHADOW_AUTH_PASSWORD=$$(if [ -n "$$LANESHADOW_AUTH_PASSWORD_VALUE" ]; then echo '<set>'; else echo '<empty>'; fi)"; \
-	echo "  CLERK_TEST_EMAIL=$${CLERK_TEST_EMAIL:-}"; \
-	echo "  CLERK_TEST_PASSWORD=$$(if [ -n "$${CLERK_TEST_PASSWORD:-}" ]; then echo '<set>'; else echo '<empty>'; fi)"; \
-	echo "  LANESHADOW_AUTH_DISPLAY_NAME=$(LANESHADOW_AUTH_DISPLAY_NAME)"
+	echo "  CLERK_TEST_EMAIL=$$IOS_AUTH_EMAIL_VALUE"; \
+	echo "  CLERK_TEST_PASSWORD=$$(if [ -n "$$IOS_AUTH_PASSWORD_VALUE" ]; then echo '<set>'; else echo '<empty>'; fi)"
 	@echo ""
 	@echo "List devices:"
 	@echo "  make ios_e2e_devices"
 	@echo ""
 	@echo "Run headed E2E:"
 	@echo "  make ios_e2e_headed"
-	@echo "  # auto-detects IOS_UDID and reads CLERK_TEST_EMAIL / CLERK_TEST_PASSWORD from .env.local"
+	@echo "  # auto-detects IOS_UDID with xcrun xctrace and reads CLERK_TEST_EMAIL / CLERK_TEST_PASSWORD from .env.local"
 	@echo "  # override with IOS_UDID=<device-udid> when needed"
 	@echo ""
 	@echo "Headed Android E2E variables:"
@@ -216,48 +201,8 @@ e2e_vars: ## Show variables for headed iOS/Android E2E
 ios_e2e_vars: e2e_vars ## Show variables for headed iOS/Android E2E
 
 ios_e2e_devices: ## List connected iOS devices for IOS_UDID
-	@command -v ios >/dev/null || { echo "ERROR: go-ios is missing. Install with: npm install -g go-ios"; exit 1; }
-	ios list
-
-ios_e2e_install_device: ## Build and install iOS app on a real device (set IOS_UDID=...)
-	@if [ -z "$(IOS_UDID)" ]; then \
-		echo "ERROR: no iOS device detected. Connect/unlock an iPhone, trust this Mac, then run: make ios_e2e_devices"; \
-		echo "       Or pass one explicitly: make ios_e2e_headed IOS_UDID=<device-udid>"; \
-		exit 1; \
-	fi
-	@command -v xcodebuild >/dev/null || { echo "ERROR: xcodebuild is missing"; exit 1; }
 	@command -v xcrun >/dev/null || { echo "ERROR: xcrun is missing"; exit 1; }
-	@echo "==> Building LaneShadow for device $(IOS_UDID)..."
-	@set -e; \
-	set -a; \
-	if [ -f .env.local ]; then . ./.env.local; fi; \
-	set +a; \
-	IOS_DEVELOPMENT_TEAM_VALUE="$${IOS_DEVELOPMENT_TEAM:-$${DEVELOPMENT_TEAM:-$${APPLE_DEVELOPMENT_TEAM:-$(IOS_DEVELOPMENT_TEAM)}}}"; \
-	if [ -z "$$IOS_DEVELOPMENT_TEAM_VALUE" ]; then \
-		echo "WARN: IOS_DEVELOPMENT_TEAM is empty. Add IOS_DEVELOPMENT_TEAM=<Apple Team ID> to .env.local if signing fails."; \
-	else \
-		echo "==> Using Apple development team $$IOS_DEVELOPMENT_TEAM_VALUE"; \
-		if ! defaults read com.apple.dt.Xcode IDEProvisioningTeams 2>/dev/null | grep -q "$$IOS_DEVELOPMENT_TEAM_VALUE"; then \
-			echo "WARN: Team $$IOS_DEVELOPMENT_TEAM_VALUE is not visible in Xcode provisioning accounts."; \
-			echo "      If xcodebuild reports 'No Account for Team', add the Apple ID in Xcode Settings > Accounts or set IOS_DEVELOPMENT_TEAM to a team that is signed into Xcode."; \
-		fi; \
-	fi; \
-	cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow \
-		-derivedDataPath build/DerivedData \
-		-destination "id=$(IOS_UDID)" \
-		$${IOS_DEVELOPMENT_TEAM_VALUE:+DEVELOPMENT_TEAM=$$IOS_DEVELOPMENT_TEAM_VALUE} \
-		CODE_SIGN_STYLE=Automatic \
-		-allowProvisioningUpdates \
-		build
-	@if [ ! -d "$(IOS_DEVICE_APP_PATH)" ]; then \
-		echo "ERROR: missing $(IOS_DEVICE_APP_PATH)"; \
-		exit 1; \
-	fi
-	@echo "==> Installing $(IOS_DEVICE_APP_PATH) on $(IOS_UDID)..."
-	xcrun devicectl device install app --device "$(IOS_UDID)" "$(IOS_DEVICE_APP_PATH)"
-
-ios_e2e_wda_status: ## Check local WDA status endpoint
-	@curl -fsS "$(WDA_BASE_URL)/status"
+	@xcrun xctrace list devices | sed '/^== Simulators ==/,$$d'
 
 ios_e2e_headed: ## Run headed iOS E2E on a real device (set IOS_UDID=...)
 	@if [ -z "$(IOS_UDID)" ]; then \
@@ -265,83 +210,47 @@ ios_e2e_headed: ## Run headed iOS E2E on a real device (set IOS_UDID=...)
 		echo "       Or pass one explicitly: make ios_e2e_headed IOS_UDID=<device-udid>"; \
 		exit 1; \
 	fi
-	@command -v ios >/dev/null || { echo "ERROR: go-ios is missing. Install with: npm install -g go-ios"; exit 1; }
-	@command -v node >/dev/null || { echo "ERROR: node is missing"; exit 1; }
-	@if [ "$(IOS_E2E_INSTALL)" = "1" ]; then \
-		$(MAKE) ios_e2e_install_device IOS_UDID="$(IOS_UDID)" IOS_DEVICE_APP_PATH="$(IOS_DEVICE_APP_PATH)"; \
-	fi
-	@echo "==> Starting WDA on device $(IOS_UDID)..."
-	@set -e; \
+	@command -v xcodebuild >/dev/null || { echo "ERROR: xcodebuild is missing"; exit 1; }
+	@command -v xcrun >/dev/null || { echo "ERROR: xcrun is missing"; exit 1; }
+	@echo "==> Running native iOS XCUITest on device $(IOS_UDID)..."
+	@set -eu; \
 	set -a; \
 	if [ -f .env.local ]; then . ./.env.local; fi; \
 	set +a; \
-	LANESHADOW_AUTH_EMAIL_VALUE="$${LANESHADOW_AUTH_EMAIL:-$${CLERK_TEST_EMAIL:-}}"; \
-	LANESHADOW_AUTH_PASSWORD_VALUE="$${LANESHADOW_AUTH_PASSWORD:-$${CLERK_TEST_PASSWORD:-}}"; \
-	if [ -z "$$LANESHADOW_AUTH_PASSWORD_VALUE" ]; then \
-		echo "WARN: CLERK_TEST_PASSWORD/LANESHADOW_AUTH_PASSWORD is empty; email/password auth will be recorded as BLOCKED unless provider auth succeeds."; \
+	IOS_AUTH_EMAIL_VALUE="$${CLERK_TEST_EMAIL:-$${LANESHADOW_AUTH_EMAIL:-}}"; \
+	IOS_AUTH_PASSWORD_VALUE="$${CLERK_TEST_PASSWORD:-$${LANESHADOW_AUTH_PASSWORD:-}}"; \
+	IOS_DEVELOPMENT_TEAM_VALUE="$${IOS_DEVELOPMENT_TEAM:-$${DEVELOPMENT_TEAM:-$${APPLE_DEVELOPMENT_TEAM:-}}}"; \
+	if [ -z "$$IOS_AUTH_EMAIL_VALUE" ] || [ -z "$$IOS_AUTH_PASSWORD_VALUE" ]; then \
+		echo "ERROR: add CLERK_TEST_EMAIL and CLERK_TEST_PASSWORD to .env.local for ios_e2e_headed."; \
+		exit 1; \
 	fi; \
-	mkdir -p ios/E2E/diagnostics; \
-	IOS_TUNNEL_PORT=$$(ios tunnel ls --udid "$(IOS_UDID)" 2>/dev/null | node -e 'let input = ""; process.stdin.on("data", c => input += c); process.stdin.on("end", () => { try { const rows = JSON.parse(input); const row = Array.isArray(rows) ? rows[0] : null; if (row?.userspaceTunPort) process.stdout.write(String(row.userspaceTunPort)); } catch {} });'); \
-	if [ -z "$$IOS_TUNNEL_PORT" ]; then \
-		echo "==> Starting iOS userspace tunnel for $(IOS_UDID)..."; \
-		ios tunnel start --userspace --udid "$(IOS_UDID)" > ios/E2E/diagnostics/wda-tunnel.log 2>&1 & \
-		TUNNEL_PID=$$!; \
-		for attempt in 1 2 3 4 5 6 7 8 9 10; do \
-			IOS_TUNNEL_PORT=$$(ios tunnel ls --udid "$(IOS_UDID)" 2>/dev/null | node -e 'let input = ""; process.stdin.on("data", c => input += c); process.stdin.on("end", () => { try { const rows = JSON.parse(input); const row = Array.isArray(rows) ? rows[0] : null; if (row?.userspaceTunPort) process.stdout.write(String(row.userspaceTunPort)); } catch {} });'); \
-			if [ -n "$$IOS_TUNNEL_PORT" ]; then break; fi; \
-			sleep 1; \
-		done; \
-	else \
-		TUNNEL_PID=""; \
+	if [ -z "$$IOS_DEVELOPMENT_TEAM_VALUE" ]; then \
+		echo "ERROR: add IOS_DEVELOPMENT_TEAM=<Apple Team ID> to .env.local for real-device signing."; \
+		exit 1; \
 	fi; \
-	if [ -n "$$IOS_TUNNEL_PORT" ]; then \
-		echo "==> Using iOS userspace tunnel port $$IOS_TUNNEL_PORT"; \
-		IOS_TUNNEL_ARGS="--userspace-port=$$IOS_TUNNEL_PORT"; \
-	else \
-		echo "WARN: No iOS userspace tunnel discovered; trying standard go-ios forwarding."; \
-		IOS_TUNNEL_ARGS=""; \
-	fi; \
-	ios runwda --udid "$(IOS_UDID)" $$IOS_TUNNEL_ARGS > ios/E2E/diagnostics/wda-runwda.log 2>&1 & \
-	WDA_PID=$$!; \
-	sleep 3; \
-	ios forward "$(IOS_WDA_PORT)" 8100 --udid "$(IOS_UDID)" $$IOS_TUNNEL_ARGS > ios/E2E/diagnostics/wda-forward.log 2>&1 & \
-	FORWARD_PID=$$!; \
-	cleanup() { \
-		kill $$WDA_PID $$FORWARD_PID >/dev/null 2>&1 || true; \
-		if [ -n "$$TUNNEL_PID" ]; then kill $$TUNNEL_PID >/dev/null 2>&1 || true; fi; \
-		wait $$WDA_PID $$FORWARD_PID >/dev/null 2>&1 || true; \
-	}; \
-	trap cleanup EXIT INT TERM; \
-	echo "==> Waiting for WDA at $(WDA_BASE_URL)/status..."; \
-	for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30; do \
-		if ! kill -0 $$WDA_PID >/dev/null 2>&1; then \
-			echo "ERROR: WDA exited before becoming ready. See ios/E2E/diagnostics/wda-runwda.log"; \
-			tail -n 40 ios/E2E/diagnostics/wda-runwda.log || true; \
-			exit 1; \
-		fi; \
-		if ! kill -0 $$FORWARD_PID >/dev/null 2>&1; then \
-			echo "ERROR: WDA port forward exited before WDA became ready. See ios/E2E/diagnostics/wda-forward.log"; \
-			tail -n 40 ios/E2E/diagnostics/wda-forward.log || true; \
-			exit 1; \
-		fi; \
-		if curl -fsS "$(WDA_BASE_URL)/status" >/dev/null 2>&1; then \
-			echo "==> WDA is ready."; \
-			break; \
-		fi; \
-		if [ "$$attempt" = "30" ]; then \
-			echo "ERROR: WDA did not become ready. See ios/E2E/diagnostics/wda-runwda.log and ios/E2E/diagnostics/wda-forward.log"; \
-			exit 1; \
-		fi; \
-		sleep 2; \
-	done; \
-	echo "==> Running $(IOS_E2E_FLOW) against $(LANESHADOW_BUNDLE_ID)..."; \
-	LANESHADOW_BUNDLE_ID="$(LANESHADOW_BUNDLE_ID)" \
-	WDA_BASE_URL="$(WDA_BASE_URL)" \
-	LANESHADOW_AUTH_PROVIDER="$(LANESHADOW_AUTH_PROVIDER)" \
-	LANESHADOW_AUTH_EMAIL="$$LANESHADOW_AUTH_EMAIL_VALUE" \
-	LANESHADOW_AUTH_PASSWORD="$$LANESHADOW_AUTH_PASSWORD_VALUE" \
-	LANESHADOW_AUTH_DISPLAY_NAME="$(LANESHADOW_AUTH_DISPLAY_NAME)" \
-	node "$(IOS_E2E_FLOW)"
+	echo "==> Using Apple development team $$IOS_DEVELOPMENT_TEAM_VALUE"; \
+	echo "==> CLERK_TEST_EMAIL=$$IOS_AUTH_EMAIL_VALUE"; \
+	echo "==> CLERK_TEST_PASSWORD=<set>"; \
+	mkdir -p ios/build/xcresults ios/build/logs; \
+	rm -rf "$(IOS_E2E_RESULT_BUNDLE)"; \
+	rm -f "$(IOS_E2E_XCODEBUILD_LOG)"; \
+	RESULT_BUNDLE_REL=$$(printf '%s\n' "$(IOS_E2E_RESULT_BUNDLE)" | sed 's#^ios/##'); \
+	LOG_REL=$$(printf '%s\n' "$(IOS_E2E_XCODEBUILD_LOG)" | sed 's#^ios/##'); \
+	cd ios; \
+	set +e; \
+	xcodebuild test \
+		-project LaneShadow.xcodeproj \
+		-scheme LaneShadow \
+		-destination "id=$(IOS_UDID)" \
+		-only-testing:LaneShadowUITests/AuthEmailPasswordE2ETests/testEmailPasswordSignInAndRestoresSession \
+		-resultBundlePath "$$RESULT_BUNDLE_REL" \
+		DEVELOPMENT_TEAM="$$IOS_DEVELOPMENT_TEAM_VALUE" \
+		CODE_SIGN_STYLE=Automatic \
+		-allowProvisioningUpdates > "$$LOG_REL" 2>&1; \
+	XCODEBUILD_STATUS=$$?; \
+	set -e; \
+	cat "$$LOG_REL"; \
+	exit "$$XCODEBUILD_STATUS"
 
 ios_e2e_auth_headed: ios_e2e_headed ## Alias for ios_e2e_headed
 

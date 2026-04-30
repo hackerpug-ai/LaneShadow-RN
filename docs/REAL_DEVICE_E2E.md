@@ -1,102 +1,65 @@
 # Real Device E2E Testing
 
-LaneShadow human gates for non-sandbox code require real-device E2E evidence. Use simulator/emulator checks for fast feedback and snapshot fidelity, but live app flows such as auth, Convex, Mapbox, persistence, location, and external-service integration need a physical-device path.
+LaneShadow human gates for non-sandbox code require real-device E2E evidence. Simulator and emulator checks are useful for fast feedback, but live app flows such as auth, Convex, Mapbox, persistence, location, and external-service integration need a physical-device path.
 
-## iOS WDA Pattern
+## iOS Native XCUITest Pattern
 
-iOS real-device automation uses WebDriverAgent (WDA) directly over HTTP. Do not add an Appium session layer unless a task explicitly requires it.
+iOS real-device automation uses native XCUITest through `xcodebuild test` against a signed build on a physical iPhone. Do not add a separate automation session layer for the standard iOS auth gate.
 
 ```text
-Terminal -> go-ios `ios runwda` -> WDA on iPhone -> HTTP API on :8100
-         -> go-ios `ios forward` -> localhost:8100
-         -> `node ios/E2E/<flow>.js` -> WDA HTTP API -> LaneShadow app
+Terminal -> xcodebuild test -> LaneShadowUITests on iPhone
+         -> LaneShadow app launched with -UITesting
+         -> .xcresult screenshots + xcodebuild log under ios/build/
 ```
 
-The WDA script should create and delete its own WDA session, launch the app with `-UITesting`, and write a result artifact with one entry per human test step.
+The automated iOS PASS path is email/password auth using `CLERK_TEST_EMAIL` and `CLERK_TEST_PASSWORD` from `.env.local`. `LANESHADOW_AUTH_EMAIL` and `LANESHADOW_AUTH_PASSWORD` remain supported as local fallback names for the test bundle.
 
 ## Prerequisites
 
-| Tool | Install | Use |
-|---|---|---|
-| `go-ios` | `npm install -g go-ios` | Runs WDA and forwards device port 8100 |
-| WebDriverAgent | follow the Hitch setup in `../hitch/scripts/ios/setup-wda.sh` | Builds and signs WDA for the connected iPhone |
-| LaneShadow dev build | `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'generic/platform=iOS' build` | Installs a signed app build on the device |
+| Requirement | Setup |
+|---|---|
+| Xcode command line tools | `xcodebuild -version` |
+| Physical iPhone | Connected, unlocked, trusted by this Mac, and visible in `xcrun xctrace list devices` |
+| Signing team | `IOS_DEVELOPMENT_TEAM=<Apple Team ID>` in `.env.local` |
+| Clerk test account | `CLERK_TEST_EMAIL=<email>` and `CLERK_TEST_PASSWORD=<password>` in `.env.local` |
 
-## Running A Flow
+If the build reports `No Account for Team`, open Xcode Settings > Accounts and add the Apple ID that owns that team, or replace `IOS_DEVELOPMENT_TEAM` with a team ID that is already signed into Xcode and can provision `com.laneshadow.app`.
 
-The Makefile has headed entry points for the current auth evidence flows:
+## Running The iOS Gate
 
 ```bash
 make e2e_vars
 make ios_e2e_headed
-make android_e2e_auth_headed
 ```
 
-`ios_e2e_headed` auto-detects the first connected iPhone through `go-ios`. Pass `IOS_UDID=<UDID>` only when you need to choose a specific device. The target reads `.env.local` when present and maps `CLERK_TEST_EMAIL` / `CLERK_TEST_PASSWORD` into the active iOS E2E flow. It also reads `IOS_DEVELOPMENT_TEAM`, `DEVELOPMENT_TEAM`, or `APPLE_DEVELOPMENT_TEAM` for device signing. It builds and installs the iOS app by default, starts WDA and local port forwarding, runs `IOS_E2E_FLOW`, then cleans up the WDA processes. Set `IOS_E2E_INSTALL=0` to skip the build/install step when the app is already current on the device.
+`ios_e2e_headed` auto-detects the first connected iPhone before the simulator section of `xcrun xctrace list devices`. Pass `IOS_UDID=<UDID>` when you need to choose a specific device.
 
-Recommended `.env.local` entries:
+The Makefile target runs:
 
 ```bash
-CLERK_TEST_EMAIL=e2e-test@example.com
-CLERK_TEST_PASSWORD=test-password-123
-IOS_DEVELOPMENT_TEAM=<Apple Team ID>
+cd ios && xcodebuild test \
+  -project LaneShadow.xcodeproj \
+  -scheme LaneShadow \
+  -destination "id=<IOS_UDID>" \
+  -only-testing:LaneShadowUITests/AuthEmailPasswordE2ETests/testEmailPasswordSignInAndRestoresSession \
+  -resultBundlePath build/xcresults/ios-e2e-headed.xcresult \
+  DEVELOPMENT_TEAM=<IOS_DEVELOPMENT_TEAM> \
+  CODE_SIGN_STYLE=Automatic \
+  -allowProvisioningUpdates
 ```
-
-If the build reports `No Account for Team`, open Xcode Settings > Accounts and add the Apple ID that owns that team, or replace `IOS_DEVELOPMENT_TEAM` with a team ID that is already signed into Xcode and can provision `com.laneshadow.app`.
-
-`android_e2e_auth_headed` starts the first configured emulator when no Android device is connected, installs the debug app by default, launches LaneShadow, then runs the auth instrumentation classes. Set `ANDROID_SERIAL=<adb-serial>` to target a specific connected device or `ANDROID_E2E_INSTALL=0` to skip reinstalling.
-
-Start WDA and port forwarding:
-
-```bash
-ios runwda --udid <UDID> &
-ios forward 8100 8100 --udid <UDID> &
-curl -s http://127.0.0.1:8100/status
-```
-
-Run the LaneShadow flow:
-
-```bash
-LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth.js
-```
-
-Run the Sprint 03 auth remediation evidence gate:
-
-```bash
-LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth-remediation.js
-```
-
-Clean up device processes:
-
-```bash
-pkill -f "ios runwda"
-pkill -f "ios forward"
-```
-
-`AUTH-S03-T11` owns creating the first LaneShadow WDA harness and any helper scripts under `scripts/ios/`.
 
 ## Evidence Contract
 
-Each non-sandbox human gate must produce:
+The iOS E2E evidence is:
 
-- `ios/E2E/results/<flow>.json` with one entry per roadmap or sprint human test step.
-- Step status limited to `PASS`, `FAIL`, `BLOCKED`, or `MANUAL`.
-- Screenshot and WDA source dump paths for failed or blocked app-observable steps.
-- Dependency blocking, so downstream checks become `BLOCKED` after required prerequisites fail.
-- Exact manual witness instructions for Android-only, dashboard-only, or external-service steps that iOS WDA cannot prove.
+- `ios/build/xcresults/ios-e2e-headed.xcresult`
+- `ios/build/logs/ios-e2e-headed-xcodebuild.log`
+- XCUITest screenshots attached to the result bundle for auth screen, submitted state, authenticated state, and restored state
 
-Do not mark Android-only, Convex-dashboard, Clerk-dashboard, or other external observations PASS from iOS WDA alone. Record them as MANUAL or BLOCKED until a matching device harness or deterministic machine artifact exists.
+The app is launched with `-UITesting`. Clean auth setup is requested with `-LaneShadowUITestResetAuth`, a DEBUG-only launch argument that signs out through app state before showing the auth route.
 
-## Useful WDA Calls
+## Android
 
-```text
-GET    /status
-POST   /session
-POST   /session/{id}/element
-POST   /session/{id}/element/{eid}/click
-GET    /session/{id}/screenshot
-GET    /session/{id}/source
-DELETE /session/{id}
-```
+`android_e2e_auth_headed` remains the headed Android entry point. It starts the first configured emulator when no Android device is connected, installs the debug app by default, launches LaneShadow, then runs the configured auth instrumentation classes. Set `ANDROID_SERIAL=<adb-serial>` to target a specific connected device or `ANDROID_E2E_INSTALL=0` to skip reinstalling.
 
-Prefer accessibility identifiers for app assertions. Labels and coordinates are acceptable only for exploratory diagnostics, not PASS gating.
+Do not mark Android-only, Convex-dashboard, Clerk-dashboard, or other external observations PASS from iOS evidence alone. Record those steps as MANUAL or BLOCKED until a matching device artifact or deterministic machine artifact exists.

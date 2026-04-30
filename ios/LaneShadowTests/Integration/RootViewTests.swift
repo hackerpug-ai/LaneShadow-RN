@@ -204,6 +204,15 @@ final class RootViewTests: XCTestCase {
         XCTAssertEqual(appState.authMessage, "Your session expired. Please sign in again.")
     }
 
+    func testUITestResetAuthLaunchArgumentIsDebugOnlyAndExplicit() {
+        #if DEBUG
+            XCTAssertTrue(RootView.shouldResetAuthForUITesting(arguments: ["-UITesting", "-LaneShadowUITestResetAuth"]))
+            XCTAssertFalse(RootView.shouldResetAuthForUITesting(arguments: ["-UITesting"]))
+        #else
+            XCTAssertTrue(true)
+        #endif
+    }
+
     private func waitForUnauthenticatedRedirect(appState: AppState, clerkAuth: ClerkAuth) async {
         for _ in 0 ..< 100 {
             if appState.authRoute == .signIn, clerkAuth.currentUser == nil {

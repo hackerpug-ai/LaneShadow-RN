@@ -200,7 +200,8 @@ struct AuthScreen: View {
             placeholder: "you@example.com",
             error: viewModel.mode == .invalidEmail ? (viewModel.errorMessage ?? "Enter a valid email address.") : nil,
             state: viewModel.isSubmitting ? .disabled : .default,
-            leadingSymbolName: "mail"
+            leadingSymbolName: "mail",
+            inputAccessibilityIdentifier: "auth.signIn.email"
         )
         .accessibilityIdentifier("authscreen-email-field")
     }
@@ -294,7 +295,8 @@ struct AuthScreen: View {
             helperText: helperText,
             isSecureEntry: passwordVisibility.isSecureEntry,
             leadingSymbolName: "lock",
-            trailingSymbolName: passwordVisibility.isSecureEntry ? "eye" : "eye.slash"
+            trailingSymbolName: passwordVisibility.isSecureEntry ? "eye" : "eye.slash",
+            inputAccessibilityIdentifier: "auth.signIn.password"
         )
         .overlay(alignment: .trailing) {
             Button {

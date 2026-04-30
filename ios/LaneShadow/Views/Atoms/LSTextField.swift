@@ -31,6 +31,7 @@ public struct LSTextField: View {
     private let leadingIcon: IconName?
     private let trailingIcon: IconName?
     private let helperText: String?
+    private let inputAccessibilityIdentifier: String?
 
     public init(
         value: Binding<String>,
@@ -39,7 +40,8 @@ public struct LSTextField: View {
         isSecureEntry: Bool = false,
         leadingIcon: IconName? = nil,
         trailingIcon: IconName? = nil,
-        helperText: String? = nil
+        helperText: String? = nil,
+        inputAccessibilityIdentifier: String? = nil
     ) {
         _value = value
         self.placeholder = placeholder
@@ -48,6 +50,7 @@ public struct LSTextField: View {
         self.leadingIcon = leadingIcon
         self.trailingIcon = trailingIcon
         self.helperText = helperText
+        self.inputAccessibilityIdentifier = inputAccessibilityIdentifier
     }
 
     public var body: some View {
@@ -199,12 +202,25 @@ public struct LSTextField: View {
                 .foregroundStyle(tokens.textColor)
                 .focused($isFocused)
                 .disabled(state == .disabled)
+                .optionalAccessibilityIdentifier(inputAccessibilityIdentifier)
         } else {
             TextField("", text: editableBinding, prompt: prompt(tokens: tokens))
                 .font(tokens.textStyle.font)
                 .foregroundStyle(tokens.textColor)
                 .focused($isFocused)
                 .disabled(state == .disabled)
+                .optionalAccessibilityIdentifier(inputAccessibilityIdentifier)
+        }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func optionalAccessibilityIdentifier(_ identifier: String?) -> some View {
+        if let identifier {
+            accessibilityIdentifier(identifier)
+        } else {
+            self
         }
     }
 }
