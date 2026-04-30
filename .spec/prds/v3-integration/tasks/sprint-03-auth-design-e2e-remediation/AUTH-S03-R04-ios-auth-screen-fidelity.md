@@ -1,7 +1,7 @@
 # TASK: AUTH-S03-R04 - iOS AuthScreen View Fidelity and Sandbox Variants
 
 TASK_TYPE: FEATURE
-STATUS: Backlog
+STATUS: Completed
 PRIORITY: P0
 EFFORT: L
 AGENT: implementer=swift-implementer | reviewer=swift-reviewer
@@ -126,3 +126,26 @@ blocks: [AUTH-S03-R06, AUTH-S03-R08]
 {"id":"TC-5","type":"test_criterion","description":"Snapshot manifest checking passes after iOS AuthScreen stories are captured.","maps_to_ac":"AC-5","verify":"pnpm snapshots:check"}
 ]}
 -->
+
+## Review (swift-reviewer contract) - 2026-04-30
+
+Final reviewed commit: `873053097dc313cefb92c0343ae7083dbfb29681`
+Merged to `main`: pending task-record commit.
+
+Acceptance Criteria:
+- [x] AC-1: iOS AuthScreen uses the design anatomy. Evidence: required anatomy grep passed; AuthScreen includes the paper contour background, scrim, glass back chip, brand block, headline, social stack, email divider, branch forms, CTA, spinner, and legal footer.
+- [x] AC-2: iOS email-first branching states exist. Evidence: `AuthScreensTests` passed 24 tests; production `SignInScreen` injects an existing-user resolver, `SignUpScreen` injects a new-user resolver, and sample unresolved behavior is confined to preview/test helpers.
+- [x] AC-3: iOS dark AuthScreen variant exists. Evidence: `templates.auth-screen.dark` is registered and applies `.preferredColorScheme(.dark)`.
+- [x] AC-4: iOS AuthScreen sandbox stories cover all design variants. Evidence: all six canonical `templates.auth-screen.*` IDs are registered and covered by story tests.
+- [x] AC-5: iOS visual evidence is screenshot-based. Evidence: AuthScreen snapshot baselines exist, `pnpm snapshots:check` passed, and tests reference `auth-screen.html` plus all six story IDs.
+
+Test Criteria:
+- [x] TC-1: iOS AuthScreen source contains the design anatomy labels and controls.
+- [x] TC-2: iOS tests cover existing-user, new-user, invalid-email, and submitting branches.
+- [x] TC-3: iOS sandbox registers the dark auth-screen variant.
+- [x] TC-4: iOS sandbox registers all six AuthScreen design variants.
+- [x] TC-5: Snapshot manifest checking passes after iOS AuthScreen stories are captured.
+
+Notes:
+- Earlier review-cycle failures for fake production email branching were remediated. The final production wrappers inject route-appropriate resolvers and no production `new`/`jamie`/string-contains account-existence heuristic remains.
+- Review and remediation were run headless with CLI `xcodebuild`, `pnpm snapshots:check`, and `rg` verification.
