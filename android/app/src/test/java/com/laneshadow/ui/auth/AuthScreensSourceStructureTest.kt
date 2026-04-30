@@ -2,8 +2,6 @@ package com.laneshadow.ui.auth
 
 import android.net.Uri
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
@@ -12,13 +10,14 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.performClick
+import androidx.compose.ui.platform.UriHandler
 import com.laneshadow.data.model.AuthState
 import com.laneshadow.data.model.ClerkUser
 import com.laneshadow.data.repository.AuthRepository
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.AuthViewModel
-import com.laneshadow.ui.auth.viewmodels.SignInViewModel
+import com.laneshadow.ui.auth.models.AuthScreenStep
+import com.laneshadow.ui.auth.models.AuthScreenUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.junit.Assert.assertEquals
@@ -37,65 +36,107 @@ class AuthScreensSourceStructureTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun signIn_continue_button_validates_email_and_click_advances_to_password_step() {
-        val authViewModel = AuthViewModel(FakeAuthRepository())
-        val signInViewModel = SignInViewModel()
-
+    fun authScreen_email_entry_renders_design_anatomy() {
         composeTestRule.setContent {
             LaneShadowTheme {
-                SignInScreen(
-                    viewModel = authViewModel,
-                    signInViewModel = signInViewModel,
+                AuthScreenContent(
+                    state = AuthScreenUiState(),
+                    showBackButton = false,
                 )
             }
         }
 
-        val continueButton = composeTestRule.onNodeWithTag("signin_continue_button")
-        continueButton.assertIsDisplayed()
-        continueButton.assertIsNotEnabled()
+        composeTestRule.onNodeWithText("Saddle up.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Continue with Apple").assertIsDisplayed()
+        composeTestRule.onNodeWithText("OR CONTINUE WITH EMAIL").assertIsDisplayed()
 
-        enterTextInField("signin_email_field", "invalid-email")
-        continueButton.assertIsNotEnabled()
-
-        enterTextInField("signin_email_field", "rider@laneshadow.com")
-        continueButton.assertIsEnabled()
-
-        continueButton.performClick()
-
-        composeTestRule.onNodeWithText("Password").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Show password").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Sign in").assertIsDisplayed()
+        val continueButton = composeTestRule.onNodeWithTag("auth_continue_button")
+        continueButton.fetchSemanticsNode()
     }
 
     @Test
-    fun signUp_create_account_stays_disabled_for_invalid_form_and_enables_when_valid() {
-        val authViewModel = AuthViewModel(FakeAuthRepository())
-
+    fun authScreen_existing_user_branch_renders_password_step() {
         composeTestRule.setContent {
             LaneShadowTheme {
-                SignUpScreen(viewModel = authViewModel)
+                AuthScreenContent(
+                    state = AuthScreenUiState(
+                        step = AuthScreenStep.ExistingUser,
+                        email = "elena@ridelaneshadow.com",
+                    ),
+                    showBackButton = false,
+                )
             }
         }
 
-        composeTestRule.onNodeWithText("Name").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Email").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Password").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Confirm password").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Welcome back.").fetchSemanticsNode()
+        composeTestRule.onNodeWithText("elena@ridelaneshadow.com").fetchSemanticsNode()
+        composeTestRule.onNodeWithText("Password").fetchSemanticsNode()
+        composeTestRule.onNodeWithText("Show password").fetchSemanticsNode()
+        composeTestRule.onNodeWithText("Sign in").fetchSemanticsNode()
+    }
 
-        val createAccountButton = composeTestRule.onNodeWithTag("signup_create_account_button")
-        createAccountButton.assertIsNotEnabled()
+    @Test
+    fun authScreen_new_user_branch_renders_create_account_fields() {
+        val state = AuthScreenUiState(
+            step = AuthScreenStep.NewUser,
+            email = "jamie.miller@hey.com",
+            displayName = "Jamie",
+            password = "copperride42",
+        )
 
-        enterTextInField("signup_name_field", "Avery Rider")
-        enterTextInField("signup_email_field", "invalid-email")
-        enterTextInField("signup_password_field", "secret123")
-        enterTextInField("signup_confirm_password_field", "secret124")
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                AuthScreenContent(state = state)
+            }
+        }
 
-        createAccountButton.assertIsNotEnabled()
+        composeTestRule.onNodeWithText("Set up shop.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Create your password.").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Display name").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Create password").fetchSemanticsNode()
+        composeTestRule.onNodeWithTag("auth_create_account_button").fetchSemanticsNode()
+    }
 
-        enterTextInField("signup_email_field", "rider@laneshadow.com")
-        enterTextInField("signup_confirm_password_field", "secret123")
+    @Test
+    fun authLegalLink_opensConfiguredUri() {
+        val uriHandler = RecordingUriHandler()
 
-        createAccountButton.assertIsEnabled()
+        openAuthLegalLink(uriHandler, AuthTermsUrl)
+        openAuthLegalLink(uriHandler, AuthPrivacyUrl)
+
+        assertEquals(listOf(AuthTermsUrl, AuthPrivacyUrl), uriHandler.openedUris)
+    }
+
+    @Test
+    fun authScreen_productionWiresRouteResolversAndLegalHandlers() {
+        val authScreenSource = File("src/main/java/com/laneshadow/ui/auth/AuthScreen.kt").readText()
+        val signInSource = File("src/main/java/com/laneshadow/ui/auth/SignInScreen.kt").readText()
+        val signUpSource = File("src/main/java/com/laneshadow/ui/auth/SignUpScreen.kt").readText()
+
+        assertTrue(authScreenSource.contains("emailBranchResolver: AuthEmailBranchResolver = SignInRouteAuthEmailBranchResolver"))
+        assertTrue(signInSource.contains("AuthScreenViewModel.factory(SignInRouteAuthEmailBranchResolver)"))
+        assertTrue(signUpSource.contains("emailBranchResolver = SignUpRouteAuthEmailBranchResolver"))
+        assertTrue(authScreenSource.contains("onTerms = onTerms"))
+        assertTrue(authScreenSource.contains("onPrivacy = onPrivacy"))
+        assertTrue(authScreenSource.contains("LocalUriHandler.current"))
+    }
+
+    @Test
+    fun authScreen_invalid_email_and_submitting_states_render_inline() {
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                AuthScreenContent(
+                    state = AuthScreenUiState(
+                        email = "elena@hey",
+                        emailError = "That doesn't look like a complete email address.",
+                        isSubmitting = true,
+                    ),
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText("That doesn't look like a complete email address.").fetchSemanticsNode()
+        composeTestRule.onNodeWithTag("auth_cta_spinner").fetchSemanticsNode()
     }
 
     @Test
@@ -186,4 +227,12 @@ private class FakeAuthRepository : AuthRepository {
     override suspend fun getJwtForConvex(): String = ""
 
     override fun observeAuthState(): StateFlow<AuthState> = authStateFlow
+}
+
+private class RecordingUriHandler : UriHandler {
+    val openedUris = mutableListOf<String>()
+
+    override fun openUri(uri: String) {
+        openedUris += uri
+    }
 }

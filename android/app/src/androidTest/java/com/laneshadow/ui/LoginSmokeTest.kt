@@ -28,7 +28,7 @@ class LoginSmokeTest {
                 SignInScreen(viewModel = AuthViewModel(FakeAuthRepository()))
             }
         }
-        composeTestRule.onNodeWithText("Welcome Back").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Saddle up.").assertIsDisplayed()
     }
 
     @Test
@@ -38,7 +38,7 @@ class LoginSmokeTest {
                 SignInScreen(viewModel = AuthViewModel(FakeAuthRepository()))
             }
         }
-        composeTestRule.onNodeWithText("Create account").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Continue with Apple").assertIsDisplayed()
     }
 }
 
