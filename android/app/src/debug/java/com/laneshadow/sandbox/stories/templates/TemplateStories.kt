@@ -14,7 +14,8 @@ import com.nativesandbox.model.Story
  */
 object TemplateStories {
     val all: List<Story> =
-        IdleScreenStory.all +
+        AuthScreenStory.all +
+            IdleScreenStory.all +
             PlanningScreenStory.all +
             RouteResultsScreenStory.all +
             SessionsScreenStory.all +

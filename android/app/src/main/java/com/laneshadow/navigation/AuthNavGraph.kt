@@ -32,8 +32,8 @@ import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.LSTextField
 import com.laneshadow.ui.atoms.SpinnerSize
 import com.laneshadow.ui.atoms.TypographyVariant
+import com.laneshadow.ui.auth.AuthScreen
 import com.laneshadow.ui.auth.OAuthCallbackScreen
-import com.laneshadow.ui.auth.SignInScreen
 import com.laneshadow.ui.auth.SignUpScreen
 import com.laneshadow.ui.organisms.LSInlineErrorCallout
 
@@ -91,9 +91,9 @@ fun AuthNavGraph(
             }
         }
         composable<Route.SignIn> {
-            SignInScreen(
+            AuthScreen(
                 viewModel = authViewModel,
-                onNavigateToSignUp = { navController.navigate(Route.SignUp) },
+                showBackButton = false,
             )
         }
         composable<Route.SignUp> {
