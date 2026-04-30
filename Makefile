@@ -15,7 +15,7 @@
 
 LANESHADOW_BUNDLE_ID ?= com.laneshadow.app
 
-IOS_UDID ?=
+IOS_UDID ?= $(shell if command -v ios >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then ios list 2>/dev/null | node -e 'let input = ""; process.stdin.on("data", (chunk) => input += chunk); process.stdin.on("end", () => { try { const parsed = JSON.parse(input); const devices = Array.isArray(parsed) ? parsed : (parsed.deviceList || []); const device = devices[0]; if (typeof device === "string") process.stdout.write(device); else if (device) process.stdout.write(device.udid || device.UDID || device.identifier || device.DeviceIdentifier || ""); } catch {} });'; fi)
 IOS_WDA_PORT ?= 8100
 WDA_BASE_URL ?= http://127.0.0.1:$(IOS_WDA_PORT)
 IOS_E2E_FLOW ?= ios/E2E/sprint-03-auth-remediation.js
@@ -176,7 +176,7 @@ e2e_vars: ## Show variables for headed iOS/Android E2E
 	LANESHADOW_AUTH_EMAIL_VALUE="$${LANESHADOW_AUTH_EMAIL:-$${CLERK_TEST_EMAIL:-}}"; \
 	LANESHADOW_AUTH_PASSWORD_VALUE="$${LANESHADOW_AUTH_PASSWORD:-$${CLERK_TEST_PASSWORD:-}}"; \
 	echo "Headed iOS E2E variables:"; \
-	echo "  IOS_UDID=$(IOS_UDID)"; \
+	echo "  IOS_UDID=$(if $(IOS_UDID),$(IOS_UDID),<auto: no device detected>)"; \
 	echo "  IOS_WDA_PORT=$(IOS_WDA_PORT)"; \
 	echo "  WDA_BASE_URL=$(WDA_BASE_URL)"; \
 	echo "  LANESHADOW_BUNDLE_ID=$(LANESHADOW_BUNDLE_ID)"; \
@@ -194,8 +194,9 @@ e2e_vars: ## Show variables for headed iOS/Android E2E
 	@echo "  make ios_e2e_devices"
 	@echo ""
 	@echo "Run headed auth E2E:"
-	@echo "  make ios_e2e_auth_headed IOS_UDID=<device-udid>"
-	@echo "  # reads CLERK_TEST_EMAIL and CLERK_TEST_PASSWORD from .env.local"
+	@echo "  make ios_e2e_auth_headed"
+	@echo "  # auto-detects IOS_UDID and reads CLERK_TEST_EMAIL / CLERK_TEST_PASSWORD from .env.local"
+	@echo "  # override with IOS_UDID=<device-udid> when needed"
 	@echo ""
 	@echo "Headed Android E2E variables:"
 	@echo "  ANDROID_SERIAL=$(ANDROID_SERIAL)"
@@ -217,7 +218,8 @@ ios_e2e_devices: ## List connected iOS devices for IOS_UDID
 
 ios_e2e_install_device: ## Build and install iOS app on a real device (set IOS_UDID=...)
 	@if [ -z "$(IOS_UDID)" ]; then \
-		echo "ERROR: set IOS_UDID=<device-udid>. Run: make ios_e2e_devices"; \
+		echo "ERROR: no iOS device detected. Connect/unlock an iPhone, trust this Mac, then run: make ios_e2e_devices"; \
+		echo "       Or pass one explicitly: make ios_e2e_auth_headed IOS_UDID=<device-udid>"; \
 		exit 1; \
 	fi
 	@command -v xcodebuild >/dev/null || { echo "ERROR: xcodebuild is missing"; exit 1; }
@@ -239,7 +241,8 @@ ios_e2e_wda_status: ## Check local WDA status endpoint
 
 ios_e2e_auth_headed: ## Run headed iOS auth E2E on a real device (set IOS_UDID=...)
 	@if [ -z "$(IOS_UDID)" ]; then \
-		echo "ERROR: set IOS_UDID=<device-udid>. Run: make ios_e2e_devices"; \
+		echo "ERROR: no iOS device detected. Connect/unlock an iPhone, trust this Mac, then run: make ios_e2e_devices"; \
+		echo "       Or pass one explicitly: make ios_e2e_auth_headed IOS_UDID=<device-udid>"; \
 		exit 1; \
 	fi
 	@command -v ios >/dev/null || { echo "ERROR: go-ios is missing. Install with: npm install -g go-ios"; exit 1; }
