@@ -111,6 +111,16 @@ export class WdaClient {
     await this.sessionRequest("POST", `/element/${elementId}/click`, {});
   }
 
+  async setElementValue(element, value) {
+    const elementId = typeof element === "string" ? element : this.extractElementId(element);
+    if (!elementId) throw new Error("Unable to resolve WDA element id for value entry");
+    const text = String(value);
+    await this.sessionRequest("POST", `/element/${elementId}/value`, {
+      value: [...text],
+      text,
+    });
+  }
+
   async launchApp(bundleId, args = ["-UITesting"]) {
     return this.sessionRequest("POST", "/wda/apps/launch", { bundleId, arguments: args });
   }

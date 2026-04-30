@@ -1,0 +1,338 @@
+{
+  "schemaVersion": 1,
+  "taskId": "AUTH-S03-R08",
+  "generatedAt": "2026-04-30T06:11:15.328Z",
+  "command": "LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth-remediation.js",
+  "bundleId": "com.laneshadow.app",
+  "wdaBaseUrl": "http://127.0.0.1:8100",
+  "fixtureAccount": {
+    "email": "auth-remediation-reviewer+clerk@laneshadow.test",
+    "displayName": "Auth Remediation Reviewer",
+    "passwordProvided": false
+  },
+  "designSource": ".spec/design/system/views/auth-screen/auth-screen.html",
+  "storyIds": [
+    "molecules.auth-provider-button.apple",
+    "molecules.auth-provider-button.google",
+    "templates.auth-screen.email-entry",
+    "templates.auth-screen.existing-user",
+    "templates.auth-screen.new-user",
+    "templates.auth-screen.invalid-email",
+    "templates.auth-screen.submitting",
+    "templates.auth-screen.dark"
+  ],
+  "statusCounts": {
+    "PASS": 1,
+    "MANUAL": 2,
+    "BLOCKED": 5
+  },
+  "reportPath": "ios/E2E/results/sprint-03-auth-remediation.json",
+  "steps": [
+    {
+      "id": "AUTH-R.1",
+      "title": "iOS and Android sandbox catalogs expose auth story PNG baselines",
+      "platform": "ios+android",
+      "status": "PASS",
+      "evidencePaths": [
+        ".spec/design/system/views/auth-screen/auth-screen.html",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/molecules.auth-provider-button.apple.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/molecules.auth-provider-button.apple.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/molecules.auth-provider-button.google.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/molecules.auth-provider-button.google.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.email-entry.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.email-entry.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.existing-user.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.existing-user.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.new-user.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.new-user.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.invalid-email.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.invalid-email.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.submitting.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.submitting.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.dark.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.dark.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/molecules.auth-provider-button.apple.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/molecules.auth-provider-button.apple.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/molecules.auth-provider-button.google.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/molecules.auth-provider-button.google.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.email-entry.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.email-entry.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.existing-user.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.existing-user.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.new-user.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.new-user.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.invalid-email.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.invalid-email.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.submitting.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.submitting.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.dark.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.dark.dark.png",
+        "android/app/src/androidTest/java/com/laneshadow/sandbox/snapshots/AuthScreenSnapshotTest.kt",
+        "ios/LaneShadowTests/Integration/AuthScreensTests.swift"
+      ],
+      "blocker": null,
+      "reviewerNotes": [
+        "Canonical story IDs: molecules.auth-provider-button.apple, molecules.auth-provider-button.google, templates.auth-screen.email-entry, templates.auth-screen.existing-user, templates.auth-screen.new-user, templates.auth-screen.invalid-email, templates.auth-screen.submitting, templates.auth-screen.dark",
+        "PNG filename contract: {id}.{theme}.png for light and dark."
+      ],
+      "commands": [
+        "pnpm snapshots:check",
+        "pnpm snapshots:parity-coverage"
+      ],
+      "fixture": null,
+      "expectedOutput": [
+        "snapshots:check exits 0 with all AuthScreen and auth-provider-button baselines present.",
+        "snapshots:parity-coverage reports the auth stories in shared iOS and Android coverage."
+      ],
+      "dependsOn": [],
+      "timestamp": "2026-04-30T06:11:15.315Z"
+    },
+    {
+      "id": "AUTH-R.2",
+      "title": "Native AuthScreen screenshots are compared with the HTML design source",
+      "platform": "ios+android+design",
+      "status": "MANUAL",
+      "evidencePaths": [
+        "ios/E2E/diagnostics/sprint-03-auth-remediation/AUTH-R.2-visual-review-checklist.md",
+        ".spec/design/system/views/auth-screen/auth-screen.html",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/molecules.auth-provider-button.apple.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/molecules.auth-provider-button.apple.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/molecules.auth-provider-button.google.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/molecules.auth-provider-button.google.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.email-entry.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.email-entry.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.existing-user.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.existing-user.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.new-user.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.new-user.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.invalid-email.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.invalid-email.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.submitting.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.submitting.dark.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.dark.light.png",
+        "ios/LaneShadowTests/__Snapshots__/StorySnapshotTests/templates.auth-screen.dark.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/molecules.auth-provider-button.apple.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/molecules.auth-provider-button.apple.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/molecules.auth-provider-button.google.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/molecules.auth-provider-button.google.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.email-entry.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.email-entry.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.existing-user.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.existing-user.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.new-user.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.new-user.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.invalid-email.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.invalid-email.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.submitting.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.submitting.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.dark.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.dark.dark.png",
+        "android/app/src/androidTest/java/com/laneshadow/sandbox/snapshots/AuthScreenSnapshotTest.kt",
+        "ios/LaneShadowTests/Integration/AuthScreensTests.swift"
+      ],
+      "blocker": "Visual comparison is a human review gate; this command links the required artifacts but does not mark the visual judgment PASS.",
+      "reviewerNotes": [
+        "Do not mark PASS unless the reviewer has compared snapshot PNGs against auth-screen.html.",
+        "The checklist names each required visual feature from the sprint manifest."
+      ],
+      "commands": [
+        "pnpm snapshots:check",
+        "pnpm snapshots:parity-coverage"
+      ],
+      "fixture": null,
+      "expectedOutput": [
+        "Reviewer confirms native screenshots match .spec/design/system/views/auth-screen/auth-screen.html."
+      ],
+      "dependsOn": [],
+      "timestamp": "2026-04-30T06:11:15.316Z"
+    },
+    {
+      "id": "AUTH-R.3",
+      "title": "Real iOS device auth launch and provider/email sign-in attempt",
+      "platform": "ios-real-device-wda",
+      "status": "BLOCKED",
+      "evidencePaths": [
+        "ios/E2E/diagnostics/sprint-03-auth-remediation/AUTH-R.3-wda-blocked.txt"
+      ],
+      "blocker": "WDA/device unavailable or app did not reach AuthScreen: fetch failed",
+      "reviewerNotes": [
+        "PASS requires a real WDA session artifact from the harness.",
+        "Fixture account: auth-remediation-reviewer+clerk@laneshadow.test"
+      ],
+      "commands": [
+        "ios runwda --udid <UDID> &",
+        "ios forward 8100 8100 --udid <UDID> &",
+        "LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth-remediation.js"
+      ],
+      "fixture": {
+        "email": "auth-remediation-reviewer+clerk@laneshadow.test",
+        "displayName": "Auth Remediation Reviewer"
+      },
+      "expectedOutput": [
+        "WDA status is reachable on 127.0.0.1:8100.",
+        "AuthScreen appears with auth.signIn.root.",
+        "Provider or email/password sign-in reaches IdleScreen."
+      ],
+      "dependsOn": [],
+      "timestamp": "2026-04-30T06:11:15.328Z"
+    },
+    {
+      "id": "AUTH-R.4",
+      "title": "iOS waits for Convex db.users.getCurrentUser before personalized IdleScreen",
+      "platform": "ios+convex",
+      "status": "BLOCKED",
+      "evidencePaths": [
+        "ios/E2E/diagnostics/sprint-03-auth-remediation/AUTH-R.3-wda-blocked.txt",
+        "ios/E2E/diagnostics/sprint-03-auth-remediation/AUTH-R.4-convex-current-user-manual.txt"
+      ],
+      "blocker": "Cannot verify Convex current-user binding without a real authenticated iOS session.",
+      "reviewerNotes": [
+        "The WDA selector check must be paired with Convex command/log evidence before marking this PASS.",
+        "db.users.getCurrentUser is the required server-side witness."
+      ],
+      "commands": [
+        "pnpm --dir server convex dev --once",
+        "pnpm --dir server run convex:dev -- --once",
+        "pnpm server:codegen"
+      ],
+      "fixture": {
+        "email": "auth-remediation-reviewer+clerk@laneshadow.test",
+        "displayName": "Auth Remediation Reviewer"
+      },
+      "expectedOutput": [
+        "db.users.getCurrentUser returns the fixture display name.",
+        "IdleScreen greeting includes the same display name."
+      ],
+      "dependsOn": [
+        "AUTH-R.3"
+      ],
+      "timestamp": "2026-04-30T06:11:15.328Z"
+    },
+    {
+      "id": "AUTH-R.5",
+      "title": "iOS cold-start restores authenticated session",
+      "platform": "ios-real-device-wda",
+      "status": "BLOCKED",
+      "evidencePaths": [
+        "ios/E2E/diagnostics/sprint-03-auth-remediation/AUTH-R.5-restore-blocked.txt"
+      ],
+      "blocker": "Cannot terminate/relaunch into restored auth state until sign-in succeeds.",
+      "reviewerNotes": [
+        "PASS requires WDA terminate/launch/activate and restored IdleScreen greeting evidence."
+      ],
+      "commands": [
+        "LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth-remediation.js"
+      ],
+      "fixture": null,
+      "expectedOutput": [
+        "After terminate/launch/activate, idle.greeting remains visible with the Convex user name."
+      ],
+      "dependsOn": [
+        "AUTH-R.3",
+        "AUTH-R.4"
+      ],
+      "timestamp": "2026-04-30T06:11:15.328Z"
+    },
+    {
+      "id": "AUTH-R.6",
+      "title": "iOS Settings sign-out clears auth and returns to AuthScreen",
+      "platform": "ios-real-device-wda+clerk+convex",
+      "status": "BLOCKED",
+      "evidencePaths": [
+        "ios/E2E/diagnostics/sprint-03-auth-remediation/AUTH-R.6-sign-out-blocked.txt"
+      ],
+      "blocker": "Cannot exercise sign-out controls until authenticated restore is available.",
+      "reviewerNotes": [
+        "WDA must tap settings.entry, settings.signOut, and auth.signOut.confirm.",
+        "Clerk/Convex token clearing still requires external witness before overall sign-out is considered complete."
+      ],
+      "commands": [
+        "LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth-remediation.js"
+      ],
+      "fixture": null,
+      "expectedOutput": [
+        "auth.signIn.root appears after confirmation; Clerk dashboard shows no active fixture session."
+      ],
+      "dependsOn": [
+        "AUTH-R.5"
+      ],
+      "timestamp": "2026-04-30T06:11:15.328Z"
+    },
+    {
+      "id": "AUTH-R.7",
+      "title": "Android auth integration has instrumentation or physical-device evidence",
+      "platform": "android-physical-device-or-instrumentation",
+      "status": "MANUAL",
+      "evidencePaths": [
+        "ios/E2E/diagnostics/sprint-03-auth-remediation/AUTH-R.7-android-manual-witness.md",
+        "android/app/src/androidTest/java/com/laneshadow/ui/LoginSmokeTest.kt",
+        "android/app/src/androidTest/java/com/laneshadow/ui/RootViewAuthGateEspressoTest.kt",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.email-entry.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.email-entry.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.existing-user.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.existing-user.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.new-user.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.new-user.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.invalid-email.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.invalid-email.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.submitting.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.submitting.dark.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.dark.light.png",
+        "android/app/src/androidTest/screenshots/AllStoriesSnapshotTest/templates.auth-screen.dark.dark.png"
+      ],
+      "blocker": "Android has no approved physical-device auth harness in this task; mark PASS only with connectedDebugAndroidTest or physical device artifact paths.",
+      "reviewerNotes": [
+        "Do not mark Android PASS from iOS WDA evidence.",
+        "connectedDebugAndroidTest or physical device witness must include artifact paths."
+      ],
+      "commands": [
+        "adb devices",
+        "cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.ui.LoginSmokeTest,com.laneshadow.ui.RootViewAuthGateEspressoTest"
+      ],
+      "fixture": {
+        "email": "auth-remediation-reviewer+clerk@laneshadow.test",
+        "displayName": "Auth Remediation Reviewer"
+      },
+      "expectedOutput": [
+        "Gradle connectedDebugAndroidTest exits 0 and produces Android artifact paths, or manual witness records physical device screenshots/video."
+      ],
+      "dependsOn": [],
+      "timestamp": "2026-04-30T06:11:15.328Z"
+    },
+    {
+      "id": "AUTH-R.8",
+      "title": "Convex UNAUTHENTICATED redirects to AuthScreen on iOS and Android",
+      "platform": "ios+android+clerk+convex",
+      "status": "BLOCKED",
+      "evidencePaths": [
+        "ios/E2E/diagnostics/sprint-03-auth-remediation/AUTH-R.8-unauthenticated-witness.md",
+        "ios/E2E/diagnostics/sprint-03-auth-remediation/AUTH-R.6-sign-out-blocked.txt"
+      ],
+      "blocker": "WDA was unavailable, so iOS redirect cannot be observed from the real harness.",
+      "reviewerNotes": [
+        "Do not fake OAuth, Clerk dashboard, Convex current-user, Android device, or WDA evidence.",
+        "Record PASS only with Clerk dashboard action, Convex UNAUTHENTICATED output, and platform redirect artifacts."
+      ],
+      "commands": [
+        "Clerk dashboard token/session revocation",
+        "pnpm --dir server convex dev --once",
+        "pnpm --dir server run convex:dev -- --once",
+        "pnpm server:codegen"
+      ],
+      "fixture": {
+        "email": "auth-remediation-reviewer+clerk@laneshadow.test",
+        "displayName": "Auth Remediation Reviewer"
+      },
+      "expectedOutput": [
+        "UNAUTHENTICATED is observed after revocation.",
+        "iOS shows auth.signIn.root.",
+        "Android shows AuthScreen or has MANUAL/BLOCKED witness fields."
+      ],
+      "dependsOn": [
+        "AUTH-R.3",
+        "AUTH-R.7"
+      ],
+      "timestamp": "2026-04-30T06:11:15.328Z"
+    }
+  ]
+}

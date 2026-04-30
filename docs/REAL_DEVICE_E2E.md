@@ -38,6 +38,12 @@ Run the LaneShadow flow:
 LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth.js
 ```
 
+Run the Sprint 03 auth remediation evidence gate:
+
+```bash
+LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth-remediation.js
+```
+
 Clean up device processes:
 
 ```bash

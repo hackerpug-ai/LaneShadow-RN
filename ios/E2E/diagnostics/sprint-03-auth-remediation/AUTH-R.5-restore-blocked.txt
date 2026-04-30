@@ -1,0 +1,1 @@
+Cold-start restore blocked because AUTH-R.3 did not establish authenticated state.

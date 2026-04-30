@@ -1,0 +1,2 @@
+Sign-out blocked because cold-start restore is not in PASS state.
+Expected WDA selectors: settings.entry, settings.signOut, auth.signOut.confirm, auth.signIn.root.
