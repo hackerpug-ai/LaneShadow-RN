@@ -132,10 +132,7 @@ private struct LSAuthProviderButtonStyle: ButtonStyle {
 }
 
 private struct LSGoogleMark: View {
-    private let blue = Color(hue: 0.602, saturation: 0.729, brightness: 0.957)
-    private let green = Color(hue: 0.363, saturation: 0.692, brightness: 0.659)
-    private let yellow = Color(hue: 0.123, saturation: 0.980, brightness: 0.984)
-    private let red = Color(hue: 0.013, saturation: 0.773, brightness: 0.918)
+    @Environment(\.theme) private var theme
 
     var body: some View {
         Circle()
@@ -148,7 +145,7 @@ private struct LSGoogleMark: View {
             .overlay {
                 Circle()
                     .inset(by: 4)
-                    .fill(.white)
+                    .fill(theme.colors.surface.default)
             }
             .overlay(alignment: .trailing) {
                 Rectangle()
@@ -157,5 +154,21 @@ private struct LSGoogleMark: View {
                     .padding(.trailing, 1)
             }
             .accessibilityIdentifier("auth.google.mark")
+    }
+
+    private var blue: Color {
+        LaneShadowTheme.color.route.best
+    }
+
+    private var green: Color {
+        LaneShadowTheme.color.route.alt1
+    }
+
+    private var yellow: Color {
+        theme.colors.warning.default
+    }
+
+    private var red: Color {
+        theme.colors.danger.default
     }
 }
