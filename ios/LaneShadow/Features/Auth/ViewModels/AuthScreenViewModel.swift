@@ -46,17 +46,14 @@ final class AuthScreenViewModel {
             mode: mode,
             email: mode == .emailEntry ? "" : email,
             password: mode == .emailEntry || mode == .invalidEmail ? "" : "route-ready",
-            displayName: mode == .newUser ? "Jamie Miller" : "",
+            displayName: mode == .newUser ? "Rider" : "",
             errorMessage: mode == .invalidEmail ? "Enter a valid email address." : nil,
             isSubmitting: mode == .submitting
         )
     }
 
-    static func defaultEmailResolver(_ email: String) async -> AuthEmailResolution {
-        let normalized = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        return normalized.contains("new") || normalized.contains("jamie")
-            ? .newUser
-            : .existingUser
+    static func defaultEmailResolver(_: String) async -> AuthEmailResolution {
+        .unresolved
     }
 
     func continueFromEmail() async {
@@ -76,6 +73,8 @@ final class AuthScreenViewModel {
             mode = .existingUser
         case .newUser:
             mode = .newUser
+        case .unresolved:
+            mode = .emailEntry
         }
     }
 
@@ -162,6 +161,6 @@ final class AuthScreenViewModel {
     static func isValidEmail(_ email: String) -> Bool {
         let parts = email.split(separator: "@")
         guard parts.count == 2, let domain = parts.last else { return false }
-        return domain.contains(".") && !email.contains(" ")
+        return domain.range(of: ".") != nil && email.range(of: " ") == nil
     }
 }

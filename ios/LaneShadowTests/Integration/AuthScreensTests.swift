@@ -74,6 +74,27 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertEqual(viewModel.errorMessage, "Enter a valid email address.")
     }
 
+    func testAuthScreenViewModelDefaultResolverKeepsValidEmailOnNeutralPath() async {
+        let viewModel = AuthScreenViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        viewModel.email = "jamie.new@example.com"
+
+        await viewModel.continueFromEmail()
+
+        XCTAssertEqual(viewModel.email, "jamie.new@example.com")
+        XCTAssertEqual(viewModel.mode, .emailEntry)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testAuthScreenViewModelDefaultResolverDoesNotInferExistingUserFromEmail() async {
+        let viewModel = AuthScreenViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        viewModel.email = "elena@ridelaneshadow.com"
+
+        await viewModel.continueFromEmail()
+
+        XCTAssertEqual(viewModel.mode, .emailEntry)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
     func testAuthScreenViewModelBranchesToExistingUser() async {
         let viewModel = AuthScreenViewModel(
             auth: ClerkAuth(client: AuthScreensFakeClient()),

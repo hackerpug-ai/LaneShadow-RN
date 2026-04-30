@@ -12,4 +12,5 @@ enum AuthScreenMode: Equatable, CaseIterable {
 enum AuthEmailResolution: Equatable {
     case existingUser
     case newUser
+    case unresolved
 }

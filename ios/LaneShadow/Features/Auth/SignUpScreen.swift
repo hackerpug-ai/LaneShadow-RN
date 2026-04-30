@@ -15,8 +15,8 @@ struct SignUpScreen: View {
         AuthScreen(
             viewModel: AuthScreenViewModel(
                 auth: appEnvironment.clerkAuth,
-                mode: viewModel.isSubmitting ? .submitting : .newUser,
-                email: viewModel.email.isEmpty ? "new@ridelaneshadow.com" : viewModel.email,
+                mode: viewModel.isSubmitting ? .submitting : authScreenMode,
+                email: viewModel.email,
                 password: viewModel.password,
                 displayName: viewModel.name,
                 errorMessage: viewModel.errorMessage,
@@ -26,6 +26,10 @@ struct SignUpScreen: View {
             updateRoutingFromSharedAuth()
         }
         .navigationTitle("Sign Up")
+    }
+
+    private var authScreenMode: AuthScreenMode {
+        viewModel.email.isEmpty ? .emailEntry : .newUser
     }
 
     private func updateRoutingFromSharedAuth() {
