@@ -24,7 +24,7 @@ final class AuthScreenViewModel {
         displayName: String = "",
         errorMessage: String? = nil,
         isSubmitting: Bool = false,
-        emailResolver: @escaping EmailResolver = AuthScreenViewModel.defaultEmailResolver
+        emailResolver: @escaping EmailResolver
     ) {
         self.auth = auth
         self.mode = mode
@@ -48,11 +48,12 @@ final class AuthScreenViewModel {
             password: mode == .emailEntry || mode == .invalidEmail ? "" : "route-ready",
             displayName: mode == .newUser ? "Rider" : "",
             errorMessage: mode == .invalidEmail ? "Enter a valid email address." : nil,
-            isSubmitting: mode == .submitting
+            isSubmitting: mode == .submitting,
+            emailResolver: neutralPreviewEmailResolver
         )
     }
 
-    static func defaultEmailResolver(_: String) async -> AuthEmailResolution {
+    static func neutralPreviewEmailResolver(_: String) async -> AuthEmailResolution {
         .unresolved
     }
 

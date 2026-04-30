@@ -13,19 +13,28 @@ struct SignUpScreen: View {
 
     var body: some View {
         AuthScreen(
-            viewModel: AuthScreenViewModel(
-                auth: appEnvironment.clerkAuth,
-                mode: viewModel.isSubmitting ? .submitting : authScreenMode,
-                email: viewModel.email,
-                password: viewModel.password,
-                displayName: viewModel.name,
-                errorMessage: viewModel.errorMessage,
-                isSubmitting: viewModel.isSubmitting
-            )
+            viewModel: makeAuthScreenViewModel(auth: appEnvironment.clerkAuth)
         ) {
             updateRoutingFromSharedAuth()
         }
         .navigationTitle("Sign Up")
+    }
+
+    func makeAuthScreenViewModel(auth: ClerkAuth) -> AuthScreenViewModel {
+        AuthScreenViewModel(
+            auth: auth,
+            mode: viewModel.isSubmitting ? .submitting : authScreenMode,
+            email: viewModel.email,
+            password: viewModel.password,
+            displayName: viewModel.name,
+            errorMessage: viewModel.errorMessage,
+            isSubmitting: viewModel.isSubmitting,
+            emailResolver: Self.productionEmailResolver
+        )
+    }
+
+    static func productionEmailResolver(_: String) async -> AuthEmailResolution {
+        .newUser
     }
 
     private var authScreenMode: AuthScreenMode {

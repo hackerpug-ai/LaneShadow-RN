@@ -65,7 +65,7 @@ final class AuthScreensTests: XCTestCase {
     }
 
     func testAuthScreenViewModelRejectsInvalidEmailInline() async {
-        let viewModel = AuthScreenViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        let viewModel = makeAuthScreenViewModel()
         viewModel.email = "invalid-email"
 
         await viewModel.continueFromEmail()
@@ -74,8 +74,8 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertEqual(viewModel.errorMessage, "Enter a valid email address.")
     }
 
-    func testAuthScreenViewModelDefaultResolverKeepsValidEmailOnNeutralPath() async {
-        let viewModel = AuthScreenViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+    func testAuthScreenViewModelNeutralPreviewResolverKeepsValidEmailOnNeutralPath() async {
+        let viewModel = makeAuthScreenViewModel()
         viewModel.email = "jamie.new@example.com"
 
         await viewModel.continueFromEmail()
@@ -85,8 +85,8 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertNil(viewModel.errorMessage)
     }
 
-    func testAuthScreenViewModelDefaultResolverDoesNotInferExistingUserFromEmail() async {
-        let viewModel = AuthScreenViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+    func testAuthScreenViewModelNeutralPreviewResolverDoesNotInferExistingUserFromEmail() async {
+        let viewModel = makeAuthScreenViewModel()
         viewModel.email = "elena@ridelaneshadow.com"
 
         await viewModel.continueFromEmail()
@@ -95,9 +95,42 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertNil(viewModel.errorMessage)
     }
 
+    func testSignInScreenInjectsExistingUserResolver() async {
+        let signInViewModel = SignInViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        let screen = SignInScreen(appState: AppState(isAuthenticated: false), viewModel: signInViewModel)
+        let authViewModel = screen.makeAuthScreenViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        authViewModel.email = "rider@example.com"
+
+        await authViewModel.continueFromEmail()
+
+        XCTAssertEqual(authViewModel.mode, .existingUser)
+        XCTAssertNil(authViewModel.errorMessage)
+    }
+
+    func testSignUpScreenInjectsNewUserResolver() async {
+        let signUpViewModel = SignUpViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        let screen = SignUpScreen(appState: AppState(isAuthenticated: false), viewModel: signUpViewModel)
+        let authViewModel = screen.makeAuthScreenViewModel(auth: ClerkAuth(client: AuthScreensFakeClient()))
+        authViewModel.email = "rider@example.com"
+
+        await authViewModel.continueFromEmail()
+
+        XCTAssertEqual(authViewModel.mode, .newUser)
+        XCTAssertNil(authViewModel.errorMessage)
+    }
+
+    func testProductionWrappersDoNotUseNeutralPreviewResolver() throws {
+        let signInSource = try authSource(named: "SignInScreen.swift")
+        let signUpSource = try authSource(named: "SignUpScreen.swift")
+
+        XCTAssertTrue(signInSource.contains("emailResolver: Self.productionEmailResolver"))
+        XCTAssertTrue(signUpSource.contains("emailResolver: Self.productionEmailResolver"))
+        XCTAssertFalse(signInSource.contains("neutralPreviewEmailResolver"))
+        XCTAssertFalse(signUpSource.contains("neutralPreviewEmailResolver"))
+    }
+
     func testAuthScreenViewModelBranchesToExistingUser() async {
-        let viewModel = AuthScreenViewModel(
-            auth: ClerkAuth(client: AuthScreensFakeClient()),
+        let viewModel = makeAuthScreenViewModel(
             emailResolver: { _ in .existingUser }
         )
         viewModel.email = "elena@ridelaneshadow.com"
@@ -109,8 +142,7 @@ final class AuthScreensTests: XCTestCase {
     }
 
     func testAuthScreenViewModelBranchesToNewUser() async {
-        let viewModel = AuthScreenViewModel(
-            auth: ClerkAuth(client: AuthScreensFakeClient()),
+        let viewModel = makeAuthScreenViewModel(
             emailResolver: { _ in .newUser }
         )
         viewModel.email = "jamie.miller@hey.com"
@@ -122,8 +154,7 @@ final class AuthScreensTests: XCTestCase {
     }
 
     func testAuthScreenViewModelSubmittingExistingUserSignsIn() async {
-        let viewModel = AuthScreenViewModel(
-            auth: ClerkAuth(client: AuthScreensFakeClient()),
+        let viewModel = makeAuthScreenViewModel(
             mode: .existingUser,
             email: "elena@ridelaneshadow.com",
             password: "secret"
@@ -137,8 +168,7 @@ final class AuthScreensTests: XCTestCase {
     }
 
     func testAuthScreenViewModelSubmittingNewUserCreatesAccount() async {
-        let viewModel = AuthScreenViewModel(
-            auth: ClerkAuth(client: AuthScreensFakeClient()),
+        let viewModel = makeAuthScreenViewModel(
             mode: .newUser,
             email: "jamie.miller@hey.com",
             password: "secret",
@@ -279,6 +309,23 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertEqual(viewModel.step, .signedIn)
         XCTAssertFalse(viewModel.isSubmitting)
         XCTAssertNil(viewModel.errorMessage)
+    }
+
+    private func makeAuthScreenViewModel(
+        mode: AuthScreenMode = .emailEntry,
+        email: String = "",
+        password: String = "",
+        displayName: String = "",
+        emailResolver: @escaping AuthScreenViewModel.EmailResolver = AuthScreenViewModel.neutralPreviewEmailResolver
+    ) -> AuthScreenViewModel {
+        AuthScreenViewModel(
+            auth: ClerkAuth(client: AuthScreensFakeClient()),
+            mode: mode,
+            email: email,
+            password: password,
+            displayName: displayName,
+            emailResolver: emailResolver
+        )
     }
 
     private func authSource(named fileName: String) throws -> String {

@@ -15,19 +15,28 @@ struct SignInScreen: View {
 
     var body: some View {
         AuthScreen(
-            viewModel: AuthScreenViewModel(
-                auth: appEnvironment.clerkAuth,
-                mode: authScreenMode,
-                email: viewModel.email,
-                password: viewModel.password,
-                errorMessage: viewModel.errorMessage,
-                isSubmitting: viewModel.isSubmitting
-            )
+            viewModel: makeAuthScreenViewModel(auth: appEnvironment.clerkAuth)
         ) {
             updateRoutingFromSharedAuth()
         }
         .accessibilityIdentifier("auth.signIn.root")
         .navigationTitle("Sign In")
+    }
+
+    func makeAuthScreenViewModel(auth: ClerkAuth) -> AuthScreenViewModel {
+        AuthScreenViewModel(
+            auth: auth,
+            mode: authScreenMode,
+            email: viewModel.email,
+            password: viewModel.password,
+            errorMessage: viewModel.errorMessage,
+            isSubmitting: viewModel.isSubmitting,
+            emailResolver: Self.productionEmailResolver
+        )
+    }
+
+    static func productionEmailResolver(_: String) async -> AuthEmailResolution {
+        .existingUser
     }
 
     private var authScreenMode: AuthScreenMode {
