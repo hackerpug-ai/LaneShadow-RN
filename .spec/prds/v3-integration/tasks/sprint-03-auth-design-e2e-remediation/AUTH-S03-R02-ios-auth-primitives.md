@@ -1,7 +1,7 @@
 # TASK: AUTH-S03-R02 - iOS Auth Atoms and Social-Button Molecule Parity
 
 TASK_TYPE: FEATURE
-STATUS: Backlog
+STATUS: Completed
 PRIORITY: P0
 EFFORT: M
 AGENT: implementer=swift-implementer | reviewer=swift-reviewer
@@ -126,3 +126,27 @@ blocks: [AUTH-S03-R04, AUTH-S03-R08]
 {"id":"TC-5","type":"test_criterion","description":"Snapshot manifest checking passes after auth primitive stories are added.","maps_to_ac":"AC-5","verify":"pnpm snapshots:check"}
 ]}
 -->
+
+## Review (swift-reviewer contract) - 2026-04-29
+
+Final reviewed commit: `44c28d518286a562d4a1ab361ab1bbce80d384ae`
+Merged to `main`: `a2b56879ced6510999a2f669e973fddcc03c94d8`
+Guardrail cleanup commit: `16191ac3`
+
+Acceptance Criteria:
+- [x] AC-1: iOS icon catalog covers AuthScreen glyphs (evidence: `rg "compass|mail|lock|eye|sparkle|check|chev" ios/LaneShadow/Views ios/LaneShadow/Sandbox/Stories ios/LaneShadowTests` passed).
+- [x] AC-2: iOS form fields support auth states (evidence: `cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:LaneShadowTests/LSTextFieldTests` passed).
+- [x] AC-3: iOS social provider button matches the design molecule (evidence: Apple foreground/background contrast fixed in `ios/LaneShadow/DesignSystem/Molecules/LSAuthProviderButton.swift`, Google four-color mark preserved, hosted accessibility assertion in `ios/LaneShadowTests/LaneShadowTests.swift` passed).
+- [x] AC-4: iOS sandbox story coverage exists (evidence: `rg "molecules.auth-provider-button.apple|molecules.auth-provider-button.google|molecules.formfield.auth" ios/LaneShadow/Sandbox ios/LaneShadowTests` passed).
+- [x] AC-5: iOS snapshots and parity checks include auth primitives (evidence: `pnpm snapshots:check` passed with no orphan files).
+
+Test Criteria:
+- [x] TC-1: iOS icon support includes all AuthScreen glyph names.
+- [x] TC-2: iOS auth field states are covered by XCTest or snapshot stories.
+- [x] TC-3: iOS provider buttons expose Apple and Google accessibility labels.
+- [x] TC-4: iOS auth provider story IDs are registered in sandbox.
+- [x] TC-5: Snapshot manifest checking passes after auth primitive stories are added.
+
+Notes:
+- Earlier review-cycle failures for provider-brand fidelity and source-string/test-theatre coverage were remediated before merge.
+- Unrelated non-auth snapshot PNG churn and the out-of-scope `ai-specs/AUTH-S03-R02/ios-learnings.md` merge artifact were removed in guardrail cleanup commit `16191ac3`.
