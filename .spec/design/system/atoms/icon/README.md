@@ -73,7 +73,7 @@ Icons always inherit color via `currentColor`. Set color on the wrapping element
 
 ---
 
-## Icon Catalog — 31 Glyphs
+## Icon Catalog — 34 Glyphs
 
 | Name | Type | Typical use |
 |------|------|-------------|
@@ -108,8 +108,13 @@ Icons always inherit color via `currentColor`. Set color on the wrapping element
 | `bike` | outline | Ride / bicycle context |
 | `chevR` | outline | Navigate right / disclosure |
 | `chevL` | outline | Navigate left / back |
+| `mail` | outline | Email field leading icon (auth, contact, notifications) |
+| `lock` | outline | Password field leading icon (auth, secure settings) |
+| `eye` | outline | Password visibility toggle / preview-show indicator |
 
 Fill variants (`bookmarkFill`, `starFill`, `heartFill`) use `fill: currentColor; stroke: none;`. All other glyphs use `fill: none; stroke: currentColor`.
+
+The `mail`, `lock`, and `eye` glyphs were added during Sprint 06 (auth-screen view, UC-SCR-07) — they support the AuthScreen email/password fields and visibility toggle. They follow the same 20×20 viewBox and 1.5px stroke conventions as the original 31 glyphs and are pure outline (no fill variant).
 
 ---
 
@@ -145,9 +150,9 @@ Icons themselves carry no animation. Interactive parents may apply:
 
 ## Acceptance Criteria
 
-- **AC-01** — `tokens/icons/` contains exactly 31 named SVG files; basenames match `IconName` enum (enforced by `pnpm icons:check`).
+- **AC-01** — `tokens/icons/` contains exactly 34 named SVG files; basenames match `IconName` enum (enforced by `pnpm icons:check`). The catalog grew from 31 → 34 with the addition of `mail`, `lock`, `eye` for auth-screen support.
 - **AC-02** — `LSIcon(name: .compass, size: .md)` renders at `--icon-md` with 1.5px rounded stroke; color `.signal` resolves to `--signal-default`.
 - **AC-03** — Android renders identical glyph per parity manifest — visual diff tolerance ≤ 2px at 2× density.
 - **AC-04** — Post-Sprint-2 grep: zero references to `UIImage(systemName:)` / `Image(systemName:)` / `Icons.Filled.*` / `Icons.Outlined.*` anywhere in the codebase.
-- **AC-05** — "Atoms / Icon" sandbox story renders every name × size (5 sizes × 31 glyphs = 155 cells) in a swatch grid on both platforms.
+- **AC-05** — "Atoms / Icon" sandbox story renders every name × size (5 sizes × 34 glyphs = 170 cells) in a swatch grid on both platforms.
 - **AC-06** — iOS XCTest and Android JUnit verify `LSIcon` rejects raw color inputs at type-check and that stroke width resolves from `--stroke-md`.

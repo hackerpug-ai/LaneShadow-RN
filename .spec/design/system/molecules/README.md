@@ -28,6 +28,7 @@ Two-or-more-atom compositions. Each molecule references existing `.ls-*` atoms b
 | 18 | instrument-readout | `instrument-readout/` | uc-mol-07 | ls-text · ls-divider | LSInstrumentReadout — JetBrains-Mono numeric stats w/ label+unit |
 | 19 | location-context-bar | `location-context-bar/` | uc-mol-08 | ls-phase-dot · ls-icon · ls-text · ls-pill | LSLocationContextBar — ambient location + mode header |
 | 20 | route-attachment-card | `route-attachment-card/` | uc-mol-08 | ls-card · ls-badge-best · ls-badge-weather · ls-pill · ls-btn · ls-icon | LSRouteAttachmentCard — route preview card w/ map thumb, badges, accept action |
+| 21 | social-button | `social-button/` | uc-mol-09 (auth ext.) | ls-btn | LSSocialButton — provider-branded OAuth button (Apple, Google variants) for AuthScreen |
 
 ## Atoms-Used Matrix
 
@@ -53,8 +54,9 @@ Two-or-more-atom compositions. Each molecule references existing `.ls-*` atoms b
 | instrument-readout | ✔ | | | | ✔ | | | | | | | | | | | | |
 | location-context-bar | ✔ | | | | | | | | | ✔ | | | ✔ | | ✔ | | |
 | route-attachment-card | ✔ | ✔ | | | | | ✔ | | | ✔ | ✔ | ✔ | | | ✔ | | |
+| social-button | ✔ | ✔ | | | | | | | | | | | | | | | |
 
-## Quality Bar (all 20 molecules audited)
+## Quality Bar (all 21 molecules audited)
 
 - ✅ Zero hex literals in molecule `<style>` blocks
 - ✅ Zero numeric `font-size` / `font-weight` / `font-family` declarations — typography delegated to `.t-*` type module classes
@@ -92,6 +94,19 @@ These are intentional per design — they are NOT candidates for the shared toke
 ## New Atom Extracted
 
 - **toggle** (ls-toggle) — boolean switch atom, extracted from list-row molecule. See `atoms/toggle/`.
+
+## New Molecule Added During Sprint 06 (auth-screen)
+
+- **social-button** (mol-social-btn) — provider-branded OAuth button. Apple + Google variants. Composes `ls-btn` and adds brand-correct surface, label color, hairline border, and a brand-mark slot. Used by `views/auth-screen` (UC-SCR-07). See `molecules/social-button/`.
+
+### New icons added during Sprint 06
+
+The icon catalog grew from 31 → 34 glyphs to support the auth-screen view:
+- `mail` — leading icon for email field
+- `lock` — leading icon for password field
+- `eye` — password visibility toggle
+
+All three follow the existing 20×20 viewBox / 1.5px outline convention. See `atoms/icon/README.md`.
 
 ## Typography Classes Available
 

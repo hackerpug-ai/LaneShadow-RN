@@ -3126,3 +3126,117 @@
   flex-direction: column;
   gap: var(--space-2);
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   social-button (mol-social-btn) — extracted from molecules/social-button/social-button.html
+   Provider-branded OAuth login button. Composes .ls-btn; only background/color/border vary.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.mol-social-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.mol-social-btn__mark {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mol-social-btn__mark svg {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  display: block;
+}
+
+.mol-social-btn__label {
+  flex-shrink: 0;
+}
+
+/* Apple variant — black surface light, white surface dark */
+.mol-social-btn--apple {
+  background: var(--ink-900);
+  color: var(--paper-50);
+  border: var(--stroke-sm) solid var(--ink-900);
+}
+.mol-social-btn--apple.is-hover {
+  background: var(--ink-800);
+  border-color: var(--ink-800);
+}
+.mol-social-btn--apple.is-pressed {
+  background: var(--ink-700);
+  border-color: var(--ink-700);
+  transform: translateY(1px);
+}
+.mol-social-btn--apple.is-focused {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--border-focus) 35%, transparent);
+}
+.mol-social-btn--apple.is-disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.mode-dark .mol-social-btn--apple,
+[data-theme="dark"] .mol-social-btn--apple {
+  background: var(--paper-50);
+  color: var(--ink-900);
+  border-color: var(--paper-50);
+}
+.mode-dark .mol-social-btn--apple.is-hover,
+[data-theme="dark"] .mol-social-btn--apple.is-hover {
+  background: var(--paper-100);
+  border-color: var(--paper-100);
+}
+.mode-dark .mol-social-btn--apple.is-pressed,
+[data-theme="dark"] .mol-social-btn--apple.is-pressed {
+  background: var(--paper-200);
+  border-color: var(--paper-200);
+}
+
+/* Google variant — surface-card with 1px hairline, four-color G mark */
+.mol-social-btn--google {
+  background: var(--surface-card);
+  color: var(--content-primary);
+  border: var(--stroke-sm) solid var(--border-default);
+}
+.mol-social-btn--google.is-hover {
+  background: var(--surface-inset);
+  border-color: var(--border-strong);
+}
+.mol-social-btn--google.is-pressed {
+  background: var(--paper-300);
+  border-color: var(--border-strong);
+  transform: translateY(1px);
+}
+.mol-social-btn--google.is-focused {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--border-focus) 20%, transparent);
+}
+.mol-social-btn--google.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.mode-dark .mol-social-btn--google.is-hover,
+[data-theme="dark"] .mol-social-btn--google.is-hover {
+  background: var(--ink-600);
+}
+.mode-dark .mol-social-btn--google.is-pressed,
+[data-theme="dark"] .mol-social-btn--google.is-pressed {
+  background: var(--ink-500);
+}
+
+/* Vertical stack helper for auth-screen layout */
+.mol-social-btn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}

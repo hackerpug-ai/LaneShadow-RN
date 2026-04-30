@@ -9,10 +9,10 @@
   },
   "phases": {
     "tokens": { "status": "cached", "note": "tokens.css + theme.light/dark.json preserved from prior run" },
-    "atoms": { "status": "cached", "count": 17 },
-    "molecules": { "status": "cached", "count": 20 },
+    "atoms": { "status": "extended-sprint-06", "count": 17, "icon_catalog_glyphs": 34, "note": "icon atom extended from 31 → 34 glyphs (mail, lock, eye) for auth-screen" },
+    "molecules": { "status": "extended-sprint-06", "count": 21, "note": "added mol-social-btn (Apple + Google variants) for auth-screen" },
     "organisms": { "status": "cached", "count": 7 },
-    "views": { "status": "completed", "count": 6 }
+    "views": { "status": "completed", "count": 7 }
   },
   "views": [
     { "name": "idle-screen",           "authority": "uc-scr-01", "stories": 7, "audit": "clean", "artifacts": ["README.md","idle-screen.html","idle-screen.pdf","idle-screen.png","idle-screen-mobile.png"] },
@@ -20,7 +20,8 @@
     { "name": "route-results-screen",  "authority": "uc-scr-03", "stories": 7, "audit": "clean (after 1 remediation dispatch — 7 violations fixed)", "artifacts": ["README.md","route-results-screen.html","route-results-screen.pdf","route-results-screen.png","route-results-screen-mobile.png"] },
     { "name": "route-details-screen",  "authority": "uc-scr-04", "stories": 6, "audit": "clean", "artifacts": ["README.md","route-details-screen.html","route-details-screen.pdf","route-details-screen.png","route-details-screen-mobile.png"] },
     { "name": "sessions-screen",       "authority": "uc-scr-05", "stories": 5, "audit": "clean (after orchestrator literal-to-token swap: --elev-drawer, --space-hairline)", "artifacts": ["README.md","sessions-screen.html","sessions-screen.pdf","sessions-screen.png","sessions-screen-mobile.png"] },
-    { "name": "error-screen",          "authority": "uc-scr-06", "stories": 6, "audit": "clean", "artifacts": ["README.md","error-screen.html","error-screen.pdf","error-screen.png","error-screen-mobile.png"] }
+    { "name": "error-screen",          "authority": "uc-scr-06", "stories": 6, "audit": "clean", "artifacts": ["README.md","error-screen.html","error-screen.pdf","error-screen.png","error-screen-mobile.png"] },
+    { "name": "auth-screen",           "authority": "uc-scr-07", "stories": 6, "audit": "clean", "artifacts": ["README.md","auth-screen.html","auth-screen.pdf","auth-screen.png","auth-screen-mobile.png"], "cascade": ["atoms.icon: 31 → 34 glyphs (mail, lock, eye)", "molecules: added mol-social-btn (apple, google variants)"] }
   ],
   "bundles_regenerated": [
     { "path": "views/_organisms.css", "generated_from": "organisms/*/*.html <style> blocks", "size_bytes": 42757 }

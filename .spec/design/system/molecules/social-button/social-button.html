@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<!-- social-button.html — Molecule · LSSocialButton
+     LaneShadow V2 Copper · Authority: uc-mol-09-social-button.html (auth flow extension)
+     Class prefix: .mol-social-btn
+
+     Composes:
+       .ls-btn          (UC-ATM-02 — outline button, full-width)
+     Adds:
+       .mol-social-btn--apple    (Apple-brand variant; black surface light / white surface dark)
+       .mol-social-btn--google   (Google-brand variant; surface-card with multi-color G mark)
+       .mol-social-btn__mark     (brand SVG mark slot — 18px, replaces .btn-icon)
+       .mol-social-btn__label    (button label text — Geist 14/600)
+
+     Usage: <button class="ls-btn mol-social-btn mol-social-btn--apple">…</button>
+
+     Brand fidelity:
+       The Apple wordmark glyph and Google's four-color "G" are brand assets — the
+       inline SVG fills carry brand-correct color literals. These are SVG attributes
+       (exempt per system audit policy on SVG `stroke-width` / `fill`), not CSS spacing
+       or typography literals. The molecule's CSS contains zero hex literals; brand
+       color lives only inside the inline `<svg>` paths.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Molecule · social-button — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+
+/* ─── MOL-SOCIAL-BUTTON ──────────────────────────────────────────────────
+   The social-button molecule extends `.ls-btn` (the canonical 48pt button atom)
+   into provider-specific variants for OAuth login. It does NOT redefine
+   `.ls-btn` height, padding, radius, font-family, font-weight, or transitions —
+   the atom's structural contract is preserved.
+
+   Each provider variant overrides ONLY:
+     - background    (provider-correct surface)
+     - color         (label / mark contrast vs. background)
+     - border        (1px hairline where the brand calls for it)
+
+   Width: full-width by default (display:flex; width:100%; justify-content:center)
+   so a vertical stack of providers reads as a single column on mobile.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.mol-social-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+/* Brand-mark slot — 18px square, paints with currentColor for monochrome
+   marks; multi-color marks (Google) paint via inline SVG fills. */
+.mol-social-btn__mark {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.mol-social-btn__mark svg {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  display: block;
+}
+
+/* Label slot — inherits Geist 14/600 from .ls-btn */
+.mol-social-btn__label {
+  flex-shrink: 0;
+}
+
+/* ── Apple variant ───────────────────────────────────────────────────────
+   Light theme: black surface (--ink-900) with white label/mark.
+   Dark theme:  white surface (--paper-50) with black label/mark.
+   Per Apple HIG, "Sign in with Apple" buttons must use one of three
+   prescribed color combinations; black-on-white / white-on-black is the
+   most common and what we render here. ───────────────────────────────── */
+.mol-social-btn--apple {
+  background: var(--ink-900);
+  color: var(--paper-50);
+  border: var(--stroke-sm) solid var(--ink-900);
+}
+.mol-social-btn--apple.is-hover {
+  background: var(--ink-800);
+  border-color: var(--ink-800);
+}
+.mol-social-btn--apple.is-pressed {
+  background: var(--ink-700);
+  border-color: var(--ink-700);
+  transform: translateY(1px);
+}
+.mol-social-btn--apple.is-focused {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--border-focus) 35%, transparent);
+}
+.mol-social-btn--apple.is-disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Dark theme: invert surface */
+.mode-dark .mol-social-btn--apple,
+[data-theme="dark"] .mol-social-btn--apple {
+  background: var(--paper-50);
+  color: var(--ink-900);
+  border-color: var(--paper-50);
+}
+.mode-dark .mol-social-btn--apple.is-hover,
+[data-theme="dark"] .mol-social-btn--apple.is-hover {
+  background: var(--paper-100);
+  border-color: var(--paper-100);
+}
+.mode-dark .mol-social-btn--apple.is-pressed,
+[data-theme="dark"] .mol-social-btn--apple.is-pressed {
+  background: var(--paper-200);
+  border-color: var(--paper-200);
+}
+
+/* ── Google variant ──────────────────────────────────────────────────────
+   Per Google brand guidelines, the "Sign in with Google" button must use
+   the four-color G logo on a white-equivalent surface with a 1px border
+   and a dark label. We honor this by:
+     - background = --surface-card (paper-50 light / ink-700 dark)
+     - color (label) = --content-primary
+     - border = --border-default (1px hairline)
+     - mark = inline 4-color SVG (brand colors are SVG attributes, exempt)
+   ──────────────────────────────────────────────────────────────────────── */
+.mol-social-btn--google {
+  background: var(--surface-card);
+  color: var(--content-primary);
+  border: var(--stroke-sm) solid var(--border-default);
+}
+.mol-social-btn--google.is-hover {
+  background: var(--surface-inset);
+  border-color: var(--border-strong);
+}
+.mol-social-btn--google.is-pressed {
+  background: var(--paper-300);
+  border-color: var(--border-strong);
+  transform: translateY(1px);
+}
+.mol-social-btn--google.is-focused {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--border-focus) 20%, transparent);
+}
+.mol-social-btn--google.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Dark theme: surface-card already flips via tokens; no overrides needed
+   except hover/pressed which use ink shades */
+.mode-dark .mol-social-btn--google.is-hover,
+[data-theme="dark"] .mol-social-btn--google.is-hover {
+  background: var(--ink-600);
+}
+.mode-dark .mol-social-btn--google.is-pressed,
+[data-theme="dark"] .mol-social-btn--google.is-pressed {
+  background: var(--ink-500);
+}
+
+/* ── Optional row layout helper (vertical stack of providers) ───────── */
+.mol-social-btn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+/* ── Preview layout helpers (preview-only) ─────────────────────────── */
+.social-btn-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+}
+
+.social-btn-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background: var(--surface-card);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-7);
+}
+
+.social-btn-block-label {
+  font-family: var(--font-instrument);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--content-tertiary);
+}
+
+.social-btn-block-note {
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  color: var(--content-tertiary);
+  font-style: italic;
+}
+
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1><em>LSSocialButton</em> — Molecule</h1>
+  <div class="subtitle">UC-MOL-09 · Apple / Google variants · 2 surfaces × 4 states · Both themes · Composes ls-btn</div>
+</div>
+
+<div class="two-up">
+
+  <!-- ════════════════════════════════════════════════════════════════
+       LIGHT THEME PANE
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="theme-pane">
+    <div class="section-label">Light theme</div>
+
+    <div class="social-btn-showcase">
+
+      <!-- Variant matrix: Apple -->
+      <div class="social-btn-block">
+        <span class="social-btn-block-label">Apple — 4 states</span>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--apple" type="button" aria-label="Continue with Apple">
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <!-- Apple wordmark glyph — pulled to a normalized 20×20 grid for parity with icon system -->
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+              <path d="M14.94 10.6c-.02-2.08 1.7-3.08 1.78-3.13-.97-1.42-2.48-1.61-3.02-1.63-1.29-.13-2.51.76-3.16.76-.66 0-1.66-.74-2.74-.72-1.41.02-2.71.82-3.43 2.08-1.46 2.54-.37 6.29 1.06 8.34.69.99 1.51 2.11 2.59 2.07 1.04-.04 1.43-.67 2.69-.67 1.25 0 1.61.67 2.7.65 1.12-.02 1.83-1.01 2.51-2.01.79-1.15 1.12-2.27 1.14-2.33-.03-.01-2.18-.84-2.2-3.31zM12.84 4.8c.57-.69.96-1.65.85-2.6-.83.03-1.83.55-2.42 1.24-.53.61-.99 1.59-.87 2.52.92.07 1.87-.47 2.44-1.16z"/>
+            </svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Apple</span>
+        </button>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--apple is-hover" type="button" aria-label="Continue with Apple — hover">
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M14.94 10.6c-.02-2.08 1.7-3.08 1.78-3.13-.97-1.42-2.48-1.61-3.02-1.63-1.29-.13-2.51.76-3.16.76-.66 0-1.66-.74-2.74-.72-1.41.02-2.71.82-3.43 2.08-1.46 2.54-.37 6.29 1.06 8.34.69.99 1.51 2.11 2.59 2.07 1.04-.04 1.43-.67 2.69-.67 1.25 0 1.61.67 2.7.65 1.12-.02 1.83-1.01 2.51-2.01.79-1.15 1.12-2.27 1.14-2.33-.03-.01-2.18-.84-2.2-3.31zM12.84 4.8c.57-.69.96-1.65.85-2.6-.83.03-1.83.55-2.42 1.24-.53.61-.99 1.59-.87 2.52.92.07 1.87-.47 2.44-1.16z"/></svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Apple</span>
+        </button>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--apple is-focused" type="button" aria-label="Continue with Apple — focus">
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M14.94 10.6c-.02-2.08 1.7-3.08 1.78-3.13-.97-1.42-2.48-1.61-3.02-1.63-1.29-.13-2.51.76-3.16.76-.66 0-1.66-.74-2.74-.72-1.41.02-2.71.82-3.43 2.08-1.46 2.54-.37 6.29 1.06 8.34.69.99 1.51 2.11 2.59 2.07 1.04-.04 1.43-.67 2.69-.67 1.25 0 1.61.67 2.7.65 1.12-.02 1.83-1.01 2.51-2.01.79-1.15 1.12-2.27 1.14-2.33-.03-.01-2.18-.84-2.2-3.31zM12.84 4.8c.57-.69.96-1.65.85-2.6-.83.03-1.83.55-2.42 1.24-.53.61-.99 1.59-.87 2.52.92.07 1.87-.47 2.44-1.16z"/></svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Apple</span>
+        </button>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--apple is-disabled" type="button" aria-label="Continue with Apple — disabled" disabled>
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M14.94 10.6c-.02-2.08 1.7-3.08 1.78-3.13-.97-1.42-2.48-1.61-3.02-1.63-1.29-.13-2.51.76-3.16.76-.66 0-1.66-.74-2.74-.72-1.41.02-2.71.82-3.43 2.08-1.46 2.54-.37 6.29 1.06 8.34.69.99 1.51 2.11 2.59 2.07 1.04-.04 1.43-.67 2.69-.67 1.25 0 1.61.67 2.7.65 1.12-.02 1.83-1.01 2.51-2.01.79-1.15 1.12-2.27 1.14-2.33-.03-.01-2.18-.84-2.2-3.31zM12.84 4.8c.57-.69.96-1.65.85-2.6-.83.03-1.83.55-2.42 1.24-.53.61-.99 1.59-.87 2.52.92.07 1.87-.47 2.44-1.16z"/></svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Apple</span>
+        </button>
+
+        <span class="social-btn-block-note">default · hover · focus · disabled — bg ink-900 / fg paper-50</span>
+      </div>
+
+      <!-- Variant matrix: Google -->
+      <div class="social-btn-block">
+        <span class="social-btn-block-label">Google — 4 states</span>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--google" type="button" aria-label="Continue with Google">
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <!-- Google "G" — four-color brand mark. Color literals are SVG fills (exempt per audit). -->
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#4285F4" d="M19.6 10.23c0-.7-.06-1.36-.18-2H10v3.79h5.4c-.24 1.27-.94 2.34-2 3.06v2.55h3.23c1.89-1.74 2.97-4.31 2.97-7.4z"/>
+              <path fill="#34A853" d="M10 19.99c2.7 0 4.97-.89 6.62-2.42l-3.23-2.55c-.9.6-2.04.96-3.39.96-2.6 0-4.81-1.76-5.6-4.13H1.06v2.6A9.99 9.99 0 0010 19.99z"/>
+              <path fill="#FBBC05" d="M4.4 11.84a6 6 0 010-3.78v-2.6H1.06a10 10 0 000 8.97l3.34-2.59z"/>
+              <path fill="#EA4335" d="M10 3.95c1.47 0 2.78.51 3.82 1.5l2.86-2.86A9.94 9.94 0 0010 0 9.99 9.99 0 001.06 5.45l3.34 2.6c.79-2.36 3-4.13 5.6-4.13z"/>
+            </svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Google</span>
+        </button>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--google is-hover" type="button" aria-label="Continue with Google — hover">
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#4285F4" d="M19.6 10.23c0-.7-.06-1.36-.18-2H10v3.79h5.4c-.24 1.27-.94 2.34-2 3.06v2.55h3.23c1.89-1.74 2.97-4.31 2.97-7.4z"/>
+              <path fill="#34A853" d="M10 19.99c2.7 0 4.97-.89 6.62-2.42l-3.23-2.55c-.9.6-2.04.96-3.39.96-2.6 0-4.81-1.76-5.6-4.13H1.06v2.6A9.99 9.99 0 0010 19.99z"/>
+              <path fill="#FBBC05" d="M4.4 11.84a6 6 0 010-3.78v-2.6H1.06a10 10 0 000 8.97l3.34-2.59z"/>
+              <path fill="#EA4335" d="M10 3.95c1.47 0 2.78.51 3.82 1.5l2.86-2.86A9.94 9.94 0 0010 0 9.99 9.99 0 001.06 5.45l3.34 2.6c.79-2.36 3-4.13 5.6-4.13z"/>
+            </svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Google</span>
+        </button>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--google is-focused" type="button" aria-label="Continue with Google — focus">
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#4285F4" d="M19.6 10.23c0-.7-.06-1.36-.18-2H10v3.79h5.4c-.24 1.27-.94 2.34-2 3.06v2.55h3.23c1.89-1.74 2.97-4.31 2.97-7.4z"/>
+              <path fill="#34A853" d="M10 19.99c2.7 0 4.97-.89 6.62-2.42l-3.23-2.55c-.9.6-2.04.96-3.39.96-2.6 0-4.81-1.76-5.6-4.13H1.06v2.6A9.99 9.99 0 0010 19.99z"/>
+              <path fill="#FBBC05" d="M4.4 11.84a6 6 0 010-3.78v-2.6H1.06a10 10 0 000 8.97l3.34-2.59z"/>
+              <path fill="#EA4335" d="M10 3.95c1.47 0 2.78.51 3.82 1.5l2.86-2.86A9.94 9.94 0 0010 0 9.99 9.99 0 001.06 5.45l3.34 2.6c.79-2.36 3-4.13 5.6-4.13z"/>
+            </svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Google</span>
+        </button>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--google is-disabled" type="button" aria-label="Continue with Google — disabled" disabled>
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#4285F4" d="M19.6 10.23c0-.7-.06-1.36-.18-2H10v3.79h5.4c-.24 1.27-.94 2.34-2 3.06v2.55h3.23c1.89-1.74 2.97-4.31 2.97-7.4z"/>
+              <path fill="#34A853" d="M10 19.99c2.7 0 4.97-.89 6.62-2.42l-3.23-2.55c-.9.6-2.04.96-3.39.96-2.6 0-4.81-1.76-5.6-4.13H1.06v2.6A9.99 9.99 0 0010 19.99z"/>
+              <path fill="#FBBC05" d="M4.4 11.84a6 6 0 010-3.78v-2.6H1.06a10 10 0 000 8.97l3.34-2.59z"/>
+              <path fill="#EA4335" d="M10 3.95c1.47 0 2.78.51 3.82 1.5l2.86-2.86A9.94 9.94 0 0010 0 9.99 9.99 0 001.06 5.45l3.34 2.6c.79-2.36 3-4.13 5.6-4.13z"/>
+            </svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Google</span>
+        </button>
+
+        <span class="social-btn-block-note">default · hover · focus · disabled — bg surface-card / border 1px / four-color G</span>
+      </div>
+
+      <!-- Stack composition (auth-screen usage) -->
+      <div class="social-btn-block">
+        <span class="social-btn-block-label">Vertical stack — auth-screen layout</span>
+        <div class="mol-social-btn-stack">
+          <button class="ls-btn mol-social-btn mol-social-btn--apple" type="button" aria-label="Continue with Apple">
+            <span class="mol-social-btn__mark" aria-hidden="true">
+              <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M14.94 10.6c-.02-2.08 1.7-3.08 1.78-3.13-.97-1.42-2.48-1.61-3.02-1.63-1.29-.13-2.51.76-3.16.76-.66 0-1.66-.74-2.74-.72-1.41.02-2.71.82-3.43 2.08-1.46 2.54-.37 6.29 1.06 8.34.69.99 1.51 2.11 2.59 2.07 1.04-.04 1.43-.67 2.69-.67 1.25 0 1.61.67 2.7.65 1.12-.02 1.83-1.01 2.51-2.01.79-1.15 1.12-2.27 1.14-2.33-.03-.01-2.18-.84-2.2-3.31zM12.84 4.8c.57-.69.96-1.65.85-2.6-.83.03-1.83.55-2.42 1.24-.53.61-.99 1.59-.87 2.52.92.07 1.87-.47 2.44-1.16z"/></svg>
+            </span>
+            <span class="mol-social-btn__label">Continue with Apple</span>
+          </button>
+          <button class="ls-btn mol-social-btn mol-social-btn--google" type="button" aria-label="Continue with Google">
+            <span class="mol-social-btn__mark" aria-hidden="true">
+              <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#4285F4" d="M19.6 10.23c0-.7-.06-1.36-.18-2H10v3.79h5.4c-.24 1.27-.94 2.34-2 3.06v2.55h3.23c1.89-1.74 2.97-4.31 2.97-7.4z"/>
+                <path fill="#34A853" d="M10 19.99c2.7 0 4.97-.89 6.62-2.42l-3.23-2.55c-.9.6-2.04.96-3.39.96-2.6 0-4.81-1.76-5.6-4.13H1.06v2.6A9.99 9.99 0 0010 19.99z"/>
+                <path fill="#FBBC05" d="M4.4 11.84a6 6 0 010-3.78v-2.6H1.06a10 10 0 000 8.97l3.34-2.59z"/>
+                <path fill="#EA4335" d="M10 3.95c1.47 0 2.78.51 3.82 1.5l2.86-2.86A9.94 9.94 0 0010 0 9.99 9.99 0 001.06 5.45l3.34 2.6c.79-2.36 3-4.13 5.6-4.13z"/>
+              </svg>
+            </span>
+            <span class="mol-social-btn__label">Continue with Google</span>
+          </button>
+        </div>
+        <span class="social-btn-block-note">As composed inside AuthScreen — vertical stack with --space-3 gap</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════
+       DARK THEME PANE
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="theme-pane mode-dark">
+    <div class="section-label">Dark theme</div>
+
+    <div class="social-btn-showcase">
+
+      <div class="social-btn-block">
+        <span class="social-btn-block-label">Apple — 4 states (inverted surface)</span>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--apple" type="button" aria-label="Continue with Apple">
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M14.94 10.6c-.02-2.08 1.7-3.08 1.78-3.13-.97-1.42-2.48-1.61-3.02-1.63-1.29-.13-2.51.76-3.16.76-.66 0-1.66-.74-2.74-.72-1.41.02-2.71.82-3.43 2.08-1.46 2.54-.37 6.29 1.06 8.34.69.99 1.51 2.11 2.59 2.07 1.04-.04 1.43-.67 2.69-.67 1.25 0 1.61.67 2.7.65 1.12-.02 1.83-1.01 2.51-2.01.79-1.15 1.12-2.27 1.14-2.33-.03-.01-2.18-.84-2.2-3.31zM12.84 4.8c.57-.69.96-1.65.85-2.6-.83.03-1.83.55-2.42 1.24-.53.61-.99 1.59-.87 2.52.92.07 1.87-.47 2.44-1.16z"/></svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Apple</span>
+        </button>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--apple is-hover" type="button" aria-label="Continue with Apple — hover">
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M14.94 10.6c-.02-2.08 1.7-3.08 1.78-3.13-.97-1.42-2.48-1.61-3.02-1.63-1.29-.13-2.51.76-3.16.76-.66 0-1.66-.74-2.74-.72-1.41.02-2.71.82-3.43 2.08-1.46 2.54-.37 6.29 1.06 8.34.69.99 1.51 2.11 2.59 2.07 1.04-.04 1.43-.67 2.69-.67 1.25 0 1.61.67 2.7.65 1.12-.02 1.83-1.01 2.51-2.01.79-1.15 1.12-2.27 1.14-2.33-.03-.01-2.18-.84-2.2-3.31zM12.84 4.8c.57-.69.96-1.65.85-2.6-.83.03-1.83.55-2.42 1.24-.53.61-.99 1.59-.87 2.52.92.07 1.87-.47 2.44-1.16z"/></svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Apple</span>
+        </button>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--apple is-focused" type="button" aria-label="Continue with Apple — focus">
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M14.94 10.6c-.02-2.08 1.7-3.08 1.78-3.13-.97-1.42-2.48-1.61-3.02-1.63-1.29-.13-2.51.76-3.16.76-.66 0-1.66-.74-2.74-.72-1.41.02-2.71.82-3.43 2.08-1.46 2.54-.37 6.29 1.06 8.34.69.99 1.51 2.11 2.59 2.07 1.04-.04 1.43-.67 2.69-.67 1.25 0 1.61.67 2.7.65 1.12-.02 1.83-1.01 2.51-2.01.79-1.15 1.12-2.27 1.14-2.33-.03-.01-2.18-.84-2.2-3.31zM12.84 4.8c.57-.69.96-1.65.85-2.6-.83.03-1.83.55-2.42 1.24-.53.61-.99 1.59-.87 2.52.92.07 1.87-.47 2.44-1.16z"/></svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Apple</span>
+        </button>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--apple is-disabled" type="button" aria-label="Continue with Apple — disabled" disabled>
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M14.94 10.6c-.02-2.08 1.7-3.08 1.78-3.13-.97-1.42-2.48-1.61-3.02-1.63-1.29-.13-2.51.76-3.16.76-.66 0-1.66-.74-2.74-.72-1.41.02-2.71.82-3.43 2.08-1.46 2.54-.37 6.29 1.06 8.34.69.99 1.51 2.11 2.59 2.07 1.04-.04 1.43-.67 2.69-.67 1.25 0 1.61.67 2.7.65 1.12-.02 1.83-1.01 2.51-2.01.79-1.15 1.12-2.27 1.14-2.33-.03-.01-2.18-.84-2.2-3.31zM12.84 4.8c.57-.69.96-1.65.85-2.6-.83.03-1.83.55-2.42 1.24-.53.61-.99 1.59-.87 2.52.92.07 1.87-.47 2.44-1.16z"/></svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Apple</span>
+        </button>
+
+        <span class="social-btn-block-note">Inverted on dark — bg paper-50 / fg ink-900</span>
+      </div>
+
+      <div class="social-btn-block">
+        <span class="social-btn-block-label">Google — 4 states (warm-ink surface)</span>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--google" type="button" aria-label="Continue with Google">
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#4285F4" d="M19.6 10.23c0-.7-.06-1.36-.18-2H10v3.79h5.4c-.24 1.27-.94 2.34-2 3.06v2.55h3.23c1.89-1.74 2.97-4.31 2.97-7.4z"/>
+              <path fill="#34A853" d="M10 19.99c2.7 0 4.97-.89 6.62-2.42l-3.23-2.55c-.9.6-2.04.96-3.39.96-2.6 0-4.81-1.76-5.6-4.13H1.06v2.6A9.99 9.99 0 0010 19.99z"/>
+              <path fill="#FBBC05" d="M4.4 11.84a6 6 0 010-3.78v-2.6H1.06a10 10 0 000 8.97l3.34-2.59z"/>
+              <path fill="#EA4335" d="M10 3.95c1.47 0 2.78.51 3.82 1.5l2.86-2.86A9.94 9.94 0 0010 0 9.99 9.99 0 001.06 5.45l3.34 2.6c.79-2.36 3-4.13 5.6-4.13z"/>
+            </svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Google</span>
+        </button>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--google is-hover" type="button" aria-label="Continue with Google — hover">
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#4285F4" d="M19.6 10.23c0-.7-.06-1.36-.18-2H10v3.79h5.4c-.24 1.27-.94 2.34-2 3.06v2.55h3.23c1.89-1.74 2.97-4.31 2.97-7.4z"/>
+              <path fill="#34A853" d="M10 19.99c2.7 0 4.97-.89 6.62-2.42l-3.23-2.55c-.9.6-2.04.96-3.39.96-2.6 0-4.81-1.76-5.6-4.13H1.06v2.6A9.99 9.99 0 0010 19.99z"/>
+              <path fill="#FBBC05" d="M4.4 11.84a6 6 0 010-3.78v-2.6H1.06a10 10 0 000 8.97l3.34-2.59z"/>
+              <path fill="#EA4335" d="M10 3.95c1.47 0 2.78.51 3.82 1.5l2.86-2.86A9.94 9.94 0 0010 0 9.99 9.99 0 001.06 5.45l3.34 2.6c.79-2.36 3-4.13 5.6-4.13z"/>
+            </svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Google</span>
+        </button>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--google is-focused" type="button" aria-label="Continue with Google — focus">
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#4285F4" d="M19.6 10.23c0-.7-.06-1.36-.18-2H10v3.79h5.4c-.24 1.27-.94 2.34-2 3.06v2.55h3.23c1.89-1.74 2.97-4.31 2.97-7.4z"/>
+              <path fill="#34A853" d="M10 19.99c2.7 0 4.97-.89 6.62-2.42l-3.23-2.55c-.9.6-2.04.96-3.39.96-2.6 0-4.81-1.76-5.6-4.13H1.06v2.6A9.99 9.99 0 0010 19.99z"/>
+              <path fill="#FBBC05" d="M4.4 11.84a6 6 0 010-3.78v-2.6H1.06a10 10 0 000 8.97l3.34-2.59z"/>
+              <path fill="#EA4335" d="M10 3.95c1.47 0 2.78.51 3.82 1.5l2.86-2.86A9.94 9.94 0 0010 0 9.99 9.99 0 001.06 5.45l3.34 2.6c.79-2.36 3-4.13 5.6-4.13z"/>
+            </svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Google</span>
+        </button>
+
+        <button class="ls-btn mol-social-btn mol-social-btn--google is-disabled" type="button" aria-label="Continue with Google — disabled" disabled>
+          <span class="mol-social-btn__mark" aria-hidden="true">
+            <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#4285F4" d="M19.6 10.23c0-.7-.06-1.36-.18-2H10v3.79h5.4c-.24 1.27-.94 2.34-2 3.06v2.55h3.23c1.89-1.74 2.97-4.31 2.97-7.4z"/>
+              <path fill="#34A853" d="M10 19.99c2.7 0 4.97-.89 6.62-2.42l-3.23-2.55c-.9.6-2.04.96-3.39.96-2.6 0-4.81-1.76-5.6-4.13H1.06v2.6A9.99 9.99 0 0010 19.99z"/>
+              <path fill="#FBBC05" d="M4.4 11.84a6 6 0 010-3.78v-2.6H1.06a10 10 0 000 8.97l3.34-2.59z"/>
+              <path fill="#EA4335" d="M10 3.95c1.47 0 2.78.51 3.82 1.5l2.86-2.86A9.94 9.94 0 0010 0 9.99 9.99 0 001.06 5.45l3.34 2.6c.79-2.36 3-4.13 5.6-4.13z"/>
+            </svg>
+          </span>
+          <span class="mol-social-btn__label">Continue with Google</span>
+        </button>
+
+        <span class="social-btn-block-note">Surface re-resolves to ink-700 on dark; mark stays four-color</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

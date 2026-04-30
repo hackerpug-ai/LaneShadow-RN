@@ -14,6 +14,7 @@ Full-page templates — each composes organisms (primarily) and lower-layer mole
 | 4 | route-details-screen | `route-details-screen/` | UC-SCR-04 | 6 | Single best-variant polyline + LSRouteSheet w/ best badge, instrument readout, weather timeline, Save/Ride |
 | 5 | sessions-screen | `sessions-screen/` | UC-SCR-05 | 5 | Scrimmed map + LSSessionsDrawer leading (no top bar — drawer owns chrome) |
 | 6 | error-screen | `error-screen/` | UC-SCR-06 | 6 | LSInlineErrorCallout (warn stripe) + suggestion chips + recovery LSChatInput |
+| 7 | auth-screen | `auth-screen/` | UC-SCR-07 | 6 | Sign-in / create-account — Apple + Google + smart email-first branching (existing user → password; new user → display-name + create-password) |
 
 ## Composition Matrix
 
@@ -27,6 +28,7 @@ Structural organism / molecule composition each view consumes. Atoms referenced 
 | route-details-screen | `org-map-layer` · `org-topbar` · `org-route-sheet` | `mol-instrument-readout` · `mol-weather-timeline` · `mol-bottom-sheet` (shell) |
 | sessions-screen | `org-map-layer` · `org-sessions-drawer` | — (atoms-only composition inside drawer: `ls-btn`, `ls-avatar`, `ls-divider`) |
 | error-screen | `org-map-layer` · `org-topbar` · `org-navigator-callouts` | `mol-suggestion-chip` · `mol-chat-input` |
+| auth-screen | `org-map-layer` (canvas) · `org-topbar` (back chevron only) | `mol-form-field` · `mol-social-btn` (NEW) · `ls-divider.with-label` · `ls-btn--primary` · `ls-spinner` |
 
 All six views share `org-map-layer` as their canvas — z-order, slot stacking, and safe-area are solved once at the organism layer and views pass pre-assembled overlays / chrome into its named slots (`map` · `topBar` · `topOverlay` · `bottomOverlay` · `bottomSheet` · `scrim` · `leadingDrawer`).
 
@@ -45,7 +47,7 @@ for name in ['topbar-navbar','map-layer','navigator-callouts','route-sheet',
 
 If an organism's style block changes, rerun the bundle extraction before viewing any view HTML.
 
-## Quality Bar (all 6 views audited — 0 violations)
+## Quality Bar (all 7 views audited — 0 violations)
 
 - ✅ Zero hex literals in view `<style>` blocks
 - ✅ Zero numeric `font-size` / `font-weight` / `line-height` / `letter-spacing` — typography delegated to `.t-opinion-*`, `.t-title-*`, `.t-body-*`, `.t-label-*`, `.t-instr-*` classes on HTML elements
@@ -107,3 +109,14 @@ For a higher-fidelity presentation-quality render, the PDF at `{name}.pdf` and t
 ## Cascade Notes
 
 Phase 5 surfaced three `TOKEN_GAP` escapes (`--surface-scrim-soft`, `--elev-drawer`, `--space-hairline`) and zero `VARIANT_REQUEST` escapes — every view composed cleanly from existing atom / molecule / organism variants. No atom, molecule, or organism had to be extended during Phase 5. The new tokens were additive to the semantic layer and mirrored into both theme JSON files; no existing token was renamed.
+
+**Sprint 06 (auth-screen, UC-SCR-07)** added two layered cascade events but zero new tokens:
+
+- **Atom layer** — icon catalog grew from 31 → 34 glyphs (`mail`, `lock`, `eye`). Pure additive extension of an existing atom; existing 31 glyphs untouched. See `atoms/icon/README.md`.
+- **Molecule layer** — new `mol-social-btn` molecule (Apple + Google variants) introduced for OAuth login affordances. Composes `ls-btn`; layers brand-correct surface, label color, hairline border, and a brand-mark slot. See `molecules/social-button/README.md`.
+
+`auth-screen` composes cleanly from existing atom / molecule / organism variants once the
+two extensions above are in place. No existing classes were renamed, no tokens were added
+to `tokens/tokens.css`, and the molecule's brand-color literals are scoped to inline SVG
+`fill` attributes (already exempt under the SVG-attribute carve-out used by `idle-screen`
+and `planning-screen` for `stroke-width` literals).
