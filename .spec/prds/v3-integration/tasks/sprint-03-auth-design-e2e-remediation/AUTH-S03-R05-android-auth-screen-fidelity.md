@@ -1,7 +1,7 @@
 # TASK: AUTH-S03-R05 - Android AuthScreen View Fidelity and Sandbox Variants
 
 TASK_TYPE: FEATURE
-STATUS: Backlog
+STATUS: Completed
 PRIORITY: P0
 EFFORT: L
 AGENT: implementer=kotlin-implementer | reviewer=kotlin-reviewer
@@ -104,6 +104,29 @@ anti_pattern: shipping a generic Compose sign-in form on a blank/card-heavy scre
 - `cd android && ./gradlew :app:compileDebugKotlin`
 - `cd android && ./gradlew :app:testDebugUnitTest --tests '*Auth*'`
 - `pnpm snapshots:check`
+
+## Review (kotlin-reviewer contract) - 2026-04-30
+
+Final reviewed commit: `4e9ee4dadabf9cf28af2a56350c8f90daf00a63d`
+Merged to `main`: `bb8c03f21c9cae49f18be004d2334a5508f3651b`
+
+Acceptance Criteria:
+- [x] AC-1: Android AuthScreen uses the design anatomy. Evidence: AuthScreen defines Terms/Privacy URLs, URI handling, contour background, scrim, back chip, brand/header/form/footer, and clickable legal footer controls; production `Route.SignIn` renders AuthScreen with the back chip enabled.
+- [x] AC-2: Android email-first branching states exist. Evidence: `AuthScreenViewModel` requires an injected resolver, trims email, handles existing/new/unavailable branches without email-string heuristics, and `SignInScreen`/`SignUpScreen` use route-specific resolvers.
+- [x] AC-3: Android dark AuthScreen variant exists. Evidence: `templates.auth-screen.dark` is registered with `LaneShadowTheme(darkTheme = true)` and targeted by focused snapshot tests.
+- [x] AC-4: Android AuthScreen sandbox stories cover all design variants. Evidence: all six canonical `templates.auth-screen.*` IDs are registered, included in focused snapshot tests, and tracked in the parity manifest.
+- [x] AC-5: Android visual evidence is screenshot-based. Evidence: focused and AllStories PNG baselines exist for all six AuthScreen IDs in light and dark, snapshot evidence links to `auth-screen.html`, and `pnpm snapshots:check` passed.
+
+Test Criteria:
+- [x] TC-1: Android AuthScreen source contains the design anatomy labels and controls.
+- [x] TC-2: Android tests cover existing-user, new-user, invalid-email, and submitting branches.
+- [x] TC-3: Android sandbox registers the dark auth-screen variant.
+- [x] TC-4: Android sandbox registers all six AuthScreen design variants.
+- [x] TC-5: Snapshot manifest checking passes after Android AuthScreen stories are captured.
+
+Notes:
+- Earlier review-cycle failures for fake production branching, no-op legal links, missing production back chip, and missing screenshot baselines were remediated before approval.
+- Review and remediation were run headless with CLI Gradle, `pnpm snapshots:check`, and `rg` verification.
 
 ## Dependencies
 

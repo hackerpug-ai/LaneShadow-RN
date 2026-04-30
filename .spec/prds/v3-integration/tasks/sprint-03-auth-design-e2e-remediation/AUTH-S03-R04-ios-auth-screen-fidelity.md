@@ -130,7 +130,8 @@ blocks: [AUTH-S03-R06, AUTH-S03-R08]
 ## Review (swift-reviewer contract) - 2026-04-30
 
 Final reviewed commit: `873053097dc313cefb92c0343ae7083dbfb29681`
-Merged to `main`: pending task-record commit.
+Merged to `main`: `82bb255d`
+Task record commit: `13f51e6c`
 
 Acceptance Criteria:
 - [x] AC-1: iOS AuthScreen uses the design anatomy. Evidence: required anatomy grep passed; AuthScreen includes the paper contour background, scrim, glass back chip, brand block, headline, social stack, email divider, branch forms, CTA, spinner, and legal footer.
