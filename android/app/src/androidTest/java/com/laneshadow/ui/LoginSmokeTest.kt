@@ -56,6 +56,8 @@ private class FakeAuthRepository : AuthRepository {
 
     override suspend fun signOut(): Result<Unit> = Result.success(Unit)
 
+    override suspend fun handleUnauthenticated(message: String): Result<Unit> = Result.success(Unit)
+
     override suspend fun signInWithGoogle(): Result<ClerkUser> =
         Result.success(ClerkUser("google", "rider@example.com", "Rider", "google"))
 

@@ -213,6 +213,11 @@ private class FakeAuthRepository : AuthRepository {
 
     override suspend fun signOut(): Result<Unit> = Result.success(Unit)
 
+    override suspend fun handleUnauthenticated(message: String): Result<Unit> {
+        authStateFlow.value = AuthState.Error(message)
+        return Result.success(Unit)
+    }
+
     override suspend fun signInWithGoogle(): Result<ClerkUser> =
         Result.failure(UnsupportedOperationException("not needed in this test"))
 
