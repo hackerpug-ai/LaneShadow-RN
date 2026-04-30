@@ -93,7 +93,7 @@ fun AuthNavGraph(
         composable<Route.SignIn> {
             AuthScreen(
                 viewModel = authViewModel,
-                showBackButton = false,
+                showBackButton = true,
             )
         }
         composable<Route.SignUp> {

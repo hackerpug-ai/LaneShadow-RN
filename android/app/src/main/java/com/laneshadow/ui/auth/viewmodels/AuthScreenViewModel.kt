@@ -1,13 +1,17 @@
 package com.laneshadow.ui.auth.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.laneshadow.ui.auth.models.AuthScreenStep
 import com.laneshadow.ui.auth.models.AuthScreenUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class AuthScreenViewModel : ViewModel() {
+class AuthScreenViewModel(
+    private val emailBranchResolver: AuthEmailBranchResolver = ExistingUserAuthEmailBranchResolver,
+) : ViewModel() {
     private val _uiState = MutableStateFlow(AuthScreenUiState())
     val uiState: StateFlow<AuthScreenUiState> = _uiState.asStateFlow()
 
@@ -29,6 +33,10 @@ class AuthScreenViewModel : ViewModel() {
 
     fun continueFromEmail() {
         val state = _uiState.value
+        if (state.isSubmitting) {
+            return
+        }
+
         if (!state.isEmailValid) {
             _uiState.value = state.copy(
                 step = AuthScreenStep.EmailEntry,
@@ -38,10 +46,31 @@ class AuthScreenViewModel : ViewModel() {
         }
 
         _uiState.value = state.copy(
-            step = resolveBranchForEmail(state.email),
+            isSubmitting = true,
             emailError = null,
             authError = null,
         )
+
+        viewModelScope.launch {
+            val result = emailBranchResolver.resolve(state.email.trim())
+            _uiState.value = when (result) {
+                AuthEmailBranchResult.ExistingUser -> _uiState.value.copy(
+                    step = AuthScreenStep.ExistingUser,
+                    isSubmitting = false,
+                    authError = null,
+                )
+                AuthEmailBranchResult.NewUser -> _uiState.value.copy(
+                    step = AuthScreenStep.NewUser,
+                    isSubmitting = false,
+                    authError = null,
+                )
+                is AuthEmailBranchResult.Unavailable -> _uiState.value.copy(
+                    step = AuthScreenStep.EmailEntry,
+                    isSubmitting = false,
+                    authError = result.message,
+                )
+            }
+        }
     }
 
     fun backToEmail() {
@@ -65,12 +94,19 @@ class AuthScreenViewModel : ViewModel() {
         _uiState.value = state
     }
 
-    private fun resolveBranchForEmail(email: String): AuthScreenStep {
-        val normalized = email.trim().lowercase()
-        return if (normalized.startsWith("new.") || normalized.contains("jamie")) {
-            AuthScreenStep.NewUser
-        } else {
-            AuthScreenStep.ExistingUser
-        }
-    }
+}
+
+interface AuthEmailBranchResolver {
+    suspend fun resolve(email: String): AuthEmailBranchResult
+}
+
+sealed interface AuthEmailBranchResult {
+    data object ExistingUser : AuthEmailBranchResult
+    data object NewUser : AuthEmailBranchResult
+    data class Unavailable(val message: String) : AuthEmailBranchResult
+}
+
+object ExistingUserAuthEmailBranchResolver : AuthEmailBranchResolver {
+    override suspend fun resolve(email: String): AuthEmailBranchResult =
+        AuthEmailBranchResult.ExistingUser
 }

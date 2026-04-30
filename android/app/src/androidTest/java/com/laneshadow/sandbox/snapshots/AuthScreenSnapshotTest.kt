@@ -1,8 +1,8 @@
 package com.laneshadow.sandbox.snapshots
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 /**
  * Screenshot evidence for .spec/design/system/views/auth-screen/auth-screen.html.
@@ -10,35 +10,34 @@ import org.junit.runner.RunWith
  * These focused cases keep the AuthScreen parity IDs visible even though
  * AllStoriesSnapshotTest also snapshots every registered sandbox story.
  */
-@RunWith(AndroidJUnit4::class)
-class AuthScreenSnapshotTest : SandboxSnapshotTestBase() {
+@RunWith(Parameterized::class)
+class AuthScreenSnapshotTest(
+    private val storyId: String,
+    private val isDarkTheme: Boolean,
+) : SandboxSnapshotTestBase() {
     @Test
-    fun emailEntry_light() {
-        captureStorySnapshot("templates.auth-screen.email-entry", isDarkTheme = false)
+    fun snapshot() {
+        captureStorySnapshot(storyId, isDarkTheme)
     }
 
-    @Test
-    fun existingUser_light() {
-        captureStorySnapshot("templates.auth-screen.existing-user", isDarkTheme = false)
-    }
+    companion object {
+        private val authScreenStoryIds = listOf(
+            "templates.auth-screen.email-entry",
+            "templates.auth-screen.existing-user",
+            "templates.auth-screen.new-user",
+            "templates.auth-screen.invalid-email",
+            "templates.auth-screen.submitting",
+            "templates.auth-screen.dark",
+        )
 
-    @Test
-    fun newUser_light() {
-        captureStorySnapshot("templates.auth-screen.new-user", isDarkTheme = false)
-    }
-
-    @Test
-    fun invalidEmail_light() {
-        captureStorySnapshot("templates.auth-screen.invalid-email", isDarkTheme = false)
-    }
-
-    @Test
-    fun submitting_light() {
-        captureStorySnapshot("templates.auth-screen.submitting", isDarkTheme = false)
-    }
-
-    @Test
-    fun dark() {
-        captureStorySnapshot("templates.auth-screen.dark", isDarkTheme = true)
+        @JvmStatic
+        @Parameterized.Parameters(name = "snapshot[{0}.{1}]")
+        fun data(): Collection<Array<Any>> =
+            authScreenStoryIds.flatMap { storyId ->
+                listOf(
+                    arrayOf<Any>(storyId, false),
+                    arrayOf<Any>(storyId, true),
+                )
+            }
     }
 }

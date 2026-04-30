@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -146,6 +147,8 @@ fun AuthScreenContent(
     onCreateAccount: () -> Unit = {},
     onApple: () -> Unit = {},
     onGoogle: () -> Unit = {},
+    onTerms: () -> Unit = {},
+    onPrivacy: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
@@ -217,7 +220,11 @@ fun AuthScreenContent(
                         onApple = onApple,
                         onGoogle = onGoogle,
                     )
-                    FooterBlock(state.step)
+                    FooterBlock(
+                        step = state.step,
+                        onTerms = onTerms,
+                        onPrivacy = onPrivacy,
+                    )
                 }
             }
         }
@@ -651,20 +658,72 @@ private fun SmallLink(
 }
 
 @Composable
-private fun FooterBlock(step: AuthScreenStep) {
-    val footer = if (step == AuthScreenStep.ExistingUser) {
-        "Not your account? Use a different email."
-    } else {
-        "By continuing, you agree to our Terms & Privacy Policy."
+private fun FooterBlock(
+    step: AuthScreenStep,
+    onTerms: () -> Unit,
+    onPrivacy: () -> Unit,
+) {
+    val theme = LocalLaneShadowTheme.current
+
+    if (step == AuthScreenStep.ExistingUser) {
+        androidx.compose.material3.Text(
+            text = "Not your account? Use a different email.",
+            style = theme.typography.ui.body.sm,
+            color = theme.content.tertiary,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center,
+        )
+        return
     }
 
-    androidx.compose.material3.Text(
-        text = footer,
-        style = LocalLaneShadowTheme.current.typography.ui.body.sm,
-        color = LocalLaneShadowTheme.current.content.tertiary,
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center,
-    )
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(theme.space.xs),
+    ) {
+        androidx.compose.material3.Text(
+            text = "By continuing, you agree to our",
+            style = theme.typography.ui.body.sm,
+            color = theme.content.tertiary,
+            textAlign = TextAlign.Center,
+        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(theme.space.xs),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            FooterLink(text = "Terms", onClick = onTerms)
+            androidx.compose.material3.Text(
+                text = "&",
+                style = theme.typography.ui.body.sm,
+                color = theme.content.tertiary,
+            )
+            FooterLink(text = "Privacy Policy", onClick = onPrivacy)
+        }
+    }
+}
+
+@Composable
+private fun FooterLink(
+    text: String,
+    onClick: () -> Unit,
+) {
+    val theme = LocalLaneShadowTheme.current
+
+    androidx.compose.material3.Surface(
+        color = Color.Transparent,
+        onClick = onClick,
+        modifier = Modifier.semantics {
+            role = Role.Button
+            contentDescription = text
+        },
+    ) {
+        androidx.compose.material3.Text(
+            text = text,
+            style = theme.typography.ui.body.sm,
+            color = GeneratedTokens.color.Signal.default,
+            textDecoration = TextDecoration.Underline,
+        )
+    }
 }
 
 @Composable
