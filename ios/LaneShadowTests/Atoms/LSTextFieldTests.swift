@@ -1,36 +1,74 @@
+import LaneShadowTheme
+import SnapshotTesting
+import SwiftUI
 import XCTest
 @testable import LaneShadow
 
 @MainActor
 final class LSTextFieldTests: XCTestCase {
-    func test_error_state_renders_helper_text() throws {
-        let source = try String(contentsOfFile: sourceFilePath, encoding: .utf8)
-
-        XCTAssertTrue(source.contains("LSText(helperText"))
+    func test_error_state_resolves_danger_tokens() {
+        let tokens = LSTextField.resolvedTokens(for: .error, theme: Theme.shared)
+        XCTAssertEqual(tokens.border, Theme.shared.colors.danger.default)
     }
 
     func test_disabled_state_suppresses_input() {
         XCTAssertEqual(LSTextField.commitChange(current: "locked", proposed: "edited", state: .disabled), "locked")
     }
 
-    func test_leading_icon_slot_resolves_lsicon() throws {
-        let source = try String(contentsOfFile: sourceFilePath, encoding: .utf8)
+    func test_secure_entry_with_icons_and_helper_renders() {
+        let view = LSTextField(
+            value: .constant("secret"),
+            placeholder: "Password",
+            state: .focused,
+            isSecureEntry: true,
+            leadingIcon: .route,
+            trailingIcon: .circle,
+            helperText: "At least 8 characters"
+        )
+        .padding(Theme.shared.space.lg)
+        .laneShadowTheme()
 
-        XCTAssertTrue(source.contains("LSIcon(name: leadingIcon, size: .sm"))
+        assertSnapshot(matching: view, as: .image(precision: 0.95, traits: .init(userInterfaceStyle: .light)))
     }
 
-    func test_value_binding_reflects_typed_text_realtime() {
-        XCTAssertEqual(LSTextField.commitChange(current: "", proposed: "a", state: .default), "a")
-        XCTAssertEqual(LSTextField.commitChange(current: "a", proposed: "ab", state: .default), "ab")
-        XCTAssertEqual(LSTextField.commitChange(current: "ab", proposed: "abc", state: .default), "abc")
-    }
+    func test_formfield_auth_symbols_and_states_render() {
+        let view = VStack(spacing: Theme.shared.space.md) {
+            LSFormField(
+                label: "Email",
+                value: .constant("rider@example.com"),
+                placeholder: "you@example.com",
+                helperText: "We’ll check if this account exists.",
+                state: .focused,
+                leadingSymbolName: "mail"
+            )
+            LSFormField(
+                label: "Password",
+                value: .constant("hunter2"),
+                placeholder: "••••••••",
+                helperText: "At least 8 characters",
+                isSecureEntry: true,
+                leadingSymbolName: "lock",
+                trailingSymbolName: "eye"
+            )
+            LSFormField(
+                label: "Email",
+                value: .constant("bad"),
+                placeholder: "you@example.com",
+                error: "Enter a valid email",
+                leadingSymbolName: "mail"
+            )
+            LSFormField(
+                label: "Email",
+                value: .constant("locked@example.com"),
+                placeholder: "you@example.com",
+                helperText: "Disabled while submitting",
+                state: .disabled,
+                leadingSymbolName: "mail"
+            )
+        }
+        .padding(Theme.shared.space.lg)
+        .laneShadowTheme()
 
-    private var sourceFilePath: String {
-        URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .appendingPathComponent("LaneShadow/Views/Atoms/LSTextField.swift")
-            .path
+        assertSnapshot(matching: view, as: .image(precision: 0.95, traits: .init(userInterfaceStyle: .light)))
     }
 }

@@ -32,6 +32,69 @@ enum LSFormFieldStories {
         ) { _ in
             FormFieldErrorStory()
         },
+        Story(
+            id: "molecules.formfield.auth.email-default",
+            tier: .molecule,
+            component: "LSFormField",
+            name: "Auth Email Default",
+            summary: "Auth email field with leading mail icon and helper text."
+        ) { _ in
+            AuthEmailFormFieldStory()
+        },
+        Story(
+            id: "molecules.formfield.auth.password-secure",
+            tier: .molecule,
+            component: "LSFormField",
+            name: "Auth Password Secure",
+            summary: "Auth password field with lock icon and eye affordance."
+        ) { _ in
+            AuthPasswordFormFieldStory()
+        },
+        Story(
+            id: "molecules.formfield.auth.error",
+            tier: .molecule,
+            component: "LSFormField",
+            name: "Auth Error",
+            summary: "Auth field in error state with error copy."
+        ) { _ in
+            AuthErrorFormFieldStory()
+        },
+        Story(
+            id: "molecules.formfield.auth.focused",
+            tier: .molecule,
+            component: "LSFormField",
+            name: "Auth Focused",
+            summary: "Focused auth field with mail symbol."
+        ) { _ in
+            AuthFocusedFormFieldStory()
+        },
+        Story(
+            id: "molecules.formfield.auth.disabled",
+            tier: .molecule,
+            component: "LSFormField",
+            name: "Auth Disabled",
+            summary: "Disabled auth field state."
+        ) { _ in
+            AuthDisabledFormFieldStory()
+        },
+        Story(
+            id: "molecules.auth-provider-button.apple",
+            tier: .molecule,
+            component: "LSAuthProviderButton",
+            name: "Apple",
+            summary: "Apple auth provider button."
+        ) { _ in
+            AuthProviderAppleStory()
+        },
+        Story(
+            id: "molecules.auth-provider-button.google",
+            tier: .molecule,
+            component: "LSAuthProviderButton",
+            name: "Google",
+            summary: "Google auth provider button."
+        ) { _ in
+            AuthProviderGoogleStory()
+        },
     ]
 }
 
@@ -74,6 +137,107 @@ private struct FormFieldErrorStory: View {
                 placeholder: "you@example.com",
                 error: "Please enter a valid email address"
             )
+        }
+    }
+}
+
+private struct AuthEmailFormFieldStory: View {
+    @State private var email = ""
+
+    var body: some View {
+        MoleculeStoryFrame {
+            LSFormField(
+                label: "Email",
+                value: $email,
+                placeholder: "you@example.com",
+                helperText: "We’ll check if this account already exists.",
+                leadingSymbolName: "mail"
+            )
+        }
+    }
+}
+
+private struct AuthPasswordFormFieldStory: View {
+    @State private var password = "password"
+
+    var body: some View {
+        MoleculeStoryFrame {
+            LSFormField(
+                label: "Password",
+                value: $password,
+                placeholder: "••••••••",
+                helperText: "At least 8 characters.",
+                isSecureEntry: true,
+                leadingSymbolName: "lock",
+                trailingSymbolName: "eye"
+            )
+        }
+    }
+}
+
+private struct AuthErrorFormFieldStory: View {
+    @State private var email = "invalid-email"
+
+    var body: some View {
+        MoleculeStoryFrame {
+            LSFormField(
+                label: "Email",
+                value: $email,
+                placeholder: "you@example.com",
+                error: "Enter a valid email address.",
+                leadingSymbolName: "mail"
+            )
+        }
+    }
+}
+
+private struct AuthFocusedFormFieldStory: View {
+    @State private var email = "rider@example.com"
+
+    var body: some View {
+        MoleculeStoryFrame {
+            LSFormField(
+                label: "Email",
+                value: $email,
+                placeholder: "you@example.com",
+                helperText: "Ready to continue.",
+                state: .focused,
+                leadingSymbolName: "mail",
+                trailingSymbolName: "check"
+            )
+        }
+    }
+}
+
+private struct AuthDisabledFormFieldStory: View {
+    @State private var email = "elena@ridelaneshadow.com"
+
+    var body: some View {
+        MoleculeStoryFrame {
+            LSFormField(
+                label: "Email",
+                value: $email,
+                placeholder: "you@example.com",
+                helperText: "Field is disabled while submitting.",
+                state: .disabled,
+                leadingSymbolName: "mail"
+            )
+        }
+    }
+}
+
+private struct AuthProviderAppleStory: View {
+    var body: some View {
+        MoleculeStoryFrame {
+            LSAuthProviderButton(provider: .apple) {}
+        }
+    }
+}
+
+private struct AuthProviderGoogleStory: View {
+    var body: some View {
+        MoleculeStoryFrame {
+            LSAuthProviderButton(provider: .google) {}
         }
     }
 }

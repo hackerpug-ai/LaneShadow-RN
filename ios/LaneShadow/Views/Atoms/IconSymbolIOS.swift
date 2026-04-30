@@ -32,8 +32,8 @@ public struct LSIconSymbolIOS: View {
     @Environment(\.theme) private var theme
 
     private let name: String
-    private let size: CGFloat
-    private let color: Color
+    private let size: CGFloat?
+    private let color: IconContentColor
     private let weight: Font.Weight
     private let renderingMode: Image.TemplateRenderingMode?
     private let variant: SymbolVariants
@@ -64,6 +64,9 @@ public struct LSIconSymbolIOS: View {
         "plus": "plus",
         "minus": "minus",
         "check": "checkmark",
+        "mail": "envelope",
+        "lock": "lock",
+        "eye": "eye",
         "pencil": "pencil",
         "delete": "trash",
         "bell": "bell.fill",
@@ -72,8 +75,8 @@ public struct LSIconSymbolIOS: View {
 
     public init(
         name: String,
-        size: CGFloat = 24,
-        color: Color,
+        size: CGFloat? = nil,
+        color: IconContentColor = .primary,
         weight: Font.Weight = .regular,
         renderingMode: Image.TemplateRenderingMode? = nil,
         variant: SymbolVariants = .none,
@@ -92,6 +95,7 @@ public struct LSIconSymbolIOS: View {
 
     public var body: some View {
         let mappedName = Self.iconMap[name] ?? name
+        let resolvedSize = size ?? theme.iconSize.large
 
         var baseImage = Image(systemName: mappedName)
 
@@ -103,9 +107,9 @@ public struct LSIconSymbolIOS: View {
         return baseImage
             .resizable()
             .scaledToFit()
-            .frame(width: size, height: size)
-            .foregroundStyle(color)
-            .font(.system(size: size).weight(weight))
+            .frame(width: resolvedSize, height: resolvedSize)
+            .foregroundStyle(color.resolved(in: theme))
+            .font(.system(size: resolvedSize).weight(weight))
             .symbolVariant(variant)
             .accessibilityLabel(accessibilityLabel ?? name)
             .accessibilityHidden(false)
@@ -116,107 +120,107 @@ public struct LSIconSymbolIOS: View {
 // MARK: - Preview
 
 #Preview("Default Settings") {
-    VStack(spacing: 16) {
-        LSIconSymbolIOS(name: "house", size: 24, color: .blue)
-        LSIconSymbolIOS(name: "heart.fill", size: 32, color: .red, weight: .bold)
-        LSIconSymbolIOS(name: "star.fill", size: 48, color: .yellow)
-        LSIconSymbolIOS(name: "chevron.right", size: 20, color: .green)
+    VStack(spacing: Theme.shared.space.md) {
+        LSIconSymbolIOS(name: "house")
+        LSIconSymbolIOS(name: "heart.fill", size: Theme.shared.iconSize.large, color: .signal, weight: .bold)
+        LSIconSymbolIOS(name: "star.fill", size: Theme.shared.iconSize.xlarge, color: .secondary)
+        LSIconSymbolIOS(name: "chevron.right", size: Theme.shared.iconSize.small, color: .tertiary)
     }
-    .padding()
+    .padding(Theme.shared.space.lg)
     .laneShadowTheme()
 }
 
 #Preview("Rendering Modes") {
-    VStack(spacing: 16) {
+    VStack(spacing: Theme.shared.space.md) {
         LSIconSymbolIOS(
             name: "heart.fill",
-            size: 32,
-            color: .red,
+            size: Theme.shared.iconSize.large,
+            color: .signal,
             renderingMode: .template
         )
         LSIconSymbolIOS(
             name: "heart.fill",
-            size: 32,
-            color: .red
+            size: Theme.shared.iconSize.large,
+            color: .signal
         )
     }
-    .padding()
+    .padding(Theme.shared.space.lg)
     .laneShadowTheme()
 }
 
 #Preview("Variants") {
-    VStack(spacing: 16) {
+    VStack(spacing: Theme.shared.space.md) {
         LSIconSymbolIOS(
             name: "heart",
-            size: 32,
-            color: .red,
+            size: Theme.shared.iconSize.large,
+            color: .signal,
             variant: .none
         )
         LSIconSymbolIOS(
             name: "heart",
-            size: 32,
-            color: .red,
+            size: Theme.shared.iconSize.large,
+            color: .signal,
             variant: .fill
         )
         LSIconSymbolIOS(
             name: "square",
-            size: 32,
-            color: .blue,
+            size: Theme.shared.iconSize.large,
+            color: .primary,
             variant: .circle
         )
         LSIconSymbolIOS(
             name: "checkmark",
-            size: 32,
-            color: .green,
+            size: Theme.shared.iconSize.large,
+            color: .secondary,
             variant: .square
         )
     }
-    .padding()
+    .padding(Theme.shared.space.lg)
     .laneShadowTheme()
 }
 
 #Preview("MaterialCommunityIcons Mapping") {
-    VStack(spacing: 16) {
-        LSIconSymbolIOS(name: "home", size: 24, color: .blue)
-        LSIconSymbolIOS(name: "heart-outline", size: 24, color: .red)
-        LSIconSymbolIOS(name: "star-outline", size: 24, color: .yellow)
-        LSIconSymbolIOS(name: "account-outline", size: 24, color: .gray)
-        LSIconSymbolIOS(name: "chevron-right", size: 24, color: .green)
+    VStack(spacing: Theme.shared.space.md) {
+        LSIconSymbolIOS(name: "home")
+        LSIconSymbolIOS(name: "heart-outline", color: .signal)
+        LSIconSymbolIOS(name: "star-outline", color: .secondary)
+        LSIconSymbolIOS(name: "account-outline", color: .subtle)
+        LSIconSymbolIOS(name: "chevron-right", color: .tertiary)
     }
-    .padding()
+    .padding(Theme.shared.space.lg)
     .laneShadowTheme()
 }
 
 #Preview("With Accessibility") {
-    VStack(spacing: 16) {
+    VStack(spacing: Theme.shared.space.md) {
         LSIconSymbolIOS(
             name: "house",
-            size: 32,
-            color: .blue,
+            size: Theme.shared.iconSize.large,
+            color: .primary,
             accessibilityLabel: "Home",
             testID: "home-icon"
         )
         LSIconSymbolIOS(
             name: "heart.fill",
-            size: 32,
-            color: .red,
+            size: Theme.shared.iconSize.large,
+            color: .signal,
             weight: .bold,
             accessibilityLabel: "Favorite",
             testID: "favorite-icon"
         )
     }
-    .padding()
+    .padding(Theme.shared.space.lg)
     .laneShadowTheme()
 }
 
 #Preview("Weights") {
-    VStack(spacing: 16) {
-        LSIconSymbolIOS(name: "star.fill", size: 32, color: .yellow, weight: .light)
-        LSIconSymbolIOS(name: "star.fill", size: 32, color: .yellow, weight: .regular)
-        LSIconSymbolIOS(name: "star.fill", size: 32, color: .yellow, weight: .medium)
-        LSIconSymbolIOS(name: "star.fill", size: 32, color: .yellow, weight: .semibold)
-        LSIconSymbolIOS(name: "star.fill", size: 32, color: .yellow, weight: .bold)
+    VStack(spacing: Theme.shared.space.md) {
+        LSIconSymbolIOS(name: "star.fill", size: Theme.shared.iconSize.large, color: .secondary, weight: .light)
+        LSIconSymbolIOS(name: "star.fill", size: Theme.shared.iconSize.large, color: .secondary, weight: .regular)
+        LSIconSymbolIOS(name: "star.fill", size: Theme.shared.iconSize.large, color: .secondary, weight: .medium)
+        LSIconSymbolIOS(name: "star.fill", size: Theme.shared.iconSize.large, color: .secondary, weight: .semibold)
+        LSIconSymbolIOS(name: "star.fill", size: Theme.shared.iconSize.large, color: .secondary, weight: .bold)
     }
-    .padding()
+    .padding(Theme.shared.space.lg)
     .laneShadowTheme()
 }
