@@ -54,7 +54,7 @@ struct LSAuthProviderButton: View {
     private var providerLabelColor: ContentColor {
         switch provider {
         case .apple:
-            colorScheme == .dark ? .primary : .onSignal
+            colorScheme == .dark ? .onSignal : .primary
         case .google:
             .primary
         }
@@ -66,8 +66,7 @@ struct LSAuthProviderButton: View {
         case .apple:
             Image(systemName: "applelogo")
                 .font(theme.type.label.md.font)
-                .foregroundStyle(colorScheme == .dark ? ContentColor.primary.resolved(in: theme) : ContentColor.onSignal
-                    .resolved(in: theme))
+                .foregroundStyle(colorScheme == .dark ? Color.black : Color.white)
                 .frame(width: theme.iconSize.small, height: theme.iconSize.small)
                 .accessibilityHidden(true)
         case .google:
@@ -100,11 +99,9 @@ private struct LSAuthProviderButtonStyle: ButtonStyle {
         switch provider {
         case .apple:
             if colorScheme == .dark {
-                return isPressed ? (theme.colors.surfaceVariant.pressed ?? theme.colors.surfaceVariant.default) : theme
-                    .colors.surface.default
+                return isPressed ? Color(white: 0.94) : .white
             }
-            return isPressed ? (theme.colors.primary.pressed ?? theme.colors.primary.default) : theme.colors.primary
-                .default
+            return isPressed ? Color(white: 0.16) : .black
         case .google:
             return isPressed ? (theme.colors.surfaceVariant.pressed ?? theme.colors.surfaceVariant.default) : theme
                 .colors.card.default
@@ -114,7 +111,7 @@ private struct LSAuthProviderButtonStyle: ButtonStyle {
     private var borderColor: Color {
         switch provider {
         case .apple:
-            colorScheme == .dark ? theme.colors.surface.default : theme.colors.primary.default
+            colorScheme == .dark ? .white : .black
         case .google:
             theme.colors.border.default
         }
@@ -135,40 +132,57 @@ private struct LSGoogleMark: View {
     @Environment(\.theme) private var theme
 
     var body: some View {
-        Circle()
-            .fill(
-                AngularGradient(
-                    gradient: Gradient(colors: [blue, green, yellow, red, blue]),
-                    center: .center
-                )
-            )
-            .overlay {
-                Circle()
-                    .inset(by: 4)
-                    .fill(theme.colors.surface.default)
-            }
-            .overlay(alignment: .trailing) {
+        ZStack {
+            Circle()
+                .fill(theme.colors.card.default)
+
+            Group {
+                ArcSegment(start: 300, end: 360)
+                    .stroke(GoogleBrand.blue, style: strokeStyle)
+                ArcSegment(start: 0, end: 45)
+                    .stroke(GoogleBrand.blue, style: strokeStyle)
+                ArcSegment(start: 45, end: 140)
+                    .stroke(GoogleBrand.red, style: strokeStyle)
+                ArcSegment(start: 140, end: 220)
+                    .stroke(GoogleBrand.yellow, style: strokeStyle)
+                ArcSegment(start: 220, end: 300)
+                    .stroke(GoogleBrand.green, style: strokeStyle)
                 Rectangle()
-                    .fill(blue)
-                    .frame(width: 3)
-                    .padding(.trailing, 1)
+                    .fill(GoogleBrand.blue)
+                    .frame(width: theme.strokeWidth.thin * 2.5, height: theme.strokeWidth.thin * 6)
+                    .offset(x: theme.strokeWidth.thin * 2.6, y: 0)
             }
-            .accessibilityIdentifier("auth.google.mark")
+        }
+        .accessibilityIdentifier("auth.google.mark")
     }
 
-    private var blue: Color {
-        LaneShadowTheme.color.route.best
+    private var strokeStyle: StrokeStyle {
+        StrokeStyle(lineWidth: theme.strokeWidth.thin * 2, lineCap: .round)
     }
+}
 
-    private var green: Color {
-        LaneShadowTheme.color.route.alt1
-    }
+private struct ArcSegment: Shape {
+    let start: Double
+    let end: Double
 
-    private var yellow: Color {
-        theme.colors.warning.default
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let radius = min(rect.width, rect.height) / 2.15
+        path.addArc(
+            center: center,
+            radius: radius,
+            startAngle: .degrees(start),
+            endAngle: .degrees(end),
+            clockwise: false
+        )
+        return path
     }
+}
 
-    private var red: Color {
-        theme.colors.danger.default
-    }
+private enum GoogleBrand {
+    static let blue = Color(hue: 0.6028, saturation: 0.7295, brightness: 0.9569)
+    static let green = Color(hue: 0.3778, saturation: 0.6905, brightness: 0.6588)
+    static let yellow = Color(hue: 0.1272, saturation: 0.9801, brightness: 0.9843)
+    static let red = Color(hue: 0.0230, saturation: 0.7137, brightness: 0.9176)
 }
