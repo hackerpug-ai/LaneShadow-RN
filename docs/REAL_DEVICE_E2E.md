@@ -32,7 +32,17 @@ make ios_e2e_auth_headed
 make android_e2e_auth_headed
 ```
 
-`ios_e2e_auth_headed` auto-detects the first connected iPhone through `go-ios`. Pass `IOS_UDID=<UDID>` only when you need to choose a specific device. The target reads `.env.local` when present and maps `CLERK_TEST_EMAIL` / `CLERK_TEST_PASSWORD` into the auth evidence script. It builds and installs the iOS app by default, starts WDA and local port forwarding, runs the auth remediation evidence script, then cleans up the WDA processes. Set `IOS_E2E_INSTALL=0` to skip the build/install step when the app is already current on the device.
+`ios_e2e_auth_headed` auto-detects the first connected iPhone through `go-ios`. Pass `IOS_UDID=<UDID>` only when you need to choose a specific device. The target reads `.env.local` when present and maps `CLERK_TEST_EMAIL` / `CLERK_TEST_PASSWORD` into the auth evidence script. It also reads `IOS_DEVELOPMENT_TEAM`, `DEVELOPMENT_TEAM`, or `APPLE_DEVELOPMENT_TEAM` for device signing. It builds and installs the iOS app by default, starts WDA and local port forwarding, runs the auth remediation evidence script, then cleans up the WDA processes. Set `IOS_E2E_INSTALL=0` to skip the build/install step when the app is already current on the device.
+
+Recommended `.env.local` entries:
+
+```bash
+CLERK_TEST_EMAIL=e2e-test@example.com
+CLERK_TEST_PASSWORD=test-password-123
+IOS_DEVELOPMENT_TEAM=<Apple Team ID>
+```
+
+If the build reports `No Account for Team`, open Xcode Settings > Accounts and add the Apple ID that owns that team, or replace `IOS_DEVELOPMENT_TEAM` with a team ID that is already signed into Xcode and can provision `com.laneshadow.app`.
 
 `android_e2e_auth_headed` starts the first configured emulator when no Android device is connected, installs the debug app by default, launches LaneShadow, then runs the auth instrumentation classes. Set `ANDROID_SERIAL=<adb-serial>` to target a specific connected device or `ANDROID_E2E_INSTALL=0` to skip reinstalling.
 

@@ -21,6 +21,7 @@ WDA_BASE_URL ?= http://127.0.0.1:$(IOS_WDA_PORT)
 IOS_E2E_FLOW ?= ios/E2E/sprint-03-auth-remediation.js
 IOS_E2E_INSTALL ?= 1
 IOS_DEVICE_APP_PATH ?= ios/build/DerivedData/Build/Products/Debug-iphoneos/LaneShadow.app
+IOS_DEVELOPMENT_TEAM ?= $(shell security find-identity -v -p codesigning 2>/dev/null | sed -nE 's/.*"Apple Development:.*\(([A-Z0-9]{10})\)".*/\1/p' | head -1)
 LANESHADOW_AUTH_PROVIDER ?= apple
 LANESHADOW_AUTH_EMAIL ?=
 LANESHADOW_AUTH_PASSWORD ?=
@@ -175,6 +176,7 @@ e2e_vars: ## Show variables for headed iOS/Android E2E
 	set +a; \
 	LANESHADOW_AUTH_EMAIL_VALUE="$${LANESHADOW_AUTH_EMAIL:-$${CLERK_TEST_EMAIL:-}}"; \
 	LANESHADOW_AUTH_PASSWORD_VALUE="$${LANESHADOW_AUTH_PASSWORD:-$${CLERK_TEST_PASSWORD:-}}"; \
+	IOS_DEVELOPMENT_TEAM_VALUE="$${IOS_DEVELOPMENT_TEAM:-$${DEVELOPMENT_TEAM:-$${APPLE_DEVELOPMENT_TEAM:-$(IOS_DEVELOPMENT_TEAM)}}}"; \
 	echo "Headed iOS E2E variables:"; \
 	echo "  IOS_UDID=$(if $(IOS_UDID),$(IOS_UDID),<auto: no device detected>)"; \
 	echo "  IOS_WDA_PORT=$(IOS_WDA_PORT)"; \
@@ -183,6 +185,7 @@ e2e_vars: ## Show variables for headed iOS/Android E2E
 	echo "  IOS_E2E_FLOW=$(IOS_E2E_FLOW)"; \
 	echo "  IOS_E2E_INSTALL=$(IOS_E2E_INSTALL)"; \
 	echo "  IOS_DEVICE_APP_PATH=$(IOS_DEVICE_APP_PATH)"; \
+	echo "  IOS_DEVELOPMENT_TEAM=$$(if [ -n "$$IOS_DEVELOPMENT_TEAM_VALUE" ]; then echo "$$IOS_DEVELOPMENT_TEAM_VALUE"; else echo '<empty>'; fi)"; \
 	echo "  LANESHADOW_AUTH_PROVIDER=$(LANESHADOW_AUTH_PROVIDER)"; \
 	echo "  LANESHADOW_AUTH_EMAIL=$$LANESHADOW_AUTH_EMAIL_VALUE"; \
 	echo "  LANESHADOW_AUTH_PASSWORD=$$(if [ -n "$$LANESHADOW_AUTH_PASSWORD_VALUE" ]; then echo '<set>'; else echo '<empty>'; fi)"; \
@@ -225,9 +228,26 @@ ios_e2e_install_device: ## Build and install iOS app on a real device (set IOS_U
 	@command -v xcodebuild >/dev/null || { echo "ERROR: xcodebuild is missing"; exit 1; }
 	@command -v xcrun >/dev/null || { echo "ERROR: xcrun is missing"; exit 1; }
 	@echo "==> Building LaneShadow for device $(IOS_UDID)..."
+	@set -e; \
+	set -a; \
+	if [ -f .env.local ]; then . ./.env.local; fi; \
+	set +a; \
+	IOS_DEVELOPMENT_TEAM_VALUE="$${IOS_DEVELOPMENT_TEAM:-$${DEVELOPMENT_TEAM:-$${APPLE_DEVELOPMENT_TEAM:-$(IOS_DEVELOPMENT_TEAM)}}}"; \
+	if [ -z "$$IOS_DEVELOPMENT_TEAM_VALUE" ]; then \
+		echo "WARN: IOS_DEVELOPMENT_TEAM is empty. Add IOS_DEVELOPMENT_TEAM=<Apple Team ID> to .env.local if signing fails."; \
+	else \
+		echo "==> Using Apple development team $$IOS_DEVELOPMENT_TEAM_VALUE"; \
+		if ! defaults read com.apple.dt.Xcode IDEProvisioningTeams 2>/dev/null | grep -q "$$IOS_DEVELOPMENT_TEAM_VALUE"; then \
+			echo "WARN: Team $$IOS_DEVELOPMENT_TEAM_VALUE is not visible in Xcode provisioning accounts."; \
+			echo "      If xcodebuild reports 'No Account for Team', add the Apple ID in Xcode Settings > Accounts or set IOS_DEVELOPMENT_TEAM to a team that is signed into Xcode."; \
+		fi; \
+	fi; \
 	cd ios && xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow \
 		-derivedDataPath build/DerivedData \
 		-destination "id=$(IOS_UDID)" \
+		$${IOS_DEVELOPMENT_TEAM_VALUE:+DEVELOPMENT_TEAM=$$IOS_DEVELOPMENT_TEAM_VALUE} \
+		CODE_SIGN_STYLE=Automatic \
+		-allowProvisioningUpdates \
 		build
 	@if [ ! -d "$(IOS_DEVICE_APP_PATH)" ]; then \
 		echo "ERROR: missing $(IOS_DEVICE_APP_PATH)"; \
