@@ -16,17 +16,87 @@ final class AppState {
     }
 
     var isAuthenticated: Bool
+    var hasClerkSession: Bool
+    var isHydratingCurrentUser: Bool
+    var currentUser: LaneShadowCurrentUser?
+    var authMessage: String?
     var authRoute: AuthRoute?
     var appRoute: AppRoute?
 
-    init(isAuthenticated: Bool = false) {
+    init(isAuthenticated: Bool = false, currentUser: LaneShadowCurrentUser? = nil) {
         self.isAuthenticated = isAuthenticated
+        hasClerkSession = isAuthenticated || currentUser != nil
+        isHydratingCurrentUser = false
+        self.currentUser = currentUser
+        authMessage = nil
         authRoute = nil
         appRoute = nil
     }
 
     func updateAuthenticationState(from clerkAuth: ClerkAuth) {
-        isAuthenticated = clerkAuth.currentUser != nil
+        hasClerkSession = clerkAuth.currentUser != nil
+        if !hasClerkSession {
+            clearAuthenticatedState(authRoute: .signIn)
+        }
+    }
+
+    func completeAuthentication(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
+        updateAuthenticationState(from: clerkAuth)
+        guard hasClerkSession else {
+            return
+        }
+
+        isHydratingCurrentUser = true
+        authMessage = nil
+        await convexClient.setAuth(clerkJWTProvider: clerkAuth)
+
+        do {
+            let hydratedUser = try await convexClient.fetchCurrentUser()
+            guard let hydratedUser else {
+                clearAuthenticatedState(authRoute: .signIn)
+                isHydratingCurrentUser = false
+                return
+            }
+
+            currentUser = hydratedUser
+            isAuthenticated = true
+            hasClerkSession = true
+            authRoute = nil
+            if appRoute == nil {
+                appRoute = .home
+            }
+        } catch {
+            let laneShadowError = LaneShadowError.map(error)
+            if laneShadowError.isUnauthenticated {
+                handleUnauthenticatedConvexError()
+            } else {
+                clearAuthenticatedState(authRoute: .signIn)
+                authMessage = laneShadowError.localizedDescription
+            }
+        }
+
+        isHydratingCurrentUser = false
+    }
+
+    func restoreAuthentication(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
+        do {
+            try await clerkAuth.restoreSession()
+            await completeAuthentication(clerkAuth: clerkAuth, convexClient: convexClient)
+        } catch {
+            clearAuthenticatedState(authRoute: .signIn)
+            authMessage = error.localizedDescription
+        }
+    }
+
+    func signOut(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
+        try? await clerkAuth.signOut()
+        try? await convexClient.logout()
+        clearAuthenticatedState(authRoute: .signIn)
+    }
+
+    func handleUnauthenticatedConvexError() {
+        clearAuthenticatedState(authRoute: .signIn)
+        authMessage = LaneShadowError.unauthenticated.localizedDescription
     }
 
     func handleDeepLink(_ url: URL, clerkAuth: ClerkAuth) {
@@ -40,7 +110,7 @@ final class AppState {
         let path = url.path
 
         if host == "oauth-callback" {
-            if isAuthenticated {
+            if hasClerkSession {
                 appRoute = .home
                 authRoute = nil
             } else {
@@ -50,7 +120,7 @@ final class AppState {
             return
         }
 
-        if isAuthenticated {
+        if hasClerkSession {
             if host == "session" {
                 let sessionID = path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
                 if !sessionID.isEmpty {
@@ -72,5 +142,14 @@ final class AppState {
             authRoute = .signIn
             appRoute = nil
         }
+    }
+
+    private func clearAuthenticatedState(authRoute route: AuthRoute?) {
+        isAuthenticated = false
+        hasClerkSession = false
+        isHydratingCurrentUser = false
+        currentUser = nil
+        authRoute = route
+        appRoute = nil
     }
 }

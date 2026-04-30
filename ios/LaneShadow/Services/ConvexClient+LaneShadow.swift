@@ -3,6 +3,7 @@
 import Foundation
 
 enum LaneShadowConvexQuery: String {
+    case getCurrentUser = "db/users:getCurrentUser"
     case listSessions = "db/planningSessions:listSessions"
     case listMessages = "db/sessionMessages:list"
 }
@@ -18,6 +19,60 @@ enum LaneShadowConvexAction: String {
 
 struct LaneShadowAuthSession {
     let jwt: String?
+}
+
+struct LaneShadowCurrentUser: Decodable, Equatable {
+    let id: String
+    let clerkUserId: String
+    let email: String
+    let name: String
+
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case clerkUserId
+        case email
+        case name
+    }
+
+    var displayName: String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? email : name
+    }
+}
+
+enum LaneShadowError: LocalizedError, Equatable {
+    case unauthenticated
+    case convex(String)
+    case server(String)
+    case internalError(String)
+    case unknown(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .unauthenticated:
+            "Your session expired. Please sign in again."
+        case let .convex(message), let .server(message), let .internalError(message), let .unknown(message):
+            message
+        }
+    }
+
+    var isUnauthenticated: Bool {
+        self == .unauthenticated
+    }
+
+    static func map(_ error: Error) -> LaneShadowError {
+        guard let clientError = error as? ClientError else {
+            return .unknown(error.localizedDescription)
+        }
+
+        switch clientError {
+        case let .ConvexError(data):
+            return data.localizedCaseInsensitiveContains("UNAUTHENTICATED") ? .unauthenticated : .convex(data)
+        case let .ServerError(msg):
+            return msg.localizedCaseInsensitiveContains("UNAUTHENTICATED") ? .unauthenticated : .server(msg)
+        case let .InternalError(msg):
+            return msg.localizedCaseInsensitiveContains("UNAUTHENTICATED") ? .unauthenticated : .internalError(msg)
+        }
+    }
 }
 
 protocol LaneShadowClerkJWTProviding: Sendable {
@@ -154,7 +209,7 @@ private final class LiveLaneShadowConvexTransport: LaneShadowConvexTransporting 
     }
 }
 
-final class LaneShadowConvexClient {
+final class LaneShadowConvexClient: @unchecked Sendable {
     private final class CancellableBox: @unchecked Sendable {
         var cancellable: AnyCancellable?
     }
@@ -258,6 +313,16 @@ final class LaneShadowConvexClient {
                 task.cancel()
             }
         }
+    }
+
+    func fetchCurrentUser() async throws -> LaneShadowCurrentUser? {
+        let publisher = transport.subscribe(
+            to: LaneShadowConvexQuery.getCurrentUser.rawValue,
+            with: nil,
+            yielding: LaneShadowCurrentUser?.self
+        )
+        var iterator = publisher.values.makeAsyncIterator()
+        return try await iterator.next() ?? nil
     }
 
     func mutation<T: Decodable>(
