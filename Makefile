@@ -8,7 +8,7 @@
         server_build server_dev server_start \
         e2e_vars \
         ios_build ios_dev ios_start ios_sandbox ios_sandbox_story ios_test \
-        ios_e2e_vars ios_e2e_devices ios_e2e_install_device ios_e2e_wda_status ios_e2e_auth_headed \
+        ios_e2e_vars ios_e2e_devices ios_e2e_install_device ios_e2e_wda_status ios_e2e_headed ios_e2e_auth_headed \
         android_build android_dev android_start android_sandbox android_sandbox_story android_test \
         android_e2e_auth_headed \
         test
@@ -197,7 +197,7 @@ e2e_vars: ## Show variables for headed iOS/Android E2E
 	@echo "  make ios_e2e_devices"
 	@echo ""
 	@echo "Run headed auth E2E:"
-	@echo "  make ios_e2e_auth_headed"
+	@echo "  make ios_e2e_headed"
 	@echo "  # auto-detects IOS_UDID and reads CLERK_TEST_EMAIL / CLERK_TEST_PASSWORD from .env.local"
 	@echo "  # override with IOS_UDID=<device-udid> when needed"
 	@echo ""
@@ -222,7 +222,7 @@ ios_e2e_devices: ## List connected iOS devices for IOS_UDID
 ios_e2e_install_device: ## Build and install iOS app on a real device (set IOS_UDID=...)
 	@if [ -z "$(IOS_UDID)" ]; then \
 		echo "ERROR: no iOS device detected. Connect/unlock an iPhone, trust this Mac, then run: make ios_e2e_devices"; \
-		echo "       Or pass one explicitly: make ios_e2e_auth_headed IOS_UDID=<device-udid>"; \
+		echo "       Or pass one explicitly: make ios_e2e_headed IOS_UDID=<device-udid>"; \
 		exit 1; \
 	fi
 	@command -v xcodebuild >/dev/null || { echo "ERROR: xcodebuild is missing"; exit 1; }
@@ -259,10 +259,10 @@ ios_e2e_install_device: ## Build and install iOS app on a real device (set IOS_U
 ios_e2e_wda_status: ## Check local WDA status endpoint
 	@curl -fsS "$(WDA_BASE_URL)/status"
 
-ios_e2e_auth_headed: ## Run headed iOS auth E2E on a real device (set IOS_UDID=...)
+ios_e2e_headed: ## Run headed iOS E2E on a real device (set IOS_UDID=...)
 	@if [ -z "$(IOS_UDID)" ]; then \
 		echo "ERROR: no iOS device detected. Connect/unlock an iPhone, trust this Mac, then run: make ios_e2e_devices"; \
-		echo "       Or pass one explicitly: make ios_e2e_auth_headed IOS_UDID=<device-udid>"; \
+		echo "       Or pass one explicitly: make ios_e2e_headed IOS_UDID=<device-udid>"; \
 		exit 1; \
 	fi
 	@command -v ios >/dev/null || { echo "ERROR: go-ios is missing. Install with: npm install -g go-ios"; exit 1; }
@@ -310,6 +310,8 @@ ios_e2e_auth_headed: ## Run headed iOS auth E2E on a real device (set IOS_UDID=.
 	LANESHADOW_AUTH_PASSWORD="$$LANESHADOW_AUTH_PASSWORD_VALUE" \
 	LANESHADOW_AUTH_DISPLAY_NAME="$(LANESHADOW_AUTH_DISPLAY_NAME)" \
 	node "$(IOS_E2E_FLOW)"
+
+ios_e2e_auth_headed: ios_e2e_headed ## Alias for ios_e2e_headed
 
 # ── Android (Kotlin/Compose) ─────────────────────────
 
