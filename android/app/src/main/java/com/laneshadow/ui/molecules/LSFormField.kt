@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.VisualTransformation
+import com.laneshadow.theme.generated.LaneShadowTheme.IconName
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.atoms.InputState
 import com.laneshadow.ui.atoms.LSText
@@ -32,7 +33,12 @@ fun LSFormField(
     value: String,
     onValueChange: (String) -> Unit,
     error: String? = null,
+    helper: String? = null,
     placeholder: String? = null,
+    state: InputState = InputState.Default,
+    leadingIcon: IconName? = null,
+    trailingIcon: IconName? = null,
+    enabled: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -56,8 +62,14 @@ fun LSFormField(
         LSTextField(
             value = value,
             onValueChange = onValueChange,
-            state = if (error != null) InputState.Error else InputState.Default,
+            state = when {
+                !enabled -> InputState.Disabled
+                error != null -> InputState.Error
+                else -> state
+            },
             placeholder = placeholder,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
             modifier = inputModifier,
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
@@ -70,6 +82,12 @@ fun LSFormField(
                 text = error,
                 variant = TypographyVariant.Ui.Body.Sm,
                 color = ContentColor.Error,
+            )
+        } else if (helper != null) {
+            LSText(
+                text = helper,
+                variant = TypographyVariant.Ui.Body.Sm,
+                color = ContentColor.Subtle,
             )
         }
     }

@@ -10,6 +10,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.laneshadow.theme.LaneShadowTheme
+import com.laneshadow.theme.generated.LaneShadowTheme.IconName
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import com.laneshadow.ui.atoms.InputState
 import com.laneshadow.ui.molecules.LSFormField
 import com.nativesandbox.model.ComponentTier
 import com.nativesandbox.model.Story
@@ -25,12 +28,12 @@ object LSFormFieldStory {
             content = { DefaultFormFieldStory() },
         ),
         Story(
-            id = "molecules.formfield.focused",
+            id = "molecules.formfield.auth",
             tier = ComponentTier.Molecule,
             component = "LSFormField",
-            name = "Focused",
-            summary = "Form field with focus state.",
-            content = { FocusedFormFieldStory() },
+            name = "Auth",
+            summary = "Auth-ready form state with leading/trailing icons and helper text.",
+            content = { AuthFormFieldStory() },
         ),
         Story(
             id = "molecules.formfield.error",
@@ -60,16 +63,30 @@ private fun DefaultFormFieldStory() {
 }
 
 @Composable
-private fun FocusedFormFieldStory() {
+private fun AuthFormFieldStory() {
     LaneShadowTheme {
         StoryColumn {
             var email by remember { mutableStateOf("user@example.com") }
+            var password by remember { mutableStateOf("password123") }
 
             LSFormField(
                 label = "Email",
                 value = email,
                 onValueChange = { email = it },
                 placeholder = "you@example.com",
+                state = InputState.Focused,
+                helper = "Use your account email",
+                leadingIcon = IconName.Send,
+            )
+
+            LSFormField(
+                label = "Password",
+                value = password,
+                onValueChange = { password = it },
+                placeholder = "Enter password",
+                leadingIcon = IconName.Sparkle,
+                trailingIcon = IconName.Close,
+                visualTransformation = PasswordVisualTransformation(),
             )
         }
     }

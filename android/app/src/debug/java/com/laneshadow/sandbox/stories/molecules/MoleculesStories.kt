@@ -12,6 +12,7 @@ object MoleculesStories {
             LSToastStory.all +
             LSModalStory.all +
             LSFormFieldStory.all +
+            LSAuthProviderButtonStory.all +
             LSTabItemStory.all +
             LSEmptyStateStory.all +
             LSPillSemanticsStory.all +

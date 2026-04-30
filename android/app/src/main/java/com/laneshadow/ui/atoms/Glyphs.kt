@@ -46,6 +46,7 @@ object Glyphs {
         val Info: ImageVector = glyph("info")
         val LocationOn: ImageVector = glyph("locationOn")
         val Lock: ImageVector = glyph("lock")
+        val Visibility: ImageVector = glyph("visibility")
         val Menu: ImageVector = glyph("menu")
         val MoreVert: ImageVector = glyph("moreVert")
         val Person: ImageVector = glyph("person")
