@@ -337,7 +337,7 @@ final class LaneShadowConvexClient: @unchecked Sendable {
         }
     }
 
-    func fetchCurrentUser() async throws -> LaneShadowCurrentUser? {
+    func fetchCurrentUser(notifyUnauthenticated: Bool = true) async throws -> LaneShadowCurrentUser? {
         let publisher = transport.subscribe(
             to: LaneShadowConvexQuery.getCurrentUser.rawValue,
             with: nil,
@@ -347,7 +347,9 @@ final class LaneShadowConvexClient: @unchecked Sendable {
             var iterator = publisher.values.makeAsyncIterator()
             return try await iterator.next() ?? nil
         } catch {
-            await handleUnauthenticatedIfNeeded(error)
+            if notifyUnauthenticated {
+                await handleUnauthenticatedIfNeeded(error)
+            }
             throw error
         }
     }

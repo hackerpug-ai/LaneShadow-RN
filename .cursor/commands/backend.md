@@ -1,1 +1,0 @@
-read file .cursor/agents/backend-engineer.md and run the boot sequence in each. Be sure to read all files referenced in the boot sequence for the agent.

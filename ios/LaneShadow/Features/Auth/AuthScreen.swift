@@ -234,7 +234,6 @@ struct AuthScreen: View {
     }
 
     #if DEBUG
-        @ViewBuilder
         private func bypassAuthButton(action: @escaping () -> Void) -> some View {
             Button(action: action) {
                 HStack(spacing: theme.space.sm) {

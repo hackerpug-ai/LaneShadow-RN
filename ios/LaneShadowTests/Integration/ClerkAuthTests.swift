@@ -30,6 +30,31 @@ struct ClerkAuthTests {
     }
 
     @Test
+    func signInVerificationRequiredDoesNotSetCurrentUser() async throws {
+        let client = FakeClerkAuthClient(signInResult: .verificationRequired(email: "rider@example.com"))
+        let auth = ClerkAuth(client: client)
+
+        let result = try await auth.signIn(email: "rider@example.com", password: "secret")
+
+        #expect(result == .verificationRequired(email: "rider@example.com"))
+        #expect(auth.currentUser == nil)
+        #expect(auth.pendingSignInEmail == "rider@example.com")
+    }
+
+    @Test
+    func completeSignInVerificationSetsCurrentUser() async throws {
+        let auth = ClerkAuth(client: FakeClerkAuthClient(verifiedSignInUser: ClerkAuthUser(
+            id: "verified-signin",
+            email: "rider@example.com"
+        )))
+
+        try await auth.completeSignInVerification(code: "123456")
+
+        #expect(auth.currentUser?.id == "verified-signin")
+        #expect(auth.pendingSignInEmail == nil)
+    }
+
+    @Test
     func restoreSessionUpdatesSharedClerkAuthUser() async throws {
         let auth = ClerkAuth(client: FakeClerkAuthClient(restoredUser: ClerkAuthUser(
             id: "restored-user",
@@ -80,10 +105,10 @@ struct ClerkAuthTests {
         sdk.jwtToReturn = "convex-jwt"
         let client = LiveClerkAuthClient(sdk: sdk)
 
-        let user = try await client.signIn(email: "rider@example.com", password: "secret")
+        let result = try await client.signIn(email: "rider@example.com", password: "secret")
         let jwt = try await client.getJWT()
 
-        #expect(user.id == "clerk-email")
+        #expect(result == .signedIn(ClerkAuthUser(id: "clerk-email", email: "rider@example.com")))
         #expect(sdk.recordedEmailSignIn?.0 == "rider@example.com")
         #expect(sdk.recordedEmailSignIn?.1 == "secret")
         #expect(jwt == "convex-jwt")
@@ -97,11 +122,12 @@ struct ClerkAuthTests {
         sdk.googleUser = ClerkAuthUser(id: "clerk-google", email: "google@example.com")
         let client = LiveClerkAuthClient(sdk: sdk)
 
-        _ = try await client.signUp(email: "signup@example.com", password: "secret", name: "Rider")
+        let signUpResult = try await client.signUp(email: "signup@example.com", password: "secret", name: "Rider")
         _ = try await client.signInWithApple()
         _ = try await client.signInWithGoogle()
         try await client.signOut()
 
+        #expect(signUpResult == .signedIn(ClerkAuthUser(id: "clerk-signup", email: "signup@example.com")))
         #expect(sdk.recordedSignUp?.0 == "signup@example.com")
         #expect(sdk.recordedSignUp?.1 == "secret")
         #expect(sdk.recordedSignUp?.2 == "Rider")
@@ -125,6 +151,31 @@ struct ClerkAuthTests {
         let provider = ClerkAuthProvider(auth: ClerkAuth(client: FakeClerkAuthClient()))
         let authProvider: any AuthProvider = provider
         #expect(String(describing: type(of: authProvider)).contains("ClerkAuthProvider"))
+    }
+
+    @Test
+    func signUpVerificationRequiredDoesNotSetCurrentUser() async throws {
+        let client = FakeClerkAuthClient(signUpResult: .verificationRequired(email: "signup@example.com"))
+        let auth = ClerkAuth(client: client)
+
+        let result = try await auth.signUp(email: "signup@example.com", password: "secret", name: "Rider")
+
+        #expect(result == .verificationRequired(email: "signup@example.com"))
+        #expect(auth.currentUser == nil)
+        #expect(auth.pendingSignUpEmail == "signup@example.com")
+    }
+
+    @Test
+    func completeSignUpVerificationSetsCurrentUser() async throws {
+        let auth = ClerkAuth(client: FakeClerkAuthClient(verifiedSignUpUser: ClerkAuthUser(
+            id: "verified-user",
+            email: "signup@example.com"
+        )))
+
+        try await auth.completeSignUpVerification(code: "123456")
+
+        #expect(auth.currentUser?.id == "verified-user")
+        #expect(auth.pendingSignUpEmail == nil)
     }
 
     @Test
@@ -166,19 +217,42 @@ actor FakeClerkAuthClient: ClerkAuthClient {
     var lastEmail: String?
     private let jwt: String?
     private let restoredUser: ClerkAuthUser?
+    private let signInResult: ClerkSignInResult?
+    private let verifiedSignInUser: ClerkAuthUser
+    private let signUpResult: ClerkSignUpResult?
+    private let verifiedSignUpUser: ClerkAuthUser
 
-    init(jwt: String? = "jwt-token", restoredUser: ClerkAuthUser? = nil) {
+    init(
+        jwt: String? = "jwt-token",
+        restoredUser: ClerkAuthUser? = nil,
+        signInResult: ClerkSignInResult? = nil,
+        verifiedSignInUser: ClerkAuthUser = ClerkAuthUser(id: "verified-signin-user", email: "signin@example.com"),
+        signUpResult: ClerkSignUpResult? = nil,
+        verifiedSignUpUser: ClerkAuthUser = ClerkAuthUser(id: "verified-signup-user", email: "signup@example.com")
+    ) {
         self.jwt = jwt
         self.restoredUser = restoredUser
+        self.signInResult = signInResult
+        self.verifiedSignInUser = verifiedSignInUser
+        self.signUpResult = signUpResult
+        self.verifiedSignUpUser = verifiedSignUpUser
     }
 
-    func signIn(email: String, password _: String) async throws -> ClerkAuthUser {
+    func signIn(email: String, password _: String) async throws -> ClerkSignInResult {
         lastEmail = email
-        return ClerkAuthUser(id: "email-user", email: email)
+        return signInResult ?? .signedIn(ClerkAuthUser(id: "email-user", email: email))
     }
 
-    func signUp(email: String, password _: String, name _: String?) async throws -> ClerkAuthUser {
-        ClerkAuthUser(id: "signup-user", email: email)
+    func completeSignInVerification(code _: String) async throws -> ClerkAuthUser {
+        verifiedSignInUser
+    }
+
+    func signUp(email: String, password _: String, name _: String?) async throws -> ClerkSignUpResult {
+        signUpResult ?? .signedIn(ClerkAuthUser(id: "signup-user", email: email))
+    }
+
+    func completeSignUpVerification(code _: String) async throws -> ClerkAuthUser {
+        verifiedSignUpUser
     }
 
     func signInWithApple() async throws -> ClerkAuthUser {
@@ -219,14 +293,22 @@ final class MockClerkSDK: ClerkSDKClient {
     var jwtToReturn: String?
     var recordedCallbackToken: String?
 
-    func signIn(email: String, password: String) async throws -> ClerkAuthUser {
+    func signIn(email: String, password: String) async throws -> ClerkSignInResult {
         recordedEmailSignIn = (email, password)
-        return emailSignInUser
+        return .signedIn(emailSignInUser)
     }
 
-    func signUp(email: String, password: String, name: String?) async throws -> ClerkAuthUser {
+    func completeSignInVerification(code _: String) async throws -> ClerkAuthUser {
+        emailSignInUser
+    }
+
+    func signUp(email: String, password: String, name: String?) async throws -> ClerkSignUpResult {
         recordedSignUp = (email, password, name)
-        return signUpUser
+        return .signedIn(signUpUser)
+    }
+
+    func completeSignUpVerification(code _: String) async throws -> ClerkAuthUser {
+        signUpUser
     }
 
     func signInWithApple() async throws -> ClerkAuthUser {

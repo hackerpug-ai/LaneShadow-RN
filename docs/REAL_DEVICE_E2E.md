@@ -29,10 +29,12 @@ If the build reports `No Account for Team`, open Xcode Settings > Accounts and a
 
 ```bash
 make e2e_vars
-make ios_e2e_headed
+make ios_e2e_device_headed
 ```
 
-`ios_e2e_headed` auto-detects the first connected iPhone before the simulator section of `xcrun xctrace list devices`. Pass `IOS_UDID=<UDID>` when you need to choose a specific device.
+`ios_e2e_device_headed` auto-detects the first connected iPhone before the simulator section of `xcrun xctrace list devices`. Pass `IOS_UDID=<UDID>` when you need to choose a specific device.
+
+Temporary simulator shortcut: `make ios_e2e_headed` currently routes to `make ios_e2e_simulator` for headed simulator E2E runs.
 
 The Makefile target runs:
 

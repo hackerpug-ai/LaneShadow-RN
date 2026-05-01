@@ -16,9 +16,9 @@ fun SignUpScreen(
         viewModel = viewModel,
         emailBranchResolver = SignUpRouteAuthEmailBranchResolver,
         initialState = AuthScreenUiState(
-            step = AuthScreenStep.NewUser,
-            email = "new.rider@laneshadow.com",
+            step = AuthScreenStep.EmailEntry,
         ),
+        testTagPrefix = "auth_signup",
         onBack = onNavigateToSignIn,
     )
 }

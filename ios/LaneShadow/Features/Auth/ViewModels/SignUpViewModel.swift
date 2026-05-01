@@ -40,8 +40,13 @@ final class SignUpViewModel {
         errorMessage = nil
 
         do {
-            try await auth.signUp(email: email, password: password, name: name)
-            isSignedIn = true
+            let result = try await auth.signUp(email: email, password: password, name: name)
+            switch result {
+            case .signedIn:
+                isSignedIn = true
+            case .verificationRequired:
+                isSignedIn = false
+            }
         } catch {
             errorMessage = error.localizedDescription
         }

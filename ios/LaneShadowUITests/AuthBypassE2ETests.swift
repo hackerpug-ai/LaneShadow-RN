@@ -18,7 +18,7 @@ final class AuthBypassE2ETests: XCTestCase {
     /// must reveal the bypass button on the entry view, and tapping it must
     /// short-circuit the Clerk flow and land on the authenticated home screen
     /// without making any real OAuth or Convex calls.
-    func testBypassAuthLandsOnAuthenticatedHomeWithoutClerk() throws {
+    func testBypassAuthLandsOnAuthenticatedHomeWithoutClerk() {
         AppLauncher.launchApp(app, resetAuth: true, bypassAuth: true)
 
         XCTAssertTrue(
@@ -47,7 +47,7 @@ final class AuthBypassE2ETests: XCTestCase {
     /// Sanity check that the bypass button is gated — without the
     /// `-LaneShadowUITestBypassAuth` flag, the entry view stays at exactly
     /// three buttons (Apple, Google, Continue with Email).
-    func testBypassButtonIsHiddenWithoutBypassFlag() throws {
+    func testBypassButtonIsHiddenWithoutBypassFlag() {
         AppLauncher.launchApp(app, resetAuth: true)
 
         XCTAssertTrue(

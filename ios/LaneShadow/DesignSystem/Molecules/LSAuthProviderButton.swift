@@ -285,8 +285,8 @@ private enum GoogleGSegment {
     }
 }
 
-// Google's brand mark uses fixed brand colours that intentionally do not adapt to the
-// app's theme tokens. Encoded as HSB so the native-compliance hook does not flag them.
+/// Google's brand mark uses fixed brand colours that intentionally do not adapt to the
+/// app's theme tokens. Encoded as HSB so the native-compliance hook does not flag them.
 private enum GoogleBrand {
     static let blue = Color(hue: 0.6028, saturation: 0.7295, brightness: 0.9569)
     static let green = Color(hue: 0.3778, saturation: 0.6905, brightness: 0.6588)

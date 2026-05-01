@@ -42,6 +42,7 @@ class AuthScreensSourceStructureTest {
                 AuthScreenContent(
                     state = AuthScreenUiState(),
                     showBackButton = false,
+                    showSignUpEntry = true,
                 )
             }
         }
@@ -52,6 +53,7 @@ class AuthScreensSourceStructureTest {
 
         val continueButton = composeTestRule.onNodeWithTag("auth_continue_button")
         continueButton.fetchSemanticsNode()
+        composeTestRule.onNodeWithTag("auth_signup_entry").fetchSemanticsNode()
     }
 
     @Test
@@ -116,9 +118,25 @@ class AuthScreensSourceStructureTest {
         assertTrue(authScreenSource.contains("emailBranchResolver: AuthEmailBranchResolver = SignInRouteAuthEmailBranchResolver"))
         assertTrue(signInSource.contains("AuthScreenViewModel.factory(SignInRouteAuthEmailBranchResolver)"))
         assertTrue(signUpSource.contains("emailBranchResolver = SignUpRouteAuthEmailBranchResolver"))
+        assertTrue(signUpSource.contains("testTagPrefix = \"auth_signup\""))
+        assertTrue(signUpSource.contains("step = AuthScreenStep.EmailEntry"))
         assertTrue(authScreenSource.contains("onTerms = onTerms"))
         assertTrue(authScreenSource.contains("onPrivacy = onPrivacy"))
         assertTrue(authScreenSource.contains("LocalUriHandler.current"))
+    }
+
+    @Test
+    fun signUpRoute_usesGeneratedEmailInputAndStableTags() {
+        val signUpSource = File("src/main/java/com/laneshadow/ui/auth/SignUpScreen.kt").readText()
+        val authScreenSource = File("src/main/java/com/laneshadow/ui/auth/AuthScreen.kt").readText()
+
+        assertTrue(signUpSource.contains("AuthScreenStep.EmailEntry"))
+        assertTrue(signUpSource.contains("testTagPrefix = \"auth_signup\""))
+        assertTrue(!signUpSource.contains("new.rider@laneshadow.com"))
+        assertTrue(authScreenSource.contains("\"${'$'}{testTagPrefix}_email_field\""))
+        assertTrue(authScreenSource.contains("\"${'$'}{testTagPrefix}_display_name_field\""))
+        assertTrue(authScreenSource.contains("\"${'$'}{testTagPrefix}_password_field\""))
+        assertTrue(authScreenSource.contains("\"${'$'}{testTagPrefix}_create_account_button\""))
     }
 
     @Test

@@ -5,11 +5,33 @@ import Observation
 struct ClerkAuthUser: Equatable {
     let id: String
     let email: String?
+
+    var displayName: String {
+        guard let email,
+              let localPart = email.split(separator: "@", maxSplits: 1).first,
+              !localPart.isEmpty
+        else {
+            return "rider"
+        }
+        return String(localPart)
+    }
+}
+
+enum ClerkSignUpResult: Equatable {
+    case signedIn(ClerkAuthUser)
+    case verificationRequired(email: String)
+}
+
+enum ClerkSignInResult: Equatable {
+    case signedIn(ClerkAuthUser)
+    case verificationRequired(email: String)
 }
 
 protocol ClerkAuthClient: Sendable {
-    func signIn(email: String, password: String) async throws -> ClerkAuthUser
-    func signUp(email: String, password: String, name: String?) async throws -> ClerkAuthUser
+    func signIn(email: String, password: String) async throws -> ClerkSignInResult
+    func completeSignInVerification(code: String) async throws -> ClerkAuthUser
+    func signUp(email: String, password: String, name: String?) async throws -> ClerkSignUpResult
+    func completeSignUpVerification(code: String) async throws -> ClerkAuthUser
     func signInWithApple() async throws -> ClerkAuthUser
     func signInWithGoogle() async throws -> ClerkAuthUser
     func signOut() async throws
@@ -21,6 +43,11 @@ protocol ClerkAuthClient: Sendable {
 enum ClerkAuthError: LocalizedError {
     case notConfigured
     case missingUser
+    case missingSignInSession
+    case missingSignInVerification
+    case missingSignUpVerification
+    case unsupportedSignInVerification
+    case missingVerificationSession
 
     var errorDescription: String? {
         switch self {
@@ -28,13 +55,25 @@ enum ClerkAuthError: LocalizedError {
             "Clerk client is not configured for native auth yet."
         case .missingUser:
             "Clerk authentication succeeded but no active user was found."
+        case .missingSignInSession:
+            "Password verification completed but no Clerk session was created."
+        case .missingSignInVerification:
+            "No active sign-in verification is available."
+        case .missingSignUpVerification:
+            "No active sign-up verification is available."
+        case .unsupportedSignInVerification:
+            "Clerk requested an unsupported sign-in verification method."
+        case .missingVerificationSession:
+            "Email verification completed but no Clerk session was created."
         }
     }
 }
 
 protocol ClerkSDKClient: Sendable {
-    func signIn(email: String, password: String) async throws -> ClerkAuthUser
-    func signUp(email: String, password: String, name: String?) async throws -> ClerkAuthUser
+    func signIn(email: String, password: String) async throws -> ClerkSignInResult
+    func completeSignInVerification(code: String) async throws -> ClerkAuthUser
+    func signUp(email: String, password: String, name: String?) async throws -> ClerkSignUpResult
+    func completeSignUpVerification(code: String) async throws -> ClerkAuthUser
     func signInWithApple() async throws -> ClerkAuthUser
     func signInWithGoogle() async throws -> ClerkAuthUser
     func signOut() async throws
@@ -46,25 +85,91 @@ protocol ClerkSDKClient: Sendable {
 @MainActor
 final class LiveClerkSDKClient: ClerkSDKClient {
     private let clerk: Clerk
+    private var pendingSignIn: SignIn?
+    private var pendingSignUp: SignUp?
 
     init(clerk: Clerk = .shared) {
         self.clerk = clerk
     }
 
-    func signIn(email: String, password: String) async throws -> ClerkAuthUser {
-        let signIn = try await SignIn.create(strategy: .identifier(email, password: password))
-        _ = try await signIn.attemptFirstFactor(strategy: .password(password: password))
+    func signIn(email: String, password: String) async throws -> ClerkSignInResult {
+        pendingSignIn = nil
+        var signIn = try await SignIn.create(strategy: .identifier(email))
+
+        if signIn.status == .needsFirstFactor {
+            signIn = try await signIn.attemptFirstFactor(strategy: .password(password: password))
+        }
+
+        return try await resolveSignIn(signIn, email: email)
+    }
+
+    func completeSignInVerification(code: String) async throws -> ClerkAuthUser {
+        guard let signIn = pendingSignIn else {
+            throw ClerkAuthError.missingSignInVerification
+        }
+
+        let verifiedSignIn = try await signIn.attemptSecondFactor(strategy: .emailCode(code: code))
+        return try await activateCompletedSignIn(verifiedSignIn)
+    }
+
+    private func resolveSignIn(_ signIn: SignIn, email: String) async throws -> ClerkSignInResult {
+        switch signIn.status {
+        case .complete:
+            return try await .signedIn(activateCompletedSignIn(signIn))
+        case .needsClientTrust, .needsSecondFactor:
+            guard let emailFactor = signIn.supportedSecondFactors?.first(where: { $0.strategy == "email_code" }) else {
+                throw ClerkAuthError.unsupportedSignInVerification
+            }
+            pendingSignIn = try await signIn.prepareSecondFactor(
+                strategy: .emailCode(emailAddressId: emailFactor.emailAddressId)
+            )
+            return .verificationRequired(email: email)
+        case .needsIdentifier, .needsFirstFactor, .needsNewPassword, .unknown:
+            throw ClerkAuthError.missingSignInSession
+        }
+    }
+
+    private func activateCompletedSignIn(_ signIn: SignIn) async throws -> ClerkAuthUser {
+        guard let createdSessionId = signIn.createdSessionId else {
+            throw ClerkAuthError.missingSignInSession
+        }
+        try await clerk.setActive(sessionId: createdSessionId)
+        pendingSignIn = nil
         return try currentUser()
     }
 
-    func signUp(email: String, password: String, name: String?) async throws -> ClerkAuthUser {
+    func signUp(email: String, password: String, name: String?) async throws -> ClerkSignUpResult {
         let parsedName = splitName(name)
-        _ = try await SignUp.create(strategy: .standard(
+        var signUp = try await SignUp.create(strategy: .standard(
             emailAddress: email,
             password: password,
             firstName: parsedName.firstName,
             lastName: parsedName.lastName
         ))
+
+        if let createdSessionId = signUp.createdSessionId {
+            try await clerk.setActive(sessionId: createdSessionId)
+            pendingSignUp = nil
+            return try .signedIn(currentUser())
+        }
+
+        signUp = try await signUp.prepareVerification(strategy: .emailCode)
+        pendingSignUp = signUp
+        return .verificationRequired(email: email)
+    }
+
+    func completeSignUpVerification(code: String) async throws -> ClerkAuthUser {
+        guard let signUp = pendingSignUp else {
+            throw ClerkAuthError.missingSignUpVerification
+        }
+
+        let verifiedSignUp = try await signUp.attemptVerification(strategy: .emailCode(code: code))
+        guard let createdSessionId = verifiedSignUp.createdSessionId else {
+            throw ClerkAuthError.missingVerificationSession
+        }
+
+        try await clerk.setActive(sessionId: createdSessionId)
+        pendingSignUp = nil
         return try currentUser()
     }
 
@@ -79,6 +184,8 @@ final class LiveClerkSDKClient: ClerkSDKClient {
     }
 
     func signOut() async throws {
+        pendingSignIn = nil
+        pendingSignUp = nil
         try await clerk.signOut()
     }
 
@@ -136,12 +243,20 @@ final class LiveClerkAuthClient: ClerkAuthClient {
         self.sdk = sdk
     }
 
-    func signIn(email: String, password: String) async throws -> ClerkAuthUser {
+    func signIn(email: String, password: String) async throws -> ClerkSignInResult {
         try await sdk.signIn(email: email, password: password)
     }
 
-    func signUp(email: String, password: String, name: String?) async throws -> ClerkAuthUser {
+    func completeSignInVerification(code: String) async throws -> ClerkAuthUser {
+        try await sdk.completeSignInVerification(code: code)
+    }
+
+    func signUp(email: String, password: String, name: String?) async throws -> ClerkSignUpResult {
         try await sdk.signUp(email: email, password: password, name: name)
+    }
+
+    func completeSignUpVerification(code: String) async throws -> ClerkAuthUser {
+        try await sdk.completeSignUpVerification(code: code)
     }
 
     func signInWithApple() async throws -> ClerkAuthUser {
@@ -173,6 +288,8 @@ final class LiveClerkAuthClient: ClerkAuthClient {
 @Observable
 final class ClerkAuth: LaneShadowClerkJWTProviding {
     private(set) var currentUser: ClerkAuthUser?
+    private(set) var pendingSignInEmail: String?
+    private(set) var pendingSignUpEmail: String?
 
     private let client: any ClerkAuthClient
 
@@ -180,12 +297,40 @@ final class ClerkAuth: LaneShadowClerkJWTProviding {
         self.client = client
     }
 
-    func signIn(email: String, password: String) async throws {
-        currentUser = try await client.signIn(email: email, password: password)
+    func signIn(email: String, password: String) async throws -> ClerkSignInResult {
+        let result = try await client.signIn(email: email, password: password)
+        switch result {
+        case let .signedIn(user):
+            currentUser = user
+            pendingSignInEmail = nil
+        case let .verificationRequired(email):
+            currentUser = nil
+            pendingSignInEmail = email
+        }
+        return result
     }
 
-    func signUp(email: String, password: String, name: String?) async throws {
-        currentUser = try await client.signUp(email: email, password: password, name: name)
+    func completeSignInVerification(code: String) async throws {
+        currentUser = try await client.completeSignInVerification(code: code)
+        pendingSignInEmail = nil
+    }
+
+    func signUp(email: String, password: String, name: String?) async throws -> ClerkSignUpResult {
+        let result = try await client.signUp(email: email, password: password, name: name)
+        switch result {
+        case let .signedIn(user):
+            currentUser = user
+            pendingSignUpEmail = nil
+        case let .verificationRequired(email):
+            currentUser = nil
+            pendingSignUpEmail = email
+        }
+        return result
+    }
+
+    func completeSignUpVerification(code: String) async throws {
+        currentUser = try await client.completeSignUpVerification(code: code)
+        pendingSignUpEmail = nil
     }
 
     func signInWithApple() async throws {
@@ -215,6 +360,8 @@ final class ClerkAuth: LaneShadowClerkJWTProviding {
 
     func clearLocalSession() {
         currentUser = nil
+        pendingSignInEmail = nil
+        pendingSignUpEmail = nil
     }
 
     func completeOAuthCallback(token: String) async {

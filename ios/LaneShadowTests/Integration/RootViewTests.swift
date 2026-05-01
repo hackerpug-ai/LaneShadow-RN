@@ -111,7 +111,7 @@ final class RootViewTests: XCTestCase {
         XCTAssertNil(appState.authRoute)
     }
 
-    func testCompleteAuthenticationWaitsForConvexCurrentUserBeforeAppIsAuthenticated() async throws {
+    func testCompleteAuthenticationRoutesHomeAndHydratesConvexCurrentUser() async throws {
         let clerkAuth = try await makeClerkAuth(isAuthenticated: true)
         let transport = RootViewTestsConvexTransport(currentUser: .jamie)
         let convexClient = LaneShadowConvexClient(
@@ -132,7 +132,7 @@ final class RootViewTests: XCTestCase {
         XCTAssertNil(appState.authRoute)
     }
 
-    func testCompleteAuthenticationDoesNotShowAppWhenCurrentUserIsMissing() async throws {
+    func testCompleteAuthenticationRoutesHomeWhenCurrentUserIsMissing() async throws {
         let clerkAuth = try await makeClerkAuth(isAuthenticated: true)
         let convexClient = LaneShadowConvexClient(
             deploymentURL: "http://localhost:3210",
@@ -143,10 +143,11 @@ final class RootViewTests: XCTestCase {
 
         await appState.completeAuthentication(clerkAuth: clerkAuth, convexClient: convexClient)
 
-        XCTAssertFalse(appState.isAuthenticated)
+        XCTAssertTrue(appState.isAuthenticated)
+        XCTAssertTrue(appState.hasClerkSession)
         XCTAssertNil(appState.currentUser)
-        XCTAssertNil(appState.appRoute)
-        XCTAssertEqual(appState.authRoute, AppState.AuthRoute.signIn)
+        XCTAssertEqual(appState.appRoute, .home)
+        XCTAssertNil(appState.authRoute)
     }
 
     func testSignOutClearsClerkConvexAndRouteState() async throws {
@@ -242,12 +243,20 @@ final class RootViewTests: XCTestCase {
 actor RootViewTestsAuthClient: ClerkAuthClient {
     private(set) var signOutCalls = 0
 
-    func signIn(email: String, password _: String) async throws -> ClerkAuthUser {
-        ClerkAuthUser(id: "user-1", email: email)
+    func signIn(email: String, password _: String) async throws -> ClerkSignInResult {
+        .signedIn(ClerkAuthUser(id: "user-1", email: email))
     }
 
-    func signUp(email: String, password _: String, name _: String?) async throws -> ClerkAuthUser {
-        ClerkAuthUser(id: "user-2", email: email)
+    func completeSignInVerification(code _: String) async throws -> ClerkAuthUser {
+        ClerkAuthUser(id: "user-1", email: "signin@example.com")
+    }
+
+    func signUp(email: String, password _: String, name _: String?) async throws -> ClerkSignUpResult {
+        .signedIn(ClerkAuthUser(id: "user-2", email: email))
+    }
+
+    func completeSignUpVerification(code _: String) async throws -> ClerkAuthUser {
+        ClerkAuthUser(id: "user-2", email: "signup@example.com")
     }
 
     func signInWithApple() async throws -> ClerkAuthUser {

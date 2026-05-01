@@ -1,1 +1,0 @@
-read file .cursor/agents/ui-developer.md and .cursor/agents/backend-engineer.md and run the boot sequence in each. Be sure to read all files referenced in each boot sequence for each agent.
