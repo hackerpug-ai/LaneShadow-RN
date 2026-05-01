@@ -34,7 +34,8 @@ struct SignInScreen: View {
                     },
                     onVerificationRequired: { email in
                         verificationEmail = email
-                    }
+                    },
+                    onBypassAuth: bypassAuthHandler
                 )
             } else {
                 ProgressView()
@@ -97,6 +98,21 @@ struct SignInScreen: View {
             return
         }
         authScreenViewModel = makeAuthScreenViewModel(auth: appEnvironment.clerkAuth)
+    }
+
+    private var bypassAuthHandler: (() -> Void)? {
+        #if DEBUG
+            guard RootView.shouldBypassAuthForUITesting() else { return nil }
+            let environment = appEnvironment
+            return {
+                Task {
+                    await appState.bypassAuthForTesting(convexClient: environment.convexClient)
+                    viewModel.step = .signedIn
+                }
+            }
+        #else
+            return nil
+        #endif
     }
 }
 

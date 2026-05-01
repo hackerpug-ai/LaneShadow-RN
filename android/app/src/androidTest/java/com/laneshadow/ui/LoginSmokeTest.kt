@@ -69,5 +69,8 @@ private class FakeAuthRepository : AuthRepository {
 
     override suspend fun getJwtForConvex(): String = "test-jwt"
 
+    override suspend fun bypassForTesting(): Result<ClerkUser> =
+        Result.success(ClerkUser("ui-test", "uitest@laneshadow.local", "UI Test", "ui-test-bypass"))
+
     override fun observeAuthState(): StateFlow<AuthState> = authState
 }

@@ -1,6 +1,7 @@
 package com.laneshadow.data.repository
 
 import android.net.Uri
+import com.laneshadow.BuildConfig
 import com.laneshadow.data.model.AuthState
 import com.laneshadow.data.model.ClerkUser
 import com.laneshadow.data.store.TokenStore
@@ -117,6 +118,27 @@ class ClerkAuthRepository @Inject constructor(
         val jwt = tokenStore.readJwt()
         require(!jwt.isNullOrBlank()) { "Missing JWT for Convex" }
         return jwt
+    }
+
+    override suspend fun bypassForTesting(): Result<ClerkUser> {
+        if (!BuildConfig.DEBUG) {
+            return Result.failure(IllegalStateException("bypassForTesting is debug-only"))
+        }
+        restoreJob.join()
+        authState.value = AuthState.Loading
+        val syntheticUser = ClerkUser(
+            id = "ui-test-user",
+            email = "uitest@laneshadow.local",
+            name = "UI Test",
+            provider = "ui-test-bypass",
+        )
+        // Stub JWT keeps `getJwtForConvex` from blowing up if any downstream
+        // code path hits an authenticated query during the test. Convex itself
+        // will 401 the synthetic token; suites that rely on Convex data must
+        // inject their own fake transport.
+        tokenStore.saveJwt("ui-test-jwt")
+        authState.value = AuthState.SignedIn(syntheticUser)
+        return Result.success(syntheticUser)
     }
 
     override fun observeAuthState(): StateFlow<AuthState> = authState.asStateFlow()

@@ -189,111 +189,155 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0AB6BCC041176229C63DBB62 /* Layout */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Layout;
 			sourceTree = "<group>";
 		};
 		0B23304A78B886F9A286C5E4 /* Sandbox */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Sandbox;
 			sourceTree = "<group>";
 		};
 		0E516A6442C2AA10AA5009F5 /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		244E36879200004067F64629 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		3BC11B009ED26B33FC7A0333 /* Entry */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Entry;
 			sourceTree = "<group>";
 		};
 		3CE2AE4772ABC9D4A3699741 /* MockProviders */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = MockProviders;
 			sourceTree = "<group>";
 		};
 		4C8A8E02554AE3D5AC4FAC51 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		537AF6CF40C4418539754A5D /* Services */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Services;
 			sourceTree = "<group>";
 		};
 		5B8A253F72C6B3D6A21D5422 /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		5D43661EA5776DD985956D8D /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		688955BA957298D0AAE2948E /* AppFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = AppFlow;
 			sourceTree = "<group>";
 		};
 		7290175E358A1C93D4A90231 /* Molecules */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Molecules;
 			sourceTree = "<group>";
 		};
 		755D85BE7B8692E8CCE9B7D0 /* Integration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Integration;
 			sourceTree = "<group>";
 		};
 		7658177809845BD7EAFD2B5F /* Environment */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Environment;
 			sourceTree = "<group>";
 		};
 		803C67E4953872CB5CCA0FA9 /* DesignSystem */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = DesignSystem;
 			sourceTree = "<group>";
 		};
 		8460D5ABD7FFE129DB373103 /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Models;
 			sourceTree = "<group>";
 		};
 		8F5AC0DC38D5B1239FAA340F /* AuthFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = AuthFlow;
 			sourceTree = "<group>";
 		};
 		9B1969E887592C82E1672459 /* Launch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Launch;
 			sourceTree = "<group>";
 		};
 		A1DA24033B9915EAB116ED62 /* Generated */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Generated;
 			sourceTree = "<group>";
 		};
 		A8E49074235FCF05900AA173 /* LaneShadowUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = LaneShadowUITests;
 			sourceTree = "<group>";
 		};
 		B6F7522A945FCE6E9220905B /* Features */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Features;
 			sourceTree = "<group>";
 		};
 		B92913E9843A5845817A3DBD /* Controls */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Controls;
 			sourceTree = "<group>";
 		};
@@ -307,16 +351,22 @@
 		};
 		CF77ECAB776F34B039A160CA /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		D026D3B873FDE7B7153F206F /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		E5E2F792F8318B064762B018 /* Theme */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Theme;
 			sourceTree = "<group>";
 		};
@@ -617,8 +667,6 @@
 				A8E49074235FCF05900AA173 /* LaneShadowUITests */,
 			);
 			name = LaneShadowUITests;
-			packageProductDependencies = (
-			);
 			productName = LaneShadowUITests;
 			productReference = EF4B1C18D8FD1069B42CB70D /* LaneShadowUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -690,8 +738,8 @@
 				B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */,
 				15EF0D9EB05071BCFDAB5F3D /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
 				E60D5EE87AD2B6F3ECB752C9 /* XCRemoteSwiftPackageReference "ViewInspector" */,
-				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */,
-				587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */,
+				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "swift" */,
+				587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A409E156DCE522478E497BB1 /* Products */;
@@ -1200,11 +1248,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */ = {
+		47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "swift" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../tokens/platforms/swift;
 		};
-		587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */ = {
+		587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "ios" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "/Users/justinrich/Projects/native-sandbox/ios";
 		};

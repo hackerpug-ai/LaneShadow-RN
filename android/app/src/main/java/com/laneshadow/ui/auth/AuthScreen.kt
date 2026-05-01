@@ -90,9 +90,11 @@ fun AuthScreen(
     initialState: AuthScreenUiState? = null,
     showBackButton: Boolean = true,
     showSignUpEntry: Boolean = false,
+    uiTestBypassEnabled: Boolean = false,
     testTagPrefix: String = "auth",
     onBack: () -> Unit = {},
     onSignUpRequested: () -> Unit = {},
+    onBypassAuth: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val uiState by authScreenViewModel.uiState.collectAsStateWithLifecycle()
@@ -126,9 +128,11 @@ fun AuthScreen(
         state = uiState,
         showBackButton = showBackButton,
         showSignUpEntry = showSignUpEntry,
+        uiTestBypassEnabled = uiTestBypassEnabled,
         testTagPrefix = testTagPrefix,
         onBack = onBack,
         onSignUpRequested = onSignUpRequested,
+        onBypassAuth = onBypassAuth,
         onEmailChange = authScreenViewModel::onEmailChanged,
         onPasswordChange = authScreenViewModel::onPasswordChanged,
         onDisplayNameChange = authScreenViewModel::onDisplayNameChanged,
@@ -165,9 +169,11 @@ fun AuthScreenContent(
     state: AuthScreenUiState,
     showBackButton: Boolean = true,
     showSignUpEntry: Boolean = false,
+    uiTestBypassEnabled: Boolean = false,
     testTagPrefix: String = "auth",
     onBack: () -> Unit = {},
     onSignUpRequested: () -> Unit = {},
+    onBypassAuth: () -> Unit = {},
     onEmailChange: (String) -> Unit = {},
     onPasswordChange: (String) -> Unit = {},
     onDisplayNameChange: (String) -> Unit = {},
@@ -244,6 +250,8 @@ fun AuthScreenContent(
                 showSignUpEntry = showSignUpEntry,
                 testTagPrefix = testTagPrefix,
                 onSignUpRequested = onSignUpRequested,
+                uiTestBypassEnabled = uiTestBypassEnabled,
+                onBypassAuth = onBypassAuth,
             )
             FooterBlock(
                 step = state.step,
@@ -385,6 +393,8 @@ private fun AuthForm(
     onCreateAccount: () -> Unit,
     onApple: () -> Unit,
     onGoogle: () -> Unit,
+    uiTestBypassEnabled: Boolean = false,
+    onBypassAuth: () -> Unit = {},
 ) {
     val theme = LocalLaneShadowTheme.current
     val disabled = state.isSubmitting
@@ -402,6 +412,8 @@ private fun AuthForm(
                     onGoogle = onGoogle,
                     onContinueWithEmail = onSelectEmailEntry,
                     testTagPrefix = testTagPrefix,
+                    uiTestBypassEnabled = uiTestBypassEnabled,
+                    onBypassAuth = onBypassAuth,
                 )
             }
             AuthScreenStep.EmailEntry -> {
@@ -556,6 +568,8 @@ private fun EntryStack(
     onGoogle: () -> Unit,
     onContinueWithEmail: () -> Unit,
     testTagPrefix: String,
+    uiTestBypassEnabled: Boolean = false,
+    onBypassAuth: () -> Unit = {},
 ) {
     val theme = LocalLaneShadowTheme.current
 
@@ -580,6 +594,58 @@ private fun EntryStack(
                 .testTag("${testTagPrefix}_continue_with_email"),
             enabled = !disabled,
         )
+
+        if (uiTestBypassEnabled) {
+            BypassAuthButton(
+                disabled = disabled,
+                onClick = onBypassAuth,
+                testTagPrefix = testTagPrefix,
+            )
+        }
+    }
+}
+
+/**
+ * Debug-only auth-screen button used by E2E tests to skip the Clerk OAuth
+ * flow. Only rendered when [LaneShadowApp]/`MainActivity` resolved that the
+ * launching `Intent` had `EXTRA_BYPASS_AUTH = true` AND the build is `DEBUG`.
+ */
+@Composable
+private fun BypassAuthButton(
+    disabled: Boolean,
+    onClick: () -> Unit,
+    testTagPrefix: String,
+) {
+    val theme = LocalLaneShadowTheme.current
+    val danger = theme.colors.danger.default
+
+    androidx.compose.material3.Surface(
+        onClick = if (disabled) ({}) else onClick,
+        color = danger.copy(alpha = 0.06f),
+        contentColor = danger,
+        shape = RoundedCornerShape(theme.radius.md),
+        border = BorderStroke(StrokeWidth, danger.copy(alpha = 0.6f)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("${testTagPrefix}_bypass_button")
+            .semantics {
+                role = Role.Button
+                contentDescription = "Bypass auth for UI tests"
+            },
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = theme.space.md, vertical = theme.space.sm),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(theme.space.sm, Alignment.CenterHorizontally),
+        ) {
+            LSText(
+                text = "Bypass auth (UI tests only)",
+                variant = TypographyVariant.Ui.Label.Md,
+                color = ContentColor.Error,
+            )
+        }
     }
 }
 

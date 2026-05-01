@@ -13,6 +13,9 @@ import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.LaneShadowApp
 import dagger.hilt.android.AndroidEntryPoint
 
+const val EXTRA_RESET_AUTH = "com.laneshadow.extra.RESET_AUTH"
+const val EXTRA_BYPASS_AUTH = "com.laneshadow.extra.BYPASS_AUTH"
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private var currentIntent: Intent? by mutableStateOf(null)
@@ -34,7 +37,10 @@ class MainActivity : ComponentActivity() {
                 }
             } else {
                 LaneShadowTheme {
-                    LaneShadowApp()
+                    LaneShadowApp(
+                        resetAuthOnLaunch = shouldResetAuthForTesting(currentIntent),
+                        uiTestBypassEnabled = shouldBypassAuthForTesting(currentIntent),
+                    )
                 }
             }
         }
@@ -53,4 +59,10 @@ class MainActivity : ComponentActivity() {
             DeepLinkBus.publish(callbackUri)
         }
     }
+
+    private fun shouldResetAuthForTesting(intent: Intent?): Boolean =
+        BuildConfig.DEBUG && intent?.getBooleanExtra(EXTRA_RESET_AUTH, false) == true
+
+    private fun shouldBypassAuthForTesting(intent: Intent?): Boolean =
+        BuildConfig.DEBUG && intent?.getBooleanExtra(EXTRA_BYPASS_AUTH, false) == true
 }

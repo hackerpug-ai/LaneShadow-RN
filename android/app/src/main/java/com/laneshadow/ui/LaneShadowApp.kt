@@ -4,7 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -79,12 +83,37 @@ class AuthViewModel @Inject constructor(
             authRepository.signOut()
         }
     }
+
+    /**
+     * Debug-only short-circuit used by the auth-screen "Bypass auth (UI tests
+     * only)" button so test suites can skip past Clerk OAuth without entering
+     * real credentials. Caller is responsible for gating this on
+     * [BuildConfig.DEBUG] and the test-mode intent extra; the repository will
+     * additionally refuse to do anything in release builds.
+     */
+    fun bypassForTesting() {
+        viewModelScope.launch {
+            authRepository.bypassForTesting()
+        }
+    }
 }
 
 @Composable
-fun LaneShadowApp(authViewModel: AuthViewModel = hiltViewModel()) {
+fun LaneShadowApp(
+    resetAuthOnLaunch: Boolean = false,
+    uiTestBypassEnabled: Boolean = false,
+    authViewModel: AuthViewModel = hiltViewModel(),
+) {
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val navController = rememberNavController()
+    var didResetAuth by remember(resetAuthOnLaunch) { mutableStateOf(false) }
+
+    LaunchedEffect(resetAuthOnLaunch) {
+        if (resetAuthOnLaunch && !didResetAuth) {
+            didResetAuth = true
+            authViewModel.signOut()
+        }
+    }
 
     when (authState) {
         is AuthState.Loading -> SplashScreen()
@@ -93,7 +122,11 @@ fun LaneShadowApp(authViewModel: AuthViewModel = hiltViewModel()) {
         is AuthState.OAuthPending,
         AuthState.VerificationRequired,
         is AuthState.Error,
-        -> AuthNavGraph(navController = navController, authViewModel = authViewModel)
+        -> AuthNavGraph(
+            navController = navController,
+            authViewModel = authViewModel,
+            uiTestBypassEnabled = uiTestBypassEnabled,
+        )
     }
 }
 

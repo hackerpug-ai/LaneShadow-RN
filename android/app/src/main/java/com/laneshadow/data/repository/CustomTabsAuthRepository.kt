@@ -101,6 +101,22 @@ class CustomTabsAuthRepository @Inject constructor(
         return jwt
     }
 
+    override suspend fun bypassForTesting(): Result<ClerkUser> {
+        if (!BuildConfig.DEBUG) {
+            return Result.failure(IllegalStateException("bypassForTesting is debug-only"))
+        }
+        authState.value = AuthState.Loading
+        val syntheticUser = ClerkUser(
+            id = "ui-test-user",
+            email = "uitest@laneshadow.local",
+            name = "UI Test",
+            provider = "ui-test-bypass",
+        )
+        tokenStore.saveJwt("ui-test-jwt")
+        authState.value = AuthState.SignedIn(syntheticUser)
+        return Result.success(syntheticUser)
+    }
+
     override fun observeAuthState(): StateFlow<AuthState> = authState.asStateFlow()
 
     private suspend fun launchOAuth(provider: String): Result<ClerkUser> {

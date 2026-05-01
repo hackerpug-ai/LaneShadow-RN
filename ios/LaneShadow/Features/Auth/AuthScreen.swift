@@ -21,6 +21,7 @@ struct AuthScreen: View {
     private let onSignUpRequested: (() -> Void)?
     private let onAuthenticated: () -> Void
     private let onVerificationRequired: (String) -> Void
+    private let onBypassAuth: (() -> Void)?
     private let authIdentifierPrefix: String
     private let showsSignUpEntry: Bool
 
@@ -31,7 +32,8 @@ struct AuthScreen: View {
         authIdentifierPrefix: String = "auth.signIn",
         onSignUpRequested: (() -> Void)? = nil,
         onAuthenticated: @escaping () -> Void = {},
-        onVerificationRequired: @escaping (String) -> Void = { _ in }
+        onVerificationRequired: @escaping (String) -> Void = { _ in },
+        onBypassAuth: (() -> Void)? = nil
     ) {
         self.viewModel = viewModel
         self.onBack = onBack
@@ -40,6 +42,7 @@ struct AuthScreen: View {
         self.onSignUpRequested = onSignUpRequested
         self.onAuthenticated = onAuthenticated
         self.onVerificationRequired = onVerificationRequired
+        self.onBypassAuth = onBypassAuth
     }
 
     var body: some View {
@@ -209,6 +212,12 @@ struct AuthScreen: View {
                 viewModel.selectEmailEntry()
             }
 
+            #if DEBUG
+                if Self.isUITestBypassEnabled, let onBypassAuth {
+                    bypassAuthButton(action: onBypassAuth)
+                }
+            #endif
+
             if let errorMessage = viewModel.errorMessage, viewModel.mode == .entry {
                 LSText(errorMessage, variant: .body.sm, color: .danger)
                     .multilineTextAlignment(.center)
@@ -217,8 +226,41 @@ struct AuthScreen: View {
                     .accessibilityIdentifier("authscreen-entry-error")
             }
         }
-        .accessibilityIdentifier("authscreen-entry-stack")
+        // NOTE: do not set .accessibilityIdentifier on this VStack — SwiftUI's
+        // `accessibilityIdentifier` modifier on a container view bubbles down
+        // and clobbers the identifiers on the per-button children, breaking
+        // E2E selectors like `auth.signIn.continueWithEmail` and
+        // `auth.signIn.bypassAuth`.
     }
+
+    #if DEBUG
+        @ViewBuilder
+        private func bypassAuthButton(action: @escaping () -> Void) -> some View {
+            Button(action: action) {
+                HStack(spacing: theme.space.sm) {
+                    Image(systemName: "ladybug")
+                        .font(theme.type.label.md.font)
+                        .foregroundStyle(LaneShadowTheme.color.status.error.default)
+                        .frame(width: theme.iconSize.medium, height: theme.iconSize.medium)
+                    LSText("Bypass auth (UI tests only)", variant: .label.md, color: .danger)
+                }
+                .frame(maxWidth: .infinity, minHeight: theme.control.minHeight)
+                .padding(.horizontal, theme.space.md)
+                .background(LaneShadowTheme.color.status.error.default.opacity(0.06))
+                .clipShape(RoundedRectangle(cornerRadius: theme.radius.md, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: theme.radius.md, style: .continuous)
+                        .stroke(
+                            LaneShadowTheme.color.status.error.default.opacity(0.6),
+                            style: StrokeStyle(lineWidth: theme.borderWidth.thin, dash: [4, 3])
+                        )
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("auth.signIn.bypassAuth")
+            .accessibilityLabel("Bypass auth for UI tests")
+        }
+    #endif
 
     private var emailEntryBranch: some View {
         LSFormField(
@@ -445,6 +487,12 @@ struct AuthScreen: View {
     private static var isRunningUITests: Bool {
         ProcessInfo.processInfo.arguments.contains("-UITesting")
     }
+
+    #if DEBUG
+        fileprivate static var isUITestBypassEnabled: Bool {
+            ProcessInfo.processInfo.arguments.contains("-LaneShadowUITestBypassAuth")
+        }
+    #endif
 }
 
 struct AuthScreenConfiguration: Equatable {

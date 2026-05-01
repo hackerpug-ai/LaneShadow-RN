@@ -59,21 +59,17 @@ struct RootView: View {
 
     @ViewBuilder
     private var authenticatedFlow: some View {
-        if appState.isAuthenticated, let currentUser = appState.currentUser {
+        if appState.isAuthenticated || appState.hasClerkSession {
             switch appState.appRoute {
             case let .session(id):
                 AppFlowView(route: .session(id: id))
             case .home, .none:
-                IdleScreen()
-                    .overlay(alignment: .topLeading) {
-                        Text("Where are we riding today, \(currentUser.displayName)?")
-                            .font(.headline)
-                            .padding(12)
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                            .padding()
-                            .accessibilityIdentifier("idlescreen-current-user-greeting")
-                    }
+                AuthenticatedLandingView(
+                    displayName: authenticatedDisplayName,
+                    isHydratingCurrentUser: appState.isHydratingCurrentUser,
+                    authMessage: appState.authMessage,
+                    onLogout: signOut
+                )
             }
         } else {
             ProgressView("Loading rider profile")
@@ -81,7 +77,28 @@ struct RootView: View {
         }
     }
 
+    private var authenticatedDisplayName: String {
+        if let displayName = appState.currentUser?.displayName, !displayName.isEmpty {
+            return displayName
+        }
+
+        if let displayName = appEnvironment.clerkAuth.currentUser?.displayName, !displayName.isEmpty {
+            return displayName
+        }
+
+        return "rider"
+    }
+
     func synchronizeAuthentication() async {
+        #if DEBUG
+            // Bypass-mode tests stamp authenticated state synthetically; never
+            // re-run real auth restoration, otherwise it would clobber the
+            // bypassed `appState.isAuthenticated` and route back to sign-in.
+            if Self.shouldBypassAuthForUITesting(), appState.isAuthenticated {
+                return
+            }
+        #endif
+
         if appEnvironment.clerkAuth.currentUser == nil {
             await appState.restoreAuthentication(
                 clerkAuth: appEnvironment.clerkAuth,
@@ -89,6 +106,15 @@ struct RootView: View {
             )
         } else {
             await appState.completeAuthentication(
+                clerkAuth: appEnvironment.clerkAuth,
+                convexClient: appEnvironment.convexClient
+            )
+        }
+    }
+
+    func signOut() {
+        Task {
+            await appState.signOut(
                 clerkAuth: appEnvironment.clerkAuth,
                 convexClient: appEnvironment.convexClient
             )
@@ -124,6 +150,10 @@ struct RootView: View {
             arguments.contains("-LaneShadowUITestResetAuth")
         }
 
+        static func shouldBypassAuthForUITesting(arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
+            arguments.contains("-LaneShadowUITestBypassAuth")
+        }
+
         func resetAuthForUITestingIfNeeded(
             clerkAuth: ClerkAuth,
             convexClient: LaneShadowConvexClient
@@ -137,4 +167,55 @@ struct RootView: View {
             return true
         }
     #endif
+}
+
+private struct AuthenticatedLandingView: View {
+    let displayName: String
+    let isHydratingCurrentUser: Bool
+    let authMessage: String?
+    let onLogout: () -> Void
+
+    var body: some View {
+        ZStack {
+            IdleScreen()
+
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Signed in")
+                    .font(.caption.weight(.semibold))
+                    .textCase(.uppercase)
+                    .foregroundStyle(.secondary)
+
+                Text("Where are we riding today, \(displayName)?")
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .accessibilityIdentifier("idlescreen-current-user-greeting")
+
+                if isHydratingCurrentUser {
+                    Text("Loading rider profile")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                } else if let authMessage, !authMessage.isEmpty {
+                    Text(authMessage)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
+                Button("Log out", action: onLogout)
+                    .buttonStyle(.borderedProminent)
+                    .accessibilityIdentifier("auth.landing.logout")
+            }
+            .padding(20)
+            .frame(maxWidth: 360, alignment: .leading)
+            .background(.ultraThinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .stroke(.quaternary, lineWidth: 1)
+            )
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("auth.landing.root")
+        }
+    }
 }

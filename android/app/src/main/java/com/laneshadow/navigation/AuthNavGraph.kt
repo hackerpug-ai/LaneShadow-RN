@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,6 +42,7 @@ import com.laneshadow.ui.organisms.LSInlineErrorCallout
 fun AuthNavGraph(
     navController: NavHostController = rememberNavController(),
     authViewModel: AuthViewModel,
+    uiTestBypassEnabled: Boolean = false,
 ) {
     var callbackUri by remember { mutableStateOf<Uri?>(null) }
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
@@ -57,6 +59,14 @@ fun AuthNavGraph(
     LaunchedEffect(navController) {
         DeepLinkBus.callbacks.collect { uri ->
             navigateToOAuthCallback(uri)
+        }
+    }
+
+    LaunchedEffect(authState) {
+        if (authState == AuthState.VerificationRequired) {
+            navController.navigate(Route.Verify) {
+                launchSingleTop = true
+            }
         }
     }
 
@@ -94,6 +104,16 @@ fun AuthNavGraph(
             AuthScreen(
                 viewModel = authViewModel,
                 showBackButton = true,
+                showSignUpEntry = true,
+                uiTestBypassEnabled = uiTestBypassEnabled,
+                onSignUpRequested = {
+                    navController.navigate(Route.SignUp) {
+                        launchSingleTop = true
+                    }
+                },
+                onBypassAuth = {
+                    authViewModel.bypassForTesting()
+                },
             )
         }
         composable<Route.SignUp> {
@@ -143,7 +163,8 @@ private fun VerifyRoute(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(theme.space.lg),
+            .padding(theme.space.lg)
+            .testTag("auth_verify_root"),
     ) {
         LSText(
             text = "Verify",
@@ -167,12 +188,15 @@ private fun VerifyRoute(
             },
             placeholder = "Verification code",
             state = if (error != null) InputState.Error else InputState.Default,
+            modifier = Modifier.testTag("auth_verify_code_input"),
         )
 
         LSButton(
             label = "Verify",
             variant = ButtonVariant.Primary,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("auth_verify_submit"),
             onClick = {
                 if (code.isBlank()) {
                     error = "Enter your verification code."

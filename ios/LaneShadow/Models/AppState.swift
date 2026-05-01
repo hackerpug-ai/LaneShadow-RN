@@ -49,11 +49,11 @@ final class AppState {
         isHydratingCurrentUser = true
         authMessage = nil
         await convexClient.setAuth(clerkJWTProvider: clerkAuth)
+        routeAuthenticatedWithoutHydratedProfile()
 
         do {
-            let hydratedUser = try await convexClient.fetchCurrentUser()
+            let hydratedUser = try await convexClient.fetchCurrentUser(notifyUnauthenticated: false)
             guard let hydratedUser else {
-                clearAuthenticatedState(authRoute: .signIn)
                 isHydratingCurrentUser = false
                 return
             }
@@ -68,10 +68,9 @@ final class AppState {
         } catch {
             let laneShadowError = LaneShadowError.map(error)
             if laneShadowError.isUnauthenticated {
-                handleUnauthenticatedConvexError()
+                authMessage = "Unable to load rider profile."
             } else {
-                clearAuthenticatedState(authRoute: .signIn)
-                authMessage = laneShadowError.localizedDescription
+                routeAuthenticatedWithoutHydratedProfile(message: laneShadowError.localizedDescription)
             }
         }
 
@@ -158,4 +157,40 @@ final class AppState {
         authRoute = route
         appRoute = nil
     }
+
+    private func routeAuthenticatedWithoutHydratedProfile(message: String? = nil) {
+        isAuthenticated = true
+        hasClerkSession = true
+        currentUser = nil
+        authRoute = nil
+        if appRoute == nil {
+            appRoute = .home
+        }
+        authMessage = message
+    }
+
+    #if DEBUG
+        /// Synthesizes an authenticated session without contacting Clerk or Convex.
+        /// Only callable from debug builds; the real entry point is the
+        /// `-LaneShadowUITestBypassAuth` launch flag wired through AuthScreen's
+        /// test-only bypass button.
+        func bypassAuthForTesting(convexClient: LaneShadowConvexClient) async {
+            await convexClient.setAuth(tokenProvider: { "ui-test-jwt" })
+
+            currentUser = LaneShadowCurrentUser(
+                id: "ui-test-user",
+                clerkUserId: "ui-test-clerk",
+                email: "uitest@laneshadow.local",
+                name: "UI Test"
+            )
+            isAuthenticated = true
+            hasClerkSession = true
+            isHydratingCurrentUser = false
+            authMessage = nil
+            authRoute = nil
+            if appRoute == nil {
+                appRoute = .home
+            }
+        }
+    #endif
 }

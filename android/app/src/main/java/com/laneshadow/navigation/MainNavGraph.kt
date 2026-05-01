@@ -1,6 +1,6 @@
 package com.laneshadow.navigation
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -18,19 +19,15 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.laneshadow.data.model.AuthState
+import com.laneshadow.data.model.ClerkUser
 import com.laneshadow.sandbox.mockproviders.Greeting
 import com.laneshadow.sandbox.mockproviders.IdleMockProvider
 import com.laneshadow.services.ConvexClientProvider
 import com.laneshadow.services.ConvexCurrentUser
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.AuthViewModel
-import com.laneshadow.ui.atoms.ContentColor
-import com.laneshadow.ui.atoms.LSSpinner
-import com.laneshadow.ui.atoms.LSText
-import com.laneshadow.ui.atoms.SpinnerSize
-import com.laneshadow.ui.atoms.TypographyVariant
 import com.laneshadow.ui.sandbox.host.AndroidSandboxHost
 import com.laneshadow.ui.templates.IdleScreen
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -93,93 +90,57 @@ fun MainNavGraph(
     mainNavViewModel: MainNavViewModel = hiltViewModel(),
 ) {
     val routeState by mainNavViewModel.routeState.collectAsStateWithLifecycle()
+    val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController,
         startDestination = Route.Home,
     ) {
-        navigation<Route.Home>(startDestination = Route.Home) {
-            composable<Route.Home> {
-                val currentUser = routeState.currentUser
-                when {
-                    routeState.isLoadingCurrentUser -> CurrentUserLoadingRoute()
-                    currentUser != null -> HomeRoute(
-                        displayName = currentUser.displayName,
-                        onOpenSessions = { navController.navigate(Route.Sessions) },
-                        onOpenRouteResults = { navController.navigate(Route.RouteResults) },
-                        onOpenSettings = { navController.navigate(Route.Settings) },
-                    )
-                    else -> CurrentUserErrorRoute(
-                        message = routeState.errorMessage ?: "Unable to load rider profile.",
-                        onRetry = mainNavViewModel::refreshCurrentUser,
-                    )
-                }
-            }
-            composable<Route.Sessions> {
-                HomeLeafRoute(title = "Sessions", onBack = { navController.popBackStack() })
-            }
-            composable<Route.RouteResults> {
-                HomeLeafRoute(
-                    title = "Route Results",
-                    onBack = { navController.popBackStack() },
-                    onNext = { navController.navigate(Route.RouteDetails) },
-                    nextLabel = "Open route details",
-                )
-            }
-            composable<Route.RouteDetails> {
-                HomeLeafRoute(title = "Route Details", onBack = { navController.popBackStack() })
-            }
-            composable<Route.SavedRoutes> {
-                HomeLeafRoute(
-                    title = "Saved Routes",
-                    onBack = { navController.popBackStack() },
-                    onNext = { navController.navigate(Route.SavedRouteDetail) },
-                    nextLabel = "Open saved route",
-                )
-            }
-            composable<Route.SavedRouteDetail> {
-                HomeLeafRoute(title = "Saved Route Detail", onBack = { navController.popBackStack() })
-            }
-            composable<Route.Settings> {
-                HomeLeafRoute(
-                    title = "Settings",
-                    onBack = { navController.popBackStack() },
-                    onNext = mainNavViewModel::signOut,
-                    nextLabel = "Sign out",
-                )
-            }
-            composable<Route.Sandbox> {
-                AndroidSandboxHost()
-            }
+        composable<Route.Home> {
+            HomeRoute(
+                displayName = routeState.currentUser?.displayName ?: authState.clerkFallbackDisplayName(),
+                onOpenSessions = { navController.navigate(Route.Sessions) },
+                onOpenRouteResults = { navController.navigate(Route.RouteResults) },
+                onOpenSettings = { navController.navigate(Route.Settings) },
+                onLogout = authViewModel::signOut,
+            )
         }
-    }
-}
-
-@Composable
-private fun CurrentUserLoadingRoute() {
-    val theme = LocalLaneShadowTheme.current
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(theme.space.md, Alignment.CenterVertically),
-    ) {
-        LSSpinner(size = SpinnerSize.Md)
-        LSText(
-            text = "Loading rider profile",
-            variant = TypographyVariant.Ui.Body.Md,
-            color = ContentColor.Primary,
-        )
-    }
-}
-
-@Composable
-private fun CurrentUserErrorRoute(
-    message: String,
-    onRetry: () -> Unit,
-) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(text = message, style = MaterialTheme.typography.bodyLarge)
-        Button(onClick = onRetry) { Text("Retry") }
+        composable<Route.Sessions> {
+            HomeLeafRoute(title = "Sessions", onBack = { navController.popBackStack() })
+        }
+        composable<Route.RouteResults> {
+            HomeLeafRoute(
+                title = "Route Results",
+                onBack = { navController.popBackStack() },
+                onNext = { navController.navigate(Route.RouteDetails) },
+                nextLabel = "Open route details",
+            )
+        }
+        composable<Route.RouteDetails> {
+            HomeLeafRoute(title = "Route Details", onBack = { navController.popBackStack() })
+        }
+        composable<Route.SavedRoutes> {
+            HomeLeafRoute(
+                title = "Saved Routes",
+                onBack = { navController.popBackStack() },
+                onNext = { navController.navigate(Route.SavedRouteDetail) },
+                nextLabel = "Open saved route",
+            )
+        }
+        composable<Route.SavedRouteDetail> {
+            HomeLeafRoute(title = "Saved Route Detail", onBack = { navController.popBackStack() })
+        }
+        composable<Route.Settings> {
+            HomeLeafRoute(
+                title = "Settings",
+                onBack = { navController.popBackStack() },
+                onNext = mainNavViewModel::signOut,
+                nextLabel = "Sign out",
+            )
+        }
+        composable<Route.Sandbox> {
+            AndroidSandboxHost()
+        }
     }
 }
 
@@ -189,6 +150,7 @@ private fun HomeRoute(
     onOpenSessions: () -> Unit,
     onOpenRouteResults: () -> Unit,
     onOpenSettings: () -> Unit,
+    onLogout: () -> Unit,
 ) {
     val idleState = IdleMockProvider.value("default").copy(
         greeting = Greeting(
@@ -198,15 +160,39 @@ private fun HomeRoute(
         ),
     )
 
-    IdleScreen(
-        state = idleState,
-        onMenuTap = onOpenSessions,
-        onSuggestionTap = { },
-        onSend = { onOpenRouteResults() },
-        onCollapse = { },
-        onFilter = onOpenSettings,
-        onValueChange = { },
-    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag("auth_landing_root"),
+    ) {
+        IdleScreen(
+            state = idleState,
+            onMenuTap = onOpenSessions,
+            onSuggestionTap = { },
+            onSend = { onOpenRouteResults() },
+            onCollapse = { },
+            onFilter = onOpenSettings,
+            onValueChange = { },
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(LocalLaneShadowTheme.current.space.md),
+        ) {
+            Text(
+                text = "Where are we riding today, $displayName?",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.testTag("idlescreen_current_user_greeting"),
+            )
+            Button(
+                onClick = onLogout,
+                modifier = Modifier.testTag("auth_landing_logout"),
+            ) {
+                Text("Log out")
+            }
+        }
+    }
 }
 
 @Composable
@@ -224,3 +210,14 @@ private fun HomeLeafRoute(
         }
     }
 }
+
+private fun AuthState.clerkFallbackDisplayName(): String =
+    when (this) {
+        is AuthState.SignedIn -> user.displayName()
+        else -> "Rider"
+    }
+
+private fun ClerkUser.displayName(): String =
+    name.ifBlank {
+        email.substringBefore("@").takeIf { it.isNotBlank() } ?: "Rider"
+    }

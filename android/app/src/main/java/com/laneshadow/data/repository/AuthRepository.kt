@@ -15,5 +15,13 @@ interface AuthRepository {
     suspend fun signInWithApple(): Result<ClerkUser>
     suspend fun handleOAuthCallback(uri: Uri): Result<ClerkUser>
     suspend fun getJwtForConvex(): String
+
+    /**
+     * Synthesises an authenticated session for E2E testing without contacting
+     * Clerk or Convex. Implementations must refuse to operate in release
+     * builds. Behaviour is undefined when called from production code paths.
+     */
+    suspend fun bypassForTesting(): Result<ClerkUser>
+
     fun observeAuthState(): StateFlow<AuthState>
 }
