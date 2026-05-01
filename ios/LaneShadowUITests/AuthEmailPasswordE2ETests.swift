@@ -14,8 +14,9 @@ final class AuthEmailPasswordE2ETests: XCTestCase {
         app = nil
     }
 
-    func testEmailPasswordSignInAndRestoresSession() throws {
+    func testEmailPasswordSignInAndRestoresSession() async throws {
         let credentials = try loadCredentials()
+        let receivedAfter = Date()
 
         AppLauncher.launchApp(app, resetAuth: true)
         XCTAssertTrue(
@@ -24,31 +25,46 @@ final class AuthEmailPasswordE2ETests: XCTestCase {
         )
         attachScreenshot(named: "auth-screen")
 
-        enter(credentials.email, into: app.textFields["auth.signIn.email"])
-        tapButton("Continue")
+        try tapElement("auth.signIn.continueWithEmail")
 
-        let passwordField = app.secureTextFields["auth.signIn.password"]
         XCTAssertTrue(
-            passwordField.waitForExistence(timeout: 15),
+            element("auth.signIn.email").waitForExistence(timeout: 15),
+            "Expected Continue with Email to reveal the email field."
+        )
+
+        try enter(credentials.email, into: "auth.signIn.email")
+        try tapElement("auth.signIn.submit")
+
+        XCTAssertTrue(
+            element("auth.signIn.password").waitForExistence(timeout: 15),
             "Expected email branch to reveal the password field."
         )
-        enter(credentials.password, into: passwordField)
-        tapButton("Sign in")
+        try enter(credentials.password, into: "auth.signIn.password")
+        try tapElement("auth.signIn.submit")
         attachScreenshot(named: "submitted-state")
 
-        XCTAssertTrue(
-            element("idlescreen-current-user-greeting").waitForExistence(timeout: 90),
-            "Expected email/password sign-in to reach IdleScreen with the current user greeting."
-        )
+        switch waitForSignInPostSubmitState(timeout: 45) {
+        case .verificationRequired:
+            let code = try await verificationCode(for: credentials, receivedAfter: receivedAfter)
+            try enter(code, into: "auth.signIn.verification.code")
+            try tapElement("auth.signIn.verification.submit")
+            attachScreenshot(named: "verification-submitted")
+        case .signedIn:
+            break
+        case .none:
+            XCTFail(
+                "Expected email/password sign-in to either request verification or reach the authenticated landing page."
+            )
+            return
+        }
+
+        assertAuthenticatedLanding(message: "Expected email/password sign-in to reach the authenticated landing page.")
         attachScreenshot(named: "authenticated-state")
 
         app.terminate()
         AppLauncher.launchApp(app)
 
-        XCTAssertTrue(
-            element("idlescreen-current-user-greeting").waitForExistence(timeout: 90),
-            "Expected relaunch to restore the authenticated session."
-        )
+        assertAuthenticatedLanding(message: "Expected relaunch to restore the authenticated landing page.")
         attachScreenshot(named: "restored-state")
     }
 
@@ -66,23 +82,107 @@ final class AuthEmailPasswordE2ETests: XCTestCase {
             throw CredentialError.missing
         }
 
-        return Credentials(email: email, password: password)
+        let mailosaurAPIKey = environment["MAILOSAUR_API_KEY"] ?? ""
+        let mailosaurServerID = environment["MAILOSAUR_SERVER_ID"] ?? ""
+        let mailosaurDomain = environment["MAILOSAUR_DOMAIN"] ?? ""
+        let mailosaur: MailosaurE2EClient? = if !mailosaurAPIKey.isEmpty, !mailosaurServerID.isEmpty {
+            MailosaurE2EClient(apiKey: mailosaurAPIKey, serverID: mailosaurServerID)
+        } else {
+            nil
+        }
+
+        return Credentials(
+            email: email,
+            password: password,
+            mailosaurDomain: mailosaurDomain,
+            mailosaur: mailosaur
+        )
     }
 
     private func element(_ identifier: String) -> XCUIElement {
-        app.descendants(matching: .any)[identifier]
+        app.descendants(matching: .any).matching(identifier: identifier).firstMatch
     }
 
-    private func enter(_ value: String, into field: XCUIElement) {
-        XCTAssertTrue(field.waitForExistence(timeout: 15), "Missing input field \(field)")
+    private func waitForSignInPostSubmitState(timeout: TimeInterval) -> SignInPostSubmitState? {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if element("auth.signIn.verification.root").exists {
+                return .verificationRequired
+            }
+            if element("idlescreen-current-user-greeting").exists || element("auth.landing.logout").exists {
+                return .signedIn
+            }
+
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+
+        return nil
+    }
+
+    private func verificationCode(for credentials: Credentials, receivedAfter: Date) async throws -> String {
+        if credentials.email.contains("+clerk_test") {
+            return "424242"
+        }
+
+        guard let mailosaur = credentials.mailosaur,
+              !credentials.mailosaurDomain.isEmpty,
+              credentials.email.lowercased().hasSuffix("@\(credentials.mailosaurDomain.lowercased())")
+        else {
+            XCTFail(
+                "Sign-in requested email-code verification. Use a +clerk_test address or a CLERK_TEST_EMAIL under MAILOSAUR_DOMAIN so the E2E test can retrieve the code."
+            )
+            throw CredentialError.unreachableVerificationInbox
+        }
+
+        return try await mailosaur.pollVerificationCode(
+            sentTo: credentials.email,
+            receivedAfter: receivedAfter
+        )
+    }
+
+    private func assertAuthenticatedLanding(message: String) {
+        XCTAssertTrue(
+            element("idlescreen-current-user-greeting").waitForExistence(timeout: 90),
+            message
+        )
+        XCTAssertTrue(
+            element("auth.landing.logout").waitForExistence(timeout: 15),
+            "Expected authenticated landing page to expose a logout button."
+        )
+    }
+
+    private func enter(_ value: String, into identifier: String) throws {
+        let anyMatch = element(identifier)
+        guard anyMatch.waitForExistence(timeout: 15) else {
+            XCTFail("Missing input field \(identifier)")
+            throw UIElementError.missing(identifier)
+        }
+        let field = inputElement(identifier: identifier, fallback: anyMatch)
         field.tap()
         field.typeText(value)
     }
 
-    private func tapButton(_ title: String) {
-        let button = app.buttons[title]
-        XCTAssertTrue(button.waitForExistence(timeout: 15), "Missing button \(title)")
-        button.tap()
+    private func tapElement(_ identifier: String) throws {
+        let element = element(identifier)
+        guard element.waitForExistence(timeout: 15) else {
+            XCTFail("Missing tappable element \(identifier)")
+            throw UIElementError.missing(identifier)
+        }
+        element.tap()
+    }
+
+    private func inputElement(identifier: String, fallback: XCUIElement) -> XCUIElement {
+        let textField = app.textFields[identifier]
+        if textField.exists {
+            return textField
+        }
+
+        let secureField = app.secureTextFields[identifier]
+        if secureField.exists {
+            return secureField
+        }
+
+        return fallback
     }
 
     private func attachScreenshot(named name: String) {
@@ -95,9 +195,21 @@ final class AuthEmailPasswordE2ETests: XCTestCase {
     private struct Credentials {
         let email: String
         let password: String
+        let mailosaurDomain: String
+        let mailosaur: MailosaurE2EClient?
+    }
+
+    private enum SignInPostSubmitState {
+        case verificationRequired
+        case signedIn
     }
 
     private enum CredentialError: Error {
         case missing
+        case unreachableVerificationInbox
+    }
+
+    private enum UIElementError: Error {
+        case missing(String)
     }
 }

@@ -65,25 +65,13 @@ public struct LSFormField: View {
                 placeholder: placeholder,
                 state: error != nil ? .error : state,
                 isSecureEntry: isSecureEntry,
-                leadingIcon: leadingIcon ?? (leadingSymbolName != nil ? .circle : nil),
-                trailingIcon: trailingIcon ?? (trailingSymbolName != nil ? .circle : nil),
+                leadingIcon: leadingIcon,
+                trailingIcon: trailingIcon,
+                leadingSymbolName: leadingSymbolName,
+                trailingSymbolName: trailingSymbolName,
                 helperText: error == nil ? helperText : nil,
                 inputAccessibilityIdentifier: inputAccessibilityIdentifier
             )
-            .overlay(alignment: .leading) {
-                if let leadingSymbolName {
-                    LSIconSymbolIOS(name: leadingSymbolName, size: theme.iconSize.small, color: .secondary)
-                        .padding(.leading, theme.space.md)
-                        .accessibilityIdentifier("lsformfield-leading-symbol")
-                }
-            }
-            .overlay(alignment: .trailing) {
-                if let trailingSymbolName {
-                    LSIconSymbolIOS(name: trailingSymbolName, size: theme.iconSize.small, color: .secondary)
-                        .padding(.trailing, theme.space.md)
-                        .accessibilityIdentifier("lsformfield-trailing-symbol")
-                }
-            }
 
             // Error text
             if let error {

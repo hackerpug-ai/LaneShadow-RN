@@ -17,17 +17,42 @@ fun readEnvValue(vararg keys: String): String {
         File(rootDir, ".env.local"),
     )
 
-    fun readFromFile(file: File, key: String): String? =
-        file.takeIf { it.exists() }
-            ?.readLines()
-            ?.map { it.trim() }
-            ?.firstOrNull { line ->
-                line.startsWith("$key=") && !line.startsWith("#")
+    fun stripShellQuoting(raw: String): String {
+        var value = raw.substringBefore("#").trim()
+        if (value.length >= 2) {
+            val first = value.first()
+            val last = value.last()
+            if ((first == '"' && last == '"') || (first == '\'' && last == '\'')) {
+                value = value.substring(1, value.length - 1)
             }
-            ?.substringAfter("=")
-            ?.substringBefore("#")
-            ?.trim()
-            ?.takeIf { it.isNotEmpty() }
+        }
+        return value
+    }
+
+    fun readFromFile(file: File, key: String): String? {
+        if (!file.exists()) {
+            return null
+        }
+        val line = file.readLines()
+            .map { it.trim() }
+            .firstOrNull { it.startsWith("$key=") && !it.startsWith("#") }
+            ?: return null
+        val value = stripShellQuoting(line.substringAfter("="))
+        return value.takeIf { it.isNotEmpty() }
+    }
+
+    fun resolveReference(raw: String): String? {
+        // Handles simple shell-style references like "$OTHER_KEY" so that
+        // .env.local entries like CLERK_PUBLISHABLE_KEY="$EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"
+        // resolve to the underlying value rather than passing the literal back.
+        val match = Regex("^\\$\\{?([A-Za-z_][A-Za-z0-9_]*)\\}?$").find(raw) ?: return null
+        val referenced = match.groupValues[1]
+        val systemValue = System.getenv(referenced)
+        if (!systemValue.isNullOrBlank()) {
+            return systemValue
+        }
+        return envFiles.firstNotNullOfOrNull { readFromFile(it, referenced) }
+    }
 
     for (key in keys) {
         val envValue = System.getenv(key)
@@ -37,7 +62,7 @@ fun readEnvValue(vararg keys: String): String {
 
         val fileValue = envFiles.firstNotNullOfOrNull { readFromFile(it, key) }
         if (!fileValue.isNullOrBlank()) {
-            return fileValue
+            return resolveReference(fileValue) ?: fileValue
         }
     }
 

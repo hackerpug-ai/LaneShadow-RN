@@ -6,9 +6,16 @@ import SwiftUI
 enum AuthScreenStory {
     static let all: [Story] = [
         story(
+            id: "templates.auth-screen.entry",
+            name: "S00 · Entry",
+            summary: "Initial three-button entry view: Continue with Apple, Google, or Email.",
+            mode: .entry,
+            email: ""
+        ),
+        story(
             id: "templates.auth-screen.email-entry",
             name: "S01 · Email Entry",
-            summary: "Saddle up landing state with Apple, Google, divider, email field, CTA, and footer links.",
+            summary: "Email field after the user chose Continue with Email, with CTA and footer links.",
             mode: .emailEntry,
             email: ""
         ),

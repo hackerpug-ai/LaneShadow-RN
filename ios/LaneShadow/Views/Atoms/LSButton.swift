@@ -25,6 +25,7 @@ public struct LSButton: View {
     private let leadingIcon: IconName?
     private let trailingIcon: IconName?
     private let isDisabled: Bool
+    private let isFullWidth: Bool
     private let action: () -> Void
 
     public init(
@@ -34,6 +35,7 @@ public struct LSButton: View {
         leadingIcon: IconName? = nil,
         trailingIcon: IconName? = nil,
         isDisabled: Bool = false,
+        isFullWidth: Bool = false,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -42,6 +44,7 @@ public struct LSButton: View {
         self.leadingIcon = leadingIcon
         self.trailingIcon = trailingIcon
         self.isDisabled = isDisabled
+        self.isFullWidth = isFullWidth
         self.action = action
     }
 
@@ -52,6 +55,7 @@ public struct LSButton: View {
         leadingIcon: IconName? = nil,
         trailingIcon: IconName? = nil,
         isDisabled: Bool = false,
+        isFullWidth: Bool = false,
         action: @escaping () -> Void
     ) {
         self.init(
@@ -61,6 +65,7 @@ public struct LSButton: View {
             leadingIcon: leadingIcon,
             trailingIcon: trailingIcon,
             isDisabled: isDisabled,
+            isFullWidth: isFullWidth,
             action: action
         )
     }
@@ -73,7 +78,8 @@ public struct LSButton: View {
                 title: title,
                 size: size,
                 leadingIcon: leadingIcon,
-                trailingIcon: trailingIcon
+                trailingIcon: trailingIcon,
+                isFullWidth: isFullWidth
             )
         }
         .buttonStyle(LSButtonStyle(variant: variant, size: size, isHovered: isHovered))
@@ -96,6 +102,7 @@ private struct LSButtonLabel: View {
     let size: LSButtonSize
     let leadingIcon: IconName?
     let trailingIcon: IconName?
+    var isFullWidth: Bool = false
 
     var body: some View {
         HStack(spacing: LSButtonStyle.labelSpacing(in: theme)) {
@@ -121,8 +128,11 @@ private struct LSButtonLabel: View {
         }
         .padding(.horizontal, LSButtonStyle.metrics(for: size, in: theme).horizontalPadding)
         .frame(
-            minWidth: LSButtonStyle.metrics(for: size, in: theme).minWidth,
+            maxWidth: isFullWidth ? .infinity : nil,
             minHeight: LSButtonStyle.metrics(for: size, in: theme).minHeight
+        )
+        .frame(
+            minWidth: isFullWidth ? nil : LSButtonStyle.metrics(for: size, in: theme).minWidth
         )
         .contentShape(RoundedRectangle(cornerRadius: LSButtonStyle.cornerRadius(for: size, in: theme)))
     }

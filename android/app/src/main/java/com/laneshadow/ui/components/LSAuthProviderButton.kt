@@ -11,6 +11,7 @@ import com.laneshadow.ui.atoms.LSButton
 enum class AuthProvider {
     Google,
     Apple,
+    Email,
 }
 
 @Composable
@@ -23,12 +24,13 @@ fun LSAuthProviderButton(
     val label = when (provider) {
         AuthProvider.Google -> "Continue with Google"
         AuthProvider.Apple -> "Continue with Apple"
+        AuthProvider.Email -> "Continue with Email"
     }
 
     LSButton(
         label = label,
         variant = when (provider) {
-            AuthProvider.Google -> ButtonVariant.Secondary
+            AuthProvider.Google, AuthProvider.Email -> ButtonVariant.Secondary
             AuthProvider.Apple -> ButtonVariant.Primary
         },
         state = if (enabled) ButtonState.Default else ButtonState.Disabled,

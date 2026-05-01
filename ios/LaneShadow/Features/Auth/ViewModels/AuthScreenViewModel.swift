@@ -18,7 +18,7 @@ final class AuthScreenViewModel {
 
     init(
         auth: ClerkAuth,
-        mode: AuthScreenMode = .emailEntry,
+        mode: AuthScreenMode = .entry,
         email: String = "",
         password: String = "",
         displayName: String = "",
@@ -41,11 +41,13 @@ final class AuthScreenViewModel {
         auth: ClerkAuth,
         email: String = "elena@ridelaneshadow.com"
     ) -> AuthScreenViewModel {
-        AuthScreenViewModel(
+        let isEmptyEmailMode = mode == .entry || mode == .emailEntry
+        let isEmptyPasswordMode = mode == .entry || mode == .emailEntry || mode == .invalidEmail
+        return AuthScreenViewModel(
             auth: auth,
             mode: mode,
-            email: mode == .emailEntry ? "" : email,
-            password: mode == .emailEntry || mode == .invalidEmail ? "" : "route-ready",
+            email: isEmptyEmailMode ? "" : email,
+            password: isEmptyPasswordMode ? "" : "route-ready",
             displayName: mode == .newUser ? "Rider" : "",
             errorMessage: mode == .invalidEmail ? "Enter a valid email address." : nil,
             isSubmitting: mode == .submitting,
@@ -86,6 +88,19 @@ final class AuthScreenViewModel {
         mode = .emailEntry
     }
 
+    func selectEmailEntry() {
+        errorMessage = nil
+        mode = .emailEntry
+    }
+
+    func backToEntry() {
+        errorMessage = nil
+        email = ""
+        password = ""
+        displayName = ""
+        mode = .entry
+    }
+
     func submitEmailBranch() async {
         switch mode {
         case .existingUser:
@@ -94,7 +109,7 @@ final class AuthScreenViewModel {
             await createAccount()
         case .emailEntry, .invalidEmail:
             await continueFromEmail()
-        case .submitting, .signedIn:
+        case .entry, .submitting, .signedIn, .verificationRequired:
             break
         }
     }
@@ -116,7 +131,12 @@ final class AuthScreenViewModel {
         }
 
         await submit(from: .existingUser) {
-            try await auth.signIn(email: normalizedEmail, password: password)
+            switch try await auth.signIn(email: normalizedEmail, password: password) {
+            case .signedIn:
+                .signedIn
+            case .verificationRequired:
+                .verificationRequired
+            }
         }
     }
 
@@ -131,22 +151,30 @@ final class AuthScreenViewModel {
         }
 
         await submit(from: .newUser) {
-            try await auth.signUp(
+            let result = try await auth.signUp(
                 email: normalizedEmail,
                 password: password,
                 name: displayName.trimmingCharacters(in: .whitespacesAndNewlines)
             )
+            switch result {
+            case .signedIn:
+                return .signedIn
+            case .verificationRequired:
+                return .verificationRequired
+            }
         }
     }
 
-    private func submit(from submitMode: AuthScreenMode, operation: () async throws -> Void) async {
+    private func submit(
+        from submitMode: AuthScreenMode,
+        operation: () async throws -> AuthScreenMode
+    ) async {
         errorMessage = nil
         isSubmitting = true
         mode = .submitting
 
         do {
-            try await operation()
-            mode = .signedIn
+            mode = try await operation()
         } catch {
             errorMessage = error.localizedDescription
             mode = submitMode

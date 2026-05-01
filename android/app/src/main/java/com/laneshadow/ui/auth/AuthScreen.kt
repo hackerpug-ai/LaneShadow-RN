@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,13 +59,10 @@ import com.laneshadow.ui.AuthViewModel
 import com.laneshadow.ui.atoms.ButtonState
 import com.laneshadow.ui.atoms.ButtonVariant
 import com.laneshadow.ui.atoms.ContentColor
-import com.laneshadow.ui.atoms.DividerOrientation
 import com.laneshadow.ui.atoms.IconColor
 import com.laneshadow.ui.atoms.IconSize
 import com.laneshadow.ui.atoms.InputState
 import com.laneshadow.ui.atoms.LSButton
-import com.laneshadow.ui.atoms.LSCard
-import com.laneshadow.ui.atoms.LSDivider
 import com.laneshadow.ui.atoms.LSIcon
 import com.laneshadow.ui.atoms.LSSpinner
 import com.laneshadow.ui.atoms.LSText
@@ -93,7 +89,10 @@ fun AuthScreen(
     ),
     initialState: AuthScreenUiState? = null,
     showBackButton: Boolean = true,
+    showSignUpEntry: Boolean = false,
+    testTagPrefix: String = "auth",
     onBack: () -> Unit = {},
+    onSignUpRequested: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val uiState by authScreenViewModel.uiState.collectAsStateWithLifecycle()
@@ -126,12 +125,17 @@ fun AuthScreen(
     AuthScreenContent(
         state = uiState,
         showBackButton = showBackButton,
+        showSignUpEntry = showSignUpEntry,
+        testTagPrefix = testTagPrefix,
         onBack = onBack,
+        onSignUpRequested = onSignUpRequested,
         onEmailChange = authScreenViewModel::onEmailChanged,
         onPasswordChange = authScreenViewModel::onPasswordChanged,
         onDisplayNameChange = authScreenViewModel::onDisplayNameChanged,
         onContinue = authScreenViewModel::continueFromEmail,
         onEditEmail = authScreenViewModel::backToEmail,
+        onSelectEmailEntry = authScreenViewModel::selectEmailEntry,
+        onBackToEntry = authScreenViewModel::backToEntry,
         onSignIn = {
             authScreenViewModel.setSubmitting(true)
             viewModel.signIn(uiState.email, uiState.password)
@@ -160,12 +164,17 @@ internal fun openAuthLegalLink(uriHandler: UriHandler, url: String) {
 fun AuthScreenContent(
     state: AuthScreenUiState,
     showBackButton: Boolean = true,
+    showSignUpEntry: Boolean = false,
+    testTagPrefix: String = "auth",
     onBack: () -> Unit = {},
+    onSignUpRequested: () -> Unit = {},
     onEmailChange: (String) -> Unit = {},
     onPasswordChange: (String) -> Unit = {},
     onDisplayNameChange: (String) -> Unit = {},
     onContinue: () -> Unit = {},
     onEditEmail: () -> Unit = {},
+    onSelectEmailEntry: () -> Unit = {},
+    onBackToEntry: () -> Unit = {},
     onSignIn: () -> Unit = {},
     onCreateAccount: () -> Unit = {},
     onApple: () -> Unit = {},
@@ -175,6 +184,14 @@ fun AuthScreenContent(
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
+    val showsBackToEntry = state.step == AuthScreenStep.EmailEntry ||
+        state.step == AuthScreenStep.ExistingUser ||
+        state.step == AuthScreenStep.NewUser
+    val onHeaderBack: () -> Unit = when {
+        showsBackToEntry && showBackButton -> onBack
+        showsBackToEntry -> onBackToEntry
+        else -> ({})
+    }
 
     Box(
         modifier = modifier
@@ -198,59 +215,77 @@ fun AuthScreenContent(
                 ),
         )
 
-        if (showBackButton) {
-            BackGlassChip(
-                onClick = onBack,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(top = theme.space.xxl, start = theme.space.md),
-            )
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = theme.space.lg, vertical = theme.space.xxxl),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(horizontal = theme.space.lg)
+                .padding(top = theme.space.xl, bottom = theme.space.xl),
+            verticalArrangement = Arrangement.spacedBy(theme.space.xl),
+            horizontalAlignment = Alignment.Start,
         ) {
-            LSCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .widthIn(max = AuthCardMaxWidth)
-                    .semantics { contentDescription = "Sign in or create account" },
-                backgroundColor = GeneratedTokens.color.Surface.card,
-                cornerRadius = theme.radius.xl,
-                shadowElevation = theme.elevation.light.level4,
-                contentPadding = theme.space.lg,
-                border = BorderStroke(StrokeWidth, theme.colors.border.default),
-            ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(theme.space.lg),
-                ) {
-                    BrandBlock()
-                    HeaderBlock(state.step, state.isSubmitting)
-                    AuthForm(
-                        state = state,
-                        onEmailChange = onEmailChange,
-                        onPasswordChange = onPasswordChange,
-                        onDisplayNameChange = onDisplayNameChange,
-                        onContinue = onContinue,
-                        onEditEmail = onEditEmail,
-                        onSignIn = onSignIn,
-                        onCreateAccount = onCreateAccount,
-                        onApple = onApple,
-                        onGoogle = onGoogle,
-                    )
-                    FooterBlock(
-                        step = state.step,
-                        onTerms = onTerms,
-                        onPrivacy = onPrivacy,
-                    )
-                }
-            }
+            BrandHeader(
+                showsBackButton = showsBackToEntry,
+                onBack = onHeaderBack,
+            )
+            HeaderBlock(state.step, state.isSubmitting)
+            AuthForm(
+                state = state,
+                onEmailChange = onEmailChange,
+                onPasswordChange = onPasswordChange,
+                onDisplayNameChange = onDisplayNameChange,
+                onContinue = onContinue,
+                onEditEmail = onEditEmail,
+                onSelectEmailEntry = onSelectEmailEntry,
+                onSignIn = onSignIn,
+                onCreateAccount = onCreateAccount,
+                onApple = onApple,
+                onGoogle = onGoogle,
+                showSignUpEntry = showSignUpEntry,
+                testTagPrefix = testTagPrefix,
+                onSignUpRequested = onSignUpRequested,
+            )
+            FooterBlock(
+                step = state.step,
+                onTerms = onTerms,
+                onPrivacy = onPrivacy,
+            )
         }
+    }
+}
+
+@Composable
+private fun BrandHeader(
+    showsBackButton: Boolean,
+    onBack: () -> Unit,
+) {
+    val theme = LocalLaneShadowTheme.current
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(theme.space.sm),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        if (showsBackButton) {
+            BackGlassChip(onClick = onBack)
+        }
+        Box(
+            modifier = Modifier
+                .size(theme.space.xl)
+                .background(GeneratedTokens.color.Signal.whisper, RoundedCornerShape(theme.radius.md))
+                .semantics { contentDescription = "LaneShadow compass mark" },
+            contentAlignment = Alignment.Center,
+        ) {
+            LSIcon(
+                name = GeneratedTokens.IconName.Compass,
+                size = IconSize.Sm,
+                color = IconColor.Content(ContentColor.Signal),
+            )
+        }
+        LSText(
+            text = "LaneShadow",
+            variant = TypographyVariant.Ui.Label.Md,
+            color = ContentColor.Secondary,
+        )
     }
 }
 
@@ -284,37 +319,12 @@ private fun BackGlassChip(
 }
 
 @Composable
-private fun BrandBlock() {
-    val theme = LocalLaneShadowTheme.current
-
-    Column(verticalArrangement = Arrangement.spacedBy(theme.space.sm)) {
-        Box(
-            modifier = Modifier
-                .size(theme.space.xxxl)
-                .background(GeneratedTokens.color.Signal.whisper, RoundedCornerShape(theme.radius.md))
-                .semantics { contentDescription = "LaneShadow compass mark" },
-            contentAlignment = Alignment.Center,
-        ) {
-            LSIcon(
-                name = GeneratedTokens.IconName.Compass,
-                size = IconSize.Lg,
-                color = IconColor.Content(ContentColor.Signal),
-            )
-        }
-        LSText(
-            text = "LaneShadow",
-            variant = TypographyVariant.Ui.Label.Md,
-            color = ContentColor.Tertiary,
-        )
-    }
-}
-
-@Composable
 private fun HeaderBlock(step: AuthScreenStep, submitting: Boolean) {
     val subhead = when {
         submitting -> "Hold tight - checking your account..."
         step == AuthScreenStep.ExistingUser -> "Enter your password to pick up where you left off."
         step == AuthScreenStep.NewUser -> "Let's create your account so we can save your rides."
+        step == AuthScreenStep.EmailEntry -> "Enter the email tied to your rides."
         else -> "Sign in or create an account to start planning rides."
     }
 
@@ -335,7 +345,9 @@ private fun HeaderBlock(step: AuthScreenStep, submitting: Boolean) {
 private fun headlineFor(step: AuthScreenStep): AnnotatedString =
     buildAnnotatedString {
         when (step) {
-            AuthScreenStep.EmailEntry -> {
+            AuthScreenStep.Entry,
+            AuthScreenStep.EmailEntry,
+            -> {
                 append("Saddle ")
                 withStyle(SpanStyle(color = GeneratedTokens.color.Signal.default, fontStyle = FontStyle.Italic)) {
                     append("up.")
@@ -360,11 +372,15 @@ private fun headlineFor(step: AuthScreenStep): AnnotatedString =
 @Composable
 private fun AuthForm(
     state: AuthScreenUiState,
+    showSignUpEntry: Boolean,
+    testTagPrefix: String,
+    onSignUpRequested: () -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onDisplayNameChange: (String) -> Unit,
     onContinue: () -> Unit,
     onEditEmail: () -> Unit,
+    onSelectEmailEntry: () -> Unit,
     onSignIn: () -> Unit,
     onCreateAccount: () -> Unit,
     onApple: () -> Unit,
@@ -378,12 +394,16 @@ private fun AuthForm(
         modifier = Modifier.semantics { contentDescription = formDescription(state.step) },
         verticalArrangement = Arrangement.spacedBy(theme.space.md),
     ) {
-        if (state.step == AuthScreenStep.EmailEntry) {
-            SocialStack(disabled = disabled, onApple = onApple, onGoogle = onGoogle)
-            EmailDivider()
-        }
-
         when (state.step) {
+            AuthScreenStep.Entry -> {
+                EntryStack(
+                    disabled = disabled,
+                    onApple = onApple,
+                    onGoogle = onGoogle,
+                    onContinueWithEmail = onSelectEmailEntry,
+                    testTagPrefix = testTagPrefix,
+                )
+            }
             AuthScreenStep.EmailEntry -> {
                 LSFormField(
                     label = "Email",
@@ -397,15 +417,16 @@ private fun AuthForm(
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Done,
                     ),
-                    inputModifier = Modifier.testTag("auth_email_field"),
+                    inputModifier = Modifier.testTag("${testTagPrefix}_email_field"),
                 )
                 PrimaryAuthButton(
                     label = "Continue",
                     submitting = disabled,
                     enabled = state.canContinueFromEmail,
                     onClick = onContinue,
-                    modifier = Modifier.testTag("auth_continue_button"),
+                    modifier = Modifier.testTag("${testTagPrefix}_continue_button"),
                 )
+                SignUpEntry(showSignUpEntry = showSignUpEntry, onClick = onSignUpRequested)
             }
             AuthScreenStep.ExistingUser -> {
                 ExistingEmailRow(
@@ -429,7 +450,7 @@ private fun AuthForm(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done,
                     ),
-                    inputModifier = Modifier.testTag("auth_password_field"),
+                    inputModifier = Modifier.testTag("${testTagPrefix}_password_field"),
                 )
                 SmallLink(text = if (passwordVisible) "Hide password" else "Show password") {
                     passwordVisible = !passwordVisible
@@ -440,7 +461,7 @@ private fun AuthForm(
                     submitting = disabled,
                     enabled = state.canSignIn,
                     onClick = onSignIn,
-                    modifier = Modifier.testTag("auth_sign_in_button"),
+                    modifier = Modifier.testTag("${testTagPrefix}_sign_in_button"),
                 )
             }
             AuthScreenStep.NewUser -> {
@@ -458,7 +479,7 @@ private fun AuthForm(
                     helper = "Shown on your saved rides and shared sessions.",
                     enabled = !disabled,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    inputModifier = Modifier.testTag("auth_display_name_field"),
+                    inputModifier = Modifier.testTag("${testTagPrefix}_display_name_field"),
                 )
                 LSFormField(
                     label = "Create password",
@@ -476,7 +497,7 @@ private fun AuthForm(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done,
                     ),
-                    inputModifier = Modifier.testTag("auth_create_password_field"),
+                    inputModifier = Modifier.testTag("${testTagPrefix}_password_field"),
                 )
                 SmallLink(text = if (passwordVisible) "Hide password" else "Show password") {
                     passwordVisible = !passwordVisible
@@ -486,25 +507,55 @@ private fun AuthForm(
                     submitting = disabled,
                     enabled = state.canCreateAccount,
                     onClick = onCreateAccount,
-                    modifier = Modifier.testTag("auth_create_account_button"),
+                    modifier = Modifier.testTag("${testTagPrefix}_create_account_button"),
                 )
             }
         }
     }
 }
 
+@Composable
+private fun SignUpEntry(
+    showSignUpEntry: Boolean,
+    onClick: () -> Unit,
+) {
+    if (showSignUpEntry) {
+        androidx.compose.material3.Surface(
+            color = Color.Transparent,
+            onClick = onClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("auth_signup_entry")
+                .semantics {
+                    role = Role.Button
+                    contentDescription = "Create Account"
+                },
+        ) {
+            LSText(
+                text = "Create Account",
+                variant = TypographyVariant.Ui.Label.Md,
+                color = ContentColor.Signal,
+                modifier = Modifier.padding(vertical = LocalLaneShadowTheme.current.space.sm),
+            )
+        }
+    }
+}
+
 private fun formDescription(step: AuthScreenStep): String =
     when (step) {
+        AuthScreenStep.Entry -> "Choose a sign-in option"
         AuthScreenStep.EmailEntry -> "Sign in or create account"
         AuthScreenStep.ExistingUser -> "Sign in"
         AuthScreenStep.NewUser -> "Create account"
     }
 
 @Composable
-private fun SocialStack(
+private fun EntryStack(
     disabled: Boolean,
     onApple: () -> Unit,
     onGoogle: () -> Unit,
+    onContinueWithEmail: () -> Unit,
+    testTagPrefix: String,
 ) {
     val theme = LocalLaneShadowTheme.current
 
@@ -521,29 +572,17 @@ private fun SocialStack(
             modifier = Modifier.fillMaxWidth(),
             enabled = !disabled,
         )
-    }
-}
-
-@Composable
-private fun EmailDivider() {
-    val theme = LocalLaneShadowTheme.current
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics { contentDescription = "OR CONTINUE WITH EMAIL" },
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(theme.space.sm),
-    ) {
-        LSDivider(orientation = DividerOrientation.Horizontal, modifier = Modifier.weight(1f))
-        LSText(
-            text = "OR CONTINUE WITH EMAIL",
-            variant = TypographyVariant.Ui.Label.Sm,
-            color = ContentColor.Tertiary,
+        LSAuthProviderButton(
+            provider = AuthProvider.Email,
+            onClick = onContinueWithEmail,
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("${testTagPrefix}_continue_with_email"),
+            enabled = !disabled,
         )
-        LSDivider(orientation = DividerOrientation.Horizontal, modifier = Modifier.weight(1f))
     }
 }
+
 
 @Composable
 private fun PrimaryAuthButton(
@@ -791,5 +830,4 @@ private fun AuthContourBackground(isSubmitting: Boolean) {
     }
 }
 
-private val AuthCardMaxWidth = 390.dp
 private val StrokeWidth = 1.dp

@@ -14,14 +14,27 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertTrue(source?.contains("Saddle") == true)
         XCTAssertTrue(source?.contains("LaneShadow") == true)
         XCTAssertTrue(source?.contains("Continue with Apple") == true)
-        XCTAssertTrue(source?.contains("OR CONTINUE WITH EMAIL") == true)
+        XCTAssertTrue(source?.contains("Continue with Email") == true)
         XCTAssertTrue(source?.contains("Terms") == true)
         XCTAssertTrue(source?.contains("Privacy Policy") == true)
         XCTAssertTrue(source?.contains("LSPaperMap") == true)
         XCTAssertTrue(source?.contains("LSAuthProviderButton") == true)
         XCTAssertTrue(source?.contains("LSFormField") == true)
-        XCTAssertTrue(source?.contains("LSDivider") == true)
         XCTAssertTrue(source?.contains("LSSpinner") == true)
+    }
+
+    func testAuthScreenProvidesStableE2EIdentifiers() {
+        let source = try? authSource(named: "AuthScreen.swift")
+
+        XCTAssertTrue(source?.contains("\\(authIdentifierPrefix).email") == true)
+        XCTAssertTrue(source?.contains("\\(authIdentifierPrefix).password") == true)
+        XCTAssertTrue(source?.contains("\\(authIdentifierPrefix).name") == true)
+        XCTAssertTrue(source?.contains("\\(authIdentifierPrefix).submit") == true)
+        XCTAssertTrue(source?.contains("auth.signUp.entry") == true)
+        XCTAssertTrue(source?.contains("passwordField(helperText: nil, error: viewModel.errorMessage)") == true)
+        XCTAssertTrue(source?.contains(
+            "passwordField(helperText: \"Use at least 8 characters.\", error: viewModel.errorMessage)"
+        ) == true)
     }
 
     func testAuthScreenBranchConfigurationsMatchDesignCopy() {
@@ -32,12 +45,14 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertEqual(AuthScreenConfiguration(mode: .newUser).ctaTitle, "Create account")
         XCTAssertEqual(AuthScreenConfiguration(mode: .invalidEmail).formAccessibilityLabel, "Sign in or create account")
         XCTAssertEqual(AuthScreenConfiguration(mode: .submitting).ctaTitle, "Continue")
+        XCTAssertEqual(AuthScreenConfiguration(mode: .verificationRequired).ctaTitle, "Continue")
     }
 
     func testAuthScreenTemplateStoriesCoverDesignVariants() {
         let storyIds = Set(LaneShadowStories.all.map(\.id))
 
         let expected = [
+            "templates.auth-screen.entry",
             "templates.auth-screen.email-entry",
             "templates.auth-screen.existing-user",
             "templates.auth-screen.new-user",
@@ -54,6 +69,7 @@ final class AuthScreensTests: XCTestCase {
     func testAuthScreenSnapshotEvidenceIsDesignReferenced() {
         let designReference = ".spec/design/system/views/auth-screen/auth-screen.html"
         let storyEvidence = [
+            "templates.auth-screen.entry",
             "templates.auth-screen.email-entry",
             "templates.auth-screen.existing-user",
             "templates.auth-screen.new-user",
@@ -63,7 +79,7 @@ final class AuthScreensTests: XCTestCase {
         ]
 
         XCTAssertEqual(designReference, ".spec/design/system/views/auth-screen/auth-screen.html")
-        XCTAssertEqual(storyEvidence.count, 6)
+        XCTAssertEqual(storyEvidence.count, 7)
     }
 
     func testAuthScreenViewModelRejectsInvalidEmailInline() async {
@@ -180,6 +196,27 @@ final class AuthScreensTests: XCTestCase {
         await viewModel.submitEmailBranch()
 
         XCTAssertEqual(viewModel.mode, .signedIn)
+        XCTAssertFalse(viewModel.isSubmitting)
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testAuthScreenViewModelSubmittingNewUserCanRequireVerification() async {
+        let auth = ClerkAuth(client: AuthScreensFakeClient(
+            signUpResult: .verificationRequired(email: "jamie.miller@hey.com")
+        ))
+        let viewModel = AuthScreenViewModel(
+            auth: auth,
+            mode: .newUser,
+            email: "jamie.miller@hey.com",
+            password: "secret",
+            displayName: "Jamie Miller",
+            emailResolver: AuthScreenViewModel.neutralPreviewEmailResolver
+        )
+
+        await viewModel.submitEmailBranch()
+
+        XCTAssertEqual(viewModel.mode, .verificationRequired)
+        XCTAssertEqual(auth.pendingSignUpEmail, "jamie.miller@hey.com")
         XCTAssertFalse(viewModel.isSubmitting)
         XCTAssertNil(viewModel.errorMessage)
     }
@@ -376,17 +413,30 @@ final class AuthScreensTests: XCTestCase {
 actor AuthScreensFakeClient: ClerkAuthClient {
     private(set) var receivedCallbackTokens: [String] = []
     private let callbackCompletionUser: ClerkAuthUser?
+    private let signUpResult: ClerkSignUpResult?
 
-    init(callbackCompletionUser: ClerkAuthUser? = ClerkAuthUser(id: "callback-user", email: "callback@example.com")) {
+    init(
+        callbackCompletionUser: ClerkAuthUser? = ClerkAuthUser(id: "callback-user", email: "callback@example.com"),
+        signUpResult: ClerkSignUpResult? = nil
+    ) {
         self.callbackCompletionUser = callbackCompletionUser
+        self.signUpResult = signUpResult
     }
 
-    func signIn(email: String, password: String) async throws -> ClerkAuthUser {
-        ClerkAuthUser(id: "email-user", email: email)
+    func signIn(email: String, password: String) async throws -> ClerkSignInResult {
+        .signedIn(ClerkAuthUser(id: "email-user", email: email))
     }
 
-    func signUp(email: String, password: String, name: String?) async throws -> ClerkAuthUser {
-        ClerkAuthUser(id: "signup-user", email: email)
+    func completeSignInVerification(code: String) async throws -> ClerkAuthUser {
+        ClerkAuthUser(id: "verified-signin-user", email: "signin@example.com")
+    }
+
+    func signUp(email: String, password: String, name: String?) async throws -> ClerkSignUpResult {
+        signUpResult ?? .signedIn(ClerkAuthUser(id: "signup-user", email: email))
+    }
+
+    func completeSignUpVerification(code: String) async throws -> ClerkAuthUser {
+        ClerkAuthUser(id: "verified-signup-user", email: "signup@example.com")
     }
 
     func signInWithApple() async throws -> ClerkAuthUser {

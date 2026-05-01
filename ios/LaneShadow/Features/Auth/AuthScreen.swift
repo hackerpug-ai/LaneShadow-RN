@@ -1,9 +1,11 @@
+import Foundation
 import LaneShadowTheme
 import SwiftUI
 
 enum AuthScreenDesignCopy {
     static let continueWithApple = "Continue with Apple"
     static let continueWithGoogle = "Continue with Google"
+    static let continueWithEmail = "Continue with Email"
     static let emailDivider = "OR CONTINUE WITH EMAIL"
 }
 
@@ -11,43 +13,68 @@ struct AuthScreen: View {
     @Environment(\.theme) private var theme
     @Environment(\.colorScheme) private var colorScheme
 
-    @State private var viewModel: AuthScreenViewModel
+    @Bindable private var viewModel: AuthScreenViewModel
     @State private var passwordVisibility = AuthPasswordVisibilityState()
+    @State private var didDispatchTerminalMode = false
 
     private let onBack: (() -> Void)?
+    private let onSignUpRequested: (() -> Void)?
     private let onAuthenticated: () -> Void
+    private let onVerificationRequired: (String) -> Void
+    private let authIdentifierPrefix: String
+    private let showsSignUpEntry: Bool
 
     init(
         viewModel: AuthScreenViewModel,
         onBack: (() -> Void)? = nil,
-        onAuthenticated: @escaping () -> Void = {}
+        showsSignUpEntry: Bool = false,
+        authIdentifierPrefix: String = "auth.signIn",
+        onSignUpRequested: (() -> Void)? = nil,
+        onAuthenticated: @escaping () -> Void = {},
+        onVerificationRequired: @escaping (String) -> Void = { _ in }
     ) {
-        _viewModel = State(initialValue: viewModel)
+        self.viewModel = viewModel
         self.onBack = onBack
+        self.showsSignUpEntry = showsSignUpEntry
+        self.authIdentifierPrefix = authIdentifierPrefix
+        self.onSignUpRequested = onSignUpRequested
         self.onAuthenticated = onAuthenticated
+        self.onVerificationRequired = onVerificationRequired
     }
 
     var body: some View {
-        ZStack {
-            backgroundCanvas
-            topBar
+        GeometryReader { proxy in
+            ZStack(alignment: .topLeading) {
+                backgroundCanvas
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: theme.space.lg) {
-                    brandBlock
-                    headlineBlock
-                    formStack
-                    footer
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        brandHeader
+                            .padding(.bottom, theme.space.xl)
+
+                        Spacer(minLength: theme.space.xxl)
+
+                        VStack(alignment: .leading, spacing: theme.space.xl) {
+                            headlineBlock
+                            formStack
+                        }
+                        .padding(.bottom, theme.space.xl)
+
+                        footer
+                    }
+                    .padding(.horizontal, theme.space.lg)
+                    .padding(.top, theme.space.lg)
+                    .padding(.bottom, theme.space.lg)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(minHeight: proxy.size.height, alignment: .top)
                 }
-                .padding(theme.space.lg)
-                .frame(maxWidth: 350, alignment: .leading)
-                .frame(maxWidth: .infinity, minHeight: 760, alignment: .center)
+                .scrollIndicators(.hidden)
             }
-            .scrollIndicators(.hidden)
-            .safeAreaPadding(.top, theme.space.xxl)
-            .safeAreaPadding(.bottom, theme.space.xl)
         }
         .accessibilityIdentifier("authscreen-\(viewModel.mode.accessibilityValue)")
+        .onChange(of: viewModel.mode) { _, mode in
+            dispatchTerminalModeIfNeeded(mode)
+        }
     }
 
     private var backgroundCanvas: some View {
@@ -69,11 +96,11 @@ struct AuthScreen: View {
         .accessibilityIdentifier("authscreen-paper-contour-background")
     }
 
-    private var topBar: some View {
-        VStack {
-            HStack {
+    private var brandHeader: some View {
+        HStack(spacing: theme.space.sm) {
+            if showsBackToEntry {
                 Button {
-                    onBack?()
+                    handleBackTap()
                 } label: {
                     LSIcon(name: .chevL, size: .sm, color: .primary)
                         .frame(width: theme.space.lg, height: theme.space.lg)
@@ -86,20 +113,9 @@ struct AuthScreen: View {
                         .stroke(LaneShadowTheme.color.border.glass, lineWidth: theme.borderWidth.thin)
                 )
                 .accessibilityLabel("Back")
-                .accessibilityHint("Return to the previous screen")
-                .accessibilityIdentifier("authscreen-back")
-
-                Spacer()
+                .accessibilityIdentifier("authscreen-back-to-entry")
             }
-            .padding(.horizontal, theme.space.md)
-            .padding(.top, theme.space.md)
 
-            Spacer()
-        }
-    }
-
-    private var brandBlock: some View {
-        VStack(alignment: .leading, spacing: theme.space.sm) {
             ZStack {
                 RoundedRectangle(cornerRadius: theme.radius.md, style: .continuous)
                     .fill(LaneShadowTheme.color.signal.whisper)
@@ -108,14 +124,24 @@ struct AuthScreen: View {
                             .stroke(LaneShadowTheme.color.signal.tint, lineWidth: theme.borderWidth.thin)
                     )
 
-                LSIcon(name: .compass, size: .lg, color: .signal)
+                LSIcon(name: .compass, size: .md, color: .signal)
             }
             .frame(width: theme.space.xxl, height: theme.space.xxl)
             .accessibilityHidden(true)
 
-            LSText("LaneShadow", variant: .label.md, color: .tertiary)
+            LSText("LaneShadow", variant: .opinion.sm, color: .primary)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityIdentifier("authscreen-brand")
+    }
+
+    private var showsBackToEntry: Bool {
+        switch viewModel.mode {
+        case .emailEntry, .invalidEmail, .existingUser, .newUser:
+            true
+        case .entry, .submitting, .signedIn, .verificationRequired:
+            false
+        }
     }
 
     private var headlineBlock: some View {
@@ -139,24 +165,39 @@ struct AuthScreen: View {
             Text("Welcome ") + Text("back.").italic().foregroundColor(LaneShadowTheme.color.signal.default)
         case .newUser:
             Text("Set ") + Text("up").italic().foregroundColor(LaneShadowTheme.color.signal.default) + Text(" shop.")
-        case .emailEntry, .invalidEmail, .submitting, .signedIn:
+        case .entry, .emailEntry, .invalidEmail, .submitting, .signedIn, .verificationRequired:
             Text("Saddle ") + Text("up.").italic().foregroundColor(LaneShadowTheme.color.signal.default)
         }
     }
 
     private var formStack: some View {
         VStack(alignment: .leading, spacing: theme.space.md) {
-            socialStack
-            labeledDivider
             branchContent
-            primaryCTA
+            signUpEntry
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel(configuration.formAccessibilityLabel)
         .accessibilityIdentifier("authscreen-form")
     }
 
-    private var socialStack: some View {
+    @ViewBuilder
+    private var branchContent: some View {
+        switch viewModel.mode {
+        case .entry:
+            entryBranch
+        case .existingUser:
+            existingUserBranch
+            primaryCTA
+        case .newUser:
+            newUserBranch
+            primaryCTA
+        case .emailEntry, .invalidEmail, .submitting, .signedIn, .verificationRequired:
+            emailEntryBranch
+            primaryCTA
+        }
+    }
+
+    private var entryBranch: some View {
         VStack(spacing: theme.space.sm) {
             LSAuthProviderButton(provider: .apple, isDisabled: viewModel.isSubmitting) {
                 Task { await authenticateWithProvider(.apple) }
@@ -164,33 +205,19 @@ struct AuthScreen: View {
             LSAuthProviderButton(provider: .google, isDisabled: viewModel.isSubmitting) {
                 Task { await authenticateWithProvider(.google) }
             }
-        }
-        .accessibilityIdentifier("authscreen-social-stack")
-    }
+            LSAuthProviderButton(provider: .email, isDisabled: viewModel.isSubmitting) {
+                viewModel.selectEmailEntry()
+            }
 
-    private var labeledDivider: some View {
-        HStack(spacing: theme.space.sm) {
-            LSDivider()
-            LSText(AuthScreenDesignCopy.emailDivider, variant: .label.sm, color: .tertiary)
-                .lineLimit(1)
-                .layoutPriority(1)
-            LSDivider()
+            if let errorMessage = viewModel.errorMessage, viewModel.mode == .entry {
+                LSText(errorMessage, variant: .body.sm, color: .danger)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, theme.space.xs)
+                    .accessibilityIdentifier("authscreen-entry-error")
+            }
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(AuthScreenDesignCopy.emailDivider)
-        .accessibilityIdentifier("authscreen-email-divider")
-    }
-
-    @ViewBuilder
-    private var branchContent: some View {
-        switch viewModel.mode {
-        case .existingUser:
-            existingUserBranch
-        case .newUser:
-            newUserBranch
-        case .emailEntry, .invalidEmail, .submitting, .signedIn:
-            emailEntryBranch
-        }
+        .accessibilityIdentifier("authscreen-entry-stack")
     }
 
     private var emailEntryBranch: some View {
@@ -200,8 +227,7 @@ struct AuthScreen: View {
             placeholder: "you@example.com",
             error: viewModel.mode == .invalidEmail ? (viewModel.errorMessage ?? "Enter a valid email address.") : nil,
             state: viewModel.isSubmitting ? .disabled : .default,
-            leadingSymbolName: "mail",
-            inputAccessibilityIdentifier: "auth.signIn.email"
+            inputAccessibilityIdentifier: "\(authIdentifierPrefix).email"
         )
         .accessibilityIdentifier("authscreen-email-field")
     }
@@ -240,7 +266,7 @@ struct AuthScreen: View {
             .accessibilityLabel("Email recognized \(viewModel.email)")
             .accessibilityIdentifier("authscreen-existing-user-row")
 
-            passwordField(helperText: nil)
+            passwordField(helperText: nil, error: viewModel.errorMessage)
 
             Button("Forgot password?") {}
                 .font(theme.type.label.sm.font)
@@ -279,33 +305,32 @@ struct AuthScreen: View {
             LSFormField(
                 label: "Display name",
                 value: $viewModel.displayName,
-                placeholder: "Jamie Miller"
+                placeholder: "Jamie Miller",
+                inputAccessibilityIdentifier: "\(authIdentifierPrefix).name"
             )
             .accessibilityIdentifier("authscreen-display-name-field")
 
-            passwordField(helperText: "Use at least 8 characters.")
+            passwordField(helperText: "Use at least 8 characters.", error: viewModel.errorMessage)
         }
     }
 
-    private func passwordField(helperText: String?) -> some View {
-        LSFormField(
-            label: "Password",
-            value: $viewModel.password,
-            placeholder: configuration.passwordPlaceholder,
-            helperText: helperText,
-            isSecureEntry: passwordVisibility.isSecureEntry,
-            leadingSymbolName: "lock",
-            trailingSymbolName: passwordVisibility.isSecureEntry ? "eye" : "eye.slash",
-            inputAccessibilityIdentifier: "auth.signIn.password"
-        )
-        .overlay(alignment: .trailing) {
-            Button {
+    private func passwordField(helperText: String?, error: String?) -> some View {
+        VStack(alignment: .leading, spacing: theme.space.xs) {
+            LSFormField(
+                label: "Password",
+                value: $viewModel.password,
+                placeholder: configuration.passwordPlaceholder,
+                error: error,
+                helperText: helperText,
+                isSecureEntry: passwordVisibility.isSecureEntry && !Self.isRunningUITests,
+                inputAccessibilityIdentifier: "\(authIdentifierPrefix).password"
+            )
+
+            Button(passwordVisibility.isSecureEntry ? "Show password" : "Hide password") {
                 passwordVisibility.toggle()
-            } label: {
-                Color.clear
-                    .frame(width: theme.control.minHeight, height: theme.control.minHeight)
             }
-            .accessibilityLabel(passwordVisibility.isSecureEntry ? "Show password" : "Hide password")
+            .font(theme.type.label.sm.font)
+            .foregroundStyle(LaneShadowTheme.color.signal.default)
             .accessibilityIdentifier("authscreen-password-visibility")
         }
         .accessibilityIdentifier("authscreen-password-field")
@@ -313,9 +338,14 @@ struct AuthScreen: View {
 
     private var primaryCTA: some View {
         ZStack {
-            LSButton(configuration.ctaTitle, isDisabled: viewModel.isSubmitting) {
+            LSButton(
+                configuration.ctaTitle,
+                isDisabled: viewModel.isSubmitting,
+                isFullWidth: true
+            ) {
                 Task { await submitPrimaryAction() }
             }
+            .accessibilityIdentifier("\(authIdentifierPrefix).submit")
             .opacity(viewModel.isSubmitting ? 0 : 1)
 
             if viewModel.isSubmitting {
@@ -326,8 +356,22 @@ struct AuthScreen: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .accessibilityLabel(viewModel.isSubmitting ? "Submitting" : configuration.ctaTitle)
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("authscreen-primary-cta")
+    }
+
+    @ViewBuilder
+    private var signUpEntry: some View {
+        if showsSignUpEntry, viewModel.mode != .entry {
+            Button("Create Account") {
+                onSignUpRequested?()
+            }
+            .font(theme.type.label.md.font)
+            .foregroundStyle(LaneShadowTheme.color.signal.default)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .accessibilityLabel("Create Account")
+            .accessibilityIdentifier("auth.signUp.entry")
+        }
     }
 
     private var footer: some View {
@@ -358,19 +402,48 @@ struct AuthScreen: View {
                 try await viewModel.signInWithApple()
             case .google:
                 try await viewModel.signInWithGoogle()
+            case .email:
+                viewModel.selectEmailEntry()
+                return
             }
             onAuthenticated()
+        } catch is CancellationError {
+            viewModel.errorMessage = nil
         } catch {
             viewModel.errorMessage = error.localizedDescription
-            viewModel.mode = .invalidEmail
         }
     }
 
     private func submitPrimaryAction() async {
         await viewModel.submitEmailBranch()
-        if viewModel.mode == .signedIn {
-            onAuthenticated()
+        dispatchTerminalModeIfNeeded(viewModel.mode)
+    }
+
+    private func handleBackTap() {
+        if let onBack {
+            onBack()
+        } else {
+            viewModel.backToEntry()
         }
+    }
+
+    private func dispatchTerminalModeIfNeeded(_ mode: AuthScreenMode) {
+        switch mode {
+        case .signedIn:
+            guard !didDispatchTerminalMode else { return }
+            didDispatchTerminalMode = true
+            onAuthenticated()
+        case .verificationRequired:
+            guard !didDispatchTerminalMode else { return }
+            didDispatchTerminalMode = true
+            onVerificationRequired(viewModel.email)
+        case .entry, .emailEntry, .existingUser, .newUser, .invalidEmail, .submitting:
+            didDispatchTerminalMode = false
+        }
+    }
+
+    private static var isRunningUITests: Bool {
+        ProcessInfo.processInfo.arguments.contains("-UITesting")
     }
 }
 
@@ -383,6 +456,12 @@ struct AuthScreenConfiguration: Equatable {
 
     init(mode: AuthScreenMode) {
         switch mode {
+        case .entry:
+            headline = "Saddle up."
+            subhead = "Sign in or create an account to start planning rides."
+            ctaTitle = "Continue"
+            formAccessibilityLabel = "Choose a sign-in option"
+            passwordPlaceholder = "Enter your password"
         case .existingUser:
             headline = "Welcome back."
             subhead = "Enter your password to pick up where you left off."
@@ -395,9 +474,9 @@ struct AuthScreenConfiguration: Equatable {
             ctaTitle = "Create account"
             formAccessibilityLabel = "Create account"
             passwordPlaceholder = "Create a password"
-        case .emailEntry, .invalidEmail, .submitting, .signedIn:
+        case .emailEntry, .invalidEmail, .submitting, .signedIn, .verificationRequired:
             headline = "Saddle up."
-            subhead = "Sign in or create an account to start planning rides."
+            subhead = "Enter the email tied to your rides."
             ctaTitle = "Continue"
             formAccessibilityLabel = "Sign in or create account"
             passwordPlaceholder = "Enter your password"
@@ -408,6 +487,8 @@ struct AuthScreenConfiguration: Equatable {
 private extension AuthScreenMode {
     var accessibilityValue: String {
         switch self {
+        case .entry:
+            "entry"
         case .emailEntry:
             "email-entry"
         case .existingUser:
@@ -420,6 +501,8 @@ private extension AuthScreenMode {
             "submitting"
         case .signedIn:
             "signed-in"
+        case .verificationRequired:
+            "verification-required"
         }
     }
 }

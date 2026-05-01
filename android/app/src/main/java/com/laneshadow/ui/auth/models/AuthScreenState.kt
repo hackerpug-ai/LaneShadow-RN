@@ -1,13 +1,14 @@
 package com.laneshadow.ui.auth.models
 
 enum class AuthScreenStep {
+    Entry,
     EmailEntry,
     ExistingUser,
     NewUser,
 }
 
 data class AuthScreenUiState(
-    val step: AuthScreenStep = AuthScreenStep.EmailEntry,
+    val step: AuthScreenStep = AuthScreenStep.Entry,
     val email: String = "",
     val password: String = "",
     val displayName: String = "",

@@ -14,6 +14,7 @@ public struct LSTextField: View {
         let placeholderColor: Color
         let helperColor: Color
         let iconColor: Color
+        let iconContentColor: IconContentColor
         let iconSize: CGFloat
         let iconSpacing: CGFloat
         let textStyle: TypographyStyle
@@ -30,6 +31,8 @@ public struct LSTextField: View {
     private let isSecureEntry: Bool
     private let leadingIcon: IconName?
     private let trailingIcon: IconName?
+    private let leadingSymbolName: String?
+    private let trailingSymbolName: String?
     private let helperText: String?
     private let inputAccessibilityIdentifier: String?
 
@@ -40,6 +43,8 @@ public struct LSTextField: View {
         isSecureEntry: Bool = false,
         leadingIcon: IconName? = nil,
         trailingIcon: IconName? = nil,
+        leadingSymbolName: String? = nil,
+        trailingSymbolName: String? = nil,
         helperText: String? = nil,
         inputAccessibilityIdentifier: String? = nil
     ) {
@@ -49,6 +54,8 @@ public struct LSTextField: View {
         self.isSecureEntry = isSecureEntry
         self.leadingIcon = leadingIcon
         self.trailingIcon = trailingIcon
+        self.leadingSymbolName = leadingSymbolName
+        self.trailingSymbolName = trailingSymbolName
         self.helperText = helperText
         self.inputAccessibilityIdentifier = inputAccessibilityIdentifier
     }
@@ -58,14 +65,28 @@ public struct LSTextField: View {
 
         VStack(alignment: .leading, spacing: theme.space.xs) {
             HStack(spacing: tokens.iconSpacing) {
-                if let leadingIcon {
+                if let leadingSymbolName {
+                    LSIconSymbolIOS(
+                        name: leadingSymbolName,
+                        size: tokens.iconSize,
+                        color: tokens.iconContentColor
+                    )
+                    .frame(width: tokens.iconSize, height: tokens.iconSize)
+                } else if let leadingIcon {
                     LSIcon(name: leadingIcon, size: .sm, resolvedColorOverride: tokens.iconColor)
                         .frame(width: tokens.iconSize, height: tokens.iconSize)
                 }
 
                 inputField(tokens: tokens)
 
-                if let trailingIcon {
+                if let trailingSymbolName {
+                    LSIconSymbolIOS(
+                        name: trailingSymbolName,
+                        size: tokens.iconSize,
+                        color: tokens.iconContentColor
+                    )
+                    .frame(width: tokens.iconSize, height: tokens.iconSize)
+                } else if let trailingIcon {
                     LSIcon(name: trailingIcon, size: .sm, resolvedColorOverride: tokens.iconColor)
                         .frame(width: tokens.iconSize, height: tokens.iconSize)
                 }
@@ -85,7 +106,7 @@ public struct LSTextField: View {
                     .accessibilityIdentifier("lstextfield-helper")
             }
         }
-        .accessibilityIdentifier("lstextfield")
+        .accessibilityIdentifier(inputAccessibilityIdentifier ?? "lstextfield")
     }
 
     static func resolvedTokens(
@@ -110,6 +131,12 @@ public struct LSTextField: View {
         case .default, .focused:
             ContentColor.secondary.resolved(in: theme)
         }
+        let iconContentColor: IconContentColor = switch visualState {
+        case .disabled:
+            .subtle
+        case .default, .focused, .error:
+            .secondary
+        }
 
         return ResolvedTokens(
             minHeight: theme.control.minHeight,
@@ -122,6 +149,7 @@ public struct LSTextField: View {
             placeholderColor: ContentColor.subtle.resolved(in: theme),
             helperColor: helperColor,
             iconColor: iconColor,
+            iconContentColor: iconContentColor,
             iconSize: theme.iconSize.small,
             iconSpacing: theme.space.sm,
             textStyle: theme.type.body.lg,

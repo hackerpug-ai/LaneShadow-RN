@@ -83,6 +83,25 @@ class AuthScreenViewModel(
         )
     }
 
+    fun selectEmailEntry() {
+        _uiState.value = _uiState.value.copy(
+            step = AuthScreenStep.EmailEntry,
+            emailError = null,
+            authError = null,
+        )
+    }
+
+    fun backToEntry() {
+        _uiState.value = _uiState.value.copy(
+            step = AuthScreenStep.Entry,
+            email = "",
+            password = "",
+            displayName = "",
+            emailError = null,
+            authError = null,
+        )
+    }
+
     fun setSubmitting(isSubmitting: Boolean) {
         _uiState.value = _uiState.value.copy(isSubmitting = isSubmitting)
     }
