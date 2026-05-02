@@ -84,15 +84,18 @@ public struct PolylineData: Equatable, Sendable {
     public let coordinates: [LatLng]
     public let variant: RouteVariant
     public let strokeWidth: StrokeSize?
+    public let lineDasharray: [Double]?
 
     public init(
         coordinates: [LatLng],
         variant: RouteVariant,
-        strokeWidth: StrokeSize? = .md
+        strokeWidth: StrokeSize? = .md,
+        lineDasharray: [Double]? = nil
     ) {
         self.coordinates = coordinates
         self.variant = variant
         self.strokeWidth = strokeWidth
+        self.lineDasharray = lineDasharray
     }
 }
 
@@ -119,10 +122,12 @@ let lsMapDarkStyleURI = "mapbox://styles/laneshadow/clxnight02"
 let lsMapStrokeWidthSm: CGFloat = 1
 let lsMapStrokeWidthMd: CGFloat = 2
 let lsMapStrokeWidthLg: CGFloat = 3
+let lsMapPolylineDasharray: [Double] = [2, 1]
 
 struct LSMapPolylineStyle: Equatable {
     let color: Color
     let lineWidth: CGFloat
+    let lineDasharray: [Double]?
 }
 
 struct LSMapAnnotationVisualStyle: Equatable {
@@ -368,7 +373,8 @@ func resolveLSMapInteraction(for mode: MapMode) -> LSMapInteractionModel {
 func resolveLSMapPolylineStyle(for polyline: PolylineData) -> LSMapPolylineStyle {
     LSMapPolylineStyle(
         color: resolveLSMapRouteColor(polyline.variant),
-        lineWidth: resolveLSMapStrokeWidth(polyline.strokeWidth ?? .md)
+        lineWidth: resolveLSMapStrokeWidth(polyline.strokeWidth ?? .md),
+        lineDasharray: polyline.lineDasharray
     )
 }
 

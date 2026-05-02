@@ -22,6 +22,34 @@ struct RouteResultsScreenTests {
         ])))
     }
 
+    /// AC-1: Screen consumes live route geometry instead of re-decoding raw polyline strings.
+    @Test
+    func routeResults_screen_uses_viewModelDecodedRouteGeometry() throws {
+        let sourceFile = "/Users/justinrich/Projects/LaneShadow/.claude/worktrees/CHAT-S04-T05/ios/LaneShadow/Views/Templates/RouteResultsScreen.swift"
+        let sourceCode = try String(contentsOfFile: sourceFile, encoding: .utf8)
+
+        #expect(
+            sourceCode.contains("state.routePolylines"),
+            "RouteResultsScreen.swift should render the decoded route polylines from screen state"
+        )
+        #expect(
+            !sourceCode.contains("decodeEncodedPolyline"),
+            "RouteResultsScreen.swift should not decode encoded polylines itself"
+        )
+        #expect(
+            !sourceCode.contains("precision: 5"),
+            "RouteResultsScreen.swift should not hardcode polyline precision"
+        )
+        #expect(
+            !sourceCode.contains("decodePolyline("),
+            "RouteResultsScreen.swift should not re-decode route polylines in the screen layer"
+        )
+        #expect(
+            !sourceCode.contains("route.polyline"),
+            "RouteResultsScreen.swift should not read encoded route geometry directly"
+        )
+    }
+
     /// AC-2: Source references route variant mapping and camera fit polylines
     @Test
     func route_variant_mapping_and_camera_tokens_present() throws {

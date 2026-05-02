@@ -110,6 +110,15 @@ struct RouteResultsWiringTests {
             .isSelected == true)
         #expect(context.viewModel.viewState.routePolylines.first(where: { $0.routeId == "route-002" })?
             .strokeWidth == .lg)
+        #expect(context.viewModel.viewState.routePolylines.first(where: { $0.routeId == "route-001" })?
+            .lineDasharray != nil)
+        #expect(context.viewModel.viewState.routePolylines.first(where: { $0.routeId == "route-002" })?
+            .lineDasharray == nil)
+
+        let renderedPolylines = context.viewModel.viewState.screenState.routePolylines
+        #expect(renderedPolylines.count == 3)
+        #expect(renderedPolylines.first?.lineDasharray != nil)
+        #expect(renderedPolylines.dropFirst().first?.lineDasharray == nil)
 
         context.client.finishObservationStreams()
         observationTask.cancel()

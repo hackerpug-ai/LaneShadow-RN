@@ -305,15 +305,18 @@ public struct RouteResultsScreenState: Sendable, Equatable {
     public let message: NavigatorMessage
     public let routes: [Route]
     public let selectedRouteId: String?
+    public let routePolylines: [PolylineData]
 
     public init(
         message: NavigatorMessage,
         routes: [Route],
-        selectedRouteId: String?
+        selectedRouteId: String?,
+        routePolylines: [PolylineData] = []
     ) {
         self.message = message
         self.routes = routes
         self.selectedRouteId = selectedRouteId
+        self.routePolylines = routePolylines
     }
 }
 

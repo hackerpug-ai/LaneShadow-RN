@@ -5,7 +5,15 @@ import Foundation
 /// Provides navigator message, route list, and selected route
 /// for the Route Results/route-selection screen.
 public enum RouteResultsMockProvider: MockProvider {
-    public static let variants = ["default", "empty", "overflow", "long-copy", "s02-alt-selected", "s04-refining", "v03-recall"]
+    public static let variants = [
+        "default",
+        "empty",
+        "overflow",
+        "long-copy",
+        "s02-alt-selected",
+        "s04-refining",
+        "v03-recall",
+    ]
 
     public static func value(variant: String = "default") -> RouteResultsScreenState {
         switch variant {
@@ -104,7 +112,8 @@ public enum RouteResultsMockProvider: MockProvider {
                     variant: "alt2"
                 ),
             ],
-            selectedRouteId: "route-001"
+            selectedRouteId: "route-001",
+            routePolylines: routePolylines(routeCount: 3, selectedRouteId: "route-001")
         )
     }
 
@@ -121,7 +130,8 @@ public enum RouteResultsMockProvider: MockProvider {
                 pinned: false
             ),
             routes: [],
-            selectedRouteId: nil
+            selectedRouteId: nil,
+            routePolylines: []
         )
     }
 
@@ -169,7 +179,8 @@ public enum RouteResultsMockProvider: MockProvider {
                 pinned: true
             ),
             routes: routes,
-            selectedRouteId: "route-001"
+            selectedRouteId: "route-001",
+            routePolylines: routePolylines(routeCount: 12, selectedRouteId: "route-001")
         )
     }
 
@@ -251,7 +262,8 @@ public enum RouteResultsMockProvider: MockProvider {
                     variant: "alt2"
                 ),
             ],
-            selectedRouteId: "route-001"
+            selectedRouteId: "route-001",
+            routePolylines: routePolylines(routeCount: 3, selectedRouteId: "route-001")
         )
     }
 
@@ -335,7 +347,8 @@ public enum RouteResultsMockProvider: MockProvider {
                     variant: "alt2"
                 ),
             ],
-            selectedRouteId: "route-002" // Alt route selected
+            selectedRouteId: "route-002", // Alt route selected
+            routePolylines: routePolylines(routeCount: 3, selectedRouteId: "route-002")
         )
     }
 
@@ -391,7 +404,8 @@ public enum RouteResultsMockProvider: MockProvider {
                     variant: "alt2"
                 ),
             ],
-            selectedRouteId: "route-001"
+            selectedRouteId: "route-001",
+            routePolylines: routePolylines(routeCount: 3, selectedRouteId: "route-001")
         )
     }
 
@@ -475,7 +489,47 @@ public enum RouteResultsMockProvider: MockProvider {
                     variant: "alt2"
                 ),
             ],
-            selectedRouteId: "route-001"
+            selectedRouteId: "route-001",
+            routePolylines: routePolylines(routeCount: 3, selectedRouteId: "route-001")
         )
+    }
+
+    private static func routePolylines(
+        routeCount: Int,
+        selectedRouteId: String?
+    ) -> [PolylineData] {
+        (0 ..< routeCount).map { index in
+            let routeId = routeId(for: index)
+
+            return PolylineData(
+                coordinates: sampleRouteCoordinates(),
+                variant: routeVariant(for: index),
+                strokeWidth: routeId == selectedRouteId ? .lg : .md,
+                lineDasharray: routeId == selectedRouteId ? nil : lsMapPolylineDasharray
+            )
+        }
+    }
+
+    private static func routeId(for index: Int) -> String {
+        "route-\(String(format: "%03d", index + 1))"
+    }
+
+    private static func routeVariant(for index: Int) -> RouteVariant {
+        switch index {
+        case 0:
+            .best
+        case 1:
+            .alt1
+        default:
+            .alt2
+        }
+    }
+
+    private static func sampleRouteCoordinates() -> [LatLng] {
+        [
+            LatLng(lat: 37.7749, lon: -122.4194),
+            LatLng(lat: 37.7849, lon: -122.4094),
+            LatLng(lat: 37.7949, lon: -122.3994),
+        ]
     }
 }

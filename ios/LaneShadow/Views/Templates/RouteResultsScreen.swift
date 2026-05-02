@@ -114,123 +114,52 @@ public struct RouteResultsScreen: View {
     }
 
     private var routePolylines: [PolylineData] {
-        state.routes.map { route in
-            let progress = drawProgress[route.id] ?? 0.0
-            let coordinates = decodePolyline(route.polyline)
+        state.routes.enumerated().compactMap { index, route in
+            guard state.routePolylines.indices.contains(index) else {
+                return nil
+            }
 
-            // Apply animation progress by trimming coordinates
+            let sourcePolyline = state.routePolylines[index]
+            let progress = drawProgress[route.id] ?? 0.0
+
             let animatedCoordinates: [LatLng]
             if progress < 1.0 {
-                let count = max(1, Int(Double(coordinates.count) * progress))
-                animatedCoordinates = Array(coordinates.prefix(count))
+                let count = max(1, Int(Double(sourcePolyline.coordinates.count) * progress))
+                animatedCoordinates = Array(sourcePolyline.coordinates.prefix(count))
             } else {
-                animatedCoordinates = coordinates
+                animatedCoordinates = sourcePolyline.coordinates
             }
 
             return PolylineData(
                 coordinates: animatedCoordinates,
-                variant: routeVariant(from: route.variant),
-                strokeWidth: route.id == effectiveSelectedRouteId ? .lg : .md
+                variant: sourcePolyline.variant,
+                strokeWidth: sourcePolyline.strokeWidth,
+                lineDasharray: sourcePolyline.lineDasharray
             )
         }
     }
 
     private var routeAnnotations: [Annotation] {
-        state.routes.compactMap { route in
-            // Only show start/end markers for the selected route
-            if route.id == effectiveSelectedRouteId {
-                let coords = decodePolyline(route.polyline)
-                if let first = coords.first, let last = coords.last {
-                    return [
-                        Annotation(kind: .start, coordinate: first, label: nil),
-                        Annotation(kind: .end, coordinate: last, label: nil),
-                    ]
-                }
-            }
-            return nil
-        }.flatMap { $0 }
+        guard let selectedRouteId = state.selectedRouteId ?? state.routes.first?.id,
+              let selectedIndex = state.routes.firstIndex(where: { $0.id == selectedRouteId }),
+              state.routePolylines.indices.contains(selectedIndex)
+        else {
+            return []
+        }
+
+        let coordinates = state.routePolylines[selectedIndex].coordinates
+        guard let first = coordinates.first, let last = coordinates.last else {
+            return []
+        }
+
+        return [
+            Annotation(kind: .start, coordinate: first, label: nil),
+            Annotation(kind: .end, coordinate: last, label: nil),
+        ]
     }
 
     private var effectiveSelectedRouteId: String? {
         state.selectedRouteId ?? state.routes.first?.id
-    }
-
-    private func routeVariant(from variant: String?) -> RouteVariant {
-        guard let variant else { return .alt2 }
-        switch variant {
-        case "best":
-            return .best
-        case "alt1":
-            return .alt1
-        case "alt2":
-            return .alt2
-        default:
-            return .alt2
-        }
-    }
-
-    private func decodePolyline(_ encoded: String) -> [LatLng] {
-        let decoded = decodeEncodedPolyline(encoded)
-        return decoded.isEmpty ? fallbackCoordinates() : decoded
-    }
-
-    private func decodeEncodedPolyline(_ encoded: String, precision: Double = 5) -> [LatLng] {
-        guard !encoded.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return []
-        }
-
-        let factor = pow(10.0, precision)
-        let bytes = Array(encoded.utf8)
-        var index = 0
-        var latitude = 0
-        var longitude = 0
-        var coordinates: [LatLng] = []
-
-        func decodeValue() -> Int? {
-            var result = 0
-            var shift = 0
-
-            while index < bytes.count {
-                let byte = Int(bytes[index]) - 63
-                index += 1
-                result |= (byte & 0x1F) << shift
-                shift += 5
-
-                if byte < 0x20 {
-                    return (result & 1) != 0 ? ~(result >> 1) : (result >> 1)
-                }
-            }
-
-            return nil
-        }
-
-        while index < bytes.count {
-            guard let deltaLat = decodeValue(),
-                  let deltaLon = decodeValue()
-            else {
-                return []
-            }
-
-            latitude += deltaLat
-            longitude += deltaLon
-
-            coordinates.append(
-                LatLng(
-                    lat: Double(latitude) / factor,
-                    lon: Double(longitude) / factor
-                )
-            )
-        }
-
-        return coordinates.count >= 2 ? coordinates : []
-    }
-
-    private func fallbackCoordinates() -> [LatLng] {
-        [
-            LatLng(lat: 37.7749, lon: -122.4194),
-            LatLng(lat: 37.7849, lon: -122.4094),
-            LatLng(lat: 37.7949, lon: -122.3994),
-        ]
     }
 
     private func startRouteDrawAnimation() {

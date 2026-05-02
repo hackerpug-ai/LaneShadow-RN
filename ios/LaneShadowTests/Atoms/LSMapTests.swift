@@ -33,7 +33,7 @@ final class LSMapTests: XCTestCase {
         XCTAssertNil(dark.fallback)
     }
 
-    func test_three_polylines_use_token_colors() {
+    func test_three_polylines_use_token_colors_and_dash_states() {
         let styles = [
             resolveLSMapPolylineStyle(
                 for: PolylineData(
@@ -59,6 +59,17 @@ final class LSMapTests: XCTestCase {
         XCTAssertEqual(styles[1].color, LaneShadowTheme.color.route.alt1)
         XCTAssertEqual(styles[2].color, LaneShadowTheme.color.route.alt2)
         XCTAssertEqual(styles[0].lineWidth, lsMapStrokeWidthMd)
+        XCTAssertNil(styles[0].lineDasharray)
+
+        let dashedStyle = resolveLSMapPolylineStyle(
+            for: PolylineData(
+                coordinates: [LatLng(lat: 37.7749, lon: -122.4194)],
+                variant: .alt2,
+                lineDasharray: lsMapPolylineDasharray
+            )
+        )
+
+        XCTAssertEqual(dashedStyle.lineDasharray, lsMapPolylineDasharray)
     }
 
     func test_annotations_render_with_status_colors_and_spec_sizes() {

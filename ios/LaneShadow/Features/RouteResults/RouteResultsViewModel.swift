@@ -8,6 +8,7 @@ struct RouteResultsPolylineState: Equatable {
     let mapVariant: RouteVariant
     let isSelected: Bool
     let strokeWidth: StrokeSize
+    let lineDasharray: [Double]?
 }
 
 struct RouteResultsViewState: Equatable {
@@ -202,6 +203,7 @@ final class RouteResultsViewModel {
         let routeOptions = state.routeOptions
         let selectedRouteId = state.selectedRouteId ?? routeOptions.options.first?.routeOptionId
         let routes = makeRoutes(from: routeOptions, selectedRouteId: selectedRouteId)
+        let routePolylines = makeRoutePolylines(from: flowState)
         let message = makeNavigatorMessage(
             from: routeOptions,
             routes: routes,
@@ -211,7 +213,8 @@ final class RouteResultsViewModel {
         return RouteResultsScreenState(
             message: message,
             routes: routes,
-            selectedRouteId: selectedRouteId
+            selectedRouteId: selectedRouteId,
+            routePolylines: routePolylines.map(\.screenPolyline)
         )
     }
 
@@ -235,7 +238,8 @@ final class RouteResultsViewModel {
                 colorTokenPath: routeColorTokenPath(for: index),
                 mapVariant: routeVariant(for: index),
                 isSelected: isSelected,
-                strokeWidth: isSelected ? .lg : .md
+                strokeWidth: isSelected ? .lg : .md,
+                lineDasharray: isSelected ? nil : lsMapPolylineDasharray
             )
         }
     }
@@ -458,5 +462,16 @@ final class RouteResultsViewModel {
             LatLng(lat: 37.7849, lon: -122.4094),
             LatLng(lat: 37.7949, lon: -122.3994),
         ]
+    }
+}
+
+private extension RouteResultsPolylineState {
+    var screenPolyline: PolylineData {
+        PolylineData(
+            coordinates: coordinates,
+            variant: mapVariant,
+            strokeWidth: strokeWidth,
+            lineDasharray: lineDasharray
+        )
     }
 }
