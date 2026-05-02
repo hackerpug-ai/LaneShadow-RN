@@ -88,7 +88,10 @@ RED/GREEN complete for the reviewer remediation pass.
   - Added a throwing route-plan subscription path while preserving the existing non-throwing subscription wrapper for other streams.
 
 - `ios/LaneShadow/Sandbox/MockProviders/RouteResultsMockProvider.swift`
-  - Added deterministic route polylines for screen and wiring tests.
+  - Reduced to a thin variant dispatcher after the fixture payload moved into a sibling helper file.
+
+- `ios/LaneShadow/Sandbox/MockProviders/RouteResultsMockProvider+Fixtures.swift`
+  - Holds the route-results fixture builders, shared message strings, and polyline helpers.
 
 - `ios/LaneShadowTests/Helpers/StubLaneShadowConvexClient.swift`
   - Added stream-failure support for route-plan observation tests.
@@ -104,6 +107,12 @@ RED/GREEN complete for the reviewer remediation pass.
 
 - `ios/LaneShadowTests/Features/Idle/IdleScreenWiringTests.swift`
   - Updated the local fake to match the throwing route-plan subscription protocol.
+
+## Lint Remediation Notes
+
+- The route-results fixture payload had to be split out of the provider file to clear SwiftLint `type_body_length` and `line_length` limits without changing any variant outputs.
+- The helper extension must stay module-visible instead of `private` so `RouteResultsMockProvider.swift` can call the state builders across files.
+- `ios/LaneShadow/Sandbox/MockProviders` is covered by an XcodeGen `syncedFolder`, so new helper files are picked up by the project without manual `.pbxproj` edits.
 
 ## Verification Commands
 
