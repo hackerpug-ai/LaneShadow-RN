@@ -287,6 +287,16 @@
 			path = Templates;
 			sourceTree = "<group>";
 		};
+		5EE6142BB2A44D9196BC822D /* Services */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Services;
+			path = Services;
+			sourceTree = "<group>";
+		};
 		688955BA957298D0AAE2948E /* AppFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			explicitFileTypes = {
@@ -621,6 +631,7 @@
 				244E36879200004067F64629 /* Organisms */,
 				D7065A2A2689E3B640127541 /* Sandbox */,
 				0B23304A78B886F9A286C5E4 /* Sandbox */,
+				5EE6142BB2A44D9196BC822D /* Services */,
 				5D43661EA5776DD985956D8D /* Templates */,
 				5C592B52392DEEACF2D91C3B /* LaneShadowTests.swift */,
 			);
@@ -769,6 +780,7 @@
 				755D85BE7B8692E8CCE9B7D0 /* Integration */,
 				244E36879200004067F64629 /* Organisms */,
 				0B23304A78B886F9A286C5E4 /* Sandbox */,
+				5EE6142BB2A44D9196BC822D /* Services */,
 				5D43661EA5776DD985956D8D /* Templates */,
 			);
 			name = LaneShadowTests;
