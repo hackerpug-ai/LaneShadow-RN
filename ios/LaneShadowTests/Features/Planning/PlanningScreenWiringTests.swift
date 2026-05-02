@@ -285,8 +285,8 @@ struct PlanningScreenWiringTests {
         await context.observationTask.value
     }
 
-    @Test
-    func planningScreenSendFailureMarksOptimisticMessageFailedRetryable() async throws {
+    @Test("planningScreenSendFailurePropagatesMetadata")
+    func planningScreenSendFailurePropagatesMetadata() async throws {
         let context = makePlanningContext()
         context.client.stubSendPlanningMessageError = LaneShadowError.server("Send failed")
         context.viewModel.shouldRenderMap = false
@@ -301,14 +301,18 @@ struct PlanningScreenWiringTests {
         #expect(context.chatStore.transcript.messages.count == 1)
         #expect(context.chatStore.transcript.messages.first?.state == .failed)
         #expect(context.chatStore.transcript.messages.first?.retryable == true)
+        #expect(context.chatStore.transcript.messages.first?.errorCode == "server")
+        #expect(context.viewModel.messages.first?.status == .failed)
+        #expect(context.viewModel.messages.first?.retryable == true)
+        #expect(context.viewModel.messages.first?.errorCode == "server")
 
         context.client.finishObservationStreams()
         context.observationTask.cancel()
         await context.observationTask.value
     }
 
-    @Test
-    func planningScreenCancelButtonCallsCancelPlanAndResetsFlow() async throws {
+    @Test("test_chatStore_cancelActivePlan_invokesCancelPlanMutation")
+    func chatStore_cancelActivePlan_invokesCancelPlanMutation() async throws {
         let context = makePlanningContext()
         context.viewModel.shouldRenderMap = false
         let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
@@ -335,6 +339,53 @@ struct PlanningScreenWiringTests {
 
         #expect(context.client.cancelRoutePlanCalls == ["route-plan-123"])
         #expect(context.chatStore.flowState.phase == .idle)
+
+        context.client.finishObservationStreams()
+        context.observationTask.cancel()
+        await context.observationTask.value
+    }
+
+    @Test
+    func planningScreenRetryButtonInvokesRetryPending() async throws {
+        let retryStartTimestamp = Date(timeIntervalSince1970: 1_700_000_000)
+        var retryTimestampCallCount = 0
+        let transcript = ChatTranscript(timestampProvider: {
+            retryTimestampCallCount += 1
+            if retryTimestampCallCount == 1 {
+                return retryStartTimestamp
+            }
+            return retryStartTimestamp.addingTimeInterval(8)
+        })
+        let context = makePlanningContext(transcript: transcript)
+        context.client.stubSendPlanningMessageError = LaneShadowError.server("Send failed")
+        context.viewModel.shouldRenderMap = false
+        let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
+        let harness = host(screen)
+        _ = harness.window
+
+        await context.viewModel.submitRefinement("Refine the route")
+        await pumpMainActor()
+
+        let failedMessageId = try #require(context.viewModel.messages.first?.id)
+
+        #expect(context.viewModel.messages.first?.status == .failed)
+        #expect(context.viewModel.messages.first?.retryable == true)
+        #expect(context.viewModel.messages.first?.errorCode == "server")
+
+        context.client.stubSendPlanningMessageError = nil
+
+        let inspected = try screen.inspect()
+        let retryButton = try inspected.find(
+            viewWithAccessibilityIdentifier: "chattranscript-retry-\(failedMessageId)"
+        )
+        try retryButton.button().tap()
+        await pumpMainActor()
+
+        #expect(context.client.sendPlanningMessageCalls.count == 2)
+        #expect(context.chatStore.transcript.messages.count == 1)
+        #expect(context.chatStore.transcript.messages.first?.state == .pending)
+        #expect(context.chatStore.transcript.messages.first?.id.hasPrefix("temp-") == true)
+        #expect(context.chatStore.transcript.messages.first?.id != failedMessageId)
 
         context.client.finishObservationStreams()
         context.observationTask.cancel()
@@ -376,7 +427,8 @@ struct PlanningScreenWiringTests {
     }
 
     private func makePlanningContext(
-        sessionId: String = "session-123"
+        sessionId: String = "session-123",
+        transcript: ChatTranscript? = nil
     ) -> (
         client: StubLaneShadowConvexClient,
         sessionStore: SessionStore,
@@ -387,6 +439,7 @@ struct PlanningScreenWiringTests {
         let client = StubLaneShadowConvexClient()
         let sessionStore = SessionStore()
         let fixedTimestamp = Date(timeIntervalSince1970: 1_700_000_000)
+        let transcript = transcript ?? ChatTranscript(timestampProvider: { fixedTimestamp })
         let chatStore = ChatStore(
             flowState: .planning(
                 PlanningState(sessionId: sessionId)
@@ -396,7 +449,7 @@ struct PlanningScreenWiringTests {
                 makeSessionId: { "flow-session-456" },
                 makeTimestamp: { fixedTimestamp }
             ),
-            transcript: ChatTranscript(timestampProvider: { fixedTimestamp })
+            transcript: transcript
         )
         let viewModel = PlanningViewModel(
             chatStore: chatStore,

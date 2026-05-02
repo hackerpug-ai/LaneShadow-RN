@@ -168,8 +168,14 @@ final class PlanningViewModel {
                 return
             }
 
-            chatStore.markMessageFailed(id: pendingMessage.id)
-            errorMessage = error.localizedDescription
+            let planningError = normalizedPlanningError(from: error)
+            let metadata = planningFailureMetadata(for: planningError)
+            chatStore.markMessageFailed(
+                id: pendingMessage.id,
+                errorCode: metadata.errorCode,
+                retryable: metadata.retryable
+            )
+            errorMessage = planningError.errorDescription
         }
 
         guard isCurrentSend(revision) else {
@@ -209,8 +215,14 @@ final class PlanningViewModel {
                 return
             }
 
-            chatStore.markMessageFailed(id: pendingMessage.id)
-            errorMessage = error.localizedDescription
+            let planningError = normalizedPlanningError(from: error)
+            let metadata = planningFailureMetadata(for: planningError)
+            chatStore.markMessageFailed(
+                id: pendingMessage.id,
+                errorCode: metadata.errorCode,
+                retryable: metadata.retryable
+            )
+            errorMessage = planningError.errorDescription
         }
 
         guard isCurrentSend(revision) else {
@@ -407,5 +419,24 @@ final class PlanningViewModel {
 
     private func isCurrentSend(_ revision: Int) -> Bool {
         activeSendRevision == revision
+    }
+
+    private func normalizedPlanningError(from error: Error) -> LaneShadowError {
+        (error as? LaneShadowError) ?? LaneShadowError.map(error)
+    }
+
+    private func planningFailureMetadata(for error: LaneShadowError) -> (errorCode: String, retryable: Bool) {
+        switch error {
+        case .unauthenticated:
+            (errorCode: "unauthenticated", retryable: false)
+        case .convex:
+            (errorCode: "convex", retryable: true)
+        case .server:
+            (errorCode: "server", retryable: true)
+        case .internalError:
+            (errorCode: "internal", retryable: true)
+        case .unknown:
+            (errorCode: "unknown", retryable: true)
+        }
     }
 }

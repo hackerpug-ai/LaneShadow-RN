@@ -63,15 +63,29 @@ final class ChatStore {
     }
 
     func reconcileSessionMessage(_ message: LaneShadowSessionMessage) {
-        transcript.reconcile(message)
+        guard let currentTranscriptSessionId else {
+            transcript.reconcile(message)
+            return
+        }
+
+        transcript.reconcile(message, activeSessionId: currentTranscriptSessionId)
     }
 
     func reconcileSessionMessages(_ messages: [LaneShadowSessionMessage]) {
-        transcript.reconcile(messages)
+        guard let currentTranscriptSessionId else {
+            transcript.reconcile(messages)
+            return
+        }
+
+        transcript.reconcile(messages, activeSessionId: currentTranscriptSessionId)
     }
 
-    func markMessageFailed(id: String) {
-        transcript.markFailed(id: id)
+    func markMessageFailed(
+        id: String,
+        errorCode: String? = nil,
+        retryable: Bool = true
+    ) {
+        transcript.markFailed(id: id, errorCode: errorCode, retryable: retryable)
     }
 
     @discardableResult

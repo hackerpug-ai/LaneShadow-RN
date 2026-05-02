@@ -47,6 +47,7 @@ public struct PlanningScreen: View {
     private let onMenuTap: () -> Void
     private let onCollapse: () -> Void
     private let onSend: (String) -> Void
+    private let onRetry: (String) -> Void
 
     public init(
         provider: PlanningMockProvider.Type = PlanningMockProvider.self,
@@ -61,13 +62,15 @@ public struct PlanningScreen: View {
         self.onMenuTap = onMenuTap
         onCollapse = {}
         onSend = { _ in }
+        onRetry = { _ in }
     }
 
     init(
         liveState: PlanningScreenLiveState,
         onMenuTap: @escaping () -> Void = {},
         onCollapse: @escaping () -> Void = {},
-        onSend: @escaping (String) -> Void = { _ in }
+        onSend: @escaping (String) -> Void = { _ in },
+        onRetry: @escaping (String) -> Void = { _ in }
     ) {
         provider = PlanningMockProvider.self
         activePhase = 1
@@ -76,6 +79,7 @@ public struct PlanningScreen: View {
         self.onMenuTap = onMenuTap
         self.onCollapse = onCollapse
         self.onSend = onSend
+        self.onRetry = onRetry
     }
 
     public var body: some View {
@@ -371,7 +375,8 @@ public struct PlanningScreen: View {
         VStack(alignment: .leading, spacing: theme.space.md) {
             LSChatTranscript(
                 messages: liveState.messages,
-                isTyping: liveState.isThinking || liveState.isSending
+                isTyping: liveState.isThinking || liveState.isSending,
+                onRetry: onRetry
             )
             .accessibilityIdentifier("planningscreen-transcript")
 

@@ -29,6 +29,11 @@ struct PlanningScreenContainer: View {
                 Task {
                     await viewModel.submitRefinement(message)
                 }
+            },
+            onRetry: { messageId in
+                Task {
+                    await viewModel.retryPending(id: messageId)
+                }
             }
         )
         .task {

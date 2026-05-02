@@ -21,11 +21,9 @@ final class ChatTranscript {
         let timestamp: Date
         let kind: String?
         let status: String?
+        var errorCode: String?
+        var retryable: Bool
         var state: State
-
-        var retryable: Bool {
-            state == .failed
-        }
 
         var isOptimistic: Bool {
             state == .pending || state == .failed
@@ -56,6 +54,8 @@ final class ChatTranscript {
             timestamp: timestamp,
             kind: nil,
             status: nil,
+            errorCode: nil,
+            retryable: false,
             state: .pending
         )
 
@@ -63,7 +63,14 @@ final class ChatTranscript {
         return message
     }
 
-    func reconcile(_ serverMessage: LaneShadowSessionMessage) {
+    func reconcile(
+        _ serverMessage: LaneShadowSessionMessage,
+        activeSessionId: String? = nil
+    ) {
+        guard Self.matchesActiveSession(serverMessage.sessionId, activeSessionId: activeSessionId) else {
+            return
+        }
+
         let incoming = Message(
             id: serverMessage.id,
             sessionId: serverMessage.sessionId,
@@ -72,6 +79,8 @@ final class ChatTranscript {
             timestamp: Date(timeIntervalSince1970: serverMessage.createdAt / 1000),
             kind: serverMessage.kind,
             status: serverMessage.status,
+            errorCode: nil,
+            retryable: serverMessage.status == "failed",
             state: chatTranscriptState(from: serverMessage.status)
         )
 
@@ -96,17 +105,22 @@ final class ChatTranscript {
         messages.append(incoming)
     }
 
-    func reconcile(_ serverMessages: [LaneShadowSessionMessage]) {
+    func reconcile(
+        _ serverMessages: [LaneShadowSessionMessage],
+        activeSessionId: String? = nil
+    ) {
         serverMessages
             .sorted(by: { $0.createdAt < $1.createdAt })
-            .forEach(reconcile(_:))
+            .forEach { reconcile($0, activeSessionId: activeSessionId) }
     }
 
-    func markFailed(id: String) {
+    func markFailed(id: String, errorCode: String? = nil, retryable: Bool = true) {
         guard let index = messages.firstIndex(where: { $0.id == id }) else {
             return
         }
 
+        messages[index].errorCode = errorCode
+        messages[index].retryable = retryable
         messages[index].state = .failed
     }
 
@@ -117,7 +131,7 @@ final class ChatTranscript {
         }
 
         let current = messages[index]
-        guard current.state == .failed else {
+        guard current.state == .failed, current.retryable else {
             return nil
         }
 
@@ -130,6 +144,8 @@ final class ChatTranscript {
             timestamp: timestamp,
             kind: current.kind,
             status: nil,
+            errorCode: nil,
+            retryable: false,
             state: .pending
         )
 
@@ -153,6 +169,8 @@ final class ChatTranscript {
                 content: Self.displayContent(for: message),
                 timestamp: message.timestamp,
                 status: Self.displayStatus(for: message),
+                errorCode: message.errorCode,
+                retryable: message.retryable,
                 kind: Self.displayKind(for: message),
                 routeAttachments: nil,
                 attachments: nil,
@@ -193,6 +211,17 @@ final class ChatTranscript {
         return existing.sessionId == incoming.sessionId &&
             existing.content == incoming.content &&
             abs(existing.timestamp.timeIntervalSince(incoming.timestamp)) <= chatTranscriptReconciliationTolerance
+    }
+
+    private static func matchesActiveSession(
+        _ messageSessionId: String,
+        activeSessionId: String?
+    ) -> Bool {
+        guard let activeSessionId else {
+            return true
+        }
+
+        return messageSessionId == activeSessionId
     }
 
     private static func displayContent(for message: Message) -> String {
