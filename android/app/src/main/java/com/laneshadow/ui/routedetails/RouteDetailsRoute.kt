@@ -6,28 +6,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.laneshadow.ui.atoms.CameraFit
-import com.laneshadow.ui.atoms.CameraPosition
-import com.laneshadow.ui.atoms.LatLng
-import com.laneshadow.ui.atoms.LSMap
 import com.laneshadow.ui.atoms.LSText
-import com.laneshadow.ui.atoms.MapMode
 import com.laneshadow.ui.atoms.PolylineData
 import com.laneshadow.ui.atoms.RouteVariant
-import com.laneshadow.ui.atoms.SpacingToken
 import com.laneshadow.ui.atoms.TypographyVariant
 import com.laneshadow.ui.molecules.WeatherCondition
 import com.laneshadow.ui.molecules.WeatherTimelineEntry
-import com.laneshadow.ui.organisms.BottomSheetSpec
-import com.laneshadow.ui.organisms.LSMapLayer
-import com.laneshadow.ui.organisms.LSRouteSheet
-import com.laneshadow.ui.organisms.LSTopBar
 import com.laneshadow.ui.organisms.RouteDetails
-import com.laneshadow.ui.organisms.SheetDetent
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 
@@ -103,61 +91,17 @@ internal fun RouteDetailsLoadedContent(
     onRide: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-    mapContent: @Composable () -> Unit = { RouteDetailsMap(state) },
+    mapContent: @Composable () -> Unit = { RouteDetailsMap(polylines = state.toPolylines()) },
 ) {
-    LSMapLayer(
-        map = mapContent,
-        bottomSheet = BottomSheetSpec(
-            content = {
-                LSRouteSheet(
-                    route = state.toRouteDetails(),
-                    weatherTimeline = state.weatherTimeline.map { forecast ->
-                        WeatherTimelineEntry(
-                            hour = forecast.hour,
-                            temperature = "${forecast.temperature}°",
-                            condition = forecast.condition.toWeatherCondition(),
-                        )
-                    },
-                    timeRange = Pair(
-                        state.weatherTimeline.firstOrNull()?.hour ?: "",
-                        state.weatherTimeline.lastOrNull()?.hour ?: "",
-                    ),
-                    onSave = onSave,
-                    onRide = onRide,
-                    onDismiss = onDismiss,
-                    modifier = Modifier.testTag("route-details-sheet"),
-                )
-            },
-            detent = SheetDetent.Large,
-            onDismiss = onDismiss,
-        ),
-        topBar = {
-            LSTopBar(
-                onMenuTap = {},
-                modifier = Modifier.testTag("route-details-topbar"),
-            )
-        },
-        modifier = modifier.fillMaxSize(),
-    )
-}
-
-@Composable
-private fun RouteDetailsMap(state: RouteDetailsUiState.Loaded) {
-    val polylines = listOf(
-        PolylineData(
-            coordinates = state.routePolylineCoordinates,
-            variant = state.routeVariant.toRouteVariant(),
-        ),
-    )
-
-    LSMap(
-        mode = MapMode.Preview,
-        camera = CameraPosition(
-            center = LatLng(37.8104, -122.4752),
-            zoom = 11.0,
-        ),
-        cameraFit = CameraFit.Polyline(padding = SpacingToken.Spacing4),
-        polylines = polylines,
+    RouteDetailsSurface(
+        route = state.toRouteDetails(),
+        weatherTimeline = state.toWeatherTimelineEntries(),
+        timeRange = state.timeRange(),
+        mapContent = mapContent,
+        onSave = onSave,
+        onRide = onRide,
+        onDismiss = onDismiss,
+        modifier = modifier,
     )
 }
 
@@ -172,6 +116,29 @@ private fun RouteDetailsUiState.Loaded.toRouteDetails(): RouteDetails =
         climb = instrumentReadout.elevationGainM.toString(),
         scenicScore = instrumentReadout.scenicScore.toString(),
         isSaved = saveButtonState == SaveButtonState.AlreadySaved,
+    )
+
+private fun RouteDetailsUiState.Loaded.toWeatherTimelineEntries(): List<WeatherTimelineEntry> =
+    weatherTimeline.map { forecast ->
+        WeatherTimelineEntry(
+            hour = forecast.hour,
+            temperature = "${forecast.temperature}°",
+            condition = forecast.condition.toWeatherCondition(),
+        )
+    }
+
+private fun RouteDetailsUiState.Loaded.timeRange(): Pair<String, String> =
+    Pair(
+        weatherTimeline.firstOrNull()?.hour ?: "",
+        weatherTimeline.lastOrNull()?.hour ?: "",
+    )
+
+private fun RouteDetailsUiState.Loaded.toPolylines(): List<PolylineData> =
+    listOf(
+        PolylineData(
+            coordinates = routePolylineCoordinates,
+            variant = routeVariant.toRouteVariant(),
+        ),
     )
 
 private fun Double.formatDistanceKm(): String =
