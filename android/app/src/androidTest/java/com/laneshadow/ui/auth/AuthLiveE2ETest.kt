@@ -67,6 +67,8 @@ class AuthLiveE2ETest {
 
     private fun runLoginFlow() {
         launchApp(resetAuth = true)
+        waitForTag("auth_continue_with_email")
+        clickTag("auth_continue_with_email")
         waitForTag("auth_email_field")
         captureScreenshot("android-login-start")
 
@@ -87,6 +89,8 @@ class AuthLiveE2ETest {
     private fun runRegistrationFlow() {
         val receivedAfter = DateTimeFormatter.ISO_INSTANT.format(Instant.now().minusSeconds(5))
         launchApp(resetAuth = true)
+        waitForTag("auth_continue_with_email")
+        clickTag("auth_continue_with_email")
         waitForTag("auth_email_field")
 
         clickTag("auth_signup_entry")
