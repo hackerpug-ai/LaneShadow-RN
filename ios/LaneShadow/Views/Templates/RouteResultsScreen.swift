@@ -1,21 +1,28 @@
+import Combine
+import Foundation
 import LaneShadowTheme
 import SwiftUI
+
+@MainActor
+public protocol RouteResultsScreenInspectionSeam: AnyObject {
+    var notice: PassthroughSubject<UInt, Never> { get }
+    func visit(_ view: RouteResultsScreen, _ line: UInt)
+}
 
 /// RouteResultsScreen — displays three alternative route polylines with Navigator message and refine chat.
 ///
 /// Composes `LSMapLayer` with three polylines, `LSNavigatorMessage` with three route attachment cards,
-/// and `LSChatInput` for refinement. Data sourced entirely from `RouteResultsMockProvider`.
+/// and `LSChatInput` for refinement. Data can come from `RouteResultsMockProvider` or a live state.
 public struct RouteResultsScreen: View {
     @Environment(\.theme) private var theme
 
-    private let provider: RouteResultsMockProvider.Type
-    private let variant: String
+    private let state: RouteResultsScreenState
     private let onPin: @Sendable () -> Void
     private let onDismiss: @Sendable () -> Void
-    private let state: RouteResultsScreenState
+    private let onRouteCardTap: @Sendable (String) -> Void
+    private let inspection: (any RouteResultsScreenInspectionSeam)?
 
     @State private var chatInputValue: String = ""
-    @State private var selectedRouteId: String
     @State private var drawProgress: [String: Double] = [:]
     @State private var isCalloutVisible: Bool = true
 
@@ -23,42 +30,68 @@ public struct RouteResultsScreen: View {
         provider: RouteResultsMockProvider.Type = RouteResultsMockProvider.self,
         variant: String = "default",
         onPin: @escaping @Sendable () -> Void = {},
-        onDismiss: @escaping @Sendable () -> Void = {}
+        onDismiss: @escaping @Sendable () -> Void = {},
+        onRouteCardTap: @escaping @Sendable (String) -> Void = { _ in },
+        inspection: (any RouteResultsScreenInspectionSeam)? = nil
     ) {
-        self.provider = provider
-        self.variant = variant
-        state = provider.value(variant: variant)
+        self.init(
+            state: provider.value(variant: variant),
+            onPin: onPin,
+            onDismiss: onDismiss,
+            onRouteCardTap: onRouteCardTap,
+            inspection: inspection
+        )
+    }
+
+    init(
+        state: RouteResultsScreenState,
+        onPin: @escaping @Sendable () -> Void = {},
+        onDismiss: @escaping @Sendable () -> Void = {},
+        onRouteCardTap: @escaping @Sendable (String) -> Void = { _ in },
+        inspection: (any RouteResultsScreenInspectionSeam)? = nil
+    ) {
+        self.state = state
         self.onPin = onPin
         self.onDismiss = onDismiss
-        _selectedRouteId = State(initialValue: state.selectedRouteId ?? "")
+        self.onRouteCardTap = onRouteCardTap
+        self.inspection = inspection
     }
 
     public var body: some View {
-        LSMapLayer(
-            map: {
-                mapView
-            },
-            topOverlays: [
-                GlassOverlaySlot(
-                    id: "navigator-message",
-                    content: { navigatorMessageOverlay }
-                ),
-            ],
-            bottomOverlays: [
-                GlassOverlaySlot(
-                    id: "chatinput",
-                    content: { chatInputView }
-                ),
-            ],
-            topBar: {
-                LSTopBar(
-                    trailing: .none,
-                    onMenuTap: {},
-                    onNewTap: {}
-                )
-            }
-        )
-        .accessibilityIdentifier("route-resultsscreen")
+        let content = baseBody
+
+        if let inspection {
+            content.onReceive(inspection.notice) { inspection.visit(self, $0) }
+        } else {
+            content
+        }
+    }
+
+    private var baseBody: some View {
+        ZStack(alignment: .topLeading) {
+            navigatorMessageContainer
+                .zIndex(2)
+
+            LSMapLayer(
+                map: {
+                    mapView
+                },
+                bottomOverlays: [
+                    GlassOverlaySlot(
+                        id: "chatinput",
+                        content: { chatInputView }
+                    ),
+                ],
+                topBar: {
+                    LSTopBar(
+                        trailing: .none,
+                        onMenuTap: {},
+                        onNewTap: {}
+                    )
+                }
+            )
+            .accessibilityIdentifier("route-resultsscreen")
+        }
         .onAppear {
             startRouteDrawAnimation()
         }
@@ -97,7 +130,7 @@ public struct RouteResultsScreen: View {
             return PolylineData(
                 coordinates: animatedCoordinates,
                 variant: routeVariant(from: route.variant),
-                strokeWidth: .lg
+                strokeWidth: route.id == effectiveSelectedRouteId ? .lg : .md
             )
         }
     }
@@ -105,7 +138,7 @@ public struct RouteResultsScreen: View {
     private var routeAnnotations: [Annotation] {
         state.routes.compactMap { route in
             // Only show start/end markers for the selected route
-            if route.id == selectedRouteId {
+            if route.id == effectiveSelectedRouteId {
                 let coords = decodePolyline(route.polyline)
                 if let first = coords.first, let last = coords.last {
                     return [
@@ -116,6 +149,10 @@ public struct RouteResultsScreen: View {
             }
             return nil
         }.flatMap { $0 }
+    }
+
+    private var effectiveSelectedRouteId: String? {
+        state.selectedRouteId ?? state.routes.first?.id
     }
 
     private func routeVariant(from variant: String?) -> RouteVariant {
@@ -133,8 +170,62 @@ public struct RouteResultsScreen: View {
     }
 
     private func decodePolyline(_ encoded: String) -> [LatLng] {
-        // Placeholder polyline decoding
-        // In production, this would decode the encoded polyline string
+        let decoded = decodeEncodedPolyline(encoded)
+        return decoded.isEmpty ? fallbackCoordinates() : decoded
+    }
+
+    private func decodeEncodedPolyline(_ encoded: String, precision: Double = 5) -> [LatLng] {
+        guard !encoded.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return []
+        }
+
+        let factor = pow(10.0, precision)
+        let bytes = Array(encoded.utf8)
+        var index = 0
+        var latitude = 0
+        var longitude = 0
+        var coordinates: [LatLng] = []
+
+        func decodeValue() -> Int? {
+            var result = 0
+            var shift = 0
+
+            while index < bytes.count {
+                let byte = Int(bytes[index]) - 63
+                index += 1
+                result |= (byte & 0x1F) << shift
+                shift += 5
+
+                if byte < 0x20 {
+                    return (result & 1) != 0 ? ~(result >> 1) : (result >> 1)
+                }
+            }
+
+            return nil
+        }
+
+        while index < bytes.count {
+            guard let deltaLat = decodeValue(),
+                  let deltaLon = decodeValue()
+            else {
+                return []
+            }
+
+            latitude += deltaLat
+            longitude += deltaLon
+
+            coordinates.append(
+                LatLng(
+                    lat: Double(latitude) / factor,
+                    lon: Double(longitude) / factor
+                )
+            )
+        }
+
+        return coordinates.count >= 2 ? coordinates : []
+    }
+
+    private func fallbackCoordinates() -> [LatLng] {
         [
             LatLng(lat: 37.7749, lon: -122.4194),
             LatLng(lat: 37.7849, lon: -122.4094),
@@ -172,18 +263,38 @@ public struct RouteResultsScreen: View {
 
     // MARK: - Navigator Message Overlay
 
-    private var navigatorMessageOverlay: some View {
-        LSNavigatorMessage(
-            body: state.message.body,
-            attachments: routeAttachments,
-            pinned: state.message.pinned,
-            onPin: onPin,
-            onDismiss: onDismiss,
-            onRouteCardTap: { routeId in
-                selectedRouteId = routeId
-            }
-        )
+    private var navigatorMessageContainer: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            navigatorMessageContent
+        }
+        .padding(.horizontal, theme.space.md)
+        .padding(.top)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
         .accessibilityIdentifier("maplayer.topOverlay.navigator-message")
+    }
+
+    @ViewBuilder
+    private var navigatorMessageContent: some View {
+        if state.routes.isEmpty {
+            emptyStateOverlay
+        } else if isCalloutVisible {
+            LSNavigatorMessage(
+                body: state.message.body,
+                attachments: routeAttachments,
+                pinned: state.message.pinned,
+                onPin: onPin,
+                onDismiss: {
+                    isCalloutVisible = false
+                    onDismiss()
+                },
+                onRouteCardTap: { routeId in
+                    onRouteCardTap(routeId)
+                },
+                selectedRouteId: effectiveSelectedRouteId
+            )
+        } else {
+            recallChip
+        }
     }
 
     private var routeAttachments: [LSRouteAttachment] {
@@ -209,6 +320,35 @@ public struct RouteResultsScreen: View {
                 isBest: attachment.isBest
             )
         }
+    }
+
+    private var emptyStateOverlay: some View {
+        LSEmptyState(
+            title: "No routes available",
+            body: "Try adjusting your start or end points."
+        )
+        .frame(maxWidth: .infinity)
+    }
+
+    private var recallChip: some View {
+        Button(action: {
+            isCalloutVisible = true
+        }) {
+            LSPill(size: .md) {
+                LSText("Recall", variant: .label.md, color: .secondary)
+            }
+            .background(
+                RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                    .fill(LaneShadowTheme.color.surface.card)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: theme.radius.full, style: .continuous)
+                    .stroke(LaneShadowTheme.color.signal.default, lineWidth: theme.borderWidth.hairline)
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Recall route callout")
+        .accessibilityIdentifier("routeresultsscreen-recall")
     }
 
     private func formatDistance(_ meters: Int) -> String {
@@ -251,8 +391,6 @@ public struct RouteResultsScreen: View {
             onCollapse: {},
             onFilter: {}
         )
-        .padding(.horizontal, theme.space.md)
-        .accessibilityIdentifier("route-resultsscreen-chatinput")
         .padding(.horizontal, theme.space.md)
         .accessibilityIdentifier("route-resultsscreen-chatinput")
     }
