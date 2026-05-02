@@ -27,6 +27,7 @@ import com.laneshadow.services.SignOutFlow
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.AuthViewModel
 import com.laneshadow.ui.error.ErrorRouteCodeArg
+import com.laneshadow.ui.error.ErrorRouteMessageArg
 import com.laneshadow.ui.error.ErrorRoutePath
 import com.laneshadow.ui.error.ErrorRoute
 import com.laneshadow.ui.idle.IdleRoute
@@ -146,12 +147,38 @@ fun MainNavGraph(
             arguments = listOf(navArgument(ErrorRouteCodeArg) {
                 type = NavType.StringType
                 defaultValue = ""
+            }, navArgument(ErrorRouteMessageArg) {
+                type = NavType.StringType
+                defaultValue = ""
             }),
         ) { backStackEntry: NavBackStackEntry ->
+            val retrySessionId = navController.previousBackStackEntry
+                ?.arguments
+                ?.getString(PlanningSessionIdArg)
+                ?.takeIf { it.isNotBlank() }
+
             ErrorRoute(
                 navController = navController,
                 errorCode = backStackEntry.arguments?.getString(ErrorRouteCodeArg)
                     ?.takeIf { it.isNotBlank() },
+                errorMessage = backStackEntry.arguments?.getString(ErrorRouteMessageArg)
+                    ?.takeIf { it.isNotBlank() },
+                onRetry = {
+                    if (retrySessionId != null) {
+                        navController.navigate(planningRoute(retrySessionId)) {
+                            popUpTo(PlanningRoutePath) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    } else {
+                        navController.popBackStack()
+                    }
+                },
+                onStartOver = {
+                    navController.navigate(Route.Home) {
+                        popUpTo(Route.Home) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
             )
         }
         composable<Route.Sandbox> {

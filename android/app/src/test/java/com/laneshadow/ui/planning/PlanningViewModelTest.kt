@@ -8,6 +8,7 @@ import com.laneshadow.data.route.RouteRepository
 import com.laneshadow.data.session.PlanningSession
 import com.laneshadow.data.session.SessionRepository
 import com.laneshadow.services.MainDispatcherRule
+import com.laneshadow.services.LaneShadowError
 import com.laneshadow.services.PlannedRouteOptions
 import com.laneshadow.services.RouteOption
 import java.io.IOException
@@ -96,16 +97,22 @@ class PlanningViewModelTest {
     }
 
     @Test
-    fun state_surfacesMessageSubscriptionFailures() = runTest {
+    fun state_emitsFailureTransitionWhenSubscriptionsFail() = runTest {
+        val ioException = IOException("offline")
         val viewModel = PlanningViewModel(
             sessionId = "sess-1",
-            chatRepository = FailingChatRepository(IOException("offline")),
+            chatRepository = FailingChatRepository(ioException),
             routeRepository = FakeRouteRepository(),
             sessionRepository = FakeSessionRepository(),
         )
 
         advanceUntilIdle()
 
+        assertThat(viewModel.state.value.transition).isEqualTo(
+            PlanningTransition.Failure(
+                LaneShadowError.NetworkTimeout(ioException),
+            ),
+        )
         assertThat(viewModel.state.value.subscriptionError).contains("offline")
         assertThat(viewModel.state.value.isThinking).isFalse()
     }

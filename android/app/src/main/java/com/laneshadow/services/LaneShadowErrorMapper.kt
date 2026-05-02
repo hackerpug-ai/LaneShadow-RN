@@ -4,12 +4,12 @@ import dev.convex.android.ClientException
 import java.io.IOException
 
 fun toLaneShadowError(throwable: Throwable): LaneShadowError {
-    throwable.message?.toKnownErrorCode()?.let(::errorForCode)?.let { return it }
+    throwable.message?.toKnownErrorCode()?.let(::laneShadowErrorForCode)?.let { return it }
 
     throwable.convexExceptionMessages()
         .firstOrNull { it.toKnownErrorCode() != null }
         ?.toKnownErrorCode()
-        ?.let(::errorForCode)
+        ?.let(::laneShadowErrorForCode)
         ?.let { return it }
 
     if (throwable is IOException) {
@@ -21,7 +21,7 @@ fun toLaneShadowError(throwable: Throwable): LaneShadowError {
     )
 }
 
-private fun errorForCode(code: String): LaneShadowError? =
+internal fun laneShadowErrorForCode(code: String): LaneShadowError? =
     when (code) {
         "UNAUTHENTICATED" -> LaneShadowError.Unauthenticated
         "AUTH_REQUIRED" -> LaneShadowError.AuthRequired

@@ -7,6 +7,7 @@ import com.laneshadow.data.chat.SessionMessage
 import com.laneshadow.data.route.RouteRepository
 import com.laneshadow.data.session.PlanningSession
 import com.laneshadow.data.session.SessionRepository
+import com.laneshadow.services.toLaneShadowError
 import com.laneshadow.services.PlannedRouteOptions
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -54,12 +55,10 @@ class PlanningViewModel @AssistedInject constructor(
         viewModelScope.launch {
             sessionRepository.subscribeToSessions()
                 .catch { error ->
-                    _state.update { current ->
-                        current.copy(
-                            isThinking = false,
-                            subscriptionError = error.message ?: "Unable to load planning sessions.",
-                        )
-                    }
+                    reportSubscriptionFailure(
+                        error = error,
+                        fallbackMessage = "Unable to load planning sessions.",
+                    )
                 }
                 .collect { sessions ->
                     _state.update { current ->
@@ -75,12 +74,10 @@ class PlanningViewModel @AssistedInject constructor(
         viewModelScope.launch {
             chatRepository.subscribeToMessages(sessionId)
                 .catch { error ->
-                    _state.update { current ->
-                        current.copy(
-                            isThinking = false,
-                            subscriptionError = error.message ?: "Unable to load planning messages.",
-                        )
-                    }
+                    reportSubscriptionFailure(
+                        error = error,
+                        fallbackMessage = "Unable to load planning messages.",
+                    )
                 }
                 .collect { messages ->
                     val latestAgentMessage = messages.latestAgentMessage()
@@ -102,12 +99,10 @@ class PlanningViewModel @AssistedInject constructor(
         viewModelScope.launch {
             routeRepository.subscribeToActiveRoutePlans(sessionId)
                 .catch { error ->
-                    _state.update { current ->
-                        current.copy(
-                            isThinking = false,
-                            subscriptionError = error.message ?: "Unable to load active plans.",
-                        )
-                    }
+                    reportSubscriptionFailure(
+                        error = error,
+                        fallbackMessage = "Unable to load active plans.",
+                    )
                 }
                 .collect { plans ->
                     val activePlan = plans.firstOrNull()
@@ -134,6 +129,27 @@ class PlanningViewModel @AssistedInject constructor(
                         }
                     }
                 }
+        }
+    }
+
+    private fun reportSubscriptionFailure(
+        error: Throwable,
+        fallbackMessage: String,
+    ) {
+        val laneShadowError = toLaneShadowError(error)
+        _state.update { current ->
+            if (current.transition is PlanningTransition.Failure) {
+                current.copy(
+                    isThinking = false,
+                    subscriptionError = error.message ?: fallbackMessage,
+                )
+            } else {
+                current.copy(
+                    isThinking = false,
+                    subscriptionError = error.message ?: fallbackMessage,
+                    transition = PlanningTransition.Failure(laneShadowError),
+                )
+            }
         }
     }
 

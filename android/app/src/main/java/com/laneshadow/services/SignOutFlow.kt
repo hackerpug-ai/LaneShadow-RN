@@ -1,6 +1,5 @@
 package com.laneshadow.services
 
-import com.laneshadow.data.repository.AuthRepository
 import com.laneshadow.navigation.Route
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -17,7 +16,7 @@ sealed interface NavEvent {
 
 @Singleton
 class SignOutFlow @Inject constructor(
-    private val authRepository: AuthRepository,
+    private val convexClientProvider: ConvexClientProvider,
     private val ioDispatcher: CoroutineDispatcher,
 ) {
     private val _events = MutableSharedFlow<NavEvent>(
@@ -30,7 +29,7 @@ class SignOutFlow @Inject constructor(
 
     suspend fun signOut() {
         withContext(ioDispatcher) {
-            authRepository.signOut()
+            convexClientProvider.signOut()
         }
 
         _events.emit(NavEvent.Navigate(Route.SignIn))

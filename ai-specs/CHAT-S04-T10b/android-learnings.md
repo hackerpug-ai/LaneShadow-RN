@@ -4,34 +4,52 @@
 2026-05-02
 
 ## Edge Cases Discovered
-1. Android string resources must escape apostrophes in values like `You've` and `We'll`; otherwise resource merging fails with invalid unicode escape errors.
-2. A `SharedFlow` sign-out event can be lost in tests if the collector has not started before the emit happens. Starting the collector with `CoroutineStart.UNDISPATCHED` made the AC-4 test deterministic.
-3. The sandbox launcher in this repo opens the catalog shell even when a story id is supplied unless the registry is wired to expose that story directly. For visual verification, the error screen preview in the sandbox story detail was the most reliable emulator target.
+1. `android.net.Uri.encode()` is not mocked in local JVM unit tests, so route-construction helpers need a pure Kotlin/Java encoding path if they are covered by `testDebugUnitTest`.
+2. A `MutableSharedFlow` with `DROP_OLDEST` can silently lose the first recovery event when `Retry` and `StartOver` are emitted back-to-back. Using suspending `emit(...)` preserved both events in order.
+3. Planning failures can arrive through multiple collectors. The ViewModel needs to dedupe the failure transition so the route only navigates once.
+4. The emulator launch path on this branch starts at auth by default. The debug bypass flag exposes the bypass button, and tapping it transitions to the signed-in home screen for visual verification.
+
+## RED / GREEN Evidence
+- Initial focused run of `:app:testDebugUnitTest` failed at compile time with unresolved references around the new error routing and recovery API surface:
+  - `errorRoute`
+  - `ErrorRecoveryEvent`
+  - `recoveryEvents`
+  - `PlanningTransition.Failure` type mismatch
+- After implementation, the next focused run failed for two behavior reasons:
+  - `ErrorRouteTest` hit `android.net.Uri.encode(...)` not mocked on the JVM.
+  - `ErrorViewModelTest` initially observed only `StartOver`, which showed the recovery flow was dropping `Retry`.
+- GREEN evidence:
+  - `./gradlew :app:testDebugUnitTest --tests com.laneshadow.services.LaneShadowErrorTest --tests com.laneshadow.ui.error.ErrorViewModelTest --tests com.laneshadow.ui.error.ErrorRouteTest --tests com.laneshadow.ui.planning.PlanningViewModelTest`
+  - `./gradlew :app:compileDebugKotlin`
+  - `./gradlew :app:assembleDebug`
 
 ## API Contract Notes
-- `LaneShadowError` carries `messageResId` as the source of user-facing copy; the UI must resolve it with `stringResource(...)` rather than formatting raw server codes.
-- `toLaneShadowError(Throwable)` checks direct throwable messages first, then Convex exception payloads, then `IOException` for `NetworkTimeout`, and only then falls back to `Unknown`.
-- `SignOutFlow.signOut()` runs `AuthRepository.signOut()` on the injected IO dispatcher and emits `NavEvent.Navigate(Route.SignIn)` on a `SharedFlow`.
-- `AuthRepository.signOut()` already clears encrypted token storage, so the sign-out flow only needs to call the repository once.
+- `SignOutFlow.signOut()` now goes through `ConvexClientProvider.signOut()`, which preserves Convex cleanup and emits `NavEvent.Navigate(Route.SignIn)` afterward.
+- `PlanningTransition.Failure` now carries a typed `LaneShadowError` instead of a raw string so the error route can reconstruct the production error screen state.
+- `errorRoute(...)` uses encoded `code` and `message` query parameters, and `ErrorRoute` reconstructs the typed error before handing it to the `ErrorViewModel`.
+- Recovery is callback-driven: `ErrorViewModel` emits `Retry` and `StartOver` events, and `ErrorRoute` forwards them to `onRetry` / `onStartOver`.
+- `PlanLimitExceeded` still intentionally omits `Try again`.
 
 ## UI Decisions
-- `PlanLimitExceeded` intentionally exposes only `Start over`; it does not surface `Try again`.
-- `ErrorRoute` stays thin: it maps the typed error to the existing template and delegates recovery chip behavior back into the view model.
-- `Route.SignIn` is handled as a navigation target from `MainNavGraph` so the sign-out flow can redirect without holding a `NavController`.
+- Error navigation stays in `MainNavGraph`; `PlanningRoute` only consumes the failure transition and delegates navigation to the graph.
+- Retry should return to the planning flow if the session id is available; otherwise the error route falls back to a safe back navigation.
+- Start over navigates to `Route.Home` rather than dismissing the sheet or silently clearing state.
 
 ## Gotchas for iOS Implementer
-- Do not mirror raw error codes into UI text. Keep the typed error boundary and localize via resource or string catalog equivalents.
-- If you mirror the event-driven sign-out path, make sure the navigation event cannot be dropped before a subscriber is attached.
-- The sandbox preview and the production error route are separate concerns on Android; a visual preview can validate the template even when the app route is harder to reach directly.
+- Do not mirror raw error codes directly into UI copy. Keep the typed error boundary and map the route parameters back into the local error model.
+- If you keep a recovery-event stream, make it lossless. Dropped retry events are easy to miss in manual testing but obvious in flaky UI automation.
+- The debug bypass path is useful for visual checks on Android, but it is not part of the production error/recovery flow.
 
 ## Files Created/Modified
-- `android/app/src/main/java/com/laneshadow/services/LaneShadowError.kt` - typed sealed error taxonomy.
-- `android/app/src/main/java/com/laneshadow/services/LaneShadowErrorMapper.kt` - pure throwable-to-error mapper.
-- `android/app/src/main/java/com/laneshadow/services/SignOutFlow.kt` - IO sign-out flow plus navigation event stream.
-- `android/app/src/main/java/com/laneshadow/ui/error/ErrorUiState.kt` - error screen state and suggestion models.
-- `android/app/src/main/java/com/laneshadow/ui/error/ErrorViewModel.kt` - error handling and suggestion derivation.
-- `android/app/src/main/java/com/laneshadow/ui/error/ErrorRoute.kt` - template wiring for the error screen.
-- `android/app/src/main/java/com/laneshadow/navigation/MainNavGraph.kt` - sign-out navigation event collection and error route destination.
-- `android/app/src/main/res/values/strings.xml` - localized error copy resources.
-- `android/app/src/test/java/com/laneshadow/services/LaneShadowErrorTest.kt` - mapper and resource-id coverage.
-- `android/app/src/test/java/com/laneshadow/ui/error/ErrorViewModelTest.kt` - unauthenticated sign-out and plan-limit chip coverage.
+- `android/app/src/main/java/com/laneshadow/services/SignOutFlow.kt` - moved sign-out through Convex cleanup.
+- `android/app/src/main/java/com/laneshadow/services/LaneShadowErrorMapper.kt` - exposed code-to-error lookup for route parsing.
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningUiState.kt` - typed planning failure transition.
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningViewModel.kt` - typed failure emission and deduped transition reporting.
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningRoute.kt` - failure navigation into the production error route.
+- `android/app/src/main/java/com/laneshadow/ui/error/ErrorUiState.kt` - recovery event model.
+- `android/app/src/main/java/com/laneshadow/ui/error/ErrorViewModel.kt` - recovery event emission and sign-out handling.
+- `android/app/src/main/java/com/laneshadow/ui/error/ErrorRoute.kt` - route encoding, typed error reconstruction, and callback wiring.
+- `android/app/src/main/java/com/laneshadow/navigation/MainNavGraph.kt` - error destination wiring and recovery callbacks.
+- `android/app/src/test/java/com/laneshadow/ui/error/ErrorViewModelTest.kt` - sign-out cleanup and recovery-event assertions.
+- `android/app/src/test/java/com/laneshadow/ui/error/ErrorRouteTest.kt` - route encoding coverage.
+- `android/app/src/test/java/com/laneshadow/ui/planning/PlanningViewModelTest.kt` - failure transition coverage.

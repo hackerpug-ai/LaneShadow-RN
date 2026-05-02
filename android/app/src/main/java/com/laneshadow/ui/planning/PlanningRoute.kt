@@ -7,6 +7,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.laneshadow.navigation.Route
+import com.laneshadow.ui.error.errorRoute
 import com.laneshadow.sandbox.mockproviders.NavigatorMessage
 import com.laneshadow.sandbox.mockproviders.PlanningPhase
 import com.laneshadow.sandbox.mockproviders.PlanningScreenState
@@ -40,6 +41,7 @@ fun PlanningRoute(
                 viewModel.consumeTransition()
             }
             is PlanningTransition.Failure -> {
+                navController.navigate(errorRoute(transition.error))
                 viewModel.consumeTransition()
             }
             null -> Unit

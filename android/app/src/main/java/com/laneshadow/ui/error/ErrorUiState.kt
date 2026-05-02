@@ -24,3 +24,8 @@ sealed interface ErrorSuggestionAction {
     data object Reset : ErrorSuggestionAction
     data object SignIn : ErrorSuggestionAction
 }
+
+sealed interface ErrorRecoveryEvent {
+    data object Retry : ErrorRecoveryEvent
+    data object StartOver : ErrorRecoveryEvent
+}

@@ -6,10 +6,13 @@ import com.laneshadow.services.LaneShadowError
 import com.laneshadow.services.SignOutFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -19,8 +22,13 @@ class ErrorViewModel @Inject constructor(
     private val signOutFlow: SignOutFlow,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<ErrorUiState>(ErrorUiState.Hidden)
+    private val _recoveryEvents = MutableSharedFlow<ErrorRecoveryEvent>(
+        replay = 0,
+        extraBufferCapacity = 1,
+    )
 
     val uiState: StateFlow<ErrorUiState> = _uiState.asStateFlow()
+    val recoveryEvents: SharedFlow<ErrorRecoveryEvent> = _recoveryEvents.asSharedFlow()
 
     val suggestions: StateFlow<List<ErrorSuggestion>> = uiState
         .map(::suggestionsForState)
@@ -52,10 +60,15 @@ class ErrorViewModel @Inject constructor(
                     signOutFlow.signOut()
                 }
             }
-            ErrorSuggestionAction.Retry,
-            ErrorSuggestionAction.Reset,
-            -> {
-                _uiState.value = ErrorUiState.Hidden
+            ErrorSuggestionAction.Retry -> {
+                viewModelScope.launch {
+                    _recoveryEvents.emit(ErrorRecoveryEvent.Retry)
+                }
+            }
+            ErrorSuggestionAction.Reset -> {
+                viewModelScope.launch {
+                    _recoveryEvents.emit(ErrorRecoveryEvent.StartOver)
+                }
             }
         }
     }
