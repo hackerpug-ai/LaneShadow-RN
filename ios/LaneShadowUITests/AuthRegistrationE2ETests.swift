@@ -26,11 +26,8 @@ final class AuthRegistrationE2ETests: XCTestCase {
         attachScreenshot(named: "registration-sign-in-entry")
 
         try tapElement("auth.signIn.continueWithEmail")
-        XCTAssertTrue(
-            element("auth.signIn.email").waitForExistence(timeout: 15),
-            "Expected Continue with Email to reveal the email field."
-        )
-
+        XCTAssertTrue(element("auth.signIn.email").waitForExistence(timeout: 15))
+        // Create Account link only appears in EmailEntry mode, not Entry mode.
         try tapElement("auth.signUp.entry")
         XCTAssertTrue(
             element("auth.signUp.email").waitForExistence(timeout: 15),
