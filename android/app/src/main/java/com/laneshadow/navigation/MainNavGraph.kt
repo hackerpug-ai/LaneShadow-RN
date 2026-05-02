@@ -22,6 +22,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.toRoute
+import com.laneshadow.data.chat.ChatRepository
+import com.laneshadow.services.AppStateRepository
 import com.laneshadow.services.NavEvent
 import com.laneshadow.services.SignOutFlow
 import com.laneshadow.theme.LocalLaneShadowTheme
@@ -44,12 +46,51 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class MainNavViewModel @Inject constructor(
     private val signOutFlow: SignOutFlow,
+    private val chatRepository: ChatRepository,
+    private val appStateRepository: AppStateRepository,
 ) : ViewModel() {
     val navEvents: SharedFlow<NavEvent> = signOutFlow.events
+
+    private var planningRetryContext: PlanningRetryContext? = null
 
     fun signOut() {
         viewModelScope.launch {
             signOutFlow.signOut()
+        }
+    }
+
+    fun cachePlanningRetry(
+        sessionId: String,
+        content: String?,
+    ) {
+        planningRetryContext = content
+            ?.takeIf { it.isNotBlank() }
+            ?.let { retryContent ->
+                PlanningRetryContext(
+                    sessionId = sessionId,
+                    content = retryContent,
+                )
+            }
+    }
+
+    fun clearPlanningRetry() {
+        planningRetryContext = null
+    }
+
+    fun retryPlanning() {
+        val retryContext = planningRetryContext ?: return
+        viewModelScope.launch {
+            chatRepository.sendMessage(
+                sessionId = retryContext.sessionId,
+                content = retryContext.content,
+            )
+        }
+    }
+
+    fun startOver() {
+        planningRetryContext = null
+        viewModelScope.launch {
+            appStateRepository.clearSessionLocalState()
         }
     }
 }
@@ -97,6 +138,7 @@ fun MainNavGraph(
                 PlanningRoute(
                     sessionId = sessionId,
                     navController = navController,
+                    mainNavViewModel = mainNavViewModel,
                 )
             }
         }
@@ -164,6 +206,7 @@ fun MainNavGraph(
                 errorMessage = backStackEntry.arguments?.getString(ErrorRouteMessageArg)
                     ?.takeIf { it.isNotBlank() },
                 onRetry = {
+                    mainNavViewModel.retryPlanning()
                     if (retrySessionId != null) {
                         navController.navigate(planningRoute(retrySessionId)) {
                             popUpTo(PlanningRoutePath) { inclusive = true }
@@ -174,6 +217,7 @@ fun MainNavGraph(
                     }
                 },
                 onStartOver = {
+                    mainNavViewModel.startOver()
                     navController.navigate(Route.Home) {
                         popUpTo(Route.Home) { inclusive = true }
                         launchSingleTop = true
@@ -191,6 +235,11 @@ internal const val PlanningSessionIdArg = "sessionId"
 internal const val PlanningRoutePath = "planning/{$PlanningSessionIdArg}"
 
 internal fun planningRoute(sessionId: String): String = "planning/$sessionId"
+
+private data class PlanningRetryContext(
+    val sessionId: String,
+    val content: String,
+)
 
 @Composable
 private fun HomeRoute(

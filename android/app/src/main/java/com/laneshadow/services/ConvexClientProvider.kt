@@ -120,9 +120,7 @@ class ConvexClientProvider private constructor(
     }
 
     suspend fun signOut(): Result<Unit> {
-        val authResult = authRepository.signOut()
-        activeGateway.clearAuth(appContext)
-        return authResult
+        return activeGateway.clearAuth(appContext)
     }
 
     private suspend fun bindClerkJwtBeforeAuthenticatedQuery(): Result<Unit> = runCatching {

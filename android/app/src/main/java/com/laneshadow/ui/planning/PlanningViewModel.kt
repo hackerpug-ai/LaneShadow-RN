@@ -5,10 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.laneshadow.data.chat.ChatRepository
 import com.laneshadow.data.chat.SessionMessage
 import com.laneshadow.data.route.RouteRepository
+import com.laneshadow.data.route.RoutePlan
 import com.laneshadow.data.session.PlanningSession
 import com.laneshadow.data.session.SessionRepository
+import com.laneshadow.services.LaneShadowError
 import com.laneshadow.services.toLaneShadowError
 import com.laneshadow.services.PlannedRouteOptions
+import com.laneshadow.services.laneShadowErrorForCode
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -31,6 +34,7 @@ class PlanningViewModel @AssistedInject constructor(
     val state: StateFlow<PlanningUiState> = _state.asStateFlow()
 
     private var lastCompletedPlanId: String? = null
+    private var lastFailedPlanId: String? = null
 
     init {
         observeSessions()
@@ -107,6 +111,7 @@ class PlanningViewModel @AssistedInject constructor(
                 .collect { plans ->
                     val activePlan = plans.firstOrNull()
                     val completedPlan = plans.firstOrNull { it.status.equals("completed", ignoreCase = true) }
+                    val failedPlan = plans.firstOrNull { it.status.equals("failed", ignoreCase = true) }
                     _state.update { current ->
                         current.copy(
                             activePlanId = activePlan?.id ?: current.activePlanId,
@@ -127,6 +132,16 @@ class PlanningViewModel @AssistedInject constructor(
                                 isThinking = false,
                             )
                         }
+                    } else if (failedPlan != null && failedPlan.id != lastFailedPlanId) {
+                        lastFailedPlanId = failedPlan.id
+                        val failure = failedPlan.toFailureTransition()
+                        _state.update { current ->
+                            current.copy(
+                                transition = failure,
+                                isThinking = false,
+                                subscriptionError = failure.message,
+                            )
+                        }
                     }
                 }
         }
@@ -144,10 +159,14 @@ class PlanningViewModel @AssistedInject constructor(
                     subscriptionError = error.message ?: fallbackMessage,
                 )
             } else {
+                val message = error.message ?: fallbackMessage
                 current.copy(
                     isThinking = false,
-                    subscriptionError = error.message ?: fallbackMessage,
-                    transition = PlanningTransition.Failure(laneShadowError),
+                    subscriptionError = message,
+                    transition = PlanningTransition.Failure(
+                        error = laneShadowError,
+                        message = message,
+                    ),
                 )
             }
         }
@@ -164,3 +183,21 @@ private fun List<SessionMessage>.latestAgentMessage(): SessionMessage? =
         message.role.equals("agent", ignoreCase = true) ||
             message.role.equals("system", ignoreCase = true)
     } ?: lastOrNull()
+
+private fun RoutePlan.toFailureTransition(): PlanningTransition.Failure {
+    val message = errorMessage?.takeIf { it.isNotBlank() }
+        ?: statusMessage?.takeIf { it.isNotBlank() }
+        ?: "Route planning failed."
+    val normalizedErrorCode = errorCode?.takeIf { it.isNotBlank() }
+    val error = normalizedErrorCode
+        ?.let(::laneShadowErrorForCode)
+        ?: LaneShadowError.Unknown(
+            originalMessage = message,
+            originalCode = normalizedErrorCode,
+        )
+
+    return PlanningTransition.Failure(
+        error = error,
+        message = message,
+    )
+}

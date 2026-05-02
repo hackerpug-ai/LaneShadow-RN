@@ -40,7 +40,7 @@ class ErrorViewModelTest {
     @Test
     fun handle_unauthenticatedError_signsOutAndNavigatesToSignIn() = runTest {
         val authRepository = FakeAuthRepository()
-        val convexGateway = RecordingConvexGateway()
+        val convexGateway = RecordingConvexGateway(authRepository)
         val convexClientProvider = ConvexClientProvider(
             authRepository = authRepository,
             appContext = Application(),
@@ -180,13 +180,16 @@ class ErrorViewModelTest {
         override fun observeAuthState(): StateFlow<AuthState> = authState
     }
 
-    private class RecordingConvexGateway : ConvexGateway {
+    private class RecordingConvexGateway(
+        private val authRepository: AuthRepository? = null,
+    ) : ConvexGateway {
         val logoutCount = AtomicInteger(0)
 
         override suspend fun bindAuthToken(token: String): Result<Unit> = Result.success(Unit)
 
         override suspend fun clearAuth(context: android.content.Context): Result<Unit> {
             logoutCount.incrementAndGet()
+            authRepository?.signOut()
             return Result.success(Unit)
         }
 

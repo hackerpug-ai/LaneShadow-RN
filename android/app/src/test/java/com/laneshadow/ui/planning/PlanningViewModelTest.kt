@@ -72,6 +72,41 @@ class PlanningViewModelTest {
     }
 
     @Test
+    fun state_emitsFailureTransitionWhenActivePlanFails() = runTest {
+        val routeRepository = FakeRouteRepository(
+            activePlans = listOf(
+                RoutePlan(
+                    id = "plan-7",
+                    status = "failed",
+                    statusMessage = "Route planning failed",
+                    errorCode = "GENERATION_FAILED",
+                    errorMessage = "Route planning failed",
+                ),
+            ),
+        )
+        val viewModel = PlanningViewModel(
+            sessionId = "sess-1",
+            chatRepository = FakeChatRepository(),
+            routeRepository = routeRepository,
+            sessionRepository = FakeSessionRepository(),
+        )
+
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.transition).isEqualTo(
+            PlanningTransition.Failure(
+                error = LaneShadowError.Unknown(
+                    originalMessage = "Route planning failed",
+                    originalCode = "GENERATION_FAILED",
+                ),
+                message = "Route planning failed",
+            ),
+        )
+        assertThat(viewModel.state.value.subscriptionError).isEqualTo("Route planning failed")
+        assertThat(viewModel.state.value.isThinking).isFalse()
+    }
+
+    @Test
     fun cancel_invokesCancelPlanWithActivePlanId() = runTest {
         val routeRepository = FakeRouteRepository(
             activePlans = listOf(
@@ -110,7 +145,8 @@ class PlanningViewModelTest {
 
         assertThat(viewModel.state.value.transition).isEqualTo(
             PlanningTransition.Failure(
-                LaneShadowError.NetworkTimeout(ioException),
+                error = LaneShadowError.NetworkTimeout(ioException),
+                message = "offline",
             ),
         )
         assertThat(viewModel.state.value.subscriptionError).contains("offline")

@@ -90,10 +90,9 @@ class ClerkAuthRepository @Inject constructor(
 
     override suspend fun handleUnauthenticated(message: String): Result<Unit> {
         restoreJob.join()
-        val result = clerkGateway.signOut()
         tokenStore.clear()
         authState.value = AuthState.Error(message)
-        return result
+        return Result.success(Unit)
     }
 
     override suspend fun signInWithGoogle(): Result<ClerkUser> {

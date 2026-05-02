@@ -4,52 +4,43 @@
 2026-05-02
 
 ## Edge Cases Discovered
-1. `android.net.Uri.encode()` is not mocked in local JVM unit tests, so route-construction helpers need a pure Kotlin/Java encoding path if they are covered by `testDebugUnitTest`.
-2. A `MutableSharedFlow` with `DROP_OLDEST` can silently lose the first recovery event when `Retry` and `StartOver` are emitted back-to-back. Using suspending `emit(...)` preserved both events in order.
-3. Planning failures can arrive through multiple collectors. The ViewModel needs to dedupe the failure transition so the route only navigates once.
-4. The emulator launch path on this branch starts at auth by default. The debug bypass flag exposes the bypass button, and tapping it transitions to the signed-in home screen for visual verification.
+1. Failed route plans already carry `errorCode`, `errorMessage`, and `statusMessage`; only reacting to thrown subscription errors misses the real failure state.
+2. Retry needs cached planning context, not just navigation. The planning screen already has the rider/user prompt in message history, so that is the safest source to re-send.
+3. Sign-out was reaching `AuthRepository.signOut()` twice in production because the provider and auth cleanup both owned the same side effect.
+4. `PlanLimitExceeded` must still omit retry suggestions even after the recovery flow is wired through callbacks.
 
 ## RED / GREEN Evidence
-- Initial focused run of `:app:testDebugUnitTest` failed at compile time with unresolved references around the new error routing and recovery API surface:
-  - `errorRoute`
-  - `ErrorRecoveryEvent`
-  - `recoveryEvents`
-  - `PlanningTransition.Failure` type mismatch
-- After implementation, the next focused run failed for two behavior reasons:
-  - `ErrorRouteTest` hit `android.net.Uri.encode(...)` not mocked on the JVM.
-  - `ErrorViewModelTest` initially observed only `StartOver`, which showed the recovery flow was dropping `Retry`.
-- GREEN evidence:
-  - `./gradlew :app:testDebugUnitTest --tests com.laneshadow.services.LaneShadowErrorTest --tests com.laneshadow.ui.error.ErrorViewModelTest --tests com.laneshadow.ui.error.ErrorRouteTest --tests com.laneshadow.ui.planning.PlanningViewModelTest`
-  - `./gradlew :app:compileDebugKotlin`
-  - `./gradlew :app:assembleDebug`
+- RED: the first focused `:app:testDebugUnitTest` run failed at compile time because `PlanningTransition.Failure` did not carry a message, `RoutePlan` did not expose `errorCode`, and `MainNavViewModel` still lacked recovery APIs.
+- GREEN: `./gradlew :app:testDebugUnitTest --tests com.laneshadow.services.LaneShadowErrorTest --tests com.laneshadow.ui.error.ErrorViewModelTest --tests com.laneshadow.ui.error.ErrorRouteTest --tests com.laneshadow.ui.planning.PlanningViewModelTest --tests com.laneshadow.navigation.MainNavViewModelTest` passed after the patch.
+- Verification: `./gradlew :app:compileDebugKotlin`, `./gradlew :app:assembleDebug`, and `bash scripts/tokens/enforce-native-compliance.sh` all passed.
+- Baseline: `./gradlew test` still fails with 17 pre-existing unrelated tests in this branch (`SessionsDrawerTests`, `MockProviderVariantTest`, `LSSavedPillTest`, `AuthScreenViewModelTest`, `AuthScreensSourceStructureTest`, `LSPhaseIndicatorTest`, `LSRouteAttachmentCardTest`, `PlanningScreenTest`). I did not run lint in this pass.
 
 ## API Contract Notes
-- `SignOutFlow.signOut()` now goes through `ConvexClientProvider.signOut()`, which preserves Convex cleanup and emits `NavEvent.Navigate(Route.SignIn)` afterward.
-- `PlanningTransition.Failure` now carries a typed `LaneShadowError` instead of a raw string so the error route can reconstruct the production error screen state.
-- `errorRoute(...)` uses encoded `code` and `message` query parameters, and `ErrorRoute` reconstructs the typed error before handing it to the `ErrorViewModel`.
-- Recovery is callback-driven: `ErrorViewModel` emits `Retry` and `StartOver` events, and `ErrorRoute` forwards them to `onRetry` / `onStartOver`.
-- `PlanLimitExceeded` still intentionally omits `Try again`.
+- `RoutePlanDto` and `RoutePlan` now surface `errorCode` so failed plans can become typed planning failures instead of being treated like generic subscription problems.
+- `PlanningTransition.Failure` now carries both the typed error and a display message so `PlanningRoute` can pass `code` and `message` through to the error route.
+- `ConvexClientProvider.signOut()` now delegates to the Convex auth-clear path only, and `ClerkAuthRepository.handleUnauthenticated()` clears local auth state without signing out a second time.
+- Recovery is callback-driven through `MainNavViewModel`: retry re-sends the cached planning prompt, and start-over clears app state.
 
 ## UI Decisions
-- Error navigation stays in `MainNavGraph`; `PlanningRoute` only consumes the failure transition and delegates navigation to the graph.
-- Retry should return to the planning flow if the session id is available; otherwise the error route falls back to a safe back navigation.
-- Start over navigates to `Route.Home` rather than dismissing the sheet or silently clearing state.
+- Retry caches the last rider/user prompt from the planning message history instead of threading the original text through the error route.
+- Start-over clears persisted session-local app state before navigating home.
+- The error screen still omits retry for `PlanLimitExceeded`.
 
 ## Gotchas for iOS Implementer
-- Do not mirror raw error codes directly into UI copy. Keep the typed error boundary and map the route parameters back into the local error model.
-- If you keep a recovery-event stream, make it lossless. Dropped retry events are easy to miss in manual testing but obvious in flaky UI automation.
-- The debug bypass path is useful for visual checks on Android, but it is not part of the production error/recovery flow.
+- Preserve both the backend error code and a user-facing message for failed plans. Navigation-only recovery will look correct but will not actually recover.
+- If sign-out can be triggered from more than one layer, centralize the side effect or you will double-clear auth state.
+- Cached retry content should be invalidated on success or start-over so a stale prompt is not re-sent later.
 
 ## Files Created/Modified
-- `android/app/src/main/java/com/laneshadow/services/SignOutFlow.kt` - moved sign-out through Convex cleanup.
-- `android/app/src/main/java/com/laneshadow/services/LaneShadowErrorMapper.kt` - exposed code-to-error lookup for route parsing.
-- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningUiState.kt` - typed planning failure transition.
-- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningViewModel.kt` - typed failure emission and deduped transition reporting.
-- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningRoute.kt` - failure navigation into the production error route.
-- `android/app/src/main/java/com/laneshadow/ui/error/ErrorUiState.kt` - recovery event model.
-- `android/app/src/main/java/com/laneshadow/ui/error/ErrorViewModel.kt` - recovery event emission and sign-out handling.
-- `android/app/src/main/java/com/laneshadow/ui/error/ErrorRoute.kt` - route encoding, typed error reconstruction, and callback wiring.
-- `android/app/src/main/java/com/laneshadow/navigation/MainNavGraph.kt` - error destination wiring and recovery callbacks.
-- `android/app/src/test/java/com/laneshadow/ui/error/ErrorViewModelTest.kt` - sign-out cleanup and recovery-event assertions.
-- `android/app/src/test/java/com/laneshadow/ui/error/ErrorRouteTest.kt` - route encoding coverage.
-- `android/app/src/test/java/com/laneshadow/ui/planning/PlanningViewModelTest.kt` - failure transition coverage.
+- `android/app/src/main/java/com/laneshadow/data/dto/RoutePlanDto.kt` - surfaced failed-plan `errorCode` in the DTO mapper.
+- `android/app/src/main/java/com/laneshadow/data/repository/ClerkAuthRepository.kt` - unauthenticated handling now clears local auth state without a second sign-out.
+- `android/app/src/main/java/com/laneshadow/data/route/RouteRepository.kt` - domain `RoutePlan` now carries `errorCode`.
+- `android/app/src/main/java/com/laneshadow/navigation/MainNavGraph.kt` - wired retry/start-over callbacks through `MainNavViewModel`.
+- `android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt` - sign-out now clears Convex auth through one path.
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningRoute.kt` - caches retry context and navigates with code/message.
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningUiState.kt` - planning failures now carry a display message.
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningViewModel.kt` - maps failed plans to typed failure transitions.
+- `android/app/src/test/java/com/laneshadow/navigation/MainNavViewModelTest.kt` - retry/start-over recovery coverage.
+- `android/app/src/test/java/com/laneshadow/services/ConvexClientProviderAuthTest.kt` - single sign-out plus clearAuth coverage.
+- `android/app/src/test/java/com/laneshadow/ui/error/ErrorViewModelTest.kt` - sign-out path now exercises Convex auth cleanup.
+- `android/app/src/test/java/com/laneshadow/ui/planning/PlanningViewModelTest.kt` - failed-plan status coverage.

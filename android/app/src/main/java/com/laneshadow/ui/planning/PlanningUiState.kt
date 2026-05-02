@@ -21,7 +21,10 @@ data class PlanningUiState(
 
 sealed interface PlanningTransition {
     data class Success(val routeOptions: PlannedRouteOptions) : PlanningTransition
-    data class Failure(val error: LaneShadowError) : PlanningTransition
+    data class Failure(
+        val error: LaneShadowError,
+        val message: String? = null,
+    ) : PlanningTransition
 }
 
 internal fun phaseIndexForStatus(status: String?): Int =
