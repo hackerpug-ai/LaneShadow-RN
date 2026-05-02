@@ -196,6 +196,7 @@ dependencies {
     implementation("dev.convex:android-convexmobile:0.8.0")
     implementation("com.clerk:clerk-android-api:1.0.13")
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("androidx.browser:browser:1.8.0")
     implementation("com.google.dagger:hilt-android:2.58")
     kapt("com.google.dagger:hilt-android-compiler:2.58")
