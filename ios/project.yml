@@ -283,6 +283,8 @@ targets:
       # Sprint 06 template tests
       - path: LaneShadowTests/Templates
         type: syncedFolder
+      - path: LaneShadowTests/Services
+        type: syncedFolder
       - path: LaneShadowTests/Integration
         type: syncedFolder
       # Sprint 06 sandbox infrastructure tests
