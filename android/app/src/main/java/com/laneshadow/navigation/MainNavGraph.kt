@@ -24,6 +24,7 @@ import com.laneshadow.services.ConvexClientProvider
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.AuthViewModel
 import com.laneshadow.ui.idle.IdleRoute
+import com.laneshadow.ui.routedetails.RouteDetailsRoute
 import com.laneshadow.ui.routeresults.RouteResultsRoute
 import com.laneshadow.ui.sandbox.host.AndroidSandboxHost
 import com.laneshadow.ui.planning.PlanningRoute
@@ -79,8 +80,13 @@ fun MainNavGraph(
                 sessionId = route.sessionId,
             )
         }
-        composable<Route.RouteDetails> { _ ->
-            HomeLeafRoute(title = "Route Details", onBack = { navController.popBackStack() })
+        composable<Route.RouteDetails> { backStackEntry ->
+            val route = backStackEntry.toRoute<Route.RouteDetails>()
+            RouteDetailsRoute(
+                navController = navController,
+                sessionId = route.sessionId,
+                routeOptionId = route.routeOptionId,
+            )
         }
         composable<Route.SavedRoutes> {
             HomeLeafRoute(

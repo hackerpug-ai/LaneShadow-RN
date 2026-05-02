@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 
 data class RoutePlan(
@@ -31,6 +32,10 @@ interface RouteRepository {
 
     fun subscribeToPlanById(routePlanId: String): Flow<JsonObject> = flow {
         error("subscribeToPlanById(routePlanId) must be implemented by a concrete repository")
+    }
+
+    fun subscribeToEnrichments(routePlanId: String): Flow<JsonElement> = flow {
+        error("subscribeToEnrichments(routePlanId) must be implemented by a concrete repository")
     }
 
     suspend fun cancelPlan(routePlanId: String): Result<Unit>
@@ -76,6 +81,18 @@ class RouteRepositoryImpl @Inject constructor(
         emitAll(
             routePlanClient.subscribe<JsonObject>(
                 name = "db/routePlans:getPlanById",
+                args = mapOf("routePlanId" to routePlanId),
+            ).map { result ->
+                result.getOrThrow()
+            },
+        )
+    }
+
+    override fun subscribeToEnrichments(routePlanId: String): Flow<JsonElement> = flow {
+        routePlanClient.loginFromCache().getOrThrow()
+        emitAll(
+            routePlanClient.subscribe<JsonElement>(
+                name = "db/routeEnrichments:getByRoutePlanId",
                 args = mapOf("routePlanId" to routePlanId),
             ).map { result ->
                 result.getOrThrow()

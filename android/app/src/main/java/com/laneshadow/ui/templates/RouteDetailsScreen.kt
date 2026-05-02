@@ -1,27 +1,17 @@
 package com.laneshadow.ui.templates
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import com.laneshadow.sandbox.mockproviders.RouteDetailsScreenState
-import com.laneshadow.theme.LocalLaneShadowTheme
-import com.laneshadow.ui.atoms.CameraFit
-import com.laneshadow.ui.atoms.CameraPosition
 import com.laneshadow.ui.atoms.LatLng
-import com.laneshadow.ui.atoms.LSMap
-import com.laneshadow.ui.atoms.MapMode
 import com.laneshadow.ui.atoms.PolylineData
 import com.laneshadow.ui.atoms.RouteVariant
-import com.laneshadow.ui.atoms.SpacingToken
 import com.laneshadow.ui.molecules.WeatherCondition
 import com.laneshadow.ui.molecules.WeatherTimelineEntry as UiWeatherTimelineEntry
-import com.laneshadow.ui.organisms.BottomSheetSpec
-import com.laneshadow.ui.organisms.LSMapLayer
-import com.laneshadow.ui.organisms.LSRouteSheet
-import com.laneshadow.ui.organisms.LSTopBar
 import com.laneshadow.ui.organisms.RouteDetails
-import com.laneshadow.ui.organisms.SheetDetent
+import com.laneshadow.ui.routedetails.RouteDetailsMap
+import com.laneshadow.ui.routedetails.RouteDetailsSurface
 import com.laneshadow.ui.util.PolylineDecoder
 
 /**
@@ -54,23 +44,61 @@ fun RouteDetailsScreen(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val theme = LocalLaneShadowTheme.current
+    RouteDetailsScreenContent(
+        state = state,
+        onSave = onSave,
+        onRide = onRide,
+        onDismiss = onDismiss,
+        modifier = modifier,
+    )
+}
 
-    // Convert mock route to RouteDetails for LSRouteSheet
-    val routeDetails = RouteDetails(
-        id = state.route.id,
-        title = state.route.name,
-        via = state.route.via,
-        isBest = state.route.variant == "best",
-        distance = formatDistance(state.route.distance),
-        time = formatDuration(state.route.estimatedTime),
-        climb = formatClimb(state.route.climb),
-        scenicScore = formatScenicScore(state.route.scenicScore),
-        isSaved = state.isSaved,
+@Composable
+internal fun RouteDetailsScreenContent(
+    state: RouteDetailsScreenState,
+    onSave: () -> Unit,
+    onRide: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+    decodePolyline: (String) -> List<LatLng> = PolylineDecoder::decodeOrNull,
+    mapContent: @Composable (List<PolylineData>) -> Unit = { polylines ->
+        RouteDetailsMap(polylines = polylines)
+    },
+) {
+    val routeDetails = state.toRouteDetails()
+    val weatherTimeline = state.toWeatherTimelineEntries()
+    val timeRange = state.timeRange()
+    val polylines = remember(state.route.polyline, state.route.variant) {
+        state.toPolylines(decodePolyline)
+    }
+
+    RouteDetailsSurface(
+        route = routeDetails,
+        weatherTimeline = weatherTimeline,
+        timeRange = timeRange,
+        mapContent = { mapContent(polylines) },
+        onSave = onSave,
+        onRide = onRide,
+        onDismiss = onDismiss,
+        modifier = modifier,
+    )
+}
+
+internal fun RouteDetailsScreenState.toRouteDetails(): RouteDetails =
+    RouteDetails(
+        id = route.id,
+        title = route.name,
+        via = route.via,
+        isBest = route.variant == "best",
+        distance = formatDistance(route.distance),
+        time = formatDuration(route.estimatedTime),
+        climb = formatClimb(route.climb),
+        scenicScore = formatScenicScore(route.scenicScore),
+        isSaved = isSaved,
     )
 
-    // Convert mock weather timeline to UI weather timeline entries
-    val weatherTimeline = state.weatherTimeline.map { entry ->
+internal fun RouteDetailsScreenState.toWeatherTimelineEntries(): List<UiWeatherTimelineEntry> =
+    weatherTimeline.map { entry ->
         UiWeatherTimelineEntry(
             hour = entry.hour,
             temperature = "${entry.temperature}°",
@@ -86,58 +114,26 @@ fun RouteDetailsScreen(
         )
     }
 
-    // Convert mock route polyline to PolylineData
-    val polylines = listOf(
+internal fun RouteDetailsScreenState.timeRange(): Pair<String, String> =
+    Pair(
+        weatherTimeline.firstOrNull()?.hour ?: "",
+        weatherTimeline.lastOrNull()?.hour ?: "",
+    )
+
+internal fun RouteDetailsScreenState.toPolylines(
+    decodePolyline: (String) -> List<LatLng> = PolylineDecoder::decodeOrNull,
+): List<PolylineData> =
+    listOf(
         PolylineData(
-            coordinates = PolylineDecoder.decodeOrNull(state.route.polyline),
-            variant = when (state.route.variant) {
+            coordinates = decodePolyline(route.polyline),
+            variant = when (route.variant) {
                 "best" -> RouteVariant.Best
                 "alt1" -> RouteVariant.Alt1
                 "alt2" -> RouteVariant.Alt2
                 else -> RouteVariant.Best
             },
-        )
-    )
-
-    LSMapLayer(
-        map = {
-            LSMap(
-                mode = MapMode.Preview,
-                camera = CameraPosition(
-                    center = LatLng(37.8104, -122.4752),
-                    zoom = 11.0,
-                ),
-                cameraFit = CameraFit.Polyline(padding = SpacingToken.Spacing4),
-                polylines = polylines,
-            )
-        },
-        bottomSheet = BottomSheetSpec(
-            content = {
-                LSRouteSheet(
-                    route = routeDetails,
-                    weatherTimeline = weatherTimeline,
-                    timeRange = Pair(
-                        weatherTimeline.firstOrNull()?.hour ?: "",
-                        weatherTimeline.lastOrNull()?.hour ?: ""
-                    ),
-                    onSave = onSave,
-                    onRide = onRide,
-                    onDismiss = onDismiss,
-                    modifier = Modifier.testTag("route-details-sheet"),
-                )
-            },
-            detent = SheetDetent.Large,
-            onDismiss = onDismiss,
         ),
-        topBar = {
-            LSTopBar(
-                onMenuTap = {},
-                modifier = Modifier.testTag("route-details-topbar"),
-            )
-        },
-        modifier = modifier.fillMaxSize(),
     )
-}
 
 private fun formatDistance(meters: Int): String {
     val miles = (meters / 1609.34).toInt()
@@ -154,10 +150,8 @@ private fun formatDuration(seconds: Int): String {
     }
 }
 
-private fun formatClimb(feet: Int): String {
-    return "$feet"
-}
+private fun formatClimb(feet: Int): String =
+    "$feet"
 
-private fun formatScenicScore(score: Int): String {
-    return "$score"
-}
+private fun formatScenicScore(score: Int): String =
+    "$score"
