@@ -141,5 +141,7 @@ private class FakeAuthRepository(
         Result.success(ClerkUser("id", "rider@example.com", "Rider", "oauth"))
 
     override suspend fun getJwtForConvex(): String = jwt
+    override suspend fun bypassForTesting(): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException("not needed in this test"))
     override fun observeAuthState(): StateFlow<AuthState> = authState
 }
