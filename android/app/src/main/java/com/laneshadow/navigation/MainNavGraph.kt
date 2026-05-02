@@ -23,6 +23,7 @@ import com.laneshadow.services.ConvexClientProvider
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.AuthViewModel
 import com.laneshadow.ui.idle.IdleRoute
+import com.laneshadow.ui.routeresults.RouteResultsRoute
 import com.laneshadow.ui.sandbox.host.AndroidSandboxHost
 import com.laneshadow.ui.planning.PlanningRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -71,14 +72,9 @@ fun MainNavGraph(
             HomeLeafRoute(title = "Sessions", onBack = { navController.popBackStack() })
         }
         composable<Route.RouteResults> {
-            HomeLeafRoute(
-                title = "Route Results",
-                onBack = { navController.popBackStack() },
-                onNext = { navController.navigate(Route.RouteDetails) },
-                nextLabel = "Open route details",
-            )
+            RouteResultsRoute(navController = navController)
         }
-        composable<Route.RouteDetails> {
+        composable<Route.RouteDetails> { _ ->
             HomeLeafRoute(title = "Route Details", onBack = { navController.popBackStack() })
         }
         composable<Route.SavedRoutes> {
