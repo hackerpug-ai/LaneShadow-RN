@@ -7,12 +7,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -20,9 +22,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.toRoute
-import com.laneshadow.services.ConvexClientProvider
+import com.laneshadow.services.NavEvent
+import com.laneshadow.services.SignOutFlow
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.AuthViewModel
+import com.laneshadow.ui.error.ErrorRouteCodeArg
+import com.laneshadow.ui.error.ErrorRoutePath
+import com.laneshadow.ui.error.ErrorRoute
 import com.laneshadow.ui.idle.IdleRoute
 import com.laneshadow.ui.routedetails.RouteDetailsRoute
 import com.laneshadow.ui.routeresults.RouteResultsRoute
@@ -30,15 +36,19 @@ import com.laneshadow.ui.sandbox.host.AndroidSandboxHost
 import com.laneshadow.ui.planning.PlanningRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class MainNavViewModel @Inject constructor(
-    private val convexClientProvider: ConvexClientProvider,
+    private val signOutFlow: SignOutFlow,
 ) : ViewModel() {
+    val navEvents: SharedFlow<NavEvent> = signOutFlow.events
+
     fun signOut() {
         viewModelScope.launch {
-            convexClientProvider.signOut()
+            signOutFlow.signOut()
         }
     }
 }
@@ -49,6 +59,25 @@ fun MainNavGraph(
     authViewModel: AuthViewModel,
     mainNavViewModel: MainNavViewModel = hiltViewModel(),
 ) {
+    LaunchedEffect(mainNavViewModel) {
+        mainNavViewModel.navEvents.collect { event ->
+            when (event) {
+                is NavEvent.Navigate -> {
+                    when (event.route) {
+                        Route.SignIn -> {
+                            navController.navigate(Route.SignIn) {
+                                popUpTo(Route.Home) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }
+
+                        else -> Unit
+                    }
+                }
+            }
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = Route.Home,
@@ -105,6 +134,24 @@ fun MainNavGraph(
                 onBack = { navController.popBackStack() },
                 onNext = mainNavViewModel::signOut,
                 nextLabel = "Sign out",
+            )
+        }
+        composable<Route.SignIn> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+        composable(
+            route = ErrorRoutePath,
+            arguments = listOf(navArgument(ErrorRouteCodeArg) {
+                type = NavType.StringType
+                defaultValue = ""
+            }),
+        ) { backStackEntry: NavBackStackEntry ->
+            ErrorRoute(
+                navController = navController,
+                errorCode = backStackEntry.arguments?.getString(ErrorRouteCodeArg)
+                    ?.takeIf { it.isNotBlank() },
             )
         }
         composable<Route.Sandbox> {
