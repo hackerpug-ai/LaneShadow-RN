@@ -6,6 +6,7 @@ enum LaneShadowConvexQuery: String {
     case getCurrentUser = "db/users:getCurrentUser"
     case listSessions = "db/planningSessions:listSessions"
     case listMessages = "db/sessionMessages:list"
+    case getPlanById = "db/routePlans:getPlanById"
     case getActiveRoutePlansForSession = "db/routePlans:getActiveRoutePlansForSession"
 }
 
@@ -47,6 +48,12 @@ protocol LaneShadowCurrentUserSubscriptionProviding: Sendable {
 
 struct LaneShadowPlanningSessionCreationResult: Decodable, Equatable {
     let sessionId: String
+}
+
+struct LaneShadowPlanningSessionLocation: Decodable, Equatable {
+    let lat: Double
+    let lng: Double
+    let updatedAt: Double
 }
 
 struct LaneShadowCurrentLocation: Codable, Equatable {
@@ -115,6 +122,77 @@ struct LaneShadowRoutePlanSnapshot: Decodable, Equatable {
     }
 }
 
+struct LaneShadowSessionRecord: Decodable, Equatable {
+    let id: String
+    let creationTime: Double
+    let clerkUserId: String
+    let title: String
+    let status: String
+    let createdAt: Double
+    let updatedAt: Double
+    let lastKnownLocation: LaneShadowPlanningSessionLocation?
+
+    enum CodingKeys: String, CodingKey {
+        case id = "_id"
+        case creationTime = "_creationTime"
+        case clerkUserId
+        case title
+        case status
+        case createdAt
+        case updatedAt
+        case lastKnownLocation
+    }
+
+    var laneShadowSession: Session {
+        let active = status == "active"
+        let preview = active ? "Planning in progress" : "Planning session"
+        let meta = if let lastKnownLocation {
+            String(
+                format: "Last known location %.4f, %.4f",
+                lastKnownLocation.lat,
+                lastKnownLocation.lng
+            )
+        } else {
+            status.capitalized
+        }
+
+        return Session(
+            id: id,
+            title: title,
+            preview: preview,
+            meta: meta,
+            when: Self.relativeWhenLabel(from: createdAt),
+            active: active,
+            routeIds: [],
+            createdAt: Self.iso8601String(from: createdAt)
+        )
+    }
+
+    private static func relativeWhenLabel(from timestamp: Double) -> String {
+        let createdAtDate = Date(timeIntervalSince1970: timestamp / 1000)
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let messageDay = calendar.startOfDay(for: createdAtDate)
+        let diffDays = calendar.dateComponents([.day], from: messageDay, to: today).day ?? 0
+
+        if diffDays == 0 {
+            return "Now"
+        }
+        if diffDays == 1 {
+            return "Yesterday"
+        }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d"
+        return formatter.string(from: createdAtDate)
+    }
+
+    private static func iso8601String(from timestamp: Double) -> String {
+        let formatter = ISO8601DateFormatter()
+        return formatter.string(from: Date(timeIntervalSince1970: timestamp / 1000))
+    }
+}
+
 protocol LaneShadowPlanningDataProviding: LaneShadowCurrentUserSubscriptionProviding {
     func subscribeToSessions() -> AsyncStream<[Session]>
 
@@ -122,6 +200,8 @@ protocol LaneShadowPlanningDataProviding: LaneShadowCurrentUserSubscriptionProvi
         sessionId: String,
         limit: Int
     ) -> AsyncStream<[LaneShadowSessionMessage]>
+
+    func subscribeToRoutePlan(routePlanId: String) -> AsyncStream<LaneShadowRoutePlanSnapshot>
 
     func subscribeToActiveRoutePlans(sessionId: String) -> AsyncStream<[LaneShadowRoutePlanSnapshot]>
 
@@ -448,6 +528,18 @@ final class LaneShadowConvexClient: @unchecked Sendable {
         )
     }
 
+    func subscribeToRoutePlan(
+        routePlanId: String
+    ) -> AsyncStream<LaneShadowRoutePlanSnapshot> {
+        subscribe(
+            .getPlanById,
+            args: [
+                "routePlanId": routePlanId,
+            ],
+            yielding: LaneShadowRoutePlanSnapshot.self
+        )
+    }
+
     func subscribeToActiveRoutePlans(
         sessionId: String
     ) -> AsyncStream<[LaneShadowRoutePlanSnapshot]> {
@@ -585,27 +677,3 @@ final class LaneShadowConvexClient: @unchecked Sendable {
 
 extension LaneShadowConvexClient: LaneShadowCurrentUserSubscriptionProviding {}
 extension LaneShadowConvexClient: LaneShadowPlanningDataProviding {}
-
-struct LaneShadowSessionRecord: Decodable {
-    let id: String
-    let title: String
-    let preview: String
-    let meta: String
-    let when: String
-    let active: Bool
-    let routeIds: [String]
-    let createdAt: String
-
-    var laneShadowSession: Session {
-        Session(
-            id: id,
-            title: title,
-            preview: preview,
-            meta: meta,
-            when: when,
-            active: active,
-            routeIds: routeIds,
-            createdAt: createdAt
-        )
-    }
-}

@@ -62,18 +62,25 @@ final class RootViewTests: XCTestCase {
             tokenProvider: { nil },
             transport: transport
         )
+        let sharedSessionStore = SessionStore()
         let appEnvironment = AppEnvironment(clerkAuth: clerkAuth, convexClient: convexClient)
+        let sharedEnvironment = AppEnvironment(
+            clerkAuth: clerkAuth,
+            convexClient: convexClient,
+            sessionStore: sharedSessionStore
+        )
 
         let homeView = AppFlowView(route: .home)
-            .environment(\.appEnvironment, appEnvironment)
+            .environment(\.appEnvironment, sharedEnvironment)
         XCTAssertNoThrow(try homeView.inspect().find(ViewType.NavigationStack.self))
         XCTAssertNoThrow(try homeView.inspect().find(text: "App Home"))
 
         let sessionView = AppFlowView(route: .session(id: "session-123"))
-            .environment(\.appEnvironment, appEnvironment)
+            .environment(\.appEnvironment, sharedEnvironment)
         let sessionHostingController = UIHostingController(rootView: sessionView)
         sessionHostingController.loadViewIfNeeded()
         XCTAssertNotNil(sessionHostingController.view)
+        _ = appEnvironment
     }
 
     func testAuthenticatedRootHomeMountsLiveIdleGreeting() async throws {
@@ -388,6 +395,8 @@ final class RootViewTestsConvexTransport: LaneShadowConvexTransporting {
     private let currentUser: LaneShadowCurrentUser?
     private let sessionsSubject = PassthroughSubject<[LaneShadowSessionRecord], ClientError>()
     private var sessionMessagesSubjects: [String: CurrentValueSubject<[LaneShadowSessionMessage], ClientError>] = [:]
+    private var routePlanSubjects: [String: PassthroughSubject<LaneShadowRoutePlanSnapshot, ClientError>] = [:]
+    private var latestRoutePlans: [String: LaneShadowRoutePlanSnapshot] = [:]
     private var activeRoutePlanSubjects: [String: CurrentValueSubject<[LaneShadowRoutePlanSnapshot], ClientError>] = [:]
     private(set) var createPlanningSessionCalls: [String] = []
     private(set) var sendPlanningMessageCalls: [LaneShadowPlanningMessageCall] = []
@@ -443,6 +452,24 @@ final class RootViewTestsConvexTransport: LaneShadowConvexTransporting {
                 .eraseToAnyPublisher()
         }
 
+        if endpoint == LaneShadowConvexQuery.getPlanById.rawValue,
+           T.self == LaneShadowRoutePlanSnapshot.self,
+           let routePlanId = routePlanIdArgument(from: args)
+        {
+            if let latestRoutePlan = latestRoutePlans[routePlanId] {
+                return Just(latestRoutePlan as! T)
+                    .setFailureType(to: ClientError.self)
+                    .eraseToAnyPublisher()
+            }
+
+            let subject = routePlanSubjects[routePlanId]
+                ?? PassthroughSubject<LaneShadowRoutePlanSnapshot, ClientError>()
+            routePlanSubjects[routePlanId] = subject
+            return subject
+                .map { $0 as! T }
+                .eraseToAnyPublisher()
+        }
+
         return Empty<T, ClientError>().eraseToAnyPublisher()
     }
 
@@ -462,6 +489,11 @@ final class RootViewTestsConvexTransport: LaneShadowConvexTransporting {
             ?? CurrentValueSubject<[LaneShadowRoutePlanSnapshot], ClientError>([])
         activeRoutePlanSubjects[sessionId] = subject
         subject.send(plans)
+    }
+
+    func sendRoutePlan(_ routePlan: LaneShadowRoutePlanSnapshot) {
+        latestRoutePlans[routePlan.id] = routePlan
+        routePlanSubjects[routePlan.id]?.send(routePlan)
     }
 
     func mutation<T: Decodable>(
@@ -514,7 +546,12 @@ final class RootViewTestsConvexTransport: LaneShadowConvexTransporting {
             return LaneShadowSendMessageResult(
                 response: "",
                 messageId: "message-123",
-                attachments: nil
+                attachments: [
+                    LaneShadowSendMessageAttachment(
+                        type: "route_options",
+                        routePlanId: "route-plan-123"
+                    ),
+                ]
             ) as! T
         }
 
@@ -528,6 +565,10 @@ final class RootViewTestsConvexTransport: LaneShadowConvexTransporting {
 
     private func sessionIdArgument(from args: [String: ConvexEncodable?]?) -> String? {
         stringArgument(named: "sessionId", in: args)
+    }
+
+    private func routePlanIdArgument(from args: [String: ConvexEncodable?]?) -> String? {
+        stringArgument(named: "routePlanId", in: args)
     }
 
     private func stringArgument(named key: String, in args: [String: ConvexEncodable?]?) -> String? {

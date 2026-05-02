@@ -21,18 +21,22 @@ final class PlanningViewModel {
     @ObservationIgnored private let chatStore: ChatStore
     @ObservationIgnored private let sessionStore: SessionStore
     @ObservationIgnored private let convexClient: any LaneShadowPlanningDataProviding
+    @ObservationIgnored private let fallbackSessionId: String?
     @ObservationIgnored private var activeRoutePlanId: String?
     @ObservationIgnored private var didDispatchTerminalState = false
+    @ObservationIgnored private var routePlanObservationTask: Task<Void, Never>?
     @ObservationIgnored private var observationTasks: [Task<Void, Never>] = []
 
     init(
         chatStore: ChatStore,
         sessionStore: SessionStore,
-        convexClient: any LaneShadowPlanningDataProviding
+        convexClient: any LaneShadowPlanningDataProviding,
+        fallbackSessionId: String? = nil
     ) {
         self.chatStore = chatStore
         self.sessionStore = sessionStore
         self.convexClient = convexClient
+        self.fallbackSessionId = fallbackSessionId
         phases = Self.makePhases(activeIndex: 0)
     }
 
@@ -47,7 +51,7 @@ final class PlanningViewModel {
     }
 
     func observe() async {
-        guard let sessionId = chatStore.flowState.sessionId ?? sessionStore.activeSessionId else {
+        guard let sessionId = resolvedSessionId else {
             return
         }
 
@@ -57,11 +61,15 @@ final class PlanningViewModel {
     func stopObserving() {
         observationTasks.forEach { $0.cancel() }
         observationTasks.removeAll()
+        routePlanObservationTask?.cancel()
+        routePlanObservationTask = nil
     }
 
     private func startObserving(sessionId: String) {
         stopObserving()
         let convexClient = convexClient
+        didDispatchTerminalState = false
+        activeRoutePlanId = nil
 
         observationTasks = [
             Task { [weak self, convexClient] in
@@ -112,7 +120,7 @@ final class PlanningViewModel {
             return
         }
 
-        guard let sessionId = chatStore.flowState.sessionId ?? sessionStore.activeSessionId else {
+        guard let sessionId = resolvedSessionId else {
             errorMessage = "Planning session not ready"
             return
         }
@@ -139,6 +147,10 @@ final class PlanningViewModel {
 
         let activeIndex = Self.phaseIndex(from: rawMessages)
         phases = Self.makePhases(activeIndex: activeIndex)
+
+        if let routePlanId = Self.routePlanId(from: rawMessages) {
+            startObservingRoutePlan(routePlanId)
+        }
     }
 
     private func updateRoutePlans(_ routePlans: [LaneShadowRoutePlanSnapshot]) {
@@ -149,15 +161,77 @@ final class PlanningViewModel {
         if let activePlan = routePlans.first(where: {
             $0.status == "pending" || $0.status == "running"
         }) {
-            activeRoutePlanId = activePlan.id
+            startObservingRoutePlan(activePlan.id)
         }
 
         if let failedPlan = routePlans.first(where: { $0.status == "failed" }) {
-            didDispatchTerminalState = true
-            isThinking = false
-            errorMessage = failedPlan.errorMessage ?? failedPlan.statusMessage ?? "Planning failed"
-            chatStore.dispatch(.planningError(errorMessage ?? "Planning failed"))
+            dispatchRoutePlanFailure(
+                failedPlan.errorMessage ?? failedPlan.statusMessage ?? "Planning failed"
+            )
         }
+    }
+
+    private func startObservingRoutePlan(_ routePlanId: String) {
+        guard activeRoutePlanId != routePlanId else {
+            return
+        }
+
+        activeRoutePlanId = routePlanId
+        didDispatchTerminalState = false
+        routePlanObservationTask?.cancel()
+
+        let convexClient = convexClient
+        routePlanObservationTask = Task { [weak self, convexClient] in
+            guard let self else { return }
+            for await routePlan in convexClient.subscribeToRoutePlan(routePlanId: routePlanId) {
+                if Task.isCancelled {
+                    return
+                }
+
+                await MainActor.run {
+                    handleRoutePlanSnapshot(routePlan)
+                }
+
+                if await MainActor.run(body: { didDispatchTerminalState }) {
+                    return
+                }
+            }
+        }
+    }
+
+    private func handleRoutePlanSnapshot(_ routePlan: LaneShadowRoutePlanSnapshot) {
+        guard !didDispatchTerminalState else {
+            return
+        }
+
+        switch routePlan.status {
+        case "completed":
+            if let routeOptions = routePlan.routeOptions, !routeOptions.options.isEmpty {
+                didDispatchTerminalState = true
+                isThinking = false
+                errorMessage = nil
+                chatStore.dispatch(.planningSuccess(routeOptions))
+            } else {
+                dispatchRoutePlanFailure(
+                    routePlan.errorMessage ?? routePlan.statusMessage ?? "Planning results unavailable"
+                )
+            }
+        case "failed":
+            dispatchRoutePlanFailure(
+                routePlan.errorMessage ?? routePlan.statusMessage ?? "Planning failed"
+            )
+        case "pending", "running":
+            activeRoutePlanId = routePlan.id
+        default:
+            break
+        }
+    }
+
+    private func dispatchRoutePlanFailure(_ message: String) {
+        didDispatchTerminalState = true
+        isThinking = false
+        errorMessage = message
+        chatStore.dispatch(.planningError(message))
     }
 
     private static func convertMessage(_ message: LaneShadowSessionMessage) -> LSChatMessage {
@@ -221,6 +295,20 @@ final class PlanningViewModel {
         return 0
     }
 
+    private static func routePlanId(from rawMessages: [LaneShadowSessionMessage]) -> String? {
+        for message in rawMessages.reversed() {
+            guard let attachments = message.attachments else {
+                continue
+            }
+
+            if let routePlanId = attachments.first(where: { $0.type == "route_options" })?.routePlanId {
+                return routePlanId
+            }
+        }
+
+        return nil
+    }
+
     private static func makePhases(activeIndex: Int) -> [PlanningPhase] {
         phaseLabels.enumerated().map { index, label in
             let state: PhaseState = if index < activeIndex {
@@ -261,6 +349,10 @@ final class PlanningViewModel {
     ]
 
     private static let finalizingPhaseIndex = phaseLabels.count - 1
+
+    private var resolvedSessionId: String? {
+        chatStore.flowState.sessionId ?? sessionStore.activeSessionId ?? fallbackSessionId
+    }
 }
 
 private struct PlanningContentPayload: Decodable {

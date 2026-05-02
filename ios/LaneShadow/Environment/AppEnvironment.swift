@@ -5,6 +5,8 @@ import SwiftUI
 struct AppEnvironment: @unchecked Sendable {
     let clerkAuth: ClerkAuth
     let convexClient: LaneShadowConvexClient
+    let sessionStore: SessionStore
+    let chatStore: ChatStore
 
     @MainActor
     static func live() -> AppEnvironment {
@@ -18,6 +20,20 @@ struct AppEnvironment: @unchecked Sendable {
             try await clerkAuth.convexJWT()
         }
         return AppEnvironment(clerkAuth: clerkAuth, convexClient: convexClient)
+    }
+
+    @MainActor
+    init(
+        clerkAuth: ClerkAuth,
+        convexClient: LaneShadowConvexClient,
+        sessionStore: SessionStore? = nil,
+        chatStore: ChatStore? = nil
+    ) {
+        let resolvedSessionStore = sessionStore ?? SessionStore()
+        self.clerkAuth = clerkAuth
+        self.convexClient = convexClient
+        self.sessionStore = resolvedSessionStore
+        self.chatStore = chatStore ?? ChatStore(sessionStore: resolvedSessionStore)
     }
 }
 

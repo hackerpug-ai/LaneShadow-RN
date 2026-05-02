@@ -1,14 +1,21 @@
 import Foundation
+import LaneShadowTheme
+import SwiftUI
 import Testing
+import ViewInspector
+import XCTest
 @testable import LaneShadow
 
 @Suite("Planning Screen Wiring Tests")
 @MainActor
 struct PlanningScreenWiringTests {
     @Test
-    func planningScreenSessionMessagesStreamRenders() async {
+    func planningScreenSessionMessagesStreamRenders() async throws {
         let context = makePlanningContext()
         context.viewModel.shouldRenderMap = false
+        let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
+        let hostingController = UIHostingController(rootView: screen)
+        hostingController.loadViewIfNeeded()
 
         let riderMessage = makeSessionMessage(
             id: "message-1",
@@ -60,15 +67,24 @@ struct PlanningScreenWiringTests {
         #expect(context.viewModel.screenState.messages.map(\.content) == expectedMessages)
         #expect(context.viewModel.isThinking)
 
+        let inspected = try screen.inspect()
+        let transcriptTexts = try inspected.findAll(ViewType.Text.self).compactMap { try? $0.string() }
+        let contentIndices = expectedMessages.compactMap { transcriptTexts.firstIndex(of: $0) }
+        #expect(contentIndices.count == expectedMessages.count)
+        #expect(contentIndices == contentIndices.sorted())
+
         context.client.finishObservationStreams()
         context.observationTask.cancel()
         await context.observationTask.value
     }
 
     @Test
-    func planningScreenPhaseIndicatorBindsToMessageStatus() async {
+    func planningScreenPhaseIndicatorBindsToMessageStatus() async throws {
         let context = makePlanningContext()
         context.viewModel.shouldRenderMap = false
+        let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
+        let hostingController = UIHostingController(rootView: screen)
+        hostingController.loadViewIfNeeded()
 
         let riderMessage = makeSessionMessage(
             id: "message-1",
@@ -105,6 +121,13 @@ struct PlanningScreenWiringTests {
 
         context.client.sendSessionMessages([riderMessage, parsingMessage], sessionId: "session-123")
         await pumpMainActor()
+        let parsingPhaseIndicator = try screen.inspect().find(
+            viewWithAccessibilityIdentifier: "planningscreen-phase-indicator"
+        )
+        let parsingPhaseTexts = try parsingPhaseIndicator.findAll(ViewType.Text.self).compactMap {
+            try? $0.string()
+        }
+        #expect(parsingPhaseTexts.contains("Parsing"))
         #expect(context.viewModel.phases.map(\.state) == [
             .active,
             .pending,
@@ -118,6 +141,13 @@ struct PlanningScreenWiringTests {
             sessionId: "session-123"
         )
         await pumpMainActor()
+        let searchingPhaseIndicator = try screen.inspect().find(
+            viewWithAccessibilityIdentifier: "planningscreen-phase-indicator"
+        )
+        let searchingPhaseTexts = try searchingPhaseIndicator.findAll(ViewType.Text.self).compactMap {
+            try? $0.string()
+        }
+        #expect(searchingPhaseTexts.contains("Searching"))
         #expect(context.viewModel.phases.map(\.state) == [
             .done,
             .active,
@@ -131,6 +161,13 @@ struct PlanningScreenWiringTests {
             sessionId: "session-123"
         )
         await pumpMainActor()
+        let draftingPhaseIndicator = try screen.inspect().find(
+            viewWithAccessibilityIdentifier: "planningscreen-phase-indicator"
+        )
+        let draftingPhaseTexts = try draftingPhaseIndicator.findAll(ViewType.Text.self).compactMap {
+            try? $0.string()
+        }
+        #expect(draftingPhaseTexts.contains("Drafting"))
         #expect(context.viewModel.phases.map(\.state) == [
             .done,
             .done,
@@ -145,8 +182,71 @@ struct PlanningScreenWiringTests {
     }
 
     @Test
-    func planningScreenFreeTextSendUsesExistingSessionId() async {
+    func planningScreenRoutePlanCompletionDispatchesPlanningSuccess() async throws {
         let context = makePlanningContext()
+        context.viewModel.shouldRenderMap = false
+        let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
+        let hostingController = UIHostingController(rootView: screen)
+        hostingController.loadViewIfNeeded()
+
+        let routePlanId = "route-plan-123"
+        let routeOptions = makeRouteOptions(planId: routePlanId)
+        let riderMessage = makeSessionMessage(
+            id: "message-1",
+            role: "rider",
+            content: "Find a scenic route",
+            createdAt: 1_700_000_000_000,
+            kind: "text",
+            status: "complete"
+        )
+        let routeAttachment = LaneShadowSendMessageAttachment(
+            type: "route_options",
+            routePlanId: routePlanId
+        )
+        let routingMessage = makeSessionMessage(
+            id: "message-2",
+            role: "system",
+            content: makePlanningContent(statusLine: "Planning routes"),
+            createdAt: 1_700_000_001_000,
+            kind: "routing_card",
+            status: "complete",
+            attachments: [routeAttachment]
+        )
+
+        context.client.sendSessionMessages(
+            [riderMessage, routingMessage],
+            sessionId: "session-123"
+        )
+        await pumpMainActor()
+
+        context.client.sendRoutePlan(
+            makeRoutePlan(
+                id: routePlanId,
+                status: "completed",
+                routeOptions: routeOptions
+            )
+        )
+        await pumpMainActor()
+
+        #expect(context.chatStore.flowState.phase == .routeResults)
+        #expect(context.chatStore.flowState.sessionId == "session-123")
+        #expect(context.chatStore.flowState.routeOptions == routeOptions)
+
+        context.client.finishObservationStreams()
+        context.observationTask.cancel()
+        await context.observationTask.value
+    }
+
+    @Test
+    func planningScreenFreeTextSendUsesExistingSessionId() async throws {
+        let context = makePlanningContext()
+        context.viewModel.shouldRenderMap = false
+        let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
+        let hostingController = UIHostingController(rootView: screen)
+        hostingController.loadViewIfNeeded()
+
+        let inspected = try screen.inspect()
+        _ = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-chat-input")
 
         await context.viewModel.submitRefinement("Refine the route")
 
@@ -169,9 +269,12 @@ struct PlanningScreenWiringTests {
     }
 
     @Test
-    func planningScreenCancelButtonCallsCancelPlanAndResetsFlow() async {
+    func planningScreenCancelButtonCallsCancelPlanAndResetsFlow() async throws {
         let context = makePlanningContext()
         context.viewModel.shouldRenderMap = false
+        let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
+        let hostingController = UIHostingController(rootView: screen)
+        hostingController.loadViewIfNeeded()
 
         context.client.sendActiveRoutePlans(
             [
@@ -184,7 +287,12 @@ struct PlanningScreenWiringTests {
             sessionId: "session-123"
         )
         await pumpMainActor()
-        await context.viewModel.cancelPlanning()
+
+        let inspected = try screen.inspect()
+        let chatInput = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-chat-input")
+        let collapseButton = try chatInput.find(viewWithAccessibilityIdentifier: "lschatinput-collapse")
+        try collapseButton.button().tap()
+        await pumpMainActor()
 
         #expect(context.client.cancelRoutePlanCalls == ["route-plan-123"])
         #expect(context.chatStore.flowState.phase == .idle)
@@ -233,7 +341,8 @@ struct PlanningScreenWiringTests {
         content: String,
         createdAt: Double,
         kind: String?,
-        status: String?
+        status: String?,
+        attachments: [LaneShadowSendMessageAttachment]? = nil
     ) -> LaneShadowSessionMessage {
         LaneShadowSessionMessage(
             id: id,
@@ -243,7 +352,7 @@ struct PlanningScreenWiringTests {
             createdAt: createdAt,
             kind: kind,
             status: status,
-            attachments: nil,
+            attachments: attachments,
             thinkingSteps: nil
         )
     }

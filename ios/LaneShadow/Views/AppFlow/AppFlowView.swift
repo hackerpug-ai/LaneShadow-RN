@@ -15,7 +15,7 @@ struct AppFlowView: View {
             case let .session(id):
                 SessionDestinationView(
                     sessionID: id,
-                    convexClient: appEnvironment.convexClient
+                    environment: appEnvironment
                 )
             case .home, .none:
                 AppHomeView()
@@ -26,21 +26,19 @@ struct AppFlowView: View {
 
 private struct SessionDestinationView: View {
     @State private var viewModel: PlanningViewModel
+    let environment: AppEnvironment
     let sessionID: String
 
-    init(sessionID: String, convexClient: any LaneShadowPlanningDataProviding) {
+    init(sessionID: String, environment: AppEnvironment) {
+        self.environment = environment
         self.sessionID = sessionID
 
-        let sessionStore = SessionStore(activeSessionId: sessionID)
-        let chatStore = ChatStore(
-            flowState: .planning(PlanningState(sessionId: sessionID)),
-            sessionStore: sessionStore
-        )
         _viewModel = State(
             initialValue: PlanningViewModel(
-                chatStore: chatStore,
-                sessionStore: sessionStore,
-                convexClient: convexClient
+                chatStore: environment.chatStore,
+                sessionStore: environment.sessionStore,
+                convexClient: environment.convexClient,
+                fallbackSessionId: sessionID
             )
         )
     }

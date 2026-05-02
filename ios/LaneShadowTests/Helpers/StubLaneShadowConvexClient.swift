@@ -6,10 +6,12 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
     private var currentUserContinuation: AsyncStream<LaneShadowCurrentUser?>.Continuation?
     private var sessionsContinuation: AsyncStream<[Session]>.Continuation?
     private var sessionMessagesContinuations: [String: AsyncStream<[LaneShadowSessionMessage]>.Continuation] = [:]
+    private var routePlanContinuations: [String: AsyncStream<LaneShadowRoutePlanSnapshot>.Continuation] = [:]
     private var activeRoutePlanContinuations: [String: AsyncStream<[LaneShadowRoutePlanSnapshot]>.Continuation] = [:]
     private var latestCurrentUser: LaneShadowCurrentUser?
     private var latestSessions: [Session] = []
     private var latestSessionMessages: [String: [LaneShadowSessionMessage]] = [:]
+    private var latestRoutePlans: [String: LaneShadowRoutePlanSnapshot] = [:]
     private var latestActiveRoutePlans: [String: [LaneShadowRoutePlanSnapshot]] = [:]
 
     var stubCreatePlanningSessionResult = LaneShadowPlanningSessionCreationResult(sessionId: "session-123")
@@ -53,6 +55,15 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
         }
     }
 
+    func subscribeToRoutePlan(routePlanId: String) -> AsyncStream<LaneShadowRoutePlanSnapshot> {
+        AsyncStream { continuation in
+            routePlanContinuations[routePlanId] = continuation
+            if let currentPlan = latestRoutePlans[routePlanId] {
+                continuation.yield(currentPlan)
+            }
+        }
+    }
+
     func subscribeToActiveRoutePlans(sessionId: String) -> AsyncStream<[LaneShadowRoutePlanSnapshot]> {
         AsyncStream { continuation in
             activeRoutePlanContinuations[sessionId] = continuation
@@ -77,6 +88,11 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
         sessionMessagesContinuations[sessionId]?.yield(messages)
     }
 
+    func sendRoutePlan(_ routePlan: LaneShadowRoutePlanSnapshot) {
+        latestRoutePlans[routePlan.id] = routePlan
+        routePlanContinuations[routePlan.id]?.yield(routePlan)
+    }
+
     func sendActiveRoutePlans(_ plans: [LaneShadowRoutePlanSnapshot], sessionId: String) {
         latestActiveRoutePlans[sessionId] = plans
         activeRoutePlanContinuations[sessionId]?.yield(plans)
@@ -93,6 +109,11 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
             continuation.finish()
         }
         sessionMessagesContinuations.removeAll()
+
+        for continuation in routePlanContinuations.values {
+            continuation.finish()
+        }
+        routePlanContinuations.removeAll()
 
         for continuation in activeRoutePlanContinuations.values {
             continuation.finish()

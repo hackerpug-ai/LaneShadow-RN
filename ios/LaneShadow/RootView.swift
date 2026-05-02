@@ -65,10 +65,10 @@ struct RootView: View {
                 AppFlowView(route: .session(id: id))
             case .home, .none:
                 AuthenticatedLandingView(
+                    environment: appEnvironment,
                     displayName: authenticatedDisplayName,
                     isHydratingCurrentUser: appState.isHydratingCurrentUser,
                     authMessage: appState.authMessage,
-                    convexClient: appEnvironment.convexClient,
                     onLogout: signOut,
                     onSessionStarted: { sessionID in
                         Task { @MainActor in
@@ -177,6 +177,7 @@ struct RootView: View {
 
 private struct AuthenticatedLandingView: View {
     @State private var viewModel: IdleViewModel
+    let environment: AppEnvironment
     let displayName: String
     let isHydratingCurrentUser: Bool
     let authMessage: String?
@@ -184,26 +185,25 @@ private struct AuthenticatedLandingView: View {
     let onSessionStarted: @MainActor @Sendable (String) -> Void
 
     init(
+        environment: AppEnvironment,
         displayName: String,
         isHydratingCurrentUser: Bool,
         authMessage: String?,
-        convexClient: any LaneShadowPlanningDataProviding,
         onLogout: @escaping () -> Void,
         onSessionStarted: @escaping @MainActor @Sendable (String) -> Void
     ) {
+        self.environment = environment
         self.displayName = displayName
         self.isHydratingCurrentUser = isHydratingCurrentUser
         self.authMessage = authMessage
         self.onLogout = onLogout
         self.onSessionStarted = onSessionStarted
 
-        let sessionStore = SessionStore()
-        let chatStore = ChatStore(sessionStore: sessionStore)
         _viewModel = State(
             initialValue: IdleViewModel(
-                chatStore: chatStore,
-                sessionStore: sessionStore,
-                convexClient: convexClient,
+                chatStore: environment.chatStore,
+                sessionStore: environment.sessionStore,
+                convexClient: environment.convexClient,
                 onSessionStarted: onSessionStarted
             )
         )

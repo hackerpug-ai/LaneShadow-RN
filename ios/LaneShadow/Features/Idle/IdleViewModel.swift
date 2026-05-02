@@ -83,13 +83,25 @@ final class IdleViewModel {
 
         do {
             let session = try await convexClient.createPlanningSession(firstMessage: trimmedMessage)
-            _ = try await convexClient.sendPlanningMessage(
-                sessionId: session.sessionId,
-                content: trimmedMessage,
-                currentLocation: nil
-            )
             chatStore.dispatch(.sendMessageWithSession(trimmedMessage, sessionId: session.sessionId))
             onSessionStarted(session.sessionId)
+
+            let sessionId = session.sessionId
+            let message = trimmedMessage
+            Task { [convexClient] in
+                do {
+                    _ = try await convexClient.sendPlanningMessage(
+                        sessionId: sessionId,
+                        content: message,
+                        currentLocation: nil
+                    )
+                } catch {
+                    let localizedError = error.localizedDescription
+                    await MainActor.run { [weak self] in
+                        self?.errorMessage = localizedError
+                    }
+                }
+            }
         } catch {
             errorMessage = error.localizedDescription
         }

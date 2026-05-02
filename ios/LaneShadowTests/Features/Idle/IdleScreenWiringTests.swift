@@ -49,11 +49,33 @@ struct IdleScreenWiringTests {
     }
 
     @Test
-    func idleScreenChipTapCreatesSessionAndSendsMessage() async throws {
-        let client = StubLaneShadowConvexClient()
-        client.stubCreatePlanningSessionResult = LaneShadowPlanningSessionCreationResult(
-            sessionId: "session-123"
+    func idleScreenChipTapInvokesSuggestionClosure() async throws {
+        var tappedCount = 0
+        var tappedChip: MockSuggestionChip?
+
+        let screen = IdleScreen(
+            provider: IdleMockProvider.self,
+            onSuggestionTap: { chip in
+                tappedCount += 1
+                tappedChip = chip
+            }
         )
+        .laneShadowTheme()
+
+        let inspected = try screen.inspect()
+        let chatInputView = try inspected.find(viewWithAccessibilityIdentifier: "idlescreen-chatinput")
+        let chipButton = try chatInputView.find(
+            viewWithAccessibilityIdentifier: "lschatinput-chip-coastal-cruise"
+        )
+        try chipButton.button().tap()
+
+        #expect(tappedCount == 1)
+        #expect(tappedChip?.label == "Coastal cruise")
+    }
+
+    @Test
+    func idleScreenSubmitSuggestionDispatchesPlanningBeforeSendCompletes() async throws {
+        let client = BlockingIdlePlanningClient()
 
         let sessionStore = SessionStore()
         let chatStore = ChatStore(
@@ -69,36 +91,32 @@ struct IdleScreenWiringTests {
             convexClient: client
         )
 
-        let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
-        let hostingController = UIHostingController(rootView: screen)
-        hostingController.loadViewIfNeeded()
-
-        let observationTask = Task {
-            await viewModel.observe()
-        }
-
-        let inspected = try screen.inspect()
-        _ = try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-chip-plan-a-scenic-2-hour-ride")
+        let sendPlanningMessageSignal = client.sendPlanningMessageCallSignal()
 
         await viewModel.submitSuggestion("Plan a scenic 2-hour ride")
 
-        #expect(client.createPlanningSessionCalls == ["Plan a scenic 2-hour ride"])
-        #expect(
-            client.sendPlanningMessageCalls == [
-                LaneShadowPlanningMessageCall(
-                    sessionId: "session-123",
-                    content: "Plan a scenic 2-hour ride",
-                    currentLocation: nil
-                ),
-            ]
-        )
-        #expect(chatStore.flowState.phase == .planning)
-        #expect(chatStore.flowState.sessionId == "session-123")
-        #expect(sessionStore.activeSessionId == "session-123")
+        let startedCall = await sendPlanningMessageSignal.wait()
 
-        client.finishObservationStreams()
-        observationTask.cancel()
-        await observationTask.value
+        #expect(client.createPlanningSessionCalls == ["Plan a scenic 2-hour ride"])
+        #expect(startedCall == LaneShadowPlanningMessageCall(
+            sessionId: "backend-session-123",
+            content: "Plan a scenic 2-hour ride",
+            currentLocation: nil
+        ))
+        #expect(client.sendPlanningMessageCalls == [startedCall])
+        #expect(chatStore.flowState.phase == .planning)
+        #expect(chatStore.flowState.sessionId == "backend-session-123")
+        #expect(sessionStore.activeSessionId == "backend-session-123")
+        #expect(viewModel.isSubmitting == false)
+
+        client.resumeSendPlanningMessage(
+            LaneShadowSendMessageResult(
+                response: "",
+                messageId: "message-123",
+                attachments: nil
+            )
+        )
+        await pumpMainActor()
     }
 
     @Test
@@ -142,5 +160,111 @@ struct IdleScreenWiringTests {
         for _ in 0 ..< iterations {
             await Task.yield()
         }
+    }
+}
+
+private actor AsyncSignal<Value: Sendable> {
+    private var bufferedValues: [Value] = []
+    private var waiters: [CheckedContinuation<Value, Never>] = []
+
+    func send(_ value: Value) {
+        if waiters.isEmpty {
+            bufferedValues.append(value)
+            return
+        }
+
+        waiters.removeFirst().resume(returning: value)
+    }
+
+    func wait() async -> Value {
+        if !bufferedValues.isEmpty {
+            return bufferedValues.removeFirst()
+        }
+
+        return await withCheckedContinuation { continuation in
+            waiters.append(continuation)
+        }
+    }
+}
+
+@MainActor
+final class BlockingIdlePlanningClient: @unchecked Sendable, @preconcurrency LaneShadowPlanningDataProviding {
+    private var sendContinuation: CheckedContinuation<LaneShadowSendMessageResult, Error>?
+    private let sendPlanningMessageStartedSignal = AsyncSignal<LaneShadowPlanningMessageCall>()
+
+    private(set) var createPlanningSessionCalls: [String] = []
+    private(set) var sendPlanningMessageCalls: [LaneShadowPlanningMessageCall] = []
+
+    var stubCreatePlanningSessionResult = LaneShadowPlanningSessionCreationResult(
+        sessionId: "backend-session-123"
+    )
+
+    func subscribeToCurrentUser() -> AsyncStream<LaneShadowCurrentUser?> {
+        AsyncStream { continuation in
+            continuation.finish()
+        }
+    }
+
+    func subscribeToSessions() -> AsyncStream<[Session]> {
+        AsyncStream { continuation in
+            continuation.finish()
+        }
+    }
+
+    func subscribeToSessionMessages(
+        sessionId _: String,
+        limit _: Int
+    ) -> AsyncStream<[LaneShadowSessionMessage]> {
+        AsyncStream { continuation in
+            continuation.finish()
+        }
+    }
+
+    func subscribeToRoutePlan(routePlanId _: String) -> AsyncStream<LaneShadowRoutePlanSnapshot> {
+        AsyncStream { continuation in
+            continuation.finish()
+        }
+    }
+
+    func subscribeToActiveRoutePlans(sessionId _: String) -> AsyncStream<[LaneShadowRoutePlanSnapshot]> {
+        AsyncStream { continuation in
+            continuation.finish()
+        }
+    }
+
+    func createPlanningSession(firstMessage: String) async throws -> LaneShadowPlanningSessionCreationResult {
+        createPlanningSessionCalls.append(firstMessage)
+        return stubCreatePlanningSessionResult
+    }
+
+    func sendPlanningMessage(
+        sessionId: String,
+        content: String,
+        currentLocation: LaneShadowCurrentLocation?
+    ) async throws -> LaneShadowSendMessageResult {
+        let call = LaneShadowPlanningMessageCall(
+            sessionId: sessionId,
+            content: content,
+            currentLocation: currentLocation
+        )
+        sendPlanningMessageCalls.append(call)
+        await sendPlanningMessageStartedSignal.send(call)
+
+        return try await withCheckedThrowingContinuation { continuation in
+            sendContinuation = continuation
+        }
+    }
+
+    func cancelRoutePlan(routePlanId _: String) async throws {}
+
+    func finishObservationStreams() {}
+
+    fileprivate func sendPlanningMessageCallSignal() -> AsyncSignal<LaneShadowPlanningMessageCall> {
+        sendPlanningMessageStartedSignal
+    }
+
+    func resumeSendPlanningMessage(_ result: LaneShadowSendMessageResult) {
+        sendContinuation?.resume(returning: result)
+        sendContinuation = nil
     }
 }
