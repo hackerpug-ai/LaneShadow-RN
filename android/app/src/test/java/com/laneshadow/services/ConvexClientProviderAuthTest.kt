@@ -4,10 +4,16 @@ import android.content.Context
 import com.google.common.truth.Truth.assertThat
 import com.laneshadow.data.model.AuthState
 import com.laneshadow.data.model.ClerkUser
+import com.laneshadow.data.route.RoutePlan
+import com.laneshadow.data.session.PlanningSession
 import com.laneshadow.data.repository.AuthRepository
+import com.laneshadow.ui.organisms.Session
+import com.laneshadow.ui.atoms.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.Json
 import org.junit.Test
 
 class ConvexClientProviderAuthTest {
@@ -74,6 +80,34 @@ class ConvexClientProviderAuthTest {
         assertThat(authRepository.observeAuthState().value).isEqualTo(AuthState.SignedOut)
         assertThat(convexGateway.logoutCount).isEqualTo(1)
     }
+
+    @Test
+    fun sendMessageResponseDto_decodesAttachmentsBearingResponseShape() {
+        val payload = """
+            {
+              "response": "Route plan generated",
+              "messageId": "message_42",
+              "attachments": [
+                {
+                  "type": "route_plan",
+                  "routePlanId": "plan_7"
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val decoded = Json.decodeFromString<ConvexSendMessageResponseDto>(payload)
+
+        assertThat(decoded.response).isEqualTo("Route plan generated")
+        assertThat(decoded.messageId).isEqualTo("message_42")
+        assertThat(decoded.attachments).isNotNull()
+        assertThat(decoded.attachments!!).containsExactly(
+            ConvexSendMessageAttachmentDto(
+                type = "route_plan",
+                routePlanId = "plan_7",
+            ),
+        )
+    }
 }
 
 private class RecordingConvexGateway(
@@ -99,6 +133,29 @@ private class RecordingConvexGateway(
         currentUserFailure?.let { throw it }
         return currentUser
     }
+
+    override fun observeCurrentUser() = emptyFlow<ConvexCurrentUser?>()
+
+    override fun observePlanningSessions() = emptyFlow<List<PlanningSession>>()
+
+    override fun observeSessionMessages(sessionId: String) = emptyFlow<List<com.laneshadow.data.chat.SessionMessage>>()
+
+    override fun observeActiveRoutePlans(sessionId: String) = emptyFlow<List<RoutePlan>>()
+
+    override fun observeSessions() = emptyFlow<List<Session>>()
+
+    override suspend fun sendMessage(
+        sessionId: String,
+        content: String,
+        currentLocation: LatLng?,
+    ): Result<ConvexSendMessageResponseDto> =
+        Result.failure(UnsupportedOperationException("not needed in this test"))
+
+    override suspend fun createSession(firstMessage: String): Result<String> =
+        Result.failure(UnsupportedOperationException("not needed in this test"))
+
+    override suspend fun cancelPlan(routePlanId: String): Result<Unit> =
+        Result.failure(UnsupportedOperationException("not needed in this test"))
 }
 
 private class FakeAuthRepository(

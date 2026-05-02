@@ -5,9 +5,10 @@ import com.laneshadow.BuildConfig
 import com.laneshadow.data.chat.SessionMessage
 import com.laneshadow.data.dto.RoutePlanDto
 import com.laneshadow.data.dto.SessionMessageDto
+import com.laneshadow.data.repository.AuthRepository
 import com.laneshadow.data.route.RoutePlan
 import com.laneshadow.data.session.PlanningSession
-import com.laneshadow.data.repository.AuthRepository
+import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.ui.organisms.Session
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.convex.android.AuthProvider
@@ -19,7 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -36,21 +36,18 @@ internal interface ConvexGateway {
     suspend fun bindAuthToken(token: String): Result<Unit>
     suspend fun clearAuth(context: Context): Result<Unit>
     suspend fun getCurrentUser(): ConvexCurrentUser?
-    fun observeCurrentUser(): Flow<ConvexCurrentUser?> = emptyFlow()
-    fun observePlanningSessions(): Flow<List<PlanningSession>> = emptyFlow()
-    fun observeSessionMessages(sessionId: String): Flow<List<SessionMessage>> = emptyFlow()
-    fun observeActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>> = emptyFlow()
-    fun observeSessions(): Flow<List<Session>> = emptyFlow()
+    fun observeCurrentUser(): Flow<ConvexCurrentUser?>
+    fun observePlanningSessions(): Flow<List<PlanningSession>>
+    fun observeSessionMessages(sessionId: String): Flow<List<SessionMessage>>
+    fun observeActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>>
+    fun observeSessions(): Flow<List<Session>>
     suspend fun sendMessage(
         sessionId: String,
         content: String,
-        currentLocation: com.laneshadow.ui.atoms.LatLng? = null,
-    ): Result<Unit> =
-        Result.failure(UnsupportedOperationException("sendMessage is not implemented by this gateway"))
-    suspend fun createSession(firstMessage: String): Result<String> =
-        Result.failure(UnsupportedOperationException("createSession is not implemented by this gateway"))
-    suspend fun cancelPlan(routePlanId: String): Result<Unit> =
-        Result.failure(UnsupportedOperationException("cancelPlan is not implemented by this gateway"))
+        currentLocation: LatLng? = null,
+    ): Result<ConvexSendMessageResponseDto>
+    suspend fun createSession(firstMessage: String): Result<String>
+    suspend fun cancelPlan(routePlanId: String): Result<Unit>
 }
 
 @Singleton
@@ -106,9 +103,10 @@ class ConvexClientProvider private constructor(
     suspend fun sendMessage(
         sessionId: String,
         content: String,
-        currentLocation: com.laneshadow.ui.atoms.LatLng? = null,
+        currentLocation: LatLng? = null,
     ): Result<Unit> = runAuthenticated {
         activeGateway.sendMessage(sessionId, content, currentLocation).getOrThrow()
+        Unit
     }
 
     suspend fun createSession(
@@ -255,11 +253,11 @@ private class RealConvexGateway(
     override suspend fun sendMessage(
         sessionId: String,
         content: String,
-        currentLocation: com.laneshadow.ui.atoms.LatLng?,
-    ): Result<Unit> = runCatching {
-        convexClient.action<Map<String, String>>(
+        currentLocation: LatLng?,
+    ): Result<ConvexSendMessageResponseDto> = runCatching {
+        convexClient.action<ConvexSendMessageResponseDto>(
             name = "actions/agent/sendMessage:sendMessage",
-            args = buildMap {
+            args = buildMap<String, Any?> {
                 put("sessionId", sessionId)
                 put("content", content)
                 currentLocation?.let {
@@ -273,7 +271,6 @@ private class RealConvexGateway(
                 }
             },
         )
-        Unit
     }
 
     override suspend fun createSession(firstMessage: String): Result<String> = runCatching {
@@ -338,4 +335,17 @@ private data class PlanningSessionDto(
 @Serializable
 private data class CreateSessionResponse(
     val sessionId: String,
+)
+
+@Serializable
+internal data class ConvexSendMessageAttachmentDto(
+    val type: String,
+    val routePlanId: String? = null,
+)
+
+@Serializable
+internal data class ConvexSendMessageResponseDto(
+    val response: String,
+    val messageId: String,
+    val attachments: List<ConvexSendMessageAttachmentDto>? = null,
 )

@@ -22,6 +22,22 @@ OUTCOME
 IdleScreen and PlanningScreen render real Convex data — greeting from db.users.getCurrentUser, suggestion-chip submit creates a real planning_sessions row, phase indicator pulses from real db.sessionMessages.list status updates.
 
 --------------------------------------------------------------------------------
+CYCLE 3 REMEDIATION
+--------------------------------------------------------------------------------
+
+- Replaced `ConvexClientProvider.sendMessage` map-based deserialization with a typed Convex action contract: `ConvexSendMessageResponseDto` + `ConvexSendMessageAttachmentDto`, still routed through `actions/agent/sendMessage:sendMessage`.
+- Removed default stub bodies from `ConvexGateway`; `observeSessions`, `sendMessage`, and `createSession` are now explicit abstract requirements, and the existing auth test double implements them directly.
+- Added attachments-bearing contract coverage in `android/app/src/test/java/com/laneshadow/services/ConvexClientProviderAuthTest.kt` via `sendMessageResponseDto_decodesAttachmentsBearingResponseShape`.
+- Scope exception for reviewer evidence: `ConvexClientProviderAuthTest.kt` is out of the original writeAllowed list but was updated to hold the typed send-message contract test required by the review.
+- Verification:
+  - `./gradlew :app:compileDebugKotlin` -> PASS
+  - `./gradlew :app:testDebugUnitTest --tests com.laneshadow.services.ConvexClientProviderAuthTest --tests com.laneshadow.services.ChatViewModelTest --tests com.laneshadow.navigation.AuthRootNavigationContractTest` -> PASS
+  - `./gradlew assembleDebug` -> PASS
+  - `adb install -r /Users/justinrich/Projects/LaneShadow/android/app/build/outputs/apk/debug/app-debug.apk && adb shell am start -n com.laneshadow.app/com.laneshadow.MainActivity && sleep 5 && adb exec-out screencap -p > /tmp/laneshadow-cycle3.png` -> PASS
+  - `./gradlew test` -> FAIL (baseline unrelated failures remain; 417 tests completed, 16 failed)
+  - `./gradlew detekt` -> FAIL (baseline lint issue at `android/app/src/androidTest/java/com/laneshadow/ui/LoginSmokeTest.kt:28`)
+
+--------------------------------------------------------------------------------
 🚫 CRITICAL CONSTRAINTS
 --------------------------------------------------------------------------------
 
@@ -250,9 +266,12 @@ Blocks: CHAT-S04-T06, CHAT-S04-T08, CHAT-S04-T09b
 - AC coverage: `IdleViewModelTest.kt` and `PlanningViewModelTest.kt` pass for AC-1 through AC-6; `AuthRootNavigationContractTest.kt` and `RepositoryModuleContractTest.kt` were added as scoped verification guards for the navigation and repository-contract review findings
 - Base replay RED evidence: `/tmp/CHAT-S04-T04-red/android` run against base commit `28f4eee2f3c08fefde144513d5d5deb19c5ea308` failed at `:app:compileDebugUnitTestKotlin` because the new idle/planning test sources could not resolve the implementation types yet
 - Cycle 2 remediation: `MainNavGraph` now starts at `Route.Home` instead of the raw idle route workaround; `IdleRoute` and `PlanningRoute` no longer use anonymous `{}` callbacks for visible controls; `ConvexClientProvider.sendMessage` now targets `actions/agent/sendMessage:sendMessage`; `AuthRootNavigationContractTest.kt` and `RepositoryModuleContractTest.kt` verify those contracts
+- Cycle 3 remediation: `ConvexClientProvider.sendMessage` now uses a typed send-message DTO with attachments support, and `ConvexGateway` requires explicit implementations instead of default stub bodies; the attachments-bearing contract is covered in `ConvexClientProviderAuthTest.kt`
 - `./gradlew :app:compileDebugKotlin`: `PASS`
 - `./gradlew :app:testDebugUnitTest --tests com.laneshadow.navigation.AuthRootNavigationContractTest --tests com.laneshadow.ui.idle.IdleViewModelTest --tests com.laneshadow.ui.planning.PlanningViewModelTest --tests com.laneshadow.di.RepositoryModuleContractTest`: `PASS`
+- `./gradlew :app:testDebugUnitTest --tests com.laneshadow.services.ConvexClientProviderAuthTest --tests com.laneshadow.services.ChatViewModelTest --tests com.laneshadow.navigation.AuthRootNavigationContractTest`: `PASS`
 - `./gradlew assembleDebug`: `PASS`
+- Emulator smoke check: `PASS` at `/tmp/laneshadow-cycle3.png` after installing `android/app/build/outputs/apk/debug/app-debug.apk` and launching `com.laneshadow.app/com.laneshadow.MainActivity`
 - `./gradlew test`: `BLOCKED` by existing repository baseline failures, including `SessionsDrawerTests`, `MockProviderVariantTest`, `AuthScreenViewModelTest`, `AuthScreensSourceStructureTest`, `LSPhaseIndicatorTest`, `LSRouteAttachmentCardTest`, and `PlanningScreenTest`
 - Emulator smoke check: `PASS` at `/tmp/laneshadow-cycle2.png` after installing `android/app/build/outputs/apk/debug/app-debug.apk` and launching `com.laneshadow.app/com.laneshadow.MainActivity`
 - `./gradlew detekt`: `BLOCKED` by existing lint baseline issue at `android/app/src/androidTest/java/com/laneshadow/ui/LoginSmokeTest.kt:28`
