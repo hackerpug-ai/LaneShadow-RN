@@ -6,17 +6,28 @@ import org.junit.Test
 
 class AuthRootNavigationContractTest {
     @Test
-    fun mainGraphRendersIdleScreenGreetingWithClerkFallbackWhileConvexCurrentUserHydrates() {
-        val source = File("src/main/java/com/laneshadow/navigation/MainNavGraph.kt").readText()
+    fun mainGraphRoutesHomeThroughIdleRouteWithoutMockDrivenIdleScreen() {
+        val mainGraphSource = File("src/main/java/com/laneshadow/navigation/MainNavGraph.kt").readText()
+        val idleRouteSource = File("src/main/java/com/laneshadow/ui/idle/IdleRoute.kt").readText()
+        val planningRouteSource = File("src/main/java/com/laneshadow/ui/planning/PlanningRoute.kt").readText()
 
-        assertThat(source).contains("getCurrentUser")
-        assertThat(source).contains("displayName")
-        assertThat(source).contains("clerkFallbackDisplayName")
-        assertThat(source).contains("AuthState.SignedIn")
-        assertThat(source).contains("IdleScreen(")
-        assertThat(source).contains("Where are we riding today")
-        assertThat(source).contains("auth_landing_logout")
-        assertThat(source).contains("idlescreen_current_user_greeting")
+        assertThat(mainGraphSource).contains("startDestination = Route.Home")
+        assertThat(mainGraphSource).contains("composable<Route.Home>")
+        assertThat(mainGraphSource).contains("HomeRoute(")
+        assertThat(mainGraphSource).contains("auth_landing_root")
+        assertThat(mainGraphSource).contains("auth_landing_logout")
+        assertThat(mainGraphSource).doesNotContain("IdleRoutePath")
+        assertThat(mainGraphSource).doesNotContain("IdleMockProvider")
+        assertThat(mainGraphSource).doesNotContain("IdleScreen(")
+
+        assertThat(idleRouteSource).doesNotContain("onCollapse = {}")
+        assertThat(idleRouteSource).doesNotContain("onFilter = {}")
+        assertThat(idleRouteSource).contains("viewModel.onInputChange(\"\")")
+        assertThat(idleRouteSource).contains("navController.navigate(Route.Sessions)")
+
+        assertThat(planningRouteSource).doesNotContain("onFilter = {}")
+        assertThat(planningRouteSource).contains("onCollapse = viewModel::cancel")
+        assertThat(planningRouteSource).contains("navController.navigate(Route.Sessions)")
     }
 
     @Test
