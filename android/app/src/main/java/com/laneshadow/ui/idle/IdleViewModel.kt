@@ -11,6 +11,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -97,28 +98,48 @@ class IdleViewModel @Inject constructor(
 
     private fun observeCurrentUser() {
         viewModelScope.launch {
-            userRepository.subscribeToCurrentUser().collect { user ->
-                val displayName = user?.displayName?.takeIf { it.isNotBlank() } ?: "Rider"
-                val timeOfDay = timeOfDayLabel(LocalTime.now().hour)
-                _state.update { current ->
-                    current.copy(
-                        greeting = buildGreeting(timeOfDay, displayName),
-                        greetingMeta = "READY TO RIDE",
-                        greetingEmphasis = displayName,
-                        isLoading = false,
-                    )
+            userRepository.subscribeToCurrentUser()
+                .catch { error ->
+                    _state.update { current ->
+                        current.copy(
+                            isLoading = false,
+                            subscriptionError = error.message ?: "Unable to load rider profile.",
+                        )
+                    }
                 }
-            }
+                .collect { user ->
+                    val displayName = user?.displayName?.takeIf { it.isNotBlank() } ?: "Rider"
+                    val timeOfDay = timeOfDayLabel(LocalTime.now().hour)
+                    _state.update { current ->
+                        current.copy(
+                            greeting = buildGreeting(timeOfDay, displayName),
+                            greetingMeta = "READY TO RIDE",
+                            greetingEmphasis = displayName,
+                            isLoading = false,
+                        )
+                    }
+                }
         }
     }
 
     private fun observeSessions() {
         viewModelScope.launch {
-            sessionRepository.subscribeToSessions().collect { sessions ->
-                _state.update { current ->
-                    current.copy(recentSessions = sessions)
+            sessionRepository.subscribeToSessions()
+                .catch { error ->
+                    _state.update { current ->
+                        current.copy(
+                            isLoading = false,
+                            subscriptionError = error.message ?: "Unable to load recent sessions.",
+                        )
+                    }
                 }
-            }
+                .collect { sessions ->
+                    _state.update { current ->
+                        current.copy(
+                            recentSessions = sessions,
+                        )
+                    }
+                }
         }
     }
 }

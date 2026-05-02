@@ -6,17 +6,16 @@ import org.junit.Test
 
 class AuthRootNavigationContractTest {
     @Test
-    fun mainGraphRendersIdleScreenGreetingWithClerkFallbackWhileConvexCurrentUserHydrates() {
+    fun mainGraphRoutesHomeThroughIdleRouteWithoutMockDrivenIdleScreen() {
         val source = File("src/main/java/com/laneshadow/navigation/MainNavGraph.kt").readText()
 
-        assertThat(source).contains("getCurrentUser")
-        assertThat(source).contains("displayName")
-        assertThat(source).contains("clerkFallbackDisplayName")
-        assertThat(source).contains("AuthState.SignedIn")
-        assertThat(source).contains("IdleScreen(")
-        assertThat(source).contains("Where are we riding today")
+        assertThat(source).contains("composable<Route.Home>")
+        assertThat(source).contains("HomeRoute(")
+        assertThat(source).contains("IdleRoute(")
+        assertThat(source).contains("auth_landing_root")
         assertThat(source).contains("auth_landing_logout")
-        assertThat(source).contains("idlescreen_current_user_greeting")
+        assertThat(source).doesNotContain("IdleMockProvider")
+        assertThat(source).doesNotContain("IdleScreen(")
     }
 
     @Test

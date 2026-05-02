@@ -1,13 +1,10 @@
 package com.laneshadow.data.route
 
-import com.laneshadow.data.dto.RoutePlanDto
 import com.laneshadow.services.RouteOption
-import dev.convex.android.ConvexClient
+import com.laneshadow.services.ConvexClientProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 
 data class RoutePlan(
     val id: String = "",
@@ -25,23 +22,11 @@ interface RouteRepository {
 
 @Singleton
 class RouteRepositoryImpl @Inject constructor(
-    private val convexClient: ConvexClient,
+    private val convexClientProvider: ConvexClientProvider,
 ) : RouteRepository {
     override fun subscribeToActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>> =
-        convexClient.subscribe<List<RoutePlanDto>>(
-            name = "db/routePlans:getActiveRoutePlansForSession",
-            args = mapOf("sessionId" to sessionId),
-        ).map { result ->
-            result.getOrDefault(emptyList()).map { it.toDomain() }
-        }.catch {
-            emit(emptyList())
-        }
+        convexClientProvider.observeActiveRoutePlans(sessionId)
 
-    override suspend fun cancelPlan(routePlanId: String): Result<Unit> = runCatching {
-        convexClient.mutation<Any?>(
-            name = "db/routePlans:cancelPlan",
-            args = mapOf("routePlanId" to routePlanId),
-        )
-        Unit
-    }
+    override suspend fun cancelPlan(routePlanId: String): Result<Unit> =
+        convexClientProvider.cancelPlan(routePlanId)
 }

@@ -31,9 +31,6 @@ fun PlanningRoute(
         onMenuTap = { navController.navigate(Route.Sessions) },
         onCollapse = viewModel::cancel,
         onFilter = {},
-        onDismissCancelConfirm = {},
-        onKeepPlanning = {},
-        onCancelPlan = viewModel::cancel,
     )
 
     LaunchedEffect(uiState.transition) {
@@ -71,7 +68,7 @@ internal fun PlanningUiState.toMockState(): PlanningScreenState {
         phases = planningPhases(activePhaseIndex),
         message = message,
         isThinking = isThinking,
-        showCancelConfirm = showCancelConfirm,
+        showCancelConfirm = false,
         phaseHeaders = phaseHeaders,
     )
 }

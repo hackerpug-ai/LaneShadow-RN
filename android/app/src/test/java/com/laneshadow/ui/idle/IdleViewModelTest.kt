@@ -9,9 +9,10 @@ import com.laneshadow.data.user.CurrentUser
 import com.laneshadow.data.user.UserRepository
 import com.laneshadow.services.MainDispatcherRule
 import com.laneshadow.ui.atoms.LatLng
-import java.util.concurrent.atomic.AtomicInteger
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -93,10 +94,32 @@ class IdleViewModelTest {
         assertThat(viewModel.state.value.navigateTo).isNull()
     }
 
+    @Test
+    fun state_surfacesCurrentUserSubscriptionFailures() = runTest {
+        val viewModel = IdleViewModel(
+            userRepository = FailingUserRepository(IOException("offline")),
+            sessionRepository = FakeSessionRepository(),
+            chatRepository = FakeChatRepository(),
+        )
+
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.subscriptionError).contains("offline")
+        assertThat(viewModel.state.value.isLoading).isFalse()
+    }
+
     private class FakeUserRepository(
         private val currentUser: CurrentUser?,
     ) : UserRepository {
         override fun subscribeToCurrentUser(): Flow<CurrentUser?> = flowOf(currentUser)
+    }
+
+    private class FailingUserRepository(
+        private val error: Throwable,
+    ) : UserRepository {
+        override fun subscribeToCurrentUser(): Flow<CurrentUser?> = flow {
+            throw error
+        }
     }
 
     private class FakeSessionRepository : SessionRepository {

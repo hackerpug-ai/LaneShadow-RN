@@ -11,6 +11,7 @@ data class IdleUiState(
     val isLoading: Boolean = true,
     val navigateTo: IdleNavTarget? = null,
     val errorToast: String? = null,
+    val subscriptionError: String? = null,
     val recentSessions: List<PlanningSession> = emptyList(),
 )
 

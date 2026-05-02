@@ -14,7 +14,7 @@ data class PlanningUiState(
     val activePlanId: String? = null,
     val isThinking: Boolean = true,
     val transition: PlanningTransition? = null,
-    val showCancelConfirm: Boolean = false,
+    val subscriptionError: String? = null,
     val phaseHeaders: Map<String, String> = defaultPhaseHeaders(),
 )
 

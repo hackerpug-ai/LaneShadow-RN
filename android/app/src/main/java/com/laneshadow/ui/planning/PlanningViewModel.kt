@@ -15,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -51,59 +52,88 @@ class PlanningViewModel @AssistedInject constructor(
 
     private fun observeSessions() {
         viewModelScope.launch {
-            sessionRepository.subscribeToSessions().collect { sessions ->
-                _state.update { current ->
-                    current.copy(recentSessions = sessions)
+            sessionRepository.subscribeToSessions()
+                .catch { error ->
+                    _state.update { current ->
+                        current.copy(
+                            isThinking = false,
+                            subscriptionError = error.message ?: "Unable to load planning sessions.",
+                        )
+                    }
                 }
-            }
+                .collect { sessions ->
+                    _state.update { current ->
+                        current.copy(
+                            recentSessions = sessions,
+                        )
+                    }
+                }
         }
     }
 
     private fun observeMessages() {
         viewModelScope.launch {
-            chatRepository.subscribeToMessages(sessionId).collect { messages ->
-                val latestAgentMessage = messages.latestAgentMessage()
-                val phaseIndex = phaseIndexForStatus(latestAgentMessage?.status)
-                _state.update { current ->
-                    current.copy(
-                        messages = messages,
-                        currentPhase = latestAgentMessage?.status?.lowercase() ?: "parsing",
-                        activePhaseIndex = phaseIndex,
-                        headerLabel = phaseHeaderForIndex(phaseIndex),
-                        phaseHeaders = defaultPhaseHeaders(),
-                    )
+            chatRepository.subscribeToMessages(sessionId)
+                .catch { error ->
+                    _state.update { current ->
+                        current.copy(
+                            isThinking = false,
+                            subscriptionError = error.message ?: "Unable to load planning messages.",
+                        )
+                    }
                 }
-            }
+                .collect { messages ->
+                    val latestAgentMessage = messages.latestAgentMessage()
+                    val phaseIndex = phaseIndexForStatus(latestAgentMessage?.status)
+                    _state.update { current ->
+                        current.copy(
+                            messages = messages,
+                            currentPhase = latestAgentMessage?.status?.lowercase() ?: "parsing",
+                            activePhaseIndex = phaseIndex,
+                            headerLabel = phaseHeaderForIndex(phaseIndex),
+                            phaseHeaders = defaultPhaseHeaders(),
+                        )
+                    }
+                }
         }
     }
 
     private fun observeActivePlans() {
         viewModelScope.launch {
-            routeRepository.subscribeToActiveRoutePlans(sessionId).collect { plans ->
-                val activePlan = plans.firstOrNull()
-                val completedPlan = plans.firstOrNull { it.status.equals("completed", ignoreCase = true) }
-                _state.update { current ->
-                    current.copy(
-                        activePlanId = activePlan?.id ?: current.activePlanId,
-                        isThinking = plans.any { plan -> plan.status.equals("pending", true) || plan.status.equals("running", true) },
-                    )
-                }
-
-                if (completedPlan != null && completedPlan.id != lastCompletedPlanId) {
-                    lastCompletedPlanId = completedPlan.id
+            routeRepository.subscribeToActiveRoutePlans(sessionId)
+                .catch { error ->
                     _state.update { current ->
                         current.copy(
-                            transition = PlanningTransition.Success(
-                                routeOptions = PlannedRouteOptions(
-                                    planId = completedPlan.id,
-                                    options = completedPlan.options,
-                                ),
-                            ),
                             isThinking = false,
+                            subscriptionError = error.message ?: "Unable to load active plans.",
                         )
                     }
                 }
-            }
+                .collect { plans ->
+                    val activePlan = plans.firstOrNull()
+                    val completedPlan = plans.firstOrNull { it.status.equals("completed", ignoreCase = true) }
+                    _state.update { current ->
+                        current.copy(
+                            activePlanId = activePlan?.id ?: current.activePlanId,
+                            isThinking = plans.any { plan -> plan.status.equals("pending", true) || plan.status.equals("running", true) },
+                        )
+                    }
+
+                    if (completedPlan != null && completedPlan.id != lastCompletedPlanId) {
+                        lastCompletedPlanId = completedPlan.id
+                        _state.update { current ->
+                            current.copy(
+                                transition = PlanningTransition.Success(
+                                    routeOptions = PlannedRouteOptions(
+                                        planId = completedPlan.id,
+                                        options = completedPlan.options,
+                                    ),
+                                ),
+                                isThinking = false,
+                            )
+                        }
+                    }
+                }
         }
     }
 

@@ -2,6 +2,11 @@ package com.laneshadow.services
 
 import android.content.Context
 import com.laneshadow.BuildConfig
+import com.laneshadow.data.chat.SessionMessage
+import com.laneshadow.data.dto.RoutePlanDto
+import com.laneshadow.data.dto.SessionMessageDto
+import com.laneshadow.data.route.RoutePlan
+import com.laneshadow.data.session.PlanningSession
 import com.laneshadow.data.repository.AuthRepository
 import com.laneshadow.ui.organisms.Session
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -24,17 +29,28 @@ import kotlinx.serialization.Serializable
 data class ConvexCurrentUser(
     val id: String,
     val displayName: String,
+    val email: String = "",
 )
 
 internal interface ConvexGateway {
     suspend fun bindAuthToken(token: String): Result<Unit>
     suspend fun clearAuth(context: Context): Result<Unit>
     suspend fun getCurrentUser(): ConvexCurrentUser?
+    fun observeCurrentUser(): Flow<ConvexCurrentUser?> = emptyFlow()
+    fun observePlanningSessions(): Flow<List<PlanningSession>> = emptyFlow()
+    fun observeSessionMessages(sessionId: String): Flow<List<SessionMessage>> = emptyFlow()
+    fun observeActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>> = emptyFlow()
     fun observeSessions(): Flow<List<Session>> = emptyFlow()
-    suspend fun sendMessage(sessionId: String, content: String): Result<Unit> =
+    suspend fun sendMessage(
+        sessionId: String,
+        content: String,
+        currentLocation: com.laneshadow.ui.atoms.LatLng? = null,
+    ): Result<Unit> =
         Result.failure(UnsupportedOperationException("sendMessage is not implemented by this gateway"))
     suspend fun createSession(firstMessage: String): Result<String> =
         Result.failure(UnsupportedOperationException("createSession is not implemented by this gateway"))
+    suspend fun cancelPlan(routePlanId: String): Result<Unit> =
+        Result.failure(UnsupportedOperationException("cancelPlan is not implemented by this gateway"))
 }
 
 @Singleton
@@ -69,6 +85,18 @@ class ConvexClientProvider private constructor(
             .collect { emit(it) }
     }
 
+    fun observeCurrentUser(): Flow<ConvexCurrentUser?> =
+        observeAuthenticatedFlow { activeGateway.observeCurrentUser() }
+
+    fun observePlanningSessions(): Flow<List<PlanningSession>> =
+        observeAuthenticatedFlow { activeGateway.observePlanningSessions() }
+
+    fun observeSessionMessages(sessionId: String): Flow<List<SessionMessage>> =
+        observeAuthenticatedFlow { activeGateway.observeSessionMessages(sessionId) }
+
+    fun observeActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>> =
+        observeAuthenticatedFlow { activeGateway.observeActiveRoutePlans(sessionId) }
+
     suspend fun getCurrentUser(): Result<ConvexCurrentUser> = runAuthenticated {
         val currentUser = activeGateway.getCurrentUser()
             ?: throw IllegalStateException("Current rider profile unavailable")
@@ -78,14 +106,19 @@ class ConvexClientProvider private constructor(
     suspend fun sendMessage(
         sessionId: String,
         content: String,
+        currentLocation: com.laneshadow.ui.atoms.LatLng? = null,
     ): Result<Unit> = runAuthenticated {
-        activeGateway.sendMessage(sessionId, content).getOrThrow()
+        activeGateway.sendMessage(sessionId, content, currentLocation).getOrThrow()
     }
 
     suspend fun createSession(
         firstMessage: String = "",
     ): Result<String> = runAuthenticated {
         activeGateway.createSession(firstMessage).getOrThrow()
+    }
+
+    suspend fun cancelPlan(routePlanId: String): Result<Unit> = runAuthenticated {
+        activeGateway.cancelPlan(routePlanId).getOrThrow()
     }
 
     suspend fun signOut(): Result<Unit> {
@@ -109,6 +142,16 @@ class ConvexClientProvider private constructor(
             handleConvexError(error)
             throw error
         }
+    }
+
+    private fun <T> observeAuthenticatedFlow(flowFactory: () -> Flow<T>): Flow<T> = flow {
+        bindClerkJwtBeforeAuthenticatedQuery().getOrThrow()
+        flowFactory()
+            .catch { error ->
+                handleConvexError(error)
+                throw error
+            }
+            .collect { emit(it) }
     }
 
     private suspend fun handleConvexError(error: Throwable) {
@@ -172,21 +215,63 @@ private class RealConvexGateway(
         return currentUser?.toCurrentUser()
     }
 
-    override fun observeSessions(): Flow<List<Session>> {
-        return convexClient.subscribe<List<PlanningSessionDto>>(
+    override fun observeCurrentUser(): Flow<ConvexCurrentUser?> =
+        convexClient.subscribe<CurrentUserDto?>(
+            name = "db/users:getCurrentUser",
+        ).map { result ->
+            result.getOrThrow()?.toCurrentUser()
+        }
+
+    override fun observePlanningSessions(): Flow<List<PlanningSession>> =
+        convexClient.subscribe<List<com.laneshadow.data.dto.PlanningSessionDto>>(
+            name = "db/planningSessions:listSessions",
+        ).map { result ->
+            result.getOrThrow().map { it.toDomain() }
+        }
+
+    override fun observeSessionMessages(sessionId: String): Flow<List<SessionMessage>> =
+        convexClient.subscribe<List<SessionMessageDto>>(
+            name = "db/sessionMessages:list",
+            args = mapOf("sessionId" to sessionId),
+        ).map { result ->
+            result.getOrThrow().map { it.toDomain() }
+        }
+
+    override fun observeActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>> =
+        convexClient.subscribe<List<RoutePlanDto>>(
+            name = "db/routePlans:getActiveRoutePlansForSession",
+            args = mapOf("sessionId" to sessionId),
+        ).map { result ->
+            result.getOrThrow().map { it.toDomain() }
+        }
+
+    override fun observeSessions(): Flow<List<Session>> =
+        convexClient.subscribe<List<PlanningSessionDto>>(
             name = "db/planningSessions:list",
         ).map { result ->
             result.getOrThrow().map { it.toSession() }
         }
-    }
 
-    override suspend fun sendMessage(sessionId: String, content: String): Result<Unit> = runCatching {
+    override suspend fun sendMessage(
+        sessionId: String,
+        content: String,
+        currentLocation: com.laneshadow.ui.atoms.LatLng?,
+    ): Result<Unit> = runCatching {
         convexClient.mutation<Map<String, String>>(
             name = "db/sessionMessages:send",
-            args = mapOf(
-                "sessionId" to sessionId,
-                "content" to content,
-            ),
+            args = buildMap {
+                put("sessionId", sessionId)
+                put("content", content)
+                currentLocation?.let {
+                    put(
+                        "currentLocation",
+                        mapOf(
+                            "lat" to it.lat,
+                            "lng" to it.lon,
+                        ),
+                    )
+                }
+            },
         )
         Unit
     }
@@ -197,6 +282,14 @@ private class RealConvexGateway(
             args = mapOf("firstMessage" to firstMessage),
         )
         result.sessionId
+    }
+
+    override suspend fun cancelPlan(routePlanId: String): Result<Unit> = runCatching {
+        convexClient.mutation<Any?>(
+            name = "db/routePlans:cancelPlan",
+            args = mapOf("routePlanId" to routePlanId),
+        )
+        Unit
     }
 }
 
@@ -213,6 +306,7 @@ private data class CurrentUserDto(
         ConvexCurrentUser(
             id = id,
             displayName = name.ifBlank { "Rider" },
+            email = email,
         )
 }
 

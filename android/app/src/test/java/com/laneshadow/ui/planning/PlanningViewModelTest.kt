@@ -10,8 +10,10 @@ import com.laneshadow.data.session.SessionRepository
 import com.laneshadow.services.MainDispatcherRule
 import com.laneshadow.services.PlannedRouteOptions
 import com.laneshadow.services.RouteOption
+import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -93,11 +95,40 @@ class PlanningViewModelTest {
         assertThat(routeRepository.lastCancelledPlanId).isEqualTo("plan-7")
     }
 
+    @Test
+    fun state_surfacesMessageSubscriptionFailures() = runTest {
+        val viewModel = PlanningViewModel(
+            sessionId = "sess-1",
+            chatRepository = FailingChatRepository(IOException("offline")),
+            routeRepository = FakeRouteRepository(),
+            sessionRepository = FakeSessionRepository(),
+        )
+
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.subscriptionError).contains("offline")
+        assertThat(viewModel.state.value.isThinking).isFalse()
+    }
+
     private class FakeChatRepository(
         private val messages: List<SessionMessage> = emptyList(),
     ) : ChatRepository {
         override fun subscribeToMessages(sessionId: String): Flow<List<SessionMessage>> =
             flowOf(messages)
+
+        override suspend fun sendMessage(
+            sessionId: String,
+            content: String,
+            currentLocation: com.laneshadow.ui.atoms.LatLng?,
+        ): Result<Unit> = Result.success(Unit)
+    }
+
+    private class FailingChatRepository(
+        private val error: Throwable,
+    ) : ChatRepository {
+        override fun subscribeToMessages(sessionId: String): Flow<List<SessionMessage>> = flow {
+            throw error
+        }
 
         override suspend fun sendMessage(
             sessionId: String,
