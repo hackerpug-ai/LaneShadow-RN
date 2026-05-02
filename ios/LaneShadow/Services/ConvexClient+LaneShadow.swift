@@ -231,42 +231,6 @@ extension LaneShadowPlanningDataProviding {
     }
 }
 
-enum LaneShadowError: LocalizedError, Equatable {
-    case unauthenticated
-    case convex(String)
-    case server(String)
-    case internalError(String)
-    case unknown(String)
-
-    var errorDescription: String? {
-        switch self {
-        case .unauthenticated:
-            "Your session expired. Please sign in again."
-        case let .convex(message), let .server(message), let .internalError(message), let .unknown(message):
-            message
-        }
-    }
-
-    var isUnauthenticated: Bool {
-        self == .unauthenticated
-    }
-
-    static func map(_ error: Error) -> LaneShadowError {
-        guard let clientError = error as? ClientError else {
-            return .unknown(error.localizedDescription)
-        }
-
-        switch clientError {
-        case let .ConvexError(data):
-            return data.localizedCaseInsensitiveContains("UNAUTHENTICATED") ? .unauthenticated : .convex(data)
-        case let .ServerError(msg):
-            return msg.localizedCaseInsensitiveContains("UNAUTHENTICATED") ? .unauthenticated : .server(msg)
-        case let .InternalError(msg):
-            return msg.localizedCaseInsensitiveContains("UNAUTHENTICATED") ? .unauthenticated : .internalError(msg)
-        }
-    }
-}
-
 typealias LaneShadowUnauthenticatedHandler = @MainActor @Sendable () async -> Void
 
 actor LaneShadowUnauthenticatedHandlerBox {

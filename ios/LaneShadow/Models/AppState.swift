@@ -22,6 +22,7 @@ final class AppState {
     var authMessage: String?
     var authRoute: AuthRoute?
     var appRoute: AppRoute?
+    var cachedLastFailedInput: String?
 
     init(isAuthenticated: Bool = false, currentUser: LaneShadowCurrentUser? = nil) {
         self.isAuthenticated = isAuthenticated
@@ -31,6 +32,7 @@ final class AppState {
         authMessage = nil
         authRoute = nil
         appRoute = nil
+        cachedLastFailedInput = nil
     }
 
     func updateAuthenticationState(from clerkAuth: ClerkAuth) {
@@ -93,15 +95,19 @@ final class AppState {
         clearAuthenticatedState(authRoute: .signIn)
     }
 
+    func signOutFlow(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
+        clerkAuth.clearLocalSession()
+        try? await convexClient.logout()
+        handleUnauthenticatedConvexError()
+    }
+
     func handleUnauthenticatedConvexError() {
         clearAuthenticatedState(authRoute: .signIn)
         authMessage = LaneShadowError.unauthenticated.localizedDescription
     }
 
     func handleUnauthenticatedConvexError(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
-        clerkAuth.clearLocalSession()
-        try? await convexClient.logout()
-        handleUnauthenticatedConvexError()
+        await signOutFlow(clerkAuth: clerkAuth, convexClient: convexClient)
     }
 
     func handleDeepLink(_ url: URL, clerkAuth: ClerkAuth) {
@@ -156,6 +162,7 @@ final class AppState {
         currentUser = nil
         authRoute = route
         appRoute = nil
+        cachedLastFailedInput = nil
     }
 
     private func routeAuthenticatedWithoutHydratedProfile(message: String? = nil) {
