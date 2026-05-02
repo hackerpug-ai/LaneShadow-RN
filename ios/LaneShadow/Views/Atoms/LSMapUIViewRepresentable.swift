@@ -41,6 +41,7 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         configureGestures(on: mapView)
         applyStyleAndCamera(to: mapView, coordinator: context.coordinator)
         renderPolylines(polylines, on: mapView, coordinator: context.coordinator)
+        applyCameraFitIfNeeded(to: mapView, polylines: polylines)
     }
 
     func makeCoordinator() -> Coordinator {
@@ -134,6 +135,48 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         }
 
         coordinator.currentPolylineIds = newPolylineIds
+    }
+
+    private func applyCameraFitIfNeeded(to mapView: MapView, polylines: [PolylineData]) {
+        guard mapView.bounds.width > 0, mapView.bounds.height > 0 else {
+            return
+        }
+
+        guard let fitCoordinates = resolveLSMapCameraFitCoordinates(for: cameraFit, polylines: polylines) else {
+            return
+        }
+
+        let cameraOptions = CameraOptions(
+            center: CLLocationCoordinate2D(
+                latitude: camera.center.lat,
+                longitude: camera.center.lon
+            ),
+            zoom: camera.zoom,
+            bearing: camera.bearing ?? 0,
+            pitch: camera.pitch ?? 0
+        )
+
+        let coordinates = fitCoordinates.map { coordinate in
+            CLLocationCoordinate2D(latitude: coordinate.lat, longitude: coordinate.lon)
+        }
+        let padding = renderModel.cameraFit.padding ?? 0
+        let coordinatesPadding = UIEdgeInsets(
+            top: padding,
+            left: padding,
+            bottom: padding,
+            right: padding
+        )
+        guard let fittedCamera = try? mapView.mapboxMap.camera(
+            for: coordinates,
+            camera: cameraOptions,
+            coordinatesPadding: coordinatesPadding,
+            maxZoom: nil,
+            offset: nil
+        ) else {
+            return
+        }
+
+        mapView.mapboxMap.setCamera(to: fittedCamera)
     }
 
     final class Coordinator: NSObject {

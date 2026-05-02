@@ -50,7 +50,7 @@ struct RouteResultsScreenTests {
         )
     }
 
-    /// AC-2: Source references route variant mapping and camera fit polylines
+    /// AC-2: Source references route variant mapping and route camera injection.
     @Test
     func route_variant_mapping_and_camera_tokens_present() throws {
         let sourceCode = try routeResultsScreenSourceCode()
@@ -64,11 +64,17 @@ struct RouteResultsScreenTests {
             sourceCode.contains("variant: sourcePolyline.variant"),
             "RouteResultsScreen.swift should pass through ViewModel-decoded route variants"
         )
-
-        // Verify camera fit polylines is used
         #expect(
-            sourceCode.contains("polylines"),
-            "RouteResultsScreen.swift should use cameraFit: .polylines"
+            sourceCode.contains("camera: resolvedCamera"),
+            "RouteResultsScreen.swift should inject the resolved route camera"
+        )
+        #expect(
+            sourceCode.contains("cameraFit: .static"),
+            "RouteResultsScreen.swift should avoid live camera fitting when the container injects the route camera"
+        )
+        #expect(
+            !sourceCode.contains("cameraFit: .polylines"),
+            "RouteResultsScreen.swift should no longer hardcode live polylines camera fitting"
         )
     }
 

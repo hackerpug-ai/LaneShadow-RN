@@ -10,6 +10,32 @@ RED/GREEN complete for the reviewer remediation pass.
 - RED evidence: focused `RouteResultsWiringTests` initially failed after tests were strengthened to require `LSMapPolylineStyle.colorTokenPath` and exact `color.signal.*` route token paths. The branch still exposed route token styling and could not satisfy the new contract.
 - GREEN evidence: focused `RouteResultsWiringTests` and `RouteResultsScreenTests` pass after production changes removed fabricated geometry, propagated route-plan stream failures, preserved selected route state through recall, and moved variant color resolution to the signal token render seam.
 
+## Modular Design Analysis (MOD-01)
+
+### Existing Views / ViewModels Found
+
+- `RouteResultsScreen` (`ios/LaneShadow/Views/Templates/RouteResultsScreen.swift`) - presentation seam for live route results and the map camera.
+- `LSMapUIViewRepresentable` (`ios/LaneShadow/Views/Atoms/LSMapUIViewRepresentable.swift`) - UIKit bridge where Mapbox camera-fit behavior belongs.
+- `RouteResultsViewModel` (`ios/LaneShadow/Features/RouteResults/RouteResultsViewModel.swift`) - state assembly seam for route geometry and route camera derivation.
+
+### Reuse Opportunities (Rule of 2)
+
+- Camera-fit handling applies to both `.polyline` and `.polylines`, so the fit-coordinate resolution was centralized in `resolveLSMapCameraFitCoordinates(for:polylines:)` instead of duplicating scope checks.
+- Route-results state needed both route polyline decoding and route camera derivation, so `RouteResultsViewModel` now exposes a single `viewState` with helper methods instead of keeping the logic inline in one oversized body.
+- Test synchronization around the live route-plan stream appeared in more than one wiring assertion, so the async wait helpers were extracted to keep the focused tests deterministic without broadening the production surface.
+
+### Unmodular Code Flags
+
+- `RouteResultsScreen` previously hardcoded a San Francisco default camera even when live route geometry was available. That seam is now explicit through `camera: CameraPosition?`.
+- `LSMapUIViewRepresentable` previously ignored the `cameraFit` contract for route polylines. The camera-fit application is now implemented in one place instead of being implicit in the caller.
+- `RouteResultsViewModel` previously carried too much observation and state-shaping logic in the main type body. That was split into private helpers and observation guards so the type stays maintainable under SwiftLint limits.
+
+### Implementation Plan
+
+- Reused existing screen, map, and view model seams.
+- Created one shared camera-fit resolver for the Mapbox contract.
+- Kept the extraction scope narrow so the change set stays aligned with Rule of 2 and does not introduce new architectural layers.
+
 ## Edge Cases Discovered
 
 1. `RouteResultsScreen` must not re-decode raw polyline strings after the view model has already decoded them. The screen now renders `state.routePolylines` directly so backend precision is preserved on the live data path.

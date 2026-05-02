@@ -75,6 +75,40 @@ final class LSMapTests: XCTestCase {
         XCTAssertEqual(dashedStyle.lineDasharray, lsMapPolylineDasharray)
     }
 
+    func test_camera_fit_coordinates_follow_polyline_scope() {
+        let firstPolyline = PolylineData(
+            coordinates: [
+                LatLng(lat: 37.7000, lon: -122.5000),
+                LatLng(lat: 37.7500, lon: -122.4500),
+            ],
+            variant: .best
+        )
+        let secondPolyline = PolylineData(
+            coordinates: [
+                LatLng(lat: 37.7800, lon: -122.3800),
+                LatLng(lat: 37.8100, lon: -122.3200),
+            ],
+            variant: .alt1
+        )
+
+        let singleFit = resolveLSMapCameraFitCoordinates(
+            for: .polyline(padding: .spacing4),
+            polylines: [firstPolyline, secondPolyline]
+        )
+        let multiFit = resolveLSMapCameraFitCoordinates(
+            for: .polylines(padding: .spacing4),
+            polylines: [firstPolyline, secondPolyline]
+        )
+        let staticFit = resolveLSMapCameraFitCoordinates(
+            for: .static,
+            polylines: [firstPolyline, secondPolyline]
+        )
+
+        XCTAssertEqual(singleFit, firstPolyline.coordinates)
+        XCTAssertEqual(multiFit, firstPolyline.coordinates + secondPolyline.coordinates)
+        XCTAssertNil(staticFit)
+    }
+
     func test_annotations_render_with_status_colors_and_spec_sizes() {
         let start = resolveLSMapAnnotationStyle(for: .start)
         let end = resolveLSMapAnnotationStyle(for: .end)

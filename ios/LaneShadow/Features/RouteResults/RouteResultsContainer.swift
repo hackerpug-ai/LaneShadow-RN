@@ -18,6 +18,7 @@ struct RouteResultsContainer: View {
         ZStack(alignment: .top) {
             RouteResultsScreen(
                 state: liveState.screenState,
+                camera: liveState.routeCamera,
                 onPin: {},
                 onDismiss: {},
                 onRouteCardTap: { routeId in

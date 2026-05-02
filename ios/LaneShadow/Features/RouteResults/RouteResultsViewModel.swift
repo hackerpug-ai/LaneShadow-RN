@@ -14,6 +14,7 @@ struct RouteResultsPolylineState: Equatable {
 struct RouteResultsViewState: Equatable {
     let screenState: RouteResultsScreenState
     let routePolylines: [RouteResultsPolylineState]
+    let routeCamera: CameraPosition?
     let isLoading: Bool
     let error: LaneShadowError?
     let errorMessage: String?
@@ -38,6 +39,7 @@ final class RouteResultsViewModel {
     @ObservationIgnored private let convexClient: any LaneShadowPlanningDataProviding
     @ObservationIgnored private var routePlanObservationTask: Task<Void, Never>?
     @ObservationIgnored private var activeRoutePlanId: String?
+    @ObservationIgnored private var isObservingCurrentRoutePlan = false
 
     init(
         chatStore: ChatStore,
@@ -51,11 +53,13 @@ final class RouteResultsViewModel {
 
     var viewState: RouteResultsViewState {
         let flowState = chatStore.flowState
-        let screenState = Self.makeScreenState(from: flowState)
+        let routePolylines = Self.makeRoutePolylines(from: flowState)
+        let screenState = Self.makeScreenState(from: flowState, routePolylines: routePolylines)
 
         return RouteResultsViewState(
             screenState: screenState,
-            routePolylines: Self.makeRoutePolylines(from: flowState),
+            routePolylines: routePolylines,
+            routeCamera: Self.makeRouteCamera(from: flowState),
             isLoading: isLoading,
             error: error,
             errorMessage: error?.localizedDescription,
@@ -69,6 +73,10 @@ final class RouteResultsViewModel {
             return
         }
 
+        guard !(isObservingCurrentRoutePlan && activeRoutePlanId == routePlanId) else {
+            return
+        }
+
         startObservingRoutePlan(routePlanId)
         await refreshRoutePlan(routePlanId)
     }
@@ -77,6 +85,7 @@ final class RouteResultsViewModel {
         routePlanObservationTask?.cancel()
         routePlanObservationTask = nil
         activeRoutePlanId = nil
+        isObservingCurrentRoutePlan = false
         isLoading = false
     }
 
@@ -97,8 +106,10 @@ final class RouteResultsViewModel {
             )
         )
     }
+}
 
-    private var currentRoutePlanId: String? {
+private extension RouteResultsViewModel {
+    var currentRoutePlanId: String? {
         guard case let .routeResults(state) = chatStore.flowState else {
             return nil
         }
@@ -106,12 +117,13 @@ final class RouteResultsViewModel {
         return state.routeOptions.planId
     }
 
-    private func startObservingRoutePlan(_ routePlanId: String) {
-        guard activeRoutePlanId != routePlanId else {
+    func startObservingRoutePlan(_ routePlanId: String) {
+        guard !(isObservingCurrentRoutePlan && activeRoutePlanId == routePlanId) else {
             return
         }
 
         activeRoutePlanId = routePlanId
+        isObservingCurrentRoutePlan = true
         routePlanObservationTask?.cancel()
 
         let convexClient = convexClient
@@ -141,7 +153,7 @@ final class RouteResultsViewModel {
         }
     }
 
-    private func refreshRoutePlan(_ routePlanId: String) async {
+    func refreshRoutePlan(_ routePlanId: String) async {
         isLoading = true
         error = nil
 
@@ -153,7 +165,7 @@ final class RouteResultsViewModel {
         }
     }
 
-    private func handleRoutePlanSnapshot(_ routePlan: LaneShadowRoutePlanSnapshot) {
+    func handleRoutePlanSnapshot(_ routePlan: LaneShadowRoutePlanSnapshot) {
         guard case let .routeResults(state) = chatStore.flowState else {
             isLoading = false
             return
@@ -193,7 +205,7 @@ final class RouteResultsViewModel {
         }
     }
 
-    private func handleRoutePlanFetchFailure(_ error: Error) {
+    func handleRoutePlanFetchFailure(_ error: Error) {
         if let laneShadowError = error as? LaneShadowError {
             self.error = laneShadowError
         } else {
@@ -202,7 +214,10 @@ final class RouteResultsViewModel {
         isLoading = false
     }
 
-    private static func makeScreenState(from flowState: RideFlowPhase) -> RouteResultsScreenState {
+    static func makeScreenState(
+        from flowState: RideFlowPhase,
+        routePolylines: [RouteResultsPolylineState]
+    ) -> RouteResultsScreenState {
         guard case let .routeResults(state) = flowState else {
             return emptyScreenState()
         }
@@ -210,7 +225,6 @@ final class RouteResultsViewModel {
         let routeOptions = state.routeOptions
         let selectedRouteId = state.selectedRouteId ?? routeOptions.options.first?.routeOptionId
         let routes = makeRoutes(from: routeOptions, selectedRouteId: selectedRouteId)
-        let routePolylines = makeRoutePolylines(from: flowState)
         let message = makeNavigatorMessage(
             from: routeOptions,
             routes: routes,
@@ -225,7 +239,7 @@ final class RouteResultsViewModel {
         )
     }
 
-    private static func makeRoutePolylines(from flowState: RideFlowPhase) -> [RouteResultsPolylineState] {
+    static func makeRoutePolylines(from flowState: RideFlowPhase) -> [RouteResultsPolylineState] {
         guard case let .routeResults(state) = flowState else {
             return []
         }
@@ -251,7 +265,26 @@ final class RouteResultsViewModel {
         }
     }
 
-    private static func makeRoutes(
+    static func makeRouteCamera(from flowState: RideFlowPhase) -> CameraPosition? {
+        guard case let .routeResults(state) = flowState else {
+            return nil
+        }
+
+        let visibleBounds = Array(state.routeOptions.options.prefix(Self.visibleRouteLimit)).map(\.map.bounds)
+        guard let routeBounds = unionBounds(visibleBounds) else {
+            return nil
+        }
+
+        return CameraPosition(
+            center: LatLng(
+                lat: (routeBounds.north + routeBounds.south) / 2,
+                lon: (routeBounds.east + routeBounds.west) / 2
+            ),
+            zoom: routeCameraZoom(for: routeBounds)
+        )
+    }
+
+    static func makeRoutes(
         from routeOptions: PlannedRouteOptionsView,
         selectedRouteId: String?
     ) -> [Route] {
@@ -274,7 +307,7 @@ final class RouteResultsViewModel {
         }
     }
 
-    private static func makeNavigatorMessage(
+    static func makeNavigatorMessage(
         from routeOptions: PlannedRouteOptionsView,
         routes: [Route],
         selectedRouteId: String?
@@ -305,7 +338,7 @@ final class RouteResultsViewModel {
         )
     }
 
-    private static func routeAttachments(
+    static func routeAttachments(
         from options: [PlannedRouteOptionView],
         routes: [Route],
         selectedRouteId: String?
@@ -333,7 +366,7 @@ final class RouteResultsViewModel {
         }
     }
 
-    private static func emptyScreenState() -> RouteResultsScreenState {
+    static func emptyScreenState() -> RouteResultsScreenState {
         RouteResultsScreenState(
             message: NavigatorMessage(
                 id: "route-results-empty",
@@ -350,7 +383,7 @@ final class RouteResultsViewModel {
         )
     }
 
-    private static func scenicScore(
+    static func scenicScore(
         for option: PlannedRouteOptionView,
         selected: Bool
     ) -> Int {
@@ -358,7 +391,7 @@ final class RouteResultsViewModel {
         return selected ? min(base + 1, 5) : base
     }
 
-    private static func difficultyLabel(
+    static func difficultyLabel(
         for option: PlannedRouteOptionView,
         index: Int
     ) -> String {
@@ -375,7 +408,7 @@ final class RouteResultsViewModel {
         return "easy"
     }
 
-    private static func routeVariantLabel(for index: Int) -> String {
+    static func routeVariantLabel(for index: Int) -> String {
         switch index {
         case 0:
             "best"
@@ -386,7 +419,7 @@ final class RouteResultsViewModel {
         }
     }
 
-    private static func routeVariant(for index: Int) -> RouteVariant {
+    static func routeVariant(for index: Int) -> RouteVariant {
         switch index {
         case 0:
             .best
@@ -397,18 +430,18 @@ final class RouteResultsViewModel {
         }
     }
 
-    private static func routeColorTokenPath(for index: Int) -> String {
+    static func routeColorTokenPath(for index: Int) -> String {
         routeColorTokenPaths[min(index, routeColorTokenPaths.count - 1)]
     }
 
-    private static func decodeCoordinates(
+    static func decodeCoordinates(
         from encodedPolyline: String,
         precision: Double
     ) -> [LatLng] {
         decodePolyline(encodedPolyline, precision: precision)
     }
 
-    private static func decodePolyline(
+    static func decodePolyline(
         _ encodedPolyline: String,
         precision: Double
     ) -> [LatLng] {
@@ -460,6 +493,40 @@ final class RouteResultsViewModel {
         }
 
         return coordinates.count >= 2 ? coordinates : []
+    }
+
+    static func unionBounds(_ bounds: [PlannedRouteOptionBounds]) -> PlannedRouteOptionBounds? {
+        guard var union = bounds.first else {
+            return nil
+        }
+
+        for next in bounds.dropFirst() {
+            union = PlannedRouteOptionBounds(
+                north: max(union.north, next.north),
+                south: min(union.south, next.south),
+                east: max(union.east, next.east),
+                west: min(union.west, next.west)
+            )
+        }
+
+        return union
+    }
+
+    static func routeCameraZoom(for bounds: PlannedRouteOptionBounds) -> Double {
+        let span = max(bounds.north - bounds.south, bounds.east - bounds.west)
+
+        switch span {
+        case ..<0.05:
+            return 12
+        case ..<0.1:
+            return 11
+        case ..<0.25:
+            return 10
+        case ..<0.5:
+            return 9.5
+        default:
+            return 9
+        }
     }
 }
 

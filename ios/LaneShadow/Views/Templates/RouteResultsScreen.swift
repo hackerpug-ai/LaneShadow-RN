@@ -17,6 +17,7 @@ public struct RouteResultsScreen: View {
     @Environment(\.theme) private var theme
 
     private let state: RouteResultsScreenState
+    private let camera: CameraPosition?
     private let onPin: @Sendable () -> Void
     private let onDismiss: @Sendable () -> Void
     private let onRouteCardTap: @Sendable (String) -> Void
@@ -29,6 +30,7 @@ public struct RouteResultsScreen: View {
     public init(
         provider: RouteResultsMockProvider.Type = RouteResultsMockProvider.self,
         variant: String = "default",
+        camera: CameraPosition? = nil,
         onPin: @escaping @Sendable () -> Void = {},
         onDismiss: @escaping @Sendable () -> Void = {},
         onRouteCardTap: @escaping @Sendable (String) -> Void = { _ in },
@@ -36,6 +38,7 @@ public struct RouteResultsScreen: View {
     ) {
         self.init(
             state: provider.value(variant: variant),
+            camera: camera,
             onPin: onPin,
             onDismiss: onDismiss,
             onRouteCardTap: onRouteCardTap,
@@ -45,12 +48,14 @@ public struct RouteResultsScreen: View {
 
     init(
         state: RouteResultsScreenState,
+        camera: CameraPosition? = nil,
         onPin: @escaping @Sendable () -> Void = {},
         onDismiss: @escaping @Sendable () -> Void = {},
         onRouteCardTap: @escaping @Sendable (String) -> Void = { _ in },
         inspection: (any RouteResultsScreenInspectionSeam)? = nil
     ) {
         self.state = state
+        self.camera = camera
         self.onPin = onPin
         self.onDismiss = onDismiss
         self.onRouteCardTap = onRouteCardTap
@@ -100,18 +105,22 @@ public struct RouteResultsScreen: View {
     // MARK: - Map
 
     private var mapView: some View {
-        LSMap(
+        let resolvedCamera = camera ?? Self.defaultCamera
+
+        return LSMap(
             mode: .interactive,
-            camera: CameraPosition(
-                center: LatLng(lat: 37.7749, lon: -122.4194),
-                zoom: 12
-            ),
-            cameraFit: .polylines(padding: .spacing4),
+            camera: resolvedCamera,
+            cameraFit: .static,
             polylines: routePolylines,
             annotations: routeAnnotations
         )
         .accessibilityIdentifier("maplayer.map")
     }
+
+    private static let defaultCamera = CameraPosition(
+        center: LatLng(lat: 37.7749, lon: -122.4194),
+        zoom: 12
+    )
 
     private var routePolylines: [PolylineData] {
         state.routes.enumerated().compactMap { index, route in

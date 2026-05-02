@@ -435,6 +435,21 @@ func resolveLSMapCameraFit(for fit: CameraFit) -> LSMapCameraFitModel {
     }
 }
 
+func resolveLSMapCameraFitCoordinates(
+    for fit: CameraFit,
+    polylines: [PolylineData]
+) -> [LatLng]? {
+    switch fit {
+    case .static:
+        return nil
+    case .polyline:
+        return polylines.first(where: { $0.coordinates.count >= 2 })?.coordinates
+    case .polylines:
+        let coordinates = polylines.flatMap(\.coordinates)
+        return coordinates.count >= 2 ? coordinates : nil
+    }
+}
+
 func resolveLSMapFallback(for error: MapError) -> LSMapFallbackModel {
     switch error {
     case .missingToken:
