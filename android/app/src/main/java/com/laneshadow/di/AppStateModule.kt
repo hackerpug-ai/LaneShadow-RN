@@ -8,6 +8,8 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.laneshadow.services.AppStateRepository
 import com.laneshadow.services.AppStateRepositoryImpl
 import com.laneshadow.services.ChatRepository
+import com.laneshadow.services.ConvexChatRepository
+import com.laneshadow.services.ConvexSessionRepository
 import com.laneshadow.services.SessionRepository
 import dagger.Binds
 import dagger.Module
@@ -26,6 +28,14 @@ abstract class AppStateBindingsModule {
     @Binds
     @Singleton
     abstract fun bindAppStateRepository(repository: AppStateRepositoryImpl): AppStateRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindChatRepository(repository: ConvexChatRepository): ChatRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSessionRepository(repository: ConvexSessionRepository): SessionRepository
 }
 
 @Module
@@ -40,14 +50,6 @@ object AppStateModule {
             scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
             produceFile = { context.preferencesDataStoreFile(APP_STATE_DATA_STORE_NAME) },
         )
-
-    @Provides
-    @Singleton
-    fun provideChatRepository(): ChatRepository = object : ChatRepository {}
-
-    @Provides
-    @Singleton
-    fun provideSessionRepository(): SessionRepository = object : SessionRepository {}
 
     private const val APP_STATE_DATA_STORE_NAME = "app_state"
 }

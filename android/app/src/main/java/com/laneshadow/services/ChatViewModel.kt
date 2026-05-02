@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,12 +32,12 @@ class ChatViewModel @Inject constructor(
         val next = reduce(current, action)
 
         _flowState.value = next
-        persistSessionId(next)
 
         when (action) {
             is RideFlowAction.SendMessage -> launchSendMessage(current, next, action.content)
+            is RideFlowAction.PlanningError -> persistSessionId(next)
             RideFlowAction.CancelPlanning -> cancelSendJob()
-            else -> Unit
+            else -> persistSessionId(next)
         }
     }
 
@@ -45,18 +46,58 @@ class ChatViewModel @Inject constructor(
         next: RideFlowState,
         content: String,
     ) {
-        if (next !is RideFlowState.Planning) {
+        val planning = next as? RideFlowState.Planning ?: return
+        if (planning == current) {
             return
         }
 
         sendJob?.cancel()
         sendJob = viewModelScope.launch {
-            if (current is RideFlowState.RouteResults || current is RideFlowState.RouteDetails) {
-                chatRepository.sendMessage(next.sessionId, content)
-            } else {
-                sessionRepository.createSession(content)
+            val sessionId = when (current) {
+                is RideFlowState.RouteResults,
+                is RideFlowState.RouteDetails,
+                -> {
+                    persistSessionId(planning)
+                    current.sessionId
+                }
+
+                else -> {
+                    val createResult = sessionRepository.createSession(content)
+                    val createdSessionId = createResult.getOrElse { error ->
+                        transitionToPlanningError(
+                            planning = planning,
+                            error = error,
+                            persistSessionId = false,
+                        )
+                        return@launch
+                    }
+
+                    if (createdSessionId.isBlank()) {
+                        transitionToPlanningError(
+                            planning = planning,
+                            error = IllegalStateException("createSession returned blank sessionId"),
+                            persistSessionId = false,
+                        )
+                        return@launch
+                    }
+
+                    val reconciledPlanning = planning.copy(sessionId = createdSessionId)
+                    _flowState.value = reconciledPlanning
+                    persistSessionId(reconciledPlanning)
+                    createdSessionId
+                }
             }
-            appStateRepository.setLastViewedSessionId(next.sessionId)
+
+            appStateRepository.setLastViewedSessionId(sessionId)
+
+            val sendResult = chatRepository.sendMessage(sessionId, content)
+            if (sendResult.isFailure) {
+                transitionToPlanningError(
+                    planning = planning.copy(sessionId = sessionId),
+                    error = sendResult.exceptionOrNull() ?: IllegalStateException("sendMessage failed"),
+                    persistSessionId = true,
+                )
+            }
         }
     }
 
@@ -65,13 +106,32 @@ class ChatViewModel @Inject constructor(
         sendJob = null
     }
 
+    private fun transitionToPlanningError(
+        planning: RideFlowState.Planning,
+        error: Throwable,
+        persistSessionId: Boolean,
+    ) {
+        val errorState = reduce(
+            planning,
+            RideFlowAction.PlanningError(error.message ?: "Unknown error"),
+        )
+        _flowState.value = errorState
+        if (persistSessionId) {
+            persistSessionId(errorState)
+        }
+    }
+
     private fun persistSessionId(state: RideFlowState) {
         val sessionId = when (state) {
             is RideFlowState.WithSession -> state.sessionId
             is RideFlowState.Error -> state.sessionId
             is RideFlowState.Idle -> state.sessionId
         }
-        savedStateHandle[SESSION_ID_KEY] = sessionId
+        if (sessionId == null) {
+            savedStateHandle.remove<String>(SESSION_ID_KEY)
+        } else {
+            savedStateHandle[SESSION_ID_KEY] = sessionId
+        }
     }
 
     private companion object {
@@ -80,9 +140,25 @@ class ChatViewModel @Inject constructor(
 }
 
 interface ChatRepository {
-    suspend fun sendMessage(sessionId: String, content: String): Result<Unit> = Result.success(Unit)
+    suspend fun sendMessage(sessionId: String, content: String): Result<Unit>
 }
 
 interface SessionRepository {
-    suspend fun createSession(firstMessage: String = ""): Result<String> = Result.success("")
+    suspend fun createSession(firstMessage: String): Result<String>
+}
+
+@Singleton
+class ConvexChatRepository @Inject constructor(
+    private val convexClientProvider: ConvexClientProvider,
+) : ChatRepository {
+    override suspend fun sendMessage(sessionId: String, content: String): Result<Unit> =
+        convexClientProvider.sendMessage(sessionId, content)
+}
+
+@Singleton
+class ConvexSessionRepository @Inject constructor(
+    private val convexClientProvider: ConvexClientProvider,
+) : SessionRepository {
+    override suspend fun createSession(firstMessage: String): Result<String> =
+        convexClientProvider.createSession(firstMessage)
 }

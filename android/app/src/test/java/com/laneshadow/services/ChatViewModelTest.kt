@@ -3,6 +3,7 @@ package com.laneshadow.services
 import androidx.lifecycle.SavedStateHandle
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -29,11 +30,12 @@ class ChatViewModelTest {
         val chatRepository = FakeChatRepository()
         val sessionRepository = FakeSessionRepository()
         val appStateRepository = FakeAppStateRepository()
+        val savedStateHandle = SavedStateHandle()
         val viewModel = ChatViewModel(
             chatRepository = chatRepository,
             sessionRepository = sessionRepository,
             appStateRepository = appStateRepository,
-            savedStateHandle = SavedStateHandle(),
+            savedStateHandle = savedStateHandle,
         )
 
         val emissions = mutableListOf<RideFlowState>()
@@ -51,16 +53,24 @@ class ChatViewModelTest {
         assertThat(emissions[1]).isInstanceOf(RideFlowState.Planning::class.java)
         assertThat(viewModel.sendJob).isNotNull()
         assertThat(sessionRepository.createdSessions.get()).isEqualTo(1)
-        assertThat(chatRepository.sentMessages.get()).isEqualTo(0)
+        assertThat(chatRepository.sentMessages.get()).isEqualTo(1)
+        assertThat(chatRepository.lastSessionId.get()).isEqualTo("session-1")
+        assertThat(savedStateHandle.get<String>("sessionId")).isEqualTo("session-1")
+        assertThat(appStateRepository.lastViewedSessionId).isEqualTo("session-1")
+        assertThat(viewModel.flowState.value).isEqualTo(
+            RideFlowState.Planning(sessionId = "session-1"),
+        )
 
         collector.cancel()
     }
 
     private class FakeChatRepository : ChatRepository {
         val sentMessages = AtomicInteger(0)
+        val lastSessionId = AtomicReference<String?>(null)
 
         override suspend fun sendMessage(sessionId: String, content: String): Result<Unit> {
             sentMessages.incrementAndGet()
+            lastSessionId.set(sessionId)
             return Result.success(Unit)
         }
     }
@@ -76,8 +86,11 @@ class ChatViewModelTest {
 
     private class FakeAppStateRepository : AppStateRepository {
         override val appState = kotlinx.coroutines.flow.flowOf(AppPreferences())
+        var lastViewedSessionId: String? = null
 
-        override suspend fun setLastViewedSessionId(sessionId: String?) = Unit
+        override suspend fun setLastViewedSessionId(sessionId: String?) {
+            lastViewedSessionId = sessionId
+        }
         override suspend fun setSessionCamera(sessionId: String, camera: CameraPosition) = Unit
         override suspend fun setDefaultCamera(camera: CameraPosition?) = Unit
         override suspend fun setThemeMode(themeMode: ThemeMode) = Unit
