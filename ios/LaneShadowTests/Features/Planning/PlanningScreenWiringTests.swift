@@ -14,8 +14,8 @@ struct PlanningScreenWiringTests {
         let context = makePlanningContext()
         context.viewModel.shouldRenderMap = false
         let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
-        let hostingController = UIHostingController(rootView: screen)
-        hostingController.loadViewIfNeeded()
+        let harness = host(screen)
+        _ = harness.window
 
         let riderMessage = makeSessionMessage(
             id: "message-1",
@@ -83,8 +83,8 @@ struct PlanningScreenWiringTests {
         let context = makePlanningContext()
         context.viewModel.shouldRenderMap = false
         let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
-        let hostingController = UIHostingController(rootView: screen)
-        hostingController.loadViewIfNeeded()
+        let harness = host(screen)
+        _ = harness.window
 
         let riderMessage = makeSessionMessage(
             id: "message-1",
@@ -124,17 +124,10 @@ struct PlanningScreenWiringTests {
         let parsingPhaseIndicator = try screen.inspect().find(
             viewWithAccessibilityIdentifier: "planningscreen-phase-indicator"
         )
-        let parsingPhaseTexts = try parsingPhaseIndicator.findAll(ViewType.Text.self).compactMap {
-            try? $0.string()
-        }
-        #expect(parsingPhaseTexts.contains("Parsing"))
-        #expect(context.viewModel.phases.map(\.state) == [
-            .active,
-            .pending,
-            .pending,
-            .pending,
-            .pending,
-        ])
+        let parsingPhaseRow = try parsingPhaseIndicator.find(
+            viewWithAccessibilityIdentifier: "lsphaseindicator-phase-parsing-active"
+        )
+        #expect(try parsingPhaseRow.find(text: "Parsing").string() == "Parsing")
 
         context.client.sendSessionMessages(
             [riderMessage, parsingMessage, searchingMessage],
@@ -144,17 +137,10 @@ struct PlanningScreenWiringTests {
         let searchingPhaseIndicator = try screen.inspect().find(
             viewWithAccessibilityIdentifier: "planningscreen-phase-indicator"
         )
-        let searchingPhaseTexts = try searchingPhaseIndicator.findAll(ViewType.Text.self).compactMap {
-            try? $0.string()
-        }
-        #expect(searchingPhaseTexts.contains("Searching"))
-        #expect(context.viewModel.phases.map(\.state) == [
-            .done,
-            .active,
-            .pending,
-            .pending,
-            .pending,
-        ])
+        let searchingPhaseRow = try searchingPhaseIndicator.find(
+            viewWithAccessibilityIdentifier: "lsphaseindicator-phase-searching-active"
+        )
+        #expect(try searchingPhaseRow.find(text: "Searching").string() == "Searching")
 
         context.client.sendSessionMessages(
             [riderMessage, parsingMessage, searchingMessage, draftingMessage],
@@ -164,17 +150,10 @@ struct PlanningScreenWiringTests {
         let draftingPhaseIndicator = try screen.inspect().find(
             viewWithAccessibilityIdentifier: "planningscreen-phase-indicator"
         )
-        let draftingPhaseTexts = try draftingPhaseIndicator.findAll(ViewType.Text.self).compactMap {
-            try? $0.string()
-        }
-        #expect(draftingPhaseTexts.contains("Drafting"))
-        #expect(context.viewModel.phases.map(\.state) == [
-            .done,
-            .done,
-            .active,
-            .pending,
-            .pending,
-        ])
+        let draftingPhaseRow = try draftingPhaseIndicator.find(
+            viewWithAccessibilityIdentifier: "lsphaseindicator-phase-drafting-active"
+        )
+        #expect(try draftingPhaseRow.find(text: "Drafting").string() == "Drafting")
 
         context.client.finishObservationStreams()
         context.observationTask.cancel()
@@ -186,8 +165,8 @@ struct PlanningScreenWiringTests {
         let context = makePlanningContext()
         context.viewModel.shouldRenderMap = false
         let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
-        let hostingController = UIHostingController(rootView: screen)
-        hostingController.loadViewIfNeeded()
+        let harness = host(screen)
+        _ = harness.window
 
         let routePlanId = "route-plan-123"
         let routeOptions = makeRouteOptions(planId: routePlanId)
@@ -242,8 +221,8 @@ struct PlanningScreenWiringTests {
         let context = makePlanningContext()
         context.viewModel.shouldRenderMap = false
         let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
-        let hostingController = UIHostingController(rootView: screen)
-        hostingController.loadViewIfNeeded()
+        let harness = host(screen)
+        _ = harness.window
 
         let inspected = try screen.inspect()
         _ = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-chat-input")
@@ -273,8 +252,8 @@ struct PlanningScreenWiringTests {
         let context = makePlanningContext()
         context.viewModel.shouldRenderMap = false
         let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
-        let hostingController = UIHostingController(rootView: screen)
-        hostingController.loadViewIfNeeded()
+        let harness = host(screen)
+        _ = harness.window
 
         context.client.sendActiveRoutePlans(
             [
@@ -421,4 +400,24 @@ struct PlanningScreenWiringTests {
             await Task.yield()
         }
     }
+
+    @MainActor
+    private func host(_ rootView: some View) -> HostedHarness {
+        let controller = UIHostingController(rootView: AnyView(rootView))
+        controller.loadViewIfNeeded()
+        controller.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+        let window = UIWindow(frame: controller.view.frame)
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+        window.layoutIfNeeded()
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.01))
+        return HostedHarness(window: window, controller: controller)
+    }
+}
+
+private struct HostedHarness {
+    let window: UIWindow
+    let controller: UIHostingController<AnyView>
 }

@@ -196,10 +196,12 @@ public struct IdleScreen: View {
             suggestions: suggestions,
             onSuggestionTap: { chip in
                 chatInputValue = chip.label
-                // Find matching MockSuggestionChip to pass to callback
-                if let mockChip = state.suggestions.first(where: { $0.label == chip.label }) {
-                    onSuggestionTap(mockChip)
-                }
+                // Preserve sandbox chip identity when available, but keep the
+                // live label-backed submit path working even when the label is
+                // not present in the mock provider suggestions.
+                let mockChip = state.suggestions.first(where: { $0.label == chip.label })
+                    ?? MockSuggestionChip(id: chip.label, label: chip.label)
+                onSuggestionTap(mockChip)
             },
             locationBadge: locationContext,
             isThinking: isSubmitting,

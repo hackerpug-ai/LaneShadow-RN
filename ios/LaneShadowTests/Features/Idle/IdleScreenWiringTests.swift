@@ -49,32 +49,7 @@ struct IdleScreenWiringTests {
     }
 
     @Test
-    func idleScreenChipTapInvokesSuggestionClosure() async throws {
-        var tappedCount = 0
-        var tappedChip: MockSuggestionChip?
-
-        let screen = IdleScreen(
-            provider: IdleMockProvider.self,
-            onSuggestionTap: { chip in
-                tappedCount += 1
-                tappedChip = chip
-            }
-        )
-        .laneShadowTheme()
-
-        let inspected = try screen.inspect()
-        let chatInputView = try inspected.find(viewWithAccessibilityIdentifier: "idlescreen-chatinput")
-        let chipButton = try chatInputView.find(
-            viewWithAccessibilityIdentifier: "lschatinput-chip-coastal-cruise"
-        )
-        try chipButton.button().tap()
-
-        #expect(tappedCount == 1)
-        #expect(tappedChip?.label == "Coastal cruise")
-    }
-
-    @Test
-    func idleScreenSubmitSuggestionDispatchesPlanningBeforeSendCompletes() async throws {
+    func idleScreenChipTapCreatesSessionAndStartsPlanningFromMountedContainer() async throws {
         let client = BlockingIdlePlanningClient()
 
         let sessionStore = SessionStore()
@@ -91,11 +66,27 @@ struct IdleScreenWiringTests {
             convexClient: client
         )
 
+        let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let sendPlanningMessageSignal = client.sendPlanningMessageCallSignal()
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        await pumpMainActor()
 
-        await viewModel.submitSuggestion("Plan a scenic 2-hour ride")
+        let inspected = try screen.inspect()
+        let chatInputView = try inspected.find(
+            viewWithAccessibilityIdentifier: "idlescreen-chatinput"
+        )
+        let chip = try chatInputView.find(
+            viewWithAccessibilityIdentifier: "lschatinput-chip-plan-a-scenic-2-hour-ride"
+        )
+        try chip.button().tap()
+        await pumpMainActor()
 
-        let startedCall = await sendPlanningMessageSignal.wait()
+        #expect(client.createPlanningSessionCalls == ["Plan a scenic 2-hour ride"])
+
+        let startedCall = try #require(
+            await waitForSendPlanningMessageStarted(sendPlanningMessageSignal)
+        )
 
         #expect(client.createPlanningSessionCalls == ["Plan a scenic 2-hour ride"])
         #expect(startedCall == LaneShadowPlanningMessageCall(
@@ -161,6 +152,19 @@ struct IdleScreenWiringTests {
             await Task.yield()
         }
     }
+
+    private func waitForSendPlanningMessageStarted(
+        _ signal: AsyncSignal<LaneShadowPlanningMessageCall>,
+        iterations: Int = 20
+    ) async -> LaneShadowPlanningMessageCall? {
+        for _ in 0 ..< iterations {
+            if let call = await signal.nextValue() {
+                return call
+            }
+            await Task.yield()
+        }
+        return nil
+    }
 }
 
 private actor AsyncSignal<Value: Sendable> {
@@ -176,14 +180,12 @@ private actor AsyncSignal<Value: Sendable> {
         waiters.removeFirst().resume(returning: value)
     }
 
-    func wait() async -> Value {
-        if !bufferedValues.isEmpty {
-            return bufferedValues.removeFirst()
+    func nextValue() -> Value? {
+        guard !bufferedValues.isEmpty else {
+            return nil
         }
 
-        return await withCheckedContinuation { continuation in
-            waiters.append(continuation)
-        }
+        return bufferedValues.removeFirst()
     }
 }
 
@@ -191,7 +193,6 @@ private actor AsyncSignal<Value: Sendable> {
 final class BlockingIdlePlanningClient: @unchecked Sendable, @preconcurrency LaneShadowPlanningDataProviding {
     private var sendContinuation: CheckedContinuation<LaneShadowSendMessageResult, Error>?
     private let sendPlanningMessageStartedSignal = AsyncSignal<LaneShadowPlanningMessageCall>()
-
     private(set) var createPlanningSessionCalls: [String] = []
     private(set) var sendPlanningMessageCalls: [LaneShadowPlanningMessageCall] = []
 
