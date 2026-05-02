@@ -201,9 +201,11 @@ protocol LaneShadowPlanningDataProviding: LaneShadowCurrentUserSubscriptionProvi
         limit: Int
     ) -> AsyncStream<[LaneShadowSessionMessage]>
 
-    func subscribeToRoutePlan(routePlanId: String) -> AsyncStream<LaneShadowRoutePlanSnapshot>
+    func subscribeToRoutePlan(routePlanId: String) -> AsyncThrowingStream<LaneShadowRoutePlanSnapshot, Error>
 
     func subscribeToActiveRoutePlans(sessionId: String) -> AsyncStream<[LaneShadowRoutePlanSnapshot]>
+
+    func fetchRoutePlan(routePlanId: String) async throws -> LaneShadowRoutePlanSnapshot
 
     func createPlanningSession(firstMessage: String) async throws -> LaneShadowPlanningSessionCreationResult
 
@@ -214,6 +216,19 @@ protocol LaneShadowPlanningDataProviding: LaneShadowCurrentUserSubscriptionProvi
     ) async throws -> LaneShadowSendMessageResult
 
     func cancelRoutePlan(routePlanId: String) async throws
+}
+
+extension LaneShadowPlanningDataProviding {
+    func fetchRoutePlan(routePlanId: String) async throws -> LaneShadowRoutePlanSnapshot {
+        let stream = subscribeToRoutePlan(routePlanId: routePlanId)
+        var iterator = stream.makeAsyncIterator()
+
+        guard let routePlan = try await iterator.next() else {
+            throw LaneShadowError.unknown("Route plan not available")
+        }
+
+        return routePlan
+    }
 }
 
 enum LaneShadowError: LocalizedError, Equatable {
@@ -470,12 +485,12 @@ final class LaneShadowConvexClient: @unchecked Sendable {
         return tokenBox.get()
     }
 
-    func subscribe<T: Decodable & Sendable>(
+    func subscribeThrowing<T: Decodable & Sendable>(
         _ query: LaneShadowConvexQuery,
         args: [String: ConvexEncodable?]? = nil,
         yielding: T.Type = T.self
-    ) -> AsyncStream<T> {
-        AsyncStream { continuation in
+    ) -> AsyncThrowingStream<T, Error> {
+        AsyncThrowingStream { continuation in
             let cancellableBox = CancellableBox()
             cancellableBox.cancellable = transport
                 .subscribe(to: query.rawValue, with: args, yielding: T.self)
@@ -483,6 +498,8 @@ final class LaneShadowConvexClient: @unchecked Sendable {
                     receiveCompletion: { [weak self] completion in
                         if case let .failure(error) = completion {
                             self?.notifyUnauthenticatedIfNeeded(error)
+                            continuation.finish(throwing: LaneShadowError.map(error))
+                            return
                         }
                         continuation.finish()
                     },
@@ -494,6 +511,31 @@ final class LaneShadowConvexClient: @unchecked Sendable {
             continuation.onTermination = { _ in
                 cancellableBox.cancellable?.cancel()
                 cancellableBox.cancellable = nil
+            }
+        }
+    }
+
+    func subscribe<T: Decodable & Sendable>(
+        _ query: LaneShadowConvexQuery,
+        args: [String: ConvexEncodable?]? = nil,
+        yielding: T.Type = T.self
+    ) -> AsyncStream<T> {
+        let source = subscribeThrowing(query, args: args, yielding: T.self)
+
+        return AsyncStream { continuation in
+            let task = Task {
+                do {
+                    for try await value in source {
+                        continuation.yield(value)
+                    }
+                } catch {
+                    // Non-critical streams keep their historical close-on-failure behavior.
+                }
+                continuation.finish()
+            }
+
+            continuation.onTermination = { _ in
+                task.cancel()
             }
         }
     }
@@ -530,14 +572,35 @@ final class LaneShadowConvexClient: @unchecked Sendable {
 
     func subscribeToRoutePlan(
         routePlanId: String
-    ) -> AsyncStream<LaneShadowRoutePlanSnapshot> {
-        subscribe(
+    ) -> AsyncThrowingStream<LaneShadowRoutePlanSnapshot, Error> {
+        subscribeThrowing(
             .getPlanById,
             args: [
                 "routePlanId": routePlanId,
             ],
             yielding: LaneShadowRoutePlanSnapshot.self
         )
+    }
+
+    func fetchRoutePlan(routePlanId: String) async throws -> LaneShadowRoutePlanSnapshot {
+        let publisher = transport.subscribe(
+            to: LaneShadowConvexQuery.getPlanById.rawValue,
+            with: [
+                "routePlanId": routePlanId,
+            ],
+            yielding: LaneShadowRoutePlanSnapshot.self
+        )
+
+        do {
+            var iterator = publisher.values.makeAsyncIterator()
+            guard let routePlan = try await iterator.next() else {
+                throw LaneShadowError.unknown("Route plan not available")
+            }
+            return routePlan
+        } catch {
+            await handleUnauthenticatedIfNeeded(error)
+            throw error
+        }
     }
 
     func subscribeToActiveRoutePlans(

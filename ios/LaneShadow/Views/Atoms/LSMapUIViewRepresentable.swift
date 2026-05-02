@@ -1,4 +1,5 @@
 import CoreLocation
+import LaneShadowTheme
 import MapboxCommon
 import MapboxMaps
 import SwiftUI
@@ -40,6 +41,7 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         configureGestures(on: mapView)
         applyStyleAndCamera(to: mapView, coordinator: context.coordinator)
         renderPolylines(polylines, on: mapView, coordinator: context.coordinator)
+        applyCameraFitIfNeeded(to: mapView, polylines: polylines)
     }
 
     func makeCoordinator() -> Coordinator {
@@ -64,7 +66,8 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
     private func applyStyleAndCamera(to mapView: MapView, coordinator: Coordinator) {
         if let styleURIString = renderModel.styleURI,
            coordinator.currentStyleURI != styleURIString,
-           let styleURI = StyleURI(rawValue: styleURIString) {
+           let styleURI = StyleURI(rawValue: styleURIString)
+        {
             mapView.mapboxMap.loadStyle(styleURI)
             coordinator.currentStyleURI = styleURIString
         }
@@ -83,61 +86,104 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
     }
 
     private func renderPolylines(_ polylines: [PolylineData], on mapView: MapView, coordinator: Coordinator) {
-        // Initialize polyline annotation manager if needed
-        if coordinator.polylineAnnotationManager == nil {
-            coordinator.polylineAnnotationManager = mapView.annotations.makePolylineAnnotationManager()
-        }
-
-        guard let manager = coordinator.polylineAnnotationManager else { return }
-
         // Calculate new polyline IDs
         let newPolylineIds = Set(polylines.indices.map { "polyline-\($0)" })
 
-        // Remove polylines that are no longer present
+        // Remove polyline managers that are no longer present
         let toRemove = coordinator.currentPolylineIds.subtracting(newPolylineIds)
         if !toRemove.isEmpty {
-            manager.annotations.removeAll { annotation in
-                toRemove.contains(annotation.id)
+            for id in toRemove {
+                mapView.annotations.removeAnnotationManager(withId: id)
+                coordinator.polylineAnnotationManagers.removeValue(forKey: id)
             }
         }
 
-        // Update or create polylines
-        var annotations: [PolylineAnnotation] = []
+        // Update or create one annotation manager per route polyline so each route can style independently.
         for (index, polyline) in polylines.enumerated() {
             let id = "polyline-\(index)"
             let lineCoordinates = polyline.coordinates.map { coord in
                 CLLocationCoordinate2D(latitude: coord.lat, longitude: coord.lon)
             }
 
-            // Create annotation with custom ID
-            var annotation = PolylineAnnotation(id: id, lineCoordinates: lineCoordinates)
-
-            // Get color from renderModel polylines
-            if index < renderModel.polylines.count {
-                let style = renderModel.polylines[index]
-                // Convert SwiftUI Color to UIColor to StyleColor
-                let uiColor = UIColor(style.color)
-                annotation.lineColor = StyleColor(uiColor)
-                annotation.lineWidth = style.lineWidth
+            let manager: PolylineAnnotationManager
+            if let existingManager = coordinator.polylineAnnotationManagers[id] {
+                manager = existingManager
             } else {
-                // Fallback colors if not in renderModel
-                annotation.lineColor = StyleColor(UIColor(red: 0.93, green: 0.49, blue: 0.17, alpha: 1.0))
-                annotation.lineWidth = 2.0
+                manager = mapView.annotations.makePolylineAnnotationManager(id: id)
+                coordinator.polylineAnnotationManagers[id] = manager
             }
 
-            annotations.append(annotation)
+            // Get color from renderModel polylines
+            let style: LSMapPolylineStyle = if index < renderModel.polylines.count {
+                renderModel.polylines[index]
+            } else {
+                // Fallback colors if not in renderModel
+                LSMapPolylineStyle(
+                    colorTokenPath: lsMapSignalTouringColorTokenPath,
+                    color: lsMapSignalTouringColor,
+                    lineWidth: lsMapStrokeWidthMd,
+                    lineDasharray: nil
+                )
+            }
+
+            manager.lineColor = StyleColor(style.color)
+            manager.lineWidth = style.lineWidth
+            manager.lineDasharray = style.lineDasharray
+            manager.annotations = [
+                PolylineAnnotation(id: id, lineCoordinates: lineCoordinates),
+            ]
         }
 
-        // Update annotations
-        manager.annotations = annotations
         coordinator.currentPolylineIds = newPolylineIds
+    }
+
+    private func applyCameraFitIfNeeded(to mapView: MapView, polylines: [PolylineData]) {
+        guard mapView.bounds.width > 0, mapView.bounds.height > 0 else {
+            return
+        }
+
+        guard let fitCoordinates = resolveLSMapCameraFitCoordinates(for: cameraFit, polylines: polylines) else {
+            return
+        }
+
+        let cameraOptions = CameraOptions(
+            center: CLLocationCoordinate2D(
+                latitude: camera.center.lat,
+                longitude: camera.center.lon
+            ),
+            zoom: camera.zoom,
+            bearing: camera.bearing ?? 0,
+            pitch: camera.pitch ?? 0
+        )
+
+        let coordinates = fitCoordinates.map { coordinate in
+            CLLocationCoordinate2D(latitude: coordinate.lat, longitude: coordinate.lon)
+        }
+        let padding = renderModel.cameraFit.padding ?? 0
+        let coordinatesPadding = UIEdgeInsets(
+            top: padding,
+            left: padding,
+            bottom: padding,
+            right: padding
+        )
+        guard let fittedCamera = try? mapView.mapboxMap.camera(
+            for: coordinates,
+            camera: cameraOptions,
+            coordinatesPadding: coordinatesPadding,
+            maxZoom: nil,
+            offset: nil
+        ) else {
+            return
+        }
+
+        mapView.mapboxMap.setCamera(to: fittedCamera)
     }
 
     final class Coordinator: NSObject {
         let onTap: ((LatLng) -> Void)?
         weak var mapView: MapView?
         var currentStyleURI: String?
-        var polylineAnnotationManager: PolylineAnnotationManager?
+        var polylineAnnotationManagers: [String: PolylineAnnotationManager] = [:]
         var currentPolylineIds: Set<String> = []
 
         init(onTap: ((LatLng) -> Void)?) {

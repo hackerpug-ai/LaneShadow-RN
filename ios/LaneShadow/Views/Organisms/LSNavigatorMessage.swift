@@ -10,18 +10,20 @@ public struct LSNavigatorMessage: View {
     private let messageBody: String
     private let attachments: [LSRouteAttachment]
     private let pinned: Bool
-    private let onPin: @Sendable () -> Void
-    private let onDismiss: @Sendable () -> Void
-    private let onRouteCardTap: @Sendable (String) -> Void
+    private let onPin: () -> Void
+    private let onDismiss: () -> Void
+    private let onRouteCardTap: (String) -> Void
+    private let selectedRouteId: String?
     @State private var isVisible: Bool = true
 
     public init(
         body: String,
         attachments: [LSRouteAttachment] = [],
         pinned: Bool = false,
-        onPin: @Sendable @escaping () -> Void,
-        onDismiss: @Sendable @escaping () -> Void,
-        onRouteCardTap: @Sendable @escaping (String) -> Void = { _ in }
+        onPin: @escaping () -> Void,
+        onDismiss: @escaping () -> Void,
+        onRouteCardTap: @escaping (String) -> Void = { _ in },
+        selectedRouteId: String? = nil
     ) {
         messageBody = body
         self.attachments = attachments
@@ -29,6 +31,7 @@ public struct LSNavigatorMessage: View {
         self.onPin = onPin
         self.onDismiss = onDismiss
         self.onRouteCardTap = onRouteCardTap
+        self.selectedRouteId = selectedRouteId
     }
 
     public var body: some View {
@@ -64,6 +67,8 @@ public struct LSNavigatorMessage: View {
 extension LSNavigatorMessage {
     private var attachmentStack: some View {
         VStack(alignment: .leading, spacing: theme.space.sm) {
+            let selectedAttachmentId = selectedRouteId ?? attachments.first?.id
+
             ForEach(Array(attachments.enumerated()), id: \.element.id) { index, attachment in
                 LSRouteAttachmentCard(
                     route: LSRouteAttachmentCardRoute(
@@ -82,7 +87,7 @@ extension LSNavigatorMessage {
                         },
                         favoriteLabel: nil
                     ),
-                    selected: index == 0, // First attachment is selected
+                    selected: attachment.id == selectedAttachmentId,
                     compact: false,
                     onTap: { onRouteCardTap(attachment.id) }
                 )

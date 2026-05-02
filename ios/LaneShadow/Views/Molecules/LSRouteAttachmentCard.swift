@@ -107,6 +107,7 @@ public struct LSRouteAttachmentCard: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityAddTraits(onTap == nil ? [] : .isButton)
+        .accessibilityValue(selected ? "Selected" : "Not selected")
         .accessibilityIdentifier("lsrouteattachmentcard")
     }
 

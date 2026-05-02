@@ -33,7 +33,7 @@ final class LSMapTests: XCTestCase {
         XCTAssertNil(dark.fallback)
     }
 
-    func test_three_polylines_use_token_colors() {
+    func test_three_polylines_use_token_colors_and_dash_states() {
         let styles = [
             resolveLSMapPolylineStyle(
                 for: PolylineData(
@@ -55,10 +55,58 @@ final class LSMapTests: XCTestCase {
             ),
         ]
 
-        XCTAssertEqual(styles[0].color, LaneShadowTheme.color.route.best)
-        XCTAssertEqual(styles[1].color, LaneShadowTheme.color.route.alt1)
-        XCTAssertEqual(styles[2].color, LaneShadowTheme.color.route.alt2)
+        XCTAssertEqual(styles[0].colorTokenPath, "color.signal.default")
+        XCTAssertEqual(styles[1].colorTokenPath, "color.signal.whisper")
+        XCTAssertEqual(styles[2].colorTokenPath, "color.signal.touring")
+        XCTAssertEqual(styles[0].color, LaneShadowTheme.color.signal.default)
+        XCTAssertEqual(styles[1].color, LaneShadowTheme.color.signal.whisper)
+        XCTAssertEqual(styles[2].color, lsMapSignalTouringColor)
         XCTAssertEqual(styles[0].lineWidth, lsMapStrokeWidthMd)
+        XCTAssertNil(styles[0].lineDasharray)
+
+        let dashedStyle = resolveLSMapPolylineStyle(
+            for: PolylineData(
+                coordinates: [LatLng(lat: 37.7749, lon: -122.4194)],
+                variant: .alt2,
+                lineDasharray: lsMapPolylineDasharray
+            )
+        )
+
+        XCTAssertEqual(dashedStyle.lineDasharray, lsMapPolylineDasharray)
+    }
+
+    func test_camera_fit_coordinates_follow_polyline_scope() {
+        let firstPolyline = PolylineData(
+            coordinates: [
+                LatLng(lat: 37.7000, lon: -122.5000),
+                LatLng(lat: 37.7500, lon: -122.4500),
+            ],
+            variant: .best
+        )
+        let secondPolyline = PolylineData(
+            coordinates: [
+                LatLng(lat: 37.7800, lon: -122.3800),
+                LatLng(lat: 37.8100, lon: -122.3200),
+            ],
+            variant: .alt1
+        )
+
+        let singleFit = resolveLSMapCameraFitCoordinates(
+            for: .polyline(padding: .spacing4),
+            polylines: [firstPolyline, secondPolyline]
+        )
+        let multiFit = resolveLSMapCameraFitCoordinates(
+            for: .polylines(padding: .spacing4),
+            polylines: [firstPolyline, secondPolyline]
+        )
+        let staticFit = resolveLSMapCameraFitCoordinates(
+            for: .static,
+            polylines: [firstPolyline, secondPolyline]
+        )
+
+        XCTAssertEqual(singleFit, firstPolyline.coordinates)
+        XCTAssertEqual(multiFit, firstPolyline.coordinates + secondPolyline.coordinates)
+        XCTAssertNil(staticFit)
     }
 
     func test_annotations_render_with_status_colors_and_spec_sizes() {
