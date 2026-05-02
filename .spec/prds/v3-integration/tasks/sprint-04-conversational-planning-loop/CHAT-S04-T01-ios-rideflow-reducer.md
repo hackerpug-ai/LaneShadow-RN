@@ -60,7 +60,7 @@ AC-1: Idle->Planning on SEND_MESSAGE [PRIMARY]
   WHEN:  reduce(state, .sendMessage("Plan a scenic ride")) is called
   THEN:  Returned state is .planning with a freshly generated sessionId, currentPhase == "analyzing", routeOptions == nil
 
-  TDD_STATE:     RED proof unavailable in preserved artifact; GREEN verified by focused service-suite pass
+  TDD_STATE:     RED replay captured in /tmp/CHAT-S04-T01-red-replay; see TDD Evidence. GREEN verified by focused service-suite pass.
   TEST_FILE:     ios/LaneShadowTests/Services/RideFlowTests.swift
   TEST_FUNCTION: test_reduce_idle_sendMessage_transitionsToPlanning
 
@@ -69,7 +69,7 @@ AC-2: Empty content guard rejects send
   WHEN:  reduce(state, .sendMessage("   ")) is called with whitespace-only content
   THEN:  Returned state is unchanged (still .idle); no session generated
 
-  TDD_STATE:     RED proof unavailable in preserved artifact; GREEN verified by focused service-suite pass
+  TDD_STATE:     RED replay captured in /tmp/CHAT-S04-T01-red-replay; see TDD Evidence. GREEN verified by focused service-suite pass.
   TEST_FILE:     ios/LaneShadowTests/Services/RideFlowTests.swift
   TEST_FUNCTION: test_reduce_idle_sendMessage_emptyContent_isNoOp
 
@@ -78,7 +78,7 @@ AC-3: Planning->RouteResults on success preserves session
   WHEN:  reduce(state, .planningSuccess(options)) is called with non-empty options.options
   THEN:  Returned state is .routeResults with same sessionId X, options assigned, selectedRouteId defaulting to first option's routeOptionId
 
-  TDD_STATE:     RED proof unavailable in preserved artifact; GREEN verified by focused service-suite pass
+  TDD_STATE:     RED replay captured in /tmp/CHAT-S04-T01-red-replay; see TDD Evidence. GREEN verified by focused service-suite pass.
   TEST_FILE:     ios/LaneShadowTests/Services/RideFlowTests.swift
   TEST_FUNCTION: test_reduce_planning_planningSuccess_transitionsToRouteResults_preservesSession
 
@@ -87,7 +87,7 @@ AC-4: Planning->Error on planningError
   WHEN:  reduce(state, .planningError("AGENT_TIMEOUT")) is called
   THEN:  Returned state is .error with errorMessage == "AGENT_TIMEOUT", sessionId preserved, errorTimestamp populated
 
-  TDD_STATE:     RED proof unavailable in preserved artifact; GREEN verified by focused service-suite pass
+  TDD_STATE:     RED replay captured in /tmp/CHAT-S04-T01-red-replay; see TDD Evidence. GREEN verified by focused service-suite pass.
   TEST_FILE:     ios/LaneShadowTests/Services/RideFlowTests.swift
   TEST_FUNCTION: test_reduce_planning_planningError_transitionsToError_preservesSession
 
@@ -96,7 +96,7 @@ AC-5: Refinement reuses sessionId from RouteResults
   WHEN:  reduce(state, .sendMessage("make it shorter")) is called
   THEN:  Returned state is .planning with same sessionId X, existing routeOptions/selectedRouteId carried forward (not reset)
 
-  TDD_STATE:     RED proof unavailable in preserved artifact; GREEN verified by focused service-suite pass
+  TDD_STATE:     RED replay captured in /tmp/CHAT-S04-T01-red-replay; see TDD Evidence. GREEN verified by focused service-suite pass.
   TEST_FILE:     ios/LaneShadowTests/Services/RideFlowTests.swift
   TEST_FUNCTION: test_reduce_routeResults_sendMessage_reusesSession_carriesForwardOptions
 
@@ -105,7 +105,7 @@ AC-6: Cancel mid-plan returns to RouteResults if options exist, else IDLE
   WHEN:  reduce is called with .cancelPlanning — once with carry-over routeOptions present and once with routeOptions nil
   THEN:  First call returns .routeResults with the carried options; second call returns .idle (initialState)
 
-  TDD_STATE:     RED proof unavailable in preserved artifact; GREEN verified by focused service-suite pass
+  TDD_STATE:     RED replay captured in /tmp/CHAT-S04-T01-red-replay; see TDD Evidence. GREEN verified by focused service-suite pass.
   TEST_FILE:     ios/LaneShadowTests/Services/RideFlowTests.swift
   TEST_FUNCTION: test_reduce_planning_cancelPlanning_branchesOnExistingOptions
 
@@ -114,7 +114,7 @@ AC-7: ChatStore @Observable wrapper dispatches and exposes flowState
   WHEN:  store.dispatch(.sendMessage("plan a ride")) is called
   THEN:  store.flowState transitions from .idle to .planning, observable change is emitted, and SessionStore.activeSessionId reflects the new sessionId
 
-  TDD_STATE:     RED proof unavailable in preserved artifact; GREEN verified by focused service-suite pass
+  TDD_STATE:     RED replay captured in /tmp/CHAT-S04-T01-red-replay; see TDD Evidence. GREEN verified by focused service-suite pass.
   TEST_FILE:     ios/LaneShadowTests/Services/ChatStoreTests.swift
   TEST_FUNCTION: test_chatStore_dispatch_updatesFlowState_andSessionStore
 
@@ -122,17 +122,46 @@ AC-7: ChatStore @Observable wrapper dispatches and exposes flowState
 TDD EVIDENCE
 --------------------------------------------------------------------------------
 
-Focused green verification was preserved for the service-layer suites. The original RED run logs were not preserved in the task artifact, so the RED side is explicitly marked unavailable rather than reconstructed.
+RED replay was captured from a pre-implementation checkout so the copied service tests could fail before the implementation files existed.
 
-| AC | Red Command | Red Evidence | Green Command | Green Evidence |
-|---|---|---|---|---|
-| AC-1 | `xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=13A9B997-C6B8-4546-96A9-4E15B90A65BB' test -only-testing:LaneShadowTests/RideFlowTests` | unavailable in preserved logs | `xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=13A9B997-C6B8-4546-96A9-4E15B90A65BB' test -only-testing:LaneShadowTests/RideFlowTests -only-testing:LaneShadowTests/ChatStoreTests -only-testing:LaneShadowTests/SessionStoreTests` | `Test run with 8 tests in 3 suites passed` / `** TEST SUCCEEDED **` |
-| AC-2 | `xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=13A9B997-C6B8-4546-96A9-4E15B90A65BB' test -only-testing:LaneShadowTests/RideFlowTests` | unavailable in preserved logs | same as AC-1 green command | `✔ Test "test_reduce_idle_sendMessage_emptyContent_isNoOp" passed` |
-| AC-3 | `xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=13A9B997-C6B8-4546-96A9-4E15B90A65BB' test -only-testing:LaneShadowTests/RideFlowTests` | unavailable in preserved logs | same as AC-1 green command | `✔ Test "test_reduce_planning_planningSuccess_transitionsToRouteResults_preservesSession" passed` |
-| AC-4 | `xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=13A9B997-C6B8-4546-96A9-4E15B90A65BB' test -only-testing:LaneShadowTests/RideFlowTests` | unavailable in preserved logs | same as AC-1 green command | `✔ Test "test_reduce_planning_planningError_transitionsToError_preservesSession" passed` |
-| AC-5 | `xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=13A9B997-C6B8-4546-96A9-4E15B90A65BB' test -only-testing:LaneShadowTests/RideFlowTests` | unavailable in preserved logs | same as AC-1 green command | `✔ Test "test_reduce_routeResults_sendMessage_reusesSession_carriesForwardOptions" passed` |
-| AC-6 | `xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=13A9B997-C6B8-4546-96A9-4E15B90A65BB' test -only-testing:LaneShadowTests/RideFlowTests` | unavailable in preserved logs | same as AC-1 green command | `✔ Test "test_reduce_planning_cancelPlanning_branchesOnExistingOptions" passed` |
-| AC-7 | `xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=13A9B997-C6B8-4546-96A9-4E15B90A65BB' test -only-testing:LaneShadowTests/ChatStoreTests` | unavailable in preserved logs | same as AC-1 green command | `✔ Test "test_chatStore_dispatch_updatesFlowState_andSessionStore" passed` |
+- Replay checkout: `/tmp/CHAT-S04-T01-red-replay`
+- Base commit: `c4ebf03c8a4aafdbea1f4e43c4e98142f62c2d08`
+- Replay contents: copied `ios/project.yml` plus `ios/LaneShadowTests/Services/{RideFlowTests.swift, ChatStoreTests.swift, SessionStoreTests.swift}` only; no `RideFlow.swift`, `ChatStore.swift`, or `SessionStore.swift`
+
+Red commands:
+
+```bash
+xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=13A9B997-C6B8-4546-96A9-4E15B90A65BB' test -only-testing:LaneShadowTests/RideFlowTests -only-testing:LaneShadowTests/ChatStoreTests -only-testing:LaneShadowTests/SessionStoreTests
+xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=13A9B997-C6B8-4546-96A9-4E15B90A65BB' test -only-testing:LaneShadowTests/RideFlowTests
+xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=13A9B997-C6B8-4546-96A9-4E15B90A65BB' test -only-testing:LaneShadowTests/ChatStoreTests
+```
+
+Red output files:
+
+- `.tmp/CHAT-S04-T01/red-test-output.txt`
+- `.tmp/CHAT-S04-T01/red-rideflow-output.txt`
+- `.tmp/CHAT-S04-T01/red-chatstore-output.txt`
+
+Red excerpt:
+
+> Testing failed:
+> Cannot find 'SessionStore' in scope
+> Testing cancelled because the build failed.
+
+Green command:
+
+```bash
+xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=13A9B997-C6B8-4546-96A9-4E15B90A65BB' test -only-testing:LaneShadowTests/RideFlowTests -only-testing:LaneShadowTests/ChatStoreTests -only-testing:LaneShadowTests/SessionStoreTests
+```
+
+Green output file:
+
+- `.tmp/CHAT-S04-T01/test-output.txt`
+
+Green excerpt:
+
+> Test run with 8 tests in 3 suites passed
+> ** TEST SUCCEEDED **
 
 --------------------------------------------------------------------------------
 SCOPE
