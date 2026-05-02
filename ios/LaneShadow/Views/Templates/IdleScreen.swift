@@ -18,6 +18,7 @@ public struct IdleScreen: View {
     @State private var chatInputValue: String = ""
     private let onMenuTap: () -> Void
     private let onSuggestionTap: (MockSuggestionChip) -> Void
+    private let onSend: (String) -> Void
 
     public init(
         provider: IdleMockProvider.Type = IdleMockProvider.self,
@@ -28,7 +29,8 @@ public struct IdleScreen: View {
         isSubmitting: Bool = false,
         chatInputValue: Binding<String>? = nil,
         onMenuTap: @escaping () -> Void = {},
-        onSuggestionTap: @escaping (MockSuggestionChip) -> Void = { _ in }
+        onSuggestionTap: @escaping (MockSuggestionChip) -> Void = { _ in },
+        onSend: @escaping (String) -> Void = { _ in }
     ) {
         self.provider = provider
         state = provider.value(variant: variant)
@@ -39,6 +41,7 @@ public struct IdleScreen: View {
         _chatInputValue = State(initialValue: chatInputValue?.wrappedValue ?? "")
         self.onMenuTap = onMenuTap
         self.onSuggestionTap = onSuggestionTap
+        self.onSend = onSend
     }
 
     public var body: some View {
@@ -187,7 +190,7 @@ public struct IdleScreen: View {
         return LSChatInput(
             value: $chatInputValue,
             placeholder: isLocationNeeded ? "Set a start point to begin…" : "Plan a ride…",
-            onSend: { _ in },
+            onSend: onSend,
             onCollapse: {},
             onFilter: {},
             suggestions: suggestions,

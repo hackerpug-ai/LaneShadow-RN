@@ -18,16 +18,19 @@ final class IdleViewModel {
     @ObservationIgnored private let chatStore: ChatStore
     @ObservationIgnored private let sessionStore: SessionStore
     @ObservationIgnored private let convexClient: any LaneShadowPlanningDataProviding
+    @ObservationIgnored private let onSessionStarted: @MainActor @Sendable (String) -> Void
     @ObservationIgnored private var observationTasks: [Task<Void, Never>] = []
 
     init(
         chatStore: ChatStore,
         sessionStore: SessionStore,
-        convexClient: any LaneShadowPlanningDataProviding
+        convexClient: any LaneShadowPlanningDataProviding,
+        onSessionStarted: @escaping @MainActor @Sendable (String) -> Void = { _ in }
     ) {
         self.chatStore = chatStore
         self.sessionStore = sessionStore
         self.convexClient = convexClient
+        self.onSessionStarted = onSessionStarted
     }
 
     func observe() async {
@@ -85,7 +88,8 @@ final class IdleViewModel {
                 content: trimmedMessage,
                 currentLocation: nil
             )
-            chatStore.dispatch(.sendMessage(trimmedMessage))
+            chatStore.dispatch(.sendMessageWithSession(trimmedMessage, sessionId: session.sessionId))
+            onSessionStarted(session.sessionId)
         } catch {
             errorMessage = error.localizedDescription
         }

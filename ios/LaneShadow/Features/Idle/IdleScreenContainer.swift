@@ -18,6 +18,11 @@ struct IdleScreenContainer: View {
                 Task {
                     await viewModel.submitSuggestion(chip.label)
                 }
+            },
+            onSend: { message in
+                Task {
+                    await viewModel.submitSuggestion(message)
+                }
             }
         )
         .task {

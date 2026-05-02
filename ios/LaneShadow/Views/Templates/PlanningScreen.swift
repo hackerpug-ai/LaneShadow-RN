@@ -46,6 +46,7 @@ public struct PlanningScreen: View {
     @State private var chatInputValue: String = ""
     private let onMenuTap: () -> Void
     private let onCollapse: () -> Void
+    private let onSend: (String) -> Void
 
     public init(
         provider: PlanningMockProvider.Type = PlanningMockProvider.self,
@@ -59,12 +60,14 @@ public struct PlanningScreen: View {
         liveState = nil
         self.onMenuTap = onMenuTap
         onCollapse = {}
+        onSend = { _ in }
     }
 
     init(
         liveState: PlanningScreenLiveState,
         onMenuTap: @escaping () -> Void = {},
-        onCollapse: @escaping () -> Void = {}
+        onCollapse: @escaping () -> Void = {},
+        onSend: @escaping (String) -> Void = { _ in }
     ) {
         provider = PlanningMockProvider.self
         activePhase = 1
@@ -72,6 +75,7 @@ public struct PlanningScreen: View {
         self.liveState = liveState
         self.onMenuTap = onMenuTap
         self.onCollapse = onCollapse
+        self.onSend = onSend
     }
 
     public var body: some View {
@@ -307,7 +311,7 @@ public struct PlanningScreen: View {
         LSChatInput(
             value: $chatInputValue,
             placeholder: state.message.body,
-            onSend: { _ in },
+            onSend: onSend,
             onCollapse: {},
             onFilter: {},
             isThinking: state.isThinking,
@@ -374,7 +378,7 @@ public struct PlanningScreen: View {
             LSChatInput(
                 value: $chatInputValue,
                 placeholder: "Refine your ride…",
-                onSend: { _ in },
+                onSend: onSend,
                 onCollapse: onCollapse,
                 onFilter: {},
                 isThinking: false,

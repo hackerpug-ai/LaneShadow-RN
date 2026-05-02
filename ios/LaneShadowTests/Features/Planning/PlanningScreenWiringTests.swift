@@ -145,29 +145,23 @@ struct PlanningScreenWiringTests {
     }
 
     @Test
-    func planningScreenActivePlanCompletedDispatchesPlanningSuccess() async {
+    func planningScreenFreeTextSendUsesExistingSessionId() async {
         let context = makePlanningContext()
 
-        context.client.sendActiveRoutePlans(
-            [
-                makeRoutePlan(
-                    id: "route-plan-123",
-                    status: "completed",
-                    routeOptions: makeRouteOptions(planId: "plan-123")
-                ),
-            ],
-            sessionId: "session-123"
-        )
-        await pumpMainActor()
+        await context.viewModel.submitRefinement("Refine the route")
 
-        switch context.chatStore.flowState {
-        case let .routeResults(state):
-            #expect(state.sessionId == "session-123")
-            #expect(state.routeOptions.planId == "plan-123")
-            #expect(state.routeOptions.options.count == 1)
-        default:
-            #expect(false, "Expected flow state to transition to routeResults")
-        }
+        #expect(
+            context.client.sendPlanningMessageCalls == [
+                LaneShadowPlanningMessageCall(
+                    sessionId: "session-123",
+                    content: "Refine the route",
+                    currentLocation: nil
+                ),
+            ]
+        )
+        #expect(context.chatStore.flowState.phase == .planning)
+        #expect(context.chatStore.flowState.sessionId == "session-123")
+        #expect(context.sessionStore.activeSessionId == "session-123")
 
         context.client.finishObservationStreams()
         context.observationTask.cancel()

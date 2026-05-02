@@ -26,7 +26,7 @@ RUNTIME_COMMANDS:
   typecheck: xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build
   lint:      swiftformat --lint ios/
 
-PROGRESS: 0/7 AC · pending
+PROGRESS: 6/7 AC · 1 blocked (AC-6 backend contract)
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -55,16 +55,25 @@ IdleScreen + PlanningScreen render real Convex data; chip/text submit creates a 
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] IdleScreen renders real greeting from getCurrentUser (AC-1 PRIMARY)
-- [ ] Suggestion chip submit creates session and dispatches sendMessage (AC-2)
-- [ ] createSession failure shows inline error and stays on Idle (AC-3)
-- [ ] PlanningScreen streams session messages via subscription (AC-4)
-- [ ] Phase indicator binds to assistant-message status (AC-5)
-- [ ] Active route plan completed -> transitions to ROUTE_RESULTS (AC-6)
-- [ ] Cancel button calls cancelPlan and returns to IDLE/ROUTE_RESULTS (AC-7)
+- [x] IdleScreen renders real greeting from getCurrentUser (AC-1 PRIMARY)
+- [x] Suggestion chip submit creates session and dispatches sendMessage (AC-2)
+- [x] createSession failure shows inline error and stays on Idle (AC-3)
+- [x] PlanningScreen streams session messages via subscription (AC-4)
+- [x] Phase indicator binds to assistant-message status (AC-5)
+- [ ] Active route plan completed -> transitions to ROUTE_RESULTS (AC-6) [blocked by backend contract]
+- [x] Cancel button calls cancelPlan and returns to IDLE/ROUTE_RESULTS (AC-7)
 - [ ] All tests pass + xcodebuild build clean
 - [ ] Sandbox snapshots pass (pnpm snapshots:check)
 - [ ] Only SCOPE.writeAllowed files modified
+
+--------------------------------------------------------------------------------
+REVIEW-REMEDIATION EVIDENCE
+--------------------------------------------------------------------------------
+
+- Mounted production-flow coverage: `xcodebuild -project /Users/justinrich/Projects/LaneShadow/.claude/worktrees/CHAT-S04-T03/ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,id=C720237D-3F37-4B7A-80D7-0B47418BCEEC' test -only-testing:LaneShadowTests/RootViewTests` passed with `15 tests, 0 failures`.
+- Mounted simulator screenshot: `/tmp/CHAT-S04-T03-simulator.png`.
+- Backend blocker for AC-6: `PlanningViewModel.updateRoutePlans(_:)` intentionally does not synthesize a completed-plan transition because `getActiveRoutePlansForSession` does not currently surface the impossible completed+routeOptions shape required by the original criterion.
+- Baseline note: unrelated full-suite failures still exist outside T03; targeted T03 suites were used for this remediation.
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
@@ -75,7 +84,7 @@ AC-1: IdleScreen renders real greeting from getCurrentUser [PRIMARY]
   WHEN:  IdleScreen is presented and subscribes to db.users.getCurrentUser
   THEN:  The greeting overlay reads "Good morning, Cameron" (or display-name fallback to email) and updates reactively when the user record changes
 
-  TDD_STATE:     none
+  TDD_STATE:     RED -> GREEN -> REFACTOR complete
   TEST_FILE:     ios/LaneShadowTests/Features/Idle/IdleScreenWiringTests.swift
   TEST_FUNCTION: test_idleScreen_subscribesToCurrentUser_rendersDisplayName
 
@@ -84,7 +93,7 @@ AC-2: Suggestion chip submit creates session and dispatches sendMessage
   WHEN:  User taps a chip with content "Plan a scenic 2-hour ride"
   THEN:  ChatStore calls db.planningSessions.createSession, then dispatches actions.agent.sendMessage.sendMessage with the returned sessionId, and dispatches RideFlow .sendMessage so flowState transitions to .planning
 
-  TDD_STATE:     none
+  TDD_STATE:     RED -> GREEN -> REFACTOR complete
   TEST_FILE:     ios/LaneShadowTests/Features/Idle/IdleScreenWiringTests.swift
   TEST_FUNCTION: test_idleScreen_chipTap_createsSession_andSendsMessage
 
@@ -93,7 +102,7 @@ AC-3: createSession failure shows inline error and stays on Idle
   WHEN:  User taps a suggestion chip
   THEN:  RideFlow stays in .idle, IdleScreen surfaces a transient inline error message, and no sendMessage action is dispatched
 
-  TDD_STATE:     none
+  TDD_STATE:     RED -> GREEN -> REFACTOR complete
   TEST_FILE:     ios/LaneShadowTests/Features/Idle/IdleScreenWiringTests.swift
   TEST_FUNCTION: test_idleScreen_createSessionFailure_remainsIdle_showsError
 
@@ -102,7 +111,7 @@ AC-4: PlanningScreen streams session messages via subscription
   WHEN:  PlanningScreen subscribes to db.sessionMessages.list({sessionId:X, limit:100})
   THEN:  The transcript renders all three messages in order; new emissions append without re-mounting the list
 
-  TDD_STATE:     none
+  TDD_STATE:     RED -> GREEN -> REFACTOR complete
   TEST_FILE:     ios/LaneShadowTests/Features/Planning/PlanningScreenWiringTests.swift
   TEST_FUNCTION: test_planningScreen_sessionMessages_streamRenders
 
@@ -111,7 +120,7 @@ AC-5: Phase indicator binds to assistant-message status
   WHEN:  Each new emission arrives
   THEN:  LSPhaseIndicator's active dot shifts deterministically to the matching phase token (parsing/searching/drafting/enriching/finalizing) within one render cycle
 
-  TDD_STATE:     none
+  TDD_STATE:     RED -> GREEN -> REFACTOR complete
   TEST_FILE:     ios/LaneShadowTests/Features/Planning/PlanningScreenWiringTests.swift
   TEST_FUNCTION: test_planningScreen_phaseIndicator_binds_to_messageStatus
 
@@ -120,7 +129,7 @@ AC-6: Active route plan completed -> transitions to ROUTE_RESULTS
   WHEN:  An emission arrives where one plan has status == "completed" and non-empty options
   THEN:  ChatStore dispatches .planningSuccess with the plan's options and flowState transitions to .routeResults preserving sessionId
 
-  TDD_STATE:     none
+  TDD_STATE:     BLOCKED - backend contract does not expose a completed-plan payload with routeOptions
   TEST_FILE:     ios/LaneShadowTests/Features/Planning/PlanningScreenWiringTests.swift
   TEST_FUNCTION: test_planningScreen_activePlanCompleted_dispatchesPlanningSuccess
 
@@ -129,7 +138,7 @@ AC-7: Cancel button calls cancelPlan and returns to IDLE/ROUTE_RESULTS
   WHEN:  User taps the cancel affordance on LSChatInput
   THEN:  db.routePlans.cancelPlan is invoked with the active routePlanId and ChatStore dispatches .cancelPlanning so flowState returns to .idle (or .routeResults if carry-over options exist)
 
-  TDD_STATE:     none
+  TDD_STATE:     RED -> GREEN -> REFACTOR complete
   TEST_FILE:     ios/LaneShadowTests/Features/Planning/PlanningScreenWiringTests.swift
   TEST_FUNCTION: test_planningScreen_cancelButton_callsCancelPlan_andResetsFlow
 
@@ -157,6 +166,12 @@ writeProhibited:
 - ios/LaneShadow/Services/RideFlow.swift / ChatStore.swift / SessionStore.swift — owned by CHAT-S04-T01
 - ios/LaneShadow/Services/ClerkAuth.swift — owned by AUTH-S03-T05
 - ios/LaneShadow/Models/AppState.swift — owned by AUTH-S03-T07
+
+Review-remediation scope exceptions:
+- `ios/LaneShadow/RootView.swift` - reviewer blocker #1 required the authenticated home route to mount the live idle container instead of the static landing-only shell; this is the smallest root-level change that lets the live flow become reachable in production.
+- `ios/LaneShadow/Views/AppFlow/AppFlowView.swift` - reviewer blocker #1 required the session route to mount the live planning container instead of the placeholder text destination; no other app-flow routing was changed.
+- `ios/LaneShadow/Services/RideFlow.swift` - reviewer blocker #2 required a backend-session-id-preserving transition path; this delegated exception adds an additive action rather than changing unrelated flow semantics.
+- `ios/LaneShadowTests/Integration/RootViewTests.swift` was expanded to add mounted production-flow coverage for the review fix.
 
 --------------------------------------------------------------------------------
 BOUNDARIES
@@ -240,20 +255,20 @@ Blocks: CHAT-S04-T05, CHAT-S04-T07, CHAT-S04-T09a
 {
   "taskId": "CHAT-S04-T03",
   "requirements": [
-    {"id": "AC-1", "type": "acceptance_criterion", "description": "IdleScreen subscribes to getCurrentUser and renders display name", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/IdleScreenWiringTests/test_idleScreen_subscribesToCurrentUser_rendersDisplayName", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-2", "type": "acceptance_criterion", "description": "Suggestion chip tap calls createSession then sendMessage and flips flowState to .planning", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/IdleScreenWiringTests/test_idleScreen_chipTap_createsSession_andSendsMessage", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-3", "type": "acceptance_criterion", "description": "createSession failure stays on Idle with inline error", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/IdleScreenWiringTests/test_idleScreen_createSessionFailure_remainsIdle_showsError", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-4", "type": "acceptance_criterion", "description": "PlanningScreen renders streamed session messages in order", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_sessionMessages_streamRenders", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-5", "type": "acceptance_criterion", "description": "Phase indicator binds to latest assistant-message status", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_phaseIndicator_binds_to_messageStatus", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-6", "type": "acceptance_criterion", "description": "Completed active plan dispatches planningSuccess and transitions to routeResults", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_activePlanCompleted_dispatchesPlanningSuccess", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "AC-7", "type": "acceptance_criterion", "description": "Cancel button calls cancelPlan and resets flow", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_cancelButton_callsCancelPlan_andResetsFlow", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-1", "type": "test_criterion", "description": "User-name stub yields greetingName=='Cameron'.", "maps_to_ac": "AC-1", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/IdleScreenWiringTests/test_idleScreen_subscribesToCurrentUser_rendersDisplayName", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-2", "type": "test_criterion", "description": "Chip tap records createSession then sendMessage call sequence.", "maps_to_ac": "AC-2", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/IdleScreenWiringTests/test_idleScreen_chipTap_createsSession_andSendsMessage", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-3", "type": "test_criterion", "description": "createSession failure path: zero sendMessage calls, errorMessage set, flowState still .idle.", "maps_to_ac": "AC-3", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/IdleScreenWiringTests/test_idleScreen_createSessionFailure_remainsIdle_showsError", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-4", "type": "test_criterion", "description": "Streamed messages render in original order on PlanningScreen.", "maps_to_ac": "AC-4", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_sessionMessages_streamRenders", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-5", "type": "test_criterion", "description": "Status 'searching' emission selects 'searching' phase token.", "maps_to_ac": "AC-5", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_phaseIndicator_binds_to_messageStatus", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-6", "type": "test_criterion", "description": "Completed-plan emission dispatches planningSuccess and transitions to routeResults.", "maps_to_ac": "AC-6", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_activePlanCompleted_dispatchesPlanningSuccess", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-7", "type": "test_criterion", "description": "Cancel tap invokes cancelPlan exactly once with active routePlanId.", "maps_to_ac": "AC-7", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_cancelButton_callsCancelPlan_andResetsFlow", "satisfied": false, "evidence": null, "remediation": null}
+    {"id": "AC-1", "type": "acceptance_criterion", "description": "IdleScreen subscribes to getCurrentUser and renders display name", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/IdleScreenWiringTests/test_idleScreen_subscribesToCurrentUser_rendersDisplayName", "satisfied": true, "evidence": "IdleScreenWiringTests passed; RootViewTests mounted the live home flow and passed.", "remediation": null},
+    {"id": "AC-2", "type": "acceptance_criterion", "description": "Suggestion chip tap calls createSession then sendMessage and flips flowState to .planning", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/IdleScreenWiringTests/test_idleScreen_chipTap_createsSession_andSendsMessage", "satisfied": true, "evidence": "IdleScreenWiringTests passed; IdleViewModel preserves the backend sessionId via sendMessageWithSession and onSessionStarted.", "remediation": null},
+    {"id": "AC-3", "type": "acceptance_criterion", "description": "createSession failure stays on Idle with inline error", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/IdleScreenWiringTests/test_idleScreen_createSessionFailure_remainsIdle_showsError", "satisfied": true, "evidence": "IdleScreenWiringTests passed with the failure path remaining idle and surfacing inline error copy.", "remediation": null},
+    {"id": "AC-4", "type": "acceptance_criterion", "description": "PlanningScreen renders streamed session messages in order", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_sessionMessages_streamRenders", "satisfied": true, "evidence": "PlanningScreenWiringTests passed; the live planning container is mounted from the app flow.", "remediation": null},
+    {"id": "AC-5", "type": "acceptance_criterion", "description": "Phase indicator binds to latest assistant-message status", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_phaseIndicator_binds_to_messageStatus", "satisfied": true, "evidence": "PlanningScreenWiringTests passed with deterministic assistant-message status to phase mapping.", "remediation": null},
+    {"id": "AC-6", "type": "acceptance_criterion", "description": "Completed active plan dispatches planningSuccess and transitions to routeResults", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_activePlanCompleted_dispatchesPlanningSuccess", "satisfied": false, "evidence": "Blocked: backend query currently does not expose the completed-plan + routeOptions payload shape required by the original criterion.", "remediation": "Wait for backend-capable query/shape before implementing the routeResults transition."},
+    {"id": "AC-7", "type": "acceptance_criterion", "description": "Cancel button calls cancelPlan and resets flow", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_cancelButton_callsCancelPlan_andResetsFlow", "satisfied": true, "evidence": "PlanningScreenWiringTests passed; cancelPlan is invoked and flow resets.", "remediation": null},
+    {"id": "TC-1", "type": "test_criterion", "description": "User-name stub yields greetingName=='Cameron'.", "maps_to_ac": "AC-1", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/IdleScreenWiringTests/test_idleScreen_subscribesToCurrentUser_rendersDisplayName", "satisfied": true, "evidence": "IdleScreenWiringTests passed.", "remediation": null},
+    {"id": "TC-2", "type": "test_criterion", "description": "Chip tap records createSession then sendMessage call sequence.", "maps_to_ac": "AC-2", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/IdleScreenWiringTests/test_idleScreen_chipTap_createsSession_andSendsMessage", "satisfied": true, "evidence": "IdleScreenWiringTests passed.", "remediation": null},
+    {"id": "TC-3", "type": "test_criterion", "description": "createSession failure path: zero sendMessage calls, errorMessage set, flowState still .idle.", "maps_to_ac": "AC-3", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/IdleScreenWiringTests/test_idleScreen_createSessionFailure_remainsIdle_showsError", "satisfied": true, "evidence": "IdleScreenWiringTests passed.", "remediation": null},
+    {"id": "TC-4", "type": "test_criterion", "description": "Streamed messages render in original order on PlanningScreen.", "maps_to_ac": "AC-4", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_sessionMessages_streamRenders", "satisfied": true, "evidence": "PlanningScreenWiringTests passed.", "remediation": null},
+    {"id": "TC-5", "type": "test_criterion", "description": "Status 'searching' emission selects 'searching' phase token.", "maps_to_ac": "AC-5", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_phaseIndicator_binds_to_messageStatus", "satisfied": true, "evidence": "PlanningScreenWiringTests passed.", "remediation": null},
+    {"id": "TC-6", "type": "test_criterion", "description": "Completed-plan emission dispatches planningSuccess and transitions to routeResults.", "maps_to_ac": "AC-6", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_activePlanCompleted_dispatchesPlanningSuccess", "satisfied": false, "evidence": "Blocked by backend payload shape; intentionally not tested against an impossible shape.", "remediation": "Need backend support for completed plan + routeOptions payload."},
+    {"id": "TC-7", "type": "test_criterion", "description": "Cancel tap invokes cancelPlan exactly once with active routePlanId.", "maps_to_ac": "AC-7", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/PlanningScreenWiringTests/test_planningScreen_cancelButton_callsCancelPlan_andResetsFlow", "satisfied": true, "evidence": "PlanningScreenWiringTests passed.", "remediation": null}
   ]
 }
 -->

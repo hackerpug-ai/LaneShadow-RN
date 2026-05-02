@@ -23,6 +23,11 @@ struct PlanningScreenContainer: View {
                 Task {
                     await viewModel.cancelPlanning()
                 }
+            },
+            onSend: { message in
+                Task {
+                    await viewModel.submitRefinement(message)
+                }
             }
         )
         .task {

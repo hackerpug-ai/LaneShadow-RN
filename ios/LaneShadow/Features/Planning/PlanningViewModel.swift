@@ -106,6 +106,31 @@ final class PlanningViewModel {
         chatStore.dispatch(.cancelPlanning)
     }
 
+    func submitRefinement(_ message: String) async {
+        let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedMessage.isEmpty else {
+            return
+        }
+
+        guard let sessionId = chatStore.flowState.sessionId ?? sessionStore.activeSessionId else {
+            errorMessage = "Planning session not ready"
+            return
+        }
+
+        errorMessage = nil
+
+        do {
+            _ = try await convexClient.sendPlanningMessage(
+                sessionId: sessionId,
+                content: trimmedMessage,
+                currentLocation: nil
+            )
+            chatStore.dispatch(.sendMessageWithSession(trimmedMessage, sessionId: sessionId))
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     private func updateMessages(_ rawMessages: [LaneShadowSessionMessage]) {
         messages = rawMessages.map(Self.convertMessage(_:))
         isThinking = rawMessages.contains {
@@ -125,17 +150,6 @@ final class PlanningViewModel {
             $0.status == "pending" || $0.status == "running"
         }) {
             activeRoutePlanId = activePlan.id
-        }
-
-        if let completedPlan = routePlans.first(where: { $0.status == "completed" }),
-           let routeOptions = completedPlan.routeOptions,
-           !routeOptions.options.isEmpty
-        {
-            didDispatchTerminalState = true
-            isThinking = false
-            phases = Self.makePhases(activeIndex: Self.finalizingPhaseIndex)
-            chatStore.dispatch(.planningSuccess(routeOptions))
-            return
         }
 
         if let failedPlan = routePlans.first(where: { $0.status == "failed" }) {

@@ -93,7 +93,8 @@ struct IdleScreenWiringTests {
             ]
         )
         #expect(chatStore.flowState.phase == .planning)
-        #expect(chatStore.flowState.sessionId == "flow-session-456")
+        #expect(chatStore.flowState.sessionId == "session-123")
+        #expect(sessionStore.activeSessionId == "session-123")
 
         client.finishObservationStreams()
         observationTask.cancel()

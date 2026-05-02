@@ -309,6 +309,7 @@ enum RideFlowPhase: Equatable {
 
 enum RideFlowAction: Equatable {
     case sendMessage(String)
+    case sendMessageWithSession(String, sessionId: String)
     case planningSuccess(PlannedRouteOptionsView)
     case planningError(String)
     case cancelPlanning
@@ -383,6 +384,18 @@ private func reduceIdle(
                 selectedRouteId: nil
             )
         )
+    case let .sendMessageWithSession(content, sessionId):
+        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return .idle(state)
+        }
+
+        return .planning(
+            PlanningState(
+                sessionId: sessionId,
+                routeOptions: nil,
+                selectedRouteId: nil
+            )
+        )
     case let .loadSession(sessionId, routeOptions, selectedRouteId):
         return .routeResults(
             RouteResultsState(
@@ -411,6 +424,20 @@ private func reducePlanning(
                 sessionId: state.sessionId,
                 routeOptions: routeOptions,
                 selectedRouteId: selectedRouteId
+            )
+        )
+    case let .sendMessageWithSession(content, sessionId):
+        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return .planning(state)
+        }
+
+        return .planning(
+            PlanningState(
+                sessionId: sessionId,
+                routeOptions: state.routeOptions,
+                selectedRouteId: state.selectedRouteId,
+                planId: state.planId,
+                currentPhase: state.currentPhase
             )
         )
     case let .planningError(errorMessage):
@@ -453,6 +480,18 @@ private func reduceRouteResults(
         return .planning(
             PlanningState(
                 sessionId: state.sessionId,
+                routeOptions: state.routeOptions,
+                selectedRouteId: state.selectedRouteId
+            )
+        )
+    case let .sendMessageWithSession(content, sessionId):
+        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return .routeResults(state)
+        }
+
+        return .planning(
+            PlanningState(
+                sessionId: sessionId,
                 routeOptions: state.routeOptions,
                 selectedRouteId: state.selectedRouteId
             )
@@ -514,6 +553,18 @@ private func reduceRouteDetails(
         return .planning(
             PlanningState(
                 sessionId: state.sessionId,
+                routeOptions: state.routeOptions,
+                selectedRouteId: state.selectedRouteId
+            )
+        )
+    case let .sendMessageWithSession(content, sessionId):
+        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return .routeDetails(state)
+        }
+
+        return .planning(
+            PlanningState(
+                sessionId: sessionId,
                 routeOptions: state.routeOptions,
                 selectedRouteId: state.selectedRouteId
             )
@@ -615,6 +666,18 @@ private func reduceError(
         return .planning(
             PlanningState(
                 sessionId: dependencies.makeSessionId(),
+                routeOptions: nil,
+                selectedRouteId: nil
+            )
+        )
+    case let .sendMessageWithSession(content, sessionId):
+        guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return .error(state)
+        }
+
+        return .planning(
+            PlanningState(
+                sessionId: sessionId,
                 routeOptions: nil,
                 selectedRouteId: nil
             )

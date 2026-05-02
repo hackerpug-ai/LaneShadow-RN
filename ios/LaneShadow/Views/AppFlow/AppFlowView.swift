@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct AppFlowView: View {
+    @Environment(\.appEnvironment) private var appEnvironment
+
     let route: AppState.AppRoute?
 
     init(route: AppState.AppRoute? = nil) {
@@ -11,7 +13,10 @@ struct AppFlowView: View {
         NavigationStack {
             switch route {
             case let .session(id):
-                SessionDestinationView(sessionID: id)
+                SessionDestinationView(
+                    sessionID: id,
+                    convexClient: appEnvironment.convexClient
+                )
             case .home, .none:
                 AppHomeView()
             }
@@ -20,10 +25,28 @@ struct AppFlowView: View {
 }
 
 private struct SessionDestinationView: View {
+    @State private var viewModel: PlanningViewModel
     let sessionID: String
 
+    init(sessionID: String, convexClient: any LaneShadowPlanningDataProviding) {
+        self.sessionID = sessionID
+
+        let sessionStore = SessionStore(activeSessionId: sessionID)
+        let chatStore = ChatStore(
+            flowState: .planning(PlanningState(sessionId: sessionID)),
+            sessionStore: sessionStore
+        )
+        _viewModel = State(
+            initialValue: PlanningViewModel(
+                chatStore: chatStore,
+                sessionStore: sessionStore,
+                convexClient: convexClient
+            )
+        )
+    }
+
     var body: some View {
-        Text("Session \(sessionID)")
+        PlanningScreenContainer(viewModel: viewModel)
             .navigationTitle("Session")
     }
 }
