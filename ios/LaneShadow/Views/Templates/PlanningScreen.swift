@@ -41,9 +41,12 @@ public struct PlanningScreen: View {
     private let provider: PlanningMockProvider.Type
     private let activePhase: Int
     private let state: PlanningScreenState
+    private let liveState: PlanningScreenLiveState?
 
     @State private var chatInputValue: String = ""
     private let onMenuTap: () -> Void
+    private let onCollapse: () -> Void
+    private let onSend: (String) -> Void
 
     public init(
         provider: PlanningMockProvider.Type = PlanningMockProvider.self,
@@ -54,114 +57,136 @@ public struct PlanningScreen: View {
         self.provider = provider
         self.activePhase = activePhase
         state = provider.value(variant: variant)
+        liveState = nil
         self.onMenuTap = onMenuTap
+        onCollapse = {}
+        onSend = { _ in }
+    }
+
+    init(
+        liveState: PlanningScreenLiveState,
+        onMenuTap: @escaping () -> Void = {},
+        onCollapse: @escaping () -> Void = {},
+        onSend: @escaping (String) -> Void = { _ in }
+    ) {
+        provider = PlanningMockProvider.self
+        activePhase = 1
+        state = PlanningMockProvider.value(variant: "default")
+        self.liveState = liveState
+        self.onMenuTap = onMenuTap
+        self.onCollapse = onCollapse
+        self.onSend = onSend
     }
 
     public var body: some View {
-        ZStack {
-            // Main content
-            LSMapLayer(
-                map: {
-                    mapView
-                },
-                topOverlays: [
-                    GlassOverlaySlot(
-                        id: "phase-indicator",
-                        content: { phaseIndicatorView }
-                    ),
-                ],
-                bottomOverlays: [
-                    GlassOverlaySlot(
-                        id: "chat-input",
-                        content: { chatInputView }
-                    ),
-                ],
-                topBar: {
-                    LSTopBar(
-                        trailing: .none,
-                        onMenuTap: onMenuTap,
-                        onNewTap: {}
-                    )
-                }
-            )
-            .accessibilityIdentifier("planningscreen")
-            .opacity(state.showCancelConfirm ? theme.opacity.disabled : 1.0) // V02: Dim phase card
-
-            // V02: Cancel confirm overlay
-            if state.showCancelConfirm {
-                // Scrim
-                LSScrim(blocking: true)
-                    .ignoresSafeArea()
-                    .accessibilityIdentifier("planningscreen-scrim")
-
-                // Cancel confirm sheet (inline implementation since LSCancelConfirmSheet is not in project)
-                VStack {
-                    Spacer()
-
-                    VStack(spacing: theme.space.md) {
-                        // Title
-                        Text("Cancel this plan?")
-                            .font(theme.type.opinion.lg.font)
-                            .foregroundStyle(LaneShadowTheme.color.content.primary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        // Body
-                        Text("I've drawn one route already. You can back out now — but I'll toss what I have.")
-                            .font(theme.type.opinion.sm.font)
-                            .italic()
-                            .foregroundStyle(LaneShadowTheme.color.content.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        // Actions
-                        HStack(spacing: theme.space.md) {
-                            // Keep button (tertiary)
-                            Button(action: {}) {
-                                Text("Keep thinking")
-                                    .font(theme.type.title.sm.font)
-                                    .foregroundStyle(LaneShadowTheme.color.content.secondary)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 44)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: theme.radius.lg)
-                                            .strokeBorder(
-                                                LaneShadowTheme.color.border.default,
-                                                lineWidth: theme.borderWidth.hairline
-                                            )
-                                    )
-                            }
-                            .accessibilityIdentifier("cancel-confirm-keep")
-
-                            // Cancel button (signal)
-                            Button(action: {}) {
-                                Text("Cancel plan")
-                                    .font(theme.type.title.sm.font)
-                                    .foregroundStyle(LaneShadowTheme.color.content.primary)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 44)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: theme.radius.lg)
-                                            .fill(LaneShadowTheme.color.surface.inset)
-                                    )
-                            }
-                            .accessibilityIdentifier("cancel-confirm-cancel")
-                        }
+        if let liveState {
+            liveContent(for: liveState)
+        } else {
+            ZStack {
+                // Main content
+                LSMapLayer(
+                    map: {
+                        mapView
+                    },
+                    topOverlays: [
+                        GlassOverlaySlot(
+                            id: "phase-indicator",
+                            content: { phaseIndicatorView }
+                        ),
+                    ],
+                    bottomOverlays: [
+                        GlassOverlaySlot(
+                            id: "chat-input",
+                            content: { chatInputView }
+                        ),
+                    ],
+                    topBar: {
+                        LSTopBar(
+                            trailing: .none,
+                            onMenuTap: onMenuTap,
+                            onNewTap: {}
+                        )
                     }
-                    .padding(theme.space.lg)
-                    .background(
-                        RoundedRectangle(cornerRadius: theme.radius.xl)
-                            .fill(LaneShadowTheme.color.surface.card)
-                    )
-                    .shadow(
-                        color: theme.elevation.level1.shadowColor,
-                        radius: theme.elevation.level1.radius,
-                        x: theme.elevation.level1.offsetX,
-                        y: theme.elevation.level1.offsetY
-                    )
-                    .padding(.horizontal, theme.space.md)
-                    .accessibilityIdentifier("planningscreen-cancel-confirm")
+                )
+                .accessibilityIdentifier("planningscreen")
+                .opacity(state.showCancelConfirm ? theme.opacity.disabled : 1.0) // V02: Dim phase card
 
-                    Spacer()
-                        .frame(height: theme.space.xl * 2) // Position from bottom
+                // V02: Cancel confirm overlay
+                if state.showCancelConfirm {
+                    // Scrim
+                    LSScrim(blocking: true)
+                        .ignoresSafeArea()
+                        .accessibilityIdentifier("planningscreen-scrim")
+
+                    // Cancel confirm sheet (inline implementation since LSCancelConfirmSheet is not in project)
+                    VStack {
+                        Spacer()
+
+                        VStack(spacing: theme.space.md) {
+                            // Title
+                            Text("Cancel this plan?")
+                                .font(theme.type.opinion.lg.font)
+                                .foregroundStyle(LaneShadowTheme.color.content.primary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            // Body
+                            Text("I've drawn one route already. You can back out now — but I'll toss what I have.")
+                                .font(theme.type.opinion.sm.font)
+                                .italic()
+                                .foregroundStyle(LaneShadowTheme.color.content.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            // Actions
+                            HStack(spacing: theme.space.md) {
+                                // Keep button (tertiary)
+                                Button(action: {}) {
+                                    Text("Keep thinking")
+                                        .font(theme.type.title.sm.font)
+                                        .foregroundStyle(LaneShadowTheme.color.content.secondary)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 44)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: theme.radius.lg)
+                                                .strokeBorder(
+                                                    LaneShadowTheme.color.border.default,
+                                                    lineWidth: theme.borderWidth.hairline
+                                                )
+                                        )
+                                }
+                                .accessibilityIdentifier("cancel-confirm-keep")
+
+                                // Cancel button (signal)
+                                Button(action: {}) {
+                                    Text("Cancel plan")
+                                        .font(theme.type.title.sm.font)
+                                        .foregroundStyle(LaneShadowTheme.color.content.primary)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 44)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: theme.radius.lg)
+                                                .fill(LaneShadowTheme.color.surface.inset)
+                                        )
+                                }
+                                .accessibilityIdentifier("cancel-confirm-cancel")
+                            }
+                        }
+                        .padding(theme.space.lg)
+                        .background(
+                            RoundedRectangle(cornerRadius: theme.radius.xl)
+                                .fill(LaneShadowTheme.color.surface.card)
+                        )
+                        .shadow(
+                            color: theme.elevation.level1.shadowColor,
+                            radius: theme.elevation.level1.radius,
+                            x: theme.elevation.level1.offsetX,
+                            y: theme.elevation.level1.offsetY
+                        )
+                        .padding(.horizontal, theme.space.md)
+                        .accessibilityIdentifier("planningscreen-cancel-confirm")
+
+                        Spacer()
+                            .frame(height: theme.space.xl * 2) // Position from bottom
+                    }
                 }
             }
         }
@@ -286,13 +311,101 @@ public struct PlanningScreen: View {
         LSChatInput(
             value: $chatInputValue,
             placeholder: state.message.body,
-            onSend: { _ in },
+            onSend: onSend,
             onCollapse: {},
             onFilter: {},
             isThinking: state.isThinking,
             isEnabled: !state.isThinking
         )
         .accessibilityIdentifier("planningscreen-chat-input")
+    }
+
+    private func liveContent(for liveState: PlanningScreenLiveState) -> some View {
+        LSMapLayer(
+            map: {
+                if liveState.shouldRenderMap {
+                    mapView
+                } else {
+                    Color.clear
+                }
+            },
+            topOverlays: [
+                GlassOverlaySlot(
+                    id: "phase-indicator",
+                    content: { livePhaseIndicatorView(for: liveState) }
+                ),
+            ],
+            bottomOverlays: [
+                GlassOverlaySlot(
+                    id: "chat-input",
+                    content: { liveBottomOverlay(for: liveState) }
+                ),
+            ],
+            topBar: {
+                LSTopBar(
+                    trailing: .none,
+                    onMenuTap: onMenuTap,
+                    onNewTap: {}
+                )
+            }
+        )
+        .accessibilityIdentifier("planningscreen")
+    }
+
+    private func livePhaseIndicatorView(for liveState: PlanningScreenLiveState) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            LSPhaseIndicator(
+                phases: liveState.phases,
+                header: "Planning your ride…",
+                showWarningChrome: liveState.errorMessage != nil
+            )
+            .accessibilityIdentifier("planningscreen-phase-indicator")
+
+            if let errorMessage = liveState.errorMessage {
+                liveErrorBanner(errorMessage)
+            }
+        }
+    }
+
+    private func liveBottomOverlay(for liveState: PlanningScreenLiveState) -> some View {
+        VStack(alignment: .leading, spacing: theme.space.md) {
+            LSChatTranscript(
+                messages: liveState.messages,
+                isTyping: liveState.isThinking
+            )
+            .accessibilityIdentifier("planningscreen-transcript")
+
+            LSChatInput(
+                value: $chatInputValue,
+                placeholder: "Refine your ride…",
+                onSend: onSend,
+                onCollapse: onCollapse,
+                onFilter: {},
+                isThinking: false,
+                isEnabled: true
+            )
+            .accessibilityIdentifier("planningscreen-chat-input")
+        }
+        .padding(.horizontal, theme.space.md)
+        .padding(.bottom, theme.space.md)
+    }
+
+    private func liveErrorBanner(_ message: String) -> some View {
+        Text(message)
+            .font(theme.type.body.sm.font)
+            .foregroundStyle(LaneShadowTheme.color.content.primary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(theme.space.md)
+            .background(LaneShadowTheme.color.surface.card)
+            .overlay(
+                RoundedRectangle(cornerRadius: theme.radius.lg)
+                    .stroke(
+                        LaneShadowTheme.color.status.warning.default,
+                        lineWidth: theme.borderWidth.thin
+                    )
+            )
+            .padding(.bottom, theme.space.sm)
+            .accessibilityIdentifier("planningscreen-inline-error")
     }
 }
 

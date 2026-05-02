@@ -65,10 +65,16 @@ struct RootView: View {
                 AppFlowView(route: .session(id: id))
             case .home, .none:
                 AuthenticatedLandingView(
+                    environment: appEnvironment,
                     displayName: authenticatedDisplayName,
                     isHydratingCurrentUser: appState.isHydratingCurrentUser,
                     authMessage: appState.authMessage,
-                    onLogout: signOut
+                    onLogout: signOut,
+                    onSessionStarted: { sessionID in
+                        Task { @MainActor in
+                            appState.appRoute = .session(id: sessionID)
+                        }
+                    }
                 )
             }
         } else {
@@ -170,14 +176,42 @@ struct RootView: View {
 }
 
 private struct AuthenticatedLandingView: View {
+    @State private var viewModel: IdleViewModel
+    let environment: AppEnvironment
     let displayName: String
     let isHydratingCurrentUser: Bool
     let authMessage: String?
     let onLogout: () -> Void
+    let onSessionStarted: @MainActor @Sendable (String) -> Void
+
+    init(
+        environment: AppEnvironment,
+        displayName: String,
+        isHydratingCurrentUser: Bool,
+        authMessage: String?,
+        onLogout: @escaping () -> Void,
+        onSessionStarted: @escaping @MainActor @Sendable (String) -> Void
+    ) {
+        self.environment = environment
+        self.displayName = displayName
+        self.isHydratingCurrentUser = isHydratingCurrentUser
+        self.authMessage = authMessage
+        self.onLogout = onLogout
+        self.onSessionStarted = onSessionStarted
+
+        _viewModel = State(
+            initialValue: IdleViewModel(
+                chatStore: environment.chatStore,
+                sessionStore: environment.sessionStore,
+                convexClient: environment.convexClient,
+                onSessionStarted: onSessionStarted
+            )
+        )
+    }
 
     var body: some View {
         ZStack {
-            IdleScreen()
+            IdleScreenContainer(viewModel: viewModel)
 
             VStack(alignment: .leading, spacing: 16) {
                 Text("Signed in")

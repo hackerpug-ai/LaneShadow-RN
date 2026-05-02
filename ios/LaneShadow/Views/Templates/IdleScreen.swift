@@ -10,23 +10,38 @@ public struct IdleScreen: View {
 
     private let provider: IdleMockProvider.Type
     private let state: IdleScreenState
+    private let greetingDisplayName: String?
+    private let suggestionLabels: [String]?
+    private let errorMessage: String?
+    private let isSubmitting: Bool
 
     @State private var chatInputValue: String = ""
     private let onMenuTap: () -> Void
     private let onSuggestionTap: (MockSuggestionChip) -> Void
+    private let onSend: (String) -> Void
 
     public init(
         provider: IdleMockProvider.Type = IdleMockProvider.self,
         variant: String = "default",
+        greetingDisplayName: String? = nil,
+        suggestionLabels: [String]? = nil,
+        errorMessage: String? = nil,
+        isSubmitting: Bool = false,
         chatInputValue: Binding<String>? = nil,
         onMenuTap: @escaping () -> Void = {},
-        onSuggestionTap: @escaping (MockSuggestionChip) -> Void = { _ in }
+        onSuggestionTap: @escaping (MockSuggestionChip) -> Void = { _ in },
+        onSend: @escaping (String) -> Void = { _ in }
     ) {
         self.provider = provider
         state = provider.value(variant: variant)
+        self.greetingDisplayName = greetingDisplayName
+        self.suggestionLabels = suggestionLabels
+        self.errorMessage = errorMessage
+        self.isSubmitting = isSubmitting
         _chatInputValue = State(initialValue: chatInputValue?.wrappedValue ?? "")
         self.onMenuTap = onMenuTap
         self.onSuggestionTap = onSuggestionTap
+        self.onSend = onSend
     }
 
     public var body: some View {
@@ -71,6 +86,13 @@ public struct IdleScreen: View {
 
     private var greetingOverlay: some View {
         VStack(alignment: .leading, spacing: theme.space.sm) {
+            if let greetingDisplayName {
+                Text("Good morning, \(greetingDisplayName)")
+                    .font(theme.type.opinion.xl.font)
+                    .foregroundStyle(LaneShadowTheme.color.content.primary)
+                    .accessibilityIdentifier("idlescreen-current-user-greeting")
+            }
+
             // Meta label (e.g., "FRIDAY · 68°F · CLEAR")
             Text(state.greeting.meta)
                 .font(theme.type.label.sm.font)
@@ -154,8 +176,8 @@ public struct IdleScreen: View {
     // MARK: - Chat Input
 
     private var chatInputView: some View {
-        let suggestions = state.suggestions.map { chip in
-            SuggestionChip(label: chip.label)
+        let suggestions = (suggestionLabels ?? state.suggestions.map(\.label)).map { chip in
+            SuggestionChip(label: chip)
         }
 
         let locationContext = LocationContext(
@@ -168,22 +190,45 @@ public struct IdleScreen: View {
         return LSChatInput(
             value: $chatInputValue,
             placeholder: isLocationNeeded ? "Set a start point to begin…" : "Plan a ride…",
-            onSend: { _ in },
+            onSend: onSend,
             onCollapse: {},
             onFilter: {},
             suggestions: suggestions,
             onSuggestionTap: { chip in
                 chatInputValue = chip.label
-                // Find matching MockSuggestionChip to pass to callback
-                if let mockChip = state.suggestions.first(where: { $0.label == chip.label }) {
-                    onSuggestionTap(mockChip)
-                }
+                // Preserve sandbox chip identity when available, but keep the
+                // live label-backed submit path working even when the label is
+                // not present in the mock provider suggestions.
+                let mockChip = state.suggestions.first(where: { $0.label == chip.label })
+                    ?? MockSuggestionChip(id: chip.label, label: chip.label)
+                onSuggestionTap(mockChip)
             },
             locationBadge: locationContext,
-            isEnabled: !isLocationNeeded // V01: Disable chat input when location is needed
+            isThinking: isSubmitting,
+            isEnabled: !isLocationNeeded && !isSubmitting
         )
-        .opacity(isLocationNeeded ? theme.opacity.disabled : 1.0) // V01: Dim when location needed
+        .opacity(isLocationNeeded || isSubmitting ? theme.opacity.disabled : 1.0)
         .padding(.horizontal, theme.space.md)
+        .overlay(alignment: .bottomLeading) {
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(theme.type.body.sm.font)
+                    .foregroundStyle(LaneShadowTheme.color.content.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(theme.space.md)
+                    .background(LaneShadowTheme.color.surface.card)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: theme.radius.lg)
+                            .stroke(
+                                LaneShadowTheme.color.status.warning.default,
+                                lineWidth: theme.borderWidth.thin
+                            )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))
+                    .padding(.top, theme.space.sm)
+                    .accessibilityIdentifier("idlescreen-inline-error")
+            }
+        }
         .accessibilityIdentifier("idlescreen-chatinput")
     }
 }

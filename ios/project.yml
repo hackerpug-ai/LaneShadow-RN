@@ -266,6 +266,10 @@ targets:
       - path: LaneShadowTests/LaneShadowTests.swift
       - path: LaneShadowTests/Atoms
         type: syncedFolder
+      - path: LaneShadowTests/Features
+        type: syncedFolder
+      - path: LaneShadowTests/Helpers
+        type: syncedFolder
       # - path: LaneShadowTests/Molecules/EmptyStateTests.swift # Legacy, superseded by LSEmptyStateTests.swift
       - path: LaneShadowTests/Molecules/InfoToastTests.swift
       - path: LaneShadowTests/Molecules/MarkdownTextTests.swift

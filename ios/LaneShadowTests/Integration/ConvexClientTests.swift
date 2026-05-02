@@ -25,6 +25,7 @@ struct ConvexClientTests {
 
     final class FakeTransport: LaneShadowConvexTransporting {
         var subscribeSessionsSubject = PassthroughSubject<[LaneShadowSessionRecord], ClientError>()
+        var subscribeRoutePlanSubject = PassthroughSubject<LaneShadowRoutePlanSnapshot, ClientError>()
         var mutationPayloadByEndpoint: [String: Data] = [:]
         var actionPayloadByEndpoint: [String: Data] = [:]
 
@@ -37,6 +38,14 @@ struct ConvexClientTests {
                T.self == [LaneShadowSessionRecord].self
             {
                 return subscribeSessionsSubject
+                    .map { $0 as! T }
+                    .eraseToAnyPublisher()
+            }
+
+            if endpoint == LaneShadowConvexQuery.getPlanById.rawValue,
+               T.self == LaneShadowRoutePlanSnapshot.self
+            {
+                return subscribeRoutePlanSubject
                     .map { $0 as! T }
                     .eraseToAnyPublisher()
             }
@@ -189,13 +198,17 @@ struct ConvexClientTests {
         transport.subscribeSessionsSubject.send([
             LaneShadowSessionRecord(
                 id: "session-1",
+                creationTime: 1_730_000_000_000,
+                clerkUserId: "clerk-user-1",
                 title: "Morning Cruise",
-                preview: "Foothills",
-                meta: "70F",
-                when: "Today",
-                active: true,
-                routeIds: ["route-1"],
-                createdAt: "2026-04-28T10:00:00Z"
+                status: "active",
+                createdAt: 1_730_000_000_000,
+                updatedAt: 1_730_000_010_000,
+                lastKnownLocation: LaneShadowPlanningSessionLocation(
+                    lat: 39.7392,
+                    lng: -104.9903,
+                    updatedAt: 1_730_000_015_000
+                )
             ),
         ])
 
@@ -203,6 +216,38 @@ struct ConvexClientTests {
 
         #expect(firstEmission?.count == 1)
         #expect(firstEmission?.first?.id == "session-1")
+    }
+
+    @Test
+    func listSessionsDecoderMatchesBackendPayloadShape() throws {
+        let payload = try JSONSerialization.data(
+            withJSONObject: [
+                "_id": "session-1",
+                "_creationTime": 1_730_000_000_000,
+                "clerkUserId": "clerk-user-1",
+                "title": "Morning Cruise",
+                "status": "active",
+                "createdAt": 1_730_000_000_000,
+                "updatedAt": 1_730_000_010_000,
+                "lastKnownLocation": [
+                    "lat": 39.7392,
+                    "lng": -104.9903,
+                    "updatedAt": 1_730_000_015_000,
+                ],
+            ]
+        )
+
+        let record = try JSONDecoder().decode(LaneShadowSessionRecord.self, from: payload)
+        let session = record.laneShadowSession
+
+        #expect(record.id == "session-1")
+        #expect(record.creationTime == 1_730_000_000_000)
+        #expect(record.clerkUserId == "clerk-user-1")
+        #expect(session.id == "session-1")
+        #expect(session.title == "Morning Cruise")
+        #expect(session.active)
+        #expect(session.preview == "Planning in progress")
+        #expect(session.meta.contains("Last known location"))
     }
 
     @Test

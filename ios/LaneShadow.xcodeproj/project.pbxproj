@@ -227,6 +227,16 @@
 			path = Organisms;
 			sourceTree = "<group>";
 		};
+		3A78900A9AF373F5042A6135 /* Features */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Features;
+			path = Features;
+			sourceTree = "<group>";
+		};
 		3BC11B009ED26B33FC7A0333 /* Entry */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			explicitFileTypes = {
@@ -365,6 +375,16 @@
 			);
 			name = AuthFlow;
 			path = AuthFlow;
+			sourceTree = "<group>";
+		};
+		8FD0535A05FA37574620A6CA /* Helpers */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Helpers;
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		9B1969E887592C82E1672459 /* Launch */ = {
@@ -626,6 +646,8 @@
 			isa = PBXGroup;
 			children = (
 				5B8A253F72C6B3D6A21D5422 /* Atoms */,
+				3A78900A9AF373F5042A6135 /* Features */,
+				8FD0535A05FA37574620A6CA /* Helpers */,
 				755D85BE7B8692E8CCE9B7D0 /* Integration */,
 				ABBAFDBD7FF159A58193899A /* Molecules */,
 				244E36879200004067F64629 /* Organisms */,
@@ -777,6 +799,8 @@
 			);
 			fileSystemSynchronizedGroups = (
 				5B8A253F72C6B3D6A21D5422 /* Atoms */,
+				3A78900A9AF373F5042A6135 /* Features */,
+				8FD0535A05FA37574620A6CA /* Helpers */,
 				755D85BE7B8692E8CCE9B7D0 /* Integration */,
 				244E36879200004067F64629 /* Organisms */,
 				0B23304A78B886F9A286C5E4 /* Sandbox */,

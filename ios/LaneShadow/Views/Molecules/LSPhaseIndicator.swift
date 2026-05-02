@@ -33,6 +33,7 @@ public struct LSPhaseIndicator: View {
                 .stroke(topBorderColor, lineWidth: theme.borderWidth.hairline)
         }
         .accessibilityLabel("Route planning: \(currentStepLabel)")
+        .accessibilityValue(currentStepAccessibilityValue)
     }
 
     private var headerSection: some View {
@@ -75,6 +76,7 @@ public struct LSPhaseIndicator: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(phase.label)
         .accessibilityValue(phase.state.accessibilityValue)
+        .accessibilityIdentifier("lsphaseindicator-phase-\(phase.id)-\(phase.state.identifierFragment)")
     }
 
     private var topBorderColor: Color {
@@ -113,6 +115,15 @@ public struct LSPhaseIndicator: View {
         return "Planning"
     }
 
+    private var currentStepAccessibilityValue: String {
+        if let activePhase = phases.first(where: { $0.state == .active }) {
+            return activePhase.state.accessibilityValue
+        } else if phases.allSatisfy({ $0.state == .done }) {
+            return PhaseState.done.accessibilityValue
+        }
+        return PhaseState.pending.accessibilityValue
+    }
+
     private func textColor(for state: PhaseState) -> ContentColor {
         switch state {
         case .pending: .tertiary
@@ -140,6 +151,14 @@ private extension PhaseState {
         case .pending: "Pending"
         case .active: "In progress"
         case .done: "Completed"
+        }
+    }
+
+    var identifierFragment: String {
+        switch self {
+        case .pending: "pending"
+        case .active: "active"
+        case .done: "done"
         }
     }
 }
