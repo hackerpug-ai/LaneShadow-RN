@@ -28,8 +28,8 @@ fun IdleRoute(
             viewModel.onSuggestionTap(SuggestionChip(text = chip.label))
         },
         onSend = viewModel::onSend,
-        onCollapse = {},
-        onFilter = {},
+        onCollapse = { viewModel.onInputChange("") },
+        onFilter = { navController.navigate(Route.Sessions) },
         onValueChange = viewModel::onInputChange,
     )
 

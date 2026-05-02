@@ -249,9 +249,10 @@ Blocks: CHAT-S04-T06, CHAT-S04-T08, CHAT-S04-T09b
 - Implementation commit: current remediation commit on `task/CHAT-S04-T04`
 - AC coverage: `IdleViewModelTest.kt` and `PlanningViewModelTest.kt` pass for AC-1 through AC-6; `AuthRootNavigationContractTest.kt` and `RepositoryModuleContractTest.kt` were added as scoped verification guards for the navigation and repository-contract review findings
 - Base replay RED evidence: `/tmp/CHAT-S04-T04-red/android` run against base commit `28f4eee2f3c08fefde144513d5d5deb19c5ea308` failed at `:app:compileDebugUnitTestKotlin` because the new idle/planning test sources could not resolve the implementation types yet
+- Cycle 2 remediation: `MainNavGraph` now starts at `Route.Home` instead of the raw idle route workaround; `IdleRoute` and `PlanningRoute` no longer use anonymous `{}` callbacks for visible controls; `ConvexClientProvider.sendMessage` now targets `actions/agent/sendMessage:sendMessage`; `AuthRootNavigationContractTest.kt` and `RepositoryModuleContractTest.kt` verify those contracts
 - `./gradlew :app:compileDebugKotlin`: `PASS`
 - `./gradlew :app:testDebugUnitTest --tests com.laneshadow.navigation.AuthRootNavigationContractTest --tests com.laneshadow.ui.idle.IdleViewModelTest --tests com.laneshadow.ui.planning.PlanningViewModelTest --tests com.laneshadow.di.RepositoryModuleContractTest`: `PASS`
 - `./gradlew assembleDebug`: `PASS`
 - `./gradlew test`: `BLOCKED` by existing repository baseline failures, including `SessionsDrawerTests`, `MockProviderVariantTest`, `AuthScreenViewModelTest`, `AuthScreensSourceStructureTest`, `LSPhaseIndicatorTest`, `LSRouteAttachmentCardTest`, and `PlanningScreenTest`
-- Emulator smoke check: `PASS` at `/tmp/laneshadow-remediation.png` after installing `android/app/build/outputs/apk/debug/app-debug.apk` and launching `com.laneshadow.app/com.laneshadow.MainActivity`
+- Emulator smoke check: `PASS` at `/tmp/laneshadow-cycle2.png` after installing `android/app/build/outputs/apk/debug/app-debug.apk` and launching `com.laneshadow.app/com.laneshadow.MainActivity`
 - `./gradlew detekt`: `BLOCKED` by existing lint baseline issue at `android/app/src/androidTest/java/com/laneshadow/ui/LoginSmokeTest.kt:28`

@@ -257,8 +257,8 @@ private class RealConvexGateway(
         content: String,
         currentLocation: com.laneshadow.ui.atoms.LatLng?,
     ): Result<Unit> = runCatching {
-        convexClient.mutation<Map<String, String>>(
-            name = "db/sessionMessages:send",
+        convexClient.action<Map<String, String>>(
+            name = "actions/agent/sendMessage:sendMessage",
             args = buildMap {
                 put("sessionId", sessionId)
                 put("content", content)

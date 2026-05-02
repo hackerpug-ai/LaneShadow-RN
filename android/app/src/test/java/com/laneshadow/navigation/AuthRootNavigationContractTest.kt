@@ -7,15 +7,27 @@ import org.junit.Test
 class AuthRootNavigationContractTest {
     @Test
     fun mainGraphRoutesHomeThroughIdleRouteWithoutMockDrivenIdleScreen() {
-        val source = File("src/main/java/com/laneshadow/navigation/MainNavGraph.kt").readText()
+        val mainGraphSource = File("src/main/java/com/laneshadow/navigation/MainNavGraph.kt").readText()
+        val idleRouteSource = File("src/main/java/com/laneshadow/ui/idle/IdleRoute.kt").readText()
+        val planningRouteSource = File("src/main/java/com/laneshadow/ui/planning/PlanningRoute.kt").readText()
 
-        assertThat(source).contains("composable<Route.Home>")
-        assertThat(source).contains("HomeRoute(")
-        assertThat(source).contains("IdleRoute(")
-        assertThat(source).contains("auth_landing_root")
-        assertThat(source).contains("auth_landing_logout")
-        assertThat(source).doesNotContain("IdleMockProvider")
-        assertThat(source).doesNotContain("IdleScreen(")
+        assertThat(mainGraphSource).contains("startDestination = Route.Home")
+        assertThat(mainGraphSource).contains("composable<Route.Home>")
+        assertThat(mainGraphSource).contains("HomeRoute(")
+        assertThat(mainGraphSource).contains("auth_landing_root")
+        assertThat(mainGraphSource).contains("auth_landing_logout")
+        assertThat(mainGraphSource).doesNotContain("IdleRoutePath")
+        assertThat(mainGraphSource).doesNotContain("IdleMockProvider")
+        assertThat(mainGraphSource).doesNotContain("IdleScreen(")
+
+        assertThat(idleRouteSource).doesNotContain("onCollapse = {}")
+        assertThat(idleRouteSource).doesNotContain("onFilter = {}")
+        assertThat(idleRouteSource).contains("viewModel.onInputChange(\"\")")
+        assertThat(idleRouteSource).contains("navController.navigate(Route.Sessions)")
+
+        assertThat(planningRouteSource).doesNotContain("onFilter = {}")
+        assertThat(planningRouteSource).contains("onCollapse = viewModel::cancel")
+        assertThat(planningRouteSource).contains("navController.navigate(Route.Sessions)")
     }
 
     @Test

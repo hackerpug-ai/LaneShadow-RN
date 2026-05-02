@@ -30,7 +30,7 @@ fun PlanningRoute(
         state = uiState.toMockState(),
         onMenuTap = { navController.navigate(Route.Sessions) },
         onCollapse = viewModel::cancel,
-        onFilter = {},
+        onFilter = { navController.navigate(Route.Sessions) },
     )
 
     LaunchedEffect(uiState.transition) {

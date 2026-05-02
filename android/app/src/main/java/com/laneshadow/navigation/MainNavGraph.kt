@@ -48,10 +48,13 @@ fun MainNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = IdleRoutePath,
+        startDestination = Route.Home,
     ) {
-        composable(route = IdleRoutePath) {
-            IdleRoute(navController = navController)
+        composable<Route.Home> {
+            HomeRoute(
+                navController = navController,
+                onLogout = mainNavViewModel::signOut,
+            )
         }
         composable(
             route = PlanningRoutePath,
@@ -63,12 +66,6 @@ fun MainNavGraph(
                     navController = navController,
                 )
             }
-        }
-        composable<Route.Home> {
-            HomeRoute(
-                navController = navController,
-                onLogout = mainNavViewModel::signOut,
-            )
         }
         composable<Route.Sessions> {
             HomeLeafRoute(title = "Sessions", onBack = { navController.popBackStack() })
@@ -109,7 +106,6 @@ fun MainNavGraph(
     }
 }
 
-internal const val IdleRoutePath = "idle"
 internal const val PlanningSessionIdArg = "sessionId"
 internal const val PlanningRoutePath = "planning/{$PlanningSessionIdArg}"
 
