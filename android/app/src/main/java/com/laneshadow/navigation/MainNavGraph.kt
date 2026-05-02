@@ -17,9 +17,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.laneshadow.data.model.AuthState
 import com.laneshadow.data.model.ClerkUser
 import com.laneshadow.sandbox.mockproviders.Greeting
@@ -28,8 +30,10 @@ import com.laneshadow.services.ConvexClientProvider
 import com.laneshadow.services.ConvexCurrentUser
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.AuthViewModel
+import com.laneshadow.ui.idle.IdleRoute
 import com.laneshadow.ui.sandbox.host.AndroidSandboxHost
 import com.laneshadow.ui.templates.IdleScreen
+import com.laneshadow.ui.planning.PlanningRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -94,8 +98,22 @@ fun MainNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Route.Home,
+        startDestination = IdleRoutePath,
     ) {
+        composable(route = IdleRoutePath) {
+            IdleRoute(navController = navController)
+        }
+        composable(
+            route = PlanningRoutePath,
+            arguments = listOf(navArgument(PlanningSessionIdArg) { type = NavType.StringType }),
+        ) { backStackEntry ->
+            backStackEntry.arguments?.getString(PlanningSessionIdArg)?.let { sessionId ->
+                PlanningRoute(
+                    sessionId = sessionId,
+                    navController = navController,
+                )
+            }
+        }
         composable<Route.Home> {
             HomeRoute(
                 displayName = routeState.currentUser?.displayName ?: authState.clerkFallbackDisplayName(),
@@ -143,6 +161,12 @@ fun MainNavGraph(
         }
     }
 }
+
+internal const val IdleRoutePath = "idle"
+internal const val PlanningSessionIdArg = "sessionId"
+internal const val PlanningRoutePath = "planning/{$PlanningSessionIdArg}"
+
+internal fun planningRoute(sessionId: String): String = "planning/$sessionId"
 
 @Composable
 private fun HomeRoute(
