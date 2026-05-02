@@ -1,6 +1,7 @@
 package com.laneshadow.ui.routedetails
 
 import com.laneshadow.data.dto.HourlyForecastDto
+import com.laneshadow.ui.atoms.LatLng
 
 sealed interface RouteDetailsUiState {
     data object Loading : RouteDetailsUiState
@@ -18,6 +19,7 @@ sealed interface RouteDetailsUiState {
         val routeVariant: String,
         val isBest: Boolean,
         val routePolyline: String,
+        val routePolylineCoordinates: List<LatLng> = emptyList(),
         val routeDistanceMeters: Int,
         val routeDurationSeconds: Int,
         val routeElevationGainMeters: Int,

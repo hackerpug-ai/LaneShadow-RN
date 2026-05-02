@@ -28,7 +28,6 @@ import com.laneshadow.ui.organisms.LSRouteSheet
 import com.laneshadow.ui.organisms.LSTopBar
 import com.laneshadow.ui.organisms.RouteDetails
 import com.laneshadow.ui.organisms.SheetDetent
-import com.laneshadow.ui.util.PolylineDecoder
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 
@@ -146,7 +145,7 @@ internal fun RouteDetailsLoadedContent(
 private fun RouteDetailsMap(state: RouteDetailsUiState.Loaded) {
     val polylines = listOf(
         PolylineData(
-            coordinates = PolylineDecoder.decodeOrNull(state.routePolyline),
+            coordinates = state.routePolylineCoordinates,
             variant = state.routeVariant.toRouteVariant(),
         ),
     )

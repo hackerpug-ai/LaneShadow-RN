@@ -12,15 +12,19 @@ import com.laneshadow.services.MainDispatcherRule
 import com.laneshadow.services.RouteOption
 import android.net.Uri
 import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -33,6 +37,7 @@ import kotlinx.serialization.json.put
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class RouteDetailsViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -71,6 +76,7 @@ class RouteDetailsViewModelTest {
         assertThat(state.instrumentReadout.durationMinutes).isEqualTo(120)
         assertThat(state.instrumentReadout.elevationGainM).isEqualTo(540)
         assertThat(state.instrumentReadout.scenicScore).isEqualTo(82)
+        assertThat(state.routePolylineCoordinates).hasSize(3)
         assertThat(routeRepository.lastPlanId.get()).isEqualTo("plan-7")
         assertThat(routeRepository.lastEnrichmentPlanId.get()).isEqualTo("plan-7")
     }
@@ -160,11 +166,10 @@ class RouteDetailsViewModelTest {
             savedRouteRepository = savedRouteRepository,
         )
 
-        val loaded = async {
-            viewModel.state.first { it is RouteDetailsUiState.Loaded }
+        val collectionJob = launch {
+            viewModel.state.collect { }
         }
         advanceUntilIdle()
-        loaded.await()
 
         viewModel.onSaveTapped()
         advanceUntilIdle()
@@ -172,6 +177,41 @@ class RouteDetailsViewModelTest {
         val state = viewModel.state.value as RouteDetailsUiState.Loaded
         assertThat(state.showSaveSheet).isTrue()
         assertThat(state.saveButtonState).isEqualTo(SaveButtonState.NotSaved)
+        collectionJob.cancel()
+    }
+
+    @Test
+    fun state_cancelsUpstreamSubscriptionsWhenCollectorStops() = runTest {
+        val routeRepository = TrackingRouteRepository(
+            activePlans = listOf(completedPlan()),
+            planJson = completedPlanJson(),
+            enrichmentJson = oneHourRouteEnrichmentJson(),
+        )
+        val savedRouteRepository = FakeSavedRouteRepository(matches = flowOf(false))
+
+        val viewModel = createViewModel(
+            sessionId = "sess-1",
+            routeOptionId = "opt-best",
+            decodeDispatcher = StandardTestDispatcher(testScheduler),
+            routeRepository = routeRepository,
+            savedRouteRepository = savedRouteRepository,
+        )
+
+        val collectionJob = launch {
+            viewModel.state.collect { }
+        }
+        advanceUntilIdle()
+
+        assertThat(routeRepository.activePlansSubscriptions.get()).isEqualTo(1)
+        assertThat(routeRepository.planSubscriptions.get()).isEqualTo(1)
+        assertThat(routeRepository.enrichmentSubscriptions.get()).isEqualTo(1)
+
+        collectionJob.cancel()
+        advanceUntilIdle()
+
+        assertThat(routeRepository.activePlansSubscriptions.get()).isEqualTo(0)
+        assertThat(routeRepository.planSubscriptions.get()).isEqualTo(0)
+        assertThat(routeRepository.enrichmentSubscriptions.get()).isEqualTo(0)
     }
 
     @Test
@@ -231,6 +271,45 @@ class RouteDetailsViewModelTest {
             lastEnrichmentPlanId.set(routePlanId)
             return enrichmentsByPlanId(routePlanId)
         }
+
+        override suspend fun cancelPlan(routePlanId: String): Result<Unit> = Result.success(Unit)
+    }
+
+    private class TrackingRouteRepository(
+        private val activePlans: List<RoutePlan>,
+        private val planJson: JsonObject,
+        private val enrichmentJson: JsonElement,
+    ) : RouteRepository {
+        val activePlansSubscriptions = AtomicInteger(0)
+        val planSubscriptions = AtomicInteger(0)
+        val enrichmentSubscriptions = AtomicInteger(0)
+
+        override fun subscribeToActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>> =
+            callbackFlow {
+                activePlansSubscriptions.incrementAndGet()
+                trySend(activePlans)
+                awaitClose {
+                    activePlansSubscriptions.decrementAndGet()
+                }
+            }
+
+        override fun subscribeToPlanById(routePlanId: String): Flow<JsonObject> =
+            callbackFlow {
+                planSubscriptions.incrementAndGet()
+                trySend(planJson)
+                awaitClose {
+                    planSubscriptions.decrementAndGet()
+                }
+            }
+
+        override fun subscribeToEnrichments(routePlanId: String): Flow<JsonElement> =
+            callbackFlow {
+                enrichmentSubscriptions.incrementAndGet()
+                trySend(enrichmentJson)
+                awaitClose {
+                    enrichmentSubscriptions.decrementAndGet()
+                }
+            }
 
         override suspend fun cancelPlan(routePlanId: String): Result<Unit> = Result.success(Unit)
     }
@@ -313,6 +392,7 @@ class RouteDetailsViewModelTest {
     private fun completedPlanJson(
         routePlanId: String = "plan-7",
         statusMessage: String = "Route is ready.",
+        routePolyline: String = "_p~iF~ps|U_ulLnnqC_mqNvxq`@",
     ): JsonObject =
         buildJsonObject {
             put("_id", JsonPrimitive(routePlanId))
@@ -348,7 +428,7 @@ class RouteDetailsViewModelTest {
                                                     put("format", JsonPrimitive("polyline"))
                                                     put("encoding", JsonPrimitive("google_encoded_polyline"))
                                                     put("precision", JsonPrimitive(5))
-                                                    put("value", JsonPrimitive("encoded_overview"))
+                                                    put("value", JsonPrimitive(routePolyline))
                                                 },
                                             )
                                             put(

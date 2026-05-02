@@ -38,3 +38,16 @@
 - `android/app/src/test/java/com/laneshadow/ui/routedetails/RouteDetailsViewModelTest.kt` - AC coverage for the route-details state machine.
 - `android/app/src/test/java/com/laneshadow/ui/routedetails/RouteDetailsRouteTest.kt` - route-boundary coverage for rendered computed instrument values.
 - `android/app/src/test/java/com/laneshadow/data/savedroutes/SavedRouteRepositoryTest.kt` - pagination coverage for saved-route fingerprint matches beyond the first capped page.
+
+## TDD / Verification Evidence
+- RED: `./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.routedetails.RouteDetailsViewModelTest`
+  - Failed in `state_cancelsUpstreamSubscriptionsWhenCollectorStops` because the upstream subscription count stayed at `1` after the external collector was canceled. That exposed the hidden permanent self-collector.
+- GREEN: `./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.routedetails.RouteDetailsViewModelTest --tests com.laneshadow.ui.routedetails.RouteDetailsRouteTest --tests com.laneshadow.data.savedroutes.SavedRouteRepositoryTest`
+  - Passed after removing the self-collector, precomputing route polyline coordinates in the ViewModel, and switching the route composable to consume those coordinates from state.
+- GREEN: `./gradlew :app:compileDebugKotlin`
+- GREEN: `./gradlew assembleDebug`
+- GREEN: `bash scripts/tokens/enforce-native-compliance.sh`
+
+## Baseline Classification
+- `./gradlew test` still fails with 16 unchanged suite failures. The first failure remains `SessionsDrawerTests.testDrawerSolidBackground` (`NullPointerException` in `RobolectricIdlingStrategy.android.kt:32`), and the last listed failure remains `PlanningScreenTest.ac3_sketch_polyline_animation_references_motion_recipe`.
+- `./gradlew detekt` currently fails on pre-existing lint in `android/app/src/androidTest/java/com/laneshadow/ui/LoginSmokeTest.kt:28` (`ViewModelConstructorInComposable`). No changes were made to that file.

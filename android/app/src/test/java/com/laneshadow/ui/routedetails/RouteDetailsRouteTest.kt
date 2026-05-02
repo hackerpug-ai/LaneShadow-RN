@@ -6,6 +6,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.theme.LaneShadowTheme
 import org.junit.Rule
 import org.junit.Test
@@ -51,6 +52,10 @@ class RouteDetailsRouteTest {
             routeVariant = "best",
             isBest = true,
             routePolyline = "encoded_overview",
+            routePolylineCoordinates = listOf(
+                LatLng(lat = 37.0, lon = -122.0),
+                LatLng(lat = 37.1, lon = -122.1),
+            ),
             routeDistanceMeters = 48280,
             routeDurationSeconds = 7200,
             routeElevationGainMeters = 540,

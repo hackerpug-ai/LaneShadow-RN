@@ -7,11 +7,14 @@ import com.laneshadow.data.dto.RouteEnrichmentDto
 import com.laneshadow.data.route.RoutePlan
 import com.laneshadow.data.route.RouteRepository
 import com.laneshadow.data.savedroutes.SavedRouteRepository
+import com.laneshadow.ui.atoms.LatLng
+import com.laneshadow.ui.util.PolylineDecoder
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,10 +25,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -44,6 +46,22 @@ class RouteDetailsViewModel @AssistedInject constructor(
     private val saveSheetVisible = MutableStateFlow(false)
 
     val state: StateFlow<RouteDetailsUiState> =
+        routeDetailsStateFlow()
+            .catch { error ->
+                emit(
+                    RouteDetailsUiState.Error(
+                        message = error.message ?: "Unable to load route details.",
+                    ),
+                )
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = RouteDetailsUiState.Loading,
+            )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun routeDetailsStateFlow() =
         routeRepository.subscribeToActiveRoutePlans(sessionId)
             .map { plans -> selectRoutePlanId(plans, routeOptionId) }
             .distinctUntilChanged()
@@ -60,6 +78,7 @@ class RouteDetailsViewModel @AssistedInject constructor(
                                 planJson = planJson,
                             )
                         }
+                        .flowOn(decodeDispatcher)
                         .flatMapLatest { snapshot ->
                             val enrichmentFlow = routeRepository.subscribeToEnrichments(routePlanId)
                                 .map { enrichmentJson ->
@@ -100,22 +119,6 @@ class RouteDetailsViewModel @AssistedInject constructor(
                         }
                 }
             }
-            .catch { error ->
-                emit(
-                    RouteDetailsUiState.Error(
-                        message = error.message ?: "Unable to load route details.",
-                    ),
-                )
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
-                initialValue = RouteDetailsUiState.Loading,
-            )
-
-    init {
-        state.onEach { }.launchIn(viewModelScope)
-    }
 
     fun onSaveTapped() {
         saveSheetVisible.value = true
@@ -142,6 +145,7 @@ class RouteDetailsViewModel @AssistedInject constructor(
         if (routePolyline.isBlank()) {
             error("Selected route option is missing polyline data.")
         }
+        val routePolylineCoordinates = PolylineDecoder.decodeOrNull(routePolyline)
 
         val routeVariant = variantForIndex(selectedIndex)
         return RouteDetailsSnapshot(
@@ -153,6 +157,7 @@ class RouteDetailsViewModel @AssistedInject constructor(
             routeVariant = routeVariant,
             isBest = routeVariant == "best",
             routePolyline = routePolyline,
+            routePolylineCoordinates = routePolylineCoordinates,
             routeDistanceMeters = stats.distanceMeters,
             routeDurationSeconds = stats.durationSeconds,
             routeElevationGainMeters = stats.elevationGainMeters,
@@ -202,6 +207,7 @@ private fun RouteDetailsSnapshot.toUiState(
         routeVariant = routeVariant,
         isBest = isBest,
         routePolyline = routePolyline,
+        routePolylineCoordinates = routePolylineCoordinates,
         routeDistanceMeters = routeDistanceMeters,
         routeDurationSeconds = routeDurationSeconds,
         routeElevationGainMeters = routeElevationGainMeters,
@@ -270,6 +276,7 @@ private data class RouteDetailsSnapshot(
     val routeVariant: String,
     val isBest: Boolean,
     val routePolyline: String,
+    val routePolylineCoordinates: List<LatLng>,
     val routeDistanceMeters: Int,
     val routeDurationSeconds: Int,
     val routeElevationGainMeters: Int,
