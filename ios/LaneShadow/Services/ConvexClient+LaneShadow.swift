@@ -205,6 +205,8 @@ protocol LaneShadowPlanningDataProviding: LaneShadowCurrentUserSubscriptionProvi
 
     func subscribeToActiveRoutePlans(sessionId: String) -> AsyncStream<[LaneShadowRoutePlanSnapshot]>
 
+    func fetchRoutePlan(routePlanId: String) async throws -> LaneShadowRoutePlanSnapshot
+
     func createPlanningSession(firstMessage: String) async throws -> LaneShadowPlanningSessionCreationResult
 
     func sendPlanningMessage(
@@ -214,6 +216,19 @@ protocol LaneShadowPlanningDataProviding: LaneShadowCurrentUserSubscriptionProvi
     ) async throws -> LaneShadowSendMessageResult
 
     func cancelRoutePlan(routePlanId: String) async throws
+}
+
+extension LaneShadowPlanningDataProviding {
+    func fetchRoutePlan(routePlanId: String) async throws -> LaneShadowRoutePlanSnapshot {
+        let stream = subscribeToRoutePlan(routePlanId: routePlanId)
+        var iterator = stream.makeAsyncIterator()
+
+        guard let routePlan = try await iterator.next() else {
+            throw LaneShadowError.unknown("Route plan not available")
+        }
+
+        return routePlan
+    }
 }
 
 enum LaneShadowError: LocalizedError, Equatable {
@@ -538,6 +553,27 @@ final class LaneShadowConvexClient: @unchecked Sendable {
             ],
             yielding: LaneShadowRoutePlanSnapshot.self
         )
+    }
+
+    func fetchRoutePlan(routePlanId: String) async throws -> LaneShadowRoutePlanSnapshot {
+        let publisher = transport.subscribe(
+            to: LaneShadowConvexQuery.getPlanById.rawValue,
+            with: [
+                "routePlanId": routePlanId,
+            ],
+            yielding: LaneShadowRoutePlanSnapshot.self
+        )
+
+        do {
+            var iterator = publisher.values.makeAsyncIterator()
+            guard let routePlan = try await iterator.next() else {
+                throw LaneShadowError.unknown("Route plan not available")
+            }
+            return routePlan
+        } catch {
+            await handleUnauthenticatedIfNeeded(error)
+            throw error
+        }
     }
 
     func subscribeToActiveRoutePlans(

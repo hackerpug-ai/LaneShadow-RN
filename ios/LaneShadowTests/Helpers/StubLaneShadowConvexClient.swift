@@ -22,10 +22,12 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
         attachments: nil
     )
     var stubSendPlanningMessageError: Error?
+    var stubFetchRoutePlanError: Error?
     var stubCancelRoutePlanError: Error?
 
     private(set) var createPlanningSessionCalls: [String] = []
     private(set) var sendPlanningMessageCalls: [LaneShadowPlanningMessageCall] = []
+    private(set) var fetchRoutePlanCalls: [String] = []
     private(set) var cancelRoutePlanCalls: [String] = []
 
     func subscribeToCurrentUser() -> AsyncStream<LaneShadowCurrentUser?> {
@@ -71,6 +73,20 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
                 continuation.yield(currentPlans)
             }
         }
+    }
+
+    func fetchRoutePlan(routePlanId: String) async throws -> LaneShadowRoutePlanSnapshot {
+        fetchRoutePlanCalls.append(routePlanId)
+
+        if let stubFetchRoutePlanError {
+            throw stubFetchRoutePlanError
+        }
+
+        if let currentPlan = latestRoutePlans[routePlanId] {
+            return currentPlan
+        }
+
+        throw LaneShadowError.server("Route plan not found")
     }
 
     func sendCurrentUser(_ currentUser: LaneShadowCurrentUser?) {
