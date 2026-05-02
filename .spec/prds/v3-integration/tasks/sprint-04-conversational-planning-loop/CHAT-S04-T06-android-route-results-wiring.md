@@ -114,6 +114,9 @@ writeAllowed:
 - android/app/src/test/java/com/laneshadow/ui/routeresults/RouteResultsViewModelTest.kt (NEW)
 - android/app/src/androidTest/java/com/laneshadow/ui/routeresults/RouteResultsRouteTest.kt (NEW)
 
+Route-contract scope exception:
+- `android/app/src/main/java/com/laneshadow/navigation/Route.kt` was updated to use typed `Route.RouteDetails(sessionId, routeOptionId)` so AC-3 can verify the exact navigation contract. This is intentional and remains in scope for the route-results wiring fix.
+
 writeProhibited:
 - android/app/src/main/java/com/laneshadow/ui/templates/RouteResultsScreen.kt — v2 template untouched
 - android/app/src/main/java/com/laneshadow/ui/molecules/LSRouteAttachmentCard.kt — molecule already shipped
