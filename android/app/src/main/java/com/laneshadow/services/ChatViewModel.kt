@@ -62,7 +62,7 @@ class ChatViewModel @Inject constructor(
                 }
 
                 else -> {
-                    val createResult = sessionRepository.createSession(content)
+                    val createResult = sessionRepository.createSession("")
                     val createdSessionId = createResult.getOrElse { error ->
                         transitionToPlanningError(
                             planning = planning,

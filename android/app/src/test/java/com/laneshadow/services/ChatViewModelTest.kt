@@ -55,6 +55,8 @@ class ChatViewModelTest {
         assertThat(sessionRepository.createdSessions.get()).isEqualTo(1)
         assertThat(chatRepository.sentMessages.get()).isEqualTo(1)
         assertThat(chatRepository.lastSessionId.get()).isEqualTo("session-1")
+        assertThat(chatRepository.lastMessage.get()).isEqualTo("hi")
+        assertThat(sessionRepository.lastFirstMessage.get()).isEqualTo("")
         assertThat(savedStateHandle.get<String>("sessionId")).isEqualTo("session-1")
         assertThat(appStateRepository.lastViewedSessionId).isEqualTo("session-1")
         assertThat(viewModel.flowState.value).isEqualTo(
@@ -67,19 +69,23 @@ class ChatViewModelTest {
     private class FakeChatRepository : ChatRepository {
         val sentMessages = AtomicInteger(0)
         val lastSessionId = AtomicReference<String?>(null)
+        val lastMessage = AtomicReference<String?>(null)
 
         override suspend fun sendMessage(sessionId: String, content: String): Result<Unit> {
             sentMessages.incrementAndGet()
             lastSessionId.set(sessionId)
+            lastMessage.set(content)
             return Result.success(Unit)
         }
     }
 
     private class FakeSessionRepository : SessionRepository {
         val createdSessions = AtomicInteger(0)
+        val lastFirstMessage = AtomicReference<String?>(null)
 
         override suspend fun createSession(firstMessage: String): Result<String> {
             createdSessions.incrementAndGet()
+            lastFirstMessage.set(firstMessage)
             return Result.success("session-1")
         }
     }
