@@ -61,6 +61,14 @@ struct LaneShadowErrorTests {
                 ClientError.ServerError(msg: "WEATHER_UNAVAILABLE"),
                 .weatherUnavailable
             ),
+            (
+                ClientError.ConvexError(data: #"{"code":"AGENT_BUDGET_EXCEEDED"}"#),
+                .agentBudgetExceeded
+            ),
+            (
+                ClientError.ConvexError(data: #"{"code":"AGENT_LOOP_DETECTED"}"#),
+                .agentLoopDetected
+            ),
         ]
 
         for (error, expected) in cases {
@@ -76,6 +84,15 @@ struct LaneShadowErrorTests {
 
         #expect(mapped == .unknown("some uncoded message"))
         #expect(mapped.errorDescription == "some uncoded message")
+    }
+
+    @Test("test_laneShadowError_map_unknownCodedMessage_preservesOriginalMessage")
+    func laneShadowError_map_unknownCodedMessage_preservesOriginalMessage() {
+        let mapped = LaneShadowError.map(ClientError.ServerError(msg: "STREAM_DOWN"))
+
+        #expect(mapped == .unknown("STREAM_DOWN"))
+        #expect(mapped.errorDescription == "STREAM_DOWN")
+        #expect(mapped.rawMessage == "STREAM_DOWN")
     }
 
     @Test("test_laneShadowError_unauthenticated_triggersSignOutFlow")

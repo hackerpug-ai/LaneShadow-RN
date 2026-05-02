@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 
-struct ErrorScreenLiveState: Sendable, Equatable {
+struct ErrorScreenLiveState: Equatable {
     let body: String
     let detail: String?
     let suggestions: [MockSuggestionChip]
@@ -16,6 +16,7 @@ final class ErrorScreenViewModel {
     let error: LaneShadowError
 
     @ObservationIgnored private let chatStore: ChatStore
+    @ObservationIgnored
     private let appState: AppState
 
     init(
@@ -52,18 +53,7 @@ final class ErrorScreenViewModel {
     }
 
     var showsRetryChip: Bool {
-        switch error {
-        case .sessionNotFound,
-             .invalidContent,
-             .rateLimitExceeded,
-             .planLimitExceeded,
-             .planAlreadyActive,
-             .planNotFound,
-             .unauthenticated:
-            false
-        default:
-            true
-        }
+        error.allowsRetry
     }
 
     var showsStartOverChip: Bool {
@@ -124,6 +114,7 @@ final class ErrorScreenViewModel {
 
     func handleStartOver() {
         appState.cachedLastFailedInput = nil
+        appState.appRoute = .home
         chatStore.dispatch(.newSession)
     }
 
@@ -141,4 +132,3 @@ final class ErrorScreenViewModel {
         chatStore.dispatch(.sendMessage(trimmed))
     }
 }
-

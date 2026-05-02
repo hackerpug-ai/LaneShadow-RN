@@ -1,13 +1,15 @@
 import ConvexMobile
 import Foundation
 
-enum LaneShadowError: Equatable, Sendable, LocalizedError {
+enum LaneShadowError: Equatable, LocalizedError {
     case sessionNotFound
     case invalidContent
     case rateLimitExceeded
     case planLimitExceeded
     case planAlreadyActive
     case planNotFound
+    case agentBudgetExceeded
+    case agentLoopDetected
     case agenticParseFailed
     case lowConfidenceParse
     case generationFailed
@@ -39,6 +41,10 @@ enum LaneShadowError: Equatable, Sendable, LocalizedError {
             "You already have an active plan in progress. 🔄"
         case .planNotFound:
             "I couldn't find that plan. 📋"
+        case .agentBudgetExceeded:
+            "The planner hit its budget while building this route."
+        case .agentLoopDetected:
+            "The planner got stuck in a loop."
         case .agenticParseFailed:
             "I couldn't understand that request."
         case .lowConfidenceParse:
@@ -74,6 +80,10 @@ enum LaneShadowError: Equatable, Sendable, LocalizedError {
             "Wait for the current plan to finish, or start over."
         case .planNotFound:
             "It may have been deleted or you might not have access to it."
+        case .agentBudgetExceeded:
+            "Try a smaller request or start over."
+        case .agentLoopDetected:
+            "Try rephrasing your request or start over."
         case .agenticParseFailed:
             "Try rephrasing your request."
         case .lowConfidenceParse:
@@ -105,6 +115,9 @@ enum LaneShadowError: Equatable, Sendable, LocalizedError {
              .planNotFound,
              .unauthenticated:
             false
+        case .agentBudgetExceeded,
+             .agentLoopDetected:
+            true
         case .convex, .server, .internalError, .unknown:
             true
         case .agenticParseFailed,
@@ -136,6 +149,10 @@ enum LaneShadowError: Equatable, Sendable, LocalizedError {
             "PLAN_ALREADY_ACTIVE"
         case .planNotFound:
             "PLAN_NOT_FOUND"
+        case .agentBudgetExceeded:
+            "AGENT_BUDGET_EXCEEDED"
+        case .agentLoopDetected:
+            "AGENT_LOOP_DETECTED"
         case .agenticParseFailed:
             "AGENTIC_PARSE_FAILED"
         case .lowConfidenceParse:
@@ -170,28 +187,25 @@ enum LaneShadowError: Equatable, Sendable, LocalizedError {
         case let .ConvexError(data):
             return mapConvexPayload(data)
         case let .ServerError(msg):
-            return mapStructuredMessage(msg, source: .server)
+            return mapStructuredMessage(msg)
         case let .InternalError(msg):
-            return mapStructuredMessage(msg, source: .internalError)
+            return mapStructuredMessage(msg)
         }
     }
 
-    private enum Source {
-        case convex
-        case server
-        case internalError
-        case generic
+    static func map(rawMessage message: String) -> LaneShadowError {
+        mapStructuredMessage(message)
     }
 
     private static func mapConvexPayload(_ payload: String) -> LaneShadowError {
         if let code = jsonCodeToken(in: payload) {
-            return mapCodeToken(code, rawMessage: code, source: .convex)
+            return mapCodeToken(code, rawMessage: code)
         }
 
-        return mapStructuredMessage(payload, source: .convex)
+        return .unknown(payload)
     }
 
-    private static func mapStructuredMessage(_ message: String, source: Source) -> LaneShadowError {
+    private static func mapStructuredMessage(_ message: String) -> LaneShadowError {
         let trimmed = message.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return .unknown(message)
@@ -201,10 +215,10 @@ enum LaneShadowError: Equatable, Sendable, LocalizedError {
             return .unknown(message)
         }
 
-        return mapCodeToken(code, rawMessage: message, source: source)
+        return mapCodeToken(code, rawMessage: message)
     }
 
-    private static func mapCodeToken(_ code: String, rawMessage: String, source: Source) -> LaneShadowError {
+    private static func mapCodeToken(_ code: String, rawMessage: String) -> LaneShadowError {
         switch code {
         case "SESSION_NOT_FOUND":
             .sessionNotFound
@@ -218,6 +232,10 @@ enum LaneShadowError: Equatable, Sendable, LocalizedError {
             .planAlreadyActive
         case "PLAN_NOT_FOUND":
             .planNotFound
+        case "AGENT_BUDGET_EXCEEDED":
+            .agentBudgetExceeded
+        case "AGENT_LOOP_DETECTED":
+            .agentLoopDetected
         case "AGENTIC_PARSE_FAILED":
             .agenticParseFailed
         case "LOW_CONFIDENCE_PARSE":
@@ -235,16 +253,7 @@ enum LaneShadowError: Equatable, Sendable, LocalizedError {
         case "UNAUTHENTICATED":
             .unauthenticated
         default:
-            switch source {
-            case .convex:
-                .convex(code)
-            case .server:
-                .server(code)
-            case .internalError:
-                .internalError(code)
-            case .generic:
-                .unknown(rawMessage)
-            }
+            .unknown(rawMessage)
         }
     }
 

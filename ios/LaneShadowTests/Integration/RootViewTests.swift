@@ -131,6 +131,37 @@ final class RootViewTests: XCTestCase {
         XCTAssertEqual(appState.appRoute, .session(id: "session-123"))
     }
 
+    func testAppFlowSessionErrorRendersErrorScreenContainer() {
+        let appState = AppState(isAuthenticated: true, currentUser: .jamie)
+        appState.appRoute = .session(id: "session-123")
+
+        let sessionStore = SessionStore()
+        let chatStore = ChatStore(
+            flowState: .error(
+                ErrorState(
+                    errorMessage: "STREAM_DOWN",
+                    sessionId: "session-123",
+                    errorTimestamp: Date(timeIntervalSince1970: 1_700_000_000)
+                )
+            ),
+            sessionStore: sessionStore,
+            dependencies: RideFlowDependencies(
+                makeSessionId: { "route-session-456" },
+                makeTimestamp: { Date(timeIntervalSince1970: 1_700_000_000) }
+            )
+        )
+
+        let appFlowView = AppFlowView(route: appState.appRoute, appState: appState)
+
+        XCTAssertEqual(appFlowView.route, .session(id: "session-123"))
+        XCTAssertEqual(chatStore.flowState.phase, .error)
+        XCTAssertEqual(chatStore.flowState.errorMessage, "STREAM_DOWN")
+        XCTAssertEqual(
+            AppFlowView.sessionDestination(for: chatStore.flowState.phase),
+            .errorScreen
+        )
+    }
+
     func testAppEnvironmentDIContainerImplemented() async throws {
         let clerkAuth = try await makeClerkAuth(isAuthenticated: true)
         let environment = makeEnvironment(clerkAuth: clerkAuth)
@@ -300,6 +331,15 @@ final class RootViewTests: XCTestCase {
     private func waitForAppRoute(_ appState: AppState, expected: AppState.AppRoute) async {
         for _ in 0 ..< 100 {
             if appState.appRoute == expected {
+                return
+            }
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+    }
+
+    private func waitForFlowPhase(_ chatStore: ChatStore, expected: RideFlowPhaseKind) async {
+        for _ in 0 ..< 100 {
+            if chatStore.flowState.phase == expected {
                 return
             }
             try? await Task.sleep(nanoseconds: 10_000_000)

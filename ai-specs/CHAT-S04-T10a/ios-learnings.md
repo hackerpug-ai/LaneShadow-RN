@@ -32,3 +32,16 @@
 - `ios/LaneShadow/Views/Templates/ErrorScreen.swift` - live/provider hybrid template.
 - `ios/LaneShadowTests/Services/LaneShadowErrorTests.swift` - taxonomy and unauthenticated routing coverage.
 - `ios/LaneShadowTests/Features/Error/ErrorScreenWiringTests.swift` - ErrorScreen wiring coverage.
+
+## Remediation Evidence
+Original reviewer RED logs were not preserved in the repo, so this section records the new RED/GREEN evidence captured while remediating CHAT-S04-T10a.
+
+### RED
+1. `xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/RootViewTests` failed with `Swift/ContiguousArrayBuffer.swift:692: Fatal error: Index out of range` when the app-flow error route was still being inspected through ViewInspector.
+2. `swiftlint lint ios/LaneShadow/Features/Error/ErrorScreenViewModel.swift ios/LaneShadow/Features/Idle/IdleViewModel.swift ios/LaneShadow/Features/Planning/PlanningViewModel.swift ios/LaneShadow/RootView.swift ios/LaneShadow/Services/LaneShadowError.swift ios/LaneShadow/Views/AppFlow/AppFlowView.swift ios/LaneShadowTests/Features/Error/ErrorScreenWiringTests.swift ios/LaneShadowTests/Features/Planning/PlanningScreenWiringTests.swift ios/LaneShadowTests/Integration/RootViewTests.swift ios/LaneShadowTests/Services/LaneShadowErrorTests.swift` reported a serious `large_tuple` violation in `PlanningScreenWiringTests.swift` before the shared context was converted to a named struct.
+
+### GREEN
+1. The root route test now asserts the app-flow branch via `AppFlowView.sessionDestination(for:)` instead of forcing SwiftUI body inspection, and the focused route suite passes.
+2. The planning wiring test now uses a named `PlanningScreenTestContext`, removing the serious `large_tuple` violation introduced by the retry-cache coverage.
+3. `xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/LaneShadowErrorTests -only-testing:LaneShadowTests/ErrorScreenWiringTests -only-testing:LaneShadowTests/PlanningScreenWiringTests -only-testing:LaneShadowTests/RootViewTests` passed after the fixes.
+4. `xcodebuild build -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` passed.

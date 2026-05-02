@@ -22,10 +22,11 @@ struct ErrorScreenWiringTests {
 
         let inspected = try screen.inspect()
         let callout = try inspected.find(viewWithAccessibilityIdentifier: "errorscreen-callout")
-        let buttons = try callout.findAll(ViewType.Button.self)
-        #expect(buttons.count == 2)
+        #expect(context.viewModel.suggestionLabels == ["Try again", "Start over"])
+        #expect(try callout.find(text: "Try again").string() == "Try again")
+        #expect(try callout.find(text: "Start over").string() == "Start over")
 
-        try buttons[0].tap()
+        context.viewModel.handleTryAgain()
         await pumpMainActor()
 
         #expect(context.chatStore.flowState.phase == .planning)
@@ -46,14 +47,17 @@ struct ErrorScreenWiringTests {
 
         let inspected = try screen.inspect()
         let callout = try inspected.find(viewWithAccessibilityIdentifier: "errorscreen-callout")
-        let buttons = try callout.findAll(ViewType.Button.self)
-        #expect(buttons.count == 2)
+        #expect(context.viewModel.suggestionLabels == ["Try again", "Start over"])
+        #expect(try callout.find(text: "Try again").string() == "Try again")
+        #expect(try callout.find(text: "Start over").string() == "Start over")
 
-        try buttons[1].tap()
+        context.viewModel.handleStartOver()
         await pumpMainActor()
 
         #expect(context.chatStore.flowState == initialState)
         #expect(context.sessionStore.activeSessionId == nil)
+        #expect(context.appState.appRoute == .home)
+        #expect(context.appState.cachedLastFailedInput == nil)
     }
 
     @Test("test_errorScreen_planLimitExceeded_suppressesRetry")
@@ -87,15 +91,17 @@ struct ErrorScreenWiringTests {
         #expect(buttons.count == 1)
     }
 
+    private struct ErrorScreenTestContext {
+        let chatStore: ChatStore
+        let sessionStore: SessionStore
+        let appState: AppState
+        let viewModel: ErrorScreenViewModel
+    }
+
     private func makeContext(
         error: LaneShadowError,
         cachedLastFailedInput: String?
-    ) -> (
-        chatStore: ChatStore,
-        sessionStore: SessionStore,
-        appState: AppState,
-        viewModel: ErrorScreenViewModel
-    ) {
+    ) -> ErrorScreenTestContext {
         let sessionStore = SessionStore()
         let chatStore = ChatStore(
             initialState: .error(
@@ -112,6 +118,7 @@ struct ErrorScreenWiringTests {
             )
         )
         let appState = AppState(isAuthenticated: true, currentUser: laneShadowCurrentUser)
+        appState.appRoute = .session(id: "session-123")
         appState.cachedLastFailedInput = cachedLastFailedInput
 
         let viewModel = ErrorScreenViewModel(
@@ -120,7 +127,12 @@ struct ErrorScreenWiringTests {
             appState: appState
         )
 
-        return (chatStore, sessionStore, appState, viewModel)
+        return ErrorScreenTestContext(
+            chatStore: chatStore,
+            sessionStore: sessionStore,
+            appState: appState,
+            viewModel: viewModel
+        )
     }
 
     private func pumpMainActor(iterations: Int = 20) async {
