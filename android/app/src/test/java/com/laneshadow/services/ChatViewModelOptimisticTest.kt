@@ -3,16 +3,17 @@ package com.laneshadow.services
 import androidx.lifecycle.SavedStateHandle
 import com.google.common.truth.Truth.assertThat
 import com.laneshadow.data.chat.SessionMessage
+import com.laneshadow.data.route.RoutePlan
 import java.lang.reflect.Field
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -182,30 +183,45 @@ class ChatViewModelOptimisticTest {
 
     @Test
     fun dispatch_cancelPlanning_callsCancelPlanAndCancelsSendJob() = runTest {
+        val activeRoutePlans = MutableStateFlow<List<RoutePlan>>(emptyList())
+        val sendMessageGate = CompletableDeferred<Result<Unit>>()
         val chatRepository = FakeChatRepository(
             confirmedMessages = MutableStateFlow(emptyList()),
+            activeRoutePlans = activeRoutePlans,
+            sendMessageGate = sendMessageGate,
         )
         val viewModel = createViewModel(
             chatRepository = chatRepository,
             sessionRepository = FakeSessionRepository(),
             clock = { 1_000L },
-            savedStateHandle = SavedStateHandle(mapOf("sessionId" to "sess-1")),
+            savedStateHandle = SavedStateHandle(),
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         )
-        val activeJob = Job()
-        viewModel.sendJob = activeJob
-        seedFlowState(
-            viewModel = viewModel,
-            state = RideFlowState.Planning(
+
+        viewModel.dispatch(
+            RideFlowAction.LoadSession(
                 sessionId = "sess-1",
-                planId = "plan-7",
+                routeOptions = PlannedRouteOptions(),
             ),
         )
+        advanceUntilIdle()
+
+        viewModel.dispatch(RideFlowAction.SendMessage("plan a ride"))
+        advanceUntilIdle()
+
+        val sendJob = viewModel.sendJob
+        assertThat(sendJob).isNotNull()
+
+        activeRoutePlans.value = listOf(activePlan("plan-7"))
+        advanceUntilIdle()
 
         viewModel.dispatch(RideFlowAction.CancelPlanning)
+        advanceUntilIdle()
 
         assertThat(chatRepository.cancelPlanCalls).containsExactly("plan-7")
-        assertThat(activeJob.isCancelled).isTrue()
+        assertThat(sendJob?.isCancelled).isTrue()
+
+        sendMessageGate.cancel()
     }
 
     @Test
@@ -271,28 +287,24 @@ class ChatViewModelOptimisticTest {
             clock = clock,
         )
 
-    private fun seedFlowState(
-        viewModel: ChatViewModel,
-        state: RideFlowState,
-    ) {
-        val flowStateField: Field = ChatViewModel::class.java.getDeclaredField("_flowState")
-        flowStateField.isAccessible = true
-        @Suppress("UNCHECKED_CAST")
-        val flowState = flowStateField.get(viewModel) as MutableStateFlow<RideFlowState>
-        flowState.value = state
-    }
-
     private class FakeChatRepository(
         private val confirmedMessages: MutableStateFlow<List<SessionMessage>>,
+        private val activeRoutePlans: MutableStateFlow<List<RoutePlan>> = MutableStateFlow(emptyList()),
         private val sendMessageGate: CompletableDeferred<Result<Unit>>? = null,
     ) : ChatRepository {
         val subscribeCalls = AtomicInteger(0)
+        val activeRoutePlanSubscribeCalls = AtomicInteger(0)
         val sendMessageCalls = AtomicInteger(0)
         val cancelPlanCalls = mutableListOf<String>()
 
         override fun subscribeToMessages(sessionId: String): Flow<List<SessionMessage>> {
             subscribeCalls.incrementAndGet()
             return confirmedMessages
+        }
+
+        override fun subscribeToActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>> {
+            activeRoutePlanSubscribeCalls.incrementAndGet()
+            return activeRoutePlans
         }
 
         override suspend fun sendMessage(sessionId: String, content: String): Result<Unit> {
@@ -305,6 +317,12 @@ class ChatViewModelOptimisticTest {
             return Result.success(Unit)
         }
     }
+
+    private fun activePlan(routePlanId: String): RoutePlan =
+        RoutePlan(
+            id = routePlanId,
+            status = "running",
+        )
 
     private class FakeSessionRepository(
         private val createSessionGate: CompletableDeferred<Result<String>>? = null,

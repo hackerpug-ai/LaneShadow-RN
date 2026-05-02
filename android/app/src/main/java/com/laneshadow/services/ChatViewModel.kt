@@ -4,13 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laneshadow.data.chat.SessionMessage
+import com.laneshadow.data.route.RoutePlan
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,6 +41,7 @@ class ChatViewModel @Inject constructor(
 
     val flowState: StateFlow<RideFlowState> = _flowState.asStateFlow()
     private val pendingMessages = MutableStateFlow<List<PendingMessage>>(emptyList())
+    private val activePlanId = MutableStateFlow<String?>(null)
     private val confirmedMessages: StateFlow<List<SessionMessage>> = flowState
         .map { state -> state.sessionIdOrNull() }
         .distinctUntilChanged()
@@ -74,6 +76,7 @@ class ChatViewModel @Inject constructor(
 
     init {
         observeConfirmedMessages()
+        observeActiveRoutePlans()
     }
 
     fun dispatch(action: RideFlowAction) {
@@ -172,10 +175,28 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun cancelActivePlan(state: RideFlowState) {
-        val planId = (state as? RideFlowState.Planning)?.planId ?: return
+        val planId = (state as? RideFlowState.Planning)?.planId ?: activePlanId.value ?: return
         viewModelScope.launch(ioDispatcher) {
             chatRepository.cancelPlan(planId)
         }
+    }
+
+    private fun observeActiveRoutePlans() {
+        flowState
+            .map { state -> state.sessionIdOrNull() }
+            .distinctUntilChanged()
+            .flatMapLatest { sessionId ->
+                activePlanId.value = null
+                if (sessionId == null) {
+                    flowOf(emptyList())
+                } else {
+                    chatRepository.subscribeToActiveRoutePlans(sessionId)
+                }
+            }
+            .onEach { plans ->
+                activePlanId.value = plans.firstActivePlanId()
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun observeConfirmedMessages() {
@@ -283,6 +304,8 @@ class ChatViewModel @Inject constructor(
 interface ChatRepository {
     fun subscribeToMessages(sessionId: String): Flow<List<SessionMessage>>
 
+    fun subscribeToActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>>
+
     suspend fun sendMessage(sessionId: String, content: String): Result<Unit>
 
     suspend fun cancelPlan(routePlanId: String): Result<Unit>
@@ -299,6 +322,9 @@ class ConvexChatRepository @Inject constructor(
     override fun subscribeToMessages(sessionId: String): Flow<List<SessionMessage>> =
         convexClientProvider.observeSessionMessages(sessionId)
 
+    override fun subscribeToActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>> =
+        convexClientProvider.observeActiveRoutePlans(sessionId)
+
     override suspend fun sendMessage(sessionId: String, content: String): Result<Unit> =
         convexClientProvider.sendMessage(sessionId, content)
 
@@ -313,3 +339,12 @@ class ConvexSessionRepository @Inject constructor(
     override suspend fun createSession(firstMessage: String): Result<String> =
         convexClientProvider.createSession(firstMessage)
 }
+
+private fun List<RoutePlan>.firstActivePlanId(): String? =
+    firstOrNull { plan ->
+        plan.id.isNotBlank() && plan.status.isActiveRoutePlanStatus()
+    }?.id
+
+private fun String.isActiveRoutePlanStatus(): Boolean =
+    equals("pending", ignoreCase = true) ||
+        equals("running", ignoreCase = true)
