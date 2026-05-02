@@ -398,7 +398,7 @@ final class PlanningViewModel {
     private var resolvedSessionId: String? {
         chatStore.flowState.sessionId ?? sessionStore.activeSessionId ?? fallbackSessionId
     }
-    
+
     private func beginSendRevision() -> Int {
         sendRevisionCounter += 1
         activeSendRevision = sendRevisionCounter

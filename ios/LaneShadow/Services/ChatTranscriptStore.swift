@@ -88,7 +88,8 @@ final class ChatTranscript {
         }
 
         if incoming.role == .rider,
-           messages.contains(where: { Self.matchesConfirmedMessage($0, incoming) }) {
+           messages.contains(where: { Self.matchesConfirmedMessage($0, incoming) })
+        {
             return
         }
 
@@ -243,11 +244,11 @@ final class ChatTranscript {
     }
 }
 
-internal func chatTranscriptRole(from serverRole: String) -> LSChatMessageRole {
+func chatTranscriptRole(from serverRole: String) -> LSChatMessageRole {
     serverRole == "rider" || serverRole == "user" ? .rider : .agent
 }
 
-internal func chatTranscriptState(from status: String?) -> ChatTranscript.State {
+func chatTranscriptState(from status: String?) -> ChatTranscript.State {
     switch status {
     case "streaming", "running":
         .streaming
@@ -258,7 +259,7 @@ internal func chatTranscriptState(from status: String?) -> ChatTranscript.State 
     }
 }
 
-internal func planningDisplayText(for message: LaneShadowSessionMessage) -> String {
+func planningDisplayText(for message: LaneShadowSessionMessage) -> String {
     guard message.kind == "planning",
           let payload = try? JSONDecoder().decode(
               PlanningContentPayload.self,
