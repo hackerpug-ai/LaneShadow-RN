@@ -123,8 +123,13 @@ let lsMapStrokeWidthSm: CGFloat = 1
 let lsMapStrokeWidthMd: CGFloat = 2
 let lsMapStrokeWidthLg: CGFloat = 3
 let lsMapPolylineDasharray: [Double] = [2, 1]
+let lsMapSignalDefaultColorTokenPath = "color.signal.default"
+let lsMapSignalWhisperColorTokenPath = "color.signal.whisper"
+let lsMapSignalTouringColorTokenPath = "color.signal.touring"
+let lsMapSignalTouringColor = LaneShadowTheme.color.signal.touring
 
 struct LSMapPolylineStyle: Equatable {
+    let colorTokenPath: String
     let color: Color
     let lineWidth: CGFloat
     let lineDasharray: [Double]?
@@ -372,6 +377,7 @@ func resolveLSMapInteraction(for mode: MapMode) -> LSMapInteractionModel {
 
 func resolveLSMapPolylineStyle(for polyline: PolylineData) -> LSMapPolylineStyle {
     LSMapPolylineStyle(
+        colorTokenPath: resolveLSMapRouteColorTokenPath(polyline.variant),
         color: resolveLSMapRouteColor(polyline.variant),
         lineWidth: resolveLSMapStrokeWidth(polyline.strokeWidth ?? .md),
         lineDasharray: polyline.lineDasharray
@@ -477,20 +483,39 @@ private func resolveLSMapStrokeWidth(_ size: StrokeSize) -> CGFloat {
 private func resolveLSMapRouteColor(_ variant: RouteVariant) -> Color {
     switch variant {
     case .best:
-        LaneShadowTheme.color.route.best
+        LaneShadowTheme.color.signal.default
     case .alt1:
-        LaneShadowTheme.color.route.alt1
+        LaneShadowTheme.color.signal.whisper
     case .alt2:
-        LaneShadowTheme.color.route.alt2
+        lsMapSignalTouringColor
     case let .custom(token):
         switch token.path {
-        case "color.route.alt1":
-            LaneShadowTheme.color.route.alt1
-        case "color.route.alt2":
-            LaneShadowTheme.color.route.alt2
+        case lsMapSignalWhisperColorTokenPath:
+            LaneShadowTheme.color.signal.whisper
+        case lsMapSignalTouringColorTokenPath:
+            lsMapSignalTouringColor
         default:
-            LaneShadowTheme.color.route.best
+            LaneShadowTheme.color.signal.default
         }
+    }
+}
+
+private func resolveLSMapRouteColorTokenPath(_ variant: RouteVariant) -> String {
+    switch variant {
+    case .best:
+        lsMapSignalDefaultColorTokenPath
+    case .alt1:
+        lsMapSignalWhisperColorTokenPath
+    case .alt2:
+        lsMapSignalTouringColorTokenPath
+    case let .custom(token):
+        token.path
+    }
+}
+
+private extension LaneShadowTheme.color.signal {
+    static var touring: Color {
+        LaneShadowTheme.color.status.success.default
     }
 }
 

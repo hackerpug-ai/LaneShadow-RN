@@ -183,17 +183,24 @@ final class PlanningViewModel {
         let convexClient = convexClient
         routePlanObservationTask = Task { [weak self, convexClient] in
             guard let self else { return }
-            for await routePlan in convexClient.subscribeToRoutePlan(routePlanId: routePlanId) {
-                if Task.isCancelled {
-                    return
-                }
+            do {
+                for try await routePlan in convexClient.subscribeToRoutePlan(routePlanId: routePlanId) {
+                    if Task.isCancelled {
+                        return
+                    }
 
+                    await MainActor.run {
+                        handleRoutePlanSnapshot(routePlan)
+                    }
+
+                    if await MainActor.run(body: { didDispatchTerminalState }) {
+                        return
+                    }
+                }
+            } catch {
+                guard !Task.isCancelled else { return }
                 await MainActor.run {
-                    handleRoutePlanSnapshot(routePlan)
-                }
-
-                if await MainActor.run(body: { didDispatchTerminalState }) {
-                    return
+                    dispatchRoutePlanFailure(LaneShadowError.map(error).localizedDescription)
                 }
             }
         }

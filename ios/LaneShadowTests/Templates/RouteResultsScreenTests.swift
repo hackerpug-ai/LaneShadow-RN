@@ -1,3 +1,4 @@
+import Foundation
 import LaneShadowTheme
 import SnapshotTesting
 import SwiftUI
@@ -25,8 +26,7 @@ struct RouteResultsScreenTests {
     /// AC-1: Screen consumes live route geometry instead of re-decoding raw polyline strings.
     @Test
     func routeResults_screen_uses_viewModelDecodedRouteGeometry() throws {
-        let sourceFile = "/Users/justinrich/Projects/LaneShadow/.claude/worktrees/CHAT-S04-T05/ios/LaneShadow/Views/Templates/RouteResultsScreen.swift"
-        let sourceCode = try String(contentsOfFile: sourceFile, encoding: .utf8)
+        let sourceCode = try routeResultsScreenSourceCode()
 
         #expect(
             sourceCode.contains("state.routePolylines"),
@@ -53,22 +53,17 @@ struct RouteResultsScreenTests {
     /// AC-2: Source references route variant mapping and camera fit polylines
     @Test
     func route_variant_mapping_and_camera_tokens_present() throws {
-        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/RouteResultsScreen.swift"
-        let sourceCode = try String(contentsOfFile: sourceFile, encoding: .utf8)
+        let sourceCode = try routeResultsScreenSourceCode()
+        let state = RouteResultsMockProvider.value(variant: "default")
 
-        // Verify route variant mapping covers all 3 variants (best, alt1, alt2)
-        let requiredVariants = [
-            ".best",
-            ".alt1",
-            ".alt2",
-        ]
-
-        for variant in requiredVariants {
-            #expect(
-                sourceCode.contains(variant),
-                "RouteResultsScreen.swift should reference RouteVariant \(variant)"
-            )
-        }
+        #expect(
+            state.routePolylines.map(\.variant) == [.best, .alt1, .alt2],
+            "RouteResultsScreenState should carry all route variants to the render seam"
+        )
+        #expect(
+            sourceCode.contains("variant: sourcePolyline.variant"),
+            "RouteResultsScreen.swift should pass through ViewModel-decoded route variants"
+        )
 
         // Verify camera fit polylines is used
         #expect(
@@ -91,8 +86,7 @@ struct RouteResultsScreenTests {
         )
 
         // Verify the source uses theme motion tokens, not hardcoded values
-        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/RouteResultsScreen.swift"
-        let sourceCode = try String(contentsOfFile: sourceFile, encoding: .utf8)
+        let sourceCode = try routeResultsScreenSourceCode()
 
         // Verify theme.motion.duration is used (not hardcoded values)
         #expect(
@@ -177,8 +171,7 @@ struct RouteResultsScreenTests {
     /// AC-6: No data fetching symbols in template source
     @Test
     func no_data_fetching_symbols() throws {
-        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/RouteResultsScreen.swift"
-        let sourceCode = try String(contentsOfFile: sourceFile, encoding: .utf8)
+        let sourceCode = try routeResultsScreenSourceCode()
 
         // Define forbidden patterns that indicate data fetching
         let forbiddenPatterns = [
@@ -199,5 +192,16 @@ struct RouteResultsScreenTests {
 
         // Verify the file exists and is readable
         #expect(!sourceCode.isEmpty, "RouteResultsScreen.swift source should be readable and non-empty")
+    }
+
+    private func routeResultsScreenSourceCode() throws -> String {
+        let testFile = URL(fileURLWithPath: #filePath)
+        let iosRoot = testFile
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let sourceFile = iosRoot.appendingPathComponent("LaneShadow/Views/Templates/RouteResultsScreen.swift")
+
+        return try String(contentsOf: sourceFile, encoding: .utf8)
     }
 }

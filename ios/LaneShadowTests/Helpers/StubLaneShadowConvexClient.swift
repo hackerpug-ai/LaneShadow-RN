@@ -6,7 +6,8 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
     private var currentUserContinuation: AsyncStream<LaneShadowCurrentUser?>.Continuation?
     private var sessionsContinuation: AsyncStream<[Session]>.Continuation?
     private var sessionMessagesContinuations: [String: AsyncStream<[LaneShadowSessionMessage]>.Continuation] = [:]
-    private var routePlanContinuations: [String: AsyncStream<LaneShadowRoutePlanSnapshot>.Continuation] = [:]
+    private var routePlanContinuations: [String: AsyncThrowingStream<LaneShadowRoutePlanSnapshot, Error>.Continuation] =
+        [:]
     private var activeRoutePlanContinuations: [String: AsyncStream<[LaneShadowRoutePlanSnapshot]>.Continuation] = [:]
     private var latestCurrentUser: LaneShadowCurrentUser?
     private var latestSessions: [Session] = []
@@ -28,6 +29,7 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
     private(set) var createPlanningSessionCalls: [String] = []
     private(set) var sendPlanningMessageCalls: [LaneShadowPlanningMessageCall] = []
     private(set) var fetchRoutePlanCalls: [String] = []
+    private(set) var routePlanSubscriptionCalls: [String] = []
     private(set) var cancelRoutePlanCalls: [String] = []
 
     func subscribeToCurrentUser() -> AsyncStream<LaneShadowCurrentUser?> {
@@ -57,8 +59,9 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
         }
     }
 
-    func subscribeToRoutePlan(routePlanId: String) -> AsyncStream<LaneShadowRoutePlanSnapshot> {
-        AsyncStream { continuation in
+    func subscribeToRoutePlan(routePlanId: String) -> AsyncThrowingStream<LaneShadowRoutePlanSnapshot, Error> {
+        AsyncThrowingStream { continuation in
+            routePlanSubscriptionCalls.append(routePlanId)
             routePlanContinuations[routePlanId] = continuation
             if let currentPlan = latestRoutePlans[routePlanId] {
                 continuation.yield(currentPlan)
@@ -107,6 +110,10 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
     func sendRoutePlan(_ routePlan: LaneShadowRoutePlanSnapshot) {
         latestRoutePlans[routePlan.id] = routePlan
         routePlanContinuations[routePlan.id]?.yield(routePlan)
+    }
+
+    func failRoutePlanObservation(routePlanId: String, error: Error) {
+        routePlanContinuations[routePlanId]?.finish(throwing: error)
     }
 
     func sendActiveRoutePlans(_ plans: [LaneShadowRoutePlanSnapshot], sessionId: String) {

@@ -55,9 +55,12 @@ final class LSMapTests: XCTestCase {
             ),
         ]
 
-        XCTAssertEqual(styles[0].color, LaneShadowTheme.color.route.best)
-        XCTAssertEqual(styles[1].color, LaneShadowTheme.color.route.alt1)
-        XCTAssertEqual(styles[2].color, LaneShadowTheme.color.route.alt2)
+        XCTAssertEqual(styles[0].colorTokenPath, "color.signal.default")
+        XCTAssertEqual(styles[1].colorTokenPath, "color.signal.whisper")
+        XCTAssertEqual(styles[2].colorTokenPath, "color.signal.touring")
+        XCTAssertEqual(styles[0].color, LaneShadowTheme.color.signal.default)
+        XCTAssertEqual(styles[1].color, LaneShadowTheme.color.signal.whisper)
+        XCTAssertEqual(styles[2].color, lsMapSignalTouringColor)
         XCTAssertEqual(styles[0].lineWidth, lsMapStrokeWidthMd)
         XCTAssertNil(styles[0].lineDasharray)
 

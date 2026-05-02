@@ -39,9 +39,9 @@ struct RouteResultsWiringTests {
             "route-003",
         ])
         #expect(viewState.routePolylines.map(\.colorTokenPath) == [
-            "color.route.best",
-            "color.route.alt1",
-            "color.route.alt2",
+            "color.signal.default",
+            "color.signal.whisper",
+            "color.signal.touring",
         ])
         #expect(viewState.screenState.routes.count == 3)
 
@@ -125,6 +125,37 @@ struct RouteResultsWiringTests {
         await observationTask.value
     }
 
+    @Test("test_routeResults_invalidGeometry_doesNotFabricateFallbackPolyline")
+    func routeResults_invalidGeometry_doesNotFabricateFallbackPolyline() async throws {
+        let context = makeRouteResultsContext(
+            routeOptions: makeRouteOptions(geometryValues: ["not-a-polyline"])
+        )
+        context.client.sendRoutePlan(
+            makeRoutePlanSnapshot(
+                planId: context.routeOptions.planId,
+                routeOptions: context.routeOptions
+            )
+        )
+        let observationTask = Task {
+            await context.viewModel.observe()
+        }
+
+        let screen = RouteResultsContainer(viewModel: context.viewModel).laneShadowTheme()
+        let hostingController = UIHostingController(rootView: screen)
+        hostingController.loadViewIfNeeded()
+
+        await pumpMainActor()
+
+        let firstPolyline = try #require(context.viewModel.viewState.routePolylines.first)
+        #expect(firstPolyline.coordinates.isEmpty)
+        #expect(!firstPolyline.coordinates.contains(LatLng(lat: 37.7749, lon: -122.4194)))
+        #expect(context.viewModel.viewState.screenState.routePolylines.first?.coordinates.isEmpty == true)
+
+        context.client.finishObservationStreams()
+        observationTask.cancel()
+        await observationTask.value
+    }
+
     @Test("test_routeResults_emptyOptions_showsEmptyState")
     func routeResults_emptyOptions_showsEmptyState() async throws {
         let context = makeRouteResultsContext(routeOptions: makeRouteOptions(optionCount: 0))
@@ -168,6 +199,7 @@ struct RouteResultsWiringTests {
         let observationTask = Task {
             await context.viewModel.observe()
         }
+        context.viewModel.handleRouteCardTap("route-002")
 
         let inspection = Inspection<RouteResultsScreen>()
         let screen = RouteResultsContainer(
@@ -179,6 +211,11 @@ struct RouteResultsWiringTests {
         defer { ViewHosting.expel() }
 
         await pumpMainActor()
+
+        try await inspection.inspect(after: .seconds(0)) { view in
+            try assertSelectedRouteCard("Coastal Highway Classic", in: view)
+            #expect(context.viewModel.viewState.screenState.selectedRouteId == "route-002")
+        }
 
         try await inspection.inspect(after: .seconds(0)) { view in
             let navigatorMessage = try view.find(
@@ -219,7 +256,43 @@ struct RouteResultsWiringTests {
                 viewWithAccessibilityIdentifier: "navigatormessage-dismiss"
             )
             #expect(attachmentCards.count == 3)
+            try assertSelectedRouteCard("Coastal Highway Classic", in: view)
+            #expect(context.viewModel.viewState.screenState.selectedRouteId == "route-002")
         }
+
+        context.client.finishObservationStreams()
+        observationTask.cancel()
+        await observationTask.value
+    }
+
+    @Test("test_routeResults_streamFailure_surfacesTypedError")
+    func routeResults_streamFailure_surfacesTypedError() async throws {
+        let context = makeRouteResultsContext()
+        context.client.sendRoutePlan(
+            makeRoutePlanSnapshot(
+                planId: context.routeOptions.planId,
+                routeOptions: context.routeOptions
+            )
+        )
+        let observationTask = Task {
+            await context.viewModel.observe()
+        }
+
+        let screen = RouteResultsContainer(viewModel: context.viewModel).laneShadowTheme()
+        let hostingController = UIHostingController(rootView: screen)
+        hostingController.loadViewIfNeeded()
+
+        await pumpMainActor()
+        context.client.failRoutePlanObservation(
+            routePlanId: context.routeOptions.planId,
+            error: ClientError.ServerError(msg: "STREAM_DOWN")
+        )
+        await pumpMainActor()
+
+        #expect(context.viewModel.viewState.errorMessage == "STREAM_DOWN")
+        #expect(context.viewModel.viewState.error == .server("STREAM_DOWN"))
+        #expect(context.viewModel.viewState.isLoading == false)
+        #expect(context.client.routePlanSubscriptionCalls == ["plan-123"])
 
         context.client.finishObservationStreams()
         observationTask.cancel()
@@ -298,7 +371,10 @@ struct RouteResultsWiringTests {
         )
     }
 
-    private func makeRouteOptions(optionCount: Int = 3) -> PlannedRouteOptionsView {
+    private func makeRouteOptions(
+        optionCount: Int = 3,
+        geometryValues: [String] = []
+    ) -> PlannedRouteOptionsView {
         let baseOptions = [
             PlannedRouteOptionView(
                 routeOptionId: "route-001",
@@ -320,7 +396,7 @@ struct RouteResultsWiringTests {
                         format: "polyline",
                         encoding: "polyline",
                         precision: 5,
-                        value: "_p~iF~ps|U_ulLnnqC_mqNvxq`@"
+                        value: geometryValues.first ?? "_p~iF~ps|U_ulLnnqC_mqNvxq`@"
                     ),
                     legs: ["leg-1", "leg-2"]
                 ),
@@ -422,6 +498,19 @@ struct RouteResultsWiringTests {
         for _ in 0 ..< iterations {
             await Task.yield()
         }
+    }
+
+    private func assertSelectedRouteCard(
+        _ title: String,
+        in view: InspectableView<ViewType.View<RouteResultsScreen>>
+    ) throws {
+        let selectedCards = try view.findAll {
+            (try? $0.accessibilityIdentifier()) == "lsrouteattachmentcard"
+                && (try? $0.accessibilityValue().string()) == "Selected"
+        }
+
+        #expect(selectedCards.count == 1)
+        _ = try selectedCards.first?.find(text: title)
     }
 }
 

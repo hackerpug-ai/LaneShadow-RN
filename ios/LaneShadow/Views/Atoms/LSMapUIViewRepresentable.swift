@@ -118,7 +118,8 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
             } else {
                 // Fallback colors if not in renderModel
                 LSMapPolylineStyle(
-                    color: LaneShadowTheme.color.route.alt2,
+                    colorTokenPath: lsMapSignalTouringColorTokenPath,
+                    color: lsMapSignalTouringColor,
                     lineWidth: lsMapStrokeWidthMd,
                     lineDasharray: nil
                 )

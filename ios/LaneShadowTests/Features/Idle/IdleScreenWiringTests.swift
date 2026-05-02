@@ -221,8 +221,8 @@ final class BlockingIdlePlanningClient: @unchecked Sendable, @preconcurrency Lan
         }
     }
 
-    func subscribeToRoutePlan(routePlanId _: String) -> AsyncStream<LaneShadowRoutePlanSnapshot> {
-        AsyncStream { continuation in
+    func subscribeToRoutePlan(routePlanId _: String) -> AsyncThrowingStream<LaneShadowRoutePlanSnapshot, Error> {
+        AsyncThrowingStream { continuation in
             continuation.finish()
         }
     }

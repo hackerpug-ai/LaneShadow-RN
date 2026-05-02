@@ -25,9 +25,9 @@ struct RouteResultsViewState: Equatable {
 final class RouteResultsViewModel {
     private static let visibleRouteLimit = 3
     private static let routeColorTokenPaths = [
-        "color.route.best",
-        "color.route.alt1",
-        "color.route.alt2",
+        lsMapSignalDefaultColorTokenPath,
+        lsMapSignalWhisperColorTokenPath,
+        lsMapSignalTouringColorTokenPath,
     ]
 
     var isLoading = false
@@ -118,17 +118,24 @@ final class RouteResultsViewModel {
         routePlanObservationTask = Task { [weak self, convexClient] in
             guard let self else { return }
 
-            for await routePlan in convexClient.subscribeToRoutePlan(routePlanId: routePlanId) {
-                if Task.isCancelled {
-                    return
-                }
+            do {
+                for try await routePlan in convexClient.subscribeToRoutePlan(routePlanId: routePlanId) {
+                    if Task.isCancelled {
+                        return
+                    }
 
+                    await MainActor.run {
+                        handleRoutePlanSnapshot(routePlan)
+                    }
+
+                    if Task.isCancelled {
+                        return
+                    }
+                }
+            } catch {
+                guard !Task.isCancelled else { return }
                 await MainActor.run {
-                    handleRoutePlanSnapshot(routePlan)
-                }
-
-                if Task.isCancelled {
-                    return
+                    handleRoutePlanFetchFailure(error)
                 }
             }
         }
@@ -398,8 +405,7 @@ final class RouteResultsViewModel {
         from encodedPolyline: String,
         precision: Double
     ) -> [LatLng] {
-        let decoded = decodePolyline(encodedPolyline, precision: precision)
-        return decoded.isEmpty ? fallbackCoordinates() : decoded
+        decodePolyline(encodedPolyline, precision: precision)
     }
 
     private static func decodePolyline(
@@ -454,14 +460,6 @@ final class RouteResultsViewModel {
         }
 
         return coordinates.count >= 2 ? coordinates : []
-    }
-
-    private static func fallbackCoordinates() -> [LatLng] {
-        [
-            LatLng(lat: 37.7749, lon: -122.4194),
-            LatLng(lat: 37.7849, lon: -122.4094),
-            LatLng(lat: 37.7949, lon: -122.3994),
-        ]
     }
 }
 
