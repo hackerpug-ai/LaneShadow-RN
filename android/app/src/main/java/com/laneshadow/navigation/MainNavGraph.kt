@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import com.laneshadow.services.ConvexClientProvider
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.AuthViewModel
@@ -71,8 +72,12 @@ fun MainNavGraph(
         composable<Route.Sessions> {
             HomeLeafRoute(title = "Sessions", onBack = { navController.popBackStack() })
         }
-        composable<Route.RouteResults> {
-            RouteResultsRoute(navController = navController)
+        composable<Route.RouteResults> { backStackEntry ->
+            val route = backStackEntry.toRoute<Route.RouteResults>()
+            RouteResultsRoute(
+                navController = navController,
+                sessionId = route.sessionId,
+            )
         }
         composable<Route.RouteDetails> { _ ->
             HomeLeafRoute(title = "Route Details", onBack = { navController.popBackStack() })

@@ -5,18 +5,28 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laneshadow.data.chat.ChatRepository
 import com.laneshadow.data.route.RouteRepository
-import com.laneshadow.services.AppStateRepository
 import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.ui.atoms.RouteVariant
 import com.laneshadow.ui.util.PolylineDecoder
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerialName
@@ -25,9 +35,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 
-@HiltViewModel
-class RouteResultsViewModel @Inject constructor(
-    private val appStateRepository: AppStateRepository,
+@HiltViewModel(assistedFactory = RouteResultsViewModelFactory::class)
+class RouteResultsViewModel @AssistedInject constructor(
+    @Assisted private val sessionId: String,
+    @Assisted private val decodeDispatcher: CoroutineDispatcher,
     private val routeRepository: RouteRepository,
     private val chatRepository: ChatRepository,
     private val json: Json,
@@ -36,7 +47,7 @@ class RouteResultsViewModel @Inject constructor(
     val state: StateFlow<RouteResultsUiState> = _state.asStateFlow()
 
     init {
-        loadRouteResults()
+        observeRouteResults()
     }
 
     fun selectRoute(routeOptionId: String) {
@@ -60,63 +71,71 @@ class RouteResultsViewModel @Inject constructor(
         }
     }
 
-    private fun loadRouteResults() {
-        viewModelScope.launch {
-            val sessionId = appStateRepository.appState.first().lastViewedSessionId
-
-            if (sessionId.isNullOrBlank()) {
-                _state.value = RouteResultsUiState.Empty(
-                    message = "No recent session is available yet.",
-                )
-                return@launch
-            }
-
-            val completedPlan = routeRepository.subscribeToActiveRoutePlans(sessionId)
-                .first()
-                .firstOrNull { it.status.isCompletedPlanStatus() }
-
-            if (completedPlan == null) {
-                _state.value = RouteResultsUiState.Loading
-                return@launch
-            }
-
-            val planJson = routeRepository.subscribeToPlanById(completedPlan.id).first()
-            val parsedState = runCatching {
-                parseLoadedState(
-                    sessionId = sessionId,
-                    routePlanId = completedPlan.id,
-                    planJson = planJson,
-                )
-            }.getOrElse { error ->
-                RouteResultsUiState.Error(
-                    message = error.message ?: "Unable to load route results.",
-                )
-            }
-
-            when (parsedState) {
-                is RouteResultsUiState.Loaded -> {
-                    val currentLoaded = _state.value as? RouteResultsUiState.Loaded
-                    _state.value = if (currentLoaded?.routePlanId == parsedState.routePlanId) {
-                        val preservedSelection = if (
-                            parsedState.polylineEntries.any { entry ->
-                                entry.routeOptionId == currentLoaded.selectedRouteId
-                            }
-                        ) {
-                            currentLoaded.selectedRouteId
-                        } else {
-                            parsedState.selectedRouteId
-                        }
-
-                        parsedState
-                            .withSelectedRoute(preservedSelection)
-                            .copy(attachmentsDismissed = currentLoaded.attachmentsDismissed)
-                    } else {
-                        parsedState
+    private fun observeRouteResults() {
+        routeResultsFlow()
+            .onEach { nextState ->
+                _state.update { current ->
+                    when (nextState) {
+                        is RouteResultsUiState.Loaded -> mergeLoadedState(current, nextState)
+                        else -> nextState
                     }
                 }
-                else -> _state.value = parsedState
             }
+            .launchIn(viewModelScope)
+    }
+
+    private fun routeResultsFlow(): Flow<RouteResultsUiState> =
+        routeRepository.subscribeToActiveRoutePlans(sessionId)
+            .map { plans ->
+                plans.firstOrNull { it.status.isCompletedPlanStatus() }
+            }
+            .distinctUntilChangedBy { it?.id }
+            .flatMapLatest { completedPlan ->
+                if (completedPlan == null) {
+                    flowOf(RouteResultsUiState.Loading)
+                } else {
+                    routeRepository.subscribeToPlanById(completedPlan.id)
+                        .map { planJson ->
+                            parseLoadedState(
+                                sessionId = sessionId,
+                                routePlanId = completedPlan.id,
+                                planJson = planJson,
+                            )
+                        }
+                        .flowOn(decodeDispatcher)
+                        .onStart { emit(RouteResultsUiState.Loading) }
+                }
+            }
+            .catch { error ->
+                emit(
+                    RouteResultsUiState.Error(
+                        message = error.message ?: "Unable to load route results.",
+                    ),
+                )
+            }
+
+    private fun mergeLoadedState(
+        current: RouteResultsUiState,
+        next: RouteResultsUiState.Loaded,
+    ): RouteResultsUiState.Loaded {
+        val currentLoaded = current as? RouteResultsUiState.Loaded ?: return next
+        if (currentLoaded.routePlanId != next.routePlanId) {
+            return next
         }
+
+        val preservedSelection = if (
+            next.polylineEntries.any { entry ->
+                entry.routeOptionId == currentLoaded.selectedRouteId
+            }
+        ) {
+            currentLoaded.selectedRouteId
+        } else {
+            next.selectedRouteId
+        }
+
+        return next
+            .withSelectedRoute(preservedSelection)
+            .copy(attachmentsDismissed = currentLoaded.attachmentsDismissed)
     }
 
     private fun updateLoadedState(
@@ -191,6 +210,15 @@ class RouteResultsViewModel @Inject constructor(
             },
         )
     }
+
+}
+
+@AssistedFactory
+interface RouteResultsViewModelFactory {
+    fun create(
+        sessionId: String,
+        decodeDispatcher: CoroutineDispatcher,
+    ): RouteResultsViewModel
 }
 
 private fun String.isCompletedPlanStatus(): Boolean =

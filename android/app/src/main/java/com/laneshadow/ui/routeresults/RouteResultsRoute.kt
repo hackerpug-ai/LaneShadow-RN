@@ -1,10 +1,8 @@
 package com.laneshadow.ui.routeresults
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,8 +15,9 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -29,11 +28,13 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.laneshadow.navigation.Route
 import com.laneshadow.theme.LocalLaneShadowTheme
@@ -43,33 +44,40 @@ import com.laneshadow.ui.atoms.CameraPosition
 import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.ui.atoms.LSMap
 import com.laneshadow.ui.atoms.LSPill
-import com.laneshadow.ui.atoms.PillSize
 import com.laneshadow.ui.atoms.MapMode
+import com.laneshadow.ui.atoms.PillSize
 import com.laneshadow.ui.atoms.RouteVariant
 import com.laneshadow.ui.atoms.SpacingToken
 import com.laneshadow.ui.atoms.TextColor
 import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.TypographyVariant
 import com.laneshadow.ui.molecules.LSChatInput
-import com.laneshadow.ui.molecules.LSRouteAttachmentCard
 import com.laneshadow.ui.molecules.RouteAttachment
 import com.laneshadow.ui.organisms.GlassOverlaySlot
 import com.laneshadow.ui.organisms.LSMapLayer
 import com.laneshadow.ui.organisms.LSNavigatorMessage
 import com.laneshadow.ui.organisms.LSTopBar
+import kotlinx.coroutines.Dispatchers
 
 @Composable
 fun RouteResultsRoute(
     navController: NavHostController,
+    sessionId: String,
     stateOverride: RouteResultsUiState? = null,
+    viewModel: RouteResultsViewModel? = null,
     onRouteCardTap: ((String) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
+    val resolvedRouteCardTap = onRouteCardTap ?: defaultRouteCardTap(
+        sessionId = sessionId,
+        navController = navController,
+    )
+
     if (stateOverride != null) {
         RouteResultsContent(
             state = stateOverride,
             navController = navController,
-            onRouteCardTap = onRouteCardTap,
+            onRouteCardTap = resolvedRouteCardTap,
             onDismissAttachments = {},
             onRecallAttachments = {},
             onRefineSend = {},
@@ -78,16 +86,21 @@ fun RouteResultsRoute(
         return
     }
 
-    val viewModel: RouteResultsViewModel = hiltViewModel()
-    val uiState by viewModel.state.collectAsStateWithLifecycle()
+    val resolvedViewModel = viewModel ?: hiltViewModel<RouteResultsViewModel, RouteResultsViewModelFactory>(
+        creationCallback = { factory -> factory.create(sessionId, Dispatchers.Default) },
+    )
+    val uiState by resolvedViewModel.state.collectAsStateWithLifecycle()
 
     RouteResultsContent(
         state = uiState,
         navController = navController,
-        onRouteCardTap = onRouteCardTap,
-        onDismissAttachments = viewModel::dismissAttachments,
-        onRecallAttachments = viewModel::recallAttachments,
-        onRefineSend = viewModel::refine,
+        onRouteCardTap = { routeOptionId ->
+            resolvedViewModel.selectRoute(routeOptionId)
+            resolvedRouteCardTap(routeOptionId)
+        },
+        onDismissAttachments = resolvedViewModel::dismissAttachments,
+        onRecallAttachments = resolvedViewModel::recallAttachments,
+        onRefineSend = resolvedViewModel::refine,
         modifier = modifier,
     )
 }
@@ -96,7 +109,7 @@ fun RouteResultsRoute(
 private fun RouteResultsContent(
     state: RouteResultsUiState,
     navController: NavHostController,
-    onRouteCardTap: ((String) -> Unit)?,
+    onRouteCardTap: (String) -> Unit,
     onDismissAttachments: () -> Unit,
     onRecallAttachments: () -> Unit,
     onRefineSend: (String) -> Unit,
@@ -117,10 +130,7 @@ private fun RouteResultsContent(
         is RouteResultsUiState.Loaded -> RouteResultsLoaded(
             state = state,
             navController = navController,
-            onRouteCardTap = onRouteCardTap ?: defaultRouteCardTap(
-                sessionId = state.sessionId,
-                navController = navController,
-            ),
+            onRouteCardTap = onRouteCardTap,
             onDismissAttachments = onDismissAttachments,
             onRecallAttachments = onRecallAttachments,
             onRefineSend = onRefineSend,
@@ -205,19 +215,14 @@ private fun RouteResultsLoaded(
                     ) {
                         LSNavigatorMessage(
                             body = state.navigatorBody,
-                            attachments = emptyList(),
+                            attachments = visibleAttachments.map { it.toRouteAttachment() },
+                            selectedAttachmentId = state.selectedRouteId,
+                            onAttachmentTap = onRouteCardTap,
                             pinned = true,
-                            onPin = { },
+                            onPin = null,
                             onDismiss = onDismissAttachments,
                             modifier = Modifier.testTag("route-results-navigator-message"),
                         )
-
-                        if (visibleAttachments.isNotEmpty()) {
-                            RouteResultsAttachmentColumn(
-                                attachmentCards = visibleAttachments,
-                                onRouteCardTap = onRouteCardTap,
-                            )
-                        }
 
                         if (state.showRecallChip) {
                             RecallAttachmentsChip(
@@ -263,10 +268,12 @@ private fun RouteResultsMap(
     polylineEntries: List<PolylineEntry>,
     modifier: Modifier = Modifier,
 ) {
-    val camera = remember(polylineEntries) { routeResultsCamera(polylineEntries) }
-    val renderedPolylines by remember(polylineEntries) {
+    val coordinateKey = polylineEntries.map { it.routeOptionId to it.coordinates }
+    val currentPolylineEntriesState = rememberUpdatedState(polylineEntries)
+    val camera = remember(coordinateKey) { routeResultsCamera(polylineEntries) }
+    val renderedPolylines by remember(coordinateKey) {
         derivedStateOf {
-            polylineEntries.map { entry ->
+            currentPolylineEntriesState.value.map { entry ->
                 entry.toRenderPolylineSpec()
             }
         }
@@ -274,8 +281,19 @@ private fun RouteResultsMap(
     val allCoordinates = remember(renderedPolylines) {
         renderedPolylines.flatMap { it.coordinates }
     }
+    val routeStateDescription = remember(renderedPolylines) {
+        renderedPolylines.joinToString(separator = ",") { polyline ->
+            "${polyline.routeOptionId}:${polyline.style.name}"
+        }
+    }
 
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier
+            .testTag("route-results-map")
+            .semantics {
+                stateDescription = routeStateDescription
+            },
+    ) {
         LSMap(
             mode = MapMode.Preview,
             camera = camera,
@@ -300,81 +318,6 @@ private fun RouteResultsMap(
 }
 
 @Composable
-private fun RouteResultsAttachmentColumn(
-    attachmentCards: List<AttachmentCard>,
-    onRouteCardTap: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val theme = LocalLaneShadowTheme.current
-
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(theme.space.xs),
-    ) {
-        attachmentCards.forEach { attachment ->
-            RouteResultsAttachmentCard(
-                attachment = attachment,
-                onRouteCardTap = onRouteCardTap,
-            )
-        }
-    }
-}
-
-@Composable
-private fun RouteResultsAttachmentCard(
-    attachment: AttachmentCard,
-    onRouteCardTap: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val theme = LocalLaneShadowTheme.current
-    val shape = RoundedCornerShape(theme.radius.lg)
-    val routeAttachment = attachment.toRouteAttachment()
-    val onTap = { onRouteCardTap(attachment.routeOptionId) }
-
-    if (attachment.selected) {
-        Box(
-            modifier = modifier
-                .fillMaxWidth()
-                .testTag("route-results-attachment-${attachment.routeOptionId}")
-                .semantics {
-                    contentDescription = "${attachment.title} route card"
-                }
-                .border(
-                    border = BorderStroke(GeneratedTokens.sizing.stroke.lg, attachment.borderColor),
-                    shape = shape,
-                )
-                .padding(GeneratedTokens.sizing.stroke.lg)
-                .clickable(role = Role.Button, onClick = onTap)
-        ) {
-            LSRouteAttachmentCard(
-                route = routeAttachment,
-                selected = false,
-                compact = true,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        return
-    }
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .testTag("route-results-attachment-${attachment.routeOptionId}")
-            .semantics {
-                contentDescription = "${attachment.title} route card"
-            }
-            .clickable(role = Role.Button, onClick = onTap)
-    ) {
-        LSRouteAttachmentCard(
-            route = routeAttachment,
-            selected = false,
-            compact = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
-}
-
-@Composable
 private fun RecallAttachmentsChip(
     onRecallAttachments: () -> Unit,
     modifier: Modifier = Modifier,
@@ -384,16 +327,19 @@ private fun RecallAttachmentsChip(
     LSPill(
         size = PillSize.Sm,
         modifier = modifier
-            .clickable(onClick = onRecallAttachments)
-            .semantics {
-                contentDescription = "Recall attachments"
-            }
+            .clickable(
+                role = Role.Button,
+                onClick = onRecallAttachments,
+            )
             .background(
                 color = GeneratedTokens.color.Signal.whisper,
                 shape = RoundedCornerShape(theme.radius.full),
             )
-            .padding(horizontal = theme.space.md, vertical = theme.space.xs),
-    ) {
+            .padding(horizontal = theme.space.md, vertical = theme.space.xs)
+            .semantics {
+                contentDescription = "Recall attachments"
+            },
+        ) {
         LSText(
             text = "Recall attachments",
             variant = TypographyVariant.Ui.Label.Sm,
@@ -403,6 +349,7 @@ private fun RecallAttachmentsChip(
 }
 
 private data class RenderedPolyline(
+    val routeOptionId: String,
     val coordinates: List<LatLng>,
     val variant: RouteVariant,
     val style: PolylineStyle,
@@ -411,6 +358,7 @@ private data class RenderedPolyline(
 
 private fun PolylineEntry.toRenderPolylineSpec(): RenderedPolyline =
     RenderedPolyline(
+        routeOptionId = routeOptionId,
         coordinates = coordinates,
         variant = variant,
         style = style,

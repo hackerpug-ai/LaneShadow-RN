@@ -5,20 +5,18 @@ import com.laneshadow.data.chat.ChatRepository
 import com.laneshadow.data.chat.SessionMessage
 import com.laneshadow.data.route.RoutePlan
 import com.laneshadow.data.route.RouteRepository
-import com.laneshadow.services.AppPreferences
-import com.laneshadow.services.AppStateRepository
 import com.laneshadow.services.MainDispatcherRule
 import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.ui.atoms.RouteVariant
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStore
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.withTimeout
@@ -38,13 +36,13 @@ class RouteResultsViewModelTest {
     fun state_completedPlanWithThreeOptions_emitsThreePolylinesAndThreeCards() = runTest {
         val routeRepository = FakeRouteRepository(
             activePlans = flowOf(listOf(completedPlan())),
-            planJson = completedPlanJson(),
+            planJsonById = { flowOf(completedPlanJson()) },
         )
         val chatRepository = FakeChatRepository()
-        val appStateRepository = FakeAppStateRepository(sessionId = "sess-1")
 
         createViewModel(
-            appStateRepository = appStateRepository,
+            sessionId = "sess-1",
+            decodeDispatcher = StandardTestDispatcher(testScheduler),
             routeRepository = routeRepository,
             chatRepository = chatRepository,
         ).use { handle ->
@@ -87,13 +85,13 @@ class RouteResultsViewModelTest {
     fun selectRoute_altOption_promotesPolylineAndRetintsCardBorder() = runTest {
         val routeRepository = FakeRouteRepository(
             activePlans = flowOf(listOf(completedPlan())),
-            planJson = completedPlanJson(),
+            planJsonById = { flowOf(completedPlanJson()) },
         )
         val chatRepository = FakeChatRepository()
-        val appStateRepository = FakeAppStateRepository(sessionId = "sess-1")
 
         createViewModel(
-            appStateRepository = appStateRepository,
+            sessionId = "sess-1",
+            decodeDispatcher = StandardTestDispatcher(testScheduler),
             routeRepository = routeRepository,
             chatRepository = chatRepository,
         ).use { handle ->
@@ -115,13 +113,13 @@ class RouteResultsViewModelTest {
     fun recallAttachments_afterDismiss_restoresThreeAttachmentCards() = runTest {
         val routeRepository = FakeRouteRepository(
             activePlans = flowOf(listOf(completedPlan())),
-            planJson = completedPlanJson(),
+            planJsonById = { flowOf(completedPlanJson()) },
         )
         val chatRepository = FakeChatRepository()
-        val appStateRepository = FakeAppStateRepository(sessionId = "sess-1")
 
         createViewModel(
-            appStateRepository = appStateRepository,
+            sessionId = "sess-1",
+            decodeDispatcher = StandardTestDispatcher(testScheduler),
             routeRepository = routeRepository,
             chatRepository = chatRepository,
         ).use { handle ->
@@ -148,13 +146,13 @@ class RouteResultsViewModelTest {
     fun refine_reusesExistingSessionIdAndDispatchesSendMessage() = runTest {
         val routeRepository = FakeRouteRepository(
             activePlans = flowOf(listOf(completedPlan())),
-            planJson = completedPlanJson(),
+            planJsonById = { flowOf(completedPlanJson()) },
         )
         val chatRepository = FakeChatRepository()
-        val appStateRepository = FakeAppStateRepository(sessionId = "sess-1")
 
         createViewModel(
-            appStateRepository = appStateRepository,
+            sessionId = "sess-1",
+            decodeDispatcher = StandardTestDispatcher(testScheduler),
             routeRepository = routeRepository,
             chatRepository = chatRepository,
         ).use { handle ->
@@ -169,32 +167,51 @@ class RouteResultsViewModelTest {
         }
     }
 
-    private class FakeAppStateRepository(
-        sessionId: String?,
-    ) : AppStateRepository {
-        override val appState: Flow<AppPreferences> = flowOf(
-            AppPreferences(lastViewedSessionId = sessionId),
+    @Test
+    fun activePlanFlow_switchesToLatestCompletedPlanAndKeepsListening() = runTest {
+        val activePlans = MutableSharedFlow<List<RoutePlan>>(replay = 1)
+        val planOneJson = MutableSharedFlow<JsonObject>(replay = 1)
+        val planTwoJson = MutableSharedFlow<JsonObject>(replay = 1)
+
+        val routeRepository = FakeRouteRepository(
+            activePlans = activePlans,
+            planJsonById = { routePlanId ->
+                when (routePlanId) {
+                    "plan-1" -> planOneJson
+                    "plan-2" -> planTwoJson
+                    else -> flowOf(completedPlanJson(routePlanId = routePlanId))
+                }
+            },
         )
+        val chatRepository = FakeChatRepository()
 
-        override suspend fun setLastViewedSessionId(sessionId: String?) = Unit
+        createViewModel(
+            sessionId = "sess-1",
+            decodeDispatcher = StandardTestDispatcher(testScheduler),
+            routeRepository = routeRepository,
+            chatRepository = chatRepository,
+        ).use { handle ->
+            activePlans.tryEmit(listOf(completedPlan(routePlanId = "plan-1")))
+            planOneJson.tryEmit(completedPlanJson(routePlanId = "plan-1", statusMessage = "Plan 1 ready."))
+            advanceUntilIdle()
 
-        override suspend fun setSessionCamera(
-            sessionId: String,
-            camera: com.laneshadow.services.CameraPosition,
-        ) = Unit
+            val firstLoaded = awaitLoadedState(handle.viewModel)
+            assertThat(firstLoaded.routePlanId).isEqualTo("plan-1")
+            assertThat(firstLoaded.navigatorBody).isEqualTo("Plan 1 ready.")
 
-        override suspend fun setDefaultCamera(camera: com.laneshadow.services.CameraPosition?) = Unit
+            activePlans.tryEmit(listOf(completedPlan(routePlanId = "plan-2")))
+            planTwoJson.tryEmit(completedPlanJson(routePlanId = "plan-2", statusMessage = "Plan 2 ready."))
+            advanceUntilIdle()
 
-        override suspend fun setThemeMode(themeMode: com.laneshadow.services.ThemeMode) = Unit
-
-        override suspend fun setHasCompletedOnboarding(hasCompletedOnboarding: Boolean) = Unit
-
-        override suspend fun clearSessionLocalState() = Unit
+            val secondLoaded = awaitLoadedState(handle.viewModel)
+            assertThat(secondLoaded.routePlanId).isEqualTo("plan-2")
+            assertThat(secondLoaded.navigatorBody).isEqualTo("Plan 2 ready.")
+        }
     }
 
     private class FakeRouteRepository(
         private val activePlans: Flow<List<RoutePlan>>,
-        private val planJson: JsonObject,
+        private val planJsonById: (String) -> Flow<JsonObject>,
     ) : RouteRepository {
         val lastActivePlansSessionId = AtomicReference<String?>(null)
         val lastPlanId = AtomicReference<String?>(null)
@@ -206,7 +223,7 @@ class RouteResultsViewModelTest {
 
         override fun subscribeToPlanById(routePlanId: String): Flow<JsonObject> {
             lastPlanId.set(routePlanId)
-            return flowOf(planJson)
+            return planJsonById(routePlanId)
         }
 
         override suspend fun cancelPlan(routePlanId: String): Result<Unit> = Result.success(Unit)
@@ -232,19 +249,25 @@ class RouteResultsViewModelTest {
         }
     }
 
-    private fun completedPlan(): RoutePlan =
+    private fun completedPlan(
+        routePlanId: String = "plan-1",
+        statusMessage: String = "Three route options ready.",
+    ): RoutePlan =
         RoutePlan(
-            id = "plan-1",
+            id = routePlanId,
             status = "completed",
             options = emptyList(),
-            statusMessage = "Three route options ready.",
+            statusMessage = statusMessage,
         )
 
-    private fun completedPlanJson(): JsonObject =
+    private fun completedPlanJson(
+        routePlanId: String = "plan-1",
+        statusMessage: String = "Three route options ready.",
+    ): JsonObject =
         buildJsonObject {
-            put("_id", JsonPrimitive("plan-1"))
+            put("_id", JsonPrimitive(routePlanId))
             put("status", JsonPrimitive("completed"))
-            put("statusMessage", JsonPrimitive("Three route options ready."))
+            put("statusMessage", JsonPrimitive(statusMessage))
             put(
                 "result",
                 buildJsonObject {
@@ -314,38 +337,30 @@ class RouteResultsViewModelTest {
         }
 
     private fun createViewModel(
-        appStateRepository: AppStateRepository,
+        sessionId: String,
+        decodeDispatcher: CoroutineDispatcher,
         routeRepository: RouteRepository,
         chatRepository: ChatRepository,
     ): TestRouteResultsViewModel {
-        val store = ViewModelStore()
-        val factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return RouteResultsViewModel(
-                    appStateRepository = appStateRepository,
-                    routeRepository = routeRepository,
-                    chatRepository = chatRepository,
-                    json = kotlinx.serialization.json.Json {
-                        ignoreUnknownKeys = true
-                        encodeDefaults = true
-                        explicitNulls = false
-                    },
-                ) as T
-            }
-        }
+        val viewModel = RouteResultsViewModel(
+            sessionId = sessionId,
+            decodeDispatcher = decodeDispatcher,
+            routeRepository = routeRepository,
+            chatRepository = chatRepository,
+            json = kotlinx.serialization.json.Json {
+                ignoreUnknownKeys = true
+                encodeDefaults = true
+                explicitNulls = false
+            },
+        )
 
-        val viewModel = ViewModelProvider(store, factory)[RouteResultsViewModel::class.java]
-        return TestRouteResultsViewModel(store = store, viewModel = viewModel)
+        return TestRouteResultsViewModel(viewModel = viewModel)
     }
 
     private data class TestRouteResultsViewModel(
-        val store: ViewModelStore,
         val viewModel: RouteResultsViewModel,
     ) : AutoCloseable {
-        override fun close() {
-            store.clear()
-        }
+        override fun close() = Unit
     }
 
     private suspend fun awaitLoadedState(viewModel: RouteResultsViewModel): RouteResultsUiState.Loaded {
