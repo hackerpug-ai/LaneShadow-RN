@@ -14,6 +14,7 @@ struct PlanningScreenContainer: View {
             phases: viewModel.phases,
             errorMessage: viewModel.errorMessage,
             isThinking: viewModel.isThinking,
+            isSending: viewModel.isSending,
             shouldRenderMap: viewModel.shouldRenderMap
         )
 

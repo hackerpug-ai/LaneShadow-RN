@@ -6,19 +6,20 @@ struct PlanningScreenLiveState {
     var phases: [PlanningPhase]
     var errorMessage: String?
     var isThinking: Bool
+    var isSending: Bool
     var shouldRenderMap: Bool
 }
 
 @MainActor
 @Observable
 final class PlanningViewModel {
-    var messages: [LSChatMessage] = []
     var phases: [PlanningPhase] = []
     var errorMessage: String?
     var isThinking = false
+    var isSending = false
     var shouldRenderMap = true
 
-    @ObservationIgnored private let chatStore: ChatStore
+    private let chatStore: ChatStore
     @ObservationIgnored private let sessionStore: SessionStore
     @ObservationIgnored private let convexClient: any LaneShadowPlanningDataProviding
     @ObservationIgnored private let fallbackSessionId: String?
@@ -26,6 +27,8 @@ final class PlanningViewModel {
     @ObservationIgnored private var didDispatchTerminalState = false
     @ObservationIgnored private var routePlanObservationTask: Task<Void, Never>?
     @ObservationIgnored private var observationTasks: [Task<Void, Never>] = []
+    @ObservationIgnored private var activeSendRevision: Int?
+    @ObservationIgnored private var sendRevisionCounter = 0
 
     init(
         chatStore: ChatStore,
@@ -46,8 +49,13 @@ final class PlanningViewModel {
             phases: phases,
             errorMessage: errorMessage,
             isThinking: isThinking,
+            isSending: isSending,
             shouldRenderMap: shouldRenderMap
         )
+    }
+
+    var messages: [LSChatMessage] {
+        chatStore.messages
     }
 
     func observe() async {
@@ -103,6 +111,12 @@ final class PlanningViewModel {
     }
 
     func cancelPlanning() async {
+        activeSendRevision = nil
+        isSending = false
+        isThinking = false
+        errorMessage = nil
+        chatStore.clearOptimisticMessages()
+
         do {
             if let activeRoutePlanId {
                 try await convexClient.cancelRoutePlan(routePlanId: activeRoutePlanId)
@@ -111,6 +125,7 @@ final class PlanningViewModel {
             errorMessage = error.localizedDescription
         }
 
+        activeRoutePlanId = nil
         chatStore.dispatch(.cancelPlanning)
     }
 
@@ -125,7 +140,19 @@ final class PlanningViewModel {
             return
         }
 
+        guard !isSending else {
+            return
+        }
+
         errorMessage = nil
+        isSending = true
+        let revision = beginSendRevision()
+        chatStore.dispatch(.sendMessageWithSession(trimmedMessage, sessionId: sessionId))
+        let pendingMessage = chatStore.appendPendingMessage(
+            sessionId: sessionId,
+            content: trimmedMessage,
+            role: .rider
+        )
 
         do {
             _ = try await convexClient.sendPlanningMessage(
@@ -133,14 +160,69 @@ final class PlanningViewModel {
                 content: trimmedMessage,
                 currentLocation: nil
             )
-            chatStore.dispatch(.sendMessageWithSession(trimmedMessage, sessionId: sessionId))
+            guard isCurrentSend(revision) else {
+                return
+            }
         } catch {
+            guard isCurrentSend(revision) else {
+                return
+            }
+
+            chatStore.markMessageFailed(id: pendingMessage.id)
             errorMessage = error.localizedDescription
         }
+
+        guard isCurrentSend(revision) else {
+            return
+        }
+
+        isSending = false
+        activeSendRevision = nil
+    }
+
+    func retryPending(id: String) async {
+        guard !isSending else {
+            return
+        }
+
+        guard let pendingMessage = chatStore.retryPendingMessage(id: id) else {
+            return
+        }
+
+        let sessionId = pendingMessage.sessionId
+        errorMessage = nil
+        isSending = true
+        let revision = beginSendRevision()
+        chatStore.dispatch(.sendMessageWithSession(pendingMessage.content, sessionId: sessionId))
+
+        do {
+            _ = try await convexClient.sendPlanningMessage(
+                sessionId: sessionId,
+                content: pendingMessage.content,
+                currentLocation: nil
+            )
+            guard isCurrentSend(revision) else {
+                return
+            }
+        } catch {
+            guard isCurrentSend(revision) else {
+                return
+            }
+
+            chatStore.markMessageFailed(id: pendingMessage.id)
+            errorMessage = error.localizedDescription
+        }
+
+        guard isCurrentSend(revision) else {
+            return
+        }
+
+        isSending = false
+        activeSendRevision = nil
     }
 
     private func updateMessages(_ rawMessages: [LaneShadowSessionMessage]) {
-        messages = rawMessages.map(Self.convertMessage(_:))
+        chatStore.reconcileSessionMessages(rawMessages)
         isThinking = rawMessages.contains {
             $0.status == "streaming" || $0.status == "running"
         }
@@ -241,37 +323,6 @@ final class PlanningViewModel {
         chatStore.dispatch(.planningError(message))
     }
 
-    private static func convertMessage(_ message: LaneShadowSessionMessage) -> LSChatMessage {
-        let content = planningDisplayText(for: message)
-        let status = lsChatMessageStatus(from: message.status)
-
-        return LSChatMessage(
-            id: message.id,
-            role: message.role == "rider" ? .rider : .agent,
-            content: content,
-            timestamp: Date(timeIntervalSince1970: message.createdAt / 1000),
-            status: status,
-            kind: nil,
-            routeAttachments: nil,
-            attachments: nil,
-            thinkingSteps: nil
-        )
-    }
-
-    private static func planningDisplayText(for message: LaneShadowSessionMessage) -> String {
-        guard message.kind == "planning",
-              let payload = try? JSONDecoder().decode(
-                  PlanningContentPayload.self,
-                  from: Data(message.content.utf8)
-              ),
-              !payload.statusLine.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        else {
-            return message.content
-        }
-
-        return payload.statusLine
-    }
-
     private static func phaseIndex(from rawMessages: [LaneShadowSessionMessage]) -> Int {
         guard let latestPlanningMessage = rawMessages.last(where: {
             $0.role != "rider"
@@ -334,19 +385,6 @@ final class PlanningViewModel {
         }
     }
 
-    private static func lsChatMessageStatus(from status: String?) -> LSChatMessageStatus {
-        switch status {
-        case "streaming":
-            .streaming
-        case "running":
-            .running
-        case "failed":
-            .failed
-        default:
-            .complete
-        }
-    }
-
     private static let phaseLabels = [
         "Parsing",
         "Searching",
@@ -360,9 +398,14 @@ final class PlanningViewModel {
     private var resolvedSessionId: String? {
         chatStore.flowState.sessionId ?? sessionStore.activeSessionId ?? fallbackSessionId
     }
-}
+    
+    private func beginSendRevision() -> Int {
+        sendRevisionCounter += 1
+        activeSendRevision = sendRevisionCounter
+        return sendRevisionCounter
+    }
 
-private struct PlanningContentPayload: Decodable {
-    let statusLine: String
-    let thinkingText: String?
+    private func isCurrentSend(_ revision: Int) -> Bool {
+        activeSendRevision == revision
+    }
 }

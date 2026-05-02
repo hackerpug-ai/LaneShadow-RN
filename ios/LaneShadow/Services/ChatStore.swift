@@ -1,19 +1,24 @@
+import Foundation
 import Observation
 
 @MainActor
 @Observable
 final class ChatStore {
     private(set) var flowState: RideFlowPhase
+    private(set) var transcript: ChatTranscript
 
     private let sessionStore: SessionStore
     private let dependencies: RideFlowDependencies
+    @ObservationIgnored private var currentTranscriptSessionId: String?
 
     init(
         initialState: RideFlowPhase = initialState,
         sessionStore: SessionStore = SessionStore(),
-        dependencies: RideFlowDependencies = .live
+        dependencies: RideFlowDependencies = .live,
+        transcript: ChatTranscript = ChatTranscript()
     ) {
         flowState = initialState
+        self.transcript = transcript
         self.sessionStore = sessionStore
         self.dependencies = dependencies
         syncSessionStore(for: initialState)
@@ -22,9 +27,15 @@ final class ChatStore {
     convenience init(
         flowState: RideFlowPhase,
         sessionStore: SessionStore = SessionStore(),
-        dependencies: RideFlowDependencies = .live
+        dependencies: RideFlowDependencies = .live,
+        transcript: ChatTranscript = ChatTranscript()
     ) {
-        self.init(initialState: flowState, sessionStore: sessionStore, dependencies: dependencies)
+        self.init(
+            initialState: flowState,
+            sessionStore: sessionStore,
+            dependencies: dependencies,
+            transcript: transcript
+        )
     }
 
     func dispatch(_ action: RideFlowAction) {
@@ -32,10 +43,56 @@ final class ChatStore {
         syncSessionStore(for: flowState)
     }
 
+    var messages: [LSChatMessage] {
+        transcript.uiMessages
+    }
+
+    @discardableResult
+    func appendPendingMessage(
+        sessionId: String,
+        content: String,
+        role: LSChatMessageRole,
+        timestamp: Date? = nil
+    ) -> ChatTranscript.Message {
+        transcript.appendPending(
+            sessionId: sessionId,
+            content: content,
+            role: role,
+            timestamp: timestamp
+        )
+    }
+
+    func reconcileSessionMessage(_ message: LaneShadowSessionMessage) {
+        transcript.reconcile(message)
+    }
+
+    func reconcileSessionMessages(_ messages: [LaneShadowSessionMessage]) {
+        transcript.reconcile(messages)
+    }
+
+    func markMessageFailed(id: String) {
+        transcript.markFailed(id: id)
+    }
+
+    @discardableResult
+    func retryPendingMessage(id: String) -> ChatTranscript.Message? {
+        transcript.retryPending(id: id)
+    }
+
+    func clearOptimisticMessages() {
+        transcript.clearOptimisticMessages()
+    }
+
     private func syncSessionStore(for state: RideFlowPhase) {
         guard let sessionId = state.sessionId else {
             sessionStore.newSession()
+            currentTranscriptSessionId = nil
             return
+        }
+
+        if currentTranscriptSessionId != sessionId {
+            currentTranscriptSessionId = sessionId
+            transcript.reset()
         }
 
         sessionStore.loadSession(sessionId: sessionId)

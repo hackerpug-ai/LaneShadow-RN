@@ -371,7 +371,7 @@ public struct PlanningScreen: View {
         VStack(alignment: .leading, spacing: theme.space.md) {
             LSChatTranscript(
                 messages: liveState.messages,
-                isTyping: liveState.isThinking
+                isTyping: liveState.isThinking || liveState.isSending
             )
             .accessibilityIdentifier("planningscreen-transcript")
 

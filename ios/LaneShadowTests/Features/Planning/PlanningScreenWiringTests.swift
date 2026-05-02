@@ -248,6 +248,66 @@ struct PlanningScreenWiringTests {
     }
 
     @Test
+    func planningScreenFreeTextSendAppendsOptimisticMessageAndReconcilesWithoutDuplicate() async throws {
+        let context = makePlanningContext()
+        context.viewModel.shouldRenderMap = false
+        let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
+        let harness = host(screen)
+        _ = harness.window
+
+        await context.viewModel.submitRefinement("Refine the route")
+
+        #expect(context.viewModel.messages.count == 1)
+        #expect(context.viewModel.messages.first?.id.hasPrefix("temp-") == true)
+        #expect(context.viewModel.messages.first?.content == "Refine the route")
+
+        context.client.sendSessionMessages(
+            [
+                makeSessionMessage(
+                    id: "message-456",
+                    role: "user",
+                    content: "Refine the route",
+                    createdAt: 1_700_000_001_000,
+                    kind: "text",
+                    status: "complete"
+                ),
+            ],
+            sessionId: "session-123"
+        )
+        await pumpMainActor()
+
+        #expect(context.viewModel.messages.count == 1)
+        #expect(context.viewModel.messages.first?.id == "message-456")
+        #expect(context.viewModel.messages.first?.content == "Refine the route")
+
+        context.client.finishObservationStreams()
+        context.observationTask.cancel()
+        await context.observationTask.value
+    }
+
+    @Test
+    func planningScreenSendFailureMarksOptimisticMessageFailedRetryable() async throws {
+        let context = makePlanningContext()
+        context.client.stubSendPlanningMessageError = LaneShadowError.server("Send failed")
+        context.viewModel.shouldRenderMap = false
+        let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
+        let harness = host(screen)
+        _ = harness.window
+
+        await context.viewModel.submitRefinement("Refine the route")
+
+        #expect(context.viewModel.isSending == false)
+        #expect(context.viewModel.errorMessage == "Send failed")
+        #expect(context.chatStore.transcript.messages.count == 1)
+        #expect(context.chatStore.transcript.messages.first?.state == .failed)
+        #expect(context.chatStore.transcript.messages.first?.retryable == true)
+
+        context.client.finishObservationStreams()
+        context.observationTask.cancel()
+        await context.observationTask.value
+    }
+
+    @Test
     func planningScreenCancelButtonCallsCancelPlanAndResetsFlow() async throws {
         let context = makePlanningContext()
         context.viewModel.shouldRenderMap = false
@@ -281,6 +341,40 @@ struct PlanningScreenWiringTests {
         await context.observationTask.value
     }
 
+    @Test
+    func planningScreenCancelButtonClearsOptimisticMessagesAndCancelsActivePlan() async throws {
+        let context = makePlanningContext()
+        context.viewModel.shouldRenderMap = false
+        let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
+        let harness = host(screen)
+        _ = harness.window
+
+        context.client.sendActiveRoutePlans(
+            [
+                makeRoutePlan(
+                    id: "route-plan-123",
+                    status: "running",
+                    routeOptions: nil
+                ),
+            ],
+            sessionId: "session-123"
+        )
+        await pumpMainActor()
+
+        await context.viewModel.submitRefinement("Refine the route")
+        #expect(context.viewModel.messages.count == 1)
+
+        await context.viewModel.cancelPlanning()
+
+        #expect(context.client.cancelRoutePlanCalls == ["route-plan-123"])
+        #expect(context.chatStore.transcript.messages.isEmpty)
+        #expect(context.chatStore.flowState.phase == .idle)
+
+        context.client.finishObservationStreams()
+        context.observationTask.cancel()
+        await context.observationTask.value
+    }
+
     private func makePlanningContext(
         sessionId: String = "session-123"
     ) -> (
@@ -292,6 +386,7 @@ struct PlanningScreenWiringTests {
     ) {
         let client = StubLaneShadowConvexClient()
         let sessionStore = SessionStore()
+        let fixedTimestamp = Date(timeIntervalSince1970: 1_700_000_000)
         let chatStore = ChatStore(
             flowState: .planning(
                 PlanningState(sessionId: sessionId)
@@ -299,8 +394,9 @@ struct PlanningScreenWiringTests {
             sessionStore: sessionStore,
             dependencies: RideFlowDependencies(
                 makeSessionId: { "flow-session-456" },
-                makeTimestamp: { Date(timeIntervalSince1970: 1_700_000_000) }
-            )
+                makeTimestamp: { fixedTimestamp }
+            ),
+            transcript: ChatTranscript(timestampProvider: { fixedTimestamp })
         )
         let viewModel = PlanningViewModel(
             chatStore: chatStore,
