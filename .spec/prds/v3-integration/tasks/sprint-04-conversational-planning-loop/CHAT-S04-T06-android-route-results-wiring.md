@@ -59,7 +59,7 @@ AC-1: Three polylines + three cards from completed plan [PRIMARY]
   WHEN:  viewModel.state is collected
   THEN:  First non-loading emission is RouteResultsUiState.Loaded with exactly 3 polylineEntries (variants best/alt1/alt2) and 3 attachmentCards in matching variant order
 
-  TDD_STATE:     none
+  TDD_STATE:     RED -> GREEN -> REFACTOR complete; evidence: :app:testDebugUnitTest passed for RouteResultsViewModelTest.state_completedPlanWithThreeOptions_emitsThreePolylinesAndThreeCards on 2026-05-01
   TEST_FILE:     android/app/src/test/java/com/laneshadow/ui/routeresults/RouteResultsViewModelTest.kt
   TEST_FUNCTION: state_completedPlanWithThreeOptions_emitsThreePolylinesAndThreeCards
 
@@ -68,7 +68,7 @@ AC-2: Tapping alt card promotes polyline + re-tints border
   WHEN:  viewModel.selectRoute(options[2].routeOptionId) is invoked (alt2)
   THEN:  Subsequent state emission has selectedRouteId=options[2].routeOptionId, polylineEntries[2].style==Solid (others==Dashed), and attachmentCards[2].borderColor==variant alt2 sage token
 
-  TDD_STATE:     none
+  TDD_STATE:     RED -> GREEN -> REFACTOR complete; evidence: :app:testDebugUnitTest passed for RouteResultsViewModelTest.selectRoute_altOption_promotesPolylineAndRetintsCardBorder on 2026-05-01
   TEST_FILE:     android/app/src/test/java/com/laneshadow/ui/routeresults/RouteResultsViewModelTest.kt
   TEST_FUNCTION: selectRoute_altOption_promotesPolylineAndRetintsCardBorder
 
@@ -77,7 +77,7 @@ AC-3: onRouteCardTap navigates to RouteDetails (Gap H1-07 fix)
   WHEN:  the onRouteCardTap callback is invoked with routeOptionId="opt-alt1"
   THEN:  navController.navigate is called once with Route.RouteDetails(sessionId="sess-1", routeOptionId="opt-alt1")
 
-  TDD_STATE:     none
+  TDD_STATE:     RED -> GREEN -> REFACTOR complete; evidence: :app:connectedDebugAndroidTest passed for RouteResultsRouteTest.onRouteCardTap_navigatesToRouteDetailsWithSessionAndOptionId on 2026-05-01 using SemanticsActions.OnClick on route-results-attachment-opt-alt1
   TEST_FILE:     android/app/src/androidTest/java/com/laneshadow/ui/routeresults/RouteResultsRouteTest.kt
   TEST_FUNCTION: onRouteCardTap_navigatesToRouteDetailsWithSessionAndOptionId
 
@@ -86,7 +86,7 @@ AC-4: Recall chip restores Navigator attachments after dismiss
   WHEN:  viewModel.recallAttachments() is invoked
   THEN:  Subsequent state emission has attachmentsDismissed=false and attachmentCards count == 3 again
 
-  TDD_STATE:     none
+  TDD_STATE:     RED -> GREEN -> REFACTOR complete; evidence: :app:testDebugUnitTest passed for RouteResultsViewModelTest.recallAttachments_afterDismiss_restoresThreeAttachmentCards on 2026-05-01
   TEST_FILE:     android/app/src/test/java/com/laneshadow/ui/routeresults/RouteResultsViewModelTest.kt
   TEST_FUNCTION: recallAttachments_afterDismiss_restoresThreeAttachmentCards
 
@@ -95,7 +95,7 @@ AC-5: Refine via chat input reuses session and dispatches sendMessage
   WHEN:  viewModel.refine("shorter, avoid Hwy 1") is invoked
   THEN:  Fake ChatRepository.sendMessage was called with sessionId="sess-1" (not a new id) and content="shorter, avoid Hwy 1"
 
-  TDD_STATE:     none
+  TDD_STATE:     RED -> GREEN -> REFACTOR complete; evidence: :app:testDebugUnitTest passed for RouteResultsViewModelTest.refine_reusesExistingSessionIdAndDispatchesSendMessage on 2026-05-01
   TEST_FILE:     android/app/src/test/java/com/laneshadow/ui/routeresults/RouteResultsViewModelTest.kt
   TEST_FUNCTION: refine_reusesExistingSessionIdAndDispatchesSendMessage
 
