@@ -2,10 +2,14 @@ package com.laneshadow.services
 
 import androidx.lifecycle.SavedStateHandle
 import com.google.common.truth.Truth.assertThat
+import com.laneshadow.data.chat.SessionMessage
+import com.laneshadow.data.route.RoutePlan
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
@@ -36,6 +40,8 @@ class ChatViewModelTest {
             sessionRepository = sessionRepository,
             appStateRepository = appStateRepository,
             savedStateHandle = savedStateHandle,
+            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+            clock = { 1_000L },
         )
 
         val emissions = mutableListOf<RideFlowState>()
@@ -71,12 +77,19 @@ class ChatViewModelTest {
         val lastSessionId = AtomicReference<String?>(null)
         val lastMessage = AtomicReference<String?>(null)
 
+        override fun subscribeToMessages(sessionId: String): Flow<List<SessionMessage>> = emptyFlow()
+
+        override fun subscribeToActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>> =
+            emptyFlow()
+
         override suspend fun sendMessage(sessionId: String, content: String): Result<Unit> {
             sentMessages.incrementAndGet()
             lastSessionId.set(sessionId)
             lastMessage.set(content)
             return Result.success(Unit)
         }
+
+        override suspend fun cancelPlan(routePlanId: String): Result<Unit> = Result.success(Unit)
     }
 
     private class FakeSessionRepository : SessionRepository {
