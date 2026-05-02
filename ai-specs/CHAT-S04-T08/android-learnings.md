@@ -8,6 +8,7 @@
 2. Save-sheet visibility needs an internal hot collector in tests. Without it, `stateIn(WhileSubscribed(5_000))` can stop after the first assertion collector completes, and `showSaveSheet` never re-emits for the saved copy.
 3. The saved-route repository cannot eagerly construct `ConvexClientWithAuth` in unit tests. I moved the client behind `lazy` so the fake repository can subclass it without triggering the native auth path.
 4. `getSavedRoutesList` caps results at 50, so already-saved checks must page with `beforeDate` instead of trusting the first response.
+5. The sandbox Route Details surface must keep the polyline decode behind `remember(state.route.polyline, state.route.variant)`; decoding in raw composition redoes work on unrelated recompositions and is the specific review blocker this pass fixed.
 
 ## API Contract Notes
 - `RouteRepository.subscribeToEnrichments(routePlanId)` returns `JsonElement` and the backend query can legally return `null`, so enrichment parsing must default to an empty six-hour list instead of failing the whole route screen.
@@ -20,6 +21,7 @@
 - `SaveFavoriteSheet` remains out of scope for this sprint. The ViewModel only hoists `showSaveSheet`; the actual sheet body is deferred.
 - Enrichment loading is intentionally non-blocking. The route detail view should render instrument data as soon as plan JSON is available, even if weather has not emitted yet.
 - `RouteDetailsRoute` and `RouteDetailsScreen` now both delegate to a shared `RouteDetailsSurface`/`RouteDetailsMap` path so the live route and sandbox template no longer maintain parallel map/sheet composition.
+- `RouteDetailsScreen` keeps a thin public wrapper and pushes the shared-surface render into an internal content helper so unit tests can inject a stub map slot. That avoids Robolectric touching the native map path while still exercising the shared surface.
 
 ## AC Evidence
 - AC-1 RED: `RouteDetailsViewModelTest.state_selectedOption_populatesInstrumentReadoutWithRealMetrics` originally failed until the live route consumed computed `instrumentReadout` values instead of legacy formatting.
@@ -38,6 +40,7 @@
 - Weather forecast payloads are loose JSON. The parser needs to tolerate missing or null enrichments and still render the route.
 - Saved-route matching should not assume one public list page contains all favorites.
 - The repo-level lint/`detekt` run currently fails on a pre-existing `LoginSmokeTest.kt` view-model-in-composable issue outside this task’s scope.
+- If you add a unit test around Route Details rendering, stub the map slot. The real `RouteDetailsMap` path can trigger a native link error under Robolectric even though the shared surface is otherwise testable.
 
 ## Files Created/Modified
 - `android/app/src/main/java/com/laneshadow/ui/routedetails/RouteDetailsViewModel.kt` - live route-details state machine and fingerprint computation.
@@ -60,7 +63,7 @@
 - GREEN: `./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.routedetails.RouteDetailsViewModelTest --tests com.laneshadow.ui.routedetails.RouteDetailsRouteTest --tests com.laneshadow.data.savedroutes.SavedRouteRepositoryTest`
   - Passed after removing the self-collector, precomputing route polyline coordinates in the ViewModel, and switching the route composable to consume those coordinates from state.
 - GREEN: `./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.templates.RouteDetailsScreenTest`
-  - Passed after restoring the legacy source-structure markers while keeping the sandbox template delegated to the shared RouteDetails surface.
+  - Passed after moving the test to the internal RouteDetails content helper with a stubbed map slot and asserting shared-surface tags plus polyline memoization.
 - GREEN: `./gradlew :app:compileDebugKotlin`
 - GREEN: `./gradlew assembleDebug`
 - GREEN: `bash scripts/tokens/enforce-native-compliance.sh`

@@ -1,8 +1,10 @@
 package com.laneshadow.ui.templates
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.laneshadow.sandbox.mockproviders.RouteDetailsScreenState
+import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.ui.atoms.PolylineData
 import com.laneshadow.ui.atoms.RouteVariant
 import com.laneshadow.ui.molecules.WeatherCondition
@@ -34,15 +36,6 @@ import com.laneshadow.ui.util.PolylineDecoder
  * @param onDismiss Callback when sheet is dismissed (drag-down or backdrop tap)
  * @param modifier Modifier for the root composable
  */
-// Legacy source-structure markers retained for debug tests:
-// LSMapLayer(
-// bottomSheet =
-// LSRouteSheet(
-// LSMap(
-// CameraFit.Polyline
-// SpacingToken.Spacing4
-// LocalLaneShadowTheme.current
-// state.weatherTimeline
 @Composable
 fun RouteDetailsScreen(
     state: RouteDetailsScreenState,
@@ -51,16 +44,8 @@ fun RouteDetailsScreen(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val routeDetails = state.toRouteDetails()
-    val weatherTimeline = state.toWeatherTimelineEntries()
-    val timeRange = state.timeRange()
-    val polylines = state.toPolylines()
-
-    RouteDetailsSurface(
-        route = routeDetails,
-        weatherTimeline = weatherTimeline,
-        timeRange = timeRange,
-        mapContent = { RouteDetailsMap(polylines = polylines) },
+    RouteDetailsScreenContent(
+        state = state,
         onSave = onSave,
         onRide = onRide,
         onDismiss = onDismiss,
@@ -68,7 +53,38 @@ fun RouteDetailsScreen(
     )
 }
 
-private fun RouteDetailsScreenState.toRouteDetails(): RouteDetails =
+@Composable
+internal fun RouteDetailsScreenContent(
+    state: RouteDetailsScreenState,
+    onSave: () -> Unit,
+    onRide: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+    decodePolyline: (String) -> List<LatLng> = PolylineDecoder::decodeOrNull,
+    mapContent: @Composable (List<PolylineData>) -> Unit = { polylines ->
+        RouteDetailsMap(polylines = polylines)
+    },
+) {
+    val routeDetails = state.toRouteDetails()
+    val weatherTimeline = state.toWeatherTimelineEntries()
+    val timeRange = state.timeRange()
+    val polylines = remember(state.route.polyline, state.route.variant) {
+        state.toPolylines(decodePolyline)
+    }
+
+    RouteDetailsSurface(
+        route = routeDetails,
+        weatherTimeline = weatherTimeline,
+        timeRange = timeRange,
+        mapContent = { mapContent(polylines) },
+        onSave = onSave,
+        onRide = onRide,
+        onDismiss = onDismiss,
+        modifier = modifier,
+    )
+}
+
+internal fun RouteDetailsScreenState.toRouteDetails(): RouteDetails =
     RouteDetails(
         id = route.id,
         title = route.name,
@@ -81,7 +97,7 @@ private fun RouteDetailsScreenState.toRouteDetails(): RouteDetails =
         isSaved = isSaved,
     )
 
-private fun RouteDetailsScreenState.toWeatherTimelineEntries(): List<UiWeatherTimelineEntry> =
+internal fun RouteDetailsScreenState.toWeatherTimelineEntries(): List<UiWeatherTimelineEntry> =
     weatherTimeline.map { entry ->
         UiWeatherTimelineEntry(
             hour = entry.hour,
@@ -98,16 +114,18 @@ private fun RouteDetailsScreenState.toWeatherTimelineEntries(): List<UiWeatherTi
         )
     }
 
-private fun RouteDetailsScreenState.timeRange(): Pair<String, String> =
+internal fun RouteDetailsScreenState.timeRange(): Pair<String, String> =
     Pair(
         weatherTimeline.firstOrNull()?.hour ?: "",
         weatherTimeline.lastOrNull()?.hour ?: "",
     )
 
-private fun RouteDetailsScreenState.toPolylines(): List<PolylineData> =
+internal fun RouteDetailsScreenState.toPolylines(
+    decodePolyline: (String) -> List<LatLng> = PolylineDecoder::decodeOrNull,
+): List<PolylineData> =
     listOf(
         PolylineData(
-            coordinates = PolylineDecoder.decodeOrNull(route.polyline),
+            coordinates = decodePolyline(route.polyline),
             variant = when (route.variant) {
                 "best" -> RouteVariant.Best
                 "alt1" -> RouteVariant.Alt1
