@@ -8,8 +8,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,9 +36,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.LocalLaneShadowTheme
+import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import com.laneshadow.theme.generated.LaneShadowTheme.IconName
 import com.laneshadow.ui.atoms.AccentColor
 import com.laneshadow.ui.atoms.ContentColor
@@ -47,8 +53,10 @@ import com.laneshadow.ui.atoms.LSIcon
 import com.laneshadow.ui.atoms.LSPill
 import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.PillSize
+import com.laneshadow.ui.atoms.RouteVariant
 import com.laneshadow.ui.atoms.TextColor
 import com.laneshadow.ui.atoms.TypographyVariant
+import com.laneshadow.ui.molecules.LSRouteAttachmentCardBorderColorKey
 import com.laneshadow.ui.molecules.LSRouteAttachmentCard
 import com.laneshadow.ui.molecules.RouteAttachment
 import com.laneshadow.ui.molecules.overlayDismissMotion
@@ -80,6 +88,7 @@ val LSNavigatorMessageAutoDismissMillisKey = SemanticsPropertyKey<Int>("LSNaviga
 private var SemanticsPropertyReceiver.lsNavigatorMessageVisible by LSNavigatorMessageVisibleKey
 private var SemanticsPropertyReceiver.lsNavigatorMessagePinned by LSNavigatorMessagePinnedKey
 private var SemanticsPropertyReceiver.lsNavigatorMessageAutoDismissMillis by LSNavigatorMessageAutoDismissMillisKey
+private var SemanticsPropertyReceiver.lsRouteAttachmentCardBorderColor by LSRouteAttachmentCardBorderColorKey
 
 /**
  * LSNavigatorMessage - Glass callout with signal-stripe accent, compass chip,
@@ -96,8 +105,10 @@ private var SemanticsPropertyReceiver.lsNavigatorMessageAutoDismissMillis by LSN
 fun LSNavigatorMessage(
     body: String,
     attachments: List<RouteAttachment> = emptyList(),
+    selectedAttachmentId: String? = null,
     pinned: Boolean = false,
-    onPin: () -> Unit,
+    onPin: (() -> Unit)? = null,
+    onAttachmentTap: ((String) -> Unit)? = null,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -161,20 +172,21 @@ fun LSNavigatorMessage(
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(theme.space.xs),
                     ) {
-                        // Pin icon
-                        LSIcon(
-                            name = if (pinned) IconName.BookmarkFill else IconName.Bookmark,
-                            size = IconSize.Sm,
-                            color = if (pinned) IconColor.Signal else IconColor.Content(ContentColor.Tertiary),
-                            modifier = Modifier
-                                .testTag(NAVIGATOR_PIN_ICON_TAG)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                    onClick = onPin,
-                                )
-                                .semantics { contentDescription = if (pinned) "Unpin message" else "Pin message" },
-                        )
+                        if (onPin != null) {
+                            LSIcon(
+                                name = if (pinned) IconName.BookmarkFill else IconName.Bookmark,
+                                size = IconSize.Sm,
+                                color = if (pinned) IconColor.Signal else IconColor.Content(ContentColor.Tertiary),
+                                modifier = Modifier
+                                    .testTag(NAVIGATOR_PIN_ICON_TAG)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null,
+                                        onClick = onPin,
+                                    )
+                                    .semantics { contentDescription = if (pinned) "Unpin message" else "Pin message" },
+                            )
+                        }
 
                         // Close icon
                         LSIcon(
@@ -206,12 +218,11 @@ fun LSNavigatorMessage(
                         modifier = Modifier.testTag(NAVIGATOR_ATTACHMENTS_TAG),
                         verticalArrangement = Arrangement.spacedBy(attachmentSpacing),
                     ) {
-                        attachments.forEachIndexed { index, attachment ->
-                            LSRouteAttachmentCard(
-                                route = attachment,
-                                selected = index == 0, // First card selected
-                                compact = true,
-                                onTap = null,
+                        attachments.forEach { attachment ->
+                            NavigatorAttachmentCard(
+                                attachment = attachment,
+                                selected = attachment.id == selectedAttachmentId,
+                                onTap = onAttachmentTap,
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }
@@ -242,6 +253,70 @@ private fun NavigatorCompassChip(
         )
     }
 }
+
+@Composable
+private fun NavigatorAttachmentCard(
+    attachment: RouteAttachment,
+    selected: Boolean,
+    onTap: ((String) -> Unit)?,
+    modifier: Modifier = Modifier,
+) {
+    val theme = LocalLaneShadowTheme.current
+    val shape = RoundedCornerShape(theme.radius.lg)
+    val borderColor = if (selected) {
+        routeVariantBorderColor(attachment.variant)
+    } else {
+        theme.colors.border.default
+    }
+    val clickableModifier = if (onTap != null) {
+        Modifier.clickable(
+            role = Role.Button,
+            onClick = { onTap(attachment.id) },
+        )
+    } else {
+        Modifier
+    }
+
+    Box(
+        modifier = modifier
+            .testTag("route-results-attachment-${attachment.id}")
+            .semantics {
+                contentDescription = "${attachment.title} route card"
+                lsRouteAttachmentCardBorderColor = borderColor
+                if (onTap != null) {
+                    role = Role.Button
+                }
+            }
+            .then(
+                if (selected) {
+                    Modifier
+                        .border(
+                            BorderStroke(GeneratedTokens.sizing.stroke.lg, borderColor),
+                            shape,
+                        )
+                        .padding(GeneratedTokens.sizing.stroke.lg)
+                } else {
+                    Modifier
+                },
+            )
+            .then(clickableModifier),
+    ) {
+        LSRouteAttachmentCard(
+            route = attachment,
+            selected = false,
+            compact = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+private fun routeVariantBorderColor(variant: RouteVariant): androidx.compose.ui.graphics.Color =
+    when (variant) {
+        RouteVariant.Best -> GeneratedTokens.color.Route.best
+        RouteVariant.Alt1 -> GeneratedTokens.color.Route.alt1
+        RouteVariant.Alt2 -> GeneratedTokens.color.Route.alt2
+        is RouteVariant.Custom -> GeneratedTokens.color.Route.best
+    }
 
 /**
  * Pinned indicator - dot + "Pinned" label.

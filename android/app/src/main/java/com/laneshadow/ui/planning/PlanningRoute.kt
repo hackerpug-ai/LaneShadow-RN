@@ -36,7 +36,7 @@ fun PlanningRoute(
     LaunchedEffect(uiState.transition) {
         when (val transition = uiState.transition) {
             is PlanningTransition.Success -> {
-                navController.navigate(Route.RouteResults)
+                navController.navigate(Route.RouteResults(sessionId))
                 viewModel.consumeTransition()
             }
             is PlanningTransition.Failure -> {
