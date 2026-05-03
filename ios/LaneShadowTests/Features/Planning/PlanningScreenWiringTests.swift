@@ -248,6 +248,55 @@ struct PlanningScreenWiringTests {
     }
 
     @Test
+    func planningScreenFreeTextSendFailureCachesPayloadAndRetryReplaysIt() async throws {
+        let context = makePlanningContext()
+        context.viewModel.shouldRenderMap = false
+        let screen = PlanningScreenContainer(viewModel: context.viewModel).laneShadowTheme()
+        let harness = host(screen)
+        _ = harness.window
+
+        context.client.stubSendPlanningMessageError = LaneShadowError.agentTimeout
+        await context.viewModel.submitRefinement("Refine the route")
+
+        #expect(
+            context.client.sendPlanningMessageCalls == [
+                LaneShadowPlanningMessageCall(
+                    sessionId: "session-123",
+                    content: "Refine the route",
+                    currentLocation: nil
+                ),
+            ]
+        )
+        #expect(context.appState.cachedLastFailedInput == "Refine the route")
+        #expect(context.chatStore.flowState.phase == .error)
+
+        context.client.stubSendPlanningMessageError = nil
+
+        let retryViewModel = ErrorScreenViewModel(
+            error: .agentTimeout,
+            chatStore: context.chatStore,
+            appState: context.appState,
+            convexClient: context.client
+        )
+        retryViewModel.handleTryAgain()
+
+        // Pump main actor multiple times to allow Task to complete
+        for _ in 0 ..< 100 {
+            await pumpMainActor()
+        }
+
+        #expect(context.client.createPlanningSessionCalls == ["Refine the route"])
+        #expect(context.chatStore.flowState.phase == .planning)
+        #expect(context.chatStore.flowState.sessionId == "flow-session-456")
+        #expect(context.sessionStore.activeSessionId == "flow-session-456")
+        #expect(context.appState.cachedLastFailedInput == "Refine the route")
+
+        context.client.finishObservationStreams()
+        context.observationTask.cancel()
+        await context.observationTask.value
+    }
+
+    @Test
     func planningScreenCancelButtonCallsCancelPlanAndResetsFlow() async throws {
         let context = makePlanningContext()
         context.viewModel.shouldRenderMap = false
@@ -281,16 +330,20 @@ struct PlanningScreenWiringTests {
         await context.observationTask.value
     }
 
+    private struct PlanningScreenTestContext {
+        let client: StubLaneShadowConvexClient
+        let sessionStore: SessionStore
+        let chatStore: ChatStore
+        let appState: AppState
+        let viewModel: PlanningViewModel
+        let observationTask: Task<Void, Never>
+    }
+
     private func makePlanningContext(
         sessionId: String = "session-123"
-    ) -> (
-        client: StubLaneShadowConvexClient,
-        sessionStore: SessionStore,
-        chatStore: ChatStore,
-        viewModel: PlanningViewModel,
-        observationTask: Task<Void, Never>
-    ) {
+    ) -> PlanningScreenTestContext {
         let client = StubLaneShadowConvexClient()
+        client.stubCreatePlanningSessionResult = LaneShadowPlanningSessionCreationResult(sessionId: "flow-session-456")
         let sessionStore = SessionStore()
         let chatStore = ChatStore(
             flowState: .planning(
@@ -302,16 +355,26 @@ struct PlanningScreenWiringTests {
                 makeTimestamp: { Date(timeIntervalSince1970: 1_700_000_000) }
             )
         )
+        let appState = AppState(isAuthenticated: true, currentUser: laneShadowCurrentUser)
+        appState.appRoute = .session(id: sessionId)
         let viewModel = PlanningViewModel(
             chatStore: chatStore,
             sessionStore: sessionStore,
-            convexClient: client
+            convexClient: client,
+            appState: appState
         )
         let observationTask = Task {
             await viewModel.observe()
         }
 
-        return (client, sessionStore, chatStore, viewModel, observationTask)
+        return PlanningScreenTestContext(
+            client: client,
+            sessionStore: sessionStore,
+            chatStore: chatStore,
+            appState: appState,
+            viewModel: viewModel,
+            observationTask: observationTask
+        )
     }
 
     private func makeSessionMessage(
@@ -414,6 +477,15 @@ struct PlanningScreenWiringTests {
         window.layoutIfNeeded()
         RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.01))
         return HostedHarness(window: window, controller: controller)
+    }
+
+    private var laneShadowCurrentUser: LaneShadowCurrentUser {
+        LaneShadowCurrentUser(
+            id: "user-jamie",
+            clerkUserId: "clerk-jamie",
+            email: "jamie@example.com",
+            name: "Jamie"
+        )
     }
 }
 

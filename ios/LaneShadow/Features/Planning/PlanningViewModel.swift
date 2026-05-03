@@ -22,6 +22,7 @@ final class PlanningViewModel {
     @ObservationIgnored private let sessionStore: SessionStore
     @ObservationIgnored private let convexClient: any LaneShadowPlanningDataProviding
     @ObservationIgnored private let fallbackSessionId: String?
+    @ObservationIgnored private let appState: AppState?
     @ObservationIgnored private var activeRoutePlanId: String?
     @ObservationIgnored private var didDispatchTerminalState = false
     @ObservationIgnored private var routePlanObservationTask: Task<Void, Never>?
@@ -31,12 +32,14 @@ final class PlanningViewModel {
         chatStore: ChatStore,
         sessionStore: SessionStore,
         convexClient: any LaneShadowPlanningDataProviding,
-        fallbackSessionId: String? = nil
+        fallbackSessionId: String? = nil,
+        appState: AppState? = nil
     ) {
         self.chatStore = chatStore
         self.sessionStore = sessionStore
         self.convexClient = convexClient
         self.fallbackSessionId = fallbackSessionId
+        self.appState = appState
         phases = Self.makePhases(activeIndex: 0)
     }
 
@@ -125,6 +128,7 @@ final class PlanningViewModel {
             return
         }
 
+        appState?.cachedLastFailedInput = trimmedMessage
         errorMessage = nil
 
         do {
@@ -135,7 +139,9 @@ final class PlanningViewModel {
             )
             chatStore.dispatch(.sendMessageWithSession(trimmedMessage, sessionId: sessionId))
         } catch {
-            errorMessage = error.localizedDescription
+            let laneShadowError = LaneShadowError.map(error)
+            errorMessage = laneShadowError.localizedDescription
+            chatStore.dispatch(.planningError(laneShadowError.rawMessage))
         }
     }
 
@@ -199,8 +205,12 @@ final class PlanningViewModel {
                 }
             } catch {
                 guard !Task.isCancelled else { return }
+                let laneShadowError = LaneShadowError.map(error)
                 await MainActor.run {
-                    dispatchRoutePlanFailure(LaneShadowError.map(error).localizedDescription)
+                    dispatchRoutePlanFailure(
+                        laneShadowError.localizedDescription,
+                        rawMessage: laneShadowError.rawMessage
+                    )
                 }
             }
         }
@@ -219,14 +229,12 @@ final class PlanningViewModel {
                 errorMessage = nil
                 chatStore.dispatch(.planningSuccess(routeOptions))
             } else {
-                dispatchRoutePlanFailure(
-                    routePlan.errorMessage ?? routePlan.statusMessage ?? "Planning results unavailable"
-                )
+                let message = routePlan.errorMessage ?? routePlan.statusMessage ?? "Planning results unavailable"
+                dispatchRoutePlanFailure(message, rawMessage: message)
             }
         case "failed":
-            dispatchRoutePlanFailure(
-                routePlan.errorMessage ?? routePlan.statusMessage ?? "Planning failed"
-            )
+            let message = routePlan.errorMessage ?? routePlan.statusMessage ?? "Planning failed"
+            dispatchRoutePlanFailure(message, rawMessage: message)
         case "pending", "running":
             activeRoutePlanId = routePlan.id
         default:
@@ -234,11 +242,11 @@ final class PlanningViewModel {
         }
     }
 
-    private func dispatchRoutePlanFailure(_ message: String) {
+    private func dispatchRoutePlanFailure(_ message: String, rawMessage: String? = nil) {
         didDispatchTerminalState = true
         isThinking = false
         errorMessage = message
-        chatStore.dispatch(.planningError(message))
+        chatStore.dispatch(.planningError(rawMessage ?? message))
     }
 
     private static func convertMessage(_ message: LaneShadowSessionMessage) -> LSChatMessage {

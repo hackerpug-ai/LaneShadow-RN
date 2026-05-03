@@ -18,6 +18,7 @@ final class IdleViewModel {
     @ObservationIgnored private let chatStore: ChatStore
     @ObservationIgnored private let sessionStore: SessionStore
     @ObservationIgnored private let convexClient: any LaneShadowPlanningDataProviding
+    @ObservationIgnored private let appState: AppState?
     @ObservationIgnored private let onSessionStarted: @MainActor @Sendable (String) -> Void
     @ObservationIgnored private var observationTasks: [Task<Void, Never>] = []
 
@@ -25,11 +26,13 @@ final class IdleViewModel {
         chatStore: ChatStore,
         sessionStore: SessionStore,
         convexClient: any LaneShadowPlanningDataProviding,
+        appState: AppState? = nil,
         onSessionStarted: @escaping @MainActor @Sendable (String) -> Void = { _ in }
     ) {
         self.chatStore = chatStore
         self.sessionStore = sessionStore
         self.convexClient = convexClient
+        self.appState = appState
         self.onSessionStarted = onSessionStarted
     }
 
@@ -78,6 +81,7 @@ final class IdleViewModel {
             return
         }
 
+        appState?.cachedLastFailedInput = trimmedMessage
         errorMessage = nil
         isSubmitting = true
 
@@ -96,9 +100,10 @@ final class IdleViewModel {
                         currentLocation: nil
                     )
                 } catch {
-                    let localizedError = error.localizedDescription
+                    let laneShadowError = LaneShadowError.map(error)
                     await MainActor.run { [weak self] in
-                        self?.errorMessage = localizedError
+                        self?.errorMessage = laneShadowError.localizedDescription
+                        self?.chatStore.dispatch(.planningError(laneShadowError.rawMessage))
                     }
                 }
             }

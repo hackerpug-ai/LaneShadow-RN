@@ -62,7 +62,7 @@ struct RootView: View {
         if appState.isAuthenticated || appState.hasClerkSession {
             switch appState.appRoute {
             case let .session(id):
-                AppFlowView(route: .session(id: id))
+                AppFlowView(route: .session(id: id), appState: appState)
             case .home, .none:
                 AuthenticatedLandingView(
                     environment: appEnvironment,
@@ -70,6 +70,7 @@ struct RootView: View {
                     isHydratingCurrentUser: appState.isHydratingCurrentUser,
                     authMessage: appState.authMessage,
                     onLogout: signOut,
+                    appState: appState,
                     onSessionStarted: { sessionID in
                         Task { @MainActor in
                             appState.appRoute = .session(id: sessionID)
@@ -190,6 +191,7 @@ private struct AuthenticatedLandingView: View {
         isHydratingCurrentUser: Bool,
         authMessage: String?,
         onLogout: @escaping () -> Void,
+        appState: AppState,
         onSessionStarted: @escaping @MainActor @Sendable (String) -> Void
     ) {
         self.environment = environment
@@ -204,6 +206,7 @@ private struct AuthenticatedLandingView: View {
                 chatStore: environment.chatStore,
                 sessionStore: environment.sessionStore,
                 convexClient: environment.convexClient,
+                appState: appState,
                 onSessionStarted: onSessionStarted
             )
         )
