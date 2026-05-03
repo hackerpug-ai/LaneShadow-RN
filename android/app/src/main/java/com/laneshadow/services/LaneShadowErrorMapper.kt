@@ -21,7 +21,7 @@ fun toLaneShadowError(throwable: Throwable): LaneShadowError {
     )
 }
 
-internal fun laneShadowErrorForCode(code: String): LaneShadowError? =
+fun laneShadowErrorForCode(code: String): LaneShadowError? =
     when (code) {
         // Server library codes
         "AUTH_REQUIRED" -> LaneShadowError.AuthRequired
@@ -55,6 +55,7 @@ internal fun laneShadowErrorForCode(code: String): LaneShadowError? =
 
         // Auth redirect
         "UNAUTHENTICATED" -> LaneShadowError.Unauthenticated
+        "FORBIDDEN" -> LaneShadowError.Forbidden
 
         else -> null
     }
@@ -74,7 +75,7 @@ private fun Throwable.firstUsefulMessage(): String? =
         ?.takeIf { it.isNotBlank() }
         ?: message?.trim()?.takeIf { it.isNotBlank() }
 
-private fun String.toKnownErrorCode(): String? {
+internal fun String.toKnownErrorCode(): String? {
     val trimmed = trim()
     if (trimmed.isEmpty()) {
         return null
@@ -122,4 +123,5 @@ private val KnownErrorCodes = setOf(
 
     // Auth redirect
     "UNAUTHENTICATED",
+    "FORBIDDEN",
 )

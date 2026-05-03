@@ -34,6 +34,7 @@
     <!-- Error messages (network) -->
     <string name="error_network_timeout">You appear to be offline. We\'ll retry.</string>
     <string name="error_unauthenticated">You\'ve been signed out. Please sign in again.</string>
+    <string name="error_forbidden">You don\'t have permission to access this resource.</string>
 
     <!-- Error fallback -->
     <string name="error_unknown">Something went wrong. Please try again.</string>

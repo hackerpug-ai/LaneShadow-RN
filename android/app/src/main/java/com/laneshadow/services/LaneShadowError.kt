@@ -154,6 +154,11 @@ sealed class LaneShadowError(
         originalCode = "UNAUTHENTICATED",
     )
 
+    data object Forbidden : LaneShadowError(
+        messageResId = R.string.error_forbidden,
+        originalCode = "FORBIDDEN",
+    )
+
     // Fallback for unmapped errors
     data class Unknown(
         val originalMessage: String?,
