@@ -24,6 +24,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.laneshadow.data.chat.ChatRepository
 import com.laneshadow.services.AppStateRepository
+import com.laneshadow.data.route.RouteRepository
 import com.laneshadow.services.NavEvent
 import com.laneshadow.services.RideFlowState
 import com.laneshadow.services.SignOutFlow
@@ -52,6 +53,7 @@ class MainNavViewModel @Inject constructor(
     private val signOutFlow: SignOutFlow,
     private val chatRepository: ChatRepository,
     private val appStateRepository: AppStateRepository,
+    private val routeRepository: RouteRepository,
 ) : ViewModel() {
     val navEvents: SharedFlow<NavEvent> = signOutFlow.events
 
@@ -91,9 +93,20 @@ class MainNavViewModel @Inject constructor(
         }
     }
 
-    fun startOver() {
+    fun startOver(sessionId: String? = null) {
         planningRetryContext = null
         viewModelScope.launch {
+            // Cancel any active planning for this session to transition ERROR -> IDLE
+            if (!sessionId.isNullOrBlank()) {
+                routeRepository.subscribeToActiveRoutePlans(sessionId)
+                    .collect { plans ->
+                        val activePlan = plans.firstOrNull()
+                        if (activePlan != null) {
+                            routeRepository.cancelPlan(activePlan.id)
+                        }
+                    }
+            }
+            // Clear session local state (lastViewedSessionId, defaultCamera, sessionCameras)
             appStateRepository.clearSessionLocalState()
         }
     }
@@ -221,7 +234,7 @@ fun MainNavGraph(
                     }
                 },
                 onStartOver = {
-                    mainNavViewModel.startOver()
+                    mainNavViewModel.startOver(retrySessionId)
                     navController.navigate(Route.Home) {
                         popUpTo(Route.Home) { inclusive = true }
                         launchSingleTop = true

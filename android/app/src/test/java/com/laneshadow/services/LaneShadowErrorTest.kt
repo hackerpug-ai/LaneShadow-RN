@@ -75,4 +75,10 @@ class LaneShadowErrorTest {
         assertThat(LaneShadowError.PlanLimitExceeded.messageResId)
             .isEqualTo(R.string.error_plan_limit_exceeded)
     }
+
+    @Test
+    fun messageResId_agentTimeout_returnsRStringErrorAgentTimeout() {
+        assertThat(LaneShadowError.AgentTimeout.messageResId)
+            .isEqualTo(R.string.error_agent_timeout)
+    }
 }
