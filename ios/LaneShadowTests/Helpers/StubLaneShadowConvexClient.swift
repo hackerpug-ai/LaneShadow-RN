@@ -9,11 +9,15 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
     private var routePlanContinuations: [String: AsyncThrowingStream<LaneShadowRoutePlanSnapshot, Error>.Continuation] =
         [:]
     private var activeRoutePlanContinuations: [String: AsyncStream<[LaneShadowRoutePlanSnapshot]>.Continuation] = [:]
+    private var routeEnrichmentsContinuations: [String: AsyncThrowingStream<RouteEnrichmentsDocument, Error>
+        .Continuation] = [:]
     private var latestCurrentUser: LaneShadowCurrentUser?
     private var latestSessions: [Session] = []
     private var latestSessionMessages: [String: [LaneShadowSessionMessage]] = [:]
     private var latestRoutePlans: [String: LaneShadowRoutePlanSnapshot] = [:]
     private var latestActiveRoutePlans: [String: [LaneShadowRoutePlanSnapshot]] = [:]
+    private var latestRouteEnrichments: [String: RouteEnrichmentsDocument] = [:]
+    private var latestRouteIndexFingerprints: [String: SavedRoutesDocument?] = [:]
 
     var stubCreatePlanningSessionResult = LaneShadowPlanningSessionCreationResult(sessionId: "session-123")
     var stubCreatePlanningSessionError: Error?
@@ -177,6 +181,133 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
         if let stubCancelRoutePlanError {
             throw stubCancelRoutePlanError
         }
+    }
+
+    func subscribeToRouteEnrichments(routePlanId: String) -> AsyncThrowingStream<RouteEnrichmentsDocument, Error> {
+        AsyncThrowingStream { continuation in
+            routeEnrichmentsContinuations[routePlanId] = continuation
+            if let currentEnrichments = latestRouteEnrichments[routePlanId] {
+                continuation.yield(currentEnrichments)
+            }
+        }
+    }
+
+    func getRouteIndexFingerprint(routeIndex: String) async throws -> SavedRoutesDocument? {
+        if let cachedResult = latestRouteIndexFingerprints[routeIndex] {
+            return cachedResult
+        }
+        return nil
+    }
+
+    func sendRouteEnrichments(_ enrichmentsDocs: [RouteEnrichmentsDocument], routePlanId: String) {
+        // For simplicity, store the first (or create a dummy one if empty)
+        if let first = enrichmentsDocs.first {
+            latestRouteEnrichments[routePlanId] = first
+            routeEnrichmentsContinuations[routePlanId]?.yield(first)
+        }
+    }
+
+    func sendRouteIndexFingerprint(_ savedRoute: SavedRoutesDocument?, routeIndex: String) {
+        latestRouteIndexFingerprints[routeIndex] = savedRoute
+    }
+
+    func simulateSavedRoute(routeIndex: String) {
+        // Create a minimal SavedRoutesDocument for testing
+        let preferences = SavedRoutesPlanInputPreferences(
+            avoidHighways: nil,
+            avoidTolls: nil,
+            scenicBias: "balanced"
+        )
+
+        let start = SavedRoutesPlanInputStart(
+            label: "Start",
+            placeId: nil,
+            lat: 37.7749,
+            lng: -122.4194
+        )
+
+        let planInput = SavedRoutesPlanInput(
+            nlpText: nil,
+            includeFavorites: nil,
+            start: start,
+            end: "End",
+            departureTime: 0,
+            preferences: preferences
+        )
+
+        let bounds = SavedRoutesRouteSnapshotBounds(
+            north: 37.8,
+            south: 37.7,
+            east: -122.3,
+            west: -122.4
+        )
+
+        let overviewGeometry = SavedRoutesRouteSnapshotOverviewGeometry(
+            format: "polyline",
+            encoding: "polyline6",
+            precision: 1e-6,
+            value: "test_polyline"
+        )
+
+        let routeSnapshot = SavedRoutesRouteSnapshot(
+            provider: "mapbox",
+            bounds: bounds,
+            origin: "Start",
+            destination: "End",
+            waypoints: [],
+            overviewGeometry: overviewGeometry,
+            legs: [],
+            annotations: [],
+            overlays: SavedRoutesRouteSnapshotOverlays(
+                wind: nil,
+                rain: nil,
+                temperature: nil
+            )
+        )
+
+        let sampledPoints = SavedRoutesRouteIndexSampledPoints(
+            lat: 37.7749,
+            lng: -122.4194,
+            distanceFromStartMeters: 0
+        )
+
+        let routeIndexDoc = SavedRoutesRouteIndex(
+            routeFingerprint: "fp-\(routeIndex)",
+            sampledPoints: [sampledPoints]
+        )
+
+        let metaOverlays = SavedRoutesSnapshotMetaOverlays(
+            wind: nil
+        )
+
+        let snapshotMeta = SavedRoutesSnapshotMeta(
+            overlays: metaOverlays,
+            savedAt: 0,
+            routingProvider: "mapbox",
+            conditionsStatus: "good",
+            metaVersion: 1.0
+        )
+
+        let doc = SavedRoutesDocument(
+            _id: "saved-\(routeIndex)",
+            _creationTime: 0,
+            routeProvenance: nil,
+            deletedAt: nil,
+            scheduledDeletionId: nil,
+            name: "Test Route",
+            createdAt: 0,
+            updatedAt: 0,
+            ownerType: "user",
+            ownerId: "user-123",
+            createdByUserId: "user-123",
+            visibility: "private",
+            planInput: planInput,
+            routeSnapshot: routeSnapshot,
+            routeIndex: routeIndexDoc,
+            snapshotMeta: snapshotMeta
+        )
+
+        latestRouteIndexFingerprints[routeIndex] = doc
     }
 }
 

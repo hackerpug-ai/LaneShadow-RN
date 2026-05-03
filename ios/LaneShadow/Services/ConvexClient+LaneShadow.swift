@@ -8,6 +8,8 @@ enum LaneShadowConvexQuery: String {
     case listMessages = "db/sessionMessages:list"
     case getPlanById = "db/routePlans:getPlanById"
     case getActiveRoutePlansForSession = "db/routePlans:getActiveRoutePlansForSession"
+    case listRouteEnrichments = "db/routeEnrichments:list"
+    case getRouteIndexFingerprint = "db/savedRoutes:getRouteIndexFingerprint"
 }
 
 enum LaneShadowConvexMutation: String {
@@ -216,6 +218,10 @@ protocol LaneShadowPlanningDataProviding: LaneShadowCurrentUserSubscriptionProvi
     ) async throws -> LaneShadowSendMessageResult
 
     func cancelRoutePlan(routePlanId: String) async throws
+
+    func subscribeToRouteEnrichments(routePlanId: String) -> AsyncThrowingStream<RouteEnrichmentsDocument, Error>
+
+    func getRouteIndexFingerprint(routeIndex: String) async throws -> SavedRoutesDocument?
 }
 
 extension LaneShadowPlanningDataProviding {
@@ -635,6 +641,32 @@ final class LaneShadowConvexClient: @unchecked Sendable {
         )
     }
 
+    func subscribeToRouteEnrichments(routePlanId: String) -> AsyncThrowingStream<RouteEnrichmentsDocument, Error> {
+        subscribeThrowing(
+            .listRouteEnrichments,
+            args: [
+                "routePlanId": routePlanId,
+            ],
+            yielding: RouteEnrichmentsDocument.self
+        )
+    }
+
+    func getRouteIndexFingerprint(routeIndex: String) async throws -> SavedRoutesDocument? {
+        let publisher = transport.subscribe(
+            to: LaneShadowConvexQuery.getRouteIndexFingerprint.rawValue,
+            with: ["routeIndex": routeIndex],
+            yielding: SavedRoutesDocument?.self
+        )
+
+        do {
+            var iterator = publisher.values.makeAsyncIterator()
+            return try await iterator.next() ?? nil
+        } catch {
+            await handleUnauthenticatedIfNeeded(error)
+            throw error
+        }
+    }
+
     func mutation<T: Decodable>(
         _ endpoint: LaneShadowConvexMutation,
         args: [String: ConvexEncodable?]? = nil
@@ -701,6 +733,9 @@ final class LaneShadowConvexClient: @unchecked Sendable {
         await unauthenticatedHandlerBox.handle()
     }
 }
+
+extension RouteEnrichmentsDocument: @unchecked Sendable {}
+extension SavedRoutesDocument: @unchecked Sendable {}
 
 extension LaneShadowConvexClient: LaneShadowCurrentUserSubscriptionProviding {}
 extension LaneShadowConvexClient: LaneShadowPlanningDataProviding {}

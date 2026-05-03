@@ -15,6 +15,7 @@ public struct LSRouteSheet: View {
     private let route: Route
     private let weatherTimeline: [WeatherEntry]
     private let timeRange: (String, String)
+    private let isSaved: Bool
     private let onSave: () -> Void
     private let onRide: () -> Void
     private let onDismiss: () -> Void
@@ -23,6 +24,7 @@ public struct LSRouteSheet: View {
         route: Route,
         weatherTimeline: [WeatherEntry],
         timeRange: (String, String),
+        isSaved: Bool = false,
         onSave: @escaping () -> Void,
         onRide: @escaping () -> Void,
         onDismiss: @escaping () -> Void
@@ -30,6 +32,7 @@ public struct LSRouteSheet: View {
         self.route = route
         self.weatherTimeline = weatherTimeline
         self.timeRange = timeRange
+        self.isSaved = isSaved
         self.onSave = onSave
         self.onRide = onRide
         self.onDismiss = onDismiss
@@ -128,14 +131,26 @@ public struct LSRouteSheet: View {
         GeometryReader { geometry in
             HStack(spacing: theme.space.sm) {
                 // Save button (width 1/3 of available space)
-                LSButton(
-                    "Save",
-                    variant: .outline,
-                    size: .md,
-                    leadingIcon: .bookmark,
-                    action: onSave
-                )
-                .frame(width: (geometry.size.width - theme.space.sm) / 3)
+                if isSaved {
+                    LSButton(
+                        "Saved",
+                        variant: .primary,
+                        size: .md,
+                        leadingIcon: .bookmarkFill,
+                        isDisabled: true,
+                        action: {}
+                    )
+                    .frame(width: (geometry.size.width - theme.space.sm) / 3)
+                } else {
+                    LSButton(
+                        "Save",
+                        variant: .outline,
+                        size: .md,
+                        leadingIcon: .bookmark,
+                        action: onSave
+                    )
+                    .frame(width: (geometry.size.width - theme.space.sm) / 3)
+                }
 
                 // Ride this button (width 2/3 of available space)
                 LSButton(
