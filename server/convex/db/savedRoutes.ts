@@ -481,3 +481,36 @@ export const permanentlyDeleteRoute = internalMutation({
     return permanentlyDeleteRouteHandler(ctx as any, args)
   },
 })
+
+export const getRouteIndexFingerprint = query({
+  args: {
+    routeIndex: v.string(),
+  },
+  returns: v.object({
+    isSaved: v.boolean(),
+    savedRouteId: v.optional(v.id('saved_routes')),
+  }),
+  handler: async (ctx, args): Promise<{ isSaved: boolean; savedRouteId?: Id<'saved_routes'> }> => {
+    const { clerkUserId } = await requireIdentity(ctx)
+
+    // Scope to user's routes first using existing index
+    const userRoutes = await ctx.db
+      .query('saved_routes')
+      .withIndex('by_ownerType_and_ownerId', (q) =>
+        q.eq('ownerType', OWNER_TYPE.USER).eq('ownerId', clerkUserId),
+      )
+      .collect()
+
+    // Find matching route by fingerprint (not scanning all routes, just user's routes)
+    const match = userRoutes.find((route) => route.routeIndex.routeFingerprint === args.routeIndex)
+
+    if (!match || shouldExcludeFromList(match)) {
+      return { isSaved: false }
+    }
+
+    return {
+      isSaved: true,
+      savedRouteId: match._id,
+    }
+  },
+})

@@ -51,7 +51,8 @@ export default defineSchema({
 
   saved_routes: defineTable(savedRouteValidator)
     .index('by_ownerType_and_ownerId', ['ownerType', 'ownerId'])
-    .index('by_createdByUserId', ['createdByUserId']),
+    .index('by_createdByUserId', ['createdByUserId'])
+    .index('by_ownerType_ownerId_routeIndex', ['ownerType', 'ownerId', 'routeIndex']),
 
   /**
    * Favorite roads table - Stores user's favorite road segments
