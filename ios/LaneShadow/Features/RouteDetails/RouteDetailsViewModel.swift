@@ -1,7 +1,7 @@
 import Foundation
 import Observation
 
-struct RouteDetailsViewState {
+struct RouteDetailsViewState: Equatable {
     let routeTitle: String
     let distanceKm: String
     let durationFormatted: String
@@ -11,9 +11,6 @@ struct RouteDetailsViewState {
     let isSaved: Bool
     let isPendingEnrichment: Bool
     let error: LaneShadowError?
-    let polylines: [PolylineData]
-    let isBest: Bool
-    let timeRange: (String, String)
 }
 
 @MainActor
@@ -48,15 +45,6 @@ final class RouteDetailsViewModel {
         let distanceKm = formatDistance(meters: stats?.distanceMeters ?? 0)
         let durationFormatted = formatDuration(seconds: stats?.durationSeconds ?? 0)
 
-        // Decode polyline from selected route option
-        let polylines = decodePolylines(from: selectedRoute)
-
-        // Determine isBest: First option is best
-        let isBest = isSelectedRouteBest()
-
-        // Format timeRange: Placeholder for now (enrichment timestamps not yet available)
-        let timeRange = ("", "")
-
         return RouteDetailsViewState(
             routeTitle: routeTitle,
             distanceKm: distanceKm,
@@ -66,10 +54,7 @@ final class RouteDetailsViewModel {
             weatherEntries: weatherEntries,
             isSaved: isSaved,
             isPendingEnrichment: isPendingEnrichment,
-            error: error,
-            polylines: polylines,
-            isBest: isBest,
-            timeRange: timeRange
+            error: error
         )
     }
 
@@ -261,47 +246,5 @@ private extension RouteDetailsViewModel {
         }
 
         await fingerprintQueryTask?.value
-    }
-
-    func decodePolylines(from option: PlannedRouteOptionView?) -> [PolylineData] {
-        guard let option else { return [] }
-
-        // Extract encoded polyline from route option's overviewGeometry
-        let encodedPolyline = option.map.overviewGeometry.value
-        guard !encodedPolyline.isEmpty else { return [] }
-
-        // Convert precision from Double (e.g., 1e-6) to exponent (e.g., 6)
-        // precision = 1e-N means we need exponent N
-        let precisionExponent = if option.map.overviewGeometry.precision < 0.0001 {
-            6 // 1e-6
-        } else if option.map.overviewGeometry.precision < 0.001 {
-            5 // 1e-5
-        } else {
-            5 // default
-        }
-
-        // Decode the polyline
-        let coordinates = PolylineDecoder.decode(encodedPolyline, precision: precisionExponent)
-        guard !coordinates.isEmpty else { return [] }
-
-        // Determine variant: if best, use .best; otherwise use .alt1
-        let variant: RouteVariant = isSelectedRouteBest() ? .best : .alt1
-
-        return [
-            PolylineData(
-                coordinates: coordinates,
-                variant: variant,
-                strokeWidth: .lg
-            ),
-        ]
-    }
-
-    func isSelectedRouteBest() -> Bool {
-        guard case let .routeDetails(state) = chatStore.flowState else {
-            return false
-        }
-
-        // First option is considered the best
-        return state.routeOptions.options.first?.routeOptionId == state.selectedRouteId
     }
 }

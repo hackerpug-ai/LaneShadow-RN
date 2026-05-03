@@ -89,7 +89,7 @@ public struct RouteDetailsScreen: View {
     private func viewStateBody(viewState: RouteDetailsViewState) -> some View {
         LSMapLayer(
             map: {
-                viewStateMap(viewState: viewState)
+                viewStateMap
             },
             bottomSheet: BottomSheetSpec(
                 detent: .large,
@@ -147,7 +147,7 @@ public struct RouteDetailsScreen: View {
 
     // MARK: - Map (ViewState)
 
-    private func viewStateMap(viewState: RouteDetailsViewState) -> some View {
+    private var viewStateMap: some View {
         LSMap(
             mode: .interactive,
             camera: CameraPosition(
@@ -155,7 +155,7 @@ public struct RouteDetailsScreen: View {
                 zoom: 12
             ),
             cameraFit: .static,
-            polylines: viewState.polylines,
+            polylines: [],
             annotations: []
         )
         .accessibilityIdentifier("maplayer.map")
@@ -192,14 +192,14 @@ public struct RouteDetailsScreen: View {
                 id: viewState.routeTitle,
                 title: viewState.routeTitle,
                 subtitle: "",
-                isBest: viewState.isBest,
+                isBest: true,
                 distance: viewState.distanceKm,
                 time: viewState.durationFormatted,
                 climb: viewState.elevationM,
                 scenic: viewState.scenicScore
             ),
             weatherTimeline: viewState.weatherEntries,
-            timeRange: viewState.timeRange,
+            timeRange: ("", ""),
             isSaved: viewState.isSaved,
             onSave: onSave,
             onRide: onRide,

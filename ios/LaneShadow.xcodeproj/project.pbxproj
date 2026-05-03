@@ -217,16 +217,6 @@
 			path = Templates;
 			sourceTree = "<group>";
 		};
-		10EF6247464B14DE9D738910 /* Views */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Views;
-			path = Views;
-			sourceTree = "<group>";
-		};
 		244E36879200004067F64629 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			explicitFileTypes = {
@@ -377,16 +367,6 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		8E620526502629F2690FBBAE /* Utilities */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Utilities;
-			path = Utilities;
-			sourceTree = "<group>";
-		};
 		8F5AC0DC38D5B1239FAA340F /* AuthFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			explicitFileTypes = {
@@ -454,16 +434,6 @@
 			);
 			name = Controls;
 			path = Controls;
-			sourceTree = "<group>";
-		};
-		C1C1554F3F09845975235612 /* Utilities */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Utilities;
-			path = Utilities;
 			sourceTree = "<group>";
 		};
 		CE8B4DF54243DD52953C7CFE /* Atoms */ = {
@@ -646,7 +616,6 @@
 				8460D5ABD7FFE129DB373103 /* Models */,
 				1F10FC2E199EFDF6EFDFEDA8 /* Sandbox */,
 				537AF6CF40C4418539754A5D /* Services */,
-				8E620526502629F2690FBBAE /* Utilities */,
 				9A00239A316DF9BC49914EC8 /* Views */,
 				324B26FB2DE3F759B489CB7B /* App.swift */,
 				0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */,
@@ -686,8 +655,6 @@
 				0B23304A78B886F9A286C5E4 /* Sandbox */,
 				5EE6142BB2A44D9196BC822D /* Services */,
 				5D43661EA5776DD985956D8D /* Templates */,
-				C1C1554F3F09845975235612 /* Utilities */,
-				10EF6247464B14DE9D738910 /* Views */,
 				5C592B52392DEEACF2D91C3B /* LaneShadowTests.swift */,
 			);
 			path = LaneShadowTests;
@@ -782,7 +749,6 @@
 				CF77ECAB776F34B039A160CA /* Templates */,
 				0E516A6442C2AA10AA5009F5 /* Templates */,
 				E5E2F792F8318B064762B018 /* Theme */,
-				8E620526502629F2690FBBAE /* Utilities */,
 			);
 			name = LaneShadow;
 			packageProductDependencies = (
@@ -840,8 +806,6 @@
 				0B23304A78B886F9A286C5E4 /* Sandbox */,
 				5EE6142BB2A44D9196BC822D /* Services */,
 				5D43661EA5776DD985956D8D /* Templates */,
-				C1C1554F3F09845975235612 /* Utilities */,
-				10EF6247464B14DE9D738910 /* Views */,
 			);
 			name = LaneShadowTests;
 			packageProductDependencies = (

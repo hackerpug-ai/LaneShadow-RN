@@ -224,8 +224,6 @@ targets:
         type: syncedFolder
       - path: LaneShadow/DesignSystem
         type: syncedFolder
-      - path: LaneShadow/Utilities
-        type: syncedFolder
     dependencies:
       - package: ConvexMobile
       - package: LaneShadowTheme
@@ -299,10 +297,6 @@ targets:
       - path: LaneShadowTests/Sandbox/RouteResultsDetailsVariantTests.swift
       - path: LaneShadowTests/Sandbox/MotionTests.swift
       - path: LaneShadowTests/Sandbox/SessionsErrorVariantTests.swift
-      - path: LaneShadowTests/Utilities
-        type: syncedFolder
-      - path: LaneShadowTests/Views
-        type: syncedFolder
       # Legacy molecule tests are intentionally outside the managed folder
       # until the molecule implementation layer is migrated.
     dependencies:
