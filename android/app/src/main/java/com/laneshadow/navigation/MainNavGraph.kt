@@ -45,7 +45,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -98,13 +98,10 @@ class MainNavViewModel @Inject constructor(
         viewModelScope.launch {
             // Cancel any active planning for this session to transition ERROR -> IDLE
             if (!sessionId.isNullOrBlank()) {
-                routeRepository.subscribeToActiveRoutePlans(sessionId)
-                    .collect { plans ->
-                        val activePlan = plans.firstOrNull()
-                        if (activePlan != null) {
-                            routeRepository.cancelPlan(activePlan.id)
-                        }
-                    }
+                val plans = routeRepository.subscribeToActiveRoutePlans(sessionId).first()
+                plans.firstOrNull()?.let { activePlan ->
+                    routeRepository.cancelPlan(activePlan.id)
+                }
             }
             // Clear session local state (lastViewedSessionId, defaultCamera, sessionCameras)
             appStateRepository.clearSessionLocalState()

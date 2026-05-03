@@ -120,6 +120,7 @@ class ConvexClientProvider private constructor(
     }
 
     suspend fun signOut(): Result<Unit> {
+        // clearAuth will call authRepository.signOut() internally, so we don't call it here
         return activeGateway.clearAuth(appContext)
     }
 
@@ -154,8 +155,7 @@ class ConvexClientProvider private constructor(
         if (!error.isUnauthenticatedConvexError()) {
             return
         }
-        // Note: handleUnauthenticated calls AuthRepository.signOut() internally,
-        // so we do not call clearAuth here to avoid double sign-out
+        activeGateway.clearAuth(appContext)
         authRepository.handleUnauthenticated(SessionExpiredMessage)
     }
 
