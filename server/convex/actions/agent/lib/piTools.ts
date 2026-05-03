@@ -180,12 +180,6 @@ export const AgentToolSchemas = {
     }),
   }),
 
-  fetchWeather: Type.Object({
-    location: Type.Union([Type.String(), Type.Null()], {
-      description: 'Optional place name to check weather for; null for current route',
-    }),
-  }),
-
   saveRoute: Type.Object({
     routeIndex: Type.Union([Type.Integer(), Type.Null()], {
       description: '0-based index of which route option to save; null to save the best one',

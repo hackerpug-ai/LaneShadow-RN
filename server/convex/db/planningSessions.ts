@@ -282,13 +282,14 @@ export const updateSessionTitle = internalMutation({
   },
   returns: v.null(),
   handler: async (ctx, args): Promise<null> => {
-    // For internal use by agent - we'll validate ownership differently
-    // The agent already has the session context from the conversation
-    await updateSessionTitleHandler(
-      ctx as unknown as UpdateSessionTitleCtx,
-      args,
-      '', // clerkUserId not needed - agent only operates on its own session
-    )
+    // Read the session doc first to get the actual clerkUserId for ownership verification
+    const doc = await ctx.db.get(args.sessionId)
+    if (!doc) {
+      throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
+    }
+
+    // Pass the doc's actual clerkUserId to verify ownership
+    await updateSessionTitleHandler(ctx as unknown as UpdateSessionTitleCtx, args, doc.clerkUserId)
     return null
   },
 })

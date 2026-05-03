@@ -19,8 +19,8 @@ import { executeRidePlanningAgent } from './ridePlanningAgent'
 /**
  * Maps tool names to the session_message card kind they produce.
  * Only tools listed here will have a card message emitted in the transcript.
- * fetchWeather and saveRoute are placeholder stubs that return no real data —
- * they are intentionally excluded to avoid emitting empty card rows.
+ * saveRoute is a placeholder stub that returns no real data — it is intentionally
+ * excluded to avoid emitting empty card rows.
  */
 export const TOOL_TO_CARD_KIND: Record<string, SessionMessageKind> = {
   planRoute: 'routing_card',
@@ -100,8 +100,6 @@ function summarizeToolStart(toolName: string, args: unknown): string {
       return `Searching for ${(args as any)?.query ?? 'location'}...`
     case 'planRoute':
       return `Planning route${(args as any)?.end?.label ? ` to ${(args as any).end.label}` : ''}...`
-    case 'fetchWeather':
-      return 'Checking weather conditions...'
     case 'searchFavorites':
       return 'Searching favorite roads...'
     case 'saveRoute':
@@ -128,8 +126,6 @@ function summarizeToolFinish(toolName: string, result: unknown): string {
         ? `Generated ${count} route option${count !== 1 ? 's' : ''}`
         : 'Route planning complete'
     }
-    case 'fetchWeather':
-      return 'Weather data retrieved'
     case 'searchFavorites':
       return 'Favorite roads search complete'
     case 'saveRoute':

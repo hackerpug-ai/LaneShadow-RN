@@ -149,6 +149,10 @@ export default defineConfig({
       { find: /^convex\/server$/, replacement: resolve(__dirname, '__mocks__/convex/server.ts') },
       { find: /^.*\/_generated\/api$/, replacement: resolve(__dirname, '__mocks__/convex/api.ts') },
       {
+        find: /^.*\/_generated\/api\.js$/,
+        replacement: resolve(__dirname, '__mocks__/convex/api.ts'),
+      },
+      {
         find: /^.*\/_generated\/server$/,
         replacement: resolve(__dirname, '__mocks__/convex/server.ts'),
       },

@@ -129,7 +129,6 @@ export function summarizeForContext(toolName: string, result: unknown): unknown 
     return summarizePlanRoute(result)
   }
 
-  // geocode, fetchWeather, saveRoute, searchFavorites, and any unknown tools
-  // pass through as-is.
+  // geocode, saveRoute, searchFavorites, and any unknown tools pass through as-is.
   return result
 }
