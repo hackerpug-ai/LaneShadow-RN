@@ -126,4 +126,3 @@ struct RouteDetailsScreenTests {
         #expect(!hasTask)
     }
 }
-
