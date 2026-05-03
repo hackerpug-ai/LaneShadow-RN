@@ -1,7 +1,10 @@
 package com.laneshadow.ui.error
 
 import android.app.Application
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import com.laneshadow.R
 import com.laneshadow.data.model.AuthState
 import com.laneshadow.data.model.ClerkUser
 import com.laneshadow.data.repository.AuthRepository
@@ -95,7 +98,7 @@ class ErrorViewModelTest {
         viewModel.handle(
             ErrorSuggestion(
                 id = "retry",
-                label = "Try again",
+                labelResId = R.string.error_action_try_again,
                 isPrimary = true,
                 action = ErrorSuggestionAction.Retry,
             ),
@@ -103,7 +106,7 @@ class ErrorViewModelTest {
         viewModel.handle(
             ErrorSuggestion(
                 id = "reset",
-                label = "Start over",
+                labelResId = R.string.error_action_start_over,
                 action = ErrorSuggestionAction.Reset,
             ),
         )
@@ -134,10 +137,35 @@ class ErrorViewModelTest {
         viewModel.handle(LaneShadowError.PlanLimitExceeded)
         advanceUntilIdle()
 
-        val labels = viewModel.suggestions.value.map { it.label }
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val labels = viewModel.suggestions.value.map { context.getString(it.labelResId) }
 
-        assertThat(labels).contains("Start over")
-        assertThat(labels).doesNotContain("Try again")
+        assertThat(labels).containsExactly(
+            context.getString(R.string.error_action_start_over),
+        )
+        assertThat(labels).doesNotContain(context.getString(R.string.error_action_try_again))
+    }
+
+    @Test
+    fun suggestions_authRequired_usesResourceBackedSignInLabel() = runTest {
+        val signOutFlow = SignOutFlow(
+            convexClientProvider = ConvexClientProvider(
+                authRepository = FakeAuthRepository(),
+                appContext = Application(),
+                convexGateway = RecordingConvexGateway(),
+            ),
+            ioDispatcher = UnconfinedTestDispatcher(testScheduler),
+        )
+        val viewModel = ErrorViewModel(signOutFlow)
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        viewModel.handle(LaneShadowError.AuthRequired)
+        advanceUntilIdle()
+
+        val suggestions = viewModel.suggestions.value
+        assertThat(suggestions).hasSize(1)
+        assertThat(context.getString(suggestions.single().labelResId))
+            .isEqualTo(context.getString(R.string.error_action_sign_in))
     }
 
     private class FakeAuthRepository : AuthRepository {

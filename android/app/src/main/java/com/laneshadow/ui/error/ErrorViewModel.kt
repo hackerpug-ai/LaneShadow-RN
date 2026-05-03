@@ -2,6 +2,7 @@ package com.laneshadow.ui.error
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laneshadow.R
 import com.laneshadow.services.LaneShadowError
 import com.laneshadow.services.SignOutFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -81,23 +82,56 @@ class ErrorViewModel @Inject constructor(
 
     private fun suggestionsFor(error: LaneShadowError): List<ErrorSuggestion> =
         when (error) {
+            // Auth/access errors - sign in or start over
             LaneShadowError.Unauthenticated -> emptyList()
             LaneShadowError.AuthRequired -> listOf(signInSuggestion())
+            LaneShadowError.SessionRequired -> listOf(signInSuggestion())
             LaneShadowError.SessionNotFound -> listOf(startOverSuggestion(), signInSuggestion())
+
+            // Rate limit - only start over (no retry)
             LaneShadowError.RateLimitExceeded -> listOf(startOverSuggestion())
             LaneShadowError.PlanLimitExceeded -> listOf(startOverSuggestion())
-            LaneShadowError.PlanAlreadyActive -> listOf(startOverSuggestion())
-            LaneShadowError.AgentTimeout -> listOf(tryAgainSuggestion(), startOverSuggestion())
-            is LaneShadowError.NetworkTimeout -> listOf(tryAgainSuggestion(), startOverSuggestion())
+
+            // Validation/state errors - start over
+            LaneShadowError.UserNotFound -> listOf(startOverSuggestion())
+            LaneShadowError.NoFieldsToUpdate -> listOf(startOverSuggestion())
             LaneShadowError.NotFound -> listOf(startOverSuggestion())
             LaneShadowError.InvalidInput -> listOf(tryAgainSuggestion(), startOverSuggestion())
+            LaneShadowError.LlmSketchInvalid -> listOf(tryAgainSuggestion(), startOverSuggestion())
+            LaneShadowError.LlmSketchAmbiguous -> listOf(tryAgainSuggestion(), startOverSuggestion())
+            LaneShadowError.InvalidContent -> listOf(tryAgainSuggestion(), startOverSuggestion())
+
+            // Planning-specific errors
+            LaneShadowError.PlanAlreadyActive -> listOf(startOverSuggestion())
+            LaneShadowError.PlanNotFound -> listOf(startOverSuggestion())
+            LaneShadowError.NoRoutesGenerated -> listOf(tryAgainSuggestion(), startOverSuggestion())
+            LaneShadowError.AgentTimeout -> listOf(tryAgainSuggestion(), startOverSuggestion())
+
+            // LLM/processing errors - try again or start over
+            LaneShadowError.AgentResponseInvalid -> listOf(tryAgainSuggestion(), startOverSuggestion())
+            LaneShadowError.InvalidAgentResponseStructure -> listOf(tryAgainSuggestion(), startOverSuggestion())
+            LaneShadowError.LowConfidenceParse -> listOf(tryAgainSuggestion(), startOverSuggestion())
+            LaneShadowError.GenerationFailed -> listOf(tryAgainSuggestion(), startOverSuggestion())
+            LaneShadowError.AgenticParseFailed -> listOf(tryAgainSuggestion(), startOverSuggestion())
+            LaneShadowError.AgentBudgetExceeded -> listOf(startOverSuggestion())
+            LaneShadowError.AgentLoopDetected -> listOf(startOverSuggestion())
+
+            // Backend/data errors
+            LaneShadowError.RoutingCompileFailed -> listOf(tryAgainSuggestion(), startOverSuggestion())
+            LaneShadowError.ConditionsLookupFailed -> listOf(tryAgainSuggestion(), startOverSuggestion())
+            LaneShadowError.WeatherUnavailable -> listOf(tryAgainSuggestion(), startOverSuggestion())
+
+            // Network errors - try again or start over
+            is LaneShadowError.NetworkTimeout -> listOf(tryAgainSuggestion(), startOverSuggestion())
+
+            // Unknown - try again or start over
             is LaneShadowError.Unknown -> listOf(tryAgainSuggestion(), startOverSuggestion())
         }
 
     private fun tryAgainSuggestion(): ErrorSuggestion =
         ErrorSuggestion(
             id = TRY_AGAIN_ID,
-            label = "Try again",
+            labelResId = R.string.error_action_try_again,
             isPrimary = true,
             action = ErrorSuggestionAction.Retry,
         )
@@ -105,7 +139,7 @@ class ErrorViewModel @Inject constructor(
     private fun startOverSuggestion(): ErrorSuggestion =
         ErrorSuggestion(
             id = START_OVER_ID,
-            label = "Start over",
+            labelResId = R.string.error_action_start_over,
             isPrimary = false,
             action = ErrorSuggestionAction.Reset,
         )
@@ -113,7 +147,7 @@ class ErrorViewModel @Inject constructor(
     private fun signInSuggestion(): ErrorSuggestion =
         ErrorSuggestion(
             id = SIGN_IN_ID,
-            label = "Sign in",
+            labelResId = R.string.error_action_sign_in,
             isPrimary = true,
             action = ErrorSuggestionAction.SignIn,
         )

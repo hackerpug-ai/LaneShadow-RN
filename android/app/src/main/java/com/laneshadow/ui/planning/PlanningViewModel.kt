@@ -193,7 +193,7 @@ private fun RoutePlan.toFailureTransition(): PlanningTransition.Failure {
         ?.let(::laneShadowErrorForCode)
         ?: LaneShadowError.Unknown(
             originalMessage = message,
-            originalCode = normalizedErrorCode,
+            originalCode = normalizedErrorCode ?: "UNKNOWN",
         )
 
     return PlanningTransition.Failure(

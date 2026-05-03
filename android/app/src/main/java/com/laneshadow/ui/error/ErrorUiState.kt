@@ -1,5 +1,6 @@
 package com.laneshadow.ui.error
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import com.laneshadow.services.LaneShadowError
 
@@ -14,7 +15,7 @@ sealed interface ErrorUiState {
 @Immutable
 data class ErrorSuggestion(
     val id: String,
-    val label: String,
+    @param:StringRes val labelResId: Int,
     val isPrimary: Boolean = false,
     val action: ErrorSuggestionAction,
 )

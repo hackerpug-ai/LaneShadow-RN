@@ -87,7 +87,7 @@ fun ErrorRoute(
                     suggestions = suggestions.map { suggestion ->
                         MockSuggestionChip(
                             id = suggestion.id,
-                            label = suggestion.label,
+                            label = stringResource(suggestion.labelResId),
                             isPrimary = suggestion.isPrimary,
                         )
                     },
@@ -97,7 +97,7 @@ fun ErrorRoute(
                 ),
                 onMenuTap = { navController.navigate(Route.Settings) },
                 onSuggestionTap = { chip ->
-                    suggestions.firstOrNull { it.id == chip.id || it.label == chip.label }?.let { suggestion ->
+                    suggestions.firstOrNull { it.id == chip.id }?.let { suggestion ->
                         viewModel.handle(suggestion)
                     }
                 },
@@ -135,7 +135,7 @@ private fun routeError(
     return when (normalizedCode) {
         null -> LaneShadowError.Unknown(
             originalMessage = normalizedMessage,
-            originalCode = null,
+            originalCode = "UNKNOWN",
         )
 
         "NETWORK_TIMEOUT" -> LaneShadowError.NetworkTimeout(

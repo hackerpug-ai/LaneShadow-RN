@@ -79,7 +79,7 @@ class PlanningViewModelTest {
                     id = "plan-7",
                     status = "failed",
                     statusMessage = "Route planning failed",
-                    errorCode = "GENERATION_FAILED",
+                    errorCode = "ROUTING_COMPILE_FAILED",
                     errorMessage = "Route planning failed",
                 ),
             ),
@@ -95,10 +95,7 @@ class PlanningViewModelTest {
 
         assertThat(viewModel.state.value.transition).isEqualTo(
             PlanningTransition.Failure(
-                error = LaneShadowError.Unknown(
-                    originalMessage = "Route planning failed",
-                    originalCode = "GENERATION_FAILED",
-                ),
+                error = LaneShadowError.RoutingCompileFailed,
                 message = "Route planning failed",
             ),
         )
