@@ -77,6 +77,16 @@ type CancelPlanCtx = {
   }
 }
 
+type GetActiveRoutePlansForSessionCtx = {
+  db: {
+    query: (table: string) => any
+    get: (id: Id<'planning_sessions'>) => Promise<Doc<'planning_sessions'> | null>
+  }
+  auth: {
+    getUserIdentity: () => Promise<{ subject: string; tokenIdentifier?: string } | null>
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -579,6 +589,51 @@ export const mergeEnrichment = internalMutation({
   },
 })
 
+// ---------------------------------------------------------------------------
+// getActiveRoutePlansForSession
+// ---------------------------------------------------------------------------
+
+export const getActiveRoutePlansForSessionHandler = async (
+  ctx: GetActiveRoutePlansForSessionCtx,
+  args: {
+    sessionId: Id<'planning_sessions'>
+  },
+): Promise<{ _id: Id<'route_plans'>; status: RoutePlanStatus }[]> => {
+  // Require authentication
+  const identity = await ctx.auth.getUserIdentity()
+  if (!identity) {
+    throw new ConvexError({
+      code: ERROR_CODES.UNAUTHENTICATED,
+      message: 'Authentication required',
+    })
+  }
+
+  // Verify session ownership
+  const session = await ctx.db.get(args.sessionId)
+  if (!session || session.clerkUserId !== identity.subject) {
+    throw new ConvexError({
+      code: ERROR_CODES.FORBIDDEN,
+      message: 'Access denied',
+    })
+  }
+
+  // Get active plans for the session
+  const docs = await ctx.db
+    .query('route_plans')
+    .withIndex('by_planningSessionId_and_status', (q: any) =>
+      q.eq('planningSessionId', args.sessionId),
+    )
+    .filter((q: any) =>
+      q.or(q.eq(q.field('status'), 'pending'), q.eq(q.field('status'), 'running')),
+    )
+    .collect()
+
+  return docs.map((doc: RoutePlanDoc) => ({
+    _id: doc._id,
+    status: doc.status,
+  }))
+}
+
 /**
  * Get active (pending or running) route plans for a session.
  * Public query for frontend cancellation support.
@@ -594,17 +649,6 @@ export const getActiveRoutePlansForSession = query({
     }),
   ),
   handler: async (ctx, args): Promise<{ _id: Id<'route_plans'>; status: RoutePlanStatus }[]> => {
-    const docs = await ctx.db
-      .query('route_plans')
-      .withIndex('by_planningSessionId_and_status', (q) =>
-        q.eq('planningSessionId', args.sessionId),
-      )
-      .filter((q) => q.or(q.eq(q.field('status'), 'pending'), q.eq(q.field('status'), 'running')))
-      .collect()
-
-    return docs.map((doc) => ({
-      _id: doc._id,
-      status: doc.status,
-    }))
+    return getActiveRoutePlansForSessionHandler(ctx as any, args)
   },
 })

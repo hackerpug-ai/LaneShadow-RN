@@ -13,6 +13,7 @@ import {
   cancelPlanHandler,
   createPlanHandler,
   getActivePlanHandler,
+  getActiveRoutePlansForSessionHandler,
   getPlanByIdHandler,
   listBySessionHandler,
   updatePlanStatusHandler,
@@ -673,5 +674,137 @@ describe('listBySessionHandler', () => {
     const result = await listBySessionHandler(ctx as any, { sessionId: SESSION_ID })
 
     expect(result).toEqual([])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// AC-3: getActiveRoutePlansForSession requires authentication
+// ---------------------------------------------------------------------------
+
+describe('getActiveRoutePlansForSessionHandler', () => {
+  const SESSION_ID = 'session_123' as Id<'planning_sessions'>
+  const USER_A = 'user_a_123'
+  const USER_B = 'user_b_456'
+
+  it('AC-3: throws UNAUTHENTICATED when called without authentication', async () => {
+    const ctx = {
+      db: {
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              collect: vi.fn().mockResolvedValue([]),
+            }),
+          }),
+        }),
+      },
+      auth: {
+        getUserIdentity: vi.fn().mockResolvedValue(null),
+      },
+    }
+
+    await expect(
+      getActiveRoutePlansForSessionHandler(ctx as any, { sessionId: SESSION_ID }),
+    ).rejects.toThrow(ConvexError)
+
+    await expect(
+      getActiveRoutePlansForSessionHandler(ctx as any, { sessionId: SESSION_ID }),
+    ).rejects.toMatchObject({
+      data: {
+        code: ERROR_CODES.UNAUTHENTICATED,
+      },
+    })
+  })
+
+  it('AC-4: throws FORBIDDEN when user B accesses user A session', async () => {
+    const sessionDoc = {
+      _id: SESSION_ID,
+      clerkUserId: USER_A, // Owner is user A
+      title: 'User A session',
+      status: 'active',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }
+
+    const ctx = {
+      db: {
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              collect: vi.fn().mockResolvedValue([]),
+            }),
+          }),
+        }),
+        get: vi.fn().mockResolvedValue(sessionDoc),
+      },
+      auth: {
+        getUserIdentity: vi.fn().mockResolvedValue({
+          subject: USER_B, // But caller is user B
+          tokenIdentifier: 'tok_user_b',
+        }),
+      },
+    }
+
+    await expect(
+      getActiveRoutePlansForSessionHandler(ctx as any, { sessionId: SESSION_ID }),
+    ).rejects.toThrow(ConvexError)
+
+    await expect(
+      getActiveRoutePlansForSessionHandler(ctx as any, { sessionId: SESSION_ID }),
+    ).rejects.toMatchObject({
+      data: {
+        code: ERROR_CODES.FORBIDDEN,
+      },
+    })
+  })
+
+  it('AC-5: returns active plans when user owns session', async () => {
+    const sessionDoc = {
+      _id: SESSION_ID,
+      clerkUserId: USER_A,
+      title: 'User A session',
+      status: 'active',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }
+
+    const plan1 = {
+      _id: 'plan_1' as Id<'route_plans'>,
+      planningSessionId: SESSION_ID,
+      status: 'pending',
+    }
+
+    const plan2 = {
+      _id: 'plan_2' as Id<'route_plans'>,
+      planningSessionId: SESSION_ID,
+      status: 'running',
+    }
+
+    const ctx = {
+      db: {
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              collect: vi.fn().mockResolvedValue([plan1, plan2]),
+            }),
+          }),
+        }),
+        get: vi.fn().mockResolvedValue(sessionDoc),
+      },
+      auth: {
+        getUserIdentity: vi.fn().mockResolvedValue({
+          subject: USER_A,
+          tokenIdentifier: 'tok_user_a',
+        }),
+      },
+    }
+
+    const result = await getActiveRoutePlansForSessionHandler(ctx as any, {
+      sessionId: SESSION_ID,
+    })
+
+    expect(result).toEqual([
+      { _id: 'plan_1', status: 'pending' },
+      { _id: 'plan_2', status: 'running' },
+    ])
   })
 })

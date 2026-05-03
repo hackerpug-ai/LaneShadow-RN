@@ -69,10 +69,21 @@ describe('ensureSession', () => {
 })
 
 describe('requireIdentity', () => {
+  it('AC-2: throws ConvexError with structured code UNAUTHENTICATED when no identity present', async () => {
+    const ctx = makeCtx(null)
+    try {
+      await requireIdentity(ctx as any)
+      expect.fail('Should have thrown ConvexError')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ConvexError)
+      expect(err.data.code).toBe('UNAUTHENTICATED')
+      expect(err.data.message).toBeDefined()
+    }
+  })
+
   it('AC-US034-4: throws ConvexError when no identity present', async () => {
     const ctx = makeCtx(null)
     await expect(requireIdentity(ctx as any)).rejects.toThrow(ConvexError)
-    await expect(requireIdentity(ctx as any)).rejects.toThrow('Authentication required')
   })
 
   it('returns clerkUserId and tokenIdentifier when identity is present', async () => {

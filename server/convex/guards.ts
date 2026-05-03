@@ -3,6 +3,7 @@ import { ConvexError } from 'convex/values'
 import type { Session } from '../models/users'
 import { api, internal } from './_generated/api'
 import type { ActionCtx, MutationCtx, QueryCtx } from './_generated/server'
+import { ERROR_CODES } from './errors'
 
 type Ctx = QueryCtx | MutationCtx | ActionCtx
 
@@ -14,7 +15,10 @@ type Identity = {
 export const requireIdentity = async (ctx: Ctx): Promise<Identity> => {
   const identity = await ctx.auth.getUserIdentity()
   if (!identity) {
-    throw new ConvexError('Authentication required')
+    throw new ConvexError({
+      code: ERROR_CODES.UNAUTHENTICATED,
+      message: 'Authentication required',
+    })
   }
 
   // SavedRoute.ownerId / createdByUserId store this viewerUserId (Clerk user id).
@@ -32,7 +36,10 @@ export const requireIdentity = async (ctx: Ctx): Promise<Identity> => {
 export const ensureSession = async (ctx: ActionCtx): Promise<Session> => {
   const identity = await ctx.auth.getUserIdentity()
   if (!identity) {
-    throw new ConvexError('Authentication required')
+    throw new ConvexError({
+      code: ERROR_CODES.UNAUTHENTICATED,
+      message: 'Authentication required',
+    })
   }
 
   const clerkUserId = identity.subject
