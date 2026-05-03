@@ -1,5 +1,58 @@
 package com.laneshadow.services
 
+/**
+ * Canonical planning phase taxonomy.
+ *
+ * Per SPRINT.md step 2: "parsing → searching → drafting → enriching → finalizing"
+ * This enum is the single source of truth for phase names across the Android app.
+ *
+ * Mapping from legacy labels (for MockProviders migration):
+ * - "Reading your ride" → Parsing
+ * - "Sketching roads" → Searching
+ * - "Validating roads" → Drafting
+ * - "Checking conditions" → Enriching
+ * - "Building your rides" → Finalizing
+ */
+enum class Phase {
+    Parsing,
+    Searching,
+    Drafting,
+    Enriching,
+    Finalizing,
+    ;
+
+    companion object {
+        /**
+         * Label-to-phase map for parsing server status strings.
+         * Covers all 5 canonical names (lowercase) per AC-2.
+         */
+        val LabelMap: Map<String, Phase> = mapOf(
+            "parsing" to Parsing,
+            "searching" to Searching,
+            "drafting" to Drafting,
+            "enriching" to Enriching,
+            "finalizing" to Finalizing,
+        )
+
+        /**
+         * Display labels for each phase in UI order.
+         */
+        val DisplayLabels: List<String> = listOf(
+            "Parsing your request",
+            "Searching for routes",
+            "Drafting options",
+            "Enriching details",
+            "Finalizing plan",
+        )
+
+        /**
+         * Parse a server status string to Phase enum.
+         * Returns null if the string is not a canonical phase name.
+         */
+        fun fromLabel(label: String?): Phase? = LabelMap[label?.lowercase()]
+    }
+}
+
 sealed interface RideFlowState {
     sealed interface WithSession : RideFlowState {
         val sessionId: String

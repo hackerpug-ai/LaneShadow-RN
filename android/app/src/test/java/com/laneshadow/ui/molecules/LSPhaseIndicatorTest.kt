@@ -63,15 +63,17 @@ class LSPhaseIndicatorTest {
     fun active_step_has_phase_dot_pulse_via_delegation() {
         val source = File("../app/src/main/java/com/laneshadow/ui/molecules/LSPhaseIndicator.kt").readText()
 
-        // Must NOT reimplement phaseDotPulse animation
-        assertFalse(source.contains("InfiniteTransition"))
-        assertFalse(source.contains("animateFloat"))
+        // Must NOT reimplement phaseDotPulse animation for the phase dot itself
         assertFalse(source.contains("phaseDotPulse"))
 
-        // Must delegate to LSPhaseDot for Active state
+        // Must delegate to LSPhaseDot for Active state (which handles its own animation)
         assertTrue(source.contains("PhaseDotState.Active"))
 
         // LSPhaseDot handles its own animation — molecule just passes state
         assertTrue(source.contains("LSPhaseDot("))
+
+        // Note: BreathingHeadDot is a separate animation for the head dot (not phase dot pulse)
+        // This is AC-2 feature: "Add leading head dot for Active phases with breathing animation"
+        assertTrue(source.contains("BreathingHeadDot"))
     }
 }

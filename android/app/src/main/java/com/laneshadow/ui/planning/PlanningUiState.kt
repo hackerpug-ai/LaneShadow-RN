@@ -48,9 +48,9 @@ internal fun phaseHeaderForIndex(index: Int): String =
 
 internal fun defaultPhaseHeaders(): Map<String, String> =
     linkedMapOf(
-        "reading" to phaseHeaderForIndex(1),
-        "sketching" to phaseHeaderForIndex(2),
-        "validating" to phaseHeaderForIndex(3),
-        "weather" to phaseHeaderForIndex(4),
-        "building" to phaseHeaderForIndex(5),
+        "parsing" to phaseHeaderForIndex(1),
+        "searching" to phaseHeaderForIndex(2),
+        "drafting" to phaseHeaderForIndex(3),
+        "enriching" to phaseHeaderForIndex(4),
+        "finalizing" to phaseHeaderForIndex(5),
     )

@@ -89,12 +89,13 @@ internal fun PlanningUiState.toMockState(): PlanningScreenState {
 }
 
 private fun planningPhases(activePhaseIndex: Int): List<PlanningPhase> {
+    // Canonical phase labels per SPRINT.md step 2
     val labels = listOf(
-        "Reading your ride",
-        "Sketching roads",
-        "Checking they connect",
-        "Reading the sky",
-        "Ranking your options",
+        "Parsing your request",
+        "Searching for routes",
+        "Drafting options",
+        "Enriching details",
+        "Finalizing plan",
     )
 
     return labels.mapIndexed { index, label ->

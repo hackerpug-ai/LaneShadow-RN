@@ -28,11 +28,11 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
     private fun defaultState(): PlanningScreenState {
         return PlanningScreenState(
             phases = listOf(
-                PlanningPhase(id = "reading", label = "Reading your ride", status = "done"),
-                PlanningPhase(id = "sketching", label = "Sketching roads", status = "done"),
-                PlanningPhase(id = "validating", label = "Checking they connect", status = "active"),
-                PlanningPhase(id = "weather", label = "Reading the sky", status = "pending"),
-                PlanningPhase(id = "building", label = "Ranking your options", status = "pending")
+                PlanningPhase(id = "parsing", label = "Parsing your request", status = "done"),
+                PlanningPhase(id = "searching", label = "Searching for routes", status = "done"),
+                PlanningPhase(id = "drafting", label = "Drafting options", status = "active"),
+                PlanningPhase(id = "enriching", label = "Enriching details", status = "pending"),
+                PlanningPhase(id = "finalizing", label = "Finalizing plan", status = "pending")
             ),
             message = NavigatorMessage(
                 id = "msg-planning-001",
@@ -68,14 +68,11 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
     private fun overflowState(): PlanningScreenState {
         return PlanningScreenState(
             phases = listOf(
-                PlanningPhase(id = "reading", label = "Reading your ride", status = "done"),
-                PlanningPhase(id = "sketching", label = "Sketching roads", status = "done"),
-                PlanningPhase(id = "validating", label = "Checking they connect", status = "done"),
-                PlanningPhase(id = "weather", label = "Reading the sky", status = "done"),
-                PlanningPhase(id = "building", label = "Ranking your options", status = "active"),
-                PlanningPhase(id = "rendering", label = "Preparing display", status = "pending"),
-                PlanningPhase(id = "optimizing", label = "Optimizing routes", status = "pending"),
-                PlanningPhase(id = "finalizing", label = "Finalizing details", status = "pending")
+                PlanningPhase(id = "parsing", label = "Parsing your request", status = "done"),
+                PlanningPhase(id = "searching", label = "Searching for routes", status = "done"),
+                PlanningPhase(id = "drafting", label = "Drafting options", status = "done"),
+                PlanningPhase(id = "enriching", label = "Enriching details", status = "active"),
+                PlanningPhase(id = "finalizing", label = "Finalizing plan", status = "pending")
             ),
             message = NavigatorMessage(
                 id = "msg-planning-overflow",
@@ -95,28 +92,28 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
         return PlanningScreenState(
             phases = listOf(
                 PlanningPhase(
-                    id = "reading",
-                    label = "Reading your ride request and understanding your preferences",
+                    id = "parsing",
+                    label = "Parsing your ride request and understanding your preferences",
                     status = "done"
                 ),
                 PlanningPhase(
-                    id = "sketching",
-                    label = "Sketching potential road routes through the Santa Cruz Mountains",
+                    id = "searching",
+                    label = "Searching for potential road routes through the Santa Cruz Mountains",
                     status = "done"
                 ),
                 PlanningPhase(
-                    id = "validating",
-                    label = "Checking that all road segments connect properly and are rideable",
+                    id = "drafting",
+                    label = "Drafting route options and checking that all segments connect properly",
                     status = "active"
                 ),
                 PlanningPhase(
-                    id = "weather",
-                    label = "Reading the sky and checking current weather conditions along all routes",
+                    id = "enriching",
+                    label = "Enriching with weather conditions and scenic details",
                     status = "pending"
                 ),
                 PlanningPhase(
-                    id = "building",
-                    label = "Ranking your options based on scenery, difficulty, and weather",
+                    id = "finalizing",
+                    label = "Finalizing plan based on scenery, difficulty, and weather",
                     status = "pending"
                 )
             ),
@@ -141,11 +138,11 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
     private fun slowState(): PlanningScreenState {
         return PlanningScreenState(
             phases = listOf(
-                PlanningPhase(id = "reading", label = "Reading your ride", status = "done"),
-                PlanningPhase(id = "sketching", label = "Sketching roads", status = "active"),
-                PlanningPhase(id = "validating", label = "Checking they connect", status = "pending"),
-                PlanningPhase(id = "weather", label = "Reading the sky", status = "pending"),
-                PlanningPhase(id = "building", label = "Ranking your options", status = "pending")
+                PlanningPhase(id = "parsing", label = "Parsing your request", status = "done"),
+                PlanningPhase(id = "searching", label = "Searching for routes", status = "active"),
+                PlanningPhase(id = "drafting", label = "Drafting options", status = "pending"),
+                PlanningPhase(id = "enriching", label = "Enriching details", status = "pending"),
+                PlanningPhase(id = "finalizing", label = "Finalizing plan", status = "pending")
             ),
             message = NavigatorMessage(
                 id = "msg-planning-slow",
@@ -169,11 +166,11 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
     private fun cancelConfirmState(): PlanningScreenState {
         return PlanningScreenState(
             phases = listOf(
-                PlanningPhase(id = "reading", label = "Reading your ride", status = "done"),
-                PlanningPhase(id = "sketching", label = "Sketching roads", status = "done"),
-                PlanningPhase(id = "validating", label = "Checking they connect", status = "active"),
-                PlanningPhase(id = "weather", label = "Reading the sky", status = "pending"),
-                PlanningPhase(id = "building", label = "Ranking your options", status = "pending")
+                PlanningPhase(id = "parsing", label = "Parsing your request", status = "done"),
+                PlanningPhase(id = "searching", label = "Searching for routes", status = "done"),
+                PlanningPhase(id = "drafting", label = "Drafting options", status = "active"),
+                PlanningPhase(id = "enriching", label = "Enriching details", status = "pending"),
+                PlanningPhase(id = "finalizing", label = "Finalizing plan", status = "pending")
             ),
             message = NavigatorMessage(
                 id = "msg-planning-cancel",
@@ -197,9 +194,9 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
     private fun singleCandidateState(): PlanningScreenState {
         return PlanningScreenState(
             phases = listOf(
-                PlanningPhase(id = "reading", label = "Reading your ride", status = "done"),
-                PlanningPhase(id = "sketching", label = "Sketching roads", status = "done"),
-                PlanningPhase(id = "validating", label = "Checking they connect", status = "active")
+                PlanningPhase(id = "parsing", label = "Parsing your request", status = "done"),
+                PlanningPhase(id = "searching", label = "Searching for routes", status = "done"),
+                PlanningPhase(id = "drafting", label = "Drafting options", status = "active")
             ),
             message = NavigatorMessage(
                 id = "msg-planning-single",
@@ -214,9 +211,9 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
             isThinking = true,
             warningBorder = true,
             phaseHeaders = mapOf(
-                "reading" to "Checking your preferences",
-                "sketching" to "Drawing the route",
-                "validating" to "Finding the best path"
+                "parsing" to "Checking your preferences",
+                "searching" to "Finding the best roads",
+                "drafting" to "Refining the route"
             )
         )
     }

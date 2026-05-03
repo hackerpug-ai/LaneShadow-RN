@@ -119,16 +119,16 @@ class PlanningScreenTest {
         )
 
         // Verify different phases can be active across variants
-        // defaultState has "validating" as active
+        // defaultState has "drafting" as active (canonical phase name)
         assertTrue(
-            "PlanningMockProvider defaultState must have 'validating' as active phase",
-            source.contains("id = \"validating\"") && source.contains("status = \"active\"")
+            "PlanningMockProvider defaultState must have 'drafting' as active phase (canonical taxonomy)",
+            source.contains("id = \"drafting\"") && source.contains("status = \"active\"")
         )
 
-        // overflowState has "building" as active (different from default)
+        // overflowState has "enriching" as active (different from default)
         assertTrue(
-            "PlanningMockProvider overflowState must have 'building' as active phase to demonstrate phase cycling",
-            source.contains("id = \"building\"") && source.contains("overflowState()")
+            "PlanningMockProvider overflowState must have 'enriching' as active phase to demonstrate phase cycling",
+            source.contains("id = \"enriching\"") && source.contains("overflowState()")
         )
     }
 
