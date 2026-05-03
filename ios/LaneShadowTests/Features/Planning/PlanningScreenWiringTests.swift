@@ -273,11 +273,17 @@ struct PlanningScreenWiringTests {
         let retryViewModel = ErrorScreenViewModel(
             error: .agentTimeout,
             chatStore: context.chatStore,
-            appState: context.appState
+            appState: context.appState,
+            convexClient: context.client
         )
         retryViewModel.handleTryAgain()
-        await pumpMainActor()
 
+        // Pump main actor multiple times to allow Task to complete
+        for _ in 0 ..< 100 {
+            await pumpMainActor()
+        }
+
+        #expect(context.client.createPlanningSessionCalls == ["Refine the route"])
         #expect(context.chatStore.flowState.phase == .planning)
         #expect(context.chatStore.flowState.sessionId == "flow-session-456")
         #expect(context.sessionStore.activeSessionId == "flow-session-456")
@@ -335,6 +341,7 @@ struct PlanningScreenWiringTests {
         sessionId: String = "session-123"
     ) -> PlanningScreenTestContext {
         let client = StubLaneShadowConvexClient()
+        client.stubCreatePlanningSessionResult = LaneShadowPlanningSessionCreationResult(sessionId: "flow-session-456")
         let sessionStore = SessionStore()
         let chatStore = ChatStore(
             flowState: .planning(

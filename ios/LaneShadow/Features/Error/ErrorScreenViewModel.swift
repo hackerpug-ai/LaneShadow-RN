@@ -18,15 +18,19 @@ final class ErrorScreenViewModel {
     @ObservationIgnored private let chatStore: ChatStore
     @ObservationIgnored
     private let appState: AppState
+    @ObservationIgnored
+    private let convexClient: any LaneShadowPlanningDataProviding
 
     init(
         error: LaneShadowError,
         chatStore: ChatStore,
-        appState: AppState
+        appState: AppState,
+        convexClient: any LaneShadowPlanningDataProviding
     ) {
         self.error = error
         self.chatStore = chatStore
         self.appState = appState
+        self.convexClient = convexClient
     }
 
     var bodyText: String {
@@ -109,7 +113,28 @@ final class ErrorScreenViewModel {
             return
         }
 
-        chatStore.dispatch(.sendMessage(retryPayload))
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            do {
+                let session = try await convexClient.createPlanningSession(firstMessage: retryPayload)
+                chatStore.dispatch(.sendMessageWithSession(retryPayload, sessionId: session.sessionId))
+
+                let sessionId = session.sessionId
+                do {
+                    _ = try await convexClient.sendPlanningMessage(
+                        sessionId: sessionId,
+                        content: retryPayload,
+                        currentLocation: nil
+                    )
+                } catch {
+                    let laneShadowError = LaneShadowError.map(error)
+                    chatStore.dispatch(.planningError(laneShadowError.rawMessage))
+                }
+            } catch {
+                let laneShadowError = LaneShadowError.map(error)
+                chatStore.dispatch(.planningError(laneShadowError.rawMessage))
+            }
+        }
     }
 
     func handleStartOver() {

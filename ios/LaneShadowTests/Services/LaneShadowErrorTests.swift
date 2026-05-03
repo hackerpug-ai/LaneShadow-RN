@@ -83,7 +83,8 @@ struct LaneShadowErrorTests {
         let mapped = LaneShadowError.map(ClientError.ServerError(msg: "some uncoded message"))
 
         #expect(mapped == .unknown("some uncoded message"))
-        #expect(mapped.errorDescription == "some uncoded message")
+        #expect(mapped.errorDescription == "Something went wrong. Please try again.")
+        #expect(mapped.rawMessage == "some uncoded message")
     }
 
     @Test("test_laneShadowError_map_unknownCodedMessage_preservesOriginalMessage")
@@ -91,7 +92,7 @@ struct LaneShadowErrorTests {
         let mapped = LaneShadowError.map(ClientError.ServerError(msg: "STREAM_DOWN"))
 
         #expect(mapped == .unknown("STREAM_DOWN"))
-        #expect(mapped.errorDescription == "STREAM_DOWN")
+        #expect(mapped.errorDescription == "Something went wrong. Please try again.")
         #expect(mapped.rawMessage == "STREAM_DOWN")
     }
 

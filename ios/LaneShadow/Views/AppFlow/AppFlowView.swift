@@ -28,7 +28,8 @@ struct AppFlowView: View {
                         viewModel: ErrorScreenViewModel(
                             error: LaneShadowError.map(rawMessage: errorMessage),
                             chatStore: appEnvironment.chatStore,
-                            appState: appState
+                            appState: appState,
+                            convexClient: appEnvironment.convexClient
                         )
                     )
                 case .planning:
@@ -58,10 +59,12 @@ private struct SessionDestinationView: View {
     @State private var viewModel: PlanningViewModel
     @Bindable private var chatStore: ChatStore
     let appState: AppState
+    let environment: AppEnvironment
 
     init(sessionID: String, environment: AppEnvironment, appState: AppState) {
         _chatStore = Bindable(environment.chatStore)
         self.appState = appState
+        self.environment = environment
 
         _viewModel = State(
             initialValue: PlanningViewModel(
@@ -82,7 +85,8 @@ private struct SessionDestinationView: View {
                 viewModel: ErrorScreenViewModel(
                     error: LaneShadowError.map(rawMessage: errorMessage),
                     chatStore: chatStore,
-                    appState: appState
+                    appState: appState,
+                    convexClient: environment.convexClient
                 )
             )
         case .planning:

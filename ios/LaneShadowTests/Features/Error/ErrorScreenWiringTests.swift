@@ -27,11 +27,22 @@ struct ErrorScreenWiringTests {
         #expect(try callout.find(text: "Start over").string() == "Start over")
 
         context.viewModel.handleTryAgain()
-        await pumpMainActor()
+        await pumpMainActor(iterations: 50)
 
+        // Verify backend calls
+        #expect(context.convexClient.createPlanningSessionCalls == ["Plan a scenic ride"])
+        #expect(context.convexClient.sendPlanningMessageCalls == [
+            LaneShadowPlanningMessageCall(
+                sessionId: "backend-session-123",
+                content: "Plan a scenic ride",
+                currentLocation: nil
+            ),
+        ])
+
+        // Verify state transitions
         #expect(context.chatStore.flowState.phase == .planning)
-        #expect(context.chatStore.flowState.sessionId == "retry-session-456")
-        #expect(context.sessionStore.activeSessionId == "retry-session-456")
+        #expect(context.chatStore.flowState.sessionId == "backend-session-123")
+        #expect(context.sessionStore.activeSessionId == "backend-session-123")
     }
 
     @Test("test_errorScreen_startOver_dispatchesNewSession")
@@ -95,6 +106,7 @@ struct ErrorScreenWiringTests {
         let chatStore: ChatStore
         let sessionStore: SessionStore
         let appState: AppState
+        let convexClient: StubLaneShadowConvexClient
         let viewModel: ErrorScreenViewModel
     }
 
@@ -121,16 +133,22 @@ struct ErrorScreenWiringTests {
         appState.appRoute = .session(id: "session-123")
         appState.cachedLastFailedInput = cachedLastFailedInput
 
+        let convexClient = StubLaneShadowConvexClient()
+        convexClient
+            .stubCreatePlanningSessionResult = LaneShadowPlanningSessionCreationResult(sessionId: "backend-session-123")
+
         let viewModel = ErrorScreenViewModel(
             error: error,
             chatStore: chatStore,
-            appState: appState
+            appState: appState,
+            convexClient: convexClient
         )
 
         return ErrorScreenTestContext(
             chatStore: chatStore,
             sessionStore: sessionStore,
             appState: appState,
+            convexClient: convexClient,
             viewModel: viewModel
         )
     }
