@@ -1,7 +1,21 @@
 import ConvexMobile
 import Foundation
 
+private let laneShadowUnknownErrorMessage = "Something went wrong. Please try again."
+
 enum LaneShadowError: Equatable, LocalizedError {
+    case authRequired
+    case sessionRequired
+    case userNotFound
+    case noFieldsToUpdate
+    case notFound
+    case invalidInput
+    case llmSketchInvalid
+    case llmSketchAmbiguous
+    case routingCompileFailed
+    case conditionsLookupFailed
+    case agentResponseInvalid
+    case invalidAgentResponseStructure
     case sessionNotFound
     case invalidContent
     case rateLimitExceeded
@@ -29,6 +43,30 @@ enum LaneShadowError: Equatable, LocalizedError {
 
     var bodyText: String {
         switch self {
+        case .authRequired:
+            "User authentication is required to perform this action."
+        case .sessionRequired:
+            "An active session is required. Please sign in again."
+        case .userNotFound:
+            "User record could not be found."
+        case .noFieldsToUpdate:
+            "Provide at least one field to update."
+        case .notFound:
+            "Requested resource was not found or not accessible."
+        case .invalidInput:
+            "The provided input is invalid for this operation."
+        case .llmSketchInvalid:
+            "The generated route sketch is invalid."
+        case .llmSketchAmbiguous:
+            "The generated route sketch is ambiguous."
+        case .routingCompileFailed:
+            "Failed to compile the route sketch with the provider."
+        case .conditionsLookupFailed:
+            "Failed to fetch or map conditions data."
+        case .agentResponseInvalid:
+            "The planner returned an invalid response."
+        case .invalidAgentResponseStructure:
+            "The planner returned an invalid response structure."
         case .sessionNotFound:
             "I couldn't find that session."
         case .invalidContent:
@@ -61,17 +99,35 @@ enum LaneShadowError: Equatable, LocalizedError {
             "Weather information is currently unavailable. 🌤️"
         case .unauthenticated:
             "Your session expired. Please sign in again."
-        case let .convex(message), let .server(message), let .internalError(message), let .unknown(message):
+        case let .convex(message), let .server(message), let .internalError(message):
             message
+        case .unknown:
+            laneShadowUnknownErrorMessage
         }
     }
 
     var detailText: String? {
         switch self {
+        case .authRequired, .sessionRequired, .userNotFound, .unauthenticated:
+            nil
+        case .noFieldsToUpdate:
+            "Add at least one value and try again."
+        case .notFound:
+            "Try starting over or refreshing the session."
+        case .invalidInput, .invalidContent:
+            "Check the text and send a revised message."
+        case .llmSketchInvalid:
+            "Try rephrasing your request."
+        case .llmSketchAmbiguous:
+            "Try being more specific about your route."
+        case .routingCompileFailed:
+            "Try again in a moment."
+        case .conditionsLookupFailed:
+            "Weather data may be temporarily unavailable. Try again later."
+        case .agentResponseInvalid, .invalidAgentResponseStructure:
+            "Please try again."
         case .sessionNotFound:
             "Please sign in again or start over."
-        case .invalidContent:
-            "Check the text and send a revised message."
         case .rateLimitExceeded:
             "Upgrade to Premium for unlimited plans and advanced features!"
         case .planLimitExceeded:
@@ -87,7 +143,8 @@ enum LaneShadowError: Equatable, LocalizedError {
         case .agenticParseFailed:
             "Try rephrasing your request."
         case .lowConfidenceParse:
-            "Could you provide more details? For example: \"Plan a ride from San Francisco to Santa Cruz along scenic roads.\""
+            "Could you provide more details? For example: " +
+            "\"Plan a ride from San Francisco to Santa Cruz along scenic roads.\""
         case .generationFailed:
             "Let's try a different approach. Could you specify your start and end points more clearly?"
         case .noRoutesGenerated:
@@ -98,8 +155,6 @@ enum LaneShadowError: Equatable, LocalizedError {
             "Please try again. If this persists, check your connection or contact support."
         case .weatherUnavailable:
             "You can still plan your route, but weather data won't be included. Try again later for weather updates."
-        case .unauthenticated:
-            nil
         case .convex, .server, .internalError, .unknown:
             nil
         }
@@ -107,7 +162,13 @@ enum LaneShadowError: Equatable, LocalizedError {
 
     var allowsRetry: Bool {
         switch self {
-        case .sessionNotFound,
+        case .authRequired,
+             .sessionRequired,
+             .userNotFound,
+             .noFieldsToUpdate,
+             .notFound,
+             .invalidInput,
+             .sessionNotFound,
              .invalidContent,
              .rateLimitExceeded,
              .planLimitExceeded,
@@ -116,11 +177,14 @@ enum LaneShadowError: Equatable, LocalizedError {
              .unauthenticated:
             false
         case .agentBudgetExceeded,
-             .agentLoopDetected:
-            true
-        case .convex, .server, .internalError, .unknown:
-            true
-        case .agenticParseFailed,
+             .agentLoopDetected,
+             .agentResponseInvalid,
+             .invalidAgentResponseStructure,
+             .llmSketchInvalid,
+             .llmSketchAmbiguous,
+             .routingCompileFailed,
+             .conditionsLookupFailed,
+             .agenticParseFailed,
              .lowConfidenceParse,
              .generationFailed,
              .noRoutesGenerated,
@@ -128,15 +192,53 @@ enum LaneShadowError: Equatable, LocalizedError {
              .networkTimeout,
              .weatherUnavailable:
             true
+        case .convex, .server, .internalError, .unknown:
+            true
         }
     }
 
     var isUnauthenticated: Bool {
-        self == .unauthenticated
+        requiresAuthenticationRecovery
+    }
+
+    var requiresAuthenticationRecovery: Bool {
+        switch self {
+        case .authRequired,
+             .sessionRequired,
+             .userNotFound,
+             .unauthenticated:
+            true
+        default:
+            false
+        }
     }
 
     var rawMessage: String {
         switch self {
+        case .authRequired:
+            "AUTH_REQUIRED"
+        case .sessionRequired:
+            "SESSION_REQUIRED"
+        case .userNotFound:
+            "USER_NOT_FOUND"
+        case .noFieldsToUpdate:
+            "NO_FIELDS_TO_UPDATE"
+        case .notFound:
+            "NOT_FOUND"
+        case .invalidInput:
+            "INVALID_INPUT"
+        case .llmSketchInvalid:
+            "LLM_SKETCH_INVALID"
+        case .llmSketchAmbiguous:
+            "LLM_SKETCH_AMBIGUOUS"
+        case .routingCompileFailed:
+            "ROUTING_COMPILE_FAILED"
+        case .conditionsLookupFailed:
+            "CONDITIONS_LOOKUP_FAILED"
+        case .agentResponseInvalid:
+            "AGENT_RESPONSE_INVALID"
+        case .invalidAgentResponseStructure:
+            "INVALID_AGENT_RESPONSE_STRUCTURE"
         case .sessionNotFound:
             "SESSION_NOT_FOUND"
         case .invalidContent:
@@ -174,121 +276,4 @@ enum LaneShadowError: Equatable, LocalizedError {
         }
     }
 
-    static func map(_ error: Error) -> LaneShadowError {
-        if let laneShadowError = error as? LaneShadowError {
-            return laneShadowError
-        }
-
-        guard let clientError = error as? ClientError else {
-            return .unknown(error.localizedDescription)
-        }
-
-        switch clientError {
-        case let .ConvexError(data):
-            return mapConvexPayload(data)
-        case let .ServerError(msg):
-            return mapStructuredMessage(msg)
-        case let .InternalError(msg):
-            return mapStructuredMessage(msg)
-        }
-    }
-
-    static func map(rawMessage message: String) -> LaneShadowError {
-        mapStructuredMessage(message)
-    }
-
-    private static func mapConvexPayload(_ payload: String) -> LaneShadowError {
-        if let code = jsonCodeToken(in: payload) {
-            return mapCodeToken(code, rawMessage: code)
-        }
-
-        return .unknown(payload)
-    }
-
-    private static func mapStructuredMessage(_ message: String) -> LaneShadowError {
-        let trimmed = message.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
-            return .unknown(message)
-        }
-
-        guard let code = leadingCodeToken(in: trimmed) else {
-            return .unknown(message)
-        }
-
-        return mapCodeToken(code, rawMessage: message)
-    }
-
-    private static func mapCodeToken(_ code: String, rawMessage: String) -> LaneShadowError {
-        switch code {
-        case "SESSION_NOT_FOUND":
-            .sessionNotFound
-        case "INVALID_CONTENT":
-            .invalidContent
-        case "RATE_LIMIT_EXCEEDED":
-            .rateLimitExceeded
-        case "PLAN_LIMIT_EXCEEDED":
-            .planLimitExceeded
-        case "PLAN_ALREADY_ACTIVE":
-            .planAlreadyActive
-        case "PLAN_NOT_FOUND":
-            .planNotFound
-        case "AGENT_BUDGET_EXCEEDED":
-            .agentBudgetExceeded
-        case "AGENT_LOOP_DETECTED":
-            .agentLoopDetected
-        case "AGENTIC_PARSE_FAILED":
-            .agenticParseFailed
-        case "LOW_CONFIDENCE_PARSE":
-            .lowConfidenceParse
-        case "GENERATION_FAILED":
-            .generationFailed
-        case "NO_ROUTES_GENERATED":
-            .noRoutesGenerated
-        case "AGENT_TIMEOUT":
-            .agentTimeout
-        case "NETWORK_TIMEOUT":
-            .networkTimeout
-        case "WEATHER_UNAVAILABLE":
-            .weatherUnavailable
-        case "UNAUTHENTICATED":
-            .unauthenticated
-        default:
-            .unknown(rawMessage)
-        }
-    }
-
-    private static func jsonCodeToken(in payload: String) -> String? {
-        guard let data = payload.trimmingCharacters(in: .whitespacesAndNewlines).data(using: .utf8) else {
-            return nil
-        }
-
-        guard let object = try? JSONSerialization.jsonObject(with: data),
-              let dictionary = object as? [String: Any],
-              let code = dictionary["code"] as? String
-        else {
-            return nil
-        }
-
-        return normalizedToken(code)
-    }
-
-    private static func leadingCodeToken(in message: String) -> String? {
-        let trimmed = message.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let firstCharacter = trimmed.first,
-              firstCharacter.isUppercase || firstCharacter.isNumber || firstCharacter == "_"
-        else {
-            return nil
-        }
-
-        let token = trimmed.prefix { character in
-            character.isUppercase || character.isNumber || character == "_"
-        }
-        let tokenString = String(token)
-        return tokenString.isEmpty ? nil : tokenString
-    }
-
-    private static func normalizedToken(_ token: String) -> String? {
-        let uppercased = token.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        return leadingCodeToken(in: uppercased)
-    }
 }
