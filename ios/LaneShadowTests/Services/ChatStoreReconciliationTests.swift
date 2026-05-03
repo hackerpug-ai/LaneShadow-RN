@@ -215,4 +215,25 @@ struct ChatStoreReconciliationTests {
         #expect(store.transcript.messages.first?.state == .pending)
         #expect(store.transcript.messages.first?.retryable == false)
     }
+
+    @Test("test_chatStore_cancelActivePlan_invokesCancelPlanMutation")
+    func chatStore_cancelActivePlan_invokesCancelPlanMutation() async {
+        let planId = "plan-123"
+        let planningState = PlanningState(sessionId: "session-123", planId: planId)
+        let initialFlowState: RideFlowPhase = .planning(planningState)
+        let store = ChatStore(flowState: initialFlowState)
+
+        var cancelPlanMutationCalled = false
+        var capturedPlanId: String?
+
+        await store.cancelActivePlan { planId in
+            cancelPlanMutationCalled = true
+            capturedPlanId = planId
+        }
+
+        #expect(cancelPlanMutationCalled)
+        #expect(capturedPlanId == planId)
+        // After .cancelPlanning is dispatched, the flowState transitions to idle
+        #expect(store.flowState.phase == .idle)
+    }
 }

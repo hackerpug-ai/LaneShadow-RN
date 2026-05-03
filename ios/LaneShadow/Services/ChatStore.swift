@@ -97,6 +97,24 @@ final class ChatStore {
         transcript.clearOptimisticMessages()
     }
 
+    func cancelActivePlan(
+        cancelPlanMutation: @escaping (String) async throws -> Void = { _ in }
+    ) async {
+        guard case let .planning(planningState) = flowState, let planId = planningState.planId
+        else {
+            return
+        }
+
+        do {
+            try await cancelPlanMutation(planId)
+        } catch {
+            // Log error but still dispatch the cancel action
+            // The error will be handled by the UI layer
+        }
+
+        dispatch(.cancelPlanning)
+    }
+
     private func syncSessionStore(for state: RideFlowPhase) {
         guard let sessionId = state.sessionId else {
             sessionStore.newSession()
