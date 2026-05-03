@@ -1,0 +1,9 @@
+Running SwiftFormat...
+(lint mode - no files will be changed.)
+Reading config file at /Users/justinrich/Projects/LaneShadow/.swiftformat
+Reading config file at /Users/justinrich/Projects/LaneShadow/.swiftformat
+Reading config file at /Users/justinrich/Projects/LaneShadow/.claude/worktrees/CHAT-S04-T09a/.swiftformat
+Reading config file at /Users/justinrich/Projects/LaneShadow/.claude/worktrees/CHAT-S04-T09a/.swiftformat
+SwiftFormat completed in 0.05s.
+0/2 files require formatting.
+Exit code: 0
