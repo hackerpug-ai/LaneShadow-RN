@@ -6,7 +6,7 @@ import SwiftUI
 enum SessionsScreenStory {
     static let all: [Story] = [
         Story(
-            id: "templates.sessions.default",
+            id: "templates.sessions-screen.default",
             tier: .template,
             component: "SessionsScreen",
             name: "Default — This Week",

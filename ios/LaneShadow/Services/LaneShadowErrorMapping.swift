@@ -80,6 +80,7 @@ extension LaneShadowError {
             "NETWORK_TIMEOUT": .networkTimeout,
             "WEATHER_UNAVAILABLE": .weatherUnavailable,
             "UNAUTHENTICATED": .unauthenticated,
+            "FORBIDDEN": .forbidden,
         ]
         return codeMap[code]
     }
@@ -88,7 +89,6 @@ extension LaneShadowError {
         let normalized = message.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
         let phraseMap: [(phrase: String, error: LaneShadowError)] = [
-            ("authentication required", .authRequired),
             ("active session is required", .sessionRequired),
             ("user record could not be found", .userNotFound),
             ("provide at least one field to update", .noFieldsToUpdate),

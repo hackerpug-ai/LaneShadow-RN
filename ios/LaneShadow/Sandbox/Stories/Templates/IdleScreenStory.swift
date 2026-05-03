@@ -6,7 +6,7 @@ import SwiftUI
 enum IdleScreenStory {
     static let all: [Story] = [
         Story(
-            id: "templates.idle.default",
+            id: "templates.idle-screen.default",
             tier: .template,
             component: "IdleScreen",
             name: "Default",

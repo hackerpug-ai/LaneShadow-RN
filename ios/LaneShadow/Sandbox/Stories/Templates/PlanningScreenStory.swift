@@ -8,7 +8,7 @@ enum PlanningScreenStory {
     static let all: [Story] = [
         // Phase 1 (Parsing)
         Story(
-            id: "templates.planning.phase1",
+            id: "templates.planning-screen.phase1",
             tier: .template,
             component: "PlanningScreen",
             name: "Phase 1 · Parsing",
@@ -23,7 +23,7 @@ enum PlanningScreenStory {
 
         // Phase 2 (Searching) — Default
         Story(
-            id: "templates.planning.default",
+            id: "templates.planning-screen.default",
             tier: .template,
             component: "PlanningScreen",
             name: "Default — Phase 2",
@@ -47,7 +47,7 @@ enum PlanningScreenStory {
 
         // Phase 3 (Drafting)
         Story(
-            id: "templates.planning.phase3",
+            id: "templates.planning-screen.phase3",
             tier: .template,
             component: "PlanningScreen",
             name: "Phase 3 · Drafting",
@@ -62,7 +62,7 @@ enum PlanningScreenStory {
 
         // Phase 4 (Enriching)
         Story(
-            id: "templates.planning.phase4",
+            id: "templates.planning-screen.phase4",
             tier: .template,
             component: "PlanningScreen",
             name: "Phase 4 · Enriching",
@@ -77,7 +77,7 @@ enum PlanningScreenStory {
 
         // Phase 5 (Finalizing)
         Story(
-            id: "templates.planning.phase5",
+            id: "templates.planning-screen.phase5",
             tier: .template,
             component: "PlanningScreen",
             name: "Phase 5 · Finalizing",
@@ -92,7 +92,7 @@ enum PlanningScreenStory {
 
         // Dark mode variant
         Story(
-            id: "templates.planning.dark",
+            id: "templates.planning-screen.dark",
             tier: .template,
             component: "PlanningScreen",
             name: "Dark Mode — Phase 2",

@@ -32,6 +32,7 @@ enum LaneShadowError: Equatable, LocalizedError {
     case networkTimeout
     case weatherUnavailable
     case unauthenticated
+    case forbidden
     case convex(String)
     case server(String)
     case internalError(String)
@@ -99,6 +100,8 @@ enum LaneShadowError: Equatable, LocalizedError {
             "Weather information is currently unavailable. 🌤️"
         case .unauthenticated:
             "Your session expired. Please sign in again."
+        case .forbidden:
+            "You don't have permission to access this resource."
         case let .convex(message), let .server(message), let .internalError(message):
             message
         case .unknown:
@@ -155,6 +158,8 @@ enum LaneShadowError: Equatable, LocalizedError {
             "Please try again. If this persists, check your connection or contact support."
         case .weatherUnavailable:
             "You can still plan your route, but weather data won't be included. Try again later for weather updates."
+        case .forbidden:
+            "Please sign in with an account that has access to this resource."
         case .convex, .server, .internalError, .unknown:
             nil
         }
@@ -174,7 +179,8 @@ enum LaneShadowError: Equatable, LocalizedError {
              .planLimitExceeded,
              .planAlreadyActive,
              .planNotFound,
-             .unauthenticated:
+             .unauthenticated,
+             .forbidden:
             false
         case .agentBudgetExceeded,
              .agentLoopDetected,
@@ -206,7 +212,8 @@ enum LaneShadowError: Equatable, LocalizedError {
         case .authRequired,
              .sessionRequired,
              .userNotFound,
-             .unauthenticated:
+             .unauthenticated,
+             .forbidden:
             true
         default:
             false
@@ -271,6 +278,8 @@ enum LaneShadowError: Equatable, LocalizedError {
             "WEATHER_UNAVAILABLE"
         case .unauthenticated:
             "UNAUTHENTICATED"
+        case .forbidden:
+            "FORBIDDEN"
         case let .convex(message), let .server(message), let .internalError(message), let .unknown(message):
             message
         }

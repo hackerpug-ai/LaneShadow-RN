@@ -6,7 +6,7 @@ import SwiftUI
 enum RouteDetailsScreenStory {
     static let all: [Story] = [
         Story(
-            id: "templates.route-details.default",
+            id: "templates.route-details-screen.default",
             tier: .template,
             component: "RouteDetailsScreen",
             name: "Default — Skyline Spine",
@@ -16,7 +16,7 @@ enum RouteDetailsScreenStory {
             RouteDetailsScreen(provider: RouteDetailsMockProvider.self)
         },
         Story(
-            id: "templates.route-details.s02-mixed-weather",
+            id: "templates.route-details-screen.s02-mixed-weather",
             tier: .template,
             component: "RouteDetailsScreen",
             name: "Mixed Weather — Coast & Ridge",
@@ -26,7 +26,7 @@ enum RouteDetailsScreenStory {
             RouteDetailsScreen(provider: RouteDetailsMockProvider.self, variant: "mixedWeather")
         },
         Story(
-            id: "templates.route-details.s03-dark",
+            id: "templates.route-details-screen.s03-dark",
             tier: .template,
             component: "RouteDetailsScreen",
             name: "S03 — Dark Mode",
@@ -37,7 +37,7 @@ enum RouteDetailsScreenStory {
                 .preferredColorScheme(.dark)
         },
         Story(
-            id: "templates.route-details.s04-medium",
+            id: "templates.route-details-screen.s04-medium",
             tier: .template,
             component: "RouteDetailsScreen",
             name: "S04 — Medium Detent",
@@ -47,7 +47,7 @@ enum RouteDetailsScreenStory {
             RouteDetailsScreen(provider: RouteDetailsMockProvider.self, variant: "s04-medium")
         },
         Story(
-            id: "templates.route-details.s05-dismissing",
+            id: "templates.route-details-screen.s05-dismissing",
             tier: .template,
             component: "RouteDetailsScreen",
             name: "S05 — Dismissing Copper Stripe",
@@ -57,7 +57,7 @@ enum RouteDetailsScreenStory {
             RouteDetailsScreen(provider: RouteDetailsMockProvider.self, variant: "s05-dismissing")
         },
         Story(
-            id: "templates.route-details.v01-saved",
+            id: "templates.route-details-screen.v01-saved",
             tier: .template,
             component: "RouteDetailsScreen",
             name: "V01 — Saved State",

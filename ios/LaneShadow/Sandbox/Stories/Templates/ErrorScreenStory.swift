@@ -6,7 +6,7 @@ import SwiftUI
 enum ErrorScreenStory {
     static let all: [Story] = [
         Story(
-            id: "templates.error.default",
+            id: "templates.error-screen.default",
             tier: .template,
             component: "ErrorScreen",
             name: "Default — Lucia Segment",

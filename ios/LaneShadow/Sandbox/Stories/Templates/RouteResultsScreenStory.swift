@@ -6,7 +6,7 @@ import SwiftUI
 enum RouteResultsScreenStory {
     static let all: [Story] = [
         Story(
-            id: "templates.route-results.default",
+            id: "templates.route-results-screen.default",
             tier: .template,
             component: "RouteResultsScreen",
             name: "Default — 3 Routes",
@@ -16,7 +16,7 @@ enum RouteResultsScreenStory {
             RouteResultsScreen(provider: RouteResultsMockProvider.self)
         },
         Story(
-            id: "templates.route-results.s02-alt-selected",
+            id: "templates.route-results-screen.s02-alt-selected",
             tier: .template,
             component: "RouteResultsScreen",
             name: "S02 — Alt Selected",
@@ -26,7 +26,7 @@ enum RouteResultsScreenStory {
             RouteResultsScreen(provider: RouteResultsMockProvider.self, variant: "s02-alt-selected")
         },
         Story(
-            id: "templates.route-results.s04-refining",
+            id: "templates.route-results-screen.s04-refining",
             tier: .template,
             component: "RouteResultsScreen",
             name: "S04 — Refining Mode",
@@ -36,7 +36,7 @@ enum RouteResultsScreenStory {
             RouteResultsScreen(provider: RouteResultsMockProvider.self, variant: "s04-refining")
         },
         Story(
-            id: "templates.route-results.v03-recall",
+            id: "templates.route-results-screen.v03-recall",
             tier: .template,
             component: "RouteResultsScreen",
             name: "V03 — Recall Chip",
@@ -48,7 +48,7 @@ enum RouteResultsScreenStory {
 
         // V01: Base variant
         Story(
-            id: "templates.route-results.v01-default",
+            id: "templates.route-results-screen.v01-default",
             tier: .template,
             component: "RouteResultsScreen",
             name: "V01 — Default Variant",
@@ -60,7 +60,7 @@ enum RouteResultsScreenStory {
 
         // S03: Dark mode
         Story(
-            id: "templates.route-results.s03-dark",
+            id: "templates.route-results-screen.s03-dark",
             tier: .template,
             component: "RouteResultsScreen",
             name: "S03 — Dark Mode",
@@ -72,7 +72,7 @@ enum RouteResultsScreenStory {
 
         // V02: Weather divergent
         Story(
-            id: "templates.route-results.v02-weather-divergent",
+            id: "templates.route-results-screen.v02-weather-divergent",
             tier: .template,
             component: "RouteResultsScreen",
             name: "V02 — Weather Divergent",
