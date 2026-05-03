@@ -3,7 +3,7 @@ TASK: CHAT-S04-T07 - iOS RouteDetails real-data wiring + enrichment + saved fing
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     NEEDS_FIXES (round-1)
+STATUS:     APPROVED (round-2)
 PRIORITY:   P1
 EFFORT:     S
 AGENT:      implementer=swift-implementer | reviewer=swift-reviewer
@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build
   lint:      swiftformat --lint ios/
 
-PROGRESS: 5/6 AC · NEEDS_FIXES (AC-3 FAIL — see review annotation)
+PROGRESS: 6/6 AC · APPROVED (round-2 clean)
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -43,7 +43,7 @@ DONE WHEN
 
 - [x] Instrument readout matches selected option (AC-1 PRIMARY)
 - [x] 6-hour weather timeline from routeEnrichments (AC-2)
-- [ ] Already-saved fingerprint flips Save button state (AC-3) ← FAIL: isSaved tracked in ViewModel but LSRouteSheet has no isSaved param — Save button always renders as "Save" variant, never "Saved"/disabled (evidence: LSRouteSheet.swift:131-138, RouteDetailsScreen.swift:189-208); test is TEST THEATRE — only checks viewState.isSaved not button rendering (RouteDetailsWiringTests.swift:363)
+- [x] Already-saved fingerprint flips Save button state (AC-3) ← PASS (round-2): LSRouteSheet.isSaved param added; actionRow branches on isSaved rendering LSButton("Saved", variant:.primary, isDisabled:true) when saved (LSRouteSheet.swift:134-143)
 - [x] Save tap presents SaveFavoriteSheet entry (AC-4)
 - [x] Enrichment status pending shows loading skeleton (AC-5)
 - [x] Ride-this button is no-op without crashing (AC-6)
