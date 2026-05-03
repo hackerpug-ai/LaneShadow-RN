@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: cd android && ./gradlew :app:compileDebugKotlin
   lint:      cd android && ./gradlew detekt
 
-PROGRESS: review updated · 6 DONE WHEN PASS · 2 FAIL · 1 PARTIAL
+PROGRESS: reviewer-round-3 · 7 DONE WHEN PASS · 1 FAIL · 1 CRITICAL (remediation-round-3 introduced new test regression: ConvexClientProviderAuthTest unauthenticated test now FAIL; start-over collect() hangs are CRITICAL)
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -42,15 +42,15 @@ Server error codes (SESSION_NOT_FOUND, RATE_LIMIT_EXCEEDED, PLAN_LIMIT_EXCEEDED,
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] toLaneShadowError maps known server codes (AC-1 PRIMARY) ← FAIL: current RN/server taxonomy includes `AUTH_REQUIRED`, `SESSION_REQUIRED`, `USER_NOT_FOUND`, `NO_FIELDS_TO_UPDATE`, `NOT_FOUND`, `INVALID_INPUT`, `LLM_SKETCH_INVALID`, `LLM_SKETCH_AMBIGUOUS`, `ROUTING_COMPILE_FAILED`, and `CONDITIONS_LOOKUP_FAILED`, but `LaneShadowError`/`KnownErrorCodes` implement a different legacy set and will fall back to `Unknown` for most real server codes (evidence: react-native/lib/convex-error.ts:1, server/lib/errors.ts:8, android/app/src/main/java/com/laneshadow/services/LaneShadowError.kt:11, android/app/src/main/java/com/laneshadow/services/LaneShadowErrorMapper.kt:24)
+- [x] toLaneShadowError maps known server codes (AC-1 PRIMARY) ← reviewer-round-2 PASS: all codes from server/lib/errors.ts and server/convex/errors.ts are mapped (LaneShadowErrorMapper.kt:27-59, KnownErrorCodes:92-125); test renamed to `toLaneShadowError_currentServerAndPlanningCodes_mapToTypedVariants` covering all 26 codes
 - [x] IOException maps to NetworkTimeout (AC-2)
 - [x] Unknown error maps to LaneShadowError.Unknown (AC-3)
 - [x] UNAUTHENTICATED triggers SignOutFlow + nav to SignIn (AC-4)
 - [x] PLAN_LIMIT_EXCEEDED hides retry chip (AC-5)
-- [x] User-facing copy resolved via stringResource id (AC-6)
-- [ ] gradlew test + compileDebugKotlin clean ← FAIL: `:app:compileDebugKotlin` passed, but full `./gradlew test` still fails in 17 baseline suites and `./gradlew lint`/`./gradlew detekt` fail on baseline lint errors in `LoginSmokeTest.kt` (evidence: android/app/build/reports/tests/testDebugUnitTest/index.html, android/app/build/intermediates/lint_intermediate_text_report/debug/lintReportDebug/lint-results-debug.txt)
+- [x] User-facing copy resolved via stringResource id (AC-6) ← reviewer-round-3 PASS: `messageResId_agentTimeout_returnsRStringErrorAgentTimeout` added and passes (LaneShadowErrorTest.kt:80-84); PlanLimitExceeded test preserved
+- [ ] gradlew test + compileDebugKotlin clean ← FAIL: 18 failures (17 pre-existing baseline + 1 NEW task-owned regression: `ConvexClientProviderAuthTest.unauthenticatedConvexErrorClearsConvexAuthAndRedirectsToAuthStateError` was PASSING at 2dcb1e5e, now FAILS at 2d067c6d because remediation removed `activeGateway.clearAuth(appContext)` from `ConvexClientProvider.handleConvexError` without updating the assertion `logoutCount.isEqualTo(1)` at ConvexClientProviderAuthTest.kt:61)
 - [x] Planning `route_plans.status == "failed"` transitions reach `ErrorRoute` with encoded code/message
-- [ ] Retry / start-over perform real retry-reset behavior, not navigation-only dismissal ← PARTIAL: retry now re-sends cached chat content, but start-over only clears persisted UI preferences (`lastViewedSessionId`, `defaultCamera`, `sessionCameras`) before navigating home and does not reset planning/session domain state as required by `ERROR -> IDLE on RESET` (evidence: android/app/src/main/java/com/laneshadow/navigation/MainNavGraph.kt:90, android/app/src/main/java/com/laneshadow/services/AppStateRepository.kt:108, .spec/prds/v3-integration/05-uc-chat.md:121)
+- [ ] Retry / start-over perform real retry-reset behavior, not navigation-only dismissal ← CRITICAL (round 3): start-over calls `routeRepository.subscribeToActiveRoutePlans(sessionId).collect {}` at MainNavGraph.kt:101-107; `subscribeToActiveRoutePlans` is a Convex infinite-subscription Flow that NEVER terminates; `appStateRepository.clearSessionLocalState()` at line 109 is UNREACHABLE; coroutine leaks until ViewModel clears. Fix: replace `.collect { plans -> ... }` with `val plans = ...first()` then extract and cancel activePlan
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
