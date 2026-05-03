@@ -79,7 +79,7 @@ extension LaneShadowError {
             "AGENT_TIMEOUT": .agentTimeout,
             "NETWORK_TIMEOUT": .networkTimeout,
             "WEATHER_UNAVAILABLE": .weatherUnavailable,
-            "UNAUTHENTICATED": .unauthenticated
+            "UNAUTHENTICATED": .unauthenticated,
         ]
         return codeMap[code]
     }
@@ -98,7 +98,7 @@ extension LaneShadowError {
             ("generated route sketch is ambiguous", .llmSketchAmbiguous),
             ("failed to compile the route sketch with the provider", .routingCompileFailed),
             ("failed to fetch or map conditions data", .conditionsLookupFailed),
-            ("not found", .notFound)
+            ("not found", .notFound),
         ]
 
         for (phrase, error) in phraseMap where normalized.contains(phrase) {

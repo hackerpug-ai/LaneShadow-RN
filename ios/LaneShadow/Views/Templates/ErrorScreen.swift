@@ -197,4 +197,3 @@ public struct ErrorScreen: View {
         }
     }
 }
-

@@ -16,4 +16,3 @@ enum LaneShadowErrorRouter {
         await appState.signOutFlow(clerkAuth: clerkAuth, convexClient: convex)
     }
 }
-
