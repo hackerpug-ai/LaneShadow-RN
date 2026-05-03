@@ -270,6 +270,8 @@ struct PlanningScreenWiringTests {
         #expect(context.appState.cachedLastFailedInput == "Refine the route")
         #expect(context.chatStore.flowState.phase == .error)
 
+        context.client.stubSendPlanningMessageError = nil
+
         let retryViewModel = ErrorScreenViewModel(
             error: .agentTimeout,
             chatStore: context.chatStore,
