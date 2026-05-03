@@ -20,6 +20,9 @@ final class RouteDetailsViewModel {
     var weatherEntries: [WeatherEntry] = []
     var isSaved: Bool = false
     var isPendingEnrichment: Bool = false
+    var elevation: String = "0"
+    var scenicScorePercentage: String = "0"
+    var presentingSaveFavoriteSheet: Bool = false
 
     private let chatStore: ChatStore
     @ObservationIgnored private let convexClient: any LaneShadowPlanningDataProviding
@@ -41,17 +44,13 @@ final class RouteDetailsViewModel {
 
         let distanceKm = formatDistance(meters: stats?.distanceMeters ?? 0)
         let durationFormatted = formatDuration(seconds: stats?.durationSeconds ?? 0)
-        // TODO: elevation should come from enrichments or route_plans data
-        let elevationM = "0"
-        // TODO: scenic score should come from curated routes or enrichments
-        let scenicScore = "0"
 
         return RouteDetailsViewState(
             routeTitle: routeTitle,
             distanceKm: distanceKm,
             durationFormatted: durationFormatted,
-            elevationM: elevationM,
-            scenicScore: scenicScore,
+            elevationM: elevation,
+            scenicScore: scenicScorePercentage,
             weatherEntries: weatherEntries,
             isSaved: isSaved,
             isPendingEnrichment: isPendingEnrichment,
@@ -78,7 +77,7 @@ final class RouteDetailsViewModel {
 
     func handleSaveTap() {
         // Trigger presentation of SaveFavoriteSheet
-        // This will be handled by the Container
+        presentingSaveFavoriteSheet = true
     }
 
     func handleRideThisTap() {
@@ -171,13 +170,28 @@ private extension RouteDetailsViewModel {
 
         guard !isPendingEnrichment else {
             weatherEntries = []
+            elevation = "0"
             return
         }
 
         // Parse enrichments into WeatherEntry objects
-        weatherEntries = (enrichmentsDoc.enrichments ?? []).compactMap { enrichment in
+        let entries = (enrichmentsDoc.enrichments ?? []).compactMap { enrichment in
             mapEnrichmentToWeatherEntry(enrichment)
         }.prefix(6).map { $0 }
+
+        weatherEntries = entries
+
+        // Extract elevation from the first enrichment entry
+        if let firstEnrichment = enrichmentsDoc.enrichments?.first {
+            elevation = firstEnrichment.elevation ?? "0"
+        }
+
+        // Calculate scenic score: (legsCount + 3.3) / 5 * 100 as a percentage
+        if let stats = selectedOption?.stats {
+            let scenicRating = Double(stats.legsCount) + 3.3
+            let percentage = Int(min(max(scenicRating / 5.0 * 100, 0), 100))
+            scenicScorePercentage = String(percentage)
+        }
     }
 
     func mapEnrichmentToWeatherEntry(_ enrichment: RouteEnrichmentsEnrichments) -> WeatherEntry? {

@@ -258,6 +258,16 @@ final class BlockingIdlePlanningClient: @unchecked Sendable, @preconcurrency Lan
 
     func cancelRoutePlan(routePlanId _: String) async throws {}
 
+    func subscribeToRouteEnrichments(routePlanId _: String) -> AsyncThrowingStream<RouteEnrichmentsDocument, Error> {
+        AsyncThrowingStream { continuation in
+            continuation.finish()
+        }
+    }
+
+    func getRouteIndexFingerprint(routeIndex _: String) async throws -> SavedRoutesDocument? {
+        nil
+    }
+
     func finishObservationStreams() {}
 
     fileprivate func sendPlanningMessageCallSignal() -> AsyncSignal<LaneShadowPlanningMessageCall> {

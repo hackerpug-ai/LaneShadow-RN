@@ -210,6 +210,36 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
     func sendRouteIndexFingerprint(_ savedRoute: SavedRoutesDocument?, routeIndex: String) {
         latestRouteIndexFingerprints[routeIndex] = savedRoute
     }
+
+    func simulateSavedRoute(routeIndex: String) {
+        // Create a minimal SavedRoutesDocument for testing
+        // This uses JSON decoding to create a valid instance
+        let json = """
+        {
+            "_id": "saved-\(routeIndex)",
+            "_creationTime": 0,
+            "routeProvenance": null,
+            "deletedAt": null,
+            "scheduledDeletionId": null,
+            "name": "Test Route",
+            "createdAt": 0,
+            "updatedAt": 0,
+            "ownerType": "user",
+            "ownerId": "user-123",
+            "createdByUserId": "user-123",
+            "visibility": "private",
+            "planInput": {},
+            "routeSnapshot": {},
+            "routeIndex": {
+                "routeOptionId": "\(routeIndex)"
+            }
+        }
+        """
+        if let data = json.data(using: .utf8),
+           let doc = try? JSONDecoder().decode(SavedRoutesDocument.self, from: data) {
+            latestRouteIndexFingerprints[routeIndex] = doc
+        }
+    }
 }
 
 struct LaneShadowPlanningMessageCall: Equatable {
