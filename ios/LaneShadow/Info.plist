@@ -23,6 +23,7 @@
 			<array>
 				<string>laneshadow-sandbox</string>
 				<string>laneshadow</string>
+				<string>com.laneshadow.app</string>
 			</array>
 		</dict>
 	</array>

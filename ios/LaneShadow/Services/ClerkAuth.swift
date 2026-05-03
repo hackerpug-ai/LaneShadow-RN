@@ -48,6 +48,9 @@ enum ClerkAuthError: LocalizedError {
     case missingSignUpVerification
     case unsupportedSignInVerification
     case missingVerificationSession
+    case missingAppleIdentityToken
+    case incompleteSocialSignIn
+    case incompleteSocialSignUp
 
     var errorDescription: String? {
         switch self {
@@ -65,6 +68,12 @@ enum ClerkAuthError: LocalizedError {
             "Clerk requested an unsupported sign-in verification method."
         case .missingVerificationSession:
             "Email verification completed but no Clerk session was created."
+        case .missingAppleIdentityToken:
+            "Sign in with Apple did not return a valid identity token."
+        case .incompleteSocialSignIn:
+            "Social sign-in flow did not complete; no session was created."
+        case .incompleteSocialSignUp:
+            "Social sign-up flow did not complete; no session was created."
         }
     }
 }
@@ -138,6 +147,29 @@ final class LiveClerkSDKClient: ClerkSDKClient {
         return try currentUser()
     }
 
+    private func activateCompletedTransferResult(_ result: TransferFlowResult) async throws -> ClerkAuthUser {
+        let sessionId = try Self.completedSocialSessionID(from: result)
+        try await clerk.setActive(sessionId: sessionId)
+        pendingSignIn = nil
+        pendingSignUp = nil
+        return try currentUser()
+    }
+
+    static func completedSocialSessionID(from result: TransferFlowResult) throws -> String {
+        switch result {
+        case let .signIn(signIn):
+            guard signIn.status == .complete, let createdSessionId = signIn.createdSessionId else {
+                throw ClerkAuthError.incompleteSocialSignIn
+            }
+            return createdSessionId
+        case let .signUp(signUp):
+            guard signUp.status == .complete, let createdSessionId = signUp.createdSessionId else {
+                throw ClerkAuthError.incompleteSocialSignUp
+            }
+            return createdSessionId
+        }
+    }
+
     func signUp(email: String, password: String, name: String?) async throws -> ClerkSignUpResult {
         let parsedName = splitName(name)
         var signUp = try await SignUp.create(strategy: .standard(
@@ -174,13 +206,21 @@ final class LiveClerkSDKClient: ClerkSDKClient {
     }
 
     func signInWithApple() async throws -> ClerkAuthUser {
-        _ = try await SignIn.authenticateWithRedirect(strategy: .oauth(provider: .apple))
-        return try currentUser()
+        let credential = try await SignInWithAppleHelper.getAppleIdCredential()
+        guard let tokenData = credential.identityToken,
+              let idToken = String(data: tokenData, encoding: .utf8),
+              !idToken.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        else {
+            throw ClerkAuthError.missingAppleIdentityToken
+        }
+
+        let result = try await SignIn.authenticateWithIdToken(provider: .apple, idToken: idToken)
+        return try await activateCompletedTransferResult(result)
     }
 
     func signInWithGoogle() async throws -> ClerkAuthUser {
-        _ = try await SignIn.authenticateWithRedirect(strategy: .oauth(provider: .google))
-        return try currentUser()
+        let result = try await SignIn.authenticateWithRedirect(strategy: .oauth(provider: .google))
+        return try await activateCompletedTransferResult(result)
     }
 
     func signOut() async throws {

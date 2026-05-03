@@ -1,3 +1,4 @@
+import Clerk
 import ConvexMobile
 import Foundation
 import Testing
@@ -179,7 +180,7 @@ struct ClerkAuthTests {
     }
 
     @Test
-    func infoPlistIncludesLaneshadowURLScheme() throws {
+    func infoPlistIncludesAllRequiredURLSchemes() throws {
         let plistURL = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
@@ -193,6 +194,60 @@ struct ClerkAuthTests {
             .flatMap { $0["CFBundleURLSchemes"] as? [String] ?? [] } ?? []
 
         #expect(schemes.contains("laneshadow"))
+        #expect(schemes.contains("laneshadow-sandbox"))
+        #expect(schemes.contains("com.laneshadow.app"))
+    }
+
+    @Test
+    func completedSocialSessionIDAcceptsCompleteSignIn() throws {
+        let signIn = SignIn(id: "sign-in", status: .complete, createdSessionId: "sess-sign-in")
+        let sessionID = try LiveClerkSDKClient.completedSocialSessionID(from: .signIn(signIn))
+        #expect(sessionID == "sess-sign-in")
+    }
+
+    @Test
+    func completedSocialSessionIDAcceptsCompleteSignUp() throws {
+        let signUp = SignUp(
+            id: "sign-up",
+            status: .complete,
+            requiredFields: [],
+            optionalFields: [],
+            missingFields: [],
+            unverifiedFields: [],
+            verifications: [:],
+            passwordEnabled: true,
+            createdSessionId: "sess-sign-up",
+            abandonAt: Date()
+        )
+        let sessionID = try LiveClerkSDKClient.completedSocialSessionID(from: .signUp(signUp))
+        #expect(sessionID == "sess-sign-up")
+    }
+
+    @Test
+    func completedSocialSessionIDRejectsIncompleteSignIn() throws {
+        let signIn = SignIn(id: "sign-in", status: .needsFirstFactor, createdSessionId: nil)
+        #expect(throws: ClerkAuthError.incompleteSocialSignIn) {
+            _ = try LiveClerkSDKClient.completedSocialSessionID(from: .signIn(signIn))
+        }
+    }
+
+    @Test
+    func completedSocialSessionIDRejectsIncompleteSignUp() throws {
+        let signUp = SignUp(
+            id: "sign-up",
+            status: .missingRequirements,
+            requiredFields: ["email_address"],
+            optionalFields: [],
+            missingFields: ["email_address"],
+            unverifiedFields: [],
+            verifications: [:],
+            passwordEnabled: true,
+            createdSessionId: nil,
+            abandonAt: Date()
+        )
+        #expect(throws: ClerkAuthError.incompleteSocialSignUp) {
+            _ = try LiveClerkSDKClient.completedSocialSessionID(from: .signUp(signUp))
+        }
     }
 }
 
