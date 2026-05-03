@@ -6,12 +6,11 @@ import SwiftUI
 /// Helper to safely extract cubic Bezier control points from easing array.
 /// Returns control points [cp1x, cp1y, cp2x, cp2y]. Falls back to ease-in-out
 /// [0.4, 0.0, 0.6, 1.0] if array is malformed or has fewer than 4 elements.
-@inline(__always)
 func safeCubicBezierEasing(_ array: [Double]) -> [Double] {
-    guard array.count >= 4 else {
-        return [0.4, 0.0, 0.6, 1.0]
+    if array.count >= 4 {
+        return Array(array.prefix(4))
     }
-    return [array[0], array[1], array[2], array[3]]
+    return [0.4, 0.0, 0.6, 1.0]
 }
 
 extension Animation {

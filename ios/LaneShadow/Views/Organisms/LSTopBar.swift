@@ -12,7 +12,7 @@ extension Animation {
     static func recordDotPulse(theme: Theme) -> Animation {
         let recipe = theme.motion.recipes["recordDotPulse"]
         let duration = TimeInterval(recipe?.duration ?? 1400) / 1000
-        let easing = recipe?.easing ?? [0.4, 0.0, 0.2, 1.0]
+        let easing = safeCubicBezierEasing(recipe?.easing ?? [])
         return Animation.timingCurve(
             easing[0],
             easing[1],
