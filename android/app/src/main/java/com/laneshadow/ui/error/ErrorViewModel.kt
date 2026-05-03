@@ -87,6 +87,7 @@ class ErrorViewModel @Inject constructor(
             LaneShadowError.AuthRequired -> listOf(signInSuggestion())
             LaneShadowError.SessionRequired -> listOf(signInSuggestion())
             LaneShadowError.SessionNotFound -> listOf(startOverSuggestion(), signInSuggestion())
+            LaneShadowError.Forbidden -> listOf(startOverSuggestion(), signInSuggestion())
 
             // Rate limit - only start over (no retry)
             LaneShadowError.RateLimitExceeded -> listOf(startOverSuggestion())
