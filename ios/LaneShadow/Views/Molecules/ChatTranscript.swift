@@ -200,6 +200,8 @@ public struct LSChatMessage: Identifiable, Sendable {
     public let content: String
     public let timestamp: Date
     public let status: LSChatMessageStatus
+    public let errorCode: String?
+    public let retryable: Bool
     public let kind: LSChatMessageKind?
     public let routeAttachments: [LSRouteAttachment]?
     public let attachments: [any LSCardAttachment]?
@@ -211,6 +213,8 @@ public struct LSChatMessage: Identifiable, Sendable {
         content: String,
         timestamp: Date,
         status: LSChatMessageStatus = .complete,
+        errorCode: String? = nil,
+        retryable: Bool = false,
         kind: LSChatMessageKind? = nil,
         routeAttachments: [LSRouteAttachment]? = nil,
         attachments: [any LSCardAttachment]? = nil,
@@ -221,6 +225,8 @@ public struct LSChatMessage: Identifiable, Sendable {
         self.content = content
         self.timestamp = timestamp
         self.status = status
+        self.errorCode = errorCode
+        self.retryable = retryable
         self.kind = kind
         self.routeAttachments = routeAttachments
         self.attachments = attachments
@@ -284,6 +290,7 @@ public struct LSChatTranscript: View {
     private let transparent: Bool
     private let onScrollBeginDrag: (() -> Void)?
     private let isTyping: Bool
+    private let onRetry: ((String) -> Void)?
 
     public init(
         messages: [LSChatMessage],
@@ -293,7 +300,8 @@ public struct LSChatTranscript: View {
         bottomInset: CGFloat = 0,
         transparent: Bool = false,
         onScrollBeginDrag: (() -> Void)? = nil,
-        isTyping: Bool = false
+        isTyping: Bool = false,
+        onRetry: ((String) -> Void)? = nil
     ) {
         self.messages = messages
         self.onRoutePress = onRoutePress
@@ -303,6 +311,7 @@ public struct LSChatTranscript: View {
         self.transparent = transparent
         self.onScrollBeginDrag = onScrollBeginDrag
         self.isTyping = isTyping
+        self.onRetry = onRetry
     }
 
     // MARK: - Body
@@ -368,26 +377,81 @@ public struct LSChatTranscript: View {
     // MARK: - Rider Bubble
 
     private func riderBubble(for message: LSChatMessage) -> some View {
-        HStack {
-            Spacer()
+        VStack(alignment: .trailing, spacing: theme.space.xs) {
+            HStack {
+                Spacer()
 
-            Text(message.content)
-                .font(theme.type.body.lg.font)
-                .foregroundStyle(theme.colors.onPrimary.default)
-                .padding(theme.space.md)
-                .background(
-                    RoundedRectangle(cornerRadius: theme.radius.xl)
-                        .fill(theme.colors.primary.default)
-                )
-                .clipShape(RoundedCorner(
-                    topLeft: theme.radius.xl,
-                    bottomLeft: theme.radius.xl,
-                    topRight: theme.radius.xl,
-                    bottomRight: theme.radius.sm // Tight bottom-right corner for "sent" appearance
-                ))
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .padding(.trailing, UIScreen.main.bounds.width * 0.2) // 80% max width
+                Text(message.content)
+                    .font(theme.type.body.lg.font)
+                    .foregroundStyle(theme.colors.onPrimary.default)
+                    .padding(theme.space.md)
+                    .background(
+                        RoundedRectangle(cornerRadius: theme.radius.xl)
+                            .fill(theme.colors.primary.default)
+                    )
+                    .clipShape(RoundedCorner(
+                        topLeft: theme.radius.xl,
+                        bottomLeft: theme.radius.xl,
+                        topRight: theme.radius.xl,
+                        bottomRight: theme.radius.sm // Tight bottom-right corner for "sent" appearance
+                    ))
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.trailing, UIScreen.main.bounds.width * 0.2) // 80% max width
+            }
+
+            if message.status == .failed {
+                failedMessageAffordance(for: message)
+                    .padding(.trailing, UIScreen.main.bounds.width * 0.2)
+            }
         }
+    }
+
+    private func failedMessageAffordance(for message: LSChatMessage) -> some View {
+        HStack(spacing: theme.space.sm) {
+            Text("Message failed")
+                .font(theme.type.label.sm.font)
+                .foregroundStyle(LaneShadowTheme.color.status.error.default)
+
+            if message.retryable, let onRetry {
+                Button {
+                    onRetry(message.id)
+                } label: {
+                    Text("Retry")
+                        .font(theme.type.label.sm.font)
+                        .foregroundStyle(LaneShadowTheme.color.status.error.default)
+                        .padding(.horizontal, theme.space.sm)
+                        .padding(.vertical, theme.space.xs)
+                        .background(
+                            RoundedRectangle(cornerRadius: theme.radius.lg)
+                                .fill(LaneShadowTheme.color.status.error.default.opacity(0.12))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: theme.radius.lg)
+                                .stroke(
+                                    LaneShadowTheme.color.status.error.default.opacity(0.3),
+                                    lineWidth: theme.borderWidth.hairline
+                                )
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("chattranscript-retry-\(message.id)")
+                .accessibilityLabel("Retry message")
+                .accessibilityHint("Sends the message again")
+            }
+        }
+        .padding(.horizontal, theme.space.sm)
+        .padding(.vertical, theme.space.xs)
+        .background(
+            RoundedRectangle(cornerRadius: theme.radius.lg)
+                .fill(LaneShadowTheme.color.status.error.default.opacity(0.08))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: theme.radius.lg)
+                .stroke(
+                    LaneShadowTheme.color.status.error.default.opacity(0.2),
+                    lineWidth: theme.borderWidth.hairline
+                )
+        )
     }
 
     // MARK: - Agent Message

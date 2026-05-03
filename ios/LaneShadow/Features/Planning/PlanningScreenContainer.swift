@@ -14,6 +14,7 @@ struct PlanningScreenContainer: View {
             phases: viewModel.phases,
             errorMessage: viewModel.errorMessage,
             isThinking: viewModel.isThinking,
+            isSending: viewModel.isSending,
             shouldRenderMap: viewModel.shouldRenderMap
         )
 
@@ -27,6 +28,11 @@ struct PlanningScreenContainer: View {
             onSend: { message in
                 Task {
                     await viewModel.submitRefinement(message)
+                }
+            },
+            onRetry: { messageId in
+                Task {
+                    await viewModel.retryPending(id: messageId)
                 }
             }
         )
