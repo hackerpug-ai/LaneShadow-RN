@@ -55,10 +55,10 @@ public struct RouteDetailsScreen: View {
     }
 
     public var body: some View {
-        if let data = data {
+        if let data {
             // MockProvider path (sandbox)
             mockProviderBody(data: data)
-        } else if let viewState = viewState {
+        } else if let viewState {
             // ViewState path (production)
             viewStateBody(viewState: viewState)
         }
