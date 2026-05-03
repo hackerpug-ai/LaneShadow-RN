@@ -14,6 +14,7 @@ struct RouteDetailsWiringTests {
             await Task.yield()
         }
     }
+
     @Test("Instrument readout binds selected option")
     func routeDetails_instrumentReadout_bindsSelectedOption() async throws {
         // GIVEN: ChatStore in .routeDetails(sessionId=X, selectedRouteId=opt-1)
@@ -189,12 +190,54 @@ struct RouteDetailsWiringTests {
             error: nil,
             scheduledJobId: nil,
             enrichments: [
-                RouteEnrichmentsEnrichments(weather: "clear", elevation: "100", label: "9 AM", rationale: "", routeOptionId: "opt-1", highlights: []),
-                RouteEnrichmentsEnrichments(weather: "clear", elevation: "150", label: "10 AM", rationale: "", routeOptionId: "opt-1", highlights: []),
-                RouteEnrichmentsEnrichments(weather: "rain", elevation: "200", label: "11 AM", rationale: "", routeOptionId: "opt-1", highlights: []),
-                RouteEnrichmentsEnrichments(weather: "wind", elevation: "180", label: "12 PM", rationale: "", routeOptionId: "opt-1", highlights: []),
-                RouteEnrichmentsEnrichments(weather: "clear", elevation: "220", label: "1 PM", rationale: "", routeOptionId: "opt-1", highlights: []),
-                RouteEnrichmentsEnrichments(weather: "hot", elevation: "210", label: "2 PM", rationale: "", routeOptionId: "opt-1", highlights: []),
+                RouteEnrichmentsEnrichments(
+                    weather: "clear",
+                    elevation: "100",
+                    label: "9 AM",
+                    rationale: "",
+                    routeOptionId: "opt-1",
+                    highlights: []
+                ),
+                RouteEnrichmentsEnrichments(
+                    weather: "clear",
+                    elevation: "150",
+                    label: "10 AM",
+                    rationale: "",
+                    routeOptionId: "opt-1",
+                    highlights: []
+                ),
+                RouteEnrichmentsEnrichments(
+                    weather: "rain",
+                    elevation: "200",
+                    label: "11 AM",
+                    rationale: "",
+                    routeOptionId: "opt-1",
+                    highlights: []
+                ),
+                RouteEnrichmentsEnrichments(
+                    weather: "wind",
+                    elevation: "180",
+                    label: "12 PM",
+                    rationale: "",
+                    routeOptionId: "opt-1",
+                    highlights: []
+                ),
+                RouteEnrichmentsEnrichments(
+                    weather: "clear",
+                    elevation: "220",
+                    label: "1 PM",
+                    rationale: "",
+                    routeOptionId: "opt-1",
+                    highlights: []
+                ),
+                RouteEnrichmentsEnrichments(
+                    weather: "hot",
+                    elevation: "210",
+                    label: "2 PM",
+                    rationale: "",
+                    routeOptionId: "opt-1",
+                    highlights: []
+                ),
             ],
             clerkUserId: "user-123",
             createdAt: 0,
@@ -241,8 +284,18 @@ struct RouteDetailsWiringTests {
                                     legsCount: 1
                                 ),
                                 map: PlannedRouteOptionMap(
-                                    bounds: PlannedRouteOptionBounds(north: 37.8, south: 37.7, east: -122.3, west: -122.4),
-                                    overviewGeometry: PlannedRouteOptionGeometry(format: "polyline", encoding: "polyline6", precision: 1e-6, value: "test"),
+                                    bounds: PlannedRouteOptionBounds(
+                                        north: 37.8,
+                                        south: 37.7,
+                                        east: -122.3,
+                                        west: -122.4
+                                    ),
+                                    overviewGeometry: PlannedRouteOptionGeometry(
+                                        format: "polyline",
+                                        encoding: "polyline6",
+                                        precision: 1e-6,
+                                        value: "test"
+                                    ),
                                     legs: []
                                 ),
                                 overlaysPreview: PlannedRouteOptionOverlaysPreview(
@@ -277,7 +330,14 @@ struct RouteDetailsWiringTests {
             completedAt: nil,
             error: nil,
             scheduledJobId: nil,
-            enrichments: [RouteEnrichmentsEnrichments(weather: "clear", elevation: "500", label: "Start", rationale: "", routeOptionId: "opt-1", highlights: [])],
+            enrichments: [RouteEnrichmentsEnrichments(
+                weather: "clear",
+                elevation: "500",
+                label: "Start",
+                rationale: "",
+                routeOptionId: "opt-1",
+                highlights: []
+            )],
             clerkUserId: "user-123",
             createdAt: 0,
             updatedAt: 0,
@@ -319,13 +379,33 @@ struct RouteDetailsWiringTests {
                                 routeOptionId: "opt-1",
                                 label: "Test Route",
                                 rationale: "Test",
-                                stats: PlannedRouteOptionStats(distanceMeters: 20000, durationSeconds: 2400, legsCount: 1),
+                                stats: PlannedRouteOptionStats(
+                                    distanceMeters: 20000,
+                                    durationSeconds: 2400,
+                                    legsCount: 1
+                                ),
                                 map: PlannedRouteOptionMap(
-                                    bounds: PlannedRouteOptionBounds(north: 37.8, south: 37.7, east: -122.3, west: -122.4),
-                                    overviewGeometry: PlannedRouteOptionGeometry(format: "polyline", encoding: "polyline6", precision: 1e-6, value: "test"),
+                                    bounds: PlannedRouteOptionBounds(
+                                        north: 37.8,
+                                        south: 37.7,
+                                        east: -122.3,
+                                        west: -122.4
+                                    ),
+                                    overviewGeometry: PlannedRouteOptionGeometry(
+                                        format: "polyline",
+                                        encoding: "polyline6",
+                                        precision: 1e-6,
+                                        value: "test"
+                                    ),
                                     legs: []
                                 ),
-                                overlaysPreview: PlannedRouteOptionOverlaysPreview(windSummary: "light", rainSummary: "clear", temperatureSummary: "70F", maxTemperatureF: 72.0, conditionsStatus: "good"),
+                                overlaysPreview: PlannedRouteOptionOverlaysPreview(
+                                    windSummary: "light",
+                                    rainSummary: "clear",
+                                    temperatureSummary: "70F",
+                                    maxTemperatureF: 72.0,
+                                    conditionsStatus: "good"
+                                ),
                                 favorites: nil,
                                 enrichment: "enrichments-101"
                             ),
@@ -375,13 +455,33 @@ struct RouteDetailsWiringTests {
                                 routeOptionId: "opt-1",
                                 label: "Pending Route",
                                 rationale: "Under enrichment",
-                                stats: PlannedRouteOptionStats(distanceMeters: 25000, durationSeconds: 3000, legsCount: 1),
+                                stats: PlannedRouteOptionStats(
+                                    distanceMeters: 25000,
+                                    durationSeconds: 3000,
+                                    legsCount: 1
+                                ),
                                 map: PlannedRouteOptionMap(
-                                    bounds: PlannedRouteOptionBounds(north: 37.8, south: 37.7, east: -122.3, west: -122.4),
-                                    overviewGeometry: PlannedRouteOptionGeometry(format: "polyline", encoding: "polyline6", precision: 1e-6, value: "test"),
+                                    bounds: PlannedRouteOptionBounds(
+                                        north: 37.8,
+                                        south: 37.7,
+                                        east: -122.3,
+                                        west: -122.4
+                                    ),
+                                    overviewGeometry: PlannedRouteOptionGeometry(
+                                        format: "polyline",
+                                        encoding: "polyline6",
+                                        precision: 1e-6,
+                                        value: "test"
+                                    ),
                                     legs: []
                                 ),
-                                overlaysPreview: PlannedRouteOptionOverlaysPreview(windSummary: "light", rainSummary: "clear", temperatureSummary: "70F", maxTemperatureF: 72.0, conditionsStatus: "good"),
+                                overlaysPreview: PlannedRouteOptionOverlaysPreview(
+                                    windSummary: "light",
+                                    rainSummary: "clear",
+                                    temperatureSummary: "70F",
+                                    maxTemperatureF: 72.0,
+                                    conditionsStatus: "good"
+                                ),
                                 favorites: nil,
                                 enrichment: "enrichments-202"
                             ),
@@ -444,13 +544,33 @@ struct RouteDetailsWiringTests {
                                 routeOptionId: "opt-1",
                                 label: "Test Route",
                                 rationale: "Test",
-                                stats: PlannedRouteOptionStats(distanceMeters: 20000, durationSeconds: 2400, legsCount: 1),
+                                stats: PlannedRouteOptionStats(
+                                    distanceMeters: 20000,
+                                    durationSeconds: 2400,
+                                    legsCount: 1
+                                ),
                                 map: PlannedRouteOptionMap(
-                                    bounds: PlannedRouteOptionBounds(north: 37.8, south: 37.7, east: -122.3, west: -122.4),
-                                    overviewGeometry: PlannedRouteOptionGeometry(format: "polyline", encoding: "polyline6", precision: 1e-6, value: "test"),
+                                    bounds: PlannedRouteOptionBounds(
+                                        north: 37.8,
+                                        south: 37.7,
+                                        east: -122.3,
+                                        west: -122.4
+                                    ),
+                                    overviewGeometry: PlannedRouteOptionGeometry(
+                                        format: "polyline",
+                                        encoding: "polyline6",
+                                        precision: 1e-6,
+                                        value: "test"
+                                    ),
                                     legs: []
                                 ),
-                                overlaysPreview: PlannedRouteOptionOverlaysPreview(windSummary: "light", rainSummary: "clear", temperatureSummary: "70F", maxTemperatureF: 72.0, conditionsStatus: "good"),
+                                overlaysPreview: PlannedRouteOptionOverlaysPreview(
+                                    windSummary: "light",
+                                    rainSummary: "clear",
+                                    temperatureSummary: "70F",
+                                    maxTemperatureF: 72.0,
+                                    conditionsStatus: "good"
+                                ),
                                 favorites: nil,
                                 enrichment: "enrichments-303"
                             ),

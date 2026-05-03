@@ -213,32 +213,101 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
 
     func simulateSavedRoute(routeIndex: String) {
         // Create a minimal SavedRoutesDocument for testing
-        // This uses JSON decoding to create a valid instance
-        let json = """
-        {
-            "_id": "saved-\(routeIndex)",
-            "_creationTime": 0,
-            "routeProvenance": null,
-            "deletedAt": null,
-            "scheduledDeletionId": null,
-            "name": "Test Route",
-            "createdAt": 0,
-            "updatedAt": 0,
-            "ownerType": "user",
-            "ownerId": "user-123",
-            "createdByUserId": "user-123",
-            "visibility": "private",
-            "planInput": {},
-            "routeSnapshot": {},
-            "routeIndex": {
-                "routeOptionId": "\(routeIndex)"
-            }
-        }
-        """
-        if let data = json.data(using: .utf8),
-           let doc = try? JSONDecoder().decode(SavedRoutesDocument.self, from: data) {
-            latestRouteIndexFingerprints[routeIndex] = doc
-        }
+        let preferences = SavedRoutesPlanInputPreferences(
+            avoidHighways: nil,
+            avoidTolls: nil,
+            scenicBias: "balanced"
+        )
+
+        let start = SavedRoutesPlanInputStart(
+            label: "Start",
+            placeId: nil,
+            lat: 37.7749,
+            lng: -122.4194
+        )
+
+        let planInput = SavedRoutesPlanInput(
+            nlpText: nil,
+            includeFavorites: nil,
+            start: start,
+            end: "End",
+            departureTime: 0,
+            preferences: preferences
+        )
+
+        let bounds = SavedRoutesRouteSnapshotBounds(
+            north: 37.8,
+            south: 37.7,
+            east: -122.3,
+            west: -122.4
+        )
+
+        let overviewGeometry = SavedRoutesRouteSnapshotOverviewGeometry(
+            format: "polyline",
+            encoding: "polyline6",
+            precision: 1e-6,
+            value: "test_polyline"
+        )
+
+        let routeSnapshot = SavedRoutesRouteSnapshot(
+            provider: "mapbox",
+            bounds: bounds,
+            origin: "Start",
+            destination: "End",
+            waypoints: [],
+            overviewGeometry: overviewGeometry,
+            legs: [],
+            annotations: [],
+            overlays: SavedRoutesRouteSnapshotOverlays(
+                wind: nil,
+                rain: nil,
+                temperature: nil
+            )
+        )
+
+        let sampledPoints = SavedRoutesRouteIndexSampledPoints(
+            lat: 37.7749,
+            lng: -122.4194,
+            distanceFromStartMeters: 0
+        )
+
+        let routeIndexDoc = SavedRoutesRouteIndex(
+            routeFingerprint: "fp-\(routeIndex)",
+            sampledPoints: [sampledPoints]
+        )
+
+        let metaOverlays = SavedRoutesSnapshotMetaOverlays(
+            wind: nil
+        )
+
+        let snapshotMeta = SavedRoutesSnapshotMeta(
+            overlays: metaOverlays,
+            savedAt: 0,
+            routingProvider: "mapbox",
+            conditionsStatus: "good",
+            metaVersion: 1.0
+        )
+
+        let doc = SavedRoutesDocument(
+            _id: "saved-\(routeIndex)",
+            _creationTime: 0,
+            routeProvenance: nil,
+            deletedAt: nil,
+            scheduledDeletionId: nil,
+            name: "Test Route",
+            createdAt: 0,
+            updatedAt: 0,
+            ownerType: "user",
+            ownerId: "user-123",
+            createdByUserId: "user-123",
+            visibility: "private",
+            planInput: planInput,
+            routeSnapshot: routeSnapshot,
+            routeIndex: routeIndexDoc,
+            snapshotMeta: snapshotMeta
+        )
+
+        latestRouteIndexFingerprints[routeIndex] = doc
     }
 }
 
