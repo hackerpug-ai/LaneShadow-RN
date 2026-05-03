@@ -407,12 +407,12 @@ export const completeEnrichment = internalMutation({
   },
   returns: v.null(),
   handler: async (ctx, args): Promise<null> => {
-    if (args.enrichments) {
-      await completeEnrichmentHandler(ctx as any, {
-        enrichmentId: args.enrichmentId,
-        enrichments: args.enrichments,
-      })
-    }
+    // CHAT-S04-R15: Always update the row, even when enrichments are absent
+    // This prevents rows from hanging in PENDING status when enrichment fails
+    await completeEnrichmentHandler(ctx as any, {
+      enrichmentId: args.enrichmentId,
+      enrichments: args.enrichments,
+    })
     return null
   },
 })

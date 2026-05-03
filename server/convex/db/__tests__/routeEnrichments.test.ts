@@ -179,6 +179,52 @@ describe('completeEnrichmentHandler', () => {
       }),
     )
   })
+
+  it('CHAT-S04-R15-AC-1: handles absent enrichments arg gracefully', async () => {
+    const ctx = {
+      db: {
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    await completeEnrichmentHandler(ctx as any, {
+      enrichmentId: ENRICHMENT_ID,
+      enrichments: undefined,
+    })
+
+    expect(ctx.db.patch).toHaveBeenCalledWith(
+      ENRICHMENT_ID,
+      expect.objectContaining({
+        status: 'completed',
+        enrichments: undefined,
+        completedAt: expect.any(Number),
+        updatedAt: expect.any(Number),
+      }),
+    )
+  })
+
+  it('CHAT-S04-R15-AC-2: handles empty enrichments array', async () => {
+    const ctx = {
+      db: {
+        patch: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    await completeEnrichmentHandler(ctx as any, {
+      enrichmentId: ENRICHMENT_ID,
+      enrichments: [],
+    })
+
+    expect(ctx.db.patch).toHaveBeenCalledWith(
+      ENRICHMENT_ID,
+      expect.objectContaining({
+        status: 'completed',
+        enrichments: [],
+        completedAt: expect.any(Number),
+        updatedAt: expect.any(Number),
+      }),
+    )
+  })
 })
 
 describe('failEnrichmentHandler', () => {
