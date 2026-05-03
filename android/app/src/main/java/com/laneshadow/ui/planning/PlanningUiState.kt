@@ -2,6 +2,7 @@ package com.laneshadow.ui.planning
 
 import com.laneshadow.data.chat.SessionMessage
 import com.laneshadow.data.session.PlanningSession
+import com.laneshadow.services.LaneShadowError
 import com.laneshadow.services.PlannedRouteOptions
 
 data class PlanningUiState(
@@ -20,7 +21,10 @@ data class PlanningUiState(
 
 sealed interface PlanningTransition {
     data class Success(val routeOptions: PlannedRouteOptions) : PlanningTransition
-    data class Failure(val message: String) : PlanningTransition
+    data class Failure(
+        val error: LaneShadowError,
+        val message: String? = null,
+    ) : PlanningTransition
 }
 
 internal fun phaseIndexForStatus(status: String?): Int =

@@ -10,6 +10,7 @@ data class RoutePlanDto(
     @SerialName("_id") val id: String = "",
     val status: String = "pending",
     val statusMessage: String? = null,
+    val errorCode: String? = null,
     val errorMessage: String? = null,
     val result: RoutePlanResultDto? = null,
 ) {
@@ -19,6 +20,7 @@ data class RoutePlanDto(
             status = status,
             options = result?.options?.map { it.toDomain() }.orEmpty(),
             statusMessage = statusMessage,
+            errorCode = errorCode,
             errorMessage = errorMessage,
         )
 }

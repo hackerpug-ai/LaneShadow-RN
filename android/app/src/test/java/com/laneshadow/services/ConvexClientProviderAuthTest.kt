@@ -47,6 +47,7 @@ class ConvexClientProviderAuthTest {
         val authRepository = FakeAuthRepository(jwt = "expired_jwt")
         val convexGateway = RecordingConvexGateway(
             currentUserFailure = IllegalStateException("UNAUTHENTICATED: token expired"),
+            authRepository = authRepository,
         )
         val provider = ConvexClientProvider(
             authRepository = authRepository,
@@ -58,6 +59,7 @@ class ConvexClientProviderAuthTest {
 
         assertThat(result.isFailure).isTrue()
         assertThat(convexGateway.logoutCount).isEqualTo(1)
+        assertThat(authRepository.signOutCount).isEqualTo(1)
         assertThat(authRepository.observeAuthState().value).isEqualTo(
             AuthState.Error("Your session expired. Please sign in again."),
         )
@@ -66,7 +68,7 @@ class ConvexClientProviderAuthTest {
     @Test
     fun signOutClearsRepositoryAuthAndConvexAuth() = runTest {
         val authRepository = FakeAuthRepository(jwt = "session_jwt")
-        val convexGateway = RecordingConvexGateway()
+        val convexGateway = RecordingConvexGateway(authRepository = authRepository)
         val provider = ConvexClientProvider(
             authRepository = authRepository,
             appContext = android.app.Application(),
@@ -110,10 +112,11 @@ class ConvexClientProviderAuthTest {
     }
 }
 
-private class RecordingConvexGateway(
-    private val currentUser: ConvexCurrentUser? = null,
-    private val currentUserFailure: Throwable? = null,
-) : ConvexGateway {
+    private class RecordingConvexGateway(
+        private val currentUser: ConvexCurrentUser? = null,
+        private val currentUserFailure: Throwable? = null,
+        private val authRepository: AuthRepository? = null,
+    ) : ConvexGateway {
     val boundTokens = mutableListOf<String>()
     val queryNames = mutableListOf<String>()
     var logoutCount = 0
@@ -125,6 +128,7 @@ private class RecordingConvexGateway(
 
     override suspend fun clearAuth(context: Context): Result<Unit> {
         logoutCount += 1
+        authRepository?.signOut()
         return Result.success(Unit)
     }
 

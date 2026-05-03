@@ -5,9 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.laneshadow.data.chat.ChatRepository
 import com.laneshadow.data.chat.SessionMessage
 import com.laneshadow.data.route.RouteRepository
+import com.laneshadow.data.route.RoutePlan
 import com.laneshadow.data.session.PlanningSession
 import com.laneshadow.data.session.SessionRepository
+import com.laneshadow.services.LaneShadowError
+import com.laneshadow.services.toLaneShadowError
 import com.laneshadow.services.PlannedRouteOptions
+import com.laneshadow.services.laneShadowErrorForCode
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -30,6 +34,7 @@ class PlanningViewModel @AssistedInject constructor(
     val state: StateFlow<PlanningUiState> = _state.asStateFlow()
 
     private var lastCompletedPlanId: String? = null
+    private var lastFailedPlanId: String? = null
 
     init {
         observeSessions()
@@ -54,12 +59,10 @@ class PlanningViewModel @AssistedInject constructor(
         viewModelScope.launch {
             sessionRepository.subscribeToSessions()
                 .catch { error ->
-                    _state.update { current ->
-                        current.copy(
-                            isThinking = false,
-                            subscriptionError = error.message ?: "Unable to load planning sessions.",
-                        )
-                    }
+                    reportSubscriptionFailure(
+                        error = error,
+                        fallbackMessage = "Unable to load planning sessions.",
+                    )
                 }
                 .collect { sessions ->
                     _state.update { current ->
@@ -75,12 +78,10 @@ class PlanningViewModel @AssistedInject constructor(
         viewModelScope.launch {
             chatRepository.subscribeToMessages(sessionId)
                 .catch { error ->
-                    _state.update { current ->
-                        current.copy(
-                            isThinking = false,
-                            subscriptionError = error.message ?: "Unable to load planning messages.",
-                        )
-                    }
+                    reportSubscriptionFailure(
+                        error = error,
+                        fallbackMessage = "Unable to load planning messages.",
+                    )
                 }
                 .collect { messages ->
                     val latestAgentMessage = messages.latestAgentMessage()
@@ -102,16 +103,15 @@ class PlanningViewModel @AssistedInject constructor(
         viewModelScope.launch {
             routeRepository.subscribeToActiveRoutePlans(sessionId)
                 .catch { error ->
-                    _state.update { current ->
-                        current.copy(
-                            isThinking = false,
-                            subscriptionError = error.message ?: "Unable to load active plans.",
-                        )
-                    }
+                    reportSubscriptionFailure(
+                        error = error,
+                        fallbackMessage = "Unable to load active plans.",
+                    )
                 }
                 .collect { plans ->
                     val activePlan = plans.firstOrNull()
                     val completedPlan = plans.firstOrNull { it.status.equals("completed", ignoreCase = true) }
+                    val failedPlan = plans.firstOrNull { it.status.equals("failed", ignoreCase = true) }
                     _state.update { current ->
                         current.copy(
                             activePlanId = activePlan?.id ?: current.activePlanId,
@@ -132,8 +132,43 @@ class PlanningViewModel @AssistedInject constructor(
                                 isThinking = false,
                             )
                         }
+                    } else if (failedPlan != null && failedPlan.id != lastFailedPlanId) {
+                        lastFailedPlanId = failedPlan.id
+                        val failure = failedPlan.toFailureTransition()
+                        _state.update { current ->
+                            current.copy(
+                                transition = failure,
+                                isThinking = false,
+                                subscriptionError = failure.message,
+                            )
+                        }
                     }
                 }
+        }
+    }
+
+    private fun reportSubscriptionFailure(
+        error: Throwable,
+        fallbackMessage: String,
+    ) {
+        val laneShadowError = toLaneShadowError(error)
+        _state.update { current ->
+            if (current.transition is PlanningTransition.Failure) {
+                current.copy(
+                    isThinking = false,
+                    subscriptionError = error.message ?: fallbackMessage,
+                )
+            } else {
+                val message = error.message ?: fallbackMessage
+                current.copy(
+                    isThinking = false,
+                    subscriptionError = message,
+                    transition = PlanningTransition.Failure(
+                        error = laneShadowError,
+                        message = message,
+                    ),
+                )
+            }
         }
     }
 
@@ -148,3 +183,21 @@ private fun List<SessionMessage>.latestAgentMessage(): SessionMessage? =
         message.role.equals("agent", ignoreCase = true) ||
             message.role.equals("system", ignoreCase = true)
     } ?: lastOrNull()
+
+private fun RoutePlan.toFailureTransition(): PlanningTransition.Failure {
+    val message = errorMessage?.takeIf { it.isNotBlank() }
+        ?: statusMessage?.takeIf { it.isNotBlank() }
+        ?: "Route planning failed."
+    val normalizedErrorCode = errorCode?.takeIf { it.isNotBlank() }
+    val error = normalizedErrorCode
+        ?.let(::laneShadowErrorForCode)
+        ?: LaneShadowError.Unknown(
+            originalMessage = message,
+            originalCode = normalizedErrorCode ?: "UNKNOWN",
+        )
+
+    return PlanningTransition.Failure(
+        error = error,
+        message = message,
+    )
+}
