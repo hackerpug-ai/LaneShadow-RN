@@ -137,13 +137,12 @@ class ErrorViewModelTest {
         viewModel.handle(LaneShadowError.PlanLimitExceeded)
         advanceUntilIdle()
 
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val labels = viewModel.suggestions.value.map { context.getString(it.labelResId) }
-
-        assertThat(labels).containsExactly(
-            context.getString(R.string.error_action_start_over),
-        )
-        assertThat(labels).doesNotContain(context.getString(R.string.error_action_try_again))
+        val suggestions = viewModel.suggestions.value
+        assertThat(suggestions).hasSize(1)
+        assertThat(suggestions.single().labelResId)
+            .isEqualTo(R.string.error_action_start_over)
+        assertThat(suggestions.map { it.labelResId })
+            .doesNotContain(R.string.error_action_try_again)
     }
 
     @Test
@@ -157,15 +156,14 @@ class ErrorViewModelTest {
             ioDispatcher = UnconfinedTestDispatcher(testScheduler),
         )
         val viewModel = ErrorViewModel(signOutFlow)
-        val context = ApplicationProvider.getApplicationContext<Context>()
 
         viewModel.handle(LaneShadowError.AuthRequired)
         advanceUntilIdle()
 
         val suggestions = viewModel.suggestions.value
         assertThat(suggestions).hasSize(1)
-        assertThat(context.getString(suggestions.single().labelResId))
-            .isEqualTo(context.getString(R.string.error_action_sign_in))
+        assertThat(suggestions.single().labelResId)
+            .isEqualTo(R.string.error_action_sign_in)
     }
 
     private class FakeAuthRepository : AuthRepository {
