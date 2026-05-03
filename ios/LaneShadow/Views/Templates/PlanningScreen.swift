@@ -3,6 +3,17 @@ import SwiftUI
 
 // MARK: - Animation Motion Extensions
 
+/// Helper to safely extract cubic Bezier control points from easing array.
+/// Returns control points [cp1x, cp1y, cp2x, cp2y]. Falls back to ease-in-out
+/// [0.4, 0.0, 0.6, 1.0] if array is malformed or has fewer than 4 elements.
+@inline(__always)
+func safeCubicBezierEasing(_ array: [Double]) -> [Double] {
+    guard array.count >= 4 else {
+        return [0.4, 0.0, 0.6, 1.0]
+    }
+    return [array[0], array[1], array[2], array[3]]
+}
+
 extension Animation {
     /// Sketch polyline loop animation: reads from motion.recipe.sketchPolylineLoop token
     /// - Duration: 1400ms (from token)
@@ -20,7 +31,7 @@ extension Animation {
     static func breathingHeadDot(theme: Theme) -> Animation {
         let recipe = theme.motion.recipes["breathingHeadDot"]
         let duration = TimeInterval(recipe?.duration ?? 1400) / 1000
-        let easing = recipe?.easing ?? [0.4, 0.0, 0.2, 1.0]
+        let easing = safeCubicBezierEasing(recipe?.easing ?? [])
         return Animation.timingCurve(
             easing[0],
             easing[1],
@@ -494,7 +505,8 @@ struct BreathingDotRecipe: Equatable {
     let autoreverses: Bool
 
     var animation: Animation {
-        Animation
+        let easing = safeCubicBezierEasing(easing)
+        return Animation
             .timingCurve(
                 easing[0],
                 easing[1],
