@@ -3,7 +3,7 @@ TASK: CHAT-S04-T10b - Android LaneShadowError typed sealed class + ErrorRoute + 
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     Done
 PRIORITY:   P0
 EFFORT:     S
 AGENT:      implementer=kotlin-implementer | reviewer=kotlin-reviewer
@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: cd android && ./gradlew :app:compileDebugKotlin
   lint:      cd android && ./gradlew detekt
 
-PROGRESS: reviewer-round-3 · 7 DONE WHEN PASS · 1 FAIL · 1 CRITICAL (remediation-round-3 introduced new test regression: ConvexClientProviderAuthTest unauthenticated test now FAIL; start-over collect() hangs are CRITICAL)
+PROGRESS: reviewer-round-4 APPROVED · all 9 DONE WHEN rows PASS · 0 FAIL · ConvexClientProviderAuthTest regression fixed + startOver .first() fix confirmed · ClerkAuthRepository zero diff from base
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -48,9 +48,9 @@ DONE WHEN
 - [x] UNAUTHENTICATED triggers SignOutFlow + nav to SignIn (AC-4)
 - [x] PLAN_LIMIT_EXCEEDED hides retry chip (AC-5)
 - [x] User-facing copy resolved via stringResource id (AC-6) ← reviewer-round-3 PASS: `messageResId_agentTimeout_returnsRStringErrorAgentTimeout` added and passes (LaneShadowErrorTest.kt:80-84); PlanLimitExceeded test preserved
-- [ ] gradlew test + compileDebugKotlin clean ← FAIL: 18 failures (17 pre-existing baseline + 1 NEW task-owned regression: `ConvexClientProviderAuthTest.unauthenticatedConvexErrorClearsConvexAuthAndRedirectsToAuthStateError` was PASSING at 2dcb1e5e, now FAILS at 2d067c6d because remediation removed `activeGateway.clearAuth(appContext)` from `ConvexClientProvider.handleConvexError` without updating the assertion `logoutCount.isEqualTo(1)` at ConvexClientProviderAuthTest.kt:61)
+- [x] gradlew test + compileDebugKotlin clean ← reviewer-round-4 PASS: compileDebugKotlin BUILD SUCCESSFUL; ConvexClientProviderAuthTest 5/5 pass (unauthenticated test FIXED: clearAuth now called before handleUnauthenticated at ConvexClientProvider.kt:158); 17 pre-existing failures confirmed unrelated (LSPhaseIndicatorTest, AuthScreenViewModelTest, etc — none in this task scope)
 - [x] Planning `route_plans.status == "failed"` transitions reach `ErrorRoute` with encoded code/message
-- [ ] Retry / start-over perform real retry-reset behavior, not navigation-only dismissal ← CRITICAL (round 3): start-over calls `routeRepository.subscribeToActiveRoutePlans(sessionId).collect {}` at MainNavGraph.kt:101-107; `subscribeToActiveRoutePlans` is a Convex infinite-subscription Flow that NEVER terminates; `appStateRepository.clearSessionLocalState()` at line 109 is UNREACHABLE; coroutine leaks until ViewModel clears. Fix: replace `.collect { plans -> ... }` with `val plans = ...first()` then extract and cancel activePlan
+- [x] Retry / start-over perform real retry-reset behavior, not navigation-only dismissal ← reviewer-round-4 PASS: `startOver` now uses `.first()` (terminating) at MainNavGraph.kt:101; `clearSessionLocalState()` is reachable at line 107; import changed collect → first at line 48; no coroutine leak
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)
