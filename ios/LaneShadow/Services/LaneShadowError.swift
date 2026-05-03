@@ -144,7 +144,7 @@ enum LaneShadowError: Equatable, LocalizedError {
             "Try rephrasing your request."
         case .lowConfidenceParse:
             "Could you provide more details? For example: " +
-            "\"Plan a ride from San Francisco to Santa Cruz along scenic roads.\""
+                "\"Plan a ride from San Francisco to Santa Cruz along scenic roads.\""
         case .generationFailed:
             "Let's try a different approach. Could you specify your start and end points more clearly?"
         case .noRoutesGenerated:
@@ -275,5 +275,4 @@ enum LaneShadowError: Equatable, LocalizedError {
             message
         }
     }
-
 }
