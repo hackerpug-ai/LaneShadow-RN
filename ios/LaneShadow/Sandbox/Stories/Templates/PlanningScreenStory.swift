@@ -6,13 +6,13 @@ import SwiftUI
 @MainActor
 enum PlanningScreenStory {
     static let all: [Story] = [
-        // Phase 1 (Scouting)
+        // Phase 1 (Parsing)
         Story(
             id: "templates.planning.phase1",
             tier: .template,
             component: "PlanningScreen",
-            name: "Phase 1 · Scouting",
-            summary: "Region scan — sketching stub growing, phase 1 active pulsing",
+            name: "Phase 1 · Parsing",
+            summary: "Region scan — parsing stub growing, phase 1 active pulsing",
             previewMode: .fullScreen
         ) { args in
             PlanningScreen(
@@ -21,13 +21,13 @@ enum PlanningScreenStory {
             )
         },
 
-        // Phase 2 (Drawing) — Default
+        // Phase 2 (Searching) — Default
         Story(
             id: "templates.planning.default",
             tier: .template,
             component: "PlanningScreen",
             name: "Default — Phase 2",
-            summary: "Candidate routes — sketching extended, phase 2 active, phases 1 done",
+            summary: "Candidate routes — searching extended, phase 2 active, phases 1 done",
             argTypes: [
                 ArgType(
                     "activePhase",
@@ -45,13 +45,13 @@ enum PlanningScreenStory {
             )
         },
 
-        // Phase 3 (Weather)
+        // Phase 3 (Drafting)
         Story(
             id: "templates.planning.phase3",
             tier: .template,
             component: "PlanningScreen",
-            name: "Phase 3 · Weather",
-            summary: "Sun & wind check — weather icons along route, phase 3 active",
+            name: "Phase 3 · Drafting",
+            summary: "Drafting options — route cards forming, phase 3 active",
             previewMode: .fullScreen
         ) { args in
             PlanningScreen(
@@ -60,13 +60,13 @@ enum PlanningScreenStory {
             )
         },
 
-        // Phase 4 (Scoring)
+        // Phase 4 (Enriching)
         Story(
             id: "templates.planning.phase4",
             tier: .template,
             component: "PlanningScreen",
-            name: "Phase 4 · Scoring",
-            summary: "Ranking candidates — three polylines visible, phase 4 active",
+            name: "Phase 4 · Enriching",
+            summary: "Enriching with details — weather, scoring, phase 4 active",
             previewMode: .fullScreen
         ) { args in
             PlanningScreen(
@@ -75,13 +75,13 @@ enum PlanningScreenStory {
             )
         },
 
-        // Phase 5 (Picking)
+        // Phase 5 (Finalizing)
         Story(
             id: "templates.planning.phase5",
             tier: .template,
             component: "PlanningScreen",
-            name: "Phase 5 · Picking",
-            summary: "Selecting best — final evaluation, phase 5 active",
+            name: "Phase 5 · Finalizing",
+            summary: "Finalizing routes — final polish, phase 5 active",
             previewMode: .fullScreen
         ) { args in
             PlanningScreen(

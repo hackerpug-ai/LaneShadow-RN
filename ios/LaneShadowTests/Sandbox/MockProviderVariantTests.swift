@@ -61,7 +61,7 @@ struct MockProviderVariantTests {
 
         #expect(defaultState.phases.count == 5, "Default should have 5 phases")
         #expect(emptyState.phases.count == 0, "Empty should have 0 phases")
-        #expect(overflowState.phases.count == 11, "Overflow should have 11 phases")
+        #expect(overflowState.phases.count == 5, "Overflow should have 5 canonical phases")
     }
 
     @Test("PlanningMockProvider: Deterministic")

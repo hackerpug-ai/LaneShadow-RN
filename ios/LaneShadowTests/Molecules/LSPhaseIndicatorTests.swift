@@ -76,6 +76,51 @@ final class LSPhaseIndicatorTests: XCTestCase {
         XCTAssertEqual(activePhase?.state, .active)
     }
 
+    // MARK: - AC-1: Phase enum uses canonical cases (CHAT-S04-R06)
+
+    func test_phaseEnum_containsExactlyCanonicalCases() {
+        // GIVEN: PlanningMockProvider provides planning phases
+        // WHEN: The default state is inspected
+        let defaultState = PlanningMockProvider.value(variant: "default")
+        let phaseIds = defaultState.phases.map(\.id)
+
+        // THEN: The cases are exactly: parsing, searching, drafting, enriching, finalizing
+        let canonicalPhases = [
+            "parsing",
+            "searching",
+            "drafting",
+            "enriching",
+            "finalizing",
+        ]
+
+        let legacyPhases = [
+            "reading",
+            "sketching",
+            "validating",
+            "weather",
+            "building",
+        ]
+
+        // All phase IDs should be canonical
+        for phaseId in phaseIds {
+            XCTAssertTrue(
+                canonicalPhases.contains(phaseId),
+                "Phase ID '\(phaseId)' should be canonical (one of: \(canonicalPhases))"
+            )
+        }
+
+        // No phase IDs should be legacy
+        for phaseId in phaseIds {
+            XCTAssertFalse(
+                legacyPhases.contains(phaseId),
+                "Phase ID '\(phaseId)' should not be a legacy name (legacy: \(legacyPhases))"
+            )
+        }
+
+        // Verify we have exactly 5 phases
+        XCTAssertEqual(phaseIds.count, 5, "Should have exactly 5 phases, got \(phaseIds.count)")
+    }
+
     // MARK: - AC-7: Stories registered
 
     func test_phase_indicator_stories_registered() {

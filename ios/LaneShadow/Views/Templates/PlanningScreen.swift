@@ -43,7 +43,7 @@ extension Animation {
 
 /// PlanningScreen — the thinking-state Navigator screen.
 ///
-/// Composes `LSMapLayer`, `LSTopBar`, `LSPhaseIndicator`, sketching polyline animation,
+/// Composes `LSMapLayer`, `LSTopBar`, `LSPhaseIndicator`, parsing polyline animation,
 /// and `LSChatInput` (disabled, with spinner) sourced from `PlanningMockProvider`.
 public struct PlanningScreen: View {
     @Environment(\.theme) private var theme
@@ -213,28 +213,28 @@ public struct PlanningScreen: View {
             // Paper substrate with contour grid
             LSPaperMap(overlayStyle: .contours)
 
-            // Sketching polyline animation
-            sketchingPolyline
+            // Parsing polyline animation
+            parsingPolyline
         }
         .accessibilityIdentifier("planningscreen-map")
     }
 
-    // MARK: - Sketching Polyline
+    // MARK: - Parsing Polyline
 
-    private var sketchingPolyline: some View {
+    private var parsingPolyline: some View {
         SketchingPolyline()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityIdentifier("planningscreen-sketch-polyline")
     }
 
-    // MARK: - Theme Tokens for Sketching Polyline
+    // MARK: - Theme Tokens for Parsing Polyline
 
-    private var sketchingLineWidth: CGFloat {
-        // Use border thick token for sketching line width
+    private var parsingLineWidth: CGFloat {
+        // Use border thick token for parsing line width
         theme.borderWidth.thick
     }
 
-    private var sketchingDashPattern: [CGFloat] {
+    private var parsingDashPattern: [CGFloat] {
         // Dash pattern: [dash length, gap length]
         // Use space tokens for semantic dash pattern
         [theme.space.sm, theme.space.md]

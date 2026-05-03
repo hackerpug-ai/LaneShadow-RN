@@ -37,11 +37,11 @@ public enum PlanningMockProvider: MockProvider {
     private static func defaultState() -> PlanningScreenState {
         PlanningScreenState(
             phases: [
-                PlanningPhaseData(id: "reading", label: "Reading your ride", status: "done"),
-                PlanningPhaseData(id: "sketching", label: "Sketching routes", status: "active"),
-                PlanningPhaseData(id: "validating", label: "Validating roads", status: "pending"),
-                PlanningPhaseData(id: "weather", label: "Checking conditions", status: "pending"),
-                PlanningPhaseData(id: "building", label: "Building your rides", status: "pending"),
+                PlanningPhaseData(id: "parsing", label: "Parsing your request", status: "done"),
+                PlanningPhaseData(id: "searching", label: "Searching routes", status: "active"),
+                PlanningPhaseData(id: "drafting", label: "Drafting options", status: "pending"),
+                PlanningPhaseData(id: "enriching", label: "Enriching with details", status: "pending"),
+                PlanningPhaseData(id: "finalizing", label: "Finalizing your routes", status: "pending"),
             ],
             message: NavigatorMessage(
                 id: "msg-001",
@@ -83,16 +83,10 @@ public enum PlanningMockProvider: MockProvider {
     private static func overflowState() -> PlanningScreenState {
         PlanningScreenState(
             phases: [
-                PlanningPhaseData(id: "reading", label: "Reading your ride request", status: "done"),
-                PlanningPhaseData(id: "analyzing", label: "Analyzing terrain", status: "done"),
-                PlanningPhaseData(id: "sketching", label: "Sketching primary routes", status: "done"),
-                PlanningPhaseData(id: "alternatives", label: "Finding alternatives", status: "active"),
-                PlanningPhaseData(id: "validating", label: "Validating road conditions", status: "pending"),
-                PlanningPhaseData(id: "weather", label: "Checking weather forecasts", status: "pending"),
-                PlanningPhaseData(id: "traffic", label: "Analyzing traffic patterns", status: "pending"),
-                PlanningPhaseData(id: "scenic", label: "Evaluating scenic value", status: "pending"),
-                PlanningPhaseData(id: "building", label: "Building final routes", status: "pending"),
-                PlanningPhaseData(id: "optimizing", label: "Optimizing for preferences", status: "pending"),
+                PlanningPhaseData(id: "parsing", label: "Parsing your ride request", status: "done"),
+                PlanningPhaseData(id: "searching", label: "Searching terrain", status: "done"),
+                PlanningPhaseData(id: "drafting", label: "Drafting primary routes", status: "done"),
+                PlanningPhaseData(id: "enriching", label: "Enriching with alternatives", status: "active"),
                 PlanningPhaseData(id: "finalizing", label: "Finalizing recommendations", status: "pending"),
             ],
             message: NavigatorMessage(
@@ -116,28 +110,28 @@ public enum PlanningMockProvider: MockProvider {
         PlanningScreenState(
             phases: [
                 PlanningPhaseData(
-                    id: "reading",
-                    label: "Reading and parsing your comprehensive ride request with all specified parameters and preferences",
+                    id: "parsing",
+                    label: "Parsing and understanding your comprehensive ride request with all specified parameters and preferences",
                     status: "done"
                 ),
                 PlanningPhaseData(
-                    id: "sketching",
-                    label: "Sketching preliminary route options based on topographical analysis and road network mapping",
+                    id: "searching",
+                    label: "Searching preliminary route options based on topographical analysis and road network mapping",
                     status: "active"
                 ),
                 PlanningPhaseData(
-                    id: "validating",
-                    label: "Validating road surface conditions, closure status, and accessibility for all route segments",
+                    id: "drafting",
+                    label: "Drafting road surface conditions, closure status, and accessibility for all route segments",
                     status: "pending"
                 ),
                 PlanningPhaseData(
-                    id: "weather",
-                    label: "Checking microclimate weather forecasts and wind patterns for each proposed route corridor",
+                    id: "enriching",
+                    label: "Enriching with microclimate weather forecasts and wind patterns for each proposed route corridor",
                     status: "pending"
                 ),
                 PlanningPhaseData(
-                    id: "building",
-                    label: "Building comprehensive route profiles with turn-by-turn directions and elevation profiles",
+                    id: "finalizing",
+                    label: "Finalizing comprehensive route profiles with turn-by-turn directions and elevation profiles",
                     status: "pending"
                 ),
             ],
@@ -163,11 +157,11 @@ public enum PlanningMockProvider: MockProvider {
     private static func slowPlanningState() -> PlanningScreenState {
         PlanningScreenState(
             phases: [
-                PlanningPhaseData(id: "reading", label: "Reading your ride", status: "done"),
-                PlanningPhaseData(id: "sketching", label: "Sketching routes", status: "active"),
-                PlanningPhaseData(id: "validating", label: "Validating roads", status: "pending"),
-                PlanningPhaseData(id: "weather", label: "Checking conditions", status: "pending"),
-                PlanningPhaseData(id: "building", label: "Building your rides", status: "pending"),
+                PlanningPhaseData(id: "parsing", label: "Parsing your request", status: "done"),
+                PlanningPhaseData(id: "searching", label: "Searching routes", status: "active"),
+                PlanningPhaseData(id: "drafting", label: "Drafting options", status: "pending"),
+                PlanningPhaseData(id: "enriching", label: "Enriching with details", status: "pending"),
+                PlanningPhaseData(id: "finalizing", label: "Finalizing your routes", status: "pending"),
             ],
             message: NavigatorMessage(
                 id: "msg-001",
@@ -191,11 +185,11 @@ public enum PlanningMockProvider: MockProvider {
     private static func cancelConfirmState() -> PlanningScreenState {
         PlanningScreenState(
             phases: [
-                PlanningPhaseData(id: "reading", label: "Reading your ride", status: "done"),
-                PlanningPhaseData(id: "sketching", label: "Sketching routes", status: "active"),
-                PlanningPhaseData(id: "validating", label: "Validating roads", status: "pending"),
-                PlanningPhaseData(id: "weather", label: "Checking conditions", status: "pending"),
-                PlanningPhaseData(id: "building", label: "Building your rides", status: "pending"),
+                PlanningPhaseData(id: "parsing", label: "Parsing your request", status: "done"),
+                PlanningPhaseData(id: "searching", label: "Searching routes", status: "active"),
+                PlanningPhaseData(id: "drafting", label: "Drafting options", status: "pending"),
+                PlanningPhaseData(id: "enriching", label: "Enriching with details", status: "pending"),
+                PlanningPhaseData(id: "finalizing", label: "Finalizing your routes", status: "pending"),
             ],
             message: NavigatorMessage(
                 id: "msg-001",
@@ -219,11 +213,11 @@ public enum PlanningMockProvider: MockProvider {
     private static func singleCandidateState() -> PlanningScreenState {
         PlanningScreenState(
             phases: [
-                PlanningPhaseData(id: "reading", label: "Reading your ride", status: "done"),
-                PlanningPhaseData(id: "sketching", label: "Sketching routes", status: "done"),
-                PlanningPhaseData(id: "validating", label: "Validating roads", status: "active"),
-                PlanningPhaseData(id: "weather", label: "Checking conditions", status: "pending"),
-                PlanningPhaseData(id: "building", label: "Building your rides", status: "pending"),
+                PlanningPhaseData(id: "parsing", label: "Parsing your request", status: "done"),
+                PlanningPhaseData(id: "searching", label: "Searching routes", status: "done"),
+                PlanningPhaseData(id: "drafting", label: "Drafting options", status: "active"),
+                PlanningPhaseData(id: "enriching", label: "Enriching with details", status: "pending"),
+                PlanningPhaseData(id: "finalizing", label: "Finalizing your routes", status: "pending"),
             ],
             message: NavigatorMessage(
                 id: "msg-001",
