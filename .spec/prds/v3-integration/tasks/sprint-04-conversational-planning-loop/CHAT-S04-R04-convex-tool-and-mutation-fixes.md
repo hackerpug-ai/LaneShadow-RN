@@ -3,7 +3,7 @@ TASK: CHAT-S04-R04 - Remove fetchWeather LLM tool stub + fix updateSessionTitle 
 ================================================================================
 
 TASK_TYPE:  BUGFIX
-STATUS:     Backlog
+STATUS:     Done
 PRIORITY:   P1
 EFFORT:     S
 AGENT:      implementer=convex-implementer | reviewer=convex-reviewer

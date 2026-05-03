@@ -3,7 +3,7 @@ TASK: CHAT-S04-R03 - Align auth error taxonomy + close IDOR on getActiveRoutePla
 ================================================================================
 
 TASK_TYPE:  BUGFIX
-STATUS:     Backlog
+STATUS:     Done (AC-7 incomplete — fixture missing, tracked in R17)
 PRIORITY:   P0
 EFFORT:     M
 AGENT:      implementer=convex-implementer | reviewer=convex-reviewer

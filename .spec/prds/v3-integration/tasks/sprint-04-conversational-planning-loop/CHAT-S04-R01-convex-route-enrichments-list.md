@@ -3,7 +3,7 @@ TASK: CHAT-S04-R01 - Implement db.routeEnrichments.list reactive query
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     Done
 PRIORITY:   P0
 EFFORT:     S
 AGENT:      implementer=convex-implementer | reviewer=convex-reviewer
@@ -14,7 +14,9 @@ RUNTIME_COMMANDS:
   lint:      pnpm exec biome check --no-errors-on-unmatched server/convex/db/routeEnrichments.ts
   build:     pnpm --dir server run convex:dev -- --once
 
-PROGRESS: 0/5 AC · pending
+PROGRESS: 5/5 AC · merged to main (commit 90013515)
+
+CLOSED_BY: red-hat round-2 review 2026-05-03T21:43:36Z — all 5 ACs verified PASS by convex-reviewer
 
 --------------------------------------------------------------------------------
 OUTCOME

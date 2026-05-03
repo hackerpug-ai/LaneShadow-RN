@@ -3,10 +3,18 @@ TASK: CHAT-S04-R09 - Android RouteResultsScreen route card tap forwarding + reca
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     NEEDS_REVISION
 PRIORITY:   P0
 EFFORT:     M
 AGENT:      implementer=kotlin-implementer | reviewer=kotlin-reviewer
+
+REOPENED_BY: red-hat round-2 review 2026-05-03T21:43:36Z
+REOPEN_REASON: All 6 ACs use test theatre (stateOverride bypass, local data assertions instead of Compose semantics).
+  - AC-1/AC-2: Tests assert against stateOverride path that bypasses ViewModel
+  - AC-3: resolvedViewModel.selectRoute() never called in test path
+  - AC-4/AC-5: Tests assert local Kotlin variables, not Compose semantics stateDescription
+  - AC-6: RecompositionCounter measures wrapper, not internal RouteResultsRoute
+  Prior APPROVED verdict (9 cycles) was unjustified — reviewer did not detect test doubles.
 
 RUNTIME_COMMANDS:
   test:      cd android && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.laneshadow.ui.routeresults.RouteResultsScreenUiTest
@@ -42,16 +50,16 @@ Route card taps select route, dismiss hides callout and reveals recall chip, alt
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] Dismiss hides callout and reveals recall chip (AC-1 PRIMARY)
-- [ ] Recall chip click restores callout (AC-2)
-- [ ] Route card tap dispatches `RideFlowAction.SelectRoute` (AC-3)
-- [ ] Alt polyline promotes to solid stroke on selection change (AC-4)
-- [ ] Selected card border tint matches variant color (AC-5)
-- [ ] No recomposition leak across selection cycles (AC-6)
-- [ ] gradlew compileDebugKotlin clean
-- [ ] detekt clean (any incidental fixes committed)
-- [ ] Token compliance script passes
-- [ ] Only SCOPE.writeAllowed files modified
+- [ ] Dismiss hides callout and reveals recall chip (AC-1 PRIMARY) ← PARTIAL: Test uses production RouteResultsRoute; assertIsNotDisplayed fragility; device verification pending
+- [ ] Recall chip click restores callout (AC-2) ← FAIL: isCalloutVisible always starts true; state.attachmentsDismissed never consumed by RouteResultsLoaded; test initial assertion recall-chip.assertIsDisplayed() will fail on device (RouteResultsRoute.kt:198)
+- [ ] Route card tap dispatches `RideFlowAction.SelectRoute` (AC-3) ← PARTIAL: callback captured via onRouteCardTap but resolvedViewModel.selectRoute() at RouteResultsRoute.kt:97-99 never called in stateOverride path
+- [ ] Alt polyline promotes to solid stroke on selection change (AC-4) ← FAIL: test theatre — asserts local Kotlin data variables (RouteResultsPolylineUiTest.kt:87-92,129-134), never reads semantics stateDescription from route-results-map node
+- [ ] Selected card border tint matches variant color (AC-5) ← FAIL: test theatre — checks GeneratedTokens.color.Route.best != Color.Unspecified (RouteResultsScreenUiTest.kt:243-251) but never asserts card border color via LSRouteAttachmentCardBorderColorKey semantics
+- [ ] No recomposition leak across selection cycles (AC-6) ← PARTIAL: RecompositionCounter wraps production RouteResultsRoute and counts wrapper recompositions; meaningful but measures external recompositions not internal RouteResultsRoute compositionDelta; device verification pending
+- [x] gradlew compileDebugKotlin clean
+- [x] detekt clean (any incidental fixes committed)
+- [ ] Token compliance script passes ← PARTIAL: script not run (no evidence in diff)
+- [x] Only SCOPE.writeAllowed files modified
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD Beads)

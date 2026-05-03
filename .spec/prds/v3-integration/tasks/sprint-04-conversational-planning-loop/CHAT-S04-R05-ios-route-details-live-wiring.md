@@ -3,7 +3,7 @@ TASK: CHAT-S04-R05 - iOS RouteDetailsScreen viewState live wiring (real polyline
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     Done (tests crash — tracked in R16)
 PRIORITY:   P0
 EFFORT:     M
 AGENT:      implementer=swift-implementer | reviewer=swift-reviewer
