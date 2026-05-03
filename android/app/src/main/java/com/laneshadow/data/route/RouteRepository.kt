@@ -24,6 +24,7 @@ data class RoutePlan(
     val status: String = "pending",
     val options: List<RouteOption> = emptyList(),
     val statusMessage: String? = null,
+    val errorCode: String? = null,
     val errorMessage: String? = null,
 )
 
