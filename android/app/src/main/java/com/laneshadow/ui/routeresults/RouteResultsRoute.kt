@@ -184,7 +184,7 @@ private fun RouteResultsPlaceholder(
 }
 
 @Composable
-private fun RouteResultsLoaded(
+internal fun RouteResultsLoaded(
     state: RouteResultsUiState.Loaded,
     navController: NavHostController,
     onRouteCardTap: (String) -> Unit,
@@ -213,16 +213,18 @@ private fun RouteResultsLoaded(
                     Column(
                         verticalArrangement = Arrangement.spacedBy(theme.space.sm),
                     ) {
-                        LSNavigatorMessage(
-                            body = state.navigatorBody,
-                            attachments = visibleAttachments.map { it.toRouteAttachment() },
-                            selectedAttachmentId = state.selectedRouteId,
-                            onAttachmentTap = onRouteCardTap,
-                            pinned = true,
-                            onPin = null,
-                            onDismiss = onDismissAttachments,
-                            modifier = Modifier.testTag("route-results-navigator-message"),
-                        )
+                        if (!state.attachmentsDismissed) {
+                            LSNavigatorMessage(
+                                body = state.navigatorBody,
+                                attachments = visibleAttachments.map { it.toRouteAttachment() },
+                                selectedAttachmentId = state.selectedRouteId,
+                                onAttachmentTap = onRouteCardTap,
+                                pinned = true,
+                                onPin = null,
+                                onDismiss = onDismissAttachments,
+                                modifier = Modifier.testTag("route-results-navigator-message"),
+                            )
+                        }
 
                         if (state.showRecallChip) {
                             RecallAttachmentsChip(

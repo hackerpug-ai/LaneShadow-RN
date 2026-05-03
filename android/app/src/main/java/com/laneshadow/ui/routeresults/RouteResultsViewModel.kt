@@ -325,7 +325,7 @@ private data class RouteOptionGeometryPayload(
     val value: String = "",
 )
 
-private fun RouteResultsUiState.Loaded.withSelectedRoute(
+internal fun RouteResultsUiState.Loaded.withSelectedRoute(
     routeOptionId: String,
 ): RouteResultsUiState.Loaded {
     val resolvedRouteOptionId = if (polylineEntries.any { it.routeOptionId == routeOptionId }) {
