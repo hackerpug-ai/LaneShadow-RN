@@ -18,6 +18,7 @@ import {
   findByRoutePlanIdHandler,
   getByIdHandler,
   invalidateStaleEnrichmentsHandler,
+  listHandler,
   updateStatusHandler,
 } from '../routeEnrichments'
 
@@ -26,20 +27,43 @@ import {
 // ---------------------------------------------------------------------------
 
 const CLERK_USER_ID = 'user_test_123'
+const OTHER_USER_ID = 'user_other_456'
 const ENRICHMENT_ID = 'route_enrichments_id_abc' as Id<'route_enrichments'>
 const ROUTE_PLAN_ID = 'route_plans_id_xyz' as Id<'route_plans'>
 const SCHEDULED_JOB_ID = 'sched_job_id' as Id<'_scheduled_functions'>
+const PLANNING_SESSION_ID = 'planning_sessions_id_123' as Id<'planning_sessions'>
 
 const makeEnrichmentDoc = (overrides: Record<string, unknown> = {}) => ({
   _id: ENRICHMENT_ID,
   _creationTime: 1000,
   routePlanId: ROUTE_PLAN_ID,
+  planningSessionId: PLANNING_SESSION_ID,
   clerkUserId: CLERK_USER_ID,
   contentFingerprint: 'abc123',
   phase: 'fast' as const,
   status: 'pending' as const,
   createdAt: Date.now() - 5000,
   updatedAt: Date.now() - 5000,
+  ...overrides,
+})
+
+const makeRoutePlanDoc = (overrides: Record<string, unknown> = {}) => ({
+  _id: ROUTE_PLAN_ID,
+  _creationTime: 1000,
+  clerkUserId: CLERK_USER_ID,
+  planInput: { from: 'A', to: 'B' },
+  status: 'pending' as const,
+  createdAt: Date.now() - 5000,
+  updatedAt: Date.now() - 5000,
+  ...overrides,
+})
+
+const makeHourlyEntry = (forecastTime: number, overrides: Record<string, unknown> = {}) => ({
+  forecastTime,
+  temperature: 72,
+  windSpeed: 10,
+  windDirection: 180,
+  rainProbability: 0.1,
   ...overrides,
 })
 
@@ -308,10 +332,196 @@ describe('findByContentFingerprintHandler', () => {
 })
 
 // ---------------------------------------------------------------------------
+// NEW TESTS: AC-1 through AC-5 for list query
+// ---------------------------------------------------------------------------
+
+describe('listHandler', () => {
+  it('TC-1: returns entries array with length 3 and status pending, with non-decreasing forecastTime', async () => {
+    const now = Date.now()
+    const routePlan = makeRoutePlanDoc({ clerkUserId: CLERK_USER_ID })
+    const enrichment = makeEnrichmentDoc({
+      entries: [
+        makeHourlyEntry(now + 3600000), // t+1h
+        makeHourlyEntry(now), // t
+        makeHourlyEntry(now + 7200000), // t+2h
+      ],
+      status: 'pending',
+    })
+
+    const ctx = {
+      db: {
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            collect: vi.fn().mockResolvedValue([enrichment]),
+          }),
+        }),
+        get: vi.fn().mockResolvedValue(routePlan),
+      },
+    }
+
+    const result = await listHandler(ctx as any, {
+      routePlanId: ROUTE_PLAN_ID,
+      clerkUserId: CLERK_USER_ID,
+    })
+
+    // TC-1: Assert entries.length === 3
+    expect(result.entries).toHaveLength(3)
+    // TC-1: Assert status is pending
+    expect(result.status).toBe('pending')
+    // TC-1: Assert entries are non-decreasing
+    for (let i = 0; i < result.entries.length - 1; i++) {
+      expect(result.entries[i].forecastTime).toBeLessThanOrEqual(result.entries[i + 1].forecastTime)
+    }
+  })
+
+  it('AC-2: returns empty entries for cross-user request', async () => {
+    const routePlan = makeRoutePlanDoc({ clerkUserId: CLERK_USER_ID })
+
+    const ctx = {
+      db: {
+        get: vi.fn().mockResolvedValue(routePlan),
+      },
+    }
+
+    const result = await listHandler(ctx as any, {
+      routePlanId: ROUTE_PLAN_ID,
+      clerkUserId: OTHER_USER_ID,
+    })
+
+    expect(result.entries).toEqual([])
+    expect(result.status).toBe('pending')
+  })
+
+  it('AC-3: returns entries sorted chronologically by forecastTime ascending', async () => {
+    const now = Date.now()
+    const routePlan = makeRoutePlanDoc({ clerkUserId: CLERK_USER_ID })
+    const enrichment = makeEnrichmentDoc({
+      entries: [
+        makeHourlyEntry(now + 7200000), // t+2h
+        makeHourlyEntry(now), // t
+        makeHourlyEntry(now + 3600000), // t+1h
+      ],
+      status: 'pending',
+    })
+
+    const ctx = {
+      db: {
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            collect: vi.fn().mockResolvedValue([enrichment]),
+          }),
+        }),
+        get: vi.fn().mockResolvedValue(routePlan),
+      },
+    }
+
+    const result = await listHandler(ctx as any, {
+      routePlanId: ROUTE_PLAN_ID,
+      clerkUserId: CLERK_USER_ID,
+    })
+
+    expect(result.entries).toHaveLength(3)
+    // Check entries are sorted chronologically
+    expect(result.entries[0].forecastTime).toBe(now)
+    expect(result.entries[1].forecastTime).toBe(now + 3600000)
+    expect(result.entries[2].forecastTime).toBe(now + 7200000)
+  })
+
+  it('TC-4: handler returns current enrichment status (reactive behavior)', async () => {
+    const now = Date.now()
+    const routePlan = makeRoutePlanDoc({ clerkUserId: CLERK_USER_ID })
+    const entries = [
+      { forecastTime: now, temperature: 72, windSpeed: 10 },
+      { forecastTime: now + 3600000, temperature: 70, windSpeed: 12 },
+      { forecastTime: now + 7200000, temperature: 68, windSpeed: 14 },
+    ]
+
+    // Test 1: handler returns PENDING status when enrichment is pending
+    const pendingEnrichment = makeEnrichmentDoc({
+      entries,
+      status: 'pending' as const,
+    })
+
+    const ctxPending = {
+      db: {
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            collect: vi.fn().mockResolvedValue([pendingEnrichment]),
+          }),
+        }),
+        get: vi.fn().mockResolvedValue(routePlan),
+      },
+    }
+
+    const resultPending = await listHandler(ctxPending as any, {
+      routePlanId: ROUTE_PLAN_ID,
+      clerkUserId: CLERK_USER_ID,
+    })
+
+    expect(resultPending.status).toBe('pending')
+    expect(resultPending.entries).toHaveLength(3)
+
+    // Test 2: handler returns COMPLETED status when enrichment is completed
+    const completedEnrichment = makeEnrichmentDoc({
+      entries,
+      status: 'completed' as const,
+    })
+
+    const ctxCompleted = {
+      db: {
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            collect: vi.fn().mockResolvedValue([completedEnrichment]),
+          }),
+        }),
+        get: vi.fn().mockResolvedValue(routePlan),
+      },
+    }
+
+    const resultCompleted = await listHandler(ctxCompleted as any, {
+      routePlanId: ROUTE_PLAN_ID,
+      clerkUserId: CLERK_USER_ID,
+    })
+
+    expect(resultCompleted.status).toBe('completed')
+    expect(resultCompleted.entries).toHaveLength(3)
+  })
+
+  it('AC-5: uses withIndex for efficient lookup', async () => {
+    const now = Date.now()
+    const routePlan = makeRoutePlanDoc({ clerkUserId: CLERK_USER_ID })
+    const enrichment = makeEnrichmentDoc({
+      entries: [makeHourlyEntry(now)],
+      status: 'pending',
+    })
+
+    const mockWithIndex = vi.fn().mockReturnValue({
+      collect: vi.fn().mockResolvedValue([enrichment]),
+    })
+
+    const ctx = {
+      db: {
+        query: vi.fn().mockReturnValue({
+          withIndex: mockWithIndex,
+        }),
+        get: vi.fn().mockResolvedValue(routePlan),
+      },
+    }
+
+    await listHandler(ctx as any, {
+      routePlanId: ROUTE_PLAN_ID,
+      clerkUserId: CLERK_USER_ID,
+    })
+
+    // Verify withIndex was called with the correct index name
+    expect(mockWithIndex).toHaveBeenCalledWith('by_routePlanId', expect.any(Function))
+  })
+})
+
+// ---------------------------------------------------------------------------
 // AC-1 through AC-5: Invalidation of stale enrichments when new route is created
 // ---------------------------------------------------------------------------
 
-const PLANNING_SESSION_ID = 'planning_sessions_id_123' as Id<'planning_sessions'>
 const NEW_ROUTE_PLAN_ID = 'route_plans_new' as Id<'route_plans'>
 
 // Helper to create mock query builder that mimics Convex query chain

@@ -10,6 +10,7 @@ import {
 import { internal } from '../_generated/api'
 import type { Doc, Id } from '../_generated/dataModel'
 import { internalMutation, internalQuery, query } from '../_generated/server'
+import { requireIdentity } from '../guards'
 
 type RouteEnrichmentDoc = Doc<'route_enrichments'>
 
@@ -64,6 +65,23 @@ type InvalidateStaleEnrichmentsCtx = {
   }
   scheduler: {
     cancel: (id: Id<'_scheduled_functions'>) => Promise<void>
+  }
+}
+
+type HourlyForecast = {
+  forecastTime: number
+  temperature?: number
+  windSpeed?: number
+  windDirection?: number
+  windGust?: number
+  rainProbability?: number
+  visibility?: number
+}
+
+type ListEnrichmentCtx = {
+  db: {
+    query: (table: string) => any
+    get: (id: Id<'route_plans'>) => Promise<any>
   }
 }
 
@@ -273,6 +291,50 @@ export const invalidateStaleEnrichmentsHandler = async (
   return Promise.resolve()
 }
 
+export const listHandler = async (
+  ctx: ListEnrichmentCtx,
+  args: {
+    routePlanId: Id<'route_plans'>
+    clerkUserId: string
+  },
+): Promise<{ entries: HourlyForecast[]; status: RouteEnrichmentStatus }> => {
+  // Get the route plan to verify ownership
+  const routePlan = await ctx.db.get(args.routePlanId)
+
+  // If route plan doesn't exist or doesn't belong to the user, return empty
+  if (!routePlan || routePlan.clerkUserId !== args.clerkUserId) {
+    return {
+      entries: [],
+      status: ROUTE_ENRICHMENT_STATUS.PENDING,
+    }
+  }
+
+  // Query enrichments for this route plan using the index
+  const enrichments = await ctx.db
+    .query('route_enrichments')
+    .withIndex('by_routePlanId', (q: any) => q.eq('routePlanId', args.routePlanId))
+    .collect()
+
+  // Get the most recent enrichment
+  if (enrichments.length === 0) {
+    return {
+      entries: [],
+      status: ROUTE_ENRICHMENT_STATUS.PENDING,
+    }
+  }
+
+  const enrichment = enrichments[0]
+
+  // Extract and sort entries by forecastTime
+  const entries = (enrichment.entries || []) as HourlyForecast[]
+  entries.sort((a, b) => a.forecastTime - b.forecastTime)
+
+  return {
+    entries,
+    status: enrichment.status,
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Convex internal mutations and queries
 // ---------------------------------------------------------------------------
@@ -401,6 +463,41 @@ export const getByRoutePlanId = query({
     const enrichments = await findByRoutePlanIdHandler(ctx as any, args)
     // Return the most recent enrichment (sorted by createdAt desc)
     return enrichments.length > 0 ? enrichments[0] : null
+  },
+})
+
+/**
+ * Public query: List hourly forecast entries for a route plan
+ * Returns entries sorted chronologically (ascending by forecastTime)
+ * Gated to the route plan's owner via ownership verification
+ */
+export const list = query({
+  args: {
+    routePlanId: v.id('route_plans'),
+  },
+  returns: v.object({
+    entries: v.array(
+      v.object({
+        forecastTime: v.number(),
+        temperature: v.optional(v.number()),
+        windSpeed: v.optional(v.number()),
+        windDirection: v.optional(v.number()),
+        windGust: v.optional(v.number()),
+        rainProbability: v.optional(v.number()),
+        visibility: v.optional(v.number()),
+      }),
+    ),
+    status: routeEnrichmentStatusValidator,
+  }),
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{ entries: HourlyForecast[]; status: RouteEnrichmentStatus }> => {
+    const identity = await requireIdentity(ctx)
+    return listHandler(ctx as any, {
+      routePlanId: args.routePlanId,
+      clerkUserId: identity.clerkUserId,
+    })
   },
 })
 

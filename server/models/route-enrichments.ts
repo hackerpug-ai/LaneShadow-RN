@@ -44,6 +44,21 @@ export const routeEnrichmentValidator = v.object({
   // Scheduled job ID for cancellation
   scheduledJobId: v.optional(v.id('_scheduled_functions')),
 
+  // Hourly forecast entries (weather data)
+  entries: v.optional(
+    v.array(
+      v.object({
+        forecastTime: v.number(),
+        temperature: v.optional(v.number()),
+        windSpeed: v.optional(v.number()),
+        windDirection: v.optional(v.number()),
+        windGust: v.optional(v.number()),
+        rainProbability: v.optional(v.number()),
+        visibility: v.optional(v.number()),
+      }),
+    ),
+  ),
+
   // Results (merged into route options)
   enrichments: v.optional(
     v.array(
