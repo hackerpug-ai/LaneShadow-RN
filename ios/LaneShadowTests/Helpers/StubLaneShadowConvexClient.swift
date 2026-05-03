@@ -9,11 +9,15 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
     private var routePlanContinuations: [String: AsyncThrowingStream<LaneShadowRoutePlanSnapshot, Error>.Continuation] =
         [:]
     private var activeRoutePlanContinuations: [String: AsyncStream<[LaneShadowRoutePlanSnapshot]>.Continuation] = [:]
+    private var routeEnrichmentsContinuations: [String: AsyncThrowingStream<RouteEnrichmentsDocument, Error>
+        .Continuation] = [:]
     private var latestCurrentUser: LaneShadowCurrentUser?
     private var latestSessions: [Session] = []
     private var latestSessionMessages: [String: [LaneShadowSessionMessage]] = [:]
     private var latestRoutePlans: [String: LaneShadowRoutePlanSnapshot] = [:]
     private var latestActiveRoutePlans: [String: [LaneShadowRoutePlanSnapshot]] = [:]
+    private var latestRouteEnrichments: [String: RouteEnrichmentsDocument] = [:]
+    private var latestRouteIndexFingerprints: [String: SavedRoutesDocument?] = [:]
 
     var stubCreatePlanningSessionResult = LaneShadowPlanningSessionCreationResult(sessionId: "session-123")
     var stubCreatePlanningSessionError: Error?
@@ -177,6 +181,34 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
         if let stubCancelRoutePlanError {
             throw stubCancelRoutePlanError
         }
+    }
+
+    func subscribeToRouteEnrichments(routePlanId: String) -> AsyncThrowingStream<RouteEnrichmentsDocument, Error> {
+        AsyncThrowingStream { continuation in
+            routeEnrichmentsContinuations[routePlanId] = continuation
+            if let currentEnrichments = latestRouteEnrichments[routePlanId] {
+                continuation.yield(currentEnrichments)
+            }
+        }
+    }
+
+    func getRouteIndexFingerprint(routeIndex: String) async throws -> SavedRoutesDocument? {
+        if let cachedResult = latestRouteIndexFingerprints[routeIndex] {
+            return cachedResult
+        }
+        return nil
+    }
+
+    func sendRouteEnrichments(_ enrichmentsDocs: [RouteEnrichmentsDocument], routePlanId: String) {
+        // For simplicity, store the first (or create a dummy one if empty)
+        if let first = enrichmentsDocs.first {
+            latestRouteEnrichments[routePlanId] = first
+            routeEnrichmentsContinuations[routePlanId]?.yield(first)
+        }
+    }
+
+    func sendRouteIndexFingerprint(_ savedRoute: SavedRoutesDocument?, routeIndex: String) {
+        latestRouteIndexFingerprints[routeIndex] = savedRoute
     }
 }
 
