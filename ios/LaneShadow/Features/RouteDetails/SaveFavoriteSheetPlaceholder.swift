@@ -13,18 +13,19 @@ struct SaveFavoriteSheetPlaceholder: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: theme.space.md) {
-                Text("Save Route")
-                    .font(.system(size: 16, weight: .semibold))
+                LSText("Save Route", variant: .label.lg, color: .primary)
                     .padding(.horizontal, theme.space.lg)
                     .padding(.top, theme.space.lg)
 
                 Divider()
                     .padding(.vertical, theme.space.sm)
 
-                Text("Save this route to your library for quick access later.")
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(theme.colors.onSurface.default.opacity(0.72))
-                    .padding(.horizontal, theme.space.lg)
+                LSText(
+                    "Save this route to your library for quick access later.",
+                    variant: .body.sm,
+                    color: .secondary
+                )
+                .padding(.horizontal, theme.space.lg)
 
                 Spacer()
 
@@ -41,7 +42,7 @@ struct SaveFavoriteSheetPlaceholder: View {
                         Text("Save")
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, theme.space.sm)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(theme.colors.onPrimary.default)
                             .background(theme.colors.primary.default)
                             .cornerRadius(theme.radius.sm)
                     }

@@ -200,6 +200,7 @@ public struct RouteDetailsScreen: View {
             ),
             weatherTimeline: viewState.weatherEntries,
             timeRange: ("", ""),
+            isSaved: viewState.isSaved,
             onSave: onSave,
             onRide: onRide,
             onDismiss: onDismiss
