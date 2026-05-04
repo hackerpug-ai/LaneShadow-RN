@@ -327,6 +327,8 @@ targets:
     sources:
       - path: LaneShadowUITests
         type: syncedFolder
+      - path: LaneShadowUITests/DesignReview/DesignReviewHelpers.swift
+      - path: LaneShadowUITests/DesignReview/DesignReviewCaptureTests.swift
     dependencies:
       - target: LaneShadow
     settings:

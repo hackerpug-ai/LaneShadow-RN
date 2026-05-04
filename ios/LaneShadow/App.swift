@@ -32,6 +32,9 @@ struct LaneShadowApp: App {
                         RootView(convexStore: convexStore)
                             .environment(\.appEnvironment, AppEnvironment.live())
                             .laneShadowTheme()
+                        #if DEBUG
+                            .preferredColorScheme(uiTestColorScheme)
+                        #endif
                             .task {
                                 NSLog("🟣 App.task: calling Clerk.shared.load()")
                                 try? await Clerk.shared.load()
@@ -58,6 +61,27 @@ struct LaneShadowApp: App {
             #endif
         }
     }
+
+    #if DEBUG
+        /// DEBUG-only: Override color scheme for UI testing (design review captures).
+        /// Set via launch argument `-LaneShadowUITestColorScheme` with values "light" or "dark".
+        private var uiTestColorScheme: ColorScheme? {
+            let arguments = ProcessInfo.processInfo.arguments
+            guard let index = arguments.firstIndex(of: "-LaneShadowUITestColorScheme") else {
+                return nil
+            }
+            let valueIndex = arguments.index(after: index)
+            guard valueIndex < arguments.endIndex else {
+                return nil
+            }
+            let value = arguments[valueIndex].lowercased()
+            switch value {
+            case "dark": return .dark
+            case "light": return .light
+            default: return nil
+            }
+        }
+    #endif
 }
 
 struct LaneShadowSandboxPresentation: Equatable {
