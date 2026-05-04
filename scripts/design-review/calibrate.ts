@@ -479,4 +479,4 @@ if (require.main === module || import.meta.url === `file://${process.argv[1]}`) 
   })
 }
 
-export { calibrate }
+export { calibrate, computeScores }
