@@ -3,7 +3,7 @@ TASK: FID-S05-T07 - Merge per-entry evals into machine + human report
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     In Progress
 PRIORITY:   P0
 EFFORT:     M
 AGENT:      implementer=convex-implementer | reviewer=convex-reviewer
@@ -15,7 +15,7 @@ RUNTIME_COMMANDS:
   typecheck: pnpm type-check:native
   lint:      pnpm exec biome check --no-errors-on-unmatched scripts/design-review/
 
-PROGRESS: AC-1 not started · 0/5 complete
+PROGRESS: AC-4 ✓ AC-5 ✓ · AC-1 FAIL (nested entries vs flat issues, missing §5 fields) · AC-2 FAIL (no severity filter) · AC-3 FAIL (no component-code-map.json) · 2/5 complete
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -37,11 +37,11 @@ Aggregate per-entry evals into report.json + report.html, enriched with severity
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] AC-1: `merge-report.ts` aggregates per-entry evals into `report.json` with article §5 fields [PRIMARY]
-- [ ] AC-2: Severity filter respected (default med, env override)
-- [ ] AC-3: `code_search_hint` resolved via `component-code-map.json`; unmapped fallback to selector with warning
-- [ ] AC-4: `report.html` renders side-by-side reference vs captured per (screen, state, theme) with severity-color-coded issues
-- [ ] AC-5: `pnpm design:report` script registered
+- [ ] AC-1: `merge-report.ts` aggregates per-entry evals into `report.json` with article §5 fields [PRIMARY] — FAIL: current output uses nested `entries[]` instead of flat `issues[]` array; missing article §5 fields (issue_id, observed, expected, location.bounding_box, fix_hint, design_token, code_search_hint)
+- [ ] AC-2: Severity filter respected (default med, env override) — FAIL: no severity filtering implemented; no `DESIGN_REVIEW_SEVERITY` env var handling
+- [ ] AC-3: `code_search_hint` resolved via `component-code-map.json`; unmapped fallback to selector with warning — FAIL: `component-code-map.json` does not exist; no code_search_hint logic
+- [x] AC-4: `report.html` renders side-by-side reference vs captured per (screen, state, theme) with severity-color-coded issues ✓ reviewer confirmed PASS
+- [x] AC-5: `pnpm design:report` script registered ✓ reviewer confirmed PASS
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD beads)
@@ -206,6 +206,24 @@ CONTEXT
 **Current state:** T05/T06 produce per-entry eval JSON; nothing aggregates them, applies severity filtering, or renders human-readable output.
 
 **Gap:** Fix agents and human reviewers need a single machine-readable `report.json` (with `code_search_hint` and `fix_hint`) and a human-readable `report.html` (side-by-side per screen) per the sprint gate.
+
+**Reviewer findings (2026-05-04):**
+- Code exists from commit `43d8d4e0` — semantic stub (HTML generation works, script registered)
+- AC-4 PASS: `report.html` generates side-by-side reference vs captured with severity-color-coded issues
+- AC-5 PASS: `pnpm design:report` script registered in package.json
+- AC-1 FAIL: Output uses nested `entries[]` structure instead of flat `issues[]` array; missing all article §5 fields
+- AC-2 FAIL: No severity filtering; no `DESIGN_REVIEW_SEVERITY` env var handling
+- AC-3 FAIL: `component-code-map.json` missing; no `code_search_hint` resolution logic
+- CRITICAL: Must load `annotations.json` per (screen, state) to populate `location.bounding_box` on issues
+- Missing test files: `merge-report.test.ts`, `severity-filter.test.ts`, `code-search-hint.test.ts`, `issue-shape.test.ts`, `summary.test.ts`
+
+**Remediation plan:**
+1. Restructure output: flat `issues[]` array + `summary` block with per-severity counts + screens_passed/failed
+2. Implement severity filtering with `DESIGN_REVIEW_SEVERITY` env var (default `med`)
+3. Create `component-code-map.json` with auth-screen selectors mapped to Swift symbol names
+4. Load `annotations.json` from `.spec/design/system/refs/{screen}/{state}.annotations.json` for bounding_box
+5. Wire `code_search_hint` resolution with unmapped fallback + warning log
+6. Create all 5 missing test files
 
 --------------------------------------------------------------------------------
 REVIEW (for convex-reviewer)

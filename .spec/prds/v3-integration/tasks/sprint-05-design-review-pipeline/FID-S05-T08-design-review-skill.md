@@ -21,7 +21,7 @@ PROGRESS: AC-1 not started · 0/6 complete
 OUTCOME
 --------------------------------------------------------------------------------
 
-Author a Claude Code design-review skill plus a `pnpm design:review` umbrella that drives the full pipeline (references → capture → export → manifest → eval → report) and parses report.json into the article §6 schema.
+Author a Claude Code design-review skill plus a `pnpm design:review` umbrella that drives the full pipeline (references → capture → export → manifest → eval → report) and parses report.json into the article §6 schema. **v0 scope is auth-screen only** — the pipeline is validated for auth-screen first; other screens will be added incrementally as their corresponding app code ships in Sprints 06–10.
 
 --------------------------------------------------------------------------------
 🚫 CRITICAL CONSTRAINTS
@@ -30,6 +30,7 @@ Author a Claude Code design-review skill plus a `pnpm design:review` umbrella th
 - MUST place SKILL.md at `~/.claude/skills/design-review/` (outside project tree)
 - MUST accept skill input schema `{ screens?, severity_threshold?, dry_run? }`
 - MUST honor `pnpm design:review` flags `--screens`, `--severity-threshold`, `--dry-run`
+- v0 SCOPE: `--screens` defaults to `auth-screen` only; other screens deferred until their app code ships in Sprints 06-10
 - MUST return article §6 shape: `{ issues, summary: { total, high, med, low, screens_passed, screens_failed } }`
 - NEVER duplicate logic from T07 merge-report; STRICTLY shell out to `pnpm design:report`
 - STRICTLY description triggers on phrases: "run design review", "check design fidelity", "verify UI matches the design system"

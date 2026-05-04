@@ -1,0 +1,8 @@
+{
+  ".mol-form-field": "LSFormField",
+  ".mol-brand-badge": "LSBrandBadge",
+  ".mol-submit-button": "LSSubmitButton",
+  ".org-auth-screen": "AuthScreen",
+  ".atom-phase-dot": "LSPhaseDot",
+  ".atom-pill": "LSPill"
+}

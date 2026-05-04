@@ -1,22 +1,22 @@
 ---
-roadmap: 1
+roadmap: 2
 project: LaneShadow Native Integration (V3)
 generated: 2026-05-04T12:00:00-07:00
+revised: 2026-05-04T18:00:00-07:00
 prd: .spec/prds/v3-integration/README.md
-sprint_count: 7
+sprint_count: 10
 ---
 
 # Sprint Roadmap: LaneShadow Native Integration (V3)
 
 ## Overview
 
-**Sprints:** 7 (planning + execution sequenced UI-first per user directive, with Design Review pipeline inserted as Sprint 05 on 2026-05-04)
-**Total Tasks:** 70
-**Current Sprint:** Sprint 04 (closing — RF-38/39/40 remediation landed 2026-05-03/04)
+**Sprints:** 10 (Sprints 6+ reshaped 2026-05-04 to ship one map view at a time)
+**Current Sprint:** Sprint 05 — Design Review Pipeline (in flight; do not retouch)
 
 This roadmap sequences the 25 use cases in `.spec/prds/v3-integration/` so that **all 105 acceptance criteria of UC-FID-01 (Design Fidelity) land in Sprints 1-2 BEFORE any integration work begins.** This honors HUMAN SIGNAL #1's framing — sandbox views are "distorted" because of UI fidelity gaps; live-data wiring on top of distorted UI compounds the problem. By restoring V2 design-system fidelity first, every subsequent integration sprint binds real Convex/Clerk/Mapbox data into a sandbox that already matches the authoritative `.spec/design/system/` mockups.
 
-The original 6-week appetite (HUMAN SIGNAL #4) was extended to 7 weeks on 2026-05-04 to insert a **Design Review pipeline (Sprint 05)** between the conversational planning loop (Sprint 04) and the saved-routes/sessions/settings wiring (now Sprint 06). The design-review pipeline replaces the brittle sandbox-parity snapshot infrastructure with iOS XCUITest captures evaluated by a vision LLM against the design system — closing the loop on automated UC-FID-01 audits and unblocking confidence in subsequent UI-shipping sprints. Explicit Android cut authority is documented in `01-scope.md` Cut Order.
+**Reshape on 2026-05-04 (this revision):** Per user direction *"each sprint is super overscoped, we need to slow down and take each map view one at a time"*, the previously bundled Sprints 06 (Saved Routes / Sessions / Settings) and 07 (Map / Offline / Error / Ship Gate) were retired and replaced with **five view-at-a-time sprints (06–10): IdleScreen → PlanningScreen → RouteResultsScreen → RouteDetails Bottom Sheet → SessionsScreen.** Each new sprint integrates exactly one screen against real Convex/Clerk/Mapbox data with the Sprint 05 design-review pipeline serving as the per-screen quality gate. The prior bundled scope is preserved at [`ROADMAP-ICEBOX.md`](./ROADMAP-ICEBOX.md) for future re-pickup of deferred surfaces (saved-routes browsing list, settings, offline regions, error recovery, ship-gate hardening, manual PlanRideSheet).
 
 **Sprint sequence rationale:**
 
@@ -25,23 +25,31 @@ The original 6-week appetite (HUMAN SIGNAL #4) was extended to 7 weeks on 2026-0
 - **Sprint 03** wires auth + Convex foundation (the substrate every other UC depends on).
 - **Sprint 04** wires the conversational planning loop end-to-end — the single biggest integration surface, touching all 6 V2 screens.
 - **Sprint 05** ships the **Design Review pipeline** (iOS XCUITest captures → vision LLM eval against `.spec/design/system/` references → fix-oriented JSON → Claude code skill agent → re-eval loop), retiring the sandbox snapshot tests + parity infrastructure in the process. The in-app sandbox catalog UI is preserved for dev exploration.
-- **Sprint 06** wires saved routes, sessions history, and settings — the secondary persistent flows.
-- **Sprint 07** wires location + offline regions, error recovery, the stretch PlanRideSheet, FID LOW-severity polish, and ship-gate hardening.
+- **Sprint 06** delivers a production-grade **IdleScreen** — real map, real location, real greeting, real suggestion chips — that passes the design-review pipeline.
+- **Sprint 07** delivers a production-grade **PlanningScreen** — real sketch animation, real phase indicator driven by Convex stream, real cancel — that passes the design-review pipeline.
+- **Sprint 08** delivers a production-grade **RouteResultsScreen** — three real polylines, real Navigator message, real route attachment cards, real refine + alt-select interactions — that passes the design-review pipeline.
+- **Sprint 09** delivers a production-grade **RouteDetails bottom sheet** — real metrics, real weather timeline, real save / ride actions — that passes the design-review pipeline.
+- **Sprint 10** delivers a production-grade **SessionsScreen drawer** — real session list, real grouping, real switch-with-camera-restore — that passes the design-review pipeline.
+
+Saved-routes browsing list, Settings, Offline Regions, Error Recovery wiring, manual PlanRideSheet, and ship-gate hardening are explicitly **deferred** to a post-Sprint-10 follow-on plan (see ICEBOX for the prior bundled detail).
 
 **Human testing policy:** Human tests for non-sandbox code must include real-device E2E steps. Simulator/emulator checks may remain as supporting evidence, but any gate that exercises live app flows, auth, Convex, Mapbox, persistence, location, or external services must include a real-device E2E path with recorded evidence. For iOS, use the native XCUITest pattern documented in `docs/REAL_DEVICE_E2E.md`; for Android, use physical-device evidence or mark the step MANUAL/BLOCKED until an equivalent Android device harness exists. Sandbox-only visual/component gates may continue to use simulator/emulator snapshot tooling — but as of Sprint 05, parity-snapshot tests are removed in favor of design-review evaluation.
 
 ## Sprint Sequence
 
-| # | Sprint | Gate | Tasks | Dependencies | Status |
-|---|--------|------|-------|--------------|--------|
-| 1 | [Sprint 01: V2 Critical Distortion Fixes](#sprint-01-v2-critical-distortion-fixes) | Sandbox no longer looks distorted on the most visible HIGH-severity gaps; Android compiles | 9 | — | In Progress |
-| 2 | [Sprint 02: V2 Variants, Motion & Sandbox Coverage](#sprint-02-v2-variants-motion--sandbox-coverage) | All designed variants and motion recipes match HTML mockups; Android sandbox stories complete | 10 | Sprint 01 | In Progress |
-| 3 | [Sprint 03: Auth & Convex Foundation](#sprint-03-auth--convex-foundation) | Rider can sign in via OAuth on both platforms and see their real name on IdleScreen | 11 | Sprint 02 | In Progress |
-| 3R | [Sprint 03 Remediation: Auth Design Fidelity, Component Gaps, and Real E2E](./tasks/sprint-03-auth-design-e2e-remediation/SPRINT.md) | Auth UI matches `auth-screen.html`, missing primitives are implemented, and real human-step auth evidence replaces render-only tests | 8 | Sprint 03 | Planned |
-| 4 | [Sprint 04: Conversational Planning Loop](#sprint-04-conversational-planning-loop) | Rider can plan a real route end-to-end via chat and see three live polylines on RouteResults | 12 | Sprint 03 | In Progress |
-| 5 | [Sprint 05: Design Review Pipeline](#sprint-05-design-review-pipeline) | A reviewer can run `pnpm design:review` and receive a calibrated, fix-oriented JSON report of per-component design issues consumable from a `design-review` Claude skill | 10 | Sprint 04 | In Progress |
-| 6 | [Sprint 06: Saved Routes, Sessions & Settings](#sprint-06-saved-routes-sessions--settings) | Rider can save a route, browse saved routes, switch sessions, and toggle theme | 10 | Sprint 05 | In Progress |
-| 7 | [Sprint 07: Map, Offline, Error Recovery & Ship Gate](#sprint-07-map-offline-error-recovery--ship-gate) | Rider can use real location, download offline regions, and recover from errors — V3 ships | 10 | Sprint 06 | Planned |
+| # | Sprint | Gate | Status |
+|---|--------|------|--------|
+| 1 | [Sprint 01: V2 Critical Distortion Fixes](#sprint-01-v2-critical-distortion-fixes) | Sandbox no longer looks distorted on the most visible HIGH-severity gaps; Android compiles | In Progress |
+| 2 | [Sprint 02: V2 Variants, Motion & Sandbox Coverage](#sprint-02-v2-variants-motion--sandbox-coverage) | All designed variants and motion recipes match HTML mockups; Android sandbox stories complete | In Progress |
+| 3 | [Sprint 03: Auth & Convex Foundation](#sprint-03-auth--convex-foundation) | Rider can sign in via OAuth on both platforms and see their real name on IdleScreen | In Progress |
+| 3R | [Sprint 03 Remediation: Auth Design Fidelity, Component Gaps, and Real E2E](./tasks/sprint-03-auth-design-e2e-remediation/SPRINT.md) | Auth UI matches `auth-screen.html`, missing primitives are implemented, and real human-step auth evidence replaces render-only tests | Planned |
+| 4 | [Sprint 04: Conversational Planning Loop](#sprint-04-conversational-planning-loop) | Rider can plan a real route end-to-end via chat and see three live polylines on RouteResults | In Progress |
+| 5 | [Sprint 05: Design Review Pipeline](#sprint-05-design-review-pipeline) | A reviewer can run `pnpm design:review` and receive a calibrated, fix-oriented JSON report of per-component design issues consumable from a `design-review` Claude skill | **In Progress (do not retouch)** |
+| 6 | [Sprint 06: IdleScreen](#sprint-06-idlescreen) | A real IdleScreen on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens idle-screen` with zero `high`-severity issues | In Progress |
+| 7 | [Sprint 07: PlanningScreen](#sprint-07-planningscreen) | A real PlanningScreen on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens planning-screen` with zero `high`-severity issues | Planned |
+| 8 | [Sprint 08: RouteResultsScreen](#sprint-08-routeresultsscreen) | A real RouteResultsScreen on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens route-results-screen` with zero `high`-severity issues | Planned |
+| 9 | [Sprint 09: RouteDetails Bottom Sheet](#sprint-09-routedetails-bottom-sheet) | A real RouteDetails bottom sheet on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens route-details-screen` with zero `high`-severity issues | Planned |
+| 10 | [Sprint 10: SessionsScreen](#sprint-10-sessionsscreen) | A real Sessions drawer on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens sessions-screen` with zero `high`-severity issues | Planned |
 
 ---
 
@@ -315,22 +323,20 @@ Generated by /kb-sprint-tasks-plan on 2026-05-01. Tasks T09 and T10 were split i
 
 **Sequence:** 5
 **Timeline:** Phase 2 · Week 5
-**Status:** In Progress (task expansion 2026-05-04 — 10 task files via /kb-sprint-tasks-plan)
+**Status:** In Progress (auth-only rescope 2026-05-04)
 
 #### Human Testing Gate
 
-**Gate:** A reviewer can run `pnpm design:review --screens <…>` (and dispatch the equivalent `design-review` Claude Code skill) to drive iOS XCUITest captures of every reachable design-system view state, evaluate them against rendered design-system references via a calibrated (≥85% precision/recall) Claude Sonnet 4.6 vision LLM, and receive a structured fix-oriented JSON report of per-component issues — with observed/expected token deltas, severity, confidence, bounding-box, and `code_search_hint` — that an autonomous fix agent can act on with a 3-iteration re-eval cap.
+**Gate:** A reviewer can run `pnpm design:review --screens auth-screen` to drive iOS XCUITest captures of every reachable auth-screen state, evaluate them against rendered design-system references via a Claude Sonnet 4.6 vision LLM, and receive a structured fix-oriented JSON report of per-component issues — with observed/expected token deltas, severity, confidence, bounding-box, and `code_search_hint`.
 
 #### Test Steps
 
-1. Verify Phase 0 cleanup: confirm `ios/LaneShadowTests/Sandbox/StorySnapshotTests.swift`, `android/.../AllStoriesSnapshotTest.kt`, `tokens/sandbox/snapshots.parity.json`, `tokens/sandbox/parity-thresholds.json`, `scripts/snapshots/`, all `snapshots:*` package.json scripts, and the lefthook pre-push parity gates have been removed; `RULES.md` "Cross-Platform Component Parity" section is annotated as deferred; `pnpm dev`, `pnpm type-check:native`, `xcodebuild build -scheme LaneShadow`, and `cd android && ./gradlew :app:assembleDebug` all succeed; sandbox catalog UI still loads in debug builds on both platforms
-2. Run `pnpm design:references` and confirm ~84 PNGs and ~42 annotations.json files are produced under `.spec/design/system/refs/{screen}/`, with iOS-viewport (390×844) renders for every (screen, state, theme) combination across all 7 design system views (auth, idle, planning, route-results, route-details, sessions, error)
-3. Run `pnpm design:capture --screens auth-screen` and confirm `xcodebuild test` runs `DesignReviewCaptureTests` against iPhone 15 Pro Simulator, signs in via real Clerk auth (no `bypassAuthForTesting`), drives the app through every reachable auth-screen state (entry, email-entry, existing-user, new-user, invalid-email, submitting), and produces `build/xcresults/design-review.xcresult` with one XCTAttachment per (screen, state)
-4. Run `pnpm design:export` and `pnpm design:manifest` and confirm `.design-review/manifest.json` lists every (captured, reference, annotations) triple with no missing pairings; non-zero exit on any orphan capture or missing reference
-5. Run `pnpm design:eval` against the unmodified app and confirm zero `high`-severity issues are produced; spot-check that any `med`/`low` issues include observed/expected token names (not raw hex/pixel values), confidence scores in [0,1], and component bounding boxes
-6. Inject a deliberate spacing regression on iOS AuthScreen (replace one `var(--space-4)` token usage with hardcoded `12.0` padding); re-run `pnpm design:review --screens auth-screen`; confirm the eval flags the spacing issue with severity ≥ med, confidence ≥ 0.7, and a `fix_hint` mentioning token replacement; revert the regression and confirm zero med+ issues
-7. Run `pnpm design:calibrate` and confirm ≥85% precision and ≥85% recall on the 10-entry calibration set, with held-out 5-entry test score within 5pp; verify `scripts/design-review/prompts/visual-eval.locked.md` exists
-8. Open `.design-review/report.html` in a browser and confirm the side-by-side reference vs captured layout renders for every captured screen, with severity-color-coded issue lists per (screen, state, theme); dispatch the `design-review` Claude Code skill from a fresh session and verify it returns the article §6 schema (`{issues, summary}`)
+1. Verify Phase 0 cleanup: confirm snapshot tests + parity infra removed; `pnpm type-check:native` and `xcodebuild build` pass; sandbox catalog UI preserved
+2. Run `pnpm design:references` and confirm 6 auth-screen PNGs + 6 annotations.json files in `.spec/design/system/refs/auth-screen/` (email-entry, existing-user-sign-in, new-user-create-account, default.dark, invalid-email-error, submitting-loading)
+3. Run `pnpm design:review --screens auth-screen` and confirm the pipeline runs end-to-end (capture → export → manifest → eval → report)
+4. Inspect `.design-review/report.json` and confirm it has a flat `issues[]` array with all article §5 fields, plus a `summary` block with per-severity counts and screens_passed/failed
+5. Open `.design-review/report.html` and confirm side-by-side reference vs captured layout for auth-screen states with severity-color-coded issue lists
+6. Inject a deliberate spacing regression on iOS AuthScreen (replace one `--space-4` token usage with hardcoded `12.0` padding); re-run `pnpm design:review --screens auth-screen`; confirm the eval flags the spacing issue with severity ≥ med and a `fix_hint` mentioning token replacement; revert the regression and confirm zero med+ issues
 
 #### Tasks
 
@@ -386,123 +392,268 @@ Generated by /kb-sprint-tasks-plan on 2026-05-04 using convex-planner (×9 tasks
 #### Notes
 
 - **Sandbox catalog UI is preserved** — only the snapshot tests + parity manifest infrastructure are removed. `LaneShadowStories.all` (iOS) and `LaneShadowSandboxEntry.getAllStories()` (Android) remain load-bearing for dev exploration.
-- **Coverage caveat at insertion** — XCUITest can only drive screens reachable via real flows; sessions-screen + saved-routes-* states unlock in Sprint 06; map/offline + error-recovered/offline states unlock in Sprint 07. Calibration set uses currently-reachable screens (auth/idle/planning/route-results/route-details/error) for the 85% gate.
+- **Coverage caveat at insertion (updated 2026-05-04)** — Sprint 05 is rescoped to auth-screen-only pipeline validation. Other views (idle-screen, planning-screen, route-results-screen, route-details-screen, sessions-screen) will be added incrementally as their corresponding app code ships in Sprints 06–10. T09 (re-eval loop) is descoped from Sprint 05 and deferred to post-Sprint-05.
 - **Behavioral axis deferred** — only the visual fidelity axis (article §3.1) is in scope for v0. Behavioral correctness (article §3.2) — text LLM eval against per-screen SHALL/SHALL NOT requirements with action_log capture — is a follow-up plan once the visual loop is calibrated.
 - **Android replacement deferred** — sandbox snapshot tests are removed on both platforms in T01, but the design-review pipeline ships iOS-only for v0; Android equivalent (instrumented tests + `UiDevice.takeScreenshot()` or Compose `captureToImage()`) is a follow-up plan if Android design review becomes a priority.
 
 ---
 
-### Sprint 06: Saved Routes, Sessions & Settings
+### Sprint 06: IdleScreen
 
 **Sequence:** 6
-**Timeline:** Phase 2 · Week 6
-**Status:** In Progress (originally Sprint 05; renumbered 2026-05-04 with Design Review pipeline insertion. Task expansion 2026-05-03)
+**Status:** In Progress (task files JIT-expanded 2026-05-04 via `/kb-sprint-tasks-plan`; sprint folder: [`tasks/sprint-06-idlescreen/`](./tasks/sprint-06-idlescreen/))
+**Design Reference:** [`.spec/design/system/views/idle-screen/README.md`](../../design/system/views/idle-screen/README.md) · [`idle-screen.html`](../../design/system/views/idle-screen/idle-screen.html)
+
+#### Next Sprint Tasks
+
+Generated by /kb-sprint-tasks-plan on 2026-05-04T14:30:00-07:00
+
+- IDLE-S06-CVX-T01-mapbox-reverse-geocode-and-favorites-query.md
+- IDLE-S06-CVX-T02-weather-proxy-action.md
+- IDLE-S06-IOS-T01-idle-viewmodel-evolution.md
+- IDLE-S06-IOS-T02-real-mapbox-warm-paper-and-favorite-pins.md
+- IDLE-S06-IOS-T03-location-service-and-chat-input-active.md
+- IDLE-S06-IOS-T04-design-review-capture-tests-7-variants.md
+- IDLE-S06-AND-T01-idle-viewmodel-parity.md
+- IDLE-S06-AND-T02-mapbox-warm-paper-and-favorite-pins.md
+- IDLE-S06-AND-T03-location-service-and-chat-input-active.md
+- IDLE-S06-AND-T04-instrumented-test-real-data-wiring.md
+- IDLE-S06-T11-sprint-gate.md
 
 #### Human Testing Gate
 
-**Gate:** A rider can save a planned route via the SaveFavoriteSheet, browse all saved routes in a dedicated list with search and soft-delete + undo, view a saved route's snapshot in detail, switch between past sessions in the SessionsDrawer with camera position restored, change theme in Settings, and sign out cleanly.
+**Gate:** A signed-in rider on iOS + Android can open the app cold and arrive on a real IdleScreen — full-screen Mapbox warm-paper map, real Newsreader greeting interpolating their first name and current day/temperature, real LSChatInput with location pill + suggestion chips + filter button, real LSTopBar — that matches the `idle-screen` design references via `pnpm design:review --screens idle-screen` with **zero `high`-severity issues** across every reachable variant.
 
 **Test Steps:**
-1. From RouteDetailsScreen, tap "Save"; confirm SaveFavoriteSheet opens with pre-populated name; submit → see toast + Save button flip to "Saved" + saved route appears in SavedRoutesListScreen
-2. Open hamburger menu → "Saved Routes"; see paginated list ordered by save date with search field; type a query and confirm `db.savedRoutes.getSavedRoutesList` filters results
-3. Swipe (iOS) / long-press (Android) a saved row → Delete → confirm soft-delete via `softDeleteRoute`; tap "Undo" in toast within ~5s → confirm `undoDeleteRoute` restores the route
-4. Tap a saved route row → confirm SavedRouteDetailScreen opens hydrated from snapshot; tap "Plan again" → confirm new session created with seeded `planInput`
-5. Open hamburger menu → "Sessions"; see grouped sessions (TODAY / YESTERDAY / THIS WEEK / EARLIER); tap a past session → confirm app routes to that session's phase screen with camera position restored from per-session cache
-6. Open Settings → toggle theme between Light / Dark / Auto; confirm app theme switches immediately without restart and persists across app close
-7. Tap "Sign out" in Settings → confirm dialog → confirm tokens clear + chat camera cache wipes + redirected to SignInScreen
-8. Verify hamburger menu navigation works from every CHAT/ROUTE/SESS screen, with the active menu entry highlighted using `surface.role.agent.accent`
+1. Sign in via real Clerk auth on iOS Simulator + Android Emulator and confirm cold-start lands on IdleScreen with the greeting headline reading "Where are we riding *today*, {firstName}?" in Newsreader opinion-xl italic
+2. Confirm the meta row renders the rider's local day + temperature + condition (e.g., "FRIDAY · 68°F · CLEAR") in copper signal color and the underlying canvas shows a real Mapbox warm-paper tile layer (not a LinearGradient placeholder)
+3. Confirm saved-favorite locations appear as copper pin dots and the location pill resolves "Near {city}, {state}" from real CoreLocation / FusedLocationProvider data; toggle MANUAL mode and confirm the tag pill flips to MANUAL with copper tint
+4. Tap a suggestion chip and confirm the chat input bar shifts to `is-active`, the filter button swaps to a copper send button, and the placeholder text fills with the chip's primer phrase (the actual planning loop is out-of-scope this sprint — a placeholder transition is acceptable)
+5. Toggle dark mode; confirm the greeting rewrites to "tonight" via `Greeting.scope`, all tokens re-resolve on warm-dark ink substrate, and pin dots / glass chips re-tint correctly
+6. Run `pnpm design:review --screens idle-screen` against this build on iOS Simulator; confirm zero `high`-severity issues across all variants (S01 default light, S02 typing/send, S03 default dark, S04 filter sheet, V01 no-location, V02 first-ride, V03 weather-advisory)
+7. Walk through the variant set on a real iPhone via `xcodebuild test … DesignReviewCaptureTests` and confirm motion (greeting fade, suggestion-chip primed scale, filter-sheet open) matches the design reference; record xcresult artifacts as gate evidence
 
-#### Tasks
+#### Design Review Gate
 
-| ID | Title | Agent | Estimate |
-|----|-------|-------|----------|
-| ROUTE-S06-T01 | iOS SaveFavoriteSheet — V2 LSBottomSheet shell + LSTextField name input + LSInstrumentReadout metadata + Save/Cancel actions; `db.savedRoutes.saveRoute` mutation with `planInput` + `routeSnapshot` + `routeIndex` (fingerprint) + `snapshotMeta`; already-saved fingerprint state | swift-implementer | 180 min |
-| ROUTE-S06-T02 | Android SaveFavoriteSheet — same composition + mutation; already-saved fingerprint state | kotlin-implementer | 180 min |
-| ROUTE-S06-T03 | iOS SavedRoutesListScreen — `db.savedRoutes.getSavedRoutesList` paginated subscription with search; LSListRow per row (polyline thumbnail, name, distance, saved date, scenic-score pill); LSEmptyState; pull-to-refresh; swipe-to-delete with `softDeleteRoute` + LSToast undo button → `undoDeleteRoute`; rename via `renameRoute` mutation | swift-implementer | 360 min |
-| ROUTE-S06-T04 | Android SavedRoutesListScreen — paginated query + search + long-press delete + undo; rename inline | kotlin-implementer | 360 min |
-| ROUTE-S06-T05 | iOS SavedRouteDetailScreen — variant of RouteDetailsScreen template hydrated from `db.savedRoutes.getSavedRouteDetail` snapshot; Rename + Delete actions in toolbar; "Plan again" button calls `db.planningSessions.createSession` with seeded `planInput` | swift-implementer | 180 min |
-| ROUTE-S06-T06 | Android SavedRouteDetailScreen + Plan again | kotlin-implementer | 180 min |
-| SESS-S06-T07 | iOS SessionsScreen wiring — V2 LSSessionsDrawer subscribed to `db.planningSessions.listSessions`; date-grouped sections; tap row switches active session + routes to phase screen + restores camera from `cameraStore.cameraForSession(sessionId)`; `+ New session` creates fresh session; `Services/CameraStore.swift` with `cameraMoveSource: .user | .programmatic` flag (Gap A1-10 fix mirroring RN `isProgrammaticMoveRef`) | swift-implementer | 240 min |
-| SESS-S06-T08 | Android SessionsScreen wiring + DataStore camera persistence + cameraMoveSource flag | kotlin-implementer | 240 min |
-| APP-S06-T09 | iOS SettingsScreen — sections via LSSectionHeader (Account: avatar + email + Sign Out; Appearance: theme picker chips Light/Dark/Auto persisted to UserDefaults; Storage: link to Offline Regions; About: version + terms + privacy); hamburger menu navigation with all 5 entries (Home / Saved / Sessions / Offline / Settings); UC-APP-04 wiring | swift-implementer | 240 min |
-| APP-S06-T10 | Android SettingsScreen + theme persistence via DataStore + sign-out + hamburger menu navigation | kotlin-implementer | 240 min |
+Sprint 06 MUST expand the design-review pipeline to cover `idle-screen`. Required deliverables:
 
-**Next Sprint Tasks:**
+1. **Reference assets** — `.spec/design/system/views/idle-screen/` must contain PNGs + annotations for all 7 idle-screen variants (S01 default light, S02 typing/send, S03 default dark, S04 filter sheet, V01 no-location, V02 first-ride, V03 weather-advisory). Run `pnpm design:references` to generate.
+2. **XCUITest capture tests** — add `DesignReviewCaptureTests` test methods for every `(idle-screen, state, theme)` tuple. These drive `xcodebuild test` to capture live screenshots against the iOS Simulator build.
+3. **Pipeline pass** — `pnpm design:review --screens idle-screen` must produce a report with **zero `high`-severity issues** before the human testing gate can pass. Include the report as gate evidence.
+4. **Coverage expansion** — after Sprint 06, `pnpm design:review --screens auth-screen,idle-screen` must work end-to-end, with both views appearing in `report.json` and `report.html`.
 
-Generated by /kb-sprint-tasks-plan on 2026-05-03 using project-local specialist planners (`swift-planner` for iOS, `kotlin-planner` for Android — invoked in parallel). Task IDs renamed from S05 → S06 on 2026-05-04 with the Design Review pipeline insertion.
+The planner MUST include explicit tasks for items 1–3 in the Sprint 06 task table. These are not optional — they are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
 
-- [ROUTE-S06-T01-ios-save-favorite-sheet.md](./tasks/sprint-06-saved-routes-sessions-settings/ROUTE-S06-T01-ios-save-favorite-sheet.md)
-- [ROUTE-S06-T02-android-save-favorite-sheet.md](./tasks/sprint-06-saved-routes-sessions-settings/ROUTE-S06-T02-android-save-favorite-sheet.md)
-- [ROUTE-S06-T03-ios-saved-routes-list-screen.md](./tasks/sprint-06-saved-routes-sessions-settings/ROUTE-S06-T03-ios-saved-routes-list-screen.md)
-- [ROUTE-S06-T04-android-saved-routes-list-screen.md](./tasks/sprint-06-saved-routes-sessions-settings/ROUTE-S06-T04-android-saved-routes-list-screen.md)
-- [ROUTE-S06-T05-ios-saved-route-detail-screen.md](./tasks/sprint-06-saved-routes-sessions-settings/ROUTE-S06-T05-ios-saved-route-detail-screen.md)
-- [ROUTE-S06-T06-android-saved-route-detail-screen.md](./tasks/sprint-06-saved-routes-sessions-settings/ROUTE-S06-T06-android-saved-route-detail-screen.md)
-- [SESS-S06-T07-ios-sessions-screen-wiring.md](./tasks/sprint-06-saved-routes-sessions-settings/SESS-S06-T07-ios-sessions-screen-wiring.md)
-- [SESS-S06-T08-android-sessions-screen-wiring.md](./tasks/sprint-06-saved-routes-sessions-settings/SESS-S06-T08-android-sessions-screen-wiring.md)
-- [APP-S06-T09-ios-settings-screen.md](./tasks/sprint-06-saved-routes-sessions-settings/APP-S06-T09-ios-settings-screen.md)
-- [APP-S06-T10-android-settings-screen.md](./tasks/sprint-06-saved-routes-sessions-settings/APP-S06-T10-android-settings-screen.md)
+#### Scope
+
+This sprint integrates **only IdleScreen.** The suggestion-chip → planning transition may stub to a placeholder (live planning loop is exercised in Sprint 07). Saved-routes browsing, Settings, Sessions drawer, Offline Regions, and Error recovery are **explicitly out of scope** (deferred to post-Sprint-10 follow-on plans — see ICEBOX). The hamburger menu may open a placeholder sheet.
 
 #### Dependencies
 
 - Blocks: Sprint 07
-- Dependent on: Sprint 05
+- Dependent on: Sprint 05 (design-review pipeline gates this and every subsequent view sprint)
 
 #### PRD Coverage
 
-- UC-ROUTE-01, UC-ROUTE-02, UC-ROUTE-03, UC-ROUTE-04
-- UC-SESS-01, UC-SESS-02, UC-SESS-03
-- UC-APP-01, UC-APP-04
-- `architecture/ios-architecture.md` § 6-7, `architecture/android-architecture.md` § Per-screen wiring + Persistence
+- UC-CHAT-01 (suggestion-chip + chat-input affordances on IdleScreen surface only)
+- UC-MAP-01 (map render + favorite pins, IdleScreen surface only)
+- UC-FID-01 (idle-screen subset — all 7 variants in design reference)
+- `architecture/ios-architecture.md` § IdleScreen, `architecture/android-architecture.md` § IdleScreen wiring
 
 ---
 
-### Sprint 07: Map, Offline, Error Recovery & Ship Gate
+### Sprint 07: PlanningScreen
 
 **Sequence:** 7
-**Timeline:** Phase 2 · Week 7
-**Status:** Planned (originally Sprint 06; renumbered 2026-05-04 with Design Review pipeline insertion)
+**Status:** Planned
+**Design Reference:** [`.spec/design/system/views/planning-screen/README.md`](../../design/system/views/planning-screen/README.md) · [`planning-screen.html`](../../design/system/views/planning-screen/planning-screen.html)
 
 #### Human Testing Gate
 
-**Gate:** A rider can grant location permission and recenter the map, browse and download an offline Mapbox region from a new region selector screen with background-resumable downloads, recover from network and agent errors via the inline error callout with typed-error recovery suggestions, optionally use the manual-mode PlanRideSheet, and the app passes all snapshot regression tests across both platforms — V3 ships.
+**Gate:** From IdleScreen, a rider can tap a suggestion chip (or send a typed prompt) and arrive on a real PlanningScreen — copper sketch-polyline animating at the deliberate 1400ms linear loop, real LSPhaseIndicator pulsing through the five-step pipeline driven by `db.sessionMessages.list`, locked chat input with copper spinner, working back/cancel — that matches the `planning-screen` design references via `pnpm design:review --screens planning-screen` with **zero `high`-severity issues** across every reachable variant.
 
 **Test Steps:**
-1. On first launch on a fresh device, grant location permission via the platform-native prompt; confirm the current-location dot appears on LSMap and the recenter button flies the camera to current location with `mapTapDismiss` motion
-2. Open hamburger menu → "Offline Regions"; tap "Add region" → `OfflineRegionSelectorScreen` opens; drag handles to select a region, enter a name, tap Download; watch `LSDownloadProgressBar` molecule update progress
-3. Background the app while downloading and reopen; confirm download resumes (URLSession background config on iOS / WorkManager + ForegroundService on Android with `dataSync` type and `POST_NOTIFICATIONS` permission); wait for completion + checksum validation; confirm region row shows ready badge
-4. Trigger a network error mid-planning (toggle airplane mode during `agent.sendMessage`); confirm ErrorScreen renders with `LSInlineErrorCallout` showing typed `NETWORK_TIMEOUT` user-facing copy + recovery chips; tap "Try again" → confirm callout fades to 0.55 opacity and the failed action retries
-5. Trigger an uncaught exception in a Compose render path; confirm the global error boundary catches it, routes to ErrorScreen with generic recovery message, and logs the stack trace to `db.performance` (verify via Convex dashboard)
-6. (Stretch) From IdleScreen tap manual-mode toggle on LSChatInput → `PlanRideSheet` opens with start/end inputs (Mapbox Search API autocomplete), scenic bias slider, avoid toggles, departure picker; submit → confirm `agent.planRide` action fires and screen transitions to PlanningScreen
-7. Run `pnpm design:review` (the Sprint 05 pipeline) across all reachable screens on iOS + Android; confirm zero `high`-severity issues and all calibration thresholds hold post-Sprint-06 wiring (sessions-screen + saved-routes states now reachable + included in coverage)
-8. Walk through the full V3 flow on both platforms (sign-in → suggest a ride → plan → save → reopen → re-plan from saved → switch theme → sign out) and confirm every step works end-to-end without console errors — V3 ships
+1. From IdleScreen, tap a suggestion chip ("Plan a scenic 2-hour ride") and confirm the screen transitions to PlanningScreen with the optimistic message immediately visible (temp ID) and reconciled to the server `_id` within ~500ms
+2. Watch the LSPhaseIndicator pulse through phases (parsing → searching → drafting → enriching → finalizing) driven by real Convex `sessionMessages` status updates; confirm the active step has a pulsing copper ring, prior steps render as done, and future steps are pending
+3. Confirm the copper sketch polyline animates continuously at 1400ms linear loop with the leading head dot breathing synchronously at 1400ms ease-in-out (matches design reference motion recipe — exact, not 600ms rushed)
+4. Confirm the chat input bar is locked: rider's prompt text visible, typing disabled, leading icon dimmed, send button replaced by a copper spinner; back button is the only exit affordance
+5. Tap back; confirm the cancel-confirm sheet opens; confirm "Cancel ride" → `db.routePlans.cancelPlan` mutation fires + UI returns to IdleScreen with the session preserved
+6. Run `pnpm design:review --screens planning-screen`; confirm zero `high`-severity issues across all variants (S01 active light, S02 cancel-confirm, S03 dark, V01 slow-apology, V02 cancel-confirm with prior chat, V03 single-candidate warning)
+7. Real-iPhone XCUITest capture confirms motion timing on hardware (sketch loop, phase pulse, cancel-confirm slide-up); record xcresult artifacts
 
-#### Tasks
+#### Design Review Gate
 
-| ID | Title | Agent | Estimate |
-|----|-------|-------|----------|
-| MAP-S07-T01 | iOS CoreLocation integration — `CLLocationManager` with `whenInUse` authorization; recenter button on `LSMapLayer.controls`; denied-state notice with `UIApplication.openSettingsURLString` deep-link; current-location dot composable on LSMap | swift-implementer | 180 min |
-| MAP-S07-T02 | Android FusedLocationProvider integration — `ACCESS_FINE_LOCATION` permission + recenter + denied-state intent to `Settings.ACTION_APPLICATION_DETAILS_SETTINGS` | kotlin-implementer | 180 min |
-| MAP-S07-T03 | iOS OfflineRegionsListScreen + OfflineRegionSelectorScreen — Mapbox iOS SDK 11.x `OfflineManager` + `TileStoreManager`; bbox-selector overlay on LSMap; bottom sheet with name input + estimated size + Download button; LSDownloadProgressBar molecule states (paused/downloading/complete/error); swipe-to-delete | swift-implementer | 360 min |
-| MAP-S07-T04 | Android OfflineRegionsListScreen + OfflineRegionSelectorScreen — Mapbox Android SDK 11.22.0 `OfflineManager` + `TileStore`; `MapboxOfflineRepository` wrapper; WorkManager `OfflineDownloadWorker` + ForegroundService with `dataSync` type and `POST_NOTIFICATIONS` runtime permission; LSDownloadProgressBar parity | kotlin-implementer | 480 min |
-| MAP-S07-T05 | iOS Mapbox URLSession background-config downloads — `URLSessionConfiguration.background(withIdentifier: "com.laneshadow.offline-tiles")` with delegate handlers; checksum validation on completion; resume on reconnect via reachability monitor | swift-implementer | 180 min |
-| CHAT-S07-T06 | iOS ErrorScreen recovery wiring + global error boundary — `LSInlineErrorCallout` populated from `LaneShadowError` typed cases (warning vs storm-gate variant); recovery chip taps re-dispatch failed action; `ErrorBoundary` view-modifier catches uncaught Tasks → routes to ErrorScreen + logs to `db.performance` | swift-implementer | 180 min |
-| CHAT-S07-T07 | Android ErrorScreen recovery + global error boundary — `CoroutineExceptionHandler` on top-level scope + Compose `ErrorBoundary` wrapper; storm-gate variant rendering; recovery chip dispatch | kotlin-implementer | 180 min |
-| CHAT-S07-T08 | iOS PlanRideSheet manual mode [STRETCH] — V2 LSBottomSheet + place autocomplete via Mapbox Search API + scenic bias slider + avoid-highways/tolls toggles + departure picker; Plan button calls `actions.agent.planRide.planRide` | swift-implementer | 240 min |
-| CHAT-S07-T09 | Android PlanRideSheet manual mode [STRETCH] — same composition + planRide action call | kotlin-implementer | 240 min |
-| FID-S07-T10 | UC-FID-01 LOW-severity polish + ship-gate hardening — separator dots styled atoms, see-all link `body.md` size, iOS body collocation in headerRow VStack (Gap E1-07), motion timing micro-tuning, full Sprint 05 design-review pass on every reachable screen, regression sweep, V3 ship-gate verification | swift-implementer + kotlin-implementer | 240 min |
+Sprint 07 MUST expand the design-review pipeline to cover `planning-screen`. Required deliverables:
+
+1. **Reference assets** — `.spec/design/system/views/planning-screen/` must contain PNGs + annotations for all 6 planning-screen variants (S01 active light, S02 cancel-confirm, S03 dark, V01 slow-apology, V02 cancel-confirm with prior chat, V03 single-candidate warning). Run `pnpm design:references` to generate.
+2. **XCUITest capture tests** — add `DesignReviewCaptureTests` test methods for every `(planning-screen, state, theme)` tuple.
+3. **Pipeline pass** — `pnpm design:review --screens planning-screen` must produce a report with **zero `high`-severity issues** before the human testing gate can pass.
+4. **Coverage expansion** — after Sprint 07, `pnpm design:review --screens auth-screen,idle-screen,planning-screen` must work end-to-end.
+
+The planner MUST include explicit tasks for items 1–3 in the Sprint 07 task table. These are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
+
+#### Scope
+
+This sprint integrates **only PlanningScreen.** When planning completes, the screen may transition to a temporary placeholder; full RouteResults wiring lands in Sprint 08. RouteDetails, Sessions, and Settings remain out of scope.
 
 #### Dependencies
 
-- Blocks: V3 ship → opens follow-on initiatives (RN retirement Sprint 8 of v2, v3.1 deferred items)
+- Blocks: Sprint 08
 - Dependent on: Sprint 06
 
 #### PRD Coverage
 
-- UC-MAP-01, UC-MAP-02, UC-MAP-03
-- UC-CHAT-05 [STRETCH], UC-CHAT-06 (full ErrorScreen wiring)
-- UC-APP-03 (global error boundary)
-- UC-FID-01 (LOW-severity AC subset — ~20 ACs)
-- `architecture/ios-architecture.md` § 8-9, `architecture/android-architecture.md` § Mapbox + Background Tasks, `architecture/ui-design.md` § Offline Regions screens
+- UC-CHAT-01 (planning loop initiation from IdleScreen)
+- UC-CHAT-02 (phase progression streaming)
+- UC-CHAT-04 (cancel + cancel-confirm flow)
+- UC-FID-01 (planning-screen subset — all 6 variants)
+- `architecture/ios-architecture.md` § PlanningScreen, `architecture/android-architecture.md` § PlanningViewModel
+
+---
+
+### Sprint 08: RouteResultsScreen
+
+**Sequence:** 8
+**Status:** Planned
+**Design Reference:** [`route-results-screen.html`](../../design/system/views/route-results-screen/route-results-screen.html) · [`README.md`](../../design/system/views/route-results-screen/README.md)
+
+#### Human Testing Gate
+
+**Gate:** When PlanningScreen completes (Sprint 07), the rider arrives on a real RouteResultsScreen — three live polylines (best/alt1/alt2) sourced from `db.routePlans.getPlanById`, pinned LSNavigatorMessage with three attached LSRouteAttachmentCard molecules, working alt-selection promotion, working chat-refine, working dismiss/recall — that matches the `route-results-screen` design references via `pnpm design:review --screens route-results-screen` with **zero `high`-severity issues** across every reachable variant.
+
+**Test Steps:**
+1. Run a real planning prompt end-to-end (IdleScreen → PlanningScreen → RouteResultsScreen) and confirm three real polylines render on the paper map with correct colors — best (copper, solid 3.5px), alt1 (sage, dashed), alt2 (slate, dashed)
+2. Confirm the LSNavigatorMessage pins above the map with the Navigator's reasoning rendered in Newsreader opinion-md prose, plus three LSRouteAttachmentCard molecules attached (one per option), each showing real distance / time / scenic-score from the plan
+3. Tap an alt route card; confirm `selectedRouteId` updates, the alt polyline promotes from dashed to solid, the previously-best route demotes to dashed, and the card border re-tints to the new selection's color
+4. Refine via the chat input ("make it shorter, avoid Hwy 1"); confirm the same session ID is reused (not a fresh session), the agent re-runs through PlanningScreen, and refined polylines replace the originals on return
+5. Dismiss the LSNavigatorMessage; confirm a copper Recall chip appears at the bottom of the canvas; tap Recall and confirm the message re-pins with the same content
+6. Run `pnpm design:review --screens route-results-screen`; confirm zero `high`-severity issues across all variants (S01 default light, S02 alt-selected, S03 dark, S04 refining-scrim, V01 fewer-than-3, V02 single-candidate, V03 recall-chip)
+7. Real-iPhone XCUITest capture confirms polyline rendering, message-pin motion, and recall-chip slide-in match the design reference; record xcresult artifacts
+
+#### Design Review Gate
+
+Sprint 08 MUST expand the design-review pipeline to cover `route-results-screen`. Required deliverables:
+
+1. **Reference assets** — `.spec/design/system/views/route-results-screen/` must contain PNGs + annotations for all 7 route-results variants (S01 default light, S02 alt-selected, S03 dark, S04 refining-scrim, V01 fewer-than-3, V02 single-candidate, V03 recall-chip). Run `pnpm design:references` to generate.
+2. **XCUITest capture tests** — add `DesignReviewCaptureTests` test methods for every `(route-results-screen, state, theme)` tuple.
+3. **Pipeline pass** — `pnpm design:review --screens route-results-screen` must produce a report with **zero `high`-severity issues** before the human testing gate can pass.
+4. **Coverage expansion** — after Sprint 08, `pnpm design:review --screens auth-screen,idle-screen,planning-screen,route-results-screen` must work end-to-end.
+
+The planner MUST include explicit tasks for items 1–3 in the Sprint 08 task table. These are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
+
+#### Scope
+
+This sprint integrates **only RouteResultsScreen.** Tapping the BEST card may transition to a temporary placeholder; full RouteDetails bottom sheet lands in Sprint 09. SaveFavoriteSheet entry, Sessions, and Settings remain out of scope.
+
+#### Dependencies
+
+- Blocks: Sprint 09
+- Dependent on: Sprint 07
+
+#### PRD Coverage
+
+- UC-CHAT-03 (alt-selection, chat-refine on RouteResults)
+- UC-ROUTE-05 (multi-option display)
+- UC-FID-01 (route-results subset — all 7 variants)
+- `architecture/ios-architecture.md` § RouteResultsScreen, `architecture/android-architecture.md` § RouteResultsViewModel
+
+---
+
+### Sprint 09: RouteDetails Bottom Sheet
+
+**Sequence:** 9
+**Status:** Planned
+**Design Reference:** [`.spec/design/system/views/route-details-screen/README.md`](../../design/system/views/route-details-screen/README.md) · [`route-details-screen.html`](../../design/system/views/route-details-screen/route-details-screen.html)
+
+#### Human Testing Gate
+
+**Gate:** From RouteResultsScreen (Sprint 08), the rider can tap a route card and arrive on a real RouteDetailsScreen — single polyline framed against paper canvas, LSRouteSheet at large detent with copper "BEST FOR TODAY" badge, Newsreader-serif title, real 4-column LSInstrumentReadout (DIST / TIME / CLIMB / SCENIC), real 6-cell LSWeatherTimeline from `db.routeEnrichments.list`, sticky outline `Save` + copper primary `Ride this` action row — that matches the `route-details-screen` design references via `pnpm design:review --screens route-details-screen` with **zero `high`-severity issues** across every reachable variant.
+
+**Test Steps:**
+1. Tap the BEST card on RouteResultsScreen; confirm the screen transitions to RouteDetailsScreen with the map reduced to that single polyline (copper, solid 3.5px) and the LSRouteSheet anchored at large detent (~62% of phone frame)
+2. Confirm the sheet renders the copper "BEST FOR TODAY" badge with copper drop-shadow glow, the Newsreader-serif route title, the via subtitle (e.g., "via Kings Mountain Rd · 47 mi"), and a 4-column instrument grid in JetBrains Mono with real values from the plan
+3. Confirm the 6-cell weather timeline renders with condition-tinted cell backgrounds populated from real `db.routeEnrichments.list` data (clear / wind / rain / hot / night) and an italic Newsreader narration line below the grid
+4. Drag the sheet to medium detent; confirm weather + narration collapse below the fold while header + instruments + action row stay visible; drag toward dismiss; confirm a copper stripe flashes on the sheet top edge near the dismiss threshold
+5. Tap `Save`; confirm SaveFavoriteSheet opens (re-using the wiring from prior sprints); submit; confirm the toast slides in with copper check, the Save button flips to the saved-state variant (copper-tinted), and a "Saved" pill appears beside the best badge
+6. Tap `Ride this`; confirm the action fires a placeholder/log (full ride session is post-V3); verify no regression in the rest of the sheet
+7. Run `pnpm design:review --screens route-details-screen`; confirm zero `high`-severity issues across all variants (S01 default large light, S02 mixed-weather, S03 dark, S04 medium detent, S05 dismissing, V01 saved-state)
+8. Real-iPhone XCUITest capture confirms polyline render, sheet-detent transitions, copper stripe flash, and saved-toast motion match the design reference
+
+#### Design Review Gate
+
+Sprint 09 MUST expand the design-review pipeline to cover `route-details-screen`. Required deliverables:
+
+1. **Reference assets** — `.spec/design/system/views/route-details-screen/` must contain PNGs + annotations for all 6 route-details variants (S01 default large light, S02 mixed-weather, S03 dark, S04 medium detent, S05 dismissing, V01 saved-state). Run `pnpm design:references` to generate.
+2. **XCUITest capture tests** — add `DesignReviewCaptureTests` test methods for every `(route-details-screen, state, theme)` tuple.
+3. **Pipeline pass** — `pnpm design:review --screens route-details-screen` must produce a report with **zero `high`-severity issues** before the human testing gate can pass.
+4. **Coverage expansion** — after Sprint 09, `pnpm design:review --screens auth-screen,idle-screen,planning-screen,route-results-screen,route-details-screen` must work end-to-end.
+
+The planner MUST include explicit tasks for items 1–3 in the Sprint 09 task table. These are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
+
+#### Scope
+
+This sprint integrates **only RouteDetails bottom sheet** plus the Save → SaveFavoriteSheet → toast roundtrip on this screen. Saved-routes browsing list, Settings, Sessions drawer, and Offline Regions remain **out of scope** (deferred — see ICEBOX).
+
+#### Dependencies
+
+- Blocks: Sprint 10
+- Dependent on: Sprint 08
+
+#### PRD Coverage
+
+- UC-ROUTE-01 (save flow entry from RouteDetails)
+- UC-ROUTE-05 (detail render)
+- UC-CHAT-06 (per-route enrichments display)
+- UC-FID-01 (route-details subset — all 6 variants)
+- `architecture/ios-architecture.md` § RouteDetailsScreen, `architecture/android-architecture.md` § RouteDetailsViewModel
+
+---
+
+### Sprint 10: SessionsScreen
+
+**Sequence:** 10
+**Status:** Planned
+**Design Reference:** [`sessions-screen.html`](../../design/system/views/sessions-screen/sessions-screen.html) · [`README.md`](../../design/system/views/sessions-screen/README.md)
+
+#### Human Testing Gate
+
+**Gate:** From any chat/route screen, the rider can tap the LSTopBar hamburger chip and slide open a real SessionsScreen drawer — left-anchored over a scrimmed paper map, active session marked with copper left-edge stripe + tinted row background, all sessions grouped by recency from `db.planningSessions.listSessions`, working tap-to-switch with camera restore, working `+ New session` — that matches the `sessions-screen` design references via `pnpm design:review --screens sessions-screen` with **zero `high`-severity issues** across every reachable variant.
+
+**Test Steps:**
+1. From IdleScreen / PlanningScreen / RouteResultsScreen / RouteDetailsScreen, tap the hamburger chip in LSTopBar; confirm the SessionsScreen drawer slides in from the left over a `--surface-scrim`-tinted backdrop map (the underlying screen remains partially visible behind the scrim)
+2. Confirm the drawer shows the rider's "Rides" header in Newsreader opinion-lg italic and lists every session sourced from `db.planningSessions.listSessions`, grouped by recency (TONIGHT / TODAY / THIS WEEK / LAST WEEK / EARLIER)
+3. Confirm the active session — the one whose context is loaded behind the drawer — carries a copper left-edge stripe (`--signal-default` via `--stroke-lg`) and a tinted row background (`--signal-whisper`), making it instantly identifiable
+4. Tap a non-active session row; confirm `activeSessionId` switches, the app routes to that session's appropriate phase screen, and the camera position restores from the per-session cache (`cameraStore.cameraForSession(sessionId)` on iOS / DataStore on Android with `cameraMoveSource: .user | .programmatic` flag)
+5. Tap `+ New session`; confirm the new-confirm dialog appears; confirm `db.planningSessions.createSession` fires and the drawer closes back to a fresh IdleScreen
+6. Dismiss the drawer (tap scrim or swipe); confirm the backdrop screen returns fully revealed without re-loading state
+7. Run `pnpm design:review --screens sessions-screen`; confirm zero `high`-severity issues across all variants (S01 default light, S02 dark, S03 empty-state, S04 long-list scrolled, S05 new-confirm dialog)
+8. Real-iPhone XCUITest capture confirms drawer slide-in motion, scrim opacity, copper-stripe rendering, and new-confirm dialog match the design reference
+
+#### Design Review Gate
+
+Sprint 10 MUST expand the design-review pipeline to cover `sessions-screen`. Required deliverables:
+
+1. **Reference assets** — `.spec/design/system/views/sessions-screen/` must contain PNGs + annotations for all 5 sessions variants (S01 default light, S02 dark, S03 empty-state, S04 long-list scrolled, S05 new-confirm dialog). Run `pnpm design:references` to generate.
+2. **XCUITest capture tests** — add `DesignReviewCaptureTests` test methods for every `(sessions-screen, state, theme)` tuple.
+3. **Pipeline pass** — `pnpm design:review --screens sessions-screen` must produce a report with **zero `high`-severity issues** before the human testing gate can pass.
+4. **Coverage expansion** — after Sprint 10, `pnpm design:review --screens auth-screen,idle-screen,planning-screen,route-results-screen,route-details-screen,sessions-screen` must work end-to-end. At this point the pipeline covers **all six V3 views**.
+
+The planner MUST include explicit tasks for items 1–3 in the Sprint 10 task table. These are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
+
+#### Scope
+
+This sprint integrates **only the Sessions drawer + per-session camera-restore plumbing.** Saved-routes browsing list, Settings, Offline Regions, ErrorScreen recovery wiring, manual PlanRideSheet, and ship-gate hardening remain **explicitly deferred** to a post-V3 follow-on plan (see ICEBOX for the prior bundled scope).
+
+#### Dependencies
+
+- Blocks: Post-Sprint-10 follow-on plan (Saved Routes browsing, Settings, Offline Regions, Error Recovery, manual PlanRideSheet, ship-gate hardening — all deferred surfaces preserved at [`ROADMAP-ICEBOX.md`](./ROADMAP-ICEBOX.md))
+- Dependent on: Sprint 09
+
+#### PRD Coverage
+
+- UC-SESS-01, UC-SESS-02, UC-SESS-03 (browse + switch + new-session creation)
+- UC-FID-01 (sessions-screen subset — all 5 variants)
+- `architecture/ios-architecture.md` § SessionsScreen + CameraStore, `architecture/android-architecture.md` § Sessions wiring + DataStore camera persistence
 
 ---
 
@@ -510,11 +661,11 @@ Generated by /kb-sprint-tasks-plan on 2026-05-03 using project-local specialist 
 
 Per HUMAN SIGNAL #4 (`if cross platform testing is too burdensome then we might cut android`):
 
-**Week-2 mechanical checkpoint** owned by product-manager (orchestrator):
-- If by end of Sprint 02 the Android Convex client + Clerk auth aren't on track to land in Sprint 03, escalate to user with cut recommendation.
+**Mechanical checkpoint** owned by product-manager (orchestrator):
+- If at the start of any view sprint (06–10) the Android implementation isn't tracking on time relative to iOS, escalate to user with cut recommendation for that screen's Android pair.
 - Cut layers (defined in `01-scope.md`):
-  1. Drop Android snapshot parity tests + Android FID story registration (Sprint 02 T10 Android side) — *partially executed: parity tests removed in Sprint 05 T01 regardless of cut decision*
-  2. Drop Android UI gap-fills for new screens (Sprints 03, 06, 07 Android tasks for new surfaces only — note: Sprint 05 design-review pipeline is iOS-only by design)
+  1. Drop Android snapshot parity tests + Android FID story registration (Sprint 02 T10 Android side) — *executed: parity tests removed in Sprint 05 T01 regardless of cut decision*
+  2. Drop Android UI gap-fills for new screens (Sprint 03 + per-view sprints 06–10 Android tasks for new surfaces only — note: Sprint 05 design-review pipeline is iOS-only by design)
   3. Drop Android implementation entirely (all `*-android` and `kotlin-implementer` tasks Sprints 03+)
 
 **iOS path always ships.** All FID work, integration UCs, and the design-review pipeline (Sprint 05) deliver on iOS regardless of Android cut layer. Android coverage in the design-review pipeline is an explicit follow-up plan (see Sprint 05 Notes).
@@ -522,19 +673,20 @@ Per HUMAN SIGNAL #4 (`if cross platform testing is too burdensome then we might 
 ## Roadmap Authoring Notes
 
 - This roadmap was originally synthesized directly by the orchestrator (PRD author) on 2026-04-27 based on the v1.2.0 PRD and the user's explicit "UI-first sequencing" directive, without dispatching parallel implementation_planner / design_planner agents. The simplified path was chosen for efficiency given full PRD context.
-- Updated 2026-05-04: **Sprint 05 (Design Review Pipeline)** inserted between the conversational planning loop (Sprint 04) and the saved-routes/sessions/settings work (now Sprint 06). The previous Sprint 05 → 06 and Sprint 06 → 07. Source of the new sprint: `~/.claude/plans/plan-a-design-review-logical-clock.md` (approved plan in plan-mode session) and the design-review strategy article. Task ID prefixes for renumbered sprints were updated correspondingly (S05 → S06 in saved-routes/sessions/settings; S06 → S07 in map/offline/ship). Folder `tasks/sprint-05-saved-routes-sessions-settings/` was renamed to `tasks/sprint-06-saved-routes-sessions-settings/` and the 10 task files inside were renamed + updated. Sprint 07 had no expanded task folder, only the ROADMAP entries were renumbered.
+- Updated 2026-05-04 (revision 1): **Sprint 05 (Design Review Pipeline)** inserted between the conversational planning loop (Sprint 04) and the saved-routes/sessions/settings work (then Sprint 06, now archived). Source of that sprint: `~/.claude/plans/plan-a-design-review-logical-clock.md` and the design-review strategy article. Folder `tasks/sprint-05-saved-routes-sessions-settings/` was renamed to `tasks/sprint-06-saved-routes-sessions-settings/`.
+- Updated 2026-05-04 (revision 2 — this version): **Sprints 6+ reshaped to view-at-a-time.** The previously bundled Sprint 06 (Saved Routes / Sessions / Settings, 10 tasks across 4 surfaces) and Sprint 07 (Map / Offline / Error / Ship Gate, 10 tasks across 5 surfaces) were retired and replaced with five focused view-at-a-time sprints (06–10): IdleScreen → PlanningScreen → RouteResultsScreen → RouteDetails Bottom Sheet → SessionsScreen. Per user direction: *"each sprint is super overscoped, we need to slow down and take each map view one at a time."* The prior bundled scope is preserved at [`ROADMAP-ICEBOX.md`](./ROADMAP-ICEBOX.md). Saved-routes browsing list, Settings, Offline Regions, Error Recovery, manual PlanRideSheet, and ship-gate hardening are explicitly **deferred** to a post-Sprint-10 follow-on plan. Per-task tables for sprints 06–10 are intentionally **not** authored in this ROADMAP — they will expand JIT via `/kb-sprint-tasks-plan` when each sprint becomes active.
 - Task IDs follow the pattern `{GROUP}-S{NN}-T{NN}` for unambiguous referencing. The `kb-sprint-tasks-plan` skill expands each into per-task markdown files when the sprint becomes active.
 - Per-platform paired tasks (iOS + Android) are kept separate per project RULES.md "Platform ownership rule for sprint execution" — `swift-*` agents own iOS implementation; `kotlin-*` agents own Android. The Sprint 05 design-review pipeline is iOS-only by user directive.
-- Total task count: 70 (averaging 10 per sprint, the upper limit per skill rules).
 
 ## Next Steps
 
 ```bash
-# Expand Sprint 05 tasks JIT for execution (next up after Sprint 04 closure)
-/kb-sprint-tasks-plan .spec/prds/v3-integration/ROADMAP.md
-
-# Run Sprint 05
+# Continue executing Sprint 05 (Design Review Pipeline) — DO NOT RETOUCH
+# (run Sprint 05 to completion before expanding Sprint 06 tasks)
 /kb-run-sprint sprint-05-design-review-pipeline
+
+# After Sprint 05 closes, expand Sprint 06 (IdleScreen) tasks JIT
+/kb-sprint-tasks-plan .spec/prds/v3-integration/ROADMAP.md
 
 # Re-plan after PRD edits
 /kb-sprint-plan .spec/prds/v3-integration/README.md --delta-replan

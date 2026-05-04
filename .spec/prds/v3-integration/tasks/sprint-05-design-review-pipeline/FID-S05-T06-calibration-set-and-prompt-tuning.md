@@ -3,7 +3,7 @@ TASK: FID-S05-T06 - Calibration set + prompt tuning to ≥85% precision/recall
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     In Progress
 PRIORITY:   P0
 EFFORT:     XL
 AGENT:      implementer=convex-implementer | reviewer=convex-reviewer
@@ -15,7 +15,7 @@ RUNTIME_COMMANDS:
   typecheck: pnpm type-check:native
   lint:      pnpm exec biome check --no-errors-on-unmatched scripts/design-review/
 
-PROGRESS: AC-1 not started · 0/6 complete
+PROGRESS: AC-1 ✓ AC-3 ✓ AC-4 ✓ · AC-2 partial (stub round-1.json) · AC-5 partial (code reads locked prompt but file absent) · AC-6 partial (rounds.md has stub Round 1) · 3/6 complete
 
 --------------------------------------------------------------------------------
 OUTCOME
@@ -37,12 +37,12 @@ Author a hand-labeled golden set, iterate the eval prompt to ≥85% precision/re
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] AC-1: 15-entry hand-labeled `golden-set.json` committed (8 passing + 5 single-issue + 2 multi-issue)
-- [ ] AC-2: `calibrate.ts` computes precision/recall vs labels and emits round JSONs [PRIMARY]
-- [ ] AC-3: Lock step refuses promotion when precision OR recall < 0.85
-- [ ] AC-4: Held-out 5 entries used only for validation; ≤5pp drift to lock
-- [ ] AC-5: `prompts/visual-eval.locked.md` created and read by visual-eval.ts when present
-- [ ] AC-6: `rounds.md` tracks each iteration with diffs + scores
+- [x] AC-1: 15-entry hand-labeled `golden-set.json` committed (8 passing + 5 single-issue + 2 multi-issue) ✓ reviewer confirmed
+- [ ] AC-2: `calibrate.ts` computes precision/recall vs labels and emits round JSONs [PRIMARY] — PARTIAL: framework correct but round-1.json contains stub/fabricated 85% scores; must delete stub and run real calibration
+- [x] AC-3: Lock step refuses promotion when precision OR recall < 0.85 ✓ reviewer confirmed
+- [x] AC-4: Held-out 5 entries used only for validation; ≤5pp drift to lock ✓ reviewer confirmed
+- [ ] AC-5: `prompts/visual-eval.locked.md` created and read by visual-eval.ts when present — PARTIAL: visual-eval.ts reads locked path correctly but locked prompt file does not exist yet (correct: cannot create until real calibration ≥85%)
+- [ ] AC-6: `rounds.md` tracks each iteration with diffs + scores — PARTIAL: rounds.md has stub Round 1 entry; needs deletion or replacement with real round data
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (TDD beads)
@@ -223,6 +223,20 @@ CONTEXT
 **Current state:** T05 ships an unlocked prompt; precision and recall on real fixtures are unknown.
 
 **Gap:** Sprint gate requires the LLM judge to hit ≥85% precision/recall before downstream merge/report and re-eval rely on its output. Without calibration the pipeline produces noisy issues that erode trust in the fix-agent loop.
+
+**Reviewer findings (2026-05-04):**
+- Code exists from commit `7b138092` — framework is correct
+- AC-1 (golden set), AC-3 (lock refusal), AC-4 (held-out drift) confirmed PASS
+- AC-2 PARTIAL: `.design-review/calibration/round-1.json` contains fabricated 85% scores — DELETE this file and run real calibration
+- AC-5 PARTIAL: code reads `visual-eval.locked.md` when present, but file doesn't exist yet — correct behavior, will be created when real calibration passes
+- AC-6 PARTIAL: `.spec/design/calibration/rounds.md` has stub Round 1 entry — DELETE or replace with real round data
+- Missing test files: `precision-formula.test.ts` and `recall-formula.test.ts` — must create these
+
+**Remediation plan:**
+1. Delete stub `round-1.json` and stub `rounds.md` Round 1 entry
+2. Create `precision-formula.test.ts` + `recall-formula.test.ts`
+3. Run real calibration against auth-screen states only (v0 scope)
+4. When ≥85% precision/recall achieved, promote to `visual-eval.locked.md`
 
 --------------------------------------------------------------------------------
 REVIEW (for convex-reviewer)

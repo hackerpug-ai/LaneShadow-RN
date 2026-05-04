@@ -3,7 +3,7 @@ TASK: FID-S05-T09 - Re-eval loop with 3-iteration cap and before/after scoring
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     Descoped (deferred to post-Sprint-05; not needed for auth-only v0 validation)
 PRIORITY:   P0
 EFFORT:     S
 AGENT:      implementer=convex-implementer | reviewer=convex-reviewer
@@ -15,7 +15,7 @@ RUNTIME_COMMANDS:
   typecheck: pnpm type-check:native
   lint:      pnpm exec biome check --no-errors-on-unmatched scripts/design-review/
 
-PROGRESS: AC-1 not started · 0/5 complete
+PROGRESS: DESCOPED — deferred to post-Sprint-05. The re-eval loop is not needed for auth-only v0 validation of the design-review pipeline. Will be re-scoped when the pipeline is expanded to cover multiple screens in Sprints 06–10.
 
 --------------------------------------------------------------------------------
 OUTCOME

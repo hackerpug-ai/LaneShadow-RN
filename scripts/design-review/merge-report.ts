@@ -5,6 +5,7 @@
  * Aggregates per-entry eval results into unified JSON + HTML report
  *
  * Usage: pnpm design:report
+ * Env: DESIGN_REVIEW_SEVERITY=med|low|high (default: med)
  */
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -19,6 +20,11 @@ const MANIFEST_PATH = join(ROOT_DIR, '.design-review/manifest.json')
 const EVALS_DIR = join(ROOT_DIR, '.design-review/evals/visual')
 const REPORT_JSON_PATH = join(ROOT_DIR, '.design-review/report.json')
 const REPORT_HTML_PATH = join(ROOT_DIR, '.design-review/report.html')
+const COMPONENT_CODE_MAP_PATH = join(__dirname, 'component-code-map.json')
+
+// Severity levels for filtering
+type SeverityLevel = 'low' | 'med' | 'high'
+const SEVERITY_ORDER: Record<SeverityLevel, number> = { low: 1, med: 2, high: 3 }
 
 export interface VisualIssue {
   component: string
@@ -59,27 +65,118 @@ export interface Manifest {
   generated_at: string
 }
 
-export interface ReportEntry {
-  id: string
+export interface BoundingBox {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+export interface IssueLocation {
+  bounding_box: BoundingBox
+}
+
+export interface ReportIssue {
+  issue_id: string
   screen: string
   state: string
   theme: string
-  captured: string
-  reference: string
-  issues: VisualIssue[]
+  component: string
+  issue_type: string
+  severity: string
+  confidence: number
+  observed: string
+  expected: string
+  location: IssueLocation
+  fix_hint: string
+  design_token: string
+  code_search_hint: string
 }
 
 export interface ReportSummary {
-  total_entries: number
-  entries_with_issues: number
-  issues_by_severity: Record<string, number>
-  issues_by_type: Record<string, number>
+  total: number
+  high: number
+  med: number
+  low: number
+  screens_passed: number
+  screens_failed: number
 }
 
 export interface DesignReport {
-  generated_at: string
+  issues: ReportIssue[]
   summary: ReportSummary
-  entries: ReportEntry[]
+}
+
+export interface ComponentCodeMap {
+  [selector: string]: string
+}
+
+/**
+ * Load component to code symbol mapping
+ */
+function loadComponentCodeMap(): ComponentCodeMap {
+  try {
+    if (existsSync(COMPONENT_CODE_MAP_PATH)) {
+      const content = readFileSync(COMPONENT_CODE_MAP_PATH, 'utf-8')
+      return JSON.parse(content) as ComponentCodeMap
+    }
+  } catch (error) {
+    console.warn(`⚠️  Failed to load component code map: ${error}`)
+  }
+
+  // Default fallback mappings for auth-screen
+  return {
+    '.mol-form-field': 'LSFormField',
+    '.mol-brand-badge': 'LSBrandBadge',
+    '.mol-submit-button': 'LSSubmitButton',
+    '.org-auth-screen': 'AuthScreen',
+    '.atom-phase-dot': 'LSPhaseDot',
+    '.atom-pill': 'LSPill',
+  }
+}
+
+/**
+ * Resolve code search hint from component selector
+ */
+function resolveCodeSearchHint(component: string, codeMap: ComponentCodeMap): string {
+  const hint = codeMap[component]
+  if (hint) {
+    return hint
+  }
+
+  // Log warning for unmapped components
+  console.warn(`⚠️  No code mapping for component "${component}", using selector as fallback`)
+  return component
+}
+
+/**
+ * Extract design token from expected value
+ */
+function extractDesignToken(expected: Record<string, string>): string {
+  const values = Object.values(expected)
+  for (const value of values) {
+    // Match CSS variable pattern: --token-name or --token-name with fallback
+    const match = value.match(/--[a-z0-9-]+/i)
+    if (match) {
+      return match[0]
+    }
+  }
+  return ''
+}
+
+/**
+ * Load and parse annotation file for bounding box data
+ */
+function loadAnnotations(annotationsPath: string): { bounding_box?: BoundingBox } | null {
+  try {
+    if (existsSync(annotationsPath)) {
+      const content = readFileSync(annotationsPath, 'utf-8')
+      return JSON.parse(content)
+    }
+  } catch (error) {
+    console.warn(`⚠️  Failed to load annotations from ${annotationsPath}: ${error}`)
+  }
+  return null
 }
 
 /**
@@ -121,35 +218,131 @@ function loadEvalResults(evalsDir: string): Map<string, EvalResult> {
 }
 
 /**
- * Aggregate issues by severity and type
+ * Get minimum severity level from environment
  */
-function aggregateIssues(entries: ReportEntry[]): ReportSummary {
+function getMinSeverity(): SeverityLevel {
+  const envSeverity = process.env.DESIGN_REVIEW_SEVERITY?.toLowerCase()
+  if (envSeverity === 'low' || envSeverity === 'med' || envSeverity === 'high') {
+    return envSeverity
+  }
+  return 'med' // Default
+}
+
+/**
+ * Check if issue meets minimum severity threshold
+ */
+function meetsSeverityThreshold(issueSeverity: string, minSeverity: SeverityLevel): boolean {
+  const issueLevel = SEVERITY_ORDER[issueSeverity as SeverityLevel]
+  const minLevel = SEVERITY_ORDER[minSeverity]
+  return issueLevel >= minLevel
+}
+
+/**
+ * Convert VisualIssue to ReportIssue with all article §5 fields
+ */
+function toReportIssue(
+  issue: VisualIssue,
+  entry: ManifestEntry,
+  index: number,
+  codeMap: ComponentCodeMap,
+): ReportIssue {
+  const annotationsPath = join(ROOT_DIR, entry.annotations)
+  const annotations = loadAnnotations(annotationsPath)
+  const boundingBox = annotations?.bounding_box || { x: 0, y: 0, width: 0, height: 0 }
+
+  const designToken = extractDesignToken(issue.expected)
+  const observedStr = JSON.stringify(issue.observed)
+  const expectedStr = JSON.stringify(issue.expected)
+
+  // Generate issue_id: screen.state.component.issueType-index
+  const issueId = `${entry.screen}.${entry.state}.${issue.component}.${issue.issue_type}-${index}`
+
+  return {
+    issue_id: issueId,
+    screen: entry.screen,
+    state: entry.state,
+    theme: entry.theme,
+    component: issue.component,
+    issue_type: issue.issue_type,
+    severity: issue.severity,
+    confidence: issue.confidence,
+    observed: observedStr,
+    expected: expectedStr,
+    location: {
+      bounding_box: boundingBox,
+    },
+    fix_hint: issue.fix_hint || '',
+    design_token: designToken,
+    code_search_hint: resolveCodeSearchHint(issue.component, codeMap),
+  }
+}
+
+/**
+ * Aggregate issues from all entries
+ */
+function aggregateIssues(
+  manifest: Manifest,
+  evalResults: Map<string, EvalResult>,
+  codeMap: ComponentCodeMap,
+  minSeverity: SeverityLevel,
+): { issues: ReportIssue[]; summary: ReportSummary } {
+  const issues: ReportIssue[] = []
+  let screensPassed = 0
+  let screensFailed = 0
+  const severityCounts = { high: 0, med: 0, low: 0 }
+
+  for (const entry of manifest.entries) {
+    const evalResult = evalResults.get(entry.id)
+    const entryIssues =
+      evalResult?.status === 'success' && evalResult.issues ? evalResult.issues : []
+
+    if (entryIssues.length === 0) {
+      screensPassed++
+    } else {
+      screensFailed++
+    }
+
+    for (let i = 0; i < entryIssues.length; i++) {
+      const issue = entryIssues[i]
+
+      // Filter by severity
+      if (!meetsSeverityThreshold(issue.severity, minSeverity)) {
+        continue
+      }
+
+      severityCounts[issue.severity]++
+      const reportIssue = toReportIssue(issue, entry, i, codeMap)
+      issues.push(reportIssue)
+    }
+  }
+
   const summary: ReportSummary = {
-    total_entries: entries.length,
-    entries_with_issues: 0,
-    issues_by_severity: { high: 0, med: 0, low: 0 },
-    issues_by_type: {},
+    total: issues.length,
+    high: severityCounts.high,
+    med: severityCounts.med,
+    low: severityCounts.low,
+    screens_passed: screensPassed,
+    screens_failed: screensFailed,
   }
 
-  for (const entry of entries) {
-    if (entry.issues.length > 0) {
-      summary.entries_with_issues++
-    }
-
-    for (const issue of entry.issues) {
-      summary.issues_by_severity[issue.severity]++
-      summary.issues_by_type[issue.issue_type] = (summary.issues_by_type[issue.issue_type] || 0) + 1
-    }
-  }
-
-  return summary
+  return { issues, summary }
 }
 
 /**
  * Generate HTML report
  */
 function generateHtmlReport(report: DesignReport): string {
-  const { summary, entries } = report
+  const { issues, summary } = report
+
+  // Group issues by screen/state for better organization
+  const issuesByScreen = new Map<string, ReportIssue[]>()
+  for (const issue of issues) {
+    const key = `${issue.screen} — ${issue.state} (${issue.theme})`
+    if (!issuesByScreen.has(key)) {
+      issuesByScreen.set(key, [])
+    }
+    issuesByScreen.get(key)!.push(issue)
+  }
 
   // Helper function for severity color classes
   const severityClass = (severity: string): string => {
@@ -165,33 +358,22 @@ function generateHtmlReport(report: DesignReport): string {
     }
   }
 
-  // Generate HTML for each entry
-  const entriesHtml = entries
+  // Generate HTML for each screen group
+  const entriesHtml = Array.from(issuesByScreen.entries())
     .map(
-      (entry) => `
-    <div class="entry" data-entry-id="${entry.id}">
-      <div class="entry-header" onclick="toggleEntry('${entry.id}')">
-        <h3>${entry.screen} — ${entry.state} (${entry.theme})</h3>
-        <span class="issue-count">${entry.issues.length} issue(s)</span>
+      ([screenKey, screenIssues]) => `
+    <div class="entry">
+      <div class="entry-header" onclick="toggleEntry('${screenKey.replace(/[^a-zA-Z0-9]/g, '_')}')">
+        <h3>${screenKey}</h3>
+        <span class="issue-count">${screenIssues.length} issue(s)</span>
       </div>
-      <div class="entry-content" id="entry-${entry.id}">
-        <div class="images">
-          <div class="image-group">
-            <h4>Reference</h4>
-            <img src="${entry.reference}" alt="Reference" />
-          </div>
-          <div class="image-group">
-            <h4>Captured</h4>
-            <img src="${entry.captured}" alt="Captured" />
-          </div>
-        </div>
+      <div class="entry-content" id="entry-${screenKey.replace(/[^a-zA-Z0-9]/g, '_')}">
         ${
-          entry.issues.length > 0
+          screenIssues.length > 0
             ? `
           <div class="issues">
-            <h4>Issues</h4>
             <ul class="issue-list">
-              ${entry.issues
+              ${screenIssues
                 .map(
                   (issue) => `
                 <li class="issue ${severityClass(issue.severity)}">
@@ -200,12 +382,21 @@ function generateHtmlReport(report: DesignReport): string {
                     <span class="issue-severity">${issue.severity.toUpperCase()}</span>
                   </div>
                   <div class="issue-details">
+                    <div class="issue-id">${issue.issue_id}</div>
                     <div class="issue-type">${issue.issue_type}</div>
                     <div class="issue-comparison">
-                      <strong>Observed:</strong> ${JSON.stringify(issue.observed)}<br/>
-                      <strong>Expected:</strong> ${JSON.stringify(issue.expected)}
+                      <strong>Observed:</strong> ${issue.observed}<br/>
+                      <strong>Expected:</strong> ${issue.expected}
                     </div>
                     ${issue.fix_hint ? `<div class="issue-hint"><strong>Fix:</strong> ${issue.fix_hint}</div>` : ''}
+                    ${issue.design_token ? `<div class="issue-token"><strong>Token:</strong> ${issue.design_token}</div>` : ''}
+                    <div class="issue-code-search"><strong>Code:</strong> ${issue.code_search_hint}</div>
+                    <div class="issue-location">
+                      <strong>Location:</strong> x=${issue.location.bounding_box.x},
+                      y=${issue.location.bounding_box.y},
+                      w=${issue.location.bounding_box.width},
+                      h=${issue.location.bounding_box.height}
+                    </div>
                     <div class="issue-confidence">Confidence: ${(issue.confidence * 100).toFixed(0)}%</div>
                   </div>
                 </li>
@@ -259,7 +450,7 @@ function generateHtmlReport(report: DesignReport): string {
 
     .summary {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 15px;
       margin-top: 15px;
     }
@@ -283,10 +474,16 @@ function generateHtmlReport(report: DesignReport): string {
       border-left-color: #6c757d;
     }
 
+    .summary-card.pass {
+      border-left-color: #28a745;
+    }
+
     .summary-card h3 {
-      font-size: 14px;
+      font-size: 12px;
       color: #666;
       margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .summary-card .value {
@@ -339,33 +536,8 @@ function generateHtmlReport(report: DesignReport): string {
       display: block;
     }
 
-    .images {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .image-group h4 {
-      font-size: 14px;
-      margin-bottom: 10px;
-      color: #666;
-    }
-
-    .image-group img {
-      width: 100%;
-      height: auto;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-
     .issues {
-      margin-top: 20px;
-    }
-
-    .issues h4 {
-      font-size: 16px;
-      margin-bottom: 15px;
+      margin-top: 0;
     }
 
     .issue-list {
@@ -431,6 +603,13 @@ function generateHtmlReport(report: DesignReport): string {
       font-size: 14px;
     }
 
+    .issue-id {
+      font-size: 11px;
+      color: #666;
+      margin-bottom: 5px;
+      font-family: monospace;
+    }
+
     .issue-type {
       font-style: italic;
       color: #666;
@@ -452,6 +631,33 @@ function generateHtmlReport(report: DesignReport): string {
       border-left: 3px solid #007bff;
     }
 
+    .issue-token {
+      margin-top: 8px;
+      padding: 8px;
+      background: #f0f9ff;
+      border-radius: 4px;
+      border-left: 3px solid #0ea5e9;
+      font-family: monospace;
+      font-size: 13px;
+    }
+
+    .issue-code-search {
+      margin-top: 8px;
+      padding: 8px;
+      background: #f0fdf4;
+      border-radius: 4px;
+      border-left: 3px solid #22c55e;
+      font-family: monospace;
+      font-size: 13px;
+    }
+
+    .issue-location {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #666;
+      font-family: monospace;
+    }
+
     .issue-confidence {
       margin-top: 8px;
       font-size: 12px;
@@ -466,8 +672,8 @@ function generateHtmlReport(report: DesignReport): string {
     }
 
     @media (max-width: 768px) {
-      .images {
-        grid-template-columns: 1fr;
+      .summary {
+        grid-template-columns: 1fr 1fr;
       }
     }
   </style>
@@ -477,24 +683,28 @@ function generateHtmlReport(report: DesignReport): string {
     <h1>Design Review Report</h1>
     <div class="summary">
       <div class="summary-card">
-        <h3>Total Entries</h3>
-        <div class="value">${summary.total_entries}</div>
-      </div>
-      <div class="summary-card high">
-        <h3>Entries with Issues</h3>
-        <div class="value">${summary.entries_with_issues}</div>
+        <h3>Total Issues</h3>
+        <div class="value">${summary.total}</div>
       </div>
       <div class="summary-card high">
         <h3>High Severity</h3>
-        <div class="value">${summary.issues_by_severity.high || 0}</div>
+        <div class="value">${summary.high}</div>
       </div>
       <div class="summary-card med">
         <h3>Medium Severity</h3>
-        <div class="value">${summary.issues_by_severity.med || 0}</div>
+        <div class="value">${summary.med}</div>
       </div>
       <div class="summary-card low">
         <h3>Low Severity</h3>
-        <div class="value">${summary.issues_by_severity.low || 0}</div>
+        <div class="value">${summary.low}</div>
+      </div>
+      <div class="summary-card pass">
+        <h3>Screens Passed</h3>
+        <div class="value">${summary.screens_passed}</div>
+      </div>
+      <div class="summary-card">
+        <h3>Screens Failed</h3>
+        <div class="value">${summary.screens_failed}</div>
       </div>
     </div>
   </header>
@@ -531,8 +741,12 @@ export async function mergeReport(options: {
   evalsDir: string
   reportJsonPath: string
   reportHtmlPath: string
+  minSeverity?: SeverityLevel
 }): Promise<DesignReport> {
-  const { manifestPath, evalsDir, reportJsonPath, reportHtmlPath } = options
+  const { manifestPath, evalsDir, reportJsonPath, reportHtmlPath, minSeverity } = options
+
+  // Load component code map
+  const codeMap = loadComponentCodeMap()
 
   // Load manifest
   const manifest = loadManifest(manifestPath)
@@ -540,30 +754,19 @@ export async function mergeReport(options: {
   // Load eval results
   const evalResults = loadEvalResults(evalsDir)
 
-  // Build report entries
-  const entries: ReportEntry[] = manifest.entries.map((entry) => {
-    const evalResult = evalResults.get(entry.id)
-    const issues = evalResult?.status === 'success' && evalResult.issues ? evalResult.issues : []
+  // Determine severity threshold
+  const severityThreshold = minSeverity || getMinSeverity()
+  console.log(
+    `🔍 Severity threshold: ${severityThreshold} (include ${severityThreshold} and above)`,
+  )
 
-    return {
-      id: entry.id,
-      screen: entry.screen,
-      state: entry.state,
-      theme: entry.theme,
-      captured: entry.captured,
-      reference: entry.reference,
-      issues,
-    }
-  })
+  // Aggregate issues with filtering
+  const { issues, summary } = aggregateIssues(manifest, evalResults, codeMap, severityThreshold)
 
-  // Aggregate summary
-  const summary = aggregateIssues(entries)
-
-  // Build report
+  // Build report with flat issues array
   const report: DesignReport = {
-    generated_at: new Date().toISOString(),
+    issues,
     summary,
-    entries,
   }
 
   // Ensure output directory exists
@@ -596,11 +799,12 @@ async function main() {
       reportHtmlPath: REPORT_HTML_PATH,
     })
 
-    console.log(`✅ Report generated with ${report.summary.total_entries} entries`)
-    console.log(`   - Entries with issues: ${report.summary.entries_with_issues}`)
-    console.log(`   - High severity: ${report.summary.issues_by_severity.high}`)
-    console.log(`   - Medium severity: ${report.summary.issues_by_severity.med}`)
-    console.log(`   - Low severity: ${report.summary.issues_by_severity.low}`)
+    console.log(`✅ Report generated with ${report.summary.total} issues`)
+    console.log(`   - High severity: ${report.summary.high}`)
+    console.log(`   - Medium severity: ${report.summary.med}`)
+    console.log(`   - Low severity: ${report.summary.low}`)
+    console.log(`   - Screens passed: ${report.summary.screens_passed}`)
+    console.log(`   - Screens failed: ${report.summary.screens_failed}`)
   } catch (error) {
     console.error('❌ Report generation failed:', error)
     process.exit(1)

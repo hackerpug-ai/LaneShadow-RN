@@ -15,13 +15,13 @@ RUNTIME_COMMANDS:
   pipeline:  pnpm design:review --screens auth-screen
   typecheck: pnpm type-check:native
 
-PROGRESS: AC-1 not started · 0/5 complete
+PROGRESS: AC-1 not started · 0/5 complete · AUTH-SCREEN-ONLY SCOPE (v0 validation)
 
 --------------------------------------------------------------------------------
 OUTCOME
 --------------------------------------------------------------------------------
 
-Run a deliberate-regression smoke test, document the pipeline in REAL_DEVICE_E2E.md, capture a sanitized sample report, and flag screens not yet reachable by real flows (Sprint 06 / Sprint 07 dependencies).
+Run a deliberate-regression smoke test on auth-screen only, document the pipeline in REAL_DEVICE_E2E.md, capture a sanitized sample report, and flag all screens beyond auth-screen as deferred to their respective sprints.
 
 --------------------------------------------------------------------------------
 🚫 CRITICAL CONSTRAINTS
@@ -31,7 +31,7 @@ Run a deliberate-regression smoke test, document the pipeline in REAL_DEVICE_E2E
 - MUST observe severity ≥ med with a token-level `fix_hint`, then revert and confirm zero med+ issues
 - MUST update REAL_DEVICE_E2E.md to reference strategy article, plan, sprint folder, skill location, and four pnpm commands
 - NEVER commit the deliberate regression to main (use temp branch or stash, revert before merging anything)
-- NEVER misrepresent unreachable screens as covered; STRICTLY the Coverage scope subsection must call out sessions-screen + saved-routes states (Sprint 06) and map/offline + error-screen recovered/offline states (Sprint 07)
+- NEVER misrepresent unreachable screens as covered; STRICTLY the Coverage scope subsection must call out ALL screens beyond auth-screen as deferred (idle-screen → Sprint 06, planning-screen → Sprint 07, route-results-screen → Sprint 08, route-details-screen → Sprint 09, sessions-screen → Sprint 10)
 
 --------------------------------------------------------------------------------
 DONE WHEN
@@ -41,7 +41,7 @@ DONE WHEN
 - [ ] AC-2: Reverted state produces zero med+ issues on auth-screen
 - [ ] AC-3: REAL_DEVICE_E2E.md "Design Review Capture Pipeline" subsection added
 - [ ] AC-4: Sample sanitized `report.html` committed to `.spec/design/calibration/sample-report.html`
-- [ ] AC-5: "Coverage scope" subsection flags Sprint 06 + Sprint 07 screen dependencies
+- [ ] AC-5: "Coverage scope" subsection flags ALL screens beyond auth-screen as deferred to their respective sprints (Sprints 06–10)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (verification gates — INFRA, not TDD)
@@ -79,10 +79,10 @@ AC-4: Sample report committed to .spec/design/calibration/
   TEST_FILE: .spec/design/calibration/sample-report.html
   VERIFY:    test -f .spec/design/calibration/sample-report.html
 
-AC-5: Coverage scope subsection flags unreachable screens
-  GIVEN: Sprint 05 ships before Sprint 06/07
+AC-5: Coverage scope subsection flags deferred screens by sprint
+  GIVEN: Sprint 05 ships with auth-screen-only pipeline validation
   WHEN:  REAL_DEVICE_E2E.md is updated
-  THEN:  'Coverage scope' subsection enumerates sessions-screen + saved-routes states as Sprint 06 dependencies and map/offline + error-screen recovered/offline states as Sprint 07 dependencies
+  THEN:  'Coverage scope' subsection enumerates ALL screens beyond auth-screen as deferred: idle-screen (Sprint 06), planning-screen (Sprint 07), route-results-screen (Sprint 08), route-details-screen (Sprint 09), sessions-screen (Sprint 10)
   TDD_STATE: none
   TEST_FILE: docs/REAL_DEVICE_E2E.md
   VERIFY:    grep -q 'Coverage scope' docs/REAL_DEVICE_E2E.md && grep -q 'sessions-screen' docs/REAL_DEVICE_E2E.md && grep -q 'Sprint 06' docs/REAL_DEVICE_E2E.md && grep -q 'Sprint 07' docs/REAL_DEVICE_E2E.md
@@ -124,7 +124,7 @@ BOUNDARIES
 ✅ Always:
 - Run smoke on a temp branch or stash; revert before docs work begins
 - Sanitize sample-report.html (no API keys, no absolute `/Users/justinrich/...` paths)
-- Cite specific Sprint 06/07 task IDs (e.g., SESS-S06-T07, MAP-S07-T01) in coverage scope notes
+- Cite specific Sprint 06–10 task IDs in coverage scope notes (idle-screen: Sprint 06, planning-screen: Sprint 07, route-results: Sprint 08, route-details: Sprint 09, sessions: Sprint 10)
 
 ⚠️ Ask First:
 - If smoke test fails to reproduce expected severity ≥ med (may indicate calibration regression — escalate to T06 owner)
@@ -154,7 +154,7 @@ AGENT INSTRUCTIONS (verification checklist — INFRA)
 9. Re-run pipeline: `pnpm design:review --screens auth-screen`.
 10. Verify AC-2: read `.design-review/report.json`; confirm zero auth-screen issues at severity ≥ med.
 11. Edit `docs/REAL_DEVICE_E2E.md`: append "## Design Review Capture Pipeline" subsection referencing the strategy article URL, plan path (`~/.claude/plans/plan-a-design-review-logical-clock.md`), sprint folder (`.spec/prds/v3-integration/tasks/sprint-05-design-review-pipeline/`), skill path (`~/.claude/skills/design-review/`), and the four `pnpm design:*` commands.
-12. Edit `docs/REAL_DEVICE_E2E.md`: append "## Coverage scope" subsection enumerating sessions-screen + saved-routes states as Sprint 06 dependencies (cite SESS-S06-T07, ROUTE-S06-T01..T06) and map/offline + error-screen recovered/offline as Sprint 07 (cite MAP-S07-T01..T05, CHAT-S07-T06..T07).
+12. Edit `docs/REAL_DEVICE_E2E.md`: append "## Coverage scope" subsection enumerating ALL screens beyond auth-screen as deferred to their respective sprints: idle-screen (Sprint 06), planning-screen (Sprint 07), route-results-screen (Sprint 08), route-details-screen (Sprint 09), sessions-screen (Sprint 10).
 13. Run AC-3, AC-5 grep checks. Run AC-1, AC-2 smoke tests against current main + sample report.
 14. Switch back to main; merge sanitized sample report + docs + tests; delete temp branch.
 15. Commit: `chore(sprint-05): smoke test + design-review docs (FID-S05-T10)`.
@@ -238,7 +238,8 @@ Domain reviewer: code-reviewer
 DEPENDENCIES
 --------------------------------------------------------------------------------
 
-Depends on: FID-S05-T07, FID-S05-T08, FID-S05-T09
+Depends on: FID-S05-T07, FID-S05-T08
+NOTE: T09 (re-eval loop) was descoped; this task no longer depends on it
 Blocks:     (sprint closure)
 Parallel:   (none)
 

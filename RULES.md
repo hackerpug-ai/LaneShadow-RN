@@ -381,3 +381,34 @@ After generating a plan, ALWAYS run `/kb-project-plan` to create task files from
 1. Create plan in `.spec/prd/{feature-name}/`
 2. Run `/kb-project-plan` to generate task files
 3. Run `/kb-run-epic --prd .spec/prd/{feature-name}/README.md {epic-id}` to execute tasks
+
+### Design Review Pipeline — View Snapshot Testing
+
+**When a sprint delivers a whole map view** (auth-screen, idle-screen, planning-screen, route-results-screen, route-details-screen, sessions-screen), the planner MUST include a design-review pipeline task that wires the new view into the `pnpm design:review` capture → eval → report flow.
+
+**Required for every view sprint (Sprints 06–10 and beyond):**
+
+1. **Reference assets** — ensure `.spec/design/system/views/{view}/` has PNGs + annotations for all states/variants (produced by `pnpm design:references`)
+2. **XCUITest capture tests** — add `DesignReviewCaptureTests` test methods for every `(screen, state, theme)` tuple of the new view
+3. **Manifest entry** — the capture suite automatically generates manifest entries; verify the new view appears in `.design-review/manifest.json`
+4. **Pipeline run** — `pnpm design:review --screens {view}` must produce a report with zero `high`-severity issues before the sprint's human testing gate can pass
+5. **Report evidence** — capture the pipeline report as gate evidence; include it in the sprint's deliverable artifacts
+
+**What this means for planners:**
+
+- When using `swift-planner` or `kotlin-planner` to plan a view sprint, include an explicit task for XCUITest capture test methods targeting the new view's states
+- When using `convex-planner` to plan a sprint that includes pipeline infrastructure work, ensure the manifest + eval + report scripts handle the new view
+- Every sprint's human testing gate MUST include a `pnpm design:review --screens {view}` step with a zero-high-severity-issues pass criterion
+- The design-review skill is at `~/.claude/skills/design-review/SKILL.md`; the pipeline scripts are in `scripts/design-review/`
+
+**Pipeline commands (planners should reference these in task specs):**
+
+| Command | Purpose |
+|---------|---------|
+| `pnpm design:references` | Generate reference PNGs + annotations from design HTML |
+| `pnpm design:export` | Export captured screenshots from .xcresult bundles |
+| `pnpm design:eval` | Run vision LLM eval against references |
+| `pnpm design:report` | Merge evals into report.json + report.html |
+| `pnpm design:review` | Umbrella: runs full pipeline end-to-end |
+
+**Current coverage (as of Sprint 05):** auth-screen only. Each subsequent view sprint (06–10) expands coverage by one view.
