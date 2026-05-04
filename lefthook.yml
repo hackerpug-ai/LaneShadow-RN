@@ -84,16 +84,3 @@ pre-push:
     # Enable with: git config lane-shadow.ui-diff.enabled true
     - name: ui-diff
       run: test "$(git config lane-shadow.ui-diff.enabled)" = "true" && pnpm ui:diff || true
-
-    # Snapshot parity check — ensures all stories have light + dark baselines.
-    - name: snapshots:check
-      run: pnpm snapshots:check
-
-    # Snapshot parity coverage — per-tier thresholds defined in
-    # tokens/sandbox/parity-thresholds.json (atoms/molecules: 95%, organisms: 90%,
-    # tokens: 100%; templates advisory; infrastructure/modifiers exempt).
-    # WARN-ONLY: keep `|| true` until atoms + molecules both hit 95% parity, then
-    # drop the swallow to promote this to a fail-on-violation gate.
-    - name: snapshots:parity-coverage
-      glob: "{ios,android,tokens/sandbox}/**/*"
-      run: pnpm snapshots:parity-coverage || true

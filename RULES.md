@@ -184,6 +184,8 @@ Background: holocron research doc `js74ct16xh8dq06zpcysqggd25858fac` — "Multi-
 
 ## Cross-Platform Component Parity
 
+> **Note (2026-05-04):** Snapshot parity gate removed in Sprint 05; pipeline replaced by `pnpm design:review` (see `.spec/prds/v3-integration/tasks/sprint-05-design-review-pipeline/`). The canonical-id naming spec below remains load-bearing for the in-app sandbox catalog UI (`LaneShadowStories.all` on iOS, `LaneShadowSandboxEntry` on Android).
+
 **The canonical sandbox story ID is the cross-platform parity key.** When a component is implemented on both iOS (`ios/LaneShadow/Sandbox/Stories/...`) and Android (`android/app/src/debug/.../sandbox/stories/...`), both platforms MUST register the same `id` string for the same conceptual variant. The snapshot test infrastructure uses this id literally as the PNG filename stem; mismatched ids silently fall into `*_only` arrays and never get cross-platform visual review.
 
 ### Canonical naming spec
@@ -215,15 +217,14 @@ When adding, renaming, or removing a story on one platform, the SAME change must
 
 ### Verification
 
-`pnpm snapshots:check` enforces the manifest contract (filename completeness).
-`pnpm snapshots:parity-coverage` reports cross-platform parity with **per-tier thresholds** defined in `tokens/sandbox/parity-thresholds.json`:
+**Note:** The snapshot parity gate (`pnpm snapshots:check`, `pnpm snapshots:parity-coverage`) was removed in Sprint 05 and replaced by `pnpm design:review`. The canonical-id naming spec below remains load-bearing for the in-app sandbox catalog UI.
+
+Historical parity thresholds (for reference):
 - atoms / molecules: ≥ 95% (enforced)
 - organisms: ≥ 90% (enforced)
 - tokens: 100% (enforced)
 - templates: ≥ 50% (advisory; legitimately platform-specific UX patterns may diverge)
 - infrastructure / modifiers: exempt (sandbox scaffolding, not user-facing)
-
-Both checks run in `lefthook` pre-push. Do not bypass.
 
 ### PNG filename contract
 

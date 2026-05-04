@@ -125,7 +125,7 @@
       }
     },
     {
-      "includes": ["scripts/snapshots/**"],
+      "includes": ["scripts/design-review/**"],
       "linter": {
         "rules": {
           "suspicious": {

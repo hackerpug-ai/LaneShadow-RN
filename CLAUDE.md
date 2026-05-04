@@ -15,7 +15,7 @@ Consult it for:
 
 ## Critical Reading
 
-- **Cross-Platform Component Parity** ([RULES.md](RULES.md#cross-platform-component-parity)) — iOS and Android sandbox stories MUST share the same `id` string (canonical naming spec: lowercase, dot-separated, kebab-case). The story id is the PNG filename stem and the parity key. Run `pnpm snapshots:check` before merge; never bypass.
+- **Cross-Platform Component Parity** ([RULES.md](RULES.md#cross-platform-component-parity)) — iOS and Android sandbox stories MUST share the same `id` string (canonical naming spec: lowercase, dot-separated, kebab-case). The story id is the PNG filename stem and the parity key. Run `pnpm design:review` for visual verification (Sprint 05+); never bypass.
 - **Real Device E2E Testing** ([RULES.md](RULES.md#real-device-e2e-testing), [docs/REAL_DEVICE_E2E.md](docs/REAL_DEVICE_E2E.md)) — human gates for non-sandbox code must include real-device E2E evidence. iOS uses native XCUITest through `xcodebuild test`; Android-only observations must be recorded honestly as MANUAL/BLOCKED until an equivalent device harness exists.
 
 ## Repo Layout (Current)

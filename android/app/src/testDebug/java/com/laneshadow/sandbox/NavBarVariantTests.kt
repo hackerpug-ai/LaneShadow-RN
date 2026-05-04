@@ -51,7 +51,7 @@ class NavBarVariantTests {
     @Test
     fun testAndroidNavBarStoryRegistration() {
         // This test verifies that the canonical story IDs are registered
-        // Actual verification happens via pnpm snapshots:check
+        // Actual verification happens via `pnpm design:review` (Sprint 05+)
         // This is a compile-time check that stories exist
         val stories = com.laneshadow.sandbox.stories.organisms.LSNavBarStory.all
         val storyIds = stories.map { it.id }.toSet()

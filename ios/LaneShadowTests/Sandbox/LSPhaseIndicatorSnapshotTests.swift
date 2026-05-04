@@ -8,7 +8,7 @@ import XCTest
 
 /// Snapshot tests verifying LSPhaseIndicator renders canonical Phase enum labels.
 ///
-/// AC-4: Each snapshot shows the canonical label text and pnpm snapshots:check passes.
+/// AC-4: Each snapshot shows the canonical label text and passes visual verification (use `pnpm design:review` in Sprint 05+).
 /// These tests render LSPhaseIndicator with PlanningPhase data sourced from the Phase enum,
 /// capture PNG snapshots, and verify they match committed baselines.
 @MainActor

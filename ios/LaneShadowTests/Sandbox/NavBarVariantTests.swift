@@ -54,7 +54,7 @@ final class NavBarVariantTests: XCTestCase {
 
     func testIOSNavBarStoryRegistration() {
         // This test verifies that the canonical story IDs are registered
-        // Actual verification happens via pnpm snapshots:check
+        // Actual verification happens via `pnpm design:review` (Sprint 05+)
         // This is a compile-time check that stories exist
         let stories = LSNavBarStory.all
         let storyIds = stories.map(\.id)
