@@ -141,7 +141,9 @@ final class LiveClerkSDKClient: ClerkSDKClient {
             throw ClerkAuthError.missingSignInSession
         }
         let preActiveId = clerk.session?.id ?? "nil"
-        NSLog("🔷 ClerkSDK.activateCompletedSignIn: createdSessionId=\(createdSessionId) clerk.session.id=\(preActiveId)")
+        NSLog(
+            "🔷 ClerkSDK.activateCompletedSignIn: createdSessionId=\(createdSessionId) clerk.session.id=\(preActiveId)"
+        )
         // Only call setActive if Clerk hasn't already activated the session.
         // SignIn.create with `.complete` status often pre-activates the session,
         // and a redundant /touch call returns 401 "signed_out" because the
@@ -149,9 +151,13 @@ final class LiveClerkSDKClient: ClerkSDKClient {
         if clerk.session?.id != createdSessionId {
             do {
                 try await clerk.setActive(sessionId: createdSessionId)
-                NSLog("🔷 ClerkSDK.activateCompletedSignIn: setActive ok; clerk.session.id=\(clerk.session?.id ?? "nil")")
+                NSLog(
+                    "🔷 ClerkSDK.activateCompletedSignIn: setActive ok; clerk.session.id=\(clerk.session?.id ?? "nil")"
+                )
             } catch {
-                NSLog("❌ ClerkSDK.activateCompletedSignIn: setActive failed \(error.localizedDescription); clerk.session.id=\(clerk.session?.id ?? "nil")")
+                NSLog(
+                    "❌ ClerkSDK.activateCompletedSignIn: setActive failed \(error.localizedDescription); clerk.session.id=\(clerk.session?.id ?? "nil")"
+                )
             }
         } else {
             NSLog("🔷 ClerkSDK.activateCompletedSignIn: already active")

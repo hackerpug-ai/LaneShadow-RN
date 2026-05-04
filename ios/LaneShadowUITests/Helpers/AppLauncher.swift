@@ -28,16 +28,46 @@ enum AppLauncher {
     @MainActor
     private static func forwardRuntimeEnvironment(to app: XCUIApplication) {
         let environment = ProcessInfo.processInfo.environment
+        let dotEnv = loadDotEnvLocal()
+        NSLog("🔵 AppLauncher: dotEnv has \(dotEnv.count) entries; CLERK_TEST_EMAIL present: \(dotEnv["CLERK_TEST_EMAIL"] != nil)")
         for key in [
             "CLERK_PUBLISHABLE_KEY",
             "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY",
             "CONVEX_URL",
             "EXPO_PUBLIC_CONVEX_URL",
+            "CLERK_TEST_EMAIL",
+            "CLERK_TEST_PASSWORD",
         ] {
-            guard let value = environment[key], !value.isEmpty else {
+            // Try ProcessInfo first, fall back to .env.local
+            let value = environment[key] ?? dotEnv[key] ?? ""
+            guard !value.isEmpty else {
+                NSLog("🔵 AppLauncher: SKIP \(key) (empty)")
                 continue
             }
             app.launchEnvironment[key] = value
+            NSLog("🔵 AppLauncher: SET \(key) (len=\(value.count))")
         }
+    }
+
+    private static func loadDotEnvLocal() -> [String: String] {
+        let envPath = "/Users/justinrich/Projects/LaneShadow/.env.local"
+        guard let content = try? String(contentsOfFile: envPath, encoding: .utf8) else {
+            return [:]
+        }
+        var result: [String: String] = [:]
+        for line in content.components(separatedBy: .newlines) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard !trimmed.isEmpty, !trimmed.hasPrefix("#"),
+                  let eq = trimmed.firstIndex(of: "=") else { continue }
+            let key = String(trimmed[..<eq]).trimmingCharacters(in: .whitespaces)
+            var value = String(trimmed[trimmed.index(after: eq)...]).trimmingCharacters(in: .whitespaces)
+            // Strip surrounding quotes
+            if (value.hasPrefix("\"") && value.hasSuffix("\"")) ||
+               (value.hasPrefix("'") && value.hasSuffix("'")) {
+                value = String(value.dropFirst().dropLast())
+            }
+            result[key] = value
+        }
+        return result
     }
 }

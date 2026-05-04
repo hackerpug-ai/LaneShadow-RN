@@ -77,7 +77,9 @@ final class AppState {
             NSLog("🟠 AppState.completeAuth: hydrated ok; isAuthenticated=true")
         } catch {
             let laneShadowError = LaneShadowError.map(error)
-            NSLog("❌ AppState.completeAuth: fetchCurrentUser threw \(laneShadowError.localizedDescription) isUnauth=\(laneShadowError.isUnauthenticated)")
+            NSLog(
+                "❌ AppState.completeAuth: fetchCurrentUser threw \(laneShadowError.localizedDescription) isUnauth=\(laneShadowError.isUnauthenticated)"
+            )
             if laneShadowError.isUnauthenticated {
                 authMessage = "Unable to load rider profile."
             } else {
@@ -172,7 +174,9 @@ final class AppState {
     }
 
     private func clearAuthenticatedState(authRoute route: AuthRoute?) {
-        NSLog("🟠 AppState.clearAuthenticatedState: hasClerkSession \(hasClerkSession) → false; route=\(String(describing: route))")
+        NSLog(
+            "🟠 AppState.clearAuthenticatedState: hasClerkSession \(hasClerkSession) → false; route=\(String(describing: route))"
+        )
         isAuthenticated = false
         hasClerkSession = false
         isHydratingCurrentUser = false

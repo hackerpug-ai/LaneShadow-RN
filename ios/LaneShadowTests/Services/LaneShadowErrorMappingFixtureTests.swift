@@ -1,4 +1,5 @@
 import ConvexMobile
+import XCTest
 import Foundation
 import Testing
 @testable import LaneShadow
@@ -9,7 +10,8 @@ struct LaneShadowErrorMappingFixtureTests {
     @Test("test_fixture_roundTrip_allCodesMapToTargets")
     func fixture_roundTrip_allCodesMapToTargets() throws {
         // Load the fixture from the Resources directory
-        let fixturePath = try #require(Bundle.module.path(forResource: "auth-error-taxonomy", ofType: "json"))
+        let testBundle = Bundle(for: LaneShadowTests.self)
+        let fixturePath = try #require(testBundle.path(forResource: "auth-error-taxonomy", ofType: "json"))
         let fixtureData = try Data(contentsOf: URL(fileURLWithPath: fixturePath))
         let fixture = try JSONDecoder().decode([AuthErrorFixtureEntry].self, from: fixtureData)
 

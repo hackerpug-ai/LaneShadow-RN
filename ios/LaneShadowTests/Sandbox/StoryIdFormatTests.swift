@@ -51,7 +51,7 @@ struct StoryIdFormatTests {
     }
 
     @Test("Snapshot file names match canonical story IDs")
-    func snapshotFileNamesMatchCanonicalStoryIds() {
+    func snapshotFileNamesMatchCanonicalStoryIds() throws {
         let snapshotDirectoryString = (#filePath as NSString).deletingLastPathComponent + "/__Snapshots__/StorySnapshotTests"
         let snapshotDirectory = URL(fileURLWithPath: snapshotDirectoryString)
         let fm = FileManager.default
@@ -95,7 +95,7 @@ struct StoryIdFormatTests {
     }
 
     @Test("Every story ID has a corresponding snapshot file")
-    func everyStoryIdHasCorrespondingSnapshotFile() {
+    func everyStoryIdHasCorrespondingSnapshotFile() throws {
         let allStories = TemplateStories.all
         let snapshotDirectoryString = (#filePath as NSString).deletingLastPathComponent + "/__Snapshots__/StorySnapshotTests"
         let snapshotDirectory = URL(fileURLWithPath: snapshotDirectoryString)

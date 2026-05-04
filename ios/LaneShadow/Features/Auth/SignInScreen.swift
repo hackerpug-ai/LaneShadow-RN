@@ -1,3 +1,4 @@
+import Clerk
 import LaneShadowTheme
 import SwiftUI
 import UIKit
@@ -105,35 +106,44 @@ struct SignInScreen: View {
             guard RootView.shouldEnableE2ESignInForUITesting() else { return nil }
             let environment = appEnvironment
             return {
+                NSLog("🔵 E2E_HANDLER: tapped, starting Task")
                 Task {
                     // Read credentials from environment variables
                     let env = ProcessInfo.processInfo.environment
+                    let emailVal = env["CLERK_TEST_EMAIL"] ?? "<nil>"
+                    let passwordPresent = env["CLERK_TEST_PASSWORD"] != nil
+                    NSLog("🔵 E2E_HANDLER: email='\(emailVal)' passwordPresent=\(passwordPresent)")
                     guard let email = env["CLERK_TEST_EMAIL"],
                           let password = env["CLERK_TEST_PASSWORD"]
                     else {
-                        print("❌ E2E Sign In failed: CLERK_TEST_EMAIL or CLERK_TEST_PASSWORD not set")
+                        NSLog("❌ E2E Sign In failed: CLERK_TEST_EMAIL or CLERK_TEST_PASSWORD not set")
                         return
                     }
+                    NSLog("🔵 E2E_HANDLER: calling Clerk signIn for \(email)")
 
                     do {
+                        // Ensure Clerk SDK has loaded its frontend config before signing in
+                        try? await Clerk.shared.load()
+                        NSLog("🔵 E2E_HANDLER: Clerk.shared.load() done, calling signIn")
                         // Call real Clerk sign-in API
                         let result = try await environment.clerkAuth.signIn(email: email, password: password)
+                        NSLog("🔵 E2E_HANDLER: signIn result received")
                         switch result {
                         case .signedIn:
-                            // Success - complete authentication flow
+                            NSLog("🟢 E2E_HANDLER: .signedIn — calling completeAuthentication")
                             await appState.completeAuthentication(
                                 clerkAuth: environment.clerkAuth,
                                 convexClient: environment.convexClient
                             )
+                            NSLog("🟢 E2E_HANDLER: completeAuthentication done, isAuthenticated=\(appState.isAuthenticated)")
                             if appState.isAuthenticated {
                                 viewModel.step = .signedIn
                             }
                         case .verificationRequired:
-                            // Should not happen for E2E test account
-                            print("❌ E2E Sign In failed: verification required (check test account)")
+                            NSLog("❌ E2E Sign In failed: verification required (check test account)")
                         }
                     } catch {
-                        print("❌ E2E Sign In failed: \(error.localizedDescription)")
+                        NSLog("❌ E2E Sign In threw: \(error.localizedDescription)")
                     }
                 }
             }

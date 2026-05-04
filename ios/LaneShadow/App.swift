@@ -1,4 +1,5 @@
 // native-sandbox: configured
+import Clerk
 import LaneShadowTheme
 import NativeSandbox
 import SwiftUI
@@ -9,6 +10,10 @@ struct LaneShadowApp: App {
     @State private var sandboxPresentation = LaneShadowSandboxPresentation.initial()
 
     init() {
+        // Configure Clerk SDK synchronously in App.init (storywright pattern)
+        // Must happen BEFORE any view renders so auth flows have a configured SDK.
+        Clerk.shared.configure(publishableKey: ClerkConfig.publishableKey)
+        NSLog("🟣 App.init: Clerk.shared.configure() with key prefix=\(String(ClerkConfig.publishableKey.prefix(8)))")
         #if DEBUG
             SandboxLaunch.configure(.init(
                 argFlags: ["-LaneShadowSandbox"],
@@ -27,11 +32,19 @@ struct LaneShadowApp: App {
                         RootView(convexStore: convexStore)
                             .environment(\.appEnvironment, AppEnvironment.live())
                             .laneShadowTheme()
+                            .task {
+                                NSLog("🟣 App.task: calling Clerk.shared.load()")
+                                try? await Clerk.shared.load()
+                                NSLog("🟣 App.task: Clerk.shared.load() returned, session=\(Clerk.shared.session != nil)")
+                            }
                     }
                 #else
                     RootView(convexStore: convexStore)
                         .environment(\.appEnvironment, AppEnvironment.live())
                         .laneShadowTheme()
+                        .task {
+                            try? await Clerk.shared.load()
+                        }
                 #endif
             }
             #if DEBUG
