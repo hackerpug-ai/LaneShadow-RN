@@ -1,22 +1,22 @@
 ---
 roadmap: 1
 project: LaneShadow Native Integration (V3)
-generated: 2026-04-27T12:00:00-07:00
+generated: 2026-05-04T12:00:00-07:00
 prd: .spec/prds/v3-integration/README.md
-sprint_count: 6
+sprint_count: 7
 ---
 
 # Sprint Roadmap: LaneShadow Native Integration (V3)
 
 ## Overview
 
-**Sprints:** 6 (planning + execution sequenced UI-first per user directive)
-**Total Tasks:** 60
-**Current Sprint:** Sprint 03 (In Progress — task expansion 2026-04-28)
+**Sprints:** 7 (planning + execution sequenced UI-first per user directive, with Design Review pipeline inserted as Sprint 05 on 2026-05-04)
+**Total Tasks:** 70
+**Current Sprint:** Sprint 04 (closing — RF-38/39/40 remediation landed 2026-05-03/04)
 
 This roadmap sequences the 25 use cases in `.spec/prds/v3-integration/` so that **all 105 acceptance criteria of UC-FID-01 (Design Fidelity) land in Sprints 1-2 BEFORE any integration work begins.** This honors HUMAN SIGNAL #1's framing — sandbox views are "distorted" because of UI fidelity gaps; live-data wiring on top of distorted UI compounds the problem. By restoring V2 design-system fidelity first, every subsequent integration sprint binds real Convex/Clerk/Mapbox data into a sandbox that already matches the authoritative `.spec/design/system/` mockups.
 
-The 6-week appetite (HUMAN SIGNAL #4) translates to roughly one sprint per week, with explicit Android cut authority documented in `01-scope.md` Cut Order. Sprints 1-2 are pure UI fidelity work; Sprints 3-6 layer integration on top.
+The original 6-week appetite (HUMAN SIGNAL #4) was extended to 7 weeks on 2026-05-04 to insert a **Design Review pipeline (Sprint 05)** between the conversational planning loop (Sprint 04) and the saved-routes/sessions/settings wiring (now Sprint 06). The design-review pipeline replaces the brittle sandbox-parity snapshot infrastructure with iOS XCUITest captures evaluated by a vision LLM against the design system — closing the loop on automated UC-FID-01 audits and unblocking confidence in subsequent UI-shipping sprints. Explicit Android cut authority is documented in `01-scope.md` Cut Order.
 
 **Sprint sequence rationale:**
 
@@ -24,10 +24,11 @@ The 6-week appetite (HUMAN SIGNAL #4) translates to roughly one sprint per week,
 - **Sprint 02** closes the 42 MED-severity FID gaps (motion recipes, missing variants, NavBar variants) AND ships the 27 missing Android organism stories — completing the sandbox infrastructure that subsequent integration sprints need for snapshot-based regression testing.
 - **Sprint 03** wires auth + Convex foundation (the substrate every other UC depends on).
 - **Sprint 04** wires the conversational planning loop end-to-end — the single biggest integration surface, touching all 6 V2 screens.
-- **Sprint 05** wires saved routes, sessions history, and settings — the secondary persistent flows.
-- **Sprint 06** wires location + offline regions, error recovery, the stretch PlanRideSheet, FID LOW-severity polish, and ship-gate hardening.
+- **Sprint 05** ships the **Design Review pipeline** (iOS XCUITest captures → vision LLM eval against `.spec/design/system/` references → fix-oriented JSON → Claude code skill agent → re-eval loop), retiring the sandbox snapshot tests + parity infrastructure in the process. The in-app sandbox catalog UI is preserved for dev exploration.
+- **Sprint 06** wires saved routes, sessions history, and settings — the secondary persistent flows.
+- **Sprint 07** wires location + offline regions, error recovery, the stretch PlanRideSheet, FID LOW-severity polish, and ship-gate hardening.
 
-**Human testing policy:** Human tests for non-sandbox code must include real-device E2E steps. Simulator/emulator checks may remain as supporting evidence, but any gate that exercises live app flows, auth, Convex, Mapbox, persistence, location, or external services must include a real-device E2E path with recorded evidence. For iOS, use the native XCUITest pattern documented in `docs/REAL_DEVICE_E2E.md`; for Android, use physical-device evidence or mark the step MANUAL/BLOCKED until an equivalent Android device harness exists. Sandbox-only visual/component gates may continue to use simulator/emulator snapshot tooling.
+**Human testing policy:** Human tests for non-sandbox code must include real-device E2E steps. Simulator/emulator checks may remain as supporting evidence, but any gate that exercises live app flows, auth, Convex, Mapbox, persistence, location, or external services must include a real-device E2E path with recorded evidence. For iOS, use the native XCUITest pattern documented in `docs/REAL_DEVICE_E2E.md`; for Android, use physical-device evidence or mark the step MANUAL/BLOCKED until an equivalent Android device harness exists. Sandbox-only visual/component gates may continue to use simulator/emulator snapshot tooling — but as of Sprint 05, parity-snapshot tests are removed in favor of design-review evaluation.
 
 ## Sprint Sequence
 
@@ -38,8 +39,9 @@ The 6-week appetite (HUMAN SIGNAL #4) translates to roughly one sprint per week,
 | 3 | [Sprint 03: Auth & Convex Foundation](#sprint-03-auth--convex-foundation) | Rider can sign in via OAuth on both platforms and see their real name on IdleScreen | 11 | Sprint 02 | In Progress |
 | 3R | [Sprint 03 Remediation: Auth Design Fidelity, Component Gaps, and Real E2E](./tasks/sprint-03-auth-design-e2e-remediation/SPRINT.md) | Auth UI matches `auth-screen.html`, missing primitives are implemented, and real human-step auth evidence replaces render-only tests | 8 | Sprint 03 | Planned |
 | 4 | [Sprint 04: Conversational Planning Loop](#sprint-04-conversational-planning-loop) | Rider can plan a real route end-to-end via chat and see three live polylines on RouteResults | 12 | Sprint 03 | In Progress |
-| 5 | [Sprint 05: Saved Routes, Sessions & Settings](#sprint-05-saved-routes-sessions--settings) | Rider can save a route, browse saved routes, switch sessions, and toggle theme | 10 | Sprint 04 | In Progress |
-| 6 | [Sprint 06: Map, Offline, Error Recovery & Ship Gate](#sprint-06-map-offline-error-recovery--ship-gate) | Rider can use real location, download offline regions, and recover from errors — V3 ships | 10 | Sprint 05 | Planned |
+| 5 | [Sprint 05: Design Review Pipeline](#sprint-05-design-review-pipeline) | A reviewer can run `pnpm design:review` and receive a calibrated, fix-oriented JSON report of per-component design issues consumable from a `design-review` Claude skill | 10 | Sprint 04 | In Progress |
+| 6 | [Sprint 06: Saved Routes, Sessions & Settings](#sprint-06-saved-routes-sessions--settings) | Rider can save a route, browse saved routes, switch sessions, and toggle theme | 10 | Sprint 05 | In Progress |
+| 7 | [Sprint 07: Map, Offline, Error Recovery & Ship Gate](#sprint-07-map-offline-error-recovery--ship-gate) | Rider can use real location, download offline regions, and recover from errors — V3 ships | 10 | Sprint 06 | Planned |
 
 ---
 
@@ -123,6 +125,8 @@ Generated by /kb-sprint-tasks-plan on 2026-04-27
 6. Run `pnpm snapshots:check` and confirm zero coverage gaps across all tiers (atoms, molecules, organisms, templates) on both iOS and Android
 7. Open the Android sandbox story registry and confirm `LSNavigatorMessage` (6 stories), `LSInlineErrorCallout` (5), `LSRouteSheet` (5), `LSRouteCard` (6), `LSSectionHeader` (5) all appear — `AppStories.all` is no longer `emptyList()` for content organisms
 8. Run `pnpm snapshots:parity-report` and confirm cross-platform parity ≥95% per tier with all snapshot tests passing
+
+> **Note (added 2026-05-04):** `pnpm snapshots:check` and `pnpm snapshots:parity-report` are scheduled for removal in Sprint 05 (Design Review Pipeline) as part of retiring the brittle sandbox-parity test layer. For Sprint 02, these scripts remain authoritative; for any subsequent re-validation after Sprint 05 ships, use `pnpm design:review --screens <…>` instead.
 
 #### Tasks
 
@@ -307,11 +311,92 @@ Generated by /kb-sprint-tasks-plan on 2026-05-01. Tasks T09 and T10 were split i
 
 ---
 
-### Sprint 05: Saved Routes, Sessions & Settings
+### Sprint 05: Design Review Pipeline
 
 **Sequence:** 5
 **Timeline:** Phase 2 · Week 5
-**Status:** In Progress (task expansion 2026-05-03)
+**Status:** In Progress (task expansion 2026-05-04 — 10 task files via /kb-sprint-tasks-plan)
+
+#### Human Testing Gate
+
+**Gate:** A reviewer can run `pnpm design:review --screens <…>` (and dispatch the equivalent `design-review` Claude Code skill) to drive iOS XCUITest captures of every reachable design-system view state, evaluate them against rendered design-system references via a calibrated (≥85% precision/recall) Claude Sonnet 4.6 vision LLM, and receive a structured fix-oriented JSON report of per-component issues — with observed/expected token deltas, severity, confidence, bounding-box, and `code_search_hint` — that an autonomous fix agent can act on with a 3-iteration re-eval cap.
+
+#### Test Steps
+
+1. Verify Phase 0 cleanup: confirm `ios/LaneShadowTests/Sandbox/StorySnapshotTests.swift`, `android/.../AllStoriesSnapshotTest.kt`, `tokens/sandbox/snapshots.parity.json`, `tokens/sandbox/parity-thresholds.json`, `scripts/snapshots/`, all `snapshots:*` package.json scripts, and the lefthook pre-push parity gates have been removed; `RULES.md` "Cross-Platform Component Parity" section is annotated as deferred; `pnpm dev`, `pnpm type-check:native`, `xcodebuild build -scheme LaneShadow`, and `cd android && ./gradlew :app:assembleDebug` all succeed; sandbox catalog UI still loads in debug builds on both platforms
+2. Run `pnpm design:references` and confirm ~84 PNGs and ~42 annotations.json files are produced under `.spec/design/system/refs/{screen}/`, with iOS-viewport (390×844) renders for every (screen, state, theme) combination across all 7 design system views (auth, idle, planning, route-results, route-details, sessions, error)
+3. Run `pnpm design:capture --screens auth-screen` and confirm `xcodebuild test` runs `DesignReviewCaptureTests` against iPhone 15 Pro Simulator, signs in via real Clerk auth (no `bypassAuthForTesting`), drives the app through every reachable auth-screen state (entry, email-entry, existing-user, new-user, invalid-email, submitting), and produces `build/xcresults/design-review.xcresult` with one XCTAttachment per (screen, state)
+4. Run `pnpm design:export` and `pnpm design:manifest` and confirm `.design-review/manifest.json` lists every (captured, reference, annotations) triple with no missing pairings; non-zero exit on any orphan capture or missing reference
+5. Run `pnpm design:eval` against the unmodified app and confirm zero `high`-severity issues are produced; spot-check that any `med`/`low` issues include observed/expected token names (not raw hex/pixel values), confidence scores in [0,1], and component bounding boxes
+6. Inject a deliberate spacing regression on iOS AuthScreen (replace one `var(--space-4)` token usage with hardcoded `12.0` padding); re-run `pnpm design:review --screens auth-screen`; confirm the eval flags the spacing issue with severity ≥ med, confidence ≥ 0.7, and a `fix_hint` mentioning token replacement; revert the regression and confirm zero med+ issues
+7. Run `pnpm design:calibrate` and confirm ≥85% precision and ≥85% recall on the 10-entry calibration set, with held-out 5-entry test score within 5pp; verify `scripts/design-review/prompts/visual-eval.locked.md` exists
+8. Open `.design-review/report.html` in a browser and confirm the side-by-side reference vs captured layout renders for every captured screen, with severity-color-coded issue lists per (screen, state, theme); dispatch the `design-review` Claude Code skill from a fresh session and verify it returns the article §6 schema (`{issues, summary}`)
+
+#### Tasks
+
+| ID | Title | Agent | Estimate |
+|----|-------|-------|----------|
+| FID-S05-T01 | Phase 0 cleanup — remove `ios/LaneShadowTests/Sandbox/StorySnapshotTests.swift`, `android/.../AllStoriesSnapshotTest.kt` (+ `SandboxSnapshotTestBase.kt` if unused), `tokens/sandbox/snapshots.parity.json`, `tokens/sandbox/parity-thresholds.json`, `tokens/sandbox/parity-exemptions.json` (if exists), `scripts/snapshots/` directory, all `snapshots:*` package.json scripts, lefthook pre-push parity entries; mark parity gate deferred in `RULES.md` (preserve canonical-id naming spec); verify dev/build still pass on both platforms; sandbox catalog UI (LaneShadowStories, LaneShadowSandboxEntry) preserved | swift-implementer + kotlin-implementer | 120 min |
+| FID-S05-T02 | Reference asset production — annotate `.spec/design/system/views/{view}/{view}.html` (×7) with `data-screen` / `data-state` / `data-theme` attributes per `<section>`; build `scripts/design-review/render-references.ts` (Chrome headless via `manifest.json:render.chrome_path`, viewport 390×844, per-section element-handle screenshot clipped to phone-frame) + `scripts/design-review/extract-annotations.ts` (DOM `getBoundingClientRect()` + `getComputedStyle()` resolved against `--*` tokens, enriched from per-view README Token Recipe table); produce ~84 PNGs + ~42 annotations.json under `.spec/design/system/refs/`; add `pnpm design:references` script | convex-implementer | 360 min |
+| FID-S05-T03 | iOS XCUITest capture harness — `ios/LaneShadowUITests/DesignReview/DesignReviewHelpers.swift` (XCUIScreen capture helper per article §2.1: tagged XCTAttachment with `keepAlways` lifetime) + `DesignReviewCaptureTests.swift` (~42 test methods, one per (screen, state) — auth/idle/planning/route-results/route-details/sessions/error); reuse real Clerk auth pattern from `ios/LaneShadowUITests/AuthEmailPasswordE2ETests.swift` (`CLERK_TEST_EMAIL`/`CLERK_TEST_PASSWORD`); add `#if DEBUG` accessibility-driven theme override hook if no existing toggle exists; reuse `setupDeterminismEnvironment()` (animations off, frozen locale/timezone, mock providers); wrap in `pnpm design:capture` script invoking `xcodebuild test … -resultBundlePath build/xcresults/design-review.xcresult` | swift-implementer | 480 min |
+| FID-S05-T04 | Screenshot export + manifest builder — `scripts/design-review/export-from-xcresult.ts` invokes `xcrun xcresulttool export …`, parses attachment names of form `{screen}.{state}.{action}`, resolves theme from `.xcresult` device metadata, writes `.design-review/captures/{screen}.{state}.{theme}.{png,json}` (article §2.1 metadata schema) + `build-manifest.ts` joins captures + references + annotations into `.design-review/manifest.json` (non-zero exit on missing pairings); add `.design-review/` and `build/xcresults/` to `.gitignore`; add `pnpm design:export` + `pnpm design:manifest` scripts | convex-implementer | 240 min |
+| FID-S05-T05 | Vision LLM eval engine — `scripts/design-review/visual-eval.ts` (multimodal Anthropic API call per manifest entry; Claude Sonnet 4.6 model; image 1 = reference, image 2 = captured; system prompt = locked text in `prompts/visual-eval.md` per article §3.1; user content = annotations.json injected verbatim + screen/state/theme context; Zod schema validation per `schemas/visual-issue.zod.ts` with one-shot retry on schema failure); concurrency cap of 3 (env override `DESIGN_REVIEW_CONCURRENCY`); per-entry output at `.design-review/evals/visual/{id}.json`; add `pnpm design:eval` script | convex-implementer | 360 min |
+| FID-S05-T06 | Calibration set + prompt tuning (article §4 — DO NOT SKIP) — author `.spec/design/calibration/golden-set.json` with 15 entries (8 passing + 5 single-issue regressions covering spacing/color/typography/overflow/missing + 2 multi-issue combinations, hand-labeled with `expected_issues`); build `scripts/design-review/calibrate.ts` computing precision/recall vs labels per round, refusing to "lock" prompt unless ≥85% on the 10-entry calibration set; iterate `prompts/visual-eval.md` (5–10 rounds, log to `.spec/design/calibration/rounds.md`); verify on 5-entry held-out test set (≤5pp drop); promote to `prompts/visual-eval.locked.md`; add `pnpm design:calibrate` script | convex-implementer | 480 min |
+| FID-S05-T07 | Merge + report — `scripts/design-review/merge-report.ts` aggregates per-entry evals, filters by severity threshold (default `med`, env `DESIGN_REVIEW_SEVERITY`), enriches each issue with article §5 fields (`issue_id`, `fix_hint`, `design_token`, `code_search_hint` via curated `component-code-map.json`); produces `.design-review/report.json` (machine, full issue list) + `.design-review/report.html` (human, side-by-side reference vs captured per (screen, state, theme) with severity-color-coded issue list per article §8); add `pnpm design:report` script | convex-implementer | 240 min |
+| FID-S05-T08 | Claude Code design-review skill (article §6) — author `~/.claude/skills/design-review/SKILL.md` with frontmatter description triggering on "run design review" / "check design fidelity" / "verify UI matches the design system"; input schema `{ screens?, severity_threshold?, dry_run? }`; skill orchestrates `pnpm design:review` one-shot pipeline (references → capture → export → manifest → eval → report) and parses `report.json` into the `{issues, summary}` schema (per-screen pass/fail breakdown); add `pnpm design:review` umbrella script with `--screens`, `--severity-threshold`, `--dry-run` flags | convex-implementer | 180 min |
+| FID-S05-T09 | Re-eval loop (article §6 close-the-loop) — extend the `design-review` skill to accept narrowly-scoped `screens=[…]` for fix-then-re-eval after an agent applies fixes; persist iteration counter at `.design-review/iterations/{screen}.{state}.json` (`{iteration, before_score, current_score, max_iterations}`); cap at 3 iterations to prevent drift; emit `before_score` / `after_score` per issue; return `status: "max_iterations_reached"` when exceeded (refuse further runs without explicit override) | convex-implementer | 120 min |
+| FID-S05-T10 | End-to-end smoke test + documentation + scope flag — execute the verification protocol from the plan (Phase 7 smoke test: inject deliberate `var(--space-4)` → `12.0` regression on iOS AuthScreen, run `pnpm design:review --screens auth-screen`, confirm flag with severity ≥ med + token-level `fix_hint`, revert, re-run zero issues); document the pipeline in `docs/REAL_DEVICE_E2E.md` "Design Review Capture Pipeline" subsection (referencing this plan and `~/.claude/plans/plan-a-design-review-logical-clock.md`); capture sample `report.html` artifact for posterity; flag the screens not yet reachable via real flows on insertion date — **sessions-screen** + **saved-routes** states require Sprint 06 wiring; **map/offline** + **error-screen recovered/offline** states require Sprint 07 wiring — for follow-up coverage in those sprints | qa-engineer | 120 min |
+
+**Next Sprint Tasks:**
+
+Generated by /kb-sprint-tasks-plan on 2026-05-04 using convex-planner (×9 tasks) + swift-planner (×1 task — T03 iOS XCUITest harness) invoked in parallel. Avg quality 94/115.
+
+- [FID-S05-T01-phase-0-cleanup.md](./tasks/sprint-05-design-review-pipeline/FID-S05-T01-phase-0-cleanup.md) (swift-implementer + kotlin-implementer, 120 min, INFRA)
+- [FID-S05-T02-reference-asset-production.md](./tasks/sprint-05-design-review-pipeline/FID-S05-T02-reference-asset-production.md) (convex-implementer, 360 min)
+- [FID-S05-T03-ios-xcuitest-capture-harness.md](./tasks/sprint-05-design-review-pipeline/FID-S05-T03-ios-xcuitest-capture-harness.md) (swift-implementer, 480 min)
+- [FID-S05-T04-screenshot-export-and-manifest.md](./tasks/sprint-05-design-review-pipeline/FID-S05-T04-screenshot-export-and-manifest.md) (convex-implementer, 240 min)
+- [FID-S05-T05-vision-llm-eval-engine.md](./tasks/sprint-05-design-review-pipeline/FID-S05-T05-vision-llm-eval-engine.md) (convex-implementer, 360 min)
+- [FID-S05-T06-calibration-set-and-prompt-tuning.md](./tasks/sprint-05-design-review-pipeline/FID-S05-T06-calibration-set-and-prompt-tuning.md) (convex-implementer, 480 min)
+- [FID-S05-T07-merge-and-report.md](./tasks/sprint-05-design-review-pipeline/FID-S05-T07-merge-and-report.md) (convex-implementer, 240 min)
+- [FID-S05-T08-design-review-skill.md](./tasks/sprint-05-design-review-pipeline/FID-S05-T08-design-review-skill.md) (convex-implementer, 180 min)
+- [FID-S05-T09-re-eval-loop.md](./tasks/sprint-05-design-review-pipeline/FID-S05-T09-re-eval-loop.md) (convex-implementer, 120 min)
+- [FID-S05-T10-smoke-test-and-docs.md](./tasks/sprint-05-design-review-pipeline/FID-S05-T10-smoke-test-and-docs.md) (qa-engineer, 120 min, INFRA)
+
+#### Dependencies
+
+- Blocks: Sprint 06
+- Dependent on: Sprint 04
+
+#### PRD Coverage
+
+- UC-FID-01 (automated audit subset — pipeline that supersedes `pnpm snapshots:check` + `pnpm snapshots:parity-report` for design fidelity verification)
+- `~/.claude/plans/plan-a-design-review-logical-clock.md` (the approved pipeline plan — context, phases, schemas, verification)
+- Strategy article: `https://acrobatic-echidna-253.convex.site/article/ec83f182-3599-482a-88c5-b5e76ce28e51` (XCUITest → vision LLM eval → fix-oriented JSON → skill agent → re-eval loop)
+- `.spec/design/system/manifest.json` + per-view README.md files (×7) — visual ground-truth + token recipes
+- `RULES.md` "Cross-Platform Component Parity" section — parity-rule deferral source-of-truth
+
+#### Per-Task Design Files
+
+| Task | Design Reference |
+|------|-----------------|
+| FID-S05-T02 | [`.spec/design/system/views/auth-screen/auth-screen.html`](../../../.spec/design/system/views/auth-screen/auth-screen.html) (representative; references span all 7 views) |
+| FID-S05-T03 | [`.spec/design/system/manifest.json`](../../../.spec/design/system/manifest.json) (state inventory drives test method enumeration) |
+| FID-S05-T05 | [`.spec/design/system/views/auth-screen/README.md`](../../../.spec/design/system/views/auth-screen/README.md) (Token Recipe table format used for all 7 views) |
+
+#### Notes
+
+- **Sandbox catalog UI is preserved** — only the snapshot tests + parity manifest infrastructure are removed. `LaneShadowStories.all` (iOS) and `LaneShadowSandboxEntry.getAllStories()` (Android) remain load-bearing for dev exploration.
+- **Coverage caveat at insertion** — XCUITest can only drive screens reachable via real flows; sessions-screen + saved-routes-* states unlock in Sprint 06; map/offline + error-recovered/offline states unlock in Sprint 07. Calibration set uses currently-reachable screens (auth/idle/planning/route-results/route-details/error) for the 85% gate.
+- **Behavioral axis deferred** — only the visual fidelity axis (article §3.1) is in scope for v0. Behavioral correctness (article §3.2) — text LLM eval against per-screen SHALL/SHALL NOT requirements with action_log capture — is a follow-up plan once the visual loop is calibrated.
+- **Android replacement deferred** — sandbox snapshot tests are removed on both platforms in T01, but the design-review pipeline ships iOS-only for v0; Android equivalent (instrumented tests + `UiDevice.takeScreenshot()` or Compose `captureToImage()`) is a follow-up plan if Android design review becomes a priority.
+
+---
+
+### Sprint 06: Saved Routes, Sessions & Settings
+
+**Sequence:** 6
+**Timeline:** Phase 2 · Week 6
+**Status:** In Progress (originally Sprint 05; renumbered 2026-05-04 with Design Review pipeline insertion. Task expansion 2026-05-03)
 
 #### Human Testing Gate
 
@@ -331,36 +416,36 @@ Generated by /kb-sprint-tasks-plan on 2026-05-01. Tasks T09 and T10 were split i
 
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
-| ROUTE-S05-T01 | iOS SaveFavoriteSheet — V2 LSBottomSheet shell + LSTextField name input + LSInstrumentReadout metadata + Save/Cancel actions; `db.savedRoutes.saveRoute` mutation with `planInput` + `routeSnapshot` + `routeIndex` (fingerprint) + `snapshotMeta`; already-saved fingerprint state | swift-implementer | 180 min |
-| ROUTE-S05-T02 | Android SaveFavoriteSheet — same composition + mutation; already-saved fingerprint state | kotlin-implementer | 180 min |
-| ROUTE-S05-T03 | iOS SavedRoutesListScreen — `db.savedRoutes.getSavedRoutesList` paginated subscription with search; LSListRow per row (polyline thumbnail, name, distance, saved date, scenic-score pill); LSEmptyState; pull-to-refresh; swipe-to-delete with `softDeleteRoute` + LSToast undo button → `undoDeleteRoute`; rename via `renameRoute` mutation | swift-implementer | 360 min |
-| ROUTE-S05-T04 | Android SavedRoutesListScreen — paginated query + search + long-press delete + undo; rename inline | kotlin-implementer | 360 min |
-| ROUTE-S05-T05 | iOS SavedRouteDetailScreen — variant of RouteDetailsScreen template hydrated from `db.savedRoutes.getSavedRouteDetail` snapshot; Rename + Delete actions in toolbar; "Plan again" button calls `db.planningSessions.createSession` with seeded `planInput` | swift-implementer | 180 min |
-| ROUTE-S05-T06 | Android SavedRouteDetailScreen + Plan again | kotlin-implementer | 180 min |
-| SESS-S05-T07 | iOS SessionsScreen wiring — V2 LSSessionsDrawer subscribed to `db.planningSessions.listSessions`; date-grouped sections; tap row switches active session + routes to phase screen + restores camera from `cameraStore.cameraForSession(sessionId)`; `+ New session` creates fresh session; `Services/CameraStore.swift` with `cameraMoveSource: .user | .programmatic` flag (Gap A1-10 fix mirroring RN `isProgrammaticMoveRef`) | swift-implementer | 240 min |
-| SESS-S05-T08 | Android SessionsScreen wiring + DataStore camera persistence + cameraMoveSource flag | kotlin-implementer | 240 min |
-| APP-S05-T09 | iOS SettingsScreen — sections via LSSectionHeader (Account: avatar + email + Sign Out; Appearance: theme picker chips Light/Dark/Auto persisted to UserDefaults; Storage: link to Offline Regions; About: version + terms + privacy); hamburger menu navigation with all 5 entries (Home / Saved / Sessions / Offline / Settings); UC-APP-04 wiring | swift-implementer | 240 min |
-| APP-S05-T10 | Android SettingsScreen + theme persistence via DataStore + sign-out + hamburger menu navigation | kotlin-implementer | 240 min |
+| ROUTE-S06-T01 | iOS SaveFavoriteSheet — V2 LSBottomSheet shell + LSTextField name input + LSInstrumentReadout metadata + Save/Cancel actions; `db.savedRoutes.saveRoute` mutation with `planInput` + `routeSnapshot` + `routeIndex` (fingerprint) + `snapshotMeta`; already-saved fingerprint state | swift-implementer | 180 min |
+| ROUTE-S06-T02 | Android SaveFavoriteSheet — same composition + mutation; already-saved fingerprint state | kotlin-implementer | 180 min |
+| ROUTE-S06-T03 | iOS SavedRoutesListScreen — `db.savedRoutes.getSavedRoutesList` paginated subscription with search; LSListRow per row (polyline thumbnail, name, distance, saved date, scenic-score pill); LSEmptyState; pull-to-refresh; swipe-to-delete with `softDeleteRoute` + LSToast undo button → `undoDeleteRoute`; rename via `renameRoute` mutation | swift-implementer | 360 min |
+| ROUTE-S06-T04 | Android SavedRoutesListScreen — paginated query + search + long-press delete + undo; rename inline | kotlin-implementer | 360 min |
+| ROUTE-S06-T05 | iOS SavedRouteDetailScreen — variant of RouteDetailsScreen template hydrated from `db.savedRoutes.getSavedRouteDetail` snapshot; Rename + Delete actions in toolbar; "Plan again" button calls `db.planningSessions.createSession` with seeded `planInput` | swift-implementer | 180 min |
+| ROUTE-S06-T06 | Android SavedRouteDetailScreen + Plan again | kotlin-implementer | 180 min |
+| SESS-S06-T07 | iOS SessionsScreen wiring — V2 LSSessionsDrawer subscribed to `db.planningSessions.listSessions`; date-grouped sections; tap row switches active session + routes to phase screen + restores camera from `cameraStore.cameraForSession(sessionId)`; `+ New session` creates fresh session; `Services/CameraStore.swift` with `cameraMoveSource: .user | .programmatic` flag (Gap A1-10 fix mirroring RN `isProgrammaticMoveRef`) | swift-implementer | 240 min |
+| SESS-S06-T08 | Android SessionsScreen wiring + DataStore camera persistence + cameraMoveSource flag | kotlin-implementer | 240 min |
+| APP-S06-T09 | iOS SettingsScreen — sections via LSSectionHeader (Account: avatar + email + Sign Out; Appearance: theme picker chips Light/Dark/Auto persisted to UserDefaults; Storage: link to Offline Regions; About: version + terms + privacy); hamburger menu navigation with all 5 entries (Home / Saved / Sessions / Offline / Settings); UC-APP-04 wiring | swift-implementer | 240 min |
+| APP-S06-T10 | Android SettingsScreen + theme persistence via DataStore + sign-out + hamburger menu navigation | kotlin-implementer | 240 min |
 
 **Next Sprint Tasks:**
 
-Generated by /kb-sprint-tasks-plan on 2026-05-03 using project-local specialist planners (`swift-planner` for iOS, `kotlin-planner` for Android — invoked in parallel).
+Generated by /kb-sprint-tasks-plan on 2026-05-03 using project-local specialist planners (`swift-planner` for iOS, `kotlin-planner` for Android — invoked in parallel). Task IDs renamed from S05 → S06 on 2026-05-04 with the Design Review pipeline insertion.
 
-- [ROUTE-S05-T01-ios-save-favorite-sheet.md](./tasks/sprint-05-saved-routes-sessions-settings/ROUTE-S05-T01-ios-save-favorite-sheet.md)
-- [ROUTE-S05-T02-android-save-favorite-sheet.md](./tasks/sprint-05-saved-routes-sessions-settings/ROUTE-S05-T02-android-save-favorite-sheet.md)
-- [ROUTE-S05-T03-ios-saved-routes-list-screen.md](./tasks/sprint-05-saved-routes-sessions-settings/ROUTE-S05-T03-ios-saved-routes-list-screen.md)
-- [ROUTE-S05-T04-android-saved-routes-list-screen.md](./tasks/sprint-05-saved-routes-sessions-settings/ROUTE-S05-T04-android-saved-routes-list-screen.md)
-- [ROUTE-S05-T05-ios-saved-route-detail-screen.md](./tasks/sprint-05-saved-routes-sessions-settings/ROUTE-S05-T05-ios-saved-route-detail-screen.md)
-- [ROUTE-S05-T06-android-saved-route-detail-screen.md](./tasks/sprint-05-saved-routes-sessions-settings/ROUTE-S05-T06-android-saved-route-detail-screen.md)
-- [SESS-S05-T07-ios-sessions-screen-wiring.md](./tasks/sprint-05-saved-routes-sessions-settings/SESS-S05-T07-ios-sessions-screen-wiring.md)
-- [SESS-S05-T08-android-sessions-screen-wiring.md](./tasks/sprint-05-saved-routes-sessions-settings/SESS-S05-T08-android-sessions-screen-wiring.md)
-- [APP-S05-T09-ios-settings-screen.md](./tasks/sprint-05-saved-routes-sessions-settings/APP-S05-T09-ios-settings-screen.md)
-- [APP-S05-T10-android-settings-screen.md](./tasks/sprint-05-saved-routes-sessions-settings/APP-S05-T10-android-settings-screen.md)
+- [ROUTE-S06-T01-ios-save-favorite-sheet.md](./tasks/sprint-06-saved-routes-sessions-settings/ROUTE-S06-T01-ios-save-favorite-sheet.md)
+- [ROUTE-S06-T02-android-save-favorite-sheet.md](./tasks/sprint-06-saved-routes-sessions-settings/ROUTE-S06-T02-android-save-favorite-sheet.md)
+- [ROUTE-S06-T03-ios-saved-routes-list-screen.md](./tasks/sprint-06-saved-routes-sessions-settings/ROUTE-S06-T03-ios-saved-routes-list-screen.md)
+- [ROUTE-S06-T04-android-saved-routes-list-screen.md](./tasks/sprint-06-saved-routes-sessions-settings/ROUTE-S06-T04-android-saved-routes-list-screen.md)
+- [ROUTE-S06-T05-ios-saved-route-detail-screen.md](./tasks/sprint-06-saved-routes-sessions-settings/ROUTE-S06-T05-ios-saved-route-detail-screen.md)
+- [ROUTE-S06-T06-android-saved-route-detail-screen.md](./tasks/sprint-06-saved-routes-sessions-settings/ROUTE-S06-T06-android-saved-route-detail-screen.md)
+- [SESS-S06-T07-ios-sessions-screen-wiring.md](./tasks/sprint-06-saved-routes-sessions-settings/SESS-S06-T07-ios-sessions-screen-wiring.md)
+- [SESS-S06-T08-android-sessions-screen-wiring.md](./tasks/sprint-06-saved-routes-sessions-settings/SESS-S06-T08-android-sessions-screen-wiring.md)
+- [APP-S06-T09-ios-settings-screen.md](./tasks/sprint-06-saved-routes-sessions-settings/APP-S06-T09-ios-settings-screen.md)
+- [APP-S06-T10-android-settings-screen.md](./tasks/sprint-06-saved-routes-sessions-settings/APP-S06-T10-android-settings-screen.md)
 
 #### Dependencies
 
-- Blocks: Sprint 06
-- Dependent on: Sprint 04
+- Blocks: Sprint 07
+- Dependent on: Sprint 05
 
 #### PRD Coverage
 
@@ -371,11 +456,11 @@ Generated by /kb-sprint-tasks-plan on 2026-05-03 using project-local specialist 
 
 ---
 
-### Sprint 06: Map, Offline, Error Recovery & Ship Gate
+### Sprint 07: Map, Offline, Error Recovery & Ship Gate
 
-**Sequence:** 6
-**Timeline:** Phase 2 · Week 6
-**Status:** Planned
+**Sequence:** 7
+**Timeline:** Phase 2 · Week 7
+**Status:** Planned (originally Sprint 06; renumbered 2026-05-04 with Design Review pipeline insertion)
 
 #### Human Testing Gate
 
@@ -388,28 +473,28 @@ Generated by /kb-sprint-tasks-plan on 2026-05-03 using project-local specialist 
 4. Trigger a network error mid-planning (toggle airplane mode during `agent.sendMessage`); confirm ErrorScreen renders with `LSInlineErrorCallout` showing typed `NETWORK_TIMEOUT` user-facing copy + recovery chips; tap "Try again" → confirm callout fades to 0.55 opacity and the failed action retries
 5. Trigger an uncaught exception in a Compose render path; confirm the global error boundary catches it, routes to ErrorScreen with generic recovery message, and logs the stack trace to `db.performance` (verify via Convex dashboard)
 6. (Stretch) From IdleScreen tap manual-mode toggle on LSChatInput → `PlanRideSheet` opens with start/end inputs (Mapbox Search API autocomplete), scenic bias slider, avoid toggles, departure picker; submit → confirm `agent.planRide` action fires and screen transitions to PlanningScreen
-7. Run `pnpm snapshots:check` and `pnpm snapshots:parity-report` across iOS + Android; confirm zero regressions and ≥95% per-tier parity
+7. Run `pnpm design:review` (the Sprint 05 pipeline) across all reachable screens on iOS + Android; confirm zero `high`-severity issues and all calibration thresholds hold post-Sprint-06 wiring (sessions-screen + saved-routes states now reachable + included in coverage)
 8. Walk through the full V3 flow on both platforms (sign-in → suggest a ride → plan → save → reopen → re-plan from saved → switch theme → sign out) and confirm every step works end-to-end without console errors — V3 ships
 
 #### Tasks
 
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
-| MAP-S06-T01 | iOS CoreLocation integration — `CLLocationManager` with `whenInUse` authorization; recenter button on `LSMapLayer.controls`; denied-state notice with `UIApplication.openSettingsURLString` deep-link; current-location dot composable on LSMap | swift-implementer | 180 min |
-| MAP-S06-T02 | Android FusedLocationProvider integration — `ACCESS_FINE_LOCATION` permission + recenter + denied-state intent to `Settings.ACTION_APPLICATION_DETAILS_SETTINGS` | kotlin-implementer | 180 min |
-| MAP-S06-T03 | iOS OfflineRegionsListScreen + OfflineRegionSelectorScreen — Mapbox iOS SDK 11.x `OfflineManager` + `TileStoreManager`; bbox-selector overlay on LSMap; bottom sheet with name input + estimated size + Download button; LSDownloadProgressBar molecule states (paused/downloading/complete/error); swipe-to-delete | swift-implementer | 360 min |
-| MAP-S06-T04 | Android OfflineRegionsListScreen + OfflineRegionSelectorScreen — Mapbox Android SDK 11.22.0 `OfflineManager` + `TileStore`; `MapboxOfflineRepository` wrapper; WorkManager `OfflineDownloadWorker` + ForegroundService with `dataSync` type and `POST_NOTIFICATIONS` runtime permission; LSDownloadProgressBar parity | kotlin-implementer | 480 min |
-| MAP-S06-T05 | iOS Mapbox URLSession background-config downloads — `URLSessionConfiguration.background(withIdentifier: "com.laneshadow.offline-tiles")` with delegate handlers; checksum validation on completion; resume on reconnect via reachability monitor | swift-implementer | 180 min |
-| CHAT-S06-T06 | iOS ErrorScreen recovery wiring + global error boundary — `LSInlineErrorCallout` populated from `LaneShadowError` typed cases (warning vs storm-gate variant); recovery chip taps re-dispatch failed action; `ErrorBoundary` view-modifier catches uncaught Tasks → routes to ErrorScreen + logs to `db.performance` | swift-implementer | 180 min |
-| CHAT-S06-T07 | Android ErrorScreen recovery + global error boundary — `CoroutineExceptionHandler` on top-level scope + Compose `ErrorBoundary` wrapper; storm-gate variant rendering; recovery chip dispatch | kotlin-implementer | 180 min |
-| CHAT-S06-T08 | iOS PlanRideSheet manual mode [STRETCH] — V2 LSBottomSheet + place autocomplete via Mapbox Search API + scenic bias slider + avoid-highways/tolls toggles + departure picker; Plan button calls `actions.agent.planRide.planRide` | swift-implementer | 240 min |
-| CHAT-S06-T09 | Android PlanRideSheet manual mode [STRETCH] — same composition + planRide action call | kotlin-implementer | 240 min |
-| FID-S06-T10 | UC-FID-01 LOW-severity polish + ship-gate hardening — separator dots styled atoms, see-all link `body.md` size, iOS body collocation in headerRow VStack (Gap E1-07), motion timing micro-tuning, snapshot baseline updates, parity validation, regression sweep, V3 ship-gate verification | swift-implementer + kotlin-implementer | 240 min |
+| MAP-S07-T01 | iOS CoreLocation integration — `CLLocationManager` with `whenInUse` authorization; recenter button on `LSMapLayer.controls`; denied-state notice with `UIApplication.openSettingsURLString` deep-link; current-location dot composable on LSMap | swift-implementer | 180 min |
+| MAP-S07-T02 | Android FusedLocationProvider integration — `ACCESS_FINE_LOCATION` permission + recenter + denied-state intent to `Settings.ACTION_APPLICATION_DETAILS_SETTINGS` | kotlin-implementer | 180 min |
+| MAP-S07-T03 | iOS OfflineRegionsListScreen + OfflineRegionSelectorScreen — Mapbox iOS SDK 11.x `OfflineManager` + `TileStoreManager`; bbox-selector overlay on LSMap; bottom sheet with name input + estimated size + Download button; LSDownloadProgressBar molecule states (paused/downloading/complete/error); swipe-to-delete | swift-implementer | 360 min |
+| MAP-S07-T04 | Android OfflineRegionsListScreen + OfflineRegionSelectorScreen — Mapbox Android SDK 11.22.0 `OfflineManager` + `TileStore`; `MapboxOfflineRepository` wrapper; WorkManager `OfflineDownloadWorker` + ForegroundService with `dataSync` type and `POST_NOTIFICATIONS` runtime permission; LSDownloadProgressBar parity | kotlin-implementer | 480 min |
+| MAP-S07-T05 | iOS Mapbox URLSession background-config downloads — `URLSessionConfiguration.background(withIdentifier: "com.laneshadow.offline-tiles")` with delegate handlers; checksum validation on completion; resume on reconnect via reachability monitor | swift-implementer | 180 min |
+| CHAT-S07-T06 | iOS ErrorScreen recovery wiring + global error boundary — `LSInlineErrorCallout` populated from `LaneShadowError` typed cases (warning vs storm-gate variant); recovery chip taps re-dispatch failed action; `ErrorBoundary` view-modifier catches uncaught Tasks → routes to ErrorScreen + logs to `db.performance` | swift-implementer | 180 min |
+| CHAT-S07-T07 | Android ErrorScreen recovery + global error boundary — `CoroutineExceptionHandler` on top-level scope + Compose `ErrorBoundary` wrapper; storm-gate variant rendering; recovery chip dispatch | kotlin-implementer | 180 min |
+| CHAT-S07-T08 | iOS PlanRideSheet manual mode [STRETCH] — V2 LSBottomSheet + place autocomplete via Mapbox Search API + scenic bias slider + avoid-highways/tolls toggles + departure picker; Plan button calls `actions.agent.planRide.planRide` | swift-implementer | 240 min |
+| CHAT-S07-T09 | Android PlanRideSheet manual mode [STRETCH] — same composition + planRide action call | kotlin-implementer | 240 min |
+| FID-S07-T10 | UC-FID-01 LOW-severity polish + ship-gate hardening — separator dots styled atoms, see-all link `body.md` size, iOS body collocation in headerRow VStack (Gap E1-07), motion timing micro-tuning, full Sprint 05 design-review pass on every reachable screen, regression sweep, V3 ship-gate verification | swift-implementer + kotlin-implementer | 240 min |
 
 #### Dependencies
 
-- Blocks: V3 ship → opens follow-on initiatives (RN retirement Sprint 7 of v2, v3.1 deferred items)
-- Dependent on: Sprint 05
+- Blocks: V3 ship → opens follow-on initiatives (RN retirement Sprint 8 of v2, v3.1 deferred items)
+- Dependent on: Sprint 06
 
 #### PRD Coverage
 
@@ -428,27 +513,28 @@ Per HUMAN SIGNAL #4 (`if cross platform testing is too burdensome then we might 
 **Week-2 mechanical checkpoint** owned by product-manager (orchestrator):
 - If by end of Sprint 02 the Android Convex client + Clerk auth aren't on track to land in Sprint 03, escalate to user with cut recommendation.
 - Cut layers (defined in `01-scope.md`):
-  1. Drop Android snapshot parity tests + Android FID story registration (Sprint 02 T10 Android side)
-  2. Drop Android UI gap-fills for new screens (Sprints 03-06 Android tasks for new surfaces only)
+  1. Drop Android snapshot parity tests + Android FID story registration (Sprint 02 T10 Android side) — *partially executed: parity tests removed in Sprint 05 T01 regardless of cut decision*
+  2. Drop Android UI gap-fills for new screens (Sprints 03, 06, 07 Android tasks for new surfaces only — note: Sprint 05 design-review pipeline is iOS-only by design)
   3. Drop Android implementation entirely (all `*-android` and `kotlin-implementer` tasks Sprints 03+)
 
-**iOS path always ships.** All FID work and integration UCs deliver on iOS regardless of Android cut layer.
+**iOS path always ships.** All FID work, integration UCs, and the design-review pipeline (Sprint 05) deliver on iOS regardless of Android cut layer. Android coverage in the design-review pipeline is an explicit follow-up plan (see Sprint 05 Notes).
 
 ## Roadmap Authoring Notes
 
-- This roadmap was synthesized directly by the orchestrator (PRD author) based on the v1.2.0 PRD and the user's explicit "UI-first sequencing" directive, without dispatching parallel implementation_planner / design_planner agents. The simplified path was chosen for efficiency given full PRD context. If a more rigorous validation is desired, run `/kb-sprint-plan .spec/prds/v3-integration/README.md --delta-replan` later.
-- Task IDs follow the pattern `{GROUP}-S{NN}-T{NN}` for unambiguous referencing. The `kb-sprint-tasks-plan` skill will expand each into per-task markdown files when the sprint becomes active.
-- Per-platform paired tasks (iOS + Android) are kept separate per project RULES.md "Platform ownership rule for sprint execution" — `swift-*` agents own iOS implementation; `kotlin-*` agents own Android.
-- Total task count: 59 (averaging ~10 per sprint, the upper limit per skill rules).
+- This roadmap was originally synthesized directly by the orchestrator (PRD author) on 2026-04-27 based on the v1.2.0 PRD and the user's explicit "UI-first sequencing" directive, without dispatching parallel implementation_planner / design_planner agents. The simplified path was chosen for efficiency given full PRD context.
+- Updated 2026-05-04: **Sprint 05 (Design Review Pipeline)** inserted between the conversational planning loop (Sprint 04) and the saved-routes/sessions/settings work (now Sprint 06). The previous Sprint 05 → 06 and Sprint 06 → 07. Source of the new sprint: `~/.claude/plans/plan-a-design-review-logical-clock.md` (approved plan in plan-mode session) and the design-review strategy article. Task ID prefixes for renumbered sprints were updated correspondingly (S05 → S06 in saved-routes/sessions/settings; S06 → S07 in map/offline/ship). Folder `tasks/sprint-05-saved-routes-sessions-settings/` was renamed to `tasks/sprint-06-saved-routes-sessions-settings/` and the 10 task files inside were renamed + updated. Sprint 07 had no expanded task folder, only the ROADMAP entries were renumbered.
+- Task IDs follow the pattern `{GROUP}-S{NN}-T{NN}` for unambiguous referencing. The `kb-sprint-tasks-plan` skill expands each into per-task markdown files when the sprint becomes active.
+- Per-platform paired tasks (iOS + Android) are kept separate per project RULES.md "Platform ownership rule for sprint execution" — `swift-*` agents own iOS implementation; `kotlin-*` agents own Android. The Sprint 05 design-review pipeline is iOS-only by user directive.
+- Total task count: 70 (averaging 10 per sprint, the upper limit per skill rules).
 
 ## Next Steps
 
 ```bash
-# Expand Sprint 01 tasks JIT for execution
+# Expand Sprint 05 tasks JIT for execution (next up after Sprint 04 closure)
 /kb-sprint-tasks-plan .spec/prds/v3-integration/ROADMAP.md
 
-# Run Sprint 01
-/kb-run-sprint sprint-01-v2-critical-distortion-fixes
+# Run Sprint 05
+/kb-run-sprint sprint-05-design-review-pipeline
 
 # Re-plan after PRD edits
 /kb-sprint-plan .spec/prds/v3-integration/README.md --delta-replan

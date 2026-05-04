@@ -50,6 +50,7 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
                 overlay.content()
                     .padding(.horizontal, theme.space.md)
                     .padding(.top)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .accessibilityIdentifier("maplayer.topOverlay.\(overlay.id)")
             }
 
@@ -58,7 +59,7 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
                 overlay.content()
                     .padding(.horizontal, theme.space.md)
                     .padding(.bottom)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                    .frame(maxWidth: .infinity, alignment: .bottom)
                     .accessibilityIdentifier("maplayer.bottomOverlay.\(overlay.id)")
             }
 

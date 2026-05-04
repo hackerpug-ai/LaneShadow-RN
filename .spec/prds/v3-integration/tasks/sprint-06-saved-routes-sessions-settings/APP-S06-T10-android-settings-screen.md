@@ -1,5 +1,5 @@
 ================================================================================
-TASK: APP-S05-T10 - Android SettingsScreen + theme persistence via DataStore + sign-out + hamburger menu navigation
+TASK: APP-S06-T10 - Android SettingsScreen + theme persistence via DataStore + sign-out + hamburger menu navigation
 ================================================================================
 
 TASK_TYPE:  FEATURE
@@ -47,7 +47,7 @@ DONE WHEN
 - [ ] Sign out flow confirms via LSConfirmDialog + clears tokens + routes to SignIn (AC-3)
 - [ ] Hamburger menu Composable hosts 5 entries with active highlight (AC-4)
 - [ ] Tap Saved Routes / Sessions / Offline / Settings routes correctly + dismisses drawer (AC-5)
-- [ ] Storage section "Offline maps" row routes to placeholder Route.Offline (or visible disabled if Sprint 06 not landed) (AC-6)
+- [ ] Storage section "Offline maps" row routes to placeholder Route.Offline (or visible disabled if Sprint 07 not landed) (AC-6)
 - [ ] gradlew test + compileDebugKotlin clean
 - [ ] Sandbox stories untouched + snapshots:check green
 - [ ] TDD RED evidence per AC
@@ -102,7 +102,7 @@ AC-5: Tap a menu entry routes correctly + dismisses drawer
   TEST_FUNCTION: hamburgerMenu_tapRow_dismissesDrawerThenNavigates
 
 AC-6: Storage row routes to Route.Offline (or shows disabled if not yet wired)
-  GIVEN: A composed SettingsRoute mounted (Route.Offline is a placeholder route in Sprint 05; full implementation lands in Sprint 06)
+  GIVEN: A composed SettingsRoute mounted (Route.Offline is a placeholder route in Sprint 06; full implementation lands in Sprint 07)
   WHEN:  the rider taps the "Offline maps" LSListRow tagged `settings-storage-offline`
   THEN:  Either the test's NavController fake records a navigate(Route.Offline) call (if the route is registered) OR the row is rendered with `enabled=false` and a chevron is hidden — the test asserts ONE of these two states based on `BuildConfig.HAS_OFFLINE_ROUTE`; both states are acceptable for this sprint
 
@@ -119,7 +119,7 @@ TEST CRITERIA
 - TC-3 maps_to_ac=AC-3: SignOutFlow.signOut() invoked exactly once and navigation event recorded
 - TC-4 maps_to_ac=AC-4: HamburgerMenu renders 5 rows with active-item semantics property set
 - TC-5 maps_to_ac=AC-5: Drawer dismisses before NavController.navigate fires
-- TC-6 maps_to_ac=AC-6: Offline row gracefully degrades when Sprint 06 routes not yet registered
+- TC-6 maps_to_ac=AC-6: Offline row gracefully degrades when Sprint 07 routes not yet registered
 
 --------------------------------------------------------------------------------
 SCOPE
@@ -131,7 +131,7 @@ writeAllowed:
 - android/app/src/main/java/com/laneshadow/ui/settings/SettingsViewModel.kt (NEW — @HiltViewModel + @Inject combining ConvexClientProvider.observeCurrentUser + AppStateRepository.appState)
 - android/app/src/main/java/com/laneshadow/ui/settings/SettingsUiState.kt (NEW — sealed interface Loading/Loaded + AccountSummary + ThemeMode mirror)
 - android/app/src/main/java/com/laneshadow/ui/components/HamburgerMenu.kt (NEW — reusable Composable hosting 5 menu rows with active-item highlight; semantics MenuRowActive boolean key)
-- android/app/src/main/java/com/laneshadow/navigation/Route.kt (MODIFY — add `data object Offline : Route` placeholder for the menu entry; one-line rationale: Sprint 06 will wire the real OfflineRegionsListScreen, but the menu entry needs a target route now)
+- android/app/src/main/java/com/laneshadow/navigation/Route.kt (MODIFY — add `data object Offline : Route` placeholder for the menu entry; one-line rationale: Sprint 07 will wire the real OfflineRegionsListScreen, but the menu entry needs a target route now)
 - android/app/src/main/java/com/laneshadow/navigation/MainNavGraph.kt (MODIFY — wire `composable<Route.Settings> { SettingsRoute(navController) }` replacing the placeholder HomeLeafRoute; add a temporary `composable<Route.Offline> { HomeLeafRoute(...) }` placeholder so the menu entry can resolve)
 - android/app/src/main/res/values/strings.xml (MODIFY — add `settings_*` and `menu_*` strings)
 - android/app/src/test/java/com/laneshadow/ui/settings/SettingsViewModelTest.kt (NEW)
@@ -167,8 +167,8 @@ BOUNDARIES
 
 ⚠️ Ask First:
 - If the V2 token `surface.role.agent.accent` does not exist under that exact alias — escalate to design before substituting (current decision: use that token directly; if absent, request token-extension)
-- Whether HamburgerMenu should be hoisted to a shared module ahead of Sprint 06's Idle/Planning integration (current decision: yes — extract from this task as the second consumer per Rule of 2)
-- If `Route.Offline` should be `Offline.RegionsList` to match Sprint 06's planned hierarchy — leave as `Route.Offline` placeholder; Sprint 06 will refactor
+- Whether HamburgerMenu should be hoisted to a shared module ahead of Sprint 07's Idle/Planning integration (current decision: yes — extract from this task as the second consumer per Rule of 2)
+- If `Route.Offline` should be `Offline.RegionsList` to match Sprint 07's planned hierarchy — leave as `Route.Offline` placeholder; Sprint 07 will refactor
 - Whether the avatar initials helper should fall back to "?" for blank displayName (current decision: fall back to first letter of email; ask if blank email too)
 
 --------------------------------------------------------------------------------
@@ -265,14 +265,14 @@ Verdict: PENDING
 DEPENDENCIES
 --------------------------------------------------------------------------------
 
-Depends on: AUTH-S03-T06 (ClerkAuth — sign-out flow + SignOutFlow.kt + SignInScreen target route), SESS-S05-T08 (SessionsScreen drawer integrates with the same hamburger menu pattern; this task extracts the reusable HamburgerMenu Composable as the second consumer per Rule of 2)
-Blocks: Sprint 06 (Offline Regions menu entry — this task wires the placeholder Route.Offline so Sprint 06 can land the real screen)
-Paired with: APP-S05-T09 (iOS SettingsScreen — share UC-APP-01 + UC-APP-04 ACs)
+Depends on: AUTH-S03-T06 (ClerkAuth — sign-out flow + SignOutFlow.kt + SignInScreen target route), SESS-S06-T08 (SessionsScreen drawer integrates with the same hamburger menu pattern; this task extracts the reusable HamburgerMenu Composable as the second consumer per Rule of 2)
+Blocks: Sprint 07 (Offline Regions menu entry — this task wires the placeholder Route.Offline so Sprint 07 can land the real screen)
+Paired with: APP-S06-T09 (iOS SettingsScreen — share UC-APP-01 + UC-APP-04 ACs)
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "taskId": "APP-S05-T10",
+  "taskId": "APP-S06-T10",
   "requirements": [
     {"id": "AC-1", "type": "acceptance_criterion", "description": "GIVEN observeCurrentUser emission WHEN state collected THEN account section populated with displayName, email, avatar initials", "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.settings.SettingsViewModelTest.state_observeCurrentUser_populatesAccountSection", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-2", "type": "acceptance_criterion", "description": "GIVEN theme change WHEN onThemeChange invoked THEN AppStateRepository.setThemeMode called and state reflects new mode", "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.settings.SettingsViewModelTest.onThemeChange_persistsViaDataStoreAndUpdatesState", "satisfied": false, "evidence": null, "remediation": null},
@@ -285,7 +285,7 @@ Paired with: APP-S05-T09 (iOS SettingsScreen — share UC-APP-01 + UC-APP-04 ACs
     {"id": "TC-3", "type": "test_criterion", "description": "SignOutFlow.signOut() invoked exactly once and navigation event recorded", "maps_to_ac": "AC-3", "verify": "cd android && ./gradlew :app:connectedDebugAndroidTest --tests com.laneshadow.ui.settings.SettingsScreenTest.signOutTap_confirmsAndRoutesToSignIn", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "TC-4", "type": "test_criterion", "description": "HamburgerMenu renders 5 rows with active-item semantics property set", "maps_to_ac": "AC-4", "verify": "cd android && ./gradlew :app:connectedDebugAndroidTest --tests com.laneshadow.ui.settings.HamburgerMenuTest.hamburgerMenu_rendersFiveEntriesWithActiveHighlight", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "TC-5", "type": "test_criterion", "description": "Drawer dismisses before NavController.navigate fires", "maps_to_ac": "AC-5", "verify": "cd android && ./gradlew :app:connectedDebugAndroidTest --tests com.laneshadow.ui.settings.SettingsScreenTest.hamburgerMenu_tapRow_dismissesDrawerThenNavigates", "satisfied": false, "evidence": null, "remediation": null},
-    {"id": "TC-6", "type": "test_criterion", "description": "Offline row gracefully degrades when Sprint 06 routes not yet registered", "maps_to_ac": "AC-6", "verify": "cd android && ./gradlew :app:connectedDebugAndroidTest --tests com.laneshadow.ui.settings.SettingsScreenTest.storageRow_routesToOfflineOrRendersDisabled", "satisfied": false, "evidence": null, "remediation": null}
+    {"id": "TC-6", "type": "test_criterion", "description": "Offline row gracefully degrades when Sprint 07 routes not yet registered", "maps_to_ac": "AC-6", "verify": "cd android && ./gradlew :app:connectedDebugAndroidTest --tests com.laneshadow.ui.settings.SettingsScreenTest.storageRow_routesToOfflineOrRendersDisabled", "satisfied": false, "evidence": null, "remediation": null}
   ]
 }
 -->

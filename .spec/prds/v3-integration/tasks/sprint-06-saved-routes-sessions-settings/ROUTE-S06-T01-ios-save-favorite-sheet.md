@@ -1,5 +1,5 @@
 ================================================================================
-TASK: ROUTE-S05-T01 - iOS SaveFavoriteSheet — name input + saveRoute mutation + already-saved fingerprint
+TASK: ROUTE-S06-T01 - iOS SaveFavoriteSheet — name input + saveRoute mutation + already-saved fingerprint
 ================================================================================
 
 TASK_TYPE:  FEATURE
@@ -178,7 +178,7 @@ AGENT INSTRUCTIONS (TDD Flow)
 
 1. RED: Write the failing test for AC-1 first (sheet composes shell). Confirm it fails because SaveFavoriteSheet does not exist.
 2. GREEN: Create the minimal SaveFavoriteSheet.swift body needed to pass AC-1. Compile must succeed.
-3. RED → GREEN for each subsequent AC in order (2, 3, 4, 5, 6). Capture RED replay output to `.tmp/ROUTE-S05-T01/red-{ac}-output.txt`.
+3. RED → GREEN for each subsequent AC in order (2, 3, 4, 5, 6). Capture RED replay output to `.tmp/ROUTE-S06-T01/red-{ac}-output.txt`.
 4. REFACTOR: After all ACs green, extract any helper functions, ensure swiftformat lint passes, ensure all colors come from theme tokens, ensure accessibility identifiers and labels exist for VoiceOver navigation.
 5. Confirm `Save` button has accessibilityLabel "Save route. Disabled until you enter a name." per ui-design.md §1.I accessibility row.
 6. Run the full evidence gate sequence (test, build, lint, token-check, snapshots:check, scope diff).
@@ -211,7 +211,7 @@ READING LIST
 EVIDENCE GATES
 --------------------------------------------------------------------------------
 
-Gate 1: RED phase evidence — TDD_STATE history per AC saved to `.tmp/ROUTE-S05-T01/red-{ac}-output.txt`
+Gate 1: RED phase evidence — TDD_STATE history per AC saved to `.tmp/ROUTE-S06-T01/red-{ac}-output.txt`
 Gate 2: All tests pass — xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' test (Exit 0)
 Gate 3: Build — xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build (Exit 0)
 Gate 4: Lint — swiftformat --lint ios/ (Exit 0)
@@ -241,12 +241,12 @@ DEPENDENCIES
 --------------------------------------------------------------------------------
 
 Depends on: CHAT-S04-T07 (RouteDetails wiring + SaveFavoriteSheetPlaceholder), CHAT-S04-T01 (RideFlow + ChatStore), AUTH-S03-T03 (ConvexClient+LaneShadow base)
-Blocks: ROUTE-S05-T03 (SavedRoutesListScreen reads what saveRoute persists), ROUTE-S05-T05 (SavedRouteDetailScreen)
+Blocks: ROUTE-S06-T03 (SavedRoutesListScreen reads what saveRoute persists), ROUTE-S06-T05 (SavedRouteDetailScreen)
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "taskId": "ROUTE-S05-T01",
+  "taskId": "ROUTE-S06-T01",
   "requirements": [
     {"id": "AC-1", "type": "acceptance_criterion", "description": "SaveFavoriteSheet composes shell with name input + metadata + actions", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/SaveFavoriteSheetTests/test_saveFavoriteSheet_composesShellWithFormFieldAndMetadata", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-2", "type": "acceptance_criterion", "description": "Pre-populated name uses startLabel → destinationLabel from selected option", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/SaveFavoriteSheetViewModelTests/test_saveFavorite_seedsNameFromStartAndEndLabels", "satisfied": false, "evidence": null, "remediation": null},

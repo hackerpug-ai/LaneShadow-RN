@@ -1,5 +1,5 @@
 ================================================================================
-TASK: ROUTE-S05-T04 - Android SavedRoutesListScreen — paginated list + search + long-press delete + undo + inline rename
+TASK: ROUTE-S06-T04 - Android SavedRoutesListScreen — paginated list + search + long-press delete + undo + inline rename
 ================================================================================
 
 TASK_TYPE:  FEATURE
@@ -272,14 +272,14 @@ Verdict: PENDING
 DEPENDENCIES
 --------------------------------------------------------------------------------
 
-Depends on: ROUTE-S05-T02 (Android SaveFavoriteSheet — produces the saved_routes rows this list reads)
-Blocks: ROUTE-S05-T06 (saved-route detail screen tap target originates here), Sprint 06 (Offline + Map closure)
-Paired with: ROUTE-S05-T03 (iOS SavedRoutesListScreen — share UC-ROUTE-02 + UC-ROUTE-04 ACs)
+Depends on: ROUTE-S06-T02 (Android SaveFavoriteSheet — produces the saved_routes rows this list reads)
+Blocks: ROUTE-S06-T06 (saved-route detail screen tap target originates here), Sprint 07 (Offline + Map closure)
+Paired with: ROUTE-S06-T03 (iOS SavedRoutesListScreen — share UC-ROUTE-02 + UC-ROUTE-04 ACs)
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "taskId": "ROUTE-S05-T04",
+  "taskId": "ROUTE-S06-T04",
   "requirements": [
     {"id": "AC-1", "type": "acceptance_criterion", "description": "GIVEN repository emissions WHEN state collected THEN rows ordered by createdAt desc with decoded polylines", "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.savedroutes.SavedRoutesListViewModelTest.state_subscribesToList_ordersByCreatedAtDesc", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-2", "type": "acceptance_criterion", "description": "GIVEN rapid keystrokes WHEN onSearchQueryChange called THEN repository called only after 250ms debounce", "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.savedroutes.SavedRoutesListViewModelTest.onSearchQueryChange_debounces250ms_beforeReSubscribe", "satisfied": false, "evidence": null, "remediation": null},

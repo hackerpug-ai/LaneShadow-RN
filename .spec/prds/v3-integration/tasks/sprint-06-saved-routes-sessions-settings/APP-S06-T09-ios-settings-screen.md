@@ -1,5 +1,5 @@
 ================================================================================
-TASK: APP-S05-T09 - iOS SettingsScreen — sections + theme picker + sign-out + hamburger menu navigation
+TASK: APP-S06-T09 - iOS SettingsScreen — sections + theme picker + sign-out + hamburger menu navigation
 ================================================================================
 
 TASK_TYPE:  FEATURE
@@ -26,7 +26,7 @@ A new SettingsScreen renders Account / Appearance / Storage / About sections via
 --------------------------------------------------------------------------------
 
 - MUST compose the screen entirely from existing primitives — `LSTopBar`, `LSSectionHeader`, `LSCard`, `LSListRow`, `LSAvatar`, `LSBottomSheet`, `LSModal`, `LSDivider`, `LSButton` — zero new components per ui-design.md §1.F
-- MUST persist the theme choice (.light / .dark / .auto) to UserDefaults via a `Services/ThemeStore.swift` `@MainActor @Observable` class with `current: AppThemeMode` and a `setMode(_:)` setter, mirroring CameraStore's UserDefaults injection pattern from SESS-S05-T07
+- MUST persist the theme choice (.light / .dark / .auto) to UserDefaults via a `Services/ThemeStore.swift` `@MainActor @Observable` class with `current: AppThemeMode` and a `setMode(_:)` setter, mirroring CameraStore's UserDefaults injection pattern from SESS-S06-T07
 - MUST apply the chosen theme immediately across all screens by exposing the AppThemeMode through the `\.theme` SwiftUI environment override (or a parallel app-level environment) — no app restart required (UC-APP-01 §AC last bullet)
 - MUST run the sign-out flow through `appState.signOut(clerkAuth:convexClient:)` (existing AUTH-S03 surface) wrapped in an `LSModal` confirmation dialog with destructive primary "Sign out" + ghost "Cancel"
 - MUST add a new HamburgerMenuDrawer view that extends the LSSessionsDrawer pattern with the 5 entries (Home / Saved Routes / Sessions / Offline Regions / Settings) per ui-design.md §5 Extended LSSessionsDrawer IA — render the drawer as a new view that composes `LSSessionsDrawer` for the sessions section AND a separate `LSListRow` block for the navigation entries; do NOT modify `LSSessionsDrawer` itself
@@ -161,7 +161,7 @@ BOUNDARIES
 - Whether `surface.role.agent.accent` token exists on iOS — if not, surface a clarifying question and use the closest available accent token (likely `signal.default` at low alpha or `signal.whisper`); do NOT introduce a new token
 - Whether AppState.AppRoute should grow new cases (.savedRoutes / .sessions / .offline / .settings) in this task — recommend `MenuEntry` enum sibling instead, with RootView responsible for routing translation in a follow-up; flag this with the user
 - Whether the OS-level dark/light mode (i.e., when AppThemeMode == .auto) reads `UITraitCollection.userInterfaceStyle` correctly — confirm with Apple docs via context7 if uncertain
-- Whether the Storage row link to OfflineRegions should be a stub/no-op for this sprint (Offline ships in Sprint 06) — recommend stub closure that logs to performance for observability and shows a "Coming soon" toast; flag this
+- Whether the Storage row link to OfflineRegions should be a stub/no-op for this sprint (Offline ships in Sprint 07) — recommend stub closure that logs to performance for observability and shows a "Coming soon" toast; flag this
 
 --------------------------------------------------------------------------------
 DELIVERABLE
@@ -192,7 +192,7 @@ AGENT INSTRUCTIONS (TDD Flow)
 5. RED → GREEN for AC-4 (sign-out modal flow).
 6. RED → GREEN for AC-5 (hamburger drawer composition + active highlight).
 7. RED → GREEN for AC-6 (tap closure invocation).
-8. Capture RED replay output to `.tmp/APP-S05-T09/red-{ac}-output.txt` per AC.
+8. Capture RED replay output to `.tmp/APP-S06-T09/red-{ac}-output.txt` per AC.
 9. REFACTOR: ensure ThemeStore is the SINGLE source of truth for the active theme; no duplicate UserDefaults reads scattered across screens; ensure `.theme` environment override is applied at the highest practical scope (typically the container).
 10. Run the full evidence gate sequence (test, build, lint, token-check, snapshots:check, scope diff).
 
@@ -224,7 +224,7 @@ READING LIST
 EVIDENCE GATES
 --------------------------------------------------------------------------------
 
-Gate 1: RED phase evidence — TDD_STATE history per AC saved to `.tmp/APP-S05-T09/red-{ac}-output.txt`
+Gate 1: RED phase evidence — TDD_STATE history per AC saved to `.tmp/APP-S06-T09/red-{ac}-output.txt`
 Gate 2: All tests pass — xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' test (Exit 0)
 Gate 3: Build — xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build (Exit 0)
 Gate 4: Lint — swiftformat --lint ios/ (Exit 0)
@@ -255,13 +255,13 @@ Should verify:
 DEPENDENCIES
 --------------------------------------------------------------------------------
 
-Depends on: AUTH-S03-T05 (ClerkAuth + signOut flow), AUTH-S03-T07 (RootView + AppState), SESS-S05-T07 (drawer pattern + cameraStore presence informs the larger drawer surface)
-Blocks: Sprint 06 (Offline Regions list — Storage row links into it)
+Depends on: AUTH-S03-T05 (ClerkAuth + signOut flow), AUTH-S03-T07 (RootView + AppState), SESS-S06-T07 (drawer pattern + cameraStore presence informs the larger drawer surface)
+Blocks: Sprint 07 (Offline Regions list — Storage row links into it)
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "taskId": "APP-S05-T09",
+  "taskId": "APP-S06-T09",
   "requirements": [
     {"id": "AC-1", "type": "acceptance_criterion", "description": "SettingsScreen renders Account/Appearance/Storage/About sections", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/SettingsScreenTests/test_settingsScreen_rendersAllSectionsAndAccountInfo", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-2", "type": "acceptance_criterion", "description": "Theme picker writes selection to ThemeStore and UserDefaults", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/ThemeStoreTests/test_themeStore_setMode_persistsToUserDefaults", "satisfied": false, "evidence": null, "remediation": null},

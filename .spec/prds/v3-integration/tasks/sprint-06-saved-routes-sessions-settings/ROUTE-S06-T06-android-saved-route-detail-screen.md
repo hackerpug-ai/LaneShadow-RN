@@ -1,5 +1,5 @@
 ================================================================================
-TASK: ROUTE-S05-T06 - Android SavedRouteDetailScreen + Plan again — variant of RouteDetailsScreen hydrated from saved snapshot
+TASK: ROUTE-S06-T06 - Android SavedRouteDetailScreen + Plan again — variant of RouteDetailsScreen hydrated from saved snapshot
 ================================================================================
 
 TASK_TYPE:  FEATURE
@@ -258,14 +258,14 @@ Verdict: PENDING
 DEPENDENCIES
 --------------------------------------------------------------------------------
 
-Depends on: ROUTE-S05-T04 (Android SavedRoutesListScreen — list rows tap into this detail screen and supply savedRouteId)
-Blocks: Sprint 06 (Map + Offline + Error Recovery — saved-route detail must be functional)
-Paired with: ROUTE-S05-T05 (iOS SavedRouteDetailScreen — share UC-ROUTE-03 + UC-ROUTE-04 ACs)
+Depends on: ROUTE-S06-T04 (Android SavedRoutesListScreen — list rows tap into this detail screen and supply savedRouteId)
+Blocks: Sprint 07 (Map + Offline + Error Recovery — saved-route detail must be functional)
+Paired with: ROUTE-S06-T05 (iOS SavedRouteDetailScreen — share UC-ROUTE-03 + UC-ROUTE-04 ACs)
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "taskId": "ROUTE-S05-T06",
+  "taskId": "ROUTE-S06-T06",
   "requirements": [
     {"id": "AC-1", "type": "acceptance_criterion", "description": "GIVEN saved-route detail emission WHEN state collected THEN RouteDetailsScreenState fully hydrated from snapshot", "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.savedroutedetail.SavedRouteDetailViewModelTest.state_subscribesToDetail_hydratesScreenStateFromSnapshot", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-2", "type": "acceptance_criterion", "description": "GIVEN composed screen WHEN rendered THEN action row contains only Plan again (no Save/Ride)", "verify": "cd android && ./gradlew :app:connectedDebugAndroidTest --tests com.laneshadow.ui.savedroutedetail.SavedRouteDetailScreenTest.actionRow_rendersOnlyPlanAgainButton_savedVariant", "satisfied": false, "evidence": null, "remediation": null},

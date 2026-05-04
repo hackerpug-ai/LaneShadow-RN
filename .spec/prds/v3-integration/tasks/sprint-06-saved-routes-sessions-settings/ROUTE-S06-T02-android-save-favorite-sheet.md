@@ -1,5 +1,5 @@
 ================================================================================
-TASK: ROUTE-S05-T02 - Android SaveFavoriteSheet — V2 LSBottomSheet composition + saveRoute mutation + already-saved fingerprint state
+TASK: ROUTE-S06-T02 - Android SaveFavoriteSheet — V2 LSBottomSheet composition + saveRoute mutation + already-saved fingerprint state
 ================================================================================
 
 TASK_TYPE:  FEATURE
@@ -253,13 +253,13 @@ DEPENDENCIES
 --------------------------------------------------------------------------------
 
 Depends on: CHAT-S04-T08 (Android RouteDetails wiring + showSaveSheet flag + matchesFingerprint integration)
-Blocks: ROUTE-S05-T04 (saved-routes list reads what this task saves), ROUTE-S05-T06 (detail screen hydrates from saved snapshot)
-Paired with: ROUTE-S05-T01 (iOS SaveFavoriteSheet — share UC-ROUTE-01 ACs)
+Blocks: ROUTE-S06-T04 (saved-routes list reads what this task saves), ROUTE-S06-T06 (detail screen hydrates from saved snapshot)
+Paired with: ROUTE-S06-T01 (iOS SaveFavoriteSheet — share UC-ROUTE-01 ACs)
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "taskId": "ROUTE-S05-T02",
+  "taskId": "ROUTE-S06-T02",
   "requirements": [
     {"id": "AC-1", "type": "acceptance_criterion", "description": "GIVEN visibility flag true WHEN state collected THEN pre-populated name + LSInstrumentReadout metadata seeded", "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.sheets.SaveFavoriteSheetViewModelTest.state_visibilityFlipsTrue_seedsPrePopulatedNameAndMetadata", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-2", "type": "acceptance_criterion", "description": "GIVEN NotSaved state WHEN onSaveTapped invoked THEN saveRoute called once and Saved event emitted", "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.sheets.SaveFavoriteSheetViewModelTest.onSaveTapped_invokesSaveRouteAndEmitsSavedEvent", "satisfied": false, "evidence": null, "remediation": null},

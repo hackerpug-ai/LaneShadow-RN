@@ -1,5 +1,5 @@
 ================================================================================
-TASK: SESS-S05-T07 - iOS SessionsScreen wiring — listSessions + date groups + camera persist + cameraMoveSource flag
+TASK: SESS-S06-T07 - iOS SessionsScreen wiring — listSessions + date groups + camera persist + cameraMoveSource flag
 ================================================================================
 
 TASK_TYPE:  FEATURE
@@ -130,7 +130,7 @@ writeAllowed:
 - ios/LaneShadow/Services/CameraStore.swift (NEW — `@MainActor @Observable` class with cameraMoveSource flag + UserDefaults persistence)
 - ios/LaneShadow/Services/CameraPosition+Codable.swift (NEW — Codable conformance for the CameraPosition type if not already Codable; consult LSMap.swift for the exact CameraPosition origin and avoid duplicating the type)
 - ios/LaneShadow/Views/Templates/SessionsScreen.swift (MODIFY — add a new ViewState-driven init alongside the legacy MockProvider init; the new init takes `[SessionSection<Session>]` and `activeSessionId` directly; the rationale matches CHAT-S04-T07's RouteDetailsScreen MockProvider/ViewState dual-init pattern)
-- ios/LaneShadow/Services/ChatStore.swift (MODIFY — add a `loadSession(sessionId:)` method that dispatches the existing `.loadSession` action with the latest planning state for that session; rationale: SESS-S05-T07 owns the session-switching surface and ChatStore previously had no public switching method per its 132-line surface; mirror RN's loadSession flow per ios-architecture.md §5.5)
+- ios/LaneShadow/Services/ChatStore.swift (MODIFY — add a `loadSession(sessionId:)` method that dispatches the existing `.loadSession` action with the latest planning state for that session; rationale: SESS-S06-T07 owns the session-switching surface and ChatStore previously had no public switching method per its 132-line surface; mirror RN's loadSession flow per ios-architecture.md §5.5)
 - ios/LaneShadowTests/Features/Sessions/SessionsViewModelTests.swift (NEW — VM tests for AC-1..3)
 - ios/LaneShadowTests/Services/CameraStoreTests.swift (NEW — AC-4..6 unit tests with in-memory UserDefaults via `UserDefaults(suiteName:)`)
 - ios/LaneShadowTests/Helpers/StubLaneShadowConvexClient.swift (MODIFY — extend the sessions stub surface as needed; existing `subscribeToSessions` and `createPlanningSession` are already present)
@@ -185,7 +185,7 @@ AGENT INSTRUCTIONS (TDD Flow)
 3. RED → GREEN for AC-5 (programmatic suppression), AC-6 (nil/known semantics) — all CameraStore behavior.
 4. RED → GREEN for AC-1 (SessionsViewModel bucketing): use a deterministic clock; freeze "now" via an injected `Date` provider closure to make day-delta math testable.
 5. RED → GREEN for AC-2 (handleSelect), AC-3 (handleNewSession).
-6. Capture RED replay output to `.tmp/SESS-S05-T07/red-{ac}-output.txt` per AC.
+6. Capture RED replay output to `.tmp/SESS-S06-T07/red-{ac}-output.txt` per AC.
 7. REFACTOR: ensure the bucketing function is pure (`func bucket(sessions:[Session], now: Date) -> [SessionSection<Session>]`) so it is unit-testable without time mocking.
 8. Run the full evidence gate sequence (test, build, lint, token-check, snapshots:check, scope diff).
 
@@ -217,7 +217,7 @@ READING LIST
 EVIDENCE GATES
 --------------------------------------------------------------------------------
 
-Gate 1: RED phase evidence — TDD_STATE history per AC saved to `.tmp/SESS-S05-T07/red-{ac}-output.txt`
+Gate 1: RED phase evidence — TDD_STATE history per AC saved to `.tmp/SESS-S06-T07/red-{ac}-output.txt`
 Gate 2: All tests pass — xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' test (Exit 0)
 Gate 3: Build — xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build (Exit 0)
 Gate 4: Lint — swiftformat --lint ios/ (Exit 0)
@@ -248,12 +248,12 @@ DEPENDENCIES
 --------------------------------------------------------------------------------
 
 Depends on: CHAT-S04-T01 (RideFlow + ChatStore reducer), CHAT-S04-T03 (Idle/Planning wiring + IdleScreen reads CameraStore.defaultCamera), AUTH-S03-T03 (ConvexClient+LaneShadow base)
-Blocks: APP-S05-T09 (SettingsScreen integrates with the same hamburger-drawer that SessionsScreen presents), Sprint 06 (Map sessions context awareness)
+Blocks: APP-S06-T09 (SettingsScreen integrates with the same hamburger-drawer that SessionsScreen presents), Sprint 07 (Map sessions context awareness)
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "taskId": "SESS-S05-T07",
+  "taskId": "SESS-S06-T07",
   "requirements": [
     {"id": "AC-1", "type": "acceptance_criterion", "description": "SessionsScreen subscribes and renders bucketed sessions", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/SessionsViewModelTests/test_sessionsScreen_subscribes_andGroupsByDateBucket", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-2", "type": "acceptance_criterion", "description": "Tap session row switches active session, restores camera, dismisses drawer", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/SessionsViewModelTests/test_sessionsScreen_tapRow_switchesAndRestoresCamera", "satisfied": false, "evidence": null, "remediation": null},

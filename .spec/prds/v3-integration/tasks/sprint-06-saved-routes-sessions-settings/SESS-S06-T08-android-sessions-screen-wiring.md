@@ -1,5 +1,5 @@
 ================================================================================
-TASK: SESS-S05-T08 - Android SessionsScreen wiring + DataStore camera persistence + cameraMoveSource flag
+TASK: SESS-S06-T08 - Android SessionsScreen wiring + DataStore camera persistence + cameraMoveSource flag
 ================================================================================
 
 TASK_TYPE:  FEATURE
@@ -267,13 +267,13 @@ DEPENDENCIES
 --------------------------------------------------------------------------------
 
 Depends on: CHAT-S04-T02 (RideFlowState + AppStateRepository camera/lastViewedSessionId surface), CHAT-S04-T04 (Idle/Planning wiring uses lastViewedSessionId)
-Blocks: APP-S05-T10 (hamburger menu integrates with this drawer for Sessions entry), Sprint 06 (Map screens read camera persistence)
-Paired with: SESS-S05-T07 (iOS SessionsScreen wiring — share UC-SESS-01 + UC-SESS-02 + UC-SESS-03 ACs and the camera-source-flag pattern)
+Blocks: APP-S06-T10 (hamburger menu integrates with this drawer for Sessions entry), Sprint 07 (Map screens read camera persistence)
+Paired with: SESS-S06-T07 (iOS SessionsScreen wiring — share UC-SESS-01 + UC-SESS-02 + UC-SESS-03 ACs and the camera-source-flag pattern)
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "taskId": "SESS-S05-T08",
+  "taskId": "SESS-S06-T08",
   "requirements": [
     {"id": "AC-1", "type": "acceptance_criterion", "description": "GIVEN listSessions emissions WHEN state collected THEN sessions grouped by date bucket TODAY/YESTERDAY/THIS WEEK/EARLIER", "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.sessions.SessionsViewModelTest.state_subscribesToListSessions_groupsByDateBucket", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-2", "type": "acceptance_criterion", "description": "GIVEN session row tap WHEN onSelectSession invoked THEN navigation event emitted and camera restored", "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests com.laneshadow.ui.sessions.SessionsViewModelTest.onSelectSession_routesToPhaseAndRestoresCamera", "satisfied": false, "evidence": null, "remediation": null},

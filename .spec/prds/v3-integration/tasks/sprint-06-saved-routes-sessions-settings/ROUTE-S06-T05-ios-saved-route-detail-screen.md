@@ -1,5 +1,5 @@
 ================================================================================
-TASK: ROUTE-S05-T05 - iOS SavedRouteDetailScreen — snapshot hydration + Rename/Delete + Plan again
+TASK: ROUTE-S06-T05 - iOS SavedRouteDetailScreen — snapshot hydration + Rename/Delete + Plan again
 ================================================================================
 
 TASK_TYPE:  FEATURE
@@ -30,7 +30,7 @@ A new SavedRouteDetailScreen hydrates RouteDetailsScreen's template from `db.sav
 - MUST hide the LSWeatherTimeline when the snapshot has no cached weather (saved snapshots may or may not have it; do NOT fabricate stale weather) — per ui-design.md §1.E
 - MUST replace the action row Save / Ride buttons with a single full-width "Plan again" primary button per ui-design.md §1.E variant change for saved-mode
 - MUST wire "Plan again" to `db.planningSessions.createSession` with a seeded `firstMessage` derived from the saved route's start/end labels (e.g., `"Plan from {startLabel} to {endLabel}"`); on success, dispatch the new session through the navigation host (`appState.appRoute = .session(id: newSessionId)`)
-- MUST present `Rename` via the same LSBottomSheet rename flow used by ROUTE-S05-T03 (extract or share the rename sheet view) and `Delete` via `LSModal` confirmation, on confirm calling `softDeleteRoute` and navigating back to the list
+- MUST present `Rename` via the same LSBottomSheet rename flow used by ROUTE-S06-T03 (extract or share the rename sheet view) and `Delete` via `LSModal` confirmation, on confirm calling `softDeleteRoute` and navigating back to the list
 - NEVER create a new template — variant on the existing `RouteDetailsScreen`
 - NEVER touch ios/LaneShadow.xcodeproj/** directly — generated; edit ios/project.yml + run scripts/ios/generate-project.sh
 - NEVER modify ios/LaneShadow/Generated/** — types come from server/scripts/generate-mobile-types.ts
@@ -138,11 +138,11 @@ BOUNDARIES
 - Reuse `RouteDetailsScreen(viewState:onSave:onRide:onDismiss:)` initializer with onSave passed as a no-op (or replaced with Plan-again wiring at the container level)
 - Use `RouteDetailsViewState` adapter — a saved snapshot does not carry the runtime PlannedRouteOption shape; the adapter normalizes
 - Treat the snapshot as immutable: never mutate the source view state once observed
-- Use the same Rename sheet view from ROUTE-S05-T03 (import or share via an internal `SavedRouteRenameSheet` type)
+- Use the same Rename sheet view from ROUTE-S06-T03 (import or share via an internal `SavedRouteRenameSheet` type)
 
 ⚠️ Ask First:
 - If the action row in `LSRouteSheet` (existing organism) supports replacing the Save/Ride buttons with a single "Plan again" CTA without modifying the organism — if not, render the action row inline and pass an empty Save/Ride pair (defer plan-again to a separate button below the sheet) and confirm with reviewer
-- If the rename sheet should be re-extracted from ROUTE-S05-T03 to a shared `Features/SavedRoutes/Shared/` directory — recommend yes, but verify the Sprint-04 placeholder isn't blocking
+- If the rename sheet should be re-extracted from ROUTE-S06-T03 to a shared `Features/SavedRoutes/Shared/` directory — recommend yes, but verify the Sprint-04 placeholder isn't blocking
 - If the snapshot's overviewGeometry decode requires a new polyline decoder beyond what RouteResults uses — escalate
 
 --------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ AGENT INSTRUCTIONS (TDD Flow)
 1. RED for AC-1: write VM observation test asserting viewState binding from a stub-yielded snapshot. Confirm fails because VM does not exist.
 2. GREEN: implement SavedRouteDetailViewModel + SavedRouteDetailViewState adapter to pass AC-1.
 3. RED → GREEN for AC-2 (toolbar flags), AC-3 (plan again), AC-4 (delete confirm), AC-5 (not-found) in order.
-4. Capture RED replay output to `.tmp/ROUTE-S05-T05/red-{ac}-output.txt` per AC.
+4. Capture RED replay output to `.tmp/ROUTE-S06-T05/red-{ac}-output.txt` per AC.
 5. REFACTOR: ensure the SavedRouteDetailViewState adapter is pure (struct + static factory function takes SavedRouteDetailView, returns RouteDetailsViewState) so it is fully unit-testable; ensure swiftformat lint passes.
 6. Run the full evidence gate sequence (test, build, lint, token-check, snapshots:check, scope diff).
 
@@ -199,7 +199,7 @@ READING LIST
 EVIDENCE GATES
 --------------------------------------------------------------------------------
 
-Gate 1: RED phase evidence — TDD_STATE history per AC saved to `.tmp/ROUTE-S05-T05/red-{ac}-output.txt`
+Gate 1: RED phase evidence — TDD_STATE history per AC saved to `.tmp/ROUTE-S06-T05/red-{ac}-output.txt`
 Gate 2: All tests pass — xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' test (Exit 0)
 Gate 3: Build — xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build (Exit 0)
 Gate 4: Lint — swiftformat --lint ios/ (Exit 0)
@@ -228,13 +228,13 @@ Should verify:
 DEPENDENCIES
 --------------------------------------------------------------------------------
 
-Depends on: ROUTE-S05-T03 (SavedRoutesListScreen tap → detail), ROUTE-S05-T01 (saveRoute persists what this screen reads), CHAT-S04-T07 (RouteDetailsScreen ViewState init), AUTH-S03-T03 (ConvexClient+LaneShadow base)
-Blocks: Sprint 06 (Map deep-linking from saved-route URL)
+Depends on: ROUTE-S06-T03 (SavedRoutesListScreen tap → detail), ROUTE-S06-T01 (saveRoute persists what this screen reads), CHAT-S04-T07 (RouteDetailsScreen ViewState init), AUTH-S03-T03 (ConvexClient+LaneShadow base)
+Blocks: Sprint 07 (Map deep-linking from saved-route URL)
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "taskId": "ROUTE-S05-T05",
+  "taskId": "ROUTE-S06-T05",
   "requirements": [
     {"id": "AC-1", "type": "acceptance_criterion", "description": "Screen hydrates from saved snapshot via getSavedRouteDetail", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/SavedRouteDetailViewModelTests/test_savedRouteDetail_hydratesViewState_fromSnapshot", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-2", "type": "acceptance_criterion", "description": "Toolbar Rename + Delete chips open rename sheet and delete modal", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/SavedRouteDetailViewModelTests/test_savedRouteDetail_toolbarActions_presentRenameAndDeleteFlows", "satisfied": false, "evidence": null, "remediation": null},

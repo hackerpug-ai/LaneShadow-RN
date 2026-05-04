@@ -161,3 +161,7 @@ android/app/src/androidTest/screenshots/**/_failure_*.png
 # Xcode project backup files
 *.pbxproj.backup
 
+# Design review pipeline outputs (captures, manifests, evals — not committed)
+.design-review/
+build/xcresults/
+

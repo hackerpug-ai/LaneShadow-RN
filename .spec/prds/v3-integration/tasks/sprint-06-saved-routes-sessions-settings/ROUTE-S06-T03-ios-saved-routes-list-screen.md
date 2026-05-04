@@ -1,5 +1,5 @@
 ================================================================================
-TASK: ROUTE-S05-T03 - iOS SavedRoutesListScreen — paginated list + search + swipe-delete + undo + rename
+TASK: ROUTE-S06-T03 - iOS SavedRoutesListScreen — paginated list + search + swipe-delete + undo + rename
 ================================================================================
 
 TASK_TYPE:  FEATURE
@@ -192,7 +192,7 @@ AGENT INSTRUCTIONS (TDD Flow)
 1. RED for AC-1: write the VM observation test first; confirm it fails because the VM type doesn't exist.
 2. GREEN: implement the minimum viewModel + container that subscribes and renders.
 3. RED → GREEN for AC-2 (debounce), AC-3 (refresh), AC-4 (delete + toast), AC-5 (undo), AC-6 (rename), AC-7 (empty state) in order.
-4. Capture RED replay output to `.tmp/ROUTE-S05-T03/red-{ac}-output.txt` per AC.
+4. Capture RED replay output to `.tmp/ROUTE-S06-T03/red-{ac}-output.txt` per AC.
 5. REFACTOR: extract the rename sheet to its own SwiftUI file once green; ensure swipe-action accessibility hint matches ui-design.md §1.D — "Double-tap to view route, swipe right with three fingers to delete".
 6. Verify token compliance — every color resolves through `theme.*` or `LaneShadowTheme.color.*`.
 7. Run the full evidence gate sequence (test, build, lint, token-check, snapshots:check, scope diff).
@@ -225,7 +225,7 @@ READING LIST
 EVIDENCE GATES
 --------------------------------------------------------------------------------
 
-Gate 1: RED phase evidence — TDD_STATE history per AC saved to `.tmp/ROUTE-S05-T03/red-{ac}-output.txt`
+Gate 1: RED phase evidence — TDD_STATE history per AC saved to `.tmp/ROUTE-S06-T03/red-{ac}-output.txt`
 Gate 2: All tests pass — xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' test (Exit 0)
 Gate 3: Build — xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build (Exit 0)
 Gate 4: Lint — swiftformat --lint ios/ (Exit 0)
@@ -255,13 +255,13 @@ Should verify:
 DEPENDENCIES
 --------------------------------------------------------------------------------
 
-Depends on: ROUTE-S05-T01 (saveRoute persists what this screen reads), AUTH-S03-T03 (ConvexClient+LaneShadow base), CHAT-S04-T07 (RouteDetails wiring — the entry point users come from)
-Blocks: ROUTE-S05-T05 (SavedRouteDetailScreen — list rows tap into detail), Sprint 06 (Map / Offline)
+Depends on: ROUTE-S06-T01 (saveRoute persists what this screen reads), AUTH-S03-T03 (ConvexClient+LaneShadow base), CHAT-S04-T07 (RouteDetails wiring — the entry point users come from)
+Blocks: ROUTE-S06-T05 (SavedRouteDetailScreen — list rows tap into detail), Sprint 07 (Map / Offline)
 
 <!-- REQUIREMENT-CONTRACT v1 -->
 <!--
 {
-  "taskId": "ROUTE-S05-T03",
+  "taskId": "ROUTE-S06-T03",
   "requirements": [
     {"id": "AC-1", "type": "acceptance_criterion", "description": "Screen subscribes and renders saved routes ordered by save date", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/SavedRoutesListViewModelTests/test_savedRoutesList_subscribes_andRendersRowsInServerOrder", "satisfied": false, "evidence": null, "remediation": null},
     {"id": "AC-2", "type": "acceptance_criterion", "description": "Search query debounces and re-subscribes", "verify": "xcodebuild ... test -only-testing:LaneShadowTests/SavedRoutesListViewModelTests/test_savedRoutesList_searchQuery_debouncesAndResubscribes", "satisfied": false, "evidence": null, "remediation": null},
