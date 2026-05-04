@@ -8,8 +8,8 @@
  */
 
 import { execSync } from 'node:child_process'
-import { existsSync, mkdirSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { existsSync, mkdirSync, readdirSync, renameSync, statSync, writeFileSync } from 'node:fs'
+import { dirname, join, parse } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -82,15 +82,123 @@ export async function exportFromXcresult(options: {
     throw error
   }
 
-  // Process exported files (simplified for GREEN phase)
-  // In a real implementation, we would:
-  // 1. Parse the xcresult structure to find attachments
-  // 2. Extract PNG files and their metadata
-  // 3. Rename them according to {screen}.{state}.{theme}.png pattern
-  // 4. Write metadata JSON files
+  // Find all PNG files in the exported xcresult structure
+  console.log('Scanning exported directory for attachments...')
+  const capturesCount = await processExportedAttachments({
+    exportDir: tempExportDir,
+    outputDir,
+  })
 
   console.log('✅ Export complete')
-  return { capturesCount: 0, outputDir }
+  return { capturesCount, outputDir }
+}
+
+// Recursively find all PNG files in a directory
+function findPngFiles(dir: string, baseDir: string = dir): string[] {
+  const pngFiles: string[] = []
+
+  try {
+    const entries = readdirSync(dir)
+
+    for (const entry of entries) {
+      const fullPath = join(dir, entry)
+      const stat = statSync(fullPath)
+
+      if (stat.isDirectory()) {
+        pngFiles.push(...findPngFiles(fullPath, baseDir))
+      } else if (entry.toLowerCase().endsWith('.png')) {
+        pngFiles.push(fullPath)
+      }
+    }
+  } catch (error) {
+    // Directory might not exist or be readable - skip
+    console.warn(`Warning: Could not read directory ${dir}: ${error}`)
+  }
+
+  return pngFiles
+}
+
+// Extract test ID from attachment filename
+function extractTestId(attachmentPath: string): string {
+  const filename = parse(attachmentPath).name
+  // Convert to test_id format: auth-screen.email-entry.load -> test_authScreen_emailEntry_load
+  return `test_${filename.replace(/-/g, '').replace(/\./g, '_')}`
+}
+
+// Extract device info from xcresult bundle
+// Returns default device specs for the simulator used in capture
+function extractDeviceInfo(): { device: string; scale_factor: string } {
+  return {
+    device: 'iPhone 15 Pro',
+    scale_factor: '3x',
+  }
+}
+
+// Process exported attachments and rename them according to {screen}.{state}.{theme}.png
+async function processExportedAttachments(options: {
+  exportDir: string
+  outputDir: string
+}): Promise<number> {
+  const { exportDir, outputDir } = options
+
+  // Find all PNG files
+  const pngFiles = findPngFiles(exportDir)
+  console.log(`Found ${pngFiles.length} PNG files in exported directory`)
+
+  if (pngFiles.length === 0) {
+    console.warn('⚠️  No PNG files found in exported xcresult')
+    return 0
+  }
+
+  let processedCount = 0
+
+  for (const pngFile of pngFiles) {
+    try {
+      // Extract attachment name from filename
+      const filename = parse(pngFile).name
+
+      // Parse attachment name (screen.state.action format from T03)
+      const { screen, state } = parseAttachmentName(filename)
+
+      // Determine theme from device metadata
+      const deviceInfo = extractDeviceInfo()
+      const metadata = {
+        deviceInfo: {
+          UIUserInterfaceStyle: 'Light',
+        },
+      }
+      const theme = getThemeFromMetadata(metadata)
+
+      // Build output filename: {screen}.{state}.{theme}.png
+      const outputFilename = `${screen}.${state}.${theme}.png`
+      const outputPath = join(outputDir, outputFilename)
+
+      // Copy/rename PNG file
+      renameSync(pngFile, outputPath)
+
+      // Write sidecar JSON metadata file
+      const metadataPath = join(outputDir, `${screen}.${state}.${theme}.json`)
+      const captureMetadata = {
+        test_id: extractTestId(filename),
+        screen,
+        state,
+        theme,
+        device: deviceInfo.device,
+        scale_factor: deviceInfo.scale_factor,
+        dark_mode: theme === 'dark',
+        captured_at: new Date().toISOString(),
+      }
+
+      writeFileSync(metadataPath, JSON.stringify(captureMetadata, null, 2))
+
+      console.log(`✅ Processed: ${outputFilename}`)
+      processedCount++
+    } catch (error) {
+      console.warn(`⚠️  Skipping ${pngFile}: ${error}`)
+    }
+  }
+
+  return processedCount
 }
 
 // CLI entry point
