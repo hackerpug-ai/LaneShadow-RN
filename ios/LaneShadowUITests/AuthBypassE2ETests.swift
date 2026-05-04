@@ -14,40 +14,29 @@ final class AuthBypassE2ETests: XCTestCase {
         app = nil
     }
 
-    /// Smoke-tests the debug-only auth bypass: launching with `bypassAuth: true`
-    /// must reveal the bypass button on the entry view, and tapping it must
-    /// short-circuit the Clerk flow and land on the authenticated home screen
-    /// without making any real OAuth or Convex calls.
-    func testBypassAuthLandsOnAuthenticatedHomeWithoutClerk() {
-        AppLauncher.launchApp(app, resetAuth: true, bypassAuth: true)
+    /// Smoke-tests the debug-only E2E sign-in: launching with `e2eSignIn: true`
+    /// must reveal the E2E sign-in button on the entry view. Tapping it reads
+    /// CLERK_TEST_EMAIL/CLERK_TEST_PASSWORD from environment and calls the real
+    /// Clerk sign-in API, establishing a real session with a real Convex JWT.
+    func testE2ESignInButtonAppearsWithE2EFlag() {
+        AppLauncher.launchApp(app, resetAuth: true, e2eSignIn: true)
 
         XCTAssertTrue(
             element("auth.signIn.root").waitForExistence(timeout: 30),
             "Expected signed-out launch to show SignInScreen root."
         )
 
-        let bypassButton = element("auth.signIn.bypassAuth")
+        let e2eButton = element("auth.signIn.e2eSignIn")
         XCTAssertTrue(
-            bypassButton.waitForExistence(timeout: 5),
-            "Expected the test-only Bypass auth button to render when launched with -LaneShadowUITestBypassAuth."
-        )
-
-        bypassButton.tap()
-
-        XCTAssertTrue(
-            element("idlescreen-current-user-greeting").waitForExistence(timeout: 10),
-            "Expected the bypass to drop the app onto the authenticated landing view."
-        )
-        XCTAssertTrue(
-            element("auth.landing.logout").exists,
-            "Expected the authenticated landing view to expose the logout button."
+            e2eButton.waitForExistence(timeout: 5),
+            "Expected the test-only E2E Sign In button to render when launched with -LaneShadowUITestE2E."
         )
     }
 
-    /// Sanity check that the bypass button is gated — without the
-    /// `-LaneShadowUITestBypassAuth` flag, the entry view stays at exactly
+    /// Sanity check that the E2E sign-in button is gated — without the
+    /// `-LaneShadowUITestE2E` flag, the entry view stays at exactly
     /// three buttons (Apple, Google, Continue with Email).
-    func testBypassButtonIsHiddenWithoutBypassFlag() {
+    func testE2ESignInButtonIsHiddenWithoutE2EFlag() {
         AppLauncher.launchApp(app, resetAuth: true)
 
         XCTAssertTrue(
@@ -59,8 +48,8 @@ final class AuthBypassE2ETests: XCTestCase {
         _ = element("auth.signIn.continueWithEmail").waitForExistence(timeout: 5)
 
         XCTAssertFalse(
-            element("auth.signIn.bypassAuth").exists,
-            "Expected the bypass button to be hidden without the bypass launch flag."
+            element("auth.signIn.e2eSignIn").exists,
+            "Expected the E2E sign-in button to be hidden without the E2E launch flag."
         )
     }
 

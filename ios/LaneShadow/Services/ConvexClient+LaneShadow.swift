@@ -125,19 +125,19 @@ struct LaneShadowRoutePlanSnapshot: Decodable, Equatable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(String.self, forKey: .id)
-        self.status = try container.decode(String.self, forKey: .status)
-        self.statusMessage = try container.decodeIfPresent(String.self, forKey: .statusMessage)
+        id = try container.decode(String.self, forKey: .id)
+        status = try container.decode(String.self, forKey: .status)
+        statusMessage = try container.decodeIfPresent(String.self, forKey: .statusMessage)
 
         // Decode phase string to Phase enum
         if let phaseString = try container.decodeIfPresent(String.self, forKey: .phase) {
-            self.phase = Phase(fromStatus: phaseString)
+            phase = Phase(fromStatus: phaseString)
         } else {
-            self.phase = nil
+            phase = nil
         }
 
-        self.routeOptions = try container.decodeIfPresent(PlannedRouteOptionsView.self, forKey: .routeOptions)
-        self.errorMessage = try container.decodeIfPresent(String.self, forKey: .errorMessage)
+        routeOptions = try container.decodeIfPresent(PlannedRouteOptionsView.self, forKey: .routeOptions)
+        errorMessage = try container.decodeIfPresent(String.self, forKey: .errorMessage)
     }
 
     init(

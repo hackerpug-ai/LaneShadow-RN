@@ -27,7 +27,9 @@ final class LSPhaseIndicatorSnapshotTests: XCTestCase {
                     PlanningPhase(
                         id: p.rawValue,
                         label: p.label,
-                        state: p == phase ? .active : (canonicalPhases.firstIndex(of: p)! < canonicalPhases.firstIndex(of: phase)! ? .done : .pending)
+                        state: p == phase ? .active :
+                            (canonicalPhases.firstIndex(of: p)! < canonicalPhases
+                                .firstIndex(of: phase)! ? .done : .pending)
                     )
                 },
                 header: "Planning your ride…"
@@ -43,7 +45,8 @@ final class LSPhaseIndicatorSnapshotTests: XCTestCase {
                 continue
             }
 
-            let filename = snapshotDir.appendingPathComponent("molecules.phaseindicator.canonical-\(phase.rawValue).light.png")
+            let filename = snapshotDir
+                .appendingPathComponent("molecules.phaseindicator.canonical-\(phase.rawValue).light.png")
             try? image.pngData()?.write(to: filename)
         }
 

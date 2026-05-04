@@ -97,15 +97,6 @@ struct RootView: View {
     }
 
     func synchronizeAuthentication() async {
-        #if DEBUG
-            // Bypass-mode tests stamp authenticated state synthetically; never
-            // re-run real auth restoration, otherwise it would clobber the
-            // bypassed `appState.isAuthenticated` and route back to sign-in.
-            if Self.shouldBypassAuthForUITesting(), appState.isAuthenticated {
-                return
-            }
-        #endif
-
         if appEnvironment.clerkAuth.currentUser == nil {
             await appState.restoreAuthentication(
                 clerkAuth: appEnvironment.clerkAuth,
@@ -157,8 +148,8 @@ struct RootView: View {
             arguments.contains("-LaneShadowUITestResetAuth")
         }
 
-        static func shouldBypassAuthForUITesting(arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
-            arguments.contains("-LaneShadowUITestBypassAuth")
+        static func shouldEnableE2ESignInForUITesting(arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
+            arguments.contains("-LaneShadowUITestE2E")
         }
 
         func resetAuthForUITestingIfNeeded(

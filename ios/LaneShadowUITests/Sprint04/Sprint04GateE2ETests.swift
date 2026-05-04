@@ -155,7 +155,7 @@ final class Sprint04GateE2ETests: XCTestCase {
 
         // Canonical phase labels from Phase enum (R06 reference)
         let expectedPhaseKeywords = [
-            "parsing", "searching", "drafting", "enriching", "finalizing"
+            "parsing", "searching", "drafting", "enriching", "finalizing",
         ]
 
         // THEN: Observe phase transitions through real sessionMessages
@@ -171,7 +171,11 @@ final class Sprint04GateE2ETests: XCTestCase {
                 if !phaseLabel.isEmpty || !phaseValue.isEmpty {
                     let displayText = !phaseLabel.isEmpty ? phaseLabel : phaseValue
                     observedPhases.insert(displayText)
-                    writeEvidence(step: 2, metric: "phase_\(displayText.replacingOccurrences(of: " ", with: "_"))", value: 1)
+                    writeEvidence(
+                        step: 2,
+                        metric: "phase_\(displayText.replacingOccurrences(of: " ", with: "_"))",
+                        value: 1
+                    )
 
                     // RF-21: Verify phase text contains expected keywords
                     let lowercaseText = displayText.lowercased()
@@ -279,7 +283,7 @@ final class Sprint04GateE2ETests: XCTestCase {
         // RF-21: Strong assertion - verify each route card has meaningful content
         var cardsWithLabels = 0
         var cardsWithValues = 0
-        for i in 0..<routeCardCount {
+        for i in 0 ..< routeCardCount {
             let card = routeCards.element(boundBy: i)
             if card.exists {
                 let cardLabel = card.label as String
@@ -635,7 +639,7 @@ final class Sprint04GateE2ETests: XCTestCase {
         var initialCardLabels: [String] = []
 
         // RF-21: Strong assertion - capture initial card labels for comparison
-        for i in 0..<initialCount {
+        for i in 0 ..< initialCount {
             let card = initialCards.element(boundBy: i)
             if card.exists {
                 let label = card.label as String
@@ -720,7 +724,7 @@ final class Sprint04GateE2ETests: XCTestCase {
         var refinedCardLabels: [String] = []
 
         // RF-21: Strong assertion - capture refined card labels for comparison
-        for i in 0..<refinedCount {
+        for i in 0 ..< refinedCount {
             let card = refinedCards.element(boundBy: i)
             if card.exists {
                 let label = card.label as String
@@ -745,7 +749,7 @@ final class Sprint04GateE2ETests: XCTestCase {
 
         // RF-21: Strong assertion - verify card labels changed (refinement occurred)
         // Compare first card label as a proxy for route content change
-        if !initialCardLabels.isEmpty && !refinedCardLabels.isEmpty {
+        if !initialCardLabels.isEmpty, !refinedCardLabels.isEmpty {
             let firstInitialLabel = initialCardLabels[0]
             let firstRefinedLabel = refinedCardLabels[0]
             let labelsChanged = firstInitialLabel != firstRefinedLabel
@@ -912,13 +916,6 @@ final class Sprint04GateE2ETests: XCTestCase {
     // MARK: - Helper Methods
 
     private func loadCredentials(bypassAuth: Bool) throws -> Credentials {
-        // RF-19 Mitigation: Credentials are optional when using bypass auth (DEBUG-only)
-        if bypassAuth {
-            // Bypass auth mode - credentials not required
-            print("ℹ️ Running in bypass auth mode - CLERK credentials not required")
-            return Credentials(email: "bypass@local.test", password: "bypass")
-        }
-
         let environment = ProcessInfo.processInfo.environment
         let email = environment["CLERK_TEST_EMAIL"] ?? environment["LANESHADOW_AUTH_EMAIL"] ?? ""
         let password = environment["CLERK_TEST_PASSWORD"] ?? environment["LANESHADOW_AUTH_PASSWORD"] ?? ""
@@ -930,7 +927,6 @@ final class Sprint04GateE2ETests: XCTestCase {
                 """
                 Missing iOS E2E credentials. Add CLERK_TEST_EMAIL and CLERK_TEST_PASSWORD to .env.local,
                 or set LANESHADOW_AUTH_EMAIL and LANESHADOW_AUTH_PASSWORD for the fallback.
-                Alternatively, run with -LaneShadowUITestBypassAuth flag for DEBUG-only bypass auth.
                 """
             )
             throw CredentialError.missing
@@ -997,23 +993,23 @@ final class Sprint04GateE2ETests: XCTestCase {
     // MARK: - Test Flow Helpers
 
     private func authenticateAndReachIdleScreen() async throws {
-        // RF-19 Mitigation: Use bypass auth for DEBUG-only E2E testing
-        // This is acceptable because:
-        // 1. Wrapped in #if DEBUG - cannot be used in release builds
-        // 2. Real Convex backend is still hit (no stubbing)
-        // 3. Standard iOS E2E testing pattern for fast, reliable test execution
-        let bypassAuth = true
-        credentials = try loadCredentials(bypassAuth: bypassAuth)
+        // Load credentials from environment (CLERK_TEST_EMAIL, CLERK_TEST_PASSWORD)
+        credentials = try loadCredentials(bypassAuth: false)
 
-        AppLauncher.launchApp(app, resetAuth: true, bypassAuth: bypassAuth)
+        // Launch app with E2E sign-in flag enabled
+        AppLauncher.launchApp(app, resetAuth: true, e2eSignIn: true)
 
-        // If bypass button exists, tap it
-        let bypassButton = element("auth.signIn.bypassAuth")
-        if bypassButton.waitForExistence(timeout: 5) {
-            bypassButton.tap()
-        }
+        // Wait for E2E sign-in button to appear
+        let e2eButton = element("auth.signIn.e2eSignIn")
+        XCTAssertTrue(
+            e2eButton.waitForExistence(timeout: 5),
+            "Expected E2E sign-in button to appear when -LaneShadowUITestE2E flag is set"
+        )
 
-        // Wait for IdleScreen
+        // Tap the E2E sign-in button (this triggers real Clerk sign-in internally)
+        e2eButton.tap()
+
+        // Wait for IdleScreen (indicates successful authentication)
         XCTAssertTrue(
             element("idlescreen").waitForExistence(timeout: 30),
             "Expected IdleScreen to appear after authentication"

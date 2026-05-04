@@ -175,29 +175,4 @@ final class AppState {
         }
         authMessage = message
     }
-
-    #if DEBUG
-        /// Synthesizes an authenticated session without contacting Clerk or Convex.
-        /// Only callable from debug builds; the real entry point is the
-        /// `-LaneShadowUITestBypassAuth` launch flag wired through AuthScreen's
-        /// test-only bypass button.
-        func bypassAuthForTesting(convexClient: LaneShadowConvexClient) async {
-            await convexClient.setAuth(tokenProvider: { "ui-test-jwt" })
-
-            currentUser = LaneShadowCurrentUser(
-                id: "ui-test-user",
-                clerkUserId: "ui-test-clerk",
-                email: "uitest@laneshadow.local",
-                name: "UI Test"
-            )
-            isAuthenticated = true
-            hasClerkSession = true
-            isHydratingCurrentUser = false
-            authMessage = nil
-            authRoute = nil
-            if appRoute == nil {
-                appRoute = .home
-            }
-        }
-    #endif
 }

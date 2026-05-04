@@ -21,7 +21,7 @@ struct AuthScreen: View {
     private let onSignUpRequested: (() -> Void)?
     private let onAuthenticated: () -> Void
     private let onVerificationRequired: (String) -> Void
-    private let onBypassAuth: (() -> Void)?
+    private let onE2ESignIn: (() -> Void)?
     private let authIdentifierPrefix: String
     private let showsSignUpEntry: Bool
 
@@ -33,7 +33,7 @@ struct AuthScreen: View {
         onSignUpRequested: (() -> Void)? = nil,
         onAuthenticated: @escaping () -> Void = {},
         onVerificationRequired: @escaping (String) -> Void = { _ in },
-        onBypassAuth: (() -> Void)? = nil
+        onE2ESignIn: (() -> Void)? = nil
     ) {
         self.viewModel = viewModel
         self.onBack = onBack
@@ -42,7 +42,7 @@ struct AuthScreen: View {
         self.onSignUpRequested = onSignUpRequested
         self.onAuthenticated = onAuthenticated
         self.onVerificationRequired = onVerificationRequired
-        self.onBypassAuth = onBypassAuth
+        self.onE2ESignIn = onE2ESignIn
     }
 
     var body: some View {
@@ -213,8 +213,8 @@ struct AuthScreen: View {
             }
 
             #if DEBUG
-                if Self.isUITestBypassEnabled, let onBypassAuth {
-                    bypassAuthButton(action: onBypassAuth)
+                if Self.isUITestE2EEnabled, let onE2ESignIn {
+                    e2eSignInButton(action: onE2ESignIn)
                 }
             #endif
 
@@ -234,14 +234,14 @@ struct AuthScreen: View {
     }
 
     #if DEBUG
-        private func bypassAuthButton(action: @escaping () -> Void) -> some View {
+        private func e2eSignInButton(action: @escaping () -> Void) -> some View {
             Button(action: action) {
                 HStack(spacing: theme.space.sm) {
                     Image(systemName: "ladybug")
                         .font(theme.type.label.md.font)
                         .foregroundStyle(LaneShadowTheme.color.status.error.default)
                         .frame(width: theme.iconSize.medium, height: theme.iconSize.medium)
-                    LSText("Bypass auth (UI tests only)", variant: .label.md, color: .danger)
+                    LSText("E2E Sign In (real Clerk)", variant: .label.md, color: .danger)
                 }
                 .frame(maxWidth: .infinity, minHeight: theme.control.minHeight)
                 .padding(.horizontal, theme.space.md)
@@ -256,8 +256,8 @@ struct AuthScreen: View {
                 )
             }
             .buttonStyle(.plain)
-            .accessibilityIdentifier("auth.signIn.bypassAuth")
-            .accessibilityLabel("Bypass auth for UI tests")
+            .accessibilityIdentifier("auth.signIn.e2eSignIn")
+            .accessibilityLabel("E2E Sign In with real Clerk authentication")
         }
     #endif
 
@@ -488,8 +488,8 @@ struct AuthScreen: View {
     }
 
     #if DEBUG
-        fileprivate static var isUITestBypassEnabled: Bool {
-            ProcessInfo.processInfo.arguments.contains("-LaneShadowUITestBypassAuth")
+        fileprivate static var isUITestE2EEnabled: Bool {
+            ProcessInfo.processInfo.arguments.contains("-LaneShadowUITestE2E")
         }
     #endif
 }

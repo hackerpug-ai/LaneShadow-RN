@@ -35,7 +35,7 @@ struct SignInScreen: View {
                     onVerificationRequired: { email in
                         verificationEmail = email
                     },
-                    onBypassAuth: bypassAuthHandler
+                    onE2ESignIn: e2eSignInHandler
                 )
             } else {
                 ProgressView()
@@ -100,14 +100,40 @@ struct SignInScreen: View {
         authScreenViewModel = makeAuthScreenViewModel(auth: appEnvironment.clerkAuth)
     }
 
-    private var bypassAuthHandler: (() -> Void)? {
+    private var e2eSignInHandler: (() -> Void)? {
         #if DEBUG
-            guard RootView.shouldBypassAuthForUITesting() else { return nil }
+            guard RootView.shouldEnableE2ESignInForUITesting() else { return nil }
             let environment = appEnvironment
             return {
                 Task {
-                    await appState.bypassAuthForTesting(convexClient: environment.convexClient)
-                    viewModel.step = .signedIn
+                    // Read credentials from environment variables
+                    let env = ProcessInfo.processInfo.environment
+                    guard let email = env["CLERK_TEST_EMAIL"],
+                          let password = env["CLERK_TEST_PASSWORD"] else {
+                        print("❌ E2E Sign In failed: CLERK_TEST_EMAIL or CLERK_TEST_PASSWORD not set")
+                        return
+                    }
+
+                    do {
+                        // Call real Clerk sign-in API
+                        let result = try await environment.clerkAuth.signIn(email: email, password: password)
+                        switch result {
+                        case .signedIn:
+                            // Success - complete authentication flow
+                            await appState.completeAuthentication(
+                                clerkAuth: environment.clerkAuth,
+                                convexClient: environment.convexClient
+                            )
+                            if appState.isAuthenticated {
+                                viewModel.step = .signedIn
+                            }
+                        case .verificationRequired:
+                            // Should not happen for E2E test account
+                            print("❌ E2E Sign In failed: verification required (check test account)")
+                        }
+                    } catch {
+                        print("❌ E2E Sign In failed: \(error.localizedDescription)")
+                    }
                 }
             }
         #else

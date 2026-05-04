@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import OSLog
 
 // RouteDetailsViewState is now defined in Views/Templates/RouteDetailsViewState.swift
 
@@ -84,8 +85,7 @@ final class RouteDetailsViewModel {
     }
 
     func handleRideThisTap() {
-        // V3 no-op for Ride This button
-        // Log to performance table for observability
+        // V3: Navigation export deferred to V4
     }
 
     func handleDismiss() {

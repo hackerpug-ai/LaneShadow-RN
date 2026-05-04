@@ -6,7 +6,8 @@ enum AppLauncher {
         _ app: XCUIApplication,
         sandbox: Bool = false,
         resetAuth: Bool = false,
-        bypassAuth: Bool = false
+        bypassAuth: Bool = false,
+        e2eSignIn: Bool = false
     ) {
         app.launchEnvironment["LANESHADOW_LAUNCH_SANDBOX"] = sandbox ? "1" : "0"
         forwardRuntimeEnvironment(to: app)
@@ -16,6 +17,9 @@ enum AppLauncher {
         }
         if bypassAuth {
             arguments.append("-LaneShadowUITestBypassAuth")
+        }
+        if e2eSignIn {
+            arguments.append("-LaneShadowUITestE2E")
         }
         app.launchArguments = arguments
         app.launch()

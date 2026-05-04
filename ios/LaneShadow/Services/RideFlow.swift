@@ -14,11 +14,11 @@ enum RideFlowPhaseKind: String, Equatable {
 ///
 /// Matches server-side phase names: parsing, searching, drafting, enriching, finalizing.
 enum Phase: String, Equatable, CaseIterable {
-    case parsing = "parsing"
-    case searching = "searching"
-    case drafting = "drafting"
-    case enriching = "enriching"
-    case finalizing = "finalizing"
+    case parsing
+    case searching
+    case drafting
+    case enriching
+    case finalizing
 
     /// Display label for UI
     var label: String {
