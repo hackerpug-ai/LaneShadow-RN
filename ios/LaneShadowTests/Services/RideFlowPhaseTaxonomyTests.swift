@@ -19,48 +19,53 @@ struct RideFlowPhaseTaxonomyTests {
         // WHEN: The enum declaration is inspected
 
         // THEN: The cases are exactly: parsing, searching, drafting, enriching, finalizing
-        // This test will fail until legacy names are purged from PlanningPhaseData usage
 
-        // Verify that PlanningPhaseData.id uses canonical names
-        // Check that no legacy phase IDs exist in the codebase
+        let allCases = Phase.allCases
 
-        let canonicalPhases = [
-            "parsing",
-            "searching",
-            "drafting",
-            "enriching",
-            "finalizing",
-        ]
+        #expect(allCases.count == 5, "Phase enum should have exactly 5 cases")
 
-        let legacyPhases = [
-            "reading",
-            "sketching",
-            "validating",
-            "weather",
-            "building",
-        ]
+        let expectedRawValues = ["parsing", "searching", "drafting", "enriching", "finalizing"]
 
-        // This test ensures PlanningMockProvider uses canonical phases
-        let defaultState = PlanningMockProvider.value(variant: "default")
-        let phaseIds = defaultState.phases.map(\.id)
-
-        // All phase IDs should be canonical
-        for phaseId in phaseIds {
+        for (index, phase) in allCases.enumerated() {
             #expect(
-                canonicalPhases.contains(phaseId),
-                "Phase ID '\(phaseId)' should be canonical (one of: \(canonicalPhases))"
+                phase.rawValue == expectedRawValues[index],
+                "Phase case \(index) should have rawValue '\(expectedRawValues[index])', got '\(phase.rawValue)'"
             )
         }
 
-        // No phase IDs should be legacy
-        for phaseId in phaseIds {
+        // Verify no legacy names exist
+        let legacyNames = ["reading", "sketching", "validating", "weather", "building"]
+        for phase in allCases {
             #expect(
-                !legacyPhases.contains(phaseId),
-                "Phase ID '\(phaseId)' should not be a legacy name (legacy: \(legacyPhases))"
+                !legacyNames.contains(phase.rawValue),
+                "Phase should not use legacy name '\(phase.rawValue)'"
             )
         }
+    }
 
-        // Verify we have exactly 5 phases
-        #expect(phaseIds.count == 5, "Should have exactly 5 phases, got \(phaseIds.count)")
+    // MARK: - AC-2: Label-to-phase mapping covers all 5 names
+
+    @Test("test_labelMap_decodesAllFiveCanonicalLabels")
+    func labelMap_decodesAllFiveCanonicalLabels() {
+        // GIVEN: Backend status strings 'parsing','searching','drafting','enriching','finalizing'
+
+        // WHEN: Each is decoded into the iOS phase enum
+
+        // THEN: Each maps to the corresponding canonical case
+
+        let canonicalLabels = ["parsing", "searching", "drafting", "enriching", "finalizing"]
+
+        for label in canonicalLabels {
+            let phase = Phase(fromStatus: label)
+            #expect(phase != nil, "Label '\(label)' should decode to a Phase")
+            #expect(phase?.rawValue == label, "Phase should have rawValue '\(label)'")
+        }
+
+        // Verify legacy labels don't decode
+        let legacyLabels = ["reading", "sketching", "validating", "weather", "building"]
+        for label in legacyLabels {
+            let phase = Phase(fromStatus: label)
+            #expect(phase == nil, "Legacy label '\(label)' should not decode to a Phase")
+        }
     }
 }

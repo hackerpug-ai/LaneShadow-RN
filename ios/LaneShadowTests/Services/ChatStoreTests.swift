@@ -34,7 +34,7 @@ struct ChatStoreTests {
         #expect(tracker.didEmitChange)
         #expect(store.flowState.phase == .planning)
         #expect(store.flowState.sessionId == "session-123")
-        #expect(store.flowState.currentPhase == "analyzing")
+        #expect(store.flowState.currentPhase == nil)
         #expect(sessionStore.activeSessionId == "session-123")
     }
 }

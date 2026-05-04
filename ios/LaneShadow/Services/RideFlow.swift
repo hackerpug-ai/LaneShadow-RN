@@ -10,6 +10,36 @@ enum RideFlowPhaseKind: String, Equatable {
     case navigationExport = "NAVIGATION_EXPORT"
 }
 
+/// Canonical phase taxonomy for conversational planning flow.
+///
+/// Matches server-side phase names: parsing, searching, drafting, enriching, finalizing.
+enum Phase: String, Equatable, CaseIterable {
+    case parsing = "parsing"
+    case searching = "searching"
+    case drafting = "drafting"
+    case enriching = "enriching"
+    case finalizing = "finalizing"
+
+    /// Display label for UI
+    var label: String {
+        switch self {
+        case .parsing: "Parsing your request"
+        case .searching: "Searching routes"
+        case .drafting: "Drafting options"
+        case .enriching: "Enriching with details"
+        case .finalizing: "Finalizing your routes"
+        }
+    }
+
+    /// Initialize from backend status string
+    /// - Parameter status: Backend status string (e.g., "parsing", "searching")
+    /// - Returns: Matching Phase, or nil if status doesn't match canonical names
+    init?(fromStatus status: String?) {
+        guard let status else { return nil }
+        self.init(rawValue: status.lowercased())
+    }
+}
+
 struct PlannedRouteOptionBounds: Equatable, Codable {
     let north: Double
     let south: Double
@@ -119,7 +149,7 @@ struct IdleState: Equatable {
 struct PlanningState: Equatable {
     var sessionId: String
     var planId: String?
-    var currentPhase: String
+    var currentPhase: Phase?
     var routeOptions: PlannedRouteOptionsView?
     var selectedRouteId: String?
 
@@ -128,7 +158,7 @@ struct PlanningState: Equatable {
         routeOptions: PlannedRouteOptionsView? = nil,
         selectedRouteId: String? = nil,
         planId: String? = nil,
-        currentPhase: String = "analyzing"
+        currentPhase: Phase? = nil
     ) {
         self.sessionId = sessionId
         self.planId = planId
@@ -279,7 +309,7 @@ enum RideFlowPhase: Equatable {
         }
     }
 
-    var currentPhase: String? {
+    var currentPhase: Phase? {
         switch self {
         case let .planning(state):
             state.currentPhase

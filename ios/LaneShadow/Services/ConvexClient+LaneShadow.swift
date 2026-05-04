@@ -110,7 +110,7 @@ struct LaneShadowRoutePlanSnapshot: Decodable, Equatable {
     let id: String
     let status: String
     let statusMessage: String?
-    let phase: String?
+    let phase: Phase?
     let routeOptions: PlannedRouteOptionsView?
     let errorMessage: String?
 
@@ -121,6 +121,39 @@ struct LaneShadowRoutePlanSnapshot: Decodable, Equatable {
         case phase
         case routeOptions = "result"
         case errorMessage
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.status = try container.decode(String.self, forKey: .status)
+        self.statusMessage = try container.decodeIfPresent(String.self, forKey: .statusMessage)
+
+        // Decode phase string to Phase enum
+        if let phaseString = try container.decodeIfPresent(String.self, forKey: .phase) {
+            self.phase = Phase(fromStatus: phaseString)
+        } else {
+            self.phase = nil
+        }
+
+        self.routeOptions = try container.decodeIfPresent(PlannedRouteOptionsView.self, forKey: .routeOptions)
+        self.errorMessage = try container.decodeIfPresent(String.self, forKey: .errorMessage)
+    }
+
+    init(
+        id: String,
+        status: String,
+        statusMessage: String? = nil,
+        phase: Phase? = nil,
+        routeOptions: PlannedRouteOptionsView? = nil,
+        errorMessage: String? = nil
+    ) {
+        self.id = id
+        self.status = status
+        self.statusMessage = statusMessage
+        self.phase = phase
+        self.routeOptions = routeOptions
+        self.errorMessage = errorMessage
     }
 }
 

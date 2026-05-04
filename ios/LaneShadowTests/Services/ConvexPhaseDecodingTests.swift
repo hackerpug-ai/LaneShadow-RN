@@ -30,7 +30,7 @@ struct ConvexPhaseDecodingTests {
             }
             """
 
-            let jsonData = jsonString.data(using: .utf8)!
+            let jsonData = try #require(jsonString.data(using: .utf8))
             let decoder = JSONDecoder()
             let snapshot = try decoder.decode(LaneShadowRoutePlanSnapshot.self, from: jsonData)
 
@@ -58,7 +58,7 @@ struct ConvexPhaseDecodingTests {
             }
             """
 
-            let jsonData = jsonString.data(using: .utf8)!
+            let jsonData = try #require(jsonString.data(using: .utf8))
             let decoder = JSONDecoder()
             let snapshot = try decoder.decode(LaneShadowRoutePlanSnapshot.self, from: jsonData)
 
@@ -79,7 +79,7 @@ struct ConvexPhaseDecodingTests {
         }
         """
 
-        let jsonData = jsonString.data(using: .utf8)!
+        let jsonData = try #require(jsonString.data(using: .utf8))
         let decoder = JSONDecoder()
         let snapshot = try decoder.decode(LaneShadowRoutePlanSnapshot.self, from: jsonData)
 

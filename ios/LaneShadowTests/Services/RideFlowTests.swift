@@ -17,7 +17,7 @@ struct RideFlowTests {
 
         #expect(nextState.phase == .planning)
         #expect(nextState.sessionId == "session-123")
-        #expect(nextState.currentPhase == "analyzing")
+        #expect(nextState.currentPhase == nil)
         #expect(nextState.routeOptions == nil)
         #expect(nextState.selectedRouteId == nil)
     }
