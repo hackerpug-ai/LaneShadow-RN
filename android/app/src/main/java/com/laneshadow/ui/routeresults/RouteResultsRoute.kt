@@ -222,7 +222,6 @@ internal fun RouteResultsLoaded(
                                 pinned = true,
                                 onPin = null,
                                 onDismiss = onDismissAttachments,
-                                modifier = Modifier.testTag("route-results-navigator-message"),
                             )
                         }
 
