@@ -187,7 +187,7 @@ final class DesignReviewCaptureTests: XCTestCase {
     // MARK: - Additional Auth Screen States
 
     /// Captures auth-screen after email entry (light theme).
-    func test_authScreen_afterEmailEntry() throws {
+    func test_authScreen_afterEmailEntry() async throws {
         let credentials = try loadCredentials()
         AppLauncher.launchApp(app, resetAuth: true, e2eSignIn: true)
 
@@ -210,7 +210,7 @@ final class DesignReviewCaptureTests: XCTestCase {
     }
 
     /// Captures auth-screen with keyboard visible (light theme).
-    func test_authScreen_keyboardVisible() throws {
+    func test_authScreen_keyboardVisible() async throws {
         let credentials = try loadCredentials()
         AppLauncher.launchApp(app, resetAuth: true, e2eSignIn: true)
 
