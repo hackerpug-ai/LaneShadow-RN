@@ -335,7 +335,10 @@ public struct PlanningScreen: View {
     }
 
     private func liveContent(for liveState: PlanningScreenLiveState) -> some View {
-        let _ = NSLog("🔵 liveContent: phases=\(liveState.phases.count) isThinking=\(liveState.isThinking) messages=\(liveState.messages.count)")
+        let _ =
+            NSLog(
+                "🔵 liveContent: phases=\(liveState.phases.count) isThinking=\(liveState.isThinking) messages=\(liveState.messages.count)"
+            )
         return LSMapLayer(
             map: {
                 if liveState.shouldRenderMap {
@@ -368,7 +371,10 @@ public struct PlanningScreen: View {
     }
 
     private func livePhaseIndicatorView(for liveState: PlanningScreenLiveState) -> some View {
-        let _ = NSLog("🔵 livePhaseIndicatorView: phases.count=\(liveState.phases.count) errorMessage=\(liveState.errorMessage ?? "nil")")
+        let _ =
+            NSLog(
+                "🔵 livePhaseIndicatorView: phases.count=\(liveState.phases.count) errorMessage=\(liveState.errorMessage ?? "nil")"
+            )
         return VStack(alignment: .leading, spacing: 0) {
             LSPhaseIndicator(
                 phases: liveState.phases,
