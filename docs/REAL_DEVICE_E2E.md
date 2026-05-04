@@ -65,3 +65,70 @@ The app is launched with `-UITesting`. Clean auth setup is requested with `-Lane
 `android_e2e_auth_headed` remains the headed Android entry point. It starts the first configured emulator when no Android device is connected, installs the debug app by default, launches LaneShadow, then runs the configured auth instrumentation classes. Set `ANDROID_SERIAL=<adb-serial>` to target a specific connected device or `ANDROID_E2E_INSTALL=0` to skip reinstalling.
 
 Do not mark Android-only, Convex-dashboard, Clerk-dashboard, or other external observations PASS from iOS evidence alone. Record those steps as MANUAL or BLOCKED until a matching device artifact or deterministic machine artifact exists.
+
+## Design Review Capture Pipeline
+
+The design-review pipeline automates visual fidelity verification for iOS design-system views using a calibrated vision LLM. It replaces the brittle sandbox-snapshot parity infrastructure with a capture-eval-report loop driven by Claude Sonnet 4.6.
+
+**Strategy:** See [Design Review Pipeline](https://laneshadow.dev/blog/design-review-pipeline) for the full architecture and logical clock protocol.
+
+**Plan:** `~/.claude/plans/plan-a-design-review-logical-clock.md`
+
+**Sprint:** `.spec/prds/v3-integration/tasks/sprint-05-design-review-pipeline/`
+
+**Skill:** `~/.claude/skills/design-review/`
+
+### Pipeline Commands
+
+```bash
+# Step 1: Render reference PNGs from design HTML
+pnpm design:references
+
+# Step 2: Export screenshots from .xcresult bundle
+pnpm design:export
+
+# Step 3: Run Claude vision LLM eval on captured screenshots
+pnpm design:eval
+
+# Step 4: Full pipeline (capture → export → eval → report)
+pnpm design:review --screens auth-screen
+```
+
+### Pipeline Output
+
+The pipeline generates:
+
+- `.design-review/report.json` — Structured fix-oriented report with article §5 fields (screen, state, theme, component, severity, confidence, observed/expected, fix_hint, bounding_box, code_search_hint)
+- `.design-review/report.html` — Side-by-side reference vs captured layout with severity-color-coded issue lists
+- `.design-review/captures/` — Captured screenshots organized by screen/state/theme
+
+### Smoke Test Validation
+
+Sprint 05 validates the pipeline with a deliberate regression on iOS AuthScreen:
+
+1. Inject spacing regression: replace one `var(--space-4)` token usage with hardcoded `12.0` padding
+2. Run `pnpm design:review --screens auth-screen`
+3. Verify report.json flags the spacing issue at severity >= med with a `fix_hint` mentioning `--space-4`
+4. Revert the regression
+5. Re-run pipeline and confirm zero med+ issues
+
+See `scripts/design-review/__tests__/smoke-regression.test.ts` and `scripts/design-review/__tests__/smoke-clean.test.ts` for automated validation.
+
+### Sample Report
+
+A sanitized sample report is available at `.spec/design/calibration/sample-report.html` demonstrating the HTML output format with side-by-side comparison and severity-coded issue cards.
+
+## Coverage Scope
+
+The design-review pipeline is validated incrementally per sprint as real app code ships. Current coverage:
+
+| Screen | Status | Sprint |
+|--------|--------|--------|
+| auth-screen | ✅ Validated | Sprint 05 |
+| idle-screen | ⏳ Deferred | Sprint 06 |
+| planning-screen | ⏳ Deferred | Sprint 07 |
+| route-results-screen | ⏳ Deferred | Sprint 08 |
+| route-details-screen | ⏳ Deferred | Sprint 09 |
+| sessions-screen | ⏳ Deferred | Sprint 10 |
+
+**Note:** Only `auth-screen` has functional app code and pipeline validation as of Sprint 05. All other screens will be covered incrementally as their corresponding app screens ship in Sprints 06–10.
