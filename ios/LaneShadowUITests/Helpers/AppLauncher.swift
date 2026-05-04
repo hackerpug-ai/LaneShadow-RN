@@ -29,7 +29,9 @@ enum AppLauncher {
     private static func forwardRuntimeEnvironment(to app: XCUIApplication) {
         let environment = ProcessInfo.processInfo.environment
         let dotEnv = loadDotEnvLocal()
-        NSLog("🔵 AppLauncher: dotEnv has \(dotEnv.count) entries; CLERK_TEST_EMAIL present: \(dotEnv["CLERK_TEST_EMAIL"] != nil)")
+        NSLog(
+            "🔵 AppLauncher: dotEnv has \(dotEnv.count) entries; CLERK_TEST_EMAIL present: \(dotEnv["CLERK_TEST_EMAIL"] != nil)"
+        )
         for key in [
             "CLERK_PUBLISHABLE_KEY",
             "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY",
@@ -63,7 +65,8 @@ enum AppLauncher {
             var value = String(trimmed[trimmed.index(after: eq)...]).trimmingCharacters(in: .whitespaces)
             // Strip surrounding quotes
             if (value.hasPrefix("\"") && value.hasSuffix("\"")) ||
-               (value.hasPrefix("'") && value.hasSuffix("'")) {
+                (value.hasPrefix("'") && value.hasSuffix("'"))
+            {
                 value = String(value.dropFirst().dropLast())
             }
             result[key] = value

@@ -35,7 +35,9 @@ struct LaneShadowApp: App {
                             .task {
                                 NSLog("🟣 App.task: calling Clerk.shared.load()")
                                 try? await Clerk.shared.load()
-                                NSLog("🟣 App.task: Clerk.shared.load() returned, session=\(Clerk.shared.session != nil)")
+                                NSLog(
+                                    "🟣 App.task: Clerk.shared.load() returned, session=\(Clerk.shared.session != nil)"
+                                )
                             }
                     }
                 #else

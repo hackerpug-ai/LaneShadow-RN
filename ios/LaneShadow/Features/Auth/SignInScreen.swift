@@ -135,7 +135,9 @@ struct SignInScreen: View {
                                 clerkAuth: environment.clerkAuth,
                                 convexClient: environment.convexClient
                             )
-                            NSLog("🟢 E2E_HANDLER: completeAuthentication done, isAuthenticated=\(appState.isAuthenticated)")
+                            NSLog(
+                                "🟢 E2E_HANDLER: completeAuthentication done, isAuthenticated=\(appState.isAuthenticated)"
+                            )
                             if appState.isAuthenticated {
                                 viewModel.step = .signedIn
                             }

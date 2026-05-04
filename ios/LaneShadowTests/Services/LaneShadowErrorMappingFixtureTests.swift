@@ -1,7 +1,7 @@
 import ConvexMobile
-import XCTest
 import Foundation
 import Testing
+import XCTest
 @testable import LaneShadow
 
 @Suite("LaneShadow Error Mapping Fixture Tests")

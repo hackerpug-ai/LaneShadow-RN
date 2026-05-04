@@ -335,7 +335,8 @@ public struct PlanningScreen: View {
     }
 
     private func liveContent(for liveState: PlanningScreenLiveState) -> some View {
-        LSMapLayer(
+        let _ = NSLog("🔵 liveContent: phases=\(liveState.phases.count) isThinking=\(liveState.isThinking) messages=\(liveState.messages.count)")
+        return LSMapLayer(
             map: {
                 if liveState.shouldRenderMap {
                     mapView
@@ -367,18 +368,20 @@ public struct PlanningScreen: View {
     }
 
     private func livePhaseIndicatorView(for liveState: PlanningScreenLiveState) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
+        let _ = NSLog("🔵 livePhaseIndicatorView: phases.count=\(liveState.phases.count) errorMessage=\(liveState.errorMessage ?? "nil")")
+        return VStack(alignment: .leading, spacing: 0) {
             LSPhaseIndicator(
                 phases: liveState.phases,
                 header: "Planning your ride…",
                 showWarningChrome: liveState.errorMessage != nil
             )
-            .accessibilityIdentifier("planningscreen-phase-indicator")
 
             if let errorMessage = liveState.errorMessage {
                 liveErrorBanner(errorMessage)
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("planningscreen-phase-indicator")
     }
 
     private func liveBottomOverlay(for liveState: PlanningScreenLiveState) -> some View {
