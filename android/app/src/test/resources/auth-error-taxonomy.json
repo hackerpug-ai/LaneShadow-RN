@@ -50,11 +50,6 @@
     "mobile_mapping_target": "LowConfidenceParse"
   },
   {
-    "code": "NETWORK_TIMEOUT",
-    "description": "A network request timed out.",
-    "mobile_mapping_target": "NetworkTimeout"
-  },
-  {
     "code": "WEATHER_UNAVAILABLE",
     "description": "Weather data is currently unavailable.",
     "mobile_mapping_target": "WeatherUnavailable"

@@ -42,7 +42,6 @@ class LaneShadowErrorMapperFixtureTest {
                     "PlanNotFound" -> "PlanNotFound"
                     "RateLimitExceeded" -> "RateLimitExceeded"
                     "LowConfidenceParse" -> "LowConfidenceParse"
-                    "NetworkTimeout" -> "NetworkTimeout"
                     "WeatherUnavailable" -> "WeatherUnavailable"
                     "GenerationFailed" -> "GenerationFailed"
                     "AgenticParseFailed" -> "AgenticParseFailed"
@@ -82,8 +81,8 @@ class LaneShadowErrorMapperFixtureTest {
             object : TypeToken<List<FixtureEntry>>() {}.type,
         )
 
-        // Fixture has 19 entries (from spec)
-        assertThat(entries).hasSize(19)
+        // Fixture has 18 entries (NETWORK_TIMEOUT removed - it's a client-side IOException, not a server code)
+        assertThat(entries).hasSize(18)
     }
 
     @Test
