@@ -79,6 +79,7 @@
 		E598577D82A3CB9A09831FB6 /* LSTokenStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE0D6D9002157D332688E90 /* LSTokenStories.swift */; };
 		E59A273AD62956C2EFAC59C9 /* LSEmptyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A2AE4E90D3718200E3AB248 /* LSEmptyState.swift */; };
 		E868E14CF971E572F61A614E /* MoleculesStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */; };
+		E872DA0DBF9DC3119E9768F3 /* LSPhaseIndicatorSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22B52151DAEE95F0DEEB22 /* LSPhaseIndicatorSnapshotTests.swift */; };
 		EA035D37C13A73B7C213068C /* LSBottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4783B461B5B9EC6A5AA6F1DF /* LSBottomSheet.swift */; };
 		EB7EC54CA53EB7DEE5E84F0E /* LSFavoritePinDot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FC588254B2DE58F4742ED7 /* LSFavoritePinDot.swift */; };
 		ED9DF59A25970507B80D1720 /* MapboxMaps in Frameworks */ = {isa = PBXBuildFile; productRef = DA5E21A6F8345673A1101414 /* MapboxMaps */; };
@@ -173,6 +174,7 @@
 		D39ED1CA0F97B653166CA0A6 /* StoryIdFormatTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StoryIdFormatTests.swift; path = LaneShadowTests/Sandbox/StoryIdFormatTests.swift; sourceTree = "<group>"; };
 		D5107D4267204A230D572AB9 /* MarkdownTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextTests.swift; sourceTree = "<group>"; };
 		DA1BDF769396CF5EB37B55B9 /* LSFormFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFormFieldTests.swift; sourceTree = "<group>"; };
+		DC22B52151DAEE95F0DEEB22 /* LSPhaseIndicatorSnapshotTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LSPhaseIndicatorSnapshotTests.swift; path = LaneShadowTests/Sandbox/LSPhaseIndicatorSnapshotTests.swift; sourceTree = "<group>"; };
 		E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoleculesStories.swift; sourceTree = "<group>"; };
 		E444532E22B318AA5B8E61E2 /* LSToolbarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbarTests.swift; sourceTree = "<group>"; };
 		EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSLocationContextBar.swift; sourceTree = "<group>"; };
@@ -586,6 +588,7 @@
 				D39ED1CA0F97B653166CA0A6 /* StoryIdFormatTests.swift */,
 				705282C8C229EF916339541A /* MockProvidersPhaseTests.swift */,
 				B5E58B88FC6BC04305E5D75C /* ConvexPhaseDecodingTests.swift */,
+				DC22B52151DAEE95F0DEEB22 /* LSPhaseIndicatorSnapshotTests.swift */,
 			);
 			name = LaneShadowTests;
 			sourceTree = "<group>";
@@ -986,6 +989,7 @@
 				86FF656D05138D61E79D52A2 /* StoryIdFormatTests.swift in Sources */,
 				8660534C1F45DCD81CAD3B5E /* MockProvidersPhaseTests.swift in Sources */,
 				19F8E0C742B6435A67DD60D5 /* ConvexPhaseDecodingTests.swift in Sources */,
+				E872DA0DBF9DC3119E9768F3 /* LSPhaseIndicatorSnapshotTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -16,14 +16,15 @@ enum LSNavigatorMoleculesStories {
                 tier: .molecule,
                 component: "LSPhaseIndicator",
                 name: "Phase Indicator - In Progress",
-                summary: "Shows compass chip, narrator header, and multi-step phase list with active step animation"
+                summary: "Shows compass chip, narrator header, and 5-step canonical phase list with active step"
             ) { _ in
                 LSPhaseIndicator(
                     phases: [
-                        PlanningPhase(id: "1", label: "Understanding your request", state: .done),
-                        PlanningPhase(id: "2", label: "Searching routes", state: .active),
-                        PlanningPhase(id: "3", label: "Checking conditions", state: .pending),
-                        PlanningPhase(id: "4", label: "Evaluating options", state: .pending),
+                        PlanningPhase(id: "parsing", label: Phase.parsing.label, state: .done),
+                        PlanningPhase(id: "searching", label: Phase.searching.label, state: .active),
+                        PlanningPhase(id: "drafting", label: Phase.drafting.label, state: .pending),
+                        PlanningPhase(id: "enriching", label: Phase.enriching.label, state: .pending),
+                        PlanningPhase(id: "finalizing", label: Phase.finalizing.label, state: .pending),
                     ],
                     header: "Let me think on that…"
                 )
@@ -34,14 +35,15 @@ enum LSNavigatorMoleculesStories {
                 tier: .molecule,
                 component: "LSPhaseIndicator",
                 name: "Phase Indicator - All Done",
-                summary: "Shows completed state with all steps done and green top border"
+                summary: "Shows completed state with all 5 canonical steps done and green top border"
             ) { _ in
                 LSPhaseIndicator(
                     phases: [
-                        PlanningPhase(id: "1", label: "Understanding your request", state: .done),
-                        PlanningPhase(id: "2", label: "Searching routes", state: .done),
-                        PlanningPhase(id: "3", label: "Checking conditions", state: .done),
-                        PlanningPhase(id: "4", label: "Evaluating options", state: .done),
+                        PlanningPhase(id: "parsing", label: Phase.parsing.label, state: .done),
+                        PlanningPhase(id: "searching", label: Phase.searching.label, state: .done),
+                        PlanningPhase(id: "drafting", label: Phase.drafting.label, state: .done),
+                        PlanningPhase(id: "enriching", label: Phase.enriching.label, state: .done),
+                        PlanningPhase(id: "finalizing", label: Phase.finalizing.label, state: .done),
                     ],
                     header: "Found 3 great routes"
                 )
@@ -52,13 +54,15 @@ enum LSNavigatorMoleculesStories {
                 tier: .molecule,
                 component: "LSPhaseIndicator",
                 name: "Phase Indicator - All Pending",
-                summary: "Shows initial state with all steps pending"
+                summary: "Shows initial state with all 5 canonical steps pending"
             ) { _ in
                 LSPhaseIndicator(
                     phases: [
-                        PlanningPhase(id: "1", label: "Understanding your request", state: .pending),
-                        PlanningPhase(id: "2", label: "Searching routes", state: .pending),
-                        PlanningPhase(id: "3", label: "Checking conditions", state: .pending),
+                        PlanningPhase(id: "parsing", label: Phase.parsing.label, state: .pending),
+                        PlanningPhase(id: "searching", label: Phase.searching.label, state: .pending),
+                        PlanningPhase(id: "drafting", label: Phase.drafting.label, state: .pending),
+                        PlanningPhase(id: "enriching", label: Phase.enriching.label, state: .pending),
+                        PlanningPhase(id: "finalizing", label: Phase.finalizing.label, state: .pending),
                     ],
                     header: "Starting search…"
                 )
