@@ -23,6 +23,7 @@
     "storybook": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --clear",
     "storybook:ios": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo run:ios",
     "storybook:android": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo run:android",
+    "design:report": "pnpm tsx scripts/design-review/merge-report.ts",
     "prepare": "husky"
   },
   "dependencies": {
