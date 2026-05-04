@@ -1,0 +1,200 @@
+#!/usr/bin/env -S pnpm tsx
+
+/**
+ * run.ts
+ *
+ * Umbrella orchestrator for design review pipeline
+ *
+ * Usage: pnpm design:review [--screens=<screens>] [--severity-threshold=<level>] [--dry-run]
+ *
+ * Pipeline steps:
+ * 1. design:references - Render reference PNGs
+ * 2. xcodebuild test - Capture screenshots (manual step)
+ * 3. design:export - Export from xcresult
+ * 4. design:manifest - Build manifest
+ * 5. design:eval - Run visual eval
+ * 6. design:report - Merge reports
+ */
+
+import { spawn } from 'node:child_process'
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = __filename
+
+const ROOT_DIR = join(__dirname, '../..')
+const REPORT_JSON_PATH = join(ROOT_DIR, '.design-review/report.json')
+
+export interface DesignReviewIssue {
+  issue_id: string
+  screen: string
+  state: string
+  theme: string
+  component: string
+  issue_type: string
+  severity: string
+  confidence: number
+  observed: string
+  expected: string
+  location: { bounding_box: { x: number; y: number; width: number; height: number } }
+  fix_hint: string
+  design_token: string
+  code_search_hint: string
+}
+
+export interface DesignReviewSummary {
+  total: number
+  high: number
+  med: number
+  low: number
+  screens_passed: number
+  screens_failed: number
+}
+
+export interface DesignReport {
+  issues: DesignReviewIssue[]
+  summary: DesignReviewSummary
+}
+
+export interface RunOptions {
+  screens: string[]
+  severityThreshold: 'low' | 'med' | 'high'
+  dryRun: boolean
+}
+
+/**
+ * Run a pnpm script and wait for completion
+ */
+function runScript(scriptName: string, env: Record<string, string> = {}): Promise<void> {
+  return new Promise((resolve, reject) => {
+    console.log(`\n🔧 Running: pnpm ${scriptName}`)
+
+    const proc = spawn('pnpm', [scriptName], {
+      stdio: 'inherit',
+      env: { ...process.env, ...env },
+    })
+
+    proc.on('close', (code) => {
+      if (code === 0) {
+        resolve()
+      } else {
+        reject(new Error(`Script ${scriptName} exited with code ${code}`))
+      }
+    })
+
+    proc.on('error', (error) => {
+      reject(error)
+    })
+  })
+}
+
+/**
+ * Main orchestrator function
+ */
+export async function runDesignReview(options: RunOptions): Promise<DesignReport> {
+  const { screens, severityThreshold, dryRun } = options
+
+  // Default to auth-screen if no screens specified
+  const screensToProcess = screens.length > 0 ? screens : ['auth-screen']
+
+  console.log('🎨 Design Review Pipeline')
+  console.log(`   Screens: ${screensToProcess.join(', ')}`)
+  console.log(`   Severity: ${severityThreshold}`)
+  console.log(`   Dry Run: ${dryRun}`)
+
+  // Build environment with severity threshold
+  const env = {
+    DESIGN_REVIEW_SEVERITY: severityThreshold,
+  }
+
+  try {
+    // Step 1: Render references
+    await runScript('design:references', env)
+
+    // Step 2: Export from xcresult (skip if dry-run)
+    if (!dryRun) {
+      await runScript('design:export', env)
+    }
+
+    // Step 3: Build manifest
+    await runScript('design:manifest', env)
+
+    // Stop here if dry-run
+    if (dryRun) {
+      console.log('\n✅ Dry run complete (stopped after manifest)')
+      return {
+        issues: [],
+        summary: { total: 0, high: 0, med: 0, low: 0, screens_passed: 0, screens_failed: 0 },
+      }
+    }
+
+    // Step 4: Run visual eval
+    await runScript('design:eval', env)
+
+    // Step 5: Merge reports
+    await runScript('design:report', env)
+
+    // Load and parse report.json
+    if (!existsSync(REPORT_JSON_PATH)) {
+      throw new Error(`Report not found: ${REPORT_JSON_PATH}`)
+    }
+
+    const reportContent = readFileSync(REPORT_JSON_PATH, 'utf-8')
+    const report = JSON.parse(reportContent) as DesignReport
+
+    console.log('\n✅ Design review complete')
+    console.log(`   Total issues: ${report.summary.total}`)
+    console.log(
+      `   High: ${report.summary.high}, Med: ${report.summary.med}, Low: ${report.summary.low}`,
+    )
+
+    return report
+  } catch (error) {
+    console.error('\n❌ Pipeline failed:', error)
+    throw error
+  }
+}
+
+/**
+ * CLI entry point
+ */
+async function main() {
+  const args = process.argv.slice(2)
+
+  // Parse CLI flags
+  const options: RunOptions = {
+    screens: [],
+    severityThreshold: 'med',
+    dryRun: false,
+  }
+
+  for (const arg of args) {
+    if (arg.startsWith('--screens=')) {
+      options.screens = arg.split('=')[1].split(',')
+    } else if (arg.startsWith('--severity-threshold=')) {
+      const severity = arg.split('=')[1] as 'low' | 'med' | 'high'
+      if (severity === 'low' || severity === 'med' || severity === 'high') {
+        options.severityThreshold = severity
+      }
+    } else if (arg === '--dry-run') {
+      options.dryRun = true
+    }
+  }
+
+  try {
+    await runDesignReview(options)
+    process.exit(0)
+  } catch (error) {
+    console.error('Fatal error:', error)
+    process.exit(1)
+  }
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((error) => {
+    console.error('❌ Design review failed:', error)
+    process.exit(1)
+  })
+}

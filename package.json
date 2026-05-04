@@ -24,7 +24,13 @@
     "storybook": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo start --clear",
     "storybook:ios": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo run:ios",
     "storybook:android": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo run:android",
+    "design:references": "pnpm tsx scripts/design-review/render-references.ts",
+    "design:export": "pnpm tsx scripts/design-review/export-from-xcresult.ts",
+    "design:manifest": "pnpm tsx scripts/design-review/build-manifest.ts",
+    "design:eval": "pnpm tsx scripts/design-review/visual-eval.ts",
     "design:report": "pnpm tsx scripts/design-review/merge-report.ts",
+    "design:review": "pnpm tsx scripts/design-review/run.ts",
+    "design:calibrate": "pnpm tsx scripts/design-review/calibrate.ts",
     "prepare": "husky"
   },
   "dependencies": {
