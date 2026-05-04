@@ -259,6 +259,28 @@ export const cancelPlanHandler = async (
 // to avoid Convex/TS circular inference issues.
 const _internalRoutePlans = (internal as any).db.routePlans
 
+// Shared validator for route plan returns
+const routePlanReturnValidator = v.object({
+  _id: v.id('route_plans'),
+  _creationTime: v.number(),
+  clerkUserId: v.string(),
+  planningSessionId: v.optional(v.id('planning_sessions')),
+  planInput: planInputValidator,
+  startLabel: v.optional(v.string()),
+  endLabel: v.optional(v.string()),
+  status: routePlanStatusValidator,
+  statusMessage: v.optional(v.string()),
+  phase: v.optional(routePlanPhaseValidator),
+  result: v.optional(v.any()), // intentional — complex variable shape
+  errorCode: v.optional(v.string()),
+  errorMessage: v.optional(v.string()),
+  scheduledActionId: v.optional(v.id('_scheduled_functions')),
+  createdAt: v.number(),
+  updatedAt: v.number(),
+  completedAt: v.optional(v.number()),
+  acknowledged: v.optional(v.boolean()),
+})
+
 export const createPlan = mutation({
   args: {
     planInput: planInputValidator,
@@ -274,7 +296,7 @@ export const createPlan = mutation({
 
 export const getActivePlan = query({
   args: {},
-  returns: v.union(v.null(), v.any()),
+  returns: v.union(v.null(), routePlanReturnValidator),
   handler: async (ctx): Promise<RoutePlanDoc | null> => {
     const { clerkUserId } = await requireIdentity(ctx)
     return getActivePlanHandler(ctx as any, clerkUserId)
@@ -283,26 +305,7 @@ export const getActivePlan = query({
 
 export const getPlanById = query({
   args: { routePlanId: v.id('route_plans') },
-  returns: v.object({
-    _id: v.id('route_plans'),
-    _creationTime: v.number(),
-    clerkUserId: v.string(),
-    planningSessionId: v.optional(v.id('planning_sessions')),
-    planInput: planInputValidator,
-    startLabel: v.optional(v.string()),
-    endLabel: v.optional(v.string()),
-    status: routePlanStatusValidator,
-    statusMessage: v.optional(v.string()),
-    phase: v.optional(routePlanPhaseValidator),
-    result: v.optional(v.any()),
-    errorCode: v.optional(v.string()),
-    errorMessage: v.optional(v.string()),
-    scheduledActionId: v.optional(v.id('_scheduled_functions')),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-    completedAt: v.optional(v.number()),
-    acknowledged: v.optional(v.boolean()),
-  }),
+  returns: routePlanReturnValidator,
   handler: async (ctx, args): Promise<RoutePlanDoc> => {
     const { clerkUserId } = await requireIdentity(ctx)
     return getPlanByIdHandler(ctx as any, args, clerkUserId)
@@ -393,7 +396,7 @@ export const createForAgentInternal = internalMutation({
 
 export const getPlanByIdInternal = internalQuery({
   args: { routePlanId: v.id('route_plans') },
-  returns: v.union(v.any(), v.null()),
+  returns: v.union(routePlanReturnValidator, v.null()),
   handler: async (ctx, args): Promise<RoutePlanDoc | null> => {
     return ctx.db.get(args.routePlanId)
   },
