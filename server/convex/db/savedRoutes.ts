@@ -172,6 +172,7 @@ export const insertHandler = async (
     planInput: args.planInput,
     routeSnapshot: args.routeSnapshot,
     routeIndex: args.routeIndex,
+    routeFingerprint: args.routeIndex.routeFingerprint,
     snapshotMeta: args.snapshotMeta,
     routeProvenance: args.routeProvenance,
     createdAt: now,
@@ -493,16 +494,16 @@ export const getRouteIndexFingerprint = query({
   handler: async (ctx, args): Promise<{ isSaved: boolean; savedRouteId?: Id<'saved_routes'> }> => {
     const { clerkUserId } = await requireIdentity(ctx)
 
-    // Scope to user's routes first using existing index
-    const userRoutes = await ctx.db
+    // Use composite index for efficient lookup: ownerType + ownerId + routeFingerprint
+    const match = await ctx.db
       .query('saved_routes')
-      .withIndex('by_ownerType_and_ownerId', (q) =>
-        q.eq('ownerType', OWNER_TYPE.USER).eq('ownerId', clerkUserId),
+      .withIndex('by_ownerType_ownerId_routeFingerprint', (q) =>
+        q
+          .eq('ownerType', OWNER_TYPE.USER)
+          .eq('ownerId', clerkUserId)
+          .eq('routeFingerprint', args.routeIndex),
       )
-      .collect()
-
-    // Find matching route by fingerprint (not scanning all routes, just user's routes)
-    const match = userRoutes.find((route) => route.routeIndex.routeFingerprint === args.routeIndex)
+      .first()
 
     if (!match || shouldExcludeFromList(match)) {
       return { isSaved: false }

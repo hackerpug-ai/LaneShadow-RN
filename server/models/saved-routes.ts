@@ -381,6 +381,7 @@ export const savedRouteValidator = v.object({
   planInput: planInputValidator,
   routeSnapshot: routeSnapshotValidator,
   routeIndex: routeIndexValidator,
+  routeFingerprint: v.optional(v.string()),
   snapshotMeta: snapshotMetaValidator,
   routeProvenance: v.optional(routeProvenanceValidator),
   createdAt: v.number(),

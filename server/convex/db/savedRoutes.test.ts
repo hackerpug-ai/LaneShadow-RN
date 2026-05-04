@@ -23,7 +23,7 @@ describe('getRouteIndexFingerprint query (AC-1)', () => {
 // ---------------------------------------------------------------------------
 
 describe('schema composite index (AC-5)', () => {
-  test('should define by_ownerType_ownerId_routeIndex index on saved_routes', async () => {
+  test('should define by_ownerType_ownerId_routeFingerprint index on saved_routes', async () => {
     // Verify the schema file contains the index definition
     const fs = await import('node:fs')
     const schemaContent = fs.readFileSync(
@@ -31,31 +31,35 @@ describe('schema composite index (AC-5)', () => {
       'utf-8',
     )
 
-    // Check that the composite index is defined
-    expect(schemaContent).toContain('by_ownerType_ownerId_routeIndex')
-    expect(schemaContent).toContain("['ownerType', 'ownerId', 'routeIndex']")
+    // Check that the composite index is defined on routeFingerprint (not routeIndex object)
+    expect(schemaContent).toContain('by_ownerType_ownerId_routeFingerprint')
+    expect(schemaContent).toContain("['ownerType', 'ownerId', 'routeFingerprint']")
   })
 
-  test('handler should use withIndex for user scoping, then find by fingerprint', async () => {
+  test('handler should use withIndex with composite index for efficient lookup', async () => {
     const fs = await import('node:fs')
     const moduleContent = fs.readFileSync(
       '/Users/justinrich/Projects/LaneShadow/server/convex/db/savedRoutes.ts',
       'utf-8',
     )
 
-    // Verify getRouteIndexFingerprint uses withIndex for user scoping
+    // Verify getRouteIndexFingerprint uses withIndex with the composite index
     const getRouteIndexFingerprintMatch = moduleContent.match(
       /export const getRouteIndexFingerprint = query\([\s\S]*?\n\}\)/,
     )
     expect(getRouteIndexFingerprintMatch).toBeTruthy()
     const handlerCode = getRouteIndexFingerprintMatch![0]
 
-    // Should use withIndex to scope to user (not scan all routes)
+    // Should use withIndex with the composite index (not the 2-field index + in-memory find)
     expect(handlerCode).toContain('.withIndex(')
-    expect(handlerCode).toContain('by_ownerType_and_ownerId')
+    expect(handlerCode).toContain('by_ownerType_ownerId_routeFingerprint')
+    expect(handlerCode).toContain(".eq('ownerType', OWNER_TYPE.USER)")
+    expect(handlerCode).toContain(".eq('ownerId', clerkUserId)")
+    expect(handlerCode).toContain(".eq('routeFingerprint', args.routeIndex)")
 
-    // Should match on routeFingerprint field
-    expect(handlerCode).toContain('routeFingerprint')
+    // Should NOT use in-memory .find() on routeIndex
+    expect(handlerCode).not.toContain('.find(')
+    expect(handlerCode).not.toContain('routeIndex.routeFingerprint')
   })
 })
 
