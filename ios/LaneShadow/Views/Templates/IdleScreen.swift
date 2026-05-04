@@ -128,15 +128,15 @@ public struct IdleScreen: View {
                 HStack(alignment: .top, spacing: 0) {
                     // Left border stripe (rain color)
                     Rectangle()
-                        .fill(Color.blue.opacity(0.6)) // Fallback for wx.rain
-                        .frame(width: 4) // Fallback for borderWidth.lg
+                        .fill(LaneShadowTheme.color.status.warning.default.opacity(0.6))
+                        .frame(width: 4)
 
                     // Content area
                     VStack(alignment: .leading, spacing: theme.space.sm) {
                         // Label
                         Text(advisory.label)
                             .font(theme.type.label.sm.font)
-                            .foregroundStyle(Color.blue.opacity(0.8)) // Fallback for wx.rain
+                            .foregroundStyle(LaneShadowTheme.color.status.warning.default.opacity(0.8))
 
                         // Body
                         Text(advisory.body)
@@ -147,7 +147,7 @@ public struct IdleScreen: View {
                     .padding(theme.space.md)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(
-                        Color.blue.opacity(0.1) // Fallback for wx.rain.tint
+                        LaneShadowTheme.color.status.warning.tint
                     )
                 }
                 .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))

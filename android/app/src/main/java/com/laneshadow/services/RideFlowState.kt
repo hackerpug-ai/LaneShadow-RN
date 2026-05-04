@@ -73,10 +73,10 @@ sealed interface RideFlowState {
     ) : RideFlowState, WithSession
 
     data class Error(
-        val sessionId: String?,
+        override val sessionId: String = "",
         val message: String,
         val timestamp: Long,
-    ) : RideFlowState
+    ) : RideFlowState, WithSession
 
     data class RouteResults(
         override val sessionId: String,

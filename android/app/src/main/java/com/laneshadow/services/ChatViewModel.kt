@@ -279,7 +279,6 @@ class ChatViewModel @Inject constructor(
     private fun persistSessionId(state: RideFlowState) {
         val sessionId = when (state) {
             is RideFlowState.WithSession -> state.sessionId
-            is RideFlowState.Error -> state.sessionId
             is RideFlowState.Idle -> state.sessionId
         }
         if (sessionId == null) {
