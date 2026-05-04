@@ -22,6 +22,7 @@ import { VisualIssueSchema } from './schemas/visual-issue.zod'
 const MANIFEST_PATH = '.design-review/manifest.json'
 const OUTPUT_DIR = '.design-review/evals/visual'
 const PROMPT_PATH = 'scripts/design-review/prompts/visual-eval.md'
+const LOCKED_PROMPT_PATH = 'scripts/design-review/prompts/visual-eval.locked.md'
 const CONCURRENCY = Number(process.env.DESIGN_REVIEW_CONCURRENCY) || 3
 
 interface ManifestEntry {
@@ -67,8 +68,13 @@ interface EvalResult {
 
 /**
  * Load the system prompt from disk
+ * AC-5: Reads from locked prompt when present, falls back to base prompt
  */
 function loadSystemPrompt(): string {
+  // Prefer locked prompt if it exists
+  if (existsSync(LOCKED_PROMPT_PATH)) {
+    return readFileSync(LOCKED_PROMPT_PATH, 'utf-8')
+  }
   if (!existsSync(PROMPT_PATH)) {
     throw new Error(`Prompt file not found: ${PROMPT_PATH}`)
   }

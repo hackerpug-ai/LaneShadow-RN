@@ -1,0 +1,258 @@
+{
+  "entries": [
+    {
+      "id": "cal-001",
+      "screen": "auth-screen",
+      "state": "default",
+      "theme": "dark",
+      "reference_image": ".spec/design/system/refs/auth-screen/default.dark.png",
+      "test_image": ".spec/design/system/refs/auth-screen/default.dark.png",
+      "annotations": ".spec/design/system/refs/auth-screen/default.annotations.json",
+      "ground_truth": {
+        "issues": [],
+        "expected_verdict": "pass"
+      }
+    },
+    {
+      "id": "cal-002",
+      "screen": "auth-screen",
+      "state": "email-entry",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/auth-screen/email-entry.light.png",
+      "test_image": ".spec/design/system/refs/auth-screen/email-entry.light.png",
+      "annotations": ".spec/design/system/refs/auth-screen/email-entry.annotations.json",
+      "ground_truth": {
+        "issues": [],
+        "expected_verdict": "pass"
+      }
+    },
+    {
+      "id": "cal-003",
+      "screen": "idle-screen",
+      "state": "default",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/idle-screen/default.light.png",
+      "test_image": ".spec/design/system/refs/idle-screen/default.light.png",
+      "annotations": ".spec/design/system/refs/idle-screen/default.annotations.json",
+      "ground_truth": {
+        "issues": [],
+        "expected_verdict": "pass"
+      }
+    },
+    {
+      "id": "cal-004",
+      "screen": "idle-screen",
+      "state": "first-ride",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/idle-screen/first-ride.light.png",
+      "test_image": ".spec/design/system/refs/idle-screen/first-ride.light.png",
+      "annotations": ".spec/design/system/refs/idle-screen/first-ride.annotations.json",
+      "ground_truth": {
+        "issues": [],
+        "expected_verdict": "pass"
+      }
+    },
+    {
+      "id": "cal-005",
+      "screen": "sessions-screen",
+      "state": "default",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/sessions-screen/default.light.png",
+      "test_image": ".spec/design/system/refs/sessions-screen/default.light.png",
+      "annotations": ".spec/design/system/refs/sessions-screen/default.annotations.json",
+      "ground_truth": {
+        "issues": [],
+        "expected_verdict": "pass"
+      }
+    },
+    {
+      "id": "cal-006",
+      "screen": "sessions-screen",
+      "state": "empty",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/sessions-screen/empty.light.png",
+      "test_image": ".spec/design/system/refs/sessions-screen/empty.light.png",
+      "annotations": ".spec/design/system/refs/sessions-screen/empty.annotations.json",
+      "ground_truth": {
+        "issues": [],
+        "expected_verdict": "pass"
+      }
+    },
+    {
+      "id": "cal-007",
+      "screen": "route-details-screen",
+      "state": "default",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/route-details-screen/default.light.png",
+      "test_image": ".spec/design/system/refs/route-details-screen/default.light.png",
+      "annotations": ".spec/design/system/refs/route-details-screen/default.annotations.json",
+      "ground_truth": {
+        "issues": [],
+        "expected_verdict": "pass"
+      }
+    },
+    {
+      "id": "cal-008",
+      "screen": "route-details-screen",
+      "state": "saved-state",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/route-details-screen/saved-state.light.png",
+      "test_image": ".spec/design/system/refs/route-details-screen/saved-state.light.png",
+      "annotations": ".spec/design/system/refs/route-details-screen/saved-state.annotations.json",
+      "ground_truth": {
+        "issues": [],
+        "expected_verdict": "pass"
+      }
+    },
+    {
+      "id": "cal-009",
+      "screen": "auth-screen",
+      "state": "default",
+      "theme": "dark",
+      "reference_image": ".spec/design/system/refs/auth-screen/default.dark.png",
+      "test_image": ".spec/design/system/refs/auth-screen/default.dark.png",
+      "annotations": ".spec/design/system/refs/auth-screen/default.annotations.json",
+      "ground_truth": {
+        "issues": [
+          {
+            "component": "mol-social-btn-0",
+            "issue_type": "spacing",
+            "severity": "med"
+          }
+        ],
+        "expected_verdict": "fail"
+      }
+    },
+    {
+      "id": "cal-010",
+      "screen": "auth-screen",
+      "state": "new-user-create-account",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/auth-screen/new-user-create-account.light.png",
+      "test_image": ".spec/design/system/refs/auth-screen/new-user-create-account.light.png",
+      "annotations": ".spec/design/system/refs/auth-screen/new-user-create-account.annotations.json",
+      "ground_truth": {
+        "issues": [
+          {
+            "component": "mol-form-field-0",
+            "issue_type": "color",
+            "severity": "high"
+          }
+        ],
+        "expected_verdict": "fail"
+      }
+    },
+    {
+      "id": "cal-011",
+      "screen": "idle-screen",
+      "state": "typing-send",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/idle-screen/typing-send.light.png",
+      "test_image": ".spec/design/system/refs/idle-screen/typing-send.light.png",
+      "annotations": ".spec/design/system/refs/idle-screen/typing-send.annotations.json",
+      "ground_truth": {
+        "issues": [
+          {
+            "component": "ls-input-0",
+            "issue_type": "typography",
+            "severity": "med"
+          }
+        ],
+        "expected_verdict": "fail"
+      }
+    },
+    {
+      "id": "cal-012",
+      "screen": "sessions-screen",
+      "state": "scrolled",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/sessions-screen/scrolled.light.png",
+      "test_image": ".spec/design/system/refs/sessions-screen/scrolled.light.png",
+      "annotations": ".spec/design/system/refs/sessions-screen/scrolled.annotations.json",
+      "ground_truth": {
+        "issues": [
+          {
+            "component": "ls-btn-0",
+            "issue_type": "overflow",
+            "severity": "high"
+          }
+        ],
+        "expected_verdict": "fail"
+      }
+    },
+    {
+      "id": "cal-013",
+      "screen": "idle-screen",
+      "state": "no-location",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/idle-screen/no-location.light.png",
+      "test_image": ".spec/design/system/refs/idle-screen/no-location.light.png",
+      "annotations": ".spec/design/system/refs/idle-screen/no-location.annotations.json",
+      "ground_truth": {
+        "issues": [
+          {
+            "component": "ls-text-0",
+            "issue_type": "placement",
+            "severity": "med"
+          },
+          {
+            "component": "ls-icon-0",
+            "issue_type": "missing",
+            "severity": "high"
+          }
+        ],
+        "expected_verdict": "fail"
+      }
+    },
+    {
+      "id": "cal-014",
+      "screen": "idle-screen",
+      "state": "filter-sheet",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/idle-screen/filter-sheet.light.png",
+      "test_image": ".spec/design/system/refs/idle-screen/filter-sheet.light.png",
+      "annotations": ".spec/design/system/refs/idle-screen/filter-sheet.annotations.json",
+      "ground_truth": {
+        "issues": [
+          {
+            "component": "ls-btn-0",
+            "issue_type": "spacing",
+            "severity": "med"
+          },
+          {
+            "component": "ls-text-1",
+            "issue_type": "typography",
+            "severity": "low"
+          }
+        ],
+        "expected_verdict": "fail"
+      }
+    },
+    {
+      "id": "cal-015",
+      "screen": "route-details-screen",
+      "state": "medium-detent",
+      "theme": "light",
+      "reference_image": ".spec/design/system/refs/route-details-screen/medium-detent.light.png",
+      "test_image": ".spec/design/system/refs/route-details-screen/medium-detent.light.png",
+      "annotations": ".spec/design/system/refs/route-details-screen/medium-detent.annotations.json",
+      "ground_truth": {
+        "issues": [
+          {
+            "component": "ls-icon-0",
+            "issue_type": "missing",
+            "severity": "high"
+          }
+        ],
+        "expected_verdict": "fail"
+      }
+    }
+  ],
+  "metadata": {
+    "total_entries": 15,
+    "passing_count": 8,
+    "single_issue_count": 5,
+    "multi_issue_count": 2,
+    "issue_types": ["spacing", "color", "typography", "overflow", "placement", "missing"]
+  }
+}
