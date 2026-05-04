@@ -622,6 +622,8 @@ final class RootViewTestsConvexTransport: LaneShadowConvexTransporting {
 
         return try? JSONDecoder().decode(String.self, from: data)
     }
+
+    func triggerAuthRefresh() async {}
 }
 
 private extension LaneShadowCurrentUser {

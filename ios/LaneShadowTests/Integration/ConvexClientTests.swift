@@ -82,6 +82,8 @@ struct ConvexClientTests {
         ) async throws {
             _ = endpoint
         }
+
+        func triggerAuthRefresh() async {}
     }
 
     actor FakeClerkJWTProvider: LaneShadowClerkJWTProviding {

@@ -372,6 +372,11 @@ protocol LaneShadowConvexTransporting {
         _ endpoint: String,
         with args: [String: ConvexEncodable?]?
     ) async throws
+
+    /// Trigger Convex SDK to re-pull the auth token via the configured
+    /// auth provider. Necessary after replacing the token provider on a
+    /// running client; otherwise Convex never invokes the new provider.
+    func triggerAuthRefresh() async
 }
 
 private final class LiveLaneShadowConvexTransport: LaneShadowConvexTransporting {
@@ -416,6 +421,21 @@ private final class LiveLaneShadowConvexTransport: LaneShadowConvexTransporting 
     ) async throws {
         try await client.action(endpoint, with: args)
     }
+
+    func triggerAuthRefresh() async {
+        // Convex's ConvexClientWithAuth.loginFromCache invokes
+        // authProvider.loginFromCache, which in our implementation calls
+        // currentToken() → tokenProvider() → ClerkAuth.convexJWT(). This
+        // is the supported way to make Convex actually start using a
+        // newly-installed token provider.
+        let result = await client.loginFromCache()
+        switch result {
+        case .success:
+            NSLog("🟪 ConvexTransport.triggerAuthRefresh: loginFromCache success")
+        case let .failure(error):
+            NSLog("❌ ConvexTransport.triggerAuthRefresh: loginFromCache failed \(error.localizedDescription)")
+        }
+    }
 }
 
 final class LaneShadowConvexClient: @unchecked Sendable {
@@ -446,9 +466,20 @@ final class LaneShadowConvexClient: @unchecked Sendable {
     }
 
     func setAuth(clerkJWTProvider: any LaneShadowClerkJWTProviding) async {
-        await authProvider.setAuthTokenProvider {
-            try await clerkJWTProvider.convexJWT()
+        NSLog("🟪 LaneShadowConvexClient.setAuth(clerkJWTProvider:): installing token provider")
+        await authProvider.setAuthTokenProvider { @MainActor in
+            NSLog("🟪 LaneShadowConvexClient: tokenProvider invoked → calling convexJWT")
+            let token = try await clerkJWTProvider.convexJWT()
+            NSLog("🟪 LaneShadowConvexClient: tokenProvider got \(token != nil ? "<token>" : "nil")")
+            return token
         }
+        // Replacing the token provider on the auth box doesn't make
+        // Convex's SDK re-fetch a JWT — it has its own auth-state
+        // machine. Trigger loginFromCache to make the SDK call our
+        // provider and propagate the JWT to the underlying ffi client.
+        // Without this, all subsequent mutations fail UNAUTHENTICATED
+        // because Convex never asks for the new token.
+        await transport.triggerAuthRefresh()
     }
 
     func logout() async throws {

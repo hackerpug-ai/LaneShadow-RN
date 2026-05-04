@@ -36,26 +36,33 @@ final class AppState {
     }
 
     func updateAuthenticationState(from clerkAuth: ClerkAuth) {
+        let hadSession = hasClerkSession
         hasClerkSession = clerkAuth.currentUser != nil
+        NSLog("🟠 AppState.updateAuthState: hasClerkSession \(hadSession) → \(hasClerkSession)")
         if !hasClerkSession {
             clearAuthenticatedState(authRoute: .signIn)
         }
     }
 
     func completeAuthentication(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
+        NSLog("🟠 AppState.completeAuth: enter clerkUserId=\(clerkAuth.currentUser?.id ?? "nil")")
         updateAuthenticationState(from: clerkAuth)
         guard hasClerkSession else {
+            NSLog("🟠 AppState.completeAuth: guard fail (no clerk session); exit")
             return
         }
 
         isHydratingCurrentUser = true
         authMessage = nil
+        NSLog("🟠 AppState.completeAuth: setAuth start")
         await convexClient.setAuth(clerkJWTProvider: clerkAuth)
+        NSLog("🟠 AppState.completeAuth: setAuth done; routeAuthenticatedWithoutHydratedProfile")
         routeAuthenticatedWithoutHydratedProfile()
 
         do {
             let hydratedUser = try await convexClient.fetchCurrentUser(notifyUnauthenticated: false)
             guard let hydratedUser else {
+                NSLog("🟠 AppState.completeAuth: fetchCurrentUser nil; exit")
                 isHydratingCurrentUser = false
                 return
             }
@@ -67,8 +74,10 @@ final class AppState {
             if appRoute == nil {
                 appRoute = .home
             }
+            NSLog("🟠 AppState.completeAuth: hydrated ok; isAuthenticated=true")
         } catch {
             let laneShadowError = LaneShadowError.map(error)
+            NSLog("❌ AppState.completeAuth: fetchCurrentUser threw \(laneShadowError.localizedDescription) isUnauth=\(laneShadowError.isUnauthenticated)")
             if laneShadowError.isUnauthenticated {
                 authMessage = "Unable to load rider profile."
             } else {
@@ -77,6 +86,7 @@ final class AppState {
         }
 
         isHydratingCurrentUser = false
+        NSLog("🟠 AppState.completeAuth: exit hasClerkSession=\(hasClerkSession) isAuthenticated=\(isAuthenticated)")
     }
 
     func restoreAuthentication(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
@@ -90,23 +100,29 @@ final class AppState {
     }
 
     func signOut(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
+        NSLog("🟠 AppState.signOut: enter")
         try? await clerkAuth.signOut()
         try? await convexClient.logout()
         clearAuthenticatedState(authRoute: .signIn)
+        NSLog("🟠 AppState.signOut: exit")
     }
 
     func signOutFlow(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
+        NSLog("🟠 AppState.signOutFlow: enter")
         clerkAuth.clearLocalSession()
         try? await convexClient.logout()
         handleUnauthenticatedConvexError()
+        NSLog("🟠 AppState.signOutFlow: exit")
     }
 
     func handleUnauthenticatedConvexError() {
+        NSLog("🟠 AppState.handleUnauthenticatedConvexError(sync): clearing auth")
         clearAuthenticatedState(authRoute: .signIn)
         authMessage = LaneShadowError.unauthenticated.localizedDescription
     }
 
     func handleUnauthenticatedConvexError(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
+        NSLog("🟠 AppState.handleUnauthenticatedConvexError(async): firing signOutFlow")
         await signOutFlow(clerkAuth: clerkAuth, convexClient: convexClient)
     }
 
@@ -156,6 +172,7 @@ final class AppState {
     }
 
     private func clearAuthenticatedState(authRoute route: AuthRoute?) {
+        NSLog("🟠 AppState.clearAuthenticatedState: hasClerkSession \(hasClerkSession) → false; route=\(String(describing: route))")
         isAuthenticated = false
         hasClerkSession = false
         isHydratingCurrentUser = false
@@ -166,6 +183,7 @@ final class AppState {
     }
 
     private func routeAuthenticatedWithoutHydratedProfile(message: String? = nil) {
+        NSLog("🟠 AppState.routeAuthenticatedWithoutHydratedProfile: hasClerkSession→true isAuthenticated→true")
         isAuthenticated = true
         hasClerkSession = true
         currentUser = nil

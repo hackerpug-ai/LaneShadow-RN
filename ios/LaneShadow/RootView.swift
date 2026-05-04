@@ -1,3 +1,4 @@
+import Clerk
 import SwiftUI
 
 struct RootView: View {
@@ -8,6 +9,7 @@ struct RootView: View {
 
     @Bindable var convexStore: ConvexStore
     @State private var appState: AppState
+    @State private var hasBootstrappedAuth = false
     @Environment(\.appEnvironment) private var appEnvironment
     #if DEBUG
         @State private var didHandleUITestResetAuth = false
@@ -20,7 +22,9 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if activeFlow == .app {
+            if !hasBootstrappedAuth {
+                authBootstrapPlaceholder
+            } else if activeFlow == .app {
                 authenticatedFlow
             } else {
                 AuthFlowView(
@@ -30,27 +34,44 @@ struct RootView: View {
                 )
             }
         }
-        .onAppear {
-            appState.updateAuthenticationState(from: appEnvironment.clerkAuth)
-        }
-        .task(id: appEnvironment.clerkAuth.currentUser?.id) {
+        .task {
+            // Bootstrap-only — runs ONCE on view appear. Do NOT key this
+            // on `clerkAuth.currentUser?.id`: keying caused SwiftUI to
+            // cancel and re-fire the task whenever signIn/signOut mutated
+            // currentUser, which then ran `completeAuthentication`
+            // concurrently with the explicit calls inside the signIn
+            // handlers. That race produced the visible flash between
+            // login and the "good morning" landing after the user tapped
+            // the E2E sign-in button. All signIn/signUp/OAuth callback
+            // paths already invoke `appState.completeAuthentication`
+            // themselves, so this task only owns initial bootstrap.
+            NSLog("🟣 RootView.task: bootstrap start")
             await registerConvexUnauthenticatedHandler(
                 clerkAuth: appEnvironment.clerkAuth,
                 convexClient: appEnvironment.convexClient
             )
             #if DEBUG
-                if await resetAuthForUITestingIfNeeded(
+                let didReset = await resetAuthForUITestingIfNeeded(
                     clerkAuth: appEnvironment.clerkAuth,
                     convexClient: appEnvironment.convexClient
-                ) {
-                    return
-                }
+                )
+                NSLog("🟣 RootView.task: resetAuth didRun=\(didReset)")
             #endif
             await synchronizeAuthentication()
+            NSLog("🟣 RootView.task: synchronizeAuthentication done; hasClerkSession=\(appState.hasClerkSession)")
+            hasBootstrappedAuth = true
         }
         .onOpenURL { url in
             handleSystemOpenURL(url)
         }
+    }
+
+    private var authBootstrapPlaceholder: some View {
+        ZStack {
+            Color(.systemBackground).ignoresSafeArea()
+            ProgressView()
+        }
+        .accessibilityIdentifier("auth.bootstrap.loading")
     }
 
     var activeFlow: ActiveFlow {
@@ -66,10 +87,6 @@ struct RootView: View {
             case .home, .none:
                 AuthenticatedLandingView(
                     environment: appEnvironment,
-                    displayName: authenticatedDisplayName,
-                    isHydratingCurrentUser: appState.isHydratingCurrentUser,
-                    authMessage: appState.authMessage,
-                    onLogout: signOut,
                     appState: appState,
                     onSessionStarted: { sessionID in
                         Task { @MainActor in
@@ -84,18 +101,6 @@ struct RootView: View {
         }
     }
 
-    private var authenticatedDisplayName: String {
-        if let displayName = appState.currentUser?.displayName, !displayName.isEmpty {
-            return displayName
-        }
-
-        if let displayName = appEnvironment.clerkAuth.currentUser?.displayName, !displayName.isEmpty {
-            return displayName
-        }
-
-        return "rider"
-    }
-
     func synchronizeAuthentication() async {
         if appEnvironment.clerkAuth.currentUser == nil {
             await appState.restoreAuthentication(
@@ -104,15 +109,6 @@ struct RootView: View {
             )
         } else {
             await appState.completeAuthentication(
-                clerkAuth: appEnvironment.clerkAuth,
-                convexClient: appEnvironment.convexClient
-            )
-        }
-    }
-
-    func signOut() {
-        Task {
-            await appState.signOut(
                 clerkAuth: appEnvironment.clerkAuth,
                 convexClient: appEnvironment.convexClient
             )
@@ -161,7 +157,15 @@ struct RootView: View {
             }
 
             didHandleUITestResetAuth = true
-            await appState.signOut(clerkAuth: clerkAuth, convexClient: convexClient)
+            // Ensure Clerk SDK has loaded before sign-out to avoid leaving the
+            // SDK in a broken state where subsequent sign-ins fail with 401.
+            // (storywright pattern: only sign out if there is an active session.)
+            try? await Clerk.shared.load()
+            if Clerk.shared.session != nil {
+                await appState.signOut(clerkAuth: clerkAuth, convexClient: convexClient)
+            }
+            // If no session exists, no need to sign out — Clerk is already in
+            // signed-out state and ready for a fresh sign-in.
             return true
         }
     #endif
@@ -170,26 +174,14 @@ struct RootView: View {
 private struct AuthenticatedLandingView: View {
     @State private var viewModel: IdleViewModel
     let environment: AppEnvironment
-    let displayName: String
-    let isHydratingCurrentUser: Bool
-    let authMessage: String?
-    let onLogout: () -> Void
     let onSessionStarted: @MainActor @Sendable (String) -> Void
 
     init(
         environment: AppEnvironment,
-        displayName: String,
-        isHydratingCurrentUser: Bool,
-        authMessage: String?,
-        onLogout: @escaping () -> Void,
         appState: AppState,
         onSessionStarted: @escaping @MainActor @Sendable (String) -> Void
     ) {
         self.environment = environment
-        self.displayName = displayName
-        self.isHydratingCurrentUser = isHydratingCurrentUser
-        self.authMessage = authMessage
-        self.onLogout = onLogout
         self.onSessionStarted = onSessionStarted
 
         _viewModel = State(
@@ -204,46 +196,11 @@ private struct AuthenticatedLandingView: View {
     }
 
     var body: some View {
-        ZStack {
-            IdleScreenContainer(viewModel: viewModel)
-
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Signed in")
-                    .font(.caption.weight(.semibold))
-                    .textCase(.uppercase)
-                    .foregroundStyle(.secondary)
-
-                Text("Where are we riding today, \(displayName)?")
-                    .font(.title2.weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .accessibilityIdentifier("idlescreen-current-user-greeting")
-
-                if isHydratingCurrentUser {
-                    Text("Loading rider profile")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                } else if let authMessage, !authMessage.isEmpty {
-                    Text(authMessage)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-
-                Button("Log out", action: onLogout)
-                    .buttonStyle(.borderedProminent)
-                    .accessibilityIdentifier("auth.landing.logout")
-            }
-            .padding(20)
-            .frame(maxWidth: 360, alignment: .leading)
-            .background(.ultraThinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .stroke(.quaternary, lineWidth: 1)
-            )
-            .padding()
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .accessibilityElement(children: .contain)
-            .accessibilityIdentifier("auth.landing.root")
-        }
+        // Render IdleScreenContainer directly without a wrapping
+        // accessibilityIdentifier — applying one here clobbers the
+        // child IdleScreen's "idlescreen" id (the outer modifier wins
+        // when stacked through @ViewBuilder), which broke
+        // Sprint04GateE2ETests' authenticateAndReachIdleScreen wait.
+        IdleScreenContainer(viewModel: viewModel)
     }
 }

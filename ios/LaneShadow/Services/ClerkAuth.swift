@@ -103,12 +103,10 @@ final class LiveClerkSDKClient: ClerkSDKClient {
 
     func signIn(email: String, password: String) async throws -> ClerkSignInResult {
         pendingSignIn = nil
-        var signIn = try await SignIn.create(strategy: .identifier(email))
-
-        if signIn.status == .needsFirstFactor {
-            signIn = try await signIn.attemptFirstFactor(strategy: .password(password: password))
-        }
-
+        // Use single-call pattern (storywright): pass identifier + password together
+        // so the SDK creates and authenticates the SignIn in one round trip and
+        // session continuity is preserved across the password attempt.
+        let signIn = try await SignIn.create(strategy: .identifier(email, password: password))
         return try await resolveSignIn(signIn, email: email)
     }
 
@@ -142,7 +140,22 @@ final class LiveClerkSDKClient: ClerkSDKClient {
         guard let createdSessionId = signIn.createdSessionId else {
             throw ClerkAuthError.missingSignInSession
         }
-        try await clerk.setActive(sessionId: createdSessionId)
+        let preActiveId = clerk.session?.id ?? "nil"
+        NSLog("🔷 ClerkSDK.activateCompletedSignIn: createdSessionId=\(createdSessionId) clerk.session.id=\(preActiveId)")
+        // Only call setActive if Clerk hasn't already activated the session.
+        // SignIn.create with `.complete` status often pre-activates the session,
+        // and a redundant /touch call returns 401 "signed_out" because the
+        // device token hasn't propagated yet.
+        if clerk.session?.id != createdSessionId {
+            do {
+                try await clerk.setActive(sessionId: createdSessionId)
+                NSLog("🔷 ClerkSDK.activateCompletedSignIn: setActive ok; clerk.session.id=\(clerk.session?.id ?? "nil")")
+            } catch {
+                NSLog("❌ ClerkSDK.activateCompletedSignIn: setActive failed \(error.localizedDescription); clerk.session.id=\(clerk.session?.id ?? "nil")")
+            }
+        } else {
+            NSLog("🔷 ClerkSDK.activateCompletedSignIn: already active")
+        }
         pendingSignIn = nil
         return try currentUser()
     }
@@ -231,9 +244,17 @@ final class LiveClerkSDKClient: ClerkSDKClient {
 
     func getJWT() async throws -> String? {
         guard let session = clerk.session else {
+            NSLog("🔷 ClerkSDK.getJWT: clerk.session=nil → returning nil")
             return nil
         }
-        return try await session.getToken(.init(template: "convex"))?.jwt
+        do {
+            let token = try await session.getToken(.init(template: "convex"))?.jwt
+            NSLog("🔷 ClerkSDK.getJWT: session.id=\(session.id) jwt=\(token != nil ? "<\(token!.count) chars>" : "nil")")
+            return token
+        } catch {
+            NSLog("❌ ClerkSDK.getJWT: session.id=\(session.id) threw \(error.localizedDescription)")
+            throw error
+        }
     }
 
     func restoreSession() async throws -> ClerkAuthUser? {
@@ -387,11 +408,15 @@ final class ClerkAuth: LaneShadowClerkJWTProviding {
     }
 
     func getJWT() async throws -> String? {
-        try await client.getJWT()
+        NSLog("🔶 ClerkAuth.getJWT: enter")
+        let token = try await client.getJWT()
+        NSLog("🔶 ClerkAuth.getJWT: returning \(token != nil ? "<token>" : "nil")")
+        return token
     }
 
     func convexJWT() async throws -> String? {
-        try await getJWT()
+        NSLog("🔶 ClerkAuth.convexJWT: enter")
+        return try await getJWT()
     }
 
     func restoreSession() async throws {

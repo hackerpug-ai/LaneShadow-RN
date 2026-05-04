@@ -85,10 +85,16 @@ final class IdleViewModel {
         errorMessage = nil
         isSubmitting = true
 
+        let prefix = String(trimmedMessage.prefix(40))
+        NSLog("🟡 IDLE_VM: createPlanningSession start firstMessage='\(prefix)'")
+
         do {
             let session = try await convexClient.createPlanningSession(firstMessage: trimmedMessage)
+            NSLog("🟢 IDLE_VM: createPlanningSession ok sessionId=\(session.sessionId)")
             chatStore.dispatch(.sendMessageWithSession(trimmedMessage, sessionId: session.sessionId))
+            NSLog("🟡 IDLE_VM: dispatched sendMessageWithSession")
             onSessionStarted(session.sessionId)
+            NSLog("🟢 IDLE_VM: onSessionStarted called sessionId=\(session.sessionId)")
 
             let sessionId = session.sessionId
             let message = trimmedMessage
@@ -101,6 +107,7 @@ final class IdleViewModel {
                     )
                 } catch {
                     let laneShadowError = LaneShadowError.map(error)
+                    NSLog("❌ IDLE_VM: sendPlanningMessage failed \(laneShadowError.localizedDescription)")
                     await MainActor.run { [weak self] in
                         self?.errorMessage = laneShadowError.localizedDescription
                         self?.chatStore.dispatch(.planningError(laneShadowError.rawMessage))
@@ -108,6 +115,7 @@ final class IdleViewModel {
                 }
             }
         } catch {
+            NSLog("❌ IDLE_VM: createPlanningSession failed \(error.localizedDescription)")
             errorMessage = error.localizedDescription
         }
 

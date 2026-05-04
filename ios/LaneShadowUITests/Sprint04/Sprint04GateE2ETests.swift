@@ -13,20 +13,26 @@ import XCTest
 /// 7. Refine via chat input with session reuse
 /// 8. Planning failure with typed LaneShadowError + recovery chips
 ///
-/// **IMPORTANT**: These tests hit REAL Convex backend (NO mocks, stubs, or fixtures).
+/// **IMPORTANT**: These tests hit REAL Convex backend AND real Clerk auth
+/// (NO mocks, stubs, fixtures, or bypass auth).
 ///
-/// **Auth Strategy (RF-19 Mitigation)**: Tests use `bypassAuthForTesting` flag which is
-/// DEBUG-only and synthesizes an authenticated session. This is acceptable for E2E tests
-/// because:
-/// - Wrapped in `#if DEBUG` - cannot be used in release builds
-/// - Real Convex backend is still hit (no stubbing)
-/// - Standard iOS E2E testing pattern for fast, reliable test execution
-/// - Alternative (real Clerk OAuth) would add 30+ seconds per test and flakiness
+/// **Auth Strategy (RF-38)**: Tests launch the app with the
+/// `-LaneShadowUITestE2E` flag, which renders an `auth.signIn.e2eSignIn`
+/// button on the AuthScreen entry view. Tapping it runs a real
+/// `Clerk.SignIn.create(strategy: .identifier(email, password:))` against
+/// the configured Clerk environment, then `appState.completeAuthentication`
+/// which sets up Convex auth via `convexClient.setAuth(...)`. Tests also
+/// pass `-LaneShadowUITestResetAuth` so any persisted Clerk session from a
+/// prior run is cleared during RootView bootstrap, guaranteeing the auth
+/// screen is reachable on every run.
 ///
-/// **Strong Assertions (RF-21 Fix)**: All tests assert on element LABELS, VALUES, and
-/// semantic state - not just existence. This verifies real UI state changes and data flow.
+/// **Strong Assertions (RF-21)**: All tests assert on element LABELS, VALUES,
+/// and semantic state — not just existence. This verifies real UI state
+/// changes and data flow.
 ///
-/// Requires CONVEX_URL environment variable (CLERK credentials not needed for bypass auth).
+/// Requires the following environment variables (loaded from `.env.local`
+/// by `AppLauncher.forwardRuntimeEnvironment`): `CONVEX_URL`,
+/// `CLERK_PUBLISHABLE_KEY`, `CLERK_TEST_EMAIL`, `CLERK_TEST_PASSWORD`.
 @MainActor
 final class Sprint04GateE2ETests: XCTestCase {
     private var app: XCUIApplication!
@@ -91,10 +97,13 @@ final class Sprint04GateE2ETests: XCTestCase {
         )
         attachScreenshot(named: "step1-planning-screen-optimistic")
 
-        // THEN: Phase indicator shows active planning (optimistic state)
+        // THEN: Phase indicator shows active planning (optimistic state).
+        // Use waitForExistence rather than .exists — SwiftUI may take a
+        // frame or two after PlanningScreen mounts before the phase
+        // indicator a11y id is queryable.
         let phaseIndicator = element("planningscreen-phase-indicator")
         XCTAssertTrue(
-            phaseIndicator.exists,
+            phaseIndicator.waitForExistence(timeout: uiTransitionTimeout),
             "Expected phase indicator to be visible in optimistic state"
         )
 
@@ -932,11 +941,13 @@ final class Sprint04GateE2ETests: XCTestCase {
                     let key = String(trimmed[..<eq]).trimmingCharacters(in: .whitespaces)
                     var value = String(trimmed[trimmed.index(after: eq)...]).trimmingCharacters(in: .whitespaces)
                     // Strip surrounding quotes
-                    if (value.hasPrefix("\"") && value.hasSuffix("\"")) || (value.hasPrefix("'") && value.hasSuffix("'")) {
+                    if (value.hasPrefix("\"") && value.hasSuffix("\"")) ||
+                        (value.hasPrefix("'") && value.hasSuffix("'"))
+                    {
                         value = String(value.dropFirst().dropLast())
                     }
-                    if key == "CLERK_TEST_EMAIL" && email.isEmpty { email = value }
-                    if key == "CLERK_TEST_PASSWORD" && password.isEmpty { password = value }
+                    if key == "CLERK_TEST_EMAIL", email.isEmpty { email = value }
+                    if key == "CLERK_TEST_PASSWORD", password.isEmpty { password = value }
                 }
             }
         }
@@ -1050,6 +1061,14 @@ final class Sprint04GateE2ETests: XCTestCase {
             element("idlescreen").waitForExistence(timeout: 30),
             "Expected IdleScreen to appear after authentication"
         )
+
+        // Map presence is verified visually (screenshot evidence) rather than
+        // by accessibility id — `LSPaperMap` does not always surface its
+        // identifier through the Mapbox UIView wrapper. Soft-check only.
+        let mapExists = element("idlescreen-map").waitForExistence(timeout: uiTransitionTimeout)
+        if !mapExists {
+            NSLog("⚠️ idlescreen-map a11y id not visible to XCUITest (map may still be rendered visually)")
+        }
 
         // Wait for suggestion chips to load
         XCTAssertTrue(

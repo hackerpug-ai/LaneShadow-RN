@@ -507,6 +507,8 @@ final class AuthScreensConvexTransport: LaneShadowConvexTransporting {
         _: String,
         with _: [String: ConvexEncodable?]?
     ) async throws {}
+
+    func triggerAuthRefresh() async {}
 }
 
 private extension LaneShadowCurrentUser {
