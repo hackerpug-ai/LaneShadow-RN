@@ -3,7 +3,7 @@ TASK: CHAT-S04-R11 - Android phase name alignment to canonical taxonomy
 ================================================================================
 
 TASK_TYPE:  REFACTOR
-STATUS:     Backlog
+STATUS:     REOPENED (round-3 RF-20)
 PRIORITY:   P1
 EFFORT:     S
 AGENT:      implementer=kotlin-implementer | reviewer=kotlin-reviewer
@@ -14,7 +14,7 @@ RUNTIME_COMMANDS:
   typecheck:   cd android && ./gradlew :app:compileDebugKotlin
   lint:        cd android && ./gradlew detekt
 
-PROGRESS: 0/5 AC · pending
+PROGRESS: 2/5 AC · RF-20: Phase enum exists but is dead code — fromLabel() has ZERO call sites; PlanningViewModel still uses raw string when(); phaseIndexForStatus() is raw string match
 
 --------------------------------------------------------------------------------
 OUTCOME

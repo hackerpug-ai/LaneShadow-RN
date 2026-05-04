@@ -3,7 +3,7 @@ TASK: CHAT-S04-R09 - Android RouteResultsScreen route card tap forwarding + reca
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     NEEDS_REVISION
+STATUS:     REOPENED (round-3 RF-21) — second reopen; stateOverride removed but existence-assertion stubs remain
 PRIORITY:   P0
 EFFORT:     M
 AGENT:      implementer=kotlin-implementer | reviewer=kotlin-reviewer

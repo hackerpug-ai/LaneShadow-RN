@@ -3,7 +3,7 @@ TASK: CHAT-S04-R06 - iOS phase name alignment to canonical taxonomy
 ================================================================================
 
 TASK_TYPE:  REFACTOR
-STATUS:     Backlog
+STATUS:     REOPENED (round-3 RF-20)
 PRIORITY:   P1
 EFFORT:     S
 AGENT:      implementer=swift-implementer | reviewer=swift-reviewer
@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build
   lint:      swiftformat --lint ios/
 
-PROGRESS: 0/5 AC · pending
+PROGRESS: 2/5 AC · RF-20: no typed Phase enum; currentPhase still String="analyzing"; AC-5 ConvexPhaseDecodingTests not created; PlanningState.currentPhase must become Phase?
 
 --------------------------------------------------------------------------------
 OUTCOME

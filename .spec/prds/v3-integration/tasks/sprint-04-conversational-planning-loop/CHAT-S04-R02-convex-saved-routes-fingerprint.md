@@ -3,7 +3,7 @@ TASK: CHAT-S04-R02 - Implement db.savedRoutes.getRouteIndexFingerprint query
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     REOPENED (round-3 RF-22)
 PRIORITY:   P0
 EFFORT:     S
 AGENT:      implementer=convex-implementer | reviewer=convex-reviewer
@@ -14,7 +14,7 @@ RUNTIME_COMMANDS:
   lint:      pnpm exec biome check --no-errors-on-unmatched server/convex/db/savedRoutes.ts
   build:     pnpm --dir server run convex:dev -- --once
 
-PROGRESS: 0/6 AC · pending
+PROGRESS: 4/6 AC · RF-22: composite index architecturally broken — routeIndex is nested object, query uses old 2-field index + in-memory .find()
 
 --------------------------------------------------------------------------------
 OUTCOME

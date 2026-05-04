@@ -3,7 +3,7 @@ TASK: CHAT-S04-R12 - Android instrumented E2E suite covering all 8 sprint-04 gat
 ================================================================================
 
 TASK_TYPE:  TEST
-STATUS:     Backlog
+STATUS:     REOPENED (round-3 RF-19, RF-21, RF-24)
 PRIORITY:   P0
 EFFORT:     L
 AGENT:      implementer=kotlin-implementer | reviewer=kotlin-reviewer
@@ -14,7 +14,7 @@ RUNTIME_COMMANDS:
   typecheck: cd android && ./gradlew :app:compileDebugKotlin
   lint:      cd android && ./gradlew detekt
 
-PROGRESS: 0/9 AC · pending
+PROGRESS: 0/9 AC · RF-19: ConvexClient.cancelPlan() stubbed; RF-24: Sprint04E2EHarness.kt, ScreenshotEvidence.kt, ConvexQueryProbe.kt, Sprint04ManualAnnotationLintTest.kt missing; RF-21: gate step 7 session reuse unverified
 
 --------------------------------------------------------------------------------
 OUTCOME

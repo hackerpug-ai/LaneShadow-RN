@@ -3,7 +3,7 @@ TASK: CHAT-S04-R14 - Android LaneShadowErrorMapper consumes auth-error-taxonomy.
 ================================================================================
 
 TASK_TYPE:  FEATURE
-STATUS:     Backlog
+STATUS:     REOPENED (round-3 RF-23)
 PRIORITY:   P1
 EFFORT:     XS
 AGENT:      implementer=kotlin-implementer | reviewer=kotlin-reviewer
@@ -13,7 +13,7 @@ RUNTIME_COMMANDS:
   typecheck: cd android && ./gradlew :app:compileDebugKotlin
   lint:      cd android && ./gradlew detekt
 
-PROGRESS: 0/3 AC · pending
+PROGRESS: 2/3 AC · RF-23: AC-3 round-trip FAILS — NETWORK_TIMEOUT in fixture but laneShadowErrorForCode returns null (NetworkTimeout requires IOException); remove NETWORK_TIMEOUT from fixture or special-case
 
 --------------------------------------------------------------------------------
 OUTCOME

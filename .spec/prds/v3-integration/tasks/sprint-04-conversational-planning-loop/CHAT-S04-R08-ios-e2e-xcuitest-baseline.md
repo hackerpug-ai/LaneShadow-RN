@@ -3,7 +3,7 @@ TASK: CHAT-S04-R08 - iOS XCUITest E2E suite covering all 8 sprint-04 gate steps
 ================================================================================
 
 TASK_TYPE:  TEST
-STATUS:     Backlog
+STATUS:     REOPENED (round-3 RF-19, RF-21)
 PRIORITY:   P0
 EFFORT:     L
 AGENT:      implementer=swift-implementer | reviewer=swift-reviewer
@@ -14,7 +14,7 @@ RUNTIME_COMMANDS:
   typecheck:   xcodebuild -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES build
   lint:        swiftformat --lint ios/
 
-PROGRESS: 0/8 AC · pending
+PROGRESS: 0/8 AC · RF-19: bypassAuth with fake JWT violates real-auth constraint; RF-21: weak assertions (cancelMutationFired=1 unconditionally, XCTSkip on step 8)
 
 --------------------------------------------------------------------------------
 OUTCOME
