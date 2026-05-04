@@ -109,7 +109,8 @@ struct SignInScreen: View {
                     // Read credentials from environment variables
                     let env = ProcessInfo.processInfo.environment
                     guard let email = env["CLERK_TEST_EMAIL"],
-                          let password = env["CLERK_TEST_PASSWORD"] else {
+                          let password = env["CLERK_TEST_PASSWORD"]
+                    else {
                         print("❌ E2E Sign In failed: CLERK_TEST_EMAIL or CLERK_TEST_PASSWORD not set")
                         return
                     }
