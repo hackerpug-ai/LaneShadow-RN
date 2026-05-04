@@ -1,0 +1,10 @@
+{
+  "screen": "planning-screen",
+  "state": "weather",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

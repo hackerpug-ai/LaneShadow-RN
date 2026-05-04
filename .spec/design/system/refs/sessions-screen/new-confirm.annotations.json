@@ -1,0 +1,10 @@
+{
+  "screen": "sessions-screen",
+  "state": "new-confirm",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

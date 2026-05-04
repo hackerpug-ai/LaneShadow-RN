@@ -1,0 +1,44 @@
+{
+  "screen": "auth-screen",
+  "state": "existing-user-sign-in",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": [
+    {
+      "name": "ls-btn-0",
+      "selector": ".ls-btn:nth-of-type(1)",
+      "bounding_box": {
+        "x": 0,
+        "y": 662,
+        "w": 261,
+        "h": 21
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "ls-input-0",
+      "selector": ".ls-input:nth-of-type(1)",
+      "bounding_box": {
+        "x": 0,
+        "y": 623,
+        "w": 153,
+        "h": 21
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "mol-form-field-0",
+      "selector": ".mol-form-field:nth-of-type(1)",
+      "bounding_box": {
+        "x": 0,
+        "y": 341,
+        "w": 261,
+        "h": 304
+      },
+      "design_tokens": {}
+    }
+  ]
+}

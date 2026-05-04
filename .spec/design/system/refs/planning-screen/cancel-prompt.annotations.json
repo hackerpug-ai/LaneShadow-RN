@@ -1,0 +1,10 @@
+{
+  "screen": "planning-screen",
+  "state": "cancel-prompt",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

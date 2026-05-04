@@ -1,0 +1,10 @@
+{
+  "screen": "error-screen",
+  "state": "generic-failure",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

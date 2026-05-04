@@ -1,0 +1,10 @@
+{
+  "screen": "route-results-screen",
+  "state": "alt1-tapped--sage-promoted",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

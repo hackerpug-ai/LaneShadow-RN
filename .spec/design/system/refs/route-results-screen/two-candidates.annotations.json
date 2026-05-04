@@ -1,0 +1,10 @@
+{
+  "screen": "route-results-screen",
+  "state": "two-candidates",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

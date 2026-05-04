@@ -1,0 +1,10 @@
+{
+  "screen": "planning-screen",
+  "state": "scoring",
+  "theme": "dark",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

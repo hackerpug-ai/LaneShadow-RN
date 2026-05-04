@@ -1,0 +1,10 @@
+{
+  "screen": "route-results-screen",
+  "state": "default--best-pre-selected",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

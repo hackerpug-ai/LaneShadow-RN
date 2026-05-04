@@ -1,0 +1,99 @@
+{
+  "screen": "auth-screen",
+  "state": "default",
+  "theme": "dark",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": [
+    {
+      "name": "ls-btn-0",
+      "selector": ".ls-btn:nth-of-type(1)",
+      "bounding_box": {
+        "x": 0,
+        "y": 108,
+        "w": 138,
+        "h": 146
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "ls-btn-1",
+      "selector": ".ls-btn:nth-of-type(2)",
+      "bounding_box": {
+        "x": 142,
+        "y": 98,
+        "w": 147,
+        "h": 155
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "ls-btn-2",
+      "selector": ".ls-btn:nth-of-type(3)",
+      "bounding_box": {
+        "x": 0,
+        "y": 627,
+        "w": 312,
+        "h": 21
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "ls-input-0",
+      "selector": ".ls-input:nth-of-type(1)",
+      "bounding_box": {
+        "x": 0,
+        "y": 606,
+        "w": 153,
+        "h": 21
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "mol-social-btn-0",
+      "selector": ".mol-social-btn:nth-of-type(1)",
+      "bounding_box": {
+        "x": 0,
+        "y": 108,
+        "w": 138,
+        "h": 146
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "mol-social-btn-1",
+      "selector": ".mol-social-btn:nth-of-type(2)",
+      "bounding_box": {
+        "x": 142,
+        "y": 98,
+        "w": 147,
+        "h": 155
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "mol-form-field-0",
+      "selector": ".mol-form-field:nth-of-type(1)",
+      "bounding_box": {
+        "x": 0,
+        "y": 272,
+        "w": 312,
+        "h": 355
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "ls-divider-0",
+      "selector": ".ls-divider:nth-of-type(1)",
+      "bounding_box": {
+        "x": 0,
+        "y": 254,
+        "w": 312,
+        "h": 18
+      },
+      "design_tokens": {}
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "screen": "route-results-screen",
+  "state": "default--dark",
+  "theme": "dark",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

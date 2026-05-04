@@ -1,0 +1,10 @@
+{
+  "screen": "route-details-screen",
+  "state": "dismissing",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

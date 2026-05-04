@@ -1,0 +1,10 @@
+{
+  "screen": "route-results-screen",
+  "state": "message-dismissed",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

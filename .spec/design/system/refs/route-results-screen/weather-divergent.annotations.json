@@ -1,0 +1,10 @@
+{
+  "screen": "route-results-screen",
+  "state": "weather-divergent",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

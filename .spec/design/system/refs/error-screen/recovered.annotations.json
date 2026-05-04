@@ -1,0 +1,22 @@
+{
+  "screen": "error-screen",
+  "state": "recovered",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": [
+    {
+      "name": "ls-btn-0",
+      "selector": ".ls-btn:nth-of-type(1)",
+      "bounding_box": {
+        "x": 0,
+        "y": 80,
+        "w": 34,
+        "h": 24
+      },
+      "design_tokens": {}
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "screen": "auth-screen",
+  "state": "new-user-create-account",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": [
+    {
+      "name": "ls-btn-0",
+      "selector": ".ls-btn:nth-of-type(1)",
+      "bounding_box": {
+        "x": 0,
+        "y": 908,
+        "w": 312,
+        "h": 21
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "ls-input-0",
+      "selector": ".ls-input:nth-of-type(1)",
+      "bounding_box": {
+        "x": 92,
+        "y": 432,
+        "w": 153,
+        "h": 21
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "ls-input-1",
+      "selector": ".ls-input:nth-of-type(2)",
+      "bounding_box": {
+        "x": 0,
+        "y": 837,
+        "w": 153,
+        "h": 21
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "mol-form-field-0",
+      "selector": ".mol-form-field:nth-of-type(1)",
+      "bounding_box": {
+        "x": 0,
+        "y": 432,
+        "w": 312,
+        "h": 71
+      },
+      "design_tokens": {}
+    },
+    {
+      "name": "mol-form-field-1",
+      "selector": ".mol-form-field:nth-of-type(2)",
+      "bounding_box": {
+        "x": 0,
+        "y": 503,
+        "w": 312,
+        "h": 405
+      },
+      "design_tokens": {}
+    }
+  ]
+}

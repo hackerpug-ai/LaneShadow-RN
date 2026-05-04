@@ -1,0 +1,10 @@
+{
+  "screen": "idle-screen",
+  "state": "first-ride",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

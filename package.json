@@ -31,6 +31,7 @@
     "tokens:sync": "node ../native-theme/scripts/sync-bundled-json.js --config tokens/sync.config.json",
     "ui:diff": "pnpm tsx scripts/ui-diff/capture-rn.ts && pnpm tsx scripts/ui-diff/capture-android.ts && pnpm tsx scripts/ui-diff/capture-ios.ts && pnpm tsx scripts/ui-diff/compare.ts",
     "capture:design": "pnpm tsx scripts/capture-design-system.ts",
+    "design:references": "pnpm tsx scripts/design-review/render-references.ts",
     "server:codegen": "npx tsx server/scripts/generate-mobile-types.ts"
   },
   "dependencies": {

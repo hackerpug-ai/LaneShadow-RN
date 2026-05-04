@@ -1,0 +1,10 @@
+{
+  "screen": "planning-screen",
+  "state": "single-candidate",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}

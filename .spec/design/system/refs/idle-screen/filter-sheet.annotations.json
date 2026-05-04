@@ -1,0 +1,10 @@
+{
+  "screen": "idle-screen",
+  "state": "filter-sheet",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": []
+}
