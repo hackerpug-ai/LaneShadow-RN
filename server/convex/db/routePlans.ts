@@ -4,6 +4,7 @@ import {
   ROUTE_PLAN_STATUS,
   type RoutePlan,
   type RoutePlanStatus,
+  routePlanPhaseValidator,
   routePlanStatusValidator,
 } from '../../models/route-plans'
 import { planInputValidator, planPreferencesValidator } from '../../models/saved-routes'
@@ -282,7 +283,26 @@ export const getActivePlan = query({
 
 export const getPlanById = query({
   args: { routePlanId: v.id('route_plans') },
-  returns: v.any(),
+  returns: v.object({
+    _id: v.id('route_plans'),
+    _creationTime: v.number(),
+    clerkUserId: v.string(),
+    planningSessionId: v.optional(v.id('planning_sessions')),
+    planInput: planInputValidator,
+    startLabel: v.optional(v.string()),
+    endLabel: v.optional(v.string()),
+    status: routePlanStatusValidator,
+    statusMessage: v.optional(v.string()),
+    phase: v.optional(routePlanPhaseValidator),
+    result: v.optional(v.any()),
+    errorCode: v.optional(v.string()),
+    errorMessage: v.optional(v.string()),
+    scheduledActionId: v.optional(v.id('_scheduled_functions')),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    completedAt: v.optional(v.number()),
+    acknowledged: v.optional(v.boolean()),
+  }),
   handler: async (ctx, args): Promise<RoutePlanDoc> => {
     const { clerkUserId } = await requireIdentity(ctx)
     return getPlanByIdHandler(ctx as any, args, clerkUserId)

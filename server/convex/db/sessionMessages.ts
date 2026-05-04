@@ -409,7 +409,21 @@ export const list = query({
     sessionId: v.id('planning_sessions'),
     limit: v.optional(v.number()),
   },
-  returns: v.any(),
+  returns: v.array(
+    v.object({
+      _id: v.id('session_messages'),
+      _creationTime: v.number(),
+      sessionId: v.id('planning_sessions'),
+      role: sessionMessageRoleValidator,
+      content: v.string(),
+      attachments: v.optional(v.array(sessionMessageAttachmentValidator)),
+      createdAt: v.number(),
+      kind: v.optional(sessionMessageKindValidator),
+      status: v.optional(sessionMessageStatusValidator),
+      piMessage: v.optional(v.any()),
+      thinkingSteps: v.optional(v.array(thinkingStepValidator)),
+    }),
+  ),
   handler: async (ctx, args) => {
     const { clerkUserId } = await requireIdentity(ctx)
     const messages = await listHandler(ctx as any, args, clerkUserId)
