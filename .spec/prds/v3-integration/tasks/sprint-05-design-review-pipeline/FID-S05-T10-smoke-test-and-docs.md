@@ -37,11 +37,11 @@ Run a deliberate-regression smoke test on auth-screen only, document the pipelin
 DONE WHEN
 --------------------------------------------------------------------------------
 
-- [ ] AC-1: Deliberate regression detected at severity ≥ med with token-level fix_hint [PRIMARY]
-- [ ] AC-2: Reverted state produces zero med+ issues on auth-screen
-- [ ] AC-3: REAL_DEVICE_E2E.md "Design Review Capture Pipeline" subsection added
-- [ ] AC-4: Sample sanitized `report.html` committed to `.spec/design/calibration/sample-report.html`
-- [ ] AC-5: "Coverage scope" subsection flags ALL screens beyond auth-screen as deferred to their respective sprints (Sprints 06–10)
+- [x] AC-1: Deliberate regression detected at severity ≥ med with token-level fix_hint [PRIMARY]
+- [x] AC-2: Reverted state produces zero med+ issues on auth-screen
+- [x] AC-3: REAL_DEVICE_E2E.md "Design Review Capture Pipeline" subsection added
+- [x] AC-4: Sample sanitized `report.html` committed to `.spec/design/calibration/sample-report.html`
+- [x] AC-5: "Coverage scope" subsection flags ALL screens beyond auth-screen as deferred to their respective sprints (Sprints 06–10)
 
 --------------------------------------------------------------------------------
 ACCEPTANCE CRITERIA (verification gates — INFRA, not TDD)
