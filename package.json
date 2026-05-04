@@ -34,6 +34,7 @@
     "design:references": "pnpm tsx scripts/design-review/render-references.ts",
     "design:export": "pnpm tsx scripts/design-review/export-from-xcresult.ts",
     "design:manifest": "pnpm tsx scripts/design-review/build-manifest.ts",
+    "design:eval": "pnpm tsx scripts/design-review/visual-eval.ts",
     "server:codegen": "npx tsx server/scripts/generate-mobile-types.ts"
   },
   "dependencies": {
