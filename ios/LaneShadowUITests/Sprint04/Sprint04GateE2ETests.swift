@@ -63,7 +63,7 @@ final class Sprint04GateE2ETests: XCTestCase {
         attachScreenshot(named: "step1-idle-screen")
 
         // WHEN: Tapping a suggestion chip
-        let firstChip = element("lschatinput-suggestions").descendants(matching: .any).element(boundBy: 0)
+        let firstChip = firstSuggestionChip()
         XCTAssertTrue(
             firstChip.waitForExistence(timeout: uiTransitionTimeout),
             "Expected suggestion chips to be visible on IdleScreen"
@@ -121,7 +121,7 @@ final class Sprint04GateE2ETests: XCTestCase {
                     break
                 }
             }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+            try await Task.sleep(for: .milliseconds(100))
         }
 
         let reconciliationTime = Date().timeIntervalSince(beforeTap)
@@ -194,7 +194,7 @@ final class Sprint04GateE2ETests: XCTestCase {
             }
 
             // Short sleep to avoid tight loop
-            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+            try await Task.sleep(for: .milliseconds(500))
         }
 
         let planningDuration = Date().timeIntervalSince(startTime)
@@ -464,7 +464,7 @@ final class Sprint04GateE2ETests: XCTestCase {
         let beforeTapLabel = altRouteCard.label as String
 
         altRouteCard.tap()
-        RunLoop.current.run(until: Date().addingTimeInterval(0.5)) // Allow animation
+        try await Task.sleep(for: .milliseconds(500))
         attachScreenshot(named: "step5-after-alt-selection")
 
         // THEN: selectedRouteId updates (verified by RouteDetailsScreen appearing)
@@ -547,7 +547,7 @@ final class Sprint04GateE2ETests: XCTestCase {
         )
 
         // WHEN: Starting planning via suggestion chip
-        let firstChip = element("lschatinput-suggestions").descendants(matching: .any).element(boundBy: 0)
+        let firstChip = firstSuggestionChip()
         XCTAssertTrue(
             firstChip.waitForExistence(timeout: uiTransitionTimeout),
             "Expected suggestion chips to be visible"
@@ -578,13 +578,13 @@ final class Sprint04GateE2ETests: XCTestCase {
         let cancelButton = element("planningscreen-cancel-confirm").descendants(matching: .any).element(boundBy: 0)
         if cancelButton.exists {
             cancelButton.tap()
-            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+            try await Task.sleep(for: .milliseconds(500))
 
             // Confirm cancel if confirmation dialog appears
             let confirmCancelButton = element("cancel-confirm-cancel")
             if confirmCancelButton.exists {
                 confirmCancelButton.tap()
-                RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+                try await Task.sleep(for: .milliseconds(500))
             }
         }
 
@@ -828,7 +828,7 @@ final class Sprint04GateE2ETests: XCTestCase {
                 errorScreenAppeared = true
                 break
             }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
+            try await Task.sleep(for: .milliseconds(500))
         }
 
         // NOTE: This test is conditional because the backend may successfully handle
@@ -916,9 +916,30 @@ final class Sprint04GateE2ETests: XCTestCase {
     // MARK: - Helper Methods
 
     private func loadCredentials(bypassAuth: Bool) throws -> Credentials {
+        // Try ProcessInfo first (works when test runner inherits shell env),
+        // then fall back to reading .env.local directly
         let environment = ProcessInfo.processInfo.environment
-        let email = environment["CLERK_TEST_EMAIL"] ?? environment["LANESHADOW_AUTH_EMAIL"] ?? ""
-        let password = environment["CLERK_TEST_PASSWORD"] ?? environment["LANESHADOW_AUTH_PASSWORD"] ?? ""
+        var email = environment["CLERK_TEST_EMAIL"] ?? environment["LANESHADOW_AUTH_EMAIL"] ?? ""
+        var password = environment["CLERK_TEST_PASSWORD"] ?? environment["LANESHADOW_AUTH_PASSWORD"] ?? ""
+
+        // Fallback: read from .env.local on disk
+        if email.isEmpty || password.isEmpty {
+            let envPath = "/Users/justinrich/Projects/LaneShadow/.env.local"
+            if let envContent = try? String(contentsOfFile: envPath, encoding: .utf8) {
+                for line in envContent.components(separatedBy: .newlines) {
+                    let trimmed = line.trimmingCharacters(in: .whitespaces)
+                    guard !trimmed.hasPrefix("#"), let eq = trimmed.firstIndex(of: "=") else { continue }
+                    let key = String(trimmed[..<eq]).trimmingCharacters(in: .whitespaces)
+                    var value = String(trimmed[trimmed.index(after: eq)...]).trimmingCharacters(in: .whitespaces)
+                    // Strip surrounding quotes
+                    if (value.hasPrefix("\"") && value.hasSuffix("\"")) || (value.hasPrefix("'") && value.hasSuffix("'")) {
+                        value = String(value.dropFirst().dropLast())
+                    }
+                    if key == "CLERK_TEST_EMAIL" && email.isEmpty { email = value }
+                    if key == "CLERK_TEST_PASSWORD" && password.isEmpty { password = value }
+                }
+            }
+        }
 
         guard !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               !password.isEmpty
@@ -937,6 +958,15 @@ final class Sprint04GateE2ETests: XCTestCase {
 
     private func element(_ identifier: String) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+    }
+
+    /// Returns the first interactable suggestion chip (a button) inside the
+    /// `lschatinput-suggestions` container. The previous implementation used
+    /// `.descendants(matching: .any).element(boundBy: 0)`, which resolves to
+    /// the ScrollView/HStack container itself (XCUITest type "Other") and has
+    /// an empty label, breaking RF-21 strong assertions.
+    private func firstSuggestionChip() -> XCUIElement {
+        element("lschatinput-suggestions").buttons.firstMatch
     }
 
     private func enter(_ value: String, into identifier: String) throws {
@@ -996,7 +1026,13 @@ final class Sprint04GateE2ETests: XCTestCase {
         // Load credentials from environment (CLERK_TEST_EMAIL, CLERK_TEST_PASSWORD)
         credentials = try loadCredentials(bypassAuth: false)
 
-        // Launch app with E2E sign-in flag enabled
+        // Launch app with E2E sign-in flag enabled and force a clean session.
+        // resetAuth ensures the simulator's persistent Clerk session (from
+        // a prior run) is cleared so the AuthScreen renders and the
+        // e2e sign-in button is reachable. RootView.resetAuthForUITestingIfNeeded
+        // now awaits Clerk.shared.load() before signOut and only signs out when
+        // a session is present, so it will not leave the SDK in a broken state
+        // for the subsequent fresh sign-in.
         AppLauncher.launchApp(app, resetAuth: true, e2eSignIn: true)
 
         // Wait for E2E sign-in button to appear
@@ -1025,7 +1061,7 @@ final class Sprint04GateE2ETests: XCTestCase {
     private func startPlanningViaSuggestionChip() async throws {
         try await authenticateAndReachIdleScreen()
 
-        let firstChip = element("lschatinput-suggestions").descendants(matching: .any).element(boundBy: 0)
+        let firstChip = firstSuggestionChip()
         XCTAssertTrue(
             firstChip.waitForExistence(timeout: uiTransitionTimeout),
             "Expected suggestion chips to be visible"
