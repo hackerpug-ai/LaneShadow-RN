@@ -82,14 +82,30 @@ async function extractAnnotationsForSection(
       }
 
       // Find significant components within the frame
-      // This is a simplified version - in reality you'd want more sophisticated component detection
+      // Use both generic component classes and view-specific components
       const componentSelectors = [
+        // Generic LaneShadow components
         '.ls-btn',
         '.ls-input',
+        '.ls-divider',
+        // Molecules
         '.mol-social-btn',
         '.mol-form-field',
-        '.ls-divider',
-        '.view-' + screen.replace(/-/g, '-') + '__card',
+        // View-specific components (dynamic based on screen name)
+        `.view-${screen.replace(/-/g, '-')}__card`,
+        `.view-${screen.replace(/-/g, '-')}__chip`,
+        `.view-${screen.replace(/-/g, '-')}__callout`,
+        `.view-${screen.replace(/-/g, '-')}__map-slot`,
+        `.view-${screen.replace(/-/g, '-')}__broken-mark`,
+        `.view-${screen.replace(/-/g, '-')}__origin-pin`,
+        `.view-${screen.replace(/-/g, '-')}__dest-pin`,
+        `.view-${screen.replace(/-/g, '-')}__pin`,
+        `.view-${screen.replace(/-/g, '-')}__marker`,
+        `.view-${screen.replace(/-/g, '-')}__btn`,
+        `.view-${screen.replace(/-/g, '-')}__input`,
+        // Organisms (if any)
+        '.org-map-layer',
+        '.org-topbar',
       ]
 
       for (const selector of componentSelectors) {
@@ -97,6 +113,57 @@ async function extractAnnotationsForSection(
         for (let i = 0; i < elements.length; i++) {
           const box = await elements[i].boundingBox()
           if (box) {
+            // Extract design tokens from this component element
+            const componentTokens = await elements[i].evaluate((el) => {
+              const tokens: Record<string, string> = {}
+              const computedStyle = window.getComputedStyle(el)
+
+              // Extract all CSS custom properties (--*)
+              for (let i = 0; i < computedStyle.length; i++) {
+                const prop = computedStyle[i]
+                if (prop.startsWith('--')) {
+                  const value = computedStyle.getPropertyValue(prop)
+                  // Only include non-empty token values
+                  if (value && value.trim() !== '') {
+                    tokens[prop] = value.trim()
+                  }
+                }
+              }
+
+              // Also extract key computed style properties that represent design tokens
+              // These are the resolved values that would be used by vision LLM evaluators
+              const tokenProperties = [
+                'color',
+                'background-color',
+                'font-family',
+                'font-size',
+                'font-weight',
+                'line-height',
+                'border-color',
+                'border-width',
+                'border-radius',
+                'padding-top',
+                'padding-right',
+                'padding-bottom',
+                'padding-left',
+                'margin-top',
+                'margin-right',
+                'margin-bottom',
+                'margin-left',
+                'opacity',
+                'box-shadow',
+              ]
+
+              tokenProperties.forEach((prop) => {
+                const value = computedStyle.getPropertyValue(prop)
+                if (value && value.trim() !== '' && value !== 'none' && value !== 'normal') {
+                  tokens[`computed_${prop.replace(/-/g, '_')}`] = value.trim()
+                }
+              })
+
+              return tokens
+            })
+
             components.push({
               name: `${selector.replace(/^\./, '')}-${i}`,
               selector: `${selector}:nth-of-type(${i + 1})`,
@@ -106,7 +173,7 @@ async function extractAnnotationsForSection(
                 w: Math.round(box.width),
                 h: Math.round(box.height),
               },
-              design_tokens: {}, // Would extract component-specific tokens in a full implementation
+              design_tokens: componentTokens,
             })
           }
         }
