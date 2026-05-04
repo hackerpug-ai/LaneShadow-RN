@@ -9,6 +9,7 @@ import com.laneshadow.data.route.RoutePlan
 import com.laneshadow.data.session.PlanningSession
 import com.laneshadow.data.session.SessionRepository
 import com.laneshadow.services.LaneShadowError
+import com.laneshadow.services.Phase
 import com.laneshadow.services.toLaneShadowError
 import com.laneshadow.services.PlannedRouteOptions
 import com.laneshadow.services.laneShadowErrorForCode
@@ -85,11 +86,12 @@ class PlanningViewModel @AssistedInject constructor(
                 }
                 .collect { messages ->
                     val latestAgentMessage = messages.latestAgentMessage()
-                    val phaseIndex = phaseIndexForStatus(latestAgentMessage?.status)
+                    val phase = Phase.fromLabel(latestAgentMessage?.status) ?: Phase.Parsing
+                    val phaseIndex = Phase.entries.indexOf(phase)
                     _state.update { current ->
                         current.copy(
                             messages = messages,
-                            currentPhase = latestAgentMessage?.status?.lowercase() ?: "parsing",
+                            currentPhase = phase,
                             activePhaseIndex = phaseIndex,
                             headerLabel = phaseHeaderForIndex(phaseIndex),
                             phaseHeaders = defaultPhaseHeaders(),

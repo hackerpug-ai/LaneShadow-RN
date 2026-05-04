@@ -3,15 +3,16 @@ package com.laneshadow.ui.planning
 import com.laneshadow.data.chat.SessionMessage
 import com.laneshadow.data.session.PlanningSession
 import com.laneshadow.services.LaneShadowError
+import com.laneshadow.services.Phase
 import com.laneshadow.services.PlannedRouteOptions
 
 data class PlanningUiState(
     val sessionId: String,
     val messages: List<SessionMessage> = emptyList(),
     val recentSessions: List<PlanningSession> = emptyList(),
-    val currentPhase: String = "parsing",
-    val activePhaseIndex: Int = 1,
-    val headerLabel: String = phaseHeaderForIndex(1),
+    val currentPhase: Phase = Phase.Parsing,
+    val activePhaseIndex: Int = 0,
+    val headerLabel: String = phaseHeaderForIndex(0),
     val activePlanId: String? = null,
     val isThinking: Boolean = true,
     val transition: PlanningTransition? = null,
@@ -27,30 +28,20 @@ sealed interface PlanningTransition {
     ) : PlanningTransition
 }
 
-internal fun phaseIndexForStatus(status: String?): Int =
-    when (status?.lowercase()) {
-        "searching" -> 2
-        "drafting" -> 3
-        "enriching" -> 4
-        "finalizing" -> 5
-        "parsing" -> 1
-        else -> 1
-    }
-
 internal fun phaseHeaderForIndex(index: Int): String =
     when (index) {
-        2 -> "Three loops are forming…"
-        3 -> "Sun on one leg, wind on another…"
-        4 -> "Ranking by scenic + twist…"
-        5 -> "Picking the best three"
+        1 -> "Three loops are forming…"
+        2 -> "Sun on one leg, wind on another…"
+        3 -> "Ranking by scenic + twist…"
+        4 -> "Picking the best three"
         else -> "Let me think on that…"
     }
 
 internal fun defaultPhaseHeaders(): Map<String, String> =
     linkedMapOf(
-        "parsing" to phaseHeaderForIndex(1),
-        "searching" to phaseHeaderForIndex(2),
-        "drafting" to phaseHeaderForIndex(3),
-        "enriching" to phaseHeaderForIndex(4),
-        "finalizing" to phaseHeaderForIndex(5),
+        "parsing" to phaseHeaderForIndex(0),
+        "searching" to phaseHeaderForIndex(1),
+        "drafting" to phaseHeaderForIndex(2),
+        "enriching" to phaseHeaderForIndex(3),
+        "finalizing" to phaseHeaderForIndex(4),
     )

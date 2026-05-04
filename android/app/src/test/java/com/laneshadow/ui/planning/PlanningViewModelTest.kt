@@ -9,6 +9,7 @@ import com.laneshadow.data.session.PlanningSession
 import com.laneshadow.data.session.SessionRepository
 import com.laneshadow.services.MainDispatcherRule
 import com.laneshadow.services.LaneShadowError
+import com.laneshadow.services.Phase
 import com.laneshadow.services.PlannedRouteOptions
 import com.laneshadow.services.RouteOption
 import java.io.IOException
@@ -43,7 +44,7 @@ class PlanningViewModelTest {
 
         advanceUntilIdle()
 
-        assertThat(viewModel.state.value.currentPhase).isEqualTo("drafting")
+        assertThat(viewModel.state.value.currentPhase).isEqualTo(Phase.Drafting)
         assertThat(viewModel.state.value.headerLabel).isEqualTo("Sun on one leg, wind on another…")
     }
 
