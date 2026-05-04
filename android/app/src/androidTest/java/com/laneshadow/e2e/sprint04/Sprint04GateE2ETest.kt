@@ -20,6 +20,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.laneshadow.EXTRA_BYPASS_AUTH
 import com.laneshadow.EXTRA_RESET_AUTH
 import com.laneshadow.MainActivity
+import com.laneshadow.e2e.sprint04.routeVariantEquals
+import com.laneshadow.e2e.sprint04.hasSolidPolyline
+import com.laneshadow.e2e.sprint04.hasDashedPolyline
+import com.laneshadow.e2e.sprint04.isBestRoute
+import com.laneshadow.e2e.sprint04.isAltRoute
+import com.laneshadow.e2e.sprint04.sessionIdEquals
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
