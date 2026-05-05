@@ -11,9 +11,9 @@ final class LocationService: NSObject {
     @ObservationIgnored private let locationManager: CLLocationManager
 
     override init() {
-        self.locationManager = CLLocationManager()
+        locationManager = CLLocationManager()
         super.init()
-        self.locationManager.delegate = self
+        locationManager.delegate = self
     }
 
     func requestWhenInUseAuthorization() {
@@ -22,7 +22,10 @@ final class LocationService: NSObject {
 }
 
 extension LocationService: CLLocationManagerDelegate {
-    nonisolated func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+    nonisolated func locationManager(
+        _ manager: CLLocationManager,
+        didChangeAuthorization status: CLAuthorizationStatus
+    ) {
         Task { @MainActor in
             authorizationStatus = status
 
