@@ -5,7 +5,7 @@ enum GreetingScope: String {
     case tonight
 
     static func from(hour: Int) -> GreetingScope {
-        (hour >= 17) ? .tonight : .today
+        (hour >= 18 || hour < 5) ? .tonight : .today
     }
 }
 

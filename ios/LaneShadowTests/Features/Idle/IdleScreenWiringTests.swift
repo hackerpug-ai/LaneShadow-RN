@@ -268,6 +268,16 @@ final class BlockingIdlePlanningClient: @unchecked Sendable, @preconcurrency Lan
         nil
     }
 
+    func subscribeToFavoriteLocations() -> AsyncStream<[FavoriteLocation]> {
+        AsyncStream { continuation in
+            continuation.finish()
+        }
+    }
+
+    func fetchCurrentWeather(lat _: Double, lng _: Double) async throws -> CurrentWeatherSummary {
+        CurrentWeatherSummary(tempF: 68, condition: "Clear", severity: .normal, dayOfWeek: "Friday")
+    }
+
     func finishObservationStreams() {}
 
     fileprivate func sendPlanningMessageCallSignal() -> AsyncSignal<LaneShadowPlanningMessageCall> {

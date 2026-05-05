@@ -394,4 +394,12 @@ final class MockLaneShadowPlanningDataProviding: LaneShadowPlanningDataProviding
     func cancelRoutePlan(routePlanId _: String) async throws {
         // No-op
     }
+
+    func subscribeToFavoriteLocations() -> AsyncStream<[FavoriteLocation]> {
+        AsyncStream { _ in }
+    }
+
+    func fetchCurrentWeather(lat _: Double, lng _: Double) async throws -> CurrentWeatherSummary {
+        CurrentWeatherSummary(tempF: 68, condition: "Clear", severity: .normal, dayOfWeek: "Friday")
+    }
 }

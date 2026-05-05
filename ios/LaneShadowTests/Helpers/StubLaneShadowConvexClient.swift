@@ -199,6 +199,21 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
         return nil
     }
 
+    func subscribeToFavoriteLocations() -> AsyncStream<[FavoriteLocation]> {
+        AsyncStream { continuation in
+            continuation.finish()
+        }
+    }
+
+    func fetchCurrentWeather(lat: Double, lng: Double) async throws -> CurrentWeatherSummary {
+        CurrentWeatherSummary(
+            tempF: 68,
+            condition: "Clear",
+            severity: .normal,
+            dayOfWeek: "Friday"
+        )
+    }
+
     func sendRouteEnrichments(_ enrichmentsDocs: [RouteEnrichmentsDocument], routePlanId: String) {
         // For simplicity, store the first (or create a dummy one if empty)
         if let first = enrichmentsDocs.first {
