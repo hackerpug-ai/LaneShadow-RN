@@ -141,5 +141,11 @@ class ErrorRouteTest {
 
         override suspend fun cancelPlan(routePlanId: String): Result<Unit> =
             Result.failure(UnsupportedOperationException())
+
+        override fun observeFavoriteLocations(): Flow<List<com.laneshadow.data.favorites.FavoriteLocation>> =
+            emptyFlow()
+
+        override suspend fun getCurrentWeather(lat: Double, lng: Double): com.laneshadow.data.dto.WeatherDto =
+            throw UnsupportedOperationException()
     }
 }

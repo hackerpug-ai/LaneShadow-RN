@@ -3,8 +3,10 @@ package com.laneshadow.services
 import android.content.Context
 import com.laneshadow.BuildConfig
 import com.laneshadow.data.chat.SessionMessage
+import com.laneshadow.data.dto.FavoriteLocationDto
 import com.laneshadow.data.dto.RoutePlanDto
 import com.laneshadow.data.dto.SessionMessageDto
+import com.laneshadow.data.dto.WeatherDto
 import com.laneshadow.data.repository.AuthRepository
 import com.laneshadow.data.route.RoutePlan
 import com.laneshadow.data.session.PlanningSession
@@ -41,6 +43,7 @@ internal interface ConvexGateway {
     fun observeSessionMessages(sessionId: String): Flow<List<SessionMessage>>
     fun observeActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>>
     fun observeSessions(): Flow<List<Session>>
+    fun observeFavoriteLocations(): Flow<List<com.laneshadow.data.favorites.FavoriteLocation>>
     suspend fun sendMessage(
         sessionId: String,
         content: String,
@@ -48,6 +51,7 @@ internal interface ConvexGateway {
     ): Result<ConvexSendMessageResponseDto>
     suspend fun createSession(firstMessage: String): Result<String>
     suspend fun cancelPlan(routePlanId: String): Result<Unit>
+    suspend fun getCurrentWeather(lat: Double, lng: Double): WeatherDto
 }
 
 @Singleton
@@ -93,6 +97,14 @@ class ConvexClientProvider private constructor(
 
     fun observeActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>> =
         observeAuthenticatedFlow { activeGateway.observeActiveRoutePlans(sessionId) }
+
+    fun observeFavoriteLocations(): Flow<List<com.laneshadow.data.favorites.FavoriteLocation>> =
+        observeAuthenticatedFlow { activeGateway.observeFavoriteLocations() }
+
+    suspend fun getCurrentWeather(lat: Double, lng: Double): Result<WeatherDto> =
+        runAuthenticated {
+            activeGateway.getCurrentWeather(lat, lng)
+        }
 
     suspend fun getCurrentUser(): Result<ConvexCurrentUser> = runAuthenticated {
         val currentUser = activeGateway.getCurrentUser()
@@ -249,6 +261,13 @@ private class RealConvexGateway(
             result.getOrThrow().map { it.toSession() }
         }
 
+    override fun observeFavoriteLocations(): Flow<List<com.laneshadow.data.favorites.FavoriteLocation>> =
+        convexClient.subscribe<List<FavoriteLocationDto>>(
+            name = "db/favorites:listFavoriteLocations",
+        ).map { result ->
+            result.getOrThrow().map { it.toDomain() }
+        }
+
     override suspend fun sendMessage(
         sessionId: String,
         content: String,
@@ -287,6 +306,16 @@ private class RealConvexGateway(
         )
         Unit
     }
+
+    override suspend fun getCurrentWeather(lat: Double, lng: Double): WeatherDto = runCatching {
+        convexClient.action<WeatherDto>(
+            name = "actions/weather:getCurrentWeather",
+            args = mapOf(
+                "lat" to lat,
+                "lng" to lng,
+            ),
+        )
+    }.getOrThrow()
 }
 
 internal fun successfulConvexLogoutResult(): Result<Void> =

@@ -160,6 +160,11 @@ class ConvexClientProviderAuthTest {
 
     override suspend fun cancelPlan(routePlanId: String): Result<Unit> =
         Result.failure(UnsupportedOperationException("not needed in this test"))
+
+    override fun observeFavoriteLocations() = emptyFlow<List<com.laneshadow.data.favorites.FavoriteLocation>>()
+
+    override suspend fun getCurrentWeather(lat: Double, lng: Double): com.laneshadow.data.dto.WeatherDto =
+        throw UnsupportedOperationException("not needed in this test")
 }
 
 private class FakeAuthRepository(

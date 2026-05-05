@@ -20,8 +20,6 @@ class FavoritesRepositoryImpl @Inject constructor(
     private val convexClientProvider: ConvexClientProvider,
 ) : FavoritesRepository {
     override fun subscribeToFavoriteLocations(): Flow<List<FavoriteLocation>> {
-        // TODO: Implement Convex query call to favorites.listFavoriteLocations
-        // For now, return a flow that emits empty list until the backend is ready
-        return kotlinx.coroutines.flow.flowOf(emptyList())
+        return convexClientProvider.observeFavoriteLocations()
     }
 }

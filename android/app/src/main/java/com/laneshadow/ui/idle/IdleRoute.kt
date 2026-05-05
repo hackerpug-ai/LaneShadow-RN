@@ -3,12 +3,16 @@ package com.laneshadow.ui.idle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.laneshadow.navigation.Route
 import com.laneshadow.navigation.planningRoute
-import com.laneshadow.sandbox.mockproviders.Greeting
 import com.laneshadow.sandbox.mockproviders.IdleScreenState
 import com.laneshadow.sandbox.mockproviders.LocationContext
 import com.laneshadow.sandbox.mockproviders.SuggestionChip as MockSuggestionChip
@@ -46,14 +50,20 @@ fun IdleRoute(
 
 internal fun IdleUiState.toMockState(): IdleScreenState {
     val scopeWord = greetingScope.name.lowercase() // "today" or "tonight"
-    val headline = "Where are we riding $scopeWord, $firstName?"
+    val headline = buildAnnotatedString {
+        append("Where are we riding ")
+        withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+            append(scopeWord)
+        }
+        append(", $firstName?")
+    }
 
     return IdleScreenState(
-        greeting = Greeting(
+        greeting = IdleGreeting(
             meta = metaRow.ifBlank { greetingMeta },
             headline = headline,
             emphasis = scopeWord,
-        ),
+        ).toMockGreeting(),
         suggestions = suggestions.mapIndexed { index, chip ->
             MockSuggestionChip(
                 id = "idle-chip-${index + 1}",
