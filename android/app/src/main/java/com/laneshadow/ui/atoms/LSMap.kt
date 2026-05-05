@@ -12,7 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +32,8 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.laneshadow.R
@@ -101,21 +107,42 @@ fun LSMap(
                 modifier = hostModifier,
             )
 
-        else ->
+        else -> {
+            // Remember annotation manager to avoid recreating on every update
+            var annotationManager by remember { mutableStateOf<PointAnnotationManager?>(null) }
+
             Box(modifier = hostModifier.background(mapPaperColor(renderModel.styleUri))) {
                 AndroidView(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().then(
+                        if (favoriteLocations.isNotEmpty()) {
+                            Modifier.semantics {
+                                this.contentDescription = "Map showing ${favoriteLocations.size} favorite locations"
+                            }
+                        } else {
+                            Modifier
+                        }
+                    ),
                     factory = { mapContext ->
                         MapView(mapContext).also { mapView ->
                             configureMapView(mapView, renderModel, onTap)
-                            applyFavoritePinAnnotations(mapView, favoriteLocations, isDarkTheme)
+                            val manager = mapView.annotations.createPointAnnotationManager()
+                            annotationManager = manager
+                            applyFavoritePinAnnotations(manager, favoriteLocations, isDarkTheme)
                         }
                     },
                     update = { mapView ->
                         configureMapView(mapView, renderModel, onTap)
-                        applyFavoritePinAnnotations(mapView, favoriteLocations, isDarkTheme)
                     },
                 )
+
+                // Apply favorite pin annotations when favoriteLocations or theme changes
+                LaunchedEffect(favoriteLocations, isDarkTheme) {
+                    val manager = annotationManager
+                    if (manager != null) {
+                        applyFavoritePinAnnotations(manager, favoriteLocations, isDarkTheme)
+                    }
+                }
+
                 // Canvas overlay for animated polyline rendering with drawProgress
                 if (renderModel.polylines.isNotEmpty()) {
                     Canvas(modifier = Modifier.fillMaxSize()) {
@@ -189,6 +216,7 @@ fun LSMap(
                     )
                 }
             }
+        }
     }
 }
 
@@ -218,14 +246,12 @@ private fun configureMapView(
 }
 
 private fun applyFavoritePinAnnotations(
-    mapView: MapView,
+    annotationManager: PointAnnotationManager,
     favorites: List<FavoriteLocation>,
     isDarkTheme: Boolean,
 ) {
-    val pointAnnotationManager = mapView.annotations.createPointAnnotationManager()
-
     // Clear existing annotations
-    pointAnnotationManager.deleteAll()
+    annotationManager.deleteAll()
 
     // Create pin specs for favorites
     val pinSpecs = resolveLSMapFavoritePinSpecs(favorites, isDarkTheme)
@@ -237,7 +263,7 @@ private fun applyFavoritePinAnnotations(
             .withIconImage("default-marker") // Use Mapbox default marker for now
             .withIconSize(1.0)
 
-        pointAnnotationManager.create(pointAnnotationOptions)
+        annotationManager.create(pointAnnotationOptions)
     }
 }
 
