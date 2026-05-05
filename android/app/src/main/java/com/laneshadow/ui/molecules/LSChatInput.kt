@@ -54,6 +54,7 @@ fun LSChatInput(
     suggestions: List<SuggestionChip>? = null,
     onSuggestionTap: (SuggestionChip) -> Unit = {},
     locationBadge: LocationContext? = null,
+    onLocationModeChange: (LocationMode) -> Unit = {},
     isThinking: Boolean = false,
     isEnabled: Boolean = true,
     modifier: Modifier = Modifier,
@@ -74,7 +75,15 @@ fun LSChatInput(
             LSLocationContextBar(
                 location = locationBadge.label,
                 mode = locationBadge.mode,
-                onModeChange = { /* TODO: Handle mode change */ },
+                onModeChange = {
+                    val nextMode =
+                        if (locationBadge.mode == LocationMode.Manual) {
+                            LocationMode.Auto
+                        } else {
+                            LocationMode.Manual
+                        }
+                    onLocationModeChange(nextMode)
+                },
             )
         }
 

@@ -37,6 +37,7 @@ data class IdleUiState(
     val locationLabel: String? = null,
     val locationMode: String = "manual",
     val isLocationEnabled: Boolean = false,
+    val locationUnavailable: Boolean = false,
 )
 
 sealed interface IdleNavTarget {

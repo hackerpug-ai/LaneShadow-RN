@@ -53,8 +53,22 @@ class IdleViewModel @Inject constructor(
     }
 
     fun onSuggestionTap(suggestion: SuggestionChip) {
-        onInputChange(suggestion.text)
-        onSend(suggestion.text)
+        _state.update { current ->
+            current.copy(
+                inputValue = suggestion.text,
+                errorToast = null,
+                navigateTo = null,
+            )
+        }
+    }
+
+    fun onLocationModeChange(mode: String) {
+        _state.update { current ->
+            current.copy(locationMode = mode)
+        }
+        if (mode == "auto") {
+            observeLocation()
+        }
     }
 
     fun onSend(content: String) {
@@ -211,21 +225,20 @@ class IdleViewModel @Inject constructor(
 
     private fun observeLocation() {
         viewModelScope.launch {
-            // Get current location
             val locationResult = locationRepository.getCurrentLocation()
             if (locationResult.isFailure) {
                 _state.update { current ->
                     current.copy(
                         isLoading = false,
                         subscriptionError = "Unable to get current location.",
+                        locationUnavailable = true,
+                        isLocationEnabled = false,
                     )
                 }
                 return@launch
             }
 
             val location: LocationCoordinate = locationResult.getOrThrow()
-
-            // Reverse geocode to get place name
             val geocodeResult = convexClientProvider.reverseGeocode(
                 location.latitude,
                 location.longitude,
@@ -235,6 +248,9 @@ class IdleViewModel @Inject constructor(
                     current.copy(
                         isLoading = false,
                         subscriptionError = "Unable to resolve location.",
+                        locationLabel = null,
+                        locationUnavailable = true,
+                        isLocationEnabled = false,
                     )
                 }
                 return@launch
@@ -246,6 +262,9 @@ class IdleViewModel @Inject constructor(
                     locationLabel = geocode.label,
                     locationMode = "auto",
                     isLocationEnabled = true,
+                    locationUnavailable = false,
+                    subscriptionError = current.subscriptionError
+                        ?.takeUnless { it == "Unable to resolve location." || it == "Unable to get current location." },
                     isLoading = false,
                 )
             }

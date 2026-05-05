@@ -246,6 +246,26 @@ class LSMapTest {
     }
 
     @Test
+    fun favoritePins_useCopperDotSpecs() {
+        val favorites = listOf(
+            com.laneshadow.data.favorites.FavoriteLocation(
+                id = "fav-001",
+                lat = 37.7749,
+                lon = -122.4194,
+                label = "SF Start",
+            ),
+        )
+
+        val pinSpecs = resolveLSMapFavoritePinSpecs(favorites, isDarkTheme = false)
+
+        assertEquals(1, pinSpecs.size)
+        assertEquals(GeneratedTokens.color.Signal.default, pinSpecs.single().fillColor)
+        assertEquals(GeneratedTokens.color.Surface.card, pinSpecs.single().ringColor)
+        assertEquals(LatLng(37.7749, -122.4194), pinSpecs.single().coordinate)
+        assertEquals("SF Start", pinSpecs.single().label)
+    }
+
+    @Test
     fun lsmap_backward_compatible_with_default_empty_favorites() {
         // Test that the render model resolves correctly without favoriteLocations parameter
         val model = resolveLSMapRenderModel(

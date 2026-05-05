@@ -1,12 +1,23 @@
 package com.laneshadow.ui.templates
 
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import com.laneshadow.ui.idle.GreetingScope
+import com.laneshadow.ui.idle.IdleUiState
 import com.laneshadow.sandbox.mockproviders.Greeting
 import com.laneshadow.sandbox.mockproviders.IdleScreenState
 import com.laneshadow.sandbox.mockproviders.LocationContext as MockLocationContext
 import com.laneshadow.sandbox.mockproviders.SuggestionChip as MockSuggestionChip
+import com.laneshadow.theme.LaneShadowTheme
+import com.laneshadow.ui.idle.toMockState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -27,6 +38,70 @@ import java.io.File
  */
 @RunWith(RobolectricTestRunner::class)
 class IdleScreenTest {
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    @Test
+    fun liveAdvisory_rendersCard() {
+        val screenState = IdleUiState(
+            firstName = "Avery",
+            greetingScope = GreetingScope.TODAY,
+            metaRow = "MONDAY · 45°F · RAIN",
+            showAdvisoryCard = true,
+            advisoryMessage = "Rain expected",
+        ).toMockState()
+
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                Surface {
+                    IdleScreen(
+                        state = screenState,
+                        inputValue = "",
+                        onMenuTap = {},
+                        onSuggestionTap = {},
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        mapContent = {
+                            Text(text = "stub-map")
+                        },
+                    )
+                }
+            }
+        }
+
+        composeTestRule.onNodeWithTag("advisory-card").assertIsDisplayed()
+    }
+
+    @Test
+    fun productionIdleTags_existInUi() {
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                Surface {
+                    IdleScreen(
+                        state = IdleUiState(
+                            firstName = "Avery",
+                            greetingScope = GreetingScope.TODAY,
+                        ).toMockState(),
+                        inputValue = "",
+                        onMenuTap = {},
+                        onSuggestionTap = {},
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        mapContent = {
+                            Text(text = "stub-map")
+                        },
+                    )
+                }
+            }
+        }
+
+        composeTestRule.onNodeWithTag("idlescreen-current-user-greeting").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Twisty back roads").assertIsDisplayed()
+    }
 
     /**
      * AC-1 — Idle screen composition renders
@@ -102,14 +177,12 @@ class IdleScreenTest {
     fun ac3_trailing_icon_swap_callback_wiring_is_correct() {
         val source = File("../app/src/main/java/com/laneshadow/ui/templates/IdleScreen.kt").readText()
 
-        // Must manage input state via remember
-        assertTrue(source.contains("remember { mutableStateOf(\"\") }"))
-
-        // Must pass value state to LSChatInput
+        // Must accept input from the route/ViewModel
+        assertTrue(source.contains("inputValue: String = \"\""))
         assertTrue(source.contains("value = inputValue"))
 
-        // Must handle onValueChange callback
-        assertTrue(source.contains("onValueChange = { newValue ->"))
+        // Must pass through value changes without a local shadow state
+        assertTrue(source.contains("onValueChange = onValueChange"))
     }
 
     /**

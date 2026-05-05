@@ -12,6 +12,7 @@ import com.laneshadow.data.user.UserRepository
 import com.laneshadow.data.weather.WeatherRepository
 import com.laneshadow.data.weather.WeatherSeverity
 import com.laneshadow.data.weather.WeatherSummary
+import com.laneshadow.services.GeocodeResult
 import com.laneshadow.services.MainDispatcherRule
 import com.laneshadow.ui.atoms.LatLng
 import java.io.IOException
@@ -55,7 +56,7 @@ class IdleViewModelTest {
     }
 
     @Test
-    fun onSuggestionTap_createsSessionThenSendsMessageAndSetsNavigateTo() = runTest {
+    fun onSend_createsSessionThenSendsMessageAndSetsNavigateTo() = runTest {
         val sessionRepository = FakeSessionRepository()
         val chatRepository = FakeChatRepository()
         val convexProvider = createTestConvexClientProvider()
@@ -74,7 +75,7 @@ class IdleViewModelTest {
             convexClientProvider = convexProvider,
         )
 
-        viewModel.onSuggestionTap(SuggestionChip(text = "Plan a scenic 2-hour ride"))
+        viewModel.onSend("Plan a scenic 2-hour ride")
         advanceUntilIdle()
 
         assertThat(sessionRepository.createSessionCalls.get()).isEqualTo(1)
@@ -132,6 +133,106 @@ class IdleViewModelTest {
 
         assertThat(viewModel.state.value.subscriptionError).contains("offline")
         assertThat(viewModel.state.value.isLoading).isFalse()
+    }
+
+    @Test
+    fun liveState_adapter_preservesIdleFields() {
+        val favorite = FavoriteLocation(
+            id = "fav-live-1",
+            lat = 37.81,
+            lon = -122.47,
+            label = "Point Bonita",
+        )
+
+        val screenState = IdleUiState(
+            firstName = "Avery",
+            greetingScope = GreetingScope.TONIGHT,
+            metaRow = "FRIDAY · 68°F · CLEAR",
+            favoriteLocations = listOf(favorite),
+            showAdvisoryCard = true,
+            advisoryMessage = "Watch for rain on Highway 1.",
+            locationLabel = "Near Santa Cruz, CA",
+            locationMode = "auto",
+            isLocationEnabled = true,
+        ).toMockState()
+
+        assertThat(screenState.favoriteLocations).containsExactly(favorite)
+        assertThat(screenState.showAdvisoryCard).isTrue()
+        assertThat(screenState.advisoryMessage).isEqualTo("Watch for rain on Highway 1.")
+        assertThat(screenState.locationContext.label).isEqualTo("Near Santa Cruz, CA")
+        assertThat(screenState.locationContext.mode).isEqualTo("auto")
+        assertThat(screenState.isNoLocation).isFalse()
+    }
+
+    @Test
+    fun suggestionChipTap_primesInputWithoutNavigation() = runTest {
+        val sessionRepository = FakeSessionRepository()
+        val chatRepository = FakeChatRepository()
+        val viewModel = IdleViewModel(
+            userRepository = FakeUserRepository(currentUser = null),
+            sessionRepository = sessionRepository,
+            chatRepository = chatRepository,
+            weatherRepository = FakeWeatherRepository(weather = null),
+            favoritesRepository = FakeFavoritesRepository(),
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = createTestConvexClientProvider(),
+        )
+
+        viewModel.onSuggestionTap(SuggestionChip(text = "Plan a scenic 2-hour ride"))
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.inputValue).isEqualTo("Plan a scenic 2-hour ride")
+        assertThat(viewModel.state.value.navigateTo).isNull()
+        assertThat(sessionRepository.createSessionCalls.get()).isEqualTo(0)
+        assertThat(chatRepository.sendMessageCalls.get()).isEqualTo(0)
+    }
+
+    @Test
+    fun geocodeRecovery_clearsUnavailable() = runTest {
+        val viewModel = IdleViewModel(
+            userRepository = FakeUserRepository(currentUser = null),
+            sessionRepository = FakeSessionRepository(),
+            chatRepository = FakeChatRepository(),
+            weatherRepository = FakeWeatherRepository(weather = null),
+            favoritesRepository = FakeFavoritesRepository(),
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = createTestConvexClientProvider(
+                geocodeResults = listOf(
+                    Result.failure(IOException("geocode down")),
+                    Result.success(GeocodeResult(label = "Near Santa Cruz, CA")),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.locationUnavailable).isTrue()
+        assertThat(viewModel.state.value.isLocationEnabled).isFalse()
+
+        viewModel.onLocationModeChange("manual")
+        viewModel.onLocationModeChange("auto")
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.locationUnavailable).isFalse()
+        assertThat(viewModel.state.value.isLocationEnabled).isTrue()
+        assertThat(viewModel.state.value.locationLabel).isEqualTo("Near Santa Cruz, CA")
+    }
+
+    @Test
+    fun locationModeToggle_setsManual() = runTest {
+        val viewModel = IdleViewModel(
+            userRepository = FakeUserRepository(currentUser = null),
+            sessionRepository = FakeSessionRepository(),
+            chatRepository = FakeChatRepository(),
+            weatherRepository = FakeWeatherRepository(weather = null),
+            favoritesRepository = FakeFavoritesRepository(),
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = createTestConvexClientProvider(),
+        )
+
+        advanceUntilIdle()
+        viewModel.onLocationModeChange("manual")
+
+        assertThat(viewModel.state.value.locationMode).isEqualTo("manual")
     }
 
     // AC-1: Greeting scope is TONIGHT for hours 18-23 / 0-4 (PRIMARY)
@@ -474,7 +575,9 @@ class IdleViewModelTest {
         }
     }
 
-    private fun createTestConvexClientProvider(): com.laneshadow.services.ConvexClientProvider {
+    private fun createTestConvexClientProvider(
+        geocodeResults: List<Result<GeocodeResult>> = listOf(Result.success(GeocodeResult("Santa Cruz, CA", "place-123"))),
+    ): com.laneshadow.services.ConvexClientProvider {
         val authRepository = object : com.laneshadow.data.repository.AuthRepository {
             override suspend fun signIn(email: String, password: String): Result<com.laneshadow.data.model.ClerkUser> =
                 Result.failure(UnsupportedOperationException())
@@ -499,6 +602,7 @@ class IdleViewModelTest {
                 ))
         }
 
+        val geocodeIndex = AtomicInteger(0)
         val convexGateway = object : com.laneshadow.services.ConvexGateway {
             override suspend fun bindAuthToken(token: String): Result<Unit> = Result.success(Unit)
             override suspend fun clearAuth(context: android.content.Context): Result<Unit> = Result.success(Unit)
@@ -526,8 +630,12 @@ class IdleViewModelTest {
             override suspend fun cancelPlan(routePlanId: String): Result<Unit> = Result.success(Unit)
             override suspend fun getCurrentWeather(lat: Double, lng: Double): com.laneshadow.data.dto.WeatherDto =
                 com.laneshadow.data.dto.WeatherDto(68.0, "Clear", "none", "MONDAY")
-            override suspend fun reverseGeocode(lat: Double, lng: Double): com.laneshadow.services.GeocodeResult =
-                com.laneshadow.services.GeocodeResult("Santa Cruz, CA", "place-123")
+            override suspend fun reverseGeocode(lat: Double, lng: Double): com.laneshadow.services.GeocodeResult {
+                val nextIndex = geocodeIndex.getAndUpdate { current ->
+                    if (current < geocodeResults.lastIndex) current + 1 else current
+                }
+                return geocodeResults[nextIndex].getOrThrow()
+            }
         }
 
         return com.laneshadow.services.ConvexClientProvider(

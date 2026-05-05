@@ -10,7 +10,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.testTag
+import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme.IconName
 import com.laneshadow.ui.atoms.IconColor
@@ -38,7 +39,8 @@ fun LSSuggestionChip(
         size = SuggestionChipPillSize,
         modifier = modifier
             .background(style.backgroundColor, shape)
-            .border(1.dp, style.borderColor, shape)
+            .border(GeneratedTokens.sizing.stroke.sm, style.borderColor, shape)
+            .testTag("suggestion-chip")
             .semantics {
                 role = Role.Button
                 contentDescription = label

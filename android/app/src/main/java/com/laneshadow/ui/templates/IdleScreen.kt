@@ -4,12 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
@@ -57,16 +53,30 @@ import com.laneshadow.ui.organisms.LSTopBar
 @Composable
 fun IdleScreen(
     state: IdleScreenState,
+    inputValue: String = "",
     onMenuTap: () -> Unit,
     onSuggestionTap: (MockSuggestionChip) -> Unit,
     onSend: (String) -> Unit,
     onCollapse: () -> Unit,
     onFilter: () -> Unit,
     onValueChange: (String) -> Unit,
+    onLocationModeChange: (String) -> Unit = {},
+    mapContent: @Composable (IdleScreenState) -> Unit = { screenState ->
+        LSMap(
+            mode = MapMode.Interactive,
+            camera = CameraPosition(
+                center = LatLng(37.8104, -122.4752),
+                zoom = 10.8,
+            ),
+            favoriteLocations = screenState.favoriteLocations,
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag("idlescreen-map"),
+        )
+    },
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
-    var inputValue by remember { mutableStateOf("") }
 
     // Build annotated string with italicized emphasis
     val greetingHeadline = buildAnnotatedString {
@@ -98,17 +108,7 @@ fun IdleScreen(
 
     LSMapLayer(
         map = {
-            LSMap(
-                mode = MapMode.Interactive,
-                camera = CameraPosition(
-                    center = LatLng(37.8104, -122.4752),
-                    zoom = 10.8,
-                ),
-                favoriteLocations = state.favoriteLocations,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag("idlescreen-map"),
-            )
+            mapContent(state)
         },
         topOverlays = listOf(
             com.laneshadow.ui.organisms.GlassOverlaySlot(
@@ -119,7 +119,7 @@ fun IdleScreen(
                         headline = greetingHeadline,
                         showAdvisoryCard = state.showAdvisoryCard,
                         advisoryMessage = state.advisoryMessage,
-                        modifier = Modifier.testTag("greeting-overlay"),
+                        modifier = Modifier.testTag("idlescreen-current-user-greeting"),
                     )
                 }
             )
@@ -130,10 +130,7 @@ fun IdleScreen(
                 content = {
                     LSChatInput(
                         value = inputValue,
-                        onValueChange = { newValue ->
-                            inputValue = newValue
-                            onValueChange(newValue)
-                        },
+                        onValueChange = onValueChange,
                         placeholder = "Where should we ride?",
                         onSend = onSend,
                         onCollapse = onCollapse,
@@ -142,12 +139,13 @@ fun IdleScreen(
                             UISuggestionChip(label = mockChip.label)
                         },
                         onSuggestionTap = { uiChip ->
-                            // Update input value and find the original mock chip to preserve its ID
-                            inputValue = uiChip.label
                             val originalChip = state.suggestions.firstOrNull { it.label == uiChip.label }
                             onSuggestionTap(originalChip ?: MockSuggestionChip(id = "", label = uiChip.label))
                         },
                         locationBadge = state.locationContext.toUiLocationContext(),
+                        onLocationModeChange = { mode ->
+                            onLocationModeChange(mode.name.lowercase())
+                        },
                         isEnabled = !state.isNoLocation,  // V01: disable chat input in no-location variant
                         modifier = Modifier.testTag("chat-input"),
                     )
