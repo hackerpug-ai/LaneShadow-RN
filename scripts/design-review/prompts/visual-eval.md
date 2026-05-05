@@ -112,6 +112,12 @@ Respond with a JSON array of component evaluations. Each entry must have:
 }
 ```
 
+## Map Backgrounds (CRITICAL)
+
+Many screens have a map underlay (idle-screen, planning-screen, route-results-screen, route-details-screen, auth-screen, sessions-screen, error-screen). The reference image uses a CSS grid pattern or solid color as a map placeholder. The implementation uses a real map with tiles, roads, and terrain.
+
+**You MUST ignore differences in the map background region.** Only evaluate the UI overlay components (top bars, cards, buttons, inputs, sheets, chips, text). Map tile appearance, road layout, terrain coloring, and zoom level are NOT design fidelity issues. If the map placeholder region is the only difference, the component passes.
+
 ## Important Notes
 
 - Compare Image 1 (reference) to Image 2 (implementation) — order matters
