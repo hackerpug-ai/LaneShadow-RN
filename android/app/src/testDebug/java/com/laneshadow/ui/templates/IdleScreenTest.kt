@@ -1,15 +1,23 @@
 package com.laneshadow.ui.templates
 
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import com.laneshadow.ui.idle.GreetingScope
 import com.laneshadow.ui.idle.IdleUiState
 import com.laneshadow.sandbox.mockproviders.Greeting
 import com.laneshadow.sandbox.mockproviders.IdleScreenState
 import com.laneshadow.sandbox.mockproviders.LocationContext as MockLocationContext
 import com.laneshadow.sandbox.mockproviders.SuggestionChip as MockSuggestionChip
+import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.idle.toMockState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -30,6 +38,8 @@ import java.io.File
  */
 @RunWith(RobolectricTestRunner::class)
 class IdleScreenTest {
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
     @Test
     fun liveAdvisory_rendersCard() {
@@ -40,20 +50,57 @@ class IdleScreenTest {
             showAdvisoryCard = true,
             advisoryMessage = "Rain expected",
         ).toMockState()
-        val source = File("../app/src/main/java/com/laneshadow/ui/templates/IdleScreen.kt").readText()
 
-        assertTrue(screenState.showAdvisoryCard)
-        assertEquals("Rain expected", screenState.advisoryMessage)
-        assertTrue(source.contains("Modifier.testTag(\"advisory-card\")"))
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                Surface {
+                    IdleScreen(
+                        state = screenState,
+                        inputValue = "",
+                        onMenuTap = {},
+                        onSuggestionTap = {},
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        mapContent = {
+                            Text(text = "stub-map")
+                        },
+                    )
+                }
+            }
+        }
+
+        composeTestRule.onNodeWithTag("advisory-card").assertIsDisplayed()
     }
 
     @Test
     fun productionIdleTags_existInUi() {
-        val idleScreenSource = File("../app/src/main/java/com/laneshadow/ui/templates/IdleScreen.kt").readText()
-        val chipSource = File("../app/src/main/java/com/laneshadow/ui/molecules/LSSuggestionChip.kt").readText()
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                Surface {
+                    IdleScreen(
+                        state = IdleUiState(
+                            firstName = "Avery",
+                            greetingScope = GreetingScope.TODAY,
+                        ).toMockState(),
+                        inputValue = "",
+                        onMenuTap = {},
+                        onSuggestionTap = {},
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        mapContent = {
+                            Text(text = "stub-map")
+                        },
+                    )
+                }
+            }
+        }
 
-        assertTrue(idleScreenSource.contains("idlescreen-current-user-greeting"))
-        assertTrue(chipSource.contains("suggestion-chip"))
+        composeTestRule.onNodeWithTag("idlescreen-current-user-greeting").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Twisty back roads").assertIsDisplayed()
     }
 
     /**

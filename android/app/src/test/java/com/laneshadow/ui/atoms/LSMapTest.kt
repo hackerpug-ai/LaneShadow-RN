@@ -2,7 +2,6 @@ package com.laneshadow.ui.atoms
 
 import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
-import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -258,11 +257,12 @@ class LSMapTest {
         )
 
         val pinSpecs = resolveLSMapFavoritePinSpecs(favorites, isDarkTheme = false)
-        val source = File("src/main/java/com/laneshadow/ui/atoms/LSMap.kt").readText()
 
         assertEquals(1, pinSpecs.size)
         assertEquals(GeneratedTokens.color.Signal.default, pinSpecs.single().fillColor)
-        assertFalse(source.contains("withIconImage(\"default-marker\")"))
+        assertEquals(GeneratedTokens.color.Surface.card, pinSpecs.single().ringColor)
+        assertEquals(LatLng(37.7749, -122.4194), pinSpecs.single().coordinate)
+        assertEquals("SF Start", pinSpecs.single().label)
     }
 
     @Test

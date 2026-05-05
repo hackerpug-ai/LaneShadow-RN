@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
@@ -61,6 +61,19 @@ fun IdleScreen(
     onFilter: () -> Unit,
     onValueChange: (String) -> Unit,
     onLocationModeChange: (String) -> Unit = {},
+    mapContent: @Composable (IdleScreenState) -> Unit = { screenState ->
+        LSMap(
+            mode = MapMode.Interactive,
+            camera = CameraPosition(
+                center = LatLng(37.8104, -122.4752),
+                zoom = 10.8,
+            ),
+            favoriteLocations = screenState.favoriteLocations,
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag("idlescreen-map"),
+        )
+    },
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
@@ -95,17 +108,7 @@ fun IdleScreen(
 
     LSMapLayer(
         map = {
-            LSMap(
-                mode = MapMode.Interactive,
-                camera = CameraPosition(
-                    center = LatLng(37.8104, -122.4752),
-                    zoom = 10.8,
-                ),
-                favoriteLocations = state.favoriteLocations,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag("idlescreen-map"),
-            )
+            mapContent(state)
         },
         topOverlays = listOf(
             com.laneshadow.ui.organisms.GlassOverlaySlot(

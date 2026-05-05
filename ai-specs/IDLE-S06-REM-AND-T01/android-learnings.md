@@ -6,6 +6,7 @@
 ## Edge Cases Discovered
 1. Reverse-geocode success can accidentally wipe unrelated subscription errors if location recovery blindly clears all errors; only location-specific errors should be cleared.
 2. Suggestion chips must prime the idle input without triggering planning immediately, otherwise the live idle screen skips the rider-visible “review/edit before send” state.
+3. Geocode recovery has to happen on the same `IdleViewModel` instance; switching back to `auto` mode is a valid retry trigger and should not require recreating the screen.
 
 ## API Contract Notes
 - `IdleUiState` needs an explicit `locationUnavailable` flag in addition to `isLocationEnabled`; template projection cannot infer recovery state reliably from `locationLabel` alone.
@@ -14,6 +15,7 @@
 ## UI Decisions
 - `IdleScreen` now treats `inputValue` as route-owned state instead of maintaining a local `remember` shadow, preserving unidirectional data flow from `IdleViewModel`.
 - Favorite map pins now render from a generated copper-dot bitmap using the existing favorite pin specs, which removes the fallback default marker path while keeping token-defined colors.
+- `IdleScreen` accepts an overridable `mapContent` slot with the existing `LSMap` default so JVM Compose tests can exercise advisory/tag behavior without loading native Mapbox code.
 
 ## Gotchas for iOS Implementer
 - If the idle template still accepts sandbox/provider state, the projection layer must remain lossless for favorites, advisory, no-location, and chat state or the live screen will silently drift from the ViewModel.
@@ -24,6 +26,7 @@
 - `android/app/src/main/java/com/laneshadow/ui/idle/IdleViewModel.kt` — rewired suggestion/manual-mode/location recovery behavior.
 - `android/app/src/main/java/com/laneshadow/ui/idle/IdleRoute.kt` — made template projection lossless for sprint-critical live fields.
 - `android/app/src/main/java/com/laneshadow/ui/templates/IdleScreen.kt` — removed local input shadow state and added live greeting tag/mode callback wiring.
+- `android/app/src/main/java/com/laneshadow/ui/templates/IdleScreen.kt` — added injectable map slot for runtime unit-test coverage without changing the production map path.
 - `android/app/src/main/java/com/laneshadow/ui/molecules/LSChatInput.kt` — connected manual/auto mode changes.
 - `android/app/src/main/java/com/laneshadow/ui/molecules/LSSuggestionChip.kt` — added stable production tag.
 - `android/app/src/main/java/com/laneshadow/ui/atoms/LSMap.kt` — replaced default favorite marker path with copper-dot bitmap annotations.

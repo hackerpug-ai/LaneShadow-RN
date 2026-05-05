@@ -189,7 +189,7 @@ class IdleViewModelTest {
 
     @Test
     fun geocodeRecovery_clearsUnavailable() = runTest {
-        val failedViewModel = IdleViewModel(
+        val viewModel = IdleViewModel(
             userRepository = FakeUserRepository(currentUser = null),
             sessionRepository = FakeSessionRepository(),
             chatRepository = FakeChatRepository(),
@@ -197,29 +197,24 @@ class IdleViewModelTest {
             favoritesRepository = FakeFavoritesRepository(),
             locationRepository = FakeLocationRepository(),
             convexClientProvider = createTestConvexClientProvider(
-                geocodeResults = listOf(Result.failure(IOException("geocode down"))),
+                geocodeResults = listOf(
+                    Result.failure(IOException("geocode down")),
+                    Result.success(GeocodeResult(label = "Near Santa Cruz, CA")),
+                ),
             ),
         )
         advanceUntilIdle()
 
-        assertThat(failedViewModel.state.value.locationUnavailable).isTrue()
-        assertThat(failedViewModel.state.value.isLocationEnabled).isFalse()
+        assertThat(viewModel.state.value.locationUnavailable).isTrue()
+        assertThat(viewModel.state.value.isLocationEnabled).isFalse()
 
-        val recoveredViewModel = IdleViewModel(
-            userRepository = FakeUserRepository(currentUser = null),
-            sessionRepository = FakeSessionRepository(),
-            chatRepository = FakeChatRepository(),
-            weatherRepository = FakeWeatherRepository(weather = null),
-            favoritesRepository = FakeFavoritesRepository(),
-            locationRepository = FakeLocationRepository(),
-            convexClientProvider = createTestConvexClientProvider(
-                geocodeResults = listOf(Result.success(GeocodeResult(label = "Near Santa Cruz, CA"))),
-            ),
-        )
+        viewModel.onLocationModeChange("manual")
+        viewModel.onLocationModeChange("auto")
         advanceUntilIdle()
 
-        assertThat(recoveredViewModel.state.value.locationUnavailable).isFalse()
-        assertThat(recoveredViewModel.state.value.isLocationEnabled).isTrue()
+        assertThat(viewModel.state.value.locationUnavailable).isFalse()
+        assertThat(viewModel.state.value.isLocationEnabled).isTrue()
+        assertThat(viewModel.state.value.locationLabel).isEqualTo("Near Santa Cruz, CA")
     }
 
     @Test

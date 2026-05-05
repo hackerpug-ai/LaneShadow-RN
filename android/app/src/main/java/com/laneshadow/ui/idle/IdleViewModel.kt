@@ -66,6 +66,9 @@ class IdleViewModel @Inject constructor(
         _state.update { current ->
             current.copy(locationMode = mode)
         }
+        if (mode == "auto") {
+            observeLocation()
+        }
     }
 
     fun onSend(content: String) {
@@ -222,7 +225,6 @@ class IdleViewModel @Inject constructor(
 
     private fun observeLocation() {
         viewModelScope.launch {
-            // Get current location
             val locationResult = locationRepository.getCurrentLocation()
             if (locationResult.isFailure) {
                 _state.update { current ->
@@ -237,8 +239,6 @@ class IdleViewModel @Inject constructor(
             }
 
             val location: LocationCoordinate = locationResult.getOrThrow()
-
-            // Reverse geocode to get place name
             val geocodeResult = convexClientProvider.reverseGeocode(
                 location.latitude,
                 location.longitude,

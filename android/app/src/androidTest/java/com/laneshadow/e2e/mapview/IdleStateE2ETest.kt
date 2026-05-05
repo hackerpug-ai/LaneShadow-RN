@@ -2,9 +2,12 @@ package com.laneshadow.e2e.mapview
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
@@ -83,17 +86,21 @@ class IdleStateE2ETest {
     }
 
     @Test
-    fun idleStateSuggestionChipTransitionsToPlanning() {
+    fun idleStateSuggestionChipPrimesInputWithoutNavigation() {
         launchApp()
         waitForTag("idlescreen-current-user-greeting")
 
         val chipNodes = composeRule.onAllNodes(hasTestTag("suggestion-chip"))
             .fetchSemanticsNodes()
         check(chipNodes.isNotEmpty()) { "Expected at least one suggestion chip" }
+        val primedText = chipNodes.first().config[SemanticsProperties.ContentDescription]
+            .firstOrNull()
+            ?: error("Suggestion chip must expose content description text")
 
         composeRule.onNodeWithTag("suggestion-chip").performClick()
-        waitForTag("phase-indicator", timeoutMillis = 10_000)
-        captureScreenshot("idle-to-planning-transition")
+        composeRule.onNodeWithContentDescription("Where should we ride?")
+            .assertTextContains(primedText)
+        captureScreenshot("idle-suggestion-primed")
     }
 
     @Test
