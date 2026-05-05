@@ -22,6 +22,7 @@ final class IdleViewModel {
     var isSubmitting = false
     var locationLabel: String?
     var isLocationEnabled = false
+    var locationUnavailable = false
 
     @ObservationIgnored private let chatStore: ChatStore
     @ObservationIgnored private let sessionStore: SessionStore
@@ -139,7 +140,7 @@ final class IdleViewModel {
                 locationService.requestWhenInUseAuthorization()
 
                 // Wait for location to be available
-                var locationStream = AsyncStream<CLLocation?> { continuation in
+                let locationStream = AsyncStream<CLLocation?> { continuation in
                     let initialLocation = locationService.currentLocation
                     continuation.yield(initialLocation)
 
@@ -151,7 +152,8 @@ final class IdleViewModel {
                             try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
                             let currentLocation = locationService.currentLocation
                             if currentLocation?.coordinate.latitude != lastLocation?.coordinate.latitude ||
-                               currentLocation?.coordinate.longitude != lastLocation?.coordinate.longitude {
+                                currentLocation?.coordinate.longitude != lastLocation?.coordinate.longitude
+                            {
                                 lastLocation = currentLocation
                                 continuation.yield(currentLocation)
                             }
@@ -168,7 +170,7 @@ final class IdleViewModel {
                         return
                     }
 
-                    guard let location = location else {
+                    guard let location else {
                         continue
                     }
 
@@ -190,6 +192,7 @@ final class IdleViewModel {
                         await MainActor.run {
                             locationLabel = nil
                             isLocationEnabled = false
+                            locationUnavailable = true
                         }
                     }
                 }

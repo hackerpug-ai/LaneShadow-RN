@@ -77,6 +77,19 @@ struct IdleScreenContainer: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("Location: \(locationLabel)")
                 .accessibilityIdentifier("idlescreen-location-pill")
+            } else if viewModel.locationUnavailable {
+                HStack(spacing: theme.space.xs) {
+                    Image(systemName: "location.slash")
+                        .font(theme.type.label.sm.font)
+                        .foregroundStyle(LaneShadowTheme.color.content.secondary)
+
+                    Text("Location unavailable")
+                        .font(theme.type.label.sm.font)
+                        .foregroundStyle(LaneShadowTheme.color.content.secondary)
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Location unavailable")
+                .accessibilityIdentifier("idlescreen-location-unavailable")
             }
 
             if !viewModel.metaRow.isEmpty {
