@@ -984,6 +984,144 @@ final class DesignReviewCaptureTests: XCTestCase {
         XCTAssertEqual(attachment.name, "planning-screen.completion.dark")
     }
 
+    // MARK: - Sprint-06 IdleScreen Variants (Location + Weather)
+
+    /// Sprint-06: Captures idle-screen with location pill visible (light theme).
+    func test_idleScreen_locationPill_light() async throws {
+        try await authenticateAndReachIdleScreen()
+
+        let locationPill = element("idlescreen-location-pill")
+        guard locationPill.waitForExistence(timeout: 10) else {
+            throw XCTSkip("Location pill not visible — simulator may lack location services")
+        }
+
+        let attachment = DesignReviewHelpers.captureScreen(
+            screen: "idle-screen",
+            state: "location-pill",
+            action: "light",
+            app: app
+        )
+        add(attachment)
+        XCTAssertEqual(attachment.name, "idle-screen.location-pill.light")
+    }
+
+    /// Sprint-06: Captures idle-screen with location pill visible (dark theme).
+    func test_idleScreen_locationPill_dark() async throws {
+        DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
+        try await authenticateAndReachIdleScreen()
+
+        let locationPill = element("idlescreen-location-pill")
+        guard locationPill.waitForExistence(timeout: 10) else {
+            throw XCTSkip("Location pill not visible — simulator may lack location services")
+        }
+
+        let attachment = DesignReviewHelpers.captureScreen(
+            screen: "idle-screen",
+            state: "location-pill",
+            action: "dark",
+            app: app
+        )
+        add(attachment)
+        XCTAssertEqual(attachment.name, "idle-screen.location-pill.dark")
+    }
+
+    /// Sprint-06: Captures idle-screen with weather advisory card (light theme).
+    func test_idleScreen_weatherAdvisory_light() async throws {
+        try await authenticateAndReachIdleScreen()
+
+        let advisoryCard = element("idlescreen-advisory-card")
+        guard advisoryCard.waitForExistence(timeout: 10) else {
+            throw XCTSkip("Weather advisory card not visible — current weather may be clear")
+        }
+
+        let attachment = DesignReviewHelpers.captureScreen(
+            screen: "idle-screen",
+            state: "weather-advisory",
+            action: "light",
+            app: app
+        )
+        add(attachment)
+        XCTAssertEqual(attachment.name, "idle-screen.weather-advisory.light")
+    }
+
+    /// Sprint-06: Captures idle-screen with weather advisory card (dark theme).
+    func test_idleScreen_weatherAdvisory_dark() async throws {
+        DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
+        try await authenticateAndReachIdleScreen()
+
+        let advisoryCard = element("idlescreen-advisory-card")
+        guard advisoryCard.waitForExistence(timeout: 10) else {
+            throw XCTSkip("Weather advisory card not visible — current weather may be clear")
+        }
+
+        let attachment = DesignReviewHelpers.captureScreen(
+            screen: "idle-screen",
+            state: "weather-advisory",
+            action: "dark",
+            app: app
+        )
+        add(attachment)
+        XCTAssertEqual(attachment.name, "idle-screen.weather-advisory.dark")
+    }
+
+    /// Sprint-06: Captures idle-screen with location unavailable indicator (light theme).
+    func test_idleScreen_locationUnavailable_light() async throws {
+        try await authenticateAndReachIdleScreen()
+
+        let unavailable = element("idlescreen-location-unavailable")
+        guard unavailable.waitForExistence(timeout: 10) else {
+            throw XCTSkip("Location unavailable indicator not visible — location may be available")
+        }
+
+        let attachment = DesignReviewHelpers.captureScreen(
+            screen: "idle-screen",
+            state: "location-unavailable",
+            action: "light",
+            app: app
+        )
+        add(attachment)
+        XCTAssertEqual(attachment.name, "idle-screen.location-unavailable.light")
+    }
+
+    /// Sprint-06: Captures idle-screen with location unavailable indicator (dark theme).
+    func test_idleScreen_locationUnavailable_dark() async throws {
+        DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
+        try await authenticateAndReachIdleScreen()
+
+        let unavailable = element("idlescreen-location-unavailable")
+        guard unavailable.waitForExistence(timeout: 10) else {
+            throw XCTSkip("Location unavailable indicator not visible — location may be available")
+        }
+
+        let attachment = DesignReviewHelpers.captureScreen(
+            screen: "idle-screen",
+            state: "location-unavailable",
+            action: "dark",
+            app: app
+        )
+        add(attachment)
+        XCTAssertEqual(attachment.name, "idle-screen.location-unavailable.dark")
+    }
+
+    /// Sprint-06: Captures idle-screen with weather meta row (light theme).
+    func test_idleScreen_weatherMeta_light() async throws {
+        try await authenticateAndReachIdleScreen()
+
+        let metaRow = element("idlescreen-greeting-meta")
+        guard metaRow.waitForExistence(timeout: 10) else {
+            throw XCTSkip("Weather meta row not visible — weather data may not have loaded")
+        }
+
+        let attachment = DesignReviewHelpers.captureScreen(
+            screen: "idle-screen",
+            state: "weather-meta",
+            action: "light",
+            app: app
+        )
+        add(attachment)
+        XCTAssertEqual(attachment.name, "idle-screen.weather-meta.light")
+    }
+
     // MARK: - AC-5: Sprint-06 Deferred Tests
 
     /// AC-5: Sprint-06-deferred test for saved routes.
@@ -1008,7 +1146,7 @@ final class DesignReviewCaptureTests: XCTestCase {
     // MARK: - Helper Methods
 
     private func authenticateAndReachIdleScreen() async throws {
-        let credentials = try loadCredentials()
+        _ = try loadCredentials()
         AppLauncher.launchApp(app, resetAuth: true, e2eSignIn: true)
 
         let e2eButton = element("auth.signIn.e2eSignIn")
