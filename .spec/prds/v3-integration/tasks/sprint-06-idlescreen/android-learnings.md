@@ -51,3 +51,68 @@
 - Add error handling for Convex unavailability during reverse geocode
 - Consider caching geocode results to reduce API calls
 - Add location updates listener for continuous tracking
+
+---
+
+# Android Learnings: AND-T04 Instrumented Test Real-Data Wiring
+
+## Implementation Date
+2026-05-04
+
+## Edge Cases Discovered
+1. **Instrumented tests require debug source set dependencies** - Mock providers (IdleScreenState, Greeting, etc.) are in `app/src/debug/`, so instrumented tests (which run in `androidTest`) can only access them when compiled with the debug variant. This requires understanding Android source set visibility.
+2. **connectedAndroidTest doesn't support --tests filter** - Unlike unit tests, instrumented tests cannot be filtered via command line. Must run full suite or use Gradle test tasks with different configurations.
+3. **Device/emulator required for instrumented tests** - Cannot run instrumented tests without a connected device or emulator. This is a key difference from unit tests which run on the JVM.
+4. **FavoriteLocation parameter names** - The data class uses `lat` and `lon`, not `latitude` and `longitude`. Important to check actual data class signatures.
+
+## API Contract Notes
+- `IdleScreenState` from debug mock providers is the canonical shape for UI state
+- `FavoriteLocation` has parameters: `id`, `lat`, `lon`, `label`
+- `Greeting` has parameters: `meta`, `headline`, `emphasis`
+- `LocationContext` has parameters: `label`, `mode`
+- Test tags used for Compose testing: `"greeting-overlay"`, `"greeting-meta"`, `"greeting-headline"`, `"chat-input"`, `"idlescreen-map"`, `"advisory-card"`, `"ls-topbar"`
+
+## UI Decisions
+- **Instrumented tests verify UI rendering** - These tests confirm that UI components are present and correctly display data from state
+- **Test tags for accessibility** - All major UI components have test tags for verification
+- **Mock state simulates real data** - Tests use IdleScreenState to simulate the data that would come from IdleViewModel
+
+## Gotchas for iOS Implementer
+1. **Debug vs Release source sets** - Mock providers and test helpers may only be available in debug builds, affecting test strategy
+2. **Instrumented tests require hardware** - Plan for emulator/device setup in CI/CD for these types of tests
+3. **Test tag consistency** - Ensure test tags match between platforms for cross-platform consistency
+4. **Parameter naming** - Double-check data class parameter names as they may differ from expected conventions
+
+## Files Created/Modified
+- `android/app/src/androidTest/java/com/laneshadow/ui/idle/IdleScreenInstrumentedTest.kt` - NEW: 8 instrumented tests for IdleScreen UI verification
+
+## Test Coverage
+- `greeting_overlay_components_are_displayed` - Verifies greeting overlay, meta text, and headline are rendered
+- `chat_input_with_location_badge_is_displayed` - Verifies chat input with location badge is rendered
+- `map_is_displayed_with_favorite_locations` - Verifies map component is rendered with favorite locations
+- `top_bar_with_menu_is_displayed` - Verifies top bar with menu button is rendered
+- `weather_advisory_card_is_displayed_when_enabled` - Verifies advisory card appears when showAdvisoryCard is true
+- `no_location_variant_shows_correct_ui` - Verifies no-location variant displays correctly
+- `suggestion_chips_are_displayed` - Verifies suggestion chips are rendered in chat input
+- `greeting_shows_italic_emphasis_on_scope_word` - Verifies greeting headline with italic emphasis
+
+## Running Tests
+```bash
+# Compile instrumented tests
+./gradlew :app:compileDebugAndroidTestKotlin
+
+# Run instrumented tests (requires emulator/device)
+./gradlew :app:connectedDebugAndroidTest
+```
+
+## Limitations
+- Tests require running emulator or connected device
+- Cannot filter individual tests via command line (must run full suite)
+- Full integration with real Convex data not tested (requires authenticated backend)
+- Manual device testing recommended for complete E2E verification
+
+## Future Improvements
+- Add Hilt testing dependencies for true integration tests with real repositories
+- Set up CI/CD with emulator for automated instrumented test runs
+- Add screenshot testing for visual regression detection
+- Consider adding Espresso tests for deeper UI interaction testing
