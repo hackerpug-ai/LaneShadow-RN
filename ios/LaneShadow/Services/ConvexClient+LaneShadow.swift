@@ -21,7 +21,7 @@ enum LaneShadowConvexMutation: String {
 
 enum LaneShadowConvexAction: String {
     case sendMessage = "actions/agent/sendMessage:sendMessage"
-    case getCurrentWeather = "actions/weather/getCurrentWeather"
+    case getCurrentWeather = "actions/weather:getCurrentWeather"
     case reverseGeocode = "actions/places:reverseGeocode"
 }
 

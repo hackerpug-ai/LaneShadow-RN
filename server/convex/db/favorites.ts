@@ -12,9 +12,6 @@ export const favoriteLocationOutputValidator = v.object({
   lat: v.number(),
   lng: v.number(),
   label: v.string(),
-  _id: v.optional(v.string()),
-  name: v.optional(v.string()),
-  geometry: v.optional(v.string()),
   bounds: v.optional(
     v.object({
       north: v.number(),
@@ -71,9 +68,6 @@ export const listFavoriteLocationsHandler = async (ctx: any) => {
       lat,
       lng,
       label: fav.name,
-      _id: String(fav._id),
-      name: fav.name,
-      geometry: fav.geometry,
       ...(fav.bounds ? { bounds: fav.bounds } : {}),
     }
   })

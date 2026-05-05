@@ -145,7 +145,11 @@ describe('weather contract', () => {
     expect(global.fetch).not.toHaveBeenCalled()
   })
 
-  it('keeps the Android weather action contract aligned with the documented public endpoint', () => {
+  it('keeps the native weather action contracts aligned with the documented public endpoint', () => {
+    const iosSource = readFileSync(
+      resolve(__dirname, '../../../ios/LaneShadow/Services/ConvexClient+LaneShadow.swift'),
+      'utf8',
+    )
     const androidSource = readFileSync(
       resolve(
         __dirname,
@@ -154,6 +158,7 @@ describe('weather contract', () => {
       'utf8',
     )
 
+    expect(iosSource).toContain('case getCurrentWeather = "actions/weather:getCurrentWeather"')
     expect(androidSource).toContain('name = "actions/weather:getCurrentWeather"')
   })
 })

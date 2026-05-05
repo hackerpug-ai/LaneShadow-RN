@@ -86,51 +86,13 @@ describe('favorites contract', () => {
         bounds: { north: 37.05, south: 37.03, east: -122.13, west: -122.15 },
       },
     ])
-  })
-
-  it('preserves a legacy Android-compatible payload alongside the direct pin fields', async () => {
-    const geometry = JSON.stringify({
-      type: 'Point',
-      coordinates: [-122.03, 36.97],
-    })
-
-    const { listFavoriteLocationsHandler } = await import('../db/favorites.js')
-
-    const [result] = await listFavoriteLocationsHandler({
-      db: {
-        query: vi.fn(() => ({
-          withIndex: vi.fn(() => ({
-            order: vi.fn(() => ({
-              collect: vi.fn().mockResolvedValue([
-                {
-                  _id: 'fav1' as Id<'favorite_roads'>,
-                  clerkUserId: 'user_abc',
-                  name: 'Empire Grade',
-                  geometry,
-                  bounds: undefined,
-                },
-              ]),
-            })),
-          })),
-        })),
-      },
-      auth: {
-        getUserIdentity: async () => ({
-          subject: 'user_abc',
-          tokenIdentifier: 'token_123',
-        }),
-      },
-    })
-
-    expect(result).toMatchObject({
-      id: 'fav1',
-      lat: 36.97,
-      lng: -122.03,
-      label: 'Empire Grade',
-      _id: 'fav1',
-      name: 'Empire Grade',
-      geometry,
-    })
+    expect(result).toHaveLength(2)
+    expect(result[0]).not.toHaveProperty('_id')
+    expect(result[0]).not.toHaveProperty('name')
+    expect(result[0]).not.toHaveProperty('geometry')
+    expect(result[1]).not.toHaveProperty('_id')
+    expect(result[1]).not.toHaveProperty('name')
+    expect(result[1]).not.toHaveProperty('geometry')
   })
 
   it('throws UNAUTHENTICATED for an unauthenticated caller', async () => {
