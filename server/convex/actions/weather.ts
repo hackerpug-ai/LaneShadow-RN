@@ -60,10 +60,19 @@ const isRetryableWeatherError = (error: unknown): boolean => {
 type WeatherCondition = 'CLEAR' | 'CLOUDY' | 'RAIN' | 'SNOW' | 'FOG' | 'WIND' | 'STORM'
 type WeatherSeverity = 'normal' | 'advisory' | 'warning'
 
+const getUppercaseDayOfWeek = (): string => {
+  return new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date()).toUpperCase()
+}
+
 async function getCurrentWeatherHandler(
   ctx: any,
   args: { lat: number; lng: number },
-): Promise<{ tempF: number; condition: WeatherCondition; severity: WeatherSeverity }> {
+): Promise<{
+  tempF: number
+  condition: WeatherCondition
+  severity: WeatherSeverity
+  dayOfWeek: string
+}> {
   await requireIdentity(ctx)
 
   const { lat, lng } = args
@@ -77,7 +86,7 @@ async function getCurrentWeatherHandler(
           if (!response.ok) {
             throw markRetryable(
               new Error(`Open-Meteo request failed: ${response.status}`),
-              response.status >= 500 || response.status === 429,
+              response.status >= 500,
             )
           }
           const data: any = await response.json()
@@ -101,6 +110,7 @@ async function getCurrentWeatherHandler(
             tempF: celsiusToFahrenheit(tempC),
             condition: condition as WeatherCondition,
             severity: severity as WeatherSeverity,
+            dayOfWeek: getUppercaseDayOfWeek(),
           }
         } catch (error) {
           if (error instanceof DOMException && error.name === 'AbortError') {
@@ -150,6 +160,7 @@ export const getCurrentWeather = action({
     tempF: v.number(),
     condition: WeatherConditionValidator,
     severity: WeatherSeverityValidator,
+    dayOfWeek: v.string(),
   }),
   handler: getCurrentWeatherHandler,
 })

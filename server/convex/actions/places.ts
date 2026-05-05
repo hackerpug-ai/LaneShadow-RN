@@ -44,6 +44,15 @@ const reverseGeocodeReturnsValidator = v.object({
   label: v.string(),
 })
 
+const markRetryable = (
+  error: ConvexError<{ code: string; message: string }>,
+  retryable: boolean,
+) => {
+  ;(error as ConvexError<{ code: string; message: string }> & { retryable?: boolean }).retryable =
+    retryable
+  return error
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -130,11 +139,13 @@ const fetchReverseGeocode = async (
       )
 
       if (!response.ok) {
-        // AC-2: Propagate upstream HTTP errors as GEOCODE_UPSTREAM_ERROR
-        throw new ConvexError({
-          code: ERROR_CODES.GEOCODE_UPSTREAM_ERROR,
-          message: `Mapbox API request failed: ${response.status} ${response.statusText}`,
-        })
+        throw markRetryable(
+          new ConvexError({
+            code: ERROR_CODES.GEOCODE_UPSTREAM_ERROR,
+            message: `Mapbox API request failed: ${response.status} ${response.statusText}`,
+          }),
+          response.status >= 500,
+        )
       }
 
       const data = await response.json()
@@ -160,9 +171,8 @@ const fetchReverseGeocode = async (
       if (error instanceof Error && error.message.startsWith('TIMEOUT')) {
         return true
       }
-      if (error instanceof ConvexError) {
-        const code = (error.data as any)?.code
-        return code === ERROR_CODES.GEOCODE_UPSTREAM_ERROR
+      if (error instanceof ConvexError && 'retryable' in error) {
+        return Boolean((error as ConvexError<{ code: string }> & { retryable?: boolean }).retryable)
       }
       return false
     },
@@ -217,6 +227,12 @@ export const getReverseGeocodeHandler = async (
  * AC-3: Throws GEOCODE_INVALID_COORDS for out-of-range coordinates
  */
 export const getReverseGeocode = action({
+  args: reverseGeocodeArgsValidator,
+  returns: reverseGeocodeReturnsValidator,
+  handler: getReverseGeocodeHandler,
+})
+
+export const reverseGeocode = action({
   args: reverseGeocodeArgsValidator,
   returns: reverseGeocodeReturnsValidator,
   handler: getReverseGeocodeHandler,

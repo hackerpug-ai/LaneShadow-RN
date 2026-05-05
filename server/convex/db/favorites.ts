@@ -8,8 +8,13 @@ import { requireIdentity } from '../guards'
 // ---------------------------------------------------------------------------
 
 export const favoriteLocationOutputValidator = v.object({
-  name: v.string(),
-  geometry: v.string(),
+  id: v.string(),
+  lat: v.number(),
+  lng: v.number(),
+  label: v.string(),
+  _id: v.optional(v.string()),
+  name: v.optional(v.string()),
+  geometry: v.optional(v.string()),
   bounds: v.optional(
     v.object({
       north: v.number(),
@@ -19,6 +24,21 @@ export const favoriteLocationOutputValidator = v.object({
     }),
   ),
 })
+
+const parsePointGeometry = (geometry: string): { lat: number; lng: number } => {
+  const parsed = JSON.parse(geometry) as {
+    coordinates?: [number, number]
+  }
+  const coordinates = parsed.coordinates
+  if (!Array.isArray(coordinates) || coordinates.length < 2) {
+    throw new Error('Invalid favorite location geometry')
+  }
+
+  return {
+    lng: coordinates[0],
+    lat: coordinates[1],
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Exported handler (for testing without Convex runtime)
@@ -43,11 +63,20 @@ export const listFavoriteLocationsHandler = async (ctx: any) => {
     .collect()
 
   // Return only the fields needed by the client
-  return favorites.map((fav: any) => ({
-    name: fav.name,
-    geometry: fav.geometry,
-    bounds: fav.bounds,
-  }))
+  return favorites.map((fav: any) => {
+    const { lat, lng } = parsePointGeometry(fav.geometry)
+
+    return {
+      id: String(fav._id),
+      lat,
+      lng,
+      label: fav.name,
+      _id: String(fav._id),
+      name: fav.name,
+      geometry: fav.geometry,
+      ...(fav.bounds ? { bounds: fav.bounds } : {}),
+    }
+  })
 }
 
 // ---------------------------------------------------------------------------
