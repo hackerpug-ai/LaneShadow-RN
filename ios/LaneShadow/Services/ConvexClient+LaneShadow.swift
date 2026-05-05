@@ -10,6 +10,7 @@ enum LaneShadowConvexQuery: String {
     case getActiveRoutePlansForSession = "db/routePlans:getActiveRoutePlansForSession"
     case listRouteEnrichments = "db/routeEnrichments:list"
     case getRouteIndexFingerprint = "db/savedRoutes:getRouteIndexFingerprint"
+    case listFavoriteLocations = "db/favorites:listFavoriteLocations"
 }
 
 enum LaneShadowConvexMutation: String {
@@ -20,10 +21,18 @@ enum LaneShadowConvexMutation: String {
 
 enum LaneShadowConvexAction: String {
     case sendMessage = "actions/agent/sendMessage:sendMessage"
+    case getCurrentWeather = "actions/weather/getCurrentWeather"
 }
 
 struct LaneShadowAuthSession {
     let jwt: String?
+}
+
+struct ConvexFavoriteLocation: Decodable, Equatable, Sendable {
+    let id: String
+    let lat: Double
+    let lng: Double
+    let label: String
 }
 
 struct LaneShadowCurrentUser: Decodable, Equatable {
@@ -42,6 +51,13 @@ struct LaneShadowCurrentUser: Decodable, Equatable {
     var displayName: String {
         name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? email : name
     }
+}
+
+struct ConvexCurrentWeatherResponse: Decodable, Equatable, Sendable {
+    let tempF: Int
+    let condition: String
+    let severity: String
+    let dayOfWeek: String
 }
 
 protocol LaneShadowCurrentUserSubscriptionProviding: Sendable {
@@ -230,6 +246,10 @@ struct LaneShadowSessionRecord: Decodable, Equatable {
 
 protocol LaneShadowPlanningDataProviding: LaneShadowCurrentUserSubscriptionProviding {
     func subscribeToSessions() -> AsyncStream<[Session]>
+
+    func subscribeToFavoriteLocations() -> AsyncStream<[FavoriteLocation]>
+
+    func fetchCurrentWeather(lat: Double, lng: Double) async throws -> CurrentWeatherSummary
 
     func subscribeToSessionMessages(
         sessionId: String,
@@ -651,6 +671,58 @@ final class LaneShadowConvexClient: @unchecked Sendable {
 
     func subscribeToCurrentUser() -> AsyncStream<LaneShadowCurrentUser?> {
         subscribe(.getCurrentUser, yielding: LaneShadowCurrentUser?.self)
+    }
+
+    func subscribeToFavoriteLocations() -> AsyncStream<[FavoriteLocation]> {
+        let source = subscribe(.listFavoriteLocations, yielding: [ConvexFavoriteLocation].self)
+        return AsyncStream<[FavoriteLocation]> { continuation in
+            let task = Task {
+                for await convexLocations in source {
+                    let locations = convexLocations.map { location in
+                        FavoriteLocation(
+                            id: location.id,
+                            lat: location.lat,
+                            lon: location.lng,
+                            label: location.label
+                        )
+                    }
+                    continuation.yield(locations)
+                }
+                continuation.finish()
+            }
+
+            continuation.onTermination = { _ in
+                task.cancel()
+            }
+        }
+    }
+
+    func fetchCurrentWeather(lat: Double, lng: Double) async throws -> CurrentWeatherSummary {
+        let response: ConvexCurrentWeatherResponse = try await action(
+            .getCurrentWeather,
+            args: [
+                "lat": lat,
+                "lng": lng,
+            ]
+        )
+
+        // Map severity string to enum
+        let severity: WeatherSeverity
+        switch response.severity.lowercased() {
+        case "advisory":
+            severity = .advisory
+        case "warning":
+            severity = .warning
+        default:
+            severity = .normal
+        }
+
+        return CurrentWeatherSummary(
+            tempF: response.tempF,
+            condition: response.condition,
+            severity: severity,
+            dayOfWeek: response.dayOfWeek
+        )
     }
 
     func fetchCurrentUser(notifyUnauthenticated: Bool = true) async throws -> LaneShadowCurrentUser? {

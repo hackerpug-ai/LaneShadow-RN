@@ -5,6 +5,11 @@ import Observation
 @Observable
 final class IdleViewModel {
     var greetingDisplayName: String = "rider"
+    var greetingScope: GreetingScope = .today
+    var metaRow: String = ""
+    var weatherSummary: CurrentWeatherSummary?
+    var weatherAdvisory: WeatherAdvisory?
+    var favoriteLocations: [FavoriteLocation] = []
     var recentSessions: [Session] = []
     var suggestionLabels: [String] = [
         "Plan a scenic 2-hour ride",
@@ -49,6 +54,10 @@ final class IdleViewModel {
         stopObserving()
         let convexClient = convexClient
 
+        // Determine greeting scope based on current hour
+        let hour = Calendar.current.component(.hour, from: Date())
+        greetingScope = GreetingScope.from(hour: hour)
+
         observationTasks = [
             Task { [weak self, convexClient] in
                 guard let self else { return }
@@ -57,7 +66,13 @@ final class IdleViewModel {
                         return
                     }
                     await MainActor.run {
-                        greetingDisplayName = currentUser?.displayName ?? "rider"
+                        // Extract firstName by splitting on first whitespace
+                        let displayName = currentUser?.displayName ?? "rider"
+                        if let firstName = displayName.components(separatedBy: .whitespaces).first {
+                            greetingDisplayName = firstName.isEmpty ? "rider" : firstName
+                        } else {
+                            greetingDisplayName = "rider"
+                        }
                     }
                 }
             },
@@ -69,6 +84,45 @@ final class IdleViewModel {
                     }
                     await MainActor.run {
                         recentSessions = sessions
+                    }
+                }
+            },
+            Task { [weak self, convexClient] in
+                guard let self else { return }
+                // Default Santa Cruz coordinates
+                let lat = 36.97
+                let lng = -122.03
+                do {
+                    let weather = try await convexClient.fetchCurrentWeather(lat: lat, lng: lng)
+                    if Task.isCancelled {
+                        return
+                    }
+                    await MainActor.run {
+                        weatherSummary = weather
+                        // Compose metaRow from weather data
+                        metaRow = "\(weather.dayOfWeek) · \(weather.tempF)°F · \(weather.condition.uppercased())"
+                        // Set weather advisory if severity is advisory or warning
+                        if weather.severity == .advisory || weather.severity == .warning {
+                            weatherAdvisory = WeatherAdvisory(
+                                label: weather.severity.rawValue.uppercased(),
+                                body: "Weather conditions may affect your ride."
+                            )
+                        } else {
+                            weatherAdvisory = nil
+                        }
+                    }
+                } catch {
+                    NSLog("❌ IDLE_VM: fetchCurrentWeather failed \(error.localizedDescription)")
+                }
+            },
+            Task { [weak self, convexClient] in
+                guard let self else { return }
+                for await favorites in convexClient.subscribeToFavoriteLocations() {
+                    if Task.isCancelled {
+                        return
+                    }
+                    await MainActor.run {
+                        favoriteLocations = favorites
                     }
                 }
             },
