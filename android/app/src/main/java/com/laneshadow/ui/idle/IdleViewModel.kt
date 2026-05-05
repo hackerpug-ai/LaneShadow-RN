@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laneshadow.data.chat.ChatRepository
 import com.laneshadow.data.favorites.FavoritesRepository
+import com.laneshadow.data.location.LocationCoordinate
+import com.laneshadow.data.location.LocationRepository
 import com.laneshadow.data.session.SessionRepository
 import com.laneshadow.data.user.UserRepository
 import com.laneshadow.data.weather.WeatherRepository
+import com.laneshadow.services.ConvexClientProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.DayOfWeek
 import java.time.LocalTime
@@ -25,6 +28,8 @@ class IdleViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val weatherRepository: WeatherRepository,
     private val favoritesRepository: FavoritesRepository,
+    private val locationRepository: LocationRepository,
+    private val convexClientProvider: ConvexClientProvider,
     private val timeProvider: () -> LocalTime = { LocalTime.now() },
 ) : ViewModel() {
     private val _state = MutableStateFlow(IdleUiState())
@@ -35,6 +40,7 @@ class IdleViewModel @Inject constructor(
         observeSessions()
         observeWeather()
         observeFavorites()
+        observeLocation()
     }
 
     fun onInputChange(value: String) {
@@ -200,6 +206,49 @@ class IdleViewModel @Inject constructor(
                         )
                     }
                 }
+        }
+    }
+
+    private fun observeLocation() {
+        viewModelScope.launch {
+            // Get current location
+            val locationResult = locationRepository.getCurrentLocation()
+            if (locationResult.isFailure) {
+                _state.update { current ->
+                    current.copy(
+                        isLoading = false,
+                        subscriptionError = "Unable to get current location.",
+                    )
+                }
+                return@launch
+            }
+
+            val location: LocationCoordinate = locationResult.getOrThrow()
+
+            // Reverse geocode to get place name
+            val geocodeResult = convexClientProvider.reverseGeocode(
+                location.latitude,
+                location.longitude,
+            )
+            if (geocodeResult.isFailure) {
+                _state.update { current ->
+                    current.copy(
+                        isLoading = false,
+                        subscriptionError = "Unable to resolve location.",
+                    )
+                }
+                return@launch
+            }
+
+            val geocode = geocodeResult.getOrThrow()
+            _state.update { current ->
+                current.copy(
+                    locationLabel = geocode.label,
+                    locationMode = "auto",
+                    isLocationEnabled = true,
+                    isLoading = false,
+                )
+            }
         }
     }
 

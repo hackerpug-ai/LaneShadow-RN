@@ -32,6 +32,11 @@ data class IdleUiState(
     val favoriteLocations: List<FavoriteLocation> = emptyList(),
     val showAdvisoryCard: Boolean = false,
     val advisoryMessage: String? = null,
+
+    // Location fields for Sprint 6 AND-T03
+    val locationLabel: String? = null,
+    val locationMode: String = "manual",
+    val isLocationEnabled: Boolean = false,
 )
 
 sealed interface IdleNavTarget {

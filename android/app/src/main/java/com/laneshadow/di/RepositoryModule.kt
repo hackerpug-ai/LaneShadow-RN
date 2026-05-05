@@ -4,6 +4,10 @@ import com.laneshadow.data.chat.ChatRepository
 import com.laneshadow.data.chat.ChatRepositoryImpl
 import com.laneshadow.data.favorites.FavoritesRepository
 import com.laneshadow.data.favorites.FavoritesRepositoryImpl
+import com.laneshadow.data.location.FusedLocationProvider
+import com.laneshadow.data.location.FusedLocationProviderImpl
+import com.laneshadow.data.location.LocationRepository
+import com.laneshadow.data.location.LocationRepositoryImpl
 import com.laneshadow.data.route.RouteRepository
 import com.laneshadow.data.route.RouteRepositoryImpl
 import com.laneshadow.data.session.SessionRepository
@@ -59,4 +63,12 @@ abstract class RepositoryBindingsModule {
     @Binds
     @Singleton
     abstract fun bindFavoritesRepository(impl: FavoritesRepositoryImpl): FavoritesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLocationRepository(impl: LocationRepositoryImpl): LocationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFusedLocationProvider(impl: FusedLocationProviderImpl): FusedLocationProvider
 }

@@ -71,8 +71,8 @@ internal fun IdleUiState.toMockState(): IdleScreenState {
             )
         },
         locationContext = LocationContext(
-            label = "Near Santa Cruz, CA",
-            mode = "manual",
+            label = locationLabel ?: "Near Santa Cruz, CA",
+            mode = locationMode,
         ),
     )
 }

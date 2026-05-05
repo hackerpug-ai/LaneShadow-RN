@@ -15,6 +15,7 @@ import com.laneshadow.services.ConvexClientProvider
 import com.laneshadow.services.ConvexCurrentUser
 import com.laneshadow.services.ConvexGateway
 import com.laneshadow.services.ConvexSendMessageResponseDto
+import com.laneshadow.services.GeocodeResult
 import com.laneshadow.services.LaneShadowError
 import com.laneshadow.services.SignOutFlow
 import com.laneshadow.theme.LaneShadowTheme
@@ -146,6 +147,9 @@ class ErrorRouteTest {
             emptyFlow()
 
         override suspend fun getCurrentWeather(lat: Double, lng: Double): com.laneshadow.data.dto.WeatherDto =
+            throw UnsupportedOperationException()
+
+        override suspend fun reverseGeocode(lat: Double, lng: Double): GeocodeResult =
             throw UnsupportedOperationException()
     }
 }

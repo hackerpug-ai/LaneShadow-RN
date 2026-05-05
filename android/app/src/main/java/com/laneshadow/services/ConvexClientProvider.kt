@@ -34,6 +34,14 @@ data class ConvexCurrentUser(
     val email: String = "",
 )
 
+/**
+ * Result from reverse geocoding a location
+ */
+data class GeocodeResult(
+    val label: String,
+    val placeId: String? = null,
+)
+
 internal interface ConvexGateway {
     suspend fun bindAuthToken(token: String): Result<Unit>
     suspend fun clearAuth(context: Context): Result<Unit>
@@ -52,6 +60,7 @@ internal interface ConvexGateway {
     suspend fun createSession(firstMessage: String): Result<String>
     suspend fun cancelPlan(routePlanId: String): Result<Unit>
     suspend fun getCurrentWeather(lat: Double, lng: Double): WeatherDto
+    suspend fun reverseGeocode(lat: Double, lng: Double): GeocodeResult
 }
 
 @Singleton
@@ -104,6 +113,11 @@ class ConvexClientProvider private constructor(
     suspend fun getCurrentWeather(lat: Double, lng: Double): Result<WeatherDto> =
         runAuthenticated {
             activeGateway.getCurrentWeather(lat, lng)
+        }
+
+    suspend fun reverseGeocode(lat: Double, lng: Double): Result<GeocodeResult> =
+        runAuthenticated {
+            activeGateway.reverseGeocode(lat, lng)
         }
 
     suspend fun getCurrentUser(): Result<ConvexCurrentUser> = runAuthenticated {
@@ -316,6 +330,16 @@ private class RealConvexGateway(
             ),
         )
     }.getOrThrow()
+
+    override suspend fun reverseGeocode(lat: Double, lng: Double): GeocodeResult = runCatching {
+        convexClient.action<GeocodeResultDto>(
+            name = "actions/places:reverseGeocode",
+            args = mapOf(
+                "lat" to lat,
+                "lng" to lng,
+            ),
+        )
+    }.getOrThrow().toDomain()
 }
 
 internal fun successfulConvexLogoutResult(): Result<Void> =
@@ -377,3 +401,15 @@ internal data class ConvexSendMessageResponseDto(
     val messageId: String,
     val attachments: List<ConvexSendMessageAttachmentDto>? = null,
 )
+
+@Serializable
+private data class GeocodeResultDto(
+    val label: String,
+    @SerialName("placeId")
+    val placeId: String? = null,
+) {
+    fun toDomain(): GeocodeResult = GeocodeResult(
+        label = label,
+        placeId = placeId,
+    )
+}
