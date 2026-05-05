@@ -326,8 +326,8 @@ ios_e2e_device_headed: ## Run headed iOS E2E on a real device (set IOS_UDID=...)
 			xcodebuild test-without-building \
 				-xctestrun "$$PATCHED_XCTESTRUN_PATH" \
 				-destination "id=$(IOS_UDID)" \
-				-only-testing:LaneShadowUITests/AuthEmailPasswordE2ETests/testEmailPasswordSignInAndRestoresSession \
-				-only-testing:LaneShadowUITests/AuthRegistrationE2ETests/testEmailPasswordRegistrationVerifiesAndRestoresSession \
+				-only-testing:LaneShadowUITests/Auth/AuthSignInE2ETests/testEmailPasswordSignInAndRestoresSession \
+				-only-testing:LaneShadowUITests/Auth/AuthRegistrationE2ETests/testEmailPasswordRegistrationVerifiesAndRestoresSession \
 				-resultBundlePath "$$RESULT_BUNDLE_REL" >> "$$LOG_REL" 2>&1 & \
 			TEST_PID=$$!; \
 			wait "$$TEST_PID"; \
@@ -443,8 +443,8 @@ ios_e2e_simulator: ## Run headed iOS auth E2E on a booted iPhone simulator
 			xcodebuild test-without-building \
 				-xctestrun "$$PATCHED_XCTESTRUN_PATH" \
 				-destination "id=$$SIMULATOR_ID_VALUE" \
-				-only-testing:LaneShadowUITests/AuthEmailPasswordE2ETests/testEmailPasswordSignInAndRestoresSession \
-				-only-testing:LaneShadowUITests/AuthRegistrationE2ETests/testEmailPasswordRegistrationVerifiesAndRestoresSession \
+				-only-testing:LaneShadowUITests/Auth/AuthSignInE2ETests/testEmailPasswordSignInAndRestoresSession \
+				-only-testing:LaneShadowUITests/Auth/AuthRegistrationE2ETests/testEmailPasswordRegistrationVerifiesAndRestoresSession \
 				-resultBundlePath "$$RESULT_BUNDLE_REL" >> "$$LOG_REL" 2>&1 & \
 			TEST_PID=$$!; \
 			wait "$$TEST_PID"; \
@@ -470,7 +470,7 @@ ANDROID_ACTIVITY := com.laneshadow.MainActivity
 ANDROID_AVD ?= $(shell emulator -list-avds | head -n 1)
 ANDROID_SERIAL ?=
 ANDROID_E2E_INSTALL ?= 1
-ANDROID_E2E_TEST_CLASSES ?= com.laneshadow.ui.auth.AuthLiveE2ETest
+ANDROID_E2E_TEST_CLASSES ?= com.laneshadow.e2e.auth.AuthSignInE2ETest,com.laneshadow.e2e.auth.AuthRegistrationE2ETest
 ANDROID_E2E_LOG ?= android/app/build/e2e/android-e2e-headed.log
 ANDROID_E2E_SCREENSHOTS ?= android/app/build/e2e/screenshots
 

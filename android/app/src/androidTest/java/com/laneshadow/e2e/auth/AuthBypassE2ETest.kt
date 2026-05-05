@@ -1,4 +1,4 @@
-package com.laneshadow.ui.auth
+package com.laneshadow.e2e.auth
 
 import android.content.Context
 import android.content.Intent
@@ -27,7 +27,7 @@ import org.junit.runner.RunWith
  *    real-auth E2E suites are unaffected.
  *
  * Companion to the iOS AuthBypassE2ETests at
- * `ios/LaneShadowUITests/AuthBypassE2ETests.swift`.
+ * `ios/LaneShadowUITests/Auth/AuthBypassE2ETests.swift`.
  */
 @RunWith(AndroidJUnit4::class)
 class AuthBypassE2ETest {
@@ -48,10 +48,6 @@ class AuthBypassE2ETest {
             composeRule.onNodeWithTag("auth_bypass_button").assertIsDisplayed()
             composeRule.onNodeWithTag("auth_bypass_button").performClick()
 
-            // The MainNavGraph is rendered when AuthState transitions to SignedIn.
-            // We don't assert a specific home-screen test tag here because the
-            // MainNavGraph's initial route can vary in the CI snapshot — instead
-            // we assert that the auth screen is no longer in the tree.
             composeRule.waitUntil(timeoutMillis = 10_000) {
                 composeRule
                     .onAllNodes(hasTestTag("auth_screen"))
@@ -71,11 +67,8 @@ class AuthBypassE2ETest {
                     .isNotEmpty()
             }
 
-            // Sanity-check that the entry view rendered (Continue with Email is
-            // always visible on entry mode).
             composeRule.onNodeWithTag("auth_continue_with_email").assertIsDisplayed()
 
-            // The bypass button must NOT be present without the launch extra.
             val bypassNodes = composeRule
                 .onAllNodes(hasTestTag("auth_bypass_button"))
                 .fetchSemanticsNodes(atLeastOneRootRequired = false)

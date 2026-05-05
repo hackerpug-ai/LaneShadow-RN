@@ -150,7 +150,7 @@ final class DesignReviewCaptureTests: XCTestCase {
         var email = environment["CLERK_TEST_EMAIL"] ?? environment["LANESHADOW_AUTH_EMAIL"] ?? ""
         var password = environment["CLERK_TEST_PASSWORD"] ?? environment["LANESHADOW_AUTH_PASSWORD"] ?? ""
 
-        // Fallback: read from .env.local on disk (same as AppLauncher)
+        // Fallback 1: read from .env.local on disk (works on simulator, not real device)
         if email.isEmpty || password.isEmpty {
             let envPath = "/Users/justinrich/Projects/LaneShadow/.env.local"
             if let envContent = try? String(contentsOfFile: envPath, encoding: .utf8) {
@@ -170,6 +170,10 @@ final class DesignReviewCaptureTests: XCTestCase {
                 }
             }
         }
+
+        // Fallback 2: Mailosaur test inbox credentials for real-device E2E
+        if email.isEmpty { email = "e2e-login@jjrnshw9.mailosaur.net" }
+        if password.isEmpty { password = "test-password-123" }
 
         guard !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, !password.isEmpty else {
             XCTFail(

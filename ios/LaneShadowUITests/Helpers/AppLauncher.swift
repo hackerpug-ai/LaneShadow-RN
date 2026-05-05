@@ -32,6 +32,13 @@ enum AppLauncher {
         NSLog(
             "🔵 AppLauncher: dotEnv has \(dotEnv.count) entries; CLERK_TEST_EMAIL present: \(dotEnv["CLERK_TEST_EMAIL"] != nil)"
         )
+
+        // Hardcoded Mailosaur test inbox fallback for real-device E2E
+        let fallbacks: [String: String] = [
+            "CLERK_TEST_EMAIL": "e2e-login@jjrnshw9.mailosaur.net",
+            "CLERK_TEST_PASSWORD": "test-password-123",
+        ]
+
         for key in [
             "CLERK_PUBLISHABLE_KEY",
             "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY",
@@ -40,8 +47,7 @@ enum AppLauncher {
             "CLERK_TEST_EMAIL",
             "CLERK_TEST_PASSWORD",
         ] {
-            // Try ProcessInfo first, fall back to .env.local
-            let value = environment[key] ?? dotEnv[key] ?? ""
+            let value = environment[key] ?? dotEnv[key] ?? fallbacks[key] ?? ""
             guard !value.isEmpty else {
                 NSLog("🔵 AppLauncher: SKIP \(key) (empty)")
                 continue

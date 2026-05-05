@@ -1,7 +1,7 @@
 import XCTest
 
 @MainActor
-final class AuthEmailPasswordE2ETests: XCTestCase {
+final class AuthSignInE2ETests: XCTestCase {
     private var app: XCUIApplication!
 
     override func setUpWithError() throws {
