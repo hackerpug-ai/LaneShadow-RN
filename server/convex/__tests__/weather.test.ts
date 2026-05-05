@@ -1,6 +1,6 @@
 import { ConvexError } from 'convex/values'
 import { afterEach, describe, expect, it, type Mock, vi } from 'vitest'
-import { getCurrentWeather } from '../actions/weather'
+import { getCurrentWeatherHandler } from '../actions/weather'
 import { ERROR_CODES } from '../errors'
 
 describe('getCurrentWeather', () => {
@@ -34,7 +34,7 @@ describe('getCurrentWeather', () => {
         }) as Response,
     )
 
-    const result = await getCurrentWeather(mockCtx, {
+    const result = await getCurrentWeatherHandler(mockCtx, {
       lat: 36.97,
       lng: -122.03,
     })
@@ -62,7 +62,7 @@ describe('getCurrentWeather', () => {
         }) as Response,
     )
 
-    const result = await getCurrentWeather(mockCtx, {
+    const result = await getCurrentWeatherHandler(mockCtx, {
       lat: 36.97,
       lng: -122.03,
     })
@@ -90,7 +90,7 @@ describe('getCurrentWeather', () => {
         }) as Response,
     )
 
-    const result = await getCurrentWeather(mockCtx, {
+    const result = await getCurrentWeatherHandler(mockCtx, {
       lat: 36.97,
       lng: -122.03,
     })
@@ -118,14 +118,14 @@ describe('getCurrentWeather', () => {
         }) as Response,
     )
 
-    const result = await getCurrentWeather(mockCtx, {
+    const result = await getCurrentWeatherHandler(mockCtx, {
       lat: 36.97,
       lng: -122.03,
     })
 
     expect(result).toEqual({
       tempF: 64,
-      condition: 'CLEAR',
+      condition: 'WIND',
       severity: 'advisory',
     })
   })
@@ -142,7 +142,7 @@ describe('getCurrentWeather', () => {
     })
 
     try {
-      await getCurrentWeather(mockCtx, {
+      await getCurrentWeatherHandler(mockCtx, {
         lat: 36.97,
         lng: -122.03,
       })
@@ -155,7 +155,6 @@ describe('getCurrentWeather', () => {
       })
     }
 
-    // Should have been called twice (initial + one retry)
     expect(callCount).toBe(2)
   })
 
@@ -176,7 +175,7 @@ describe('getCurrentWeather', () => {
     )
 
     try {
-      await getCurrentWeather(unauthenticatedCtx, {
+      await getCurrentWeatherHandler(unauthenticatedCtx, {
         lat: 36.97,
         lng: -122.03,
       })
@@ -189,7 +188,6 @@ describe('getCurrentWeather', () => {
       })
     }
 
-    // Fetch should never have been called
     expect(global.fetch).not.toHaveBeenCalled()
   })
 
@@ -222,7 +220,7 @@ describe('getCurrentWeather', () => {
             }) as Response,
         )
 
-        const result = await getCurrentWeather(mockCtx, {
+        const result = await getCurrentWeatherHandler(mockCtx, {
           lat: 36.97,
           lng: -122.03,
         })
@@ -256,13 +254,115 @@ describe('getCurrentWeather', () => {
             }) as Response,
         )
 
-        const result = await getCurrentWeather(mockCtx, {
+        const result = await getCurrentWeatherHandler(mockCtx, {
           lat: 36.97,
           lng: -122.03,
         })
 
         expect(result.tempF).toBe(expected)
       }
+    })
+  })
+
+  describe('wind override logic', () => {
+    it('returns WIND when wind >= 40 km/h and precip < 40%', async () => {
+      ;(global.fetch as Mock) = vi.fn(
+        async () =>
+          ({
+            ok: true,
+            json: async () => ({
+              current: {
+                temperature_2m: 20,
+                precipitation_probability: 10,
+                windspeed_10m: 45,
+                weathercode: 0,
+              },
+            }),
+          }) as Response,
+      )
+
+      const result = await getCurrentWeatherHandler(mockCtx, {
+        lat: 36.97,
+        lng: -122.03,
+      })
+
+      expect(result.condition).toBe('WIND')
+      expect(result.severity).toBe('advisory')
+    })
+
+    it('returns WIND when wind >= 70 km/h and precip < 40% (warning)', async () => {
+      ;(global.fetch as Mock) = vi.fn(
+        async () =>
+          ({
+            ok: true,
+            json: async () => ({
+              current: {
+                temperature_2m: 20,
+                precipitation_probability: 10,
+                windspeed_10m: 75,
+                weathercode: 0,
+              },
+            }),
+          }) as Response,
+      )
+
+      const result = await getCurrentWeatherHandler(mockCtx, {
+        lat: 36.97,
+        lng: -122.03,
+      })
+
+      expect(result.condition).toBe('WIND')
+      expect(result.severity).toBe('warning')
+    })
+
+    it('does NOT override to WIND when precip >= 40%', async () => {
+      ;(global.fetch as Mock) = vi.fn(
+        async () =>
+          ({
+            ok: true,
+            json: async () => ({
+              current: {
+                temperature_2m: 20,
+                precipitation_probability: 50,
+                windspeed_10m: 45,
+                weathercode: 61,
+              },
+            }),
+          }) as Response,
+      )
+
+      const result = await getCurrentWeatherHandler(mockCtx, {
+        lat: 36.97,
+        lng: -122.03,
+      })
+
+      expect(result.condition).toBe('RAIN')
+      expect(result.severity).toBe('advisory')
+    })
+
+    it('does NOT override to WIND when wind < 40 km/h', async () => {
+      ;(global.fetch as Mock) = vi.fn(
+        async () =>
+          ({
+            ok: true,
+            json: async () => ({
+              current: {
+                temperature_2m: 20,
+                precipitation_probability: 10,
+                windspeed_10m: 35,
+                weathercode: 0,
+              },
+            }),
+          }) as Response,
+      )
+
+      const result = await getCurrentWeatherHandler(mockCtx, {
+        lat: 36.97,
+        lng: -122.03,
+      })
+
+      expect(result.condition).toBe('CLEAR')
+      expect(result.severity).toBe('normal')
     })
   })
 })
