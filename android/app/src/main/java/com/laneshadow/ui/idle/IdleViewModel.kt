@@ -3,9 +3,12 @@ package com.laneshadow.ui.idle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laneshadow.data.chat.ChatRepository
+import com.laneshadow.data.favorites.FavoritesRepository
 import com.laneshadow.data.session.SessionRepository
 import com.laneshadow.data.user.UserRepository
+import com.laneshadow.data.weather.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.DayOfWeek
 import java.time.LocalTime
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +23,9 @@ class IdleViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val sessionRepository: SessionRepository,
     private val chatRepository: ChatRepository,
+    private val weatherRepository: WeatherRepository,
+    private val favoritesRepository: FavoritesRepository,
+    private val timeProvider: () -> LocalTime = { LocalTime.now() },
 ) : ViewModel() {
     private val _state = MutableStateFlow(IdleUiState())
     val state: StateFlow<IdleUiState> = _state.asStateFlow()
@@ -27,6 +33,8 @@ class IdleViewModel @Inject constructor(
     init {
         observeCurrentUser()
         observeSessions()
+        observeWeather()
+        observeFavorites()
     }
 
     fun onInputChange(value: String) {
@@ -109,9 +117,14 @@ class IdleViewModel @Inject constructor(
                 }
                 .collect { user ->
                     val displayName = user?.displayName?.takeIf { it.isNotBlank() } ?: "Rider"
-                    val timeOfDay = timeOfDayLabel(LocalTime.now().hour)
+                    val firstName = extractFirstName(displayName)
+                    val currentHour = timeProvider().hour
+                    val scope = computeGreetingScope(currentHour)
+                    val timeOfDay = timeOfDayLabel(currentHour)
                     _state.update { current ->
                         current.copy(
+                            firstName = firstName,
+                            greetingScope = scope,
                             greeting = buildGreeting(timeOfDay, displayName),
                             greetingMeta = "READY TO RIDE",
                             greetingEmphasis = displayName,
@@ -142,4 +155,73 @@ class IdleViewModel @Inject constructor(
                 }
         }
     }
+
+    private fun observeWeather() {
+        viewModelScope.launch {
+            weatherRepository.subscribeToCurrentWeather()
+                .catch { error ->
+                    _state.update { current ->
+                        current.copy(
+                            isLoading = false,
+                            subscriptionError = error.message ?: "Unable to load weather data.",
+                        )
+                    }
+                }
+                .collect { weather ->
+                    val metaRow = weather?.let { buildMetaRow(it) } ?: ""
+                    val showAdvisory = weather?.severity == com.laneshadow.data.weather.WeatherSeverity.ADVISORY
+                    _state.update { current ->
+                        current.copy(
+                            weatherSummary = weather,
+                            metaRow = metaRow,
+                            showAdvisoryCard = showAdvisory,
+                            advisoryMessage = if (showAdvisory) "Weather advisory in effect" else null,
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun observeFavorites() {
+        viewModelScope.launch {
+            favoritesRepository.subscribeToFavoriteLocations()
+                .catch { error ->
+                    _state.update { current ->
+                        current.copy(
+                            isLoading = false,
+                            subscriptionError = error.message ?: "Unable to load favorite locations.",
+                        )
+                    }
+                }
+                .collect { favorites ->
+                    _state.update { current ->
+                        current.copy(
+                            favoriteLocations = favorites,
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun extractFirstName(displayName: String): String {
+        if (displayName.isBlank()) return "Rider"
+        return displayName.split_whitespace().firstOrNull { it.isNotBlank() } ?: "Rider"
+    }
+
+    private fun computeGreetingScope(hour: Int): GreetingScope {
+        return if (hour in 18..23 || hour in 0..4) {
+            GreetingScope.TONIGHT
+        } else {
+            GreetingScope.TODAY
+        }
+    }
+
+    private fun buildMetaRow(weather: com.laneshadow.data.weather.WeatherSummary): String {
+        val day = weather.dayOfWeek.name // FRIDAY, MONDAY, etc.
+        val temp = weather.tempFahrenheit.toInt()
+        val condition = weather.conditionLabel.uppercase()
+        return "$day · $temp°F · $condition"
+    }
 }
+
+private fun String.split_whitespace(): List<String> = this.split(Regex("\\s+"))

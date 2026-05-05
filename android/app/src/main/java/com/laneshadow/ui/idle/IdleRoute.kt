@@ -44,12 +44,15 @@ fun IdleRoute(
     }
 }
 
-internal fun IdleUiState.toMockState(): IdleScreenState =
-    IdleScreenState(
+internal fun IdleUiState.toMockState(): IdleScreenState {
+    val scopeWord = greetingScope.name.lowercase() // "today" or "tonight"
+    val headline = "Where are we riding $scopeWord, $firstName?"
+
+    return IdleScreenState(
         greeting = Greeting(
-            meta = greetingMeta,
-            headline = greeting,
-            emphasis = greetingEmphasis,
+            meta = metaRow.ifBlank { greetingMeta },
+            headline = headline,
+            emphasis = scopeWord,
         ),
         suggestions = suggestions.mapIndexed { index, chip ->
             MockSuggestionChip(
@@ -62,3 +65,4 @@ internal fun IdleUiState.toMockState(): IdleScreenState =
             mode = "manual",
         ),
     )
+}

@@ -1,6 +1,16 @@
 package com.laneshadow.ui.idle
 
+import com.laneshadow.data.favorites.FavoriteLocation
 import com.laneshadow.data.session.PlanningSession
+import com.laneshadow.data.weather.WeatherSummary
+
+/**
+ * Greeting scope based on time of day
+ */
+enum class GreetingScope {
+    TODAY,
+    TONIGHT,
+}
 
 data class IdleUiState(
     val greeting: String = "Good morning, Rider",
@@ -13,6 +23,15 @@ data class IdleUiState(
     val errorToast: String? = null,
     val subscriptionError: String? = null,
     val recentSessions: List<PlanningSession> = emptyList(),
+
+    // New fields for Sprint 6
+    val firstName: String = "Rider",
+    val greetingScope: GreetingScope = GreetingScope.TODAY,
+    val metaRow: String = "",
+    val weatherSummary: WeatherSummary? = null,
+    val favoriteLocations: List<FavoriteLocation> = emptyList(),
+    val showAdvisoryCard: Boolean = false,
+    val advisoryMessage: String? = null,
 )
 
 sealed interface IdleNavTarget {
