@@ -29,6 +29,7 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
     var stubSendPlanningMessageError: Error?
     var stubFetchRoutePlanError: Error?
     var stubCancelRoutePlanError: Error?
+    var stubReverseGeocodeError: Error?
 
     private(set) var createPlanningSessionCalls: [String] = []
     private(set) var sendPlanningMessageCalls: [LaneShadowPlanningMessageCall] = []
@@ -215,6 +216,9 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
     }
 
     func reverseGeocode(lat: Double, lng: Double) async throws -> String {
+        if let stubReverseGeocodeError {
+            throw stubReverseGeocodeError
+        }
         if lat == 36.97, lng == -122.03 {
             return "Santa Cruz, CA"
         }

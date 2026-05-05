@@ -53,4 +53,44 @@ struct LocationServiceTests {
         #expect(viewModel.locationLabel == nil)
         #expect(viewModel.isLocationEnabled == false)
     }
+
+    @Test("IdleViewModel sets locationUnavailable when reverseGeocode fails")
+    func setsLocationUnavailableOnGeocodeFailure() async throws {
+        let client = StubLaneShadowConvexClient()
+        // Make reverse geocode fail
+        client.stubReverseGeocodeError = NSError(domain: "test", code: 1, userInfo: [NSLocalizedDescriptionKey: "Geocode failed"])
+
+        let chatStore = ChatStore()
+        let sessionStore = SessionStore()
+        let locationService = LocationService()
+
+        // Set a fallback location (Santa Cruz) so we have something to geocode
+        let delegate = locationService as CLLocationManagerDelegate
+        delegate.locationManager?(CLLocationManager(), didFailWithError: NSError(domain: "test", code: 0))
+
+        try await Task.sleep(for: .milliseconds(300))
+
+        let viewModel = IdleViewModel(
+            chatStore: chatStore,
+            sessionStore: sessionStore,
+            convexClient: client,
+            locationService: locationService
+        )
+
+        // Initially, locationUnavailable should be false
+        #expect(viewModel.locationUnavailable == false)
+
+        // Start observing - this should trigger reverse geocode, which will fail
+        await viewModel.observe()
+
+        // Wait for the async observation to process the location and fail geocode
+        try await Task.sleep(for: .milliseconds(500))
+
+        // After geocode fails, locationUnavailable should be true
+        #expect(viewModel.locationUnavailable == true)
+        #expect(viewModel.locationLabel == nil)
+        #expect(viewModel.isLocationEnabled == false)
+
+        viewModel.stopObserving()
+    }
 }

@@ -66,138 +66,161 @@ final class IdleViewModel {
         greetingScope = GreetingScope.from(hour: hour)
 
         observationTasks = [
-            Task { [weak self, convexClient] in
-                guard let self else { return }
-                for await currentUser in convexClient.subscribeToCurrentUser() {
-                    if Task.isCancelled {
-                        return
+            observeCurrentUser(convexClient: convexClient),
+            observeSessions(convexClient: convexClient),
+            observeWeather(convexClient: convexClient),
+            observeFavoriteLocations(convexClient: convexClient),
+            observeLocation(locationService: locationService, convexClient: convexClient),
+        ]
+    }
+
+    private func observeCurrentUser(convexClient: any LaneShadowPlanningDataProviding) -> Task<Void, Never> {
+        Task { [weak self] in
+            guard let self else { return }
+            for await currentUser in convexClient.subscribeToCurrentUser() {
+                if Task.isCancelled {
+                    return
+                }
+                await MainActor.run {
+                    // Extract firstName by splitting on first whitespace
+                    let displayName = currentUser?.displayName ?? "rider"
+                    if let firstName = displayName.components(separatedBy: .whitespaces).first {
+                        greetingDisplayName = firstName.isEmpty ? "rider" : firstName
+                    } else {
+                        greetingDisplayName = "rider"
                     }
-                    await MainActor.run {
-                        // Extract firstName by splitting on first whitespace
-                        let displayName = currentUser?.displayName ?? "rider"
-                        if let firstName = displayName.components(separatedBy: .whitespaces).first {
-                            greetingDisplayName = firstName.isEmpty ? "rider" : firstName
-                        } else {
-                            greetingDisplayName = "rider"
+                }
+            }
+        }
+    }
+
+    private func observeSessions(convexClient: any LaneShadowPlanningDataProviding) -> Task<Void, Never> {
+        Task { [weak self] in
+            guard let self else { return }
+            for await sessions in convexClient.subscribeToSessions() {
+                if Task.isCancelled {
+                    return
+                }
+                await MainActor.run {
+                    recentSessions = sessions
+                }
+            }
+        }
+    }
+
+    private func observeWeather(convexClient: any LaneShadowPlanningDataProviding) -> Task<Void, Never> {
+        Task { [weak self] in
+            guard let self else { return }
+            // Default Santa Cruz coordinates
+            let lat = 36.97
+            let lng = -122.03
+            do {
+                let weather = try await convexClient.fetchCurrentWeather(lat: lat, lng: lng)
+                if Task.isCancelled {
+                    return
+                }
+                await MainActor.run {
+                    weatherSummary = weather
+                    // Compose metaRow from weather data
+                    metaRow = "\(weather.dayOfWeek) · \(weather.tempF)°F · \(weather.condition.uppercased())"
+                    // Set weather advisory if severity is advisory or warning
+                    if weather.severity == .advisory || weather.severity == .warning {
+                        weatherAdvisory = WeatherAdvisory(
+                            label: weather.severity.rawValue.uppercased(),
+                            body: "Weather conditions may affect your ride."
+                        )
+                    } else {
+                        weatherAdvisory = nil
+                    }
+                }
+            } catch {
+                NSLog("❌ IDLE_VM: fetchCurrentWeather failed \(error.localizedDescription)")
+            }
+        }
+    }
+
+    private func observeFavoriteLocations(convexClient: any LaneShadowPlanningDataProviding) -> Task<Void, Never> {
+        Task { [weak self] in
+            guard let self else { return }
+            for await favorites in convexClient.subscribeToFavoriteLocations() {
+                if Task.isCancelled {
+                    return
+                }
+                await MainActor.run {
+                    favoriteLocations = favorites
+                }
+            }
+        }
+    }
+
+    private func observeLocation(
+        locationService: LocationService,
+        convexClient: any LaneShadowPlanningDataProviding
+    ) -> Task<Void, Never> {
+        Task { [weak self] in
+            guard let self else { return }
+
+            // Request location authorization
+            locationService.requestWhenInUseAuthorization()
+
+            // Wait for location to be available
+            let locationStream = AsyncStream<CLLocation?> { continuation in
+                let initialLocation = locationService.currentLocation
+                continuation.yield(initialLocation)
+
+                // Observe location changes
+                let observationTask = Task { [weak locationService] in
+                    guard let locationService else { return }
+                    var lastLocation = initialLocation
+                    while !Task.isCancelled {
+                        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                        let currentLocation = locationService.currentLocation
+                        if currentLocation?.coordinate.latitude != lastLocation?.coordinate.latitude ||
+                            currentLocation?.coordinate.longitude != lastLocation?.coordinate.longitude
+                        {
+                            lastLocation = currentLocation
+                            continuation.yield(currentLocation)
                         }
                     }
                 }
-            },
-            Task { [weak self, convexClient] in
-                guard let self else { return }
-                for await sessions in convexClient.subscribeToSessions() {
-                    if Task.isCancelled {
-                        return
-                    }
-                    await MainActor.run {
-                        recentSessions = sessions
-                    }
+
+                continuation.onTermination = { _ in
+                    observationTask.cancel()
                 }
-            },
-            Task { [weak self, convexClient] in
-                guard let self else { return }
-                // Default Santa Cruz coordinates
-                let lat = 36.97
-                let lng = -122.03
+            }
+
+            for await location in locationStream {
+                if Task.isCancelled {
+                    return
+                }
+
+                guard let location else {
+                    continue
+                }
+
+                // Reverse geocode the location
                 do {
-                    let weather = try await convexClient.fetchCurrentWeather(lat: lat, lng: lng)
+                    let label = try await convexClient.reverseGeocode(
+                        lat: location.coordinate.latitude,
+                        lng: location.coordinate.longitude
+                    )
                     if Task.isCancelled {
                         return
                     }
                     await MainActor.run {
-                        weatherSummary = weather
-                        // Compose metaRow from weather data
-                        metaRow = "\(weather.dayOfWeek) · \(weather.tempF)°F · \(weather.condition.uppercased())"
-                        // Set weather advisory if severity is advisory or warning
-                        if weather.severity == .advisory || weather.severity == .warning {
-                            weatherAdvisory = WeatherAdvisory(
-                                label: weather.severity.rawValue.uppercased(),
-                                body: "Weather conditions may affect your ride."
-                            )
-                        } else {
-                            weatherAdvisory = nil
-                        }
+                        locationLabel = label
+                        isLocationEnabled = true
                     }
                 } catch {
-                    NSLog("❌ IDLE_VM: fetchCurrentWeather failed \(error.localizedDescription)")
-                }
-            },
-            Task { [weak self, convexClient] in
-                guard let self else { return }
-                for await favorites in convexClient.subscribeToFavoriteLocations() {
-                    if Task.isCancelled {
-                        return
-                    }
+                    NSLog("❌ IDLE_VM: reverseGeocode failed \(error.localizedDescription)")
                     await MainActor.run {
-                        favoriteLocations = favorites
+                        locationLabel = nil
+                        isLocationEnabled = false
+                        locationUnavailable = true
                     }
                 }
-            },
-            Task { [weak self, locationService, convexClient] in
-                guard let self else { return }
-
-                // Request location authorization
-                locationService.requestWhenInUseAuthorization()
-
-                // Wait for location to be available
-                let locationStream = AsyncStream<CLLocation?> { continuation in
-                    let initialLocation = locationService.currentLocation
-                    continuation.yield(initialLocation)
-
-                    // Observe location changes
-                    let observationTask = Task { [weak locationService] in
-                        guard let locationService else { return }
-                        var lastLocation = initialLocation
-                        while !Task.isCancelled {
-                            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-                            let currentLocation = locationService.currentLocation
-                            if currentLocation?.coordinate.latitude != lastLocation?.coordinate.latitude ||
-                                currentLocation?.coordinate.longitude != lastLocation?.coordinate.longitude
-                            {
-                                lastLocation = currentLocation
-                                continuation.yield(currentLocation)
-                            }
-                        }
-                    }
-
-                    continuation.onTermination = { _ in
-                        observationTask.cancel()
-                    }
-                }
-
-                for await location in locationStream {
-                    if Task.isCancelled {
-                        return
-                    }
-
-                    guard let location else {
-                        continue
-                    }
-
-                    // Reverse geocode the location
-                    do {
-                        let label = try await convexClient.reverseGeocode(
-                            lat: location.coordinate.latitude,
-                            lng: location.coordinate.longitude
-                        )
-                        if Task.isCancelled {
-                            return
-                        }
-                        await MainActor.run {
-                            locationLabel = label
-                            isLocationEnabled = true
-                        }
-                    } catch {
-                        NSLog("❌ IDLE_VM: reverseGeocode failed \(error.localizedDescription)")
-                        await MainActor.run {
-                            locationLabel = nil
-                            isLocationEnabled = false
-                            locationUnavailable = true
-                        }
-                    }
-                }
-            },
-        ]
+            }
+        }
     }
 
     func submitSuggestion(_ message: String) async {
