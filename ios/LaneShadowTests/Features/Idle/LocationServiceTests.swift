@@ -58,7 +58,11 @@ struct LocationServiceTests {
     func setsLocationUnavailableOnGeocodeFailure() async throws {
         let client = StubLaneShadowConvexClient()
         // Make reverse geocode fail
-        client.stubReverseGeocodeError = NSError(domain: "test", code: 1, userInfo: [NSLocalizedDescriptionKey: "Geocode failed"])
+        client.stubReverseGeocodeError = NSError(
+            domain: "test",
+            code: 1,
+            userInfo: [NSLocalizedDescriptionKey: "Geocode failed"]
+        )
 
         let chatStore = ChatStore()
         let sessionStore = SessionStore()
