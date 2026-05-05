@@ -1,3 +1,4 @@
+import CoreLocation
 import LaneShadowTheme
 import SwiftUI
 import Testing
@@ -9,47 +10,54 @@ import XCTest
 @MainActor
 struct IdleScreenWiringTests {
     @Test
-    func idleScreenSubscribesToCurrentUserRendersDisplayName() async throws {
-        let client = StubLaneShadowConvexClient()
-        let chatStore = ChatStore()
-        let sessionStore = SessionStore()
+    func idleScreenRendersSprintGreetingHeadlineForTodayScope() async throws {
         let viewModel = IdleViewModel(
-            chatStore: chatStore,
-            sessionStore: sessionStore,
-            convexClient: client
+            chatStore: ChatStore(),
+            sessionStore: SessionStore(),
+            convexClient: StubLaneShadowConvexClient()
         )
+        viewModel.greetingDisplayName = "Cameron"
+        viewModel.greetingScope = .today
 
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
-
         let hostingController = UIHostingController(rootView: screen)
         hostingController.loadViewIfNeeded()
 
-        let observationTask = Task {
-            await viewModel.observe()
-        }
-
-        client.sendCurrentUser(
-            LaneShadowCurrentUser(
-                id: "user-1",
-                clerkUserId: "clerk-user-1",
-                email: "cameron@example.com",
-                name: "Cameron"
-            )
-        )
-
-        await pumpMainActor()
-
         let inspected = try screen.inspect()
-        let greeting = try inspected.find(text: "Good morning, Cameron")
-        #expect(try greeting.string() == "Good morning, Cameron")
-
-        client.finishObservationStreams()
-        observationTask.cancel()
-        await observationTask.value
+        let headline = try inspected.find(viewWithAccessibilityIdentifier: "idlescreen-greeting-headline")
+        let headlineStack = try headline.hStack()
+        let leadingText = try headlineStack.text(0).string()
+        let scopeText = try headlineStack.text(1).string()
+        let trailingText = try headlineStack.text(2).string()
+        let headlineText = leadingText + scopeText + trailingText
+        #expect(headlineText == "Where are we riding today, Cameron?")
+        #expect(scopeText == "today")
     }
 
     @Test
-    func idleScreenChipTapCreatesSessionAndStartsPlanningFromMountedContainer() async throws {
+    func idleViewModelFormatsWeatherMetaRowInUppercase() async throws {
+        let client = StubLaneShadowConvexClient()
+        let locationService = LocationService()
+        let delegate = locationService as CLLocationManagerDelegate
+        delegate.locationManager?(CLLocationManager(), didFailWithError: NSError(domain: "test", code: 0))
+        try await Task.sleep(for: .milliseconds(300))
+
+        let viewModel = IdleViewModel(
+            chatStore: ChatStore(),
+            sessionStore: SessionStore(),
+            convexClient: client,
+            locationService: locationService
+        )
+
+        await viewModel.observe()
+        try await Task.sleep(for: .milliseconds(500))
+
+        #expect(viewModel.metaRow == "FRIDAY · 68°F · CLEAR")
+        viewModel.stopObserving()
+    }
+
+    @Test
+    func idleScreenChipTapPrimesInputBeforeExplicitSend() async throws {
         let client = BlockingIdlePlanningClient()
 
         let sessionStore = SessionStore()
@@ -82,7 +90,11 @@ struct IdleScreenWiringTests {
         try chip.button().tap()
         await pumpMainActor()
 
-        #expect(client.createPlanningSessionCalls == ["Plan a scenic 2-hour ride"])
+        #expect(client.createPlanningSessionCalls.isEmpty)
+        #expect(chatStore.flowState.phase == .idle)
+
+        await viewModel.submitSuggestion("Plan a scenic 2-hour ride")
+        await pumpMainActor()
 
         let startedCall = try #require(
             await waitForSendPlanningMessageStarted(sendPlanningMessageSignal)

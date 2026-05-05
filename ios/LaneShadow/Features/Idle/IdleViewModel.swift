@@ -68,7 +68,6 @@ final class IdleViewModel {
         observationTasks = [
             observeCurrentUser(convexClient: convexClient),
             observeSessions(convexClient: convexClient),
-            observeWeather(convexClient: convexClient),
             observeFavoriteLocations(convexClient: convexClient),
             observeLocation(locationService: locationService, convexClient: convexClient),
         ]
@@ -104,37 +103,6 @@ final class IdleViewModel {
                 await MainActor.run {
                     recentSessions = sessions
                 }
-            }
-        }
-    }
-
-    private func observeWeather(convexClient: any LaneShadowPlanningDataProviding) -> Task<Void, Never> {
-        Task { [weak self] in
-            guard let self else { return }
-            // Default Santa Cruz coordinates
-            let lat = 36.97
-            let lng = -122.03
-            do {
-                let weather = try await convexClient.fetchCurrentWeather(lat: lat, lng: lng)
-                if Task.isCancelled {
-                    return
-                }
-                await MainActor.run {
-                    weatherSummary = weather
-                    // Compose metaRow from weather data
-                    metaRow = "\(weather.dayOfWeek) · \(weather.tempF)°F · \(weather.condition.uppercased())"
-                    // Set weather advisory if severity is advisory or warning
-                    if weather.severity == .advisory || weather.severity == .warning {
-                        weatherAdvisory = WeatherAdvisory(
-                            label: weather.severity.rawValue.uppercased(),
-                            body: "Weather conditions may affect your ride."
-                        )
-                    } else {
-                        weatherAdvisory = nil
-                    }
-                }
-            } catch {
-                NSLog("❌ IDLE_VM: fetchCurrentWeather failed \(error.localizedDescription)")
             }
         }
     }
@@ -210,6 +178,7 @@ final class IdleViewModel {
                     await MainActor.run {
                         locationLabel = label
                         isLocationEnabled = true
+                        locationUnavailable = false
                     }
                 } catch {
                     NSLog("❌ IDLE_VM: reverseGeocode failed \(error.localizedDescription)")
@@ -219,7 +188,42 @@ final class IdleViewModel {
                         locationUnavailable = true
                     }
                 }
+
+                await fetchWeather(
+                    lat: location.coordinate.latitude,
+                    lng: location.coordinate.longitude,
+                    convexClient: convexClient
+                )
             }
+        }
+    }
+
+    private func fetchWeather(
+        lat: Double,
+        lng: Double,
+        convexClient: any LaneShadowPlanningDataProviding
+    ) async {
+        do {
+            let weather = try await convexClient.fetchCurrentWeather(lat: lat, lng: lng)
+            if Task.isCancelled {
+                return
+            }
+
+            await MainActor.run {
+                weatherSummary = weather
+                metaRow = "\(weather.dayOfWeek.uppercased()) · \(weather.tempF)°F · \(weather.condition.uppercased())"
+
+                if weather.severity == .advisory || weather.severity == .warning {
+                    weatherAdvisory = WeatherAdvisory(
+                        label: weather.severity.rawValue.uppercased(),
+                        body: "Weather conditions may affect your ride."
+                    )
+                } else {
+                    weatherAdvisory = nil
+                }
+            }
+        } catch {
+            NSLog("❌ IDLE_VM: fetchCurrentWeather failed \(error.localizedDescription)")
         }
     }
 

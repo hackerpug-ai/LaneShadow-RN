@@ -115,6 +115,16 @@ struct ConvexClientTests {
     }
 
     @Test
+    func reverseGeocodeActionUsesPlacesEndpoint() {
+        #expect(LaneShadowConvexAction.reverseGeocode.rawValue == "actions/places:reverseGeocode")
+    }
+
+    @Test
+    func currentWeatherActionUsesWeatherEndpoint() {
+        #expect(LaneShadowConvexAction.getCurrentWeather.rawValue == "actions/weather:getCurrentWeather")
+    }
+
+    @Test
     func setAuthBridgesClerkJWTThroughWrapper() async throws {
         let client = LaneShadowConvexClient(
             deploymentURL: "http://localhost:3210",

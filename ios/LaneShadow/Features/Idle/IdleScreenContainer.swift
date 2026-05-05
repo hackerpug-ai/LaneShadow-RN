@@ -57,12 +57,15 @@ struct IdleScreenContainer: View {
 
     private var greetingOverlay: some View {
         VStack(alignment: .leading, spacing: theme.space.sm) {
-            Text(
-                "Good \(viewModel.greetingScope == .tonight ? "evening" : "morning"), \(viewModel.greetingDisplayName)"
-            )
+            HStack(spacing: 0) {
+                Text("Where are we riding ")
+                Text(viewModel.greetingScope.rawValue)
+                    .italic()
+                Text(", \(viewModel.greetingDisplayName)?")
+            }
             .font(theme.type.opinion.xl.font)
             .foregroundStyle(LaneShadowTheme.color.content.primary)
-            .accessibilityIdentifier("idlescreen-current-user-greeting")
+            .accessibilityIdentifier("idlescreen-greeting-headline")
 
             if let locationLabel = viewModel.locationLabel {
                 HStack(spacing: theme.space.xs) {
@@ -157,7 +160,6 @@ struct IdleScreenContainer: View {
             suggestions: suggestions,
             onSuggestionTap: { chip in
                 chatInputValue = chip.label
-                Task { await viewModel.submitSuggestion(chip.label) }
             },
             isThinking: viewModel.isSubmitting,
             isEnabled: viewModel.isLocationEnabled && !viewModel.isSubmitting
