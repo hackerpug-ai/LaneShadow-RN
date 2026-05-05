@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0088B7B8DE44EAB0E681D685 /* ModifierStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F130DF4421118EE59843068 /* ModifierStories.swift */; };
+		0572AEB02852C40AFB2EA688 /* LocationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 951E6857BC2667EA8B3CAB34 /* LocationServiceTests.swift */; };
 		06E6D012390862D9ABF3488C /* LaneShadowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C592B52392DEEACF2D91C3B /* LaneShadowTests.swift */; };
 		078589B1255FE42AA7459089 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */; };
 		082ADFB68D5AE646F1E90B0C /* IdleWeatherTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B29FDC7574308033A3BC91 /* IdleWeatherTypes.swift */; };
@@ -149,6 +150,7 @@
 		8F281656D06513E78E57D10D /* LSScrimStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScrimStories.swift; sourceTree = "<group>"; };
 		93E2A5636744C52173464018 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		94AB21A076699921AC328EE9 /* LSModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSModal.swift; sourceTree = "<group>"; };
+		951E6857BC2667EA8B3CAB34 /* LocationServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocationServiceTests.swift; path = LaneShadowTests/Features/Idle/LocationServiceTests.swift; sourceTree = "<group>"; };
 		9585186566089A7EAF681DDB /* ChatTranscript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTranscript.swift; sourceTree = "<group>"; };
 		9B5F858C066D550CE73CE6FD /* InfoToast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoToast.swift; sourceTree = "<group>"; };
 		9B7B16DBC24DD75C64F8C744 /* LSListRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSListRow.swift; sourceTree = "<group>"; };
@@ -565,6 +567,7 @@
 				F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */,
 				93E2A5636744C52173464018 /* RootView.swift */,
 				C6B29FDC7574308033A3BC91 /* IdleWeatherTypes.swift */,
+				E9F5A30C8DFBCD72F994A6BF /* LaneShadowTests */,
 			);
 			path = LaneShadow;
 			sourceTree = "<group>";
@@ -673,6 +676,14 @@
 				2A8A1A8718DD88DF992F0D2D /* SessionsErrorVariantTests.swift */,
 			);
 			path = Sandbox;
+			sourceTree = "<group>";
+		};
+		E9F5A30C8DFBCD72F994A6BF /* LaneShadowTests */ = {
+			isa = PBXGroup;
+			children = (
+				951E6857BC2667EA8B3CAB34 /* LocationServiceTests.swift */,
+			);
+			name = LaneShadowTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -990,6 +1001,7 @@
 				21D966799A18DF7B8AF9A057 /* RouteResultsDetailsVariantTests.swift in Sources */,
 				DB7CE61E13E9E0BCC6BF9B2D /* SessionsErrorVariantTests.swift in Sources */,
 				1D1C109DCFE682DE535CC6B9 /* LocationServiceTests.swift in Sources */,
+				0572AEB02852C40AFB2EA688 /* LocationServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
