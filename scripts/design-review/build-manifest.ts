@@ -102,11 +102,15 @@ export async function buildManifest(options: {
     }
   }
 
-  // Check for missing pairs and fail if any found
+  // Warn about missing pairs but don't crash — allow partial manifests
   if (missingPairs.length > 0) {
-    const errorMessage = `Missing pairings detected:\n${missingPairs.map((p) => `  - ${p}`).join('\n')}`
-    console.error(`❌ ${errorMessage}`)
-    throw new Error(errorMessage)
+    console.warn(
+      `⚠️  Skipped ${missingPairs.length} capture(s) with missing references:\n${missingPairs.map((p) => `  - ${p}`).join('\n')}`,
+    )
+  }
+
+  if (entries.length === 0 && captureFiles.length === 0) {
+    console.warn('⚠️  No captures found — manifest will be empty')
   }
 
   const manifest: Manifest = {
