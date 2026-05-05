@@ -27,6 +27,7 @@ fun IdleRoute(
 
     IdleScreen(
         state = uiState.toMockState(),
+        inputValue = uiState.inputValue,
         onMenuTap = { navController.navigate(Route.Sessions) },
         onSuggestionTap = { chip ->
             viewModel.onSuggestionTap(SuggestionChip(text = chip.label))
@@ -35,6 +36,7 @@ fun IdleRoute(
         onCollapse = { viewModel.onInputChange("") },
         onFilter = { navController.navigate(Route.Sessions) },
         onValueChange = viewModel::onInputChange,
+        onLocationModeChange = viewModel::onLocationModeChange,
     )
 
     LaunchedEffect(uiState.navigateTo) {
@@ -71,8 +73,12 @@ internal fun IdleUiState.toMockState(): IdleScreenState {
             )
         },
         locationContext = LocationContext(
-            label = locationLabel ?: "Near Santa Cruz, CA",
+            label = locationLabel ?: "Tap to set start",
             mode = locationMode,
         ),
+        showAdvisoryCard = showAdvisoryCard,
+        advisoryMessage = advisoryMessage,
+        isNoLocation = locationUnavailable || !isLocationEnabled,
+        favoriteLocations = favoriteLocations,
     )
 }

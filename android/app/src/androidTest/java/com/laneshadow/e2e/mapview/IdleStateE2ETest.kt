@@ -74,9 +74,9 @@ class IdleStateE2ETest {
             .fetchSemanticsNodes()
 
         check(metaNodes.isNotEmpty()) { "Meta row must exist" }
-        val metaText = metaNodes.first().config.getOrNull(
+        val metaText = metaNodes.first().config[
             androidx.compose.ui.semantics.SemanticsProperties.Text
-        )?.joinToString(" ") ?: ""
+        ].joinToString(" ")
         check(metaPattern.matcher(metaText).matches()) {
             "Meta row '$metaText' does not match expected pattern"
         }
@@ -92,7 +92,7 @@ class IdleStateE2ETest {
         check(chipNodes.isNotEmpty()) { "Expected at least one suggestion chip" }
 
         composeRule.onNodeWithTag("suggestion-chip").performClick()
-        waitForTag("planning-phase-indicator", timeoutMillis = 10_000)
+        waitForTag("phase-indicator", timeoutMillis = 10_000)
         captureScreenshot("idle-to-planning-transition")
     }
 
@@ -103,7 +103,7 @@ class IdleStateE2ETest {
         waitForTag("ls-topbar-hamburger-chip")
 
         composeRule.onNodeWithTag("ls-topbar-hamburger-chip").performClick()
-        waitForTag("sessions-drawer-root", timeoutMillis = 5_000)
+        waitForTag("ls-sessions-drawer", timeoutMillis = 5_000)
         captureScreenshot("idle-drawer-open")
     }
 

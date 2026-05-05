@@ -1,5 +1,8 @@
 package com.laneshadow.ui.atoms
 
+import android.graphics.Bitmap
+import android.graphics.Canvas as AndroidCanvas
+import android.graphics.Paint
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
@@ -127,7 +131,7 @@ fun LSMap(
                             configureMapView(mapView, renderModel, onTap)
                             val manager = mapView.annotations.createPointAnnotationManager()
                             annotationManager = manager
-                            applyFavoritePinAnnotations(manager, favoriteLocations, isDarkTheme)
+                            applyFavoritePinAnnotations(mapContext, manager, favoriteLocations, isDarkTheme)
                         }
                     },
                     update = { mapView ->
@@ -139,7 +143,7 @@ fun LSMap(
                 LaunchedEffect(favoriteLocations, isDarkTheme) {
                     val manager = annotationManager
                     if (manager != null) {
-                        applyFavoritePinAnnotations(manager, favoriteLocations, isDarkTheme)
+                        applyFavoritePinAnnotations(context, manager, favoriteLocations, isDarkTheme)
                     }
                 }
 
@@ -246,6 +250,7 @@ private fun configureMapView(
 }
 
 private fun applyFavoritePinAnnotations(
+    context: Context,
     annotationManager: PointAnnotationManager,
     favorites: List<FavoriteLocation>,
     isDarkTheme: Boolean,
@@ -260,10 +265,36 @@ private fun applyFavoritePinAnnotations(
     pinSpecs.forEach { pinSpec ->
         val pointAnnotationOptions = PointAnnotationOptions()
             .withPoint(Point.fromLngLat(pinSpec.coordinate.lon, pinSpec.coordinate.lat))
-            .withIconImage("default-marker") // Use Mapbox default marker for now
+            .withIconImage(createFavoritePinBitmap(context, pinSpec))
             .withIconSize(1.0)
 
         annotationManager.create(pointAnnotationOptions)
+    }
+}
+
+private fun createFavoritePinBitmap(
+    context: Context,
+    pinSpec: LSMapFavoritePinSpec,
+): Bitmap {
+    val density = context.resources.displayMetrics.density
+    val outerDiameterPx = (GeneratedTokens.sizing.stroke.lg.value * 8f * density).toInt()
+    val ringWidthPx = GeneratedTokens.sizing.stroke.md.value * density
+    val fillRadiusPx = (outerDiameterPx / 2f) - ringWidthPx
+    val center = outerDiameterPx / 2f
+
+    val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = pinSpec.ringColor.toArgb()
+        style = Paint.Style.FILL
+    }
+    val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = pinSpec.fillColor.toArgb()
+        style = Paint.Style.FILL
+    }
+
+    return Bitmap.createBitmap(outerDiameterPx, outerDiameterPx, Bitmap.Config.ARGB_8888).also { bitmap ->
+        val canvas = AndroidCanvas(bitmap)
+        canvas.drawCircle(center, center, center, ringPaint)
+        canvas.drawCircle(center, center, fillRadiusPx, fillPaint)
     }
 }
 

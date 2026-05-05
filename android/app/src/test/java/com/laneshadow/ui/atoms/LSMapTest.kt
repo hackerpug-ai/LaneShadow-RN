@@ -2,6 +2,7 @@ package com.laneshadow.ui.atoms
 
 import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
+import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -243,6 +244,25 @@ class LSMapTest {
     fun favorite_pin_specs_empty_when_no_favorites() {
         val pinSpecs = resolveLSMapFavoritePinSpecs(emptyList(), isDarkTheme = false)
         assertTrue(pinSpecs.isEmpty())
+    }
+
+    @Test
+    fun favoritePins_useCopperDotSpecs() {
+        val favorites = listOf(
+            com.laneshadow.data.favorites.FavoriteLocation(
+                id = "fav-001",
+                lat = 37.7749,
+                lon = -122.4194,
+                label = "SF Start",
+            ),
+        )
+
+        val pinSpecs = resolveLSMapFavoritePinSpecs(favorites, isDarkTheme = false)
+        val source = File("src/main/java/com/laneshadow/ui/atoms/LSMap.kt").readText()
+
+        assertEquals(1, pinSpecs.size)
+        assertEquals(GeneratedTokens.color.Signal.default, pinSpecs.single().fillColor)
+        assertFalse(source.contains("withIconImage(\"default-marker\")"))
     }
 
     @Test
