@@ -139,41 +139,28 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         on mapView: MapView,
         coordinator: Coordinator
     ) {
-        let newFavoriteIds = Set(favorites.map { "fav-\($0.id)" })
-
-        let toRemove = coordinator.currentFavoriteIds.subtracting(newFavoriteIds)
-        if !toRemove.isEmpty {
-            for id in toRemove {
-                mapView.annotations.removeAnnotationManager(withId: id)
-                coordinator.favoriteAnnotationManagers.removeValue(forKey: id)
-            }
+        let manager: PointAnnotationManager
+        if let existing = coordinator.favoritePinManager {
+            manager = existing
+        } else {
+            manager = mapView.annotations.makePointAnnotationManager(id: "favorite-pins")
+            coordinator.favoritePinManager = manager
         }
 
-        for favorite in favorites {
-            let id = "fav-\(favorite.id)"
-
-            let manager: PointAnnotationManager
-            if let existingManager = coordinator.favoriteAnnotationManagers[id] {
-                manager = existingManager
-            } else {
-                manager = mapView.annotations.makePointAnnotationManager(id: id)
-                coordinator.favoriteAnnotationManagers[id] = manager
-            }
-
+        let copperColor = LaneShadowTheme.color.signal.default
+        let annotations = favorites.map { favorite in
             var annotation = PointAnnotation(
-                id: id,
+                id: "fav-\(favorite.id)",
                 coordinate: CLLocationCoordinate2D(
                     latitude: favorite.lat,
                     longitude: favorite.lon
                 )
             )
-            let copperColor = LaneShadowTheme.color.signal.default
             annotation.iconColor = StyleColor(copperColor)
-
-            manager.annotations = [annotation]
+            return annotation
         }
 
-        coordinator.currentFavoriteIds = newFavoriteIds
+        manager.annotations = annotations
     }
 
     private func applyCameraFitIfNeeded(to mapView: MapView, polylines: [PolylineData]) {
@@ -224,8 +211,7 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         var currentStyleURI: String?
         var polylineAnnotationManagers: [String: PolylineAnnotationManager] = [:]
         var currentPolylineIds: Set<String> = []
-        var favoriteAnnotationManagers: [String: PointAnnotationManager] = [:]
-        var currentFavoriteIds: Set<String> = []
+        var favoritePinManager: PointAnnotationManager?
 
         init(onTap: ((LatLng) -> Void)?) {
             self.onTap = onTap
