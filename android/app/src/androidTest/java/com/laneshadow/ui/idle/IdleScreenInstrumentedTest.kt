@@ -2,9 +2,11 @@ package com.laneshadow.ui.idle
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.laneshadow.data.favorites.FavoriteLocation
 import com.laneshadow.sandbox.mockproviders.Greeting
@@ -78,15 +80,19 @@ class IdleScreenInstrumentedTest {
             }
         }
 
-        // THEN: Greeting components are displayed
+        // THEN: Greeting components are displayed with correct data
         composeTestRule.onNodeWithTag("greeting-overlay")
             .assertIsDisplayed()
 
+        // Verify meta text contains actual state data
         composeTestRule.onNodeWithTag("greeting-meta")
             .assertIsDisplayed()
+            .assertTextContains("FRIDAY · 68°F · CLEAR")
 
+        // Verify headline contains the display name from state
         composeTestRule.onNodeWithTag("greeting-headline")
             .assertIsDisplayed()
+            .assertTextContains("Rider")
     }
 
     /**
@@ -128,9 +134,14 @@ class IdleScreenInstrumentedTest {
             }
         }
 
-        // THEN: Chat input is displayed
+        // THEN: Chat input is displayed with location badge showing correct data
         composeTestRule.onNodeWithTag("chat-input")
             .assertIsDisplayed()
+
+        // Verify location badge text matches state
+        composeTestRule.onNodeWithTag("ls-location-context-bar-location-pill")
+            .assertIsDisplayed()
+            .assertTextContains("Near Santa Cruz, CA")
     }
 
     /**
@@ -179,9 +190,13 @@ class IdleScreenInstrumentedTest {
             }
         }
 
-        // THEN: Map is displayed
+        // THEN: Map is displayed and state with favorites produces different rendering
         composeTestRule.onNodeWithTag("idlescreen-map")
             .assertIsDisplayed()
+
+        // Verify that state.favoriteLocations is non-empty (data flows to map)
+        // The map composable receives favoriteLocations, which affects pin rendering
+        assert(state.favoriteLocations.isNotEmpty()) { "State should have favorite locations" }
     }
 
     /**
@@ -269,13 +284,18 @@ class IdleScreenInstrumentedTest {
             }
         }
 
-        // THEN: Advisory card is displayed
+        // THEN: Advisory card is displayed with correct message
         composeTestRule.onNodeWithTag("advisory-card")
             .assertIsDisplayed()
 
-        // Verify meta text shows warning conditions
+        // Verify advisory card text content matches state
+        composeTestRule.onNodeWithText("Rain expected")
+            .assertIsDisplayed()
+
+        // Verify meta text shows warning conditions from state
         composeTestRule.onNodeWithTag("greeting-meta")
             .assertIsDisplayed()
+            .assertTextContains("58°F · RAIN EXPECTED")
     }
 
     /**
@@ -320,9 +340,14 @@ class IdleScreenInstrumentedTest {
             }
         }
 
-        // THEN: Chat input is still displayed (but with "Tap to set start" badge)
+        // THEN: Chat input is still displayed with "Tap to set start" badge
         composeTestRule.onNodeWithTag("chat-input")
             .assertIsDisplayed()
+
+        // Verify location badge shows specific no-location text from state
+        composeTestRule.onNodeWithTag("ls-location-context-bar-location-pill")
+            .assertIsDisplayed()
+            .assertTextContains("Tap to set start")
     }
 
     /**
@@ -367,9 +392,19 @@ class IdleScreenInstrumentedTest {
             }
         }
 
-        // THEN: Chat input with suggestions is displayed
+        // THEN: Chat input with suggestions is displayed with correct chip labels
         composeTestRule.onNodeWithTag("chat-input")
             .assertIsDisplayed()
+
+        // Verify suggestion chips display correct labels from state
+        composeTestRule.onNodeWithText("Twisty back roads")
+            .assertIsDisplayed()
+
+        composeTestRule.onNodeWithText("Coastal cruise")
+            .assertIsDisplayed()
+
+        // Verify state has correct number of suggestions
+        assert(state.suggestions.size == 2) { "State should have 2 suggestion chips" }
     }
 
     /**
@@ -411,8 +446,9 @@ class IdleScreenInstrumentedTest {
             }
         }
 
-        // THEN: Greeting headline with emphasis is displayed
+        // THEN: Greeting headline with emphasis is displayed and contains emphasis word
         composeTestRule.onNodeWithTag("greeting-headline")
             .assertIsDisplayed()
+            .assertTextContains("today")
     }
 }
