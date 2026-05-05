@@ -58,6 +58,7 @@ class IdleViewModelTest {
     fun onSuggestionTap_createsSessionThenSendsMessageAndSetsNavigateTo() = runTest {
         val sessionRepository = FakeSessionRepository()
         val chatRepository = FakeChatRepository()
+        val convexProvider = createTestConvexClientProvider()
         val viewModel = IdleViewModel(
             userRepository = FakeUserRepository(
                 currentUser = CurrentUser(
@@ -69,6 +70,8 @@ class IdleViewModelTest {
             chatRepository = chatRepository,
             weatherRepository = FakeWeatherRepository(weather = null),
             favoritesRepository = FakeFavoritesRepository(),
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = convexProvider,
         )
 
         viewModel.onSuggestionTap(SuggestionChip(text = "Plan a scenic 2-hour ride"))
@@ -87,6 +90,7 @@ class IdleViewModelTest {
             createSessionResult = Result.failure(IOException("offline")),
         )
         val chatRepository = FakeChatRepository()
+        val convexProvider = createTestConvexClientProvider()
         val viewModel = IdleViewModel(
             userRepository = FakeUserRepository(
                 currentUser = CurrentUser(
@@ -98,6 +102,8 @@ class IdleViewModelTest {
             chatRepository = chatRepository,
             weatherRepository = FakeWeatherRepository(weather = null),
             favoritesRepository = FakeFavoritesRepository(),
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = convexProvider,
         )
 
         viewModel.onSend("plan a ride")
@@ -179,6 +185,7 @@ class IdleViewModelTest {
         val fakeWeatherRepository = FakeWeatherRepository(weather = null)
         val fakeFavoritesRepository = FakeFavoritesRepository()
         val fixedTime = LocalTime.of(10, 0) // 10 AM
+        val convexProvider = createTestConvexClientProvider()
 
         val viewModel = IdleViewModel(
             userRepository = fakeUserRepository,
@@ -186,6 +193,8 @@ class IdleViewModelTest {
             chatRepository = FakeChatRepository(),
             weatherRepository = fakeWeatherRepository,
             favoritesRepository = fakeFavoritesRepository,
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = convexProvider,
             timeProvider = { fixedTime },
         )
 
@@ -213,6 +222,7 @@ class IdleViewModelTest {
         val fakeWeatherRepository = FakeWeatherRepository(weather = weatherSummary)
         val fakeFavoritesRepository = FakeFavoritesRepository()
         val fixedTime = LocalTime.of(10, 0)
+        val convexProvider = createTestConvexClientProvider()
 
         val viewModel = IdleViewModel(
             userRepository = fakeUserRepository,
@@ -220,6 +230,8 @@ class IdleViewModelTest {
             chatRepository = FakeChatRepository(),
             weatherRepository = fakeWeatherRepository,
             favoritesRepository = fakeFavoritesRepository,
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = convexProvider,
             timeProvider = { fixedTime },
         )
 
@@ -245,6 +257,7 @@ class IdleViewModelTest {
         val fakeWeatherRepository = FakeWeatherRepository(weather = weatherSummary)
         val fakeFavoritesRepository = FakeFavoritesRepository()
         val fixedTime = LocalTime.of(10, 0)
+        val convexProvider = createTestConvexClientProvider()
 
         val viewModel = IdleViewModel(
             userRepository = fakeUserRepository,
@@ -252,6 +265,8 @@ class IdleViewModelTest {
             chatRepository = FakeChatRepository(),
             weatherRepository = fakeWeatherRepository,
             favoritesRepository = fakeFavoritesRepository,
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = convexProvider,
             timeProvider = { fixedTime },
         )
 
@@ -278,6 +293,7 @@ class IdleViewModelTest {
         val fakeWeatherRepository = FakeWeatherRepository(weather = null)
         val fakeFavoritesRepository = FakeFavoritesRepository()
         val fixedTime = LocalTime.of(10, 0)
+        val convexProvider = createTestConvexClientProvider()
 
         val viewModel = IdleViewModel(
             userRepository = fakeUserRepository,
@@ -285,6 +301,8 @@ class IdleViewModelTest {
             chatRepository = FakeChatRepository(),
             weatherRepository = fakeWeatherRepository,
             favoritesRepository = fakeFavoritesRepository,
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = convexProvider,
             timeProvider = { fixedTime },
         )
 
@@ -310,6 +328,7 @@ class IdleViewModelTest {
         val fakeWeatherRepository = FakeWeatherRepository(weather = null)
         val fakeFavoritesRepository = FakeFavoritesRepository(favorites = listOf(favoriteLocation))
         val fixedTime = LocalTime.of(10, 0)
+        val convexProvider = createTestConvexClientProvider()
 
         val viewModel = IdleViewModel(
             userRepository = fakeUserRepository,
@@ -317,6 +336,8 @@ class IdleViewModelTest {
             chatRepository = FakeChatRepository(),
             weatherRepository = fakeWeatherRepository,
             favoritesRepository = fakeFavoritesRepository,
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = convexProvider,
             timeProvider = { fixedTime },
         )
 
@@ -329,9 +350,56 @@ class IdleViewModelTest {
         assertThat(state.favoriteLocations[0]).isEqualTo(favoriteLocation)
     }
 
-    // NOTE: Location tests skipped due to complex ConvexClientProvider test setup
-    // These will be tested manually on device
-}
+    // Location observation tests
+    @Test
+    fun location_observation_updates_location_label() = runTest {
+        // GIVEN: ViewModel with location repository that returns Santa Cruz coordinates
+        val convexProvider = createTestConvexClientProvider()
+        val viewModel = IdleViewModel(
+            userRepository = FakeUserRepository(currentUser = null),
+            sessionRepository = FakeSessionRepository(),
+            chatRepository = FakeChatRepository(),
+            weatherRepository = FakeWeatherRepository(weather = null),
+            favoritesRepository = FakeFavoritesRepository(),
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = convexProvider,
+        )
+
+        // WHEN: ViewModel initializes and observes location
+        advanceUntilIdle()
+
+        // THEN: state.locationLabel contains the geocoded location label
+        val state = viewModel.state.value
+        assertThat(state.locationLabel).isNotNull()
+        assertThat(state.locationLabel).contains("Santa Cruz")
+    }
+
+    @Test
+    fun location_observation_failure_results_in_null_location_label() = runTest {
+        // GIVEN: Location repository that fails
+        val failingLocationRepo = object : com.laneshadow.data.location.LocationRepository {
+            override suspend fun getCurrentLocation(): Result<com.laneshadow.data.location.LocationCoordinate> {
+                return Result.failure(IOException("Location unavailable"))
+            }
+        }
+        val convexProvider = createTestConvexClientProvider()
+        val viewModel = IdleViewModel(
+            userRepository = FakeUserRepository(currentUser = null),
+            sessionRepository = FakeSessionRepository(),
+            chatRepository = FakeChatRepository(),
+            weatherRepository = FakeWeatherRepository(weather = null),
+            favoritesRepository = FakeFavoritesRepository(),
+            locationRepository = failingLocationRepo,
+            convexClientProvider = convexProvider,
+        )
+
+        // WHEN: Location observation fails
+        advanceUntilIdle()
+
+        // THEN: Location label is null (no fallback in current implementation)
+        val state = viewModel.state.value
+        assertThat(state.locationLabel).isNull()
+    }
 
     private class FakeUserRepository(
         private val currentUser: CurrentUser?,
@@ -407,61 +475,65 @@ class IdleViewModelTest {
     }
 
     private fun createTestConvexClientProvider(): com.laneshadow.services.ConvexClientProvider {
+        val authRepository = object : com.laneshadow.data.repository.AuthRepository {
+            override suspend fun signIn(email: String, password: String): Result<com.laneshadow.data.model.ClerkUser> =
+                Result.failure(UnsupportedOperationException())
+            override suspend fun signUp(email: String, password: String, name: String): Result<com.laneshadow.data.model.ClerkUser> =
+                Result.failure(UnsupportedOperationException())
+            override suspend fun completeSignUpVerification(code: String): Result<com.laneshadow.data.model.ClerkUser> =
+                Result.failure(UnsupportedOperationException())
+            override suspend fun signOut(): Result<Unit> = Result.success(Unit)
+            override suspend fun handleUnauthenticated(message: String): Result<Unit> = Result.success(Unit)
+            override suspend fun signInWithGoogle(): Result<com.laneshadow.data.model.ClerkUser> =
+                Result.failure(UnsupportedOperationException())
+            override suspend fun signInWithApple(): Result<com.laneshadow.data.model.ClerkUser> =
+                Result.failure(UnsupportedOperationException())
+            override suspend fun handleOAuthCallback(uri: android.net.Uri): Result<com.laneshadow.data.model.ClerkUser> =
+                Result.failure(UnsupportedOperationException())
+            override suspend fun getJwtForConvex(): String = "test-jwt"
+            override suspend fun bypassForTesting(): Result<com.laneshadow.data.model.ClerkUser> =
+                Result.failure(UnsupportedOperationException())
+            override fun observeAuthState(): kotlinx.coroutines.flow.StateFlow<com.laneshadow.data.model.AuthState> =
+                kotlinx.coroutines.flow.MutableStateFlow(com.laneshadow.data.model.AuthState.SignedIn(
+                    com.laneshadow.data.model.ClerkUser("id", "test@example.com", "Test", "token")
+                ))
+        }
+
+        val convexGateway = object : com.laneshadow.services.ConvexGateway {
+            override suspend fun bindAuthToken(token: String): Result<Unit> = Result.success(Unit)
+            override suspend fun clearAuth(context: android.content.Context): Result<Unit> = Result.success(Unit)
+            override suspend fun getCurrentUser(): com.laneshadow.services.ConvexCurrentUser? = null
+            override fun observeCurrentUser(): kotlinx.coroutines.flow.Flow<com.laneshadow.services.ConvexCurrentUser?> =
+                kotlinx.coroutines.flow.flowOf(null)
+            override fun observePlanningSessions(): kotlinx.coroutines.flow.Flow<List<com.laneshadow.data.session.PlanningSession>> =
+                kotlinx.coroutines.flow.flowOf(emptyList())
+            override fun observeSessionMessages(sessionId: String): kotlinx.coroutines.flow.Flow<List<com.laneshadow.data.chat.SessionMessage>> =
+                kotlinx.coroutines.flow.flowOf(emptyList())
+            override fun observeActiveRoutePlans(sessionId: String): kotlinx.coroutines.flow.Flow<List<com.laneshadow.data.route.RoutePlan>> =
+                kotlinx.coroutines.flow.flowOf(emptyList())
+            override fun observeSessions(): kotlinx.coroutines.flow.Flow<List<com.laneshadow.ui.organisms.Session>> =
+                kotlinx.coroutines.flow.flowOf(emptyList())
+            override fun observeFavoriteLocations(): kotlinx.coroutines.flow.Flow<List<com.laneshadow.data.favorites.FavoriteLocation>> =
+                kotlinx.coroutines.flow.flowOf(emptyList())
+            override suspend fun sendMessage(
+                sessionId: String,
+                content: String,
+                currentLocation: com.laneshadow.ui.atoms.LatLng?,
+            ): Result<com.laneshadow.services.ConvexSendMessageResponseDto> =
+                Result.success(com.laneshadow.services.ConvexSendMessageResponseDto("", "", emptyList()))
+            override suspend fun createSession(firstMessage: String): Result<String> =
+                Result.success("sess-42")
+            override suspend fun cancelPlan(routePlanId: String): Result<Unit> = Result.success(Unit)
+            override suspend fun getCurrentWeather(lat: Double, lng: Double): com.laneshadow.data.dto.WeatherDto =
+                com.laneshadow.data.dto.WeatherDto(68.0, "Clear", "none")
+            override suspend fun reverseGeocode(lat: Double, lng: Double): com.laneshadow.services.GeocodeResult =
+                com.laneshadow.services.GeocodeResult("Santa Cruz, CA", "place-123")
+        }
+
         return com.laneshadow.services.ConvexClientProvider(
-            appContext = androidx.test.core.app.ApplicationProvider.getApplicationContext(),
-            authRepository = object : com.laneshadow.data.repository.AuthRepository {
-                override suspend fun signIn(email: String, password: String): Result<com.laneshadow.data.model.ClerkUser> =
-                    Result.failure(UnsupportedOperationException())
-                override suspend fun signUp(email: String, password: String, name: String): Result<com.laneshadow.data.model.ClerkUser> =
-                    Result.failure(UnsupportedOperationException())
-                override suspend fun completeSignUpVerification(code: String): Result<com.laneshadow.data.model.ClerkUser> =
-                    Result.failure(UnsupportedOperationException())
-                override suspend fun signOut(): Result<Unit> = Result.success(Unit)
-                override suspend fun handleUnauthenticated(message: String): Result<Unit> = Result.success(Unit)
-                override suspend fun signInWithGoogle(): Result<com.laneshadow.data.model.ClerkUser> =
-                    Result.failure(UnsupportedOperationException())
-                override suspend fun signInWithApple(): Result<com.laneshadow.data.model.ClerkUser> =
-                    Result.failure(UnsupportedOperationException())
-                override suspend fun handleOAuthCallback(uri: android.net.Uri): Result<com.laneshadow.data.model.ClerkUser> =
-                    Result.failure(UnsupportedOperationException())
-                override suspend fun getJwtForConvex(): String = "test-jwt"
-                override suspend fun bypassForTesting(): Result<com.laneshadow.data.model.ClerkUser> =
-                    Result.failure(UnsupportedOperationException())
-                override fun observeAuthState(): kotlinx.coroutines.flow.StateFlow<com.laneshadow.data.model.AuthState> =
-                    kotlinx.coroutines.flow.MutableStateFlow(com.laneshadow.data.model.AuthState.SignedIn(
-                        com.laneshadow.data.model.ClerkUser("id", "test@example.com", "Test", "token")
-                    ))
-            },
-            convexGateway = object : com.laneshadow.services.ConvexGateway {
-                override suspend fun bindAuthToken(token: String): Result<Unit> = Result.success(Unit)
-                override suspend fun clearAuth(context: android.content.Context): Result<Unit> = Result.success(Unit)
-                override suspend fun getCurrentUser(): com.laneshadow.services.ConvexCurrentUser? = null
-                override fun observeCurrentUser(): kotlinx.coroutines.flow.Flow<com.laneshadow.services.ConvexCurrentUser?> =
-                    kotlinx.coroutines.flow.flowOf(null)
-                override fun observePlanningSessions(): kotlinx.coroutines.flow.Flow<List<com.laneshadow.data.session.PlanningSession>> =
-                    kotlinx.coroutines.flow.flowOf(emptyList())
-                override fun observeSessionMessages(sessionId: String): kotlinx.coroutines.flow.Flow<List<com.laneshadow.data.chat.SessionMessage>> =
-                    kotlinx.coroutines.flow.flowOf(emptyList())
-                override fun observeActiveRoutePlans(sessionId: String): kotlinx.coroutines.flow.Flow<List<com.laneshadow.data.route.RoutePlan>> =
-                    kotlinx.coroutines.flow.flowOf(emptyList())
-                override fun observeSessions(): kotlinx.coroutines.flow.Flow<List<com.laneshadow.ui.organisms.Session>> =
-                    kotlinx.coroutines.flow.flowOf(emptyList())
-                override fun observeFavoriteLocations(): kotlinx.coroutines.flow.Flow<List<com.laneshadow.data.favorites.FavoriteLocation>> =
-                    kotlinx.coroutines.flow.flowOf(emptyList())
-                override suspend fun sendMessage(
-                    sessionId: String,
-                    content: String,
-                    currentLocation: com.laneshadow.ui.atoms.LatLng?,
-                ): Result<com.laneshadow.services.ConvexSendMessageResponseDto> =
-                    Result.success(com.laneshadow.services.ConvexSendMessageResponseDto("", "", emptyList()))
-                override suspend fun createSession(firstMessage: String): Result<String> =
-                    Result.success("sess-42")
-                override suspend fun cancelPlan(routePlanId: String): Result<Unit> = Result.success(Unit)
-                override suspend fun getCurrentWeather(lat: Double, lng: Double): com.laneshadow.data.dto.WeatherDto =
-                    com.laneshadow.data.dto.WeatherDto(68.0, "Clear", "none")
-                override suspend fun reverseGeocode(lat: Double, lng: Double): com.laneshadow.services.GeocodeResult =
-                    com.laneshadow.services.GeocodeResult("Santa Cruz, CA", "place-123")
-            },
+            authRepository = authRepository,
+            appContext = android.app.Application(),
+            convexGateway = convexGateway,
         )
     }
 }
