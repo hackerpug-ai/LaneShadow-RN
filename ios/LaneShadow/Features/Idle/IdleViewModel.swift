@@ -1,3 +1,4 @@
+import CoreLocation
 import Foundation
 import Observation
 
@@ -19,10 +20,13 @@ final class IdleViewModel {
     ]
     var errorMessage: String?
     var isSubmitting = false
+    var locationLabel: String?
+    var isLocationEnabled = false
 
     @ObservationIgnored private let chatStore: ChatStore
     @ObservationIgnored private let sessionStore: SessionStore
     @ObservationIgnored private let convexClient: any LaneShadowPlanningDataProviding
+    @ObservationIgnored private let locationService: LocationService
     @ObservationIgnored private let appState: AppState?
     @ObservationIgnored private let onSessionStarted: @MainActor @Sendable (String) -> Void
     @ObservationIgnored private var observationTasks: [Task<Void, Never>] = []
@@ -31,12 +35,14 @@ final class IdleViewModel {
         chatStore: ChatStore,
         sessionStore: SessionStore,
         convexClient: any LaneShadowPlanningDataProviding,
+        locationService: LocationService = LocationService(),
         appState: AppState? = nil,
         onSessionStarted: @escaping @MainActor @Sendable (String) -> Void = { _ in }
     ) {
         self.chatStore = chatStore
         self.sessionStore = sessionStore
         self.convexClient = convexClient
+        self.locationService = locationService
         self.appState = appState
         self.onSessionStarted = onSessionStarted
     }
@@ -123,6 +129,68 @@ final class IdleViewModel {
                     }
                     await MainActor.run {
                         favoriteLocations = favorites
+                    }
+                }
+            },
+            Task { [weak self, locationService, convexClient] in
+                guard let self else { return }
+
+                // Request location authorization
+                locationService.requestWhenInUseAuthorization()
+
+                // Wait for location to be available
+                var locationStream = AsyncStream<CLLocation?> { continuation in
+                    let initialLocation = locationService.currentLocation
+                    continuation.yield(initialLocation)
+
+                    // Observe location changes
+                    let observationTask = Task { [weak locationService] in
+                        guard let locationService else { return }
+                        var lastLocation = initialLocation
+                        while !Task.isCancelled {
+                            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+                            let currentLocation = locationService.currentLocation
+                            if currentLocation?.coordinate.latitude != lastLocation?.coordinate.latitude ||
+                               currentLocation?.coordinate.longitude != lastLocation?.coordinate.longitude {
+                                lastLocation = currentLocation
+                                continuation.yield(currentLocation)
+                            }
+                        }
+                    }
+
+                    continuation.onTermination = { _ in
+                        observationTask.cancel()
+                    }
+                }
+
+                for await location in locationStream {
+                    if Task.isCancelled {
+                        return
+                    }
+
+                    guard let location = location else {
+                        continue
+                    }
+
+                    // Reverse geocode the location
+                    do {
+                        let label = try await convexClient.reverseGeocode(
+                            lat: location.coordinate.latitude,
+                            lng: location.coordinate.longitude
+                        )
+                        if Task.isCancelled {
+                            return
+                        }
+                        await MainActor.run {
+                            locationLabel = label
+                            isLocationEnabled = true
+                        }
+                    } catch {
+                        NSLog("❌ IDLE_VM: reverseGeocode failed \(error.localizedDescription)")
+                        await MainActor.run {
+                            locationLabel = nil
+                            isLocationEnabled = false
+                        }
                     }
                 }
             },

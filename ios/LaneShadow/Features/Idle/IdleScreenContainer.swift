@@ -57,10 +57,27 @@ struct IdleScreenContainer: View {
 
     private var greetingOverlay: some View {
         VStack(alignment: .leading, spacing: theme.space.sm) {
-            Text("Good \(viewModel.greetingScope == .tonight ? "evening" : "morning"), \(viewModel.greetingDisplayName)")
-                .font(theme.type.opinion.xl.font)
-                .foregroundStyle(LaneShadowTheme.color.content.primary)
-                .accessibilityIdentifier("idlescreen-current-user-greeting")
+            Text(
+                "Good \(viewModel.greetingScope == .tonight ? "evening" : "morning"), \(viewModel.greetingDisplayName)"
+            )
+            .font(theme.type.opinion.xl.font)
+            .foregroundStyle(LaneShadowTheme.color.content.primary)
+            .accessibilityIdentifier("idlescreen-current-user-greeting")
+
+            if let locationLabel = viewModel.locationLabel {
+                HStack(spacing: theme.space.xs) {
+                    Image(systemName: "location.fill")
+                        .font(theme.type.label.sm.font)
+                        .foregroundStyle(LaneShadowTheme.color.signal.default)
+
+                    Text(locationLabel)
+                        .font(theme.type.label.sm.font)
+                        .foregroundStyle(LaneShadowTheme.color.signal.default)
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Location: \(locationLabel)")
+                .accessibilityIdentifier("idlescreen-location-pill")
+            }
 
             if !viewModel.metaRow.isEmpty {
                 Text(viewModel.metaRow)
@@ -130,7 +147,7 @@ struct IdleScreenContainer: View {
                 Task { await viewModel.submitSuggestion(chip.label) }
             },
             isThinking: viewModel.isSubmitting,
-            isEnabled: !viewModel.isSubmitting
+            isEnabled: viewModel.isLocationEnabled && !viewModel.isSubmitting
         )
         .opacity(viewModel.isSubmitting ? theme.opacity.disabled : 1.0)
         .padding(.horizontal, theme.space.md)

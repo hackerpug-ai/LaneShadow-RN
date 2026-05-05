@@ -214,6 +214,13 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
         )
     }
 
+    func reverseGeocode(lat: Double, lng: Double) async throws -> String {
+        if lat == 36.97, lng == -122.03 {
+            return "Santa Cruz, CA"
+        }
+        return "Test Location"
+    }
+
     func sendRouteEnrichments(_ enrichmentsDocs: [RouteEnrichmentsDocument], routePlanId: String) {
         // For simplicity, store the first (or create a dummy one if empty)
         if let first = enrichmentsDocs.first {

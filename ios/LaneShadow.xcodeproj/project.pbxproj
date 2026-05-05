@@ -16,6 +16,7 @@
 		1952669D73F48496CFB75791 /* LaneShadowTheme in Frameworks */ = {isa = PBXBuildFile; productRef = A82A70CA01368BECA5189F19 /* LaneShadowTheme */; };
 		19B2E80084FD9A981F497DB5 /* ViewInspector in Frameworks */ = {isa = PBXBuildFile; productRef = 97E29B716CED481799DD0795 /* ViewInspector */; };
 		1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534D26C275878552CD82E5FE /* LSDisplayStories.swift */; };
+		1D1C109DCFE682DE535CC6B9 /* LocationServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76CAACC8FC8D6591ABBD755F /* LocationServiceTests.swift */; };
 		1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8ABC117BB7538D9D09E1F6 /* LSPhaseDotStories.swift */; };
 		21D966799A18DF7B8AF9A057 /* RouteResultsDetailsVariantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4283E0B2FE9FD9CE99770202 /* RouteResultsDetailsVariantTests.swift */; };
 		24E92B6C2FD5880E27973B68 /* ChatTranscript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9585186566089A7EAF681DDB /* ChatTranscript.swift */; };
@@ -141,6 +142,7 @@
 		6E0D7B9F463A28F5B5936751 /* LSFormField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFormField.swift; sourceTree = "<group>"; };
 		70071A35653D217D4EB4A4B8 /* LSRouteAttachmentCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSRouteAttachmentCard.swift; sourceTree = "<group>"; };
 		76A48CAA6BB2E860CDDF3E18 /* LSSurfaceStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSSurfaceStories.swift; sourceTree = "<group>"; };
+		76CAACC8FC8D6591ABBD755F /* LocationServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocationServiceTests.swift; path = Features/Idle/LocationServiceTests.swift; sourceTree = "<group>"; };
 		7996DA2EBA1763B4956D788D /* LSToastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToastTests.swift; sourceTree = "<group>"; };
 		85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowStories.swift; sourceTree = "<group>"; };
 		890F8AE171354CCC932518BC /* LSContentCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSContentCard.swift; sourceTree = "<group>"; };
@@ -608,6 +610,7 @@
 				C1C1554F3F09845975235612 /* Utilities */,
 				10EF6247464B14DE9D738910 /* Views */,
 				5C592B52392DEEACF2D91C3B /* LaneShadowTests.swift */,
+				76CAACC8FC8D6591ABBD755F /* LocationServiceTests.swift */,
 			);
 			path = LaneShadowTests;
 			sourceTree = "<group>";
@@ -986,6 +989,7 @@
 				A35AB3F139C3CDEBBED3C838 /* MotionTests.swift in Sources */,
 				21D966799A18DF7B8AF9A057 /* RouteResultsDetailsVariantTests.swift in Sources */,
 				DB7CE61E13E9E0BCC6BF9B2D /* SessionsErrorVariantTests.swift in Sources */,
+				1D1C109DCFE682DE535CC6B9 /* LocationServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

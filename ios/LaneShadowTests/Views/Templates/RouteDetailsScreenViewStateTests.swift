@@ -402,4 +402,8 @@ final class MockLaneShadowPlanningDataProviding: LaneShadowPlanningDataProviding
     func fetchCurrentWeather(lat _: Double, lng _: Double) async throws -> CurrentWeatherSummary {
         CurrentWeatherSummary(tempF: 68, condition: "Clear", severity: .normal, dayOfWeek: "Friday")
     }
+
+    func reverseGeocode(lat _: Double, lng _: Double) async throws -> String {
+        "Test Location"
+    }
 }

@@ -278,6 +278,14 @@ final class BlockingIdlePlanningClient: @unchecked Sendable, @preconcurrency Lan
         CurrentWeatherSummary(tempF: 68, condition: "Clear", severity: .normal, dayOfWeek: "Friday")
     }
 
+    func reverseGeocode(lat: Double, lng: Double) async throws -> String {
+        // Stub implementation for testing
+        if lat == 36.97, lng == -122.03 {
+            return "Santa Cruz, CA"
+        }
+        return "Unknown Location"
+    }
+
     func finishObservationStreams() {}
 
     fileprivate func sendPlanningMessageCallSignal() -> AsyncSignal<LaneShadowPlanningMessageCall> {

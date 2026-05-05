@@ -22,6 +22,7 @@ enum LaneShadowConvexMutation: String {
 enum LaneShadowConvexAction: String {
     case sendMessage = "actions/agent/sendMessage:sendMessage"
     case getCurrentWeather = "actions/weather/getCurrentWeather"
+    case reverseGeocode = "actions/places:reverseGeocode"
 }
 
 struct LaneShadowAuthSession {
@@ -250,6 +251,8 @@ protocol LaneShadowPlanningDataProviding: LaneShadowCurrentUserSubscriptionProvi
     func subscribeToFavoriteLocations() -> AsyncStream<[FavoriteLocation]>
 
     func fetchCurrentWeather(lat: Double, lng: Double) async throws -> CurrentWeatherSummary
+
+    func reverseGeocode(lat: Double, lng: Double) async throws -> String
 
     func subscribeToSessionMessages(
         sessionId: String,
@@ -722,6 +725,23 @@ final class LaneShadowConvexClient: @unchecked Sendable {
             severity: severity,
             dayOfWeek: response.dayOfWeek
         )
+    }
+
+    func reverseGeocode(lat: Double, lng: Double) async throws -> String {
+        struct ReverseGeocodeResponse: Decodable {
+            let label: String
+            let placeId: String?
+        }
+
+        let response: ReverseGeocodeResponse = try await action(
+            .reverseGeocode,
+            args: [
+                "lat": lat,
+                "lng": lng,
+            ]
+        )
+
+        return response.label
     }
 
     func fetchCurrentUser(notifyUnauthenticated: Bool = true) async throws -> LaneShadowCurrentUser? {
