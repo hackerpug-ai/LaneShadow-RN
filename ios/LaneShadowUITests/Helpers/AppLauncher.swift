@@ -5,13 +5,21 @@ enum AppLauncher {
     static func launchApp(
         _ app: XCUIApplication,
         sandbox: Bool = false,
+        sandboxStoryId: String? = nil,
         resetAuth: Bool = false,
         bypassAuth: Bool = false,
         e2eSignIn: Bool = false
     ) {
-        app.launchEnvironment["LANESHADOW_LAUNCH_SANDBOX"] = sandbox ? "1" : "0"
+        let shouldLaunchSandbox = sandbox || sandboxStoryId != nil
+        app.launchEnvironment["LANESHADOW_LAUNCH_SANDBOX"] = shouldLaunchSandbox ? "1" : "0"
         forwardRuntimeEnvironment(to: app)
         var arguments = ["-UITesting"]
+        if shouldLaunchSandbox {
+            arguments.append("-LaneShadowSandbox")
+        }
+        if let sandboxStoryId {
+            arguments += ["-SandboxStoryId", sandboxStoryId]
+        }
         if resetAuth {
             arguments.append("-LaneShadowUITestResetAuth")
         }
