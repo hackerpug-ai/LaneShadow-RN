@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { chromium } from 'playwright'
 
 interface RenderConfig {
@@ -64,9 +65,8 @@ async function renderSection(
     // Set viewport
     await page.setViewportSize({ width: 390, height: 844 })
 
-    // Load the HTML file
-    const htmlContent = readFileSync(htmlPath, 'utf-8')
-    await page.setContent(htmlContent, { waitUntil: 'networkidle' })
+    // Load via file:// URL so relative <link> paths resolve correctly
+    await page.goto(pathToFileURL(htmlPath).href, { waitUntil: 'networkidle' })
 
     // Find the specific section by data attributes
     const sectionSelector = `section[data-screen="${section.screen}"][data-state="${section.state}"]`
