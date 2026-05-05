@@ -5,10 +5,6 @@ import { chromium } from 'playwright'
 
 interface RenderConfig {
   chrome_path: string
-  viewport: {
-    width: number
-    height: number
-  }
 }
 
 interface SectionInfo {
@@ -16,6 +12,26 @@ interface SectionInfo {
   state: string
   theme: string
 }
+
+// iPhone 15 Pro Max viewport — gives elements room to breathe and
+// avoids the cramped layout that 390px (iPhone mini) produces.
+// The vision eval compares against real device captures at this scale.
+const VIEWPORT_WIDTH = 430
+const VIEWPORT_HEIGHT = 932
+const PHONE_MAX_WIDTH = 430
+
+// Screens where the map background is a CSS placeholder (grid pattern
+// or solid color), NOT a real map tile. The vision eval prompt should
+// ignore the map region on these screens to avoid false positives.
+const MAP_PLACEHOLDER_SCREENS = new Set([
+  'idle-screen',
+  'planning-screen',
+  'route-results-screen',
+  'route-details-screen',
+  'auth-screen',
+  'sessions-screen',
+  'error-screen',
+])
 
 function parseManifest(): RenderConfig {
   const manifestPath = join(process.cwd(), '.spec', 'design', 'system', 'manifest.json')
@@ -27,10 +43,6 @@ function parseManifest(): RenderConfig {
 
   return {
     chrome_path: manifest.render.chrome_path,
-    viewport: {
-      width: 390,
-      height: 844,
-    },
   }
 }
 
@@ -38,7 +50,6 @@ function extractSectionsFromHtml(htmlPath: string): SectionInfo[] {
   const html = readFileSync(htmlPath, 'utf-8')
   const sections: SectionInfo[] = []
 
-  // Find all <section> elements with data attributes
   const sectionRegex =
     /<section[^>]*data-screen="([^"]+)"[^>]*data-state="([^"]+)"[^>]*data-theme="([^"]+)"[^>]*>/g
 
@@ -62,20 +73,26 @@ async function renderSection(
   const page = await browser.newPage()
 
   try {
-    // Set viewport
-    await page.setViewportSize({ width: 390, height: 844 })
+    await page.setViewportSize({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT })
 
     // Load via file:// URL so relative <link> paths resolve correctly
     await page.goto(pathToFileURL(htmlPath).href, { waitUntil: 'networkidle' })
 
+    // Override the phone frame max-width to match the larger viewport
+    await page.addStyleTag({
+      content: `
+        [class*="__phone"] {
+          max-width: ${PHONE_MAX_WIDTH}px !important;
+        }
+      `,
+    })
+
     // Find the specific section by data attributes
     const sectionSelector = `section[data-screen="${section.screen}"][data-state="${section.state}"]`
 
-    // Wait for the section to be available
     await page.waitForSelector(sectionSelector, { timeout: 10000 })
 
     // Find the phone frame element within this section
-    // Try different class name patterns
     const phoneFrameSelectors = [
       `${sectionSelector} .view-${section.screen}__phone`,
       `${sectionSelector} .phone-frame`,
@@ -99,7 +116,6 @@ async function renderSection(
       throw new Error(`Phone frame not found for ${section.screen}/${section.state}`)
     }
 
-    // Take screenshot of just the phone frame
     await phoneFrame.screenshot({
       path: outputPath,
       type: 'png',
@@ -118,16 +134,14 @@ async function main(): Promise<void> {
   const refsDir = join(designSystemRoot, 'refs')
 
   console.log(`Chrome path: ${config.chrome_path}`)
-  console.log(`Viewport: ${config.viewport.width}×${config.viewport.height}\n`)
+  console.log(`Viewport: ${VIEWPORT_WIDTH}×${VIEWPORT_HEIGHT} (iPhone 15 Pro Max scale)\n`)
 
-  // Get all view directories
   const viewDirs = readdirSync(viewsDir, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory() && !dirent.name.startsWith('.'))
     .map((dirent) => dirent.name)
 
   console.log(`Found ${viewDirs.length} views to render\n`)
 
-  // Launch browser
   const browser = await chromium.launch({
     headless: true,
     args: ['--headless=new'],
@@ -140,19 +154,19 @@ async function main(): Promise<void> {
       const htmlPath = join(viewsDir, view, `${view}.html`)
       const viewRefsDir = join(refsDir, view)
 
-      // Create output directory
       if (!existsSync(viewRefsDir)) {
         mkdirSync(viewRefsDir, { recursive: true })
       }
 
-      console.log(`${view}:`)
+      const mapNote = MAP_PLACEHOLDER_SCREENS.has(view)
+        ? ' (map placeholder — eval ignores map bg)'
+        : ''
+      console.log(`${view}${mapNote}:`)
 
-      // Extract sections from HTML
       const sections = extractSectionsFromHtml(htmlPath)
 
       for (const section of sections) {
         const outputPath = join(viewRefsDir, `${section.state}.${section.theme}.png`)
-
         await renderSection(browser, htmlPath, section, outputPath)
         totalRendered++
       }
