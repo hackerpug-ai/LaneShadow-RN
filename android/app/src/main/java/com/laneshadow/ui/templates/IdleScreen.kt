@@ -104,6 +104,10 @@ fun IdleScreen(
                     center = LatLng(37.8104, -122.4752),
                     zoom = 10.8,
                 ),
+                favoriteLocations = state.favoriteLocations,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag("idlescreen-map"),
             )
         },
         topOverlays = listOf(

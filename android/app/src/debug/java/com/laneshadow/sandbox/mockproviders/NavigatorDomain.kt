@@ -144,6 +144,7 @@ data class IdleScreenState(
     val showAdvisoryCard: Boolean = false,           // V03: show weather advisory card
     val advisoryMessage: String? = null,             // V03: advisory card message
     val isNoLocation: Boolean = false,               // V01: show "Tap to set start" pill
+    val favoriteLocations: List<com.laneshadow.data.favorites.FavoriteLocation> = emptyList(), // S06-AND-T02: favorite pin overlays
 )
 
 /**

@@ -3,6 +3,7 @@ package com.laneshadow.ui.atoms
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.laneshadow.data.favorites.FavoriteLocation
 import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 
 /**
@@ -156,6 +157,13 @@ internal data class LSMapFallbackSpec(
 internal data class LSMapInteractionSpec(
     val gesturesEnabled: Boolean,
     val nestedScrollEnabled: Boolean,
+)
+
+internal data class LSMapFavoritePinSpec(
+    val coordinate: LatLng,
+    val fillColor: Color,
+    val ringColor: Color,
+    val label: String,
 )
 
 internal data class LSMapRenderModel(
@@ -393,4 +401,17 @@ private fun resolveLSMapSpacing(token: SpacingToken): Dp =
         SpacingToken.Spacing3 -> 12.dp
         SpacingToken.Spacing4 -> 16.dp
         SpacingToken.Spacing5 -> 24.dp
+    }
+
+internal fun resolveLSMapFavoritePinSpecs(
+    favorites: List<FavoriteLocation>,
+    isDarkTheme: Boolean,
+): List<LSMapFavoritePinSpec> =
+    favorites.map { favorite ->
+        LSMapFavoritePinSpec(
+            coordinate = LatLng(favorite.lat, favorite.lon),
+            fillColor = GeneratedTokens.color.Signal.default,
+            ringColor = GeneratedTokens.color.Surface.card,
+            label = favorite.label,
+        )
     }

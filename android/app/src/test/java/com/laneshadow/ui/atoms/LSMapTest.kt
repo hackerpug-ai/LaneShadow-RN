@@ -186,4 +186,81 @@ class LSMapTest {
         assertTrue(interactive.gesturesEnabled)
         assertTrue(interactive.nestedScrollEnabled)
     }
+
+    @Test
+    fun favorite_pin_specs_match_input_count_and_use_token_colors() {
+        val favorites = listOf(
+            com.laneshadow.data.favorites.FavoriteLocation(
+                id = "fav-001",
+                lat = 37.7749,
+                lon = -122.4194,
+                label = "SF Start"
+            ),
+            com.laneshadow.data.favorites.FavoriteLocation(
+                id = "fav-002",
+                lat = 37.8078,
+                lon = -122.4750,
+                label = "Richmond"
+            ),
+            com.laneshadow.data.favorites.FavoriteLocation(
+                id = "fav-003",
+                lat = 37.8324,
+                lon = -122.4803,
+                label = "Marin Headlands"
+            )
+        )
+
+        val pinSpecs = resolveLSMapFavoritePinSpecs(favorites, isDarkTheme = false)
+
+        // Verify count matches input
+        assertEquals(3, pinSpecs.size)
+
+        // Verify copper fill color (Signal.default)
+        assertEquals(GeneratedTokens.color.Signal.default, pinSpecs[0].fillColor)
+        assertEquals(GeneratedTokens.color.Signal.default, pinSpecs[1].fillColor)
+        assertEquals(GeneratedTokens.color.Signal.default, pinSpecs[2].fillColor)
+
+        // Verify white ring color (Surface.card)
+        assertEquals(GeneratedTokens.color.Surface.card, pinSpecs[0].ringColor)
+        assertEquals(GeneratedTokens.color.Surface.card, pinSpecs[1].ringColor)
+        assertEquals(GeneratedTokens.color.Surface.card, pinSpecs[2].ringColor)
+
+        // Verify coordinates match
+        assertEquals(37.7749, pinSpecs[0].coordinate.lat, 0.0)
+        assertEquals(-122.4194, pinSpecs[0].coordinate.lon, 0.0)
+        assertEquals(37.8078, pinSpecs[1].coordinate.lat, 0.0)
+        assertEquals(-122.4750, pinSpecs[1].coordinate.lon, 0.0)
+        assertEquals(37.8324, pinSpecs[2].coordinate.lat, 0.0)
+        assertEquals(-122.4803, pinSpecs[2].coordinate.lon, 0.0)
+
+        // Verify labels match
+        assertEquals("SF Start", pinSpecs[0].label)
+        assertEquals("Richmond", pinSpecs[1].label)
+        assertEquals("Marin Headlands", pinSpecs[2].label)
+    }
+
+    @Test
+    fun favorite_pin_specs_empty_when_no_favorites() {
+        val pinSpecs = resolveLSMapFavoritePinSpecs(emptyList(), isDarkTheme = false)
+        assertTrue(pinSpecs.isEmpty())
+    }
+
+    @Test
+    fun lsmap_backward_compatible_with_default_empty_favorites() {
+        // Test that the render model resolves correctly without favoriteLocations parameter
+        val model = resolveLSMapRenderModel(
+            mode = MapMode.Interactive,
+            camera = CameraPosition(center = LatLng(37.7749, -122.4194), zoom = 10.0),
+            polylines = emptyList(),
+            annotations = emptyList(),
+            isDarkTheme = false,
+            hasAccessToken = true,
+        )
+
+        // Should not have fallback, should have style URI
+        assertNull(model.fallback)
+        assertEquals(GeneratedTokens.map.style.light, model.styleUri)
+        assertTrue(model.polylines.isEmpty())
+        assertTrue(model.annotations.isEmpty())
+    }
 }

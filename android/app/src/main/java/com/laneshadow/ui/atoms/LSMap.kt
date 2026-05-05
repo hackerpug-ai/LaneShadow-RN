@@ -31,10 +31,15 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.laneshadow.R
+import com.laneshadow.data.favorites.FavoriteLocation
 import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
+import com.mapbox.maps.plugin.annotation.annotations
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 
 /**
  * LSMap — LaneShadow map composable using Mapbox Maps SDK.
@@ -50,7 +55,9 @@ fun LSMap(
     polylines: List<PolylineData> = emptyList(),
     annotations: List<Annotation> = emptyList(),
     showFavorites: Boolean = false,
+    favoriteLocations: List<FavoriteLocation> = emptyList(),
     onTap: ((LatLng) -> Unit)? = null,
+    modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val isInspectionMode = LocalInspectionMode.current
@@ -75,7 +82,7 @@ fun LSMap(
             hasAccessToken = accessToken.isNotBlank(),
         )
     }
-    val hostModifier = Modifier
+    val hostModifier = modifier
         .fillMaxSize()
         .nestedScroll(rememberNestedScrollInteropConnection())
 
@@ -101,10 +108,12 @@ fun LSMap(
                     factory = { mapContext ->
                         MapView(mapContext).also { mapView ->
                             configureMapView(mapView, renderModel, onTap)
+                            applyFavoritePinAnnotations(mapView, favoriteLocations, isDarkTheme)
                         }
                     },
                     update = { mapView ->
                         configureMapView(mapView, renderModel, onTap)
+                        applyFavoritePinAnnotations(mapView, favoriteLocations, isDarkTheme)
                     },
                 )
                 // Canvas overlay for animated polyline rendering with drawProgress
@@ -205,6 +214,30 @@ private fun configureMapView(
 
     mapView.setOnClickListener {
         onTap?.invoke(renderModel.camera.center)
+    }
+}
+
+private fun applyFavoritePinAnnotations(
+    mapView: MapView,
+    favorites: List<FavoriteLocation>,
+    isDarkTheme: Boolean,
+) {
+    val pointAnnotationManager = mapView.annotations.createPointAnnotationManager()
+
+    // Clear existing annotations
+    pointAnnotationManager.deleteAll()
+
+    // Create pin specs for favorites
+    val pinSpecs = resolveLSMapFavoritePinSpecs(favorites, isDarkTheme)
+
+    // Create and add point annotations for each favorite
+    pinSpecs.forEach { pinSpec ->
+        val pointAnnotationOptions = PointAnnotationOptions()
+            .withPoint(Point.fromLngLat(pinSpec.coordinate.lon, pinSpec.coordinate.lat))
+            .withIconImage("default-marker") // Use Mapbox default marker for now
+            .withIconSize(1.0)
+
+        pointAnnotationManager.create(pointAnnotationOptions)
     }
 }
 
