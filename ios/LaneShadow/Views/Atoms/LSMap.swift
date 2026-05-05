@@ -173,6 +173,9 @@ struct LSMapRenderModel: Equatable {
     let fallback: LSMapFallbackModel?
 }
 
+let lsMapFavoritePinColorTokenPath = "color.signal.default"
+let lsMapFavoritePinBorderColorTokenPath = "color.surface.card"
+
 @MainActor
 public func LSMap(
     mode: MapMode,
@@ -180,7 +183,7 @@ public func LSMap(
     cameraFit: CameraFit = .static,
     polylines: [PolylineData] = [],
     annotations: [Annotation] = [],
-    showFavorites: Bool = false,
+    favoriteLocations: [FavoriteLocation] = [],
     onTap: ((LatLng) -> Void)? = nil
 ) -> some View {
     LSMapContainer(
@@ -189,7 +192,7 @@ public func LSMap(
         cameraFit: cameraFit,
         polylines: polylines,
         annotations: annotations,
-        showFavorites: showFavorites,
+        favoriteLocations: favoriteLocations,
         onTap: onTap
     )
 }
@@ -202,7 +205,7 @@ private struct LSMapContainer: View {
     let cameraFit: CameraFit
     let polylines: [PolylineData]
     let annotations: [Annotation]
-    let showFavorites: Bool
+    let favoriteLocations: [FavoriteLocation]
     let onTap: ((LatLng) -> Void)?
 
     var body: some View {
@@ -224,7 +227,7 @@ private struct LSMapContainer: View {
                 cameraFit: cameraFit,
                 polylines: polylines,
                 annotations: annotations,
-                showFavorites: showFavorites,
+                favoriteLocations: favoriteLocations,
                 onTap: onTap
             )
         } else {
@@ -234,6 +237,7 @@ private struct LSMapContainer: View {
                 cameraFit: cameraFit,
                 polylines: polylines,
                 annotations: annotations,
+                favoriteLocations: favoriteLocations,
                 onTap: onTap,
                 accessToken: token,
                 renderModel: renderModel
@@ -251,7 +255,7 @@ private struct LSMapErrorView: View {
     let cameraFit: CameraFit
     let polylines: [PolylineData]
     let annotations: [Annotation]
-    let showFavorites: Bool
+    let favoriteLocations: [FavoriteLocation]
     let onTap: ((LatLng) -> Void)?
 
     var body: some View {
@@ -281,7 +285,7 @@ private struct LSMapErrorView: View {
     }
 
     private var summaryLine: String {
-        let favoritesText = showFavorites ? "favorites on" : "favorites off"
+        let favoritesText = favoriteLocations.isEmpty ? "favorites off" : "\(favoriteLocations.count) favorites"
         let tapText = onTap == nil ? "tap idle" : "tap wired"
         return "\(mode.label) | \(cameraFit.label) | \(polylines.count) polylines | \(annotations.count) annotations | \(favoritesText) | \(tapText)"
     }

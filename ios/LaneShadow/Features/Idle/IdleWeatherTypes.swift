@@ -22,9 +22,16 @@ enum WeatherSeverity: String {
     case warning
 }
 
-struct FavoriteLocation: Identifiable {
-    let id: String
-    let lat: Double
-    let lon: Double
-    let label: String
+public struct FavoriteLocation: Identifiable, Sendable {
+    public let id: String
+    public let lat: Double
+    public let lon: Double
+    public let label: String
+
+    public init(id: String, lat: Double, lon: Double, label: String) {
+        self.id = id
+        self.lat = lat
+        self.lon = lon
+        self.label = label
+    }
 }

@@ -13,6 +13,7 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
     let cameraFit: CameraFit
     let polylines: [PolylineData]
     let annotations: [Annotation]
+    let favoriteLocations: [FavoriteLocation]
     let onTap: ((LatLng) -> Void)?
     let accessToken: String
     let renderModel: LSMapRenderModel
@@ -42,6 +43,7 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         applyStyleAndCamera(to: mapView, coordinator: context.coordinator)
         renderPolylines(polylines, on: mapView, coordinator: context.coordinator)
         applyCameraFitIfNeeded(to: mapView, polylines: polylines)
+        renderFavoritePins(favoriteLocations, on: mapView, coordinator: context.coordinator)
     }
 
     func makeCoordinator() -> Coordinator {
@@ -86,10 +88,8 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
     }
 
     private func renderPolylines(_ polylines: [PolylineData], on mapView: MapView, coordinator: Coordinator) {
-        // Calculate new polyline IDs
         let newPolylineIds = Set(polylines.indices.map { "polyline-\($0)" })
 
-        // Remove polyline managers that are no longer present
         let toRemove = coordinator.currentPolylineIds.subtracting(newPolylineIds)
         if !toRemove.isEmpty {
             for id in toRemove {
@@ -98,7 +98,6 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
             }
         }
 
-        // Update or create one annotation manager per route polyline so each route can style independently.
         for (index, polyline) in polylines.enumerated() {
             let id = "polyline-\(index)"
             let lineCoordinates = polyline.coordinates.map { coord in
@@ -113,11 +112,9 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
                 coordinator.polylineAnnotationManagers[id] = manager
             }
 
-            // Get color from renderModel polylines
             let style: LSMapPolylineStyle = if index < renderModel.polylines.count {
                 renderModel.polylines[index]
             } else {
-                // Fallback colors if not in renderModel
                 LSMapPolylineStyle(
                     colorTokenPath: lsMapSignalTouringColorTokenPath,
                     color: lsMapSignalTouringColor,
@@ -135,6 +132,48 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         }
 
         coordinator.currentPolylineIds = newPolylineIds
+    }
+
+    private func renderFavoritePins(
+        _ favorites: [FavoriteLocation],
+        on mapView: MapView,
+        coordinator: Coordinator
+    ) {
+        let newFavoriteIds = Set(favorites.map { "fav-\($0.id)" })
+
+        let toRemove = coordinator.currentFavoriteIds.subtracting(newFavoriteIds)
+        if !toRemove.isEmpty {
+            for id in toRemove {
+                mapView.annotations.removeAnnotationManager(withId: id)
+                coordinator.favoriteAnnotationManagers.removeValue(forKey: id)
+            }
+        }
+
+        for favorite in favorites {
+            let id = "fav-\(favorite.id)"
+
+            let manager: PointAnnotationManager
+            if let existingManager = coordinator.favoriteAnnotationManagers[id] {
+                manager = existingManager
+            } else {
+                manager = mapView.annotations.makePointAnnotationManager(id: id)
+                coordinator.favoriteAnnotationManagers[id] = manager
+            }
+
+            var annotation = PointAnnotation(
+                id: id,
+                coordinate: CLLocationCoordinate2D(
+                    latitude: favorite.lat,
+                    longitude: favorite.lon
+                )
+            )
+            let copperColor = LaneShadowTheme.color.signal.default
+            annotation.iconColor = StyleColor(copperColor)
+
+            manager.annotations = [annotation]
+        }
+
+        coordinator.currentFavoriteIds = newFavoriteIds
     }
 
     private func applyCameraFitIfNeeded(to mapView: MapView, polylines: [PolylineData]) {
@@ -185,6 +224,8 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         var currentStyleURI: String?
         var polylineAnnotationManagers: [String: PolylineAnnotationManager] = [:]
         var currentPolylineIds: Set<String> = []
+        var favoriteAnnotationManagers: [String: PointAnnotationManager] = [:]
+        var currentFavoriteIds: Set<String> = []
 
         init(onTap: ((LatLng) -> Void)?) {
             self.onTap = onTap
