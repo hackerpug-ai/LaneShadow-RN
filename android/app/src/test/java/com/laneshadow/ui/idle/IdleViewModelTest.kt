@@ -525,7 +525,7 @@ class IdleViewModelTest {
                 Result.success("sess-42")
             override suspend fun cancelPlan(routePlanId: String): Result<Unit> = Result.success(Unit)
             override suspend fun getCurrentWeather(lat: Double, lng: Double): com.laneshadow.data.dto.WeatherDto =
-                com.laneshadow.data.dto.WeatherDto(68.0, "Clear", "none")
+                com.laneshadow.data.dto.WeatherDto(68.0, "Clear", "none", "MONDAY")
             override suspend fun reverseGeocode(lat: Double, lng: Double): com.laneshadow.services.GeocodeResult =
                 com.laneshadow.services.GeocodeResult("Santa Cruz, CA", "place-123")
         }

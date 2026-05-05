@@ -83,6 +83,7 @@ internal class FakeConvexGateway(
             tempFahrenheit = 68.0,
             condition = "Clear",
             severity = "none",
+            dayOfWeek = "MONDAY",
         )
     }
 }
