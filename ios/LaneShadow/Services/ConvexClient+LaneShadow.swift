@@ -28,7 +28,7 @@ struct LaneShadowAuthSession {
     let jwt: String?
 }
 
-struct ConvexFavoriteLocation: Decodable, Equatable, Sendable {
+struct ConvexFavoriteLocation: Decodable, Equatable {
     let id: String
     let lat: Double
     let lng: Double
@@ -53,7 +53,7 @@ struct LaneShadowCurrentUser: Decodable, Equatable {
     }
 }
 
-struct ConvexCurrentWeatherResponse: Decodable, Equatable, Sendable {
+struct ConvexCurrentWeatherResponse: Decodable, Equatable {
     let tempF: Int
     let condition: String
     let severity: String
@@ -707,14 +707,13 @@ final class LaneShadowConvexClient: @unchecked Sendable {
         )
 
         // Map severity string to enum
-        let severity: WeatherSeverity
-        switch response.severity.lowercased() {
+        let severity: WeatherSeverity = switch response.severity.lowercased() {
         case "advisory":
-            severity = .advisory
+            .advisory
         case "warning":
-            severity = .warning
+            .warning
         default:
-            severity = .normal
+            .normal
         }
 
         return CurrentWeatherSummary(
