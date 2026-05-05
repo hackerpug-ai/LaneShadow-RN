@@ -21,6 +21,36 @@ export const favoriteLocationOutputValidator = v.object({
 })
 
 // ---------------------------------------------------------------------------
+// Exported handler (for testing without Convex runtime)
+// ---------------------------------------------------------------------------
+
+/**
+ * Handler for listing favorite locations for the authenticated rider.
+ * Extracted for testing purposes.
+ *
+ * AC-5: Require authentication - throws UNAUTHENTICATED if no identity
+ * AC-4: Use withIndex to query by clerkUserId (no filter() allowed)
+ */
+export const listFavoriteLocationsHandler = async (ctx: any) => {
+  // AC-5: Require authentication - throws UNAUTHENTICATED if no identity
+  const { clerkUserId } = await requireIdentity(ctx)
+
+  // AC-4: Use withIndex to query by clerkUserId (no filter() allowed)
+  const favorites = await ctx.db
+    .query('favorite_roads')
+    .withIndex('by_clerkUserId', (q: any) => q.eq('clerkUserId', clerkUserId))
+    .order('desc')
+    .collect()
+
+  // Return only the fields needed by the client
+  return favorites.map((fav: any) => ({
+    name: fav.name,
+    geometry: fav.geometry,
+    bounds: fav.bounds,
+  }))
+}
+
+// ---------------------------------------------------------------------------
 // Exported Convex functions
 // ---------------------------------------------------------------------------
 
@@ -31,22 +61,5 @@ export const favoriteLocationOutputValidator = v.object({
 export const listFavoriteLocations = query({
   args: {},
   returns: v.array(favoriteLocationOutputValidator),
-  handler: async (ctx) => {
-    // AC-5: Require authentication - throws UNAUTHENTICATED if no identity
-    const { clerkUserId } = await requireIdentity(ctx)
-
-    // AC-4: Use withIndex to query by clerkUserId (no filter() allowed)
-    const favorites = await ctx.db
-      .query('favorite_roads')
-      .withIndex('by_clerkUserId', (q) => q.eq('clerkUserId', clerkUserId))
-      .order('desc')
-      .collect()
-
-    // Return only the fields needed by the client
-    return favorites.map((fav) => ({
-      name: fav.name,
-      geometry: fav.geometry,
-      bounds: fav.bounds,
-    }))
-  },
+  handler: listFavoriteLocationsHandler,
 })

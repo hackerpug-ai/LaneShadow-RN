@@ -170,6 +170,42 @@ const fetchReverseGeocode = async (
 }
 
 // ---------------------------------------------------------------------------
+// Exported handler (for testing without Convex runtime)
+// ---------------------------------------------------------------------------
+
+/**
+ * Handler for reverse-geocoding coordinates to city, state, and label.
+ * Extracted for testing purposes.
+ *
+ * AC-1: Returns {city, state, label} for valid coordinates
+ * AC-2: Throws GEOCODE_UPSTREAM_ERROR on Mapbox API failures
+ * AC-3: Throws GEOCODE_INVALID_COORDS for out-of-range coordinates
+ */
+export const getReverseGeocodeHandler = async (
+  _ctx: any,
+  args: { lat: number; lng: number },
+): Promise<ReverseGeocodeResult> => {
+  const { lat, lng } = args
+
+  // AC-3: Validate coordinates BEFORE any HTTP call
+  validateCoords(lat, lng)
+
+  // Get Mapbox access token from environment (server-side only)
+  const accessToken = MAPBOX_ACCESS_TOKEN
+  if (!accessToken) {
+    throw new ConvexError({
+      code: ERROR_CODES.GEOCODE_UPSTREAM_ERROR,
+      message: 'Mapbox access token is not configured',
+    })
+  }
+
+  // Perform the reverse geocode
+  const result = await fetchReverseGeocode(lat, lng, accessToken)
+
+  return result
+}
+
+// ---------------------------------------------------------------------------
 // Exported Convex functions
 // ---------------------------------------------------------------------------
 
@@ -183,24 +219,5 @@ const fetchReverseGeocode = async (
 export const getReverseGeocode = action({
   args: reverseGeocodeArgsValidator,
   returns: reverseGeocodeReturnsValidator,
-  handler: async (_ctx, args) => {
-    const { lat, lng } = args
-
-    // AC-3: Validate coordinates BEFORE any HTTP call
-    validateCoords(lat, lng)
-
-    // Get Mapbox access token from environment (server-side only)
-    const accessToken = MAPBOX_ACCESS_TOKEN
-    if (!accessToken) {
-      throw new ConvexError({
-        code: ERROR_CODES.GEOCODE_UPSTREAM_ERROR,
-        message: 'Mapbox access token is not configured',
-      })
-    }
-
-    // Perform the reverse geocode
-    const result = await fetchReverseGeocode(lat, lng, accessToken)
-
-    return result
-  },
+  handler: getReverseGeocodeHandler,
 })

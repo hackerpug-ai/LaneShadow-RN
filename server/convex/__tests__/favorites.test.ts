@@ -5,53 +5,83 @@
  */
 
 import { ConvexError } from 'convex/values'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../_generated/dataModel'
 
 describe('favorites.listFavoriteLocations - AC-4: listFavoriteLocations returns scoped locations for authenticated rider', () => {
   it('listFavoriteLocations scoped to rider - returns 3 user_abc rows and excludes user_xyz rows', async () => {
     // GIVEN: rider user_abc has 3 favorite_roads and user_xyz has 2
-    // WHEN: listFavoriteLocations is called with user_abc identity
-    const { listFavoriteLocations } = await import('../db/favorites.js')
+    const mockFavorites = [
+      {
+        _id: 'fav1' as Id<'favorite_roads'>,
+        clerkUserId: 'user_abc',
+        name: 'Favorite 1',
+        geometry: 'line1',
+        bounds: undefined,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+      {
+        _id: 'fav2' as Id<'favorite_roads'>,
+        clerkUserId: 'user_abc',
+        name: 'Favorite 2',
+        geometry: 'line2',
+        bounds: undefined,
+        createdAt: Date.now() - 1000,
+        updatedAt: Date.now() - 1000,
+      },
+      {
+        _id: 'fav3' as Id<'favorite_roads'>,
+        clerkUserId: 'user_abc',
+        name: 'Favorite 3',
+        geometry: 'line3',
+        bounds: undefined,
+        createdAt: Date.now() - 2000,
+        updatedAt: Date.now() - 2000,
+      },
+      {
+        _id: 'fav4' as Id<'favorite_roads'>,
+        clerkUserId: 'user_xyz', // Different user - should be excluded
+        name: 'Favorite 4',
+        geometry: 'line4',
+        bounds: undefined,
+        createdAt: Date.now() - 3000,
+        updatedAt: Date.now() - 3000,
+      },
+      {
+        _id: 'fav5' as Id<'favorite_roads'>,
+        clerkUserId: 'user_xyz', // Different user - should be excluded
+        name: 'Favorite 5',
+        geometry: 'line5',
+        bounds: undefined,
+        createdAt: Date.now() - 4000,
+        updatedAt: Date.now() - 4000,
+      },
+    ]
 
-    // Mock context with user_abc identity
+    const mockQuery = vi.fn((table: string) => {
+      if (table === 'favorite_roads') {
+        return {
+          withIndex: vi.fn((indexName: string, fn: any) => {
+            // Simulate the index query filtering by clerkUserId
+            const filtered = mockFavorites.filter((f) => f.clerkUserId === 'user_abc')
+            return {
+              order: vi.fn((direction: 'asc' | 'desc') => ({
+                collect: vi.fn().mockResolvedValue(filtered),
+              })),
+            }
+          }),
+        }
+      }
+      return { withIndex: vi.fn() }
+    })
+
+    // WHEN: listFavoriteLocations handler is called with user_abc identity
+    const { listFavoriteLocationsHandler } = await import('../db/favorites.js')
+
     const mockCtx = {
       db: {
-        query: (table: string) => ({
-          withIndex: (indexName: string, fn: any) => ({
-            order: (direction: 'asc' | 'desc') => ({
-              collect: async () => [
-                {
-                  _id: 'fav1' as Id<'favorite_roads'>,
-                  clerkUserId: 'user_abc',
-                  name: 'Favorite 1',
-                  geometry: 'line1',
-                  bounds: undefined,
-                  createdAt: Date.now(),
-                  updatedAt: Date.now(),
-                },
-                {
-                  _id: 'fav2' as Id<'favorite_roads'>,
-                  clerkUserId: 'user_abc',
-                  name: 'Favorite 2',
-                  geometry: 'line2',
-                  bounds: undefined,
-                  createdAt: Date.now() - 1000,
-                  updatedAt: Date.now() - 1000,
-                },
-                {
-                  _id: 'fav3' as Id<'favorite_roads'>,
-                  clerkUserId: 'user_abc',
-                  name: 'Favorite 3',
-                  geometry: 'line3',
-                  bounds: undefined,
-                  createdAt: Date.now() - 2000,
-                  updatedAt: Date.now() - 2000,
-                },
-              ],
-            }),
-          }),
-        }),
+        query: mockQuery,
       },
       auth: {
         getUserIdentity: async () => ({
@@ -61,7 +91,7 @@ describe('favorites.listFavoriteLocations - AC-4: listFavoriteLocations returns 
       },
     }
 
-    const result = await listFavoriteLocations(mockCtx as any, {})
+    const result = await listFavoriteLocationsHandler(mockCtx)
 
     // THEN: returns exactly 3 items shaped {name, geometry}
     expect(result).toHaveLength(3)
@@ -78,17 +108,19 @@ describe('favorites.listFavoriteLocations - AC-4: listFavoriteLocations returns 
 
   it('listFavoriteLocations empty for rider with no favorites - returns empty array (not error)', async () => {
     // GIVEN: authenticated rider with zero favorites
-    const { listFavoriteLocations } = await import('../db/favorites.js')
+    const mockQuery = vi.fn(() => ({
+      withIndex: vi.fn(() => ({
+        order: vi.fn(() => ({
+          collect: vi.fn().mockResolvedValue([]),
+        })),
+      })),
+    }))
+
+    const { listFavoriteLocationsHandler } = await import('../db/favorites.js')
 
     const mockCtx = {
       db: {
-        query: (table: string) => ({
-          withIndex: (indexName: string, fn: any) => ({
-            order: (direction: 'asc' | 'desc') => ({
-              collect: async () => [],
-            }),
-          }),
-        }),
+        query: mockQuery,
       },
       auth: {
         getUserIdentity: async () => ({
@@ -98,8 +130,8 @@ describe('favorites.listFavoriteLocations - AC-4: listFavoriteLocations returns 
       },
     }
 
-    // WHEN: listFavoriteLocations is called
-    const result = await listFavoriteLocations(mockCtx as any, {})
+    // WHEN: listFavoriteLocations handler is called
+    const result = await listFavoriteLocationsHandler(mockCtx)
 
     // THEN: returns empty array (not error)
     expect(result).toEqual([])
@@ -111,32 +143,26 @@ describe('favorites.listFavoriteLocations - AC-4: listFavoriteLocations returns 
 describe('favorites.listFavoriteLocations - AC-5: listFavoriteLocations throws UNAUTHENTICATED for unauthenticated caller', () => {
   it('listFavoriteLocations unauthenticated - throws ConvexError(UNAUTHENTICATED) when no identity', async () => {
     // GIVEN: no JWT in request context
-    const { listFavoriteLocations } = await import('../db/favorites.js')
+    const { listFavoriteLocationsHandler } = await import('../db/favorites.js')
 
     const mockCtx = {
       db: {
-        query: (table: string) => ({
-          withIndex: (indexName: string, fn: any) => ({
-            order: (direction: 'asc' | 'desc') => ({
-              collect: async () => [],
-            }),
-          }),
-        }),
+        query: vi.fn(),
       },
       auth: {
         getUserIdentity: async () => null, // No identity
       },
     }
 
-    // WHEN: listFavoriteLocations is called
+    // WHEN: listFavoriteLocations handler is called
     // THEN: throws ConvexError(UNAUTHENTICATED)
-    await expect(listFavoriteLocations(mockCtx as any, {})).rejects.toThrow(ConvexError)
+    await expect(listFavoriteLocationsHandler(mockCtx)).rejects.toThrow(ConvexError)
 
     try {
-      await listFavoriteLocations(mockCtx as any, {})
+      await listFavoriteLocationsHandler(mockCtx)
     } catch (error) {
       expect(error).toBeInstanceOf(ConvexError)
-      const errorData = (error as ConvexError).data
+      const errorData = (error as ConvexError<{ code: string }>).data
       expect(errorData).toHaveProperty('code', 'UNAUTHENTICATED')
     }
   })

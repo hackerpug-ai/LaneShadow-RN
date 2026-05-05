@@ -11,8 +11,8 @@ import { describe, expect, it, vi } from 'vitest'
 const mockFetch = vi.fn()
 global.fetch = mockFetch as any
 
-// We'll import the action after implementation
-// For now, we'll write the test that should fail
+// Import the action to get the handler function
+// We'll test the internal logic through the action definition
 
 describe('places.getReverseGeocode - AC-1: Reverse-geocode happy path returns city/state/label', () => {
   it('getReverseGeocode happy path - returns {city, state, label} for Santa Cruz coordinates', async () => {
@@ -36,19 +36,17 @@ describe('places.getReverseGeocode - AC-1: Reverse-geocode happy path returns ci
       }),
     })
 
-    // WHEN: getReverseGeocode is called
-    // This import will fail initially (RED phase)
-    const { getReverseGeocode } = await import('../actions/places.js')
-
-    const result = await getReverseGeocode(null, { lat, lng })
+    // WHEN: getReverseGeocode handler is called
+    const { getReverseGeocodeHandler } = await import('../actions/places.js')
+    const mockCtx = {}
+    const result = await getReverseGeocodeHandler(mockCtx, { lat, lng })
 
     // THEN: returns {city, state, label} with label containing city + state
     expect(result).toEqual({
       city: 'Santa Cruz',
       state: 'CA',
-      label: expect.stringContaining('Santa Cruz'),
+      label: 'Santa Cruz, CA, USA',
     })
-    expect(result.label).toContain('CA')
 
     // VERIFY: fetch was called with correct parameters
     expect(mockFetch).toHaveBeenCalledTimes(1)
@@ -78,18 +76,19 @@ describe('places.getReverseGeocode - AC-2: Reverse-geocode propagates typed Conv
       statusText: 'Internal Server Error',
     })
 
-    // WHEN: getReverseGeocode is called
-    const { getReverseGeocode } = await import('../actions/places.js')
+    // WHEN: getReverseGeocode handler is called
+    const { getReverseGeocodeHandler } = await import('../actions/places.js')
+    const mockCtx = {}
 
     // THEN: throws ConvexError(GEOCODE_UPSTREAM_ERROR)
-    await expect(getReverseGeocode(null, { lat, lng })).rejects.toThrow(ConvexError)
+    await expect(getReverseGeocodeHandler(mockCtx, { lat, lng })).rejects.toThrow(ConvexError)
 
     try {
-      await getReverseGeocode(null, { lat, lng })
+      await getReverseGeocodeHandler(mockCtx, { lat, lng })
     } catch (error) {
       expect(error).toBeInstanceOf(ConvexError)
       // Verify the error code is GEOCODE_UPSTREAM_ERROR
-      const errorData = (error as ConvexError).data
+      const errorData = (error as ConvexError<{ code: string }>).data
       expect(errorData).toHaveProperty('code', 'GEOCODE_UPSTREAM_ERROR')
 
       // CRITICAL: message must NOT contain the token
@@ -109,17 +108,18 @@ describe('places.getReverseGeocode - AC-3: Reverse-geocode rejects coordinates o
     // Reset fetch mock to ensure no calls are made
     mockFetch.mockClear()
 
-    // WHEN: getReverseGeocode is called
-    const { getReverseGeocode } = await import('../actions/places.js')
+    // WHEN: getReverseGeocode handler is called
+    const { getReverseGeocodeHandler } = await import('../actions/places.js')
+    const mockCtx = {}
 
     // THEN: throws ConvexError(GEOCODE_INVALID_COORDS) BEFORE any HTTP call
-    await expect(getReverseGeocode(null, { lat, lng })).rejects.toThrow(ConvexError)
+    await expect(getReverseGeocodeHandler(mockCtx, { lat, lng })).rejects.toThrow(ConvexError)
 
     try {
-      await getReverseGeocode(null, { lat, lng })
+      await getReverseGeocodeHandler(mockCtx, { lat, lng })
     } catch (error) {
       expect(error).toBeInstanceOf(ConvexError)
-      const errorData = (error as ConvexError).data
+      const errorData = (error as ConvexError<{ code: string }>).data
       expect(errorData).toHaveProperty('code', 'GEOCODE_INVALID_COORDS')
     }
 
@@ -133,9 +133,10 @@ describe('places.getReverseGeocode - AC-3: Reverse-geocode rejects coordinates o
 
     mockFetch.mockClear()
 
-    const { getReverseGeocode } = await import('../actions/places.js')
+    const { getReverseGeocodeHandler } = await import('../actions/places.js')
+    const mockCtx = {}
 
-    await expect(getReverseGeocode(null, { lat, lng })).rejects.toThrow(ConvexError)
+    await expect(getReverseGeocodeHandler(mockCtx, { lat, lng })).rejects.toThrow(ConvexError)
 
     expect(mockFetch).not.toHaveBeenCalled()
   })
@@ -146,9 +147,10 @@ describe('places.getReverseGeocode - AC-3: Reverse-geocode rejects coordinates o
 
     mockFetch.mockClear()
 
-    const { getReverseGeocode } = await import('../actions/places.js')
+    const { getReverseGeocodeHandler } = await import('../actions/places.js')
+    const mockCtx = {}
 
-    await expect(getReverseGeocode(null, { lat, lng })).rejects.toThrow(ConvexError)
+    await expect(getReverseGeocodeHandler(mockCtx, { lat, lng })).rejects.toThrow(ConvexError)
 
     expect(mockFetch).not.toHaveBeenCalled()
   })
@@ -159,9 +161,10 @@ describe('places.getReverseGeocode - AC-3: Reverse-geocode rejects coordinates o
 
     mockFetch.mockClear()
 
-    const { getReverseGeocode } = await import('../actions/places.js')
+    const { getReverseGeocodeHandler } = await import('../actions/places.js')
+    const mockCtx = {}
 
-    await expect(getReverseGeocode(null, { lat, lng })).rejects.toThrow(ConvexError)
+    await expect(getReverseGeocodeHandler(mockCtx, { lat, lng })).rejects.toThrow(ConvexError)
 
     expect(mockFetch).not.toHaveBeenCalled()
   })
@@ -172,9 +175,10 @@ describe('places.getReverseGeocode - AC-3: Reverse-geocode rejects coordinates o
 
     mockFetch.mockClear()
 
-    const { getReverseGeocode } = await import('../actions/places.js')
+    const { getReverseGeocodeHandler } = await import('../actions/places.js')
+    const mockCtx = {}
 
-    await expect(getReverseGeocode(null, { lat, lng })).rejects.toThrow(ConvexError)
+    await expect(getReverseGeocodeHandler(mockCtx, { lat, lng })).rejects.toThrow(ConvexError)
 
     expect(mockFetch).not.toHaveBeenCalled()
   })
