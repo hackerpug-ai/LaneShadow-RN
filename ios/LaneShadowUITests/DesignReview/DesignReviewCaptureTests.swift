@@ -29,6 +29,114 @@ final class DesignReviewCaptureTests: XCTestCase {
         app = nil
     }
 
+    /// Captures the canonical idle-screen default state (light theme).
+    func test_idleScreen_default_light() {
+        launchSandboxStory("templates.idle-screen.default")
+
+        let attachment = captureIdleScreen(state: "default", theme: "light")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "idle-screen.default.light")
+    }
+
+    /// Captures the canonical idle-screen default state (dark theme).
+    func test_idleScreen_default_dark() {
+        DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
+        launchSandboxStory("templates.idle-screen.s03-dark")
+
+        let attachment = captureIdleScreen(state: "default", theme: "dark")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "idle-screen.default.dark")
+    }
+
+    /// Captures the canonical typing-send idle state (light theme).
+    func test_idleScreen_typingSend_light() {
+        launchSandboxStory("templates.idle-screen.s02-typing-send")
+
+        let attachment = captureIdleScreen(state: "typing-send", theme: "light")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "idle-screen.typing-send.light")
+    }
+
+    /// Captures the canonical filter-sheet idle state (light theme).
+    func test_idleScreen_filterSheet_light() {
+        launchSandboxStory("templates.idle-screen.s04-filter-sheet")
+
+        let attachment = captureIdleScreen(state: "filter-sheet", theme: "light")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "idle-screen.filter-sheet.light")
+    }
+
+    /// Sprint-06: Captures the canonical no-location idle state (light theme).
+    func test_idleScreen_noLocation_light() {
+        launchSandboxStory("templates.idle-screen.v-no-location")
+
+        let attachment = captureIdleScreen(state: "no-location", theme: "light")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "idle-screen.no-location.light")
+    }
+
+    /// Sprint-06: Captures the canonical first-ride idle state (light theme).
+    func test_idleScreen_firstRide_light() {
+        launchSandboxStory("templates.idle-screen.v-first-ride")
+
+        let attachment = captureIdleScreen(state: "first-ride", theme: "light")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "idle-screen.first-ride.light")
+    }
+
+    /// Sprint-06: Captures the canonical weather-advisory idle state (light theme).
+    func test_idleScreen_weatherAdvisory_light() {
+        launchSandboxStory("templates.idle-screen.v-weather-advisory")
+
+        let attachment = captureIdleScreen(state: "weather-advisory", theme: "light")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "idle-screen.weather-advisory.light")
+    }
+
+    private func element(_ identifier: String) -> XCUIElement {
+        app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+    }
+
+    private func launchSandboxStory(_ storyId: String) {
+        AppLauncher.launchApp(app, sandbox: true, sandboxStoryId: storyId)
+        XCTAssertTrue(
+            element("idlescreen").waitForExistence(timeout: 10),
+            "Expected sandbox idle story to render for \(storyId)"
+        )
+    }
+
+    private func captureIdleScreen(state: String, theme: String) -> XCTAttachment {
+        DesignReviewHelpers.captureElement(
+            screen: "idle-screen",
+            state: state,
+            action: theme,
+            element: element("idlescreen")
+        )
+    }
+}
+
+@MainActor
+final class ExploratoryDesignReviewCaptureTests: XCTestCase {
+    private var app: XCUIApplication!
+
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+        app = XCUIApplication()
+        DesignReviewHelpers.setupDeterminismEnvironment(app: app)
+    }
+
+    override func tearDownWithError() throws {
+        app.terminate()
+        app = nil
+    }
+
     // MARK: - AC-1: captureScreen Helper
 
     /// AC-1: Verifies captureScreen helper attaches uniquely-named PNG with .keepAlways.
@@ -359,47 +467,6 @@ final class DesignReviewCaptureTests: XCTestCase {
         )
         add(attachment)
         XCTAssertEqual(attachment.name, "idle-screen.suggestions-scrolled.dark")
-    }
-
-    /// Captures the canonical idle-screen default state (light theme).
-    func test_idleScreen_default_light() {
-        launchSandboxStory("templates.idle-screen.default")
-
-        let attachment = captureIdleScreen(state: "default", theme: "light")
-        add(attachment)
-
-        XCTAssertEqual(attachment.name, "idle-screen.default.light")
-    }
-
-    /// Captures the canonical idle-screen default state (dark theme).
-    func test_idleScreen_default_dark() {
-        DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
-        launchSandboxStory("templates.idle-screen.s03-dark")
-
-        let attachment = captureIdleScreen(state: "default", theme: "dark")
-        add(attachment)
-
-        XCTAssertEqual(attachment.name, "idle-screen.default.dark")
-    }
-
-    /// Captures the canonical typing-send idle state (light theme).
-    func test_idleScreen_typingSend_light() {
-        launchSandboxStory("templates.idle-screen.s02-typing-send")
-
-        let attachment = captureIdleScreen(state: "typing-send", theme: "light")
-        add(attachment)
-
-        XCTAssertEqual(attachment.name, "idle-screen.typing-send.light")
-    }
-
-    /// Captures the canonical filter-sheet idle state (light theme).
-    func test_idleScreen_filterSheet_light() {
-        launchSandboxStory("templates.idle-screen.s04-filter-sheet")
-
-        let attachment = captureIdleScreen(state: "filter-sheet", theme: "light")
-        add(attachment)
-
-        XCTAssertEqual(attachment.name, "idle-screen.filter-sheet.light")
     }
 
     // MARK: - Additional Planning Screen States
@@ -963,36 +1030,6 @@ final class DesignReviewCaptureTests: XCTestCase {
     }
 
     // MARK: - Sprint-06 IdleScreen Variants (Location + Weather)
-
-    /// Sprint-06: Captures the canonical no-location idle state (light theme).
-    func test_idleScreen_noLocation_light() {
-        launchSandboxStory("templates.idle-screen.v-no-location")
-
-        let attachment = captureIdleScreen(state: "no-location", theme: "light")
-        add(attachment)
-
-        XCTAssertEqual(attachment.name, "idle-screen.no-location.light")
-    }
-
-    /// Sprint-06: Captures the canonical first-ride idle state (light theme).
-    func test_idleScreen_firstRide_light() {
-        launchSandboxStory("templates.idle-screen.v-first-ride")
-
-        let attachment = captureIdleScreen(state: "first-ride", theme: "light")
-        add(attachment)
-
-        XCTAssertEqual(attachment.name, "idle-screen.first-ride.light")
-    }
-
-    /// Sprint-06: Captures the canonical weather-advisory idle state (light theme).
-    func test_idleScreen_weatherAdvisory_light() {
-        launchSandboxStory("templates.idle-screen.v-weather-advisory")
-
-        let attachment = captureIdleScreen(state: "weather-advisory", theme: "light")
-        add(attachment)
-
-        XCTAssertEqual(attachment.name, "idle-screen.weather-advisory.light")
-    }
 
     // MARK: - AC-5: Sprint-06 Deferred Tests
 
