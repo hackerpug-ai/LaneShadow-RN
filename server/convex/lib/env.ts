@@ -55,6 +55,12 @@ export const GOOGLE_GENERATIVE_AI_API_KEY = optionalEnv('GOOGLE_GENERATIVE_AI_AP
  */
 export const ANTHROPIC_API_KEY = optionalEnv('ANTHROPIC_API_KEY')
 
+/**
+ * Mapbox access token for reverse-geocoding.
+ * Required for Sprint 6 IdleScreen location display.
+ */
+export const MAPBOX_ACCESS_TOKEN = optionalEnv('MAPBOX_ACCESS_TOKEN')
+
 export const isTestEnvironment = process.env.NODE_ENV === 'test'
 
 /**
