@@ -31,6 +31,20 @@ enum DesignReviewHelpers {
         return attachment
     }
 
+    /// Captures a specific element with the standard design-review name format.
+    static func captureElement(
+        screen: String,
+        state: String,
+        action: String,
+        element: XCUIElement
+    ) -> XCTAttachment {
+        let screenshot = element.screenshot()
+        let attachment = XCTAttachment(screenshot: screenshot)
+        attachment.name = "\(screen).\(state).\(action)"
+        attachment.lifetime = .keepAlways
+        return attachment
+    }
+
     /// Sets up deterministic environment for design review captures.
     ///
     /// Disables animations to reduce flakiness and freezes locale/timezone

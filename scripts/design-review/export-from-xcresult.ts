@@ -8,8 +8,9 @@
  */
 
 import { execSync } from 'node:child_process'
-import { existsSync, mkdirSync, readdirSync, renameSync, statSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, parse } from 'node:path'
+import { homedir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -18,6 +19,50 @@ const __dirname = dirname(__filename)
 const ROOT_DIR = join(__dirname, '../..')
 const XCRESULT_PATH = join(ROOT_DIR, 'build/xcresults/design-review.xcresult')
 const OUTPUT_DIR = join(ROOT_DIR, '.design-review/captures')
+
+type ExportedAttachmentManifestEntry = {
+  attachments: Array<{
+    deviceName?: string
+    exportedFileName: string
+    suggestedHumanReadableName: string
+  }>
+}
+
+function resolveXcresultPath(preferredPath: string): string | null {
+  if (existsSync(preferredPath)) {
+    return preferredPath
+  }
+
+  const testLogsRoot = join(homedir(), 'Library/Developer/Xcode/DerivedData')
+  if (!existsSync(testLogsRoot)) {
+    return null
+  }
+
+  const laneShadowBundles: string[] = []
+  for (const derivedDataEntry of readdirSync(testLogsRoot)) {
+    if (!derivedDataEntry.startsWith('LaneShadow-')) {
+      continue
+    }
+
+    const logsDir = join(testLogsRoot, derivedDataEntry, 'Logs/Test')
+    if (!existsSync(logsDir)) {
+      continue
+    }
+
+    for (const entry of readdirSync(logsDir)) {
+      if (entry.endsWith('.xcresult')) {
+        laneShadowBundles.push(join(logsDir, entry))
+      }
+    }
+  }
+
+  if (laneShadowBundles.length === 0) {
+    return null
+  }
+
+  return laneShadowBundles
+    .sort((left, right) => statSync(right).mtimeMs - statSync(left).mtimeMs)[0]
+}
 
 // Parse attachment name: {screen}.{state}.{action}
 export function parseAttachmentName(name: string): {
@@ -34,6 +79,19 @@ export function parseAttachmentName(name: string): {
     state: parts[1],
     action: parts[2],
   }
+}
+
+function resolveThemeFromAttachmentName(parsed: {
+  state: string
+  action: string
+}): string | null {
+  if (parsed.action === 'light' || parsed.action === 'dark') {
+    return parsed.action
+  }
+  if (parsed.state === 'light' || parsed.state === 'dark') {
+    return parsed.state
+  }
+  return null
 }
 
 // Resolve theme from UIUserInterfaceStyle metadata
@@ -56,12 +114,13 @@ export async function exportFromXcresult(options: {
   outputDir: string
 }> {
   const { xcresultPath, outputDir } = options
+  const resolvedXcresultPath = resolveXcresultPath(xcresultPath)
 
   // Ensure output directory exists
   mkdirSync(outputDir, { recursive: true })
 
   // Check if xcresult exists
-  if (!existsSync(xcresultPath)) {
+  if (!resolvedXcresultPath) {
     console.warn(`⚠️  No xcresult found at ${xcresultPath}`)
     console.warn("   Run 'pnpm design:capture' first to generate captures")
     return { capturesCount: 0, outputDir }
@@ -70,11 +129,12 @@ export async function exportFromXcresult(options: {
   // Export attachments from xcresult using xcresulttool
   const tempExportDir = join(outputDir, 'raw')
   try {
+    rmSync(tempExportDir, { recursive: true, force: true })
     mkdirSync(tempExportDir, { recursive: true })
 
-    console.log(`Exporting attachments from ${xcresultPath}...`)
+    console.log(`Exporting attachments from ${resolvedXcresultPath}...`)
     execSync(
-      `xcrun xcresulttool export --path "${xcresultPath}" --output-path "${tempExportDir}" --type directory`,
+      `xcrun xcresulttool export attachments --path "${resolvedXcresultPath}" --output-path "${tempExportDir}"`,
       { stdio: 'inherit' },
     )
   } catch (error) {
@@ -134,12 +194,39 @@ function extractDeviceInfo(): { device: string; scale_factor: string } {
   }
 }
 
+function normalizeSuggestedAttachmentName(name: string): string {
+  return name.replace(/_\d+_[A-F0-9-]+(?=\.)/gi, '')
+}
+
+function loadExportedAttachmentManifest(exportDir: string): Map<string, string> {
+  const manifestPath = join(exportDir, 'manifest.json')
+  if (!existsSync(manifestPath)) {
+    return new Map()
+  }
+
+  const content = readFileSync(manifestPath, 'utf-8')
+  const manifest = JSON.parse(content) as ExportedAttachmentManifestEntry[]
+  const namesByExportedFile = new Map<string, string>()
+
+  for (const entry of manifest) {
+    for (const attachment of entry.attachments) {
+      namesByExportedFile.set(
+        attachment.exportedFileName,
+        normalizeSuggestedAttachmentName(attachment.suggestedHumanReadableName),
+      )
+    }
+  }
+
+  return namesByExportedFile
+}
+
 // Process exported attachments and rename them according to {screen}.{state}.{theme}.png
 async function processExportedAttachments(options: {
   exportDir: string
   outputDir: string
 }): Promise<number> {
   const { exportDir, outputDir } = options
+  const exportedNames = loadExportedAttachmentManifest(exportDir)
 
   // Find all PNG files
   const pngFiles = findPngFiles(exportDir)
@@ -155,10 +242,12 @@ async function processExportedAttachments(options: {
   for (const pngFile of pngFiles) {
     try {
       // Extract attachment name from filename
-      const filename = parse(pngFile).name
+      const exportedFileName = parse(pngFile).base
+      const filename = exportedNames.get(exportedFileName) ?? parse(pngFile).name
 
       // Parse attachment name (screen.state.action format from T03)
-      const { screen, state } = parseAttachmentName(filename)
+      const parsedName = parseAttachmentName(filename)
+      const { screen, state } = parsedName
 
       // Determine theme from device metadata
       const deviceInfo = extractDeviceInfo()
@@ -167,7 +256,7 @@ async function processExportedAttachments(options: {
           UIUserInterfaceStyle: 'Light',
         },
       }
-      const theme = getThemeFromMetadata(metadata)
+      const theme = resolveThemeFromAttachmentName(parsedName) ?? getThemeFromMetadata(metadata)
 
       // Build output filename: {screen}.{state}.{theme}.png
       const outputFilename = `${screen}.${state}.${theme}.png`

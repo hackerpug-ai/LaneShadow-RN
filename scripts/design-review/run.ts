@@ -17,14 +17,15 @@
  */
 
 import { spawn } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __filename = fileURLToPath(import.meta.url)
-const __dirname = __filename
+const __dirname = dirname(__filename)
 
 const ROOT_DIR = join(__dirname, '../..')
+const DESIGN_REVIEW_DIR = join(ROOT_DIR, '.design-review')
 const REPORT_JSON_PATH = join(ROOT_DIR, '.design-review/report.json')
 
 export interface DesignReviewIssue {
@@ -56,6 +57,18 @@ export interface DesignReviewSummary {
 export interface DesignReport {
   issues: DesignReviewIssue[]
   summary: DesignReviewSummary
+}
+
+interface ManifestEntry {
+  id: string
+  screen: string
+  state: string
+  theme: string
+}
+
+interface Manifest {
+  entries: ManifestEntry[]
+  generated_at: string
 }
 
 export interface RunOptions {
@@ -90,6 +103,71 @@ function runScript(scriptName: string, env: Record<string, string> = {}): Promis
   })
 }
 
+function loadManifest(manifestPath: string): Manifest {
+  if (!existsSync(manifestPath)) {
+    throw new Error(`Manifest not found: ${manifestPath}`)
+  }
+
+  const content = readFileSync(manifestPath, 'utf-8')
+  return JSON.parse(content) as Manifest
+}
+
+export async function writeAutomationFallbackEvals(options: {
+  manifestPath: string
+  outputDir: string
+  reason: string
+}): Promise<void> {
+  const { manifestPath, outputDir, reason } = options
+  const manifest = loadManifest(manifestPath)
+
+  mkdirSync(outputDir, { recursive: true })
+
+  for (const entry of manifest.entries) {
+    const evalResult = {
+      entry_id: entry.id,
+      screen: entry.screen,
+      state: entry.state,
+      theme: entry.theme,
+      evaluated_at: new Date().toISOString(),
+      status: 'success' as const,
+      issues: [
+        {
+          component: '.design-review-automation',
+          passed: false,
+          issue_type: 'missing' as const,
+          observed: {
+            note: reason,
+          },
+          expected: {
+            note: 'Anthropic visual evaluation available in automation',
+          },
+          severity: 'med' as const,
+          confidence: 1,
+          fix_hint: 'Set ANTHROPIC_API_KEY to enable multimodal design evaluation.',
+        },
+      ],
+      retry_count: 0,
+    }
+
+    writeFileSync(join(outputDir, `${entry.id}.json`), JSON.stringify(evalResult, null, 2))
+  }
+}
+
+export async function clearDesignReviewOutputs(rootDir: string = ROOT_DIR): Promise<void> {
+  const designReviewDir = join(rootDir, '.design-review')
+  const pathsToRemove = [
+    join(designReviewDir, 'captures'),
+    join(designReviewDir, 'evals'),
+    join(designReviewDir, 'manifest.json'),
+    join(designReviewDir, 'report.json'),
+    join(designReviewDir, 'report.html'),
+  ]
+
+  for (const path of pathsToRemove) {
+    rmSync(path, { recursive: true, force: true })
+  }
+}
+
 /**
  * Main orchestrator function
  */
@@ -107,9 +185,14 @@ export async function runDesignReview(options: RunOptions): Promise<DesignReport
   // Build environment with severity threshold
   const env = {
     DESIGN_REVIEW_SEVERITY: severityThreshold,
+    DESIGN_REVIEW_SCREENS: screensToProcess.join(','),
   }
+  const manifestPath = join(DESIGN_REVIEW_DIR, 'manifest.json')
+  const visualEvalsDir = join(DESIGN_REVIEW_DIR, 'evals/visual')
 
   try {
+    await clearDesignReviewOutputs()
+
     // Step 1: Render references
     await runScript('design:references', env)
 
@@ -131,7 +214,16 @@ export async function runDesignReview(options: RunOptions): Promise<DesignReport
     }
 
     // Step 4: Run visual eval
-    await runScript('design:eval', env)
+    if (process.env.ANTHROPIC_API_KEY) {
+      await runScript('design:eval', env)
+    } else {
+      console.log('\n⚠️  ANTHROPIC_API_KEY missing; writing automation-safe fallback evals')
+      await writeAutomationFallbackEvals({
+        manifestPath,
+        outputDir: visualEvalsDir,
+        reason: 'ANTHROPIC_API_KEY environment variable is required',
+      })
+    }
 
     // Step 5: Merge reports
     await runScript('design:report', env)
@@ -173,10 +265,20 @@ async function main() {
   for (const arg of args) {
     if (arg.startsWith('--screens=')) {
       options.screens = arg.split('=')[1].split(',')
+    } else if (arg === '--screens') {
+      const nextArg = args[args.indexOf(arg) + 1]
+      if (nextArg) {
+        options.screens = nextArg.split(',')
+      }
     } else if (arg.startsWith('--severity-threshold=')) {
       const severity = arg.split('=')[1] as 'low' | 'med' | 'high'
       if (severity === 'low' || severity === 'med' || severity === 'high') {
         options.severityThreshold = severity
+      }
+    } else if (arg === '--severity-threshold') {
+      const nextArg = args[args.indexOf(arg) + 1] as 'low' | 'med' | 'high' | undefined
+      if (nextArg === 'low' || nextArg === 'med' || nextArg === 'high') {
+        options.severityThreshold = nextArg
       }
     } else if (arg === '--dry-run') {
       options.dryRun = true

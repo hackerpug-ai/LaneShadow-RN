@@ -35,6 +35,20 @@ export interface Manifest {
   generated_at: string
 }
 
+function requestedScreensFromEnv(): Set<string> | null {
+  const raw = process.env.DESIGN_REVIEW_SCREENS?.trim()
+  if (!raw) {
+    return null
+  }
+
+  const screens = raw
+    .split(',')
+    .map((screen) => screen.trim())
+    .filter(Boolean)
+
+  return screens.length > 0 ? new Set(screens) : null
+}
+
 // Build manifest by joining captures + references + annotations
 export async function buildManifest(options: {
   capturesDir: string
@@ -48,6 +62,7 @@ export async function buildManifest(options: {
 
   const entries: ManifestEntry[] = []
   const missingPairs: string[] = []
+  const requestedScreens = requestedScreensFromEnv()
 
   // Check if directories exist
   if (!existsSync(capturesDir)) {
@@ -68,6 +83,10 @@ export async function buildManifest(options: {
     try {
       const captureMetadata = JSON.parse(readFileSync(captureFile, 'utf-8'))
       const { screen, state, theme } = captureMetadata
+
+      if (requestedScreens && !requestedScreens.has(screen)) {
+        continue
+      }
 
       // Build reference path
       const referencePath = join(refsDir, screen, `${state}.${theme}.png`)
