@@ -16,12 +16,32 @@ export type ReverseGeocodeResult = {
   label: string
 }
 
+export type PlaceSuggestion = {
+  id: string
+  name: string
+  label: string
+  secondaryText?: string
+  featureType: string
+  distanceMeters?: number
+}
+
+export type SelectedPlace = {
+  id: string
+  name: string
+  label: string
+  lat: number
+  lng: number
+  featureType: string
+}
+
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 const MAPBOX_GEOCODING_ENDPOINT = 'https://api.mapbox.com/geocoding/v5/mapbox.places/'
+const MAPBOX_SEARCHBOX_ENDPOINT = 'https://api.mapbox.com/search/searchbox/v1'
 const GEOCODING_TIMEOUT_MS = 5_000
+const MAX_PLACE_SUGGESTIONS = 3
 
 // WGS84 coordinate bounds
 const MIN_LAT = -90
@@ -36,6 +56,40 @@ const MAX_LNG = 180
 const reverseGeocodeArgsValidator = v.object({
   lat: v.number(),
   lng: v.number(),
+})
+
+const placeSuggestionValidator = v.object({
+  id: v.string(),
+  name: v.string(),
+  label: v.string(),
+  secondaryText: v.optional(v.string()),
+  featureType: v.string(),
+  distanceMeters: v.optional(v.number()),
+})
+
+const selectedPlaceValidator = v.object({
+  id: v.string(),
+  name: v.string(),
+  label: v.string(),
+  lat: v.number(),
+  lng: v.number(),
+  featureType: v.string(),
+})
+
+const suggestPlacesArgsValidator = v.object({
+  query: v.string(),
+  proximity: v.optional(
+    v.object({
+      lat: v.number(),
+      lng: v.number(),
+    }),
+  ),
+  sessionToken: v.string(),
+})
+
+const retrievePlaceArgsValidator = v.object({
+  mapboxId: v.string(),
+  sessionToken: v.string(),
 })
 
 const reverseGeocodeReturnsValidator = v.object({
@@ -53,6 +107,15 @@ const markRetryable = (
   return error
 }
 
+const mapboxUpstreamError = (message: string, retryable = false) =>
+  markRetryable(
+    new ConvexError({
+      code: ERROR_CODES.GEOCODE_UPSTREAM_ERROR,
+      message,
+    }),
+    retryable,
+  )
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -68,6 +131,179 @@ const validateCoords = (lat: number, lng: number): void => {
       message: `Coordinates out of range: lat=${lat}, lng=${lng}. Valid ranges: lat [-90, 90], lng [-180, 180]`,
     })
   }
+}
+
+const normalizeQuery = (query: string): string => query.trim().replace(/\s+/g, ' ')
+
+const getMapboxAccessToken = (): string => {
+  if (!MAPBOX_ACCESS_TOKEN) {
+    throw new ConvexError({
+      code: ERROR_CODES.GEOCODE_UPSTREAM_ERROR,
+      message: 'Mapbox Search Box is not configured',
+    })
+  }
+
+  return MAPBOX_ACCESS_TOKEN
+}
+
+const buildSuggestPlacesUrl = (
+  query: string,
+  sessionToken: string,
+  proximity?: { lat: number; lng: number },
+): string => {
+  const url = new URL(`${MAPBOX_SEARCHBOX_ENDPOINT}/suggest`)
+  url.searchParams.set('q', query)
+  url.searchParams.set('session_token', sessionToken)
+  url.searchParams.set('limit', String(MAX_PLACE_SUGGESTIONS))
+  url.searchParams.set('country', 'US')
+  url.searchParams.set('language', 'en')
+  url.searchParams.set('access_token', getMapboxAccessToken())
+
+  if (proximity) {
+    validateCoords(proximity.lat, proximity.lng)
+    url.searchParams.set('proximity', `${proximity.lng},${proximity.lat}`)
+  }
+
+  return url.toString()
+}
+
+const buildRetrievePlaceUrl = (mapboxId: string, sessionToken: string): string => {
+  const url = new URL(`${MAPBOX_SEARCHBOX_ENDPOINT}/retrieve/${encodeURIComponent(mapboxId)}`)
+  url.searchParams.set('session_token', sessionToken)
+  url.searchParams.set('access_token', getMapboxAccessToken())
+  return url.toString()
+}
+
+const mapPlaceSuggestion = (suggestion: any): PlaceSuggestion => {
+  const id = typeof suggestion?.mapbox_id === 'string' ? suggestion.mapbox_id : null
+  const name = typeof suggestion?.name === 'string' ? suggestion.name : null
+  const label =
+    typeof suggestion?.full_address === 'string'
+      ? suggestion.full_address
+      : typeof suggestion?.place_formatted === 'string'
+        ? suggestion.place_formatted
+        : name
+  const featureType = typeof suggestion?.feature_type === 'string' ? suggestion.feature_type : null
+
+  if (!id || !name || !label || !featureType) {
+    throw new ConvexError({
+      code: ERROR_CODES.GEOCODE_UPSTREAM_ERROR,
+      message: 'Mapbox Search Box suggest returned malformed data',
+    })
+  }
+
+  const secondaryText =
+    typeof suggestion.place_formatted === 'string' && suggestion.place_formatted !== label
+      ? suggestion.place_formatted
+      : undefined
+  const distanceMeters =
+    typeof suggestion.distance === 'number' && Number.isFinite(suggestion.distance)
+      ? suggestion.distance
+      : undefined
+
+  return {
+    id,
+    name,
+    label,
+    secondaryText,
+    featureType,
+    distanceMeters,
+  }
+}
+
+const parseSuggestPlacesResponse = (data: any): PlaceSuggestion[] => {
+  const suggestions = data?.suggestions
+  if (!Array.isArray(suggestions)) {
+    throw new ConvexError({
+      code: ERROR_CODES.GEOCODE_UPSTREAM_ERROR,
+      message: 'Mapbox Search Box suggest returned malformed data',
+    })
+  }
+
+  return suggestions.slice(0, MAX_PLACE_SUGGESTIONS).map(mapPlaceSuggestion)
+}
+
+const parseRetrievePlaceResponse = (data: any): SelectedPlace => {
+  const feature = Array.isArray(data?.features) ? data.features[0] : null
+  const properties = feature?.properties
+  const coordinates = feature?.geometry?.coordinates
+  const id = typeof properties?.mapbox_id === 'string' ? properties.mapbox_id : null
+  const name = typeof properties?.name === 'string' ? properties.name : null
+  const label =
+    typeof properties?.full_address === 'string'
+      ? properties.full_address
+      : typeof properties?.place_formatted === 'string'
+        ? properties.place_formatted
+        : name
+  const featureType = typeof properties?.feature_type === 'string' ? properties.feature_type : null
+
+  if (
+    !id ||
+    !name ||
+    !label ||
+    !featureType ||
+    !Array.isArray(coordinates) ||
+    coordinates.length < 2 ||
+    typeof coordinates[0] !== 'number' ||
+    typeof coordinates[1] !== 'number'
+  ) {
+    throw new ConvexError({
+      code: ERROR_CODES.GEOCODE_UPSTREAM_ERROR,
+      message: 'Mapbox Search Box retrieve returned malformed data',
+    })
+  }
+
+  return {
+    id,
+    name,
+    label,
+    lat: coordinates[1],
+    lng: coordinates[0],
+    featureType,
+  }
+}
+
+const fetchMapboxJson = async <T>(
+  url: string,
+  operationName: 'suggest' | 'retrieve',
+  parse: (data: any) => T,
+): Promise<T> => {
+  const fetchOnce = async () => {
+    try {
+      const response = await withTimeout(async (signal) => await fetch(url, { signal }), {
+        ms: GEOCODING_TIMEOUT_MS,
+        label: `mapbox-searchbox-${operationName}`,
+      })
+
+      if (!response.ok) {
+        throw mapboxUpstreamError(
+          `Mapbox Search Box ${operationName} failed with status ${response.status}`,
+          response.status >= 500,
+        )
+      }
+
+      return parse(await response.json())
+    } catch (error) {
+      if (error instanceof ConvexError) {
+        throw error
+      }
+
+      if (error instanceof Error && error.message.startsWith('TIMEOUT')) {
+        throw mapboxUpstreamError(`Mapbox Search Box ${operationName} timed out`, true)
+      }
+
+      throw mapboxUpstreamError(`Mapbox Search Box ${operationName} failed`)
+    }
+  }
+
+  return await retryOnce(fetchOnce, {
+    shouldRetry: (error) => {
+      if (error instanceof ConvexError && 'retryable' in error) {
+        return Boolean((error as ConvexError<{ code: string }> & { retryable?: boolean }).retryable)
+      }
+      return false
+    },
+  })
 }
 
 /**
@@ -215,6 +451,31 @@ export const getReverseGeocodeHandler = async (
   return result
 }
 
+export const getSuggestPlacesHandler = async (
+  _ctx: any,
+  args: {
+    query: string
+    proximity?: { lat: number; lng: number }
+    sessionToken: string
+  },
+): Promise<PlaceSuggestion[]> => {
+  const query = normalizeQuery(args.query)
+  if (query.length < 2) {
+    return []
+  }
+
+  const url = buildSuggestPlacesUrl(query, args.sessionToken, args.proximity)
+  return await fetchMapboxJson(url, 'suggest', parseSuggestPlacesResponse)
+}
+
+export const getRetrievePlaceHandler = async (
+  _ctx: any,
+  args: { mapboxId: string; sessionToken: string },
+): Promise<SelectedPlace> => {
+  const url = buildRetrievePlaceUrl(args.mapboxId, args.sessionToken)
+  return await fetchMapboxJson(url, 'retrieve', parseRetrievePlaceResponse)
+}
+
 // ---------------------------------------------------------------------------
 // Exported Convex functions
 // ---------------------------------------------------------------------------
@@ -236,4 +497,16 @@ export const reverseGeocode = action({
   args: reverseGeocodeArgsValidator,
   returns: reverseGeocodeReturnsValidator,
   handler: getReverseGeocodeHandler,
+})
+
+export const suggestPlaces = action({
+  args: suggestPlacesArgsValidator,
+  returns: v.array(placeSuggestionValidator),
+  handler: getSuggestPlacesHandler,
+})
+
+export const retrievePlace = action({
+  args: retrievePlaceArgsValidator,
+  returns: selectedPlaceValidator,
+  handler: getRetrievePlaceHandler,
 })
