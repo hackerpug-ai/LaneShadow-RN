@@ -35,12 +35,13 @@ Sprint 06 wires the map view's **idle state** end-to-end against real Convex / C
 2. **iOS feature stack (T01–T04)** — `Features/Idle/IdleViewModel.swift`, `IdleScreenContainer.swift`, `IdleWeatherTypes.swift`; real Mapbox `LSMap` with copper favorite pins; `Services/LocationService.swift` with CoreLocation; `LaneShadowUITests/DesignReview/DesignReviewCaptureTests.swift` capture methods for every reachable idle-screen variant.
 3. **Android feature stack (T01–T04)** — `ui/idle/IdleViewModel.kt`, `IdleUiState.kt`, `IdleRoute.kt`; real Mapbox warm-paper map with copper pins via `ui/atoms/LSMap.kt` + `ui/organisms/LSMapLayer.kt`; `data/location/LocationRepository.kt` with FusedLocationProviderClient; `androidTest/.../IdleScreenInstrumentedTest.kt` instrumented coverage.
 4. **Sprint gate (T11)** — `pnpm design:review --screens idle-screen` passes with **zero `high`-severity issues** across all 7 variants; XCUITest `.xcresult` artifacts captured on real iPhone hardware; gate evidence recorded in this sprint folder.
+5. **Autocomplete remediation (REM-T02)** — idle `LSChatInput` typing uses Mapbox Search Box via Convex to show up to 3 place recommendations on iOS and Android; selection primes the input only and does not start routing.
 
 ---
 
 ## Human Testing Gate
 
-**Gate:** A signed-in rider on iOS + Android can open the app cold and arrive on the map view in its **idle state** — full-screen Mapbox warm-paper map (the persistent canvas), real Newsreader greeting interpolating their first name and current day/temperature as an overlay, real LSChatInput overlay with location pill + suggestion chips + filter button, real LSTopBar — that matches the `idle-screen` design references via `pnpm design:review --screens idle-screen` with **zero `high`-severity issues** across every reachable variant.
+**Gate:** A signed-in rider on iOS + Android can open the app cold and arrive on the map view in its **idle state** — full-screen Mapbox warm-paper map (the persistent canvas), real Newsreader greeting interpolating their first name and current day/temperature as an overlay, real LSChatInput overlay with location pill + suggestion chips + filter button, real LSTopBar, and idle-input place autocomplete with **max 3** Mapbox recommendations — that matches the `idle-screen` design references via `pnpm design:review --screens idle-screen` with **zero `high`-severity issues** across every reachable variant.
 
 ---
 
@@ -51,7 +52,7 @@ Sprint 06 wires the map view's **idle state** end-to-end against real Convex / C
 1. Sign in via real Clerk auth on iOS Simulator + Android Emulator and confirm cold-start lands on the map view in its idle state with the greeting overlay headline reading "Where are we riding *today*, {firstName}?" in Newsreader opinion-xl italic
 2. Confirm the meta row renders the rider's local day + temperature + condition (e.g., "FRIDAY · 68°F · CLEAR") in copper signal color and the underlying canvas shows a real Mapbox warm-paper tile layer (not a LinearGradient placeholder)
 3. Confirm saved-favorite locations appear as copper pin dots and the location pill resolves "Near {city}, {state}" from real CoreLocation / FusedLocationProvider data; toggle MANUAL mode and confirm the tag pill flips to MANUAL with copper tint
-4. Tap a suggestion chip and confirm the chat input bar shifts to `is-active`, the filter button swaps to a copper send button, and the placeholder text fills with the chip's primer phrase (the actual planning loop is out-of-scope this sprint — a placeholder transition is acceptable)
+4. Tap a suggestion chip and confirm the chat input bar shifts to `is-active`, the filter button swaps to a copper send button, and the placeholder text fills with the chip's primer phrase; type a place query such as "Big Sur" and confirm at most 3 Mapbox place recommendations appear, and selecting one fills the input without moving the map camera, adding markers, drawing routes, or entering planning before Send
 5. Toggle dark mode; confirm the greeting rewrites to "tonight" via `Greeting.scope`, all tokens re-resolve on warm-dark ink substrate, and pin dots / glass chips re-tint correctly
 6. Run `pnpm design:review --screens idle-screen` against this build on iOS Simulator; confirm zero `high`-severity issues across all variants (S01 default light, S02 typing/send, S03 default dark, S04 filter sheet, V01 no-location, V02 first-ride, V03 weather-advisory)
 7. Walk through the variant set on a real iPhone via `xcodebuild test … DesignReviewCaptureTests` and confirm motion (greeting fade, suggestion-chip primed scale, filter-sheet open) matches the design reference; record xcresult artifacts as gate evidence
@@ -91,6 +92,10 @@ See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full
 | IDLE-S06-REM-AND-T01 | Remediation: Android live idle plumbing repair | kotlin-implementer | 240 min | **Backlog** |
 | IDLE-S06-REM-QA-T01 | Remediation: canonical idle design-review captures | swift-implementer | 180 min | **Backlog** |
 | IDLE-S06-REM-GATE-T01 | Remediation: sprint gate evidence and signoff | qa-engineer | 180 min | **Backlog** |
+| IDLE-S06-REM-CVX-T02 | Remediation: Mapbox Search Box idle autocomplete actions | convex-implementer | 240 min | **Backlog** |
+| IDLE-S06-REM-IOS-T02 | Remediation: iOS idle input place autocomplete | swift-implementer | 300 min | **Backlog** |
+| IDLE-S06-REM-AND-T02 | Remediation: Android idle input place autocomplete | kotlin-implementer | 300 min | **Backlog** |
+| IDLE-S06-REM-GATE-T02 | Remediation: autocomplete gate evidence and signoff | qa-engineer | 180 min | **Backlog** |
 
 ---
 
@@ -119,6 +124,15 @@ Generated by `/kb-sprint-tasks-plan` on 2026-05-05 after red-hat review found Sp
 - [IDLE-S06-REM-AND-T01-android-live-idle-plumbing-repair.md](IDLE-S06-REM-AND-T01-android-live-idle-plumbing-repair.md) — BACKLOG
 - [IDLE-S06-REM-QA-T01-canonical-idle-design-review-captures.md](IDLE-S06-REM-QA-T01-canonical-idle-design-review-captures.md) — BACKLOG
 - [IDLE-S06-REM-GATE-T01-sprint-gate-evidence-and-signoff.md](IDLE-S06-REM-GATE-T01-sprint-gate-evidence-and-signoff.md) — BACKLOG
+
+### Autocomplete Remedial Task Detail Files
+
+Generated by `/kb-sprint-tasks-plan` on 2026-05-06 after gap review found Sprint 06 idle input place autocomplete was not implemented.
+
+- [IDLE-S06-REM-CVX-T02-mapbox-searchbox-autocomplete-actions.md](IDLE-S06-REM-CVX-T02-mapbox-searchbox-autocomplete-actions.md) — BACKLOG
+- [IDLE-S06-REM-IOS-T02-idle-input-place-autocomplete.md](IDLE-S06-REM-IOS-T02-idle-input-place-autocomplete.md) — BACKLOG
+- [IDLE-S06-REM-AND-T02-idle-input-place-autocomplete.md](IDLE-S06-REM-AND-T02-idle-input-place-autocomplete.md) — BACKLOG
+- [IDLE-S06-REM-GATE-T02-autocomplete-gate-evidence-and-signoff.md](IDLE-S06-REM-GATE-T02-autocomplete-gate-evidence-and-signoff.md) — BACKLOG
 
 ---
 
