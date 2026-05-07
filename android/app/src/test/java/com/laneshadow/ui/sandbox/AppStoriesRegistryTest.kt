@@ -23,26 +23,20 @@ class AppStoriesRegistryTest {
 
     @Test
     fun context_capsule_registers_ten_canonical_stories() {
-        val capsuleStories = DebugAppStories.all.filter { it.id.startsWith("molecules.contextcapsule.") }
+        val capsuleStories = DebugAppStories.all.filter { it.id.startsWith("molecules.context-capsule.") }
 
-        assertThat(capsuleStories).hasSize(16)
+        assertThat(capsuleStories).hasSize(10)
         assertThat(capsuleStories.map { it.id }).containsExactly(
-            "molecules.contextcapsule.idle.dark",
-            "molecules.contextcapsule.idle.light",
-            "molecules.contextcapsule.idle-evening.dark",
-            "molecules.contextcapsule.idle-evening.light",
-            "molecules.contextcapsule.idle-first-ride.dark",
-            "molecules.contextcapsule.idle-first-ride.light",
-            "molecules.contextcapsule.idle-no-location.dark",
-            "molecules.contextcapsule.idle-no-location.light",
-            "molecules.contextcapsule.idle-warning.dark",
-            "molecules.contextcapsule.idle-warning.light",
-            "molecules.contextcapsule.planning.dark",
-            "molecules.contextcapsule.planning.light",
-            "molecules.contextcapsule.route.dark",
-            "molecules.contextcapsule.route.light",
-            "molecules.contextcapsule.route-saved.dark",
-            "molecules.contextcapsule.route-saved.light",
+            "molecules.context-capsule.idle-dark",
+            "molecules.context-capsule.idle-light",
+            "molecules.context-capsule.planning-dark",
+            "molecules.context-capsule.planning-light",
+            "molecules.context-capsule.route-dark",
+            "molecules.context-capsule.route-light",
+            "molecules.context-capsule.saved-dark",
+            "molecules.context-capsule.saved-light",
+            "molecules.context-capsule.warning-dark",
+            "molecules.context-capsule.warning-light",
         )
         assertThat(capsuleStories.map { it.component }.distinct()).containsExactly("LSContextCapsule")
         assertThat(capsuleStories.map { it.tier }.distinct()).containsExactly(ComponentTier.Molecule)

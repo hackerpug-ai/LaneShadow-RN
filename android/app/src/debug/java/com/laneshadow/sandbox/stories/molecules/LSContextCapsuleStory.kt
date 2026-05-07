@@ -10,22 +10,16 @@ import com.nativesandbox.model.Story
 object LSContextCapsuleStory {
     val all: List<Story> =
         listOf(
-            capsuleStory("molecules.contextcapsule.idle.light", idleState()),
-            capsuleStory("molecules.contextcapsule.idle.dark", idleState(), darkTheme = true),
-            capsuleStory("molecules.contextcapsule.idle-evening.light", idleEveningState()),
-            capsuleStory("molecules.contextcapsule.idle-evening.dark", idleEveningState(), darkTheme = true),
-            capsuleStory("molecules.contextcapsule.idle-no-location.light", idleNoLocationState()),
-            capsuleStory("molecules.contextcapsule.idle-no-location.dark", idleNoLocationState(), darkTheme = true),
-            capsuleStory("molecules.contextcapsule.idle-warning.light", idleWarningState()),
-            capsuleStory("molecules.contextcapsule.idle-warning.dark", idleWarningState(), darkTheme = true),
-            capsuleStory("molecules.contextcapsule.idle-first-ride.light", idleFirstRideState()),
-            capsuleStory("molecules.contextcapsule.idle-first-ride.dark", idleFirstRideState(), darkTheme = true),
-            capsuleStory("molecules.contextcapsule.planning.light", planningState()),
-            capsuleStory("molecules.contextcapsule.planning.dark", planningState(), darkTheme = true),
-            capsuleStory("molecules.contextcapsule.route.light", routeState()),
-            capsuleStory("molecules.contextcapsule.route.dark", routeState(), darkTheme = true),
-            capsuleStory("molecules.contextcapsule.route-saved.light", savedRouteState()),
-            capsuleStory("molecules.contextcapsule.route-saved.dark", savedRouteState(), darkTheme = true),
+            capsuleStory("molecules.context-capsule.idle-light", idleState()),
+            capsuleStory("molecules.context-capsule.idle-dark", idleState(), darkTheme = true),
+            capsuleStory("molecules.context-capsule.planning-light", planningState()),
+            capsuleStory("molecules.context-capsule.planning-dark", planningState(), darkTheme = true),
+            capsuleStory("molecules.context-capsule.route-light", routeState()),
+            capsuleStory("molecules.context-capsule.route-dark", routeState(), darkTheme = true),
+            capsuleStory("molecules.context-capsule.warning-light", idleWarningState()),
+            capsuleStory("molecules.context-capsule.warning-dark", idleWarningState(), darkTheme = true),
+            capsuleStory("molecules.context-capsule.saved-light", savedRouteState()),
+            capsuleStory("molecules.context-capsule.saved-dark", savedRouteState(), darkTheme = true),
         )
 }
 
@@ -57,22 +51,6 @@ private fun idleState(): CapsuleState.Idle =
         metaItems = listOf("Friday", "68°F", "Clear"),
     )
 
-private fun idleEveningState(): CapsuleState.Idle =
-    CapsuleState.Idle(
-        scope = IdleScope.TONIGHT,
-        headline = "Where are we riding tonight, Justin?",
-        emphasizedWord = "tonight",
-        metaItems = listOf("Friday", "62°F", "Clear"),
-    )
-
-private fun idleNoLocationState(): CapsuleState.Idle =
-    CapsuleState.Idle(
-        scope = IdleScope.SOON,
-        headline = "Where are we starting from soon?",
-        emphasizedWord = "starting",
-        metaItems = listOf("Location off", "Need a pin", "Ready when you are"),
-    )
-
 private fun idleWarningState(): CapsuleState.Idle =
     CapsuleState.Idle(
         scope = IdleScope.TODAY,
@@ -80,14 +58,6 @@ private fun idleWarningState(): CapsuleState.Idle =
         emphasizedWord = "prettiest",
         metaItems = listOf("Friday", "52°F", "Rain · 0.4″"),
         isWarning = true,
-    )
-
-private fun idleFirstRideState(): CapsuleState.Idle =
-    CapsuleState.Idle(
-        scope = IdleScope.TODAY,
-        headline = "First ride? Ask me anything.",
-        emphasizedWord = "Ask",
-        metaItems = listOf("Friday", "68°F", "Open roads"),
     )
 
 private fun planningState(): CapsuleState.Planning =

@@ -1,6 +1,7 @@
 package com.laneshadow.ui.molecules
 
 import android.os.Build
+import android.provider.Settings
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsPropertyKey
@@ -152,7 +154,7 @@ fun LSContextCapsule(
                 PlanningCapsule(
                     state = state,
                     headlineAccentColor = headlineAccentColor,
-                    reduceMotion = reduceMotionOverride ?: false,
+                    reduceMotionOverride = reduceMotionOverride,
                 )
             }
 
@@ -265,7 +267,7 @@ private fun IdleCapsule(
 private fun PlanningCapsule(
     state: CapsuleState.Planning,
     headlineAccentColor: Color,
-    reduceMotion: Boolean,
+    reduceMotionOverride: Boolean? = null,
 ) {
     val theme = LocalLaneShadowTheme.current
 
@@ -276,7 +278,7 @@ private fun PlanningCapsule(
     ) {
         CapsuleSpinner(
             color = headlineAccentColor,
-            reduceMotion = reduceMotion,
+            reduceMotionOverride = reduceMotionOverride,
         )
         Text(
             text = state.headline,
@@ -368,9 +370,29 @@ private fun MetaRow(
 @Composable
 private fun CapsuleSpinner(
     color: Color,
-    reduceMotion: Boolean,
+    reduceMotionOverride: Boolean? = null,
 ) {
     val theme = LocalLaneShadowTheme.current
+    val context = LocalContext.current
+
+    // Read reduce motion from system settings; override wins for tests
+    val systemReduceMotion = if (reduceMotionOverride != null) {
+        false // don't read from system if override is provided
+    } else {
+        try {
+            val animatorDurationScale = Settings.Global.getFloat(
+                context.contentResolver,
+                Settings.Global.ANIMATOR_DURATION_SCALE,
+                1.0f
+            )
+            animatorDurationScale == 0.0f
+        } catch (e: Exception) {
+            false // default to false if setting can't be read
+        }
+    }
+
+    val reduceMotion = reduceMotionOverride ?: systemReduceMotion
+
     val infiniteTransition = rememberInfiniteTransition(label = "ls-context-capsule-spinner")
     val animatedAlpha by infiniteTransition.animateFloat(
         initialValue = 0.4f,
@@ -386,7 +408,7 @@ private fun CapsuleSpinner(
     Box(
         modifier = Modifier
             .testTag(LS_CONTEXT_CAPSULE_SPINNER_TAG)
-            .size(theme.space.sm)
+            .size(theme.space.md)
             .alpha(resolvedAlpha)
             .background(color, CircleShape)
             .semantics {
