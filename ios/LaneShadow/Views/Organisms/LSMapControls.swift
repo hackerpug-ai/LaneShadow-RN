@@ -138,14 +138,13 @@ public struct LSMapControls: View {
         .frame(height: chipSize)
         .background(chipBackground)
         .overlay(chipBorder)
-        .cornerRadius(theme.radius.md)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radius.md, style: .continuous))
         .shadow(
             color: shadowStyle.shadowColor.opacity(shadowStyle.opacity),
             radius: shadowStyle.radius,
             x: shadowStyle.offsetX,
             y: shadowStyle.offsetY
         )
-        .clipped()
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("lsmapcontrols-zoom-cluster")
     }
@@ -163,7 +162,7 @@ public struct LSMapControls: View {
         .contentShape(Rectangle())
         .background(chipBackground)
         .overlay(chipBorder)
-        .cornerRadius(theme.radius.md)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radius.md, style: .continuous))
         .shadow(
             color: shadowStyle.shadowColor.opacity(shadowStyle.opacity),
             radius: shadowStyle.radius,
@@ -188,7 +187,7 @@ public struct LSMapControls: View {
         .contentShape(Rectangle())
         .background(chipBackground)
         .overlay(chipBorder)
-        .cornerRadius(theme.radius.md)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radius.md, style: .continuous))
         .shadow(
             color: shadowStyle.shadowColor.opacity(shadowStyle.opacity),
             radius: shadowStyle.radius,
@@ -209,7 +208,7 @@ public struct LSMapControls: View {
         .contentShape(Rectangle())
         .background(chipBackground)
         .overlay(chipBorder)
-        .cornerRadius(theme.radius.md)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radius.md, style: .continuous))
         .shadow(
             color: shadowStyle.shadowColor.opacity(shadowStyle.opacity),
             radius: shadowStyle.radius,
@@ -233,7 +232,7 @@ public struct LSMapControls: View {
             RoundedRectangle(cornerRadius: theme.radius.md, style: .continuous)
                 .stroke(LaneShadowTheme.color.border.default, lineWidth: theme.borderWidth.thin)
         }
-        .cornerRadius(theme.radius.md)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radius.md, style: .continuous))
         .shadow(
             color: shadowStyle.shadowColor.opacity(shadowStyle.opacity),
             radius: shadowStyle.radius,
@@ -252,9 +251,9 @@ public struct LSMapControls: View {
         theme.space.xl + theme.space.md + theme.space.xs
     }
 
-    /// Icon size for chips (18pt, matching theme.iconSize.md)
+    /// Icon size for chips (matching theme.iconSize.medium)
     private var chipIconSize: CGFloat {
-        18
+        theme.iconSize.medium
     }
 
     /// Elevation shadow for chrome elements (elev.chrome from design spec)

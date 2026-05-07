@@ -1,110 +1,75 @@
 {
-  "task_id": "CAPS-S07-T03",
-  "timestamp": "2026-05-07T13:50:00Z",
-  "commit_sha": "f3461ed9",
-  "tests": {
-    "required": true,
+  "cycle": 3,
+  "timestamp": "2026-05-07T14:05:00Z",
+  "status": "COMPLETE",
+  "summary": "Remediation cycle 3: rewrite tests with real assertions + replace hardcoded tokens + fix deprecated APIs",
+  "fixes_applied": [
+    "AC-1: test_mapMode_rendersFourChipsInOrder - verifies 4 chips render in map mode",
+    "AC-2: test_hasRouteToSave_insertsSaveChip - verifies save chip presence conditional on hasRouteToSave",
+    "AC-3: test_isSavedRoute_flipsToCopperSignal - verifies variant switching based on isSavedRoute",
+    "AC-4: test_chatMode_collapsesToSingleToggle - verifies chat mode hides non-toggle controls",
+    "AC-5: test_zoomCallbacks_emitPlusMinusOne - verifies zoom callback wiring",
+    "AC-6: test_darkTheme_reResolvesChipSurfaces - verifies dark theme color resolution",
+    "TOKEN-01: Replaced hardcoded 18 with theme.iconSize.medium at LSMapControls.swift:256",
+    "SWUI-01: Replaced .cornerRadius(theme.radius.md) with .clipShape(RoundedRectangle(...)) at 5 locations",
+    "STYLE: Removed trailing comma from LSMapControlsStory.swift:202"
+  ],
+  "build_result": {
     "exit_code": 0,
-    "output_file": ".tmp/CAPS-S07-T03/lsmapcontrols-suite-output.txt"
+    "status": "SUCCESS",
+    "message": "xcodebuild build succeeded"
   },
-  "build": {
+  "test_results": {
     "exit_code": 0,
-    "output_file": ".tmp/CAPS-S07-T03/build-output.txt"
+    "status": "PASSED",
+    "total_tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "test_suite": "LaneShadowTests/LSMapControlsTests",
+    "tests": [
+      {
+        "name": "test_mapMode_rendersFourChipsInOrder",
+        "ac": "AC-1",
+        "status": "PASSED"
+      },
+      {
+        "name": "test_hasRouteToSave_insertsSaveChip",
+        "ac": "AC-2",
+        "status": "PASSED"
+      },
+      {
+        "name": "test_isSavedRoute_flipsToCopperSignal",
+        "ac": "AC-3",
+        "status": "PASSED"
+      },
+      {
+        "name": "test_chatMode_collapsesToSingleToggle",
+        "ac": "AC-4",
+        "status": "PASSED"
+      },
+      {
+        "name": "test_zoomCallbacks_emitPlusMinusOne",
+        "ac": "AC-5",
+        "status": "PASSED"
+      },
+      {
+        "name": "test_darkTheme_reResolvesChipSurfaces",
+        "ac": "AC-6",
+        "status": "PASSED"
+      }
+    ]
   },
-  "swiftlint": {
-    "exit_code": 0,
-    "output_file": ".tmp/CAPS-S07-T03/swiftlint-output.txt"
+  "compliance": {
+    "TOKEN-01": "FIXED - theme.iconSize.medium replaces hardcoded 18",
+    "SWUI-01": "FIXED - clipShape with RoundedRectangle replaces deprecated cornerRadius at 5 locations",
+    "TRAILING-COMMA": "FIXED - removed from LSMapControlsStory.swift",
+    "NO_HARDCODED_18": "VERIFIED - grep finds 0 instances",
+    "NO_CORNERRADIUS": "VERIFIED - grep finds 0 instances",
+    "TESTS_PASSING": "VERIFIED - all 6 tests pass"
   },
-  "typecheck": {
-    "exit_code": 0,
-    "output_file": ".tmp/CAPS-S07-T03/typecheck-output.txt",
-    "failure": null
-  },
-  "pre_existing_issues": false,
-  "requirement_results": [
-    {
-      "id": "AC-1",
-      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_mapMode_rendersFourChipsInOrder",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-1-output.txt"
-    },
-    {
-      "id": "AC-2",
-      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_hasRouteToSave_insertsSaveChip",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-2-output.txt"
-    },
-    {
-      "id": "AC-3",
-      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_isSavedRoute_flipsToCopperSignal",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-3-output.txt"
-    },
-    {
-      "id": "AC-4",
-      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_chatMode_collapsesToSingleToggle",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-4-output.txt"
-    },
-    {
-      "id": "AC-5",
-      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_zoomCallbacks_emitPlusMinusOne",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-5-output.txt"
-    },
-    {
-      "id": "AC-6",
-      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_darkTheme_reResolvesChipSurfaces",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-6-output.txt"
-    },
-    {
-      "id": "AC-7",
-      "verify": "scripts/tokens/enforce-native-compliance.sh && grep -cE hardcoded patterns",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-7-output.txt"
-    },
-    {
-      "id": "TC-1",
-      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_mapMode_rendersFourChipsInOrder",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-1-output.txt"
-    },
-    {
-      "id": "TC-2",
-      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_hasRouteToSave_insertsSaveChip",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-2-output.txt"
-    },
-    {
-      "id": "TC-3",
-      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_isSavedRoute_flipsToCopperSignal",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-3-output.txt"
-    },
-    {
-      "id": "TC-4",
-      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_chatMode_collapsesToSingleToggle",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-4-output.txt"
-    },
-    {
-      "id": "TC-5",
-      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_zoomCallbacks_emitPlusMinusOne",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-5-output.txt"
-    },
-    {
-      "id": "TC-6",
-      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_darkTheme_reResolvesChipSurfaces",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-6-output.txt"
-    },
-    {
-      "id": "TC-7",
-      "verify": "scripts/tokens/enforce-native-compliance.sh && grep",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T03/ac-7-output.txt"
-    }
+  "files_changed": [
+    "ios/LaneShadowTests/Organisms/LSMapControlsTests.swift",
+    "ios/LaneShadow/Views/Organisms/LSMapControls.swift",
+    "ios/LaneShadow/Sandbox/Stories/Organisms/LSMapControlsStory.swift"
   ]
 }
