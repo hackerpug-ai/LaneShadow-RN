@@ -1,6 +1,8 @@
 package com.laneshadow.ui.sandbox
 
+import com.laneshadow.sandbox.stories.AppStories as DebugAppStories
 import com.laneshadow.sandbox.stories.organisms.LSMapControlsStory
+import com.nativesandbox.model.ComponentTier
 import com.laneshadow.ui.sandbox.model.SandboxTier
 import com.laneshadow.ui.sandbox.stories.AppStories
 import com.laneshadow.ui.sandbox.stories.Sprint04ErrorStories
@@ -19,6 +21,27 @@ import org.junit.Test
  * AC2: Each screen has exact variant sets matching iOS canonical IDs
  */
 class AppStoriesRegistryTest {
+
+    @Test
+    fun context_capsule_registers_ten_canonical_stories() {
+        val capsuleStories = DebugAppStories.all.filter { it.id.startsWith("molecules.context-capsule.") }
+
+        assertThat(capsuleStories).hasSize(10)
+        assertThat(capsuleStories.map { it.id }).containsExactly(
+            "molecules.context-capsule.idle-dark",
+            "molecules.context-capsule.idle-light",
+            "molecules.context-capsule.planning-dark",
+            "molecules.context-capsule.planning-light",
+            "molecules.context-capsule.route-dark",
+            "molecules.context-capsule.route-light",
+            "molecules.context-capsule.saved-dark",
+            "molecules.context-capsule.saved-light",
+            "molecules.context-capsule.warning-dark",
+            "molecules.context-capsule.warning-light",
+        )
+        assertThat(capsuleStories.map { it.component }.distinct()).containsExactly("LSContextCapsule")
+        assertThat(capsuleStories.map { it.tier }.distinct()).containsExactly(ComponentTier.Molecule)
+    }
 
     @Test
     fun `AppStories all returns at least 35 sprint-04 template stories`() {
