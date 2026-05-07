@@ -32,7 +32,7 @@ private fun capsuleStory(
         id = id,
         tier = ComponentTier.Molecule,
         component = "LSContextCapsule",
-        name = id.substringAfter("molecules.contextcapsule.").replace('.', ' ').replace('-', ' '),
+        name = id.substringAfter("molecules.context-capsule.").replace('.', ' ').replace('-', ' '),
         summary = "LSContextCapsule $id",
         content = {
             LaneShadowTheme(darkTheme = darkTheme) {

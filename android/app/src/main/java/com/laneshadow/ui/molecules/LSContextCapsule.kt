@@ -408,7 +408,7 @@ private fun CapsuleSpinner(
     Box(
         modifier = Modifier
             .testTag(LS_CONTEXT_CAPSULE_SPINNER_TAG)
-            .size(theme.space.md)
+            .size(theme.space.sm)
             .alpha(resolvedAlpha)
             .background(color, CircleShape)
             .semantics {
