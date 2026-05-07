@@ -20,9 +20,11 @@ const VIEWPORT_WIDTH = 430
 const VIEWPORT_HEIGHT = 932
 const PHONE_MAX_WIDTH = 430
 
-// Screens where the map background is a CSS placeholder (grid pattern
-// or solid color), NOT a real map tile. The vision eval prompt should
-// ignore the map region on these screens to avoid false positives.
+// Screens that paint the warm-paper Mapbox-styled SVG (mocking copper-light /
+// copper-dark Studio styles) as the background. The vision eval prompt
+// evaluates color tints, theme adherence, and overlay placement on these
+// regions but ignores exact street geometry and place-name strings — see
+// scripts/design-review/prompts/visual-eval.md §"Map Backgrounds".
 const MAP_PLACEHOLDER_SCREENS = new Set([
   'idle-screen',
   'planning-screen',
@@ -159,7 +161,7 @@ async function main(): Promise<void> {
       }
 
       const mapNote = MAP_PLACEHOLDER_SCREENS.has(view)
-        ? ' (map placeholder — eval ignores map bg)'
+        ? ' (Mapbox copper-paper visual mock — eval ignores street geometry, evaluates tint+theme)'
         : ''
       console.log(`${view}${mapNote}:`)
 

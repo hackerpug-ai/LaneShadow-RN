@@ -112,11 +112,20 @@ Respond with a JSON array of component evaluations. Each entry must have:
 }
 ```
 
-## Map Backgrounds (CRITICAL)
+## Map Backgrounds
 
-Many screens have a map underlay (idle-screen, planning-screen, route-results-screen, route-details-screen, auth-screen, sessions-screen, error-screen). The reference image uses a CSS grid pattern or solid color as a map placeholder. The implementation uses a real map with tiles, roads, and terrain.
+Many screens have a map underlay (idle-screen, planning-screen, route-results-screen, route-details-screen, auth-screen, sessions-screen, error-screen). The reference image now paints the same warm-paper Mapbox styling that production renders (water polygons, parks, street network, neighborhood labels). The implementation uses live Mapbox tiles via `mapbox://styles/laneshadow/copper-light` and `copper-dark` Studio styles.
 
-**You MUST ignore differences in the map background region.** Only evaluate the UI overlay components (top bars, cards, buttons, inputs, sheets, chips, text). Map tile appearance, road layout, terrain coloring, and zoom level are NOT design fidelity issues. If the map placeholder region is the only difference, the component passes.
+**Evaluate map content as you would any other surface, but ignore exact street geometry and place-name strings** — the static SVG won't match real-world tiles 1:1. Treat color tints (paper background, water-vs-land regions, sage park tints, copper highway tint), overall density, and theme adherence (light/dark substrate) as in-scope. Do NOT flag differences in:
+- Specific road layout, intersection patterns, or street count
+- Specific neighborhood labels (the reference uses placeholder names like "FOOTHILL", "DOWNTOWN")
+- Live geographic features (rivers, lakes, named landmarks)
+
+DO flag if:
+- Map background is solid (e.g., grey or white) when the reference shows the warm-paper Mapbox treatment
+- Theme is wrong (light tile when dark expected, or vice versa)
+- Route polylines (overlaying the map) differ in color, stroke weight, or position
+- Annotations (start/end markers, favorite pins) are missing or wrong color
 
 ## Important Notes
 
