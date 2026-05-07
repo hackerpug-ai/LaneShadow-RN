@@ -1,0 +1,10 @@
+Linting Swift files at paths /Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Organisms/LSMapControls.swift, /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift
+Linting 'LSMapControls.swift' (1/2)
+Linting 'LSMapControlsTests.swift' (2/2)
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:26:13: warning: Identifier Name Violation: Variable name 'vc' should be between 3 and 40 characters long (identifier_name)
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:54:13: warning: Identifier Name Violation: Variable name 'vc' should be between 3 and 40 characters long (identifier_name)
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:79:13: warning: Identifier Name Violation: Variable name 'vc' should be between 3 and 40 characters long (identifier_name)
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:104:13: warning: Identifier Name Violation: Variable name 'vc' should be between 3 and 40 characters long (identifier_name)
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:132:13: warning: Identifier Name Violation: Variable name 'vc' should be between 3 and 40 characters long (identifier_name)
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:158:13: warning: Identifier Name Violation: Variable name 'vc' should be between 3 and 40 characters long (identifier_name)
+Done linting! Found 6 violations, 0 serious in 2 files.

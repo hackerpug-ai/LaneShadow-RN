@@ -1,0 +1,4 @@
+Linting Swift files at paths /Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Organisms/LSMapControls.swift, /Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Sandbox/Stories/Organisms/LSMapControlsStory.swift
+Linting 'LSMapControlsStory.swift' (2/2)
+Linting 'LSMapControls.swift' (1/2)
+Done linting! Found 0 violations, 0 serious in 2 files.

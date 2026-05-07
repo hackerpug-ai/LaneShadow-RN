@@ -1,0 +1,648 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test -scheme LaneShadow -destination "platform=iOS Simulator,name=iPhone 16" "-only-testing:LaneShadowTests/LSMapControlsTests"
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  Turf: https://github.com/mapbox/turf-swift.git @ 4.0.0
+  Factory: https://github.com/hmlongco/Factory @ 2.5.3
+  Get: https://github.com/kean/Get @ 2.2.1
+  NativeSandbox: /Users/justinrich/Projects/native-sandbox/ios
+  xctest-dynamic-overlay: https://github.com/pointfreeco/xctest-dynamic-overlay @ 1.9.0
+  ViewInspector: https://github.com/nalexn/ViewInspector @ 0.10.3
+  PhoneNumberKit: https://github.com/marmelroy/PhoneNumberKit @ 4.2.11
+  LaneShadowTheme: /Users/justinrich/Projects/LaneShadow/tokens/platforms/swift
+  swift-snapshot-testing: https://github.com/pointfreeco/swift-snapshot-testing @ 1.19.2
+  NativeTheme: /Users/justinrich/Projects/native-theme/platforms/NativeTheme @ local
+  swift-syntax: https://github.com/swiftlang/swift-syntax @ 603.0.1
+  MapboxCoreMaps: https://github.com/mapbox/mapbox-core-maps-ios.git @ 11.22.0
+  MapboxCommon: https://github.com/mapbox/mapbox-common-ios.git @ 24.22.0
+  Kingfisher: https://github.com/onevcat/Kingfisher.git @ 8.8.1
+  MapboxMaps: https://github.com/mapbox/mapbox-maps-ios @ 11.22.0
+  Clerk: https://github.com/clerk/clerk-ios @ 0.71.4
+  SimpleKeychain: https://github.com/auth0/SimpleKeychain @ 1.3.0
+  ConvexMobile: https://github.com/get-convex/convex-swift @ 0.8.1
+  swift-custom-dump: https://github.com/pointfreeco/swift-custom-dump @ 1.5.0
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (42 targets)
+    Target 'LaneShadowUITests' in project 'LaneShadow'
+        ➜ Explicit dependency on target 'LaneShadow' in project 'LaneShadow'
+    Target 'LaneShadowTests' in project 'LaneShadow'
+        ➜ Explicit dependency on target 'LaneShadow' in project 'LaneShadow'
+        ➜ Explicit dependency on target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'SnapshotTesting' in project 'swift-snapshot-testing'
+        ➜ Explicit dependency on target 'ViewInspector' in project 'ViewInspector'
+    Target 'ViewInspector' in project 'ViewInspector'
+        ➜ Explicit dependency on target 'ViewInspector' in project 'ViewInspector'
+    Target 'ViewInspector' in project 'ViewInspector' (no dependencies)
+    Target 'SnapshotTesting' in project 'swift-snapshot-testing'
+        ➜ Explicit dependency on target 'SnapshotTesting' in project 'swift-snapshot-testing'
+    Target 'SnapshotTesting' in project 'swift-snapshot-testing' (no dependencies)
+    Target 'LaneShadow' in project 'LaneShadow'
+        ➜ Explicit dependency on target 'ConvexMobile' in project 'ConvexMobile'
+        ➜ Explicit dependency on target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'Clerk' in project 'Clerk'
+    Target 'Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'Clerk_Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'Get' in project 'Get'
+        ➜ Explicit dependency on target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'SimpleKeychain' in project 'SimpleKeychain'
+    Target 'Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'Clerk_Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'Get' in project 'Get'
+        ➜ Explicit dependency on target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'SimpleKeychain' in project 'SimpleKeychain'
+    Target 'SimpleKeychain' in project 'SimpleKeychain'
+        ➜ Explicit dependency on target 'SimpleKeychain' in project 'SimpleKeychain'
+    Target 'SimpleKeychain' in project 'SimpleKeychain' (no dependencies)
+    Target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'PhoneNumberKit_PhoneNumberKit' in project 'PhoneNumberKit'
+    Target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'PhoneNumberKit_PhoneNumberKit' in project 'PhoneNumberKit'
+    Target 'PhoneNumberKit_PhoneNumberKit' in project 'PhoneNumberKit' (no dependencies)
+    Target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Kingfisher_Kingfisher' in project 'Kingfisher'
+    Target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Kingfisher_Kingfisher' in project 'Kingfisher'
+    Target 'Kingfisher_Kingfisher' in project 'Kingfisher' (no dependencies)
+    Target 'Get' in project 'Get'
+        ➜ Explicit dependency on target 'Get' in project 'Get'
+    Target 'Get' in project 'Get' (no dependencies)
+    Target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'Factory_FactoryKit' in project 'Factory'
+    Target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'Factory_FactoryKit' in project 'Factory'
+    Target 'Factory_FactoryKit' in project 'Factory' (no dependencies)
+    Target 'Clerk_Clerk' in project 'Clerk' (no dependencies)
+    Target 'MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'MapboxMaps_MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'Turf' in project 'Turf'
+        ➜ Explicit dependency on target 'MapboxCommon' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'MapboxCoreMaps' in project 'MapboxCoreMaps'
+    Target 'MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'MapboxMaps_MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'Turf' in project 'Turf'
+        ➜ Explicit dependency on target 'MapboxCommon' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'MapboxCoreMaps' in project 'MapboxCoreMaps'
+    Target 'MapboxCoreMaps' in project 'MapboxCoreMaps'
+        ➜ Explicit dependency on target 'MapboxCoreMapsWrapper' in project 'MapboxCoreMaps'
+        ➜ Explicit dependency on target 'MapboxCommon' in project 'MapboxCommon'
+    Target 'MapboxCoreMapsWrapper' in project 'MapboxCoreMaps'
+        ➜ Explicit dependency on target 'MapboxCommon' in project 'MapboxCommon'
+    Target 'MapboxCommon' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'MapboxCommonWrapper' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'Turf' in project 'Turf'
+    Target 'MapboxCommonWrapper' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'Turf' in project 'Turf'
+    Target 'Turf' in project 'Turf' (no dependencies)
+    Target 'MapboxMaps_MapboxMaps' in project 'MapboxMaps' (no dependencies)
+    Target 'NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeSandbox_NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeSandbox_NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'NativeSandbox_NativeSandbox' in project 'NativeSandbox' (no dependencies)
+    Target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'LaneShadowTheme_LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'LaneShadowTheme_LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'NativeTheme' in project 'NativeTheme'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'NativeTheme' in project 'NativeTheme' (no dependencies)
+    Target 'LaneShadowTheme_LaneShadowTheme' in project 'LaneShadowTheme' (no dependencies)
+    Target 'ConvexMobile' in project 'ConvexMobile'
+        ➜ Explicit dependency on target 'ConvexMobile' in project 'ConvexMobile'
+        ➜ Explicit dependency on target 'UniFFI' in project 'ConvexMobile'
+    Target 'ConvexMobile' in project 'ConvexMobile'
+        ➜ Explicit dependency on target 'UniFFI' in project 'ConvexMobile'
+    Target 'UniFFI' in project 'ConvexMobile' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.4.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --dry-run --output-directory /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios/Sources/Clerk/ClerkUI/Resources/Localizable.xcstrings
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ReadFileContents /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/docc/features.json
+
+Build description signature: 96b93471bbde8af6d29fe7878c32d908
+Build description path: /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/XCBuildData/96b93471bbde8af6d29fe7878c32d908.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.4.sdk /Users/justinrich/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.4-23E252-688ef53f1462e2c8f657fdc38a81448f686eebb5dc1d8ecb277353a59184f4aa.sdkstatcache
+    cd /Users/justinrich/Projects/LaneShadow/ios/LaneShadow.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.4.sdk -o /Users/justinrich/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.4-23E252-688ef53f1462e2c8f657fdc38a81448f686eebb5dc1d8ecb277353a59184f4aa.sdkstatcache
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/PhoneNumberKit.build/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.build/empty-PhoneNumberKit_PhoneNumberKit.plist (in target 'PhoneNumberKit_PhoneNumberKit' from project 'PhoneNumberKit')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/PhoneNumberKit
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/PhoneNumberKit.build/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.build/empty-PhoneNumberKit_PhoneNumberKit.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/NativeSandbox_NativeSandbox.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/NativeSandbox.build/Debug-iphonesimulator/NativeSandbox_NativeSandbox.build/empty-NativeSandbox_NativeSandbox.plist (in target 'NativeSandbox_NativeSandbox' from project 'NativeSandbox')
+    cd /Users/justinrich/Projects/native-sandbox/ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/NativeSandbox.build/Debug-iphonesimulator/NativeSandbox_NativeSandbox.build/empty-NativeSandbox_NativeSandbox.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/NativeSandbox_NativeSandbox.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadowTheme_LaneShadowTheme.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadowTheme.build/Debug-iphonesimulator/LaneShadowTheme_LaneShadowTheme.build/empty-LaneShadowTheme_LaneShadowTheme.plist (in target 'LaneShadowTheme_LaneShadowTheme' from project 'LaneShadowTheme')
+    cd /Users/justinrich/Projects/LaneShadow/tokens/platforms/swift
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadowTheme.build/Debug-iphonesimulator/LaneShadowTheme_LaneShadowTheme.build/empty-LaneShadowTheme_LaneShadowTheme.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadowTheme_LaneShadowTheme.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Kingfisher_Kingfisher.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Kingfisher.build/Debug-iphonesimulator/Kingfisher_Kingfisher.build/empty-Kingfisher_Kingfisher.plist (in target 'Kingfisher_Kingfisher' from project 'Kingfisher')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/Kingfisher
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Kingfisher.build/Debug-iphonesimulator/Kingfisher_Kingfisher.build/empty-Kingfisher_Kingfisher.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Kingfisher_Kingfisher.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Factory_FactoryKit.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Factory.build/Debug-iphonesimulator/Factory_FactoryKit.build/empty-Factory_FactoryKit.plist (in target 'Factory_FactoryKit' from project 'Factory')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/Factory
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Factory.build/Debug-iphonesimulator/Factory_FactoryKit.build/empty-Factory_FactoryKit.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Factory_FactoryKit.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/MapboxMaps_MapboxMaps.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/MapboxMaps.build/Debug-iphonesimulator/MapboxMaps_MapboxMaps.build/empty-MapboxMaps_MapboxMaps.plist (in target 'MapboxMaps_MapboxMaps' from project 'MapboxMaps')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/mapbox-maps-ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/MapboxMaps.build/Debug-iphonesimulator/MapboxMaps_MapboxMaps.build/empty-MapboxMaps_MapboxMaps.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/MapboxMaps.build/Debug-iphonesimulator/MapboxMaps_MapboxMaps.build/assetcatalog_generated_info.plist -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/MapboxMaps_MapboxMaps.bundle/Info.plist
+
+CompileXCStrings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios/Sources/Clerk/ClerkUI/Resources/Localizable.xcstrings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --output-directory /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios/Sources/Clerk/ClerkUI/Resources/Localizable.xcstrings
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/empty-Clerk_Clerk.plist (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/empty-Clerk_Clerk.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/assetcatalog_generated_info.plist -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/Info.plist
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/el.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/el.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/el.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/el.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/el.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ko.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ko.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ko.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ko.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ko.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/en.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/en.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/en.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/en.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/en.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/zh-Hans.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/zh-Hans.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/zh-Hans.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/zh-Hans.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/zh-Hans.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ja.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ja.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ja.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ja.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ja.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/de.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/de.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/de.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/de.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/de.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/it.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/it.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/it.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/it.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/it.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/hi.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/hi.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/hi.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/hi.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/hi.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ar.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ar.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ar.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ar.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ar.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/fr.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/fr.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/fr.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/fr.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/fr.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/es.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/es.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/es.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/es.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/es.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks/NativeTheme_-34DE91214F09EA9B_PackageProduct.framework/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/NativeTheme.build/Debug-iphonesimulator/NativeTheme\ product.build/empty-NativeTheme_-34DE91214F09EA9B_PackageProduct.plist (in target 'NativeTheme' from project 'NativeTheme')
+    cd /Users/justinrich/Projects/native-theme/platforms/NativeTheme
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/NativeTheme.build/Debug-iphonesimulator/NativeTheme\ product.build/empty-NativeTheme_-34DE91214F09EA9B_PackageProduct.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks/NativeTheme_-34DE91214F09EA9B_PackageProduct.framework/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadowTheme.build/Debug-iphonesimulator/LaneShadowTheme\ product.build/empty-LaneShadowTheme_48925DD14627D0E8_PackageProduct.plist (in target 'LaneShadowTheme' from project 'LaneShadowTheme')
+    cd /Users/justinrich/Projects/LaneShadow/tokens/platforms/swift
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadowTheme.build/Debug-iphonesimulator/LaneShadowTheme\ product.build/empty-LaneShadowTheme_48925DD14627D0E8_PackageProduct.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework/Info.plist
+
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MotionTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/RouteResultsDetailsVariantTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/SessionsErrorVariantTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+SwiftDriver LaneShadowTests normal arm64 com.apple.xcode.tools.swift.compiler (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name LaneShadowTests -Onone @/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LaneShadowTests.SwiftFileList -DDEBUG -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.4.sdk -target arm64-apple-ios17.0-simulator -g -module-cache-path /Users/justinrich/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.4.sdk/Developer/Library/Frameworks -c -j18 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/justinrich/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.4-23E252-688ef53f1462e2c8f657fdc38a81448f686eebb5dc1d8ecb277353a59184f4aa.sdkstatcache -output-file-map /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LaneShadowTests-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/justinrich/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/justinrich/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LaneShadowTests.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/justinrich/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LaneShadowTests_const_extract_protocols.json -Xcc -iquote -Xcc /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/LaneShadowTests-generated-files.hmap -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/LaneShadowTests-own-target-headers.hmap -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/LaneShadowTests-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadow-719a70704d5d162e9b6dfe335a811c81-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/LaneShadowTests-project-headers.hmap -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/DerivedSources-normal/arm64 -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/DerivedSources/arm64 -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LaneShadowTests-Swift.h -working-directory /Users/justinrich/Projects/LaneShadow/ios -experimental-emit-module-separately -disable-cmo
+
+Copy /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Clerk_Clerk.bundle /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app
+
+CopySwiftLibs /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/LaneShadow.debug.dylib --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/SystemExtensions --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Extensions --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework --scan-folder /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.4.sdk/System/Library/Frameworks/Foundation.framework --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.5.188.0.6iAaqb/Metal.xctoolchain --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadow.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Info.plist /Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Info.plist (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    builtin-infoPlistUtility /Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadow.build/assetcatalog_generated_info.plist -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Clerk_Clerk.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Factory_FactoryKit.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/MapboxCommon.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/MapboxCoreMaps.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/NativeTheme_-34DE91214F09EA9B_PackageProduct.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/Turf.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Kingfisher_Kingfisher.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/LaneShadowTheme_LaneShadowTheme.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/MapboxMaps_MapboxMaps.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/NativeSandbox_NativeSandbox.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PhoneNumberKit_PhoneNumberKit.bundle -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/Info.plist
+
+Copy /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Clerk_Clerk.bundle /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/empty-LaneShadowTests.plist (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/empty-LaneShadowTests.plist -producttype com.apple.product-type.bundle.unit-test -expandbuildsettings -format binary -platform iphonesimulator -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Clerk_Clerk.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Factory_FactoryKit.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Kingfisher_Kingfisher.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/LaneShadowTheme_LaneShadowTheme.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/MapboxMaps_MapboxMaps.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/NativeSandbox_NativeSandbox.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/PhoneNumberKit_PhoneNumberKit.bundle -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Info.plist
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ LaneShadowTests (in target 'LaneShadowTests' from project 'LaneShadow')
+
+EmitSwiftModule normal arm64 (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ ChatTranscriptTests.swift,\ ConvexPhaseDecodingTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/ChatTranscriptTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/ConvexPhaseDecodingTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/ChatTranscriptTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/ConvexPhaseDecodingTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ StoryIdFormatTests.swift,\ ErrorScreenTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/StoryIdFormatTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/ErrorScreenTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/StoryIdFormatTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/ErrorScreenTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ ArgControlsTests.swift,\ IdlePlanningVariantTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/ArgControlsTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/IdlePlanningVariantTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/ArgControlsTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/IdlePlanningVariantTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ MotionTests.swift,\ NavBarVariantTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MotionTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/NavBarVariantTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MotionTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/NavBarVariantTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ IdleScreenWiringTests.swift,\ LocationServiceTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Idle/IdleScreenWiringTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Idle/LocationServiceTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Idle/IdleScreenWiringTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Idle/LocationServiceTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ LSMapLayerTests.swift,\ LSNavBarTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapLayerTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSNavBarTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapLayerTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSNavBarTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ LaneShadowErrorMappingFixtureTests.swift,\ MockProviderVariantTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/LaneShadowErrorMappingFixtureTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MockProviderVariantTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/LaneShadowErrorMappingFixtureTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MockProviderVariantTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ ChatStoreReconciliationTests.swift,\ ChatStoreTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/ChatStoreReconciliationTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/ChatStoreTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/ChatStoreReconciliationTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/ChatStoreTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ LSNavigatorMessageTests.swift,\ LSRouteCardTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSNavigatorMessageTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSRouteCardTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSNavigatorMessageTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSRouteCardTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ IdleScreenTests.swift,\ RouteResultsScreenTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/IdleScreenTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/RouteResultsScreenTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/IdleScreenTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/RouteResultsScreenTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ StubLaneShadowConvexClient.swift,\ PlanningScreenWiringTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Helpers/StubLaneShadowConvexClient.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Planning/PlanningScreenWiringTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Helpers/StubLaneShadowConvexClient.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Planning/PlanningScreenWiringTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ ClerkAuthTests.swift,\ ConvexClientTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Integration/ClerkAuthTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Integration/ConvexClientTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Integration/ClerkAuthTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Integration/ConvexClientTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ InfoToastTests.swift,\ LSBottomSheetTests.swift,\ LSChatInputTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSBottomSheetTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSChatInputTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift:43:13: warning: initialization of immutable value 'view' was never used; consider replacing with assignment to '_' or removing it
+        let view = toast.body
+        ~~~~^~~~
+        _
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift:61:13: warning: initialization of immutable value 'view' was never used; consider replacing with assignment to '_' or removing it
+        let view = toast.body
+        ~~~~^~~~
+        _
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift:77:13: warning: initialization of immutable value 'view' was never used; consider replacing with assignment to '_' or removing it
+        let view = toast.body
+        ~~~~^~~~
+        _
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift:116:44: warning: 'is' test is always true
+        XCTAssertTrue(type(of: themedView) is Any.Type)
+                                           ^
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift:132:13: warning: initialization of immutable value 'view' was never used; consider replacing with assignment to '_' or removing it
+        let view = toast.body
+        ~~~~^~~~
+        _
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift:149:13: warning: initialization of immutable value 'view' was never used; consider replacing with assignment to '_' or removing it
+        let view = toast.body
+        ~~~~^~~~
+        _
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift:166:13: warning: initialization of immutable value 'view' was never used; consider replacing with assignment to '_' or removing it
+        let view = toast.body
+        ~~~~^~~~
+        _
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift:183:13: warning: initialization of immutable value 'view' was never used; consider replacing with assignment to '_' or removing it
+        let view = toast.body
+        ~~~~^~~~
+        _
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift:200:13: warning: initialization of immutable value 'view' was never used; consider replacing with assignment to '_' or removing it
+        let view = toast.body
+        ~~~~^~~~
+        _
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift:217:13: warning: initialization of immutable value 'view' was never used; consider replacing with assignment to '_' or removing it
+        let view = toast.body
+        ~~~~^~~~
+        _
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSBottomSheetTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSChatInputTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ RouteDetailsWiringTests.swift,\ RouteResultsWiringTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/RouteDetails/RouteDetailsWiringTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/RouteResults/RouteResultsWiringTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/RouteDetails/RouteDetailsWiringTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/RouteResults/RouteResultsWiringTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ MapSlotTests.swift,\ MockProviderPurityTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MapSlotTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MockProviderPurityTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MapSlotTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MockProviderPurityTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ LSInlineErrorCalloutTests.swift,\ LSMapControlsTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSInlineErrorCalloutTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+Failed frontend command:
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/InfoToastTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSBottomSheetTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSChatInputTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Error/ErrorScreenWiringTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Idle/IdlePlaceAutocompleteTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Integration/AuthScreensTests.swift -primary-file /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSInlineErrorCalloutTests.swift -primary-file /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapLayerTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSNavBarTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSNavigatorMessageTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSRouteCardTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSRouteSheetTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSSectionHeaderTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSSessionsDrawerTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSTopBarTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Integration/ClerkAuthTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Integration/ConvexClientTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/ArgControlsTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/IdlePlanningVariantTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MapSlotTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MockProviderPurityTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/ChatStoreReconciliationTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/ChatStoreTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/ChatTranscriptTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/ConvexPhaseDecodingTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/LaneShadowErrorMappingFixtureTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/LaneShadowErrorMappingTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/LaneShadowErrorTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/RideFlowPhaseTaxonomyTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/RideFlowTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Services/SessionStoreTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MockProvidersPhaseTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MockProviderVariantTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/MotionTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/NavBarVariantTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/RouteCardGeometryTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/RouteResultsDetailsVariantTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/RouteSheetShellTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/SessionsDrawerTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/SessionsErrorVariantTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/StoryCoverageTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/StoryIdFormatTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/ErrorScreenTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/IdleScreenTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/PlanningScreenTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Views/Templates/RouteDetailsScreenViewStateTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/RouteDetailsScreenTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/RouteResultsScreenTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/SessionsScreenTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/StoryRegistryTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/ThemeControllerTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/TypographyTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Integration/RootViewTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Idle/IdleScreenWiringTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Idle/LocationServiceTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Helpers/StubLaneShadowConvexClient.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Planning/PlanningScreenWiringTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/RouteDetails/RouteDetailsWiringTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/RouteResults/RouteResultsWiringTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSContextCapsuleTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSEmptyStateTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSFormFieldTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSModalTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSTabItemTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSToastTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/LSToolbarTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/LaneShadowTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Molecules/MarkdownTextTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Atoms/LSButtonTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Atoms/LSGlassPanelTypeSafetyTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Atoms/LSIconTypeSafetyTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Atoms/LSMapTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Atoms/LSScrimTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Atoms/LSTextAreaTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Utilities/PolylineDecoderTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Atoms/LSTextFieldTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Atoms/LSTextTypeSafetyTests.swift -emit-dependencies-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LSInlineErrorCalloutTests.d -emit-const-values-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LSInlineErrorCalloutTests.swiftconstvalues -emit-reference-dependencies-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LSInlineErrorCalloutTests.swiftdeps -serialize-diagnostics-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LSInlineErrorCalloutTests.dia -emit-dependencies-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LSMapControlsTests.d -emit-const-values-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LSMapControlsTests.swiftconstvalues -emit-reference-dependencies-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LSMapControlsTests.swiftdeps -serialize-diagnostics-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LSMapControlsTests.dia -target arm64-apple-ios17.0-simulator -disable-cross-import-overlay-search -swift-module-cross-import Testing /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/CoreGraphics.swiftoverlay -swift-module-cross-import Testing /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/CoreImage.swiftoverlay -swift-module-cross-import Testing /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/Foundation.swiftoverlay -swift-module-cross-import Testing /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks/Testing.framework/Modules/Testing.swiftcrossimport/UIKit.swiftoverlay -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libFoundationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#FoundationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libObservationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#ObservationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libPreviewsMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#PreviewsMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#SwiftMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libSwiftUIMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#SwiftUIMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing/libTestingMacros.dylib\#\#TestingMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins/libTipKitMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server\#TipKitMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LaneShadowTests-dependencies-1.json -debug-module-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LaneShadowTests.swiftmodule -Xllvm -aarch64-use-tbi -enable-objc-interop -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.4.sdk -I /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/PackageFrameworks -F /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.4.sdk/Developer/Library/Frameworks -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=4 -module-cache-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -swift-version 6 -Onone -D DEBUG -serialize-debugging-options -const-gather-protocols-file /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LaneShadowTests_const_extract_protocols.json -enable-experimental-feature DebugDescriptionMacro -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/justinrich/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/justinrich/Projects/LaneShadow/ios -enable-anonymous-context-mangled-names -file-compilation-dir /Users/justinrich/Projects/LaneShadow/ios -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /Users/justinrich/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.4-23E252-688ef53f1462e2c8f657fdc38a81448f686eebb5dc1d8ecb277353a59184f4aa.sdkstatcache -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/swift-overrides.hmap -Xcc -iquote -Xcc /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/LaneShadowTests-generated-files.hmap -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/LaneShadowTests-own-target-headers.hmap -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/LaneShadowTests-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadow-719a70704d5d162e9b6dfe335a811c81-VFS-iphonesimulator/all-product-headers.yaml -Xcc -iquote -Xcc /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/LaneShadowTests-project-headers.hmap -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/DerivedSources-normal/arm64 -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/DerivedSources/arm64 -Xcc -I/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/DerivedSources -Xcc -DDEBUG\=1 -no-auto-bridging-header-chaining -module-name LaneShadowTests -frontend-parseable-output -disable-clang-spi -clang-target arm64-apple-ios26.4-simulator -target-sdk-version 26.4 -target-sdk-name iphonesimulator26.4 -in-process-plugin-server-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LSInlineErrorCalloutTests.o -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LSMapControlsTests.o -index-unit-output-path /LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LSInlineErrorCalloutTests.o -index-unit-output-path /LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/Objects-normal/arm64/LSMapControlsTests.o -index-store-path /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Index.noindex/DataStore -index-system-modules
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSInlineErrorCalloutTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSInlineErrorCalloutTests.swift:13:13: warning: variable 'tappedSuggestion' was written to, but never read
+        var tappedSuggestion: String?
+            ^
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSInlineErrorCalloutTests.swift:19:17: warning: mutation of captured var 'tappedSuggestion' in concurrently-executing code
+                tappedSuggestion = suggestion
+                ^
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:11:20: error: cannot find 'LSMapControls' in scope
+        let view = LSMapControls(
+                   ^~~~~~~~~~~~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:12:20: error: cannot infer contextual base in reference to member 'map'
+            mode: .map,
+                  ~^~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:30:26: error: generic parameter 'T' could not be inferred
+        let uiView = try XCTUnwrap(vc.view)
+                         ^
+XCTest.XCTUnwrap:1:13: note: in call to function 'XCTUnwrap(_:_:file:line:)'
+public func XCTUnwrap<T>(_ expression: @autoclosure () throws -> T?, _ message: @autoclosure () -> String = "", file: StaticString = #filePath, line: UInt = #line) throws -> T
+            ^
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:39:20: error: cannot find 'LSMapControls' in scope
+        let view = LSMapControls(
+                   ^~~~~~~~~~~~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:40:20: error: cannot infer contextual base in reference to member 'map'
+            mode: .map,
+                  ~^~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:57:26: error: generic parameter 'T' could not be inferred
+        let uiView = try XCTUnwrap(vc.view)
+                         ^
+XCTest.XCTUnwrap:1:13: note: in call to function 'XCTUnwrap(_:_:file:line:)'
+public func XCTUnwrap<T>(_ expression: @autoclosure () throws -> T?, _ message: @autoclosure () -> String = "", file: StaticString = #filePath, line: UInt = #line) throws -> T
+            ^
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:64:20: error: cannot find 'LSMapControls' in scope
+        let view = LSMapControls(
+                   ^~~~~~~~~~~~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:65:20: error: cannot infer contextual base in reference to member 'map'
+            mode: .map,
+                  ~^~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:82:26: error: generic parameter 'T' could not be inferred
+        let uiView = try XCTUnwrap(vc.view)
+                         ^
+XCTest.XCTUnwrap:1:13: note: in call to function 'XCTUnwrap(_:_:file:line:)'
+public func XCTUnwrap<T>(_ expression: @autoclosure () throws -> T?, _ message: @autoclosure () -> String = "", file: StaticString = #filePath, line: UInt = #line) throws -> T
+            ^
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:89:20: error: cannot find 'LSMapControls' in scope
+        let view = LSMapControls(
+                   ^~~~~~~~~~~~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:90:20: error: cannot infer contextual base in reference to member 'chat'
+            mode: .chat,
+                  ~^~~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:107:26: error: generic parameter 'T' could not be inferred
+        let uiView = try XCTUnwrap(vc.view)
+                         ^
+XCTest.XCTUnwrap:1:13: note: in call to function 'XCTUnwrap(_:_:file:line:)'
+public func XCTUnwrap<T>(_ expression: @autoclosure () throws -> T?, _ message: @autoclosure () -> String = "", file: StaticString = #filePath, line: UInt = #line) throws -> T
+            ^
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:117:20: error: cannot find 'LSMapControls' in scope
+        let view = LSMapControls(
+                   ^~~~~~~~~~~~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:118:20: error: cannot infer contextual base in reference to member 'map'
+            mode: .map,
+                  ~^~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:135:10: error: no macro named 'expect'
+        #expect(try XCTUnwrap(vc.view?.subviews.count) > 0)
+         ^~~~~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:141:20: error: cannot find 'LSMapControls' in scope
+        let view = LSMapControls(
+                   ^~~~~~~~~~~~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:142:20: error: cannot infer contextual base in reference to member 'map'
+            mode: .map,
+                  ~^~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:152:22: error: cannot infer key path type from context; consider explicitly specifying a root type
+        .environment(\.colorScheme, .dark)
+                     ^
+                      <#Root#>
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:152:38: error: cannot infer contextual base in reference to member 'dark'
+        .environment(\.colorScheme, .dark)
+                                    ~^~~~
+/Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:160:26: error: generic parameter 'T' could not be inferred
+        let uiView = try XCTUnwrap(vc.view)
+                         ^
+XCTest.XCTUnwrap:1:13: note: in call to function 'XCTUnwrap(_:_:file:line:)'
+public func XCTUnwrap<T>(_ expression: @autoclosure () throws -> T?, _ message: @autoclosure () -> String = "", file: StaticString = #filePath, line: UInt = #line) throws -> T
+            ^
+
+SwiftCompile normal arm64 Compiling\ SessionsScreenTests.swift,\ StoryRegistryTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/SessionsScreenTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/StoryRegistryTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Templates/SessionsScreenTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Sandbox/StoryRegistryTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 Compiling\ ErrorScreenWiringTests.swift,\ IdlePlaceAutocompleteTests.swift,\ AuthScreensTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Error/ErrorScreenWiringTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Idle/IdlePlaceAutocompleteTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Integration/AuthScreensTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Error/ErrorScreenWiringTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Features/Idle/IdlePlaceAutocompleteTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Integration/AuthScreensTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/ios
+    
+
+SwiftDriverJobDiscovery normal arm64 Compiling InfoToastTests.swift, LSBottomSheetTests.swift, LSChatInputTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/justinrich/Projects/LaneShadow/ios/LaneShadowUITests/DesignReview/DesignReviewCaptureTests.swift (in target 'LaneShadowUITests' from project 'LaneShadow')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/justinrich/Projects/LaneShadow/ios/LaneShadowUITests/DesignReview/DesignReviewHelpers.swift (in target 'LaneShadowUITests' from project 'LaneShadow')
+
+Test session results, code coverage, and logs:
+	/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-fxepxmvohisivphhyngnkmuxdbyh/Logs/Test/Test-LaneShadow-2026.05.07_13-49-18--0700.xcresult
+
+Testing failed:
+	Cannot find 'LSMapControls' in scope
+	Cannot infer contextual base in reference to member 'map'
+	Generic parameter 'T' could not be inferred
+	Cannot find 'LSMapControls' in scope
+	Cannot infer contextual base in reference to member 'map'
+	Generic parameter 'T' could not be inferred
+	Cannot find 'LSMapControls' in scope
+	Cannot infer contextual base in reference to member 'map'
+	Generic parameter 'T' could not be inferred
+	Cannot find 'LSMapControls' in scope
+	Cannot infer contextual base in reference to member 'chat'
+	Generic parameter 'T' could not be inferred
+	Cannot find 'LSMapControls' in scope
+	Cannot infer contextual base in reference to member 'map'
+	No macro named 'expect'
+	Cannot find 'LSMapControls' in scope
+	Cannot infer contextual base in reference to member 'map'
+	Cannot infer key path type from context; consider explicitly specifying a root type
+	Cannot infer contextual base in reference to member 'dark'
+	Generic parameter 'T' could not be inferred
+	Testing cancelled because the build failed.
+
+** TEST FAILED **
+
+
+The following build commands failed:
+	SwiftCompile normal arm64 Compiling\ LSInlineErrorCalloutTests.swift,\ LSMapControlsTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSInlineErrorCalloutTests.swift /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+	SwiftCompile normal arm64 /Users/justinrich/Projects/LaneShadow/ios/LaneShadowTests/Organisms/LSMapControlsTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+	Testing project LaneShadow with scheme LaneShadow
+(3 failures)

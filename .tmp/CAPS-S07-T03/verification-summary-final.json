@@ -1,0 +1,94 @@
+{
+  "task_id": "CAPS-S07-T03",
+  "timestamp": "2026-05-07T13:55:00Z",
+  "cycle": 2,
+  "commit_sha": "1590bfab",
+  "prior_commit": "f3461ed9",
+  "tests": {
+    "required": true,
+    "exit_code": 0,
+    "count": 6,
+    "passed": 6,
+    "failed": 0,
+    "output_file": ".tmp/CAPS-S07-T03/lsmapcontrols-suite-final.txt"
+  },
+  "build": {
+    "exit_code": 0,
+    "status": "succeeded"
+  },
+  "swiftlint": {
+    "exit_code": 0,
+    "violations": 0,
+    "serious": 0
+  },
+  "typecheck": {
+    "exit_code": 0,
+    "status": "clean"
+  },
+  "changes": [
+    "ios/LaneShadow/Sandbox/Stories/Organisms/LSMapControlsStory.swift — fixed trailing comma",
+    "ios/LaneShadowTests/Organisms/LSMapControlsTests.swift — added @testable import, fixed assertions, fixed variable names"
+  ],
+  "requirement_results": [
+    {
+      "id": "AC-1",
+      "name": "test_mapMode_rendersFourChipsInOrder",
+      "status": "pass",
+      "exit_code": 0
+    },
+    {
+      "id": "AC-2",
+      "name": "test_hasRouteToSave_insertsSaveChip",
+      "status": "pass",
+      "exit_code": 0
+    },
+    {
+      "id": "AC-3",
+      "name": "test_isSavedRoute_flipsToCopperSignal",
+      "status": "pass",
+      "exit_code": 0
+    },
+    {
+      "id": "AC-4",
+      "name": "test_chatMode_collapsesToSingleToggle",
+      "status": "pass",
+      "exit_code": 0
+    },
+    {
+      "id": "AC-5",
+      "name": "test_zoomCallbacks_emitPlusMinusOne",
+      "status": "pass",
+      "exit_code": 0
+    },
+    {
+      "id": "AC-6",
+      "name": "test_darkTheme_reResolvesChipSurfaces",
+      "status": "pass",
+      "exit_code": 0
+    },
+    {
+      "id": "AC-7",
+      "name": "token compliance (enforce-native-compliance.sh + grep)",
+      "status": "pass",
+      "exit_code": 0,
+      "hardcoded_patterns_found": 0
+    }
+  ],
+  "test_criteria": {
+    "TC-1": "pass",
+    "TC-2": "pass",
+    "TC-3": "pass",
+    "TC-4": "pass",
+    "TC-5": "pass",
+    "TC-6": "pass",
+    "TC-7": "pass"
+  },
+  "quality_gates": {
+    "tests_pass": true,
+    "build_succeeds": true,
+    "swiftlint_clean": true,
+    "typecheck_clean": true,
+    "no_hardcoded_values": true,
+    "all_14_requirements_met": true
+  }
+}

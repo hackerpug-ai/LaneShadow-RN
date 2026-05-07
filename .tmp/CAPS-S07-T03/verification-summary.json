@@ -1,0 +1,110 @@
+{
+  "task_id": "CAPS-S07-T03",
+  "timestamp": "2026-05-07T13:50:00Z",
+  "commit_sha": "f3461ed9",
+  "tests": {
+    "required": true,
+    "exit_code": 0,
+    "output_file": ".tmp/CAPS-S07-T03/lsmapcontrols-suite-output.txt"
+  },
+  "build": {
+    "exit_code": 0,
+    "output_file": ".tmp/CAPS-S07-T03/build-output.txt"
+  },
+  "swiftlint": {
+    "exit_code": 0,
+    "output_file": ".tmp/CAPS-S07-T03/swiftlint-output.txt"
+  },
+  "typecheck": {
+    "exit_code": 0,
+    "output_file": ".tmp/CAPS-S07-T03/typecheck-output.txt",
+    "failure": null
+  },
+  "pre_existing_issues": false,
+  "requirement_results": [
+    {
+      "id": "AC-1",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_mapMode_rendersFourChipsInOrder",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-1-output.txt"
+    },
+    {
+      "id": "AC-2",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_hasRouteToSave_insertsSaveChip",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-2-output.txt"
+    },
+    {
+      "id": "AC-3",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_isSavedRoute_flipsToCopperSignal",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-3-output.txt"
+    },
+    {
+      "id": "AC-4",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_chatMode_collapsesToSingleToggle",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-4-output.txt"
+    },
+    {
+      "id": "AC-5",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_zoomCallbacks_emitPlusMinusOne",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-5-output.txt"
+    },
+    {
+      "id": "AC-6",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_darkTheme_reResolvesChipSurfaces",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-6-output.txt"
+    },
+    {
+      "id": "AC-7",
+      "verify": "scripts/tokens/enforce-native-compliance.sh && grep -cE hardcoded patterns",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-7-output.txt"
+    },
+    {
+      "id": "TC-1",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_mapMode_rendersFourChipsInOrder",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-1-output.txt"
+    },
+    {
+      "id": "TC-2",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_hasRouteToSave_insertsSaveChip",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-2-output.txt"
+    },
+    {
+      "id": "TC-3",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_isSavedRoute_flipsToCopperSignal",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-3-output.txt"
+    },
+    {
+      "id": "TC-4",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_chatMode_collapsesToSingleToggle",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-4-output.txt"
+    },
+    {
+      "id": "TC-5",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_zoomCallbacks_emitPlusMinusOne",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-5-output.txt"
+    },
+    {
+      "id": "TC-6",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_darkTheme_reResolvesChipSurfaces",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-6-output.txt"
+    },
+    {
+      "id": "TC-7",
+      "verify": "scripts/tokens/enforce-native-compliance.sh && grep",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T03/ac-7-output.txt"
+    }
+  ]
+}
