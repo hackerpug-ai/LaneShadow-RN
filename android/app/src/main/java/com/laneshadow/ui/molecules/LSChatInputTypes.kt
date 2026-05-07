@@ -15,6 +15,15 @@ data class SuggestionChip(
     val label: String,
 )
 
+data class AutocompleteRecommendation(
+    val id: String,
+    val title: String,
+    val supportingText: String? = null,
+    val contentDescription: String,
+)
+
+const val AUTOCOMPLETE_RECOMMENDATION_ROW_TAG = "autocomplete-recommendation-row"
+
 /**
  * Location context for chat input location badge
  *

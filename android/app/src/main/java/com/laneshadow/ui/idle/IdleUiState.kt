@@ -38,6 +38,29 @@ data class IdleUiState(
     val locationMode: String = "manual",
     val isLocationEnabled: Boolean = false,
     val locationUnavailable: Boolean = false,
+    val showStaticSuggestions: Boolean = true,
+    val placeSuggestions: List<IdlePlaceSuggestion> = emptyList(),
+    val selectedPlace: IdleSelectedPlace? = null,
+    val autocompleteError: String? = null,
+    val isAutocompleteLoading: Boolean = false,
+)
+
+data class IdlePlaceSuggestion(
+    val id: String,
+    val name: String,
+    val label: String,
+    val secondaryText: String? = null,
+    val featureType: String,
+    val distanceMeters: Double? = null,
+)
+
+data class IdleSelectedPlace(
+    val id: String,
+    val name: String,
+    val label: String,
+    val lat: Double,
+    val lng: Double,
+    val featureType: String,
 )
 
 sealed interface IdleNavTarget {

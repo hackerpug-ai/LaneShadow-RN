@@ -16,6 +16,7 @@ import com.laneshadow.navigation.planningRoute
 import com.laneshadow.sandbox.mockproviders.IdleScreenState
 import com.laneshadow.sandbox.mockproviders.LocationContext
 import com.laneshadow.sandbox.mockproviders.SuggestionChip as MockSuggestionChip
+import com.laneshadow.ui.molecules.AutocompleteRecommendation
 import com.laneshadow.ui.templates.IdleScreen
 
 @Composable
@@ -36,6 +37,21 @@ fun IdleRoute(
         onCollapse = { viewModel.onInputChange("") },
         onFilter = { navController.navigate(Route.Sessions) },
         onValueChange = viewModel::onInputChange,
+        autocompleteRecommendations = uiState.placeSuggestions.map { suggestion ->
+            AutocompleteRecommendation(
+                id = suggestion.id,
+                title = suggestion.name,
+                supportingText = suggestion.label,
+                contentDescription = suggestion.label,
+            )
+        },
+        autocompleteError = uiState.autocompleteError,
+        isAutocompleteLoading = uiState.isAutocompleteLoading,
+        onAutocompleteRecommendationTap = { recommendation ->
+            uiState.placeSuggestions
+                .firstOrNull { it.id == recommendation.id }
+                ?.let(viewModel::onAutocompleteSuggestionTap)
+        },
         onLocationModeChange = viewModel::onLocationModeChange,
     )
 
@@ -66,11 +82,15 @@ internal fun IdleUiState.toMockState(): IdleScreenState {
             headline = headline,
             emphasis = scopeWord,
         ).toMockGreeting(),
-        suggestions = suggestions.mapIndexed { index, chip ->
-            MockSuggestionChip(
-                id = "idle-chip-${index + 1}",
-                label = chip.text,
-            )
+        suggestions = if (showStaticSuggestions) {
+            suggestions.mapIndexed { index, chip ->
+                MockSuggestionChip(
+                    id = "idle-chip-${index + 1}",
+                    label = chip.text,
+                )
+            }
+        } else {
+            emptyList()
         },
         locationContext = LocationContext(
             label = locationLabel ?: "Tap to set start",
