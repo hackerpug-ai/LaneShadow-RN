@@ -201,6 +201,8 @@ targets:
       - path: LaneShadow/Views/Molecules/LSListRow.swift
       - path: LaneShadow/Views/Molecules/LSNavHeader.swift
       - path: LaneShadow/Views/Molecules/LSPhaseIndicator.swift
+      - path: LaneShadow/Views/Molecules/LSContextCapsule.swift
+      - path: LaneShadow/Views/Molecules/LSContextCapsule+ResolvedValues.swift
       - path: LaneShadow/Views/Molecules/LSTagPill.swift
       - path: LaneShadow/Views/Molecules/LSPaperMap.swift
       - path: LaneShadow/Views/Molecules/LSFavoritePinDot.swift
@@ -283,6 +285,7 @@ targets:
       - path: LaneShadowTests/Molecules/LSEmptyStateTests.swift
       - path: LaneShadowTests/Molecules/LSChatInputTests.swift
       - path: LaneShadowTests/Molecules/LSToolbarTests.swift
+      - path: LaneShadowTests/Molecules/LSContextCapsuleTests.swift
       # Sprint 05 organism tests
       - path: LaneShadowTests/Organisms
         type: syncedFolder
