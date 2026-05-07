@@ -1,0 +1,115 @@
+{
+  "task_id": "CAPS-S07-T02",
+  "timestamp": "2026-05-07T19:48:06Z",
+  "commit_sha": "cf55d2a828314f251717497be3c706d40537f561",
+  "tests": {
+    "not_required": false,
+    "output_file": ".tmp/CAPS-S07-T02/test-output.txt"
+  },
+  "typecheck": {
+    "exit_code": 0
+  },
+  "lint": {
+    "exit_code": 0,
+    "warnings": 0
+  },
+  "pre_existing_issues": true,
+  "requirement_results": [
+    {
+      "id": "AC-1",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSContextCapsuleTest.idle_state_renders_copper_italic_scope_and_meta_dots'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/ac-1-output.txt"
+    },
+    {
+      "id": "AC-2",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSContextCapsuleTest.planning_state_renders_pulse_spinner_and_italic_headline'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/ac-2-output.txt"
+    },
+    {
+      "id": "AC-3",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSContextCapsuleTest.route_state_uses_primary_italic_and_mono_tertiary_metrics'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/ac-3-output.txt"
+    },
+    {
+      "id": "AC-4",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSContextCapsuleTest.warning_modifier_tints_meta_row_only'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/ac-4-output.txt"
+    },
+    {
+      "id": "AC-5",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSContextCapsuleTest.saved_modifier_paints_copper_hairline_border'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/ac-5-output.txt"
+    },
+    {
+      "id": "AC-6",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSContextCapsuleTest.theme_toggle_reresolves_tokens_without_remount'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/ac-6-output.txt"
+    },
+    {
+      "id": "AC-7",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.sandbox.AppStoriesRegistryTest.context_capsule_registers_ten_canonical_stories'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/ac-7-output.txt"
+    },
+    {
+      "id": "TC-1",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSContextCapsuleTest.idle_state_renders_copper_italic_scope_and_meta_dots'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/tc-1-output.txt"
+    },
+    {
+      "id": "TC-2",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSContextCapsuleTest.planning_state_renders_pulse_spinner_and_italic_headline'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/tc-2-output.txt"
+    },
+    {
+      "id": "TC-3",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSContextCapsuleTest.route_state_uses_primary_italic_and_mono_tertiary_metrics'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/tc-3-output.txt"
+    },
+    {
+      "id": "TC-4",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSContextCapsuleTest.warning_modifier_tints_meta_row_only'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/tc-4-output.txt"
+    },
+    {
+      "id": "TC-5",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSContextCapsuleTest.saved_modifier_paints_copper_hairline_border'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/tc-5-output.txt"
+    },
+    {
+      "id": "TC-6",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.molecules.LSContextCapsuleTest.theme_toggle_reresolves_tokens_without_remount'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/tc-6-output.txt"
+    },
+    {
+      "id": "TC-7",
+      "verify": "./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.sandbox.AppStoriesRegistryTest.context_capsule_registers_ten_canonical_stories'",
+      "exit_code": 0,
+      "output_file": ".tmp/CAPS-S07-T02/tc-7-output.txt"
+    }
+  ],
+  "red_evidence": {
+    "required": false
+  },
+  "visual_verification": {
+    "status": "blocked",
+    "reason": "adb reported no attached emulator/device",
+    "output_file": ".tmp/CAPS-S07-T02/adb-devices.txt"
+  },
+  "android_lint": {
+    "exit_code": 1,
+    "output_file": ".tmp/CAPS-S07-T02/android-detekt-output.txt"
+  }
+}

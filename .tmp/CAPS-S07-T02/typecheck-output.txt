@@ -1,0 +1,5 @@
+$ pnpm type-check:native
+
+> laneshadow@1.0.0 type-check:native /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/CAPS-S07-T02
+> tsgo --noEmit -p server/tsconfig.json && tsgo --noEmit -p react-native/tsconfig.json
+

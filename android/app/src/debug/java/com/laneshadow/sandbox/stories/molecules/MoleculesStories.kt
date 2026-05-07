@@ -19,5 +19,6 @@ object MoleculesStories {
             LSLocationContextBarStory.all +
             LSRouteAttachmentCardStory.all +
             LSChatInputStory.all +
+            LSContextCapsuleStory.all +
             LSNavigatorMoleculesStory.all
 }
