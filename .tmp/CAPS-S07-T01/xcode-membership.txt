@@ -1,0 +1,12 @@
+11:		039BB0BB9C8E0D11F1DAB4EF /* LSContextCapsuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FD1EBB47E72009E6BF67513 /* LSContextCapsuleTests.swift */; };
+20:		213C1C92CF279A28791AFB32 /* LSContextCapsule+ResolvedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42AE51CDC3FDCE1AFBB8EA63 /* LSContextCapsule+ResolvedValues.swift */; };
+32:		44FFCF87B274ADFC9BB86AC6 /* LSContextCapsule.swift in Sources */ = {isa = PBXBuildFile; fileRef = D626BCB1C43EEDBE2F380761 /* LSContextCapsule.swift */; };
+130:		42AE51CDC3FDCE1AFBB8EA63 /* LSContextCapsule+ResolvedValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LSContextCapsule+ResolvedValues.swift"; sourceTree = "<group>"; };
+151:		8FD1EBB47E72009E6BF67513 /* LSContextCapsuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSContextCapsuleTests.swift; sourceTree = "<group>"; };
+174:		D626BCB1C43EEDBE2F380761 /* LSContextCapsule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSContextCapsule.swift; sourceTree = "<group>"; };
+624:				D626BCB1C43EEDBE2F380761 /* LSContextCapsule.swift */,
+625:				42AE51CDC3FDCE1AFBB8EA63 /* LSContextCapsule+ResolvedValues.swift */,
+747:				8FD1EBB47E72009E6BF67513 /* LSContextCapsuleTests.swift */,
+1025:				213C1C92CF279A28791AFB32 /* LSContextCapsule+ResolvedValues.swift in Sources */,
+1026:				44FFCF87B274ADFC9BB86AC6 /* LSContextCapsule.swift in Sources */,
+1084:				039BB0BB9C8E0D11F1DAB4EF /* LSContextCapsuleTests.swift in Sources */,

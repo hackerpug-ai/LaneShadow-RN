@@ -1,0 +1,4 @@
+Linting Swift files at paths ios/LaneShadow/Views/Molecules/LSContextCapsule.swift, ios/LaneShadow/Sandbox/Stories/Molecules/LSContextCapsuleStories.swift
+Linting 'LSContextCapsule.swift' (2/2)
+Linting 'LSContextCapsuleStories.swift' (1/2)
+Done linting! Found 0 violations, 0 serious in 2 files.

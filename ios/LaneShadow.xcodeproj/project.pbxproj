@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0088B7B8DE44EAB0E681D685 /* ModifierStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F130DF4421118EE59843068 /* ModifierStories.swift */; };
+		039BB0BB9C8E0D11F1DAB4EF /* LSContextCapsuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FD1EBB47E72009E6BF67513 /* LSContextCapsuleTests.swift */; };
 		06E6D012390862D9ABF3488C /* LaneShadowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C592B52392DEEACF2D91C3B /* LaneShadowTests.swift */; };
 		078589B1255FE42AA7459089 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */; };
 		0A215149AE7AF5FBBCB5409E /* ConvexStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */; };
@@ -16,6 +17,7 @@
 		19B2E80084FD9A981F497DB5 /* ViewInspector in Frameworks */ = {isa = PBXBuildFile; productRef = 97E29B716CED481799DD0795 /* ViewInspector */; };
 		1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534D26C275878552CD82E5FE /* LSDisplayStories.swift */; };
 		1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F8ABC117BB7538D9D09E1F6 /* LSPhaseDotStories.swift */; };
+		213C1C92CF279A28791AFB32 /* LSContextCapsule+ResolvedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42AE51CDC3FDCE1AFBB8EA63 /* LSContextCapsule+ResolvedValues.swift */; };
 		21D966799A18DF7B8AF9A057 /* RouteResultsDetailsVariantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4283E0B2FE9FD9CE99770202 /* RouteResultsDetailsVariantTests.swift */; };
 		24E92B6C2FD5880E27973B68 /* ChatTranscript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9585186566089A7EAF681DDB /* ChatTranscript.swift */; };
 		260AE5B2889B2C4DCE1F1C38 /* LSEmptyStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68571E06FBCE8232271D1DB2 /* LSEmptyStateTests.swift */; };
@@ -27,6 +29,7 @@
 		3607457D8D985DC783EDA889 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = E4B9E7FB06EF17E9BD9B418A /* SnapshotTesting */; };
 		3D2143A67410FB5D8D2F3B45 /* LSInputStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE8CB573821E0981D725E364 /* LSInputStories.swift */; };
 		40979501CCACCFB156F25EB5 /* LaneShadowSandboxEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C289172CD246D71CC0E6BB /* LaneShadowSandboxEntry.swift */; };
+		44FFCF87B274ADFC9BB86AC6 /* LSContextCapsule.swift in Sources */ = {isa = PBXBuildFile; fileRef = D626BCB1C43EEDBE2F380761 /* LSContextCapsule.swift */; };
 		47CC25D1D29279914E05235A /* LSBottomSheetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD7360EC93AFB89C2E49D267 /* LSBottomSheetTests.swift */; };
 		4BFD443A4E64B7C1A81AF04E /* LSFormFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1BDF769396CF5EB37B55B9 /* LSFormFieldTests.swift */; };
 		4C05ABB5C49D2E72EFB85198 /* LSFilterChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1130AFDFD500511DD417BC8 /* LSFilterChip.swift */; };
@@ -124,6 +127,7 @@
 		3E1A53BCC888DAEA7153F458 /* AtomsStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomsStories.swift; sourceTree = "<group>"; };
 		3FCE935E865EBECBA195F949 /* TemplateStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateStories.swift; sourceTree = "<group>"; };
 		4283E0B2FE9FD9CE99770202 /* RouteResultsDetailsVariantTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteResultsDetailsVariantTests.swift; sourceTree = "<group>"; };
+		42AE51CDC3FDCE1AFBB8EA63 /* LSContextCapsule+ResolvedValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LSContextCapsule+ResolvedValues.swift"; sourceTree = "<group>"; };
 		4783B461B5B9EC6A5AA6F1DF /* LSBottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSBottomSheet.swift; sourceTree = "<group>"; };
 		478C8C03ABF1E0F4AFEF0836 /* LSWeatherBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSWeatherBadge.swift; sourceTree = "<group>"; };
 		4A2AE4E90D3718200E3AB248 /* LSEmptyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSEmptyState.swift; sourceTree = "<group>"; };
@@ -144,6 +148,7 @@
 		85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowStories.swift; sourceTree = "<group>"; };
 		890F8AE171354CCC932518BC /* LSContentCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSContentCard.swift; sourceTree = "<group>"; };
 		8F281656D06513E78E57D10D /* LSScrimStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScrimStories.swift; sourceTree = "<group>"; };
+		8FD1EBB47E72009E6BF67513 /* LSContextCapsuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSContextCapsuleTests.swift; sourceTree = "<group>"; };
 		93E2A5636744C52173464018 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		94AB21A076699921AC328EE9 /* LSModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSModal.swift; sourceTree = "<group>"; };
 		9585186566089A7EAF681DDB /* ChatTranscript.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTranscript.swift; sourceTree = "<group>"; };
@@ -166,6 +171,7 @@
 		CFFB033EDA463052A650A51D /* LSToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbar.swift; sourceTree = "<group>"; };
 		D1261D8D753487C4CE27B783 /* LSTabItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSTabItemTests.swift; sourceTree = "<group>"; };
 		D5107D4267204A230D572AB9 /* MarkdownTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextTests.swift; sourceTree = "<group>"; };
+		D626BCB1C43EEDBE2F380761 /* LSContextCapsule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSContextCapsule.swift; sourceTree = "<group>"; };
 		DA1BDF769396CF5EB37B55B9 /* LSFormFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFormFieldTests.swift; sourceTree = "<group>"; };
 		E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoleculesStories.swift; sourceTree = "<group>"; };
 		E444532E22B318AA5B8E61E2 /* LSToolbarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbarTests.swift; sourceTree = "<group>"; };
@@ -181,7 +187,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		58099F917373377216261552 /* Exceptions for "Atoms" folder in "LaneShadow" target */ = {
+		58099F917373377216261552 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Button.swift,
@@ -193,164 +199,323 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0AB6BCC041176229C63DBB62 /* Layout */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Layout;
 			path = Layout;
 			sourceTree = "<group>";
 		};
 		0B23304A78B886F9A286C5E4 /* Sandbox */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Sandbox;
 			path = Sandbox;
 			sourceTree = "<group>";
 		};
 		0E516A6442C2AA10AA5009F5 /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		10EF6247464B14DE9D738910 /* Views */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Views;
 			path = Views;
 			sourceTree = "<group>";
 		};
 		244E36879200004067F64629 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		3A78900A9AF373F5042A6135 /* Features */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Features;
 			path = Features;
 			sourceTree = "<group>";
 		};
 		3BC11B009ED26B33FC7A0333 /* Entry */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Entry;
 			path = Entry;
 			sourceTree = "<group>";
 		};
 		3CE2AE4772ABC9D4A3699741 /* MockProviders */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = MockProviders;
 			path = MockProviders;
 			sourceTree = "<group>";
 		};
 		4C8A8E02554AE3D5AC4FAC51 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		537AF6CF40C4418539754A5D /* Services */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Services;
 			path = Services;
 			sourceTree = "<group>";
 		};
 		5B8A253F72C6B3D6A21D5422 /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Atoms;
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		5D43661EA5776DD985956D8D /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		5EE6142BB2A44D9196BC822D /* Services */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Services;
 			path = Services;
 			sourceTree = "<group>";
 		};
 		688955BA957298D0AAE2948E /* AppFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = AppFlow;
 			path = AppFlow;
 			sourceTree = "<group>";
 		};
 		7290175E358A1C93D4A90231 /* Molecules */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Molecules;
 			path = Molecules;
 			sourceTree = "<group>";
 		};
 		755D85BE7B8692E8CCE9B7D0 /* Integration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Integration;
 			path = Integration;
 			sourceTree = "<group>";
 		};
 		7658177809845BD7EAFD2B5F /* Environment */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Environment;
 			path = Environment;
 			sourceTree = "<group>";
 		};
 		803C67E4953872CB5CCA0FA9 /* DesignSystem */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = DesignSystem;
 			path = DesignSystem;
 			sourceTree = "<group>";
 		};
 		8460D5ABD7FFE129DB373103 /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Models;
 			path = Models;
 			sourceTree = "<group>";
 		};
 		8E620526502629F2690FBBAE /* Utilities */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Utilities;
 			path = Utilities;
 			sourceTree = "<group>";
 		};
 		8F5AC0DC38D5B1239FAA340F /* AuthFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = AuthFlow;
 			path = AuthFlow;
 			sourceTree = "<group>";
 		};
 		8FD0535A05FA37574620A6CA /* Helpers */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Helpers;
 			path = Helpers;
 			sourceTree = "<group>";
 		};
 		9B1969E887592C82E1672459 /* Launch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Launch;
 			path = Launch;
 			sourceTree = "<group>";
 		};
 		A1DA24033B9915EAB116ED62 /* Generated */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Generated;
 			path = Generated;
 			sourceTree = "<group>";
 		};
 		A8E49074235FCF05900AA173 /* LaneShadowUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
 			path = LaneShadowUITests;
 			sourceTree = "<group>";
 		};
 		B6F7522A945FCE6E9220905B /* Features */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Features;
 			path = Features;
 			sourceTree = "<group>";
 		};
 		B92913E9843A5845817A3DBD /* Controls */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Controls;
 			path = Controls;
 			sourceTree = "<group>";
 		};
 		C1C1554F3F09845975235612 /* Utilities */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Utilities;
 			path = Utilities;
 			sourceTree = "<group>";
 		};
 		CE8B4DF54243DD52953C7CFE /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				58099F917373377216261552 /* Exceptions for "Atoms" folder in "LaneShadow" target */,
+				58099F917373377216261552 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
 			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Atoms;
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		CF77ECAB776F34B039A160CA /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		D026D3B873FDE7B7153F206F /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		E5E2F792F8318B064762B018 /* Theme */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Theme;
 			path = Theme;
 			sourceTree = "<group>";
 		};
@@ -456,6 +621,8 @@
 				19695B8A9932BA0DADCBEADF /* LSChatInput.swift */,
 				2AD9FE3FF6AC9085BE220085 /* LSConfirmDialog.swift */,
 				890F8AE171354CCC932518BC /* LSContentCard.swift */,
+				D626BCB1C43EEDBE2F380761 /* LSContextCapsule.swift */,
+				42AE51CDC3FDCE1AFBB8EA63 /* LSContextCapsule+ResolvedValues.swift */,
 				4A2AE4E90D3718200E3AB248 /* LSEmptyState.swift */,
 				A8FC588254B2DE58F4742ED7 /* LSFavoritePinDot.swift */,
 				A1130AFDFD500511DD417BC8 /* LSFilterChip.swift */,
@@ -577,6 +744,7 @@
 				20AC933B1DF7AFFC89BD22E0 /* InfoToastTests.swift */,
 				BD7360EC93AFB89C2E49D267 /* LSBottomSheetTests.swift */,
 				3123362FBC613B11809CE348 /* LSChatInputTests.swift */,
+				8FD1EBB47E72009E6BF67513 /* LSContextCapsuleTests.swift */,
 				68571E06FBCE8232271D1DB2 /* LSEmptyStateTests.swift */,
 				DA1BDF769396CF5EB37B55B9 /* LSFormFieldTests.swift */,
 				690C1B6B480FD345A05807B0 /* LSModalTests.swift */,
@@ -625,27 +793,27 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				0AB6BCC041176229C63DBB62 /* Layout */,
-				0E516A6442C2AA10AA5009F5 /* Templates */,
+				688955BA957298D0AAE2948E /* AppFlow */,
+				CE8B4DF54243DD52953C7CFE /* Atoms */,
+				8F5AC0DC38D5B1239FAA340F /* AuthFlow */,
+				B92913E9843A5845817A3DBD /* Controls */,
+				803C67E4953872CB5CCA0FA9 /* DesignSystem */,
 				3BC11B009ED26B33FC7A0333 /* Entry */,
+				7658177809845BD7EAFD2B5F /* Environment */,
+				B6F7522A945FCE6E9220905B /* Features */,
+				A1DA24033B9915EAB116ED62 /* Generated */,
+				9B1969E887592C82E1672459 /* Launch */,
+				0AB6BCC041176229C63DBB62 /* Layout */,
 				3CE2AE4772ABC9D4A3699741 /* MockProviders */,
+				8460D5ABD7FFE129DB373103 /* Models */,
+				7290175E358A1C93D4A90231 /* Molecules */,
+				D026D3B873FDE7B7153F206F /* Organisms */,
 				4C8A8E02554AE3D5AC4FAC51 /* Organisms */,
 				537AF6CF40C4418539754A5D /* Services */,
-				688955BA957298D0AAE2948E /* AppFlow */,
-				7290175E358A1C93D4A90231 /* Molecules */,
-				7658177809845BD7EAFD2B5F /* Environment */,
-				803C67E4953872CB5CCA0FA9 /* DesignSystem */,
-				8460D5ABD7FFE129DB373103 /* Models */,
-				8E620526502629F2690FBBAE /* Utilities */,
-				8F5AC0DC38D5B1239FAA340F /* AuthFlow */,
-				9B1969E887592C82E1672459 /* Launch */,
-				A1DA24033B9915EAB116ED62 /* Generated */,
-				B6F7522A945FCE6E9220905B /* Features */,
-				B92913E9843A5845817A3DBD /* Controls */,
-				CE8B4DF54243DD52953C7CFE /* Atoms */,
 				CF77ECAB776F34B039A160CA /* Templates */,
-				D026D3B873FDE7B7153F206F /* Organisms */,
+				0E516A6442C2AA10AA5009F5 /* Templates */,
 				E5E2F792F8318B064762B018 /* Theme */,
+				8E620526502629F2690FBBAE /* Utilities */,
 			);
 			name = LaneShadow;
 			packageProductDependencies = (
@@ -695,16 +863,16 @@
 				8941639FFAFA7D11ED5FFFCC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				0B23304A78B886F9A286C5E4 /* Sandbox */,
-				10EF6247464B14DE9D738910 /* Views */,
-				244E36879200004067F64629 /* Organisms */,
-				3A78900A9AF373F5042A6135 /* Features */,
 				5B8A253F72C6B3D6A21D5422 /* Atoms */,
-				5D43661EA5776DD985956D8D /* Templates */,
-				5EE6142BB2A44D9196BC822D /* Services */,
-				755D85BE7B8692E8CCE9B7D0 /* Integration */,
+				3A78900A9AF373F5042A6135 /* Features */,
 				8FD0535A05FA37574620A6CA /* Helpers */,
+				755D85BE7B8692E8CCE9B7D0 /* Integration */,
+				244E36879200004067F64629 /* Organisms */,
+				0B23304A78B886F9A286C5E4 /* Sandbox */,
+				5EE6142BB2A44D9196BC822D /* Services */,
+				5D43661EA5776DD985956D8D /* Templates */,
 				C1C1554F3F09845975235612 /* Utilities */,
+				10EF6247464B14DE9D738910 /* Views */,
 			);
 			name = LaneShadowTests;
 			packageProductDependencies = (
@@ -854,6 +1022,8 @@
 				96D64305E0336CAB29EDE308 /* LSChatInput.swift in Sources */,
 				295E91B36BDF57D6B421C1B3 /* LSConfirmDialog.swift in Sources */,
 				CB54A220F967529F6BE52E80 /* LSContentCard.swift in Sources */,
+				213C1C92CF279A28791AFB32 /* LSContextCapsule+ResolvedValues.swift in Sources */,
+				44FFCF87B274ADFC9BB86AC6 /* LSContextCapsule.swift in Sources */,
 				1BAC7EA2369264B7A19C9D08 /* LSDisplayStories.swift in Sources */,
 				E59A273AD62956C2EFAC59C9 /* LSEmptyState.swift in Sources */,
 				EB7EC54CA53EB7DEE5E84F0E /* LSFavoritePinDot.swift in Sources */,
@@ -911,6 +1081,7 @@
 				95DD81C1CEF88FF460DA7A6E /* InfoToastTests.swift in Sources */,
 				47CC25D1D29279914E05235A /* LSBottomSheetTests.swift in Sources */,
 				6BB3BD5F5C744CD42F5DF5C6 /* LSChatInputTests.swift in Sources */,
+				039BB0BB9C8E0D11F1DAB4EF /* LSContextCapsuleTests.swift in Sources */,
 				260AE5B2889B2C4DCE1F1C38 /* LSEmptyStateTests.swift in Sources */,
 				4BFD443A4E64B7C1A81AF04E /* LSFormFieldTests.swift in Sources */,
 				7D4F7230A93BF39451BC7BB6 /* LSModalTests.swift in Sources */,
@@ -977,10 +1148,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LaneShadow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app;
 				SDKROOT = iphoneos;
@@ -1025,10 +1193,7 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LaneShadow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app;
 				SDKROOT = iphoneos;
