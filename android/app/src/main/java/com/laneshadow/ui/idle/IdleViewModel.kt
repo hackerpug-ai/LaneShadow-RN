@@ -10,10 +10,18 @@ import com.laneshadow.data.session.SessionRepository
 import com.laneshadow.data.user.UserRepository
 import com.laneshadow.data.weather.WeatherRepository
 import com.laneshadow.services.ConvexClientProvider
+import com.laneshadow.services.PlaceAutocompleteProximity
+import com.laneshadow.services.PlaceSuggestionResult
+import com.laneshadow.services.SelectedPlaceResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.DayOfWeek
 import java.time.LocalTime
+import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,10 +38,41 @@ class IdleViewModel @Inject constructor(
     private val favoritesRepository: FavoritesRepository,
     private val locationRepository: LocationRepository,
     private val convexClientProvider: ConvexClientProvider,
-    private val timeProvider: () -> LocalTime = { LocalTime.now() },
 ) : ViewModel() {
+    internal constructor(
+        userRepository: UserRepository,
+        sessionRepository: SessionRepository,
+        chatRepository: ChatRepository,
+        weatherRepository: WeatherRepository,
+        favoritesRepository: FavoritesRepository,
+        locationRepository: LocationRepository,
+        convexClientProvider: ConvexClientProvider,
+        timeProvider: () -> LocalTime = { LocalTime.now() },
+        autocompleteDebounceMs: Long = 300L,
+        autocompleteDispatcher: CoroutineDispatcher = Dispatchers.Main,
+    ) : this(
+        userRepository = userRepository,
+        sessionRepository = sessionRepository,
+        chatRepository = chatRepository,
+        weatherRepository = weatherRepository,
+        favoritesRepository = favoritesRepository,
+        locationRepository = locationRepository,
+        convexClientProvider = convexClientProvider,
+    ) {
+        this.timeProvider = timeProvider
+        this.autocompleteDebounceMs = autocompleteDebounceMs
+        this.autocompleteDispatcher = autocompleteDispatcher
+    }
+
     private val _state = MutableStateFlow(IdleUiState())
     val state: StateFlow<IdleUiState> = _state.asStateFlow()
+    private var timeProvider: () -> LocalTime = { LocalTime.now() }
+    private var autocompleteDebounceMs: Long = 300L
+    private var autocompleteDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private var autocompleteJob: Job? = null
+    private var autocompleteSessionToken: String? = null
+    private var latestAutocompleteRequestId: Long = 0L
+    private var lastKnownLocation: LocationCoordinate? = null
 
     init {
         observeCurrentUser()
@@ -44,21 +83,68 @@ class IdleViewModel @Inject constructor(
     }
 
     fun onInputChange(value: String) {
+        val trimmedValue = value.trim()
         _state.update { current ->
             current.copy(
                 inputValue = value,
                 errorToast = null,
+                navigateTo = null,
+                selectedPlace = null,
             )
         }
+
+        if (trimmedValue.length < MinimumAutocompleteQueryLength) {
+            resetAutocompleteToStaticSuggestions()
+            return
+        }
+
+        scheduleAutocomplete(trimmedValue)
     }
 
     fun onSuggestionTap(suggestion: SuggestionChip) {
+        resetAutocompleteToStaticSuggestions()
         _state.update { current ->
             current.copy(
                 inputValue = suggestion.text,
                 errorToast = null,
                 navigateTo = null,
             )
+        }
+    }
+
+    fun onAutocompleteSuggestionTap(suggestion: IdlePlaceSuggestion) {
+        autocompleteJob?.cancel()
+        val sessionToken = ensureAutocompleteSessionToken()
+
+        viewModelScope.launch {
+            val retrieveResult = convexClientProvider.retrievePlace(
+                mapboxId = suggestion.id,
+                sessionToken = sessionToken,
+            )
+
+            retrieveResult
+                .onSuccess { selectedPlace ->
+                    _state.update { current ->
+                        current.copy(
+                            inputValue = selectedPlace.label,
+                            placeSuggestions = emptyList(),
+                            selectedPlace = selectedPlace.toUiState(),
+                            autocompleteError = null,
+                            isAutocompleteLoading = false,
+                            showStaticSuggestions = false,
+                            navigateTo = null,
+                        )
+                    }
+                }
+                .onFailure { error ->
+                    _state.update { current ->
+                        current.copy(
+                            autocompleteError = error.message ?: "Unable to load that place right now.",
+                            isAutocompleteLoading = false,
+                            navigateTo = null,
+                        )
+                    }
+                }
         }
     }
 
@@ -239,6 +325,7 @@ class IdleViewModel @Inject constructor(
             }
 
             val location: LocationCoordinate = locationResult.getOrThrow()
+            lastKnownLocation = location
             val geocodeResult = convexClientProvider.reverseGeocode(
                 location.latitude,
                 location.longitude,
@@ -271,6 +358,80 @@ class IdleViewModel @Inject constructor(
         }
     }
 
+    private fun scheduleAutocomplete(query: String) {
+        autocompleteJob?.cancel()
+        val requestId = ++latestAutocompleteRequestId
+        val proximity = lastKnownLocation?.toAutocompleteProximity()
+        val sessionToken = ensureAutocompleteSessionToken()
+
+        _state.update { current ->
+            current.copy(
+                showStaticSuggestions = false,
+                placeSuggestions = emptyList(),
+                autocompleteError = null,
+                isAutocompleteLoading = true,
+            )
+        }
+
+        autocompleteJob = viewModelScope.launch(autocompleteDispatcher) {
+            delay(autocompleteDebounceMs)
+
+            val suggestionsResult = convexClientProvider.suggestPlaces(
+                query = query,
+                proximity = proximity,
+                sessionToken = sessionToken,
+            )
+
+            if (requestId != latestAutocompleteRequestId || _state.value.inputValue.trim() != query) {
+                return@launch
+            }
+
+            suggestionsResult
+                .onSuccess { suggestions ->
+                    _state.update { current ->
+                        current.copy(
+                            placeSuggestions = suggestions
+                                .take(MaxAutocompleteSuggestions)
+                                .map { it.toUiState() },
+                            autocompleteError = null,
+                            isAutocompleteLoading = false,
+                            showStaticSuggestions = false,
+                        )
+                    }
+                }
+                .onFailure { error ->
+                    _state.update { current ->
+                        current.copy(
+                            placeSuggestions = emptyList(),
+                            autocompleteError = error.message ?: "Autocomplete unavailable.",
+                            isAutocompleteLoading = false,
+                            showStaticSuggestions = false,
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun resetAutocompleteToStaticSuggestions() {
+        autocompleteJob?.cancel()
+        latestAutocompleteRequestId++
+        autocompleteSessionToken = null
+        _state.update { current ->
+            current.copy(
+                placeSuggestions = emptyList(),
+                autocompleteError = null,
+                isAutocompleteLoading = false,
+                showStaticSuggestions = true,
+            )
+        }
+    }
+
+    private fun ensureAutocompleteSessionToken(): String {
+        return autocompleteSessionToken ?: UUID.randomUUID().toString().also {
+            autocompleteSessionToken = it
+        }
+    }
+
     private fun extractFirstName(displayName: String): String {
         if (displayName.isBlank()) return "Rider"
         return displayName.split_whitespace().firstOrNull { it.isNotBlank() } ?: "Rider"
@@ -289,6 +450,37 @@ class IdleViewModel @Inject constructor(
         val temp = weather.tempFahrenheit.toInt()
         val condition = weather.conditionLabel.uppercase()
         return "$day · $temp°F · $condition"
+    }
+
+    private fun LocationCoordinate.toAutocompleteProximity(): PlaceAutocompleteProximity =
+        PlaceAutocompleteProximity(
+            lat = latitude,
+            lng = longitude,
+        )
+
+    private fun PlaceSuggestionResult.toUiState(): IdlePlaceSuggestion =
+        IdlePlaceSuggestion(
+            id = id,
+            name = name,
+            label = label,
+            secondaryText = secondaryText,
+            featureType = featureType,
+            distanceMeters = distanceMeters,
+        )
+
+    private fun SelectedPlaceResult.toUiState(): IdleSelectedPlace =
+        IdleSelectedPlace(
+            id = id,
+            name = name,
+            label = label,
+            lat = lat,
+            lng = lng,
+            featureType = featureType,
+        )
+
+    private companion object {
+        const val MinimumAutocompleteQueryLength = 2
+        const val MaxAutocompleteSuggestions = 3
     }
 }
 

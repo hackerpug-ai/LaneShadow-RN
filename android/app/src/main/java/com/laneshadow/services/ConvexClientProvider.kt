@@ -42,6 +42,29 @@ data class GeocodeResult(
     val placeId: String? = null,
 )
 
+data class PlaceAutocompleteProximity(
+    val lat: Double,
+    val lng: Double,
+)
+
+data class PlaceSuggestionResult(
+    val id: String,
+    val name: String,
+    val label: String,
+    val secondaryText: String? = null,
+    val featureType: String,
+    val distanceMeters: Double? = null,
+)
+
+data class SelectedPlaceResult(
+    val id: String,
+    val name: String,
+    val label: String,
+    val lat: Double,
+    val lng: Double,
+    val featureType: String,
+)
+
 internal interface ConvexGateway {
     suspend fun bindAuthToken(token: String): Result<Unit>
     suspend fun clearAuth(context: Context): Result<Unit>
@@ -61,6 +84,15 @@ internal interface ConvexGateway {
     suspend fun cancelPlan(routePlanId: String): Result<Unit>
     suspend fun getCurrentWeather(lat: Double, lng: Double): WeatherDto
     suspend fun reverseGeocode(lat: Double, lng: Double): GeocodeResult
+    suspend fun suggestPlaces(
+        query: String,
+        proximity: PlaceAutocompleteProximity?,
+        sessionToken: String,
+    ): List<PlaceSuggestionResult> = throw UnsupportedOperationException("suggestPlaces not implemented")
+    suspend fun retrievePlace(
+        mapboxId: String,
+        sessionToken: String,
+    ): SelectedPlaceResult = throw UnsupportedOperationException("retrievePlace not implemented")
 }
 
 @Singleton
@@ -119,6 +151,28 @@ class ConvexClientProvider private constructor(
         runAuthenticated {
             activeGateway.reverseGeocode(lat, lng)
         }
+
+    suspend fun suggestPlaces(
+        query: String,
+        proximity: PlaceAutocompleteProximity?,
+        sessionToken: String,
+    ): Result<List<PlaceSuggestionResult>> = runAuthenticated {
+        activeGateway.suggestPlaces(
+            query = query,
+            proximity = proximity,
+            sessionToken = sessionToken,
+        )
+    }
+
+    suspend fun retrievePlace(
+        mapboxId: String,
+        sessionToken: String,
+    ): Result<SelectedPlaceResult> = runAuthenticated {
+        activeGateway.retrievePlace(
+            mapboxId = mapboxId,
+            sessionToken = sessionToken,
+        )
+    }
 
     suspend fun getCurrentUser(): Result<ConvexCurrentUser> = runAuthenticated {
         val currentUser = activeGateway.getCurrentUser()
@@ -340,6 +394,42 @@ private class RealConvexGateway(
             ),
         )
     }.getOrThrow().toDomain()
+
+    override suspend fun suggestPlaces(
+        query: String,
+        proximity: PlaceAutocompleteProximity?,
+        sessionToken: String,
+    ): List<PlaceSuggestionResult> = runCatching {
+        convexClient.action<List<PlaceSuggestionResultDto>>(
+            name = "actions/places:suggestPlaces",
+            args = buildMap<String, Any?> {
+                put("query", query)
+                put("sessionToken", sessionToken)
+                proximity?.let {
+                    put(
+                        "proximity",
+                        mapOf(
+                            "lat" to it.lat,
+                            "lng" to it.lng,
+                        ),
+                    )
+                }
+            },
+        )
+    }.getOrThrow().map { it.toDomain() }
+
+    override suspend fun retrievePlace(
+        mapboxId: String,
+        sessionToken: String,
+    ): SelectedPlaceResult = runCatching {
+        convexClient.action<SelectedPlaceResultDto>(
+            name = "actions/places:retrievePlace",
+            args = mapOf(
+                "mapboxId" to mapboxId,
+                "sessionToken" to sessionToken,
+            ),
+        )
+    }.getOrThrow().toDomain()
 }
 
 internal fun successfulConvexLogoutResult(): Result<Void> =
@@ -412,4 +502,46 @@ private data class GeocodeResultDto(
         label = label,
         placeId = placeId,
     )
+}
+
+@Serializable
+private data class PlaceSuggestionResultDto(
+    @SerialName("mapboxId")
+    val id: String,
+    val name: String,
+    val label: String,
+    val secondaryText: String? = null,
+    val featureType: String,
+    val distanceMeters: Double? = null,
+) {
+    fun toDomain(): PlaceSuggestionResult =
+        PlaceSuggestionResult(
+            id = id,
+            name = name,
+            label = label,
+            secondaryText = secondaryText,
+            featureType = featureType,
+            distanceMeters = distanceMeters,
+        )
+}
+
+@Serializable
+private data class SelectedPlaceResultDto(
+    @SerialName("mapboxId")
+    val id: String,
+    val name: String,
+    val label: String,
+    val lat: Double,
+    val lng: Double,
+    val featureType: String,
+) {
+    fun toDomain(): SelectedPlaceResult =
+        SelectedPlaceResult(
+            id = id,
+            name = name,
+            label = label,
+            lat = lat,
+            lng = lng,
+            featureType = featureType,
+        )
 }

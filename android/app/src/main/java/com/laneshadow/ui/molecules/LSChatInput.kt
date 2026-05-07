@@ -1,16 +1,22 @@
 package com.laneshadow.ui.molecules
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme.IconName
@@ -18,10 +24,14 @@ import com.laneshadow.ui.atoms.ButtonState
 import com.laneshadow.ui.atoms.ButtonVariant
 import com.laneshadow.ui.atoms.GlassVariant
 import com.laneshadow.ui.atoms.LSButton
+import com.laneshadow.ui.atoms.LSDivider
 import com.laneshadow.ui.atoms.LSGlassPanel
 import com.laneshadow.ui.atoms.LSSpinner
+import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.LSTextField
 import com.laneshadow.ui.atoms.SpinnerSize
+import com.laneshadow.ui.atoms.ContentColor
+import com.laneshadow.ui.atoms.TypographyVariant
 
 /**
  * LSChatInput molecule component
@@ -52,6 +62,8 @@ fun LSChatInput(
     onCollapse: () -> Unit,
     onFilter: () -> Unit,
     suggestions: List<SuggestionChip>? = null,
+    autocompleteRecommendations: List<AutocompleteRecommendation> = emptyList(),
+    onAutocompleteRecommendationTap: (AutocompleteRecommendation) -> Unit = {},
     onSuggestionTap: (SuggestionChip) -> Unit = {},
     locationBadge: LocationContext? = null,
     onLocationModeChange: (LocationMode) -> Unit = {},
@@ -98,6 +110,55 @@ fun LSChatInput(
                         onTap = { onSuggestionTap(chip) },
                         modifier = Modifier.padding(horizontal = theme.space.xs),
                     )
+                }
+            }
+        }
+
+        if (autocompleteRecommendations.isNotEmpty()) {
+            LSGlassPanel(
+                variant = GlassVariant.Chrome,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    autocompleteRecommendations.take(3).forEachIndexed { index, recommendation ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(enabled = isEnabled) {
+                                    onAutocompleteRecommendationTap(recommendation)
+                                }
+                                .semantics {
+                                    role = Role.Button
+                                    contentDescription = recommendation.contentDescription
+                                }
+                                .testTag(AUTOCOMPLETE_RECOMMENDATION_ROW_TAG)
+                                .padding(
+                                    horizontal = theme.space.md,
+                                    vertical = theme.space.sm,
+                                ),
+                            verticalArrangement = Arrangement.spacedBy(theme.space.xs),
+                        ) {
+                            LSText(
+                                text = recommendation.title,
+                                variant = TypographyVariant.Ui.Body.Md,
+                                color = ContentColor.Primary,
+                                modifier = Modifier.heightIn(min = theme.sizing.touchTarget),
+                            )
+                            recommendation.supportingText
+                                ?.takeIf { it.isNotBlank() && it != recommendation.title }
+                                ?.let { supportingText ->
+                                    LSText(
+                                        text = supportingText,
+                                        variant = TypographyVariant.Ui.Body.Sm,
+                                        color = ContentColor.Secondary,
+                                    )
+                                }
+                        }
+
+                        if (index < autocompleteRecommendations.take(3).lastIndex) {
+                            LSDivider()
+                        }
+                    }
                 }
             }
         }

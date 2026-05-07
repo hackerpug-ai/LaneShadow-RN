@@ -21,10 +21,9 @@ import com.laneshadow.ui.atoms.CameraPosition
 import com.laneshadow.ui.atoms.LSMap
 import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.ui.atoms.MapMode
-import com.laneshadow.ui.atoms.TextColor
-import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.molecules.LSChatInput
 import com.laneshadow.ui.molecules.LSAdvisoryCard
+import com.laneshadow.ui.molecules.AutocompleteRecommendation
 import com.laneshadow.ui.molecules.LocationContext as UILocationContext
 import com.laneshadow.ui.molecules.LocationMode
 import com.laneshadow.ui.molecules.SuggestionChip as UISuggestionChip
@@ -60,6 +59,8 @@ fun IdleScreen(
     onCollapse: () -> Unit,
     onFilter: () -> Unit,
     onValueChange: (String) -> Unit,
+    autocompleteRecommendations: List<AutocompleteRecommendation> = emptyList(),
+    onAutocompleteRecommendationTap: (AutocompleteRecommendation) -> Unit = {},
     onLocationModeChange: (String) -> Unit = {},
     mapContent: @Composable (IdleScreenState) -> Unit = { screenState ->
         LSMap(
@@ -138,6 +139,8 @@ fun IdleScreen(
                         suggestions = state.suggestions.map { mockChip ->
                             UISuggestionChip(label = mockChip.label)
                         },
+                        autocompleteRecommendations = autocompleteRecommendations,
+                        onAutocompleteRecommendationTap = onAutocompleteRecommendationTap,
                         onSuggestionTap = { uiChip ->
                             val originalChip = state.suggestions.firstOrNull { it.label == uiChip.label }
                             onSuggestionTap(originalChip ?: MockSuggestionChip(id = "", label = uiChip.label))

@@ -1,15 +1,16 @@
 package com.laneshadow.services
 
+import android.net.Uri
 import com.google.common.truth.Truth.assertThat
+import com.laneshadow.data.model.AuthState
+import com.laneshadow.data.model.ClerkUser
+import com.laneshadow.data.repository.AuthRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class ConvexClientProviderTest {
-
-    // AC-2: ConvexClientProvider.reverseGeocode calls Convex action
     @Test
     fun reverseGeocode_callsConvexAction() = runTest {
-        // GIVEN: ConvexClientProvider with mocked gateway
         val geocodeResult = GeocodeResult(
             label = "Santa Cruz, CA",
             placeId = "place-123",
@@ -17,55 +18,142 @@ class ConvexClientProviderTest {
         val fakeGateway = FakeConvexGateway(
             geocodeResult = geocodeResult,
         )
-        val provider = TestConvexClientProvider(
-            gateway = fakeGateway,
-        )
+        val provider = createProvider(fakeGateway)
 
-        // WHEN: reverseGeocode is called with coordinates
         val result = provider.reverseGeocode(36.97, -122.03)
 
-        // THEN: Result succeeds with expected label
         assertThat(result.isSuccess).isTrue()
         val geocode = result.getOrThrow()
         assertThat(geocode.label).isEqualTo("Santa Cruz, CA")
         assertThat(geocode.placeId).isEqualTo("place-123")
     }
 
-    // AC-2: ConvexClientProvider.reverseGeocode handles errors
     @Test
     fun reverseGeocode_handlesConvexErrors() = runTest {
-        // GIVEN: ConvexClientProvider with failing gateway
         val fakeGateway = FakeConvexGateway(
             error = RuntimeException("Convex unavailable"),
         )
-        val provider = TestConvexClientProvider(
-            gateway = fakeGateway,
-        )
+        val provider = createProvider(fakeGateway)
 
-        // WHEN: reverseGeocode is called
         val result = provider.reverseGeocode(36.97, -122.03)
 
-        // THEN: Result fails with error
         assertThat(result.isFailure).isTrue()
         assertThat(result.exceptionOrNull()?.message).contains("Convex unavailable")
     }
+
+    @Test
+    fun suggestPlaces_bindsAuthAndPassesThroughQueryProximityAndSession() = runTest {
+        val suggestions = listOf(
+            PlaceSuggestionResult(
+                id = "place-big-sur",
+                name = "Big Sur",
+                label = "Big Sur, CA",
+                secondaryText = "California",
+                featureType = "place",
+                distanceMeters = 1200.0,
+            ),
+        )
+        val fakeGateway = FakeConvexGateway(
+            suggestPlacesResult = suggestions,
+        )
+        val provider = createProvider(fakeGateway)
+
+        val result = provider.suggestPlaces(
+            query = "Big Sur",
+            proximity = PlaceAutocompleteProximity(lat = 36.97, lng = -122.03),
+            sessionToken = "session-123",
+        )
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrThrow()).containsExactlyElementsIn(suggestions)
+        assertThat(fakeGateway.lastBoundToken).isEqualTo("test-jwt")
+        assertThat(fakeGateway.lastSuggestCall).isEqualTo(
+            SuggestPlacesCall(
+                query = "Big Sur",
+                proximity = PlaceAutocompleteProximity(lat = 36.97, lng = -122.03),
+                sessionToken = "session-123",
+            ),
+        )
+    }
+
+    @Test
+    fun retrievePlace_returnsSelectedPlace() = runTest {
+        val selectedPlace = SelectedPlaceResult(
+            id = "mapbox-big-sur",
+            name = "Big Sur",
+            label = "Big Sur, CA",
+            lat = 36.2704,
+            lng = -121.8081,
+            featureType = "place",
+        )
+        val fakeGateway = FakeConvexGateway(
+            selectedPlaceResult = selectedPlace,
+        )
+        val provider = createProvider(fakeGateway)
+
+        val result = provider.retrievePlace(
+            mapboxId = "mapbox-big-sur",
+            sessionToken = "session-123",
+        )
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrThrow()).isEqualTo(selectedPlace)
+        assertThat(fakeGateway.lastRetrieveCall).isEqualTo(
+            RetrievePlaceCall(
+                mapboxId = "mapbox-big-sur",
+                sessionToken = "session-123",
+            ),
+        )
+    }
 }
 
-/**
- * Fake ConvexGateway for testing
- */
+private fun createProvider(gateway: FakeConvexGateway): ConvexClientProvider {
+    return ConvexClientProvider(
+        authRepository = TestAuthRepository(),
+        appContext = android.app.Application(),
+        convexGateway = gateway,
+    )
+}
+
 internal class FakeConvexGateway(
     private val geocodeResult: GeocodeResult? = null,
+    private val suggestPlacesResult: List<PlaceSuggestionResult> = emptyList(),
+    private val selectedPlaceResult: SelectedPlaceResult? = null,
     private val error: Throwable? = null,
 ) : ConvexGateway {
+    var lastBoundToken: String? = null
+    var lastSuggestCall: SuggestPlacesCall? = null
+    var lastRetrieveCall: RetrievePlaceCall? = null
 
     override suspend fun reverseGeocode(lat: Double, lng: Double): GeocodeResult {
         error?.let { throw it }
         return geocodeResult ?: throw IllegalStateException("No result configured")
     }
 
-    // Stub implementations for other methods
-    override suspend fun bindAuthToken(token: String): Result<Unit> = Result.success(Unit)
+    override suspend fun suggestPlaces(
+        query: String,
+        proximity: PlaceAutocompleteProximity?,
+        sessionToken: String,
+    ): List<PlaceSuggestionResult> {
+        error?.let { throw it }
+        lastSuggestCall = SuggestPlacesCall(query = query, proximity = proximity, sessionToken = sessionToken)
+        return suggestPlacesResult
+    }
+
+    override suspend fun retrievePlace(
+        mapboxId: String,
+        sessionToken: String,
+    ): SelectedPlaceResult {
+        error?.let { throw it }
+        lastRetrieveCall = RetrievePlaceCall(mapboxId = mapboxId, sessionToken = sessionToken)
+        return selectedPlaceResult ?: throw IllegalStateException("No selected place configured")
+    }
+
+    override suspend fun bindAuthToken(token: String): Result<Unit> {
+        lastBoundToken = token
+        return Result.success(Unit)
+    }
+
     override suspend fun clearAuth(context: android.content.Context): Result<Unit> = Result.success(Unit)
     override suspend fun getCurrentUser(): ConvexCurrentUser? = null
     override fun observeCurrentUser(): kotlinx.coroutines.flow.Flow<ConvexCurrentUser?> = kotlinx.coroutines.flow.flowOf(null)
@@ -77,24 +165,57 @@ internal class FakeConvexGateway(
     override suspend fun sendMessage(sessionId: String, content: String, currentLocation: com.laneshadow.ui.atoms.LatLng?): Result<ConvexSendMessageResponseDto> = Result.success(ConvexSendMessageResponseDto("", "", emptyList()))
     override suspend fun createSession(firstMessage: String): Result<String> = Result.success("sess-123")
     override suspend fun cancelPlan(routePlanId: String): Result<Unit> = Result.success(Unit)
-    override suspend fun getCurrentWeather(lat: Double, lng: Double): com.laneshadow.data.dto.WeatherDto {
-        // Use the correct constructor for WeatherDto
-        return com.laneshadow.data.dto.WeatherDto(
+    override suspend fun getCurrentWeather(lat: Double, lng: Double): com.laneshadow.data.dto.WeatherDto =
+        com.laneshadow.data.dto.WeatherDto(
             tempFahrenheit = 68.0,
             condition = "Clear",
             severity = "none",
             dayOfWeek = "MONDAY",
         )
-    }
 }
 
-/**
- * Test-only ConvexClientProvider constructor
- */
-internal class TestConvexClientProvider(
-    private val gateway: ConvexGateway,
-) {
-    suspend fun reverseGeocode(lat: Double, lng: Double): Result<GeocodeResult> = runCatching {
-        gateway.reverseGeocode(lat, lng)
-    }
+internal data class SuggestPlacesCall(
+    val query: String,
+    val proximity: PlaceAutocompleteProximity?,
+    val sessionToken: String,
+)
+
+internal data class RetrievePlaceCall(
+    val mapboxId: String,
+    val sessionToken: String,
+)
+
+private class TestAuthRepository : AuthRepository {
+    private val authState = kotlinx.coroutines.flow.MutableStateFlow<AuthState>(
+        AuthState.SignedIn(ClerkUser("id", "test@example.com", "Test Rider", "token")),
+    )
+
+    override suspend fun signIn(email: String, password: String): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException())
+
+    override suspend fun signUp(email: String, password: String, name: String): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException())
+
+    override suspend fun completeSignUpVerification(code: String): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException())
+
+    override suspend fun signOut(): Result<Unit> = Result.success(Unit)
+
+    override suspend fun handleUnauthenticated(message: String): Result<Unit> = Result.success(Unit)
+
+    override suspend fun signInWithGoogle(): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException())
+
+    override suspend fun signInWithApple(): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException())
+
+    override suspend fun handleOAuthCallback(uri: Uri): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException())
+
+    override suspend fun getJwtForConvex(): String = "test-jwt"
+
+    override suspend fun bypassForTesting(): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException())
+
+    override fun observeAuthState() = authState
 }
