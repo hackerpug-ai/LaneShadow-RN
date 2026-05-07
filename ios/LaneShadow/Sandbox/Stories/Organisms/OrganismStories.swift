@@ -16,6 +16,7 @@ enum OrganismStories {
         stories += LSRouteCardStory.all
         stories += LSRouteSheetStory.all
         stories += LSSessionsDrawerStory.all
+        stories += LSMapControlsStory.all
         return stories
     }()
 }

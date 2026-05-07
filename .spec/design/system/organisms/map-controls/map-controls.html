@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<!-- map-controls.html — org-map-controls Organism Preview
+     LaneShadow V2 Copper · Map View Right-Side Workbar · Map View Redesign 2026-05-06
+     Authority: react-native/components/map/map-controls.tsx (production reference)
+
+     PURPOSE
+     Right-side vertical workbar that slots into `org-map-layer__top-overlay`.
+     Mirrors the production MapControls component used in the React Native app.
+     Provides zoom, recenter, layers/reset, save-route, and mode-toggle chips
+     in glass containers consistent with `org-topbar` chrome aesthetic. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>org-map-controls — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../../molecules/_atoms.css">
+<link rel="stylesheet" href="../_molecules.css">
+<style>
+/* ═══════════════════════════════════════════════════════
+   org-map-controls — vertical workbar
+   Stack order top→bottom:
+     1. Zoom cluster  (+/-, single divided glass card)
+     2. Recenter
+     3. Layers / Reset
+     4. Save route   (conditional — when route exists)
+     5. Mode toggle  (chat icon in map mode, map icon in chat mode)
+   ═══════════════════════════════════════════════════════ */
+.org-map-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  pointer-events: auto;
+}
+
+/* ── Individual square chip (40×40pt) ──────────────────────────── */
+.org-map-controls__chip {
+  width: var(--space-9);            /* 40pt */
+  height: var(--space-9);
+  border-radius: var(--radius-md);
+  background: var(--surface-overlay);
+  border: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-chrome);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--content-primary);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.org-map-controls__chip svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+
+/* ── Zoom cluster — paired +/- chips with internal divider ───── */
+.org-map-controls__zoom-cluster {
+  width: var(--space-9);
+  border-radius: var(--radius-md);
+  background: var(--surface-overlay);
+  border: var(--stroke-sm) solid var(--border-default);
+  box-shadow: var(--elev-chrome);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.org-map-controls__zoom-btn {
+  height: var(--space-9);            /* 40pt each */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--content-primary);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  flex-shrink: 0;
+}
+
+.org-map-controls__zoom-btn svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--stroke-md);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+
+.org-map-controls__zoom-divider {
+  height: var(--stroke-sm);
+  background: var(--border-default);
+  margin: 0 var(--space-3);
+}
+
+/* ── Save chip — copper accent when isSavedRoute ─────────────── */
+.org-map-controls__chip--saved {
+  background: var(--signal-default);
+  border-color: var(--signal-default);
+  color: var(--content-on-signal);
+}
+
+/* ── Pressed/active state (preview only — no JS) ─────────────── */
+.org-map-controls__chip:hover,
+.org-map-controls__zoom-btn:hover {
+  background: var(--surface-card);
+}
+
+/* ═══════════════════════════════════════════════════════
+   PREVIEW LOCAL CSS
+   ═══════════════════════════════════════════════════════ */
+.story-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-7);
+  margin-top: var(--space-5);
+}
+@media (max-width: 720px) {
+  .story-grid { grid-template-columns: 1fr; }
+}
+
+.story-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.story-caption {
+  font-family: var(--font-instrument);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--signal-default);
+}
+
+.story-desc {
+  font-family: var(--font-opinion);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 12px;
+  color: var(--content-secondary);
+  line-height: 1.55;
+}
+
+/* Mock map stage */
+.story-stage {
+  position: relative;
+  background: var(--map-paper);
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: var(--space-8) var(--space-8);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  height: 320px;
+  padding: var(--space-4);
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.theme-pane.mode-dark .story-stage {
+  background-color: var(--ink-700);
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1>org-map-<em>controls</em></h1>
+  <p class="subtitle">Right-side vertical workbar · zoom · recenter · layers · save · mode toggle · Mirrors react-native MapControls</p>
+</div>
+
+<!-- ══ §01 STATE VARIANTS — LIGHT ════════════════════════════════════ -->
+<div class="section">
+  <div class="section-label">State Variants — Light</div>
+  <div class="story-grid">
+
+    <!-- ── --map mode · no route ──────────────────────────────── -->
+    <div class="story-cell">
+      <p class="story-caption">--map mode · no route</p>
+      <div class="story-stage">
+        <div class="org-map-controls">
+
+          <!-- Zoom cluster -->
+          <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+            <button class="org-map-controls__zoom-btn" aria-label="Zoom in">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <div class="org-map-controls__zoom-divider"></div>
+            <button class="org-map-controls__zoom-btn" aria-label="Zoom out">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+            </button>
+          </div>
+
+          <!-- Recenter -->
+          <button class="org-map-controls__chip" aria-label="Recenter map">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3"/>
+              <circle cx="12" cy="12" r="8"/>
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+            </svg>
+          </button>
+
+          <!-- Layers / Reset -->
+          <button class="org-map-controls__chip" aria-label="Toggle layers">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3 2 9l10 6 10-6-10-6Z"/>
+              <path d="M2 15l10 6 10-6"/>
+            </svg>
+          </button>
+
+          <!-- Mode toggle (chat icon when in map mode) -->
+          <button class="org-map-controls__chip" aria-label="Open chat">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/>
+            </svg>
+          </button>
+
+        </div>
+      </div>
+      <p class="story-desc">Default state for idle / planning / sessions / error. Zoom + recenter + layers + chat-mode toggle. Save chip hidden (no route).</p>
+    </div>
+
+    <!-- ── --map mode · with route ────────────────────────────── -->
+    <div class="story-cell">
+      <p class="story-caption">--map mode · with route</p>
+      <div class="story-stage">
+        <div class="org-map-controls">
+
+          <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+            <button class="org-map-controls__zoom-btn" aria-label="Zoom in">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <div class="org-map-controls__zoom-divider"></div>
+            <button class="org-map-controls__zoom-btn" aria-label="Zoom out">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+            </button>
+          </div>
+
+          <button class="org-map-controls__chip" aria-label="Recenter map">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3"/>
+              <circle cx="12" cy="12" r="8"/>
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+            </svg>
+          </button>
+
+          <button class="org-map-controls__chip" aria-label="Toggle layers">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3 2 9l10 6 10-6-10-6Z"/>
+              <path d="M2 15l10 6 10-6"/>
+            </svg>
+          </button>
+
+          <!-- Save route -->
+          <button class="org-map-controls__chip" aria-label="Save route">
+            <svg viewBox="0 0 24 24">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16Z"/>
+            </svg>
+          </button>
+
+          <button class="org-map-controls__chip" aria-label="Open chat">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/>
+            </svg>
+          </button>
+
+        </div>
+      </div>
+      <p class="story-desc">Route-results / route-details state. Save bookmark chip appears below layers.</p>
+    </div>
+
+    <!-- ── --map mode · saved route ─────────────────────────── -->
+    <div class="story-cell">
+      <p class="story-caption">--map mode · saved (favorited)</p>
+      <div class="story-stage">
+        <div class="org-map-controls">
+
+          <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+            <button class="org-map-controls__zoom-btn" aria-label="Zoom in">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <div class="org-map-controls__zoom-divider"></div>
+            <button class="org-map-controls__zoom-btn" aria-label="Zoom out">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+            </button>
+          </div>
+
+          <button class="org-map-controls__chip" aria-label="Recenter map">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3"/>
+              <circle cx="12" cy="12" r="8"/>
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+            </svg>
+          </button>
+
+          <button class="org-map-controls__chip" aria-label="Toggle layers">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3 2 9l10 6 10-6-10-6Z"/>
+              <path d="M2 15l10 6 10-6"/>
+            </svg>
+          </button>
+
+          <button class="org-map-controls__chip org-map-controls__chip--saved" aria-label="Saved route">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16Z"/>
+            </svg>
+          </button>
+
+          <button class="org-map-controls__chip" aria-label="Open chat">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/>
+            </svg>
+          </button>
+
+        </div>
+      </div>
+      <p class="story-desc">Save chip flips to copper signal fill when isSavedRoute is true. Bookmark glyph filled.</p>
+    </div>
+
+    <!-- ── --chat mode ─────────────────────────────────────── -->
+    <div class="story-cell">
+      <p class="story-caption">--chat mode</p>
+      <div class="story-stage">
+        <div class="org-map-controls">
+          <!-- In chat mode, the workbar collapses to just the mode-toggle.
+               Single chip shows map icon to return rider to map. -->
+          <button class="org-map-controls__chip" aria-label="Back to map">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 4 4 6.5v13l5-2.5 6 3 5-2.5v-13l-5 2.5-6-3Z"/>
+              <path d="M9 4v15M15 7v15"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <p class="story-desc">When the rider opens the chat-mode view, all map-specific controls collapse and the toggle slot becomes a "back to map" chip.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ §02 DARK ════════════════════════════════════════════════════ -->
+<div class="section theme-pane mode-dark" data-theme="dark" style="background:var(--surface-primary);padding:var(--space-9);border-radius:var(--radius-xl);margin-top:var(--space-9);">
+  <div class="section-label" style="color:var(--content-secondary);">State Variants — Dark</div>
+  <div class="story-grid">
+
+    <div class="story-cell">
+      <p class="story-caption">--map mode · no route · dark</p>
+      <div class="story-stage">
+        <div class="org-map-controls">
+          <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+            <button class="org-map-controls__zoom-btn" aria-label="Zoom in">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <div class="org-map-controls__zoom-divider"></div>
+            <button class="org-map-controls__zoom-btn" aria-label="Zoom out">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+            </button>
+          </div>
+          <button class="org-map-controls__chip" aria-label="Recenter map">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3"/>
+              <circle cx="12" cy="12" r="8"/>
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+            </svg>
+          </button>
+          <button class="org-map-controls__chip" aria-label="Toggle layers">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3 2 9l10 6 10-6-10-6Z"/>
+              <path d="M2 15l10 6 10-6"/>
+            </svg>
+          </button>
+          <button class="org-map-controls__chip" aria-label="Open chat">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <p class="story-desc" style="color:var(--content-secondary);">Glass surface re-resolves to dark. Stroke-md icons remain content-primary on dark.</p>
+    </div>
+
+    <div class="story-cell">
+      <p class="story-caption">--map mode · saved · dark</p>
+      <div class="story-stage">
+        <div class="org-map-controls">
+          <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+            <button class="org-map-controls__zoom-btn" aria-label="Zoom in">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <div class="org-map-controls__zoom-divider"></div>
+            <button class="org-map-controls__zoom-btn" aria-label="Zoom out">
+              <svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>
+            </button>
+          </div>
+          <button class="org-map-controls__chip" aria-label="Recenter map">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3"/>
+              <circle cx="12" cy="12" r="8"/>
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+            </svg>
+          </button>
+          <button class="org-map-controls__chip" aria-label="Toggle layers">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3 2 9l10 6 10-6-10-6Z"/>
+              <path d="M2 15l10 6 10-6"/>
+            </svg>
+          </button>
+          <button class="org-map-controls__chip org-map-controls__chip--saved" aria-label="Saved route">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16Z"/>
+            </svg>
+          </button>
+          <button class="org-map-controls__chip" aria-label="Open chat">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <p class="story-desc" style="color:var(--content-secondary);">Copper signal save state remains identical brand color across themes.</p>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<!-- context-capsule.html — mol-context-capsule Molecule Preview
+     LaneShadow V2 Copper · Top-overlay Capsule · Map View Redesign 2026-05-06
+     Authority: design plan frontend-design-frontend-design-we-prob-unified-squirrel.md
+
+     PURPOSE
+     A single evolving glass container that lives in the
+     `org-map-layer__top-overlay` slot. Replaces the floating
+     `view-idle-screen__greeting` headline and unifies the top-overlay slot
+     across all map views by exposing state variants for idle, planning, and
+     route-selected modes.
+
+     CONTAINER PRINCIPLE
+     This molecule is the canonical implementation of the "all system text not
+     part of the map lives in a glass container" rule introduced in the
+     map-view redesign. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>mol-context-capsule — LaneShadow V2 Copper</title>
+<link rel="stylesheet" href="../../typography/fonts.css">
+<link rel="stylesheet" href="../../tokens/tokens.css">
+<link rel="stylesheet" href="../../typography/type-modules.css">
+<link rel="stylesheet" href="../../atoms/_preview.css">
+<link rel="stylesheet" href="../_atoms.css">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   mol-context-capsule — top-overlay glass container
+   States: --idle, --planning, --route
+   Hidden in: error-screen, auth-screen, sessions-screen
+   ═══════════════════════════════════════════════════════════════════ */
+
+.mol-context-capsule {
+  background: var(--surface-glass);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elev-overlay);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 220px;
+  max-width: 340px;
+  pointer-events: auto;
+}
+
+/* ── Headline (Newsreader, italic scope-word in copper) ─────────── */
+.mol-context-capsule__headline {
+  color: var(--content-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mol-context-capsule__headline em {
+  font-style: italic;
+  color: var(--signal-default);
+  font-weight: 500;
+}
+
+/* ── Meta row (day · temp · cond OR distance · duration · ETA) ──── */
+.mol-context-capsule__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--content-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.mol-context-capsule__meta-dot {
+  width: var(--space-1);
+  height: var(--space-1);
+  border-radius: var(--radius-pill);
+  background: currentColor;
+  opacity: 0.45;
+  flex-shrink: 0;
+}
+
+/* ── Spinner (planning state) ───────────────────────────────────── */
+.mol-context-capsule__spinner {
+  width: var(--space-3);
+  height: var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--signal-default);
+  flex-shrink: 0;
+  animation: capsulePulse 1.4s ease-in-out infinite;
+}
+
+@keyframes capsulePulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mol-context-capsule__spinner { animation: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   STATE VARIANTS
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* --idle — greeting + meta dot row (default) */
+.mol-context-capsule--idle .mol-context-capsule__headline {
+  /* Typography classes (.t-opinion-md) provide family/size/weight */
+}
+
+/* --planning — single line + spinner, side-by-side layout */
+.mol-context-capsule--planning {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.mol-context-capsule--planning .mol-context-capsule__headline {
+  font-style: italic;
+}
+
+/* --route — route name as italic em headline + key metrics */
+.mol-context-capsule--route .mol-context-capsule__headline {
+  font-style: normal;
+}
+
+.mol-context-capsule--route .mol-context-capsule__headline em {
+  font-style: italic;
+  color: var(--content-primary);   /* route name stays in primary, not signal */
+}
+
+.mol-context-capsule--route .mol-context-capsule__meta {
+  color: var(--content-tertiary);  /* metrics demoted */
+  font-family: var(--font-instrument);
+}
+
+/* --warning — meta row tints to status-warning (severe weather) */
+.mol-context-capsule--warning .mol-context-capsule__meta {
+  color: var(--status-warning);
+}
+
+/* --saved — copper accent on metric label when route is favorited */
+.mol-context-capsule--saved::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: var(--stroke-sm) solid var(--signal-default);
+  pointer-events: none;
+}
+
+.mol-context-capsule--saved {
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PREVIEW LOCAL CSS — for this preview document only
+   ═══════════════════════════════════════════════════════════════════ */
+.story-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-7);
+  margin-top: var(--space-5);
+}
+@media (max-width: 720px) {
+  .story-grid { grid-template-columns: 1fr; }
+}
+
+.story-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.story-cell .story-caption {
+  font-family: var(--font-instrument);
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--signal-default);
+}
+
+.story-cell .story-desc {
+  font-family: var(--font-opinion);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 12px;
+  color: var(--content-secondary);
+  line-height: 1.55;
+}
+
+/* Mock map background per cell so the glass effect reads */
+.story-stage {
+  position: relative;
+  padding: var(--space-7);
+  background: var(--map-paper);
+  background-image:
+    linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
+  background-size: var(--space-8) var(--space-8);
+  border: var(--stroke-sm) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  min-height: 120px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.theme-pane.mode-dark .story-stage {
+  background-color: var(--ink-700);
+}
+</style>
+</head>
+<body>
+
+<div class="preview-header">
+  <h1>mol-context-<em>capsule</em></h1>
+  <p class="subtitle">Top-overlay glass container · idle / planning / route states · Container Principle exemplar</p>
+</div>
+
+<!-- ══ §01 STATE VARIANTS — LIGHT THEME ══════════════════════════════ -->
+<div class="section">
+  <div class="section-label">State Variants — Light</div>
+  <div class="story-grid">
+
+    <!-- ── --idle · default greeting ─────────────────────────── -->
+    <div class="story-cell">
+      <p class="story-caption">--idle · default · day scope</p>
+      <div class="story-stage">
+        <div class="mol-context-capsule mol-context-capsule--idle">
+          <div class="mol-context-capsule__headline t-opinion-md">
+            Where are we riding <em>today</em>, Justin?
+          </div>
+          <div class="mol-context-capsule__meta t-label-sm">
+            <span>Friday</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>68°F</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>Clear</span>
+          </div>
+        </div>
+      </div>
+      <p class="story-desc">Default state. Newsreader italic scope-word in copper signal · meta dot row in content-secondary.</p>
+    </div>
+
+    <!-- ── --idle · evening scope ────────────────────────────── -->
+    <div class="story-cell">
+      <p class="story-caption">--idle · evening scope</p>
+      <div class="story-stage">
+        <div class="mol-context-capsule mol-context-capsule--idle">
+          <div class="mol-context-capsule__headline t-opinion-md">
+            Where are we riding <em>tonight</em>, Justin?
+          </div>
+          <div class="mol-context-capsule__meta t-label-sm">
+            <span>Friday</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>62°F</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>Clear</span>
+          </div>
+        </div>
+      </div>
+      <p class="story-desc">Greeting.scope swaps "today" → "tonight" between hours 18–04 (per IDLE-S06 task #1224).</p>
+    </div>
+
+    <!-- ── --idle · no location ──────────────────────────────── -->
+    <div class="story-cell">
+      <p class="story-caption">--idle · no location</p>
+      <div class="story-stage">
+        <div class="mol-context-capsule mol-context-capsule--idle">
+          <div class="mol-context-capsule__headline t-opinion-md">
+            Where are we <em>starting</em> from?
+          </div>
+          <div class="mol-context-capsule__meta t-label-sm">
+            <span>Friday</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>68°F</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>Clear</span>
+          </div>
+        </div>
+      </div>
+      <p class="story-desc">GPS denied, no manual pin yet. Greeting reframes from "where are we riding" to "where are we starting from."</p>
+    </div>
+
+    <!-- ── --idle · weather warning ──────────────────────────── -->
+    <div class="story-cell">
+      <p class="story-caption">--idle · weather advisory</p>
+      <div class="story-stage">
+        <div class="mol-context-capsule mol-context-capsule--idle mol-context-capsule--warning">
+          <div class="mol-context-capsule__headline t-opinion-md">
+            Not the <em>prettiest</em> day for it.
+          </div>
+          <div class="mol-context-capsule__meta t-label-sm">
+            <span>Friday</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>52°F</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>Rain · 0.4″</span>
+          </div>
+        </div>
+      </div>
+      <p class="story-desc">WeatherSummary.severity ≥ advisory. Meta row tints --status-warning. Capsule replaces the legacy view-local advisory card.</p>
+    </div>
+
+    <!-- ── --idle · first ride ──────────────────────────────── -->
+    <div class="story-cell">
+      <p class="story-caption">--idle · first ride</p>
+      <div class="story-stage">
+        <div class="mol-context-capsule mol-context-capsule--idle">
+          <div class="mol-context-capsule__headline t-opinion-md">
+            First ride? <em>Ask</em> me anything.
+          </div>
+          <div class="mol-context-capsule__meta t-label-sm">
+            <span>Friday</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>68°F</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>Clear</span>
+          </div>
+        </div>
+      </div>
+      <p class="story-desc">Onboarding-grade greeting when there are no saved favorites. Italic em on "Ask".</p>
+    </div>
+
+    <!-- ── --planning ────────────────────────────────────────── -->
+    <div class="story-cell">
+      <p class="story-caption">--planning</p>
+      <div class="story-stage">
+        <div class="mol-context-capsule mol-context-capsule--planning">
+          <div class="mol-context-capsule__spinner" aria-hidden="true"></div>
+          <div class="mol-context-capsule__headline t-opinion-sm">
+            Sketching a coastal loop…
+          </div>
+        </div>
+      </div>
+      <p class="story-desc">Navigator is composing. Single-line layout with copper pulse-dot. Replaces UC-MOL-07 LSPhaseIndicator's pinned card in planning-screen top slot.</p>
+    </div>
+
+    <!-- ── --route · selected ────────────────────────────────── -->
+    <div class="story-cell">
+      <p class="story-caption">--route · selected</p>
+      <div class="story-stage">
+        <div class="mol-context-capsule mol-context-capsule--route">
+          <div class="mol-context-capsule__headline t-opinion-md">
+            <em>Coastal cruise</em>
+          </div>
+          <div class="mol-context-capsule__meta t-label-sm">
+            <span>47 mi</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>2h 15m</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>arr 4:32p</span>
+          </div>
+        </div>
+      </div>
+      <p class="story-desc">Replaces greeting once a route is selected. Route name in italic Newsreader em, metrics in JetBrains Mono content-tertiary.</p>
+    </div>
+
+    <!-- ── --route · saved ───────────────────────────────────── -->
+    <div class="story-cell">
+      <p class="story-caption">--route · saved (favorited)</p>
+      <div class="story-stage">
+        <div class="mol-context-capsule mol-context-capsule--route mol-context-capsule--saved">
+          <div class="mol-context-capsule__headline t-opinion-md">
+            <em>Mountain Pass Sunrise</em>
+          </div>
+          <div class="mol-context-capsule__meta t-label-sm">
+            <span>62 mi</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>3h 02m</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>arr 9:18a</span>
+          </div>
+        </div>
+      </div>
+      <p class="story-desc">Copper signal hairline indicates the route is in the rider's saved list. Save toggle lives in org-map-controls bookmark chip.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ §02 DARK THEME ══════════════════════════════════════════════ -->
+<div class="section theme-pane mode-dark" data-theme="dark" style="background:var(--surface-primary);padding:var(--space-9);border-radius:var(--radius-xl);margin-top:var(--space-9);">
+  <div class="section-label" style="color:var(--content-secondary);">State Variants — Dark</div>
+  <div class="story-grid">
+
+    <div class="story-cell">
+      <p class="story-caption">--idle · evening · dark</p>
+      <div class="story-stage">
+        <div class="mol-context-capsule mol-context-capsule--idle">
+          <div class="mol-context-capsule__headline t-opinion-md">
+            Where are we riding <em>tonight</em>, Justin?
+          </div>
+          <div class="mol-context-capsule__meta t-label-sm">
+            <span>Friday</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>54°F</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>Clear</span>
+          </div>
+        </div>
+      </div>
+      <p class="story-desc" style="color:var(--content-secondary);">Glass surface re-resolves to dark. Copper "tonight" remains identical brand signal.</p>
+    </div>
+
+    <div class="story-cell">
+      <p class="story-caption">--route · dark</p>
+      <div class="story-stage">
+        <div class="mol-context-capsule mol-context-capsule--route">
+          <div class="mol-context-capsule__headline t-opinion-md">
+            <em>Big Cottonwood loop</em>
+          </div>
+          <div class="mol-context-capsule__meta t-label-sm">
+            <span>62 mi</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>3h 02m</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>arr 9:18p</span>
+          </div>
+        </div>
+      </div>
+      <p class="story-desc" style="color:var(--content-secondary);">Route metrics in JetBrains Mono · content-tertiary on dark.</p>
+    </div>
+
+    <div class="story-cell">
+      <p class="story-caption">--planning · dark</p>
+      <div class="story-stage">
+        <div class="mol-context-capsule mol-context-capsule--planning">
+          <div class="mol-context-capsule__spinner" aria-hidden="true"></div>
+          <div class="mol-context-capsule__headline t-opinion-sm">
+            Asking the weather service…
+          </div>
+        </div>
+      </div>
+      <p class="story-desc" style="color:var(--content-secondary);">Pulse-dot animation respects prefers-reduced-motion.</p>
+    </div>
+
+    <div class="story-cell">
+      <p class="story-caption">--idle · weather warning · dark</p>
+      <div class="story-stage">
+        <div class="mol-context-capsule mol-context-capsule--idle mol-context-capsule--warning">
+          <div class="mol-context-capsule__headline t-opinion-md">
+            Not the <em>prettiest</em> night for it.
+          </div>
+          <div class="mol-context-capsule__meta t-label-sm">
+            <span>Friday</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>38°F</span>
+            <span class="mol-context-capsule__meta-dot"></span>
+            <span>Snow · 1.2″</span>
+          </div>
+        </div>
+      </div>
+      <p class="story-desc" style="color:var(--content-secondary);">--status-warning re-resolves on dark substrate.</p>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
