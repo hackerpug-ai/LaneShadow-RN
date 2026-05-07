@@ -199,6 +199,6 @@ enum LSMapControlsStory {
                 .environment(\.colorScheme, .dark)
                 .padding()
             }
-        }
+        },
     ]
 }

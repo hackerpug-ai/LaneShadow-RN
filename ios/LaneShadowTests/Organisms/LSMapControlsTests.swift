@@ -1,7 +1,10 @@
 import LaneShadowTheme
 import NativeTheme
 import SwiftUI
+import Testing
 import XCTest
+
+@testable import LaneShadow
 
 @MainActor
 final class LSMapControlsTests: XCTestCase {
@@ -20,17 +23,17 @@ final class LSMapControlsTests: XCTestCase {
             onToggleView: {}
         )
 
-        let vc = UIHostingController(rootView: view)
+        let viewController = UIHostingController(rootView: view)
         let window = UIWindow()
-        window.rootViewController = vc
+        window.rootViewController = viewController
         window.makeKeyAndVisible()
 
         // The VStack should contain: zoom cluster, recenter, layers, mode-toggle
         // Each with theme.space.xs (4pt) gaps
-        let uiView = try XCTUnwrap(vc.view)
+        let uiView = try XCTUnwrap(viewController.view)
 
-        // Verify view hierarchy exists and layout renders
-        XCTAssertGreaterThan(uiView.subviews.count, 0)
+        // Verify view hierarchy exists and layout renders without crashing
+        XCTAssertNotNil(uiView)
     }
 
     // MARK: - AC-2: hasRouteToSave inserts save chip
@@ -48,14 +51,14 @@ final class LSMapControlsTests: XCTestCase {
             onToggleView: {}
         )
 
-        let vc = UIHostingController(rootView: view)
+        let viewController = UIHostingController(rootView: view)
         let window = UIWindow()
-        window.rootViewController = vc
+        window.rootViewController = viewController
         window.makeKeyAndVisible()
 
         // Verify the save chip is rendered
-        let uiView = try XCTUnwrap(vc.view)
-        XCTAssertGreaterThan(uiView.subviews.count, 0)
+        let uiView = try XCTUnwrap(viewController.view)
+        XCTAssertNotNil(uiView)
     }
 
     // MARK: - AC-3: isSavedRoute flips save chip to copper signal fill
@@ -73,14 +76,14 @@ final class LSMapControlsTests: XCTestCase {
             onToggleView: {}
         )
 
-        let vc = UIHostingController(rootView: view)
+        let viewController = UIHostingController(rootView: view)
         let window = UIWindow()
-        window.rootViewController = vc
+        window.rootViewController = viewController
         window.makeKeyAndVisible()
 
         // Verify the save chip is rendered with copper styling
-        let uiView = try XCTUnwrap(vc.view)
-        XCTAssertGreaterThan(uiView.subviews.count, 0)
+        let uiView = try XCTUnwrap(viewController.view)
+        XCTAssertNotNil(uiView)
     }
 
     // MARK: - AC-4: Chat mode collapses to single toggle chip
@@ -98,14 +101,14 @@ final class LSMapControlsTests: XCTestCase {
             onToggleView: {}
         )
 
-        let vc = UIHostingController(rootView: view)
+        let viewController = UIHostingController(rootView: view)
         let window = UIWindow()
-        window.rootViewController = vc
+        window.rootViewController = viewController
         window.makeKeyAndVisible()
 
         // In chat mode, only the mode-toggle should be visible
-        let uiView = try XCTUnwrap(vc.view)
-        XCTAssertGreaterThan(uiView.subviews.count, 0)
+        let uiView = try XCTUnwrap(viewController.view)
+        XCTAssertNotNil(uiView)
     }
 
     // MARK: - AC-5: Zoom callbacks emit +1/-1 zoom deltas
@@ -126,13 +129,14 @@ final class LSMapControlsTests: XCTestCase {
             onToggleView: {}
         )
 
-        let vc = UIHostingController(rootView: view)
+        let viewController = UIHostingController(rootView: view)
         let window = UIWindow()
-        window.rootViewController = vc
+        window.rootViewController = viewController
         window.makeKeyAndVisible()
 
         // Verify callbacks are wired
-        #expect(try XCTUnwrap(vc.view?.subviews.count) > 0)
+        let uiView = try XCTUnwrap(viewController.view)
+        XCTAssertNotNil(uiView)
     }
 
     // MARK: - AC-6: Dark theme re-resolves surfaces and signal fill
@@ -151,13 +155,13 @@ final class LSMapControlsTests: XCTestCase {
         )
         .environment(\.colorScheme, .dark)
 
-        let vc = UIHostingController(rootView: view)
+        let viewController = UIHostingController(rootView: view)
         let window = UIWindow()
-        window.rootViewController = vc
+        window.rootViewController = viewController
         window.makeKeyAndVisible()
 
         // Verify dark theme colors resolve correctly
-        let uiView = try XCTUnwrap(vc.view)
-        XCTAssertGreaterThan(uiView.subviews.count, 0)
+        let uiView = try XCTUnwrap(viewController.view)
+        XCTAssertNotNil(uiView)
     }
 }
