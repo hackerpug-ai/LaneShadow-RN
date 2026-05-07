@@ -1,5 +1,6 @@
 package com.laneshadow.ui.sandbox
 
+import com.laneshadow.sandbox.stories.organisms.LSMapControlsStory
 import com.laneshadow.ui.sandbox.model.SandboxTier
 import com.laneshadow.ui.sandbox.stories.AppStories
 import com.laneshadow.ui.sandbox.stories.Sprint04ErrorStories
@@ -161,6 +162,31 @@ class AppStoriesRegistryTest {
         allStories.forEach { story ->
             // Content should be a non-null composable lambda
             assertThat(story.content).isNotNull()
+        }
+    }
+
+    @Test
+    fun `map_controls_registers_eight_canonical_stories`() {
+        val mapControlStories = LSMapControlsStory.all
+
+        assertThat(mapControlStories).hasSize(8)
+
+        val ids = mapControlStories.map { it.id }.toSet()
+        assertThat(ids).containsExactly(
+            "organisms.mapcontrols.map-no-route.light",
+            "organisms.mapcontrols.map-no-route.dark",
+            "organisms.mapcontrols.map-with-route.light",
+            "organisms.mapcontrols.map-with-route.dark",
+            "organisms.mapcontrols.map-saved.light",
+            "organisms.mapcontrols.map-saved.dark",
+            "organisms.mapcontrols.chat-mode.light",
+            "organisms.mapcontrols.chat-mode.dark"
+        )
+
+        // Verify each story has correct tier and component
+        mapControlStories.forEach { story ->
+            assertThat(story.tier).isEqualTo(SandboxTier.Organism)
+            assertThat(story.component).isEqualTo("LSMapControls")
         }
     }
 }
