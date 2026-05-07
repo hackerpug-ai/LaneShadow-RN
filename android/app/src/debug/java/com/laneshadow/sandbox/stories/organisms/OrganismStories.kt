@@ -13,5 +13,6 @@ object OrganismStories {
         addAll(LSRouteCardStory.all)
         addAll(LSNavigatorMessageStory.all)
         addAll(LSInlineErrorCalloutStory.all)
+        addAll(LSMapControlsStory.all)
     }
 }

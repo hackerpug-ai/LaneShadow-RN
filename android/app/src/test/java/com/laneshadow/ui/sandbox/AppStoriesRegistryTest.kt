@@ -1,7 +1,6 @@
 package com.laneshadow.ui.sandbox
 
 import com.laneshadow.sandbox.stories.AppStories as DebugAppStories
-import com.laneshadow.sandbox.stories.organisms.LSMapControlsStory
 import com.nativesandbox.model.ComponentTier
 import com.laneshadow.ui.sandbox.model.SandboxTier
 import com.laneshadow.ui.sandbox.stories.AppStories
@@ -189,27 +188,24 @@ class AppStoriesRegistryTest {
     }
 
     @Test
-    fun `map_controls_registers_eight_canonical_stories`() {
-        val mapControlStories = LSMapControlsStory.all
+    fun map_controls_registers_eight_canonical_stories() {
+        val mapControlStories = DebugAppStories.all.filter { it.id.startsWith("organisms.map-controls.") }
 
         assertThat(mapControlStories).hasSize(8)
 
-        val ids = mapControlStories.map { it.id }.toSet()
-        assertThat(ids).containsExactly(
-            "organisms.mapcontrols.map-no-route.light",
-            "organisms.mapcontrols.map-no-route.dark",
-            "organisms.mapcontrols.map-with-route.light",
-            "organisms.mapcontrols.map-with-route.dark",
-            "organisms.mapcontrols.map-saved.light",
-            "organisms.mapcontrols.map-saved.dark",
-            "organisms.mapcontrols.chat-mode.light",
-            "organisms.mapcontrols.chat-mode.dark"
+        assertThat(mapControlStories.map { it.id }).containsExactly(
+            "organisms.map-controls.map-light",
+            "organisms.map-controls.map-dark",
+            "organisms.map-controls.map-with-route-light",
+            "organisms.map-controls.map-with-route-dark",
+            "organisms.map-controls.map-saved-light",
+            "organisms.map-controls.map-saved-dark",
+            "organisms.map-controls.chat-light",
+            "organisms.map-controls.chat-dark"
         )
 
         // Verify each story has correct tier and component
-        mapControlStories.forEach { story ->
-            assertThat(story.tier).isEqualTo(SandboxTier.Organism)
-            assertThat(story.component).isEqualTo("LSMapControls")
-        }
+        assertThat(mapControlStories.map { it.component }.distinct()).containsExactly("LSMapControls")
+        assertThat(mapControlStories.map { it.tier }.distinct()).containsExactly(ComponentTier.Organism)
     }
 }

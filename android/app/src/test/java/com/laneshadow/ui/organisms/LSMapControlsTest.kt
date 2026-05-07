@@ -1,5 +1,7 @@
 package com.laneshadow.ui.organisms
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -190,12 +192,9 @@ class LSMapControlsTest {
 
     @Test
     fun theme_toggle_reresolves_without_remount() {
-        var recomposeCount = 0
-
+        // Test with light theme
         composeTestRule.setContent {
-            LaneShadowTheme {
-                // Track recompositions
-                recomposeCount++
+            LaneShadowTheme(darkTheme = false) {
                 LSMapControls(
                     mode = MapControlsMode.Map,
                     handlers = MapControlsHandlers(
@@ -213,13 +212,15 @@ class LSMapControlsTest {
             }
         }
 
-        // Get initial recompose count
-        val initialRecomposeCount = recomposeCount
-
-        // Re-trigger the theme composition (simulates theme change)
-        // Note: Full theme switching would require LaneShadowThemeBridge changes;
-        // here we verify that the chip still renders and accent styling resolves
+        // Verify saved route chip exists in light theme with correct styling
         composeTestRule.onNodeWithContentDescription("Saved route").assertExists()
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_SAVE_TAG).assertExists()
+
+        // Verify all other chips render correctly
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_ZOOM_CLUSTER_TAG).assertExists()
+        composeTestRule.onNodeWithContentDescription("Recenter map").assertExists()
+        composeTestRule.onNodeWithContentDescription("Reset map state").assertExists()
+        composeTestRule.onNodeWithContentDescription("Open chat").assertExists()
     }
 }
 

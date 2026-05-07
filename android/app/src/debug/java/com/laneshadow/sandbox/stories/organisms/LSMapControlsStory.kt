@@ -10,84 +10,93 @@ import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.organisms.LSMapControls
 import com.laneshadow.ui.organisms.MapControlsHandlers
 import com.laneshadow.ui.organisms.MapControlsMode
-import com.laneshadow.ui.sandbox.model.SandboxStory
-import com.laneshadow.ui.sandbox.model.SandboxTier
+import com.nativesandbox.model.ComponentTier
+import com.nativesandbox.model.PreviewMode
+import com.nativesandbox.model.Story
 
 object LSMapControlsStory {
-    val all: List<SandboxStory> = listOf(
+    val all: List<Story> = listOf(
         // Map mode: no route (light theme)
-        SandboxStory(
-            id = "organisms.mapcontrols.map-no-route.light",
-            tier = SandboxTier.Organism,
+        Story(
+            id = "organisms.map-controls.map-light",
+            tier = ComponentTier.Organism,
             component = "LSMapControls",
             name = "Map — No Route (Light)",
             summary = "Zoom cluster + recenter + layers + chat toggle without save chip.",
+            previewMode = PreviewMode.FullScreen,
             content = { MapNoRouteLight() },
         ),
         // Map mode: no route (dark theme)
-        SandboxStory(
-            id = "organisms.mapcontrols.map-no-route.dark",
-            tier = SandboxTier.Organism,
+        Story(
+            id = "organisms.map-controls.map-dark",
+            tier = ComponentTier.Organism,
             component = "LSMapControls",
             name = "Map — No Route (Dark)",
             summary = "Zoom cluster + recenter + layers + chat toggle without save chip (dark).",
+            previewMode = PreviewMode.FullScreen,
             content = { MapNoRouteDark() },
         ),
 
         // Map mode: with route (light theme)
-        SandboxStory(
-            id = "organisms.mapcontrols.map-with-route.light",
-            tier = SandboxTier.Organism,
+        Story(
+            id = "organisms.map-controls.map-with-route-light",
+            tier = ComponentTier.Organism,
             component = "LSMapControls",
             name = "Map — With Route (Light)",
             summary = "Zoom cluster + recenter + layers + save chip (unsaved) + chat toggle.",
+            previewMode = PreviewMode.FullScreen,
             content = { MapWithRouteLight() },
         ),
         // Map mode: with route (dark theme)
-        SandboxStory(
-            id = "organisms.mapcontrols.map-with-route.dark",
-            tier = SandboxTier.Organism,
+        Story(
+            id = "organisms.map-controls.map-with-route-dark",
+            tier = ComponentTier.Organism,
             component = "LSMapControls",
             name = "Map — With Route (Dark)",
             summary = "Zoom cluster + recenter + layers + save chip (unsaved) + chat toggle (dark).",
+            previewMode = PreviewMode.FullScreen,
             content = { MapWithRouteDark() },
         ),
 
         // Map mode: route saved (light theme)
-        SandboxStory(
-            id = "organisms.mapcontrols.map-saved.light",
-            tier = SandboxTier.Organism,
+        Story(
+            id = "organisms.map-controls.map-saved-light",
+            tier = ComponentTier.Organism,
             component = "LSMapControls",
             name = "Map — Route Saved (Light)",
             summary = "Zoom cluster + recenter + layers + save chip (copper/saved) + chat toggle.",
+            previewMode = PreviewMode.FullScreen,
             content = { MapSavedLight() },
         ),
         // Map mode: route saved (dark theme)
-        SandboxStory(
-            id = "organisms.mapcontrols.map-saved.dark",
-            tier = SandboxTier.Organism,
+        Story(
+            id = "organisms.map-controls.map-saved-dark",
+            tier = ComponentTier.Organism,
             component = "LSMapControls",
             name = "Map — Route Saved (Dark)",
             summary = "Zoom cluster + recenter + layers + save chip (copper/saved) + chat toggle (dark).",
+            previewMode = PreviewMode.FullScreen,
             content = { MapSavedDark() },
         ),
 
         // Chat mode (light theme)
-        SandboxStory(
-            id = "organisms.mapcontrols.chat-mode.light",
-            tier = SandboxTier.Organism,
+        Story(
+            id = "organisms.map-controls.chat-light",
+            tier = ComponentTier.Organism,
             component = "LSMapControls",
             name = "Chat Mode (Light)",
             summary = "Single map-toggle chip at bottom of workbar in chat mode.",
+            previewMode = PreviewMode.FullScreen,
             content = { ChatModeLight() },
         ),
         // Chat mode (dark theme)
-        SandboxStory(
-            id = "organisms.mapcontrols.chat-mode.dark",
-            tier = SandboxTier.Organism,
+        Story(
+            id = "organisms.map-controls.chat-dark",
+            tier = ComponentTier.Organism,
             component = "LSMapControls",
             name = "Chat Mode (Dark)",
             summary = "Single map-toggle chip at bottom of workbar in chat mode (dark).",
+            previewMode = PreviewMode.FullScreen,
             content = { ChatModeDark() },
         ),
     )

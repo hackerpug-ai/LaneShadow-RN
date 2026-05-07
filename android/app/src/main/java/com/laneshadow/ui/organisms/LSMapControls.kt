@@ -5,6 +5,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -94,7 +96,7 @@ fun LSMapControls(
         modifier = modifier
             .semantics { contentDescription = "Map controls workbar" },
         horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.spacedBy(theme.space.sm, Alignment.Bottom),
+        verticalArrangement = Arrangement.spacedBy(theme.space.xs, Alignment.Bottom),
     ) {
         // Render different chip sets based on mode
         when (mode) {
@@ -137,7 +139,7 @@ fun LSMapControls(
                             Box(
                                 modifier = Modifier
                                     .width(24.dp)
-                                    .height(1.dp)
+                                    .height(LaneShadowTheme.sizing.stroke.sm)
                                     .background(theme.colors.border.default),
                             )
 
@@ -318,6 +320,7 @@ private fun MapControlChip(
 
     Box(
         modifier = modifier
+            .minimumInteractiveComponentSize()
             .clip(shape)
             .then(blurModifier)
             .background(color = bgColor.copy(alpha = 0.92f), shape = shape)
