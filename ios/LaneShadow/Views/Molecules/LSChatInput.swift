@@ -12,7 +12,12 @@ public struct LSChatInput: View {
     private let onFilter: () -> Void
     private let suggestions: [SuggestionChip]
     private let onSuggestionTap: (SuggestionChip) -> Void
+    private let autocompleteSuggestions: [LSChatAutocompleteSuggestion]
+    private let onAutocompleteSuggestionTap: (LSChatAutocompleteSuggestion) -> Void
+    private let isAutocompleteLoading: Bool
+    private let autocompleteErrorMessage: String?
     private let locationBadge: LocationContext?
+    private let showsSendAction: Bool
     private let isThinking: Bool
     private let isEnabled: Bool
 
@@ -24,7 +29,12 @@ public struct LSChatInput: View {
         onFilter: @escaping () -> Void,
         suggestions: [SuggestionChip] = [],
         onSuggestionTap: @escaping (SuggestionChip) -> Void = { _ in },
+        autocompleteSuggestions: [LSChatAutocompleteSuggestion] = [],
+        onAutocompleteSuggestionTap: @escaping (LSChatAutocompleteSuggestion) -> Void = { _ in },
+        isAutocompleteLoading: Bool = false,
+        autocompleteErrorMessage: String? = nil,
         locationBadge: LocationContext? = nil,
+        showsSendAction: Bool = false,
         isThinking: Bool = false,
         isEnabled: Bool = true
     ) {
@@ -35,7 +45,12 @@ public struct LSChatInput: View {
         self.onFilter = onFilter
         self.suggestions = suggestions
         self.onSuggestionTap = onSuggestionTap
+        self.autocompleteSuggestions = autocompleteSuggestions
+        self.onAutocompleteSuggestionTap = onAutocompleteSuggestionTap
+        self.isAutocompleteLoading = isAutocompleteLoading
+        self.autocompleteErrorMessage = autocompleteErrorMessage
         self.locationBadge = locationBadge
+        self.showsSendAction = showsSendAction
         self.isThinking = isThinking
         self.isEnabled = isEnabled
     }
@@ -54,6 +69,10 @@ public struct LSChatInput: View {
 
             // Input bar
             inputBarView
+
+            if showsAutocompleteDropdown {
+                autocompleteDropdownView
+            }
         }
         .opacity(isEnabled ? 1 : theme.opacity.disabled)
         .accessibilityElement(children: .contain)
@@ -89,6 +108,93 @@ public struct LSChatInput: View {
             .padding(.horizontal, theme.space.xs)
         }
         .accessibilityIdentifier("lschatinput-suggestions")
+    }
+
+    // MARK: - Place Autocomplete
+
+    @ViewBuilder
+    private var autocompleteDropdownView: some View {
+        VStack(spacing: 0) {
+            if isAutocompleteLoading {
+                autocompleteLoadingRow
+            } else if let autocompleteErrorMessage {
+                autocompleteErrorRow(message: autocompleteErrorMessage)
+            } else {
+                ForEach(Array(autocompleteSuggestions.prefix(3).enumerated()), id: \.offset) { index, suggestion in
+                    autocompleteSuggestionRow(suggestion, index: index)
+                }
+            }
+        }
+        .background(theme.colors.surface.default)
+        .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))
+        .overlay {
+            RoundedRectangle(cornerRadius: theme.radius.lg)
+                .stroke(theme.colors.border.default, lineWidth: theme.borderWidth.thin)
+        }
+        .accessibilityIdentifier("lschatinput-autocomplete")
+    }
+
+    private func autocompleteSuggestionRow(_ suggestion: LSChatAutocompleteSuggestion, index: Int) -> some View {
+        Button(action: { handleAutocompleteSuggestionTap(suggestion) }) {
+            HStack(alignment: .top, spacing: theme.space.sm) {
+                Image(systemName: "location")
+                    .font(theme.type.label.sm.font)
+                    .foregroundStyle(ContentColor.secondary.resolved(in: theme))
+
+                VStack(alignment: .leading, spacing: theme.space.xs) {
+                    Text(suggestion.placeSuggestion.name)
+                        .font(theme.type.body.sm.font)
+                        .foregroundStyle(ContentColor.primary.resolved(in: theme))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text(suggestion.placeSuggestion.label)
+                        .font(theme.type.label.sm.font)
+                        .foregroundStyle(ContentColor.secondary.resolved(in: theme))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding(.horizontal, theme.space.md)
+            .padding(.vertical, theme.space.sm)
+            .background(theme.colors.surfaceVariant.pressed.opacity(0.5))
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .accessibilityLabel(suggestion.accessibilityLabel)
+        .accessibilityIdentifier("lschatinput-autocomplete-row-\(index)")
+    }
+
+    private var autocompleteLoadingRow: some View {
+        HStack(spacing: theme.space.sm) {
+            LSSpinner()
+                .frame(width: 20, height: 20)
+
+            Text("Searching places...")
+                .font(theme.type.body.sm.font)
+                .foregroundStyle(ContentColor.secondary.resolved(in: theme))
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, theme.space.md)
+        .padding(.vertical, theme.space.sm)
+        .accessibilityLabel("Searching places")
+        .accessibilityIdentifier("lschatinput-autocomplete-loading")
+    }
+
+    private func autocompleteErrorRow(message: String) -> some View {
+        HStack(alignment: .top, spacing: theme.space.sm) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(theme.type.label.sm.font)
+                .foregroundStyle(LaneShadowTheme.color.status.warning.default)
+
+            Text(message)
+                .font(theme.type.body.sm.font)
+                .foregroundStyle(ContentColor.primary.resolved(in: theme))
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.horizontal, theme.space.md)
+        .padding(.vertical, theme.space.sm)
+        .background(LaneShadowTheme.color.surface.card)
+        .accessibilityLabel(message)
+        .accessibilityIdentifier("lschatinput-autocomplete-error")
     }
 
     // MARK: - Input Bar
@@ -141,7 +247,7 @@ public struct LSChatInput: View {
     private var trailingSlot: some View {
         if isThinking {
             spinnerView
-        } else if value.isEmpty {
+        } else if value.isEmpty && !showsSendAction {
             filterButton
         } else {
             sendButton
@@ -208,6 +314,15 @@ public struct LSChatInput: View {
         guard isEnabled else { return }
         onSuggestionTap(chip)
     }
+
+    private func handleAutocompleteSuggestionTap(_ suggestion: LSChatAutocompleteSuggestion) {
+        guard isEnabled else { return }
+        onAutocompleteSuggestionTap(suggestion)
+    }
+
+    private var showsAutocompleteDropdown: Bool {
+        isAutocompleteLoading || autocompleteErrorMessage != nil || !autocompleteSuggestions.isEmpty
+    }
 }
 
 // MARK: - Public Types
@@ -228,5 +343,15 @@ public struct LocationContext: Equatable, Sendable {
     public init(label: String, mode: LSLocationContextMode) {
         self.label = label
         self.mode = mode
+    }
+}
+
+public struct LSChatAutocompleteSuggestion: Equatable, Sendable {
+    public let placeSuggestion: LaneShadowPlaceSuggestion
+    public let accessibilityLabel: String
+
+    public init(placeSuggestion: LaneShadowPlaceSuggestion, accessibilityLabel: String) {
+        self.placeSuggestion = placeSuggestion
+        self.accessibilityLabel = accessibilityLabel
     }
 }
