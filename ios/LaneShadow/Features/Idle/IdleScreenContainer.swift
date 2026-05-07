@@ -43,6 +43,17 @@ struct IdleScreenContainer: View {
         .task {
             await viewModel.observe()
         }
+        .onChange(of: chatInputValue, initial: false) { _, newValue in
+            viewModel.updateChatInputQuery(newValue)
+        }
+        .onChange(of: viewModel.autocompletePrimedInputValue, initial: false) { _, newValue in
+            guard let newValue else {
+                return
+            }
+
+            chatInputValue = newValue
+            viewModel.consumeAutocompletePrimedInputValue()
+        }
         .onDisappear {
             viewModel.stopObserving()
         }
@@ -147,7 +158,9 @@ struct IdleScreenContainer: View {
     @State private var chatInputValue: String = ""
 
     private var chatInputView: some View {
-        let suggestions = viewModel.suggestionLabels.map { SuggestionChip(label: $0) }
+        let suggestions = viewModel.showsStaticRideSuggestions
+            ? viewModel.suggestionLabels.map { SuggestionChip(label: $0) }
+            : []
 
         return LSChatInput(
             value: $chatInputValue,
@@ -161,8 +174,22 @@ struct IdleScreenContainer: View {
             onSuggestionTap: { chip in
                 chatInputValue = chip.label
             },
+            autocompleteSuggestions: autocompleteSuggestions,
+            onAutocompleteSuggestionTap: { suggestion in
+                Task { @MainActor in
+                    await viewModel.selectPlaceSuggestion(suggestion.placeSuggestion)
+
+                    if let primedInputValue = viewModel.autocompletePrimedInputValue {
+                        chatInputValue = primedInputValue
+                        viewModel.consumeAutocompletePrimedInputValue()
+                    }
+                }
+            },
+            isAutocompleteLoading: viewModel.isPlaceAutocompleteLoading,
+            autocompleteErrorMessage: viewModel.placeAutocompleteErrorMessage,
+            showsSendAction: viewModel.selectedPlace != nil,
             isThinking: viewModel.isSubmitting,
-            isEnabled: viewModel.isLocationEnabled && !viewModel.isSubmitting
+            isEnabled: !viewModel.isSubmitting
         )
         .opacity(viewModel.isSubmitting ? theme.opacity.disabled : 1.0)
         .padding(.horizontal, theme.space.md)
@@ -187,5 +214,14 @@ struct IdleScreenContainer: View {
             }
         }
         .accessibilityIdentifier("idlescreen-chatinput")
+    }
+
+    private var autocompleteSuggestions: [LSChatAutocompleteSuggestion] {
+        viewModel.placeAutocompleteSuggestions.map { suggestion in
+            LSChatAutocompleteSuggestion(
+                placeSuggestion: suggestion,
+                accessibilityLabel: "\(suggestion.name), \(suggestion.label)"
+            )
+        }
     }
 }

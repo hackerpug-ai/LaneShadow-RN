@@ -2,6 +2,8 @@
 @preconcurrency import ConvexMobile
 import Foundation
 
+// swiftlint:disable file_length type_body_length
+
 enum LaneShadowConvexQuery: String {
     case getCurrentUser = "db/users:getCurrentUser"
     case listSessions = "db/planningSessions:listSessions"
@@ -23,6 +25,8 @@ enum LaneShadowConvexAction: String {
     case sendMessage = "actions/agent/sendMessage:sendMessage"
     case getCurrentWeather = "actions/weather:getCurrentWeather"
     case reverseGeocode = "actions/places:reverseGeocode"
+    case suggestPlaces = "actions/places:suggestPlaces"
+    case retrievePlace = "actions/places:retrievePlace"
 }
 
 struct LaneShadowAuthSession {
@@ -59,6 +63,29 @@ struct ConvexCurrentWeatherResponse: Decodable, Equatable {
     let condition: String
     let severity: String
     let dayOfWeek: String
+}
+
+struct LaneShadowPlaceSearchProximity: Codable, Equatable, Sendable {
+    let lat: Double
+    let lng: Double
+}
+
+public struct LaneShadowPlaceSuggestion: Codable, Equatable, Sendable {
+    let id: String
+    let name: String
+    let label: String
+    let secondaryText: String?
+    let featureType: String
+    let distanceMeters: Double?
+}
+
+struct LaneShadowSelectedPlace: Codable, Equatable, Sendable {
+    let id: String
+    let name: String
+    let label: String
+    let lat: Double
+    let lng: Double
+    let featureType: String
 }
 
 protocol LaneShadowCurrentUserSubscriptionProviding: Sendable {
@@ -254,6 +281,17 @@ protocol LaneShadowPlanningDataProviding: LaneShadowCurrentUserSubscriptionProvi
 
     func reverseGeocode(lat: Double, lng: Double) async throws -> String
 
+    func suggestPlaces(
+        query: String,
+        proximity: LaneShadowPlaceSearchProximity?,
+        sessionToken: String
+    ) async throws -> [LaneShadowPlaceSuggestion]
+
+    func retrievePlace(
+        mapboxId: String,
+        sessionToken: String
+    ) async throws -> LaneShadowSelectedPlace
+
     func subscribeToSessionMessages(
         sessionId: String,
         limit: Int
@@ -290,6 +328,21 @@ extension LaneShadowPlanningDataProviding {
         }
 
         return routePlan
+    }
+
+    func suggestPlaces(
+        query _: String,
+        proximity _: LaneShadowPlaceSearchProximity?,
+        sessionToken _: String
+    ) async throws -> [LaneShadowPlaceSuggestion] {
+        throw LaneShadowError.unknown("Place suggestions not implemented")
+    }
+
+    func retrievePlace(
+        mapboxId _: String,
+        sessionToken _: String
+    ) async throws -> LaneShadowSelectedPlace {
+        throw LaneShadowError.unknown("Place retrieval not implemented")
     }
 }
 
@@ -744,6 +797,45 @@ final class LaneShadowConvexClient: @unchecked Sendable {
         return response.label
     }
 
+    func suggestPlaces(
+        query: String,
+        proximity: LaneShadowPlaceSearchProximity?,
+        sessionToken: String
+    ) async throws -> [LaneShadowPlaceSuggestion] {
+        let args: [String: ConvexEncodable?] = [
+            "query": query,
+            "sessionToken": sessionToken,
+        ]
+        let argsWithProximity = if let proximity {
+            args.merging(
+                [
+                    "proximity": [
+                        "lat": proximity.lat,
+                        "lng": proximity.lng,
+                    ],
+                ],
+                uniquingKeysWith: { current, _ in current }
+            )
+        } else {
+            args
+        }
+
+        return try await action(.suggestPlaces, args: argsWithProximity)
+    }
+
+    func retrievePlace(
+        mapboxId: String,
+        sessionToken: String
+    ) async throws -> LaneShadowSelectedPlace {
+        try await action(
+            .retrievePlace,
+            args: [
+                "mapboxId": mapboxId,
+                "sessionToken": sessionToken,
+            ]
+        )
+    }
+
     func fetchCurrentUser(notifyUnauthenticated: Bool = true) async throws -> LaneShadowCurrentUser? {
         let publisher = transport.subscribe(
             to: LaneShadowConvexQuery.getCurrentUser.rawValue,
@@ -894,3 +986,5 @@ extension SavedRoutesDocument: @unchecked Sendable {}
 
 extension LaneShadowConvexClient: LaneShadowCurrentUserSubscriptionProviding {}
 extension LaneShadowConvexClient: LaneShadowPlanningDataProviding {}
+
+// swiftlint:enable file_length type_body_length

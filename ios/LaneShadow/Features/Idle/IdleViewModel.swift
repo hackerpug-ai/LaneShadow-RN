@@ -2,9 +2,16 @@ import CoreLocation
 import Foundation
 import Observation
 
+// swiftlint:disable file_length type_body_length
+
 @MainActor
 @Observable
 final class IdleViewModel {
+    private static let fallbackAutocompleteProximity = LaneShadowPlaceSearchProximity(
+        lat: 36.97,
+        lng: -122.03
+    )
+
     var greetingDisplayName: String = "rider"
     var greetingScope: GreetingScope = .today
     var metaRow: String = ""
@@ -23,6 +30,16 @@ final class IdleViewModel {
     var locationLabel: String?
     var isLocationEnabled = false
     var locationUnavailable = false
+    var placeAutocompleteSuggestions: [LaneShadowPlaceSuggestion] = []
+    var placeAutocompleteErrorMessage: String?
+    var isPlaceAutocompleteLoading = false
+    var selectedPlace: LaneShadowSelectedPlace?
+    var autocompletePrimedInputValue: String?
+    var isAutocompleteQueryActive = false
+
+    var showsStaticRideSuggestions: Bool {
+        !isAutocompleteQueryActive
+    }
 
     @ObservationIgnored private let chatStore: ChatStore
     @ObservationIgnored private let sessionStore: SessionStore
@@ -31,6 +48,10 @@ final class IdleViewModel {
     @ObservationIgnored private let appState: AppState?
     @ObservationIgnored private let onSessionStarted: @MainActor @Sendable (String) -> Void
     @ObservationIgnored private var observationTasks: [Task<Void, Never>] = []
+    @ObservationIgnored private var autocompleteTask: Task<Void, Never>?
+    @ObservationIgnored private var autocompleteRequestRevision = 0
+    @ObservationIgnored private var autocompleteSessionToken = UUID().uuidString
+    @ObservationIgnored private var hasActiveAutocompleteSession = false
 
     init(
         chatStore: ChatStore,
@@ -55,6 +76,8 @@ final class IdleViewModel {
     func stopObserving() {
         observationTasks.forEach { $0.cancel() }
         observationTasks.removeAll()
+        autocompleteTask?.cancel()
+        autocompleteTask = nil
     }
 
     private func startObserving() {
@@ -273,4 +296,184 @@ final class IdleViewModel {
 
         isSubmitting = false
     }
+
+    func updateChatInputQuery(_ value: String) {
+        let query = normalizedAutocompleteQuery(from: value)
+
+        if let selectedPlace, query != selectedPlace.label {
+            self.selectedPlace = nil
+        }
+
+        if let selectedPlace, query == selectedPlace.label {
+            resetAutocompleteState(clearSession: true)
+            return
+        }
+
+        guard query.count >= 2 else {
+            resetAutocompleteState(clearSession: true)
+            return
+        }
+
+        beginAutocompleteSessionIfNeeded()
+        let revision = nextAutocompleteRequestRevision()
+        let sessionToken = autocompleteSessionToken
+        let proximity = currentAutocompleteProximity
+        let convexClient = convexClient
+
+        isAutocompleteQueryActive = true
+        isPlaceAutocompleteLoading = true
+        placeAutocompleteErrorMessage = nil
+        placeAutocompleteSuggestions = []
+
+        autocompleteTask?.cancel()
+        autocompleteTask = Task { [weak self, convexClient] in
+            do {
+                try await Task.sleep(for: .milliseconds(300))
+                if Task.isCancelled {
+                    return
+                }
+
+                let suggestions = try await convexClient.suggestPlaces(
+                    query: query,
+                    proximity: proximity,
+                    sessionToken: sessionToken
+                )
+
+                if Task.isCancelled {
+                    return
+                }
+
+                await MainActor.run {
+                    self?.applyAutocompleteSuggestions(suggestions, revision: revision)
+                }
+            } catch {
+                if Task.isCancelled {
+                    return
+                }
+
+                await MainActor.run {
+                    self?.applyAutocompleteError(error, revision: revision)
+                }
+            }
+        }
+    }
+
+    func selectPlaceSuggestion(_ suggestion: LaneShadowPlaceSuggestion) async {
+        beginAutocompleteSessionIfNeeded()
+        let revision = nextAutocompleteRequestRevision()
+        let sessionToken = autocompleteSessionToken
+
+        autocompleteTask?.cancel()
+        autocompleteTask = nil
+        isPlaceAutocompleteLoading = false
+        placeAutocompleteErrorMessage = nil
+
+        do {
+            let place = try await convexClient.retrievePlace(
+                mapboxId: suggestion.id,
+                sessionToken: sessionToken
+            )
+
+            guard revision == autocompleteRequestRevision else {
+                return
+            }
+
+            selectedPlace = place
+            autocompletePrimedInputValue = place.label
+            placeAutocompleteSuggestions = []
+            placeAutocompleteErrorMessage = nil
+            isPlaceAutocompleteLoading = false
+            isAutocompleteQueryActive = false
+            hasActiveAutocompleteSession = false
+            autocompleteSessionToken = UUID().uuidString
+        } catch {
+            guard revision == autocompleteRequestRevision else {
+                return
+            }
+
+            let laneShadowError = LaneShadowError.map(error)
+            placeAutocompleteSuggestions = []
+            placeAutocompleteErrorMessage = laneShadowError.localizedDescription
+            isPlaceAutocompleteLoading = false
+            isAutocompleteQueryActive = true
+        }
+    }
+
+    func consumeAutocompletePrimedInputValue() {
+        autocompletePrimedInputValue = nil
+    }
+
+    private func normalizedAutocompleteQuery(from value: String) -> String {
+        value
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
+    }
+
+    private var currentAutocompleteProximity: LaneShadowPlaceSearchProximity {
+        if let location = locationService.currentLocation {
+            return LaneShadowPlaceSearchProximity(
+                lat: location.coordinate.latitude,
+                lng: location.coordinate.longitude
+            )
+        }
+
+        return Self.fallbackAutocompleteProximity
+    }
+
+    private func beginAutocompleteSessionIfNeeded() {
+        guard !hasActiveAutocompleteSession else {
+            return
+        }
+
+        hasActiveAutocompleteSession = true
+        autocompleteSessionToken = UUID().uuidString
+    }
+
+    private func nextAutocompleteRequestRevision() -> Int {
+        autocompleteRequestRevision += 1
+        return autocompleteRequestRevision
+    }
+
+    private func resetAutocompleteState(clearSession: Bool) {
+        autocompleteTask?.cancel()
+        autocompleteTask = nil
+        autocompleteRequestRevision += 1
+        placeAutocompleteSuggestions = []
+        placeAutocompleteErrorMessage = nil
+        isPlaceAutocompleteLoading = false
+        isAutocompleteQueryActive = false
+
+        if clearSession {
+            hasActiveAutocompleteSession = false
+            autocompleteSessionToken = UUID().uuidString
+        }
+    }
+
+    private func applyAutocompleteSuggestions(
+        _ suggestions: [LaneShadowPlaceSuggestion],
+        revision: Int
+    ) {
+        guard revision == autocompleteRequestRevision else {
+            return
+        }
+
+        placeAutocompleteSuggestions = Array(suggestions.prefix(3))
+        placeAutocompleteErrorMessage = nil
+        isPlaceAutocompleteLoading = false
+        isAutocompleteQueryActive = true
+    }
+
+    private func applyAutocompleteError(_ error: Error, revision: Int) {
+        guard revision == autocompleteRequestRevision else {
+            return
+        }
+
+        let laneShadowError = LaneShadowError.map(error)
+        placeAutocompleteSuggestions = []
+        placeAutocompleteErrorMessage = laneShadowError.localizedDescription
+        isPlaceAutocompleteLoading = false
+        isAutocompleteQueryActive = true
+    }
 }
+
+// swiftlint:enable file_length type_body_length

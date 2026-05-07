@@ -30,12 +30,20 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
     var stubFetchRoutePlanError: Error?
     var stubCancelRoutePlanError: Error?
     var stubReverseGeocodeError: Error?
+    var stubSuggestedPlacesByQuery: [String: [LaneShadowPlaceSuggestion]] = [:]
+    var stubSuggestPlacesErrorByQuery: [String: Error] = [:]
+    var stubRetrievedPlacesByID: [String: LaneShadowSelectedPlace] = [:]
+    var stubRetrievePlaceErrorByID: [String: Error] = [:]
 
     private(set) var createPlanningSessionCalls: [String] = []
     private(set) var sendPlanningMessageCalls: [LaneShadowPlanningMessageCall] = []
     private(set) var fetchRoutePlanCalls: [String] = []
     private(set) var routePlanSubscriptionCalls: [String] = []
     private(set) var cancelRoutePlanCalls: [String] = []
+    private(set) var suggestPlacesCalls: [LaneShadowSuggestPlacesCall] = []
+    private(set) var retrievePlaceCalls: [LaneShadowRetrievePlaceCall] = []
+    private var pausedSuggestQueries: Set<String> = []
+    private var suggestPlacesContinuations: [String: CheckedContinuation<[LaneShadowPlaceSuggestion], Error>] = [:]
 
     func subscribeToCurrentUser() -> AsyncStream<LaneShadowCurrentUser?> {
         AsyncStream { continuation in
@@ -225,6 +233,75 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
         return "Test Location"
     }
 
+    func suggestPlaces(
+        query: String,
+        proximity: LaneShadowPlaceSearchProximity?,
+        sessionToken: String
+    ) async throws -> [LaneShadowPlaceSuggestion] {
+        suggestPlacesCalls.append(
+            LaneShadowSuggestPlacesCall(
+                query: query,
+                proximity: proximity,
+                sessionToken: sessionToken
+            )
+        )
+
+        if pausedSuggestQueries.contains(query) {
+            return try await withCheckedThrowingContinuation { continuation in
+                suggestPlacesContinuations[query] = continuation
+            }
+        }
+
+        if let error = stubSuggestPlacesErrorByQuery[query] {
+            throw error
+        }
+
+        return stubSuggestedPlacesByQuery[query] ?? []
+    }
+
+    func retrievePlace(
+        mapboxId: String,
+        sessionToken: String
+    ) async throws -> LaneShadowSelectedPlace {
+        retrievePlaceCalls.append(
+            LaneShadowRetrievePlaceCall(
+                mapboxId: mapboxId,
+                sessionToken: sessionToken
+            )
+        )
+
+        if let error = stubRetrievePlaceErrorByID[mapboxId] {
+            throw error
+        }
+
+        if let place = stubRetrievedPlacesByID[mapboxId] {
+            return place
+        }
+
+        throw LaneShadowError.server("Selected place not found")
+    }
+
+    func pauseSuggestPlaces(for query: String) {
+        pausedSuggestQueries.insert(query)
+    }
+
+    func resumeSuggestPlaces(
+        for query: String,
+        result: Result<[LaneShadowPlaceSuggestion], Error>
+    ) {
+        pausedSuggestQueries.remove(query)
+        guard let continuation = suggestPlacesContinuations.removeValue(forKey: query) else {
+            return
+        }
+
+        switch result {
+        case let .success(suggestions):
+            continuation.resume(returning: suggestions)
+        case let .failure(error):
+            continuation.resume(throwing: error)
+        }
+    }
+
     func sendRouteEnrichments(_ enrichmentsDocs: [RouteEnrichmentsDocument], routePlanId: String) {
         // For simplicity, store the first (or create a dummy one if empty)
         if let first = enrichmentsDocs.first {
@@ -335,6 +412,17 @@ final class StubLaneShadowConvexClient: @unchecked Sendable, @preconcurrency Lan
 
         latestRouteIndexFingerprints[routeIndex] = doc
     }
+}
+
+struct LaneShadowSuggestPlacesCall: Equatable {
+    let query: String
+    let proximity: LaneShadowPlaceSearchProximity?
+    let sessionToken: String
+}
+
+struct LaneShadowRetrievePlaceCall: Equatable {
+    let mapboxId: String
+    let sessionToken: String
 }
 
 struct LaneShadowPlanningMessageCall: Equatable {

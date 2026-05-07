@@ -159,6 +159,59 @@ struct IdleScreenWiringTests {
         await observationTask.value
     }
 
+    @Test
+    func idleScreenAutocompleteTapPrimesInputWithoutPlanning() async throws {
+        let client = StubLaneShadowConvexClient()
+        client.stubSuggestedPlacesByQuery["Big"] = [
+            LaneShadowPlaceSuggestion(
+                id: "big-sur",
+                name: "Big Sur",
+                label: "Big Sur, California",
+                secondaryText: nil,
+                featureType: "place",
+                distanceMeters: nil
+            ),
+        ]
+        client.stubRetrievedPlacesByID["big-sur"] = LaneShadowSelectedPlace(
+            id: "big-sur",
+            name: "Big Sur",
+            label: "Big Sur, California",
+            lat: 36.2704,
+            lng: -121.8081,
+            featureType: "place"
+        )
+
+        let viewModel = IdleViewModel(
+            chatStore: ChatStore(),
+            sessionStore: SessionStore(),
+            convexClient: client
+        )
+
+        let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+
+        viewModel.updateChatInputQuery("Big")
+        try await Task.sleep(for: .milliseconds(350))
+        await pumpMainActor()
+
+        let inspected = try screen.inspect()
+        let chatInput = try inspected.find(viewWithAccessibilityIdentifier: "idlescreen-chatinput")
+        let suggestionRow = try chatInput.find(viewWithAccessibilityIdentifier: "lschatinput-autocomplete-row-0")
+        try suggestionRow.button().tap()
+        await pumpMainActor(iterations: 20)
+
+        #expect(client.createPlanningSessionCalls.isEmpty)
+        #expect(viewModel.selectedPlace?.label == "Big Sur, California")
+
+        let inspectedAfterTap = try screen.inspect()
+        let chatInputAfterTap = try inspectedAfterTap.find(
+            viewWithAccessibilityIdentifier: "idlescreen-chatinput"
+        )
+        let sendIcon = try? chatInputAfterTap.find(viewWithAccessibilityIdentifier: "lschatinput-send-icon")
+        #expect(sendIcon != nil)
+    }
+
     private func pumpMainActor(iterations: Int = 10) async {
         for _ in 0 ..< iterations {
             await Task.yield()
