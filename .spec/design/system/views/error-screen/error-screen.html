@@ -150,18 +150,22 @@
 }
 
 /* Status bar */
+/* Status bar — flanks the notch */
 .view-error-screen__status-bar {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  padding: var(--space-10) var(--space-5) var(--space-0);
+  height: 44px;
+  padding: var(--space-4) var(--space-6) var(--space-0);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 50;
+  z-index: 70;
   color: var(--content-primary);
+  pointer-events: none;
 }
+.view-error-screen__status-bar > * { pointer-events: auto; }
 
 /* Home indicator bar */
 .view-error-screen__home-bar {
@@ -207,6 +211,64 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+/* ── Map controls — right-aligned, vertically centered ────────── */
+.view-error-screen__controls-slot {
+  position: absolute;
+  top: 50%;
+  right: var(--space-4);
+  transform: translateY(-50%);
+  z-index: 35;
+  pointer-events: none;
+}
+.view-error-screen__controls-slot > * { pointer-events: auto; }
+
+/* ── Header row — menu · status-card · new (inline, NO background) ── */
+.view-error-screen__header {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  right: 0;
+  padding: var(--space-3) var(--space-4) var(--space-0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  z-index: 50;
+  background: transparent;
+  pointer-events: none;
+}
+.view-error-screen__header > * { pointer-events: auto; }
+
+.view-error-screen__status-card {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+}
+
+.view-error-screen__header .mol-context-capsule {
+  padding: var(--space-2) var(--space-3);
+  gap: 0;
+  min-width: 0;
+  border-color: color-mix(in srgb, var(--status-error) 35%, var(--border-default));
+  border-top: var(--stroke-lg) solid var(--status-error);
+}
+.view-error-screen__header .mol-context-capsule__meta {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--status-error);
+}
+.view-error-screen__header .mol-context-capsule__headline {
+  font-size: 15px;
+  line-height: 1.2;
+}
+.view-error-screen__header .mol-context-capsule--storm .mol-context-capsule__meta {
+  color: var(--status-warning);
+}
+.view-error-screen__header .mol-context-capsule--storm {
+  border-top-color: var(--status-warning);
 }
 
 /* ── Route origin / destination pins ──────────────────────────── */
@@ -267,10 +329,10 @@
   color: var(--status-warning);
 }
 
-/* ── Error callout card (LSInlineErrorCallout composition) ─────── */
+/* ── Error callout card — sits below header row ───────────────── */
 .view-error-screen__callout {
   position: absolute;
-  top: var(--space-11);
+  top: 152px;                        /* status (44) + header (~96) + gap */
   left: var(--space-4);
   right: var(--space-4);
   z-index: 20;
@@ -508,16 +570,50 @@
     <!-- Paper map slot -->
     <div class="view-error-screen__map-slot">
       <svg class="view-error-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <!-- Contour lines -->
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
-          <path d="M -20 310 C 80 285, 165 350, 240 310 S 340 330, 420 290"/>
-          <path d="M -20 430 C 65 405, 155 475, 240 430 S 340 455, 420 415"/>
-          <path d="M -20 570 C 80 540, 160 605, 240 570 S 340 590, 420 550"/>
+        <!-- mapbox-paper-tile · regenerate from _mapbox-paper-tile.svg.html -->
+        <!-- L2 — Water polygon (eastern lake/coast lobe) -->
+        <g aria-hidden="true">
+          <path d="M 318 -10 C 296 90, 348 200, 314 320 C 286 440, 344 580, 298 720 C 286 760, 290 790, 296 820 L 420 820 L 420 -10 Z" fill="var(--map-water-tint)"/>
+          <path d="M 318 -10 C 296 90, 348 200, 314 320 C 286 440, 344 580, 298 720 C 286 760, 290 790, 296 820" stroke="color-mix(in srgb, var(--wx-rain) 30%, transparent)" stroke-width="0.6" fill="none"/>
         </g>
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 255 C 80 232, 165 295, 240 255 S 340 275, 420 238"/>
-          <path d="M -20 495 C 80 470, 160 535, 240 495 S 340 518, 420 478"/>
+        <!-- L3 — Park polygons -->
+        <g aria-hidden="true" fill="var(--map-park-tint)">
+          <ellipse cx="78" cy="262" rx="58" ry="38" transform="rotate(-12 78 262)"/>
+          <ellipse cx="208" cy="558" rx="44" ry="26" transform="rotate(7 208 558)"/>
+          <path d="M 38 716 C 82 696, 138 716, 172 700 C 196 716, 198 762, 142 776 C 86 780, 40 754, 38 716 Z"/>
+        </g>
+        <!-- L4a — Minor streets -->
+        <g aria-hidden="true" stroke="var(--map-contour-faint)" stroke-width="0.6" fill="none" stroke-linecap="square">
+          <path d="M 22 108 L 92 106"/><path d="M 110 102 L 178 100"/><path d="M 192 96 L 248 94"/>
+          <path d="M 38 156 L 110 152"/><path d="M 132 150 L 198 148"/><path d="M 218 144 L 270 142"/>
+          <path d="M 22 380 L 88 378"/><path d="M 110 376 L 175 372"/><path d="M 195 370 L 248 368"/>
+          <path d="M 32 422 L 100 420"/><path d="M 124 418 L 188 416"/>
+          <path d="M 70 86 L 72 196"/><path d="M 140 80 L 142 192"/><path d="M 215 75 L 217 186"/>
+          <path d="M 60 358 L 62 460"/><path d="M 130 356 L 132 458"/><path d="M 200 354 L 202 454"/>
+          <path d="M 26 624 L 110 596"/><path d="M 50 662 L 134 632"/><path d="M 102 702 L 200 668"/><path d="M 60 770 L 162 740"/>
+        </g>
+        <!-- L4b — Major arterials -->
+        <g aria-hidden="true" stroke="var(--map-contour)" stroke-width="1.0" fill="none" stroke-linecap="round">
+          <path d="M -10 220 C 80 215, 170 230, 260 218 C 285 214, 300 212, 320 210"/>
+          <path d="M -10 500 C 70 490, 150 510, 230 498 C 268 491, 290 491, 308 488"/>
+          <path d="M 90 -10 C 88 124, 96 264, 92 404 C 89 524, 95 664, 92 808"/>
+          <path d="M 246 -10 C 244 90, 252 222, 244 362 C 238 482, 250 602, 244 706"/>
+        </g>
+        <!-- L4c — Highway ribbon -->
+        <g aria-hidden="true" stroke="var(--map-highway)" stroke-width="1.6" fill="none" stroke-linecap="round">
+          <path d="M 28 -10 C 50 120, 116 220, 148 360 C 174 484, 130 620, 108 808"/>
+        </g>
+        <!-- L5 — Place labels -->
+        <g aria-hidden="true" fill="var(--map-label)" opacity="0.55" style="font-family: var(--font-instrument), 'JetBrains Mono', monospace; font-size: 7px; letter-spacing: 0.08em;">
+          <text x="78" y="248" text-anchor="middle">FOOTHILL</text>
+          <text x="178" y="332" text-anchor="middle">DOWNTOWN</text>
+          <text x="208" y="572" text-anchor="middle">SUGAR HOUSE</text>
+          <text x="106" y="744" text-anchor="middle">WESTSIDE</text>
+        </g>
+        <!-- L6 — Demoted topo contours -->
+        <g aria-hidden="true" stroke="var(--map-contour-faint)" stroke-width="0.5" fill="none">
+          <path d="M -20 360 C 90 340, 200 364, 310 344 C 360 338, 400 340, 420 338"/>
+          <path d="M -20 580 C 80 564, 180 588, 280 568 C 340 558, 380 562, 420 558"/>
         </g>
         <!-- Attempted broken polyline (two segments with gap) -->
         <path d="M 55 580 C 100 520, 140 510, 175 495" stroke="var(--status-error)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 6" fill="none" opacity="0.75"/>
@@ -535,22 +631,42 @@
       </div>
     </div>
 
-    <!-- TopBar slot -->
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <!-- Map controls -->
+    <div class="view-error-screen__controls-slot">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
+
+    <!-- Header — menu · status-card · new -->
+    <header class="view-error-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-error-screen__status-card mol-context-capsule" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>The Navigator</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Failed</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Couldn't <em>stitch</em> that one</h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
 
     <!-- Error callout (LSInlineErrorCallout — top-overlay slot) -->
     <div class="view-error-screen__callout org-map-layer__top-overlay" role="status" aria-label="Navigator error callout">
@@ -634,9 +750,50 @@
     <!-- Dark paper map with storm hatching -->
     <div class="view-error-screen__map-slot" style="background:var(--ink-900);">
       <svg class="view-error-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
-          <path d="M -20 350 C 65 325, 155 395, 240 350 S 340 375, 420 335"/>
+        <!-- mapbox-paper-tile · regenerate from _mapbox-paper-tile.svg.html -->
+        <!-- L2 — Water polygon (eastern lake/coast lobe) -->
+        <g aria-hidden="true">
+          <path d="M 318 -10 C 296 90, 348 200, 314 320 C 286 440, 344 580, 298 720 C 286 760, 290 790, 296 820 L 420 820 L 420 -10 Z" fill="var(--map-water-tint)"/>
+          <path d="M 318 -10 C 296 90, 348 200, 314 320 C 286 440, 344 580, 298 720 C 286 760, 290 790, 296 820" stroke="color-mix(in srgb, var(--wx-rain) 30%, transparent)" stroke-width="0.6" fill="none"/>
+        </g>
+        <!-- L3 — Park polygons -->
+        <g aria-hidden="true" fill="var(--map-park-tint)">
+          <ellipse cx="78" cy="262" rx="58" ry="38" transform="rotate(-12 78 262)"/>
+          <ellipse cx="208" cy="558" rx="44" ry="26" transform="rotate(7 208 558)"/>
+          <path d="M 38 716 C 82 696, 138 716, 172 700 C 196 716, 198 762, 142 776 C 86 780, 40 754, 38 716 Z"/>
+        </g>
+        <!-- L4a — Minor streets -->
+        <g aria-hidden="true" stroke="var(--map-contour-faint)" stroke-width="0.6" fill="none" stroke-linecap="square">
+          <path d="M 22 108 L 92 106"/><path d="M 110 102 L 178 100"/><path d="M 192 96 L 248 94"/>
+          <path d="M 38 156 L 110 152"/><path d="M 132 150 L 198 148"/><path d="M 218 144 L 270 142"/>
+          <path d="M 22 380 L 88 378"/><path d="M 110 376 L 175 372"/><path d="M 195 370 L 248 368"/>
+          <path d="M 32 422 L 100 420"/><path d="M 124 418 L 188 416"/>
+          <path d="M 70 86 L 72 196"/><path d="M 140 80 L 142 192"/><path d="M 215 75 L 217 186"/>
+          <path d="M 60 358 L 62 460"/><path d="M 130 356 L 132 458"/><path d="M 200 354 L 202 454"/>
+          <path d="M 26 624 L 110 596"/><path d="M 50 662 L 134 632"/><path d="M 102 702 L 200 668"/><path d="M 60 770 L 162 740"/>
+        </g>
+        <!-- L4b — Major arterials -->
+        <g aria-hidden="true" stroke="var(--map-contour)" stroke-width="1.0" fill="none" stroke-linecap="round">
+          <path d="M -10 220 C 80 215, 170 230, 260 218 C 285 214, 300 212, 320 210"/>
+          <path d="M -10 500 C 70 490, 150 510, 230 498 C 268 491, 290 491, 308 488"/>
+          <path d="M 90 -10 C 88 124, 96 264, 92 404 C 89 524, 95 664, 92 808"/>
+          <path d="M 246 -10 C 244 90, 252 222, 244 362 C 238 482, 250 602, 244 706"/>
+        </g>
+        <!-- L4c — Highway ribbon -->
+        <g aria-hidden="true" stroke="var(--map-highway)" stroke-width="1.6" fill="none" stroke-linecap="round">
+          <path d="M 28 -10 C 50 120, 116 220, 148 360 C 174 484, 130 620, 108 808"/>
+        </g>
+        <!-- L5 — Place labels -->
+        <g aria-hidden="true" fill="var(--map-label)" opacity="0.55" style="font-family: var(--font-instrument), 'JetBrains Mono', monospace; font-size: 7px; letter-spacing: 0.08em;">
+          <text x="78" y="248" text-anchor="middle">FOOTHILL</text>
+          <text x="178" y="332" text-anchor="middle">DOWNTOWN</text>
+          <text x="208" y="572" text-anchor="middle">SUGAR HOUSE</text>
+          <text x="106" y="744" text-anchor="middle">WESTSIDE</text>
+        </g>
+        <!-- L6 — Demoted topo contours -->
+        <g aria-hidden="true" stroke="var(--map-contour-faint)" stroke-width="0.5" fill="none">
+          <path d="M -20 360 C 90 340, 200 364, 310 344 C 360 338, 400 340, 420 338"/>
+          <path d="M -20 580 C 80 564, 180 588, 280 568 C 340 558, 380 562, 420 558"/>
         </g>
         <!-- Storm hatching -->
         <g stroke="var(--wx-storm)" stroke-width="0.6" opacity="0.55">
@@ -650,22 +807,42 @@
       </svg>
     </div>
 
-    <!-- TopBar -->
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <!-- Map controls -->
+    <div class="view-error-screen__controls-slot">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
+
+    <!-- TopBar -->
+    <header class="view-error-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-error-screen__status-card mol-context-capsule mol-context-capsule--storm" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Safety gate</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Storm</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Severe wx — <em>not</em> today</h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
 
     <!-- Storm-gate error callout -->
     <div class="view-error-screen__callout view-error-screen__callout--storm org-map-layer__top-overlay" role="status" aria-label="Navigator error callout — safety gate">
@@ -746,9 +923,50 @@
 
     <div class="view-error-screen__map-slot">
       <svg class="view-error-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
-          <path d="M -20 380 C 65 355, 155 420, 240 380 S 340 405, 420 365"/>
+        <!-- mapbox-paper-tile · regenerate from _mapbox-paper-tile.svg.html -->
+        <!-- L2 — Water polygon (eastern lake/coast lobe) -->
+        <g aria-hidden="true">
+          <path d="M 318 -10 C 296 90, 348 200, 314 320 C 286 440, 344 580, 298 720 C 286 760, 290 790, 296 820 L 420 820 L 420 -10 Z" fill="var(--map-water-tint)"/>
+          <path d="M 318 -10 C 296 90, 348 200, 314 320 C 286 440, 344 580, 298 720 C 286 760, 290 790, 296 820" stroke="color-mix(in srgb, var(--wx-rain) 30%, transparent)" stroke-width="0.6" fill="none"/>
+        </g>
+        <!-- L3 — Park polygons -->
+        <g aria-hidden="true" fill="var(--map-park-tint)">
+          <ellipse cx="78" cy="262" rx="58" ry="38" transform="rotate(-12 78 262)"/>
+          <ellipse cx="208" cy="558" rx="44" ry="26" transform="rotate(7 208 558)"/>
+          <path d="M 38 716 C 82 696, 138 716, 172 700 C 196 716, 198 762, 142 776 C 86 780, 40 754, 38 716 Z"/>
+        </g>
+        <!-- L4a — Minor streets -->
+        <g aria-hidden="true" stroke="var(--map-contour-faint)" stroke-width="0.6" fill="none" stroke-linecap="square">
+          <path d="M 22 108 L 92 106"/><path d="M 110 102 L 178 100"/><path d="M 192 96 L 248 94"/>
+          <path d="M 38 156 L 110 152"/><path d="M 132 150 L 198 148"/><path d="M 218 144 L 270 142"/>
+          <path d="M 22 380 L 88 378"/><path d="M 110 376 L 175 372"/><path d="M 195 370 L 248 368"/>
+          <path d="M 32 422 L 100 420"/><path d="M 124 418 L 188 416"/>
+          <path d="M 70 86 L 72 196"/><path d="M 140 80 L 142 192"/><path d="M 215 75 L 217 186"/>
+          <path d="M 60 358 L 62 460"/><path d="M 130 356 L 132 458"/><path d="M 200 354 L 202 454"/>
+          <path d="M 26 624 L 110 596"/><path d="M 50 662 L 134 632"/><path d="M 102 702 L 200 668"/><path d="M 60 770 L 162 740"/>
+        </g>
+        <!-- L4b — Major arterials -->
+        <g aria-hidden="true" stroke="var(--map-contour)" stroke-width="1.0" fill="none" stroke-linecap="round">
+          <path d="M -10 220 C 80 215, 170 230, 260 218 C 285 214, 300 212, 320 210"/>
+          <path d="M -10 500 C 70 490, 150 510, 230 498 C 268 491, 290 491, 308 488"/>
+          <path d="M 90 -10 C 88 124, 96 264, 92 404 C 89 524, 95 664, 92 808"/>
+          <path d="M 246 -10 C 244 90, 252 222, 244 362 C 238 482, 250 602, 244 706"/>
+        </g>
+        <!-- L4c — Highway ribbon -->
+        <g aria-hidden="true" stroke="var(--map-highway)" stroke-width="1.6" fill="none" stroke-linecap="round">
+          <path d="M 28 -10 C 50 120, 116 220, 148 360 C 174 484, 130 620, 108 808"/>
+        </g>
+        <!-- L5 — Place labels -->
+        <g aria-hidden="true" fill="var(--map-label)" opacity="0.55" style="font-family: var(--font-instrument), 'JetBrains Mono', monospace; font-size: 7px; letter-spacing: 0.08em;">
+          <text x="78" y="248" text-anchor="middle">FOOTHILL</text>
+          <text x="178" y="332" text-anchor="middle">DOWNTOWN</text>
+          <text x="208" y="572" text-anchor="middle">SUGAR HOUSE</text>
+          <text x="106" y="744" text-anchor="middle">WESTSIDE</text>
+        </g>
+        <!-- L6 — Demoted topo contours -->
+        <g aria-hidden="true" stroke="var(--map-contour-faint)" stroke-width="0.5" fill="none">
+          <path d="M -20 360 C 90 340, 200 364, 310 344 C 360 338, 400 340, 420 338"/>
+          <path d="M -20 580 C 80 564, 180 588, 280 568 C 340 558, 380 562, 420 558"/>
         </g>
         <!-- Crossed-through impossible route attempt -->
         <path d="M 55 560 C 120 490, 200 470, 320 485" fill="none" stroke="var(--content-subtle)" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
@@ -765,22 +983,42 @@
       </div>
     </div>
 
-    <!-- TopBar -->
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <!-- Map controls -->
+    <div class="view-error-screen__controls-slot">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
+
+    <!-- TopBar -->
+    <header class="view-error-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-error-screen__status-card mol-context-capsule" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>The Navigator</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Failed</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Couldn't <em>stitch</em> that one</h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
 
     <!-- Error callout — extended copy, 3 chips -->
     <div class="view-error-screen__callout org-map-layer__top-overlay" role="status" aria-label="Navigator error callout — impossible constraint">
@@ -863,29 +1101,90 @@
 
     <div class="view-error-screen__map-slot">
       <svg class="view-error-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
-          <path d="M -20 310 C 80 285, 165 350, 240 310 S 340 330, 420 290"/>
-          <path d="M -20 500 C 65 475, 155 540, 240 500 S 340 525, 420 485"/>
+        <!-- mapbox-paper-tile · regenerate from _mapbox-paper-tile.svg.html -->
+        <!-- L2 — Water polygon (eastern lake/coast lobe) -->
+        <g aria-hidden="true">
+          <path d="M 318 -10 C 296 90, 348 200, 314 320 C 286 440, 344 580, 298 720 C 286 760, 290 790, 296 820 L 420 820 L 420 -10 Z" fill="var(--map-water-tint)"/>
+          <path d="M 318 -10 C 296 90, 348 200, 314 320 C 286 440, 344 580, 298 720 C 286 760, 290 790, 296 820" stroke="color-mix(in srgb, var(--wx-rain) 30%, transparent)" stroke-width="0.6" fill="none"/>
+        </g>
+        <!-- L3 — Park polygons -->
+        <g aria-hidden="true" fill="var(--map-park-tint)">
+          <ellipse cx="78" cy="262" rx="58" ry="38" transform="rotate(-12 78 262)"/>
+          <ellipse cx="208" cy="558" rx="44" ry="26" transform="rotate(7 208 558)"/>
+          <path d="M 38 716 C 82 696, 138 716, 172 700 C 196 716, 198 762, 142 776 C 86 780, 40 754, 38 716 Z"/>
+        </g>
+        <!-- L4a — Minor streets -->
+        <g aria-hidden="true" stroke="var(--map-contour-faint)" stroke-width="0.6" fill="none" stroke-linecap="square">
+          <path d="M 22 108 L 92 106"/><path d="M 110 102 L 178 100"/><path d="M 192 96 L 248 94"/>
+          <path d="M 38 156 L 110 152"/><path d="M 132 150 L 198 148"/><path d="M 218 144 L 270 142"/>
+          <path d="M 22 380 L 88 378"/><path d="M 110 376 L 175 372"/><path d="M 195 370 L 248 368"/>
+          <path d="M 32 422 L 100 420"/><path d="M 124 418 L 188 416"/>
+          <path d="M 70 86 L 72 196"/><path d="M 140 80 L 142 192"/><path d="M 215 75 L 217 186"/>
+          <path d="M 60 358 L 62 460"/><path d="M 130 356 L 132 458"/><path d="M 200 354 L 202 454"/>
+          <path d="M 26 624 L 110 596"/><path d="M 50 662 L 134 632"/><path d="M 102 702 L 200 668"/><path d="M 60 770 L 162 740"/>
+        </g>
+        <!-- L4b — Major arterials -->
+        <g aria-hidden="true" stroke="var(--map-contour)" stroke-width="1.0" fill="none" stroke-linecap="round">
+          <path d="M -10 220 C 80 215, 170 230, 260 218 C 285 214, 300 212, 320 210"/>
+          <path d="M -10 500 C 70 490, 150 510, 230 498 C 268 491, 290 491, 308 488"/>
+          <path d="M 90 -10 C 88 124, 96 264, 92 404 C 89 524, 95 664, 92 808"/>
+          <path d="M 246 -10 C 244 90, 252 222, 244 362 C 238 482, 250 602, 244 706"/>
+        </g>
+        <!-- L4c — Highway ribbon -->
+        <g aria-hidden="true" stroke="var(--map-highway)" stroke-width="1.6" fill="none" stroke-linecap="round">
+          <path d="M 28 -10 C 50 120, 116 220, 148 360 C 174 484, 130 620, 108 808"/>
+        </g>
+        <!-- L5 — Place labels -->
+        <g aria-hidden="true" fill="var(--map-label)" opacity="0.55" style="font-family: var(--font-instrument), 'JetBrains Mono', monospace; font-size: 7px; letter-spacing: 0.08em;">
+          <text x="78" y="248" text-anchor="middle">FOOTHILL</text>
+          <text x="178" y="332" text-anchor="middle">DOWNTOWN</text>
+          <text x="208" y="572" text-anchor="middle">SUGAR HOUSE</text>
+          <text x="106" y="744" text-anchor="middle">WESTSIDE</text>
+        </g>
+        <!-- L6 — Demoted topo contours -->
+        <g aria-hidden="true" stroke="var(--map-contour-faint)" stroke-width="0.5" fill="none">
+          <path d="M -20 360 C 90 340, 200 364, 310 344 C 360 338, 400 340, 420 338"/>
+          <path d="M -20 580 C 80 564, 180 588, 280 568 C 340 558, 380 562, 420 558"/>
         </g>
       </svg>
     </div>
 
-    <!-- TopBar -->
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <!-- Map controls -->
+    <div class="view-error-screen__controls-slot">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
+
+    <!-- TopBar -->
+    <header class="view-error-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-error-screen__status-card mol-context-capsule" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>The Navigator</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Failed</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Couldn't <em>stitch</em> that one</h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
 
     <!-- Error callout — fading out (suggestion tapped) -->
     <div class="view-error-screen__callout view-error-screen__callout--fading org-map-layer__top-overlay" role="status" aria-label="Navigator error callout — fading">
@@ -959,10 +1258,50 @@
 
     <div class="view-error-screen__map-slot">
       <svg class="view-error-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
-          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
-          <path d="M -20 380 C 65 355, 155 420, 240 380 S 340 405, 420 365"/>
-          <path d="M -20 580 C 80 555, 160 615, 240 580 S 340 600, 420 560"/>
+        <!-- mapbox-paper-tile · regenerate from _mapbox-paper-tile.svg.html -->
+        <!-- L2 — Water polygon (eastern lake/coast lobe) -->
+        <g aria-hidden="true">
+          <path d="M 318 -10 C 296 90, 348 200, 314 320 C 286 440, 344 580, 298 720 C 286 760, 290 790, 296 820 L 420 820 L 420 -10 Z" fill="var(--map-water-tint)"/>
+          <path d="M 318 -10 C 296 90, 348 200, 314 320 C 286 440, 344 580, 298 720 C 286 760, 290 790, 296 820" stroke="color-mix(in srgb, var(--wx-rain) 30%, transparent)" stroke-width="0.6" fill="none"/>
+        </g>
+        <!-- L3 — Park polygons -->
+        <g aria-hidden="true" fill="var(--map-park-tint)">
+          <ellipse cx="78" cy="262" rx="58" ry="38" transform="rotate(-12 78 262)"/>
+          <ellipse cx="208" cy="558" rx="44" ry="26" transform="rotate(7 208 558)"/>
+          <path d="M 38 716 C 82 696, 138 716, 172 700 C 196 716, 198 762, 142 776 C 86 780, 40 754, 38 716 Z"/>
+        </g>
+        <!-- L4a — Minor streets -->
+        <g aria-hidden="true" stroke="var(--map-contour-faint)" stroke-width="0.6" fill="none" stroke-linecap="square">
+          <path d="M 22 108 L 92 106"/><path d="M 110 102 L 178 100"/><path d="M 192 96 L 248 94"/>
+          <path d="M 38 156 L 110 152"/><path d="M 132 150 L 198 148"/><path d="M 218 144 L 270 142"/>
+          <path d="M 22 380 L 88 378"/><path d="M 110 376 L 175 372"/><path d="M 195 370 L 248 368"/>
+          <path d="M 32 422 L 100 420"/><path d="M 124 418 L 188 416"/>
+          <path d="M 70 86 L 72 196"/><path d="M 140 80 L 142 192"/><path d="M 215 75 L 217 186"/>
+          <path d="M 60 358 L 62 460"/><path d="M 130 356 L 132 458"/><path d="M 200 354 L 202 454"/>
+          <path d="M 26 624 L 110 596"/><path d="M 50 662 L 134 632"/><path d="M 102 702 L 200 668"/><path d="M 60 770 L 162 740"/>
+        </g>
+        <!-- L4b — Major arterials -->
+        <g aria-hidden="true" stroke="var(--map-contour)" stroke-width="1.0" fill="none" stroke-linecap="round">
+          <path d="M -10 220 C 80 215, 170 230, 260 218 C 285 214, 300 212, 320 210"/>
+          <path d="M -10 500 C 70 490, 150 510, 230 498 C 268 491, 290 491, 308 488"/>
+          <path d="M 90 -10 C 88 124, 96 264, 92 404 C 89 524, 95 664, 92 808"/>
+          <path d="M 246 -10 C 244 90, 252 222, 244 362 C 238 482, 250 602, 244 706"/>
+        </g>
+        <!-- L4c — Highway ribbon -->
+        <g aria-hidden="true" stroke="var(--map-highway)" stroke-width="1.6" fill="none" stroke-linecap="round">
+          <path d="M 28 -10 C 50 120, 116 220, 148 360 C 174 484, 130 620, 108 808"/>
+        </g>
+        <!-- L5 — Place labels -->
+        <g aria-hidden="true" fill="var(--map-label)" opacity="0.55" style="font-family: var(--font-instrument), 'JetBrains Mono', monospace; font-size: 7px; letter-spacing: 0.08em;">
+          <text x="78" y="248" text-anchor="middle">FOOTHILL</text>
+          <text x="178" y="332" text-anchor="middle">DOWNTOWN</text>
+          <text x="208" y="572" text-anchor="middle">SUGAR HOUSE</text>
+          <text x="106" y="744" text-anchor="middle">WESTSIDE</text>
+        </g>
+        <!-- L6 — Demoted topo contours -->
+        <g aria-hidden="true" stroke="var(--map-contour-faint)" stroke-width="0.5" fill="none">
+          <path d="M -20 360 C 90 340, 200 364, 310 344 C 360 338, 400 340, 420 338"/>
+          <path d="M -20 580 C 80 564, 180 588, 280 568 C 340 558, 380 562, 420 558"/>
         </g>
       </svg>
       <!-- Offline / disconnected wifi watermark -->
@@ -977,22 +1316,42 @@
       </div>
     </div>
 
-    <!-- TopBar -->
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <!-- Map controls -->
+    <div class="view-error-screen__controls-slot">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
+
+    <!-- TopBar -->
+    <header class="view-error-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-error-screen__status-card mol-context-capsule" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>The Navigator</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Failed</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Couldn't <em>stitch</em> that one</h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
 
     <!-- Error callout — offline state -->
     <div class="view-error-screen__callout org-map-layer__top-overlay" role="status" aria-label="Navigator error callout — offline">
@@ -1075,29 +1434,90 @@
 
     <div class="view-error-screen__map-slot">
       <svg class="view-error-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
-          <path d="M -20 310 C 80 285, 165 350, 240 310 S 340 330, 420 290"/>
-          <path d="M -20 520 C 65 495, 155 565, 240 520 S 340 545, 420 505"/>
+        <!-- mapbox-paper-tile · regenerate from _mapbox-paper-tile.svg.html -->
+        <!-- L2 — Water polygon (eastern lake/coast lobe) -->
+        <g aria-hidden="true">
+          <path d="M 318 -10 C 296 90, 348 200, 314 320 C 286 440, 344 580, 298 720 C 286 760, 290 790, 296 820 L 420 820 L 420 -10 Z" fill="var(--map-water-tint)"/>
+          <path d="M 318 -10 C 296 90, 348 200, 314 320 C 286 440, 344 580, 298 720 C 286 760, 290 790, 296 820" stroke="color-mix(in srgb, var(--wx-rain) 30%, transparent)" stroke-width="0.6" fill="none"/>
+        </g>
+        <!-- L3 — Park polygons -->
+        <g aria-hidden="true" fill="var(--map-park-tint)">
+          <ellipse cx="78" cy="262" rx="58" ry="38" transform="rotate(-12 78 262)"/>
+          <ellipse cx="208" cy="558" rx="44" ry="26" transform="rotate(7 208 558)"/>
+          <path d="M 38 716 C 82 696, 138 716, 172 700 C 196 716, 198 762, 142 776 C 86 780, 40 754, 38 716 Z"/>
+        </g>
+        <!-- L4a — Minor streets -->
+        <g aria-hidden="true" stroke="var(--map-contour-faint)" stroke-width="0.6" fill="none" stroke-linecap="square">
+          <path d="M 22 108 L 92 106"/><path d="M 110 102 L 178 100"/><path d="M 192 96 L 248 94"/>
+          <path d="M 38 156 L 110 152"/><path d="M 132 150 L 198 148"/><path d="M 218 144 L 270 142"/>
+          <path d="M 22 380 L 88 378"/><path d="M 110 376 L 175 372"/><path d="M 195 370 L 248 368"/>
+          <path d="M 32 422 L 100 420"/><path d="M 124 418 L 188 416"/>
+          <path d="M 70 86 L 72 196"/><path d="M 140 80 L 142 192"/><path d="M 215 75 L 217 186"/>
+          <path d="M 60 358 L 62 460"/><path d="M 130 356 L 132 458"/><path d="M 200 354 L 202 454"/>
+          <path d="M 26 624 L 110 596"/><path d="M 50 662 L 134 632"/><path d="M 102 702 L 200 668"/><path d="M 60 770 L 162 740"/>
+        </g>
+        <!-- L4b — Major arterials -->
+        <g aria-hidden="true" stroke="var(--map-contour)" stroke-width="1.0" fill="none" stroke-linecap="round">
+          <path d="M -10 220 C 80 215, 170 230, 260 218 C 285 214, 300 212, 320 210"/>
+          <path d="M -10 500 C 70 490, 150 510, 230 498 C 268 491, 290 491, 308 488"/>
+          <path d="M 90 -10 C 88 124, 96 264, 92 404 C 89 524, 95 664, 92 808"/>
+          <path d="M 246 -10 C 244 90, 252 222, 244 362 C 238 482, 250 602, 244 706"/>
+        </g>
+        <!-- L4c — Highway ribbon -->
+        <g aria-hidden="true" stroke="var(--map-highway)" stroke-width="1.6" fill="none" stroke-linecap="round">
+          <path d="M 28 -10 C 50 120, 116 220, 148 360 C 174 484, 130 620, 108 808"/>
+        </g>
+        <!-- L5 — Place labels -->
+        <g aria-hidden="true" fill="var(--map-label)" opacity="0.55" style="font-family: var(--font-instrument), 'JetBrains Mono', monospace; font-size: 7px; letter-spacing: 0.08em;">
+          <text x="78" y="248" text-anchor="middle">FOOTHILL</text>
+          <text x="178" y="332" text-anchor="middle">DOWNTOWN</text>
+          <text x="208" y="572" text-anchor="middle">SUGAR HOUSE</text>
+          <text x="106" y="744" text-anchor="middle">WESTSIDE</text>
+        </g>
+        <!-- L6 — Demoted topo contours -->
+        <g aria-hidden="true" stroke="var(--map-contour-faint)" stroke-width="0.5" fill="none">
+          <path d="M -20 360 C 90 340, 200 364, 310 344 C 360 338, 400 340, 420 338"/>
+          <path d="M -20 580 C 80 564, 180 588, 280 568 C 340 558, 380 562, 420 558"/>
         </g>
       </svg>
     </div>
 
-    <!-- TopBar -->
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <!-- Map controls -->
+    <div class="view-error-screen__controls-slot">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
+
+    <!-- TopBar -->
+    <header class="view-error-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-error-screen__status-card mol-context-capsule" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>The Navigator</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Failed</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Couldn't <em>stitch</em> that one</h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
 
     <!-- Error callout — no chips -->
     <div class="view-error-screen__callout org-map-layer__top-overlay" role="status" aria-label="Navigator error callout — generic failure">

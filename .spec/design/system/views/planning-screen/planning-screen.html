@@ -147,19 +147,71 @@
   z-index: 60;
 }
 
-/* Status bar */
+/* Status bar — flanks the notch (battery/time/wifi at notch level) */
 .view-planning-screen__status-bar {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  padding: var(--space-10) var(--space-5) var(--space-0);
+  height: 44px;
+  padding: var(--space-4) var(--space-6) var(--space-0);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 50;
+  z-index: 70;
   color: var(--content-primary);
+  pointer-events: none;
 }
+.view-planning-screen__status-bar > * { pointer-events: auto; }
+
+/* ── Header row — menu · status-card · new (inline, NO background) ── */
+.view-planning-screen__header {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  right: 0;
+  padding: var(--space-3) var(--space-4) var(--space-0);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  z-index: 50;
+  background: transparent;
+  pointer-events: none;
+}
+.view-planning-screen__header > * { pointer-events: auto; }
+
+.view-planning-screen__status-card {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+}
+
+.view-planning-screen__header .mol-context-capsule {
+  padding: var(--space-2) var(--space-3);
+  gap: 0;
+  min-width: 0;
+}
+.view-planning-screen__header .mol-context-capsule__meta {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.view-planning-screen__header .mol-context-capsule__headline {
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+/* ── Map controls — right-aligned, vertically centered ────────── */
+.view-planning-screen__map-controls {
+  position: absolute;
+  top: 50%;
+  right: var(--space-4);
+  transform: translateY(-50%);
+  z-index: 35;
+  pointer-events: none;
+}
+.view-planning-screen__map-controls > * { pointer-events: auto; }
 
 /* Home indicator */
 .view-planning-screen__home-bar {
@@ -287,10 +339,10 @@
   color: var(--wx-wind);
 }
 
-/* ── Phase indicator anchor ───────────────────────────────────── */
+/* ── Phase indicator anchor — below header row ────────────────── */
 .view-planning-screen__phase-anchor {
   position: absolute;
-  top: var(--space-10);
+  top: 152px;                        /* status (44) + header (~96) + gap */
   left: var(--space-4);
   right: var(--space-4);
   z-index: 20;
@@ -530,21 +582,41 @@
     </svg>
     <div class="view-planning-screen__sketch-head" style="left:36%;top:49%;"></div>
 
-    <!-- TopBar slot -->
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <!-- Header — menu · status-card · new -->
+    <header class="view-planning-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Phase 1 / 5</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Scouting</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Let me <em>think</em> on that…</h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <!-- Map controls — right-aligned, vertically centered -->
+    <div class="view-planning-screen__map-controls">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
 
     <!-- Phase indicator (top-overlay slot) -->
@@ -655,20 +727,39 @@
     </svg>
     <div class="view-planning-screen__sketch-head" style="left:85%;top:42%;"></div>
 
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <header class="view-planning-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Phase 2 / 5</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Drawing</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Loops are <em>forming</em></h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <div class="view-planning-screen__map-controls">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
 
     <div class="org-map-layer__top-overlay view-planning-screen__phase-anchor">
@@ -783,20 +874,39 @@
       <path d="M 86 397 C 110 375, 145 408, 185 415 S 240 408, 275 388 S 318 365, 338 348"/>
     </svg>
 
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <header class="view-planning-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Phase 3 / 5</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Weather</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Sun on one, <em>wind</em> on another</h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <div class="view-planning-screen__map-controls">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
 
     <div class="org-map-layer__top-overlay view-planning-screen__phase-anchor">
@@ -901,20 +1011,39 @@
       </svg>
     </div>
 
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <header class="view-planning-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Phase 4 / 5</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Scoring</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Ranking by <em>scenic</em> + twist</h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <div class="view-planning-screen__map-controls">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
 
     <div class="org-map-layer__top-overlay view-planning-screen__phase-anchor">
@@ -1013,20 +1142,39 @@
     </svg>
     <div class="view-planning-screen__sketch-head" style="left:70%;top:46%;"></div>
 
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <header class="view-planning-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Phase 2 / 5</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Slow plan · 4s+</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Tricky one — <em>hang</em> on…</h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <div class="view-planning-screen__map-controls">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
 
     <div class="org-map-layer__top-overlay view-planning-screen__phase-anchor">
@@ -1122,21 +1270,40 @@
       <div class="view-planning-screen__start-pin" style="left:22%;top:47%;"></div>
     </div>
 
-    <!-- TopBar (above scrim) -->
-    <div class="org-map-layer__top-bar" style="z-index:38;">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <!-- Header (above scrim) — menu · status-card · new -->
+    <header class="view-planning-screen__header" style="z-index:38;" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Paused</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Cancel?</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Stop <em>planning?</em></h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <div class="view-planning-screen__map-controls" style="z-index:34;">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
 
     <!-- Phase indicator — dimmed -->
@@ -1217,20 +1384,39 @@
       <div class="view-planning-screen__start-pin" style="left:22%;top:47%;"></div>
     </div>
 
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
+    <header class="view-planning-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning mol-context-capsule--warning" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Phase 5 / 5</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>1 candidate</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Only <em>one</em> road works</h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <div class="view-planning-screen__map-controls">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
 
     <div class="org-map-layer__top-overlay view-planning-screen__phase-anchor view-planning-screen__phase-anchor--warning">

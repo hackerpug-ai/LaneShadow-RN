@@ -151,19 +151,22 @@
   background: var(--ink-900);
 }
 
-/* Status bar */
+/* Status bar — flanks the notch (battery/time/wifi at notch level) */
 .view-idle-screen__status-bar {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  padding: var(--space-10) var(--space-5) var(--space-0);
+  height: 44px;
+  padding: var(--space-4) var(--space-6) var(--space-0);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 50;
+  z-index: 70;
   color: var(--content-primary);
+  pointer-events: none;
 }
+.view-idle-screen__status-bar > * { pointer-events: auto; }
 
 /* Home indicator bar */
 .view-idle-screen__home-bar {
@@ -239,47 +242,72 @@
   border-width: var(--stroke-sm);
 }
 
-/* ── Greeting overlay geometry ────────────────────────────────── */
-.view-idle-screen__greeting {
+/* ── Header row — menu · status-card · new (inline, NO background) ── */
+.view-idle-screen__header {
   position: absolute;
-  top: var(--space-10);
-  left: var(--space-5);
-  right: var(--space-5);
-  z-index: 20;
+  top: 44px;                         /* below status bar (notch row) */
+  left: 0;
+  right: 0;
+  padding: var(--space-3) var(--space-4) var(--space-0);
   display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.view-idle-screen__greeting-meta {
-  display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: var(--space-3);
-  color: var(--signal-default);
+  z-index: 50;
+  background: transparent;           /* no background to header body */
+  pointer-events: none;
+}
+.view-idle-screen__header > * { pointer-events: auto; }
+
+/* Status card (mol-context-capsule extension — claims the flex middle) */
+.view-idle-screen__status-card {
+  flex: 1;
+  min-width: 0;
+  max-width: none;
 }
 
-.view-idle-screen__greeting-meta--warning {
+/* Compact capsule typography for inline use */
+.view-idle-screen__header .mol-context-capsule {
+  padding: var(--space-2) var(--space-3);
+  gap: 0;
+  min-width: 0;
+}
+.view-idle-screen__header .mol-context-capsule__meta {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.view-idle-screen__header .mol-context-capsule__headline {
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+/* Status-card colour modifiers (preserve scope-word + warning meta) */
+.view-idle-screen__status-card--warning .mol-context-capsule__meta {
   color: var(--status-warning);
 }
 
-.view-idle-screen__greeting-dot {
-  width: var(--space-1);
-  height: var(--space-1);
-  border-radius: var(--radius-pill);
-  background: currentColor;
-  opacity: 0.6;
-  flex-shrink: 0;
+/* ── Advisory card — slots BELOW header, in top-overlay slot ───── */
+.view-idle-screen__advisory-anchor {
+  position: absolute;
+  top: 152px;                        /* status bar (44) + header (~96) + gap */
+  left: var(--space-4);
+  right: var(--space-4);
+  z-index: 30;
+  pointer-events: none;
 }
+.view-idle-screen__advisory-anchor > * { pointer-events: auto; }
 
-.view-idle-screen__greeting-headline {
-  color: var(--content-primary);
-  text-shadow: 0 var(--stroke-sm) var(--space-4) var(--surface-glass);
+/* ── Map controls — right-aligned, vertically centered ────────── */
+.view-idle-screen__map-controls {
+  position: absolute;
+  top: 50%;
+  right: var(--space-4);
+  transform: translateY(-50%);
+  z-index: 35;
+  pointer-events: none;
 }
-
-.view-idle-screen__greeting-headline em {
-  font-style: italic;
-  color: var(--signal-default);
-}
+.view-idle-screen__map-controls > * { pointer-events: auto; }
 
 /* ── Advisory card (V03 weather variant) ──────────────────────── */
 .view-idle-screen__advisory {
@@ -519,33 +547,43 @@
       <div class="view-idle-screen__fav-pin view-idle-screen__fav-pin--sm" style="left:43%;top:63%;"></div>
     </div>
 
-    <!-- TopBar slot -->
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
-    </div>
-
-    <!-- Greeting overlay (top-overlay slot) -->
-    <div class="org-map-layer__top-overlay view-idle-screen__greeting">
-      <div class="view-idle-screen__greeting-meta t-label-md">
-        <span>Friday</span>
-        <span class="view-idle-screen__greeting-dot"></span>
-        <span>68°F</span>
-        <span class="view-idle-screen__greeting-dot"></span>
-        <span>Clear</span>
+    <!-- Header — menu · status-card · new (inline, no row background) -->
+    <header class="view-idle-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-idle-screen__status-card mol-context-capsule mol-context-capsule--idle" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Friday</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>68°F</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Clear</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Where we riding <em>today?</em></h2>
       </div>
-      <h2 class="view-idle-screen__greeting-headline t-opinion-xl">Where are we riding <em>today?</em></h2>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <!-- Map controls — right-aligned, vertically centered -->
+    <div class="view-idle-screen__map-controls">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
 
     <!-- Chat input anchor (bottom-overlay slot) -->
@@ -636,31 +674,41 @@
       <div class="view-idle-screen__fav-pin view-idle-screen__fav-pin--sm" style="left:43%;top:63%;"></div>
     </div>
 
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
-    </div>
-
-    <div class="org-map-layer__top-overlay view-idle-screen__greeting">
-      <div class="view-idle-screen__greeting-meta t-label-md">
-        <span>Friday</span>
-        <span class="view-idle-screen__greeting-dot"></span>
-        <span>68°F</span>
-        <span class="view-idle-screen__greeting-dot"></span>
-        <span>Clear</span>
+    <header class="view-idle-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-idle-screen__status-card mol-context-capsule mol-context-capsule--idle" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Friday</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>68°F</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Clear</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Where we riding <em>today?</em></h2>
       </div>
-      <h2 class="view-idle-screen__greeting-headline t-opinion-xl">Where are we riding <em>today?</em></h2>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <div class="view-idle-screen__map-controls">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
 
     <div class="org-map-layer__bottom-overlay view-idle-screen__chat-anchor">
@@ -745,31 +793,41 @@
       <div class="view-idle-screen__fav-pin view-idle-screen__fav-pin--sm" style="left:43%;top:63%;"></div>
     </div>
 
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
-    </div>
-
-    <div class="org-map-layer__top-overlay view-idle-screen__greeting">
-      <div class="view-idle-screen__greeting-meta t-label-md">
-        <span>Friday</span>
-        <span class="view-idle-screen__greeting-dot"></span>
-        <span>54°F</span>
-        <span class="view-idle-screen__greeting-dot"></span>
-        <span>Fog</span>
+    <header class="view-idle-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-idle-screen__status-card mol-context-capsule mol-context-capsule--idle" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Friday</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>54°F</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Fog</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Where we riding <em>tonight?</em></h2>
       </div>
-      <h2 class="view-idle-screen__greeting-headline t-opinion-xl">Where are we riding <em>tonight?</em></h2>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <div class="view-idle-screen__map-controls">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
 
     <div class="org-map-layer__bottom-overlay view-idle-screen__chat-anchor">
@@ -844,22 +902,28 @@
     <!-- Scrim -->
     <div class="view-idle-screen__scrim"></div>
 
-    <!-- TopBar (above scrim) -->
-    <div class="org-map-layer__top-bar" style="z-index:20;">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
-    </div>
+    <!-- Header (above scrim) — menu · status-card · new -->
+    <header class="view-idle-screen__header" style="z-index:20;" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-idle-screen__status-card mol-context-capsule mol-context-capsule--idle" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Refine</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Filters</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Refine the <em>ask</em></h2>
+      </div>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
 
     <!-- Filter sheet -->
     <div class="view-idle-screen__filter-sheet" role="dialog" aria-label="Refine the ask">
@@ -925,29 +989,39 @@
       </svg>
     </div>
 
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
-    </div>
-
-    <div class="org-map-layer__top-overlay view-idle-screen__greeting">
-      <div class="view-idle-screen__greeting-meta t-label-md">
-        <span>Friday</span>
-        <span class="view-idle-screen__greeting-dot"></span>
-        <span>Set a start</span>
+    <header class="view-idle-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-idle-screen__status-card mol-context-capsule mol-context-capsule--idle" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Friday</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Set a start</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Where are we <em>starting</em> from?</h2>
       </div>
-      <h2 class="view-idle-screen__greeting-headline t-opinion-xl">Where are we <em>starting</em> from?</h2>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <div class="view-idle-screen__map-controls">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
 
     <div class="org-map-layer__bottom-overlay view-idle-screen__chat-anchor">
@@ -1020,31 +1094,41 @@
       <!-- No favorite pins on first-ride variant -->
     </div>
 
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
-    </div>
-
-    <div class="org-map-layer__top-overlay view-idle-screen__greeting">
-      <div class="view-idle-screen__greeting-meta t-label-md">
-        <span>Friday</span>
-        <span class="view-idle-screen__greeting-dot"></span>
-        <span>68°F</span>
-        <span class="view-idle-screen__greeting-dot"></span>
-        <span>Clear</span>
+    <header class="view-idle-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-idle-screen__status-card mol-context-capsule mol-context-capsule--idle" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Friday</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>68°F</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Clear</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">First ride? <em>Ask</em> me.</h2>
       </div>
-      <h2 class="view-idle-screen__greeting-headline t-opinion-xl">First ride? <em>Ask</em> me anything.</h2>
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <div class="view-idle-screen__map-controls">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
+      </div>
     </div>
 
     <div class="org-map-layer__bottom-overlay view-idle-screen__chat-anchor">
@@ -1124,38 +1208,50 @@
       </svg>
     </div>
 
-    <div class="org-map-layer__top-bar">
-      <nav class="org-topbar" aria-label="App navigation">
-        <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <path d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-        <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          <span class="t-label-md">New</span>
-        </button>
-      </nav>
-    </div>
-
-    <!-- Greeting with weather advisory card -->
-    <div class="org-map-layer__top-overlay view-idle-screen__greeting">
-      <div class="view-idle-screen__greeting-meta view-idle-screen__greeting-meta--warning t-label-md">
-        <span>Friday</span>
-        <span class="view-idle-screen__greeting-dot"></span>
-        <span>54°F</span>
-        <span class="view-idle-screen__greeting-dot"></span>
-        <span>Heavy rain</span>
+    <header class="view-idle-screen__header" aria-label="App header">
+      <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+      <div class="view-idle-screen__status-card view-idle-screen__status-card--warning mol-context-capsule mol-context-capsule--idle mol-context-capsule--warning" role="status">
+        <div class="mol-context-capsule__meta t-label-sm">
+          <span>Friday</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>54°F</span>
+          <span class="mol-context-capsule__meta-dot"></span>
+          <span>Heavy rain</span>
+        </div>
+        <h2 class="mol-context-capsule__headline t-opinion-md">Not the <em>prettiest</em> day.</h2>
       </div>
-      <h2 class="view-idle-screen__greeting-headline t-opinion-xl">Not the <em>prettiest</em> day for it.</h2>
-      <!-- Advisory card -->
+      <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span class="t-label-md">New</span>
+      </button>
+    </header>
+
+    <!-- Advisory card — sits below header in its own anchor -->
+    <div class="view-idle-screen__advisory-anchor">
       <div class="view-idle-screen__advisory" role="status" aria-label="Weather advisory">
         <div class="view-idle-screen__advisory-label t-label-sm">Weather advisory</div>
         <div class="view-idle-screen__advisory-body t-opinion-sm">
           I can still plan something, but shorter loops near home will beat anything with a pass today.
         </div>
+      </div>
+    </div>
+
+    <div class="view-idle-screen__map-controls">
+      <div class="org-map-controls">
+        <div class="org-map-controls__zoom-cluster" role="group" aria-label="Zoom controls">
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <div class="org-map-controls__zoom-divider"></div>
+          <button class="org-map-controls__zoom-btn" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+        <button class="org-map-controls__chip" aria-label="Recenter map"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Toggle layers"><svg viewBox="0 0 24 24"><path d="M12 3 2 9l10 6 10-6-10-6Z"/><path d="M2 15l10 6 10-6"/></svg></button>
+        <button class="org-map-controls__chip" aria-label="Open chat"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 21l1.8-5.5A8 8 0 1 1 21 12Z"/></svg></button>
       </div>
     </div>
 
