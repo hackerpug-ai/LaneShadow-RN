@@ -2,11 +2,13 @@ package com.laneshadow.ui.idle
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.junit4.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import com.laneshadow.BuildConfig
 import com.laneshadow.data.chat.ChatRepository
@@ -37,6 +39,7 @@ import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.ui.molecules.AUTOCOMPLETE_RECOMMENDATION_ROW_TAG
 import com.laneshadow.ui.molecules.AutocompleteRecommendation
 import com.laneshadow.ui.templates.IdleScreen
+import com.laneshadow.ui.organisms.LS_INLINE_ERROR_CALLOUT_TAG
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
@@ -336,7 +339,94 @@ class IdlePlaceAutocompleteTest {
             assertThat(viewModel.state.value.autocompleteError).isNull()
             assertThat(viewModel.state.value.placeSuggestions.map { it.label })
                 .containsExactly("Big Sur, CA")
+            val recoveredState = viewModel.state.value
+
+            composeRule.setContent {
+                LaneShadowTheme {
+                    IdleScreen(
+                        state = recoveredState.toMockState(),
+                        inputValue = recoveredState.inputValue,
+                        onMenuTap = {},
+                        onSuggestionTap = {},
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        autocompleteError = recoveredState.autocompleteError,
+                        autocompleteRecommendations = recoveredState.placeSuggestions.map { suggestion ->
+                            AutocompleteRecommendation(
+                                id = suggestion.id,
+                                title = suggestion.name,
+                                supportingText = suggestion.label,
+                                contentDescription = suggestion.label,
+                            )
+                        },
+                        mapContent = {
+                            Box(modifier = Modifier.testTag("mock-map"))
+                        },
+                    )
+                }
+            }
+
+            composeRule.onNodeWithTag(LS_INLINE_ERROR_CALLOUT_TAG).assertDoesNotExist()
+            composeRule.onNodeWithContentDescription("Big Sur, CA").assertExists()
         }
+    }
+
+    @Test
+    fun autocompleteFailure_rendersVisibleErrorUntilRecommendationsReplaceIt() {
+        val failedState = IdleUiState(
+            inputValue = "Bi",
+            showStaticSuggestions = false,
+            autocompleteError = "Autocomplete unavailable",
+        )
+        val recoveredState = failedState.copy(
+            inputValue = "Big",
+            autocompleteError = null,
+            placeSuggestions = listOf(
+                createUiSuggestion("1", "Big Sur", "Big Sur, CA"),
+                createUiSuggestion("2", "Big Basin", "Big Basin Redwoods State Park"),
+            ),
+        )
+        val renderedState = mutableStateOf(failedState)
+
+        composeRule.setContent {
+            LaneShadowTheme {
+                IdleScreen(
+                    state = renderedState.value.toMockState(),
+                    inputValue = renderedState.value.inputValue,
+                    onMenuTap = {},
+                    onSuggestionTap = {},
+                    onSend = {},
+                    onCollapse = {},
+                    onFilter = {},
+                    onValueChange = {},
+                    autocompleteError = renderedState.value.autocompleteError,
+                    autocompleteRecommendations = renderedState.value.placeSuggestions.map { suggestion ->
+                        AutocompleteRecommendation(
+                            id = suggestion.id,
+                            title = suggestion.name,
+                            supportingText = suggestion.label,
+                            contentDescription = suggestion.label,
+                        )
+                    },
+                    mapContent = {
+                        Box(modifier = Modifier.testTag("mock-map"))
+                    },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag(LS_INLINE_ERROR_CALLOUT_TAG).assertExists()
+        composeRule.onNodeWithContentDescription("Big Sur, CA").assertDoesNotExist()
+
+        composeRule.runOnUiThread {
+            renderedState.value = recoveredState
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag(LS_INLINE_ERROR_CALLOUT_TAG).assertDoesNotExist()
+        composeRule.onNodeWithContentDescription("Big Sur, CA").assertExists()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

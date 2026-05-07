@@ -32,6 +32,7 @@ import com.laneshadow.ui.atoms.LSTextField
 import com.laneshadow.ui.atoms.SpinnerSize
 import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.atoms.TypographyVariant
+import com.laneshadow.ui.organisms.LSInlineErrorCallout
 
 /**
  * LSChatInput molecule component
@@ -63,6 +64,7 @@ fun LSChatInput(
     onFilter: () -> Unit,
     suggestions: List<SuggestionChip>? = null,
     autocompleteRecommendations: List<AutocompleteRecommendation> = emptyList(),
+    autocompleteError: String? = null,
     onAutocompleteRecommendationTap: (AutocompleteRecommendation) -> Unit = {},
     onSuggestionTap: (SuggestionChip) -> Unit = {},
     locationBadge: LocationContext? = null,
@@ -112,6 +114,16 @@ fun LSChatInput(
                     )
                 }
             }
+        }
+
+        autocompleteError?.takeIf { it.isNotBlank() }?.let { errorMessage ->
+            LSInlineErrorCallout(
+                body = "Autocomplete is unavailable right now.",
+                detail = errorMessage,
+                suggestions = emptyList(),
+                onSuggestionTap = {},
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
 
         if (autocompleteRecommendations.isNotEmpty()) {

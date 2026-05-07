@@ -45,6 +45,8 @@ fun IdleRoute(
                 contentDescription = suggestion.label,
             )
         },
+        autocompleteError = uiState.autocompleteError,
+        isAutocompleteLoading = uiState.isAutocompleteLoading,
         onAutocompleteRecommendationTap = { recommendation ->
             uiState.placeSuggestions
                 .firstOrNull { it.id == recommendation.id }

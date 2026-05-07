@@ -60,6 +60,8 @@ fun IdleScreen(
     onFilter: () -> Unit,
     onValueChange: (String) -> Unit,
     autocompleteRecommendations: List<AutocompleteRecommendation> = emptyList(),
+    autocompleteError: String? = null,
+    isAutocompleteLoading: Boolean = false,
     onAutocompleteRecommendationTap: (AutocompleteRecommendation) -> Unit = {},
     onLocationModeChange: (String) -> Unit = {},
     mapContent: @Composable (IdleScreenState) -> Unit = { screenState ->
@@ -140,6 +142,7 @@ fun IdleScreen(
                             UISuggestionChip(label = mockChip.label)
                         },
                         autocompleteRecommendations = autocompleteRecommendations,
+                        autocompleteError = autocompleteError,
                         onAutocompleteRecommendationTap = onAutocompleteRecommendationTap,
                         onSuggestionTap = { uiChip ->
                             val originalChip = state.suggestions.firstOrNull { it.label == uiChip.label }
@@ -149,6 +152,7 @@ fun IdleScreen(
                         onLocationModeChange = { mode ->
                             onLocationModeChange(mode.name.lowercase())
                         },
+                        isThinking = isAutocompleteLoading,
                         isEnabled = !state.isNoLocation,  // V01: disable chat input in no-location variant
                         modifier = Modifier.testTag("chat-input"),
                     )
