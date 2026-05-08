@@ -8,7 +8,24 @@
  */
 
 import { describe, expect, it, vi } from 'vitest'
+import { derivePlanningPhase } from '../../../models/session-messages'
 import type { Id } from '../../_generated/dataModel'
+
+vi.mock('../_generated/server', () => ({
+  mutation: (def: unknown) => def,
+  query: (def: unknown) => def,
+  internalMutation: (def: unknown) => def,
+  internalQuery: (def: unknown) => def,
+}))
+
+vi.mock('../guards', () => ({
+  requireIdentity: vi.fn(),
+}))
+
+vi.mock('../../guards', () => ({
+  requireIdentity: vi.fn(),
+}))
+
 import { sendHandler } from '../sessionMessages'
 
 const CLERK_USER_ID = 'user_test_123'
@@ -86,6 +103,33 @@ describe('sessionMessages validation', () => {
 
       // Verify no insert happened
       expect(ctx.db.insert).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('AC-6: pre-migration session messages remain backward compatible', () => {
+    it('pre-migration active planning rows without thinkingSteps return parsing default', () => {
+      const phase = derivePlanningPhase({
+        sessionId: SESSION_ID,
+        role: 'system',
+        content: '',
+        createdAt: Date.now(),
+        kind: 'planning',
+        status: 'streaming',
+      } as any)
+
+      expect(phase).toBe('parsing')
+    })
+
+    it('backward-compatible non-planning rows without thinkingSteps return null', () => {
+      const phase = derivePlanningPhase({
+        sessionId: SESSION_ID,
+        role: 'system',
+        content: '',
+        createdAt: Date.now(),
+        kind: 'text',
+      } as any)
+
+      expect(phase).toBeNull()
     })
   })
 })

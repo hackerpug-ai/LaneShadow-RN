@@ -71,7 +71,8 @@ type UpdatePlanStatusCtx = {
 type CancelPlanCtx = {
   db: {
     get: (id: Id<'route_plans'>) => Promise<RoutePlanDoc | null>
-    patch: (id: Id<'route_plans'>, fields: object) => Promise<void>
+    patch: (id: Id<'route_plans'> | Id<'session_messages'>, fields: object) => Promise<void>
+    query: (table: string) => any
   }
   scheduler: {
     cancel: (id: Id<'_scheduled_functions'>) => Promise<void>
@@ -243,6 +244,20 @@ export const cancelPlanHandler = async (
 
   if (isActive && doc.scheduledActionId) {
     await ctx.scheduler.cancel(doc.scheduledActionId)
+  }
+
+  if (doc.planningSessionId) {
+    const planningMessages = await ctx.db
+      .query('session_messages')
+      .withIndex('by_sessionId', (q: any) => q.eq('sessionId', doc.planningSessionId))
+      .filter((q: any) => q.eq(true, true))
+      .collect()
+
+    for (const message of planningMessages) {
+      if (message.kind !== 'planning') continue
+      if (message.status === 'complete' || message.status === 'failed') continue
+      await ctx.db.patch(message._id, { status: 'failed' })
+    }
   }
 
   await ctx.db.patch(args.routePlanId, {

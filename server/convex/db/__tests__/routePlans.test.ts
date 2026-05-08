@@ -9,6 +9,29 @@ import { ConvexError } from 'convex/values'
 import { describe, expect, it, vi } from 'vitest'
 import type { Id } from '../../_generated/dataModel'
 import { ERROR_CODES } from '../../errors'
+
+vi.mock('../_generated/server', () => ({
+  mutation: (def: unknown) => def,
+  query: (def: unknown) => def,
+  internalMutation: (def: unknown) => def,
+  internalQuery: (def: unknown) => def,
+}))
+
+vi.mock('../_generated/api', () => ({
+  internal: {
+    actions: { agent: { planRide: { executePlan: {} } } },
+    db: { routePlans: {} },
+  },
+}))
+
+vi.mock('../guards', () => ({
+  requireIdentity: vi.fn(),
+}))
+
+vi.mock('../../guards', () => ({
+  requireIdentity: vi.fn(),
+}))
+
 import {
   cancelPlanHandler,
   createPlanHandler,
@@ -52,18 +75,19 @@ const basePlanInput = {
   preferences: { scenicBias: 'default' as const },
 } as any
 
-const makePlanDoc = (overrides: Record<string, unknown> = {}) => ({
-  _id: PLAN_ID,
-  _creationTime: 1000,
-  clerkUserId: CLERK_USER_ID,
-  planInput: basePlanInput,
-  startLabel: 'Start City',
-  endLabel: 'End City',
-  status: 'pending',
-  createdAt: Date.now() - 5000,
-  updatedAt: Date.now() - 5000,
-  ...overrides,
-})
+const makePlanDoc = (overrides: Record<string, unknown> = {}) =>
+  ({
+    _id: PLAN_ID,
+    _creationTime: 1000,
+    clerkUserId: CLERK_USER_ID,
+    planInput: basePlanInput,
+    startLabel: 'Start City',
+    endLabel: 'End City',
+    status: 'pending',
+    createdAt: Date.now() - 5000,
+    updatedAt: Date.now() - 5000,
+    ...overrides,
+  }) as any
 
 // ---------------------------------------------------------------------------
 // AC-1: createPlan inserts a new record with status='pending' and schedules execution
@@ -416,6 +440,65 @@ describe('updatePlanStatusHandler', () => {
 // ---------------------------------------------------------------------------
 
 describe('cancelPlanHandler', () => {
+  it('AC-4: cancel planning marks in-flight planning messages failed', async () => {
+    const plan = makePlanDoc({
+      status: 'running',
+      planningSessionId: 'session_abc' as Id<'planning_sessions'>,
+      scheduledActionId: SCHEDULED_ACTION_ID,
+    })
+    const planningMessageId = 'msg_planning' as Id<'session_messages'>
+    const ctx = {
+      db: {
+        get: vi.fn().mockResolvedValue(plan),
+        patch: vi.fn().mockResolvedValue(undefined),
+        query: vi.fn().mockReturnValue({
+          withIndex: vi.fn().mockReturnValue({
+            filter: vi.fn().mockReturnValue({
+              collect: vi.fn().mockResolvedValue([
+                {
+                  _id: planningMessageId,
+                  sessionId: plan.planningSessionId,
+                  kind: 'planning',
+                  status: 'streaming',
+                },
+                {
+                  _id: 'msg_done' as Id<'session_messages'>,
+                  sessionId: plan.planningSessionId,
+                  kind: 'planning',
+                  status: 'complete',
+                },
+                {
+                  _id: 'msg_text' as Id<'session_messages'>,
+                  sessionId: plan.planningSessionId,
+                  kind: 'text',
+                  status: 'streaming',
+                },
+              ]),
+            }),
+          }),
+        }),
+      },
+      scheduler: {
+        cancel: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    await cancelPlanHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID)
+
+    expect(ctx.db.patch).toHaveBeenCalledWith(
+      planningMessageId,
+      expect.objectContaining({ status: 'failed' }),
+    )
+    expect(ctx.db.patch).not.toHaveBeenCalledWith(
+      'msg_done',
+      expect.objectContaining({ status: 'failed' }),
+    )
+    expect(ctx.db.patch).not.toHaveBeenCalledWith(
+      'msg_text',
+      expect.objectContaining({ status: 'failed' }),
+    )
+  })
+
   it('AC-5: cancels scheduler and sets status=cancelled for a pending plan', async () => {
     const plan = makePlanDoc({
       status: 'pending',
@@ -497,12 +580,13 @@ describe('cancelPlanHandler', () => {
     ).rejects.toThrow(ERROR_CODES.PLAN_NOT_FOUND)
   })
 
-  it('AC-5: throws PLAN_NOT_FOUND when plan belongs to another user', async () => {
+  it('AC-5: cancel ownership guard throws PLAN_NOT_FOUND when plan belongs to another user', async () => {
     const plan = makePlanDoc({ clerkUserId: 'other_user_789' })
     const ctx = {
       db: {
         get: vi.fn().mockResolvedValue(plan),
         patch: vi.fn(),
+        query: vi.fn(),
       },
       scheduler: {
         cancel: vi.fn(),
@@ -512,6 +596,9 @@ describe('cancelPlanHandler', () => {
     await expect(
       cancelPlanHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID),
     ).rejects.toThrow(ERROR_CODES.PLAN_NOT_FOUND)
+
+    expect(ctx.db.patch).not.toHaveBeenCalled()
+    expect(ctx.db.query).not.toHaveBeenCalled()
   })
 })
 

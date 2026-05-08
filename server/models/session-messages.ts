@@ -49,6 +49,23 @@ export const sessionMessageStatusValidator = v.union(
   v.literal('failed'), // terminal failure
 )
 
+export const PLANNING_PHASE = {
+  PARSING: 'parsing',
+  SEARCHING: 'searching',
+  DRAFTING: 'drafting',
+  ENRICHING: 'enriching',
+  FINALIZING: 'finalizing',
+} as const
+export type PlanningPhase = (typeof PLANNING_PHASE)[keyof typeof PLANNING_PHASE]
+
+export const planningPhaseValidator = v.union(
+  v.literal('parsing'),
+  v.literal('searching'),
+  v.literal('drafting'),
+  v.literal('enriching'),
+  v.literal('finalizing'),
+)
+
 export const sessionMessageAttachmentValidator = v.object({
   type: v.literal('route_options'),
   routePlanId: v.id('route_plans'),
@@ -70,6 +87,123 @@ export const thinkingStepValidator = v.object({
   timestamp: v.number(),
 })
 export type ThinkingStep = Infer<typeof thinkingStepValidator>
+
+type PlanningEventContent = {
+  events?: Array<{
+    type?: 'tool_pending' | 'tool_complete' | 'agent_complete'
+    tool?: string
+  }>
+}
+
+const SEARCHING_TOOL_NAMES = new Set(['geocode', 'search_agent', 'webSearch'])
+const DRAFTING_TOOL_NAMES = new Set([
+  'createRouteSketch',
+  'compileSketch',
+  'planRoute',
+  'routing_agent',
+])
+const ENRICHING_TOOL_NAMES = new Set([
+  'searchNearby',
+  'fetchWeather',
+  'webSearchResults',
+  'enrichment_agent',
+])
+
+const derivePlanningPhaseFromToolName = (toolName?: string): PlanningPhase | null => {
+  if (!toolName) return null
+  if (SEARCHING_TOOL_NAMES.has(toolName)) return PLANNING_PHASE.SEARCHING
+  if (DRAFTING_TOOL_NAMES.has(toolName)) return PLANNING_PHASE.DRAFTING
+  if (ENRICHING_TOOL_NAMES.has(toolName)) return PLANNING_PHASE.ENRICHING
+  return null
+}
+
+const parsePlanningContent = (content: string): PlanningEventContent | null => {
+  if (!content.trim().startsWith('{')) return null
+  try {
+    return JSON.parse(content) as PlanningEventContent
+  } catch {
+    return null
+  }
+}
+
+const derivePlanningPhaseFromThinkingSteps = (
+  thinkingSteps?: ThinkingStep[],
+): PlanningPhase | null => {
+  let lastKnownPhase: PlanningPhase | null = null
+  for (const step of thinkingSteps ?? []) {
+    if (step.type === 'tool_finish' && step.toolName === 'routing_agent') {
+      lastKnownPhase = PLANNING_PHASE.FINALIZING
+      continue
+    }
+    const nextPhase = derivePlanningPhaseFromToolName(step.toolName)
+    if (nextPhase !== null) {
+      lastKnownPhase = nextPhase
+    }
+  }
+  return lastKnownPhase
+}
+
+const derivePlanningPhaseFromPlanningContent = (content: string): PlanningPhase | null => {
+  const parsed = parsePlanningContent(content)
+  let lastKnownPhase: PlanningPhase | null = null
+
+  for (const event of parsed?.events ?? []) {
+    if (event.type === 'agent_complete') {
+      lastKnownPhase = PLANNING_PHASE.FINALIZING
+      continue
+    }
+    const nextPhase = derivePlanningPhaseFromToolName(event.tool)
+    if (nextPhase !== null) {
+      lastKnownPhase = nextPhase
+    }
+  }
+
+  return lastKnownPhase
+}
+
+/**
+ * Canonical planning-phase contract for session messages.
+ *
+ * - Planning rows may persist `phase` directly for clients to consume.
+ * - Pre-migration rows may omit `phase`; in that case phase is derived
+ *   deterministically from structured `thinkingSteps[].toolName`, then from
+ *   structured planning-event JSON stored in `content`, and finally from the
+ *   message terminal `status`.
+ * - This contract never inspects human-readable text substrings.
+ */
+export const derivePlanningPhase = (message: SessionMessage): PlanningPhase | null => {
+  if (message.kind !== SESSION_MESSAGE_KIND.PLANNING) {
+    return null
+  }
+
+  if (message.phase !== undefined) {
+    return message.phase
+  }
+
+  if (message.status === SESSION_MESSAGE_STATUS.COMPLETE) {
+    return PLANNING_PHASE.FINALIZING
+  }
+
+  const thinkingStepPhase = derivePlanningPhaseFromThinkingSteps(message.thinkingSteps)
+  if (thinkingStepPhase !== null) {
+    return thinkingStepPhase
+  }
+
+  const contentPhase = derivePlanningPhaseFromPlanningContent(message.content)
+  if (contentPhase !== null) {
+    return contentPhase
+  }
+
+  if (
+    message.status === SESSION_MESSAGE_STATUS.STREAMING ||
+    message.status === SESSION_MESSAGE_STATUS.RUNNING ||
+    message.status === undefined
+  ) {
+    return PLANNING_PHASE.PARSING
+  }
+
+  return null
+}
 
 export const sessionMessageValidator = v.object({
   sessionId: v.id('planning_sessions'),
@@ -93,5 +227,7 @@ export const sessionMessageValidator = v.object({
    * Captures agent reasoning deltas and tool activity (start/finish).
    */
   thinkingSteps: v.optional(v.array(thinkingStepValidator)),
+  /** Canonical phase for planning rows; optional for backward compatibility. */
+  phase: v.optional(planningPhaseValidator),
 })
 export type SessionMessage = Infer<typeof sessionMessageValidator>
