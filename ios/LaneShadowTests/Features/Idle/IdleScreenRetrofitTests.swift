@@ -150,7 +150,7 @@ struct IdleScreenRetrofitTests {
     }
 
     @Test("Recenter callback is wired")
-    func test_recenterCallback_isWired() async throws {
+    func recenterCallback_isWired() async throws {
         var recenterTapCount = 0
 
         let screen = IdleScreen(

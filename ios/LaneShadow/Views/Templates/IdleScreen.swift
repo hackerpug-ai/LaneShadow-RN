@@ -243,7 +243,10 @@ private enum IdleScreenMapControlDefaults {
     }
 
     static func logRecenterStub() {
-        logger.info("[STUB] Recenter - template idle screen has no LSMapHost camera; Sprint 08 live path uses IdleScreenContainer")
+        logger
+            .info(
+                "[STUB] Recenter - template idle screen has no LSMapHost camera; Sprint 08 live path uses IdleScreenContainer"
+            )
     }
 
     static func logLayersStub() {
