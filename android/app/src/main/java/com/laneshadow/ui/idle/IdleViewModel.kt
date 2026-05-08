@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class IdleViewModel @Inject constructor(
+class IdleViewModel private constructor(
     private val userRepository: UserRepository,
     private val sessionRepository: SessionRepository,
     private val chatRepository: ChatRepository,
@@ -46,7 +46,28 @@ class IdleViewModel @Inject constructor(
     private val favoritesRepository: FavoritesRepository,
     private val locationRepository: LocationRepository,
     private val convexClientProvider: ConvexClientProvider,
+    runtime: IdleViewModelRuntime,
 ) : ViewModel() {
+    @Inject
+    constructor(
+        userRepository: UserRepository,
+        sessionRepository: SessionRepository,
+        chatRepository: ChatRepository,
+        weatherRepository: WeatherRepository,
+        favoritesRepository: FavoritesRepository,
+        locationRepository: LocationRepository,
+        convexClientProvider: ConvexClientProvider,
+    ) : this(
+        userRepository = userRepository,
+        sessionRepository = sessionRepository,
+        chatRepository = chatRepository,
+        weatherRepository = weatherRepository,
+        favoritesRepository = favoritesRepository,
+        locationRepository = locationRepository,
+        convexClientProvider = convexClientProvider,
+        runtime = IdleViewModelRuntime(),
+    )
+
     internal constructor(
         userRepository: UserRepository,
         sessionRepository: SessionRepository,
@@ -66,11 +87,12 @@ class IdleViewModel @Inject constructor(
         favoritesRepository = favoritesRepository,
         locationRepository = locationRepository,
         convexClientProvider = convexClientProvider,
-    ) {
-        this.timeProvider = timeProvider
-        this.autocompleteDebounceMs = autocompleteDebounceMs
-        this.autocompleteDispatcher = autocompleteDispatcher
-    }
+        runtime = IdleViewModelRuntime(
+            timeProvider = timeProvider,
+            autocompleteDebounceMs = autocompleteDebounceMs,
+            autocompleteDispatcher = autocompleteDispatcher,
+        ),
+    )
 
     private val _state = MutableStateFlow(IdleUiState())
     val state: StateFlow<IdleUiState> = _state.asStateFlow()
@@ -86,9 +108,9 @@ class IdleViewModel @Inject constructor(
     )
     val capsuleState: StateFlow<CapsuleState> = _capsuleState.asStateFlow()
 
-    private var timeProvider: () -> LocalTime = { LocalTime.now() }
-    private var autocompleteDebounceMs: Long = 300L
-    private var autocompleteDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private var timeProvider: () -> LocalTime = runtime.timeProvider
+    private var autocompleteDebounceMs: Long = runtime.autocompleteDebounceMs
+    private var autocompleteDispatcher: CoroutineDispatcher = runtime.autocompleteDispatcher
     private var autocompleteJob: Job? = null
     private var autocompleteSessionToken: String? = null
     private var latestAutocompleteRequestId: Long = 0L
@@ -538,5 +560,11 @@ class IdleViewModel @Inject constructor(
         const val MaxAutocompleteSuggestions = 3
     }
 }
+
+private data class IdleViewModelRuntime(
+    val timeProvider: () -> LocalTime = { LocalTime.now() },
+    val autocompleteDebounceMs: Long = 300L,
+    val autocompleteDispatcher: CoroutineDispatcher = Dispatchers.Main,
+)
 
 private fun String.split_whitespace(): List<String> = this.split(Regex("\\s+"))

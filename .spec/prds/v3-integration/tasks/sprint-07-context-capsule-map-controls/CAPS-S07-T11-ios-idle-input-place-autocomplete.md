@@ -23,7 +23,7 @@ RUNTIME_COMMANDS:
 
 ## Sprint 7 Carry-Forward
 
-This task was originally executed during Sprint 06 remediation and was moved into Sprint 07 on 2026-05-07. The code-level implementation remains recorded at commit `c9077e31`, but product signoff is intentionally deferred until after CAPS-S07-T01 through CAPS-S07-T09 complete the strict design-review fixes. Do not use this task's simulator/unit evidence as final autocomplete gate evidence until the retrofitted idle screen passes Sprint 07 design review.
+This task was originally executed during Sprint 06 remediation and was moved into Sprint 07 on 2026-05-07. The code-level implementation remains recorded at commit `c9077e31`; final Sprint 7 evidence now lives under `gate-evidence/autocomplete/` because the strict design/snapshot review tasks were deleted from scope.
 
 ## OUTCOME
 
@@ -34,7 +34,7 @@ When an iOS rider types in the Sprint 07 retrofitted idle input, the app shows u
 ## CRITICAL CONSTRAINTS
 
 - **MUST** call Convex `actions/places:suggestPlaces` and `actions/places:retrievePlace`; iOS must not call Mapbox Search directly.
-- **MUST** be re-walked only after CAPS-S07-T05 and CAPS-S07-T09 prove the redesigned idle screen/capture path is stable.
+- **MUST** be re-verified against the post-redesign idle screen from CAPS-S07-T05.
 - **MUST** keep static ride suggestion chips for empty input and replace them with place recommendations only while the typed query is active.
 - **MUST** cap visible place recommendations at 3 even if backend or test fakes return more.
 - **NEVER** start planning, move the map camera, add markers, or draw routes when a place recommendation is selected.
@@ -212,7 +212,7 @@ Reviewer must verify the production `IdleScreenContainer` path, not only sandbox
 
 ## DEPENDENCIES
 
-- **Depends on:** CAPS-S07-T05, CAPS-S07-T09, CAPS-S07-T10, IDLE-S06-REM-IOS-T01
+- **Depends on:** CAPS-S07-T05, CAPS-S07-T10, IDLE-S06-REM-IOS-T01
 - **Blocks:** CAPS-S07-T13
 
 ---

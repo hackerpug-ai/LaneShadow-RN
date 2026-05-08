@@ -23,7 +23,7 @@ RUNTIME_COMMANDS:
 
 ## Sprint 7 Carry-Forward
 
-This task was originally executed during Sprint 06 remediation and was moved into Sprint 07 on 2026-05-07 because autocomplete cannot receive final product signoff until the Sprint 07 strict design-review fixes land. Implementation evidence is preserved at commit `454f230a`; Sprint 07 owns post-design-gate verification and final autocomplete evidence.
+This task was originally executed during Sprint 06 remediation and was moved into Sprint 07 on 2026-05-07 so final autocomplete evidence could live with the post-redesign idle-screen work. Implementation evidence is preserved at commit `454f230a`; Sprint 07 owns backend/iOS/Android/manual-status verification under `gate-evidence/autocomplete/`.
 
 ## OUTCOME
 

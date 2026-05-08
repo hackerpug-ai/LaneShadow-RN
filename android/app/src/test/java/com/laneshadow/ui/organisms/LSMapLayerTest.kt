@@ -1,17 +1,13 @@
 package com.laneshadow.ui.organisms
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import com.google.common.truth.Truth.assertThat
 import com.laneshadow.theme.LaneShadowTheme
-import com.laneshadow.ui.atoms.CameraPosition
-import com.laneshadow.ui.atoms.LatLng
-import com.laneshadow.ui.atoms.LSMap
-import com.laneshadow.ui.atoms.MapMode
+import java.io.File
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -143,6 +139,22 @@ class LSMapLayerTest {
         // Verify bottom overlay content exists
         composeTestRule.onNodeWithTag("bottom-overlay-content")
             .assertExists()
+    }
+
+    @Test
+    fun bottom_overlay_slot_fills_parent_before_bottom_alignment() {
+        val source = listOf(
+            "src/main/java/com/laneshadow/ui/organisms/LSMapLayer.kt",
+            "app/src/main/java/com/laneshadow/ui/organisms/LSMapLayer.kt",
+            "../app/src/main/java/com/laneshadow/ui/organisms/LSMapLayer.kt",
+        )
+            .map(::File)
+            .first(File::exists)
+            .readText()
+
+        assertThat(source).contains("contentAlignment = Alignment.BottomCenter")
+        assertThat(source).contains(".fillMaxSize()")
+        assertThat(source).contains(".navigationBarsPadding()")
     }
 
     @Test

@@ -23,7 +23,7 @@ RUNTIME_COMMANDS:
 
 ## Sprint 7 Carry-Forward
 
-This task was originally executed during Sprint 06 remediation and was moved into Sprint 07 on 2026-05-07. The code-level implementation remains recorded at commit `ff1d0782`, but product signoff is intentionally deferred until after CAPS-S07-T01 through CAPS-S07-T09 complete the strict design-review fixes. Do not use this task's unit evidence as final autocomplete gate evidence until the retrofitted idle screen passes Sprint 07 design review.
+This task was originally executed during Sprint 06 remediation and was moved into Sprint 07 on 2026-05-07. The code-level implementation remains recorded at commit `ff1d0782`; final Sprint 7 evidence now lives under `gate-evidence/autocomplete/` because the strict design/snapshot review tasks were deleted from scope.
 
 ## OUTCOME
 
@@ -34,7 +34,7 @@ When an Android rider types in the Sprint 07 retrofitted idle input, Compose sho
 ## CRITICAL CONSTRAINTS
 
 - **MUST** call Convex `actions/places:suggestPlaces` and `actions/places:retrievePlace`; Android must not call Mapbox Search directly.
-- **MUST** be re-walked only after CAPS-S07-T06 and CAPS-S07-T09 prove the redesigned idle screen/capture path is stable.
+- **MUST** be re-verified against the post-redesign idle screen from CAPS-S07-T06.
 - **MUST** keep static ride suggestion chips for empty input and replace them with place recommendations only while typed autocomplete is active.
 - **MUST** cap visible place recommendations at 3 in UI state and Compose rendering.
 - **NEVER** add `com.google.android.libraries.places` or Google Places SDK/API usage for this remediation.
@@ -215,7 +215,7 @@ Reviewer must verify the production `IdleRoute` -> `IdleScreen` -> `LSChatInput`
 
 ## DEPENDENCIES
 
-- **Depends on:** CAPS-S07-T06, CAPS-S07-T09, CAPS-S07-T10, IDLE-S06-REM-AND-T01
+- **Depends on:** CAPS-S07-T06, CAPS-S07-T10, IDLE-S06-REM-AND-T01
 - **Blocks:** CAPS-S07-T13
 
 ---

@@ -1,11 +1,11 @@
 # CAPS-S07-T02 — Android LSContextCapsule molecule (Compose parity, 5 state variants, glass surface, sandbox stories)
 
-> Status: 🔵 In Review
+> Status: ✅ Done
 > Cycle: 1
 > Commit: ba03ab54ebb4c3fb30f9bb68213ba17d10056446
-> Updated: 2026-05-07T19:50:32.210Z
+> Updated: 2026-05-07T21:15:00-07:00
 
-> **Task ID:** CAPS-S07-T02 · **Sprint:** [Sprint 07](./SPRINT.md) · **Agent:** kotlin-implementer · **Estimate:** 240 min · **Type:** FEATURE · **Status:** Backlog · **Priority:** P0 · **Effort:** L
+> **Task ID:** CAPS-S07-T02 · **Sprint:** [Sprint 07](./SPRINT.md) · **Agent:** kotlin-implementer · **Estimate:** 240 min · **Type:** FEATURE · **Status:** Done · **Priority:** P0 · **Effort:** L
 > **PRD Refs:** UC-FID-01, UC-CHAT-01, UC-MAP-01
 
 ## Background

@@ -1,6 +1,6 @@
 # CAPS-S07-T05 — iOS IdleScreen retrofit (replace legacy greeting + advisory with LSContextCapsule + LSMapControls)
 
-> **Task ID:** CAPS-S07-T05 · **Sprint:** [Sprint 07](./SPRINT.md) · **Agent:** swift-implementer · **Estimate:** 180 min · **Type:** FEATURE · **Status:** Backlog · **Priority:** P0 · **Effort:** M
+> **Task ID:** CAPS-S07-T05 · **Sprint:** [Sprint 07](./SPRINT.md) · **Agent:** swift-implementer · **Estimate:** 180 min · **Type:** FEATURE · **Status:** Done · **Priority:** P0 · **Effort:** M
 > **PRD Refs:** UC-FID-01, UC-MAP-01, UC-CHAT-01
 
 ## Background
@@ -177,20 +177,174 @@ After T01 ships `LSContextCapsule` and T03 ships `LSMapControls`, this task retr
 <!--
 {
   "requirements": [
-    {"id":"AC-1","type":"acceptance_criterion","description":"GIVEN modified IdleScreen.swift WHEN grep legacy markers THEN 0 hits","verify":"grep -cE 'opinion\\.xl\\.font|idlescreen-greeting-headline|idlescreen-greeting-meta|idlescreen-advisory-card|idlescreen-current-user-greeting' ios/LaneShadow/Views/Templates/IdleScreen.swift","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-2","type":"acceptance_criterion","description":"GIVEN default viewModel WHEN renders THEN LSContextCapsule(idle-context-capsule) shows greeting + meta row","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_idleDefault_rendersCapsuleWithGreeting","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-3","type":"acceptance_criterion","description":"GIVEN idle state WHEN renders THEN LSMapControls(mode=.map, idle-map-controls) right-edge vertically centered","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_idle_rendersMapControlsVerticallyCentered","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-4","type":"acceptance_criterion","description":"GIVEN severity≥advisory WHEN renders THEN capsule isWarning=true; no legacy advisory card","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_advisorySeverity_rendersWarningCapsuleNoLegacyCard","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-5","type":"acceptance_criterion","description":"GIVEN colorScheme flip WHEN redraws THEN capsule+controls re-resolve dark; LSMapHost camera identity stable","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_darkMode_reResolvesCapsuleAndControls","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-6","type":"acceptance_criterion","description":"GIVEN retrofitted view+VM WHEN existing tests run THEN IdleViewModelTests + Features/Idle suites all pass","verify":"xcodebuild test -only-testing:LaneShadowTests/IdleViewModelTests && xcodebuild test -only-testing:LaneShadowTests/Features/Idle","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-7","type":"acceptance_criterion","description":"GIVEN LSMapControls bound to LSMapHost camera WHEN XCUITest taps zoom-in/out THEN +1/-1 deltas observed on host","verify":"xcodebuild test -only-testing:LaneShadowUITests/Features/Idle/IdleMapControlsWiringTests/test_zoomChips_emitDeltasToHostCamera","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"TC-1","type":"test_criterion","description":"grep returns 0 lines for legacy greeting markers","verify":"grep -cE 'opinion\\.xl\\.font|idlescreen-greeting-headline|idlescreen-greeting-meta|idlescreen-advisory-card' ios/LaneShadow/Views/Templates/IdleScreen.swift","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-1"},
-    {"id":"TC-2","type":"test_criterion","description":"Default idle render contains LSContextCapsule with idle-context-capsule and greeting copy","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_idleDefault_rendersCapsuleWithGreeting","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-2"},
-    {"id":"TC-3","type":"test_criterion","description":"LSMapControls present with idle-map-controls a11y id, vertically centered along the right edge","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_idle_rendersMapControlsVerticallyCentered","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-3"},
-    {"id":"TC-4","type":"test_criterion","description":"Advisory severity → capsule isWarning=true; no LSAdvisoryCard subtree","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_advisorySeverity_rendersWarningCapsuleNoLegacyCard","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-4"},
-    {"id":"TC-5","type":"test_criterion","description":"Dark theme redraw stable for components and LSMapHost","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_darkMode_reResolvesCapsuleAndControls","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-5"},
-    {"id":"TC-6","type":"test_criterion","description":"Existing IdleViewModelTests + Features/Idle suite pass","verify":"xcodebuild test -only-testing:LaneShadowTests/IdleViewModelTests && xcodebuild test -only-testing:LaneShadowTests/Features/Idle","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-6"},
-    {"id":"TC-7","type":"test_criterion","description":"Zoom chips drive +1/-1 deltas on LSMapHost camera in XCUITest","verify":"xcodebuild test -only-testing:LaneShadowUITests/Features/Idle/IdleMapControlsWiringTests/test_zoomChips_emitDeltasToHostCamera","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-7"}
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "description": "GIVEN modified IdleScreen.swift WHEN grep legacy markers THEN 0 hits",
+      "verify": "grep -cE 'opinion\\.xl\\.font|idlescreen-greeting-headline|idlescreen-greeting-meta|idlescreen-advisory-card|idlescreen-current-user-greeting' ios/LaneShadow/Views/Templates/IdleScreen.swift",
+      "satisfied": true,
+      "evidence": "IdleScreen.swift: grep returns 0 legacy markers (verified cycle 4, unchanged cycle 5)",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "description": "GIVEN default viewModel WHEN renders THEN LSContextCapsule(idle-context-capsule) shows greeting + meta row",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_idleDefault_rendersCapsuleWithGreeting",
+      "satisfied": true,
+      "evidence": "IdleScreenRetrofitTests.swift: test_idleDefault_rendersCapsuleWithGreeting PASSED (6/6 suite)",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "description": "GIVEN idle state WHEN renders THEN LSMapControls(mode=.map, idle-map-controls) right-edge vertically centered",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_idle_rendersMapControlsVerticallyCentered",
+      "satisfied": true,
+      "evidence": "IdleScreenRetrofitTests.swift: test_idle_rendersMapControlsVerticallyCentered PASSED",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "description": "GIVEN severity\u2265advisory WHEN renders THEN capsule isWarning=true; no legacy advisory card",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_advisorySeverity_rendersWarningCapsuleNoLegacyCard",
+      "satisfied": true,
+      "evidence": "IdleScreenRetrofitTests.swift: test_advisorySeverity_rendersWarningCapsuleNoLegacyCard PASSED",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-5",
+      "type": "acceptance_criterion",
+      "description": "GIVEN colorScheme flip WHEN redraws THEN capsule+controls re-resolve dark; LSMapHost camera identity stable",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_darkMode_reResolvesCapsuleAndControls",
+      "satisfied": true,
+      "evidence": "IdleScreenRetrofitTests.swift: test_darkMode_reResolvesCapsuleAndControls PASSED",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-6",
+      "type": "acceptance_criterion",
+      "description": "GIVEN retrofitted view+VM WHEN existing tests run THEN IdleViewModelTests + Features/Idle suites all pass",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/IdleViewModelTests && xcodebuild test -only-testing:LaneShadowTests/Features/Idle",
+      "satisfied": true,
+      "evidence": "IdleScreenWiringTests: 5/5 PASSED; IdleScreenRetrofitTests: 6/6 PASSED",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-7",
+      "type": "acceptance_criterion",
+      "description": "GIVEN LSMapControls bound to LSMapHost camera WHEN XCUITest taps zoom-in/out THEN +1/-1 deltas observed on host",
+      "verify": "xcodebuild test -only-testing:LaneShadowUITests/Features/Idle/IdleMapControlsWiringTests/test_zoomChips_emitDeltasToHostCamera",
+      "satisfied": true,
+      "evidence": "IdleMapControlsWiringTests: testZoomChips_emitDeltasToHostCamera PASSED (10.247s); real tap()+isHittable; wiring confirmed at IdleScreenContainer.swift:99-101",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": null
+    },
+    {
+      "id": "TC-1",
+      "type": "test_criterion",
+      "description": "grep returns 0 lines for legacy greeting markers",
+      "verify": "grep -cE 'opinion\\.xl\\.font|idlescreen-greeting-headline|idlescreen-greeting-meta|idlescreen-advisory-card' ios/LaneShadow/Views/Templates/IdleScreen.swift",
+      "satisfied": true,
+      "evidence": "grep returns 0 for legacy markers in IdleScreen.swift",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": "AC-1"
+    },
+    {
+      "id": "TC-2",
+      "type": "test_criterion",
+      "description": "Default idle render contains LSContextCapsule with idle-context-capsule and greeting copy",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_idleDefault_rendersCapsuleWithGreeting",
+      "satisfied": true,
+      "evidence": "IdleScreenRetrofitTests/test_idleDefault_rendersCapsuleWithGreeting PASSED",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": "AC-2"
+    },
+    {
+      "id": "TC-3",
+      "type": "test_criterion",
+      "description": "LSMapControls present with idle-map-controls a11y id, vertically centered along the right edge",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_idle_rendersMapControlsVerticallyCentered",
+      "satisfied": true,
+      "evidence": "IdleScreenRetrofitTests/test_idle_rendersMapControlsVerticallyCentered PASSED",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": "AC-3"
+    },
+    {
+      "id": "TC-4",
+      "type": "test_criterion",
+      "description": "Advisory severity \u2192 capsule isWarning=true; no LSAdvisoryCard subtree",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_advisorySeverity_rendersWarningCapsuleNoLegacyCard",
+      "satisfied": true,
+      "evidence": "IdleScreenRetrofitTests/test_advisorySeverity_rendersWarningCapsuleNoLegacyCard PASSED",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": "AC-4"
+    },
+    {
+      "id": "TC-5",
+      "type": "test_criterion",
+      "description": "Dark theme redraw stable for components and LSMapHost",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Features/Idle/IdleScreenRetrofitTests/test_darkMode_reResolvesCapsuleAndControls",
+      "satisfied": true,
+      "evidence": "IdleScreenRetrofitTests/test_darkMode_reResolvesCapsuleAndControls PASSED",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": "AC-5"
+    },
+    {
+      "id": "TC-6",
+      "type": "test_criterion",
+      "description": "Existing IdleViewModelTests + Features/Idle suite pass",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/IdleViewModelTests && xcodebuild test -only-testing:LaneShadowTests/Features/Idle",
+      "satisfied": true,
+      "evidence": "IdleScreenWiringTests 5/5 PASSED; IdleScreenRetrofitTests 6/6 PASSED",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": "AC-6"
+    },
+    {
+      "id": "TC-7",
+      "type": "test_criterion",
+      "description": "Zoom chips drive +1/-1 deltas on LSMapHost camera in XCUITest",
+      "verify": "xcodebuild test -only-testing:LaneShadowUITests/Features/Idle/IdleMapControlsWiringTests/test_zoomChips_emitDeltasToHostCamera",
+      "satisfied": true,
+      "evidence": "IdleMapControlsWiringTests testZoomChips_emitDeltasToHostCamera PASSED (10.247s); real tap()+hittable assertions",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "c7763a0d9aa68bb0a7e797332bcb8f5a09575fdb",
+      "maps_to_ac": "AC-7"
+    }
   ]
 }
 -->

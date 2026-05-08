@@ -1,15 +1,15 @@
 # CAPS-S07-T01 — iOS LSContextCapsule molecule (5 state variants, glass surface, sandbox stories)
 
-> Status: 🟡 In Progress
+> Status: ✅ Done
 > Cycle: 1
-> Updated: 2026-05-07T18:53:51.675Z
+> Updated: 2026-05-07T21:15:00-07:00
 
 > **Task ID:** CAPS-S07-T01
 > **Sprint:** [Sprint 07 — Production Sync](./SPRINT.md)
 > **Agent:** swift-implementer
 > **Estimate:** 240 min
 > **Type:** FEATURE
-> **Status:** Backlog
+> **Status:** Done
 > **Priority:** P0
 > **Effort:** L
 > **Sprint ID:** sprint-07-context-capsule-map-controls

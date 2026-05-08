@@ -43,9 +43,22 @@ resolve_token() {
 
 mapbox_token=""
 if [ -f "${ENV_FILE}" ]; then
-  mapbox_token="$(resolve_token "MAPBOX_ACCESS_TOKEN")"
+  mapbox_token="$(resolve_token "MAPBOX_PUBLIC_TOKEN")"
   if [ -z "${mapbox_token}" ]; then
-    mapbox_token="$(resolve_token "MAPBOX_PUBLIC_TOKEN")"
+    mapbox_token="$(resolve_token "EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN")"
+  fi
+  if [ -z "${mapbox_token}" ]; then
+    candidate_token="$(resolve_token "MAPBOX_ACCESS_TOKEN")"
+    if [[ "${candidate_token}" == pk.* ]]; then
+      mapbox_token="${candidate_token}"
+    elif [ -n "${candidate_token}" ]; then
+      echo "warning: MAPBOX_ACCESS_TOKEN is not a public pk token; leaving iOS MapboxConfig empty." >&2
+    fi
+  fi
+
+  if [ -n "${mapbox_token}" ] && [[ "${mapbox_token}" != pk.* ]]; then
+    echo "warning: Resolved iOS Mapbox token is not a public pk token; leaving MapboxConfig empty." >&2
+    mapbox_token=""
   fi
 fi
 

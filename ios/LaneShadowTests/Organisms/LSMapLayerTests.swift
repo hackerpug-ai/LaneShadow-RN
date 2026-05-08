@@ -1,3 +1,4 @@
+import Foundation
 import LaneShadowTheme
 import SwiftUI
 import Testing
@@ -5,6 +6,21 @@ import Testing
 
 @MainActor
 struct LSMapLayerTests {
+    private func mapLayerSource() throws -> String {
+        let testFile = URL(fileURLWithPath: #filePath)
+        let iosRoot = testFile
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let sourceURL = iosRoot
+            .appendingPathComponent("LaneShadow")
+            .appendingPathComponent("Views")
+            .appendingPathComponent("Organisms")
+            .appendingPathComponent("LSMapLayer.swift")
+
+        return try String(contentsOf: sourceURL, encoding: .utf8)
+    }
+
     @Test("test_map_plus_topbar_z_order_and_safe_area")
     func map_plus_topbar_z_order_and_safe_area() {
         // GIVEN: developer renders LSMapLayer with map and topBar
@@ -96,6 +112,39 @@ struct LSMapLayerTests {
         // THEN: chat overlay anchors above bottom safe-area inset
         // THEN: renders below bottomSheet z when both present
         // Structural verification: body resolves without crashing
+    }
+
+    @Test("test_bottom_overlay_slot_fills_height_before_bottom_alignment")
+    func bottom_overlay_slot_fills_height_before_bottom_alignment() throws {
+        let source = try mapLayerSource()
+
+        #expect(
+            source.contains(".frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)"),
+            "Bottom overlay slot must fill available height before applying bottom alignment"
+        )
+        #expect(
+            source.contains(".padding(.bottom, theme.space.md)"),
+            "Bottom overlay gutter must use theme spacing instead of SwiftUI's default padding"
+        )
+    }
+
+    @Test("test_map_bleeds_under_safe_area_without_forcing_topbar_under_status_bar")
+    func map_bleeds_under_safe_area_without_forcing_topbar_under_status_bar() throws {
+        let source = try mapLayerSource()
+
+        #expect(
+            source.contains(".ignoresSafeArea(edges: .all)"),
+            "Map canvas should continue to bleed under system safe areas"
+        )
+        #expect(
+            !source
+                .contains(".frame(maxWidth: .infinity, maxHeight: .infinity)\n        .ignoresSafeArea(edges: .all)"),
+            "Root LSMapLayer must not force topBar and overlays under the status bar"
+        )
+        #expect(
+            source.contains(".padding(.top, theme.space.md)"),
+            "Top overlay gutter must use theme spacing instead of SwiftUI's default padding"
+        )
     }
 
     @Test("test_scrim_renders_above_map_below_overlays")
@@ -205,31 +254,31 @@ struct LSMapLayerTests {
         let storyIds = Set(allStories.map(\.id))
 
         #expect(
-            storyIds.contains("organisms.maplayer.mapOnly"),
+            storyIds.contains("organisms.maplayer.map-only"),
             "Map Only story should be registered"
         )
         #expect(
-            storyIds.contains("organisms.maplayer.mapTopBar"),
+            storyIds.contains("organisms.maplayer.map-topbar"),
             "Map + TopBar story should be registered"
         )
         #expect(
-            storyIds.contains("organisms.maplayer.mapTopOverlay"),
+            storyIds.contains("organisms.maplayer.map-top-overlay"),
             "Map + Top Overlay story should be registered"
         )
         #expect(
-            storyIds.contains("organisms.maplayer.mapBottomOverlay"),
+            storyIds.contains("organisms.maplayer.map-bottom-overlay"),
             "Map + Bottom Overlay story should be registered"
         )
         #expect(
-            storyIds.contains("organisms.maplayer.mapScrimDrawer"),
+            storyIds.contains("organisms.maplayer.map-scrim-drawer"),
             "Map + Scrim + Drawer story should be registered"
         )
         #expect(
-            storyIds.contains("organisms.maplayer.mapSheet"),
+            storyIds.contains("organisms.maplayer.map-sheet"),
             "Map + Sheet story should be registered"
         )
         #expect(
-            storyIds.contains("organisms.maplayer.fullStack"),
+            storyIds.contains("organisms.maplayer.full-stack"),
             "Full Stack story should be registered"
         )
     }

@@ -1,6 +1,6 @@
 # CAPS-S07-T03 — iOS LSMapControls organism (vertical workbar — zoom/recenter/layers/save/mode-toggle)
 
-> **Task ID:** CAPS-S07-T03 · **Sprint:** [Sprint 07](./SPRINT.md) · **Agent:** swift-implementer · **Estimate:** 180 min · **Type:** FEATURE · **Status:** Backlog · **Priority:** P0 · **Effort:** M
+> **Task ID:** CAPS-S07-T03 · **Sprint:** [Sprint 07](./SPRINT.md) · **Agent:** swift-implementer · **Estimate:** 180 min · **Type:** FEATURE · **Status:** Done · **Priority:** P0 · **Effort:** M
 > **PRD Refs:** UC-FID-01, UC-MAP-01, Sprint 07 — Context Capsule + Map Controls (Map View Redesign 2026-05-06)
 
 ## Background

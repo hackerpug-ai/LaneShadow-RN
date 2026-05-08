@@ -2,6 +2,7 @@ import CoreLocation
 import LaneShadowTheme
 import MapboxCommon
 import MapboxMaps
+import os
 import SwiftUI
 import UIKit
 
@@ -21,8 +22,13 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
 
     func makeUIView(context: Context) -> MapView {
         configureAccessToken()
+        #if DEBUG
+            LSMapDebugLog.logTokenPrefix(accessToken)
+        #endif
+
         let mapView = MapView(frame: .zero)
         context.coordinator.mapView = mapView
+        configureMapEventLogging(on: mapView, coordinator: context.coordinator)
         configureGestures(on: mapView)
         applyStyleAndCamera(to: mapView, coordinator: context.coordinator)
 
@@ -40,6 +46,7 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
     func updateUIView(_ mapView: MapView, context: Context) {
         configureAccessToken()
         context.coordinator.mapView = mapView
+        configureMapEventLogging(on: mapView, coordinator: context.coordinator)
         configureGestures(on: mapView)
         applyStyleAndCamera(to: mapView, coordinator: context.coordinator)
         renderPolylines(polylines, on: mapView, coordinator: context.coordinator)
@@ -66,6 +73,20 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
     private func configureAccessToken() {
         guard !accessToken.isEmpty else { return }
         MapboxOptions.accessToken = accessToken
+    }
+
+    private func configureMapEventLogging(on mapView: MapView, coordinator: Coordinator) {
+        #if DEBUG
+            guard !coordinator.isMapEventLoggingConfigured else { return }
+            coordinator.isMapEventLoggingConfigured = true
+
+            coordinator.styleLoadedCancelable = mapView.mapboxMap.onStyleLoaded.observe { _ in
+                LSMapDebugLog.logStyleLoaded(styleURI: renderModel.styleURI)
+            }
+            coordinator.mapLoadingErrorCancelable = mapView.mapboxMap.onMapLoadingError.observe { event in
+                LSMapDebugLog.logMapLoadingError(event)
+            }
+        #endif
     }
 
     private func configureGestures(on mapView: MapView) {
@@ -226,6 +247,11 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         var polylineAnnotationManagers: [String: PolylineAnnotationManager] = [:]
         var currentPolylineIds: Set<String> = []
         var favoritePinManager: PointAnnotationManager?
+        #if DEBUG
+            var isMapEventLoggingConfigured = false
+            var styleLoadedCancelable: AnyCancelable?
+            var mapLoadingErrorCancelable: AnyCancelable?
+        #endif
 
         init(onTap: ((LatLng) -> Void)?, cameraController: LSMapCameraController?) {
             self.onTap = onTap
@@ -244,3 +270,23 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         }
     }
 }
+
+#if DEBUG
+    private enum LSMapDebugLog {
+        private static let logger = Logger(subsystem: "com.laneshadow.app", category: "LSMap")
+
+        static func logTokenPrefix(_ token: String) {
+            logger.info("Mapbox token prefix: \(resolveLSMapTokenPrefix(token).rawValue, privacy: .public)")
+        }
+
+        static func logStyleLoaded(styleURI: String?) {
+            logger.info("Mapbox style loaded: success styleURI=\(styleURI ?? "(nil)", privacy: .public)")
+        }
+
+        static func logMapLoadingError(_ event: MapLoadingError) {
+            logger.error(
+                "Mapbox loading error type=\(String(describing: event.type), privacy: .public) message=\(event.message, privacy: .public)"
+            )
+        }
+    }
+#endif

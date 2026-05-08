@@ -1,6 +1,6 @@
 # CAPS-S07-T06 — Android IdleScreen retrofit (Compose) — replace legacy greeting + advisory with LSContextCapsule + LSMapControls
 
-> **Task ID:** CAPS-S07-T06 · **Sprint:** [Sprint 07](./SPRINT.md) · **Agent:** kotlin-implementer · **Estimate:** 180 min · **Type:** FEATURE · **Status:** Backlog · **Priority:** P0 · **Effort:** M
+> **Task ID:** CAPS-S07-T06 · **Sprint:** [Sprint 07](./SPRINT.md) · **Agent:** kotlin-implementer · **Estimate:** 180 min · **Type:** FEATURE · **Status:** Done · **Priority:** P0 · **Effort:** M
 > **PRD Refs:** UC-FID-01, UC-CHAT-01, UC-MAP-01
 
 ## Background

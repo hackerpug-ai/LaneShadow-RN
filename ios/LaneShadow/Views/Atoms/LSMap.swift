@@ -117,8 +117,8 @@ public enum MapError: String, CaseIterable, Equatable, Sendable {
 }
 
 let lsMapCameraEaseDurationMs = 400
-let lsMapLightStyleURI = "mapbox://styles/laneshadow/clxwarm01"
-let lsMapDarkStyleURI = "mapbox://styles/laneshadow/clxnight02"
+let lsMapLightStyleURI = "mapbox://styles/mapbox/standard"
+let lsMapDarkStyleURI = "mapbox://styles/mapbox/standard"
 let lsMapStrokeWidthSm: CGFloat = 1
 let lsMapStrokeWidthMd: CGFloat = 2
 let lsMapStrokeWidthLg: CGFloat = 3
@@ -171,6 +171,13 @@ struct LSMapRenderModel: Equatable {
     let polylines: [LSMapPolylineStyle]
     let annotations: [LSMapAnnotationStyle]
     let fallback: LSMapFallbackModel?
+}
+
+enum LSMapTokenPrefix: String, Equatable {
+    case publicToken = "pk"
+    case secretToken = "sk"
+    case empty
+    case unknown
 }
 
 let lsMapFavoritePinColorTokenPath = "color.signal.default"
@@ -234,21 +241,57 @@ private struct LSMapContainer: View {
                 onTap: onTap
             )
         } else {
-            LSMapUIViewRepresentable(
-                mode: mode,
-                camera: camera,
-                cameraFit: cameraFit,
-                polylines: polylines,
-                annotations: annotations,
-                favoriteLocations: favoriteLocations,
-                onTap: onTap,
-                accessToken: token,
-                renderModel: renderModel,
-                cameraController: cameraController
-            )
+            ZStack(alignment: .top) {
+                LSMapUIViewRepresentable(
+                    mode: mode,
+                    camera: camera,
+                    cameraFit: cameraFit,
+                    polylines: polylines,
+                    annotations: annotations,
+                    favoriteLocations: favoriteLocations,
+                    onTap: onTap,
+                    accessToken: token,
+                    renderModel: renderModel,
+                    cameraController: cameraController
+                )
+
+                #if DEBUG
+                    if let message = resolveLSMapDebugMisconfigurationMessage(
+                        tokenPrefix: resolveLSMapTokenPrefix(token)
+                    ) {
+                        LSMapDebugBanner(message: message)
+                    }
+                #endif
+            }
         }
     }
 }
+
+#if DEBUG
+    private struct LSMapDebugBanner: View {
+        @Environment(\.theme) private var theme
+
+        let message: String
+
+        var body: some View {
+            Text(message)
+                .font(theme.type.label.sm.font)
+                .foregroundStyle(theme.colors.onSurface.default)
+                .padding(.horizontal, theme.space.sm)
+                .padding(.vertical, theme.space.xs)
+                .background(theme.colors.surface.default.opacity(0.82))
+                .clipShape(RoundedRectangle(cornerRadius: theme.radius.sm, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: theme.radius.sm, style: .continuous)
+                        .stroke(theme.colors.warning.default, lineWidth: theme.borderWidth.thin)
+                )
+                .accessibilityIdentifier("lsmap-debug-token-banner")
+                .accessibilityLabel(message)
+                .padding(.top, theme.space.md)
+                .padding(.horizontal, theme.space.md)
+        }
+    }
+#endif
 
 private struct LSMapErrorView: View {
     @Environment(\.theme) private var theme
@@ -371,6 +414,31 @@ func resolveLSMapStyleURI(colorScheme: ColorScheme) -> String {
         lsMapDarkStyleURI
     default:
         lsMapLightStyleURI
+    }
+}
+
+func resolveLSMapTokenPrefix(_ token: String) -> LSMapTokenPrefix {
+    let trimmed = token.trimmingCharacters(in: .whitespacesAndNewlines)
+    if trimmed.isEmpty {
+        return .empty
+    }
+    if trimmed.hasPrefix("pk.") {
+        return .publicToken
+    }
+    if trimmed.hasPrefix("sk.") {
+        return .secretToken
+    }
+    return .unknown
+}
+
+func resolveLSMapDebugMisconfigurationMessage(tokenPrefix: LSMapTokenPrefix) -> String? {
+    switch tokenPrefix {
+    case .secretToken:
+        "Mapbox token misconfigured (`sk.`); see CAPS-S07-T15."
+    case .unknown:
+        "Mapbox token prefix is not recognized; expected a public `pk.` token."
+    case .publicToken, .empty:
+        nil
     }
 }
 

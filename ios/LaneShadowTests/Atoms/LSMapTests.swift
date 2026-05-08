@@ -4,7 +4,7 @@ import XCTest
 @testable import LaneShadow
 
 final class LSMapTests: XCTestCase {
-    func test_style_tokens_switch_and_request_reload_when_theme_changes_in_place() {
+    func test_style_uri_resolves_to_public_standard_style() {
         let light = resolveLSMapRenderModel(
             mode: .interactive,
             cameraFit: .static,
@@ -29,7 +29,7 @@ final class LSMapTests: XCTestCase {
         )
 
         XCTAssertEqual(dark.styleURI, lsMapDarkStyleURI)
-        XCTAssertTrue(dark.shouldReloadStyle)
+        XCTAssertFalse(dark.shouldReloadStyle)
         XCTAssertNil(dark.fallback)
     }
 
@@ -151,6 +151,18 @@ final class LSMapTests: XCTestCase {
         XCTAssertEqual(renderModel.fallback?.error, .missingToken)
         XCTAssertEqual(renderModel.fallback?.title, "Map unavailable")
         XCTAssertNil(renderModel.styleURI)
+    }
+
+    func test_token_prefix_classifier_rejects_secret_token_for_ios_tiles() {
+        XCTAssertEqual(resolveLSMapTokenPrefix("pk.public-token"), .publicToken)
+        XCTAssertEqual(resolveLSMapTokenPrefix("sk.secret-token"), .secretToken)
+        XCTAssertEqual(resolveLSMapTokenPrefix(""), .empty)
+        XCTAssertEqual(resolveLSMapTokenPrefix("not-a-mapbox-token"), .unknown)
+        XCTAssertEqual(
+            resolveLSMapDebugMisconfigurationMessage(tokenPrefix: .secretToken),
+            "Mapbox token misconfigured (`sk.`); see CAPS-S07-T15."
+        )
+        XCTAssertNil(resolveLSMapDebugMisconfigurationMessage(tokenPrefix: .publicToken))
     }
 
     func test_network_unavailable_renders_error_fallback_without_crash() {

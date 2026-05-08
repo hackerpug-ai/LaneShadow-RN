@@ -37,6 +37,7 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
             // z-index 0: Map (base layer)
             map
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .ignoresSafeArea(edges: .all)
                 .accessibilityIdentifier("maplayer.map")
 
             // z-index 1: Scrim (above map, below overlays)
@@ -49,7 +50,7 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
             ForEach(topOverlays) { overlay in
                 overlay.content()
                     .padding(.horizontal, theme.space.md)
-                    .padding(.top)
+                    .padding(.top, theme.space.md)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .accessibilityIdentifier("maplayer.topOverlay.\(overlay.id)")
             }
@@ -58,8 +59,8 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
             ForEach(bottomOverlays) { overlay in
                 overlay.content()
                     .padding(.horizontal, theme.space.md)
-                    .padding(.bottom)
-                    .frame(maxWidth: .infinity, alignment: .bottom)
+                    .padding(.bottom, theme.space.md)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                     .accessibilityIdentifier("maplayer.bottomOverlay.\(overlay.id)")
             }
 
@@ -89,7 +90,6 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea(edges: .all)
     }
 }
 

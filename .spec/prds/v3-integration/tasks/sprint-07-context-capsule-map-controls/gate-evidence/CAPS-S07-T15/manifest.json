@@ -1,0 +1,17 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "20EC6FD5-4630-4DEF-83F9-1D36093F704E",
+        "deviceName" : "iPhone 16",
+        "exportedFileName" : "03900ECA-F091-4698-8ECC-12BAA8D83B82.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "idle-map-tile-grid_0_CD3331E4-706B-42D0-9332-EB6BE0D9CB46.png",
+        "timestamp" : 1778213653.778
+      }
+    ],
+    "testIdentifier" : "IdleStateE2ETests/testIdleMapTilesRenderNonUniformPixelGrid()",
+    "testIdentifierURL" : "test://com.apple.xcode/LaneShadow/LaneShadowUITests/IdleStateE2ETests/testIdleMapTilesRenderNonUniformPixelGrid"
+  }
+]
