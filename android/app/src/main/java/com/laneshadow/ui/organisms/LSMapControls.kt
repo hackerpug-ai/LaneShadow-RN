@@ -41,6 +41,7 @@ import com.laneshadow.theme.generated.LaneShadowTheme.IconName
 import com.laneshadow.ui.atoms.IconColor
 import com.laneshadow.ui.atoms.IconSize
 import com.laneshadow.ui.atoms.LSIcon
+import java.util.UUID
 
 // Test tags
 const val LSMAPCONTROLS_TAG = "ls-map-controls"
@@ -84,6 +85,7 @@ fun LSMapControls(
     val chipRadius = theme.radius.md
     val blurRadius = 8.dp
     val density = LocalDensity.current
+    val instanceId = remember { UUID.randomUUID().toString() }
 
     // Compute blur strategy based on SDK version
     val blurStrategy = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -94,7 +96,10 @@ fun LSMapControls(
 
     Column(
         modifier = modifier
-            .semantics { contentDescription = "Map controls workbar" },
+            .semantics {
+                contentDescription = "Map controls workbar"
+                set(LSMapControlsInstanceIdKey, instanceId)
+            },
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.spacedBy(theme.space.xs, Alignment.Bottom),
     ) {

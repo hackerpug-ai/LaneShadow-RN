@@ -1,13 +1,16 @@
 package com.laneshadow.ui.organisms
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import com.google.common.truth.Truth.assertThat
 import com.laneshadow.theme.LaneShadowTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -192,9 +195,10 @@ class LSMapControlsTest {
 
     @Test
     fun theme_toggle_reresolves_without_remount() {
-        // Test with light theme
+        var darkTheme by mutableStateOf(false)
+
         composeTestRule.setContent {
-            LaneShadowTheme(darkTheme = false) {
+            LaneShadowTheme(darkTheme = darkTheme) {
                 LSMapControls(
                     mode = MapControlsMode.Map,
                     handlers = MapControlsHandlers(
@@ -212,11 +216,30 @@ class LSMapControlsTest {
             }
         }
 
-        // Verify saved route chip exists in light theme with correct styling
+        // Verify saved route chip exists in light theme
         composeTestRule.onNodeWithContentDescription("Saved route").assertExists()
         composeTestRule.onNodeWithTag(LSMAPCONTROLS_SAVE_TAG).assertExists()
 
-        // Verify all other chips render correctly
+        // Capture the instance ID before theme switch
+        val lightNode = composeTestRule
+            .onNodeWithTag(LSMAPCONTROLS_TAG)
+            .fetchSemanticsNode()
+        val instanceId = lightNode.config[LSMapControlsInstanceIdKey]
+
+        // === FLIP THE THEME ===
+        composeTestRule.runOnIdle { darkTheme = true }
+
+        // Verify the instance ID is stable (composable not remounted)
+        val darkNode = composeTestRule
+            .onNodeWithTag(LSMAPCONTROLS_TAG)
+            .fetchSemanticsNode()
+        assertThat(darkNode.config[LSMapControlsInstanceIdKey]).isEqualTo(instanceId)
+
+        // Verify the saved route chip still renders after theme switch
+        composeTestRule.onNodeWithContentDescription("Saved route").assertExists()
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_SAVE_TAG).assertExists()
+
+        // Verify all other chips still render correctly
         composeTestRule.onNodeWithTag(LSMAPCONTROLS_ZOOM_CLUSTER_TAG).assertExists()
         composeTestRule.onNodeWithContentDescription("Recenter map").assertExists()
         composeTestRule.onNodeWithContentDescription("Reset map state").assertExists()

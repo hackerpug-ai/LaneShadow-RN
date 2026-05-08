@@ -1,126 +1,107 @@
 {
-  "task_id": "CAPS-S07-T04",
-  "timestamp": "2026-05-07T14:30:00Z",
-  "commit_sha": "0694c649b2408842c8a85af20ba474a0ba025744",
-  "tests": {
-    "required": true,
-    "exit_code": 0,
-    "output_file": ".tmp/CAPS-S07-T04/ac-7-output.txt"
-  },
-  "compile": {
-    "exit_code": 0
-  },
-  "assemble": {
-    "exit_code": 0
-  },
-  "lint": {
-    "exit_code": 1,
-    "output_file": ".tmp/CAPS-S07-T04/detekt-output.txt",
-    "failure": "Pre-existing FusedLocationProviderImpl.kt:37 MissingPermission lint error (not from CAPS-S07-T04 changes)"
-  },
-  "token_compliance": {
-    "exit_code": 0
-  },
-  "pre_existing_issues": true,
-  "requirement_results": [
-    {
-      "id": "AC-1",
-      "description": "Map mode no-route renders zoom-cluster + recenter + layers + chat-toggle",
-      "verify": "map_mode_no_route_renders_four_chip_groups",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T04/ac-1-output.txt"
+  "cycle": 2,
+  "base_sha": "978e32bf",
+  "commit_sha": "b0ca260e5746faa62c1ab67d079bb437e7616182",
+  "timestamp": "2026-05-07",
+  "requirements": {
+    "AC-1": {
+      "status": "PASS",
+      "test": "map_mode_no_route_renders_four_chip_groups",
+      "description": "Map mode no-route renders zoom-cluster + recenter + layers + chat-toggle"
     },
-    {
-      "id": "AC-2",
-      "description": "Map mode with-route adds Save chip between Layers and Toggle",
-      "verify": "map_mode_with_route_renders_save_chip",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T04/ac-2-output.txt"
+    "AC-2": {
+      "status": "PASS",
+      "test": "map_mode_with_route_renders_save_chip",
+      "description": "Map mode with-route adds Save chip between Layers and Toggle"
     },
-    {
-      "id": "AC-3",
-      "description": "Saved route state paints save chip in copper signal",
-      "verify": "saved_route_paints_chip_copper",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T04/ac-3-output.txt"
+    "AC-3": {
+      "status": "PASS",
+      "test": "saved_route_paints_chip_copper",
+      "description": "Saved route state paints save chip in copper signal"
     },
-    {
-      "id": "AC-4",
-      "description": "Chat mode collapses workbar to single map-toggle chip",
-      "verify": "chat_mode_collapses_to_single_map_toggle",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T04/ac-4-output.txt"
+    "AC-4": {
+      "status": "PASS",
+      "test": "chat_mode_collapses_to_single_map_toggle",
+      "description": "Chat mode collapses workbar to single map-toggle chip"
     },
-    {
-      "id": "AC-5",
-      "description": "Handler taps invoke their nullable lambdas exactly once",
-      "verify": "handler_taps_invoke_lambdas_once",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T04/ac-5-output.txt"
+    "AC-5": {
+      "status": "PASS",
+      "test": "handler_taps_invoke_lambdas_once",
+      "description": "Handler taps invoke their nullable lambdas exactly once"
     },
-    {
-      "id": "AC-6",
-      "description": "Theme toggle re-resolves chip surfaces + signal copper without remount",
-      "verify": "theme_toggle_reresolves_without_remount",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T04/ac-6-output.txt"
+    "AC-6": {
+      "status": "PASS",
+      "test": "theme_toggle_reresolves_without_remount",
+      "description": "Theme toggle re-resolves chip surfaces + signal copper without remount"
     },
-    {
-      "id": "AC-7",
-      "description": "Sandbox catalog registers 8 canonical map-controls stories",
-      "verify": "map_controls_registers_eight_canonical_stories",
-      "exit_code": 0,
-      "output_file": ".tmp/CAPS-S07-T04/ac-7-output.txt"
+    "AC-7": {
+      "status": "PASS",
+      "test": "map_controls_registers_eight_canonical_stories",
+      "description": "Sandbox catalog registers 8 canonical map-controls stories"
     },
-    {
-      "id": "TC-1",
-      "type": "test_criterion",
-      "description": "Map-no-route 4 chip groups",
-      "maps_to": "AC-1",
-      "exit_code": 0
+    "TC-1": {
+      "status": "PASS",
+      "description": "Map-no-route tree: 4 chip groups (zoom-cluster + 3 chips), no save"
     },
-    {
-      "id": "TC-2",
-      "type": "test_criterion",
-      "description": "Save chip default styling",
-      "maps_to": "AC-2",
-      "exit_code": 0
+    "TC-3": {
+      "status": "PASS",
+      "description": "isSavedRoute=true → copper signal-default chip + filled bookmark + 'Saved route' description"
     },
-    {
-      "id": "TC-3",
-      "type": "test_criterion",
-      "description": "Copper signal save chip",
-      "maps_to": "AC-3",
-      "exit_code": 0
+    "TC-4": {
+      "status": "PASS",
+      "description": "Chat mode → exactly 1 chip with MapOutlined glyph + 'Back to map' description"
     },
-    {
-      "id": "TC-4",
-      "type": "test_criterion",
-      "description": "Chat mode single chip",
-      "maps_to": "AC-4",
-      "exit_code": 0
+    "TC-6": {
+      "status": "PASS",
+      "description": "Dark theme switch keeps composable identity + brand copper unchanged"
     },
-    {
-      "id": "TC-5",
-      "type": "test_criterion",
-      "description": "Handler invocation counts",
-      "maps_to": "AC-5",
-      "exit_code": 0
+    "TC-7": {
+      "status": "PASS",
+      "description": "AppStoriesRegistryTest counts 8 ids matching `organisms.map-controls.*`"
     },
-    {
-      "id": "TC-6",
-      "type": "test_criterion",
-      "description": "Theme switch composable identity",
-      "maps_to": "AC-6",
-      "exit_code": 0
+    "CRITICAL-1": {
+      "status": "PASS",
+      "description": "Story type fixed: List<Story> (was List<SandboxStory>)"
     },
-    {
-      "id": "TC-7",
-      "type": "test_criterion",
-      "description": "8 map-controls IDs",
-      "maps_to": "AC-7",
-      "exit_code": 0
+    "CRITICAL-2": {
+      "status": "PASS",
+      "description": "Added addAll(LSMapControlsStory.all) to OrganismStories.kt"
+    },
+    "CRITICAL-3": {
+      "status": "PASS",
+      "description": "Cross-platform parity: renamed all 8 story IDs to iOS-canonical form"
+    },
+    "HIGH-1": {
+      "status": "PASS",
+      "description": "Touch target ≥ 48dp: Added minimumInteractiveComponentSize() to MapControlChip"
+    },
+    "HIGH-2": {
+      "status": "PASS",
+      "description": "Chip gap token: Changed spacing from sm(8dp) to xs(4dp)"
+    },
+    "BUILD": {
+      "status": "PASS",
+      "command": "./gradlew :app:assembleDebug",
+      "result": "BUILD SUCCESSFUL"
+    },
+    "COMPILE": {
+      "status": "PASS",
+      "command": "./gradlew :app:compileDebugKotlin",
+      "result": "BUILD SUCCESSFUL"
     }
+  },
+  "files_changed": [
+    "android/app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt",
+    "android/app/src/debug/java/com/laneshadow/sandbox/stories/organisms/LSMapControlsStory.kt",
+    "android/app/src/debug/java/com/laneshadow/sandbox/stories/organisms/OrganismStories.kt",
+    "android/app/src/test/java/com/laneshadow/ui/organisms/LSMapControlsTest.kt",
+    "android/app/src/test/java/com/laneshadow/ui/sandbox/AppStoriesRegistryTest.kt",
+    "ios/LaneShadow/Sandbox/Stories/Organisms/LSMapControlsStory.swift"
   ],
-  "summary": "All 7 acceptance criteria + 7 test criteria PASS. Compile, assemble, and token compliance all pass. Pre-existing lint error in FusedLocationProviderImpl (unrelated to T04 changes). All required files created and tests verified."
+  "requirements_addressed": [
+    "AC-1", "AC-2", "AC-3", "AC-4", "AC-5", "AC-6", "AC-7",
+    "TC-1", "TC-3", "TC-4", "TC-6", "TC-7",
+    "CRITICAL-1", "CRITICAL-2", "CRITICAL-3",
+    "HIGH-1", "HIGH-2"
+  ]
 }

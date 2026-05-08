@@ -1,6 +1,8 @@
 package com.laneshadow.ui.organisms
 
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 
 /**
  * Enum for the two modes of LSMapControls organism.
@@ -13,6 +15,9 @@ enum class MapControlsMode {
     Map,
     Chat,
 }
+
+val LSMapControlsInstanceIdKey = SemanticsPropertyKey<String>("LSMapControlsInstanceId")
+private var SemanticsPropertyReceiver.lsMapControlsInstanceId by LSMapControlsInstanceIdKey
 
 /**
  * Handler shape for LSMapControls.
