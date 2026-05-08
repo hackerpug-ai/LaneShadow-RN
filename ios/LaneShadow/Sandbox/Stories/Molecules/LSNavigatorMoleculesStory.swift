@@ -20,11 +20,11 @@ enum LSNavigatorMoleculesStories {
             ) { _ in
                 LSPhaseIndicator(
                     phases: [
-                        PlanningPhase(id: "parsing", label: Phase.parsing.label, state: .done),
-                        PlanningPhase(id: "searching", label: Phase.searching.label, state: .active),
-                        PlanningPhase(id: "drafting", label: Phase.drafting.label, state: .pending),
-                        PlanningPhase(id: "enriching", label: Phase.enriching.label, state: .pending),
-                        PlanningPhase(id: "finalizing", label: Phase.finalizing.label, state: .pending),
+                        LSPhaseIndicator.Phase(id: "parsing", label: Phase.parsing.label, state: .done),
+                        LSPhaseIndicator.Phase(id: "searching", label: Phase.searching.label, state: .active),
+                        LSPhaseIndicator.Phase(id: "drafting", label: Phase.drafting.label, state: .pending),
+                        LSPhaseIndicator.Phase(id: "enriching", label: Phase.enriching.label, state: .pending),
+                        LSPhaseIndicator.Phase(id: "finalizing", label: Phase.finalizing.label, state: .pending),
                     ],
                     header: "Let me think on that…"
                 )
@@ -39,11 +39,11 @@ enum LSNavigatorMoleculesStories {
             ) { _ in
                 LSPhaseIndicator(
                     phases: [
-                        PlanningPhase(id: "parsing", label: Phase.parsing.label, state: .done),
-                        PlanningPhase(id: "searching", label: Phase.searching.label, state: .done),
-                        PlanningPhase(id: "drafting", label: Phase.drafting.label, state: .done),
-                        PlanningPhase(id: "enriching", label: Phase.enriching.label, state: .done),
-                        PlanningPhase(id: "finalizing", label: Phase.finalizing.label, state: .done),
+                        LSPhaseIndicator.Phase(id: "parsing", label: Phase.parsing.label, state: .done),
+                        LSPhaseIndicator.Phase(id: "searching", label: Phase.searching.label, state: .done),
+                        LSPhaseIndicator.Phase(id: "drafting", label: Phase.drafting.label, state: .done),
+                        LSPhaseIndicator.Phase(id: "enriching", label: Phase.enriching.label, state: .done),
+                        LSPhaseIndicator.Phase(id: "finalizing", label: Phase.finalizing.label, state: .done),
                     ],
                     header: "Found 3 great routes"
                 )
@@ -58,11 +58,11 @@ enum LSNavigatorMoleculesStories {
             ) { _ in
                 LSPhaseIndicator(
                     phases: [
-                        PlanningPhase(id: "parsing", label: Phase.parsing.label, state: .pending),
-                        PlanningPhase(id: "searching", label: Phase.searching.label, state: .pending),
-                        PlanningPhase(id: "drafting", label: Phase.drafting.label, state: .pending),
-                        PlanningPhase(id: "enriching", label: Phase.enriching.label, state: .pending),
-                        PlanningPhase(id: "finalizing", label: Phase.finalizing.label, state: .pending),
+                        LSPhaseIndicator.Phase(id: "parsing", label: Phase.parsing.label, state: .pending),
+                        LSPhaseIndicator.Phase(id: "searching", label: Phase.searching.label, state: .pending),
+                        LSPhaseIndicator.Phase(id: "drafting", label: Phase.drafting.label, state: .pending),
+                        LSPhaseIndicator.Phase(id: "enriching", label: Phase.enriching.label, state: .pending),
+                        LSPhaseIndicator.Phase(id: "finalizing", label: Phase.finalizing.label, state: .pending),
                     ],
                     header: "Starting search…"
                 )

@@ -26,9 +26,9 @@ final class LSPhaseIndicatorTests: XCTestCase {
     func test_renders_compass_chip_header_and_phasedot_step_list() {
         // GIVEN: LSPhaseIndicator with mock phases and header
         let mockPhases = [
-            PlanningPhase(id: "1", label: "Understanding your request", state: .done),
-            PlanningPhase(id: "2", label: "Searching routes", state: .active),
-            PlanningPhase(id: "3", label: "Checking conditions", state: .pending),
+            LSPhaseIndicator.Phase(id: "1", label: "Understanding your request", state: .done),
+            LSPhaseIndicator.Phase(id: "2", label: "Searching routes", state: .active),
+            LSPhaseIndicator.Phase(id: "3", label: "Checking conditions", state: .pending),
         ]
         let indicator = LSPhaseIndicator(
             phases: mockPhases,
@@ -53,9 +53,9 @@ final class LSPhaseIndicatorTests: XCTestCase {
     func test_active_step_phasedot_pulse_animation_present() {
         // GIVEN: LSPhaseIndicator with at least one active phase
         let mockPhases = [
-            PlanningPhase(id: "1", label: "Understanding your request", state: .done),
-            PlanningPhase(id: "2", label: "Searching routes", state: .active),
-            PlanningPhase(id: "3", label: "Checking conditions", state: .pending),
+            LSPhaseIndicator.Phase(id: "1", label: "Understanding your request", state: .done),
+            LSPhaseIndicator.Phase(id: "2", label: "Searching routes", state: .active),
+            LSPhaseIndicator.Phase(id: "3", label: "Checking conditions", state: .pending),
         ]
         let indicator = LSPhaseIndicator(
             phases: mockPhases,

@@ -1,35 +1,28 @@
 import Foundation
 import Observation
 
-struct PlanningScreenLiveState {
-    var messages: [LSChatMessage]
-    var phases: [PlanningPhase]
-    var errorMessage: String?
-    var isThinking: Bool
-    var isSending: Bool
-    var shouldRenderMap: Bool
-}
-
 @MainActor
 @Observable
 final class PlanningViewModel {
-    var phases: [PlanningPhase] = []
+    var phaseSteps: [LSPhaseIndicator.Phase] = []
+    var capsuleHeadline: String
+    var cancelConfirmationVisible = false
     var errorMessage: String?
     var isThinking = false
     var isSending = false
     var shouldRenderMap = true
 
-    private let chatStore: ChatStore
-    @ObservationIgnored private let sessionStore: SessionStore
-    @ObservationIgnored private let convexClient: any LaneShadowPlanningDataProviding
-    @ObservationIgnored private let fallbackSessionId: String?
-    @ObservationIgnored private let appState: AppState?
-    @ObservationIgnored private var activeRoutePlanId: String?
-    @ObservationIgnored private var didDispatchTerminalState = false
-    @ObservationIgnored private var routePlanObservationTask: Task<Void, Never>?
-    @ObservationIgnored private var observationTasks: [Task<Void, Never>] = []
-    @ObservationIgnored private var activeSendRevision: Int?
-    @ObservationIgnored private var sendRevisionCounter = 0
+    let chatStore: ChatStore
+    @ObservationIgnored let sessionStore: SessionStore
+    @ObservationIgnored let convexClient: any LaneShadowPlanningDataProviding
+    @ObservationIgnored let fallbackSessionId: String?
+    @ObservationIgnored let appState: AppState?
+    @ObservationIgnored var activeRoutePlanId: String?
+    @ObservationIgnored var didDispatchTerminalState = false
+    @ObservationIgnored var routePlanObservationTask: Task<Void, Never>?
+    @ObservationIgnored var observationTasks: [Task<Void, Never>] = []
+    @ObservationIgnored var activeSendRevision: Int?
+    @ObservationIgnored var sendRevisionCounter = 0
 
     init(
         chatStore: ChatStore,
@@ -43,18 +36,24 @@ final class PlanningViewModel {
         self.convexClient = convexClient
         self.fallbackSessionId = fallbackSessionId
         self.appState = appState
-        phases = Self.makePhases(activeIndex: 0)
+        let initialPhase = PlanningPhase.parsing
+        phaseSteps = PlanningPhase.indicatorSteps(activePhase: initialPhase)
+        capsuleHeadline = initialPhase.capsuleHeadline
     }
 
     var screenState: PlanningScreenLiveState {
         PlanningScreenLiveState(
             messages: messages,
-            phases: phases,
+            phases: phaseSteps,
             errorMessage: errorMessage,
             isThinking: isThinking,
             isSending: isSending,
             shouldRenderMap: shouldRenderMap
         )
+    }
+
+    var phases: [LSPhaseIndicator.Phase] {
+        phaseSteps
     }
 
     var messages: [LSChatMessage] {
@@ -109,11 +108,25 @@ final class PlanningViewModel {
                         updateRoutePlans(routePlans)
                     }
                 }
-            },
+            }
         ]
     }
 
     func cancelPlanning() async {
+        requestCancelConfirmation()
+        await confirmCancellation()
+    }
+
+    func requestCancelConfirmation() {
+        cancelConfirmationVisible = true
+    }
+
+    func dismissCancelConfirmation() {
+        cancelConfirmationVisible = false
+    }
+
+    func confirmCancellation() async {
+        cancelConfirmationVisible = false
         activeSendRevision = nil
         isSending = false
         isThinking = false
@@ -132,120 +145,15 @@ final class PlanningViewModel {
         chatStore.dispatch(.cancelPlanning)
     }
 
-    func submitRefinement(_ message: String) async {
-        let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedMessage.isEmpty else {
-            return
-        }
-
-        guard let sessionId = resolvedSessionId else {
-            errorMessage = "Planning session not ready"
-            return
-        }
-
-        guard !isSending else {
-            return
-        }
-
-        appState?.cachedLastFailedInput = trimmedMessage
-        errorMessage = nil
-        isSending = true
-        let revision = beginSendRevision()
-        chatStore.dispatch(.sendMessageWithSession(trimmedMessage, sessionId: sessionId))
-        let pendingMessage = chatStore.appendPendingMessage(
-            sessionId: sessionId,
-            content: trimmedMessage,
-            role: .rider
-        )
-
-        do {
-            _ = try await convexClient.sendPlanningMessage(
-                sessionId: sessionId,
-                content: trimmedMessage,
-                currentLocation: nil
-            )
-            guard isCurrentSend(revision) else {
-                return
-            }
-        } catch {
-            guard isCurrentSend(revision) else {
-                return
-            }
-
-            let planningError = normalizedPlanningError(from: error)
-            let metadata = planningFailureMetadata(for: planningError)
-            chatStore.markMessageFailed(
-                id: pendingMessage.id,
-                errorCode: metadata.errorCode,
-                retryable: metadata.retryable
-            )
-            errorMessage = planningError.errorDescription
-            chatStore.dispatch(.planningError(planningError.rawMessage))
-        }
-
-        guard isCurrentSend(revision) else {
-            return
-        }
-
-        isSending = false
-        activeSendRevision = nil
-    }
-
-    func retryPending(id: String) async {
-        guard !isSending else {
-            return
-        }
-
-        guard let pendingMessage = chatStore.retryPendingMessage(id: id) else {
-            return
-        }
-
-        let sessionId = pendingMessage.sessionId
-        errorMessage = nil
-        isSending = true
-        let revision = beginSendRevision()
-        chatStore.dispatch(.sendMessageWithSession(pendingMessage.content, sessionId: sessionId))
-
-        do {
-            _ = try await convexClient.sendPlanningMessage(
-                sessionId: sessionId,
-                content: pendingMessage.content,
-                currentLocation: nil
-            )
-            guard isCurrentSend(revision) else {
-                return
-            }
-        } catch {
-            guard isCurrentSend(revision) else {
-                return
-            }
-
-            let planningError = normalizedPlanningError(from: error)
-            let metadata = planningFailureMetadata(for: planningError)
-            chatStore.markMessageFailed(
-                id: pendingMessage.id,
-                errorCode: metadata.errorCode,
-                retryable: metadata.retryable
-            )
-            errorMessage = planningError.errorDescription
-        }
-
-        guard isCurrentSend(revision) else {
-            return
-        }
-
-        isSending = false
-        activeSendRevision = nil
-    }
-
     private func updateMessages(_ rawMessages: [LaneShadowSessionMessage]) {
         chatStore.reconcileSessionMessages(rawMessages)
         isThinking = rawMessages.contains {
             $0.status == "streaming" || $0.status == "running"
         }
 
-        let activeIndex = Self.phaseIndex(from: rawMessages)
-        phases = Self.makePhases(activeIndex: activeIndex)
+        let activePhase = PlanningPhase.latest(in: rawMessages)
+        phaseSteps = PlanningPhase.indicatorSteps(activePhase: activePhase)
+        capsuleHeadline = activePhase.capsuleHeadline
 
         if let routePlanId = Self.routePlanId(from: rawMessages) {
             startObservingRoutePlan(routePlanId)
@@ -342,36 +250,6 @@ final class PlanningViewModel {
         chatStore.dispatch(.planningError(rawMessage ?? message))
     }
 
-    private static func phaseIndex(from rawMessages: [LaneShadowSessionMessage]) -> Int {
-        guard let latestPlanningMessage = rawMessages.last(where: {
-            $0.role != "rider"
-        }) else {
-            return 0
-        }
-
-        if latestPlanningMessage.status == "complete" {
-            return finalizingPhaseIndex
-        }
-
-        let statusLine = planningDisplayText(for: latestPlanningMessage).lowercased()
-        if statusLine.contains("final") || statusLine.contains("done") {
-            return finalizingPhaseIndex
-        }
-        if statusLine.contains("enrich") || statusLine.contains("weather") || statusLine.contains("condition") {
-            return 3
-        }
-        if statusLine.contains("draft") || statusLine.contains("build") || statusLine.contains("plan") {
-            return 2
-        }
-        if statusLine.contains("search") || statusLine.contains("look") || statusLine.contains("find") {
-            return 1
-        }
-        if statusLine.contains("parse") || statusLine.contains("read") || statusLine.contains("analy") {
-            return 0
-        }
-        return 0
-    }
-
     private static func routePlanId(from rawMessages: [LaneShadowSessionMessage]) -> String? {
         for message in rawMessages.reversed() {
             guard let attachments = message.attachments else {
@@ -386,53 +264,27 @@ final class PlanningViewModel {
         return nil
     }
 
-    private static func makePhases(activeIndex: Int) -> [PlanningPhase] {
-        phaseLabels.enumerated().map { index, label in
-            let state: PhaseState = if index < activeIndex {
-                .done
-            } else if index == activeIndex {
-                .active
-            } else {
-                .pending
-            }
-
-            return PlanningPhase(
-                id: label.lowercased(),
-                label: label,
-                state: state
-            )
-        }
-    }
-
-    private static let phaseLabels = [
-        "Parsing",
-        "Searching",
-        "Drafting",
-        "Enriching",
-        "Finalizing",
-    ]
-
-    private static let finalizingPhaseIndex = phaseLabels.count - 1
-
-    private var resolvedSessionId: String? {
+    var resolvedSessionId: String? {
         chatStore.flowState.sessionId ?? sessionStore.activeSessionId ?? fallbackSessionId
     }
+}
 
-    private func beginSendRevision() -> Int {
+extension PlanningViewModel {
+    func beginSendRevision() -> Int {
         sendRevisionCounter += 1
         activeSendRevision = sendRevisionCounter
         return sendRevisionCounter
     }
 
-    private func isCurrentSend(_ revision: Int) -> Bool {
+    func isCurrentSend(_ revision: Int) -> Bool {
         activeSendRevision == revision
     }
 
-    private func normalizedPlanningError(from error: Error) -> LaneShadowError {
+    func normalizedPlanningError(from error: Error) -> LaneShadowError {
         (error as? LaneShadowError) ?? LaneShadowError.map(error)
     }
 
-    private func planningFailureMetadata(for error: LaneShadowError) -> (errorCode: String, retryable: Bool) {
+    func planningFailureMetadata(for error: LaneShadowError) -> (errorCode: String, retryable: Bool) {
         switch error {
         case .unauthenticated:
             (errorCode: "unauthenticated", retryable: false)
