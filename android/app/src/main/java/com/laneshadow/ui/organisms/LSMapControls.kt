@@ -213,12 +213,12 @@ fun LSMapControls(
                 if (hasRouteToSave && handlers.onSaveRoute != null) {
                     val isSaved = isSavedRoute
                     val backgroundColor = if (isSaved) {
-                        theme.colors.accent.default  // copper signal color for saved state
+                        LaneShadowTheme.color.Signal.default
                     } else {
                         theme.colors.surfaceVariant.default
                     }
                     val borderColor = if (isSaved) {
-                        theme.colors.accent.default  // copper signal color for saved state
+                        LaneShadowTheme.color.Signal.default
                     } else {
                         theme.colors.border.default
                     }
