@@ -9,7 +9,7 @@ import XCTest
 final class LSMapControlsTests: XCTestCase {
     // MARK: - AC-1: Default map mode renders 4 chips in correct order
 
-    func test_mapMode_rendersFourChipsInOrder() throws {
+    func test_mapMode_rendersFourChipsInOrder() {
         let appearance = LSMapControls.resolvedAppearance(
             mode: .map,
             hasRouteToSave: false,
@@ -21,7 +21,7 @@ final class LSMapControlsTests: XCTestCase {
             .zoomCluster,
             .recenter,
             .layers,
-            .modeToggle
+            .modeToggle,
         ]
 
         XCTAssertEqual(appearance.chipsInOrder, expectedChips)
@@ -33,7 +33,7 @@ final class LSMapControlsTests: XCTestCase {
 
     // MARK: - AC-2: hasRouteToSave inserts save chip
 
-    func test_hasRouteToSave_insertsSaveChip() throws {
+    func test_hasRouteToSave_insertsSaveChip() {
         let appearanceWithoutSave = LSMapControls.resolvedAppearance(
             mode: .map,
             hasRouteToSave: false,
@@ -52,7 +52,7 @@ final class LSMapControlsTests: XCTestCase {
             .zoomCluster,
             .recenter,
             .layers,
-            .modeToggle
+            .modeToggle,
         ]
 
         let expectedWithSave: [LSMapControlsChipKind] = [
@@ -60,7 +60,7 @@ final class LSMapControlsTests: XCTestCase {
             .recenter,
             .layers,
             .save(isSaved: false),
-            .modeToggle
+            .modeToggle,
         ]
 
         XCTAssertEqual(appearanceWithoutSave.chipsInOrder, expectedWithoutSave)
@@ -71,7 +71,7 @@ final class LSMapControlsTests: XCTestCase {
 
     // MARK: - AC-3: isSavedRoute flips save chip to copper signal fill
 
-    func test_isSavedRoute_flipsToCopperSignal() throws {
+    func test_isSavedRoute_flipsToCopperSignal() {
         let appearanceUnsaved = LSMapControls.resolvedAppearance(
             mode: .map,
             hasRouteToSave: true,
@@ -99,7 +99,7 @@ final class LSMapControlsTests: XCTestCase {
 
     // MARK: - TC-3: saveChipAccessibilityLabel is nil when hasRouteToSave is false
 
-    func test_hasNoRouteToSave_savedChipAccessibilityLabelIsNil() throws {
+    func test_hasNoRouteToSave_savedChipAccessibilityLabelIsNil() {
         let appearance = LSMapControls.resolvedAppearance(
             mode: .map,
             hasRouteToSave: false,
@@ -112,7 +112,7 @@ final class LSMapControlsTests: XCTestCase {
 
     // MARK: - AC-4: Chat mode collapses to single toggle chip
 
-    func test_chatMode_collapsesToSingleToggle() throws {
+    func test_chatMode_collapsesToSingleToggle() {
         let appearanceMapMode = LSMapControls.resolvedAppearance(
             mode: .map,
             hasRouteToSave: true,
@@ -132,11 +132,11 @@ final class LSMapControlsTests: XCTestCase {
             .recenter,
             .layers,
             .save(isSaved: false),
-            .modeToggle
+            .modeToggle,
         ]
 
         let expectedChatMode: [LSMapControlsChipKind] = [
-            .modeToggle
+            .modeToggle,
         ]
 
         XCTAssertEqual(appearanceMapMode.chipsInOrder, expectedMapMode)
@@ -147,7 +147,11 @@ final class LSMapControlsTests: XCTestCase {
 
     // MARK: - AC-5: Zoom callbacks emit +1/-1 zoom deltas
 
-    func test_zoomCallbacks_emitPlusMinusOne() throws {
+    func test_zoomCallbacks_emitPlusMinusOne() {
+        // SwiftUI .accessibilityIdentifier is not surfaced to UIKit view hierarchy in UIHostingController;
+        // button-tap approach via findView(withIdentifier:) found 0 nodes. Using zoomCallbacksBound flag
+        // in appearance as the escalation-authorized compromise (see CAPS-S07-T03 cycle 5 review).
+
         // Verify that the appearance correctly identifies when zoom callbacks are bound
         let appearanceWithCallbacks = LSMapControls.resolvedAppearance(
             mode: .map,
@@ -203,7 +207,7 @@ final class LSMapControlsTests: XCTestCase {
 
     // MARK: - AC-6: Dark theme re-resolves surfaces and signal fill
 
-    func test_darkTheme_reResolvesChipSurfaces() throws {
+    func test_darkTheme_reResolvesChipSurfaces() {
         let lightColors = LSMapControls.resolvedThemeColors(for: .light)
         let darkColors = LSMapControls.resolvedThemeColors(for: .dark)
 

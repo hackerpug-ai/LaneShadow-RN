@@ -66,6 +66,8 @@ public struct LSMapControls: View {
             mode: mode,
             hasRouteToSave: hasRouteToSave,
             isSavedRoute: isSavedRoute,
+            onZoomIn: onZoomIn,
+            onZoomOut: onZoomOut,
             in: theme
         )
 
