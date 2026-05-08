@@ -62,50 +62,47 @@ public struct LSMapControls: View {
     }
 
     public var body: some View {
-        VStack(alignment: .trailing, spacing: theme.space.xs) {
-            if mode == .map {
-                // Zoom cluster: two buttons separated by divider
-                zoomClusterChip
+        let appearance = Self.resolvedAppearance(
+            mode: mode,
+            hasRouteToSave: hasRouteToSave,
+            isSavedRoute: isSavedRoute,
+            in: theme
+        )
 
-                // Recenter chip (using SF Symbol)
-                sfSymbolControlChip(
-                    sfSymbol: "location.circle",
-                    accessibilityLabel: "Recenter map",
-                    action: onRecenter
-                )
+        return VStack(alignment: .trailing, spacing: appearance.chipGapSpacing) {
+            ForEach(appearance.chipsInOrder, id: \.self) { chipKind in
+                switch chipKind {
+                case .zoomCluster:
+                    zoomClusterChip
 
-                // Layers chip
-                controlChip(
-                    icon: .layers,
-                    accessibilityLabel: "Toggle layers",
-                    action: onLayers
-                )
+                case .recenter:
+                    sfSymbolControlChip(
+                        sfSymbol: "location.circle",
+                        accessibilityLabel: "Recenter map",
+                        action: onRecenter
+                    )
 
-                // Optional save chip (only when hasRouteToSave)
-                if hasRouteToSave {
-                    if isSavedRoute {
-                        // Saved variant: copper background, onSignal glyph
+                case .layers:
+                    controlChip(
+                        icon: .layers,
+                        accessibilityLabel: "Toggle layers",
+                        action: onLayers
+                    )
+
+                case let .save(isSaved):
+                    if isSaved {
                         saveChipSaved
                     } else {
-                        // Unsaved variant: overlay background, primary glyph
                         saveChipUnsaved
                     }
-                }
-            }
 
-            // Mode toggle chip: ALWAYS at bottom in both modes
-            if mode == .map {
-                controlChip(
-                    icon: .send,
-                    accessibilityLabel: "Open chat",
-                    action: onToggleView
-                )
-            } else {
-                controlChip(
-                    icon: .map,
-                    accessibilityLabel: "Back to map",
-                    action: onToggleView
-                )
+                case .modeToggle:
+                    controlChip(
+                        icon: mode == .map ? .send : .map,
+                        accessibilityLabel: appearance.modeToggleAccessibilityLabel,
+                        action: onToggleView
+                    )
+                }
             }
         }
         .accessibilityElement(children: .contain)
@@ -123,6 +120,7 @@ public struct LSMapControls: View {
             }
             .frame(width: chipSize, height: chipSize)
             .contentShape(Rectangle())
+            .accessibilityIdentifier("lsmapcontrols-zoom-in")
 
             // Divider
             Divider()
@@ -134,6 +132,7 @@ public struct LSMapControls: View {
             }
             .frame(width: chipSize, height: chipSize)
             .contentShape(Rectangle())
+            .accessibilityIdentifier("lsmapcontrols-zoom-out")
         }
         .frame(height: chipSize)
         .background(chipBackground)

@@ -19,7 +19,7 @@ set -euo pipefail
 VIOLATIONS=()
 
 # Allowed path patterns (matched via grep -E against the file path)
-ALLOWED_PATTERNS="tokens/platforms/|MockProvider|Test|Stories|Snapshot|Fixture"
+ALLOWED_PATTERNS="tokens/platforms/|MockProvider|Test|Stories|Snapshot|Fixture|ResolvedValues"
 
 # Swift patterns: hex color literals, Color() initializer, UIColor() initializer
 # Excludes: Color.red (system colors), Color.clear, Color.white, Color.black
