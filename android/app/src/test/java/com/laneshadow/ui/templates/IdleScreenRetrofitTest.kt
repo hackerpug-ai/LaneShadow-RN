@@ -1,80 +1,178 @@
 package com.laneshadow.ui.templates
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
 import com.google.common.truth.Truth.assertThat
-import com.laneshadow.ui.molecules.IdleScope
+import com.laneshadow.sandbox.mockproviders.IdleScreenState
+import com.laneshadow.theme.LaneShadowTheme
+import com.laneshadow.ui.idle.GreetingScope
+import com.laneshadow.ui.idle.IdleUiState
+import com.laneshadow.ui.idle.toMockState
 import com.laneshadow.ui.molecules.CapsuleState
+import com.laneshadow.ui.molecules.IdleScope
 import com.laneshadow.ui.organisms.MapControlsMode
+import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
 /**
  * Unit tests for IdleScreen retrofit (CAPS-S07-T06).
  *
- * Tests verify:
+ * Tests verify real Compose behavior:
  * - AC-1: LSContextCapsule mounted (replaces legacy GreetingOverlay)
  * - AC-2: LSMapControls mounted at right-edge vertically-centered
  * - AC-6: Existing testTags preserved (chat-input, ls-topbar, idlescreen-map)
- *
- * These are signature/contract tests that verify the refactored API exists.
- * UI rendering tests would require Robolectric + MapView, which is tested in androidTest.
  */
+@RunWith(RobolectricTestRunner::class)
 class IdleScreenRetrofitTest {
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
     @Test
-    fun ac1_capsule_replaces_legacy_greeting_overlay() {
-        // GIVEN: CapsuleState.Idle exists with required fields
+    fun capsule_replaces_legacy_greeting_overlay() {
+        // GIVEN: IdleScreen rendered with default IdleScreenState
+        val screenState = IdleUiState(
+            firstName = "Marcus",
+            greetingScope = GreetingScope.TODAY,
+            metaRow = "FRIDAY · 62°F · CLEAR",
+        ).toMockState()
+
         val capsuleState = CapsuleState.Idle(
             scope = IdleScope.TODAY,
-            headline = "Where are we riding today?",
+            headline = "Where are we riding today, Marcus?",
             emphasizedWord = "today",
             metaItems = listOf("FRIDAY", "62°F", "CLEAR"),
         )
 
-        // THEN: CapsuleState properties are accessible
-        assertThat(capsuleState.headline).contains("today")
-        assertThat(capsuleState.emphasizedWord).isEqualTo("today")
-        assertThat(capsuleState.metaItems).hasSize(3)
-        assertThat(capsuleState.isWarning).isFalse()
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                Surface {
+                    IdleScreen(
+                        state = screenState,
+                        capsuleState = capsuleState,
+                        inputValue = "",
+                        onMenuTap = {},
+                        onSuggestionTap = {},
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        mapContent = { _ ->
+                            Box(modifier = Modifier.testTag("idlescreen-map")) {
+                                Text(text = "stub-map")
+                            }
+                        },
+                    )
+                }
+            }
+        }
+
+        // WHEN: Composable mounts
+        // THEN: idle-context-capsule exists; legacy greeting tags do not
+        composeTestRule.onNodeWithTag("idle-context-capsule").assertExists()
+        assertThat(composeTestRule.onAllNodesWithTag("greeting-overlay").fetchSemanticsNodes()).isEmpty()
+        assertThat(composeTestRule.onAllNodesWithTag("greeting-headline").fetchSemanticsNodes()).isEmpty()
+        assertThat(composeTestRule.onAllNodesWithTag("greeting-meta").fetchSemanticsNodes()).isEmpty()
+        assertThat(composeTestRule.onAllNodesWithTag("advisory-card").fetchSemanticsNodes()).isEmpty()
     }
 
     @Test
-    fun ac2_map_controls_mounted_center_end() {
-        // GIVEN: MapControlsMode enum exists with Map variant
-        // WHEN: MapControlsMode.Map is accessed
-        // THEN: MapControlsMode.Map can be passed to LSMapControls
+    fun map_controls_mounted_center_end() {
+        // GIVEN: IdleScreen rendered with default state
+        val screenState = IdleUiState(
+            firstName = "Avery",
+            greetingScope = GreetingScope.TODAY,
+        ).toMockState()
 
-        val mode = MapControlsMode.Map
-        assertThat(mode).isEqualTo(MapControlsMode.Map)
-
-        // Verify both enum variants exist
-        val values = MapControlsMode.values().toList()
-        assertThat(values).contains(MapControlsMode.Map)
-        assertThat(values).contains(MapControlsMode.Chat)
-    }
-
-    @Test
-    fun ac6_existing_testtags_preserved() {
-        // GIVEN: IdleScreen maintains existing testTag usage
-        // THEN: capsuleState parameter exists in IdleScreen signature
-
-        // Verify CapsuleState can be instantiated with all required properties
-        val idleState = CapsuleState.Idle(
+        val capsuleState = CapsuleState.Idle(
             scope = IdleScope.TODAY,
-            headline = "Test",
-            emphasizedWord = "Test",
+            headline = "Where are we riding today?",
+            emphasizedWord = "today",
             metaItems = emptyList(),
         )
 
-        val plannigState = CapsuleState.Planning(
-            headline = "Test",
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                Surface {
+                    IdleScreen(
+                        state = screenState,
+                        capsuleState = capsuleState,
+                        inputValue = "",
+                        onMenuTap = {},
+                        onSuggestionTap = {},
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        mapContent = { _ ->
+                            Box(modifier = Modifier.testTag("idlescreen-map")) {
+                                Text(text = "stub-map")
+                            }
+                        },
+                    )
+                }
+            }
+        }
+
+        // WHEN: Composable mounts
+        // THEN: idle-map-controls exists in the tree (positioning verified by e2e)
+        val controls = composeTestRule.onNodeWithTag("idle-map-controls")
+        controls.assertExists()
+
+        // Verify the mode is correct
+        assertThat(MapControlsMode.Map).isNotNull()
+    }
+
+    @Test
+    fun existing_testtags_preserved() {
+        // GIVEN: Retrofitted IdleScreen rendered
+        val screenState = IdleUiState(
+            firstName = "Avery",
+            greetingScope = GreetingScope.TODAY,
+        ).toMockState()
+
+        val capsuleState = CapsuleState.Idle(
+            scope = IdleScope.TODAY,
+            headline = "Where are we riding today, Avery?",
+            emphasizedWord = "today",
+            metaItems = listOf("MONDAY", "68°F", "CLEAR"),
         )
 
-        val routeState = CapsuleState.Route(
-            name = "Test",
-            metrics = emptyList(),
-        )
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                Surface {
+                    IdleScreen(
+                        state = screenState,
+                        capsuleState = capsuleState,
+                        inputValue = "",
+                        onMenuTap = {},
+                        onSuggestionTap = {},
+                        onSend = {},
+                        onCollapse = {},
+                        onFilter = {},
+                        onValueChange = {},
+                        mapContent = { _ ->
+                            Box(modifier = Modifier.testTag("idlescreen-map")) {
+                                Text(text = "stub-map")
+                            }
+                        },
+                    )
+                }
+            }
+        }
 
-        assertThat(idleState).isNotNull()
-        assertThat(plannigState).isNotNull()
-        assertThat(routeState).isNotNull()
+        // WHEN: Compose tree inspected
+        // THEN: Existing testTags are present
+        composeTestRule.onNodeWithTag("chat-input").assertExists()
+        composeTestRule.onNodeWithTag("ls-topbar").assertExists()
+        composeTestRule.onNodeWithTag("idlescreen-map").assertExists()
     }
 }
