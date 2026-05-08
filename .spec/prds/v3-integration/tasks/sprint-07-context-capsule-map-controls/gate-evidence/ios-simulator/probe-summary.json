@@ -1,0 +1,49 @@
+{
+  "devicesAndConfigurations" : [
+    {
+      "device" : {
+        "architecture" : "arm64",
+        "deviceId" : "20EC6FD5-4630-4DEF-83F9-1D36093F704E",
+        "deviceName" : "iPhone 16",
+        "modelName" : "iPhone 16",
+        "osBuildNumber" : "23E254a",
+        "osVersion" : "26.4.1",
+        "platform" : "iOS Simulator"
+      },
+      "expectedFailures" : 0,
+      "failedTests" : 1,
+      "passedTests" : 0,
+      "skippedTests" : 0,
+      "testPlanConfiguration" : {
+        "configurationId" : "1",
+        "configurationName" : "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription" : "LaneShadow · Built with macOS 26.4.1",
+  "expectedFailures" : 0,
+  "failedTests" : 1,
+  "finishTime" : 1778211189.317,
+  "passedTests" : 0,
+  "result" : "Failed",
+  "skippedTests" : 0,
+  "startTime" : 1778211111.182,
+  "statistics" : [
+
+  ],
+  "testFailures" : [
+    {
+      "failureText" : "XCTAssertTrue failed - idle-context-capsule must be present on idle-screen default.light",
+      "targetName" : "LaneShadowUITests",
+      "testIdentifier" : 1,
+      "testIdentifierString" : "DesignReviewCaptureTests/test_idleScreen_default_light()",
+      "testIdentifierURL" : "test://com.apple.xcode/LaneShadow/LaneShadowUITests/DesignReviewCaptureTests/test_idleScreen_default_light",
+      "testName" : "test_idleScreen_default_light()"
+    }
+  ],
+  "title" : "Test - LaneShadow",
+  "topInsights" : [
+
+  ],
+  "totalTestCount" : 1
+}

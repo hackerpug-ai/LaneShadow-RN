@@ -1,0 +1,59 @@
+{
+  "devices" : [
+    {
+      "architecture" : "arm64",
+      "deviceId" : "20EC6FD5-4630-4DEF-83F9-1D36093F704E",
+      "deviceName" : "iPhone 16",
+      "modelName" : "iPhone 16",
+      "osBuildNumber" : "23E254a",
+      "osVersion" : "26.4.1",
+      "platform" : "iOS Simulator"
+    }
+  ],
+  "testNodes" : [
+    {
+      "children" : [
+        {
+          "children" : [
+            {
+              "children" : [
+                {
+                  "children" : [
+                    {
+                      "name" : "DesignReviewCaptureTests.swift:179: XCTAssertTrue failed - idle-context-capsule must be present on idle-screen default.light",
+                      "nodeType" : "Failure Message"
+                    }
+                  ],
+                  "duration" : "15s",
+                  "durationInSeconds" : 15.718574047088623,
+                  "name" : "test_idleScreen_default_light()",
+                  "nodeIdentifier" : "DesignReviewCaptureTests/test_idleScreen_default_light()",
+                  "nodeIdentifierURL" : "test://com.apple.xcode/LaneShadow/LaneShadowUITests/DesignReviewCaptureTests/test_idleScreen_default_light",
+                  "nodeType" : "Test Case",
+                  "result" : "Failed"
+                }
+              ],
+              "name" : "DesignReviewCaptureTests",
+              "nodeIdentifierURL" : "test://com.apple.xcode/LaneShadow/LaneShadowUITests/DesignReviewCaptureTests",
+              "nodeType" : "Test Suite",
+              "result" : "Failed"
+            }
+          ],
+          "name" : "LaneShadowUITests",
+          "nodeIdentifierURL" : "test://com.apple.xcode/LaneShadow/LaneShadowUITests",
+          "nodeType" : "UI test bundle",
+          "result" : "Failed"
+        }
+      ],
+      "name" : "LaneShadow",
+      "nodeType" : "Test Plan",
+      "result" : "Failed"
+    }
+  ],
+  "testPlanConfigurations" : [
+    {
+      "configurationId" : "1",
+      "configurationName" : "Test Scheme Action"
+    }
+  ]
+}

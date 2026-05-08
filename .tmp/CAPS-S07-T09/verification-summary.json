@@ -1,0 +1,100 @@
+{
+  "task_id": "CAPS-S07-T09",
+  "sprint_id": "sprint-07-context-capsule-map-controls",
+  "reviewer": "qa-engineer",
+  "evaluated_at": "2026-05-07T20:35:00-07:00",
+  "verdict": "BLOCKED",
+  "skill_report": {
+    "path": ".spec/prds/v3-integration/tasks/sprint-07-context-capsule-map-controls/gate-evidence/design-review-skill-report.md",
+    "status": "has-P0-P1",
+    "unresolved_p0_count": 1,
+    "unresolved_p1_count": 1,
+    "p0_findings": [
+      {
+        "id": "P0-001",
+        "title": "iOS sandbox story-detail rendering breaks full-screen template overlays",
+        "evidence_path": ".spec/prds/v3-integration/tasks/sprint-07-context-capsule-map-controls/gate-evidence/ios-simulator/probe-tests.json",
+        "blocked_file": "ios/LaneShadow/Sandbox/LaneShadowSandboxEntry.swift",
+        "documented_in_prior_commits": [
+          "1a9ccb196 (CAPS-S07-T05 cycle 4)",
+          "2396053c0 (CAPS-S07-T07 cycle 2)"
+        ],
+        "owner": "swift-implementer (new task)",
+        "owner_task_proposal": "CAPS-S07-T17-ios-sandbox-fullscreen-template-preview-fix"
+      }
+    ],
+    "p1_findings": [
+      {
+        "id": "P1-001",
+        "title": "Android instrumented capture parity run not exercised by this gate",
+        "owner": "kotlin-implementer (CAPS-S07-T16 or follow-up)",
+        "owner_decision": "defer per RULES.md §Real Device E2E (MANUAL/BLOCKED)"
+      }
+    ]
+  },
+  "pipeline_report": {
+    "path": null,
+    "status": "did-not-run",
+    "reason": "Step 2 (xcodebuild captures) reproducibly fails at waitForExistence(idle-context-capsule). Running pipeline would either error out or emit automation-fallback issues, which would misrepresent fidelity state. Skipped per Decision D-003 in gate-evidence/decisions.md.",
+    "high_severity_count": null
+  },
+  "acceptance_criteria": {
+    "AC-1": {
+      "description": "design-review skill report exists with no unresolved P0/P1 findings",
+      "satisfied": false,
+      "evidence": "gate-evidence/design-review-skill-report.md exists; has 1 unresolved P0 + 1 unresolved P1, both explicitly deferred in gate-evidence/decisions.md",
+      "verify_regex_match": "unresolved-P0-P1-mentions-present-by-design (skill report explicitly marks findings unresolved-and-escalated)"
+    },
+    "AC-2": {
+      "description": "design:review report.json shows zero high-severity",
+      "satisfied": false,
+      "evidence": "Pipeline did not run end-to-end. xcodebuild capture probe (distilled to gate-evidence/ios-simulator/probe-tests.json + probe-summary.json) failed at idle-context-capsule waitForExistence (1 failed / 0 passed)."
+    },
+    "AC-3": {
+      "description": "gate-evidence/ contains design-review-skill-report.md, report.json, report.html, comparison.png, ios-* xcresult, manual-run.md",
+      "satisfied": false,
+      "evidence": "design-review-skill-report.md present; decisions.md present; probe xcresult archived. report.json, report.html, comparison.png NOT generated this cycle (would be fabricated)."
+    },
+    "AC-4": {
+      "description": "SPRINT.md cites evidence and Status flipped to Done",
+      "satisfied": false,
+      "evidence": "Per Decision D-004, SPRINT.md is NOT updated this cycle because AC-1..AC-3 are unmet."
+    },
+    "AC-5": {
+      "description": "IDLE-S06-T11 closed referencing this gate",
+      "satisfied": false,
+      "evidence": "Per Decision D-005, IDLE-S06-T11 is NOT closed this cycle because AC-1..AC-4 are unmet."
+    }
+  },
+  "escalations": [
+    {
+      "to": "orchestrator",
+      "kind": "new-task-required",
+      "proposed_id": "CAPS-S07-T17-ios-sandbox-fullscreen-template-preview-fix",
+      "specialist": "swift-implementer",
+      "scope": "Honor Story.previewMode == .fullScreen in LaneShadowSandboxStoryDetail (option a) OR re-point DesignReviewCaptureTests at -DirectIdleScreenUITest with mocked-variant support (option c). Either fixes the sandbox rendering blocker that prevents the strict design-review pipeline from running.",
+      "blocks": ["CAPS-S07-T09 next cycle", "Sprint 07 closure", "Sprint 06 IDLE-S06-T11 closure", "CAPS-S07-T13 autocomplete gate"]
+    },
+    {
+      "to": "orchestrator",
+      "kind": "verification-gap",
+      "subject": "CAPS-S07-T07 cycle 3 commit (6df337bcc)",
+      "claim": "'Verified with real waitForExistence assertions on idle-context-capsule + idle-map-controls'",
+      "actual": "Probe xcresult shows waitForExistence still fails. The cycle 3 commit message likely conflated build success with runtime success. Recommend a remediation cycle on T07 OR fold into the new CAPS-S07-T17 task fix (since the test code itself is correct — the host is the blocker)."
+    },
+    {
+      "to": "orchestrator",
+      "kind": "android-parity",
+      "subject": "Android instrumented capture path",
+      "scope": "Run kotlin DesignReviewCaptureTests on a connected emulator and (separately) wire Android sources into pnpm design:review's export step so the pipeline supports cross-platform fidelity verification."
+    }
+  ],
+  "files_changed": [
+    ".spec/prds/v3-integration/tasks/sprint-07-context-capsule-map-controls/gate-evidence/design-review-skill-report.md",
+    ".spec/prds/v3-integration/tasks/sprint-07-context-capsule-map-controls/gate-evidence/decisions.md",
+    ".spec/prds/v3-integration/tasks/sprint-07-context-capsule-map-controls/gate-evidence/ios-simulator/probe-tests.json",
+    ".spec/prds/v3-integration/tasks/sprint-07-context-capsule-map-controls/gate-evidence/ios-simulator/probe-summary.json",
+    ".spec/design/system/refs/idle-screen/*.png (regenerated via pnpm design:references)",
+    ".tmp/CAPS-S07-T09/verification-summary.json"
+  ]
+}
