@@ -2,7 +2,7 @@
 
 **Sequence:** 8
 **Timeline:** Phase 3 · Week 2 (post-Sprint-07)
-**Status:** Planned (planning expanded 2026-05-07; execution blocked on Sprint 07 component closure)
+**Status:** Planned (planning expanded 2026-05-07; remediation tasks added 2026-05-08)
 
 ---
 
@@ -65,6 +65,10 @@ Re-implementing the map host, the LSContextCapsule, or the LSMapControls is a pl
 
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
+| PLAN-S08-REM-IOS-T01 | Remediation - iOS idle header topbar container alignment: menu, preserved status/capsule container, and New chip render in one invisible top container aligned at the top of `LSMapLayer` | swift-implementer | 180 min |
+| PLAN-S08-REM-IOS-T02 | Remediation - iOS `LSMapControls` zoom cluster is vertical and bottom-most in the right-edge workbar | swift-implementer | 120 min |
+| PLAN-S08-REM-IOS-T03 | Remediation - iOS quick search chips sit above `LSChatInput` with stable token spacing and no overlap | swift-implementer | 90 min |
+| PLAN-S08-REM-AND-T01 | Remediation - Android `LSMapControls` zoom-bottom parity with iOS right-edge workbar ordering | kotlin-implementer | 90 min |
 | PLAN-S08-CVX-T01 | Convex planning phase contract — verify/extend `sessionMessages` so iOS + Android can derive current pipeline phase (parsing/searching/drafting/enriching/finalizing) deterministically; verify `db.routePlans.cancelPlan` end-to-end for return-to-idle | convex-implementer | 180 min |
 | PLAN-S08-IOS-T01 | iOS PlanningViewModel — bind `sessionMessages` query, derive current phase + step states, expose capsule italic copy, expose LSPhaseIndicator step model, expose cancel intent | swift-implementer | 240 min |
 | PLAN-S08-IOS-T02 | iOS planning state on the persistent map host — render `LSContextCapsule(--planning)` above + `LSPhaseIndicator` below in the top-overlay slot; reuse Sprint 06 `LSMapView`/`LSMapHost`; configure Sprint 07 `LSMapControls` for planning state | swift-implementer | 300 min |
@@ -78,6 +82,10 @@ Re-implementing the map host, the LSContextCapsule, or the LSMapControls is a pl
 | PLAN-S08-AND-T05 | Android instrumented design-review capture refresh for `planning-screen` variants | kotlin-implementer | 180 min |
 | PLAN-S08-DR-T01 | Regenerate `.spec/design/system/refs/planning-screen/*.png` post-Sprint-07 retrofit; reconcile variant naming between ROADMAP gate and design-system README; update `planning-screen.html` to use `mol-context-capsule --planning` + `mol-phase-indicator` per the agreed layout | frontend-designer | 150 min |
 | PLAN-S08-T11 | Sprint 08 gate — `pnpm design:review --screens planning-screen` zero high + real-iPhone XCUITest evidence + cancel-confirm walk on both platforms + project `design-review` skill pass | qa-engineer | 180 min |
+| FIX-S07-IOS-T01 | **REMEDIAl** iOS IdleScreen: wire map controls callbacks to LSMapHost camera (empty closures → real wiring) — red-hat H-1 | swift-implementer | 60 min |
+| FIX-S07-AND-T01 | **REMEDIAl** Android LSMapControls: fix saved-route token from accent.default → signal.default — red-hat H-2 | kotlin-implementer | 30 min |
+| FIX-S07-IOS-T02 | **REMEDIAl** iOS: strengthen map controls vertical-centering + zoom-delta test verification (test-theatre → real assertions) — red-hat H-3, H-4 | swift-implementer | 60 min |
+| FIX-S07-IOS-T03 | **REMEDIAl** iOS: add logging to mode-toggle stub per SPRINT.md spec — red-hat H-5 | swift-implementer | 15 min |
 
 ---
 
@@ -94,6 +102,9 @@ Re-implementing the map host, the LSContextCapsule, or the LSMapControls is a pl
 
 | Task | Design Reference |
 |------|------------------|
+| PLAN-S08-REM-IOS-T01 | User remediation note 2026-05-08 (CURRENT iPhone 16 screenshot vs TARGET header): header items must be one invisible top container; preserve the production status/capsule container styling |
+| PLAN-S08-REM-IOS-T02, PLAN-S08-REM-AND-T01 | User remediation note 2026-05-08 (CURRENT vs TARGET controls): zoom controls vertical and bottom-most in the right-edge control stack |
+| PLAN-S08-REM-IOS-T03 | User remediation note 2026-05-08 (CURRENT vs TARGET chat input): quick search chips must sit above input without overlap |
 | PLAN-S08-CVX-T01 | `.spec/prds/v3-integration/use-cases/UC-CHAT-02-phase-progression.md`, `.spec/prds/v3-integration/use-cases/UC-CHAT-04-cancel.md` (or PRD-equivalents) |
 | PLAN-S08-IOS-T01, T02, AND-T01, AND-T02 | `.spec/design/system/views/planning-screen/planning-screen.html` (post-PLAN-S08-DR-T01 update) + `.spec/design/system/views/planning-screen/README.md` + `.spec/design/system/molecules/context-capsule/context-capsule.html` + `.spec/design/system/molecules/phase-indicator/phase-indicator.html` |
 | PLAN-S08-IOS-T03, AND-T03 | `.spec/design/system/views/planning-screen/planning-screen.html` § sketch-polyline animation, design-system motion recipes (1400ms linear + 1400ms ease-in-out) |
@@ -114,11 +125,50 @@ Re-implementing the map host, the LSContextCapsule, or the LSMapControls is a pl
 ## Notes
 
 - **Component reuse contract (CRITICAL):** Sprint 08 binds to existing components — `LSContextCapsule` (Sprint 07), `LSMapControls` (Sprint 07), `LSMapView`/`LSMapHost` (Sprint 06), `LSPhaseIndicator` (Sprint 04), `LSChatInput` (existing). Re-implementing any of these is a planning anti-pattern. If a component change is required, it MUST be flagged for the owning sprint's component owner, not patched in Sprint 08.
+- **Remediation prefix (2026-05-08):** `PLAN-S08-REM-*` tasks execute before the planning-state composition tasks because Sprint 08 inherits the idle header, right-edge controls, and bottom chat input primitives. These tasks address user-design-review findings only; they do not resurrect deleted snapshot/design-review tasks.
 - **Phase-overlay layout decision (2026-05-07):** Per user decision, the planning-state top overlay renders the capsule above and the LSPhaseIndicator below as separate molecules in the `org-map-layer__top-overlay` slot. The capsule shows the italic phase line + spinner; the indicator shows the explicit 5-step pipeline. The ROADMAP framing "replaces LSPhaseIndicator-as-top-overlay" refers to the *primary* top-overlay role (capsule), not retirement of the indicator. PLAN-S08-DR-T01 must update `planning-screen.html` to reflect this composed layout.
-- **Sprint 07 dependency (BLOCKER):** As of 2026-05-07, Sprint 07 is in flight — `LSContextCapsule` is shipped on iOS (CAPS-S07-T01 done) but Android implementation is in cycle 2 fixes (CAPS-S07-T02), `LSMapControls` is in progress on iOS (CAPS-S07-T03) and pending on Android (CAPS-S07-T04). Sprint 08 task execution MUST wait until Sprint 07's strict design-review gate (CAPS-S07-T09) passes. The task files in this sprint are written for forward planning and ready-for-execution review.
+- **Sprint 07 component dependency:** Sprint 08 assumes the Sprint 07 component surfaces are available for execution planning. Do not re-add deleted Sprint 07 snapshot/design-review tasks as blockers; if a primitive still needs correction, track it through the `PLAN-S08-REM-*` remediation tasks above.
 - **Backend is light:** Most backend infrastructure shipped in Sprint 04 (`sessionMessages`, `routePlans`, `cancelPlan`, `planningSessions`). PLAN-S08-CVX-T01 is verification + small contract additions, not net-new backend.
 - **Reference set is stale:** The current `.spec/design/system/refs/planning-screen/*.png` set predates the Container Principle. PLAN-S08-DR-T01 regenerates the references AFTER updating `planning-screen.html` to use the post-Sprint-07 capsule + indicator layout. Capture tests (PLAN-S08-IOS-T05, AND-T05) must align to the *regenerated* references, not the current set.
 - **Variant naming reconciliation:** ROADMAP gate text uses different variant labels than the design-system README (e.g., "S02 cancel-confirm" in gate vs. "S02 Drawing Light" in README). PLAN-S08-DR-T01 owns the reconciliation; the canonical naming after this sprint becomes the design-system README naming, and the ROADMAP gate is updated for consistency.
 - **Anti-pattern to avoid:** Adding a new sketch-polyline molecule to the design system. The polyline is a configuration of `LSMap` (a layer/source pair), not a separate component. Implementers should add a `MapSketchAnimationLayer` (iOS) / equivalent Compose state to `LSMapHost`, not a sibling component.
 - **Reduced-motion handling:** The sketch loop and breathing head-dot MUST honor platform reduced-motion preferences (iOS `UIAccessibility.isReduceMotionEnabled`, Android system animation scale = 0). Animation collapses to a static stroke + static dot in that case.
-- **Estimate sum:** ~2,790 minutes (≈46.5 hours of focused work across convex-implementer / swift-implementer / kotlin-implementer / frontend-designer / qa-engineer).
+- **Estimate sum:** ~3,270 minutes (≈54.5 hours of focused work across convex-implementer / swift-implementer / kotlin-implementer / frontend-designer / qa-engineer).
+
+## Sprint 07 Remedial Tasks (Red-Hat Review 2026-05-08)
+
+On 2026-05-08, a red-hat adversarial review of Sprint 07 (`.spec/reviews/red-hat-sprint-07-2026-05-08T16-22Z.md`) identified critical issues that must be resolved before Sprint 08 planning-state tasks execute. Four remedial tasks added:
+
+| Finding | Severity | Task | Agent |
+|---------|----------|------|-------|
+| H-1: iOS IdleScreen empty callback closures | CRITICAL | FIX-S07-IOS-T01 (wire callbacks) | swift-implementer |
+| H-2: Android wrong token for saved route | CRITICAL | FIX-S07-AND-T01 (signal.default fix) | kotlin-implementer |
+| H-3/H-4: Test theatre on positioning + zoom | HIGH | FIX-S07-IOS-T02 (strengthen tests) | swift-implementer |
+| H-5: Mode-toggle missing logging | HIGH | FIX-S07-IOS-T03 (add log stub) | swift-implementer |
+
+**Execution order:** FIX tasks MUST complete before PLAN-S08-IOS-T02 and PLAN-S08-AND-T02.
+
+## Task Detail Files
+
+Generated by /kb-sprint-tasks-plan on 2026-05-07
+
+- [PLAN-S08-AND-T01-android-planning-view-model.md](./PLAN-S08-AND-T01-android-planning-view-model.md)
+- [PLAN-S08-AND-T02-android-planning-state-overlay-composition.md](./PLAN-S08-AND-T02-android-planning-state-overlay-composition.md)
+- [PLAN-S08-AND-T03-android-sketch-polyline-overlay.md](./PLAN-S08-AND-T03-android-sketch-polyline-overlay.md)
+- [PLAN-S08-AND-T04-android-locked-chat-input-and-cancel-confirm.md](./PLAN-S08-AND-T04-android-locked-chat-input-and-cancel-confirm.md)
+- [PLAN-S08-AND-T05-android-instrumented-design-review-capture.md](./PLAN-S08-AND-T05-android-instrumented-design-review-capture.md)
+- [PLAN-S08-CVX-T01-convex-planning-phase-contract.md](./PLAN-S08-CVX-T01-convex-planning-phase-contract.md)
+- [PLAN-S08-DR-T01-regenerate-planning-screen-references.md](./PLAN-S08-DR-T01-regenerate-planning-screen-references.md)
+- [PLAN-S08-IOS-T01-ios-planning-view-model.md](./PLAN-S08-IOS-T01-ios-planning-view-model.md)
+- [PLAN-S08-IOS-T02-ios-planning-state-overlay-composition.md](./PLAN-S08-IOS-T02-ios-planning-state-overlay-composition.md)
+- [PLAN-S08-IOS-T03-ios-sketch-polyline-overlay.md](./PLAN-S08-IOS-T03-ios-sketch-polyline-overlay.md)
+- [PLAN-S08-IOS-T04-ios-locked-chat-input-and-cancel-confirm.md](./PLAN-S08-IOS-T04-ios-locked-chat-input-and-cancel-confirm.md)
+- [PLAN-S08-IOS-T05-ios-design-review-capture-tests.md](./PLAN-S08-IOS-T05-ios-design-review-capture-tests.md)
+- [PLAN-S08-T11-sprint-gate.md](./PLAN-S08-T11-sprint-gate.md)
+
+Remedial tasks added 2026-05-08 (from red-hat review):
+
+- [FIX-S07-IOS-T01-ios-idle-screen-callback-wiring.md](./FIX-S07-IOS-T01-ios-idle-screen-callback-wiring.md)
+- [FIX-S07-AND-T01-android-saved-route-signal-token-fix.md](./FIX-S07-AND-T01-android-saved-route-signal-token-fix.md)
+- [FIX-S07-IOS-T02-ios-map-controls-position-test.md](./FIX-S07-IOS-T02-ios-map-controls-position-test.md)
+- [FIX-S07-IOS-T03-ios-mode-toggle-logging-stub.md](./FIX-S07-IOS-T03-ios-mode-toggle-logging-stub.md)
