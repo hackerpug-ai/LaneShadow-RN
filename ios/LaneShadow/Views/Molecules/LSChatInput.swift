@@ -100,6 +100,7 @@ public struct LSChatInput: View {
                         label: chip.label,
                         onTap: { handleSuggestionTap(chip) }
                     )
+                    .fixedSize(horizontal: true, vertical: false)
                     .accessibilityIdentifier(
                         "lschatinput-chip-\(chip.label.lowercased().replacingOccurrences(of: " ", with: "-"))"
                     )
@@ -107,7 +108,12 @@ public struct LSChatInput: View {
             }
             .padding(.horizontal, theme.space.xs)
         }
+        .padding(.bottom, suggestionInputGap)
         .accessibilityIdentifier("lschatinput-suggestions")
+    }
+
+    private var suggestionInputGap: CGFloat {
+        theme.space.sm
     }
 
     // MARK: - Place Autocomplete

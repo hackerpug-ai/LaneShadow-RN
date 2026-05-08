@@ -163,4 +163,35 @@ struct IdleScreenTests {
         // Verify the file exists and is readable (basic sanity check)
         #expect(!sourceCode.isEmpty, "IdleScreen.swift source should be readable and non-empty")
     }
+
+    @Test
+    func test_idle_chat_suggestions_use_shared_spacing() throws {
+        let idleScreenSource = try templateSource(
+            at: "ios/LaneShadow/Views/Templates/IdleScreen.swift"
+        )
+        let idleContainerSource = try templateSource(
+            at: "ios/LaneShadow/Features/Idle/IdleScreenContainer.swift"
+        )
+
+        for source in [idleScreenSource, idleContainerSource] {
+            #expect(source.contains("LSChatInput("))
+            #expect(!source.contains(".offset(y: -"))
+            #expect(!source.contains(".padding(.top, -"))
+            #expect(!source.contains(".padding(.bottom, -"))
+        }
+    }
+
+    private func templateSource(at relativePath: String) throws -> String {
+        let root = repoRoot()
+        let url = root.appendingPathComponent(relativePath)
+        return try String(contentsOf: url, encoding: .utf8)
+    }
+
+    private func repoRoot() -> URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+    }
 }

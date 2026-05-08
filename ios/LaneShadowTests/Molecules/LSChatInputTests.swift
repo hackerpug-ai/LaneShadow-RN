@@ -32,8 +32,6 @@ final class LSChatInputTests: XCTestCase {
     func test_empty_state_renders_glasspanel_with_sliders_trailing() {
         // GIVEN: LSChatInput with empty text value
         @State var text = ""
-        let onSendCalled = XCTestExpectation(description: "onSend should not be called")
-        onSendCalled.isInverted = true
 
         // WHEN: View body resolves
         let chatInput = LSChatInput(
@@ -77,15 +75,12 @@ final class LSChatInputTests: XCTestCase {
         // GIVEN: LSChatInput with non-empty value
         @State var text = "Plan a gravel route"
         var sentText: String?
-        let sendExpectation = expectation(description: "onSend called")
 
         // WHEN: Send button tapped
         let chatInput = LSChatInput(
             value: $text,
             placeholder: "Plan a ride…",
-            onSend: { sentText = $0
-                sendExpectation.fulfill()
-            },
+            onSend: { sentText = $0 },
             onCollapse: {},
             onFilter: {}
         )
@@ -100,16 +95,13 @@ final class LSChatInputTests: XCTestCase {
     func test_collapse_fires_oncollapse_exactly_once() {
         // GIVEN: LSChatInput with onCollapse closure
         var collapseCount = 0
-        let collapseExpectation = expectation(description: "onCollapse called")
 
         // WHEN: Collapse button tapped
         let chatInput = LSChatInput(
             value: .constant(""),
             placeholder: "Plan a ride…",
             onSend: { _ in },
-            onCollapse: { collapseCount += 1
-                collapseExpectation.fulfill()
-            },
+            onCollapse: { collapseCount += 1 },
             onFilter: {}
         )
 
@@ -128,7 +120,6 @@ final class LSChatInputTests: XCTestCase {
         ]
 
         var tappedChip: SuggestionChip?
-        let tapExpectation = expectation(description: "onSuggestionTap called")
 
         // WHEN: View renders
         let chatInput = LSChatInput(
@@ -138,9 +129,7 @@ final class LSChatInputTests: XCTestCase {
             onCollapse: {},
             onFilter: {},
             suggestions: suggestions,
-            onSuggestionTap: { tappedChip = $0
-                tapExpectation.fulfill()
-            }
+            onSuggestionTap: { tappedChip = $0 }
         )
 
         // THEN: Component renders with suggestions
@@ -171,6 +160,53 @@ final class LSChatInputTests: XCTestCase {
         XCTAssertNotNil(chatInput)
         let view = chatInput.body
         XCTAssertNotNil(view)
+    }
+
+    func test_suggestions_have_dedicated_gap_above_input() throws {
+        let source = try moleculeSource(named: "LSChatInput.swift")
+
+        XCTAssertTrue(
+            source.contains("private var suggestionInputGap: CGFloat"),
+            "LSChatInput should define a dedicated token-backed suggestion/input gap"
+        )
+        XCTAssertTrue(
+            source.contains("theme.space.sm"),
+            "Dedicated suggestion/input gap should resolve from an existing theme spacing token"
+        )
+        XCTAssertTrue(
+            source.contains(".padding(.bottom, suggestionInputGap)"),
+            "Suggestion row should own the vertical gap above the input instead of relying on the shared stack spacing"
+        )
+    }
+
+    func test_location_suggestions_input_order_is_stable() throws {
+        let source = try moleculeSource(named: "LSChatInput.swift")
+
+        let locationIndex = try XCTUnwrap(source.range(of: "if let locationBadge")?.lowerBound)
+        let suggestionsIndex = try XCTUnwrap(source.range(of: "if !suggestions.isEmpty")?.lowerBound)
+        let inputIndex = try XCTUnwrap(source.range(of: "inputBarView")?.lowerBound)
+        let autocompleteIndex = try XCTUnwrap(source.range(of: "if showsAutocompleteDropdown")?.lowerBound)
+
+        XCTAssertLessThan(locationIndex, suggestionsIndex)
+        XCTAssertLessThan(suggestionsIndex, inputIndex)
+        XCTAssertLessThan(inputIndex, autocompleteIndex)
+    }
+
+    func test_long_suggestions_scroll_without_input_overlap() throws {
+        let source = try moleculeSource(named: "LSChatInput.swift")
+
+        XCTAssertTrue(
+            source.contains("ScrollView(.horizontal, showsIndicators: false)"),
+            "Suggestions should remain in a horizontal scroll container"
+        )
+        XCTAssertTrue(
+            source.contains(".fixedSize(horizontal: true, vertical: false)"),
+            "Suggestion chips should size to content so long labels scroll instead of compressing into the input bar"
+        )
+        XCTAssertTrue(
+            source.contains(".frame(height: theme.control.minHeight)"),
+            "Input bar should keep its shared stable height while suggestions grow horizontally"
+        )
     }
 
     // MARK: - AC-7: isThinking swaps to spinner and disables input
@@ -310,5 +346,22 @@ final class LSChatInputTests: XCTestCase {
             onFilter: {}
         )
         XCTAssertNotNil(story6)
+    }
+
+    private func moleculeSource(named fileName: String) throws -> String {
+        let root = repoRoot()
+        let url = root
+            .appendingPathComponent("ios/LaneShadow/Views/Molecules")
+            .appendingPathComponent(fileName)
+
+        return try String(contentsOf: url, encoding: .utf8)
+    }
+
+    private func repoRoot() -> URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
     }
 }
