@@ -12,7 +12,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.google.common.truth.Truth.assertThat
 import com.laneshadow.theme.LaneShadowTheme
+import java.io.File
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -90,7 +93,12 @@ class LSMapControlsTest {
     }
 
     @Test
-    fun saved_route_paints_chip_copper() {
+    fun test_isSavedRoute_usesSignalDefaultToken() {
+        val source = File("../app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt").readText()
+
+        assertTrue(source.contains("LaneShadowTheme.color.Signal.default"))
+        assertFalse(source.contains("theme.colors.accent.default  // copper signal color for saved state"))
+
         composeTestRule.setContent {
             LaneShadowTheme {
                 LSMapControls(
@@ -110,7 +118,6 @@ class LSMapControlsTest {
             }
         }
 
-        // Verify save chip exists with "Saved route" description (not "Save route")
         composeTestRule.onNodeWithContentDescription("Saved route").assertExists()
         composeTestRule.onNodeWithContentDescription("Save route").assertDoesNotExist()
     }
@@ -246,4 +253,3 @@ class LSMapControlsTest {
         composeTestRule.onNodeWithContentDescription("Open chat").assertExists()
     }
 }
-
