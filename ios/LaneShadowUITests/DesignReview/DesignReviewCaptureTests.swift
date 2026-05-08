@@ -32,9 +32,6 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Captures the canonical idle-screen default state (light theme).
     func test_idleScreen_default_light() {
         launchSandboxStory("templates.idle-screen.default")
-
-        // Capture should include idle-context-capsule and idle-map-controls
-        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "default", theme: "light")
         add(attachment)
 
@@ -45,9 +42,6 @@ final class DesignReviewCaptureTests: XCTestCase {
     func test_idleScreen_default_dark() {
         DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
         launchSandboxStory("templates.idle-screen.s03-dark")
-
-        // Capture should include idle-context-capsule and idle-map-controls
-        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "default", theme: "dark")
         add(attachment)
 
@@ -57,9 +51,6 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Captures the canonical typing-send idle state (light theme).
     func test_idleScreen_typingSend_light() {
         launchSandboxStory("templates.idle-screen.s02-typing-send")
-
-        // Capture should include idle-context-capsule and idle-map-controls
-        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "typing-send", theme: "light")
         add(attachment)
 
@@ -69,9 +60,6 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Captures the canonical filter-sheet idle state (light theme).
     func test_idleScreen_filterSheet_light() {
         launchSandboxStory("templates.idle-screen.s04-filter-sheet")
-
-        // Capture should include idle-context-capsule and idle-map-controls
-        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "filter-sheet", theme: "light")
         add(attachment)
 
@@ -81,9 +69,6 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Sprint-06: Captures the canonical no-location idle state (light theme).
     func test_idleScreen_noLocation_light() {
         launchSandboxStory("templates.idle-screen.v-no-location")
-
-        // Capture should include idle-context-capsule and idle-map-controls
-        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "no-location", theme: "light")
         add(attachment)
 
@@ -93,9 +78,6 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Sprint-06: Captures the canonical first-ride idle state (light theme).
     func test_idleScreen_firstRide_light() {
         launchSandboxStory("templates.idle-screen.v-first-ride")
-
-        // Capture should include idle-context-capsule and idle-map-controls
-        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "first-ride", theme: "light")
         add(attachment)
 
@@ -105,13 +87,60 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Sprint-06: Captures the canonical weather-advisory idle state (light theme).
     func test_idleScreen_weatherAdvisory_light() {
         launchSandboxStory("templates.idle-screen.v-weather-advisory")
-
-        // Capture should include idle-context-capsule and idle-map-controls
-        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "weather-advisory", theme: "light")
         add(attachment)
 
         XCTAssertEqual(attachment.name, "idle-screen.weather-advisory.light")
+    }
+
+    /// Captures the canonical typing-send idle state (dark theme).
+    func test_idleScreen_typingSend_dark() {
+        DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
+        launchSandboxStory("templates.idle-screen.s02-typing-send")
+        let attachment = captureIdleScreen(state: "typing-send", theme: "dark")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "idle-screen.typing-send.dark")
+    }
+
+    /// Captures the canonical filter-sheet idle state (dark theme).
+    func test_idleScreen_filterSheet_dark() {
+        DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
+        launchSandboxStory("templates.idle-screen.s04-filter-sheet")
+        let attachment = captureIdleScreen(state: "filter-sheet", theme: "dark")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "idle-screen.filter-sheet.dark")
+    }
+
+    /// Sprint-06: Captures the canonical no-location idle state (dark theme).
+    func test_idleScreen_noLocation_dark() {
+        DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
+        launchSandboxStory("templates.idle-screen.v-no-location")
+        let attachment = captureIdleScreen(state: "no-location", theme: "dark")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "idle-screen.no-location.dark")
+    }
+
+    /// Sprint-06: Captures the canonical first-ride idle state (dark theme).
+    func test_idleScreen_firstRide_dark() {
+        DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
+        launchSandboxStory("templates.idle-screen.v-first-ride")
+        let attachment = captureIdleScreen(state: "first-ride", theme: "dark")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "idle-screen.first-ride.dark")
+    }
+
+    /// Sprint-06: Captures the canonical weather-advisory idle state (dark theme).
+    func test_idleScreen_weatherAdvisory_dark() {
+        DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
+        launchSandboxStory("templates.idle-screen.v-weather-advisory")
+        let attachment = captureIdleScreen(state: "weather-advisory", theme: "dark")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "idle-screen.weather-advisory.dark")
     }
 
     private func element(_ identifier: String) -> XCUIElement {
@@ -127,7 +156,17 @@ final class DesignReviewCaptureTests: XCTestCase {
     }
 
     private func captureIdleScreen(state: String, theme: String) -> XCTAttachment {
-        DesignReviewHelpers.captureElement(
+        // Verify new retrofit identifiers are present before capture
+        XCTAssertTrue(
+            element("idle-context-capsule").waitForExistence(timeout: 10),
+            "idle-context-capsule must be present on idle-screen \(state).\(theme)"
+        )
+        XCTAssertTrue(
+            element("idle-map-controls").waitForExistence(timeout: 10),
+            "idle-map-controls must be present on idle-screen \(state).\(theme)"
+        )
+
+        return DesignReviewHelpers.captureElement(
             screen: "idle-screen",
             state: state,
             action: theme,
