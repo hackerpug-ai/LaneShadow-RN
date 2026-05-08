@@ -1,4 +1,5 @@
 import LaneShadowTheme
+import OSLog
 import SwiftUI
 
 struct IdleScreenContainer: View {
@@ -104,11 +105,17 @@ struct IdleScreenContainer: View {
             mode: .map,
             hasRouteToSave: false,
             isSavedRoute: false,
-            onZoomIn: { mapCameraController.zoomLevel += 1 },
-            onZoomOut: { mapCameraController.zoomLevel -= 1 },
-            onRecenter: { mapCameraController.pendingRecenter = true },
-            onLayers: { /* Sprint 08: layer toggle */ },
-            onToggleView: { /* Sprint 08: chat-mode toggle */ }
+            onZoomIn: { mapCameraController.zoomIn() },
+            onZoomOut: { mapCameraController.zoomOut() },
+            onRecenter: { mapCameraController.recenterToUserLocation() },
+            onLayers: {
+                Logger(subsystem: "com.laneshadow.app", category: "IdleScreen")
+                    .info("[STUB] Layers toggle - Sprint 09")
+            },
+            onToggleView: {
+                Logger(subsystem: "com.laneshadow.app", category: "IdleScreen")
+                    .info("[STUB] Mode toggle - Sprint 08")
+            }
         )
         .accessibilityIdentifier("idle-map-controls")
     }

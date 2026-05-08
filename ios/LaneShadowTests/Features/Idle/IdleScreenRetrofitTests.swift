@@ -149,6 +149,31 @@ struct IdleScreenRetrofitTests {
         #expect(headlineString.contains("starting"))
     }
 
+    @Test("Recenter callback is wired")
+    func test_recenterCallback_isWired() async throws {
+        var recenterTapCount = 0
+
+        let screen = IdleScreen(
+            onRecenter: {
+                recenterTapCount += 1
+            }
+        )
+        .laneShadowTheme()
+
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+
+        let inspected = try screen.inspect()
+        let mapControls = try inspected.find(viewWithAccessibilityIdentifier: "idle-map-controls")
+        let recenterButton = try mapControls.find(
+            viewWithAccessibilityIdentifier: "lsmapcontrols-location.circle"
+        )
+
+        try recenterButton.button().tap()
+
+        #expect(recenterTapCount == 1)
+    }
+
     @Test("First ride (no sessions, no favorites) shows 'Ask' variant")
     func firstRide_showsAskHeadline() async throws {
         let viewModel = IdleViewModel(
