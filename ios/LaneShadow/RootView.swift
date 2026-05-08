@@ -22,17 +22,41 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if !hasBootstrappedAuth {
-                authBootstrapPlaceholder
-            } else if activeFlow == .app {
-                authenticatedFlow
-            } else {
-                AuthFlowView(
-                    route: appState.authRoute,
-                    appState: appState,
-                    clerkAuth: appEnvironment.clerkAuth
-                )
-            }
+            #if DEBUG
+                if Self.shouldRenderDirectIdleScreen() {
+                    // Direct idle screen render for UI testing (bypass auth)
+                    let viewModel = IdleViewModel(
+                        chatStore: appEnvironment.chatStore,
+                        sessionStore: appEnvironment.sessionStore,
+                        convexClient: appEnvironment.convexClient,
+                        appState: appState,
+                        onSessionStarted: { _ in }
+                    )
+                    IdleScreenContainer(viewModel: viewModel)
+                } else if !hasBootstrappedAuth {
+                    authBootstrapPlaceholder
+                } else if activeFlow == .app {
+                    authenticatedFlow
+                } else {
+                    AuthFlowView(
+                        route: appState.authRoute,
+                        appState: appState,
+                        clerkAuth: appEnvironment.clerkAuth
+                    )
+                }
+            #else
+                if !hasBootstrappedAuth {
+                    authBootstrapPlaceholder
+                } else if activeFlow == .app {
+                    authenticatedFlow
+                } else {
+                    AuthFlowView(
+                        route: appState.authRoute,
+                        appState: appState,
+                        clerkAuth: appEnvironment.clerkAuth
+                    )
+                }
+            #endif
         }
         .task {
             // Bootstrap-only — runs ONCE on view appear. Do NOT key this
@@ -140,6 +164,10 @@ struct RootView: View {
     }
 
     #if DEBUG
+        static func shouldRenderDirectIdleScreen(arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
+            arguments.contains("-DirectIdleScreenUITest")
+        }
+
         static func shouldResetAuthForUITesting(arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
             arguments.contains("-LaneShadowUITestResetAuth")
         }

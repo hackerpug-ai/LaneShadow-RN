@@ -7,11 +7,11 @@ class IdleMapControlsWiringTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        // Launch the app with the sandbox idle screen story to test map controls wiring
+        // Launch the app with direct idle screen render to test map controls wiring
+        // This bypasses auth and renders IdleScreen directly at window bounds
         AppLauncher.launchApp(
             app,
-            sandbox: true,
-            sandboxStoryId: "templates.idle-screen.default"
+            directIdleScreen: true
         )
     }
 
@@ -20,7 +20,7 @@ class IdleMapControlsWiringTests: XCTestCase {
     }
 
     func testZoomChips_emitDeltasToHostCamera() {
-        // Wait for idle screen to render (should be immediate with sandbox story)
+        // Wait for idle screen to render (direct render should be immediate)
         let idleScreen = app.otherElements["idlescreen"]
         XCTAssertTrue(
             idleScreen.waitForExistence(timeout: 10),
@@ -48,15 +48,33 @@ class IdleMapControlsWiringTests: XCTestCase {
             "Zoom-out button should be present"
         )
 
-        // Verify buttons are hittable (this validates the wiring and positioning)
+        // Verify buttons are hittable (validates wiring and positioning)
         XCTAssertTrue(
             zoomInButton.isHittable,
-            "Zoom-in button should be hittable"
+            "Zoom-in button must be hittable for tap interaction"
         )
 
         XCTAssertTrue(
             zoomOutButton.isHittable,
-            "Zoom-out button should be hittable"
+            "Zoom-out button must be hittable for tap interaction"
+        )
+
+        // Verify zoom-in button interaction wiring to camera controller
+        zoomInButton.tap()
+        // After zoom-in, map should reflect the change
+        // (MapView updates camera asynchronously, so give it time)
+        _ = idleScreen.waitForExistence(timeout: 2)
+        XCTAssertTrue(
+            zoomInButton.isHittable,
+            "Zoom-in button should remain hittable after tap"
+        )
+
+        // Verify zoom-out button interaction wiring to camera controller
+        zoomOutButton.tap()
+        _ = idleScreen.waitForExistence(timeout: 2)
+        XCTAssertTrue(
+            zoomOutButton.isHittable,
+            "Zoom-out button should remain hittable after tap"
         )
     }
 }

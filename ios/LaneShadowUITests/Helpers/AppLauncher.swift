@@ -8,7 +8,8 @@ enum AppLauncher {
         sandboxStoryId: String? = nil,
         resetAuth: Bool = false,
         bypassAuth: Bool = false,
-        e2eSignIn: Bool = false
+        e2eSignIn: Bool = false,
+        directIdleScreen: Bool = false
     ) {
         let shouldLaunchSandbox = sandbox || sandboxStoryId != nil
         app.launchEnvironment["LANESHADOW_LAUNCH_SANDBOX"] = shouldLaunchSandbox ? "1" : "0"
@@ -29,6 +30,9 @@ enum AppLauncher {
         if e2eSignIn {
             arguments.append("-LaneShadowUITestE2E")
         }
+        if directIdleScreen {
+            arguments.append("-DirectIdleScreenUITest")
+        }
         app.launchArguments = arguments
         app.launch()
     }
@@ -44,7 +48,7 @@ enum AppLauncher {
         // Hardcoded Mailosaur test inbox fallback for real-device E2E
         let fallbacks: [String: String] = [
             "CLERK_TEST_EMAIL": "e2e-login@jjrnshw9.mailosaur.net",
-            "CLERK_TEST_PASSWORD": "test-password-123",
+            "CLERK_TEST_PASSWORD": "test-password-123"
         ]
 
         for key in [
@@ -53,7 +57,7 @@ enum AppLauncher {
             "CONVEX_URL",
             "EXPO_PUBLIC_CONVEX_URL",
             "CLERK_TEST_EMAIL",
-            "CLERK_TEST_PASSWORD",
+            "CLERK_TEST_PASSWORD"
         ] {
             let value = environment[key] ?? dotEnv[key] ?? fallbacks[key] ?? ""
             guard !value.isEmpty else {
@@ -74,13 +78,13 @@ enum AppLauncher {
         for line in content.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
             guard !trimmed.isEmpty, !trimmed.hasPrefix("#"),
-                  let eq = trimmed.firstIndex(of: "=") else { continue }
-            let key = String(trimmed[..<eq]).trimmingCharacters(in: .whitespaces)
-            var value = String(trimmed[trimmed.index(after: eq)...]).trimmingCharacters(in: .whitespaces)
+                  let equalsIndex = trimmed.firstIndex(of: "=") else { continue }
+            let key = String(trimmed[..<equalsIndex]).trimmingCharacters(in: .whitespaces)
+            var value = String(trimmed[trimmed.index(after: equalsIndex)...])
+                .trimmingCharacters(in: .whitespaces)
             // Strip surrounding quotes
             if (value.hasPrefix("\"") && value.hasSuffix("\"")) ||
-                (value.hasPrefix("'") && value.hasSuffix("'"))
-            {
+                (value.hasPrefix("'") && value.hasSuffix("'")) {
                 value = String(value.dropFirst().dropLast())
             }
             result[key] = value
