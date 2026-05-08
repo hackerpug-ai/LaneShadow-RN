@@ -48,7 +48,7 @@ enum AppLauncher {
         // Hardcoded Mailosaur test inbox fallback for real-device E2E
         let fallbacks: [String: String] = [
             "CLERK_TEST_EMAIL": "e2e-login@jjrnshw9.mailosaur.net",
-            "CLERK_TEST_PASSWORD": "test-password-123"
+            "CLERK_TEST_PASSWORD": "test-password-123",
         ]
 
         for key in [
@@ -57,7 +57,7 @@ enum AppLauncher {
             "CONVEX_URL",
             "EXPO_PUBLIC_CONVEX_URL",
             "CLERK_TEST_EMAIL",
-            "CLERK_TEST_PASSWORD"
+            "CLERK_TEST_PASSWORD",
         ] {
             let value = environment[key] ?? dotEnv[key] ?? fallbacks[key] ?? ""
             guard !value.isEmpty else {
@@ -84,7 +84,8 @@ enum AppLauncher {
                 .trimmingCharacters(in: .whitespaces)
             // Strip surrounding quotes
             if (value.hasPrefix("\"") && value.hasSuffix("\"")) ||
-                (value.hasPrefix("'") && value.hasSuffix("'")) {
+                (value.hasPrefix("'") && value.hasSuffix("'"))
+            {
                 value = String(value.dropFirst().dropLast())
             }
             result[key] = value

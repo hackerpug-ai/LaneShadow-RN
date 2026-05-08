@@ -20,7 +20,7 @@ struct IdleScreenWiringTests {
         viewModel.greetingScope = .today
         viewModel.locationLabel = "Santa Cruz, CA"
         viewModel.favoriteLocations = [
-            FavoriteLocation(id: "fav-1", lat: 36.97, lon: -122.03, label: "Santa Cruz, CA")
+            FavoriteLocation(id: "fav-1", lat: 36.97, lon: -122.03, label: "Santa Cruz, CA"),
         ]
 
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()

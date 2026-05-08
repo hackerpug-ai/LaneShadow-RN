@@ -26,7 +26,7 @@ struct LSMapControlsResolvedThemeColors: Equatable {
     let signalDefault: String
 }
 
-enum LSMapControlsChipKind: Hashable, Sendable {
+enum LSMapControlsChipKind: Hashable {
     case zoomCluster
     case recenter
     case layers

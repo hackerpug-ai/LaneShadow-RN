@@ -9,7 +9,7 @@ import XCTest
 @MainActor
 struct IdleScreenRetrofitTests {
     @Test("Default idle state renders capsule with greeting copy")
-    func testIdleDefault_rendersCapsuleWithGreeting() async throws {
+    func idleDefault_rendersCapsuleWithGreeting() async throws {
         let viewModel = IdleViewModel(
             chatStore: ChatStore(),
             sessionStore: SessionStore(),
@@ -17,10 +17,11 @@ struct IdleScreenRetrofitTests {
         )
         viewModel.greetingDisplayName = "Marcus"
         viewModel.greetingScope = .today
+        viewModel.locationLabel = "Santa Cruz, CA"
         viewModel.metaRow = "FRIDAY · 68°F · CLEAR"
         viewModel.weatherAdvisory = nil
         viewModel.favoriteLocations = [
-            FavoriteLocation(id: "fav-1", lat: 36.97, lon: -122.03, label: "Santa Cruz, CA")
+            FavoriteLocation(id: "fav-1", lat: 36.97, lon: -122.03, label: "Santa Cruz, CA"),
         ]
 
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
@@ -40,7 +41,7 @@ struct IdleScreenRetrofitTests {
     }
 
     @Test("Map controls render at vertical center of right edge")
-    func testIdle_rendersMapControlsVerticallyCentered() async throws {
+    func idle_rendersMapControlsVerticallyCentered() async throws {
         let viewModel = IdleViewModel(
             chatStore: ChatStore(),
             sessionStore: SessionStore(),
@@ -60,7 +61,7 @@ struct IdleScreenRetrofitTests {
     }
 
     @Test("Advisory severity renders warning capsule without legacy card")
-    func testAdvisorySeverity_rendersWarningCapsuleNoLegacyCard() async throws {
+    func advisorySeverity_rendersWarningCapsuleNoLegacyCard() async throws {
         let viewModel = IdleViewModel(
             chatStore: ChatStore(),
             sessionStore: SessionStore(),
@@ -95,7 +96,7 @@ struct IdleScreenRetrofitTests {
     }
 
     @Test("Dark mode re-resolves capsule and controls without remounting map")
-    func testDarkMode_reResolvesCapsuleAndControls() async throws {
+    func darkMode_reResolvesCapsuleAndControls() async throws {
         let viewModel = IdleViewModel(
             chatStore: ChatStore(),
             sessionStore: SessionStore(),
@@ -103,6 +104,7 @@ struct IdleScreenRetrofitTests {
         )
         viewModel.greetingDisplayName = "Sam"
         viewModel.greetingScope = .today
+        viewModel.locationLabel = "San Francisco, CA"
 
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let inspected = try screen.inspect()
@@ -128,7 +130,7 @@ struct IdleScreenRetrofitTests {
     }
 
     @Test("Location unavailable shows 'starting' headline variant")
-    func testLocationUnavailable_showsStartingHeadline() async throws {
+    func locationUnavailable_showsStartingHeadline() async throws {
         let viewModel = IdleViewModel(
             chatStore: ChatStore(),
             sessionStore: SessionStore(),
@@ -148,7 +150,7 @@ struct IdleScreenRetrofitTests {
     }
 
     @Test("First ride (no sessions, no favorites) shows 'Ask' variant")
-    func testFirstRide_showsAskHeadline() async throws {
+    func firstRide_showsAskHeadline() async throws {
         let viewModel = IdleViewModel(
             chatStore: ChatStore(),
             sessionStore: SessionStore(),

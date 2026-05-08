@@ -47,7 +47,7 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         renderFavoritePins(favoriteLocations, on: mapView, coordinator: context.coordinator)
 
         // Handle camera controller zoom changes
-        if let cameraController = cameraController, let mapView = context.coordinator.mapView {
+        if let cameraController, let mapView = context.coordinator.mapView {
             let currentState = mapView.mapboxMap.cameraState
             let cameraOptions = CameraOptions(
                 center: currentState.center,

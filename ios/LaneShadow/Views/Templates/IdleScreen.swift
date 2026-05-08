@@ -125,7 +125,8 @@ public struct IdleScreen: View {
     // MARK: - Helper Methods
 
     private func buildCapsuleState() -> LSContextCapsule.CapsuleState {
-        let metaItems = state.greeting.meta.split(separator: "·").map { String($0).trimmingCharacters(in: .whitespaces) }
+        let metaItems = state.greeting.meta.split(separator: "·")
+            .map { String($0).trimmingCharacters(in: .whitespaces) }
 
         // If weather advisory, use warning variant
         if state.weatherAdvisory != nil {
