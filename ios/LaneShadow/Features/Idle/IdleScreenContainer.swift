@@ -4,6 +4,7 @@ import SwiftUI
 struct IdleScreenContainer: View {
     @Environment(\.theme) private var theme
     @Bindable private var viewModel: IdleViewModel
+    @State private var mapCameraController = LSMapCameraController()
 
     init(viewModel: IdleViewModel) {
         self.viewModel = viewModel
@@ -16,7 +17,8 @@ struct IdleScreenContainer: View {
                     LSMap(
                         mode: .preview,
                         camera: Self.defaultCamera,
-                        favoriteLocations: viewModel.favoriteLocations
+                        favoriteLocations: viewModel.favoriteLocations,
+                        cameraController: mapCameraController
                     )
                     .accessibilityIdentifier("idlescreen-map")
                 },
@@ -94,11 +96,11 @@ struct IdleScreenContainer: View {
             mode: .map,
             hasRouteToSave: false,
             isSavedRoute: false,
-            onZoomIn: {},
-            onZoomOut: {},
-            onRecenter: {},
-            onLayers: {},
-            onToggleView: {}
+            onZoomIn: { mapCameraController.zoomLevel += 1 },
+            onZoomOut: { mapCameraController.zoomLevel -= 1 },
+            onRecenter: { mapCameraController.pendingRecenter = true },
+            onLayers: { /* Sprint 08: layer toggle */ },
+            onToggleView: { /* Sprint 08: chat-mode toggle */ }
         )
         .accessibilityIdentifier("idle-map-controls")
     }

@@ -17,6 +17,7 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
     let onTap: ((LatLng) -> Void)?
     let accessToken: String
     let renderModel: LSMapRenderModel
+    let cameraController: LSMapCameraController?
 
     func makeUIView(context: Context) -> MapView {
         configureAccessToken()
@@ -44,10 +45,22 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         renderPolylines(polylines, on: mapView, coordinator: context.coordinator)
         applyCameraFitIfNeeded(to: mapView, polylines: polylines)
         renderFavoritePins(favoriteLocations, on: mapView, coordinator: context.coordinator)
+
+        // Handle camera controller zoom changes
+        if let cameraController = cameraController, let mapView = context.coordinator.mapView {
+            let currentState = mapView.mapboxMap.cameraState
+            let cameraOptions = CameraOptions(
+                center: currentState.center,
+                zoom: cameraController.zoomLevel,
+                bearing: currentState.bearing,
+                pitch: currentState.pitch
+            )
+            mapView.mapboxMap.setCamera(to: cameraOptions)
+        }
     }
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(onTap: onTap)
+        Coordinator(onTap: onTap, cameraController: cameraController)
     }
 
     private func configureAccessToken() {
@@ -207,14 +220,16 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
 
     final class Coordinator: NSObject {
         let onTap: ((LatLng) -> Void)?
+        let cameraController: LSMapCameraController?
         weak var mapView: MapView?
         var currentStyleURI: String?
         var polylineAnnotationManagers: [String: PolylineAnnotationManager] = [:]
         var currentPolylineIds: Set<String> = []
         var favoritePinManager: PointAnnotationManager?
 
-        init(onTap: ((LatLng) -> Void)?) {
+        init(onTap: ((LatLng) -> Void)?, cameraController: LSMapCameraController?) {
             self.onTap = onTap
+            self.cameraController = cameraController
         }
 
         @MainActor @objc func handleTap(_ gesture: UITapGestureRecognizer) {

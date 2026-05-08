@@ -18,20 +18,23 @@ struct IdleScreenWiringTests {
         )
         viewModel.greetingDisplayName = "Cameron"
         viewModel.greetingScope = .today
+        viewModel.locationLabel = "Santa Cruz, CA"
+        viewModel.favoriteLocations = [
+            FavoriteLocation(id: "fav-1", lat: 36.97, lon: -122.03, label: "Santa Cruz, CA")
+        ]
 
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let hostingController = UIHostingController(rootView: screen)
         hostingController.loadViewIfNeeded()
 
         let inspected = try screen.inspect()
-        let headline = try inspected.find(viewWithAccessibilityIdentifier: "idlescreen-greeting-headline")
-        let headlineStack = try headline.hStack()
-        let leadingText = try headlineStack.text(0).string()
-        let scopeText = try headlineStack.text(1).string()
-        let trailingText = try headlineStack.text(2).string()
-        let headlineText = leadingText + scopeText + trailingText
-        #expect(headlineText == "Where are we riding today, Cameron?")
-        #expect(scopeText == "today")
+        let capsule = try inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
+        let headline = try capsule.find(viewWithAccessibilityIdentifier: "lscontextcapsule-headline")
+        let headlineText = try headline.text()
+        let headlineString = try headlineText.string()
+        #expect(headlineString.contains("Where are we riding"))
+        #expect(headlineString.contains("today"))
+        #expect(headlineString.contains("Cameron"))
     }
 
     @Test

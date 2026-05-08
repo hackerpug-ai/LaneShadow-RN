@@ -2,6 +2,17 @@ import CoreGraphics
 import LaneShadowTheme
 import SwiftUI
 
+@MainActor
+@Observable
+public final class LSMapCameraController {
+    public var zoomLevel: Double = 12
+    public var pendingRecenter: Bool = false
+
+    public init(zoomLevel: Double = 12) {
+        self.zoomLevel = zoomLevel
+    }
+}
+
 public struct LatLng: Equatable, Hashable, Sendable {
     public let lat: Double
     public let lon: Double
@@ -184,7 +195,8 @@ public func LSMap(
     polylines: [PolylineData] = [],
     annotations: [Annotation] = [],
     favoriteLocations: [FavoriteLocation] = [],
-    onTap: ((LatLng) -> Void)? = nil
+    onTap: ((LatLng) -> Void)? = nil,
+    cameraController: LSMapCameraController? = nil
 ) -> some View {
     LSMapContainer(
         mode: mode,
@@ -193,7 +205,8 @@ public func LSMap(
         polylines: polylines,
         annotations: annotations,
         favoriteLocations: favoriteLocations,
-        onTap: onTap
+        onTap: onTap,
+        cameraController: cameraController
     )
 }
 
@@ -207,6 +220,7 @@ private struct LSMapContainer: View {
     let annotations: [Annotation]
     let favoriteLocations: [FavoriteLocation]
     let onTap: ((LatLng) -> Void)?
+    let cameraController: LSMapCameraController?
 
     var body: some View {
         let token = resolveMapboxAccessToken()
@@ -240,7 +254,8 @@ private struct LSMapContainer: View {
                 favoriteLocations: favoriteLocations,
                 onTap: onTap,
                 accessToken: token,
-                renderModel: renderModel
+                renderModel: renderModel,
+                cameraController: cameraController
             )
         }
     }
