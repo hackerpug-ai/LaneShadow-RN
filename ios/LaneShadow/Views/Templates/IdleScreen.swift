@@ -1,4 +1,5 @@
 import LaneShadowTheme
+import OSLog
 import SwiftUI
 
 /// IdleScreen — the dormant Navigator welcome screen.
@@ -117,7 +118,10 @@ public struct IdleScreen: View {
             onZoomOut: {},
             onRecenter: {},
             onLayers: {},
-            onToggleView: {}
+            onToggleView: {
+                Logger(subsystem: "com.laneshadow.app", category: "IdleScreen")
+                    .info("Mode toggle tapped; Sprint 08 wiring pending")
+            }
         )
         .accessibilityIdentifier("idle-map-controls")
     }
