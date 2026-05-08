@@ -7,8 +7,12 @@ struct IdleScreenContainer: View {
     @Bindable private var viewModel: IdleViewModel
     @State private var mapCameraController = LSMapCameraController()
 
-    init(viewModel: IdleViewModel) {
+    init(
+        viewModel: IdleViewModel,
+        mapCameraController: LSMapCameraController = LSMapCameraController()
+    ) {
         self.viewModel = viewModel
+        _mapCameraController = State(initialValue: mapCameraController)
     }
 
     var body: some View {
@@ -21,7 +25,10 @@ struct IdleScreenContainer: View {
                         favoriteLocations: viewModel.favoriteLocations,
                         cameraController: mapCameraController
                     )
+                    .accessibilityElement(children: .ignore)
                     .accessibilityIdentifier("idlescreen-map")
+                    .accessibilityLabel("Idle map camera state")
+                    .accessibilityValue(mapCameraController.debugAccessibilityValue)
                 },
                 topOverlays: [
                     GlassOverlaySlot(
@@ -44,6 +51,7 @@ struct IdleScreenContainer: View {
                 }
             )
             .accessibilityIdentifier("idlescreen")
+            .accessibilityValue(mapCameraController.debugAccessibilityValue)
 
             // Map controls positioned at vertical center of right edge
             VStack {
