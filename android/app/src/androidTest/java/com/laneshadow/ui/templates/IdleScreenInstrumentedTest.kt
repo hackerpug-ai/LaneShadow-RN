@@ -1,15 +1,20 @@
 package com.laneshadow.ui.templates
 
+import android.graphics.Bitmap
 import androidx.compose.material3.Surface
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.laneshadow.sandbox.mockproviders.IdleMockProvider
 import com.laneshadow.theme.LaneShadowTheme
+import java.io.File
+import java.io.FileOutputStream
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -400,12 +405,19 @@ class IdleScreenInstrumentedTest {
             composeRule
                 .onNodeWithTag("idlescreen-map")
                 .assertIsDisplayed()
-        }
 
-        // Capture screenshot for design review manual inspection
-        // Screenshot is captured and automatically available to the test harness.
-        // Gradle's connected test runner emits images to:
-        // app/build/outputs/connected_android_test_additional_output/
-        // (These are best-effort artifacts until the Android design-review pipeline ships)
+            // Capture actual screenshot for design review
+            val bitmap = composeRule.onRoot().captureToImage().asAndroidBitmap()
+            val dir = InstrumentationRegistry.getInstrumentation()
+                .targetContext
+                .filesDir
+                .resolve("design-review-captures")
+                .also { it.mkdirs() }
+            val file = File(dir, "$variantId.png")
+            FileOutputStream(file).use { output ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
+            }
+            bitmap.recycle()
+        }
     }
 }
