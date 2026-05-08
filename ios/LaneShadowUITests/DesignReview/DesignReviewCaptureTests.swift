@@ -33,6 +33,8 @@ final class DesignReviewCaptureTests: XCTestCase {
     func test_idleScreen_default_light() {
         launchSandboxStory("templates.idle-screen.default")
 
+        // Capture should include idle-context-capsule and idle-map-controls
+        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "default", theme: "light")
         add(attachment)
 
@@ -44,6 +46,8 @@ final class DesignReviewCaptureTests: XCTestCase {
         DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
         launchSandboxStory("templates.idle-screen.s03-dark")
 
+        // Capture should include idle-context-capsule and idle-map-controls
+        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "default", theme: "dark")
         add(attachment)
 
@@ -54,6 +58,8 @@ final class DesignReviewCaptureTests: XCTestCase {
     func test_idleScreen_typingSend_light() {
         launchSandboxStory("templates.idle-screen.s02-typing-send")
 
+        // Capture should include idle-context-capsule and idle-map-controls
+        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "typing-send", theme: "light")
         add(attachment)
 
@@ -64,6 +70,8 @@ final class DesignReviewCaptureTests: XCTestCase {
     func test_idleScreen_filterSheet_light() {
         launchSandboxStory("templates.idle-screen.s04-filter-sheet")
 
+        // Capture should include idle-context-capsule and idle-map-controls
+        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "filter-sheet", theme: "light")
         add(attachment)
 
@@ -74,6 +82,8 @@ final class DesignReviewCaptureTests: XCTestCase {
     func test_idleScreen_noLocation_light() {
         launchSandboxStory("templates.idle-screen.v-no-location")
 
+        // Capture should include idle-context-capsule and idle-map-controls
+        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "no-location", theme: "light")
         add(attachment)
 
@@ -84,6 +94,8 @@ final class DesignReviewCaptureTests: XCTestCase {
     func test_idleScreen_firstRide_light() {
         launchSandboxStory("templates.idle-screen.v-first-ride")
 
+        // Capture should include idle-context-capsule and idle-map-controls
+        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "first-ride", theme: "light")
         add(attachment)
 
@@ -94,6 +106,8 @@ final class DesignReviewCaptureTests: XCTestCase {
     func test_idleScreen_weatherAdvisory_light() {
         launchSandboxStory("templates.idle-screen.v-weather-advisory")
 
+        // Capture should include idle-context-capsule and idle-map-controls
+        // which are part of the retrofitted IdleScreen design (CAPS-S07-T05)
         let attachment = captureIdleScreen(state: "weather-advisory", theme: "light")
         add(attachment)
 
