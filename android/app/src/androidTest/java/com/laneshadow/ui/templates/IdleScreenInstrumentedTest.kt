@@ -2,10 +2,13 @@ package com.laneshadow.ui.templates
 
 import android.graphics.Bitmap
 import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -384,40 +387,40 @@ class IdleScreenInstrumentedTest {
         }
 
         // Wait for all recompositions and animations to settle
-        composeRule.runOnIdle {
-            // Verify expected testTags are present in the rendered tree (AC-4)
-            composeRule
-                .onNodeWithTag("idle-context-capsule")
-                .assertIsDisplayed()
+        composeRule.waitForIdle()
 
-            composeRule
-                .onNodeWithTag("idle-map-controls")
-                .assertIsDisplayed()
+        // Verify expected testTags are present in the rendered tree (AC-4)
+        composeRule
+            .onNodeWithTag("idle-context-capsule")
+            .assertIsDisplayed()
 
-            composeRule
-                .onNodeWithTag("chat-input")
-                .assertIsDisplayed()
+        composeRule
+            .onNodeWithTag("idle-map-controls")
+            .assertIsDisplayed()
 
-            composeRule
-                .onNodeWithTag("ls-topbar")
-                .assertIsDisplayed()
+        composeRule
+            .onNodeWithTag("chat-input")
+            .assertIsDisplayed()
 
-            composeRule
-                .onNodeWithTag("idlescreen-map")
-                .assertIsDisplayed()
+        composeRule
+            .onNodeWithTag("ls-topbar")
+            .assertIsDisplayed()
 
-            // Capture actual screenshot for design review
-            val bitmap = composeRule.onRoot().captureToImage().asAndroidBitmap()
-            val dir = InstrumentationRegistry.getInstrumentation()
-                .targetContext
-                .filesDir
-                .resolve("design-review-captures")
-                .also { it.mkdirs() }
-            val file = File(dir, "$variantId.png")
-            FileOutputStream(file).use { output ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
-            }
-            bitmap.recycle()
+        composeRule
+            .onNodeWithTag("idlescreen-map")
+            .assertIsDisplayed()
+
+        // Capture actual screenshot for design review
+        val bitmap = composeRule.onRoot().captureToImage().asAndroidBitmap()
+        val dir = InstrumentationRegistry.getInstrumentation()
+            .targetContext
+            .filesDir
+            .resolve("design-review-captures")
+            .also { it.mkdirs() }
+        val file = File(dir, "$variantId.png")
+        FileOutputStream(file).use { output ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
         }
+        bitmap.recycle()
     }
 }
