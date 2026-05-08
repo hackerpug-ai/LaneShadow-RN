@@ -20,6 +20,11 @@ public struct IdleScreen: View {
     private let onMenuTap: () -> Void
     private let onSuggestionTap: (MockSuggestionChip) -> Void
     private let onSend: (String) -> Void
+    private let onZoomIn: () -> Void
+    private let onZoomOut: () -> Void
+    private let onRecenter: () -> Void
+    private let onLayers: () -> Void
+    private let onToggleView: () -> Void
 
     public init(
         provider: IdleMockProvider.Type = IdleMockProvider.self,
@@ -31,7 +36,12 @@ public struct IdleScreen: View {
         chatInputValue: Binding<String>? = nil,
         onMenuTap: @escaping () -> Void = {},
         onSuggestionTap: @escaping (MockSuggestionChip) -> Void = { _ in },
-        onSend: @escaping (String) -> Void = { _ in }
+        onSend: @escaping (String) -> Void = { _ in },
+        onZoomIn: (() -> Void)? = nil,
+        onZoomOut: (() -> Void)? = nil,
+        onRecenter: (() -> Void)? = nil,
+        onLayers: (() -> Void)? = nil,
+        onToggleView: (() -> Void)? = nil
     ) {
         self.provider = provider
         state = provider.value(variant: variant)
@@ -43,6 +53,11 @@ public struct IdleScreen: View {
         self.onMenuTap = onMenuTap
         self.onSuggestionTap = onSuggestionTap
         self.onSend = onSend
+        self.onZoomIn = onZoomIn ?? IdleScreenMapControlDefaults.logZoomInStub
+        self.onZoomOut = onZoomOut ?? IdleScreenMapControlDefaults.logZoomOutStub
+        self.onRecenter = onRecenter ?? IdleScreenMapControlDefaults.logRecenterStub
+        self.onLayers = onLayers ?? IdleScreenMapControlDefaults.logLayersStub
+        self.onToggleView = onToggleView ?? IdleScreenMapControlDefaults.logToggleViewStub
     }
 
     public var body: some View {
@@ -114,14 +129,11 @@ public struct IdleScreen: View {
             mode: .map,
             hasRouteToSave: false,
             isSavedRoute: false,
-            onZoomIn: {},
-            onZoomOut: {},
-            onRecenter: {},
-            onLayers: {},
-            onToggleView: {
-                Logger(subsystem: "com.laneshadow.app", category: "IdleScreen")
-                    .info("Mode toggle tapped; Sprint 08 wiring pending")
-            }
+            onZoomIn: onZoomIn,
+            onZoomOut: onZoomOut,
+            onRecenter: onRecenter,
+            onLayers: onLayers,
+            onToggleView: onToggleView
         )
         .accessibilityIdentifier("idle-map-controls")
     }
@@ -216,6 +228,33 @@ public struct IdleScreen: View {
             }
         }
         .accessibilityIdentifier("idlescreen-chatinput")
+    }
+}
+
+private enum IdleScreenMapControlDefaults {
+    private static let logger = Logger(subsystem: "com.laneshadow.app", category: "IdleScreen")
+
+    static func logZoomInStub() {
+        logger.info("Zoom in tapped in template idle screen; live camera host is provided by IdleScreenContainer")
+    }
+
+    static func logZoomOutStub() {
+        logger.info("Zoom out tapped in template idle screen; live camera host is provided by IdleScreenContainer")
+    }
+
+    static func logRecenterStub() {
+        logger
+            .info(
+                "[STUB] Recenter - template idle screen has no LSMapHost camera; Sprint 08 live path uses IdleScreenContainer"
+            )
+    }
+
+    static func logLayersStub() {
+        logger.info("[STUB] Layers toggle - Sprint 09")
+    }
+
+    static func logToggleViewStub() {
+        logger.info("[STUB] Mode toggle - Sprint 08")
     }
 }
 

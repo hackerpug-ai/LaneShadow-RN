@@ -53,17 +53,7 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         applyCameraFitIfNeeded(to: mapView, polylines: polylines)
         renderFavoritePins(favoriteLocations, on: mapView, coordinator: context.coordinator)
 
-        // Handle camera controller zoom changes
-        if let cameraController, let mapView = context.coordinator.mapView {
-            let currentState = mapView.mapboxMap.cameraState
-            let cameraOptions = CameraOptions(
-                center: currentState.center,
-                zoom: cameraController.zoomLevel,
-                bearing: currentState.bearing,
-                pitch: currentState.pitch
-            )
-            mapView.mapboxMap.setCamera(to: cameraOptions)
-        }
+        applyCameraControllerCommands(to: mapView, coordinator: context.coordinator)
     }
 
     func makeCoordinator() -> Coordinator {
@@ -108,17 +98,66 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
             coordinator.currentStyleURI = styleURIString
         }
 
+        let resolvedCenter = coordinator.lastAppliedCenter ?? CLLocationCoordinate2D(
+            latitude: camera.center.lat,
+            longitude: camera.center.lon
+        )
+        let resolvedZoom = coordinator.lastAppliedZoomLevel ?? cameraController?.zoomLevel ?? camera.zoom
         let cameraOptions = CameraOptions(
-            center: CLLocationCoordinate2D(
-                latitude: camera.center.lat,
-                longitude: camera.center.lon
-            ),
-            zoom: camera.zoom,
+            center: resolvedCenter,
+            zoom: resolvedZoom,
             bearing: camera.bearing ?? 0,
             pitch: camera.pitch ?? 0
         )
 
         mapView.mapboxMap.setCamera(to: cameraOptions)
+        coordinator.lastAppliedCenter = resolvedCenter
+        coordinator.lastAppliedZoomLevel = resolvedZoom
+    }
+
+    private func applyCameraControllerCommands(to mapView: MapView, coordinator: Coordinator) {
+        guard let cameraController else {
+            return
+        }
+
+        let currentState = mapView.mapboxMap.cameraState
+        let previousZoom = coordinator.lastAppliedZoomLevel ?? currentState.zoom
+        let requestedZoom = cameraController.zoomLevel
+
+        if requestedZoom != previousZoom {
+            let cameraOptions = CameraOptions(
+                center: currentState.center,
+                zoom: requestedZoom,
+                bearing: currentState.bearing,
+                pitch: currentState.pitch
+            )
+            mapView.mapboxMap.setCamera(to: cameraOptions)
+            coordinator.lastAppliedCenter = currentState.center
+            coordinator.lastAppliedZoomLevel = requestedZoom
+            cameraController.recordAppliedZoomDelta(requestedZoom - previousZoom)
+        }
+
+        guard coordinator.lastHandledRecenterRequestCount < cameraController.recenterRequestCount else {
+            return
+        }
+
+        if let userCoordinate = mapView.location.latestLocation?.coordinate {
+            let refreshedState = mapView.mapboxMap.cameraState
+            let cameraOptions = CameraOptions(
+                center: userCoordinate,
+                zoom: refreshedState.zoom,
+                bearing: refreshedState.bearing,
+                pitch: refreshedState.pitch
+            )
+            mapView.mapboxMap.setCamera(to: cameraOptions)
+            coordinator.lastAppliedCenter = userCoordinate
+            _ = cameraController.consumePendingRecenterRequest(outcome: .applied)
+        } else {
+            LSMapDebugLog.logRecenterStubNoUserLocation()
+            _ = cameraController.consumePendingRecenterRequest(outcome: .stubbedNoUserLocation)
+        }
+
+        coordinator.lastHandledRecenterRequestCount = cameraController.handledRecenterRequestCount
     }
 
     private func renderPolylines(_ polylines: [PolylineData], on mapView: MapView, coordinator: Coordinator) {
@@ -244,6 +283,9 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         let cameraController: LSMapCameraController?
         weak var mapView: MapView?
         var currentStyleURI: String?
+        var lastAppliedCenter: CLLocationCoordinate2D?
+        var lastAppliedZoomLevel: Double?
+        var lastHandledRecenterRequestCount = 0
         var polylineAnnotationManagers: [String: PolylineAnnotationManager] = [:]
         var currentPolylineIds: Set<String> = []
         var favoritePinManager: PointAnnotationManager?
@@ -287,6 +329,10 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
             logger.error(
                 "Mapbox loading error type=\(String(describing: event.type), privacy: .public) message=\(event.message, privacy: .public)"
             )
+        }
+
+        static func logRecenterStubNoUserLocation() {
+            logger.info("[STUB] Recenter - no user location available")
         }
     }
 #endif

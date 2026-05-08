@@ -1,4 +1,5 @@
 import LaneShadowTheme
+import OSLog
 import SwiftUI
 
 struct IdleScreenContainer: View {
@@ -6,8 +7,12 @@ struct IdleScreenContainer: View {
     @Bindable private var viewModel: IdleViewModel
     @State private var mapCameraController = LSMapCameraController()
 
-    init(viewModel: IdleViewModel) {
+    init(
+        viewModel: IdleViewModel,
+        mapCameraController: LSMapCameraController = LSMapCameraController()
+    ) {
         self.viewModel = viewModel
+        _mapCameraController = State(initialValue: mapCameraController)
     }
 
     var body: some View {
@@ -20,7 +25,10 @@ struct IdleScreenContainer: View {
                         favoriteLocations: viewModel.favoriteLocations,
                         cameraController: mapCameraController
                     )
+                    .accessibilityElement(children: .ignore)
                     .accessibilityIdentifier("idlescreen-map")
+                    .accessibilityLabel("Idle map camera state")
+                    .accessibilityValue(mapCameraController.debugAccessibilityValue)
                 },
                 topOverlays: [
                     GlassOverlaySlot(
@@ -43,6 +51,7 @@ struct IdleScreenContainer: View {
                 }
             )
             .accessibilityIdentifier("idlescreen")
+            .accessibilityValue(mapCameraController.debugAccessibilityValue)
 
             // Map controls positioned at vertical center of right edge
             VStack {
@@ -104,11 +113,17 @@ struct IdleScreenContainer: View {
             mode: .map,
             hasRouteToSave: false,
             isSavedRoute: false,
-            onZoomIn: { mapCameraController.zoomLevel += 1 },
-            onZoomOut: { mapCameraController.zoomLevel -= 1 },
-            onRecenter: { mapCameraController.pendingRecenter = true },
-            onLayers: { /* Sprint 08: layer toggle */ },
-            onToggleView: { /* Sprint 08: chat-mode toggle */ }
+            onZoomIn: { mapCameraController.zoomIn() },
+            onZoomOut: { mapCameraController.zoomOut() },
+            onRecenter: { mapCameraController.recenterToUserLocation() },
+            onLayers: {
+                Logger(subsystem: "com.laneshadow.app", category: "IdleScreen")
+                    .info("[STUB] Layers toggle - Sprint 09")
+            },
+            onToggleView: {
+                Logger(subsystem: "com.laneshadow.app", category: "IdleScreen")
+                    .info("[STUB] Mode toggle - Sprint 08")
+            }
         )
         .accessibilityIdentifier("idle-map-controls")
     }

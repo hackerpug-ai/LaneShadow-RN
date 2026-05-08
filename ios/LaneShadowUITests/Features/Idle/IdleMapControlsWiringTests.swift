@@ -20,8 +20,7 @@ class IdleMapControlsWiringTests: XCTestCase {
     }
 
     func testZoomChips_emitDeltasToHostCamera() {
-        // Wait for idle screen to render (direct render should be immediate)
-        let idleScreen = app.otherElements["idlescreen"]
+        let idleScreen = app.otherElements.matching(identifier: "idlescreen").firstMatch
         XCTAssertTrue(
             idleScreen.waitForExistence(timeout: 10),
             "Idle screen should exist"
@@ -59,22 +58,39 @@ class IdleMapControlsWiringTests: XCTestCase {
             "Zoom-out button must be hittable for tap interaction"
         )
 
-        // Verify zoom-in button interaction wiring to camera controller
-        zoomInButton.tap()
-        // After zoom-in, map should reflect the change
-        // (MapView updates camera asynchronously, so give it time)
-        _ = idleScreen.waitForExistence(timeout: 2)
+        let mapElement = idleScreen
         XCTAssertTrue(
-            zoomInButton.isHittable,
-            "Zoom-in button should remain hittable after tap"
+            mapElement.waitForExistence(timeout: 5),
+            "Idle screen container should remain present for camera-state inspection"
+        )
+        XCTAssertEqual(
+            mapElement.value as? String,
+            "zoom-deltas=;recenter=0/0;outcome=idle",
+            "Map host should start with no camera deltas applied"
         )
 
-        // Verify zoom-out button interaction wiring to camera controller
-        zoomOutButton.tap()
-        _ = idleScreen.waitForExistence(timeout: 2)
+        zoomInButton.tap()
         XCTAssertTrue(
-            zoomOutButton.isHittable,
-            "Zoom-out button should remain hittable after tap"
+            waitForValue(
+                "zoom-deltas=1;recenter=0/0;outcome=idle",
+                on: mapElement
+            ),
+            "Zoom-in should record a +1 applied camera delta"
         )
+
+        zoomOutButton.tap()
+        XCTAssertTrue(
+            waitForValue(
+                "zoom-deltas=1,-1;recenter=0/0;outcome=idle",
+                on: mapElement
+            ),
+            "Zoom-out should record a -1 applied camera delta after the +1"
+        )
+    }
+
+    private func waitForValue(_ value: String, on element: XCUIElement, timeout: TimeInterval = 5) -> Bool {
+        let predicate = NSPredicate(format: "value == %@", value)
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 }

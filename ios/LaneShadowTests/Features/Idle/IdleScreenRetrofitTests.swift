@@ -7,7 +7,7 @@ import XCTest
 
 @Suite("Idle Screen Retrofit Tests")
 @MainActor
-struct IdleScreenRetrofitTests {
+struct IdleScreenRetrofitSpecTests {
     @Test("Default idle state renders capsule with greeting copy")
     func idleDefault_rendersCapsuleWithGreeting() async throws {
         let viewModel = IdleViewModel(
@@ -149,6 +149,39 @@ struct IdleScreenRetrofitTests {
         #expect(headlineString.contains("starting"))
     }
 
+    @Test("Recenter callback is wired")
+    func recenterCallback_isWired() async throws {
+        let viewModel = IdleViewModel(
+            chatStore: ChatStore(),
+            sessionStore: SessionStore(),
+            convexClient: StubLaneShadowConvexClient()
+        )
+        let mapCameraController = LSMapCameraController()
+
+        let screen = IdleScreenContainer(
+            viewModel: viewModel,
+            mapCameraController: mapCameraController
+        ).laneShadowTheme()
+
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        await pumpMainActor(iterations: 20)
+
+        let inspected = try screen.inspect()
+        let mapControls = try inspected.find(viewWithAccessibilityIdentifier: "idle-map-controls")
+        let recenterButton = try mapControls.find(
+            viewWithAccessibilityIdentifier: "lsmapcontrols-location.circle"
+        )
+
+        try recenterButton.button().tap()
+        await pumpMainActor(iterations: 20)
+
+        #expect(mapCameraController.recenterRequestCount == 1)
+        #expect(mapCameraController.handledRecenterRequestCount == 1)
+        #expect(mapCameraController.lastRecenterOutcome != .idle)
+        #expect(mapCameraController.lastRecenterOutcome != .requested)
+    }
+
     @Test("First ride (no sessions, no favorites) shows 'Ask' variant")
     func firstRide_showsAskHeadline() async throws {
         let viewModel = IdleViewModel(
@@ -168,5 +201,52 @@ struct IdleScreenRetrofitTests {
         let headlineText = try headline.text()
         let headlineString = try headlineText.string()
         #expect(headlineString.contains("Ask"))
+    }
+
+    private func pumpMainActor(iterations: Int = 10) async {
+        for _ in 0 ..< iterations {
+            await Task.yield()
+        }
+    }
+}
+
+@MainActor
+final class IdleScreenRetrofitTests: XCTestCase {
+    func test_recenterCallback_isWired() async throws {
+        let viewModel = IdleViewModel(
+            chatStore: ChatStore(),
+            sessionStore: SessionStore(),
+            convexClient: StubLaneShadowConvexClient()
+        )
+        let mapCameraController = LSMapCameraController()
+
+        let screen = IdleScreenContainer(
+            viewModel: viewModel,
+            mapCameraController: mapCameraController
+        ).laneShadowTheme()
+
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        await pumpMainActor(iterations: 20)
+
+        let inspected = try screen.inspect()
+        let mapControls = try inspected.find(viewWithAccessibilityIdentifier: "idle-map-controls")
+        let recenterButton = try mapControls.find(
+            viewWithAccessibilityIdentifier: "lsmapcontrols-location.circle"
+        )
+
+        try recenterButton.button().tap()
+        await pumpMainActor(iterations: 20)
+
+        XCTAssertEqual(mapCameraController.recenterRequestCount, 1)
+        XCTAssertEqual(mapCameraController.handledRecenterRequestCount, 1)
+        XCTAssertNotEqual(mapCameraController.lastRecenterOutcome, .idle)
+        XCTAssertNotEqual(mapCameraController.lastRecenterOutcome, .requested)
+    }
+
+    private func pumpMainActor(iterations: Int = 10) async {
+        for _ in 0 ..< iterations {
+            await Task.yield()
+        }
     }
 }
