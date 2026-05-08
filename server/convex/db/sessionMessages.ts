@@ -399,6 +399,7 @@ export const updatePlanningContentHandler = async (
     ...message,
     content: args.content,
     kind: 'planning' as const,
+    phase: undefined,
   }
   await ctx.db.patch(args.messageId, {
     content: args.content,
@@ -663,7 +664,15 @@ export const appendThinkingStepHandler = async (
   }
   const steps = (message.thinkingSteps as unknown[]) ?? []
   steps.push(args.step)
-  await ctx.db.patch(args.messageId, { thinkingSteps: steps })
+  const patch: Record<string, unknown> = { thinkingSteps: steps }
+  if (message.kind === 'planning') {
+    patch.phase = derivePlanningPhase({
+      ...(message as any),
+      thinkingSteps: steps as any,
+      phase: undefined,
+    })
+  }
+  await ctx.db.patch(args.messageId, patch)
   return null
 }
 

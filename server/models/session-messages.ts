@@ -164,20 +164,20 @@ const derivePlanningPhaseFromPlanningContent = (content: string): PlanningPhase 
 /**
  * Canonical planning-phase contract for session messages.
  *
- * - Planning rows may persist `phase` directly for clients to consume.
- * - Pre-migration rows may omit `phase`; in that case phase is derived
- *   deterministically from structured `thinkingSteps[].toolName`, then from
- *   structured planning-event JSON stored in `content`, and finally from the
- *   message terminal `status`.
+ * - Structured planning activity is authoritative: derive from
+ *   `thinkingSteps[].toolName`, then from structured planning-event JSON stored
+ *   in `content`, then from the terminal `status`.
+ * - Planning rows may also persist `phase` for client convenience, but stored
+ *   values are treated as a cache and must never override newer structured
+ *   activity.
+ * - Pre-migration rows may omit `phase` and `thinkingSteps`; those rows fall
+ *   back to the persisted `phase`, then to the documented default for active
+ *   planning rows.
  * - This contract never inspects human-readable text substrings.
  */
 export const derivePlanningPhase = (message: SessionMessage): PlanningPhase | null => {
   if (message.kind !== SESSION_MESSAGE_KIND.PLANNING) {
     return null
-  }
-
-  if (message.phase !== undefined) {
-    return message.phase
   }
 
   if (message.status === SESSION_MESSAGE_STATUS.COMPLETE) {
@@ -192,6 +192,10 @@ export const derivePlanningPhase = (message: SessionMessage): PlanningPhase | nu
   const contentPhase = derivePlanningPhaseFromPlanningContent(message.content)
   if (contentPhase !== null) {
     return contentPhase
+  }
+
+  if (message.phase !== undefined) {
+    return message.phase
   }
 
   if (

@@ -88,6 +88,19 @@ describe('derivePlanningPhase', () => {
     expect(phase).toBe('finalizing')
   })
 
+  it('AC-2: ignores a stale persisted phase when newer structured content shows a later phase', () => {
+    const phase = derivePlanningPhase(
+      baseMessage({
+        phase: 'parsing',
+        content: JSON.stringify({
+          events: [{ type: 'tool_complete', tool: 'geocode' }],
+        }),
+      }),
+    )
+
+    expect(phase).toBe('searching')
+  })
+
   it('AC-3: returns finalizing for complete status even without steps', () => {
     expect(
       derivePlanningPhase(
