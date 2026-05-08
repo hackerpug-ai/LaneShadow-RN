@@ -45,31 +45,41 @@ public struct IdleScreen: View {
     }
 
     public var body: some View {
-        LSMapLayer(
-            map: {
-                mapView
-            },
-            topOverlays: [
-                GlassOverlaySlot(
-                    id: "greeting",
-                    content: { greetingOverlay }
-                ),
-            ],
-            bottomOverlays: [
-                GlassOverlaySlot(
-                    id: "chatinput",
-                    content: { chatInputView }
-                ),
-            ],
-            topBar: {
-                LSTopBar(
-                    trailing: .none,
-                    onMenuTap: onMenuTap,
-                    onNewTap: {}
-                )
+        ZStack(alignment: .trailing) {
+            LSMapLayer(
+                map: {
+                    mapView
+                },
+                topOverlays: [
+                    GlassOverlaySlot(
+                        id: "context-capsule",
+                        content: { capsuleView }
+                    ),
+                ],
+                bottomOverlays: [
+                    GlassOverlaySlot(
+                        id: "chatinput",
+                        content: { chatInputView }
+                    ),
+                ],
+                topBar: {
+                    LSTopBar(
+                        trailing: .none,
+                        onMenuTap: onMenuTap,
+                        onNewTap: {}
+                    )
+                }
+            )
+            .accessibilityIdentifier("idlescreen")
+
+            // Map controls positioned at vertical center of right edge
+            VStack {
+                Spacer()
+                mapControlsView
+                Spacer()
             }
-        )
-        .accessibilityIdentifier("idlescreen")
+            .padding(.trailing, theme.space.md)
+        }
     }
 
     // MARK: - Map
@@ -82,95 +92,66 @@ public struct IdleScreen: View {
         .accessibilityIdentifier("idlescreen-map")
     }
 
-    // MARK: - Greeting Overlay
+    // MARK: - Capsule View
 
-    private var greetingOverlay: some View {
-        VStack(alignment: .leading, spacing: theme.space.sm) {
-            if let greetingDisplayName {
-                Text("Good morning, \(greetingDisplayName)")
-                    .font(theme.type.opinion.xl.font)
-                    .foregroundStyle(LaneShadowTheme.color.content.primary)
-                    .accessibilityIdentifier("idlescreen-current-user-greeting")
-            }
-
-            // Meta label (e.g., "FRIDAY · 68°F · CLEAR")
-            Text(state.greeting.meta)
-                .font(theme.type.label.sm.font)
-                .foregroundStyle(metaColor)
-                .accessibilityIdentifier("idlescreen-greeting-meta")
-
-            // Headline with italicized emphasis word
-            HStack(spacing: 0) {
-                let parts = state.greeting.headline.split(
-                    separator: " ",
-                    omittingEmptySubsequences: false
-                )
-                let emphasisWord = state.greeting.emphasis ?? ""
-
-                ForEach(Array(parts.enumerated()), id: \.offset) { index, part in
-                    if String(part) == emphasisWord {
-                        Text(part)
-                            .italic()
-                    } else {
-                        Text(part)
-                    }
-                    if index < parts.count - 1 {
-                        Text(" ")
-                    }
-                }
-            }
-            .font(theme.type.opinion.xl.font)
-            .foregroundStyle(theme.colors.onSurface.default)
-            .accessibilityIdentifier("idlescreen-greeting-headline")
-
-            // Weather advisory card (V03 only)
-            if let advisory = state.weatherAdvisory {
-                HStack(alignment: .top, spacing: 0) {
-                    // Left border stripe (rain color)
-                    Rectangle()
-                        .fill(LaneShadowTheme.color.status.warning.default.opacity(0.6))
-                        .frame(width: 4)
-
-                    // Content area
-                    VStack(alignment: .leading, spacing: theme.space.sm) {
-                        // Label
-                        Text(advisory.label)
-                            .font(theme.type.label.sm.font)
-                            .foregroundStyle(LaneShadowTheme.color.status.warning.default.opacity(0.8))
-
-                        // Body
-                        Text(advisory.body)
-                            .font(theme.type.opinion.sm.font)
-                            .italic()
-                            .foregroundStyle(LaneShadowTheme.color.content.primary)
-                    }
-                    .padding(theme.space.md)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        LaneShadowTheme.color.status.warning.tint
-                    )
-                }
-                .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Advisory: \(advisory.label)")
-                .accessibilityValue(advisory.body)
-                .accessibilityIdentifier("idlescreen-advisory-card")
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    private var capsuleView: some View {
+        let capsuleState = buildCapsuleState()
+        return LSContextCapsule(
+            state: capsuleState,
+            isWarning: state.weatherAdvisory != nil,
+            isSaved: false
+        )
         .padding(.horizontal, theme.space.md)
         .padding(.vertical, theme.space.md)
-        .accessibilityIdentifier("idlescreen-greeting")
+        .accessibilityIdentifier("idle-context-capsule")
     }
 
-    // MARK: - Helper Properties
+    // MARK: - Map Controls View
 
-    private var metaColor: Color {
-        // V03: Use warning color for weather advisory
+    private var mapControlsView: some View {
+        LSMapControls(
+            mode: .map,
+            hasRouteToSave: false,
+            isSavedRoute: false,
+            onZoomIn: {},
+            onZoomOut: {},
+            onRecenter: {},
+            onLayers: {},
+            onToggleView: {}
+        )
+        .accessibilityIdentifier("idle-map-controls")
+    }
+
+    // MARK: - Helper Methods
+
+    private func buildCapsuleState() -> LSContextCapsule.CapsuleState {
+        let metaItems = state.greeting.meta.split(separator: "·").map { String($0).trimmingCharacters(in: .whitespaces) }
+
+        // If weather advisory, use warning variant
         if state.weatherAdvisory != nil {
-            return LaneShadowTheme.color.status.warning.default
+            var headline = AttributedString("Not the ")
+            var prettiesPart = AttributedString("prettiest")
+            var attrs = AttributeContainer()
+            attrs.inlinePresentationIntent = .emphasized
+            prettiesPart.setAttributes(attrs)
+            headline.append(prettiesPart)
+            headline.append(AttributedString(" day for it."))
+            return .idle(headline: headline, metaItems: metaItems)
         }
-        return LaneShadowTheme.color.signal.default
+
+        // Default: Use greeting state
+        var headline = AttributedString("Where are we riding ")
+        var scopePart = AttributedString(state.greeting.emphasis ?? "today")
+        var attrs = AttributeContainer()
+        attrs.inlinePresentationIntent = .emphasized
+        scopePart.setAttributes(attrs)
+        headline.append(scopePart)
+        if let displayName = greetingDisplayName {
+            headline.append(AttributedString(", \(displayName)?"))
+        } else {
+            headline.append(AttributedString("?"))
+        }
+        return .idle(headline: headline, metaItems: metaItems)
     }
 
     // MARK: - Chat Input

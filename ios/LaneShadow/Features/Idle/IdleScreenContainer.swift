@@ -10,36 +10,46 @@ struct IdleScreenContainer: View {
     }
 
     var body: some View {
-        LSMapLayer(
-            map: {
-                LSMap(
-                    mode: .preview,
-                    camera: Self.defaultCamera,
-                    favoriteLocations: viewModel.favoriteLocations
-                )
-                .accessibilityIdentifier("idlescreen-map")
-            },
-            topOverlays: [
-                GlassOverlaySlot(
-                    id: "greeting",
-                    content: { greetingOverlay }
-                ),
-            ],
-            bottomOverlays: [
-                GlassOverlaySlot(
-                    id: "chatinput",
-                    content: { chatInputView }
-                ),
-            ],
-            topBar: {
-                LSTopBar(
-                    trailing: .none,
-                    onMenuTap: {},
-                    onNewTap: {}
-                )
+        ZStack(alignment: .trailing) {
+            LSMapLayer(
+                map: {
+                    LSMap(
+                        mode: .preview,
+                        camera: Self.defaultCamera,
+                        favoriteLocations: viewModel.favoriteLocations
+                    )
+                    .accessibilityIdentifier("idlescreen-map")
+                },
+                topOverlays: [
+                    GlassOverlaySlot(
+                        id: "context-capsule",
+                        content: { capsuleView }
+                    ),
+                ],
+                bottomOverlays: [
+                    GlassOverlaySlot(
+                        id: "chatinput",
+                        content: { chatInputView }
+                    ),
+                ],
+                topBar: {
+                    LSTopBar(
+                        trailing: .none,
+                        onMenuTap: {},
+                        onNewTap: {}
+                    )
+                }
+            )
+            .accessibilityIdentifier("idlescreen")
+
+            // Map controls positioned at vertical center of right edge
+            VStack {
+                Spacer()
+                mapControlsView
+                Spacer()
             }
-        )
-        .accessibilityIdentifier("idlescreen")
+            .padding(.trailing, theme.space.md)
+        }
         .task {
             await viewModel.observe()
         }
@@ -64,93 +74,33 @@ struct IdleScreenContainer: View {
         zoom: 12
     )
 
-    // MARK: - Greeting Overlay
+    // MARK: - Capsule View
 
-    private var greetingOverlay: some View {
-        VStack(alignment: .leading, spacing: theme.space.sm) {
-            HStack(spacing: 0) {
-                Text("Where are we riding ")
-                Text(viewModel.greetingScope.rawValue)
-                    .italic()
-                Text(", \(viewModel.greetingDisplayName)?")
-            }
-            .font(theme.type.opinion.xl.font)
-            .foregroundStyle(LaneShadowTheme.color.content.primary)
-            .accessibilityIdentifier("idlescreen-greeting-headline")
-
-            if let locationLabel = viewModel.locationLabel {
-                HStack(spacing: theme.space.xs) {
-                    Image(systemName: "location.fill")
-                        .font(theme.type.label.sm.font)
-                        .foregroundStyle(LaneShadowTheme.color.signal.default)
-
-                    Text(locationLabel)
-                        .font(theme.type.label.sm.font)
-                        .foregroundStyle(LaneShadowTheme.color.signal.default)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Location: \(locationLabel)")
-                .accessibilityIdentifier("idlescreen-location-pill")
-            } else if viewModel.locationUnavailable {
-                HStack(spacing: theme.space.xs) {
-                    Image(systemName: "location.slash")
-                        .font(theme.type.label.sm.font)
-                        .foregroundStyle(LaneShadowTheme.color.content.secondary)
-
-                    Text("Location unavailable")
-                        .font(theme.type.label.sm.font)
-                        .foregroundStyle(LaneShadowTheme.color.content.secondary)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Location unavailable")
-                .accessibilityIdentifier("idlescreen-location-unavailable")
-            }
-
-            if !viewModel.metaRow.isEmpty {
-                Text(viewModel.metaRow)
-                    .font(theme.type.label.sm.font)
-                    .foregroundStyle(metaColor)
-                    .accessibilityIdentifier("idlescreen-greeting-meta")
-            }
-
-            if let advisory = viewModel.weatherAdvisory {
-                HStack(alignment: .top, spacing: 0) {
-                    Rectangle()
-                        .fill(LaneShadowTheme.color.status.warning.default.opacity(0.6))
-                        .frame(width: 4)
-
-                    VStack(alignment: .leading, spacing: theme.space.sm) {
-                        Text(advisory.label)
-                            .font(theme.type.label.sm.font)
-                            .foregroundStyle(LaneShadowTheme.color.status.warning.default.opacity(0.8))
-
-                        Text(advisory.body)
-                            .font(theme.type.opinion.sm.font)
-                            .italic()
-                            .foregroundStyle(LaneShadowTheme.color.content.primary)
-                    }
-                    .padding(theme.space.md)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(LaneShadowTheme.color.status.warning.tint)
-                }
-                .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Advisory: \(advisory.label)")
-                .accessibilityValue(advisory.body)
-                .accessibilityIdentifier("idlescreen-advisory-card")
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    private var capsuleView: some View {
+        LSContextCapsule(
+            state: viewModel.capsuleState,
+            isWarning: viewModel.weatherAdvisory != nil,
+            isSaved: false
+        )
         .padding(.horizontal, theme.space.md)
         .padding(.vertical, theme.space.md)
-        .accessibilityIdentifier("idlescreen-greeting")
+        .accessibilityIdentifier("idle-context-capsule")
     }
 
-    private var metaColor: Color {
-        if viewModel.weatherAdvisory != nil {
-            return LaneShadowTheme.color.status.warning.default
-        }
-        return LaneShadowTheme.color.signal.default
+    // MARK: - Map Controls View
+
+    private var mapControlsView: some View {
+        LSMapControls(
+            mode: .map,
+            hasRouteToSave: false,
+            isSavedRoute: false,
+            onZoomIn: {},
+            onZoomOut: {},
+            onRecenter: {},
+            onLayers: {},
+            onToggleView: {}
+        )
+        .accessibilityIdentifier("idle-map-controls")
     }
 
     // MARK: - Chat Input

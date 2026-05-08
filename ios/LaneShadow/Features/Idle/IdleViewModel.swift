@@ -41,6 +41,63 @@ final class IdleViewModel {
         !isAutocompleteQueryActive
     }
 
+    var capsuleState: LSContextCapsule.CapsuleState {
+        // Check if weather advisory (warning case)
+        if weatherAdvisory != nil {
+            var headline = AttributedString("Not the ")
+            var prettiesPart = AttributedString("prettiest")
+            var attrs = AttributeContainer()
+            attrs.inlinePresentationIntent = .emphasized
+            prettiesPart.setAttributes(attrs)
+            headline.append(prettiesPart)
+            headline.append(AttributedString(" day for it."))
+
+            // Build meta items from metaRow (parse "DAY · TEMP°F · CONDITION · PRECIP")
+            let metaItems = metaRow.split(separator: "·").map { String($0).trimmingCharacters(in: .whitespaces) }
+
+            return .idle(headline: headline, metaItems: metaItems)
+        }
+
+        // Check if location is unavailable
+        if locationUnavailable || locationLabel == nil {
+            var headline = AttributedString("Where are we ")
+            var startingPart = AttributedString("starting")
+            var attrs = AttributeContainer()
+            attrs.inlinePresentationIntent = .emphasized
+            startingPart.setAttributes(attrs)
+            headline.append(startingPart)
+            headline.append(AttributedString(" from?"))
+            return .idle(headline: headline, metaItems: [])
+        }
+
+        // Check if first ride (no recent sessions and no favorite locations)
+        if recentSessions.isEmpty && favoriteLocations.isEmpty {
+            var headline = AttributedString("First ride? ")
+            var askPart = AttributedString("Ask")
+            var attrs = AttributeContainer()
+            attrs.inlinePresentationIntent = .emphasized
+            askPart.setAttributes(attrs)
+            headline.append(askPart)
+            headline.append(AttributedString(" me anything."))
+            return .idle(headline: headline, metaItems: [])
+        }
+
+        // Default case: show scope + name
+        let scopeWord = greetingScope == .today ? "today" : "tonight"
+        var headline = AttributedString("Where are we riding ")
+        var scopePart = AttributedString(scopeWord)
+        var attrs = AttributeContainer()
+        attrs.inlinePresentationIntent = .emphasized
+        scopePart.setAttributes(attrs)
+        headline.append(scopePart)
+        headline.append(AttributedString(", \(greetingDisplayName)?"))
+
+        // Build meta items from metaRow (parse "DAY · TEMP°F · CONDITION")
+        let metaItems = metaRow.split(separator: "·").map { String($0).trimmingCharacters(in: .whitespaces) }
+
+        return .idle(headline: headline, metaItems: metaItems)
+    }
+
     @ObservationIgnored private let chatStore: ChatStore
     @ObservationIgnored private let sessionStore: SessionStore
     @ObservationIgnored private let convexClient: any LaneShadowPlanningDataProviding
