@@ -31,7 +31,7 @@ final class DesignReviewCaptureTests: XCTestCase {
 
     /// Captures the canonical idle-screen default state (light theme).
     func test_idleScreen_default_light() {
-        launchSandboxStory("templates.idle-screen.default")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "default")
         let attachment = captureIdleScreen(state: "default", theme: "light")
         add(attachment)
 
@@ -41,7 +41,7 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Captures the canonical idle-screen default state (dark theme).
     func test_idleScreen_default_dark() {
         DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
-        launchSandboxStory("templates.idle-screen.s03-dark")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "default")
         let attachment = captureIdleScreen(state: "default", theme: "dark")
         add(attachment)
 
@@ -50,7 +50,7 @@ final class DesignReviewCaptureTests: XCTestCase {
 
     /// Captures the canonical typing-send idle state (light theme).
     func test_idleScreen_typingSend_light() {
-        launchSandboxStory("templates.idle-screen.s02-typing-send")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "typingSend")
         let attachment = captureIdleScreen(state: "typing-send", theme: "light")
         add(attachment)
 
@@ -59,7 +59,7 @@ final class DesignReviewCaptureTests: XCTestCase {
 
     /// Captures the canonical filter-sheet idle state (light theme).
     func test_idleScreen_filterSheet_light() {
-        launchSandboxStory("templates.idle-screen.s04-filter-sheet")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "filterSheet")
         let attachment = captureIdleScreen(state: "filter-sheet", theme: "light")
         add(attachment)
 
@@ -68,7 +68,7 @@ final class DesignReviewCaptureTests: XCTestCase {
 
     /// Sprint-06: Captures the canonical no-location idle state (light theme).
     func test_idleScreen_noLocation_light() {
-        launchSandboxStory("templates.idle-screen.v-no-location")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "noLocation")
         let attachment = captureIdleScreen(state: "no-location", theme: "light")
         add(attachment)
 
@@ -77,7 +77,7 @@ final class DesignReviewCaptureTests: XCTestCase {
 
     /// Sprint-06: Captures the canonical first-ride idle state (light theme).
     func test_idleScreen_firstRide_light() {
-        launchSandboxStory("templates.idle-screen.v-first-ride")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "firstRide")
         let attachment = captureIdleScreen(state: "first-ride", theme: "light")
         add(attachment)
 
@@ -86,7 +86,7 @@ final class DesignReviewCaptureTests: XCTestCase {
 
     /// Sprint-06: Captures the canonical weather-advisory idle state (light theme).
     func test_idleScreen_weatherAdvisory_light() {
-        launchSandboxStory("templates.idle-screen.v-weather-advisory")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "weatherAdvisory")
         let attachment = captureIdleScreen(state: "weather-advisory", theme: "light")
         add(attachment)
 
@@ -96,7 +96,7 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Captures the canonical typing-send idle state (dark theme).
     func test_idleScreen_typingSend_dark() {
         DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
-        launchSandboxStory("templates.idle-screen.s02-typing-send")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "typingSend")
         let attachment = captureIdleScreen(state: "typing-send", theme: "dark")
         add(attachment)
 
@@ -106,7 +106,7 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Captures the canonical filter-sheet idle state (dark theme).
     func test_idleScreen_filterSheet_dark() {
         DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
-        launchSandboxStory("templates.idle-screen.s04-filter-sheet")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "filterSheet")
         let attachment = captureIdleScreen(state: "filter-sheet", theme: "dark")
         add(attachment)
 
@@ -116,7 +116,7 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Sprint-06: Captures the canonical no-location idle state (dark theme).
     func test_idleScreen_noLocation_dark() {
         DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
-        launchSandboxStory("templates.idle-screen.v-no-location")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "noLocation")
         let attachment = captureIdleScreen(state: "no-location", theme: "dark")
         add(attachment)
 
@@ -126,7 +126,7 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Sprint-06: Captures the canonical first-ride idle state (dark theme).
     func test_idleScreen_firstRide_dark() {
         DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
-        launchSandboxStory("templates.idle-screen.v-first-ride")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "firstRide")
         let attachment = captureIdleScreen(state: "first-ride", theme: "dark")
         add(attachment)
 
@@ -136,7 +136,7 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Sprint-06: Captures the canonical weather-advisory idle state (dark theme).
     func test_idleScreen_weatherAdvisory_dark() {
         DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
-        launchSandboxStory("templates.idle-screen.v-weather-advisory")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "weatherAdvisory")
         let attachment = captureIdleScreen(state: "weather-advisory", theme: "dark")
         add(attachment)
 
@@ -145,7 +145,7 @@ final class DesignReviewCaptureTests: XCTestCase {
 
     /// Sprint-06: Captures the canonical chat-focused idle state (light theme).
     func test_idleScreen_chatFocused_light() {
-        launchSandboxStory("templates.idle-screen.s02-typing-send")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "chatFocused")
         let attachment = captureIdleScreen(state: "chat-focused", theme: "light")
         add(attachment)
 
@@ -155,7 +155,7 @@ final class DesignReviewCaptureTests: XCTestCase {
     /// Sprint-06: Captures the canonical chat-focused idle state (dark theme).
     func test_idleScreen_chatFocused_dark() {
         DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
-        launchSandboxStory("templates.idle-screen.s02-typing-send")
+        AppLauncher.launchApp(app, directIdleScreen: true, idleVariant: "chatFocused")
         let attachment = captureIdleScreen(state: "chat-focused", theme: "dark")
         add(attachment)
 
@@ -164,14 +164,6 @@ final class DesignReviewCaptureTests: XCTestCase {
 
     private func element(_ identifier: String) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: identifier).firstMatch
-    }
-
-    private func launchSandboxStory(_ storyId: String) {
-        AppLauncher.launchApp(app, sandbox: true, sandboxStoryId: storyId)
-        XCTAssertTrue(
-            element("idlescreen").waitForExistence(timeout: 10),
-            "Expected sandbox idle story to render for \(storyId)"
-        )
     }
 
     private func captureIdleScreen(state: String, theme: String) -> XCTAttachment {

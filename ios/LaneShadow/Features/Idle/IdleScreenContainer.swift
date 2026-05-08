@@ -53,7 +53,15 @@ struct IdleScreenContainer: View {
             .padding(.trailing, theme.space.md)
         }
         .task {
-            await viewModel.observe()
+            // Skip observation during direct UI testing (variant state is pre-configured)
+            #if DEBUG
+                let isDirectTest = ProcessInfo.processInfo.arguments.contains("-DirectIdleScreenUITest")
+                if !isDirectTest {
+                    await viewModel.observe()
+                }
+            #else
+                await viewModel.observe()
+            #endif
         }
         .onChange(of: chatInputValue, initial: false) { _, newValue in
             viewModel.updateChatInputQuery(newValue)

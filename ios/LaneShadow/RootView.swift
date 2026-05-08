@@ -25,13 +25,7 @@ struct RootView: View {
             #if DEBUG
                 if Self.shouldRenderDirectIdleScreen() {
                     // Direct idle screen render for UI testing (bypass auth)
-                    let viewModel = IdleViewModel(
-                        chatStore: appEnvironment.chatStore,
-                        sessionStore: appEnvironment.sessionStore,
-                        convexClient: appEnvironment.convexClient,
-                        appState: appState,
-                        onSessionStarted: { _ in }
-                    )
+                    let viewModel = createDirectIdleViewModel()
                     IdleScreenContainer(viewModel: viewModel)
                 } else if !hasBootstrappedAuth {
                     authBootstrapPlaceholder
@@ -168,12 +162,129 @@ struct RootView: View {
             arguments.contains("-DirectIdleScreenUITest")
         }
 
+        static func directIdleScreenVariant(arguments: [String] = ProcessInfo.processInfo.arguments) -> String? {
+            arguments.first { $0.hasPrefix("-IdleStateVariant=") }?
+                .replacingOccurrences(of: "-IdleStateVariant=", with: "")
+        }
+
         static func shouldResetAuthForUITesting(arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
             arguments.contains("-LaneShadowUITestResetAuth")
         }
 
         static func shouldEnableE2ESignInForUITesting(arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
             arguments.contains("-LaneShadowUITestE2E")
+        }
+
+        private func createDirectIdleViewModel() -> IdleViewModel {
+            let viewModel = IdleViewModel(
+                chatStore: appEnvironment.chatStore,
+                sessionStore: appEnvironment.sessionStore,
+                convexClient: appEnvironment.convexClient,
+                appState: appState,
+                onSessionStarted: { _ in }
+            )
+
+            // Apply variant configuration if specified
+            if let variant = Self.directIdleScreenVariant() {
+                configureIdleViewModelForVariant(variant, viewModel: viewModel)
+            }
+
+            return viewModel
+        }
+
+        private func configureIdleViewModelForVariant(_ variant: String, viewModel: IdleViewModel) {
+            switch variant {
+            case "default":
+                // Default: favoriteLocations≥1, locationLabel set, no advisory, recent sessions
+                viewModel.locationLabel = "Santa Cruz, CA"
+                viewModel.greetingScope = .today
+                viewModel.greetingDisplayName = "rider"
+                viewModel.weatherAdvisory = nil
+                viewModel.metaRow = "WED · 72°F · SUNNY"
+                viewModel.favoriteLocations = [FavoriteLocation(id: "1", lat: 36.97, lon: -122.03, label: "Local Loop")]
+                viewModel.recentSessions = [mockSession()]
+
+            case "typingSend":
+                // Same as default + chat input has pre-typed text
+                viewModel.locationLabel = "Santa Cruz, CA"
+                viewModel.greetingScope = .today
+                viewModel.greetingDisplayName = "rider"
+                viewModel.weatherAdvisory = nil
+                viewModel.metaRow = "WED · 72°F · SUNNY"
+                viewModel.favoriteLocations = [FavoriteLocation(id: "1", lat: 36.97, lon: -122.03, label: "Local Loop")]
+                viewModel.recentSessions = [mockSession()]
+                viewModel.autocompletePrimedInputValue = "scenic"
+
+            case "filterSheet":
+                // Same as default + filter sheet visible (indicated by isAutocompleteQueryActive=true)
+                viewModel.locationLabel = "Santa Cruz, CA"
+                viewModel.greetingScope = .today
+                viewModel.greetingDisplayName = "rider"
+                viewModel.weatherAdvisory = nil
+                viewModel.metaRow = "WED · 72°F · SUNNY"
+                viewModel.favoriteLocations = [FavoriteLocation(id: "1", lat: 36.97, lon: -122.03, label: "Local Loop")]
+                viewModel.recentSessions = [mockSession()]
+                viewModel.isAutocompleteQueryActive = true
+
+            case "noLocation":
+                // locationLabel=nil, locationUnavailable=true
+                viewModel.locationLabel = nil
+                viewModel.locationUnavailable = true
+                viewModel.favoriteLocations = [FavoriteLocation(id: "1", lat: 36.97, lon: -122.03, label: "Local Loop")]
+                viewModel.recentSessions = [mockSession()]
+                viewModel.weatherAdvisory = nil
+
+            case "firstRide":
+                // recentSessions=[], favoriteLocations=[]
+                viewModel.locationLabel = "Santa Cruz, CA"
+                viewModel.greetingScope = .today
+                viewModel.greetingDisplayName = "rider"
+                viewModel.weatherAdvisory = nil
+                viewModel.metaRow = "WED · 72°F · SUNNY"
+                viewModel.favoriteLocations = []
+                viewModel.recentSessions = []
+
+            case "weatherAdvisory":
+                // weatherAdvisory non-nil (severity advisory)
+                viewModel.locationLabel = "Santa Cruz, CA"
+                viewModel.greetingScope = .today
+                viewModel.greetingDisplayName = "rider"
+                viewModel.metaRow = "WED · 62°F · RAIN · 45%"
+                viewModel.weatherAdvisory = WeatherAdvisory(
+                    label: "ADVISORY",
+                    body: "Weather conditions may affect your ride."
+                )
+                viewModel.favoriteLocations = [FavoriteLocation(id: "1", lat: 36.97, lon: -122.03, label: "Local Loop")]
+                viewModel.recentSessions = [mockSession()]
+
+            case "chatFocused":
+                // Same as default + chat input is_active
+                viewModel.locationLabel = "Santa Cruz, CA"
+                viewModel.greetingScope = .today
+                viewModel.greetingDisplayName = "rider"
+                viewModel.weatherAdvisory = nil
+                viewModel.metaRow = "WED · 72°F · SUNNY"
+                viewModel.favoriteLocations = [FavoriteLocation(id: "1", lat: 36.97, lon: -122.03, label: "Local Loop")]
+                viewModel.recentSessions = [mockSession()]
+                viewModel.isAutocompleteQueryActive = true
+
+            default:
+                break
+            }
+        }
+
+        private func mockSession() -> Session {
+            // Create a mock session matching the Sandbox Session structure
+            Session(
+                id: "1",
+                title: "Morning Ride",
+                preview: "Scenic loop",
+                meta: "3 routes · Active",
+                when: "Today",
+                active: false,
+                routeIds: [],
+                createdAt: ISO8601DateFormatter().string(from: Date())
+            )
         }
 
         func resetAuthForUITestingIfNeeded(
