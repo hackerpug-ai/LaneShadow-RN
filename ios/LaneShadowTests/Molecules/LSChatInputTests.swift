@@ -1,5 +1,7 @@
 import LaneShadowTheme
 import SwiftUI
+import Testing
+import ViewInspector
 import XCTest
 @testable import LaneShadow
 
@@ -163,49 +165,85 @@ final class LSChatInputTests: XCTestCase {
     }
 
     func test_suggestions_have_dedicated_gap_above_input() throws {
-        let source = try moleculeSource(named: "LSChatInput.swift")
+        let inspected = try makeChatInput(
+            suggestions: [
+                SuggestionChip(label: "Twisty back roads"),
+                SuggestionChip(label: "Coastal route"),
+            ]
+        )
+        .laneShadowTheme()
+        .inspect()
+        let rootStack = try inspected.find(ViewType.VStack.self)
+        let suggestions = try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-suggestions")
 
-        XCTAssertTrue(
-            source.contains("private var suggestionInputGap: CGFloat"),
-            "LSChatInput should define a dedicated token-backed suggestion/input gap"
+        XCTAssertEqual(
+            try rootStack.spacing(),
+            Theme.shared.space.xs,
+            "LSChatInput should keep its shared stack spacing token"
         )
-        XCTAssertTrue(
-            source.contains("theme.space.sm"),
-            "Dedicated suggestion/input gap should resolve from an existing theme spacing token"
-        )
-        XCTAssertTrue(
-            source.contains(".padding(.bottom, suggestionInputGap)"),
-            "Suggestion row should own the vertical gap above the input instead of relying on the shared stack spacing"
+        XCTAssertEqual(
+            try suggestions.padding(.bottom),
+            Theme.shared.space.sm,
+            accuracy: 0.001,
+            "Suggestion row should own a dedicated token-backed gap above the input"
         )
     }
 
     func test_location_suggestions_input_order_is_stable() throws {
-        let source = try moleculeSource(named: "LSChatInput.swift")
+        let inspected = try makeChatInput(
+            suggestions: [SuggestionChip(label: "Twisty back roads")],
+            autocompleteSuggestions: [
+                LSChatAutocompleteSuggestion(
+                    placeSuggestion: LaneShadowPlaceSuggestion(
+                        id: "big-sur",
+                        name: "Big Sur",
+                        label: "Big Sur, California",
+                        secondaryText: nil,
+                        featureType: "place",
+                        distanceMeters: nil
+                    ),
+                    accessibilityLabel: "Big Sur, Big Sur, California"
+                ),
+            ],
+            locationBadge: LocationContext(label: "Near Santa Cruz, CA", mode: .manual)
+        )
+        .laneShadowTheme()
+        .inspect()
+        let rootStack = try inspected.find(ViewType.VStack.self)
+        let suggestions = try rootStack.scrollView(1)
+        let autocomplete = try rootStack.vStack(3)
 
-        let locationIndex = try XCTUnwrap(source.range(of: "if let locationBadge")?.lowerBound)
-        let suggestionsIndex = try XCTUnwrap(source.range(of: "if !suggestions.isEmpty")?.lowerBound)
-        let inputIndex = try XCTUnwrap(source.range(of: "inputBarView")?.lowerBound)
-        let autocompleteIndex = try XCTUnwrap(source.range(of: "if showsAutocompleteDropdown")?.lowerBound)
-
-        XCTAssertLessThan(locationIndex, suggestionsIndex)
-        XCTAssertLessThan(suggestionsIndex, inputIndex)
-        XCTAssertLessThan(inputIndex, autocompleteIndex)
+        XCTAssertEqual(rootStack.count, 4)
+        XCTAssertNoThrow(try rootStack.view(LSLocationContextBar.self, 0))
+        XCTAssertEqual(try suggestions.accessibilityIdentifier(), "lschatinput-suggestions")
+        XCTAssertNoThrow(try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-bar"))
+        XCTAssertEqual(try autocomplete.accessibilityIdentifier(), "lschatinput-autocomplete")
     }
 
     func test_long_suggestions_scroll_without_input_overlap() throws {
-        let source = try moleculeSource(named: "LSChatInput.swift")
+        let inspected = try makeChatInput(
+            suggestions: [
+                SuggestionChip(label: "Twisty back roads"),
+                SuggestionChip(label: "Plan a very long coastal ride with scenic overlooks and coffee stops"),
+            ]
+        )
+        .laneShadowTheme()
+        .inspect()
+        let suggestions = try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-suggestions")
+        let chip = try inspected.find(
+            viewWithAccessibilityIdentifier: "lschatinput-chip-plan-a-very-long-coastal-ride-with-scenic-overlooks-and-coffee-stops"
+        )
+        let inputBar = try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-bar")
 
-        XCTAssertTrue(
-            source.contains("ScrollView(.horizontal, showsIndicators: false)"),
-            "Suggestions should remain in a horizontal scroll container"
-        )
-        XCTAssertTrue(
-            source.contains(".fixedSize(horizontal: true, vertical: false)"),
-            "Suggestion chips should size to content so long labels scroll instead of compressing into the input bar"
-        )
-        XCTAssertTrue(
-            source.contains(".frame(height: theme.control.minHeight)"),
-            "Input bar should keep its shared stable height while suggestions grow horizontally"
+        XCTAssertEqual(try suggestions.scrollView().axes(), .horizontal)
+        XCTAssertFalse(try suggestions.scrollView().showsIndicators())
+        XCTAssertEqual(try chip.fixedSize().horizontal, true)
+        XCTAssertEqual(try chip.fixedSize().vertical, false)
+        XCTAssertEqual(
+            try inputBar.fixedHeight(),
+            Theme.shared.control.minHeight,
+            accuracy: 0.001,
+            "Input bar should keep its shared stable height while long suggestions render above it"
         )
     }
 
@@ -348,20 +386,38 @@ final class LSChatInputTests: XCTestCase {
         XCTAssertNotNil(story6)
     }
 
-    private func moleculeSource(named fileName: String) throws -> String {
-        let root = repoRoot()
-        let url = root
-            .appendingPathComponent("ios/LaneShadow/Views/Molecules")
-            .appendingPathComponent(fileName)
-
-        return try String(contentsOf: url, encoding: .utf8)
+    private func makeChatInput(
+        suggestions: [SuggestionChip] = [],
+        autocompleteSuggestions: [LSChatAutocompleteSuggestion] = [],
+        locationBadge: LocationContext? = nil
+    ) -> some View {
+        LSChatInput(
+            value: .constant(""),
+            placeholder: "Plan a ride…",
+            onSend: { _ in },
+            onCollapse: {},
+            onFilter: {},
+            suggestions: suggestions,
+            autocompleteSuggestions: autocompleteSuggestions,
+            locationBadge: locationBadge
+        )
     }
+}
 
-    private func repoRoot() -> URL {
-        URL(fileURLWithPath: #filePath)
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-    }
+@MainActor
+private func makeChatInput(
+    suggestions: [SuggestionChip] = [],
+    autocompleteSuggestions: [LSChatAutocompleteSuggestion] = [],
+    locationBadge: LocationContext? = nil
+) -> some View {
+    LSChatInput(
+        value: .constant(""),
+        placeholder: "Plan a ride…",
+        onSend: { _ in },
+        onCollapse: {},
+        onFilter: {},
+        suggestions: suggestions,
+        autocompleteSuggestions: autocompleteSuggestions,
+        locationBadge: locationBadge
+    )
 }
