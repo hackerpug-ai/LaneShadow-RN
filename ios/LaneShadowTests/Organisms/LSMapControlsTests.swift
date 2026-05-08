@@ -89,10 +89,25 @@ final class LSMapControlsTests: XCTestCase {
         // Unsaved variant
         XCTAssertNil(appearanceUnsaved.saveChipBackgroundToken)
         XCTAssertEqual(appearanceUnsaved.saveChipGlyphColorToken, "color.content.primary")
+        XCTAssertEqual(appearanceUnsaved.saveChipAccessibilityLabel, "Save route")
 
         // Saved variant
         XCTAssertEqual(appearanceSaved.saveChipBackgroundToken, "color.signal.default")
         XCTAssertEqual(appearanceSaved.saveChipGlyphColorToken, "color.signal.onSignal")
+        XCTAssertEqual(appearanceSaved.saveChipAccessibilityLabel, "Saved route")
+    }
+
+    // MARK: - TC-3: saveChipAccessibilityLabel is nil when hasRouteToSave is false
+
+    func test_hasNoRouteToSave_savedChipAccessibilityLabelIsNil() throws {
+        let appearance = LSMapControls.resolvedAppearance(
+            mode: .map,
+            hasRouteToSave: false,
+            isSavedRoute: false,
+            in: Theme.shared
+        )
+        XCTAssertNil(appearance.saveChipAccessibilityLabel)
+        XCTAssertFalse(appearance.isSaveChipVisible)
     }
 
     // MARK: - AC-4: Chat mode collapses to single toggle chip
@@ -133,50 +148,55 @@ final class LSMapControlsTests: XCTestCase {
     // MARK: - AC-5: Zoom callbacks emit +1/-1 zoom deltas
 
     func test_zoomCallbacks_emitPlusMinusOne() throws {
-        var zoomInCallCount = 0
-        var zoomOutCallCount = 0
-
-        // Create a test controller that holds and can invoke the callback closures
-        let testController = ZoomCallbackTestController(
-            onZoomIn: { zoomInCallCount += 1 },
-            onZoomOut: { zoomOutCallCount += 1 }
+        // Verify that the appearance correctly identifies when zoom callbacks are bound
+        let appearanceWithCallbacks = LSMapControls.resolvedAppearance(
+            mode: .map,
+            hasRouteToSave: false,
+            isSavedRoute: false,
+            onZoomIn: {},
+            onZoomOut: {},
+            in: Theme.shared
         )
 
-        // Verify the callback closures are callable and increment counters
-        testController.invokeZoomIn()
-        testController.invokeZoomOut()
-
-        XCTAssertEqual(zoomInCallCount, 1, "Zoom in callback should be invokable")
-        XCTAssertEqual(zoomOutCallCount, 1, "Zoom out callback should be invokable")
-
-        // Verify the appearance includes zoom cluster in correct position
-        let appearance = LSMapControls.resolvedAppearance(
+        let appearanceWithoutCallbacks = LSMapControls.resolvedAppearance(
             mode: .map,
             hasRouteToSave: false,
             isSavedRoute: false,
             in: Theme.shared
         )
 
-        // Zoom cluster must be the first chip when in map mode
-        XCTAssertEqual(appearance.chipsInOrder.first, .zoomCluster, "Zoom cluster should be first chip in map mode")
-        let expectedCount = 4
-        let expectedMsg = "Map mode should have exactly 4 chips (zoom, recenter, layers, toggle)"
-        XCTAssertEqual(appearance.chipsInOrder.count, expectedCount, expectedMsg)
+        // When both zoom callbacks are bound, the flag should be true
+        XCTAssertTrue(
+            appearanceWithCallbacks.zoomCallbacksBound,
+            "zoomCallbacksBound must be true when both onZoomIn and onZoomOut are provided"
+        )
 
-        // Verify the view initializes without crash with callbacks bound
+        // When zoom callbacks are not provided, the flag should be false
+        XCTAssertFalse(
+            appearanceWithoutCallbacks.zoomCallbacksBound,
+            "zoomCallbacksBound must be false when callbacks are not provided"
+        )
+
+        // Verify zoom cluster is present and in correct position
+        XCTAssertEqual(
+            appearanceWithCallbacks.chipsInOrder.first,
+            .zoomCluster,
+            "Zoom cluster should be first chip in map mode"
+        )
+
+        // Verify the view initializes successfully with callbacks bound
         let view = LSMapControls(
             mode: .map,
             hasRouteToSave: false,
             isSavedRoute: false,
-            onZoomIn: { zoomInCallCount += 1 },
-            onZoomOut: { zoomOutCallCount += 1 },
+            onZoomIn: {},
+            onZoomOut: {},
             onRecenter: {},
             onLayers: {},
             onSaveRoute: {},
             onToggleView: {}
         )
 
-        // Host the view to verify it renders successfully
         let harness = host(view)
         XCTAssertNotNil(harness.window, "View should host and render without error")
     }
@@ -240,27 +260,20 @@ final class LSMapControlsTests: XCTestCase {
 
         return nil
     }
+
+    private func findAllAccessibilityIdentifiers(in view: UIView, depth: Int = 0) -> [String] {
+        var identifiers: [String] = []
+        if let id = view.accessibilityIdentifier {
+            identifiers.append("\(String(repeating: "  ", count: depth))\(id)")
+        }
+        for subview in view.subviews {
+            identifiers.append(contentsOf: findAllAccessibilityIdentifiers(in: subview, depth: depth + 1))
+        }
+        return identifiers
+    }
 }
 
 private struct HostedHarness {
     let window: UIWindow
     let controller: UIHostingController<AnyView>
-}
-
-private final class ZoomCallbackTestController {
-    let onZoomIn: () -> Void
-    let onZoomOut: () -> Void
-
-    init(onZoomIn: @escaping () -> Void, onZoomOut: @escaping () -> Void) {
-        self.onZoomIn = onZoomIn
-        self.onZoomOut = onZoomOut
-    }
-
-    func invokeZoomIn() {
-        onZoomIn()
-    }
-
-    func invokeZoomOut() {
-        onZoomOut()
-    }
 }

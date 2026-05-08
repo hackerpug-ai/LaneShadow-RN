@@ -8,6 +8,7 @@ struct LSMapControlsAppearance: Equatable {
     let isSaveChipVisible: Bool
     let saveChipBackgroundToken: String?
     let saveChipGlyphColorToken: String
+    let saveChipAccessibilityLabel: String?
     let modeToggleGlyphToken: String
     let modeToggleAccessibilityLabel: String
     let chipBackgroundToken: String
@@ -16,6 +17,7 @@ struct LSMapControlsAppearance: Equatable {
     let chipSize: CGFloat
     let chipIconSize: CGFloat
     let cornerRadius: CGFloat
+    let zoomCallbacksBound: Bool
 }
 
 struct LSMapControlsResolvedThemeColors: Equatable {
@@ -37,6 +39,8 @@ extension LSMapControls {
         mode: LSMapControlsMode,
         hasRouteToSave: Bool,
         isSavedRoute: Bool,
+        onZoomIn: (() -> Void)? = nil,
+        onZoomOut: (() -> Void)? = nil,
         in theme: Theme
     ) -> LSMapControlsAppearance {
         let chipSize = theme.space.xl + theme.space.md + theme.space.xs
@@ -60,12 +64,15 @@ extension LSMapControls {
         let modeToggleLabel = mode == .map ? "Open chat" : "Back to map"
 
         let saveBackgroundToken = isSavedRoute ? "color.signal.default" : nil
+        let saveAccessibilityLabel: String? = hasRouteToSave ? (isSavedRoute ? "Saved route" : "Save route") : nil
+        let zoomCallbacksBound = onZoomIn != nil && onZoomOut != nil
 
         return LSMapControlsAppearance(
             chipsInOrder: chipsInOrder,
             isSaveChipVisible: mode == .map && hasRouteToSave,
             saveChipBackgroundToken: saveBackgroundToken,
             saveChipGlyphColorToken: isSavedRoute ? "color.signal.onSignal" : "color.content.primary",
+            saveChipAccessibilityLabel: saveAccessibilityLabel,
             modeToggleGlyphToken: modeToggleGlyph,
             modeToggleAccessibilityLabel: modeToggleLabel,
             chipBackgroundToken: "color.surface.overlay",
@@ -73,7 +80,8 @@ extension LSMapControls {
             chipGapSpacing: theme.space.xs,
             chipSize: chipSize,
             chipIconSize: chipIconSize,
-            cornerRadius: theme.radius.md
+            cornerRadius: theme.radius.md,
+            zoomCallbacksBound: zoomCallbacksBound
         )
     }
 
