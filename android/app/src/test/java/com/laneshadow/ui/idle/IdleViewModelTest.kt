@@ -502,6 +502,143 @@ class IdleViewModelTest {
         assertThat(state.locationLabel).isNull()
     }
 
+    // AC-3: Capsule state reflects evening greeting
+    @Test
+    fun capsule_state_reflects_evening_greeting() = runTest {
+        // GIVEN: ViewModel initialises at hour 19 with displayName 'Marcus' and weather
+        val fakeUserRepository = FakeUserRepository(
+            currentUser = CurrentUser(
+                id = "user-123",
+                displayName = "Marcus Webb",
+                email = "marcus@example.com",
+            ),
+        )
+        val weatherSummary = WeatherSummary(
+            tempFahrenheit = 62.0,
+            conditionLabel = "Clear",
+            dayOfWeek = java.time.DayOfWeek.FRIDAY,
+            severity = WeatherSeverity.NONE,
+        )
+        val fakeWeatherRepository = FakeWeatherRepository(weather = weatherSummary)
+        val fixedTime = LocalTime.of(19, 0) // 7 PM
+        val convexProvider = createTestConvexClientProvider()
+
+        val viewModel = IdleViewModel(
+            userRepository = fakeUserRepository,
+            sessionRepository = FakeSessionRepository(),
+            chatRepository = FakeChatRepository(),
+            weatherRepository = fakeWeatherRepository,
+            favoritesRepository = FakeFavoritesRepository(),
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = convexProvider,
+            timeProvider = { fixedTime },
+        )
+
+        // WHEN: ViewModel processes the state
+        advanceUntilIdle()
+
+        // THEN: capsuleState.scope == TONIGHT and headline contains 'tonight' in italics
+        val state = viewModel.state.value
+        // Debug: Check that the underlying state is correct
+        assertThat(state.greetingScope).isEqualTo(GreetingScope.TONIGHT)
+        assertThat(state.firstName).isEqualTo("Marcus")
+        assertThat(state.metaRow).isEqualTo("FRIDAY · 62°F · CLEAR")
+
+        val capsuleState = viewModel.capsuleState.value
+        assertThat(capsuleState).isInstanceOf(com.laneshadow.ui.molecules.CapsuleState.Idle::class.java)
+        val idleState = capsuleState as com.laneshadow.ui.molecules.CapsuleState.Idle
+        assertThat(idleState.scope).isEqualTo(com.laneshadow.ui.molecules.IdleScope.TONIGHT)
+        assertThat(idleState.headline).contains("tonight")
+        assertThat(idleState.metaItems).containsExactly("FRIDAY", "62°F", "CLEAR")
+        assertThat(idleState.isWarning).isFalse()
+    }
+
+    // AC-4: Advisory severity flips capsule warning
+    @Test
+    fun advisory_severity_flips_capsule_warning() = runTest {
+        // GIVEN: ViewModel at hour 10 with ADVISORY severity weather
+        val fakeUserRepository = FakeUserRepository(
+            currentUser = CurrentUser(
+                id = "user-123",
+                displayName = "Marcus Webb",
+                email = "marcus@example.com",
+            ),
+        )
+        val weatherSummary = WeatherSummary(
+            tempFahrenheit = 45.0,
+            conditionLabel = "Rain",
+            dayOfWeek = java.time.DayOfWeek.MONDAY,
+            severity = WeatherSeverity.ADVISORY,
+        )
+        val fakeWeatherRepository = FakeWeatherRepository(weather = weatherSummary)
+        val fixedTime = LocalTime.of(10, 0) // 10 AM
+        val convexProvider = createTestConvexClientProvider()
+
+        val viewModel = IdleViewModel(
+            userRepository = fakeUserRepository,
+            sessionRepository = FakeSessionRepository(),
+            chatRepository = FakeChatRepository(),
+            weatherRepository = fakeWeatherRepository,
+            favoritesRepository = FakeFavoritesRepository(),
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = convexProvider,
+            timeProvider = { fixedTime },
+        )
+
+        // WHEN: ViewModel processes the advisory update
+        advanceUntilIdle()
+
+        // THEN: capsuleState.isWarning == true
+        val capsuleState = viewModel.capsuleState.value
+        assertThat(capsuleState).isInstanceOf(com.laneshadow.ui.molecules.CapsuleState.Idle::class.java)
+        val idleState = capsuleState as com.laneshadow.ui.molecules.CapsuleState.Idle
+        assertThat(idleState.isWarning).isTrue()
+    }
+
+    // AC-5: Suggestion chip tap keeps capsule idle
+    @Test
+    fun suggestion_chip_tap_keeps_capsule_idle() = runTest {
+        // GIVEN: ViewModel with capsuleState in Idle state
+        val fakeUserRepository = FakeUserRepository(
+            currentUser = CurrentUser(
+                id = "user-123",
+                displayName = "Marcus Webb",
+                email = "marcus@example.com",
+            ),
+        )
+        val weatherSummary = WeatherSummary(
+            tempFahrenheit = 68.0,
+            conditionLabel = "Clear",
+            dayOfWeek = java.time.DayOfWeek.FRIDAY,
+            severity = WeatherSeverity.NONE,
+        )
+        val fakeWeatherRepository = FakeWeatherRepository(weather = weatherSummary)
+        val fixedTime = LocalTime.of(10, 0)
+        val convexProvider = createTestConvexClientProvider()
+
+        val viewModel = IdleViewModel(
+            userRepository = fakeUserRepository,
+            sessionRepository = FakeSessionRepository(),
+            chatRepository = FakeChatRepository(),
+            weatherRepository = fakeWeatherRepository,
+            favoritesRepository = FakeFavoritesRepository(),
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = convexProvider,
+            timeProvider = { fixedTime },
+        )
+
+        advanceUntilIdle()
+        val capsuleStateBefore = viewModel.capsuleState.value
+
+        // WHEN: Suggestion chip is tapped
+        viewModel.onSuggestionTap(SuggestionChip(text = "Twisty back roads"))
+        advanceUntilIdle()
+
+        // THEN: capsuleState remains Idle (NOT Planning)
+        val capsuleStateAfter = viewModel.capsuleState.value
+        assertThat(capsuleStateAfter).isInstanceOf(com.laneshadow.ui.molecules.CapsuleState.Idle::class.java)
+    }
+
     private class FakeUserRepository(
         private val currentUser: CurrentUser?,
     ) : UserRepository {

@@ -2,6 +2,11 @@ package com.laneshadow.ui.idle
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.withStyle
 import com.laneshadow.data.chat.ChatRepository
 import com.laneshadow.data.favorites.FavoritesRepository
 import com.laneshadow.data.location.LocationCoordinate
@@ -9,10 +14,13 @@ import com.laneshadow.data.location.LocationRepository
 import com.laneshadow.data.session.SessionRepository
 import com.laneshadow.data.user.UserRepository
 import com.laneshadow.data.weather.WeatherRepository
+import com.laneshadow.data.weather.WeatherSeverity
 import com.laneshadow.services.ConvexClientProvider
 import com.laneshadow.services.PlaceAutocompleteProximity
 import com.laneshadow.services.PlaceSuggestionResult
 import com.laneshadow.services.SelectedPlaceResult
+import com.laneshadow.ui.molecules.CapsuleState
+import com.laneshadow.ui.molecules.IdleScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.DayOfWeek
 import java.time.LocalTime
@@ -66,6 +74,18 @@ class IdleViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(IdleUiState())
     val state: StateFlow<IdleUiState> = _state.asStateFlow()
+
+    private val _capsuleState = MutableStateFlow<CapsuleState>(
+        CapsuleState.Idle(
+            scope = IdleScope.TODAY,
+            headline = "Where are we riding today?",
+            emphasizedWord = "today",
+            metaItems = emptyList(),
+            isWarning = false,
+        )
+    )
+    val capsuleState: StateFlow<CapsuleState> = _capsuleState.asStateFlow()
+
     private var timeProvider: () -> LocalTime = { LocalTime.now() }
     private var autocompleteDebounceMs: Long = 300L
     private var autocompleteDispatcher: CoroutineDispatcher = Dispatchers.Main
@@ -80,6 +100,7 @@ class IdleViewModel @Inject constructor(
         observeWeather()
         observeFavorites()
         observeLocation()
+        observeCapsuleState()
     }
 
     fun onInputChange(value: String) {
@@ -356,6 +377,40 @@ class IdleViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    private fun observeCapsuleState() {
+        viewModelScope.launch {
+            state.collect { uiState ->
+                _capsuleState.update { deriveCapsuleState(uiState) }
+            }
+        }
+    }
+
+    private fun deriveCapsuleState(state: IdleUiState): CapsuleState {
+        val scopeWord = state.greetingScope.name.lowercase() // "today" or "tonight"
+        val firstName = state.firstName.ifBlank { "Rider" }
+        val metaItems = state.metaRow
+            .split(" · ")
+            .filter { it.isNotBlank() }
+
+        val isWarning = state.weatherSummary?.severity == WeatherSeverity.ADVISORY
+
+        val headline = buildAnnotatedString {
+            append("Where are we riding ")
+            withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+                append(scopeWord)
+            }
+            append(", $firstName?")
+        }
+
+        return CapsuleState.Idle(
+            scope = if (state.greetingScope == GreetingScope.TONIGHT) IdleScope.TONIGHT else IdleScope.TODAY,
+            headline = headline.text,
+            emphasizedWord = scopeWord,
+            metaItems = metaItems,
+            isWarning = isWarning,
+        )
     }
 
     private fun scheduleAutocomplete(query: String) {

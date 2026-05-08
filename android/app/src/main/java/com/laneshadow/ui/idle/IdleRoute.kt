@@ -25,9 +25,11 @@ fun IdleRoute(
 ) {
     val viewModel: IdleViewModel = hiltViewModel()
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+    val capsuleState by viewModel.capsuleState.collectAsStateWithLifecycle()
 
     IdleScreen(
         state = uiState.toMockState(),
+        capsuleState = capsuleState,
         inputValue = uiState.inputValue,
         onMenuTap = { navController.navigate(Route.Sessions) },
         onSuggestionTap = { chip ->
