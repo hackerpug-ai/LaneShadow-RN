@@ -7,7 +7,7 @@ import XCTest
 @testable import LaneShadow
 
 @MainActor
-struct IdleScreenTests {
+struct IdleScreenTemplateTests {
     /// AC-1: Idle composition renders all six slot elements (snapshot + manual verification)
     @Test
     func idle_default_renders() {
@@ -162,5 +162,66 @@ struct IdleScreenTests {
 
         // Verify the file exists and is readable (basic sanity check)
         #expect(!sourceCode.isEmpty, "IdleScreen.swift source should be readable and non-empty")
+    }
+
+    @Test
+    func idle_chat_suggestions_use_shared_spacing() throws {
+        let templateSuggestions = try IdleScreen(provider: IdleMockProvider.self)
+            .laneShadowTheme()
+            .inspect()
+            .find(viewWithAccessibilityIdentifier: "lschatinput-suggestions")
+        let containerSuggestions = try IdleScreenContainer(
+            viewModel: IdleViewModel(
+                chatStore: ChatStore(),
+                sessionStore: SessionStore(),
+                convexClient: StubLaneShadowConvexClient()
+            )
+        )
+        .laneShadowTheme()
+        .inspect()
+        .find(viewWithAccessibilityIdentifier: "lschatinput-suggestions")
+        let templateGap = try templateSuggestions.padding(.bottom)
+        let containerGap = try containerSuggestions.padding(.bottom)
+
+        #expect(templateGap == Theme.shared.space.sm)
+        #expect(containerGap == Theme.shared.space.sm)
+        #expect(templateGap == containerGap)
+    }
+}
+
+@MainActor
+final class IdleScreenTests: XCTestCase {
+    func test_idle_chat_suggestions_use_shared_spacing() throws {
+        let templateSuggestions = try IdleScreen(provider: IdleMockProvider.self)
+            .laneShadowTheme()
+            .inspect()
+            .find(viewWithAccessibilityIdentifier: "lschatinput-suggestions")
+        let containerSuggestions = try IdleScreenContainer(
+            viewModel: IdleViewModel(
+                chatStore: ChatStore(),
+                sessionStore: SessionStore(),
+                convexClient: StubLaneShadowConvexClient()
+            )
+        )
+        .laneShadowTheme()
+        .inspect()
+        .find(viewWithAccessibilityIdentifier: "lschatinput-suggestions")
+
+        XCTAssertEqual(
+            try templateSuggestions.padding(.bottom),
+            Theme.shared.space.sm,
+            accuracy: 0.001
+        )
+        XCTAssertEqual(
+            try containerSuggestions.padding(.bottom),
+            Theme.shared.space.sm,
+            accuracy: 0.001
+        )
+        XCTAssertEqual(
+            try templateSuggestions.padding(.bottom),
+            try containerSuggestions.padding(.bottom),
+            accuracy: 0.001,
+            "Idle consumers should inherit the same LSChatInput suggestion spacing without screen-specific offsets"
+        )
     }
 }

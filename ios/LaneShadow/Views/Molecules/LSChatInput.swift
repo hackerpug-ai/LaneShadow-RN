@@ -100,6 +100,7 @@ public struct LSChatInput: View {
                         label: chip.label,
                         onTap: { handleSuggestionTap(chip) }
                     )
+                    .fixedSize(horizontal: true, vertical: false)
                     .accessibilityIdentifier(
                         "lschatinput-chip-\(chip.label.lowercased().replacingOccurrences(of: " ", with: "-"))"
                     )
@@ -107,12 +108,16 @@ public struct LSChatInput: View {
             }
             .padding(.horizontal, theme.space.xs)
         }
+        .padding(.bottom, suggestionInputGap)
         .accessibilityIdentifier("lschatinput-suggestions")
+    }
+
+    private var suggestionInputGap: CGFloat {
+        theme.space.sm
     }
 
     // MARK: - Place Autocomplete
 
-    @ViewBuilder
     private var autocompleteDropdownView: some View {
         VStack(spacing: 0) {
             if isAutocompleteLoading {
@@ -247,7 +252,7 @@ public struct LSChatInput: View {
     private var trailingSlot: some View {
         if isThinking {
             spinnerView
-        } else if value.isEmpty && !showsSendAction {
+        } else if value.isEmpty, !showsSendAction {
             filterButton
         } else {
             sendButton
