@@ -1,5 +1,9 @@
 import { ConvexError, v } from 'convex/values'
 import {
+  derivePlanningPhase,
+  PLANNING_PHASE,
+  type PlanningPhase,
+  planningPhaseValidator,
   type SessionMessageAttachment,
   type SessionMessageKind,
   sessionMessageAttachmentValidator,
@@ -26,6 +30,7 @@ type SessionMessageDoc = {
   kind?: SessionMessageKind
   status?: 'streaming' | 'running' | 'complete' | 'failed'
   piMessage?: unknown
+  phase?: PlanningPhase
   thinkingSteps?: {
     type: 'thinking' | 'tool_start' | 'tool_finish'
     toolName?: string
@@ -208,6 +213,9 @@ export const createPendingAssistantMessageHandler = async (
     status,
     createdAt: now,
   }
+  if (args.kind === 'planning') {
+    fields.phase = PLANNING_PHASE.PARSING
+  }
   if (args.attachments !== undefined) {
     fields.attachments = args.attachments
   }
@@ -234,6 +242,9 @@ export const finalizeAssistantMessageHandler = async (
   }
   const now = Date.now()
   const patch: Record<string, unknown> = { status: args.status }
+  if ((message.kind as SessionMessageKind | undefined) === 'planning') {
+    patch.phase = PLANNING_PHASE.FINALIZING
+  }
   if (args.content !== undefined) {
     patch.content = args.content
   }
@@ -384,7 +395,16 @@ export const updatePlanningContentHandler = async (
   if (!message) {
     throw new ConvexError(ERROR_CODES.SESSION_NOT_FOUND)
   }
-  await ctx.db.patch(args.messageId, { content: args.content })
+  const nextMessage = {
+    ...message,
+    content: args.content,
+    kind: 'planning' as const,
+    phase: undefined,
+  }
+  await ctx.db.patch(args.messageId, {
+    content: args.content,
+    phase: derivePlanningPhase(nextMessage as any) ?? PLANNING_PHASE.PARSING,
+  })
   return null
 }
 
@@ -422,6 +442,7 @@ export const list = query({
       status: v.optional(sessionMessageStatusValidator),
       piMessage: v.optional(v.any()),
       thinkingSteps: v.optional(v.array(thinkingStepValidator)),
+      phase: v.optional(planningPhaseValidator),
     }),
   ),
   handler: async (ctx, args) => {
@@ -520,6 +541,7 @@ const sessionMessageRowValidator = v.object({
   kind: v.optional(sessionMessageKindValidator),
   status: v.optional(sessionMessageStatusValidator),
   piMessage: v.optional(v.any()),
+  phase: v.optional(planningPhaseValidator),
 })
 
 export const listWithPiMessages = internalQuery({
@@ -642,7 +664,15 @@ export const appendThinkingStepHandler = async (
   }
   const steps = (message.thinkingSteps as unknown[]) ?? []
   steps.push(args.step)
-  await ctx.db.patch(args.messageId, { thinkingSteps: steps })
+  const patch: Record<string, unknown> = { thinkingSteps: steps }
+  if (message.kind === 'planning') {
+    patch.phase = derivePlanningPhase({
+      ...(message as any),
+      thinkingSteps: steps as any,
+      phase: undefined,
+    })
+  }
+  await ctx.db.patch(args.messageId, patch)
   return null
 }
 
