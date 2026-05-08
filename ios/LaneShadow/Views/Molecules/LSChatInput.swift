@@ -118,7 +118,6 @@ public struct LSChatInput: View {
 
     // MARK: - Place Autocomplete
 
-    @ViewBuilder
     private var autocompleteDropdownView: some View {
         VStack(spacing: 0) {
             if isAutocompleteLoading {
@@ -253,7 +252,7 @@ public struct LSChatInput: View {
     private var trailingSlot: some View {
         if isThinking {
             spinnerView
-        } else if value.isEmpty && !showsSendAction {
+        } else if value.isEmpty, !showsSendAction {
             filterButton
         } else {
             sendButton
