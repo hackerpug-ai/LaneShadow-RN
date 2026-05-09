@@ -8,7 +8,7 @@
   },
   "components": [
     {
-      "name": "view-planning-screen__map-slot-0",
+      "name": "single-candidate",
       "selector": ".view-planning-screen__map-slot:nth-of-type(1)",
       "bounding_box": {
         "x": 0,
