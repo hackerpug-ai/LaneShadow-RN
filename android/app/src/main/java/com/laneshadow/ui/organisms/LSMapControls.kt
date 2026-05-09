@@ -57,14 +57,14 @@ const val LSMAPCONTROLS_TOGGLE_TAG = "ls-map-controls-toggle"
  * LSMapControls organism - right-side vertical workbar for map controls.
  *
  * Renders a floating glass-morphic workbar on the right edge of the map with:
- * - Zoom in/out cluster (2 buttons + divider, conditional)
  * - Recenter chip (conditional)
  * - Layers chip (conditional)
  * - Save chip (conditional, copper when saved)
- * - Mode-toggle chip (always at bottom)
+ * - Mode-toggle chip (always bottom-most in chat mode)
+ * - Zoom in/out cluster (2 buttons + divider, conditional, bottom-most in map mode)
  *
  * All handlers are nullable. When a handler is null, the corresponding chip is omitted.
- * Mode-toggle ALWAYS lives at the bottom of the workbar in both modes.
+ * In map mode the zoom cluster renders below the mode-toggle chip.
  *
  * @param mode Which mode to render (Map or Chat)
  * @param handlers All 6 handlers (nullable)
@@ -86,6 +86,10 @@ fun LSMapControls(
     val blurRadius = 8.dp
     val density = LocalDensity.current
     val instanceId = remember { UUID.randomUUID().toString() }
+    val zoomButtonSize = 48.dp
+    val zoomClusterWidth = zoomButtonSize
+    val zoomClusterHeight =
+        (zoomButtonSize * 2) + (theme.space.xs * 2) + LaneShadowTheme.sizing.stroke.sm
 
     // Compute blur strategy based on SDK version
     val blurStrategy = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -226,25 +230,26 @@ fun LSMapControls(
         if (mode == MapControlsMode.Map && (handlers.onZoomIn != null || handlers.onZoomOut != null)) {
             MapControlChip(
                 modifier = Modifier
-                    .size(chipSize, 88.dp)
+                    .size(zoomClusterWidth, zoomClusterHeight)
                     .semantics { contentDescription = "Zoom controls" },
                 tag = LSMAPCONTROLS_ZOOM_CLUSTER_TAG,
                 blurRadius = blurRadius,
                 blurStrategy = blurStrategy,
             ) {
                 Column(
-                    modifier = Modifier.size(chipSize, 88.dp),
+                    modifier = Modifier.size(zoomClusterWidth, zoomClusterHeight),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.spacedBy(
+                        space = theme.space.xs,
+                        alignment = Alignment.CenterVertically,
+                    ),
                 ) {
                     if (handlers.onZoomIn != null) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .testTag(LSMAPCONTROLS_ZOOM_IN_TAG)
-                                .clickable { handlers.onZoomIn.invoke() }
-                                .semantics { contentDescription = "Zoom in" },
-                            contentAlignment = Alignment.Center,
+                        ZoomControlButton(
+                            tag = LSMAPCONTROLS_ZOOM_IN_TAG,
+                            size = zoomButtonSize,
+                            contentDescription = "Zoom in",
+                            onClick = handlers.onZoomIn,
                         ) {
                             LSIcon(
                                 name = IconName.Plus,
@@ -264,13 +269,11 @@ fun LSMapControls(
                     )
 
                     if (handlers.onZoomOut != null) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .testTag(LSMAPCONTROLS_ZOOM_OUT_TAG)
-                                .clickable { handlers.onZoomOut.invoke() }
-                                .semantics { contentDescription = "Zoom out" },
-                            contentAlignment = Alignment.Center,
+                        ZoomControlButton(
+                            tag = LSMAPCONTROLS_ZOOM_OUT_TAG,
+                            size = zoomButtonSize,
+                            contentDescription = "Zoom out",
+                            onClick = handlers.onZoomOut,
                         ) {
                             MinusIcon(
                                 color = theme.colors.onSurface.default,
@@ -281,6 +284,27 @@ fun LSMapControls(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ZoomControlButton(
+    tag: String,
+    size: Dp,
+    contentDescription: String,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .minimumInteractiveComponentSize()
+            .size(size)
+            .testTag(tag)
+            .clickable(onClick = onClick)
+            .semantics { this.contentDescription = contentDescription },
+        contentAlignment = Alignment.Center,
+    ) {
+        content()
     }
 }
 

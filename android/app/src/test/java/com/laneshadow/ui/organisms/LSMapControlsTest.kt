@@ -5,11 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import com.laneshadow.theme.LaneShadowTheme
 import java.io.File
@@ -172,6 +175,30 @@ class LSMapControlsTest {
             upperTag = LSMAPCONTROLS_ZOOM_IN_TAG,
             lowerTag = LSMAPCONTROLS_ZOOM_OUT_TAG,
         )
+    }
+
+    @Test
+    fun zoom_controls_meet_minimum_touch_target() {
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                LSMapControls(
+                    mode = MapControlsMode.Map,
+                    handlers = MapControlsHandlers(
+                        onZoomIn = {},
+                        onZoomOut = {},
+                        onToggleView = {},
+                    ),
+                    modifier = Modifier.testTag(LSMAPCONTROLS_TAG),
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_ZOOM_IN_TAG)
+            .assertWidthIsAtLeast(48.dp)
+            .assertHeightIsAtLeast(48.dp)
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_ZOOM_OUT_TAG)
+            .assertWidthIsAtLeast(48.dp)
+            .assertHeightIsAtLeast(48.dp)
     }
 
     @Test
