@@ -845,12 +845,14 @@ function emitSwift(
   }
 
   if (tokens.mapbox?.style) {
-    lines.push('  enum map {')
-    lines.push('    enum style {')
+    lines.push('  public enum map {')
+    lines.push('    public enum style {')
     lines.push(
-      `      static let light: String = ${JSON.stringify(tokens.mapbox.style.light.$value)}`,
+      `      public static let light: String = ${JSON.stringify(tokens.mapbox.style.light.$value)}`,
     )
-    lines.push(`      static let dark: String = ${JSON.stringify(tokens.mapbox.style.dark.$value)}`)
+    lines.push(
+      `      public static let dark: String = ${JSON.stringify(tokens.mapbox.style.dark.$value)}`,
+    )
     lines.push('    }')
     lines.push('  }')
   }

@@ -558,10 +558,10 @@ public enum LaneShadowTheme {
         }
     }
 
-    enum map {
-        enum style {
-            static let light: String = "mapbox://styles/laneshadow/clxwarm01"
-            static let dark: String = "mapbox://styles/laneshadow/clxnight02"
+    public enum map {
+        public enum style {
+            public static let light: String = "mapbox://styles/laneshadow/clxwarm01"
+            public static let dark: String = "mapbox://styles/laneshadow/clxnight02"
         }
     }
 

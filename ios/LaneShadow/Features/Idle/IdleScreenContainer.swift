@@ -45,7 +45,7 @@ struct IdleScreenContainer: View {
                 ],
                 leadingDrawer: isMenuOpen ? DrawerSpec(
                     content: { menuDrawerContent },
-                    onDismiss: closeMenu
+                    onDismiss: { Task { @MainActor in closeMenu() } }
                 ) : nil,
                 topBar: {
                     LSTopBar(

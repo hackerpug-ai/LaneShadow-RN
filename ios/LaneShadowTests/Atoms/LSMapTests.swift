@@ -4,7 +4,7 @@ import XCTest
 @testable import LaneShadow
 
 final class LSMapTests: XCTestCase {
-    func test_style_uri_resolves_to_public_standard_style() {
+    func test_style_uri_resolves_to_canonical_warm_paper_token() {
         let light = resolveLSMapRenderModel(
             mode: .interactive,
             cameraFit: .static,
@@ -16,6 +16,7 @@ final class LSMapTests: XCTestCase {
         )
 
         XCTAssertEqual(light.styleURI, lsMapLightStyleURI)
+        XCTAssertEqual(light.styleURI, LaneShadowTheme.map.style.light)
         XCTAssertFalse(light.shouldReloadStyle)
 
         let dark = resolveLSMapRenderModel(
@@ -29,8 +30,25 @@ final class LSMapTests: XCTestCase {
         )
 
         XCTAssertEqual(dark.styleURI, lsMapDarkStyleURI)
-        XCTAssertFalse(dark.shouldReloadStyle)
+        XCTAssertEqual(dark.styleURI, LaneShadowTheme.map.style.dark)
+        // Light and dark resolve to distinct warm-paper Mapbox Studio styles
+        // (clxwarm01 vs clxnight02), so an in-place theme switch must request
+        // a style reload. Matches Android's parallel assertion in LSMapTest.kt.
+        XCTAssertTrue(dark.shouldReloadStyle)
+        XCTAssertNotEqual(light.styleURI, dark.styleURI)
         XCTAssertNil(dark.fallback)
+    }
+
+    /// Regression guard for the gore-shaped idle screen the user reported on 2026-05-08.
+    /// Mapbox's default `mapbox://styles/mapbox/standard` renders Highway 1 in saturated
+    /// orange that, combined with the app's copper favorite pins, composed a wound-and-
+    /// spatter gestalt. The canonical tokens must point at the warm-paper Mapbox Studio
+    /// styles authored under the laneshadow account, never the Mapbox Standard default.
+    func test_style_uri_is_not_default_mapbox_standard() {
+        XCTAssertNotEqual(lsMapLightStyleURI, "mapbox://styles/mapbox/standard")
+        XCTAssertNotEqual(lsMapDarkStyleURI, "mapbox://styles/mapbox/standard")
+        XCTAssertTrue(lsMapLightStyleURI.hasPrefix("mapbox://styles/laneshadow/"))
+        XCTAssertTrue(lsMapDarkStyleURI.hasPrefix("mapbox://styles/laneshadow/"))
     }
 
     func test_three_polylines_use_token_colors_and_dash_states() {
