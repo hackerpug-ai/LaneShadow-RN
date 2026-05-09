@@ -4,7 +4,17 @@ import SwiftUI
 public struct LSPhaseIndicator: View {
     @Environment(\.theme) private var theme
 
-    public typealias Phase = PlanningPhase
+    public struct Phase: Identifiable, Equatable {
+        public let id: String
+        public let label: String
+        public let state: PhaseState
+
+        public init(id: String, label: String, state: PhaseState) {
+            self.id = id
+            self.label = label
+            self.state = state
+        }
+    }
 
     private let phases: [Phase]
     private let header: String
@@ -130,18 +140,6 @@ public struct LSPhaseIndicator: View {
         case .active: .primary
         case .done: .secondary
         }
-    }
-}
-
-public struct PlanningPhase: Identifiable, Equatable {
-    public let id: String
-    public let label: String
-    public let state: PhaseState
-
-    public init(id: String, label: String, state: PhaseState) {
-        self.id = id
-        self.label = label
-        self.state = state
     }
 }
 

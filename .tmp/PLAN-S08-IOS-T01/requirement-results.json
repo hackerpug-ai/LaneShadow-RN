@@ -1,0 +1,19 @@
+[
+  {"id":"AC-1","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_planningPhase_enumLiterals","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_1-output.txt"},
+  {"id":"AC-2","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_phaseSteps_drafting_correctShape","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_2-output.txt"},
+  {"id":"AC-3","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_capsuleHeadline_perPhase","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_3-output.txt"},
+  {"id":"AC-4","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_requestCancelConfirmation_togglesVisibilityOnly","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_4-output.txt"},
+  {"id":"AC-5","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_confirmCancellation_firesMutationAndReturnsToIdle","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_5-output.txt"},
+  {"id":"AC-6","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_confirmCancellation_errorPath","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_6-output.txt"},
+  {"id":"AC-7","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_dismissCancelConfirmation_noMutation","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_7-output.txt"},
+  {"id":"AC-8","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_phaseDerivation_allFivePhases","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_8-output.txt"},
+  {"id":"TC-1","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_planningPhase_enumLiterals","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_1-output.txt"},
+  {"id":"TC-2","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_phaseSteps_drafting_correctShape","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_2-output.txt"},
+  {"id":"TC-3","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_capsuleHeadline_perPhase","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_3-output.txt"},
+  {"id":"TC-4","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_requestCancelConfirmation_togglesVisibilityOnly","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_4-output.txt"},
+  {"id":"TC-5","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_confirmCancellation_firesMutationAndReturnsToIdle","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_5-output.txt"},
+  {"id":"TC-6","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_confirmCancellation_errorPath","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_6-output.txt"},
+  {"id":"TC-7","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_dismissCancelConfirmation_noMutation","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_7-output.txt"},
+  {"id":"TC-8","verify":"xcodebuild test -only-testing:LaneShadowTests/Features/Planning/PlanningViewModelTests/test_phaseDerivation_allFivePhases","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/ac_8-output.txt"},
+  {"id":"TC-9","verify":"xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' && swiftlint lint ios/LaneShadow/Features/Planning/PlanningViewModel.swift ios/LaneShadow/Features/Planning/PlanningPhase.swift","exit_code":0,"output_file":".tmp/PLAN-S08-IOS-T01/tc_9-output.txt"}
+]
