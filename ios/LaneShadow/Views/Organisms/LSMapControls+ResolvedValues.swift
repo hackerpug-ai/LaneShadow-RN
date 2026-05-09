@@ -49,7 +49,6 @@ extension LSMapControls {
         var chipsInOrder: [LSMapControlsChipKind] = []
 
         if mode == .map {
-            chipsInOrder.append(.zoomCluster)
             chipsInOrder.append(.recenter)
             chipsInOrder.append(.layers)
 
@@ -59,6 +58,10 @@ extension LSMapControls {
         }
 
         chipsInOrder.append(.modeToggle)
+
+        if mode == .map {
+            chipsInOrder.append(.zoomCluster)
+        }
 
         let modeToggleGlyph = mode == .map ? "send" : "map"
         let modeToggleLabel = mode == .map ? "Open chat" : "Back to map"
