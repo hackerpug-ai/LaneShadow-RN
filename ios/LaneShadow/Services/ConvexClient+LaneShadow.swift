@@ -134,6 +134,7 @@ struct LaneShadowSessionMessage: Decodable, Equatable {
     let createdAt: Double
     let kind: String?
     let status: String?
+    let phase: PlanningPhase?
     let attachments: [LaneShadowSendMessageAttachment]?
     let thinkingSteps: [LaneShadowThinkingStepSnapshot]?
 
@@ -145,8 +146,33 @@ struct LaneShadowSessionMessage: Decodable, Equatable {
         case createdAt
         case kind
         case status
+        case phase
         case attachments
         case thinkingSteps
+    }
+
+    init(
+        id: String,
+        sessionId: String,
+        role: String,
+        content: String,
+        createdAt: Double,
+        kind: String?,
+        status: String?,
+        phase: PlanningPhase? = nil,
+        attachments: [LaneShadowSendMessageAttachment]?,
+        thinkingSteps: [LaneShadowThinkingStepSnapshot]?
+    ) {
+        self.id = id
+        self.sessionId = sessionId
+        self.role = role
+        self.content = content
+        self.createdAt = createdAt
+        self.kind = kind
+        self.status = status
+        self.phase = phase
+        self.attachments = attachments
+        self.thinkingSteps = thinkingSteps
     }
 }
 

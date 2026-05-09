@@ -83,6 +83,10 @@ enum PlanningPhase: String, CaseIterable, Codable, Sendable {
             return contentPhase
         }
 
+        if let persistedPhase = message.phase {
+            return persistedPhase
+        }
+
         if message.status == "streaming" || message.status == "running" || message.status == nil {
             return .parsing
         }

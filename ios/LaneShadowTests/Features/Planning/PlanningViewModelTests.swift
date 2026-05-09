@@ -178,6 +178,36 @@ struct PlanningViewModelTests {
 
         context.tearDown()
     }
+
+    @Test
+    func test_phaseDerivation_usesPersistedPhaseFallback() async throws {
+        let context = makeContext()
+
+        let payload = #"""
+        {
+          "_id": "planning-phase-fallback",
+          "sessionId": "session-123",
+          "role": "system",
+          "content": "plain text without structured planning data",
+          "createdAt": 1,
+          "kind": "planning",
+          "status": "running",
+          "phase": "enriching"
+        }
+        """#
+        let message = try JSONDecoder().decode(
+            LaneShadowSessionMessage.self,
+            from: Data(payload.utf8)
+        )
+
+        context.client.sendSessionMessages([message], sessionId: "session-123")
+        await pumpMainActor()
+
+        #expect(context.viewModel.phaseSteps.map(\.state) == [.done, .done, .done, .active, .pending])
+        #expect(context.viewModel.capsuleHeadline == PlanningPhase.enriching.capsuleHeadline)
+
+        context.tearDown()
+    }
 }
 
 @MainActor
