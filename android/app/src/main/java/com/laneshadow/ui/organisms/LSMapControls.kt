@@ -106,67 +106,6 @@ fun LSMapControls(
         // Render different chip sets based on mode
         when (mode) {
             MapControlsMode.Map -> {
-                // Zoom cluster (zoom in + divider + zoom out)
-                if (handlers.onZoomIn != null || handlers.onZoomOut != null) {
-                    MapControlChip(
-                        modifier = Modifier
-                            .size(chipSize, 88.dp)
-                            .semantics { contentDescription = "Zoom controls" },
-                        tag = LSMAPCONTROLS_ZOOM_CLUSTER_TAG,
-                        blurRadius = blurRadius,
-                        blurStrategy = blurStrategy,
-                    ) {
-                        Column(
-                            modifier = Modifier.size(chipSize, 88.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            // Zoom in button
-                            if (handlers.onZoomIn != null) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clickable { handlers.onZoomIn.invoke() }
-                                        .semantics { contentDescription = "Zoom in" },
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    LSIcon(
-                                        name = IconName.Plus,
-                                        size = IconSize.Md,
-                                        color = IconColor.Content(
-                                            com.laneshadow.ui.atoms.ContentColor.Primary
-                                        ),
-                                    )
-                                }
-                            }
-
-                            // Divider
-                            Box(
-                                modifier = Modifier
-                                    .width(24.dp)
-                                    .height(LaneShadowTheme.sizing.stroke.sm)
-                                    .background(theme.colors.border.default),
-                            )
-
-                            // Zoom out button with custom minus icon
-                            if (handlers.onZoomOut != null) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clickable { handlers.onZoomOut.invoke() }
-                                        .semantics { contentDescription = "Zoom out" },
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    MinusIcon(
-                                        color = theme.colors.onSurface.default,
-                                        strokeWidth = theme.icon.stroke.width,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
                 // Recenter chip
                 if (handlers.onRecenter != null) {
                     MapControlChip(
@@ -281,6 +220,65 @@ fun LSMapControls(
                         com.laneshadow.ui.atoms.ContentColor.Primary
                     ),
                 )
+            }
+        }
+
+        if (mode == MapControlsMode.Map && (handlers.onZoomIn != null || handlers.onZoomOut != null)) {
+            MapControlChip(
+                modifier = Modifier
+                    .size(chipSize, 88.dp)
+                    .semantics { contentDescription = "Zoom controls" },
+                tag = LSMAPCONTROLS_ZOOM_CLUSTER_TAG,
+                blurRadius = blurRadius,
+                blurStrategy = blurStrategy,
+            ) {
+                Column(
+                    modifier = Modifier.size(chipSize, 88.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    if (handlers.onZoomIn != null) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .testTag(LSMAPCONTROLS_ZOOM_IN_TAG)
+                                .clickable { handlers.onZoomIn.invoke() }
+                                .semantics { contentDescription = "Zoom in" },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            LSIcon(
+                                name = IconName.Plus,
+                                size = IconSize.Md,
+                                color = IconColor.Content(
+                                    com.laneshadow.ui.atoms.ContentColor.Primary
+                                ),
+                            )
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .width(24.dp)
+                            .height(LaneShadowTheme.sizing.stroke.sm)
+                            .background(theme.colors.border.default),
+                    )
+
+                    if (handlers.onZoomOut != null) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .testTag(LSMAPCONTROLS_ZOOM_OUT_TAG)
+                                .clickable { handlers.onZoomOut.invoke() }
+                                .semantics { contentDescription = "Zoom out" },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            MinusIcon(
+                                color = theme.colors.onSurface.default,
+                                strokeWidth = theme.icon.stroke.width,
+                            )
+                        }
+                    }
+                }
             }
         }
     }

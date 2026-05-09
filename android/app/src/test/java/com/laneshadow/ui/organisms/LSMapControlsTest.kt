@@ -93,6 +93,107 @@ class LSMapControlsTest {
     }
 
     @Test
+    fun map_mode_places_zoom_cluster_last() {
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                LSMapControls(
+                    mode = MapControlsMode.Map,
+                    handlers = MapControlsHandlers(
+                        onZoomIn = {},
+                        onZoomOut = {},
+                        onRecenter = {},
+                        onClear = {},
+                        onToggleView = {},
+                    ),
+                    modifier = Modifier.testTag(LSMAPCONTROLS_TAG),
+                )
+            }
+        }
+
+        assertNodeIsBelow(
+            upperTag = LSMAPCONTROLS_TOGGLE_TAG,
+            lowerTag = LSMAPCONTROLS_ZOOM_CLUSTER_TAG,
+        )
+    }
+
+    @Test
+    fun save_chip_stays_above_bottom_zoom_cluster() {
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                LSMapControls(
+                    mode = MapControlsMode.Map,
+                    handlers = MapControlsHandlers(
+                        onZoomIn = {},
+                        onZoomOut = {},
+                        onRecenter = {},
+                        onClear = {},
+                        onSaveRoute = {},
+                        onToggleView = {},
+                    ),
+                    hasRouteToSave = true,
+                    modifier = Modifier.testTag(LSMAPCONTROLS_TAG),
+                )
+            }
+        }
+
+        assertNodeIsBelow(
+            upperTag = LSMAPCONTROLS_SAVE_TAG,
+            lowerTag = LSMAPCONTROLS_TOGGLE_TAG,
+        )
+        assertNodeIsBelow(
+            upperTag = LSMAPCONTROLS_TOGGLE_TAG,
+            lowerTag = LSMAPCONTROLS_ZOOM_CLUSTER_TAG,
+        )
+    }
+
+    @Test
+    fun zoom_cluster_remains_vertical_and_accessible() {
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                LSMapControls(
+                    mode = MapControlsMode.Map,
+                    handlers = MapControlsHandlers(
+                        onZoomIn = {},
+                        onZoomOut = {},
+                        onToggleView = {},
+                    ),
+                    modifier = Modifier.testTag(LSMAPCONTROLS_TAG),
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_ZOOM_CLUSTER_TAG).assertExists()
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_ZOOM_IN_TAG).assertExists()
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_ZOOM_OUT_TAG).assertExists()
+        composeTestRule.onNodeWithContentDescription("Zoom in").assertExists()
+        composeTestRule.onNodeWithContentDescription("Zoom out").assertExists()
+
+        assertNodeIsBelow(
+            upperTag = LSMAPCONTROLS_ZOOM_IN_TAG,
+            lowerTag = LSMAPCONTROLS_ZOOM_OUT_TAG,
+        )
+    }
+
+    @Test
+    fun chat_mode_remains_toggle_only() {
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                LSMapControls(
+                    mode = MapControlsMode.Chat,
+                    handlers = MapControlsHandlers(onToggleView = {}),
+                    modifier = Modifier.testTag(LSMAPCONTROLS_TAG),
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_TOGGLE_TAG).assertExists()
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_ZOOM_CLUSTER_TAG).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_RECENTER_TAG).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_LAYERS_TAG).assertDoesNotExist()
+        composeTestRule.onNodeWithTag(LSMAPCONTROLS_SAVE_TAG).assertDoesNotExist()
+    }
+
+    @Test
     fun test_isSavedRoute_usesSignalDefaultToken() {
         val source = File("../app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt").readText()
 
@@ -251,5 +352,17 @@ class LSMapControlsTest {
         composeTestRule.onNodeWithContentDescription("Recenter map").assertExists()
         composeTestRule.onNodeWithContentDescription("Reset map state").assertExists()
         composeTestRule.onNodeWithContentDescription("Open chat").assertExists()
+    }
+
+    private fun assertNodeIsBelow(upperTag: String, lowerTag: String) {
+        val upperBounds = composeTestRule.onNodeWithTag(upperTag, useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+        val lowerBounds = composeTestRule.onNodeWithTag(lowerTag, useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+
+        assertTrue(
+            "Expected $lowerTag to render below $upperTag but bounds were $upperBounds and $lowerBounds",
+            lowerBounds.center.y > upperBounds.center.y,
+        )
     }
 }
