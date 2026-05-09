@@ -7,6 +7,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.laneshadow.ui.atoms.LSScrim
+import com.laneshadow.ui.organisms.DrawerSpec
+import com.laneshadow.ui.organisms.LSSessionsDrawer
+import com.laneshadow.ui.organisms.Session
+import com.laneshadow.ui.organisms.TopBarTrailing
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -66,6 +75,7 @@ fun IdleScreen(
     ),
     inputValue: String = "",
     onMenuTap: () -> Unit,
+    onNewTap: () -> Unit = {},
     onSuggestionTap: (MockSuggestionChip) -> Unit,
     onSend: (String) -> Unit,
     onCollapse: () -> Unit,
@@ -92,6 +102,17 @@ fun IdleScreen(
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
+    var isMenuOpen by remember { mutableStateOf(false) }
+
+    val handleMenuTap: () -> Unit = {
+        isMenuOpen = !isMenuOpen
+        onMenuTap()
+    }
+    val handleNewTap: () -> Unit = {
+        isMenuOpen = false
+        onValueChange("")
+        onNewTap()
+    }
 
     LSMapLayer(
         map = {
@@ -163,9 +184,34 @@ fun IdleScreen(
                 }
             )
         ),
+        leadingDrawer = if (isMenuOpen) {
+            DrawerSpec(
+                content = {
+                    LSSessionsDrawer(
+                        // PlanningSession → ui.organisms.Session mapping is a follow-up task
+                        // (see PLAN-S08-IDLE-FIXES). For now the drawer surfaces the NEW
+                        // affordance and reuses the iOS UX of opening as an in-place panel
+                        // instead of navigating away to a separate Sessions screen.
+                        sessions = emptyList(),
+                        activeSessionId = null,
+                        groupLabel = "RIDES",
+                        onSelect = { _ ->
+                            isMenuOpen = false
+                        },
+                        onNew = handleNewTap,
+                        onDismiss = { isMenuOpen = false },
+                    )
+                },
+                onDismiss = { isMenuOpen = false },
+            )
+        } else {
+            null
+        },
+        scrim = if (isMenuOpen) com.laneshadow.ui.organisms.ScrimSpec(opacity = 0.35f) else null,
         topBar = {
             LSTopBar(
-                onMenuTap = onMenuTap,
+                trailing = TopBarTrailing.New(onTap = handleNewTap),
+                onMenuTap = handleMenuTap,
                 modifier = Modifier.testTag("ls-topbar"),
             )
         },

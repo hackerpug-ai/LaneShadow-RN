@@ -18,6 +18,7 @@ public struct IdleScreen: View {
 
     @State private var chatInputValue: String = ""
     private let onMenuTap: () -> Void
+    private let onNewTap: () -> Void
     private let onSuggestionTap: (MockSuggestionChip) -> Void
     private let onSend: (String) -> Void
     private let onZoomIn: () -> Void
@@ -35,6 +36,7 @@ public struct IdleScreen: View {
         isSubmitting: Bool = false,
         chatInputValue: Binding<String>? = nil,
         onMenuTap: @escaping () -> Void = {},
+        onNewTap: @escaping () -> Void = {},
         onSuggestionTap: @escaping (MockSuggestionChip) -> Void = { _ in },
         onSend: @escaping (String) -> Void = { _ in },
         onZoomIn: (() -> Void)? = nil,
@@ -51,6 +53,7 @@ public struct IdleScreen: View {
         self.isSubmitting = isSubmitting
         _chatInputValue = State(initialValue: chatInputValue?.wrappedValue ?? "")
         self.onMenuTap = onMenuTap
+        self.onNewTap = onNewTap
         self.onSuggestionTap = onSuggestionTap
         self.onSend = onSend
         self.onZoomIn = onZoomIn ?? IdleScreenMapControlDefaults.logZoomInStub
@@ -80,9 +83,9 @@ public struct IdleScreen: View {
                 ],
                 topBar: {
                     LSTopBar(
-                        trailing: .none,
+                        trailing: .newChip(action: onNewTap),
                         onMenuTap: onMenuTap,
-                        onNewTap: {}
+                        onNewTap: onNewTap
                     )
                 }
             )

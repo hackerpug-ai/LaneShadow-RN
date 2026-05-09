@@ -6,6 +6,12 @@ import SwiftUI
 public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
     @Environment(\.theme) private var theme
 
+    /// Reserved vertical space for the topBar (chip tap-target height + breathing room).
+    /// Top overlays (capsule, etc.) are pushed below this height so they never sit
+    /// underneath the menu/NEW chips. Matches `LSTopBar.tapTargetSize` (44pt) plus
+    /// a small gap consistent with `theme.space.xs`.
+    private static var topBarReservedHeight: CGFloat { 48 }
+
     private let map: MapContent
     private let scrim: ScrimSpec?
     private let topOverlays: [GlassOverlaySlot]
@@ -46,11 +52,11 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
                     .accessibilityIdentifier("maplayer.scrim")
             }
 
-            // z-index 2: Top overlays (below topBar)
+            // z-index 2: Top overlays (below topBar — clearance reserves topBar height)
             ForEach(topOverlays) { overlay in
                 overlay.content()
                     .padding(.horizontal, theme.space.md)
-                    .padding(.top, theme.space.md)
+                    .padding(.top, theme.space.md + Self.topBarReservedHeight)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .accessibilityIdentifier("maplayer.topOverlay.\(overlay.id)")
             }
@@ -86,6 +92,7 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
             // z-index 5: Top bar (highest z, under status bar)
             if let topBar {
                 topBar
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .accessibilityIdentifier("maplayer.topBar")
             }
         }

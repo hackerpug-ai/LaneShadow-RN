@@ -31,7 +31,12 @@ fun IdleRoute(
         state = uiState.toMockState(),
         capsuleState = capsuleState,
         inputValue = uiState.inputValue,
-        onMenuTap = { navController.navigate(Route.Sessions) },
+        // Menu chip now opens an in-place leading drawer (parity with iOS).
+        // The standalone Sessions route remains available via the chat-input
+        // filter chip (`onFilter`) below until product decides whether to
+        // retire it or keep both surfaces.
+        onMenuTap = { /* drawer state owned by IdleScreen */ },
+        onNewTap = { viewModel.startNewSession() },
         onSuggestionTap = { chip ->
             viewModel.onSuggestionTap(SuggestionChip(text = chip.label))
         },

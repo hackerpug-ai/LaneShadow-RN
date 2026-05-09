@@ -247,6 +247,31 @@ class IdleViewModel private constructor(
         }
     }
 
+    /**
+     * Start a new chat/session — clears local input, autocomplete state, and any
+     * surfaced errors. Mirrors iOS `IdleViewModel.startNewSession()` so the
+     * NEW chip on the top bar produces the same observable behavior across
+     * platforms.
+     */
+    fun startNewSession() {
+        autocompleteJob?.cancel()
+        latestAutocompleteRequestId++
+        autocompleteSessionToken = null
+        _state.update { current ->
+            current.copy(
+                inputValue = "",
+                placeSuggestions = emptyList(),
+                selectedPlace = null,
+                autocompleteError = null,
+                isAutocompleteLoading = false,
+                showStaticSuggestions = true,
+                errorToast = null,
+                navigateTo = null,
+                subscriptionError = null,
+            )
+        }
+    }
+
     fun consumeErrorToast() {
         _state.update { current ->
             current.copy(errorToast = null)

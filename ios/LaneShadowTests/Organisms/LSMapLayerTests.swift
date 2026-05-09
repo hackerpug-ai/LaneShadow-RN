@@ -142,8 +142,8 @@ struct LSMapLayerTests {
             "Root LSMapLayer must not force topBar and overlays under the status bar"
         )
         #expect(
-            source.contains(".padding(.top, theme.space.md)"),
-            "Top overlay gutter must use theme spacing instead of SwiftUI's default padding"
+            source.contains(".padding(.top, theme.space.md + Self.topBarReservedHeight)"),
+            "Top overlay gutter must use theme spacing AND clear the reserved topBar height so chips never overlap the capsule"
         )
     }
 

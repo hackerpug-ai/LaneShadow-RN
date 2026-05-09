@@ -307,6 +307,21 @@ final class IdleViewModel {
         }
     }
 
+    func startNewSession() {
+        resetAutocompleteState(clearSession: true)
+        selectedPlace = nil
+        autocompletePrimedInputValue = nil
+        errorMessage = nil
+        isSubmitting = false
+        appState?.cachedLastFailedInput = nil
+        chatStore.dispatch(.newSession)
+    }
+
+    func loadSession(sessionId: String) {
+        sessionStore.loadSession(sessionId: sessionId)
+        onSessionStarted(sessionId)
+    }
+
     func submitSuggestion(_ message: String) async {
         let trimmedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedMessage.isEmpty else {

@@ -6,6 +6,7 @@ struct IdleScreenContainer: View {
     @Environment(\.theme) private var theme
     @Bindable private var viewModel: IdleViewModel
     @State private var mapCameraController = LSMapCameraController()
+    @State private var isMenuOpen: Bool = false
 
     init(
         viewModel: IdleViewModel,
@@ -20,7 +21,7 @@ struct IdleScreenContainer: View {
             LSMapLayer(
                 map: {
                     LSMap(
-                        mode: .preview,
+                        mode: .interactive,
                         camera: Self.defaultCamera,
                         favoriteLocations: viewModel.favoriteLocations,
                         cameraController: mapCameraController
@@ -42,16 +43,31 @@ struct IdleScreenContainer: View {
                         content: { chatInputView }
                     ),
                 ],
+                leadingDrawer: isMenuOpen ? DrawerSpec(
+                    content: { menuDrawerContent },
+                    onDismiss: closeMenu
+                ) : nil,
                 topBar: {
                     LSTopBar(
-                        trailing: .none,
-                        onMenuTap: {},
-                        onNewTap: {}
+                        trailing: .newChip(action: handleNewTap),
+                        onMenuTap: toggleMenu,
+                        onNewTap: handleNewTap
                     )
                 }
             )
             .accessibilityIdentifier("idlescreen")
             .accessibilityValue(mapCameraController.debugAccessibilityValue)
+
+            // Scrim with tap-to-dismiss when menu drawer is open
+            if isMenuOpen {
+                LSScrim(
+                    opacity: 0.35,
+                    blocking: true,
+                    onTap: closeMenu
+                )
+                .accessibilityIdentifier("idlescreen-menu-scrim")
+                .transition(.opacity)
+            }
 
             // Map controls positioned at vertical center of right edge
             VStack {
@@ -92,6 +108,48 @@ struct IdleScreenContainer: View {
         center: LatLng(lat: 36.97, lon: -122.03),
         zoom: 12
     )
+
+    // MARK: - Menu Drawer
+
+    private func toggleMenu() {
+        isMenuOpen.toggle()
+    }
+
+    private func closeMenu() {
+        isMenuOpen = false
+    }
+
+    private func handleNewTap() {
+        viewModel.startNewSession()
+        chatInputValue = ""
+        closeMenu()
+    }
+
+    @ViewBuilder
+    private var menuDrawerContent: some View {
+        LSSessionsDrawer(
+            sessions: viewModel.recentSessions,
+            activeSessionId: nil,
+            groupLabel: "RIDES",
+            onSelect: { sessionId in
+                Task { @MainActor in
+                    closeMenu()
+                    viewModel.loadSession(sessionId: sessionId)
+                }
+            },
+            onNew: {
+                Task { @MainActor in
+                    handleNewTap()
+                }
+            },
+            onDismiss: {
+                Task { @MainActor in
+                    closeMenu()
+                }
+            }
+        )
+        .accessibilityIdentifier("idlescreen-menu-drawer")
+    }
 
     // MARK: - Capsule View
 

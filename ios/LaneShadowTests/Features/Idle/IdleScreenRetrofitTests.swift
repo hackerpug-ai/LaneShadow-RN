@@ -212,6 +212,92 @@ struct IdleScreenRetrofitSpecTests {
 
 @MainActor
 final class IdleScreenRetrofitTests: XCTestCase {
+    func test_startNewSession_resetsAutocompleteAndPlaceState() async throws {
+        let viewModel = IdleViewModel(
+            chatStore: ChatStore(),
+            sessionStore: SessionStore(),
+            convexClient: StubLaneShadowConvexClient()
+        )
+        viewModel.errorMessage = "stale error"
+        viewModel.isSubmitting = true
+        viewModel.placeAutocompleteSuggestions = [
+            LaneShadowPlaceSuggestion(
+                id: "pid-1",
+                name: "Hwy 1",
+                label: "Hwy 1, CA",
+                secondaryText: nil,
+                featureType: "place",
+                distanceMeters: nil
+            ),
+        ]
+        viewModel.placeAutocompleteErrorMessage = "stale autocomplete error"
+        viewModel.isPlaceAutocompleteLoading = true
+        viewModel.isAutocompleteQueryActive = true
+        viewModel.autocompletePrimedInputValue = "stale primed"
+
+        viewModel.startNewSession()
+
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertFalse(viewModel.isSubmitting)
+        XCTAssertNil(viewModel.selectedPlace)
+        XCTAssertNil(viewModel.autocompletePrimedInputValue)
+        XCTAssertTrue(viewModel.placeAutocompleteSuggestions.isEmpty)
+        XCTAssertNil(viewModel.placeAutocompleteErrorMessage)
+        XCTAssertFalse(viewModel.isPlaceAutocompleteLoading)
+        XCTAssertFalse(viewModel.isAutocompleteQueryActive)
+    }
+
+    func test_menuChipTap_revealsMenuDrawer() async throws {
+        let viewModel = IdleViewModel(
+            chatStore: ChatStore(),
+            sessionStore: SessionStore(),
+            convexClient: StubLaneShadowConvexClient()
+        )
+
+        let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
+
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        await pumpMainActor(iterations: 20)
+
+        let inspected = try screen.inspect()
+
+        // Drawer should not be visible initially
+        XCTAssertNil(try? inspected.find(viewWithAccessibilityIdentifier: "idlescreen-menu-drawer"))
+
+        // Tap menu chip
+        let menuButton = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-hamburger")
+        try menuButton.button().tap()
+        await pumpMainActor(iterations: 20)
+
+        let drawer = try screen.inspect().find(viewWithAccessibilityIdentifier: "idlescreen-menu-drawer")
+        XCTAssertNotNil(drawer)
+    }
+
+    func test_newChipTap_callsStartNewSessionAndClearsInput() async throws {
+        let viewModel = IdleViewModel(
+            chatStore: ChatStore(),
+            sessionStore: SessionStore(),
+            convexClient: StubLaneShadowConvexClient()
+        )
+        viewModel.errorMessage = "stale error"
+
+        let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
+
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        await pumpMainActor(iterations: 20)
+
+        let inspected = try screen.inspect()
+        let newButton = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-new")
+        try newButton.button().tap()
+        await pumpMainActor(iterations: 20)
+
+        // ViewModel state was reset
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertFalse(viewModel.isSubmitting)
+    }
+
     func test_recenterCallback_isWired() async throws {
         let viewModel = IdleViewModel(
             chatStore: ChatStore(),

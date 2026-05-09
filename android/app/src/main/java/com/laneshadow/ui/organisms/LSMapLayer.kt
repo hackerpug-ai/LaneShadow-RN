@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +24,14 @@ import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.atoms.LSScrim
 import com.laneshadow.ui.molecules.BottomSheetDetent
 import com.laneshadow.ui.molecules.LSBottomSheet
+
+/**
+ * Reserved vertical space for the topBar (chip tap-target height + breathing room).
+ * Top overlays (capsule, etc.) are pushed below this height so they never sit
+ * underneath the menu / NEW chips. Mirrors `LSMapLayer.topBarReservedHeight`
+ * on iOS — keep both platforms in sync.
+ */
+private val LSMapLayerTopBarReservedHeight = 48.dp
 
 /**
  * LSMapLayer organism — map-primary canvas with overlay slots.
@@ -70,6 +79,8 @@ fun LSMapLayer(
         }
 
         // Z-index 2: Top overlays (NavigatorMessage, greeting, etc.)
+        // Clearance reserves topBar height so chips (menu, NEW) never overlap the
+        // capsule beneath them.
         topOverlays.forEach { slot ->
             Box(
                 modifier = Modifier
@@ -80,6 +91,7 @@ fun LSMapLayer(
                 Box(
                     modifier = Modifier
                         .statusBarsPadding()
+                        .padding(top = LSMapLayerTopBarReservedHeight)
                 ) {
                     slot.content()
                 }

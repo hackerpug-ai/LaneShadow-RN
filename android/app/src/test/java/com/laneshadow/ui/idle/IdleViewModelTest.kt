@@ -165,6 +165,37 @@ class IdleViewModelTest {
     }
 
     @Test
+    fun startNewSession_clearsInputAndAutocompleteState() = runTest {
+        val sessionRepository = FakeSessionRepository()
+        val chatRepository = FakeChatRepository()
+        val viewModel = IdleViewModel(
+            userRepository = FakeUserRepository(currentUser = null),
+            sessionRepository = sessionRepository,
+            chatRepository = chatRepository,
+            weatherRepository = FakeWeatherRepository(weather = null),
+            favoritesRepository = FakeFavoritesRepository(),
+            locationRepository = FakeLocationRepository(),
+            convexClientProvider = createTestConvexClientProvider(),
+        )
+
+        // Pollute UI state as if the user had been mid-flow
+        viewModel.onSuggestionTap(SuggestionChip(text = "Plan a scenic 2-hour ride"))
+        advanceUntilIdle()
+        assertThat(viewModel.state.value.inputValue).isEqualTo("Plan a scenic 2-hour ride")
+
+        viewModel.startNewSession()
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.inputValue).isEmpty()
+        assertThat(viewModel.state.value.placeSuggestions).isEmpty()
+        assertThat(viewModel.state.value.selectedPlace).isNull()
+        assertThat(viewModel.state.value.autocompleteError).isNull()
+        assertThat(viewModel.state.value.isAutocompleteLoading).isFalse()
+        assertThat(viewModel.state.value.errorToast).isNull()
+        assertThat(viewModel.state.value.navigateTo).isNull()
+    }
+
+    @Test
     fun suggestionChipTap_primesInputWithoutNavigation() = runTest {
         val sessionRepository = FakeSessionRepository()
         val chatRepository = FakeChatRepository()

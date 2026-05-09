@@ -50,6 +50,7 @@ import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
+import com.mapbox.maps.plugin.gestures.gestures
 
 /**
  * LSMap — LaneShadow map composable using Mapbox Maps SDK.
@@ -243,6 +244,20 @@ private fun configureMapView(
             .pitch(renderModel.camera.pitch ?: 0.0)
             .build(),
     )
+
+    // Honor `mode` parameter so MapMode.Preview actually disables user gestures
+    // (parity with iOS resolveLSMapInteraction). Without this the `mode` arg
+    // silently lies and any preview-mode use site allows unwanted user pan/zoom.
+    mapView.gestures.apply {
+        val enabled = renderModel.interaction.gesturesEnabled
+        pinchToZoomEnabled = enabled
+        scrollEnabled = enabled
+        rotateEnabled = enabled
+        pitchEnabled = enabled
+        doubleTapToZoomInEnabled = enabled
+        doubleTouchToZoomOutEnabled = enabled
+        quickZoomEnabled = enabled
+    }
 
     mapView.setOnClickListener {
         onTap?.invoke(renderModel.camera.center)

@@ -49,6 +49,9 @@ extension LSMapControls {
         var chipsInOrder: [LSMapControlsChipKind] = []
 
         if mode == .map {
+            // Right-side workbar order (top → bottom): recenter, layers, [save],
+            // mode toggle, zoom cluster. The zoom cluster anchors the bottom of
+            // the workbar; the mode toggle sits just above it.
             chipsInOrder.append(.recenter)
             chipsInOrder.append(.layers)
 
