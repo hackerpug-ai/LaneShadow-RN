@@ -115,18 +115,19 @@ public struct LSMapControls: View {
 
     /// Zoom cluster: two 40pt buttons separated by a hairline divider in a single rounded card
     private var zoomClusterChip: some View {
-        HStack(spacing: 0) {
+        VStack(spacing: 0) {
             // Zoom in button
             Button(action: onZoomIn ?? {}) {
                 LSIcon(name: .plus, size: .md, color: .primary)
             }
             .frame(width: chipSize, height: chipSize)
             .contentShape(Rectangle())
+            .accessibilityLabel("Zoom in")
             .accessibilityIdentifier("lsmapcontrols-zoom-in")
 
             // Divider
             Divider()
-                .frame(width: theme.borderWidth.thin)
+                .frame(height: theme.borderWidth.thin)
 
             // Zoom out button (using SF Symbol since custom icons don't have minus)
             Button(action: onZoomOut ?? {}) {
@@ -134,9 +135,10 @@ public struct LSMapControls: View {
             }
             .frame(width: chipSize, height: chipSize)
             .contentShape(Rectangle())
+            .accessibilityLabel("Zoom out")
             .accessibilityIdentifier("lsmapcontrols-zoom-out")
         }
-        .frame(height: chipSize)
+        .frame(width: chipSize, height: chipSize * 2 + theme.borderWidth.thin)
         .background(chipBackground)
         .overlay(chipBorder)
         .clipShape(RoundedRectangle(cornerRadius: theme.radius.md, style: .continuous))
@@ -146,6 +148,7 @@ public struct LSMapControls: View {
             x: shadowStyle.offsetX,
             y: shadowStyle.offsetY
         )
+        .buttonStyle(PlainButtonStyle())
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("lsmapcontrols-zoom-cluster")
     }

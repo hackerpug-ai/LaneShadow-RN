@@ -1,15 +1,13 @@
 import LaneShadowTheme
 import NativeTheme
 import SwiftUI
-import UIKit
+import ViewInspector
 import XCTest
 @testable import LaneShadow
 
 @MainActor
 final class LSMapControlsTests: XCTestCase {
-    // MARK: - AC-1: Default map mode renders 4 chips in correct order
-
-    func test_mapMode_rendersFourChipsInOrder() {
+    func test_map_mode_places_zoom_cluster_last() {
         let appearance = LSMapControls.resolvedAppearance(
             mode: .map,
             hasRouteToSave: false,
@@ -18,10 +16,10 @@ final class LSMapControlsTests: XCTestCase {
         )
 
         let expectedChips: [LSMapControlsChipKind] = [
-            .zoomCluster,
             .recenter,
             .layers,
             .modeToggle,
+            .zoomCluster
         ]
 
         XCTAssertEqual(appearance.chipsInOrder, expectedChips)
@@ -29,47 +27,105 @@ final class LSMapControlsTests: XCTestCase {
         XCTAssertEqual(appearance.chipBorderToken, "color.border.default")
         XCTAssertEqual(appearance.modeToggleGlyphToken, "send")
         XCTAssertEqual(appearance.modeToggleAccessibilityLabel, "Open chat")
+        XCTAssertEqual(appearance.chipsInOrder.last, .zoomCluster)
     }
 
-    // MARK: - AC-2: hasRouteToSave inserts save chip
-
-    func test_hasRouteToSave_insertsSaveChip() {
-        let appearanceWithoutSave = LSMapControls.resolvedAppearance(
-            mode: .map,
-            hasRouteToSave: false,
-            isSavedRoute: false,
-            in: Theme.shared
-        )
-
-        let appearanceWithSave = LSMapControls.resolvedAppearance(
+    func test_save_chip_stays_above_bottom_zoom_cluster() {
+        let appearance = LSMapControls.resolvedAppearance(
             mode: .map,
             hasRouteToSave: true,
             isSavedRoute: false,
             in: Theme.shared
         )
 
-        let expectedWithoutSave: [LSMapControlsChipKind] = [
-            .zoomCluster,
-            .recenter,
-            .layers,
-            .modeToggle,
-        ]
-
-        let expectedWithSave: [LSMapControlsChipKind] = [
-            .zoomCluster,
+        let expectedChips: [LSMapControlsChipKind] = [
             .recenter,
             .layers,
             .save(isSaved: false),
             .modeToggle,
+            .zoomCluster
         ]
 
-        XCTAssertEqual(appearanceWithoutSave.chipsInOrder, expectedWithoutSave)
-        XCTAssertEqual(appearanceWithSave.chipsInOrder, expectedWithSave)
-        XCTAssertFalse(appearanceWithoutSave.isSaveChipVisible)
-        XCTAssertTrue(appearanceWithSave.isSaveChipVisible)
+        XCTAssertEqual(appearance.chipsInOrder, expectedChips)
+        XCTAssertTrue(appearance.isSaveChipVisible)
+        XCTAssertEqual(appearance.chipsInOrder[2], .save(isSaved: false))
+        XCTAssertEqual(appearance.chipsInOrder.dropLast().last, .modeToggle)
+        XCTAssertEqual(appearance.chipsInOrder.last, .zoomCluster)
     }
 
-    // MARK: - AC-3: isSavedRoute flips save chip to copper signal fill
+    func test_zoom_cluster_uses_vertical_layout() throws {
+        let view = LSMapControls(
+            mode: .map,
+            hasRouteToSave: false,
+            isSavedRoute: false,
+            onZoomIn: {},
+            onZoomOut: {},
+            onRecenter: {},
+            onLayers: {},
+            onSaveRoute: {},
+            onToggleView: {}
+        )
+        .laneShadowTheme()
+
+        let inspected = try view.inspect()
+        let controls = try inspected.find(viewWithAccessibilityIdentifier: "lsmapcontrols")
+        let zoomCluster = try controls.find(viewWithAccessibilityIdentifier: "lsmapcontrols-zoom-cluster")
+
+        XCTAssertNoThrow(try zoomCluster.vStack())
+        XCTAssertNoThrow(try zoomCluster.find(viewWithAccessibilityIdentifier: "lsmapcontrols-zoom-in"))
+        XCTAssertNoThrow(try zoomCluster.find(viewWithAccessibilityIdentifier: "lsmapcontrols-zoom-out"))
+        XCTAssertNoThrow(try zoomCluster.find(ViewType.Divider.self))
+
+        let source = try mapControlsSource()
+        XCTAssertTrue(source.contains("VStack(spacing: 0)"))
+        XCTAssertTrue(source.contains(".frame(width: chipSize, height: chipSize * 2"))
+        XCTAssertTrue(source.contains(".frame(height: theme.borderWidth.thin)"))
+    }
+
+    func test_zoom_callbacks_and_identifiers_remain_stable() throws {
+        var zoomInCount = 0
+        var zoomOutCount = 0
+
+        let appearance = LSMapControls.resolvedAppearance(
+            mode: .map,
+            hasRouteToSave: false,
+            isSavedRoute: false,
+            onZoomIn: { zoomInCount += 1 },
+            onZoomOut: { zoomOutCount += 1 },
+            in: Theme.shared
+        )
+
+        XCTAssertTrue(appearance.zoomCallbacksBound)
+        XCTAssertEqual(appearance.chipsInOrder.last, .zoomCluster)
+
+        let view = LSMapControls(
+            mode: .map,
+            hasRouteToSave: false,
+            isSavedRoute: false,
+            onZoomIn: { zoomInCount += 1 },
+            onZoomOut: { zoomOutCount += 1 },
+            onRecenter: {},
+            onLayers: {},
+            onSaveRoute: {},
+            onToggleView: {}
+        )
+        .laneShadowTheme()
+
+        let inspected = try view.inspect()
+        let controls = try inspected.find(viewWithAccessibilityIdentifier: "lsmapcontrols")
+        let zoomCluster = try controls.find(viewWithAccessibilityIdentifier: "lsmapcontrols-zoom-cluster")
+        let zoomInButton = try zoomCluster.find(viewWithAccessibilityIdentifier: "lsmapcontrols-zoom-in")
+        let zoomOutButton = try zoomCluster.find(viewWithAccessibilityIdentifier: "lsmapcontrols-zoom-out")
+
+        XCTAssertEqual(try zoomInButton.accessibilityIdentifier(), "lsmapcontrols-zoom-in")
+        XCTAssertEqual(try zoomOutButton.accessibilityIdentifier(), "lsmapcontrols-zoom-out")
+
+        try zoomInButton.button().tap()
+        try zoomOutButton.button().tap()
+
+        XCTAssertEqual(zoomInCount, 1)
+        XCTAssertEqual(zoomOutCount, 1)
+    }
 
     func test_isSavedRoute_flipsToCopperSignal() {
         let appearanceUnsaved = LSMapControls.resolvedAppearance(
@@ -86,18 +142,14 @@ final class LSMapControlsTests: XCTestCase {
             in: Theme.shared
         )
 
-        // Unsaved variant
         XCTAssertNil(appearanceUnsaved.saveChipBackgroundToken)
         XCTAssertEqual(appearanceUnsaved.saveChipGlyphColorToken, "color.content.primary")
         XCTAssertEqual(appearanceUnsaved.saveChipAccessibilityLabel, "Save route")
 
-        // Saved variant
         XCTAssertEqual(appearanceSaved.saveChipBackgroundToken, "color.signal.default")
         XCTAssertEqual(appearanceSaved.saveChipGlyphColorToken, "color.signal.onSignal")
         XCTAssertEqual(appearanceSaved.saveChipAccessibilityLabel, "Saved route")
     }
-
-    // MARK: - TC-3: saveChipAccessibilityLabel is nil when hasRouteToSave is false
 
     func test_hasNoRouteToSave_savedChipAccessibilityLabelIsNil() {
         let appearance = LSMapControls.resolvedAppearance(
@@ -106,11 +158,10 @@ final class LSMapControlsTests: XCTestCase {
             isSavedRoute: false,
             in: Theme.shared
         )
+
         XCTAssertNil(appearance.saveChipAccessibilityLabel)
         XCTAssertFalse(appearance.isSaveChipVisible)
     }
-
-    // MARK: - AC-4: Chat mode collapses to single toggle chip
 
     func test_chatMode_collapsesToSingleToggle() {
         let appearanceMapMode = LSMapControls.resolvedAppearance(
@@ -128,156 +179,44 @@ final class LSMapControlsTests: XCTestCase {
         )
 
         let expectedMapMode: [LSMapControlsChipKind] = [
-            .zoomCluster,
             .recenter,
             .layers,
             .save(isSaved: false),
             .modeToggle,
-        ]
-
-        let expectedChatMode: [LSMapControlsChipKind] = [
-            .modeToggle,
+            .zoomCluster
         ]
 
         XCTAssertEqual(appearanceMapMode.chipsInOrder, expectedMapMode)
-        XCTAssertEqual(appearanceChatMode.chipsInOrder, expectedChatMode)
+        XCTAssertEqual(appearanceChatMode.chipsInOrder, [.modeToggle])
         XCTAssertEqual(appearanceChatMode.modeToggleGlyphToken, "map")
         XCTAssertEqual(appearanceChatMode.modeToggleAccessibilityLabel, "Back to map")
     }
-
-    // MARK: - AC-5: Zoom callbacks emit +1/-1 zoom deltas
-
-    func test_zoomCallbacks_emitPlusMinusOne() {
-        // SwiftUI .accessibilityIdentifier is not surfaced to UIKit view hierarchy in UIHostingController;
-        // button-tap approach via findView(withIdentifier:) found 0 nodes. Using zoomCallbacksBound flag
-        // in appearance as the escalation-authorized compromise (see CAPS-S07-T03 cycle 5 review).
-
-        // Verify that the appearance correctly identifies when zoom callbacks are bound
-        let appearanceWithCallbacks = LSMapControls.resolvedAppearance(
-            mode: .map,
-            hasRouteToSave: false,
-            isSavedRoute: false,
-            onZoomIn: {},
-            onZoomOut: {},
-            in: Theme.shared
-        )
-
-        let appearanceWithoutCallbacks = LSMapControls.resolvedAppearance(
-            mode: .map,
-            hasRouteToSave: false,
-            isSavedRoute: false,
-            in: Theme.shared
-        )
-
-        // When both zoom callbacks are bound, the flag should be true
-        XCTAssertTrue(
-            appearanceWithCallbacks.zoomCallbacksBound,
-            "zoomCallbacksBound must be true when both onZoomIn and onZoomOut are provided"
-        )
-
-        // When zoom callbacks are not provided, the flag should be false
-        XCTAssertFalse(
-            appearanceWithoutCallbacks.zoomCallbacksBound,
-            "zoomCallbacksBound must be false when callbacks are not provided"
-        )
-
-        // Verify zoom cluster is present and in correct position
-        XCTAssertEqual(
-            appearanceWithCallbacks.chipsInOrder.first,
-            .zoomCluster,
-            "Zoom cluster should be first chip in map mode"
-        )
-
-        // Verify the view initializes successfully with callbacks bound
-        let view = LSMapControls(
-            mode: .map,
-            hasRouteToSave: false,
-            isSavedRoute: false,
-            onZoomIn: {},
-            onZoomOut: {},
-            onRecenter: {},
-            onLayers: {},
-            onSaveRoute: {},
-            onToggleView: {}
-        )
-
-        let harness = host(view)
-        XCTAssertNotNil(harness.window, "View should host and render without error")
-    }
-
-    // MARK: - AC-6: Dark theme re-resolves surfaces and signal fill
 
     func test_darkTheme_reResolvesChipSurfaces() {
         let lightColors = LSMapControls.resolvedThemeColors(for: .light)
         let darkColors = LSMapControls.resolvedThemeColors(for: .dark)
 
-        // surfaceOverlay should differ between light and dark
         XCTAssertNotEqual(lightColors.surfaceOverlay, darkColors.surfaceOverlay)
-
-        // borderDefault should differ between light and dark
         XCTAssertNotEqual(lightColors.borderDefault, darkColors.borderDefault)
-
-        // signalDefault should be the same (semantic signal color is consistent across themes)
         XCTAssertEqual(lightColors.signalDefault, darkColors.signalDefault)
     }
 
-    // MARK: - Helper Methods
+    private func mapControlsSource() throws -> String {
+        let repoRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
 
-    private func host(_ rootView: some View) -> HostedHarness {
-        let controller = UIHostingController(rootView: AnyView(rootView))
-        controller.loadViewIfNeeded()
-        controller.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
-        let window = UIWindow(frame: controller.view.frame)
-        window.rootViewController = controller
-        window.makeKeyAndVisible()
-        controller.view.setNeedsLayout()
-        controller.view.layoutIfNeeded()
-        window.layoutIfNeeded()
-        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.01))
-        return HostedHarness(window: window, controller: controller)
-    }
+        let fileURL = repoRoot
+            .appendingPathComponent("ios")
+            .appendingPathComponent("LaneShadow")
+            .appendingPathComponent("Views")
+            .appendingPathComponent("Organisms")
+            .appendingPathComponent("LSMapControls.swift")
 
-    private func findView(withIdentifier identifier: String, in view: UIView) -> UIView? {
-        if view.accessibilityIdentifier == identifier {
-            return view
-        }
-
-        for subview in view.subviews {
-            if let match = findView(withIdentifier: identifier, in: subview) {
-                return match
-            }
-        }
-
-        return nil
-    }
-
-    private func nearestButtonAncestor(from view: UIView?) -> UIControl? {
-        var current = view?.superview
-
-        while let candidate = current {
-            if let control = candidate as? UIControl {
-                return control
-            }
-
-            current = candidate.superview
-        }
-
-        return nil
-    }
-
-    private func findAllAccessibilityIdentifiers(in view: UIView, depth: Int = 0) -> [String] {
-        var identifiers: [String] = []
-        if let id = view.accessibilityIdentifier {
-            identifiers.append("\(String(repeating: "  ", count: depth))\(id)")
-        }
-        for subview in view.subviews {
-            identifiers.append(contentsOf: findAllAccessibilityIdentifiers(in: subview, depth: depth + 1))
-        }
-        return identifiers
+        return try String(contentsOf: fileURL, encoding: .utf8)
     }
 }
 
-private struct HostedHarness {
-    let window: UIWindow
-    let controller: UIHostingController<AnyView>
-}
+extension LSMapControls: Inspectable {}
