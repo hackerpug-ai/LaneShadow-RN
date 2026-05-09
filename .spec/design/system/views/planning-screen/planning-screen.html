@@ -164,7 +164,7 @@
 }
 .view-planning-screen__status-bar > * { pointer-events: auto; }
 
-/* ── Header row — menu · status-card · new (inline, NO background) ── */
+/* ── Header row — menu · new (inline, NO background) ───────────── */
 .view-planning-screen__header {
   position: absolute;
   top: 44px;
@@ -180,27 +180,6 @@
   pointer-events: none;
 }
 .view-planning-screen__header > * { pointer-events: auto; }
-
-.view-planning-screen__status-card {
-  flex: 1;
-  min-width: 0;
-  max-width: none;
-}
-
-.view-planning-screen__header .mol-context-capsule {
-  padding: var(--space-2) var(--space-3);
-  gap: 0;
-  min-width: 0;
-}
-.view-planning-screen__header .mol-context-capsule__meta {
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.view-planning-screen__header .mol-context-capsule__headline {
-  font-size: 15px;
-  line-height: 1.2;
-}
 
 /* ── Map controls — right-aligned, vertically centered ────────── */
 .view-planning-screen__map-controls {
@@ -339,13 +318,28 @@
   color: var(--wx-wind);
 }
 
-/* ── Phase indicator anchor — below header row ────────────────── */
+/* ── Top-overlay stack — planning capsule above phase indicator ─ */
 .view-planning-screen__phase-anchor {
   position: absolute;
-  top: 152px;                        /* status (44) + header (~96) + gap */
+  top: 108px;                        /* status (44) + header (~40) + gap */
   left: var(--space-4);
   right: var(--space-4);
   z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  pointer-events: none;
+}
+
+.view-planning-screen__phase-anchor > * {
+  pointer-events: auto;
+}
+
+.view-planning-screen__phase-anchor .mol-context-capsule--planning {
+  min-width: 220px;
+  max-width: min(300px, 100%);
+  align-self: center;
 }
 
 /* Override mol-phase-indicator max-width when used inside phone frame */
@@ -582,21 +576,13 @@
     </svg>
     <div class="view-planning-screen__sketch-head" style="left:36%;top:49%;"></div>
 
-    <!-- Header — menu · status-card · new -->
+    <!-- Header — menu · new -->
     <header class="view-planning-screen__header" aria-label="App header">
       <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
           <path d="M4 7h16M4 12h16M4 17h16"/>
         </svg>
       </button>
-      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning" role="status">
-        <div class="mol-context-capsule__meta t-label-sm">
-          <span>Phase 1 / 5</span>
-          <span class="mol-context-capsule__meta-dot"></span>
-          <span>Scouting</span>
-        </div>
-        <h2 class="mol-context-capsule__headline t-opinion-md">Let me <em>think</em> on that…</h2>
-      </div>
       <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
           <path d="M12 5v14M5 12h14"/>
@@ -619,8 +605,12 @@
       </div>
     </div>
 
-    <!-- Phase indicator (top-overlay slot) -->
+    <!-- Top-overlay stack — planning capsule above phase indicator -->
     <div class="org-map-layer__top-overlay view-planning-screen__phase-anchor">
+      <div class="mol-context-capsule mol-context-capsule--planning" role="status" aria-label="Planning capsule: Scouting">
+        <h2 class="mol-context-capsule__headline t-opinion-md"><em>Scouting…</em></h2>
+        <span class="mol-context-capsule__spinner" aria-hidden="true"></span>
+      </div>
       <div class="mol-phase-indicator" role="status" aria-live="polite" aria-label="Route planning: Scouting the region">
         <div class="mol-phase-indicator__head">
           <div class="mol-phase-indicator__compass-chip" aria-hidden="true">
@@ -733,14 +723,6 @@
           <path d="M4 7h16M4 12h16M4 17h16"/>
         </svg>
       </button>
-      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning" role="status">
-        <div class="mol-context-capsule__meta t-label-sm">
-          <span>Phase 2 / 5</span>
-          <span class="mol-context-capsule__meta-dot"></span>
-          <span>Drawing</span>
-        </div>
-        <h2 class="mol-context-capsule__headline t-opinion-md">Loops are <em>forming</em></h2>
-      </div>
       <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
           <path d="M12 5v14M5 12h14"/>
@@ -763,6 +745,10 @@
     </div>
 
     <div class="org-map-layer__top-overlay view-planning-screen__phase-anchor">
+      <div class="mol-context-capsule mol-context-capsule--planning" role="status" aria-label="Planning capsule: Drawing">
+        <h2 class="mol-context-capsule__headline t-opinion-md">Routes are <em>forming…</em></h2>
+        <span class="mol-context-capsule__spinner" aria-hidden="true"></span>
+      </div>
       <div class="mol-phase-indicator" role="status" aria-live="polite" aria-label="Route planning: Drawing candidate routes">
         <div class="mol-phase-indicator__head">
           <div class="mol-phase-indicator__compass-chip" aria-hidden="true">
@@ -880,14 +866,6 @@
           <path d="M4 7h16M4 12h16M4 17h16"/>
         </svg>
       </button>
-      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning" role="status">
-        <div class="mol-context-capsule__meta t-label-sm">
-          <span>Phase 3 / 5</span>
-          <span class="mol-context-capsule__meta-dot"></span>
-          <span>Weather</span>
-        </div>
-        <h2 class="mol-context-capsule__headline t-opinion-md">Sun on one, <em>wind</em> on another</h2>
-      </div>
       <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
           <path d="M12 5v14M5 12h14"/>
@@ -910,6 +888,10 @@
     </div>
 
     <div class="org-map-layer__top-overlay view-planning-screen__phase-anchor">
+      <div class="mol-context-capsule mol-context-capsule--planning" role="status" aria-label="Planning capsule: Weather">
+        <h2 class="mol-context-capsule__headline t-opinion-md"><em>Checking weather…</em></h2>
+        <span class="mol-context-capsule__spinner" aria-hidden="true"></span>
+      </div>
       <div class="mol-phase-indicator" role="status" aria-live="polite" aria-label="Route planning: Checking weather along paths">
         <div class="mol-phase-indicator__head">
           <div class="mol-phase-indicator__compass-chip" aria-hidden="true">
@@ -1017,14 +999,6 @@
           <path d="M4 7h16M4 12h16M4 17h16"/>
         </svg>
       </button>
-      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning" role="status">
-        <div class="mol-context-capsule__meta t-label-sm">
-          <span>Phase 4 / 5</span>
-          <span class="mol-context-capsule__meta-dot"></span>
-          <span>Scoring</span>
-        </div>
-        <h2 class="mol-context-capsule__headline t-opinion-md">Ranking by <em>scenic</em> + twist</h2>
-      </div>
       <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
           <path d="M12 5v14M5 12h14"/>
@@ -1047,6 +1021,10 @@
     </div>
 
     <div class="org-map-layer__top-overlay view-planning-screen__phase-anchor">
+      <div class="mol-context-capsule mol-context-capsule--planning" role="status" aria-label="Planning capsule: Scoring">
+        <h2 class="mol-context-capsule__headline t-opinion-md"><em>Scoring the field…</em></h2>
+        <span class="mol-context-capsule__spinner" aria-hidden="true"></span>
+      </div>
       <div class="mol-phase-indicator" role="status" aria-live="polite" aria-label="Route planning: Scoring scenic + twisty + time">
         <div class="mol-phase-indicator__head">
           <div class="mol-phase-indicator__compass-chip" aria-hidden="true">
@@ -1148,14 +1126,6 @@
           <path d="M4 7h16M4 12h16M4 17h16"/>
         </svg>
       </button>
-      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning" role="status">
-        <div class="mol-context-capsule__meta t-label-sm">
-          <span>Phase 2 / 5</span>
-          <span class="mol-context-capsule__meta-dot"></span>
-          <span>Slow plan · 4s+</span>
-        </div>
-        <h2 class="mol-context-capsule__headline t-opinion-md">Tricky one — <em>hang</em> on…</h2>
-      </div>
       <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
           <path d="M12 5v14M5 12h14"/>
@@ -1178,6 +1148,10 @@
     </div>
 
     <div class="org-map-layer__top-overlay view-planning-screen__phase-anchor">
+      <div class="mol-context-capsule mol-context-capsule--planning" role="status" aria-label="Planning capsule: Slow planning">
+        <h2 class="mol-context-capsule__headline t-opinion-md">This one needs a <em>minute…</em></h2>
+        <span class="mol-context-capsule__spinner" aria-hidden="true"></span>
+      </div>
       <div class="mol-phase-indicator" role="status" aria-live="polite" aria-label="Route planning: Drawing candidate routes — delayed">
         <div class="mol-phase-indicator__head">
           <div class="mol-phase-indicator__compass-chip" aria-hidden="true">
@@ -1270,21 +1244,13 @@
       <div class="view-planning-screen__start-pin" style="left:22%;top:47%;"></div>
     </div>
 
-    <!-- Header (above scrim) — menu · status-card · new -->
+    <!-- Header (above scrim) — menu · new -->
     <header class="view-planning-screen__header" style="z-index:38;" aria-label="App header">
       <button class="org-topbar__chip org-topbar__chip--square" aria-label="Open sessions">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
           <path d="M4 7h16M4 12h16M4 17h16"/>
         </svg>
       </button>
-      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning" role="status">
-        <div class="mol-context-capsule__meta t-label-sm">
-          <span>Paused</span>
-          <span class="mol-context-capsule__meta-dot"></span>
-          <span>Cancel?</span>
-        </div>
-        <h2 class="mol-context-capsule__headline t-opinion-md">Stop <em>planning?</em></h2>
-      </div>
       <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
           <path d="M12 5v14M5 12h14"/>
@@ -1306,8 +1272,12 @@
       </div>
     </div>
 
-    <!-- Phase indicator — dimmed -->
+    <!-- Top-overlay stack — dimmed while cancel prompt is shown -->
     <div class="org-map-layer__top-overlay view-planning-screen__phase-anchor view-planning-screen__phase-dim">
+      <div class="mol-context-capsule mol-context-capsule--planning" role="status" aria-label="Planning capsule: Cancel prompt">
+        <h2 class="mol-context-capsule__headline t-opinion-md">Stop <em>planning?</em></h2>
+        <span class="mol-context-capsule__spinner" aria-hidden="true"></span>
+      </div>
       <div class="mol-phase-indicator" role="status" aria-live="polite" aria-label="Route planning: paused">
         <div class="mol-phase-indicator__head">
           <div class="mol-phase-indicator__compass-chip" aria-hidden="true">
@@ -1390,14 +1360,6 @@
           <path d="M4 7h16M4 12h16M4 17h16"/>
         </svg>
       </button>
-      <div class="view-planning-screen__status-card mol-context-capsule mol-context-capsule--planning mol-context-capsule--warning" role="status">
-        <div class="mol-context-capsule__meta t-label-sm">
-          <span>Phase 5 / 5</span>
-          <span class="mol-context-capsule__meta-dot"></span>
-          <span>1 candidate</span>
-        </div>
-        <h2 class="mol-context-capsule__headline t-opinion-md">Only <em>one</em> road works</h2>
-      </div>
       <button class="org-topbar__chip org-topbar__chip--with-label" aria-label="Start new session">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
           <path d="M12 5v14M5 12h14"/>
@@ -1420,6 +1382,10 @@
     </div>
 
     <div class="org-map-layer__top-overlay view-planning-screen__phase-anchor view-planning-screen__phase-anchor--warning">
+      <div class="mol-context-capsule mol-context-capsule--planning mol-context-capsule--warning" role="status" aria-label="Planning capsule: Single candidate">
+        <h2 class="mol-context-capsule__headline t-opinion-md">Only <em>one</em> route fits</h2>
+        <span class="mol-context-capsule__spinner" aria-hidden="true"></span>
+      </div>
       <div class="mol-phase-indicator" role="status" aria-live="polite" aria-label="Route planning: Only 1 candidate — narrowing">
         <div class="mol-phase-indicator__head">
           <div class="mol-phase-indicator__compass-chip" aria-hidden="true">

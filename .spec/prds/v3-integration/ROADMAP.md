@@ -478,14 +478,14 @@ This sprint integrates **only IdleScreen.** The suggestion-chip → planning tra
 3. Confirm the copper sketch polyline animates continuously at 1400ms linear loop with the leading head dot breathing synchronously at 1400ms ease-in-out (matches design reference motion recipe — exact, not 600ms rushed)
 4. Confirm the chat input bar is locked: rider's prompt text visible, typing disabled, leading icon dimmed, send button replaced by a copper spinner; back button is the only exit affordance
 5. Tap back; confirm the cancel-confirm sheet opens; confirm "Cancel ride" → `db.routePlans.cancelPlan` mutation fires + UI returns to IdleScreen with the session preserved
-6. Run `pnpm design:review --screens planning-screen`; confirm zero `high`-severity issues across all variants (S01 active light, S02 cancel-confirm, S03 dark, V01 slow-apology, V02 cancel-confirm with prior chat, V03 single-candidate warning)
+6. Run `pnpm design:review --screens planning-screen`; confirm zero `high`-severity issues across all variants (S01 Scouting Light, S02 Drawing Light, S03 Weather Light, S04 Scoring Dark, V01 Slow Planning, V02 Cancel Prompt, V03 Single Candidate)
 7. Real-iPhone XCUITest capture confirms motion timing on hardware (sketch loop, phase pulse, cancel-confirm slide-up); record xcresult artifacts
 
 #### Design Review Gate
 
 Sprint 07 MUST expand the design-review pipeline to cover `planning-screen`. Required deliverables:
 
-1. **Reference assets** — `.spec/design/system/views/planning-screen/` must contain PNGs + annotations for all 6 planning-screen variants (S01 active light, S02 cancel-confirm, S03 dark, V01 slow-apology, V02 cancel-confirm with prior chat, V03 single-candidate warning). Run `pnpm design:references` to generate.
+1. **Reference assets** — `.spec/design/system/views/planning-screen/` must contain PNGs + annotations for all 7 planning-screen variants (S01 Scouting Light, S02 Drawing Light, S03 Weather Light, S04 Scoring Dark, V01 Slow Planning, V02 Cancel Prompt, V03 Single Candidate). Run `pnpm design:references` to generate.
 2. **XCUITest capture tests** — add `DesignReviewCaptureTests` test methods for every `(planning-screen, state, theme)` tuple.
 3. **Pipeline pass** — `pnpm design:review --screens planning-screen` must produce a report with **zero `high`-severity issues** before the human testing gate can pass.
 4. **Coverage expansion** — after Sprint 07, `pnpm design:review --screens auth-screen,idle-screen,planning-screen` must work end-to-end.
