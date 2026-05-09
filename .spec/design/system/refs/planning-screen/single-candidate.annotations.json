@@ -8,42 +8,13 @@
   },
   "components": [
     {
-      "name": "view-planning-screen__map-slot-0",
+      "name": "single-candidate",
       "selector": ".view-planning-screen__map-slot:nth-of-type(1)",
       "bounding_box": {
         "x": 0,
         "y": 0,
         "w": 312,
         "h": 676
-      },
-      "design_tokens": {
-        "computed_color": "rgb(0, 0, 0)",
-        "computed_background_color": "rgba(0, 0, 0, 0)",
-        "computed_font_family": "Times",
-        "computed_font_size": "16px",
-        "computed_font_weight": "400",
-        "computed_border_color": "rgb(0, 0, 0)",
-        "computed_border_width": "0px",
-        "computed_border_radius": "0px",
-        "computed_padding_top": "0px",
-        "computed_padding_right": "0px",
-        "computed_padding_bottom": "0px",
-        "computed_padding_left": "0px",
-        "computed_margin_top": "0px",
-        "computed_margin_right": "0px",
-        "computed_margin_bottom": "0px",
-        "computed_margin_left": "0px",
-        "computed_opacity": "1"
-      }
-    },
-    {
-      "name": "org-topbar-0",
-      "selector": ".org-topbar:nth-of-type(1)",
-      "bounding_box": {
-        "x": 0,
-        "y": 0,
-        "w": 312,
-        "h": 54
       },
       "design_tokens": {
         "computed_color": "rgb(0, 0, 0)",

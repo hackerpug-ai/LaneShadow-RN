@@ -27,6 +27,37 @@ interface Annotation {
   components: Component[]
 }
 
+function requestedScreensFromEnv(): Set<string> | null {
+  const raw = process.env.DESIGN_REVIEW_SCREENS?.trim()
+  if (!raw) {
+    return null
+  }
+
+  const screens = raw
+    .split(',')
+    .map((screen) => screen.trim())
+    .filter(Boolean)
+
+  return screens.length > 0 ? new Set(screens) : null
+}
+
+function buildComponentName(
+  screen: string,
+  state: string,
+  selector: string,
+  index: number,
+): string {
+  const primaryMapSlotSelector = `.view-${screen}__map-slot`
+
+  // The planning-screen review contract expects the canonical state slug
+  // to survive into annotations for the primary captured component.
+  if (screen === 'planning-screen' && selector === primaryMapSlotSelector && index === 0) {
+    return state
+  }
+
+  return `${selector.replace(/^\./, '')}-${index}`
+}
+
 async function extractAnnotationsForSection(
   browser,
   htmlPath: string,
@@ -165,7 +196,7 @@ async function extractAnnotationsForSection(
             })
 
             components.push({
-              name: `${selector.replace(/^\./, '')}-${i}`,
+              name: buildComponentName(screen, state, selector, i),
               selector: `${selector}:nth-of-type(${i + 1})`,
               bounding_box: {
                 x: Math.round(box.x - frameBox.x),
@@ -199,11 +230,13 @@ async function main(): Promise<void> {
   const designSystemRoot = join(process.cwd(), '.spec', 'design', 'system')
   const viewsDir = join(designSystemRoot, 'views')
   const refsDir = join(designSystemRoot, 'refs')
+  const requestedScreens = requestedScreensFromEnv()
 
   // Get all view directories
   const viewDirs = readdirSync(viewsDir, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory() && !dirent.name.startsWith('.'))
     .map((dirent) => dirent.name)
+    .filter((view) => !requestedScreens || requestedScreens.has(view))
 
   console.log(`Extracting annotations for ${viewDirs.length} views\n`)
 

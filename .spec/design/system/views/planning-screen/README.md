@@ -2,7 +2,7 @@
 
 ## Purpose
 
-PlanningScreen is the inside of the Navigator's head — shown immediately after the rider sends a prompt and while the system is thinking. The canvas is a full-screen warm paper topographic map with a copper sketching polyline that draws and loops continuously (representing the Navigator's pen moving across the paper). The phase indicator floats below the top bar, showing five labeled pipeline steps with one active (pulsing ring), prior steps marked done, and future steps pending. The chat input is locked at the bottom: the rider's filled prompt is visible but typing is disabled; the send button is replaced by a copper spinner. The only exit is back (triggering a cancel-confirm sheet). Transitioning to RouteResultsScreen (UC-SCR-03) or ErrorScreen (UC-SCR-06) happens when the planning pipeline completes.
+PlanningScreen is the inside of the Navigator's head — shown immediately after the rider sends a prompt and while the system is thinking. The canvas is a full-screen warm paper topographic map with a copper sketching polyline that draws and loops continuously (representing the Navigator's pen moving across the paper). The top overlay is a composed stack: `mol-context-capsule --planning` sits above the five-step `mol-phase-indicator`, so the capsule carries the italic phase line + copper pulse while the indicator exposes explicit pipeline progress. The chat input is locked at the bottom: the rider's filled prompt is visible but typing is disabled; the send button is replaced by a copper spinner. The only exit is back (triggering a cancel-confirm sheet). Transitioning to RouteResultsScreen (UC-SCR-03) or ErrorScreen (UC-SCR-06) happens when the planning pipeline completes.
 
 ---
 
@@ -14,7 +14,7 @@ PlanningScreen is the inside of the Navigator's head — shown immediately after
 | S02 · Drawing · Light | Phase 1 done (check); phase 2 active; sketch extends further across map; title shifts to context-aware copy | Light |
 | S03 · Weather · Light | Phases 1–2 done; phase 3 active; weather condition icons (clear + wind) float over dimmed sketch; title shifts | Light |
 | S04 · Scoring · Dark | Phases 1–3 done; phase 4 active; three candidate polylines visible (best/alt1/alt2); dark theme | Dark |
-| V01 · Slow Planning | Phase 2 active, &gt;4s stall; inline apology copy appears below steps on phase card | Light |
+| V01 · Slow Planning | Phase 2 active, &gt;4s stall; inline apology copy appears below steps in the phase indicator while the planning capsule remains visible above | Light |
 | V02 · Cancel Prompt | Back gesture during thinking; phase card dims to 38%; scrim rises; cancel-confirm sheet presents | Light |
 | V03 · Single Candidate | All 4 phases done; phase 5 active with warning-copper accent; over-constraint advisory block | Light |
 
@@ -27,12 +27,15 @@ PlanningScreen is the inside of the Navigator's head — shown immediately after
 | organism | `org-map-layer` | Foundational canvas — z-order / slot contract (map / topBar / topOverlay / bottomOverlay) |
 | organism | `org-map-layer__map` | Map slot — paper background + contour SVG + start pin dot |
 | organism | `org-map-layer__top-bar` | TopBar slot — absolute z:5 across full width |
-| organism | `org-map-layer__top-overlay` | Phase indicator slot — positioned below top bar |
+| organism | `org-map-layer__top-overlay` | Planning overlay stack slot — `mol-context-capsule --planning` above `mol-phase-indicator` |
 | organism | `org-map-layer__bottom-overlay` | ChatInput anchor slot — locked/thinking state |
 | organism | `org-topbar` | LSTopBar — hamburger chip + NEW chip (same as idle-screen) |
 | organism | `org-topbar__chip` | Individual glass chips |
 | organism | `org-topbar__chip--square` | Hamburger (40×40pt) |
 | organism | `org-topbar__chip--with-label` | NEW pill (label + icon) |
+| molecule | `mol-context-capsule mol-context-capsule--planning` | Primary top-overlay capsule — single italic phase line + copper pulse spinner |
+| molecule | `mol-context-capsule__headline` | Capsule planning copy in Newsreader italic |
+| molecule | `mol-context-capsule__spinner` | Copper pulse spinner paired to the planning phase line |
 | molecule | `mol-phase-indicator` | LSPhaseIndicator — compass chip + italic title band + 5 labeled steps |
 | molecule | `mol-phase-indicator__head` | Header row: compass chip + italic opinion header |
 | molecule | `mol-phase-indicator__compass-chip` | Copper-tinted circular compass icon chip |
@@ -78,6 +81,7 @@ PlanningScreen is the inside of the Navigator's head — shown immediately after
 | Phase label done | `var(--content-secondary)` | Line-through |
 | Phase label pending | `var(--content-tertiary)` | Muted |
 | Sketch animation duration | `1400ms` (view-local constant — TOKEN_GAP emitted) | No `--duration-sketch-loop` token exists |
+| Planning capsule spinner loop | `1400ms` | Matches the sketch loop cadence so the capsule pulse breathes with the map animation |
 
 ---
 
