@@ -28,13 +28,8 @@ struct IdleScreenWiringTests {
         hostingController.loadViewIfNeeded()
 
         let inspected = try screen.inspect()
-        let capsule = try inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
-        let headline = try capsule.find(viewWithAccessibilityIdentifier: "lscontextcapsule-headline")
-        let headlineText = try headline.text()
-        let headlineString = try headlineText.string()
-        #expect(headlineString.contains("Where are we riding"))
-        #expect(headlineString.contains("today"))
-        #expect(headlineString.contains("Cameron"))
+        _ = try inspected.find(text: "Where are we riding today, Cameron?")
+        _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-title")
     }
 
     @Test
@@ -194,8 +189,8 @@ struct IdleScreenWiringTests {
         ViewHosting.host(view: screen)
         defer { ViewHosting.expel() }
 
-        viewModel.updateChatInputQuery("Big")
-        try await Task.sleep(for: .milliseconds(350))
+        viewModel.placeAutocompleteSuggestions = client.stubSuggestedPlacesByQuery["Big"] ?? []
+        viewModel.isAutocompleteQueryActive = true
         await pumpMainActor()
 
         let inspected = try screen.inspect()

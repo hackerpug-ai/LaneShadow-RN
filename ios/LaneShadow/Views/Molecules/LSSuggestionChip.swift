@@ -26,7 +26,7 @@ public struct LSSuggestionChip: View {
     }
 
     var size: PillSize {
-        .md
+        .lg
     }
 
     public init(
@@ -41,7 +41,7 @@ public struct LSSuggestionChip: View {
         let style = resolvedStyle
 
         Button(action: { Self.dispatch(onTap) }) {
-            LSPill(size: .md) {
+            LSPill(size: size) {
                 LSText(label, variant: .label.md, color: .secondary)
             }
             .background(
@@ -54,6 +54,8 @@ public struct LSSuggestionChip: View {
             )
         }
         .buttonStyle(.plain)
+        .frame(minHeight: theme.touchTarget.minTouchTarget)
+        .contentShape(Rectangle())
         .accessibilityIdentifier(Self.tapAccessibilityIdentifier)
         .accessibilityAddTraits(.isButton)
     }

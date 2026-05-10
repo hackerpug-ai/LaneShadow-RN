@@ -13,9 +13,9 @@ public enum LSMapControlsMode: Hashable, Sendable {
 /// Right-side vertical workbar for map view controls.
 ///
 /// **Design Contract:**
-/// - Layout: VStack with 40pt square glass chips arranged vertically
+/// - Layout: VStack with large square glass chips arranged vertically
 /// - Position: Vertically centered along the right edge (via consumer placement, not internal)
-/// - Spacing: `theme.space.xs` (4pt) between chips
+/// - Spacing: `theme.space.sm` between chips
 /// - Chips: Surface.overlay background, hairline borders, radius.md corners, elev.chrome shadow
 ///
 /// **Handler Semantics:**
@@ -113,7 +113,7 @@ public struct LSMapControls: View {
 
     // MARK: - Private Views
 
-    /// Zoom cluster: two 40pt buttons separated by a hairline divider in a single rounded card
+    /// Zoom cluster: two large buttons separated by a hairline divider in a single rounded card
     private var zoomClusterChip: some View {
         VStack(spacing: 0) {
             // Zoom in button
@@ -250,14 +250,13 @@ public struct LSMapControls: View {
 
     // MARK: - Tokens
 
-    /// 40pt chip width/height (theme.space.xl + theme.space.md + theme.space.xs = 24 + 12 + 4)
     private var chipSize: CGFloat {
-        theme.space.xl + theme.space.md + theme.space.xs
+        max(theme.touchTarget.minTouchTarget, theme.space.xxl + theme.space.lg + theme.space.sm)
     }
 
     /// Icon size for chips (matching theme.iconSize.medium)
     private var chipIconSize: CGFloat {
-        theme.iconSize.medium
+        max(theme.iconSize.medium, theme.iconSize.large)
     }
 
     /// Elevation shadow for chrome elements (elev.chrome from design spec)

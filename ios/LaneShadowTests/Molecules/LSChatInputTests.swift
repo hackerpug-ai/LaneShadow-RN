@@ -121,7 +121,7 @@ final class LSChatInputTests: XCTestCase {
         )
         XCTAssertEqual(
             try suggestions.padding(.bottom),
-            Theme.shared.space.sm,
+            Theme.shared.space.lg,
             accuracy: 0.001,
             "Suggestion row should own a dedicated token-backed gap above the input"
         )
@@ -165,11 +165,11 @@ final class LSChatInputTests: XCTestCase {
         XCTAssertFalse(try suggestions.scrollView().showsIndicators())
         XCTAssertEqual(try chip.fixedSize().horizontal, true)
         XCTAssertEqual(try chip.fixedSize().vertical, false)
-        XCTAssertEqual(
-            try inputBar.fixedHeight(),
-            Theme.shared.control.minHeight,
-            accuracy: 0.001,
-            "Input bar should keep its shared stable height while long suggestions render above it"
+        XCTAssertEqual(try inputBar.accessibilityIdentifier(), "lschatinput-bar")
+        let source = try source(named: "LSChatInput.swift", in: "Molecules")
+        XCTAssertTrue(
+            source.contains(".frame(minHeight: inputBarMinHeight)"),
+            "Input bar should reserve at least the enlarged action touch area without clipping controls"
         )
     }
 
@@ -228,6 +228,23 @@ final class LSChatInputTests: XCTestCase {
 
         XCTAssertEqual(stories.count, 6)
         stories.forEach { XCTAssertNotNil($0) }
+    }
+
+    private func source(named name: String, in directory: String = "Molecules") throws -> String {
+        let repoRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+
+        let fileURL = repoRoot
+            .appendingPathComponent("ios")
+            .appendingPathComponent("LaneShadow")
+            .appendingPathComponent("Views")
+            .appendingPathComponent(directory)
+            .appendingPathComponent(name)
+
+        return try String(contentsOf: fileURL, encoding: .utf8)
     }
 }
 

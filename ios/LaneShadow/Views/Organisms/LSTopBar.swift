@@ -51,20 +51,11 @@ public struct LSTopBar: View {
 
     public var body: some View {
         HStack(spacing: theme.space.sm) {
-            // Leading: Hamburger chip
             hamburgerChip
 
-            // Center: Optional title
-            if let title {
-                Spacer()
-                LSText(title, variant: .opinion.md)
-                    .lineLimit(1)
-                Spacer()
-            } else {
-                Spacer()
-            }
+            titleContent
+                .frame(maxWidth: .infinity, minHeight: tapTargetSize, alignment: .center)
 
-            // Trailing: NEW chip or Record Highlight
             trailingContent
         }
         .frame(maxWidth: .infinity)
@@ -84,11 +75,26 @@ public struct LSTopBar: View {
             }
             .fixedSize(horizontal: true, vertical: false)
             .frame(width: tapTargetSize, height: tapTargetSize)
-            .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
+        .contentShape(Rectangle())
         .accessibilityLabel("Menu")
         .accessibilityIdentifier("lstopbar-hamburger")
+    }
+
+    @ViewBuilder
+    private var titleContent: some View {
+        if let title {
+            LSText(title, variant: .opinion.md)
+                .lineLimit(2)
+                .minimumScaleFactor(0.82)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .accessibilityIdentifier("lstopbar-title")
+        } else {
+            Color.clear
+                .accessibilityHidden(true)
+        }
     }
 
     @ViewBuilder
@@ -114,10 +120,10 @@ public struct LSTopBar: View {
                 }
             }
             .fixedSize(horizontal: true, vertical: false)
-            .frame(height: chipSize)
-            .contentShape(Rectangle())
+            .frame(minWidth: chipMinWidth, minHeight: chipSize)
         }
         .buttonStyle(PlainButtonStyle())
+        .contentShape(Rectangle())
         .accessibilityLabel("New")
         .accessibilityIdentifier("lstopbar-new")
     }
@@ -130,17 +136,21 @@ public struct LSTopBar: View {
             }
         }
         .fixedSize(horizontal: true, vertical: false)
-        .frame(height: chipSize)
+        .frame(minWidth: chipMinWidth, minHeight: chipSize)
         .accessibilityLabel("Recording")
         .accessibilityIdentifier("lstopbar-recording")
     }
 
     private var chipSize: CGFloat {
-        theme.space.xl + theme.space.md + theme.space.xs // 24 + 12 + 4 = 40
+        theme.space.xxl + theme.space.lg + theme.space.sm
+    }
+
+    private var chipMinWidth: CGFloat {
+        chipSize + theme.space.xxl + theme.space.sm
     }
 
     private var tapTargetSize: CGFloat {
-        max(44, chipSize) // iOS HIG minimum tap target
+        max(theme.touchTarget.minTouchTarget, chipSize)
     }
 
     private var recordingDotSize: CGFloat {

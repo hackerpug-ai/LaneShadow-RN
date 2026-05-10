@@ -8,9 +8,8 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
 
     /// Reserved vertical space for the topBar (chip tap-target height + breathing room).
     /// Top overlays (capsule, etc.) are pushed below this height so they never sit
-    /// underneath the menu/NEW chips. Matches `LSTopBar.tapTargetSize` (44pt) plus
-    /// a small gap consistent with `theme.space.xs`.
-    private static var topBarReservedHeight: CGFloat { 48 }
+    /// underneath the menu/NEW chips.
+    private static var topBarReservedHeight: CGFloat { 64 }
 
     private let map: MapContent
     private let scrim: ScrimSpec?

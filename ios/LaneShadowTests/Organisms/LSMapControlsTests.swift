@@ -28,6 +28,8 @@ final class LSMapControlsTests: XCTestCase {
         XCTAssertEqual(appearance.modeToggleGlyphToken, "send")
         XCTAssertEqual(appearance.modeToggleAccessibilityLabel, "Open chat")
         XCTAssertEqual(appearance.chipsInOrder.last, .zoomCluster)
+        XCTAssertGreaterThanOrEqual(appearance.chipSize, 56)
+        XCTAssertEqual(appearance.chipGapSpacing, Theme.shared.space.sm)
     }
 
     func test_save_chip_stays_above_bottom_zoom_cluster() {

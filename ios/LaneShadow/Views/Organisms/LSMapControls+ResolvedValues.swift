@@ -43,8 +43,8 @@ extension LSMapControls {
         onZoomOut: (() -> Void)? = nil,
         in theme: Theme
     ) -> LSMapControlsAppearance {
-        let chipSize = theme.space.xl + theme.space.md + theme.space.xs
-        let chipIconSize = theme.iconSize.medium
+        let chipSize = max(theme.touchTarget.minTouchTarget, theme.space.xxl + theme.space.lg + theme.space.sm)
+        let chipIconSize = max(theme.iconSize.medium, theme.iconSize.large)
 
         var chipsInOrder: [LSMapControlsChipKind] = []
 
@@ -83,7 +83,7 @@ extension LSMapControls {
             modeToggleAccessibilityLabel: modeToggleLabel,
             chipBackgroundToken: "color.surface.overlay",
             chipBorderToken: "color.border.default",
-            chipGapSpacing: theme.space.xs,
+            chipGapSpacing: theme.space.sm,
             chipSize: chipSize,
             chipIconSize: chipIconSize,
             cornerRadius: theme.radius.md,

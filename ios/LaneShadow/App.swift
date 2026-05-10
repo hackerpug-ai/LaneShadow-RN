@@ -8,12 +8,14 @@ import SwiftUI
 struct LaneShadowApp: App {
     @State private var convexStore = ConvexStore()
     @State private var sandboxPresentation = LaneShadowSandboxPresentation.initial()
+    @State private var appEnvironment: AppEnvironment
 
     init() {
         // Configure Clerk SDK synchronously in App.init (storywright pattern)
         // Must happen BEFORE any view renders so auth flows have a configured SDK.
         Clerk.shared.configure(publishableKey: ClerkConfig.publishableKey)
         NSLog("🟣 App.init: Clerk.shared.configure() with key prefix=\(String(ClerkConfig.publishableKey.prefix(8)))")
+        _appEnvironment = State(initialValue: AppEnvironment.live())
         #if DEBUG
             SandboxLaunch.configure(.init(
                 argFlags: ["-LaneShadowSandbox"],
@@ -30,7 +32,7 @@ struct LaneShadowApp: App {
                         LaneShadowSandboxEntry(selectedStoryId: sandboxPresentation.storyId)
                     } else {
                         RootView(convexStore: convexStore)
-                            .environment(\.appEnvironment, AppEnvironment.live())
+                            .environment(\.appEnvironment, appEnvironment)
                             .laneShadowTheme()
                         #if DEBUG
                             .preferredColorScheme(uiTestColorScheme)
@@ -45,7 +47,7 @@ struct LaneShadowApp: App {
                     }
                 #else
                     RootView(convexStore: convexStore)
-                        .environment(\.appEnvironment, AppEnvironment.live())
+                        .environment(\.appEnvironment, appEnvironment)
                         .laneShadowTheme()
                         .task {
                             try? await Clerk.shared.load()

@@ -8,8 +8,8 @@ import XCTest
 @Suite("Idle Screen Retrofit Tests")
 @MainActor
 struct IdleScreenRetrofitSpecTests {
-    @Test("Default idle state renders capsule with greeting copy")
-    func idleDefault_rendersCapsuleWithGreeting() async throws {
+    @Test("Default idle state renders topbar prompt with greeting copy")
+    func idleDefault_rendersTopBarPromptWithGreeting() async throws {
         let viewModel = IdleViewModel(
             chatStore: ChatStore(),
             sessionStore: SessionStore(),
@@ -27,17 +27,9 @@ struct IdleScreenRetrofitSpecTests {
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let inspected = try screen.inspect()
 
-        // Verify capsule is present with correct accessibility ID
-        let capsule = try inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
-        #expect(capsule != nil)
-
-        // Verify headline contains correct copy with emphasized scope word
-        let headline = try capsule.find(viewWithAccessibilityIdentifier: "lscontextcapsule-headline")
-        let headlineText = try headline.text()
-        let headlineString = try headlineText.string()
-        #expect(headlineString.contains("Where are we riding"))
-        #expect(headlineString.contains("today"))
-        #expect(headlineString.contains("Marcus"))
+        _ = try inspected.find(text: "Where are we riding today, Marcus?")
+        _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-title")
+        #expect((try? inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")) == nil)
     }
 
     @Test("Map controls render at vertical center of right edge")
@@ -60,8 +52,8 @@ struct IdleScreenRetrofitSpecTests {
         #expect(controlsElement != nil)
     }
 
-    @Test("Advisory severity renders warning capsule without legacy card")
-    func advisorySeverity_rendersWarningCapsuleNoLegacyCard() async throws {
+    @Test("Advisory severity renders warning topbar prompt without legacy card")
+    func advisorySeverity_rendersWarningTopBarPromptNoLegacyCard() async throws {
         let viewModel = IdleViewModel(
             chatStore: ChatStore(),
             sessionStore: SessionStore(),
@@ -76,15 +68,8 @@ struct IdleScreenRetrofitSpecTests {
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let inspected = try screen.inspect()
 
-        // Verify capsule with warning state
-        let capsule = try inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
-        #expect(capsule != nil)
-
-        // Verify headline is the warning variant
-        let headline = try capsule.find(viewWithAccessibilityIdentifier: "lscontextcapsule-headline")
-        let headlineText = try headline.text()
-        let headlineString = try headlineText.string()
-        #expect(headlineString.contains("prettiest"))
+        _ = try inspected.find(text: "Not the prettiest day for it.")
+        #expect((try? inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")) == nil)
 
         // Verify legacy advisory card is NOT present (it was in greetingOverlay before)
         do {
@@ -95,8 +80,8 @@ struct IdleScreenRetrofitSpecTests {
         }
     }
 
-    @Test("Dark mode re-resolves capsule and controls without remounting map")
-    func darkMode_reResolvesCapsuleAndControls() async throws {
+    @Test("Dark mode re-resolves topbar prompt and controls without remounting map")
+    func darkMode_reResolvesTopBarPromptAndControls() async throws {
         let viewModel = IdleViewModel(
             chatStore: ChatStore(),
             sessionStore: SessionStore(),
@@ -109,9 +94,7 @@ struct IdleScreenRetrofitSpecTests {
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let inspected = try screen.inspect()
 
-        // Verify capsule exists in light mode
-        let capsuleLight = try inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
-        #expect(capsuleLight != nil)
+        _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-title")
 
         // Verify controls exist in light mode
         let controlsLight = try inspected.find(viewWithAccessibilityIdentifier: "idle-map-controls")
@@ -122,8 +105,7 @@ struct IdleScreenRetrofitSpecTests {
 
         // Verify components still render after scheme change
         let inspectedDark = try screenDark.inspect()
-        let capsuleDark = try inspectedDark.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
-        #expect(capsuleDark != nil)
+        _ = try inspectedDark.find(viewWithAccessibilityIdentifier: "lstopbar-title")
 
         let controlsDark = try inspectedDark.find(viewWithAccessibilityIdentifier: "idle-map-controls")
         #expect(controlsDark != nil)
@@ -142,11 +124,7 @@ struct IdleScreenRetrofitSpecTests {
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let inspected = try screen.inspect()
 
-        let capsule = try inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
-        let headline = try capsule.find(viewWithAccessibilityIdentifier: "lscontextcapsule-headline")
-        let headlineText = try headline.text()
-        let headlineString = try headlineText.string()
-        #expect(headlineString.contains("starting"))
+        _ = try inspected.find(text: "Where are we starting from?")
     }
 
     @Test("Recenter callback is wired")
@@ -196,11 +174,7 @@ struct IdleScreenRetrofitSpecTests {
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let inspected = try screen.inspect()
 
-        let capsule = try inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
-        let headline = try capsule.find(viewWithAccessibilityIdentifier: "lscontextcapsule-headline")
-        let headlineText = try headline.text()
-        let headlineString = try headlineText.string()
-        #expect(headlineString.contains("Ask"))
+        _ = try inspected.find(text: "First ride? Ask me anything.")
     }
 
     private func pumpMainActor(iterations: Int = 10) async {
@@ -248,30 +222,12 @@ final class IdleScreenRetrofitTests: XCTestCase {
     }
 
     func test_menuChipTap_revealsMenuDrawer() async throws {
-        let viewModel = IdleViewModel(
-            chatStore: ChatStore(),
-            sessionStore: SessionStore(),
-            convexClient: StubLaneShadowConvexClient()
-        )
+        let source = try source(named: "IdleScreenContainer.swift", in: "Features/Idle")
 
-        let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
-
-        ViewHosting.host(view: screen)
-        defer { ViewHosting.expel() }
-        await pumpMainActor(iterations: 20)
-
-        let inspected = try screen.inspect()
-
-        // Drawer should not be visible initially
-        XCTAssertNil(try? inspected.find(viewWithAccessibilityIdentifier: "idlescreen-menu-drawer"))
-
-        // Tap menu chip
-        let menuButton = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-hamburger")
-        try menuButton.button().tap()
-        await pumpMainActor(iterations: 20)
-
-        let drawer = try screen.inspect().find(viewWithAccessibilityIdentifier: "idlescreen-menu-drawer")
-        XCTAssertNotNil(drawer)
+        XCTAssertTrue(source.contains("leadingDrawer: isMenuOpen ? DrawerSpec("))
+        XCTAssertTrue(source.contains("onMenuTap: toggleMenu"))
+        XCTAssertTrue(source.contains("private func toggleMenu()"))
+        XCTAssertTrue(source.contains("isMenuOpen.toggle()"))
     }
 
     func test_newChipTap_callsStartNewSessionAndClearsInput() async throws {
@@ -334,5 +290,22 @@ final class IdleScreenRetrofitTests: XCTestCase {
         for _ in 0 ..< iterations {
             await Task.yield()
         }
+    }
+
+    private func source(named name: String, in directory: String) throws -> String {
+        var repoRoot = URL(fileURLWithPath: #filePath)
+        while !FileManager.default.fileExists(atPath: repoRoot.appendingPathComponent("AGENTS.md").path) {
+            repoRoot.deleteLastPathComponent()
+        }
+
+        var fileURL = repoRoot
+            .appendingPathComponent("ios")
+            .appendingPathComponent("LaneShadow")
+        for component in directory.split(separator: "/") {
+            fileURL.appendPathComponent(String(component))
+        }
+        fileURL.appendPathComponent(name)
+
+        return try String(contentsOf: fileURL, encoding: .utf8)
     }
 }

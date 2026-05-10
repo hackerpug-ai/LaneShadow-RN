@@ -4,7 +4,7 @@ import SwiftUI
 
 /// IdleScreen — the dormant Navigator welcome screen.
 ///
-/// Composes `LSMapLayer`, `LSTopBar`, greeting overlay, and `LSChatInput`
+/// Composes `LSMapLayer`, `LSTopBar`, and `LSChatInput`
 /// with data sourced entirely from `IdleMockProvider`.
 public struct IdleScreen: View {
     @Environment(\.theme) private var theme
@@ -69,12 +69,7 @@ public struct IdleScreen: View {
                 map: {
                     mapView
                 },
-                topOverlays: [
-                    GlassOverlaySlot(
-                        id: "context-capsule",
-                        content: { capsuleView }
-                    ),
-                ],
+                topOverlays: [],
                 bottomOverlays: [
                     GlassOverlaySlot(
                         id: "chatinput",
@@ -83,6 +78,7 @@ public struct IdleScreen: View {
                 ],
                 topBar: {
                     LSTopBar(
+                        title: topBarTitle,
                         trailing: .newChip(action: onNewTap),
                         onMenuTap: onMenuTap,
                         onNewTap: onNewTap
@@ -111,20 +107,6 @@ public struct IdleScreen: View {
         .accessibilityIdentifier("idlescreen-map")
     }
 
-    // MARK: - Capsule View
-
-    private var capsuleView: some View {
-        let capsuleState = buildCapsuleState()
-        return LSContextCapsule(
-            state: capsuleState,
-            isWarning: state.weatherAdvisory != nil,
-            isSaved: false
-        )
-        .padding(.horizontal, theme.space.md)
-        .padding(.vertical, theme.space.md)
-        .accessibilityIdentifier("idle-context-capsule")
-    }
-
     // MARK: - Map Controls View
 
     private var mapControlsView: some View {
@@ -143,35 +125,21 @@ public struct IdleScreen: View {
 
     // MARK: - Helper Methods
 
-    private func buildCapsuleState() -> LSContextCapsule.CapsuleState {
-        let metaItems = state.greeting.meta.split(separator: "·")
-            .map { String($0).trimmingCharacters(in: .whitespaces) }
-
-        // If weather advisory, use warning variant
+    private var topBarTitle: String {
         if state.weatherAdvisory != nil {
-            var headline = AttributedString("Not the ")
-            var prettiesPart = AttributedString("prettiest")
-            var attrs = AttributeContainer()
-            attrs.inlinePresentationIntent = .emphasized
-            prettiesPart.setAttributes(attrs)
-            headline.append(prettiesPart)
-            headline.append(AttributedString(" day for it."))
-            return .idle(headline: headline, metaItems: metaItems)
+            return "Not the prettiest day for it."
         }
 
-        // Default: Use greeting state
-        var headline = AttributedString("Where are we riding ")
-        var scopePart = AttributedString(state.greeting.emphasis ?? "today")
-        var attrs = AttributeContainer()
-        attrs.inlinePresentationIntent = .emphasized
-        scopePart.setAttributes(attrs)
-        headline.append(scopePart)
-        if let displayName = greetingDisplayName {
-            headline.append(AttributedString(", \(displayName)?"))
-        } else {
-            headline.append(AttributedString("?"))
+        if state.locationContext.mode == "needed" {
+            return "Where are we starting from?"
         }
-        return .idle(headline: headline, metaItems: metaItems)
+
+        if let displayName = greetingDisplayName {
+            let scope = state.greeting.emphasis ?? "today"
+            return "Where are we riding \(scope), \(displayName)?"
+        }
+
+        return state.greeting.headline
     }
 
     // MARK: - Chat Input

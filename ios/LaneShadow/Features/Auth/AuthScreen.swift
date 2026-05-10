@@ -200,7 +200,9 @@ struct AuthScreen: View {
                 newUserBranch
                 primaryCTA
             })
-        case .emailEntry, .invalidEmail, .submitting, .signedIn, .verificationRequired:
+        case .signedIn:
+            AnyView(authenticatedTransitionBranch)
+        case .emailEntry, .invalidEmail, .submitting, .verificationRequired:
             AnyView(branchStack {
                 emailEntryBranch
                 primaryCTA
@@ -283,6 +285,20 @@ struct AuthScreen: View {
             inputAccessibilityIdentifier: "\(authIdentifierPrefix).email"
         )
         .accessibilityIdentifier("authscreen-email-field")
+    }
+
+    private var authenticatedTransitionBranch: some View {
+        HStack(spacing: theme.space.sm) {
+            LSSpinner()
+                .scaleEffect(0.72)
+                .frame(width: theme.iconSize.medium, height: theme.iconSize.medium)
+
+            LSText("Finishing sign in...", variant: .body.md, color: .secondary)
+        }
+        .frame(maxWidth: .infinity, minHeight: theme.control.minHeight, alignment: .center)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Finishing sign in")
+        .accessibilityIdentifier("authscreen-authenticated-transition")
     }
 
     private var existingUserBranch: some View {
@@ -415,7 +431,7 @@ struct AuthScreen: View {
 
     @ViewBuilder
     private var signUpEntry: some View {
-        if showsSignUpEntry, viewModel.mode != .entry {
+        if showsSignUpEntry, viewModel.mode != .entry, viewModel.mode != .signedIn {
             Button("Create Account") {
                 onSignUpRequested?()
             }
@@ -459,7 +475,7 @@ struct AuthScreen: View {
                 viewModel.selectEmailEntry()
                 return
             }
-            onAuthenticated()
+            dispatchTerminalModeIfNeeded(viewModel.mode)
         } catch is CancellationError {
             viewModel.errorMessage = nil
         } catch {

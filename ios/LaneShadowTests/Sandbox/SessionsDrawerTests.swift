@@ -143,9 +143,9 @@ final class SessionsDrawerTests: XCTestCase {
         XCTAssertNotNil(hosted.window.rootViewController)
     }
 
-    // MARK: - AC-4: Hamburger 44pt tap target
+    // MARK: - AC-4: Hamburger touch target
 
-    func testHamburger44ptTapTarget() throws {
+    func testHamburgerTouchTarget() throws {
         // Note: This test verifies the pattern exists in LSTopBar where the hamburger button lives
         let source = try source(named: "LSTopBar.swift", in: "Organisms")
 
@@ -155,22 +155,18 @@ final class SessionsDrawerTests: XCTestCase {
             "LSTopBar MUST use .contentShape(Rectangle()) to expand hamburger tap target to 44pt minimum"
         )
 
-        // MUST have tapTargetSize computed property ≥44pt
+        // MUST have tapTargetSize computed property at or above the platform minimum
         XCTAssertTrue(
-            source.contains("tapTargetSize") || source.contains("44"),
-            "LSTopBar MUST define tapTargetSize ≥44pt for iOS HIG compliance"
+            source.contains("tapTargetSize") && source.contains("theme.touchTarget.minTouchTarget"),
+            "LSTopBar MUST define token-backed tapTargetSize for iOS HIG compliance"
         )
 
-        // The visual size should still be 40pt (chipSize), not 44pt
-        // Verify we're not hardcoding 44pt for the visual
         let lines = source.components(separatedBy: "\n")
         let chipSizeLine = lines.first { $0.contains("chipSize") }
         XCTAssertNotNil(chipSizeLine, "Should define chipSize for visual sizing")
 
         // Verify contentShape is used in hamburger button
-        let hamburgerLines = lines.filter { $0.contains("hamburgerChip") }
-        let hasContentShape = hamburgerLines.contains { $0.contains("contentShape") }
-        XCTAssertTrue(hasContentShape, "hamburgerChip should use contentShape for tap target expansion")
+        XCTAssertTrue(source.contains(".contentShape(Rectangle())"), "hamburgerChip should use contentShape")
 
         // Verify tapTargetSize is used in frame
         let hasTapTargetFrame = source.contains("frame(width: tapTargetSize, height: tapTargetSize)")

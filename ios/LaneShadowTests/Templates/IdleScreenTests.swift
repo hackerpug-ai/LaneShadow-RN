@@ -13,6 +13,8 @@ struct IdleScreenTemplateTests {
     func idle_default_renders() {
         let provider = IdleMockProvider.default
         let screen = IdleScreen(provider: provider)
+            .frame(width: 390, height: 844)
+            .laneShadowTheme()
 
         assertSnapshot(matching: screen, as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
             UITraitCollection(userInterfaceStyle: .light),
@@ -58,8 +60,25 @@ struct IdleScreenTemplateTests {
     func trailing_icon_swap_on_text_entry() async throws {
         let provider = IdleMockProvider.default
 
-        var inputValue = ""
-        let screen = IdleScreen(
+        let emptyScreen = IdleScreen(
+            provider: provider,
+            chatInputValue: Binding(
+                get: { "" },
+                set: { _ in }
+            )
+        )
+        .laneShadowTheme()
+
+        // Initial state: input is empty, sliders icon should be visible
+        let inspected = try emptyScreen.inspect()
+        let chatInputView = try inspected.find(viewWithAccessibilityIdentifier: "idlescreen-chatinput")
+
+        // Verify sliders icon is present (filter button is shown when input is empty)
+        let slidersIcon = try? chatInputView.find(viewWithAccessibilityIdentifier: "lschatinput-filter-icon-sliders")
+        #expect(slidersIcon != nil, "Sliders icon should be visible when input is empty")
+
+        var inputValue = "Test ride"
+        let filledScreen = IdleScreen(
             provider: provider,
             chatInputValue: Binding(
                 get: { inputValue },
@@ -68,19 +87,8 @@ struct IdleScreenTemplateTests {
         )
         .laneShadowTheme()
 
-        // Initial state: input is empty, sliders icon should be visible
-        let inspected = try screen.inspect()
-        let chatInputView = try inspected.find(viewWithAccessibilityIdentifier: "idlescreen-chatinput")
-
-        // Verify sliders icon is present (filter button is shown when input is empty)
-        let slidersIcon = try? chatInputView.find(viewWithAccessibilityIdentifier: "lschatinput-filter-icon-sliders")
-        #expect(slidersIcon != nil, "Sliders icon should be visible when input is empty")
-
-        // Simulate user typing via the binding
-        inputValue = "Test ride"
-
         // Re-inspect after text entry
-        let inspectedAfter = try screen.inspect()
+        let inspectedAfter = try filledScreen.inspect()
         let chatInputViewAfter = try inspectedAfter.find(viewWithAccessibilityIdentifier: "idlescreen-chatinput")
 
         // Verify send icon is now present (send button is shown when input has text)
@@ -124,6 +132,8 @@ struct IdleScreenTemplateTests {
     func idle_dark_mode() {
         let provider = IdleMockProvider.default
         let screen = IdleScreen(provider: provider)
+            .frame(width: 390, height: 844)
+            .laneShadowTheme()
 
         assertSnapshot(
             matching: screen,
@@ -183,9 +193,20 @@ struct IdleScreenTemplateTests {
         let templateGap = try templateSuggestions.padding(.bottom)
         let containerGap = try containerSuggestions.padding(.bottom)
 
-        #expect(templateGap == Theme.shared.space.sm)
-        #expect(containerGap == Theme.shared.space.sm)
+        #expect(templateGap == Theme.shared.space.lg)
+        #expect(containerGap == Theme.shared.space.lg)
         #expect(templateGap == containerGap)
+    }
+
+    @Test
+    func idle_prompt_renders_between_menu_and_new_actions() throws {
+        let inspected = try IdleScreen(provider: IdleMockProvider.self)
+            .laneShadowTheme()
+            .inspect()
+
+        _ = try inspected.find(text: "Where are we riding today?")
+        _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-title")
+        #expect((try? inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")) == nil)
     }
 }
 
@@ -209,12 +230,12 @@ final class IdleScreenTests: XCTestCase {
 
         XCTAssertEqual(
             try templateSuggestions.padding(.bottom),
-            Theme.shared.space.sm,
+            Theme.shared.space.lg,
             accuracy: 0.001
         )
         XCTAssertEqual(
             try containerSuggestions.padding(.bottom),
-            Theme.shared.space.sm,
+            Theme.shared.space.lg,
             accuracy: 0.001
         )
         XCTAssertEqual(

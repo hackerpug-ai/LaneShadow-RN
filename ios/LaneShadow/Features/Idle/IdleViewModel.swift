@@ -41,6 +41,23 @@ final class IdleViewModel {
         !isAutocompleteQueryActive
     }
 
+    var topBarTitle: String {
+        if weatherAdvisory != nil {
+            return "Not the prettiest day for it."
+        }
+
+        if locationUnavailable || locationLabel == nil {
+            return "Where are we starting from?"
+        }
+
+        if recentSessions.isEmpty && favoriteLocations.isEmpty {
+            return "First ride? Ask me anything."
+        }
+
+        let scopeWord = greetingScope == .today ? "today" : "tonight"
+        return "Where are we riding \(scopeWord), \(greetingDisplayName)?"
+    }
+
     var capsuleState: LSContextCapsule.CapsuleState {
         // Check if weather advisory (warning case)
         if weatherAdvisory != nil {

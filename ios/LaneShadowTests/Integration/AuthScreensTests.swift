@@ -37,6 +37,34 @@ final class AuthScreensTests: XCTestCase {
         ) == true)
     }
 
+    func testAuthScreenSignedInStateUsesTransitionInsteadOfEmailForm() throws {
+        let source = try authSource(named: "AuthScreen.swift")
+
+        XCTAssertTrue(source.contains("case .signedIn:\n            AnyView(authenticatedTransitionBranch)"))
+        XCTAssertTrue(source.contains("authscreen-authenticated-transition"))
+        XCTAssertTrue(source.contains("dispatchTerminalModeIfNeeded(viewModel.mode)"))
+        XCTAssertFalse(source.contains(
+            "case .emailEntry, .invalidEmail, .submitting, .signedIn, .verificationRequired:\n            AnyView(branchStack"
+        ))
+        XCTAssertFalse(source.contains("            onAuthenticated()\n        } catch is CancellationError"))
+    }
+
+    func testAuthScreenBodyStretchesToViewportHeight() throws {
+        let source = try authSource(named: "AuthScreen.swift")
+
+        XCTAssertTrue(source.contains("GeometryReader { proxy in"))
+        XCTAssertTrue(source.contains(".frame(minHeight: proxy.size.height, alignment: .top)"))
+    }
+
+    func testLaneShadowAppKeepsStableLiveEnvironmentForAuthFlow() throws {
+        let source = try laneShadowSource(named: "App.swift")
+
+        XCTAssertTrue(source.contains("@State private var appEnvironment: AppEnvironment"))
+        XCTAssertTrue(source.contains("_appEnvironment = State(initialValue: AppEnvironment.live())"))
+        XCTAssertTrue(source.contains(".environment(\\.appEnvironment, appEnvironment)"))
+        XCTAssertFalse(source.contains(".environment(\\.appEnvironment, AppEnvironment.live())"))
+    }
+
     func testAuthScreenBranchConfigurationsMatchDesignCopy() {
         XCTAssertEqual(AuthScreenConfiguration(mode: .emailEntry).headline, "Saddle up.")
         XCTAssertEqual(AuthScreenConfiguration(mode: .existingUser).headline, "Welcome back.")
@@ -396,6 +424,21 @@ final class AuthScreensTests: XCTestCase {
             .appendingPathComponent("LaneShadow")
             .appendingPathComponent("Features")
             .appendingPathComponent("Auth")
+            .appendingPathComponent(fileName)
+
+        return try String(contentsOf: fileURL, encoding: .utf8)
+    }
+
+    private func laneShadowSource(named fileName: String) throws -> String {
+        let repoRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+
+        let fileURL = repoRoot
+            .appendingPathComponent("ios")
+            .appendingPathComponent("LaneShadow")
             .appendingPathComponent(fileName)
 
         return try String(contentsOf: fileURL, encoding: .utf8)

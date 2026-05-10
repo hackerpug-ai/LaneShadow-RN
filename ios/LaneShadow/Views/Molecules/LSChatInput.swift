@@ -113,7 +113,7 @@ public struct LSChatInput: View {
     }
 
     private var suggestionInputGap: CGFloat {
-        theme.space.sm
+        theme.space.lg
     }
 
     // MARK: - Place Autocomplete
@@ -217,7 +217,7 @@ public struct LSChatInput: View {
                 trailingSlot
             }
         }
-        .frame(height: theme.control.minHeight)
+        .frame(minHeight: inputBarMinHeight)
         .accessibilityIdentifier("lschatinput-bar")
     }
 
@@ -229,6 +229,8 @@ public struct LSChatInput: View {
                 .foregroundStyle(ContentColor.secondary.resolved(in: theme))
         }
         .buttonStyle(.plain)
+        .frame(width: actionTouchSize, height: actionTouchSize)
+        .contentShape(Rectangle())
         .disabled(!isEnabled || isThinking)
         .accessibilityLabel("Collapse chat")
         .accessibilityIdentifier("lschatinput-collapse")
@@ -268,6 +270,8 @@ public struct LSChatInput: View {
                 .accessibilityIdentifier("lschatinput-filter-icon-sliders")
         }
         .buttonStyle(.plain)
+        .frame(width: actionTouchSize, height: actionTouchSize)
+        .contentShape(Rectangle())
         .disabled(!isEnabled)
         .accessibilityLabel("Filter rides")
         .accessibilityIdentifier("lschatinput-filter")
@@ -282,6 +286,8 @@ public struct LSChatInput: View {
                 .accessibilityIdentifier("lschatinput-send-icon")
         }
         .buttonStyle(.plain)
+        .frame(width: actionTouchSize, height: actionTouchSize)
+        .contentShape(Rectangle())
         .disabled(!isEnabled)
         .accessibilityLabel("Send message")
         .accessibilityIdentifier("lschatinput-send")
@@ -292,8 +298,17 @@ public struct LSChatInput: View {
     private var spinnerView: some View {
         LSSpinner()
             .frame(width: 24, height: 24)
+            .frame(width: actionTouchSize, height: actionTouchSize)
             .accessibilityLabel("Planning your ride")
             .accessibilityIdentifier("lschatinput-spinner")
+    }
+
+    private var actionTouchSize: CGFloat {
+        max(theme.touchTarget.minTouchTarget, theme.space.xxl + theme.space.lg + theme.space.sm)
+    }
+
+    private var inputBarMinHeight: CGFloat {
+        actionTouchSize + theme.space.sm
     }
 
     // MARK: - Event Handlers

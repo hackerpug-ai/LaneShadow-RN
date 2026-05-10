@@ -117,13 +117,11 @@ public enum MapError: String, CaseIterable, Equatable, Sendable {
 }
 
 let lsMapCameraEaseDurationMs = 400
-// Source from the canonical generated tokens (LaneShadowTheme.map.style) so the
-// iOS map matches the warm-paper Mapbox Studio styles already shipped on Android
-// and authored under the laneshadow Mapbox account. The previous hardcoded
-// `mapbox://styles/mapbox/standard` rendered Highway 1 in saturated orange,
-// which composed a wound-and-spatter gestalt with the copper favorite pins.
-let lsMapLightStyleURI = LaneShadowTheme.map.style.light
-let lsMapDarkStyleURI = LaneShadowTheme.map.style.dark
+// Use public Mapbox styles for the live iOS runtime. The generated LaneShadow
+// Studio style tokens currently resolve to unavailable styles on physical
+// devices, which leaves the interactive map blank after auth.
+let lsMapLightStyleURI = "mapbox://styles/mapbox/light-v11"
+let lsMapDarkStyleURI = "mapbox://styles/mapbox/dark-v11"
 let lsMapStrokeWidthSm: CGFloat = 1
 let lsMapStrokeWidthMd: CGFloat = 2
 let lsMapStrokeWidthLg: CGFloat = 3

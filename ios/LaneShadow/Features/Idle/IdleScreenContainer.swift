@@ -31,12 +31,7 @@ struct IdleScreenContainer: View {
                     .accessibilityLabel("Idle map camera state")
                     .accessibilityValue(mapCameraController.debugAccessibilityValue)
                 },
-                topOverlays: [
-                    GlassOverlaySlot(
-                        id: "context-capsule",
-                        content: { capsuleView }
-                    ),
-                ],
+                topOverlays: [],
                 bottomOverlays: [
                     GlassOverlaySlot(
                         id: "chatinput",
@@ -49,6 +44,7 @@ struct IdleScreenContainer: View {
                 ) : nil,
                 topBar: {
                     LSTopBar(
+                        title: viewModel.topBarTitle,
                         trailing: .newChip(action: handleNewTap),
                         onMenuTap: toggleMenu,
                         onNewTap: handleNewTap
@@ -149,19 +145,6 @@ struct IdleScreenContainer: View {
             }
         )
         .accessibilityIdentifier("idlescreen-menu-drawer")
-    }
-
-    // MARK: - Capsule View
-
-    private var capsuleView: some View {
-        LSContextCapsule(
-            state: viewModel.capsuleState,
-            isWarning: viewModel.weatherAdvisory != nil,
-            isSaved: false
-        )
-        .padding(.horizontal, theme.space.md)
-        .padding(.vertical, theme.space.md)
-        .accessibilityIdentifier("idle-context-capsule")
     }
 
     // MARK: - Map Controls View
