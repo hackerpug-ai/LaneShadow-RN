@@ -183,21 +183,33 @@ struct AuthScreen: View {
         .accessibilityIdentifier("authscreen-form")
     }
 
-    @ViewBuilder
-    private var branchContent: some View {
+    private var branchContent: AnyView {
+        // Keep this branch boundary type-erased. The fully generic ViewBuilder
+        // shape overflows the main-thread stack on physical devices while Swift
+        // resolves SwiftUI metadata during first layout.
         switch viewModel.mode {
         case .entry:
-            entryBranch
+            AnyView(entryBranch)
         case .existingUser:
-            existingUserBranch
-            primaryCTA
+            AnyView(branchStack {
+                existingUserBranch
+                primaryCTA
+            })
         case .newUser:
-            newUserBranch
-            primaryCTA
+            AnyView(branchStack {
+                newUserBranch
+                primaryCTA
+            })
         case .emailEntry, .invalidEmail, .submitting, .signedIn, .verificationRequired:
-            emailEntryBranch
-            primaryCTA
+            AnyView(branchStack {
+                emailEntryBranch
+                primaryCTA
+            })
         }
+    }
+
+    private func branchStack(@ViewBuilder content: () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: theme.space.md, content: content)
     }
 
     private var entryBranch: some View {
