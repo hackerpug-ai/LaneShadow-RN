@@ -249,6 +249,26 @@ struct ClerkAuthTests {
             _ = try LiveClerkSDKClient.completedSocialSessionID(from: .signUp(signUp))
         }
     }
+
+    @Test
+    func socialSessionActivationSkipsRedundantSetActiveForCurrentSession() {
+        #expect(LiveClerkSDKClient.shouldSetActiveSocialSession(
+            currentSessionID: "sess-current",
+            createdSessionID: "sess-current"
+        ) == false)
+    }
+
+    @Test
+    func socialSessionActivationSetsActiveForNewSession() {
+        #expect(LiveClerkSDKClient.shouldSetActiveSocialSession(
+            currentSessionID: "sess-old",
+            createdSessionID: "sess-new"
+        ))
+        #expect(LiveClerkSDKClient.shouldSetActiveSocialSession(
+            currentSessionID: nil,
+            createdSessionID: "sess-new"
+        ))
+    }
 }
 
 final class ClerkAuthTokenCapture: @unchecked Sendable {

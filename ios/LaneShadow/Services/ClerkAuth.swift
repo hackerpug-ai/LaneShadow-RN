@@ -168,7 +168,18 @@ final class LiveClerkSDKClient: ClerkSDKClient {
 
     private func activateCompletedTransferResult(_ result: TransferFlowResult) async throws -> ClerkAuthUser {
         let sessionId = try Self.completedSocialSessionID(from: result)
-        try await clerk.setActive(sessionId: sessionId)
+        if Self.shouldSetActiveSocialSession(currentSessionID: clerk.session?.id, createdSessionID: sessionId) {
+            do {
+                try await clerk.setActive(sessionId: sessionId)
+            } catch {
+                // OAuth redirect flows can return after Clerk has already activated
+                // the session locally. If setActive races that state propagation,
+                // currentUser() below is the source of truth for whether auth worked.
+                NSLog(
+                    "ClerkSDK.activateCompletedTransferResult: setActive failed \(error.localizedDescription); clerk.session.id=\(clerk.session?.id ?? "nil")"
+                )
+            }
+        }
         pendingSignIn = nil
         pendingSignUp = nil
         return try currentUser()
@@ -187,6 +198,10 @@ final class LiveClerkSDKClient: ClerkSDKClient {
             }
             return createdSessionId
         }
+    }
+
+    static func shouldSetActiveSocialSession(currentSessionID: String?, createdSessionID: String) -> Bool {
+        currentSessionID != createdSessionID
     }
 
     func signUp(email: String, password: String, name: String?) async throws -> ClerkSignUpResult {
