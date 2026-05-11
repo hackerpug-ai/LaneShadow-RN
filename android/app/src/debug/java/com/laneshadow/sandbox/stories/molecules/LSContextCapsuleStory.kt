@@ -1,6 +1,7 @@
 package com.laneshadow.sandbox.stories.molecules
 
 import com.laneshadow.theme.LaneShadowTheme
+import com.laneshadow.ui.molecules.CapsuleAppearance
 import com.laneshadow.ui.molecules.CapsuleState
 import com.laneshadow.ui.molecules.IdleScope
 import com.laneshadow.ui.molecules.LSContextCapsule
@@ -20,6 +21,8 @@ object LSContextCapsuleStory {
             capsuleStory("molecules.context-capsule.warning-dark", idleWarningState(), darkTheme = true),
             capsuleStory("molecules.context-capsule.saved-light", savedRouteState()),
             capsuleStory("molecules.context-capsule.saved-dark", savedRouteState(), darkTheme = true),
+            capsuleChipStory("molecules.context-capsule.idle-chip-light", idleState()),
+            capsuleChipStory("molecules.context-capsule.idle-chip-dark", idleState(), darkTheme = true),
         )
 }
 
@@ -38,6 +41,26 @@ private fun capsuleStory(
             LaneShadowTheme(darkTheme = darkTheme) {
                 MoleculeStoryFrame {
                     LSContextCapsule(state = state)
+                }
+            }
+        },
+    )
+
+private fun capsuleChipStory(
+    id: String,
+    state: CapsuleState,
+    darkTheme: Boolean = false,
+): Story =
+    Story(
+        id = id,
+        tier = ComponentTier.Molecule,
+        component = "LSContextCapsule",
+        name = id.substringAfter("molecules.context-capsule.").replace('.', ' ').replace('-', ' '),
+        summary = "LSContextCapsule $id",
+        content = {
+            LaneShadowTheme(darkTheme = darkTheme) {
+                MoleculeStoryFrame {
+                    LSContextCapsule(state = state, appearance = CapsuleAppearance.Chip)
                 }
             }
         },

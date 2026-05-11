@@ -38,6 +38,7 @@ import com.laneshadow.ui.molecules.LocationContext as UILocationContext
 import com.laneshadow.ui.molecules.LocationMode
 import com.laneshadow.ui.molecules.SuggestionChip as UISuggestionChip
 import com.laneshadow.ui.molecules.LSContextCapsule
+import com.laneshadow.ui.molecules.CapsuleAppearance
 import com.laneshadow.ui.molecules.CapsuleState
 import com.laneshadow.ui.organisms.GlassOverlaySlot
 import com.laneshadow.ui.organisms.LSMapLayer
@@ -133,6 +134,7 @@ fun IdleScreen(
                         ) {
                             LSContextCapsule(
                                 state = capsuleState,
+                                appearance = CapsuleAppearance.Chip,
                                 modifier = Modifier.testTag("idle-context-capsule"),
                             )
                         }

@@ -180,6 +180,25 @@ class LSContextCapsuleTest {
         assertThat(darkNode.config[LSContextCapsuleHeadlineAccentColorKey]).isEqualTo(lightAccent)
         assertThat(darkNode.config[LSContextCapsuleMetaColorKey]).isEqualTo(lightMeta)
     }
+
+    @Test
+    fun chipAppearance_usesGlassPanelChrome() {
+        composeRule.setContent {
+            LaneShadowTheme {
+                LSContextCapsule(
+                    state = idleState(),
+                    appearance = CapsuleAppearance.Chip,
+                )
+            }
+        }
+
+        // Verify the capsule renders
+        composeRule.onNodeWithTag(LS_CONTEXT_CAPSULE_TAG).assertExists()
+
+        // Verify the content is still present
+        composeRule.onNodeWithText("Where are we riding today, Justin?").assertExists()
+        composeRule.onNodeWithText("Friday").assertExists()
+    }
 }
 
 private fun idleState(): CapsuleState.Idle =

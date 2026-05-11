@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -53,8 +54,16 @@ import androidx.compose.ui.unit.dp
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import com.laneshadow.ui.atoms.GlassBlurStrategy
+import com.laneshadow.ui.atoms.GlassCornerRadius
+import com.laneshadow.ui.atoms.GlassVariant
+import com.laneshadow.ui.atoms.LSGlassPanel
 import com.laneshadow.ui.atoms.resolveGlassBlurStrategy
 import java.util.UUID
+
+sealed interface CapsuleAppearance {
+    data object Glass : CapsuleAppearance
+    data object Chip : CapsuleAppearance
+}
 
 const val LS_CONTEXT_CAPSULE_TAG = "ls-context-capsule"
 const val LS_CONTEXT_CAPSULE_HEADLINE_TAG = "ls-context-capsule-headline"
@@ -96,6 +105,7 @@ private val CapsuleMaxWidth = 340.dp
 @Composable
 fun LSContextCapsule(
     state: CapsuleState,
+    appearance: CapsuleAppearance = CapsuleAppearance.Glass,
     modifier: Modifier = Modifier,
     reduceMotionOverride: Boolean? = null,
 ) {
@@ -136,6 +146,7 @@ fun LSContextCapsule(
                 lsContextCapsuleSaved = state.isSaved
                 lsContextCapsuleInstanceId = instanceId
             },
+        appearance = appearance,
         shape = shape,
         backgroundColor = backgroundColor,
         borderColor = borderColor,
@@ -172,68 +183,95 @@ fun LSContextCapsule(
 @Composable
 private fun ContextCapsuleSurface(
     modifier: Modifier,
+    appearance: CapsuleAppearance,
     shape: RoundedCornerShape,
     backgroundColor: Color,
     borderColor: Color,
     savedBorderColor: Color?,
     content: @Composable () -> Unit,
 ) {
-    val density = LocalDensity.current
-    val blurStrategy = remember { resolveGlassBlurStrategy(Build.VERSION.SDK_INT) }
-    val blurModifier =
-        when (blurStrategy) {
-            GlassBlurStrategy.HazeBackdrop -> Modifier
-            GlassBlurStrategy.RenderEffect ->
-                Modifier.graphicsLayer {
-                    val blurRadiusPx = with(density) { CapsuleBlurRadius.toPx() }
-                    renderEffect = BlurEffect(
-                        radiusX = blurRadiusPx,
-                        radiusY = blurRadiusPx,
-                        edgeTreatment = TileMode.Decal,
-                    )
+    when (appearance) {
+        CapsuleAppearance.Chip -> {
+            // Chip appearance: delegate chrome to LSGlassPanel with Chrome variant
+            LSGlassPanel(
+                variant = GlassVariant.Chrome,
+                cornerRadius = GlassCornerRadius.Md,
+                modifier = modifier.height(40.dp),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = LocalLaneShadowTheme.current.space.md,
+                            vertical = LocalLaneShadowTheme.current.space.sm,
+                        ),
+                ) {
+                    content()
                 }
-
-            GlassBlurStrategy.ModifierBlur -> Modifier.blur(CapsuleBlurRadius)
+            }
         }
 
-    Surface(
-        modifier = modifier,
-        color = Color.Transparent,
-        shape = shape,
-        shadowElevation = LocalLaneShadowTheme.current.elevation.light.level8,
-    ) {
-        Box(
-            modifier = Modifier
-                .clip(shape)
-                .then(blurModifier)
-                .background(backgroundColor)
-                .border(
-                    width = GeneratedTokens.sizing.stroke.sm,
-                    color = borderColor,
-                    shape = shape,
-                )
-                .then(
-                    if (savedBorderColor != null) {
-                        Modifier.border(
+        CapsuleAppearance.Glass -> {
+            // Glass appearance: use frosted glass with SDK-version blur strategy
+            // Elevation mapping: Glass → surface.glass + radius.lg + elevation.level8
+            val density = LocalDensity.current
+            val blurStrategy = remember { resolveGlassBlurStrategy(Build.VERSION.SDK_INT) }
+            val blurModifier =
+                when (blurStrategy) {
+                    GlassBlurStrategy.HazeBackdrop -> Modifier
+                    GlassBlurStrategy.RenderEffect ->
+                        Modifier.graphicsLayer {
+                            val blurRadiusPx = with(density) { CapsuleBlurRadius.toPx() }
+                            renderEffect = BlurEffect(
+                                radiusX = blurRadiusPx,
+                                radiusY = blurRadiusPx,
+                                edgeTreatment = TileMode.Decal,
+                            )
+                        }
+
+                    GlassBlurStrategy.ModifierBlur -> Modifier.blur(CapsuleBlurRadius)
+                }
+
+            Surface(
+                modifier = modifier,
+                color = Color.Transparent,
+                shape = shape,
+                shadowElevation = LocalLaneShadowTheme.current.elevation.light.level8,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clip(shape)
+                        .then(blurModifier)
+                        .background(backgroundColor)
+                        .border(
                             width = GeneratedTokens.sizing.stroke.sm,
-                            color = savedBorderColor,
+                            color = borderColor,
                             shape = shape,
                         )
-                    } else {
-                        Modifier
+                        .then(
+                            if (savedBorderColor != null) {
+                                Modifier.border(
+                                    width = GeneratedTokens.sizing.stroke.sm,
+                                    color = savedBorderColor,
+                                    shape = shape,
+                                )
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .fillMaxWidth(),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = LocalLaneShadowTheme.current.space.md,
+                                vertical = LocalLaneShadowTheme.current.space.sm,
+                            ),
+                    ) {
+                        content()
                     }
-                )
-                .fillMaxWidth(),
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = LocalLaneShadowTheme.current.space.md,
-                        vertical = LocalLaneShadowTheme.current.space.sm,
-                    ),
-            ) {
-                content()
+                }
             }
         }
     }
