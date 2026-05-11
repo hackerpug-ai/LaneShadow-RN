@@ -17,7 +17,12 @@ enum OAuthCallbackCompletion {
             return .missingToken
         }
 
-        await auth.completeOAuthCallback(token: token)
+        do {
+            _ = try await auth.completeOAuthCallback(token: token)
+        } catch {
+            appState.authMessage = error.localizedDescription
+        }
+
         await appState.completeAuthentication(clerkAuth: auth, convexClient: convexClient)
 
         if !appState.isAuthenticated, let callbackURL {

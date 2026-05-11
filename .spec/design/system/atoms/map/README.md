@@ -278,7 +278,7 @@ Route stroke tokens are **unchanged** in dark mode — copper, sage, and slate r
 LSMap renders an `LSGlassPanel` fallback for `MapError.missingToken` and `MapError.networkUnavailable`. The fallback:
 - Does not crash
 - Does not create a `MapView`
-- Shows the dormant paper map background at reduced opacity (35%)
+- Shows the dormant live map background at reduced opacity (35%)
 - Displays a translucent glass callout with an icon, title ("Map unavailable"), and platform-appropriate message
 
 ---

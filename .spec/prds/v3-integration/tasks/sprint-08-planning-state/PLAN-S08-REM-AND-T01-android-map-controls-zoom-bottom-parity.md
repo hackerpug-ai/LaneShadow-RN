@@ -1,4 +1,9 @@
 # PLAN-S08-REM-AND-T01 - Android map controls zoom-bottom parity
+> Status: ✅ Completed
+> Cycle: 1
+> Commit: d9860993f1dfdf8847cb23cb2208d4ea80b265b4
+> Reviewer: kotlin-reviewer
+> Updated: 2026-05-09T01:56:58.051Z
 
 > Status: Backlog
 > Cycle: 0
@@ -127,16 +132,126 @@ This task keeps Android's vertical plus-over-minus cluster, moves it to the bott
 <!--
 {
   "requirements": [
-    {"id":"AC-1","type":"acceptance_criterion","description":"GIVEN Android LSMapControls map mode with all handlers WHEN rendered THEN zoom cluster is the final bottom child after toggle","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.map_mode_places_zoom_cluster_last'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-2","type":"acceptance_criterion","description":"GIVEN Android LSMapControls with save visible WHEN rendered THEN save remains above mode toggle and zoom cluster remains bottom-most","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.save_chip_stays_above_bottom_zoom_cluster'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-3","type":"acceptance_criterion","description":"GIVEN Android zoom handlers WHEN rendered THEN zoom cluster remains vertical with stable tags and content descriptions","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.zoom_cluster_remains_vertical_and_accessible'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-4","type":"acceptance_criterion","description":"GIVEN Android LSMapControls chat mode WHEN rendered THEN only mode-toggle is visible and zoom cluster is omitted","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.chat_mode_remains_toggle_only'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-5","type":"acceptance_criterion","description":"GIVEN touched Kotlin files WHEN native compliance, focused tests, and compileDebugKotlin run THEN all exit 0","verify":"scripts/tokens/enforce-native-compliance.sh && cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest' && ./gradlew :app:compileDebugKotlin","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"TC-1","type":"test_criterion","description":"Android map-mode workbar renders zoom cluster as final bottom chip","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.map_mode_places_zoom_cluster_last'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-1"},
-    {"id":"TC-2","type":"test_criterion","description":"Android save chip remains above mode toggle and zoom remains bottom-most","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.save_chip_stays_above_bottom_zoom_cluster'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-2"},
-    {"id":"TC-3","type":"test_criterion","description":"Android zoom cluster remains vertical and keeps existing tags/content descriptions","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.zoom_cluster_remains_vertical_and_accessible'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-3"},
-    {"id":"TC-4","type":"test_criterion","description":"Android chat mode renders only mode-toggle and omits zoom cluster","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.chat_mode_remains_toggle_only'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-4"},
-    {"id":"TC-5","type":"test_criterion","description":"Native compliance, focused tests, and Android Kotlin compile exit 0","verify":"scripts/tokens/enforce-native-compliance.sh && cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest' && ./gradlew :app:compileDebugKotlin","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-5"}
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "description": "GIVEN Android LSMapControls map mode with all handlers WHEN rendered THEN zoom cluster is the final bottom child after toggle",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.map_mode_places_zoom_cluster_last'",
+      "satisfied": true,
+      "evidence": "android/app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt:197 and android/app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt:226; com.laneshadow.ui.organisms.LSMapControlsTest.map_mode_places_zoom_cluster_last passed (EXIT_CODE:0)",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "d9860993f1dfdf8847cb23cb2208d4ea80b265b4",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "description": "GIVEN Android LSMapControls with save visible WHEN rendered THEN save remains above mode toggle and zoom cluster remains bottom-most",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.save_chip_stays_above_bottom_zoom_cluster'",
+      "satisfied": true,
+      "evidence": "android/app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt:151, android/app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt:197, and android/app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt:226; com.laneshadow.ui.organisms.LSMapControlsTest.save_chip_stays_above_bottom_zoom_cluster passed (EXIT_CODE:0)",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "d9860993f1dfdf8847cb23cb2208d4ea80b265b4",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "description": "GIVEN Android zoom handlers WHEN rendered THEN zoom cluster remains vertical with stable tags and content descriptions",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.zoom_cluster_remains_vertical_and_accessible'",
+      "satisfied": true,
+      "evidence": "android/app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt:230, android/app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt:243, and android/app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt:269; com.laneshadow.ui.organisms.LSMapControlsTest.zoom_cluster_remains_vertical_and_accessible passed (EXIT_CODE:0)",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "d9860993f1dfdf8847cb23cb2208d4ea80b265b4",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "description": "GIVEN Android LSMapControls chat mode WHEN rendered THEN only mode-toggle is visible and zoom cluster is omitted",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.chat_mode_remains_toggle_only'",
+      "satisfied": true,
+      "evidence": "android/app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt:192, android/app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt:197, and android/app/src/main/java/com/laneshadow/ui/organisms/LSMapControls.kt:226; com.laneshadow.ui.organisms.LSMapControlsTest.chat_mode_remains_toggle_only passed (EXIT_CODE:0)",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "d9860993f1dfdf8847cb23cb2208d4ea80b265b4",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-5",
+      "type": "acceptance_criterion",
+      "description": "GIVEN touched Kotlin files WHEN native compliance, focused tests, and compileDebugKotlin run THEN all exit 0",
+      "verify": "scripts/tokens/enforce-native-compliance.sh && cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest' && ./gradlew :app:compileDebugKotlin",
+      "satisfied": true,
+      "evidence": "scripts/tokens/enforce-native-compliance.sh && cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest' && ./gradlew :app:compileDebugKotlin passed (EXIT_CODE:0)",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "d9860993f1dfdf8847cb23cb2208d4ea80b265b4",
+      "maps_to_ac": null
+    },
+    {
+      "id": "TC-1",
+      "type": "test_criterion",
+      "description": "Android map-mode workbar renders zoom cluster as final bottom chip",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.map_mode_places_zoom_cluster_last'",
+      "satisfied": true,
+      "evidence": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.map_mode_places_zoom_cluster_last' passed (EXIT_CODE:0)",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "d9860993f1dfdf8847cb23cb2208d4ea80b265b4",
+      "maps_to_ac": "AC-1"
+    },
+    {
+      "id": "TC-2",
+      "type": "test_criterion",
+      "description": "Android save chip remains above mode toggle and zoom remains bottom-most",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.save_chip_stays_above_bottom_zoom_cluster'",
+      "satisfied": true,
+      "evidence": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.save_chip_stays_above_bottom_zoom_cluster' passed (EXIT_CODE:0)",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "d9860993f1dfdf8847cb23cb2208d4ea80b265b4",
+      "maps_to_ac": "AC-2"
+    },
+    {
+      "id": "TC-3",
+      "type": "test_criterion",
+      "description": "Android zoom cluster remains vertical and keeps existing tags/content descriptions",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.zoom_cluster_remains_vertical_and_accessible'",
+      "satisfied": true,
+      "evidence": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.zoom_cluster_remains_vertical_and_accessible' passed (EXIT_CODE:0)",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "d9860993f1dfdf8847cb23cb2208d4ea80b265b4",
+      "maps_to_ac": "AC-3"
+    },
+    {
+      "id": "TC-4",
+      "type": "test_criterion",
+      "description": "Android chat mode renders only mode-toggle and omits zoom cluster",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.chat_mode_remains_toggle_only'",
+      "satisfied": true,
+      "evidence": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest.chat_mode_remains_toggle_only' passed (EXIT_CODE:0)",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "d9860993f1dfdf8847cb23cb2208d4ea80b265b4",
+      "maps_to_ac": "AC-4"
+    },
+    {
+      "id": "TC-5",
+      "type": "test_criterion",
+      "description": "Native compliance, focused tests, and Android Kotlin compile exit 0",
+      "verify": "scripts/tokens/enforce-native-compliance.sh && cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest' && ./gradlew :app:compileDebugKotlin",
+      "satisfied": true,
+      "evidence": "scripts/tokens/enforce-native-compliance.sh && cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.organisms.LSMapControlsTest' && ./gradlew :app:compileDebugKotlin passed (EXIT_CODE:0)",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "d9860993f1dfdf8847cb23cb2208d4ea80b265b4",
+      "maps_to_ac": "AC-5"
+    }
   ]
 }
 -->

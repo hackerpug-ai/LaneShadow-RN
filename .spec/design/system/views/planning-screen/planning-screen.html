@@ -230,7 +230,7 @@
   pointer-events: none;
 }
 
-.view-planning-screen__map-svg {
+.view-planning-screen__live-map {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -522,7 +522,7 @@
     Let me think on <em>that.</em>
   </h1>
   <p class="view-planning-screen__doc-tagline t-opinion-sm">
-    The Navigator is thinking. A copper polyline sketches itself across the paper map; the phase indicator walks five steps; the rider's prompt sits locked with a spinner where the send button used to be.
+    The Navigator is thinking. A copper polyline sketches itself across the live map; the phase indicator walks five steps; the rider's prompt sits locked with a spinner where the send button used to be.
     7 variants: 4 primary phases (S01–S04) + 3 edge states.
   </p>
 </header>
@@ -546,26 +546,7 @@
 
     <!-- Map slot -->
     <div class="view-planning-screen__map-slot">
-      <svg class="view-planning-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 180 C 80 155, 165 220, 240 180 S 340 200, 420 160"/>
-          <path d="M -20 260 C 80 235, 165 300, 240 260 S 340 280, 420 240"/>
-          <path d="M -20 360 C 65 335, 155 400, 240 360 S 340 388, 420 345"/>
-          <path d="M -20 470 C 65 445, 155 515, 240 470 S 340 498, 420 455"/>
-          <path d="M -20 580 C 80 550, 160 615, 240 580 S 340 600, 420 560"/>
-          <path d="M -20 690 C 80 660, 165 725, 240 690 S 340 710, 420 665"/>
-        </g>
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 220 C 80 198, 165 262, 240 220 S 340 242, 420 202"/>
-          <path d="M -20 310 C 65 288, 155 354, 240 310 S 340 338, 420 295"/>
-          <path d="M -20 415 C 65 392, 155 460, 240 415 S 340 445, 420 400"/>
-          <path d="M -20 525 C 80 498, 160 565, 240 525 S 340 550, 420 508"/>
-        </g>
-        <path d="M 310 -10 C 275 80, 320 195, 300 320 S 288 510, 338 660 L 420 660 L 420 -10 Z"
-              fill="color-mix(in srgb, var(--wx-rain) 6%, transparent)"/>
-        <path d="M 310 -10 C 275 80, 320 195, 300 320 S 288 510, 338 660"
-              stroke="color-mix(in srgb, var(--wx-rain) 35%, transparent)" stroke-width="0.8" fill="none"/>
-      </svg>
+      <div class="view-planning-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <!-- Start pin -->
       <div class="view-planning-screen__start-pin" style="left:22%;top:47%;"></div>
     </div>
@@ -693,21 +674,7 @@
     <div class="view-planning-screen__di"></div>
 
     <div class="view-planning-screen__map-slot">
-      <svg class="view-planning-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 180 C 80 155, 165 220, 240 180 S 340 200, 420 160"/>
-          <path d="M -20 260 C 80 235, 165 300, 240 260 S 340 280, 420 240"/>
-          <path d="M -20 360 C 65 335, 155 400, 240 360 S 340 388, 420 345"/>
-          <path d="M -20 470 C 65 445, 155 515, 240 470 S 340 498, 420 455"/>
-          <path d="M -20 580 C 80 550, 160 615, 240 580 S 340 600, 420 560"/>
-        </g>
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 220 C 80 198, 165 262, 240 220 S 340 242, 420 202"/>
-          <path d="M -20 415 C 65 392, 155 460, 240 415 S 340 445, 420 400"/>
-        </g>
-        <path d="M 310 -10 C 275 80, 320 195, 300 320 S 288 510, 338 660"
-              stroke="color-mix(in srgb, var(--wx-rain) 35%, transparent)" stroke-width="0.8" fill="none"/>
-      </svg>
+      <div class="view-planning-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <div class="view-planning-screen__start-pin" style="left:22%;top:47%;"></div>
     </div>
 
@@ -828,17 +795,7 @@
     <div class="view-planning-screen__di"></div>
 
     <div class="view-planning-screen__map-slot">
-      <svg class="view-planning-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 180 C 80 155, 165 220, 240 180 S 340 200, 420 160"/>
-          <path d="M -20 260 C 80 235, 165 300, 240 260 S 340 280, 420 240"/>
-          <path d="M -20 360 C 65 335, 155 400, 240 360 S 340 388, 420 345"/>
-          <path d="M -20 470 C 65 445, 155 515, 240 470 S 340 498, 420 455"/>
-          <path d="M -20 580 C 80 550, 160 615, 240 580 S 340 600, 420 560"/>
-        </g>
-        <path d="M 310 -10 C 275 80, 320 195, 300 320 S 288 510, 338 660"
-              stroke="color-mix(in srgb, var(--wx-rain) 35%, transparent)" stroke-width="0.8" fill="none"/>
-      </svg>
+      <div class="view-planning-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <div class="view-planning-screen__start-pin" style="left:22%;top:47%;"></div>
       <!-- Weather dots on route -->
       <div class="view-planning-screen__wx-dot view-planning-screen__wx-dot--clear" style="left:44%;top:42%;" aria-hidden="true">
@@ -971,17 +928,7 @@
     <div class="view-planning-screen__di"></div>
 
     <div class="view-planning-screen__map-slot" style="background:var(--ink-900);">
-      <svg class="view-planning-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 180 C 80 155, 165 220, 240 180 S 340 200, 420 160"/>
-          <path d="M -20 260 C 80 235, 165 300, 240 260 S 340 280, 420 240"/>
-          <path d="M -20 360 C 65 335, 155 400, 240 360 S 340 388, 420 345"/>
-          <path d="M -20 470 C 65 445, 155 515, 240 470 S 340 498, 420 455"/>
-          <path d="M -20 580 C 80 550, 160 615, 240 580 S 340 600, 420 560"/>
-        </g>
-        <path d="M 310 -10 C 275 80, 320 195, 300 320 S 288 510, 338 660"
-              stroke="color-mix(in srgb, var(--wx-rain) 40%, transparent)" stroke-width="0.8" fill="none"/>
-      </svg>
+      <div class="view-planning-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <div class="view-planning-screen__start-pin" style="left:22%;top:47%;"></div>
       <!-- Candidate polylines being scored -->
       <svg class="view-planning-screen__candidates-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -1104,13 +1051,7 @@
     <div class="view-planning-screen__di"></div>
 
     <div class="view-planning-screen__map-slot">
-      <svg class="view-planning-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 180 C 80 155, 165 220, 240 180 S 340 200, 420 160"/>
-          <path d="M -20 360 C 65 335, 155 400, 240 360 S 340 388, 420 345"/>
-          <path d="M -20 580 C 80 550, 160 615, 240 580 S 340 600, 420 560"/>
-        </g>
-      </svg>
+      <div class="view-planning-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <div class="view-planning-screen__start-pin" style="left:22%;top:47%;"></div>
     </div>
 
@@ -1234,13 +1175,7 @@
     <div class="view-planning-screen__di"></div>
 
     <div class="view-planning-screen__map-slot">
-      <svg class="view-planning-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 180 C 80 155, 165 220, 240 180 S 340 200, 420 160"/>
-          <path d="M -20 360 C 65 335, 155 400, 240 360 S 340 388, 420 345"/>
-          <path d="M -20 580 C 80 550, 160 615, 240 580 S 340 600, 420 560"/>
-        </g>
-      </svg>
+      <div class="view-planning-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <div class="view-planning-screen__start-pin" style="left:22%;top:47%;"></div>
     </div>
 
@@ -1345,12 +1280,7 @@
     <div class="view-planning-screen__di"></div>
 
     <div class="view-planning-screen__map-slot">
-      <svg class="view-planning-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 180 C 80 155, 165 220, 240 180 S 340 200, 420 160"/>
-          <path d="M -20 360 C 65 335, 155 400, 240 360 S 340 388, 420 345"/>
-        </g>
-      </svg>
+      <div class="view-planning-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <div class="view-planning-screen__start-pin" style="left:22%;top:47%;"></div>
     </div>
 

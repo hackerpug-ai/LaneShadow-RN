@@ -12,6 +12,9 @@ final class LSMapControlsTests: XCTestCase {
             mode: .map,
             hasRouteToSave: false,
             isSavedRoute: false,
+            onRecenter: {},
+            onLayers: {},
+            onToggleView: {},
             in: Theme.shared
         )
 
@@ -19,7 +22,7 @@ final class LSMapControlsTests: XCTestCase {
             .recenter,
             .layers,
             .modeToggle,
-            .zoomCluster
+            .zoomCluster,
         ]
 
         XCTAssertEqual(appearance.chipsInOrder, expectedChips)
@@ -28,7 +31,7 @@ final class LSMapControlsTests: XCTestCase {
         XCTAssertEqual(appearance.modeToggleGlyphToken, "send")
         XCTAssertEqual(appearance.modeToggleAccessibilityLabel, "Open chat")
         XCTAssertEqual(appearance.chipsInOrder.last, .zoomCluster)
-        XCTAssertGreaterThanOrEqual(appearance.chipSize, 56)
+        XCTAssertGreaterThanOrEqual(appearance.chipSize, Theme.shared.touchTarget.minTouchTarget)
         XCTAssertEqual(appearance.chipGapSpacing, Theme.shared.space.sm)
     }
 
@@ -37,6 +40,9 @@ final class LSMapControlsTests: XCTestCase {
             mode: .map,
             hasRouteToSave: true,
             isSavedRoute: false,
+            onRecenter: {},
+            onLayers: {},
+            onToggleView: {},
             in: Theme.shared
         )
 
@@ -45,7 +51,7 @@ final class LSMapControlsTests: XCTestCase {
             .layers,
             .save(isSaved: false),
             .modeToggle,
-            .zoomCluster
+            .zoomCluster,
         ]
 
         XCTAssertEqual(appearance.chipsInOrder, expectedChips)
@@ -94,6 +100,9 @@ final class LSMapControlsTests: XCTestCase {
             isSavedRoute: false,
             onZoomIn: { zoomInCount += 1 },
             onZoomOut: { zoomOutCount += 1 },
+            onRecenter: {},
+            onLayers: {},
+            onToggleView: {},
             in: Theme.shared
         )
 
@@ -170,6 +179,9 @@ final class LSMapControlsTests: XCTestCase {
             mode: .map,
             hasRouteToSave: true,
             isSavedRoute: false,
+            onRecenter: {},
+            onLayers: {},
+            onToggleView: {},
             in: Theme.shared
         )
 
@@ -177,6 +189,7 @@ final class LSMapControlsTests: XCTestCase {
             mode: .chat,
             hasRouteToSave: true,
             isSavedRoute: false,
+            onToggleView: {},
             in: Theme.shared
         )
 
@@ -185,7 +198,7 @@ final class LSMapControlsTests: XCTestCase {
             .layers,
             .save(isSaved: false),
             .modeToggle,
-            .zoomCluster
+            .zoomCluster,
         ]
 
         XCTAssertEqual(appearanceMapMode.chipsInOrder, expectedMapMode)

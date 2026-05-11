@@ -150,4 +150,4 @@ Every other color / spacing / radius / duration resolves to a token. `px` litera
 
 ## How to preview
 
-Open `organisms/topbar-navbar/topbar-navbar.html` in a browser — every variant renders in both light and dark `theme-pane`s, self-contained. The TopBar stories sit above a simulated paper-map scene so the chrome's contrast is visible.
+Open `organisms/topbar-navbar/topbar-navbar.html` in a browser — every variant renders in both light and dark `theme-pane`s, self-contained. The TopBar stories sit above a Mapbox-backed scene so the chrome's contrast is visible.

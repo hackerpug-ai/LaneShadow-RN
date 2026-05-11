@@ -15,7 +15,7 @@ public struct CLLocationCoordinate: Equatable, Sendable {
 /// DeviationPolyline component - Visual representation of route deviations
 ///
 /// Displays the original route, detour path, and reconnection point on a map.
-/// Uses Canvas as a visual placeholder for future MapKit integration.
+/// Uses Canvas for standalone deviation rendering outside the live map surface.
 ///
 /// Following the translation matrix specification:
 /// - Original route stroke: theme.domain.deviationOriginalRoute (fallback gray)

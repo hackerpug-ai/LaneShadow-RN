@@ -144,10 +144,14 @@
   --route-alt1: var(--route-alt1-raw);
   --route-alt2: var(--route-alt2-raw);
 
-  /* ── Map ornament (topo contours, paper tint) ────────────────── */
+  /* ── Map ornament (topo contours, paper tint, water/park/highway/label) ── */
   --map-paper:         var(--paper-50);
   --map-contour:       rgba(73, 69, 79, 0.22);
   --map-contour-faint: rgba(73, 69, 79, 0.10);
+  --map-water-tint:    color-mix(in srgb, var(--wx-rain) 12%, transparent);
+  --map-park-tint:     color-mix(in srgb, var(--route-alt1) 16%, transparent);
+  --map-highway:       color-mix(in srgb, var(--copper-500) 88%, transparent);
+  --map-label:         rgba(34, 24, 16, 0.62);
 
   /* ── Elevation (box-shadow recipes) ──────────────────────────── */
   --elev-card:    0 2px 6px rgba(34, 24, 16, 0.06);
@@ -260,6 +264,10 @@
   /* Map ornament on dark */
   --map-contour:       rgba(242, 238, 232, 0.22);
   --map-contour-faint: rgba(242, 238, 232, 0.10);
+  --map-water-tint:    color-mix(in srgb, var(--wx-rain) 22%, transparent);
+  --map-park-tint:     color-mix(in srgb, var(--route-alt1) 22%, transparent);
+  --map-highway:       color-mix(in srgb, var(--copper-500) 92%, transparent);
+  --map-label:         rgba(242, 238, 232, 0.58);
 
   /* Elevation (deeper shadows on dark) */
   --elev-card:    0 2px 6px rgba(0, 0, 0, 0.24);

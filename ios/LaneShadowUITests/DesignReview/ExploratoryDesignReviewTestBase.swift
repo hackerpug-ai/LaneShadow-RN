@@ -61,8 +61,10 @@ class ExploratoryDesignReviewCaptureTestsBase: XCTestCase {
         let e2eButton = element("auth.signIn.e2eSignIn")
         XCTAssertTrue(e2eButton.waitForExistence(timeout: 5), "Expected E2E sign-in button")
         e2eButton.tap()
+        // 60s — dark-mode determinism setup competes with auth completion;
+        // 30s was flaky for `test_planningScreen_dark`.
         XCTAssertTrue(
-            element("idlescreen").waitForExistence(timeout: 30),
+            element("idlescreen").waitForExistence(timeout: 60),
             "Expected IdleScreen to appear after authentication"
         )
         XCTAssertTrue(

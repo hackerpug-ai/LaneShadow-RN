@@ -1,0 +1,93 @@
+<h2>Fixed — rider silhouetted against the sun.</h2>
+<p class="subtitle">You couldn't see the rider in v1 because it was drawn dark-on-dark over the road. The right place for the rider isn't the road tip — it's <em>silhouetted against the copper sun</em>. That's the iconic "Hopper meets Stegner" shot, and it actually reads at this size.</p>
+
+<div class="cards">
+  <div class="card" data-choice="literal-rider" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fdfbf8;display:flex;align-items:center;justify-content:center;padding:1.5rem;">
+      <svg viewBox="0 0 220 220" style="width:190px;height:190px;">
+        <rect width="220" height="220" fill="#fdfbf8"/>
+        <!-- distant rolling hills -->
+        <path d="M 20 138 Q 50 124 80 130 Q 110 122 140 130 Q 170 124 200 138 L 200 138 L 20 138 Z" fill="#1f1a14" opacity="0.85"/>
+        <!-- copper sun -->
+        <circle cx="115" cy="118" r="32" fill="#d9742a"/>
+        <!-- rider silhouetted against sun -->
+        <g id="rider">
+          <!-- bike body horizontal line -->
+          <rect x="106" y="135" width="18" height="2.4" fill="#1f1a14"/>
+          <!-- two wheels -->
+          <circle cx="108" cy="137" r="2.6" fill="#1f1a14"/>
+          <circle cx="122" cy="137" r="2.6" fill="#1f1a14"/>
+          <!-- rider torso (ellipse) tilted slightly forward -->
+          <ellipse cx="116" cy="128" rx="3.6" ry="4.4" fill="#1f1a14" transform="rotate(-8 116 128)"/>
+          <!-- helmet head -->
+          <circle cx="118" cy="121" r="3" fill="#1f1a14"/>
+        </g>
+        <!-- horizon -->
+        <line x1="20" y1="138" x2="200" y2="138" stroke="#1f1a14" stroke-width="2"/>
+        <!-- road with slight curve -->
+        <path d="M 60 200 Q 92 175 105 138 L 115 138 Q 138 175 165 200 Z" fill="#1f1a14"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>1 — With the rider <span style="color:#d9742a;">(now visible)</span></h3>
+      <p style="font-style:italic;font-size:0.95rem;color:#444;margin-bottom:0.5rem;">Silhouetted against the sun. Heading toward the magic hour. Leaning forward into the ride.</p>
+      <p><strong>What it adds:</strong> the iconic "rider against the sunset" shot. Says "this is for people who ride" instantly. The figure is small but clearly a motorcycle and rider — readable down to ~64px before becoming a smudge against the sun.</p>
+      <p><strong>What it costs:</strong> at favicon size (16-32px) the rider becomes a tiny dark blot on the copper sun — still works as composition but loses the "rider" specificity. Forces a tiered system: full version for app icon and up, simplified version (no rider) for favicon.</p>
+      <p><strong>Voice:</strong> cinematic, narrative, instantly story-bearing. The Easy Rider closing shot.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="quiet-landscape" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fdfbf8;display:flex;align-items:center;justify-content:center;padding:1.5rem;">
+      <svg viewBox="0 0 220 220" style="width:190px;height:190px;">
+        <rect width="220" height="220" fill="#fdfbf8"/>
+        <!-- distant rolling hills -->
+        <path d="M 20 138 Q 50 124 80 130 Q 110 122 140 130 Q 170 124 200 138 L 200 138 L 20 138 Z" fill="#1f1a14" opacity="0.85"/>
+        <!-- copper sun -->
+        <circle cx="115" cy="118" r="32" fill="#d9742a"/>
+        <!-- horizon -->
+        <line x1="20" y1="138" x2="200" y2="138" stroke="#1f1a14" stroke-width="2"/>
+        <!-- road with slight curve -->
+        <path d="M 60 200 Q 92 175 105 138 L 115 138 Q 138 175 165 200 Z" fill="#1f1a14"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>2 — Just the place</h3>
+      <p style="font-style:italic;font-size:0.95rem;color:#444;margin-bottom:0.5rem;">No rider. Sun, horizon, hills, road. The rider is <em>you</em>.</p>
+      <p><strong>What it adds:</strong> cleaner composition, stronger silhouette, better at every size, viewer-as-rider implication.</p>
+      <p><strong>What it costs:</strong> loses the explicit "people who ride" cue. Could read as travel/road-trip generic.</p>
+      <p><strong>Voice:</strong> patient, restrained, WPA-poster register.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="reductive" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#fdfbf8;display:flex;align-items:center;justify-content:center;padding:1.5rem;">
+      <svg viewBox="0 0 220 220" style="width:190px;height:190px;">
+        <rect width="220" height="220" fill="#fdfbf8"/>
+        <!-- copper sun -->
+        <circle cx="110" cy="118" r="32" fill="#d9742a"/>
+        <!-- horizon -->
+        <line x1="20" y1="138" x2="200" y2="138" stroke="#1f1a14" stroke-width="2.5"/>
+        <!-- road with slight curve -->
+        <path d="M 60 200 Q 90 175 105 138 L 115 138 Q 140 175 160 200 Z" fill="#1f1a14"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3>3 — Just the icon</h3>
+      <p style="font-style:italic;font-size:0.95rem;color:#444;margin-bottom:0.5rem;">Sun, horizon, road. Bauhaus minimum.</p>
+      <p><strong>What it adds:</strong> maximum simplicity, favicon = primary mark.</p>
+      <p><strong>What it costs:</strong> loses "place" feeling, becomes generic.</p>
+      <p><strong>Voice:</strong> modern, restrained, less Sibley more Vignelli.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:2rem;">
+  <p class="label">My updated thinking, after seeing the corrected rider</p>
+  <p style="font-size:1rem;">Now that the rider is actually visible: I'm leaning <strong>1 (with rider) for the primary medallion, 2 (no rider) as the favicon-tier simplification, both with hills</strong>. The rider against the sun is too good to give up — it's the difference between "a road app" and "a riding app." The favicon drops the rider for legibility. Same identity, two resolutions. This is exactly the tiered system you already approved — the rider is just one more element that scales out at small sizes.</p>
+</div>
+
+<div class="section">
+  <p class="label">What I'm asking</p>
+  <p>Now that the rider reads, does it earn its keep? Pick 1 (rider primary) / 2 (no rider, place only) / 3 (Bauhaus icon), or tell me to keep iterating on the rider's pose, scale, or position.</p>
+</div>

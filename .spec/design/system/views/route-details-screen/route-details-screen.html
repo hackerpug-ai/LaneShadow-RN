@@ -251,7 +251,7 @@
   pointer-events: none;
 }
 
-.view-route-details-screen__map-svg {
+.view-route-details-screen__live-map {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -729,7 +729,7 @@
     Numbers in <em>mono</em>, name in <em>serif</em>.
   </h1>
   <p class="view-route-details-screen__doc-tagline t-opinion-sm">
-    The commitment surface. A single polyline on the paper map. Best badge, opinion-serif route title, four instrument columns, six hours of weather, two actions. 6 variants: large detent · mixed weather · dark · medium detent · dismissing · alt route.
+    The commitment surface. A single polyline on the live map. Best badge, opinion-serif route title, four instrument columns, six hours of weather, two actions. 6 variants: large detent · mixed weather · dark · medium detent · dismissing · alt route.
   </p>
 </header>
 
@@ -750,19 +750,9 @@
   <div class="view-route-details-screen__phone" role="img" aria-label="RouteDetailsScreen phone preview — S01 Default Large Light">
     <div class="view-route-details-screen__di"></div>
 
-    <!-- Paper map -->
+    <!-- Live map -->
     <div class="view-route-details-screen__map-slot">
-      <svg class="view-route-details-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 120 C 80 95, 160 155, 240 120 S 340 138, 420 100"/>
-          <path d="M -20 185 C 80 155, 160 218, 240 185 S 340 205, 420 168"/>
-          <path d="M -20 255 C 70 225, 155 290, 240 255 S 340 278, 420 240"/>
-        </g>
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 152 C 80 135, 165 192, 240 152 S 340 172, 420 140"/>
-          <path d="M -20 222 C 80 200, 165 262, 240 222 S 340 248, 420 210"/>
-        </g>
-      </svg>
+      <div class="view-route-details-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <!-- Route polyline -->
       <svg class="view-route-details-screen__route-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <path d="M 45 320 C 80 250, 145 235, 195 215 S 285 230, 348 305"
@@ -947,22 +937,7 @@
     <div class="view-route-details-screen__di"></div>
 
     <div class="view-route-details-screen__map-slot">
-      <svg class="view-route-details-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 120 C 80 95, 160 155, 240 120 S 340 138, 420 100"/>
-          <path d="M -20 185 C 80 155, 160 218, 240 185 S 340 205, 420 168"/>
-          <path d="M -20 255 C 70 225, 155 290, 240 255 S 340 278, 420 240"/>
-        </g>
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 152 C 80 135, 165 192, 240 152 S 340 172, 420 140"/>
-        </g>
-        <!-- Rain slashes on right half -->
-        <g stroke="var(--wx-rain)" stroke-width="0.6" opacity="0.4">
-          <line x1="210" y1="40" x2="205" y2="58"/><line x1="255" y1="30" x2="250" y2="48"/>
-          <line x1="300" y1="55" x2="295" y2="73"/><line x1="345" y1="25" x2="340" y2="43"/>
-          <line x1="230" y1="130" x2="225" y2="148"/><line x1="310" y1="115" x2="305" y2="133"/>
-        </g>
-      </svg>
+      <div class="view-route-details-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <svg class="view-route-details-screen__route-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <path d="M 45 320 C 80 250, 145 235, 195 215 S 285 230, 348 305"
               fill="none" stroke="var(--route-best)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"
@@ -1134,17 +1109,7 @@
     <div class="view-route-details-screen__di"></div>
 
     <div class="view-route-details-screen__map-slot" style="background:var(--map-paper);">
-      <svg class="view-route-details-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 120 C 80 95, 160 155, 240 120 S 340 138, 420 100"/>
-          <path d="M -20 185 C 80 155, 160 218, 240 185 S 340 205, 420 168"/>
-          <path d="M -20 255 C 70 225, 155 290, 240 255 S 340 278, 420 240"/>
-        </g>
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 152 C 80 135, 165 192, 240 152 S 340 172, 420 140"/>
-          <path d="M -20 222 C 80 200, 165 262, 240 222 S 340 248, 420 210"/>
-        </g>
-      </svg>
+      <div class="view-route-details-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <svg class="view-route-details-screen__route-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <path d="M 45 320 C 80 250, 145 235, 195 215 S 285 230, 348 305"
               fill="none" stroke="var(--route-best)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"
@@ -1315,19 +1280,7 @@
     <div class="view-route-details-screen__di"></div>
 
     <div class="view-route-details-screen__map-slot">
-      <svg class="view-route-details-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 120 C 80 95, 160 155, 240 120 S 340 138, 420 100"/>
-          <path d="M -20 185 C 80 155, 160 218, 240 185 S 340 205, 420 168"/>
-          <path d="M -20 255 C 70 225, 155 290, 240 255 S 340 278, 420 240"/>
-          <path d="M -20 340 C 65 310, 150 375, 240 340 S 340 365, 420 325"/>
-          <path d="M -20 430 C 70 400, 155 462, 240 430 S 340 455, 420 415"/>
-        </g>
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 152 C 80 135, 165 192, 240 152 S 340 172, 420 140"/>
-          <path d="M -20 295 C 80 270, 165 332, 240 295 S 340 320, 420 280"/>
-        </g>
-      </svg>
+      <div class="view-route-details-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <svg class="view-route-details-screen__route-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <path d="M 45 320 C 80 250, 145 235, 195 215 S 285 230, 348 305"
               fill="none" stroke="var(--route-best)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"
@@ -1460,21 +1413,7 @@
     <div class="view-route-details-screen__di"></div>
 
     <div class="view-route-details-screen__map-slot">
-      <svg class="view-route-details-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 120 C 80 95, 160 155, 240 120 S 340 138, 420 100"/>
-          <path d="M -20 185 C 80 155, 160 218, 240 185 S 340 205, 420 168"/>
-          <path d="M -20 255 C 70 225, 155 290, 240 255 S 340 278, 420 240"/>
-          <path d="M -20 340 C 65 310, 150 375, 240 340 S 340 365, 420 325"/>
-          <path d="M -20 430 C 70 400, 155 462, 240 430 S 340 455, 420 415"/>
-          <path d="M -20 530 C 70 498, 155 562, 240 530 S 340 558, 420 515"/>
-          <path d="M -20 630 C 70 595, 155 660, 240 630 S 340 658, 420 615"/>
-        </g>
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 295 C 80 270, 165 332, 240 295 S 340 320, 420 280"/>
-          <path d="M -20 480 C 80 452, 165 515, 240 480 S 340 508, 420 465"/>
-        </g>
-      </svg>
+      <div class="view-route-details-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <svg class="view-route-details-screen__route-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <path d="M 45 320 C 80 250, 145 235, 195 215 S 285 230, 348 305"
               fill="none" stroke="var(--route-best)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"
@@ -1564,16 +1503,7 @@
     <div class="view-route-details-screen__di"></div>
 
     <div class="view-route-details-screen__map-slot">
-      <svg class="view-route-details-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 120 C 80 95, 160 155, 240 120 S 340 138, 420 100"/>
-          <path d="M -20 185 C 80 155, 160 218, 240 185 S 340 205, 420 168"/>
-          <path d="M -20 255 C 70 225, 155 290, 240 255 S 340 278, 420 240"/>
-        </g>
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 152 C 80 135, 165 192, 240 152 S 340 172, 420 140"/>
-        </g>
-      </svg>
+      <div class="view-route-details-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <svg class="view-route-details-screen__route-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <path d="M 45 320 C 80 250, 145 235, 195 215 S 285 230, 348 305"
               fill="none" stroke="var(--route-best)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"

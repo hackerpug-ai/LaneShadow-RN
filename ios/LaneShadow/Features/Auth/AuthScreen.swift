@@ -11,7 +11,6 @@ enum AuthScreenDesignCopy {
 
 struct AuthScreen: View {
     @Environment(\.theme) private var theme
-    @Environment(\.colorScheme) private var colorScheme
 
     @Bindable private var viewModel: AuthScreenViewModel
     @State private var passwordVisibility = AuthPasswordVisibilityState()
@@ -81,22 +80,7 @@ struct AuthScreen: View {
     }
 
     private var backgroundCanvas: some View {
-        ZStack {
-            LSPaperMap(overlayStyle: .contours)
-                .ignoresSafeArea()
-
-            LinearGradient(
-                colors: [
-                    LaneShadowTheme.color.surface.overlay.opacity(colorScheme == .dark ? 0.72 : 0.54),
-                    LaneShadowTheme.color.surface.overlay.opacity(colorScheme == .dark ? 0.62 : 0.42),
-                    LaneShadowTheme.color.surface.glass.opacity(colorScheme == .dark ? 0.72 : 0.76),
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-        }
-        .accessibilityIdentifier("authscreen-paper-contour-background")
+        AuthMapBackdrop()
     }
 
     private var brandHeader: some View {
@@ -105,7 +89,9 @@ struct AuthScreen: View {
                 Button {
                     handleBackTap()
                 } label: {
-                    LSIcon(name: .chevL, size: .sm, color: .primary)
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(LaneShadowTheme.color.content.primary)
                         .frame(width: theme.space.lg, height: theme.space.lg)
                 }
                 .frame(width: theme.space.xl, height: theme.space.xl)
@@ -127,12 +113,16 @@ struct AuthScreen: View {
                             .stroke(LaneShadowTheme.color.signal.tint, lineWidth: theme.borderWidth.thin)
                     )
 
-                LSIcon(name: .compass, size: .md, color: .signal)
+                Image(systemName: "location.north.line")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(LaneShadowTheme.color.signal.default)
             }
             .frame(width: theme.space.xxl, height: theme.space.xxl)
             .accessibilityHidden(true)
 
-            LSText("LaneShadow", variant: .opinion.sm, color: .primary)
+            Text("LaneShadow")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(LaneShadowTheme.color.content.primary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityIdentifier("authscreen-brand")

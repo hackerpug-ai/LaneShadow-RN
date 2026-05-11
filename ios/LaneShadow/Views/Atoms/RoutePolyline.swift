@@ -21,7 +21,7 @@ public enum LSRouteVariant {
 /// RoutePolyline component - Visual representation of route paths
 ///
 /// Displays route polylines with different styling for selected and alternate routes.
-/// Uses Canvas as a visual placeholder for future MapKit integration.
+/// Uses Canvas for standalone polyline rendering outside the live map surface.
 ///
 /// Following the translation matrix specification:
 /// - Selected route: theme.colors.routeSelected (primary color)

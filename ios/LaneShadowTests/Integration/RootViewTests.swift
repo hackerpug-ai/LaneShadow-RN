@@ -36,13 +36,12 @@ final class RootViewTests: XCTestCase {
         XCTAssertEqual(authenticatedView.activeFlow, .app)
     }
 
-    func testAuthFlowNavigationStackCreated() throws {
+    func testAuthFlowRoutesByAppStateRoute() throws {
         let signInView = AuthFlowView(
             route: .signIn,
             appState: AppState(isAuthenticated: false),
             clerkAuth: ClerkAuth(client: RootViewTestsAuthClient())
         )
-        XCTAssertNoThrow(try signInView.inspect().find(ViewType.NavigationStack.self))
         XCTAssertEqual(signInView.route, .signIn)
 
         let signUpView = AuthFlowView(
@@ -50,8 +49,15 @@ final class RootViewTests: XCTestCase {
             appState: AppState(isAuthenticated: false),
             clerkAuth: ClerkAuth(client: RootViewTestsAuthClient())
         )
-        XCTAssertNoThrow(try signUpView.inspect().find(ViewType.NavigationStack.self))
         XCTAssertEqual(signUpView.route, .signUp)
+
+        let callbackURL = try XCTUnwrap(URL(string: "laneshadow://oauth-callback?token=abc123"))
+        let callbackView = AuthFlowView(
+            route: .oauthCallback(callbackURL),
+            appState: AppState(isAuthenticated: false),
+            clerkAuth: ClerkAuth(client: RootViewTestsAuthClient())
+        )
+        XCTAssertEqual(callbackView.route, .oauthCallback(callbackURL))
     }
 
     func testAppFlowNavigationStackCreated() async throws {

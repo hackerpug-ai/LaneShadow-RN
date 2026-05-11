@@ -134,8 +134,13 @@ public struct ErrorScreen: View {
 
     private func mapView(errorBody: String) -> some View {
         ZStack {
-            LSPaperMap(overlayStyle: .brokenPolyline)
-                .accessibilityIdentifier("errorscreen-map")
+            LSMap(
+                mode: .preview,
+                camera: LSMapPresentationDefaults.errorCamera,
+                cameraFit: .polyline(padding: .spacing5),
+                polylines: [LSMapPresentationDefaults.errorPolyline]
+            )
+            .accessibilityIdentifier("errorscreen-map")
 
             if errorBody.contains("offline") || errorBody.contains("connection") {
                 LSWifiOffWatermark(opacity: 0.25)

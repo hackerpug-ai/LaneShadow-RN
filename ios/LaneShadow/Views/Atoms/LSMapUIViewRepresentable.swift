@@ -153,8 +153,8 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
             coordinator.lastAppliedCenter = userCoordinate
             _ = cameraController.consumePendingRecenterRequest(outcome: .applied)
         } else {
-            LSMapDebugLog.logRecenterStubNoUserLocation()
-            _ = cameraController.consumePendingRecenterRequest(outcome: .stubbedNoUserLocation)
+            LSMapDebugLog.logRecenterUnavailableNoUserLocation()
+            _ = cameraController.consumePendingRecenterRequest(outcome: .unavailableNoUserLocation)
         }
 
         coordinator.lastHandledRecenterRequestCount = cameraController.handledRecenterRequestCount
@@ -331,8 +331,8 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
             )
         }
 
-        static func logRecenterStubNoUserLocation() {
-            logger.info("[STUB] Recenter - no user location available")
+        static func logRecenterUnavailableNoUserLocation() {
+            logger.info("Recenter requested, but no user location is available")
         }
     }
 #endif

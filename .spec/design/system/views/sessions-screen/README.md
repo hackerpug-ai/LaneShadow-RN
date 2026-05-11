@@ -2,7 +2,7 @@
 
 ## Purpose
 
-SessionsScreen is the conversation-history surface of LaneShadow V2. A left-anchored drawer slides over a scrimmed paper map, presenting all of a rider's ride sessions grouped by recency (Tonight, This Week, Last Week). The active session — the one whose context is loaded behind the drawer — carries a copper left-edge stripe and a tinted row background, making it instantly identifiable. Every other row is a single tap back to the full conversation that produced it: its route, Navigator message, and phase history. The screen is intentionally a drawer (never a bottom-modal or center-sheet) so the map behind it stays partially visible, keeping the rider spatially oriented while they pick.
+SessionsScreen is the conversation-history surface of LaneShadow V2. A left-anchored drawer slides over a scrimmed live map, presenting all of a rider's ride sessions grouped by recency (Tonight, This Week, Last Week). The active session — the one whose context is loaded behind the drawer — carries a copper left-edge stripe and a tinted row background, making it instantly identifiable. Every other row is a single tap back to the full conversation that produced it: its route, Navigator message, and phase history. The screen is intentionally a drawer (never a bottom-modal or center-sheet) so the map behind it stays partially visible, keeping the rider spatially oriented while they pick.
 
 The scrim uses `--surface-scrim` (rgba warm-black at 0.35 opacity in light, 0.50 in dark) — intentionally lighter than a full modal so the backdrop map remains legible. The drawer carries its own status-bar chrome and owns the full Rides header; there is no `org-topbar` in this screen.
 

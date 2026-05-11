@@ -35,15 +35,16 @@ struct SignUpScreen: View {
                     }
                 )
             } else {
-                ProgressView()
-                    .accessibilityIdentifier("auth.signUp.loading")
+                AuthBackgroundContainer {
+                    ProgressView()
+                        .accessibilityIdentifier("auth.signUp.loading")
+                }
             }
         }
         .onAppear {
             initializeAuthScreenViewModelIfNeeded()
         }
-        .navigationTitle("Sign Up")
-        .toolbar(.hidden, for: .navigationBar)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     func makeAuthScreenViewModel(auth: ClerkAuth) -> AuthScreenViewModel {
@@ -98,8 +99,7 @@ struct SignUpVerificationScreen: View {
 
     var body: some View {
         ZStack {
-            LSPaperMap(overlayStyle: .contours)
-                .ignoresSafeArea()
+            AuthMapBackdrop()
 
             VStack(alignment: .leading, spacing: theme.space.lg) {
                 VStack(alignment: .leading, spacing: theme.space.sm) {
@@ -142,6 +142,7 @@ struct SignUpVerificationScreen: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("auth.signUp.verification.root")
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func submitVerification() async {

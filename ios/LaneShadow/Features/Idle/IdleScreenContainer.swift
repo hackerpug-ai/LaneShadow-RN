@@ -1,5 +1,4 @@
 import LaneShadowTheme
-import OSLog
 import SwiftUI
 
 struct IdleScreenContainer: View {
@@ -44,7 +43,8 @@ struct IdleScreenContainer: View {
                 ) : nil,
                 topBar: {
                     LSTopBar(
-                        title: viewModel.topBarTitle,
+                        metaText: viewModel.topBarMetaText,
+                        headline: viewModel.topBarHeadline,
                         trailing: .newChip(action: handleNewTap),
                         onMenuTap: toggleMenu,
                         onNewTap: handleNewTap
@@ -100,10 +100,7 @@ struct IdleScreenContainer: View {
         }
     }
 
-    private static let defaultCamera = CameraPosition(
-        center: LatLng(lat: 36.97, lon: -122.03),
-        zoom: 12
-    )
+    private static let defaultCamera = LSMapPresentationDefaults.santaCruzCamera
 
     // MARK: - Menu Drawer
 
@@ -121,7 +118,6 @@ struct IdleScreenContainer: View {
         closeMenu()
     }
 
-    @ViewBuilder
     private var menuDrawerContent: some View {
         LSSessionsDrawer(
             sessions: viewModel.recentSessions,
@@ -157,14 +153,8 @@ struct IdleScreenContainer: View {
             onZoomIn: { mapCameraController.zoomIn() },
             onZoomOut: { mapCameraController.zoomOut() },
             onRecenter: { mapCameraController.recenterToUserLocation() },
-            onLayers: {
-                Logger(subsystem: "com.laneshadow.app", category: "IdleScreen")
-                    .info("[STUB] Layers toggle - Sprint 09")
-            },
-            onToggleView: {
-                Logger(subsystem: "com.laneshadow.app", category: "IdleScreen")
-                    .info("[STUB] Mode toggle - Sprint 08")
-            }
+            onLayers: nil,
+            onToggleView: nil
         )
         .accessibilityIdentifier("idle-map-controls")
     }
@@ -180,7 +170,7 @@ struct IdleScreenContainer: View {
 
         return LSChatInput(
             value: $chatInputValue,
-            placeholder: "Plan a ride…",
+            placeholder: viewModel.chatPlaceholder,
             onSend: { message in
                 Task { await viewModel.submitSuggestion(message) }
             },
@@ -188,7 +178,10 @@ struct IdleScreenContainer: View {
             onFilter: {},
             suggestions: suggestions,
             onSuggestionTap: { chip in
+                // Tap-to-submit per idle-screen design spec — chip tap
+                // transitions to PlanningScreen, not just text priming.
                 chatInputValue = chip.label
+                Task { await viewModel.submitSuggestion(chip.label) }
             },
             autocompleteSuggestions: autocompleteSuggestions,
             onAutocompleteSuggestionTap: { suggestion in
@@ -203,6 +196,7 @@ struct IdleScreenContainer: View {
             },
             isAutocompleteLoading: viewModel.isPlaceAutocompleteLoading,
             autocompleteErrorMessage: viewModel.placeAutocompleteErrorMessage,
+            locationBadge: viewModel.locationBadge,
             showsSendAction: viewModel.selectedPlace != nil,
             isThinking: viewModel.isSubmitting,
             isEnabled: !viewModel.isSubmitting
@@ -229,6 +223,10 @@ struct IdleScreenContainer: View {
                     .accessibilityIdentifier("idlescreen-inline-error")
             }
         }
+        // .contain so the parent id remains queryable from XCUITest alongside
+        // child `lschatinput*` ids; without this, SwiftUI collapses the
+        // outer id when the inner LSChatInput sets its own identifier.
+        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("idlescreen-chatinput")
     }
 

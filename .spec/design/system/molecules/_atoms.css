@@ -1691,7 +1691,7 @@
 .ls-scrim--strong  { opacity: 0.60; }
 .ls-scrim--heavy   { opacity: 0.76; }
 .ls-scrim--opaque  { opacity: 0.95; }
-.map-mock {
+.map-reference {
   position: relative;
   overflow: hidden;
   background: var(--surface-map);
@@ -1702,7 +1702,7 @@
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-default);
 }
-.map-mock::before {
+.map-reference::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -1712,13 +1712,13 @@
   pointer-events: none;
   z-index: 0;
 }
-.map-mock.mode-dark {
+.map-reference.mode-dark {
   background-image:
     linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
     linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
   background-size: 28px 28px;
 }
-.map-mock.mode-dark::before {
+.map-reference.mode-dark::before {
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cpath d='M -20 60 C 40 40%2C 90 80%2C 140 60 S 200 80%2C 240 50' stroke='rgba(242%2C238%2C232%2C0.08)' stroke-width='0.9' fill='none'/%3E%3Cpath d='M -20 100 C 40 80%2C 90 120%2C 140 100 S 200 120%2C 240 90' stroke='rgba(242%2C238%2C232%2C0.08)' stroke-width='0.9' fill='none'/%3E%3Cpath d='M -20 140 C 40 120%2C 90 160%2C 140 140 S 200 160%2C 240 130' stroke='rgba(242%2C238%2C232%2C0.05)' stroke-width='0.7' fill='none'/%3E%3C/svg%3E");
 }
@@ -2043,7 +2043,7 @@
   pointer-events: none;
   z-index: 1;
 }
-.map-contours {
+.map-live-surface {
   position: absolute;
   inset: 0;
   width: 100%;

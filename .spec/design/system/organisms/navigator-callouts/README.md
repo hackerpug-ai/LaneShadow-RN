@@ -186,4 +186,4 @@ The system's `.ls-glass-panel--callout-signal` / `--callout-warning` variants re
 
 ## How to preview
 
-Open `organisms/navigator-callouts/navigator-callouts.html` in a browser — every story renders in both light and dark `theme-pane`s with a simulated paper-map scene behind the callout, self-contained.
+Open `organisms/navigator-callouts/navigator-callouts.html` in a browser — every story renders in both light and dark `theme-pane`s with a Mapbox-backed scene behind the callout, self-contained.

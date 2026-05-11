@@ -1,10 +1,10 @@
 import LaneShadowTheme
 import SwiftUI
 
-/// LSFavoritePinDot — Favorite location pin overlay for paper map.
+/// LSFavoritePinDot — Favorite location pin overlay for live maps.
 ///
 /// Copper-filled circle pin with card-colored border for marking favorite
-/// locations on the paper substrate map.
+/// locations on the Mapbox-backed surface.
 public struct LSFavoritePinDot: View {
     @Environment(\.theme) private var theme
 

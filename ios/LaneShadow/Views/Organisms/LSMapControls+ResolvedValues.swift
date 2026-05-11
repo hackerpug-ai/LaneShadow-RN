@@ -41,9 +41,12 @@ extension LSMapControls {
         isSavedRoute: Bool,
         onZoomIn: (() -> Void)? = nil,
         onZoomOut: (() -> Void)? = nil,
+        onRecenter: (() -> Void)? = nil,
+        onLayers: (() -> Void)? = nil,
+        onToggleView: (() -> Void)? = nil,
         in theme: Theme
     ) -> LSMapControlsAppearance {
-        let chipSize = max(theme.touchTarget.minTouchTarget, theme.space.xxl + theme.space.lg + theme.space.sm)
+        let chipSize = max(theme.touchTarget.minTouchTarget, theme.space.xxl + theme.space.md)
         let chipIconSize = max(theme.iconSize.medium, theme.iconSize.large)
 
         var chipsInOrder: [LSMapControlsChipKind] = []
@@ -52,15 +55,21 @@ extension LSMapControls {
             // Right-side workbar order (top → bottom): recenter, layers, [save],
             // mode toggle, zoom cluster. The zoom cluster anchors the bottom of
             // the workbar; the mode toggle sits just above it.
-            chipsInOrder.append(.recenter)
-            chipsInOrder.append(.layers)
+            if onRecenter != nil {
+                chipsInOrder.append(.recenter)
+            }
+            if onLayers != nil {
+                chipsInOrder.append(.layers)
+            }
 
             if hasRouteToSave {
                 chipsInOrder.append(.save(isSaved: isSavedRoute))
             }
         }
 
-        chipsInOrder.append(.modeToggle)
+        if onToggleView != nil {
+            chipsInOrder.append(.modeToggle)
+        }
 
         if mode == .map {
             chipsInOrder.append(.zoomCluster)

@@ -73,7 +73,26 @@ enum AppLauncher {
         }
     }
 
-    private static func loadDotEnvLocal() -> [String: String] {
+    /// Returns the test runner's `ProcessInfo.environment` overlaid with values
+    /// from `.env.local`. Use this from XCTest setUp paths that read CLERK /
+    /// MAILOSAUR / signup config — it makes tests work regardless of whether
+    /// the runner was invoked via the Makefile (which patches `.xctestrun` so
+    /// `ProcessInfo` already carries the keys) or via a bare
+    /// `xcodebuild test` (which does not). Process env wins when present so
+    /// the patched `.xctestrun` path remains authoritative for CI.
+    static func mergedEnvironment() -> [String: String] {
+        let processEnv = ProcessInfo.processInfo.environment
+        let dotEnv = loadDotEnvLocal()
+        var merged = dotEnv
+        for (key, value) in processEnv {
+            if !value.isEmpty {
+                merged[key] = value
+            }
+        }
+        return merged
+    }
+
+    static func loadDotEnvLocal() -> [String: String] {
         let envPath = "/Users/justinrich/Projects/LaneShadow/.env.local"
         guard let content = try? String(contentsOfFile: envPath, encoding: .utf8) else {
             return [:]

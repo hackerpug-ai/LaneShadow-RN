@@ -51,6 +51,7 @@ enum ClerkAuthError: LocalizedError {
     case missingAppleIdentityToken
     case incompleteSocialSignIn
     case incompleteSocialSignUp
+    case oauthCallbackDidNotCreateSession
 
     var errorDescription: String? {
         switch self {
@@ -74,6 +75,8 @@ enum ClerkAuthError: LocalizedError {
             "Social sign-in flow did not complete; no session was created."
         case .incompleteSocialSignUp:
             "Social sign-up flow did not complete; no session was created."
+        case .oauthCallbackDidNotCreateSession:
+            "OAuth callback completed but no Clerk session was created."
         }
     }
 }
@@ -291,12 +294,33 @@ final class LiveClerkSDKClient: ClerkSDKClient {
 
         if let createdSessionId = signIn.createdSessionId {
             try await clerk.setActive(sessionId: createdSessionId)
+        } else if signIn.status != .complete {
+            throw ClerkAuthError.oauthCallbackDidNotCreateSession
         }
 
-        guard let user = clerk.user else {
-            return nil
+        return try await waitForCurrentUserAfterOAuthCallback()
+    }
+
+    private func waitForCurrentUserAfterOAuthCallback(
+        maxAttempts: Int = 12,
+        delayNanoseconds: UInt64 = 150_000_000
+    ) async throws -> ClerkAuthUser? {
+        for attempt in 0 ..< maxAttempts {
+            if let user = clerk.user {
+                return ClerkAuthUser(id: user.id, email: user.primaryEmailAddress?.emailAddress)
+            }
+
+            try? await clerk.load()
+            if let user = clerk.user {
+                return ClerkAuthUser(id: user.id, email: user.primaryEmailAddress?.emailAddress)
+            }
+
+            if attempt < maxAttempts - 1 {
+                try await Task.sleep(nanoseconds: delayNanoseconds)
+            }
         }
-        return ClerkAuthUser(id: user.id, email: user.primaryEmailAddress?.emailAddress)
+
+        throw ClerkAuthError.oauthCallbackDidNotCreateSession
     }
 
     private func currentUser() throws -> ClerkAuthUser {
@@ -417,10 +441,14 @@ final class ClerkAuth: LaneShadowClerkJWTProviding {
 
     func signInWithApple() async throws {
         currentUser = try await client.signInWithApple()
+        pendingSignInEmail = nil
+        pendingSignUpEmail = nil
     }
 
     func signInWithGoogle() async throws {
         currentUser = try await client.signInWithGoogle()
+        pendingSignInEmail = nil
+        pendingSignUpEmail = nil
     }
 
     func signOut() async throws {
@@ -450,11 +478,15 @@ final class ClerkAuth: LaneShadowClerkJWTProviding {
         pendingSignUpEmail = nil
     }
 
-    func completeOAuthCallback(token: String) async {
+    @discardableResult
+    func completeOAuthCallback(token: String) async throws -> ClerkAuthUser? {
         do {
-            currentUser = try await client.completeOAuthCallback(token: token)
+            let user = try await client.completeOAuthCallback(token: token)
+            currentUser = user
+            return user
         } catch {
             clearLocalSession()
+            throw error
         }
     }
 }

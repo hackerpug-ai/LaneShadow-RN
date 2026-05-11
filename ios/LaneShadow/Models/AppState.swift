@@ -23,6 +23,7 @@ final class AppState {
     var authRoute: AuthRoute?
     var appRoute: AppRoute?
     var cachedLastFailedInput: String?
+    private(set) var isCompletingAuthentication: Bool = false
 
     init(isAuthenticated: Bool = false, currentUser: LaneShadowCurrentUser? = nil) {
         self.isAuthenticated = isAuthenticated
@@ -46,6 +47,8 @@ final class AppState {
 
     func completeAuthentication(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
         NSLog("🟠 AppState.completeAuth: enter clerkUserId=\(clerkAuth.currentUser?.id ?? "nil")")
+        isCompletingAuthentication = true
+        defer { isCompletingAuthentication = false }
         updateAuthenticationState(from: clerkAuth)
         guard hasClerkSession else {
             NSLog("🟠 AppState.completeAuth: guard fail (no clerk session); exit")
@@ -124,6 +127,14 @@ final class AppState {
     }
 
     func handleUnauthenticatedConvexError(clerkAuth: ClerkAuth, convexClient: LaneShadowConvexClient) async {
+        if isCompletingAuthentication {
+            NSLog("🟠 AppState.handleUnauthenticatedConvexError(async): suppressed — auth bootstrap in flight")
+            return
+        }
+        if !hasClerkSession {
+            NSLog("🟠 AppState.handleUnauthenticatedConvexError(async): suppressed — no clerk session")
+            return
+        }
         NSLog("🟠 AppState.handleUnauthenticatedConvexError(async): firing signOutFlow")
         await signOutFlow(clerkAuth: clerkAuth, convexClient: convexClient)
     }

@@ -9,7 +9,7 @@ struct RootView: View {
 
     @Bindable var convexStore: ConvexStore
     @State private var appState: AppState
-    @State private var hasBootstrappedAuth = false
+    @State private var hasBootstrappedAuth = true
     @Environment(\.appEnvironment) private var appEnvironment
     #if DEBUG
         @State private var didHandleUITestResetAuth = false
@@ -29,26 +29,32 @@ struct RootView: View {
                     IdleScreenContainer(viewModel: viewModel)
                 } else if !hasBootstrappedAuth {
                     authBootstrapPlaceholder
+                        .onAppear { NSLog("🟣 RootView.branch: authBootstrapPlaceholder appeared") }
                 } else if activeFlow == .app {
                     authenticatedFlow
+                        .onAppear { NSLog("🟣 RootView.branch: authenticatedFlow appeared") }
                 } else {
                     AuthFlowView(
                         route: appState.authRoute,
                         appState: appState,
                         clerkAuth: appEnvironment.clerkAuth
                     )
+                    .onAppear { NSLog("🟣 RootView.branch: AuthFlowView appeared") }
                 }
             #else
                 if !hasBootstrappedAuth {
                     authBootstrapPlaceholder
+                        .onAppear { NSLog("🟣 RootView.branch: authBootstrapPlaceholder appeared") }
                 } else if activeFlow == .app {
                     authenticatedFlow
+                        .onAppear { NSLog("🟣 RootView.branch: authenticatedFlow appeared") }
                 } else {
                     AuthFlowView(
                         route: appState.authRoute,
                         appState: appState,
                         clerkAuth: appEnvironment.clerkAuth
                     )
+                    .onAppear { NSLog("🟣 RootView.branch: AuthFlowView appeared") }
                 }
             #endif
         }
@@ -68,6 +74,8 @@ struct RootView: View {
                 clerkAuth: appEnvironment.clerkAuth,
                 convexClient: appEnvironment.convexClient
             )
+            hasBootstrappedAuth = true
+            NSLog("🟣 RootView.task: hasBootstrappedAuth set to true before auth restore")
             #if DEBUG
                 let didReset = await resetAuthForUITestingIfNeeded(
                     clerkAuth: appEnvironment.clerkAuth,
@@ -77,7 +85,9 @@ struct RootView: View {
             #endif
             await synchronizeAuthentication()
             NSLog("🟣 RootView.task: synchronizeAuthentication done; hasClerkSession=\(appState.hasClerkSession)")
-            hasBootstrappedAuth = true
+        }
+        .onChange(of: hasBootstrappedAuth) { _, newValue in
+            NSLog("🟣 RootView.onChange: hasBootstrappedAuth=\(newValue)")
         }
         .onOpenURL { url in
             handleSystemOpenURL(url)

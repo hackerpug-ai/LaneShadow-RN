@@ -33,17 +33,23 @@ public struct LSTopBar: View {
     @Environment(\.theme) private var theme
 
     private let title: String?
+    private let metaText: String?
+    private let headline: AttributedString?
     private let trailing: LSTopBarTrailing
     private let onMenuTap: () -> Void
     private let onNewTap: () -> Void
 
     public init(
         title: String? = nil,
+        metaText: String? = nil,
+        headline: AttributedString? = nil,
         trailing: LSTopBarTrailing = .newChip(action: {}),
         onMenuTap: @escaping () -> Void,
         onNewTap: @escaping () -> Void = {}
     ) {
         self.title = title
+        self.metaText = metaText
+        self.headline = headline
         self.trailing = trailing
         self.onMenuTap = onMenuTap
         self.onNewTap = onNewTap
@@ -84,13 +90,36 @@ public struct LSTopBar: View {
 
     @ViewBuilder
     private var titleContent: some View {
-        if let title {
-            LSText(title, variant: .opinion.md)
-                .lineLimit(2)
-                .minimumScaleFactor(0.82)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .accessibilityIdentifier("lstopbar-title")
+        if headline != nil || title != nil || metaText != nil {
+            VStack(spacing: theme.space.xs) {
+                if let metaText {
+                    LSText(metaText, variant: .label.sm, color: .secondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                        .multilineTextAlignment(.center)
+                        .accessibilityIdentifier("lstopbar-meta")
+                }
+
+                if let headline {
+                    Text(headline)
+                        .font(theme.type.opinion.md.font)
+                        .foregroundStyle(LaneShadowTheme.color.content.primary)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.82)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .accessibilityIdentifier("lstopbar-headline")
+                } else if let title {
+                    LSText(title, variant: .opinion.md)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.82)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .accessibilityIdentifier("lstopbar-title")
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .accessibilityIdentifier("lstopbar-title")
         } else {
             Color.clear
                 .accessibilityHidden(true)

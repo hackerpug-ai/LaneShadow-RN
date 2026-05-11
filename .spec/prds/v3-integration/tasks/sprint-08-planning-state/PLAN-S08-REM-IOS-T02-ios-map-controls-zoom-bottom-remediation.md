@@ -1,4 +1,9 @@
 # PLAN-S08-REM-IOS-T02 - iOS map controls zoom-bottom remediation
+> Status: ✅ Completed
+> Cycle: 1
+> Commit: c12353b1c4aea3c9453cdaf7ac0ade39492b5e78
+> Reviewer: swift-reviewer
+> Updated: 2026-05-09T00:46:09.107Z
 
 > Status: Backlog
 > Cycle: 0
@@ -129,16 +134,126 @@ The current idle capture shows the zoom cluster as a horizontal plus/minus pill 
 <!--
 {
   "requirements": [
-    {"id":"AC-1","type":"acceptance_criterion","description":"GIVEN LSMapControls map mode without save WHEN appearance resolves THEN zoomCluster is the final chip after modeToggle","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_map_mode_places_zoom_cluster_last","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-2","type":"acceptance_criterion","description":"GIVEN LSMapControls map mode with save visible WHEN appearance resolves THEN save remains above modeToggle and zoomCluster remains final","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_save_chip_stays_above_bottom_zoom_cluster","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-3","type":"acceptance_criterion","description":"GIVEN LSMapControls zoom cluster WHEN rendered THEN plus and minus are vertical with a horizontal divider and taller cluster frame","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_zoom_cluster_uses_vertical_layout","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-4","type":"acceptance_criterion","description":"GIVEN zoom handlers WHEN controls render THEN zoom identifiers are unchanged and callbacks remain bound exactly once","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_zoom_callbacks_and_identifiers_remain_stable","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-5","type":"acceptance_criterion","description":"GIVEN touched Swift files WHEN native compliance and iOS build run THEN both exit 0","verify":"scripts/tokens/enforce-native-compliance.sh && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"TC-1","type":"test_criterion","description":"Map-mode chip order ends with zoomCluster when no save chip is visible","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_map_mode_places_zoom_cluster_last","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-1"},
-    {"id":"TC-2","type":"test_criterion","description":"Save chip remains above mode toggle and zoom remains last when save is visible","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_save_chip_stays_above_bottom_zoom_cluster","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-2"},
-    {"id":"TC-3","type":"test_criterion","description":"Zoom cluster uses vertical layout and horizontal divider","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_zoom_cluster_uses_vertical_layout","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-3"},
-    {"id":"TC-4","type":"test_criterion","description":"Zoom identifiers and callback binding remain stable","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_zoom_callbacks_and_identifiers_remain_stable","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-4"},
-    {"id":"TC-5","type":"test_criterion","description":"Native token compliance and iOS build both exit 0","verify":"scripts/tokens/enforce-native-compliance.sh && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-5"}
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "description": "GIVEN LSMapControls map mode without save WHEN appearance resolves THEN zoomCluster is the final chip after modeToggle",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_map_mode_places_zoom_cluster_last",
+      "satisfied": true,
+      "evidence": "ios/LaneShadow/Views/Organisms/LSMapControls+ResolvedValues.swift:51-64; .tmp/PLAN-S08-REM-IOS-T02/test-output.txt:1842-1843",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "c12353b1c4aea3c9453cdaf7ac0ade39492b5e78",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "description": "GIVEN LSMapControls map mode with save visible WHEN appearance resolves THEN save remains above modeToggle and zoomCluster remains final",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_save_chip_stays_above_bottom_zoom_cluster",
+      "satisfied": true,
+      "evidence": "ios/LaneShadow/Views/Organisms/LSMapControls+ResolvedValues.swift:55-63; .tmp/PLAN-S08-REM-IOS-T02/test-output.txt:1844-1845",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "c12353b1c4aea3c9453cdaf7ac0ade39492b5e78",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "description": "GIVEN LSMapControls zoom cluster WHEN rendered THEN plus and minus are vertical with a horizontal divider and taller cluster frame",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_zoom_cluster_uses_vertical_layout",
+      "satisfied": true,
+      "evidence": "ios/LaneShadow/Views/Organisms/LSMapControls.swift:117-153; ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:56-83; .tmp/PLAN-S08-REM-IOS-T02/test-output.txt:1997; .tmp/PLAN-S08-REM-IOS-T02/idle-map-controls-simulator.png",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "c12353b1c4aea3c9453cdaf7ac0ade39492b5e78",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "description": "GIVEN zoom handlers WHEN controls render THEN zoom identifiers are unchanged and callbacks remain bound exactly once",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_zoom_callbacks_and_identifiers_remain_stable",
+      "satisfied": true,
+      "evidence": "ios/LaneShadow/Views/Organisms/LSMapControls.swift:120-139; ios/LaneShadowTests/Organisms/LSMapControlsTests.swift:85-128; .tmp/PLAN-S08-REM-IOS-T02/test-output.txt:1846-1921",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "c12353b1c4aea3c9453cdaf7ac0ade39492b5e78",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-5",
+      "type": "acceptance_criterion",
+      "description": "GIVEN touched Swift files WHEN native compliance and iOS build run THEN both exit 0",
+      "verify": "scripts/tokens/enforce-native-compliance.sh && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'",
+      "satisfied": true,
+      "evidence": "scripts/tokens/enforce-native-compliance.sh exit 0; .tmp/PLAN-S08-REM-IOS-T02/ac-5-output.txt:9760",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "c12353b1c4aea3c9453cdaf7ac0ade39492b5e78",
+      "maps_to_ac": null
+    },
+    {
+      "id": "TC-1",
+      "type": "test_criterion",
+      "description": "Map-mode chip order ends with zoomCluster when no save chip is visible",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_map_mode_places_zoom_cluster_last",
+      "satisfied": true,
+      "evidence": ".tmp/PLAN-S08-REM-IOS-T02/test-output.txt:1842-1843",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "c12353b1c4aea3c9453cdaf7ac0ade39492b5e78",
+      "maps_to_ac": "AC-1"
+    },
+    {
+      "id": "TC-2",
+      "type": "test_criterion",
+      "description": "Save chip remains above mode toggle and zoom remains last when save is visible",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_save_chip_stays_above_bottom_zoom_cluster",
+      "satisfied": true,
+      "evidence": ".tmp/PLAN-S08-REM-IOS-T02/test-output.txt:1844-1845",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "c12353b1c4aea3c9453cdaf7ac0ade39492b5e78",
+      "maps_to_ac": "AC-2"
+    },
+    {
+      "id": "TC-3",
+      "type": "test_criterion",
+      "description": "Zoom cluster uses vertical layout and horizontal divider",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_zoom_cluster_uses_vertical_layout",
+      "satisfied": true,
+      "evidence": ".tmp/PLAN-S08-REM-IOS-T02/test-output.txt:1997",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "c12353b1c4aea3c9453cdaf7ac0ade39492b5e78",
+      "maps_to_ac": "AC-3"
+    },
+    {
+      "id": "TC-4",
+      "type": "test_criterion",
+      "description": "Zoom identifiers and callback binding remain stable",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Organisms/LSMapControlsTests/test_zoom_callbacks_and_identifiers_remain_stable",
+      "satisfied": true,
+      "evidence": ".tmp/PLAN-S08-REM-IOS-T02/test-output.txt:1846-1921",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "c12353b1c4aea3c9453cdaf7ac0ade39492b5e78",
+      "maps_to_ac": "AC-4"
+    },
+    {
+      "id": "TC-5",
+      "type": "test_criterion",
+      "description": "Native token compliance and iOS build both exit 0",
+      "verify": "scripts/tokens/enforce-native-compliance.sh && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'",
+      "satisfied": true,
+      "evidence": "scripts/tokens/enforce-native-compliance.sh exit 0; .tmp/PLAN-S08-REM-IOS-T02/ac-5-output.txt:9760",
+      "remediation": null,
+      "last_evaluated_cycle": 1,
+      "last_evaluated_commit": "c12353b1c4aea3c9453cdaf7ac0ade39492b5e78",
+      "maps_to_ac": "AC-5"
+    }
   ]
 }
 -->

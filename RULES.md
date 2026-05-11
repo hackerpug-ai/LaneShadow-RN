@@ -26,6 +26,37 @@ LaneShadow serves recreational cruiser and touring riders who ride for enjoyment
 
 ---
 
+## Brand Philosophy
+
+**Required reading for all visual, copy, and identity decisions:** [`.spec/brand/PHILOSOPHY.md`](.spec/brand/PHILOSOPHY.md) — the load-bearing brand foundation. Defines manifesto, eight design pillars, claimed lineage (Imhof / Sibley / Buchanan-Smith / Pirsig / Pullman / Solnit / Draplin), rejected traditions, moodboard anchors, and the eight-question test for any future artifact.
+
+**The unifying thesis**: LaneShadow is the field journal of someone who has actually ridden the roads. The AI navigator is the rider's *daemon* (Pullman) — a soul-companion that travels alongside, drawn beside the lead line as a dotted echo in the same cartographic hand. We are heirs to **cartographic humanism**, not Silicon Valley SaaS.
+
+**Hard rejections** (do not ship anything in these traditions):
+- SaaS aesthetic (Inter, geometric vector-flat, purple gradients, ambient pastels)
+- Outdoor-performance gear-brand (Eurostile, mountain triangle, "BEAST MODE")
+- Motorcycle-culture macho (skulls, flames, eagles, gothic blackletter, chrome)
+- Compass-and-star navigation cliche (rose, needle, NSEW, pin-drop)
+- Kitsch heritage (faux-vintage filters, beardy lumberjack, sepia, "EST. 2026")
+- Apple/Google Maps utilitarianism (vector-flat, anonymous, depersonalized)
+- Wellness-app ambient curves (symmetric U/V/valley/bowl/smile-shapes)
+
+**Color discipline**: ink `#1F1A14` (primary), paper `#FDFBF8` (substrate), copper `#D9742A` (surgical accent only). No gradients. No purples. No glows.
+
+When this rule conflicts with a fashionable trend, kill the trend. When in doubt, ask: *would Imhof feel kinship with the hand that made this?*
+
+Holocron reference: `js75jses5nx4bh7pmdqwnw0mw986d6f2`.
+
+---
+
+## Real Map Surfaces
+
+Every LaneShadow map surface must render through the platform's real map implementation (`LSMap` on iOS/Android and the matching Mapbox-backed surface on web). Static maps, faux SVG maps, paper-map stand-ins, placeholder map mocks, and preview-only map components are prohibited in app code, sandbox stories, component templates, and design-system artifacts.
+
+If Mapbox credentials, network, or style loading fail, show a real error state. Do not substitute a drawn map, snapshot, static tile, or decorative fallback. Preserve LaneShadow's cartographic feel through Mapbox style configuration and live overlays only.
+
+---
+
 ## Convex Backend
 
 This project uses [Convex](https://convex.dev) as its backend.

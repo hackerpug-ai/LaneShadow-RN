@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LaneShadow Logo Preview — Concepts</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 2rem;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  body.light { background: #f5f5f5; color: #333; }
+  body.dark { background: #1a1a1a; color: #eee; }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  h1 { font-size: 1.5rem; font-weight: 600; }
+  h2 { font-size: 1.15rem; font-weight: 600; margin: 2.5rem 0 1rem; }
+  .toggle {
+    padding: 0.5rem 1rem;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .card {
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .card-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    min-height: 280px;
+  }
+  body.light .card-img { background: #fff; }
+  body.dark .card-img { background: #2a2a2a; }
+  .card-img img {
+    max-width: 100%;
+    max-height: 220px;
+  }
+  .card-label {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-top: 1px solid rgba(128, 128, 128, 0.3);
+  }
+  body.light .card-label { background: #fafafa; }
+  body.dark .card-label { background: #222; }
+  .favicon-strip {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    align-items: end;
+    padding: 1.5rem;
+    border: 1px solid rgba(128, 128, 128, 0.3);
+    border-radius: 12px;
+  }
+  body.light .favicon-strip { background: #fff; }
+  body.dark .favicon-strip { background: #2a2a2a; }
+  .favicon-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .favicon-row {
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+  }
+  .favicon-row > div {
+    text-align: center;
+  }
+  .favicon-row .label {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    margin-top: 0.25rem;
+  }
+  .intro {
+    max-width: 60ch;
+    margin-bottom: 1.5rem;
+    line-height: 1.55;
+    opacity: 0.8;
+  }
+</style>
+</head>
+<body class="light">
+  <div class="header">
+    <h1>LaneShadow Logo Preview — Concepts</h1>
+    <button class="toggle" onclick="document.body.classList.toggle('dark'); document.body.classList.toggle('light'); this.textContent = document.body.classList.contains('dark') ? '☀️ Light' : '🌙 Dark';">🌙 Dark</button>
+  </div>
+
+  <p class="intro">Four directions, all sitting within the cartographic humanism philosophy. Each uses a different cartographic primitive as its central metaphor: a path (1, 2, 3) or a peak (4). Anchor dot in copper, ink mark in deep brown-black on warm ivory paper.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-img"><img src="concepts/concept-1-the-bend.svg" alt="Concept 1 — The Bend"></div>
+      <div class="card-label">1 — The Bend (horizontal swoop)</div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="concepts/concept-2-the-climb.svg" alt="Concept 2 — The Climb"></div>
+      <div class="card-label">2 — The Climb (rising switchback)</div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="concepts/concept-3-the-convergence.svg" alt="Concept 3 — The Convergence"></div>
+      <div class="card-label">3 — The Convergence (S-curve, daemon meets at apex)</div>
+    </div>
+    <div class="card">
+      <div class="card-img"><img src="concepts/concept-4-the-contour.svg" alt="Concept 4 — The Contour"></div>
+      <div class="card-label">4 — The Contour (concentric topographic rings)</div>
+    </div>
+  </div>
+
+  <h2>Favicon Size Check</h2>
+  <p class="intro" style="margin-bottom: 1rem;">Does the two-stroke composition still read at favicon size? If a daemon line vanishes at 32px, the concept fails the philosophy's "must read at 24px favicon" test.</p>
+  <div class="favicon-strip">
+    <div class="favicon-cell">
+      <div style="font-size:0.8rem;font-weight:500;">1 — Bend</div>
+      <div class="favicon-row">
+        <div><img src="concepts/concept-1-the-bend.svg" width="64" height="64"><div class="label">64px</div></div>
+        <div><img src="concepts/concept-1-the-bend.svg" width="32" height="32"><div class="label">32px</div></div>
+        <div><img src="concepts/concept-1-the-bend.svg" width="16" height="16"><div class="label">16px</div></div>
+      </div>
+    </div>
+    <div class="favicon-cell">
+      <div style="font-size:0.8rem;font-weight:500;">2 — Climb</div>
+      <div class="favicon-row">
+        <div><img src="concepts/concept-2-the-climb.svg" width="64" height="64"><div class="label">64px</div></div>
+        <div><img src="concepts/concept-2-the-climb.svg" width="32" height="32"><div class="label">32px</div></div>
+        <div><img src="concepts/concept-2-the-climb.svg" width="16" height="16"><div class="label">16px</div></div>
+      </div>
+    </div>
+    <div class="favicon-cell">
+      <div style="font-size:0.8rem;font-weight:500;">3 — Convergence</div>
+      <div class="favicon-row">
+        <div><img src="concepts/concept-3-the-convergence.svg" width="64" height="64"><div class="label">64px</div></div>
+        <div><img src="concepts/concept-3-the-convergence.svg" width="32" height="32"><div class="label">32px</div></div>
+        <div><img src="concepts/concept-3-the-convergence.svg" width="16" height="16"><div class="label">16px</div></div>
+      </div>
+    </div>
+    <div class="favicon-cell">
+      <div style="font-size:0.8rem;font-weight:500;">4 — Contour</div>
+      <div class="favicon-row">
+        <div><img src="concepts/concept-4-the-contour.svg" width="64" height="64"><div class="label">64px</div></div>
+        <div><img src="concepts/concept-4-the-contour.svg" width="32" height="32"><div class="label">32px</div></div>
+        <div><img src="concepts/concept-4-the-contour.svg" width="16" height="16"><div class="label">16px</div></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

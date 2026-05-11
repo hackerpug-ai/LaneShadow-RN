@@ -69,7 +69,10 @@ final class AuthSignInE2ETests: XCTestCase {
     }
 
     private func loadCredentials() throws -> Credentials {
-        let environment = ProcessInfo.processInfo.environment
+        // Use AppLauncher.mergedEnvironment() so bare `xcodebuild test`
+        // invocations (which do not patch the test runner's ProcessInfo)
+        // still pick up keys from .env.local.
+        let environment = AppLauncher.mergedEnvironment()
         let email = environment["CLERK_TEST_EMAIL"] ?? environment["LANESHADOW_AUTH_EMAIL"] ?? ""
         let password = environment["CLERK_TEST_PASSWORD"] ?? environment["LANESHADOW_AUTH_PASSWORD"] ?? ""
 
@@ -109,7 +112,11 @@ final class AuthSignInE2ETests: XCTestCase {
             if element("auth.signIn.verification.root").exists {
                 return .verificationRequired
             }
-            if element("idlescreen-current-user-greeting").exists || element("auth.landing.logout").exists {
+            // Post-auth sentinel: LSTopBar is the only stable id on the
+            // authenticated landing today. The prior greeting/logout ids were
+            // retired with the LSTopBar migration; no logout button exists in
+            // the authenticated UI as of 2026-05-11.
+            if element(LSIds.topBar).exists {
                 return .signedIn
             }
 
@@ -142,12 +149,8 @@ final class AuthSignInE2ETests: XCTestCase {
 
     private func assertAuthenticatedLanding(message: String) {
         XCTAssertTrue(
-            element("idlescreen-current-user-greeting").waitForExistence(timeout: 90),
+            element(LSIds.topBar).waitForExistence(timeout: 90),
             message
-        )
-        XCTAssertTrue(
-            element("auth.landing.logout").waitForExistence(timeout: 15),
-            "Expected authenticated landing page to expose a logout button."
         )
     }
 

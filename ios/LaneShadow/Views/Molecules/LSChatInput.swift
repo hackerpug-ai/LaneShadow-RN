@@ -304,7 +304,7 @@ public struct LSChatInput: View {
     }
 
     private var actionTouchSize: CGFloat {
-        max(theme.touchTarget.minTouchTarget, theme.space.xxl + theme.space.lg + theme.space.sm)
+        max(theme.touchTarget.minTouchTarget, theme.space.xxl + theme.space.md)
     }
 
     private var inputBarMinHeight: CGFloat {

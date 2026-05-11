@@ -14,7 +14,11 @@ struct AuthFlowView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        // NavigationStack removed: auth routing uses appState.authRoute (not push/pop),
+        // and NavigationStack + .navigationTitle + .toolbar(.hidden) was generating
+        // expensive preference combining that overflowed the main-thread stack on
+        // iOS 18 real devices (1MB stack vs 8MB simulator). See debug log 2026-05-09.
+        Group {
             if route == .signUp {
                 SignUpView(appState: appState)
             } else if case let .oauthCallback(callbackURL) = route {
@@ -30,5 +34,7 @@ struct AuthFlowView: View {
                 SignInView(appState: appState)
             }
         }
+        .onAppear { NSLog("🟣 AuthFlowView.appeared route=\(String(describing: route))") }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

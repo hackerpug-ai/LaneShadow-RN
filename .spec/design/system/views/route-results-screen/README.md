@@ -2,7 +2,7 @@
 
 ## Purpose
 
-RouteResultsScreen is the Navigator's recommendation surface. It presents three route polylines drawn on the paper map — best (copper, solid 3.5px), alt1 (sage, dashed), alt2 (slate, dashed) — alongside a pinned NavigatorMessage that states the reasoning in Newsreader prose and attaches three compact route cards. The rider can accept a card (→ UC-SCR-04 RouteDetails), swap selection, refine via chat (→ UC-SCR-02 PlanningScreen), or discard entirely. The chat input stays present and switches its placeholder to a refine prompt, closing the planning loop.
+RouteResultsScreen is the Navigator's recommendation surface. It presents three route polylines drawn on the live map — best (copper, solid 3.5px), alt1 (sage, dashed), alt2 (slate, dashed) — alongside a pinned NavigatorMessage that states the reasoning in Newsreader prose and attaches three compact route cards. The rider can accept a card (→ UC-SCR-04 RouteDetails), swap selection, refine via chat (→ UC-SCR-02 PlanningScreen), or discard entirely. The chat input stays present and switches its placeholder to a refine prompt, closing the planning loop.
 
 ## Variants
 
@@ -10,7 +10,7 @@ RouteResultsScreen is the Navigator's recommendation surface. It presents three 
 |---|---|---|---|
 | S01 | Default · Best Pre-selected | Light | Three polylines, message pinned, first card selected with copper stripe + Best badge |
 | S02 | Alt1 Tapped · Sage Promoted | Light | Alt1 card selected; sage polyline solid-bold, copper route ghosted; compass chip re-tints to sage |
-| S03 | Default · Dark | Dark | Ink paper map; best route gets copper outer glow; all glass/chrome/card surfaces re-resolve on dark tokens |
+| S03 | Default · Dark | Dark | Ink live map; best route gets copper outer glow; all glass/chrome/card surfaces re-resolve on dark tokens |
 | S04 | Refining | Light | Chat field active; warm scrim over map; routes dim to 40%; Navigator message auto-dismisses; three refine primers appear above input; send button live |
 | V01 | Two Candidates | Light | Only two polylines + two cards; Navigator explains the missing third; chat primes constraint relaxation |
 | V02 | Weather Divergent | Light | Three routes with per-card weather badges (clear/clear/rain); storm hatching on affected map quadrant; Navigator names time and direction of front |

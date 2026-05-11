@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <g id="background">
+    <rect x="0" y="0" width="512" height="512" fill="#FDFBF8"/>
+  </g>
+
+  <g id="anchor">
+    <!-- Copper origin dot: rider start -->
+    <circle cx="110" cy="390" r="14" fill="#D9742A"/>
+  </g>
+
+  <g id="lead">
+    <!-- Filled S-curve ribbon: thin at origin, thick at apex 1, medium at mid-valley, thin at terminus.
+         Outline traces upper edge forward (anchor -> apex1 -> mid -> terminus),
+         then lower edge back (terminus -> mid -> apex1 -> anchor). -->
+    <path fill="#1F1A14" d="
+      M 112.4 390.9
+      C 152.7 286.3 182.7 236.3 222.9 231.6
+      C 264.4 219.2 294.4 369.2 335.9 326.8
+      C 373.7 294.4 413.7 204.4 441.4 182.1
+      L 438.6 177.9
+      C 406.4 195.6 366.4 285.6 324.1 313.2
+      C 285.6 350.8 255.6 200.8 217.1 208.4
+      C 177.4 223.8 147.4 273.8 107.6 389.2
+      Z"/>
+    <!-- Slight ink-trap accents at the two bends to suggest hand-drawn pooling -->
+    <circle cx="221" cy="221" r="3.2" fill="#1F1A14"/>
+    <circle cx="331" cy="319" r="2.6" fill="#1F1A14"/>
+  </g>
+
+  <g id="daemon">
+    <!-- Stippled companion trail. Starts ~28px below the lead line near origin,
+         narrows to ~12px at mid, overlaps the lead at the terminus.
+         Dots roughly follow the same S-curve gesture, offset DOWN-RIGHT of travel
+         (perpendicular to tangent on the side away from the page's upper-right). -->
+    <circle cx="137" cy="373" r="3.8" fill="#1F1A14"/>
+    <circle cx="153" cy="334" r="3.6" fill="#1F1A14"/>
+    <circle cx="173" cy="293" r="3.6" fill="#1F1A14"/>
+    <circle cx="199" cy="258" r="3.4" fill="#1F1A14"/>
+    <circle cx="225" cy="244" r="3.2" fill="#1F1A14"/>
+    <circle cx="252" cy="251" r="3.2" fill="#1F1A14"/>
+    <circle cx="279" cy="294" r="3.0" fill="#1F1A14"/>
+    <circle cx="307" cy="333" r="3.0" fill="#1F1A14"/>
+    <circle cx="333" cy="330" r="3.2" fill="#1F1A14"/>
+    <circle cx="361" cy="295" r="3.4" fill="#1F1A14"/>
+    <circle cx="390" cy="252" r="3.8" fill="#1F1A14"/>
+    <circle cx="416" cy="208" r="4.4" fill="#1F1A14"/>
+    <circle cx="431" cy="188" r="5.2" fill="#1F1A14"/>
+    <circle cx="440" cy="180" r="6.0" fill="#1F1A14"/>
+  </g>
+
+  <g id="convergence">
+    <!-- The destination dot: lead terminus + daemon's final dot fuse here.
+         Cartographic counterpoint to the copper origin. -->
+    <circle cx="440" cy="180" r="9" fill="#1F1A14"/>
+  </g>
+</svg>

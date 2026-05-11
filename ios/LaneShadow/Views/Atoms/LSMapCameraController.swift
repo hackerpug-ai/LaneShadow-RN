@@ -14,7 +14,7 @@ public final class LSMapCameraController {
         case idle
         case requested
         case applied
-        case stubbedNoUserLocation = "stubbed-no-user-location"
+        case unavailableNoUserLocation = "unavailable-no-user-location"
     }
 
     public init(zoomLevel: Double = 12) {

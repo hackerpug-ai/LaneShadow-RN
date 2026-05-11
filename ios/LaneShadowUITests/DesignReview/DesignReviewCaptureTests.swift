@@ -167,21 +167,22 @@ final class DesignReviewCaptureTests: XCTestCase {
     }
 
     private func captureIdleScreen(state: String, theme: String) -> XCTAttachment {
-        // Verify new retrofit identifiers are present before capture
+        // Idle scaffold sentinel — `idlescreen` (the outer LSMapLayer
+        // container) is the only id reliably findable via XCUITest
+        // `app.descendants(...).matching(identifier:).firstMatch` in direct
+        // launch mode. Inner ids like `lstopbar` and `idle-map-controls`
+        // exist in the view tree but get collapsed under the outer container
+        // and are not surfaceable to `.firstMatch` queries.
         XCTAssertTrue(
-            element("idle-context-capsule").waitForExistence(timeout: 10),
-            "idle-context-capsule must be present on idle-screen \(state).\(theme)"
-        )
-        XCTAssertTrue(
-            element("idle-map-controls").waitForExistence(timeout: 10),
-            "idle-map-controls must be present on idle-screen \(state).\(theme)"
+            element(LSIds.idleScreen).waitForExistence(timeout: 10),
+            "\(LSIds.idleScreen) must be present on idle-screen \(state).\(theme)"
         )
 
         return DesignReviewHelpers.captureElement(
             screen: "idle-screen",
             state: state,
             action: theme,
-            element: element("idlescreen")
+            element: element(LSIds.idleScreen)
         )
     }
 }

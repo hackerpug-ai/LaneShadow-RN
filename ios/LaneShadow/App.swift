@@ -37,21 +37,11 @@ struct LaneShadowApp: App {
                         #if DEBUG
                             .preferredColorScheme(uiTestColorScheme)
                         #endif
-                            .task {
-                                NSLog("🟣 App.task: calling Clerk.shared.load()")
-                                try? await Clerk.shared.load()
-                                NSLog(
-                                    "🟣 App.task: Clerk.shared.load() returned, session=\(Clerk.shared.session != nil)"
-                                )
-                            }
                     }
                 #else
                     RootView(convexStore: convexStore)
                         .environment(\.appEnvironment, appEnvironment)
                         .laneShadowTheme()
-                        .task {
-                            try? await Clerk.shared.load()
-                        }
                 #endif
             }
             #if DEBUG

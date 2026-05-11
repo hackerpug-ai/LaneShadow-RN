@@ -17,22 +17,24 @@ final class IdleStateE2ETests: XCTestCase {
 
     /// Idle state lands on the map view with real greeting, meta row, and
     /// favorites driven by the Convex backend.
+    /// Greeting/meta/headline moved from a standalone overlay into LSTopBar
+    /// (2026-04 retrofit); ids migrated accordingly.
     func testIdleStateRendersGreetingAndMetaRow() {
         AppLauncher.launchApp(app, bypassAuth: true)
 
         XCTAssertTrue(
-            element("idlescreen-current-user-greeting").waitForExistence(timeout: 30),
-            "Expected authenticated launch to show the idle-screen greeting overlay."
+            element(LSIds.topBar).waitForExistence(timeout: 30),
+            "Expected authenticated launch to show the LSTopBar that hosts greeting + meta."
         )
 
         XCTAssertTrue(
-            element("greeting-meta").waitForExistence(timeout: 5),
-            "Expected meta row (day · temp · condition) to render."
+            element(LSIds.topBarMeta).waitForExistence(timeout: 5),
+            "Expected meta row (day · temp · condition) to render in LSTopBar."
         )
 
         XCTAssertTrue(
-            element("greeting-headline").waitForExistence(timeout: 5),
-            "Expected greeting headline to render."
+            element(LSIds.topBarHeadline).waitForExistence(timeout: 5),
+            "Expected greeting headline to render in LSTopBar."
         )
 
         attachScreenshot(named: "idle-state-landing")
@@ -43,17 +45,22 @@ final class IdleStateE2ETests: XCTestCase {
         AppLauncher.launchApp(app, bypassAuth: true)
 
         XCTAssertTrue(
-            element("idlescreen-current-user-greeting").waitForExistence(timeout: 30),
+            element(LSIds.topBar).waitForExistence(timeout: 30),
             "Expected idle screen before tapping suggestion chip."
         )
 
-        let firstChip = app.buttons.firstMatch
+        let suggestions = element(LSIds.chatInputSuggestions)
+        XCTAssertTrue(
+            suggestions.waitForExistence(timeout: 10),
+            "Expected suggestion chip row to render in chat input."
+        )
+        let firstChip = suggestions.buttons.firstMatch
         XCTAssertTrue(firstChip.waitForExistence(timeout: 5), "Expected at least one suggestion chip.")
         firstChip.tap()
 
         XCTAssertTrue(
-            element("planning-phase-indicator").waitForExistence(timeout: 10),
-            "Expected planning phase indicator after tapping suggestion chip."
+            element("planningscreen").waitForExistence(timeout: 10),
+            "Expected PlanningScreen after tapping suggestion chip."
         )
 
         attachScreenshot(named: "idle-to-planning-transition")
@@ -64,16 +71,16 @@ final class IdleStateE2ETests: XCTestCase {
         AppLauncher.launchApp(app, bypassAuth: true)
 
         XCTAssertTrue(
-            element("idlescreen-current-user-greeting").waitForExistence(timeout: 30),
+            element(LSIds.topBar).waitForExistence(timeout: 30),
             "Expected idle screen before opening drawer."
         )
 
-        let hamburger = element("ls-topbar-hamburger-chip")
+        let hamburger = element(LSIds.topBarHamburger)
         XCTAssertTrue(hamburger.waitForExistence(timeout: 5), "Expected hamburger menu chip.")
         hamburger.tap()
 
         XCTAssertTrue(
-            element("sessions-drawer-root").waitForExistence(timeout: 5),
+            element("idlescreen-menu-drawer").waitForExistence(timeout: 5),
             "Expected sessions drawer to open after tapping hamburger."
         )
 

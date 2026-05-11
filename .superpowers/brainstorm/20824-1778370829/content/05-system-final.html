@@ -1,0 +1,189 @@
+<h2>The locked system, three tiers, one identity.</h2>
+<p class="subtitle">Same scene, three resolutions. Each tier earns its complexity. Below is what we'd actually be making — final review before I write the spec.</p>
+
+<div class="section">
+  <p style="line-height:1.6;">Top row shows the three tiers at full size so you can see the system. Bottom row shows the favicon-size legibility test — the whole point of the tiered system is that it survives at any size.</p>
+</div>
+
+<h3 style="margin-top:2rem;">The Three Tiers</h3>
+
+<div class="cards" style="grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+
+  <!-- TIER 1: FAVICON / PURE ICON -->
+  <div class="card">
+    <div class="card-image" style="background:#fdfbf8;display:flex;align-items:center;justify-content:center;padding:1.5rem;min-height:240px;">
+      <svg viewBox="0 0 220 220" style="width:170px;height:170px;">
+        <rect width="220" height="220" fill="#fdfbf8"/>
+        <circle cx="110" cy="118" r="32" fill="#d9742a"/>
+        <line x1="20" y1="138" x2="200" y2="138" stroke="#1f1a14" stroke-width="2.5"/>
+        <path d="M 60 200 Q 90 175 105 138 L 115 138 Q 140 175 160 200 Z" fill="#1f1a14"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3 style="margin-bottom:0.25rem;">Tier 1 — Favicon</h3>
+      <p class="label">16px → 48px</p>
+      <p style="margin-top:0.5rem;font-size:0.9rem;">Sun, horizon, road. Three primary forms. The Bauhaus minimum.</p>
+      <p style="font-size:0.85rem;color:#666;"><strong>Used for:</strong> browser favicons, app icon at small sizes, mention pills, tiny brand marks anywhere on map screens.</p>
+    </div>
+  </div>
+
+  <!-- TIER 2: MEDALLION / PRIMARY -->
+  <div class="card">
+    <div class="card-image" style="background:#fdfbf8;display:flex;align-items:center;justify-content:center;padding:1.5rem;min-height:240px;">
+      <svg viewBox="0 0 220 220" style="width:170px;height:170px;">
+        <rect width="220" height="220" fill="#fdfbf8"/>
+        <path d="M 20 138 Q 50 124 80 130 Q 110 122 140 130 Q 170 124 200 138 L 200 138 L 20 138 Z" fill="#1f1a14" opacity="0.88"/>
+        <circle cx="115" cy="118" r="32" fill="#d9742a"/>
+        <line x1="20" y1="138" x2="200" y2="138" stroke="#1f1a14" stroke-width="2"/>
+        <path d="M 60 200 Q 92 175 105 138 L 115 138 Q 138 175 165 200 Z" fill="#1f1a14"/>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3 style="margin-bottom:0.25rem;">Tier 2 — Medallion <span style="color:#d9742a;">(primary)</span></h3>
+      <p class="label">48px → 1024px</p>
+      <p style="margin-top:0.5rem;font-size:0.9rem;">Adds the rolling-hills silhouette. The literary register kicks in. Hand-inked, imperfect, warm-paper.</p>
+      <p style="font-size:0.85rem;color:#666;"><strong>Used for:</strong> the iOS/Android app icon, splash screen, in-app brand mark, marketing OG images, social avatars.</p>
+    </div>
+  </div>
+
+  <!-- TIER 3: BADGE / LOCKUP -->
+  <div class="card">
+    <div class="card-image" style="background:#fdfbf8;display:flex;align-items:center;justify-content:center;padding:1rem;min-height:240px;">
+      <svg viewBox="0 0 220 220" style="width:200px;height:200px;">
+        <rect width="220" height="220" fill="#fdfbf8"/>
+        <circle cx="110" cy="110" r="100" fill="none" stroke="#1f1a14" stroke-width="3"/>
+        <circle cx="110" cy="110" r="92" fill="none" stroke="#1f1a14" stroke-width="1.2"/>
+        <path id="arcTopFinal" d="M 35 110 A 75 75 0 0 1 185 110" fill="none"/>
+        <text font-family="Georgia, serif" font-size="13" letter-spacing="3" fill="#1f1a14">
+          <textPath href="#arcTopFinal" startOffset="50%" text-anchor="middle">LANESHADOW</textPath>
+        </text>
+        <path id="arcBotFinal" d="M 38 110 A 72 72 0 0 0 182 110" fill="none"/>
+        <text font-family="Georgia, serif" font-size="9" letter-spacing="3" fill="#1f1a14">
+          <textPath href="#arcBotFinal" startOffset="50%" text-anchor="middle">★ RIDE THE MOMENT ★</textPath>
+        </text>
+        <g transform="translate(0,-3)">
+          <path d="M 50 130 Q 75 119 100 124 Q 110 119 120 124 Q 145 119 170 130 L 170 130 L 50 130 Z" fill="#1f1a14" opacity="0.88"/>
+          <circle cx="110" cy="115" r="22" fill="#d9742a"/>
+          <line x1="55" y1="130" x2="165" y2="130" stroke="#1f1a14" stroke-width="1.6"/>
+          <path d="M 80 165 Q 100 150 105 130 L 115 130 Q 120 150 140 165 Z" fill="#1f1a14"/>
+        </g>
+      </svg>
+    </div>
+    <div class="card-body">
+      <h3 style="margin-bottom:0.25rem;">Tier 3 — Heritage Badge</h3>
+      <p class="label">1024px+ / merchandise</p>
+      <p style="margin-top:0.5rem;font-size:0.9rem;">Medallion wrapped in double-ring seal, arc-text wordmark + tagline. The patch.</p>
+      <p style="font-size:0.85rem;color:#666;"><strong>Used for:</strong> marketing posters, the about page, t-shirts, stickers, eventual merch, App Store store-listing hero, business cards.</p>
+    </div>
+  </div>
+
+</div>
+
+<h3 style="margin-top:2rem;">Favicon Survival Test</h3>
+<p style="line-height:1.55;font-size:0.9rem;color:#666;margin-bottom:1rem;">Each tier rendered at its small-size cousin. The whole point of tiering: even at 16px, the brand reads.</p>
+
+<div style="display:flex;gap:2.5rem;flex-wrap:wrap;align-items:end;padding:1.5rem;border:1px solid rgba(128,128,128,0.3);border-radius:12px;background:#fff;">
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
+    <div style="font-size:0.8rem;font-weight:500;">Tier 1 — Favicon</div>
+    <div style="display:flex;gap:1rem;align-items:end;">
+      <div style="text-align:center;">
+        <svg viewBox="0 0 220 220" style="width:64px;height:64px;border:1px solid #eee;">
+          <rect width="220" height="220" fill="#fdfbf8"/>
+          <circle cx="110" cy="118" r="32" fill="#d9742a"/>
+          <line x1="20" y1="138" x2="200" y2="138" stroke="#1f1a14" stroke-width="2.5"/>
+          <path d="M 60 200 Q 90 175 105 138 L 115 138 Q 140 175 160 200 Z" fill="#1f1a14"/>
+        </svg>
+        <div style="font-size:0.7rem;opacity:0.6;">64px</div>
+      </div>
+      <div style="text-align:center;">
+        <svg viewBox="0 0 220 220" style="width:32px;height:32px;border:1px solid #eee;">
+          <rect width="220" height="220" fill="#fdfbf8"/>
+          <circle cx="110" cy="118" r="32" fill="#d9742a"/>
+          <line x1="20" y1="138" x2="200" y2="138" stroke="#1f1a14" stroke-width="2.5"/>
+          <path d="M 60 200 Q 90 175 105 138 L 115 138 Q 140 175 160 200 Z" fill="#1f1a14"/>
+        </svg>
+        <div style="font-size:0.7rem;opacity:0.6;">32px</div>
+      </div>
+      <div style="text-align:center;">
+        <svg viewBox="0 0 220 220" style="width:16px;height:16px;border:1px solid #eee;">
+          <rect width="220" height="220" fill="#fdfbf8"/>
+          <circle cx="110" cy="118" r="32" fill="#d9742a"/>
+          <line x1="20" y1="138" x2="200" y2="138" stroke="#1f1a14" stroke-width="2.5"/>
+          <path d="M 60 200 Q 90 175 105 138 L 115 138 Q 140 175 160 200 Z" fill="#1f1a14"/>
+        </svg>
+        <div style="font-size:0.7rem;opacity:0.6;">16px</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
+    <div style="font-size:0.8rem;font-weight:500;">Tier 2 — Medallion</div>
+    <div style="display:flex;gap:1rem;align-items:end;">
+      <div style="text-align:center;">
+        <svg viewBox="0 0 220 220" style="width:64px;height:64px;border:1px solid #eee;">
+          <rect width="220" height="220" fill="#fdfbf8"/>
+          <path d="M 20 138 Q 50 124 80 130 Q 110 122 140 130 Q 170 124 200 138 L 200 138 L 20 138 Z" fill="#1f1a14" opacity="0.88"/>
+          <circle cx="115" cy="118" r="32" fill="#d9742a"/>
+          <line x1="20" y1="138" x2="200" y2="138" stroke="#1f1a14" stroke-width="2"/>
+          <path d="M 60 200 Q 92 175 105 138 L 115 138 Q 138 175 165 200 Z" fill="#1f1a14"/>
+        </svg>
+        <div style="font-size:0.7rem;opacity:0.6;">64px</div>
+      </div>
+      <div style="text-align:center;">
+        <svg viewBox="0 0 220 220" style="width:48px;height:48px;border:1px solid #eee;">
+          <rect width="220" height="220" fill="#fdfbf8"/>
+          <path d="M 20 138 Q 50 124 80 130 Q 110 122 140 130 Q 170 124 200 138 L 200 138 L 20 138 Z" fill="#1f1a14" opacity="0.88"/>
+          <circle cx="115" cy="118" r="32" fill="#d9742a"/>
+          <line x1="20" y1="138" x2="200" y2="138" stroke="#1f1a14" stroke-width="2"/>
+          <path d="M 60 200 Q 92 175 105 138 L 115 138 Q 138 175 165 200 Z" fill="#1f1a14"/>
+        </svg>
+        <div style="font-size:0.7rem;opacity:0.6;">48px</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
+    <div style="font-size:0.8rem;font-weight:500;">Tier 3 — Badge</div>
+    <div style="display:flex;gap:1rem;align-items:end;">
+      <div style="text-align:center;">
+        <svg viewBox="0 0 220 220" style="width:96px;height:96px;border:1px solid #eee;">
+          <rect width="220" height="220" fill="#fdfbf8"/>
+          <circle cx="110" cy="110" r="100" fill="none" stroke="#1f1a14" stroke-width="3"/>
+          <circle cx="110" cy="110" r="92" fill="none" stroke="#1f1a14" stroke-width="1.2"/>
+          <path id="arcTopFinalSm" d="M 35 110 A 75 75 0 0 1 185 110" fill="none"/>
+          <text font-family="Georgia, serif" font-size="13" letter-spacing="3" fill="#1f1a14">
+            <textPath href="#arcTopFinalSm" startOffset="50%" text-anchor="middle">LANESHADOW</textPath>
+          </text>
+          <g transform="translate(0,-3)">
+            <path d="M 50 130 Q 75 119 100 124 Q 110 119 120 124 Q 145 119 170 130 L 170 130 L 50 130 Z" fill="#1f1a14" opacity="0.88"/>
+            <circle cx="110" cy="115" r="22" fill="#d9742a"/>
+            <line x1="55" y1="130" x2="165" y2="130" stroke="#1f1a14" stroke-width="1.6"/>
+            <path d="M 80 165 Q 100 150 105 130 L 115 130 Q 120 150 140 165 Z" fill="#1f1a14"/>
+          </g>
+        </svg>
+        <div style="font-size:0.7rem;opacity:0.6;">96px</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<h3 style="margin-top:2rem;">Locked decisions</h3>
+
+<div style="background:#fff;border:1px solid rgba(128,128,128,0.3);border-radius:12px;padding:1.5rem;font-size:0.95rem;line-height:1.6;">
+  <ul style="list-style:none;padding:0;">
+    <li>✅ <strong>Emotion:</strong> ESCAPE — "the bike is the only honest answer the week ever gave you"</li>
+    <li>✅ <strong>Visual archetype:</strong> Setting sun + horizon + road wedge in classical perspective</li>
+    <li>✅ <strong>Format system:</strong> three-tier identity (Favicon → Medallion → Heritage Badge)</li>
+    <li>✅ <strong>Medallion contents:</strong> sun, horizon, rolling hills silhouette, road — <em>no rider</em> (the rider is the viewer)</li>
+    <li>✅ <strong>Color discipline:</strong> ink #1F1A14, paper #FDFBF8, copper #D9742A — copper has narrative job (it IS the sun)</li>
+    <li>✅ <strong>Hand quality:</strong> imperfection earned by craft — slight wobble, ink-trap at convergence, weight modulation in road wedge</li>
+    <li>✅ <strong>Voice:</strong> WPA park-poster meets 1960s field guide. Patient, restrained, instantly legible.</li>
+  </ul>
+</div>
+
+<div class="section" style="margin-top:1.5rem;">
+  <p class="label">What I'm asking</p>
+  <p>Does this hold? If yes, I write the spec to <code>.spec/brand/LOGO-DESIGN-SPEC.md</code>, you review, and we move to <code>/logo-designer</code> implementation. If something is still wrong — the road too straight, the sun too small, the hills too literal, the badge too patch-y — say so before I commit it to a spec.</p>
+</div>

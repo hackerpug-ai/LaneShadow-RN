@@ -10,7 +10,7 @@ Swipe-up modal sheet that overlays the map. Used for contextual actions (route f
 
 ```
 mol-bottom-sheet-context          ← position: relative overflow: hidden frame
-  mol-bottom-sheet-context__map   ← map mock behind scrim (inert)
+  mol-bottom-sheet-context__map   ← live map slot behind scrim (inert)
   .ls-scrim                       ← backdrop dimmer (composed from atom)
   mol-bottom-sheet-context__anchor ← positions sheet at bottom; height = detent
     .mol-bottom-sheet             ← sheet surface (surface.overlay)

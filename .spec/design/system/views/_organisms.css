@@ -212,7 +212,7 @@
 }
 
 /* Simulated map scene — demo-only container so TopBar chrome reads
-   over a paper-map surface the way it does on screen.
+   over a live-map surface the way it does on screen.
    Preview-local; not part of the organism API. */
 .demo-scene {
   position: relative;
@@ -755,7 +755,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════
-   Demo scene — paper map background so callouts render the way they do
+   Demo scene — live map background so callouts render the way they do
    on the map canvas. Preview-local; not part of the API.
    ═══════════════════════════════════════════════════════ */
 .demo-scene {
@@ -860,7 +860,7 @@
   flex: 2;
 }
 
-/* Demo stage — bottom-anchored context over a paper map.
+/* Demo stage — bottom-anchored context over a live map.
    Preview-local; not part of the organism API. */
 .demo-stage {
   position: relative;
@@ -1163,7 +1163,7 @@
   opacity: var(--opacity-focus);
   pointer-events: none;
 }
-.org-route-card__map-svg {
+.org-route-card__live-map {
   position: absolute;
   inset: 0;
   width: 100%;

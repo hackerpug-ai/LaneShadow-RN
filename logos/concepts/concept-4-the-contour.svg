@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- LaneShadow — Concept 4: The Contour
+       Cartographic humanism. Three concentric leaning chevrons —
+       contour lines ringing a hilltop on a 1930s USGS topo sheet.
+       Outer dashed ring is the daemon: the rider's soul-companion. -->
+
+  <g id="background">
+    <rect x="0" y="0" width="512" height="512" fill="#FDFBF8"/>
+  </g>
+
+  <g id="contour-outer-daemon"
+     fill="none"
+     stroke="#1F1A14"
+     stroke-width="6"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     stroke-dasharray="14 8">
+    <!-- Largest, most asymmetric leaning contour. Right shoulder rises
+         steeper than left. Open at the bottom — trails off the sheet. -->
+    <path d="M 122 432
+             C 132 360, 156 282, 198 218
+             C 232 166, 274 138, 304 150
+             C 336 162, 366 214, 398 282
+             C 422 334, 446 390, 462 432"/>
+  </g>
+
+  <g id="contour-middle">
+    <!-- Mid contour: stroked solid, slight hand-drawn wobble. -->
+    <path d="M 162 432
+             C 170 372, 192 308, 226 258
+             C 252 220, 281 199, 304 209
+             C 327 219, 348 256, 370 302
+             C 388 340, 408 388, 422 432"
+          fill="none"
+          stroke="#1F1A14"
+          stroke-width="9"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+  </g>
+
+  <g id="contour-inner">
+    <!-- Innermost contour as a closed filled ring (chevron with thickness),
+         hugging the anchor. Outer edge then inner edge (reverse) creates
+         the ~14px-thick ring; subtle ink-trap at the apex. -->
+    <path d="M 200 432
+             C 207 388, 224 340, 252 304
+             C 268 284, 282 274, 295 280
+             C 308 286, 320 308, 332 336
+             C 346 370, 360 402, 368 432
+             L 354 432
+             C 346 404, 334 376, 322 352
+             C 312 332, 302 318, 294 314
+             C 286 310, 277 318, 266 332
+             C 246 358, 230 396, 214 432
+             Z"
+          fill="#1F1A14"/>
+  </g>
+
+  <g id="anchor">
+    <!-- Copper summit dot: "you are here" at the heart of the terrain. -->
+    <circle cx="256" cy="360" r="12" fill="#D9742A"/>
+  </g>
+</svg>

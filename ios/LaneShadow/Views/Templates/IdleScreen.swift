@@ -1,5 +1,4 @@
 import LaneShadowTheme
-import OSLog
 import SwiftUI
 
 /// IdleScreen — the dormant Navigator welcome screen.
@@ -24,8 +23,6 @@ public struct IdleScreen: View {
     private let onZoomIn: () -> Void
     private let onZoomOut: () -> Void
     private let onRecenter: () -> Void
-    private let onLayers: () -> Void
-    private let onToggleView: () -> Void
 
     public init(
         provider: IdleMockProvider.Type = IdleMockProvider.self,
@@ -56,11 +53,9 @@ public struct IdleScreen: View {
         self.onNewTap = onNewTap
         self.onSuggestionTap = onSuggestionTap
         self.onSend = onSend
-        self.onZoomIn = onZoomIn ?? IdleScreenMapControlDefaults.logZoomInStub
-        self.onZoomOut = onZoomOut ?? IdleScreenMapControlDefaults.logZoomOutStub
-        self.onRecenter = onRecenter ?? IdleScreenMapControlDefaults.logRecenterStub
-        self.onLayers = onLayers ?? IdleScreenMapControlDefaults.logLayersStub
-        self.onToggleView = onToggleView ?? IdleScreenMapControlDefaults.logToggleViewStub
+        self.onZoomIn = onZoomIn ?? {}
+        self.onZoomOut = onZoomOut ?? {}
+        self.onRecenter = onRecenter ?? {}
     }
 
     public var body: some View {
@@ -78,7 +73,8 @@ public struct IdleScreen: View {
                 ],
                 topBar: {
                     LSTopBar(
-                        title: topBarTitle,
+                        metaText: topBarMetaText,
+                        headline: topBarHeadline,
                         trailing: .newChip(action: onNewTap),
                         onMenuTap: onMenuTap,
                         onNewTap: onNewTap
@@ -100,9 +96,10 @@ public struct IdleScreen: View {
     // MARK: - Map
 
     private var mapView: some View {
-        LSPaperMap(
-            overlayStyle: .contours,
-            showPins: state.showFavoritePins
+        LSMap(
+            mode: .preview,
+            camera: LSMapPresentationDefaults.santaCruzCamera,
+            favoriteLocations: state.showFavoritePins ? LSMapPresentationDefaults.idleFavoriteLocations : []
         )
         .accessibilityIdentifier("idlescreen-map")
     }
@@ -117,8 +114,8 @@ public struct IdleScreen: View {
             onZoomIn: onZoomIn,
             onZoomOut: onZoomOut,
             onRecenter: onRecenter,
-            onLayers: onLayers,
-            onToggleView: onToggleView
+            onLayers: nil,
+            onToggleView: nil
         )
         .accessibilityIdentifier("idle-map-controls")
     }
@@ -126,20 +123,42 @@ public struct IdleScreen: View {
     // MARK: - Helper Methods
 
     private var topBarTitle: String {
+        String(topBarHeadline.characters)
+    }
+
+    private var topBarMetaText: String? {
+        state.greeting.meta.isEmpty ? nil : state.greeting.meta
+    }
+
+    private var topBarHeadline: AttributedString {
         if state.weatherAdvisory != nil {
-            return "Not the prettiest day for it."
+            return emphasizedHeadline("Not the prettiest day for it.", emphasis: "prettiest")
         }
 
         if state.locationContext.mode == "needed" {
-            return "Where are we starting from?"
+            return emphasizedHeadline("Where are we starting from?", emphasis: "starting")
         }
 
         if let displayName = greetingDisplayName {
             let scope = state.greeting.emphasis ?? "today"
-            return "Where are we riding \(scope), \(displayName)?"
+            return emphasizedHeadline("Where are we riding \(scope), \(displayName)?", emphasis: scope)
         }
 
-        return state.greeting.headline
+        return emphasizedHeadline(state.greeting.headline, emphasis: state.greeting.emphasis)
+    }
+
+    private func emphasizedHeadline(_ string: String, emphasis: String?) -> AttributedString {
+        var headline = AttributedString(string)
+        guard let emphasis,
+              let range = headline.range(of: emphasis)
+        else {
+            return headline
+        }
+
+        var attrs = AttributeContainer()
+        attrs.inlinePresentationIntent = .emphasized
+        headline[range].setAttributes(attrs)
+        return headline
     }
 
     // MARK: - Chat Input
@@ -199,33 +218,6 @@ public struct IdleScreen: View {
             }
         }
         .accessibilityIdentifier("idlescreen-chatinput")
-    }
-}
-
-private enum IdleScreenMapControlDefaults {
-    private static let logger = Logger(subsystem: "com.laneshadow.app", category: "IdleScreen")
-
-    static func logZoomInStub() {
-        logger.info("Zoom in tapped in template idle screen; live camera host is provided by IdleScreenContainer")
-    }
-
-    static func logZoomOutStub() {
-        logger.info("Zoom out tapped in template idle screen; live camera host is provided by IdleScreenContainer")
-    }
-
-    static func logRecenterStub() {
-        logger
-            .info(
-                "[STUB] Recenter - template idle screen has no LSMapHost camera; Sprint 08 live path uses IdleScreenContainer"
-            )
-    }
-
-    static func logLayersStub() {
-        logger.info("[STUB] Layers toggle - Sprint 09")
-    }
-
-    static func logToggleViewStub() {
-        logger.info("[STUB] Mode toggle - Sprint 08")
     }
 }
 

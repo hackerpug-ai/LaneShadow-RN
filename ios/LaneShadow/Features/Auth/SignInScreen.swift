@@ -1,7 +1,6 @@
 import Clerk
 import LaneShadowTheme
 import SwiftUI
-import UIKit
 
 struct SignInScreen: View {
     @Environment(\.appEnvironment) private var appEnvironment
@@ -17,7 +16,11 @@ struct SignInScreen: View {
     }
 
     var body: some View {
-        Group {
+        let _ =
+            NSLog(
+                "🟢 SignInScreen.body eval: hasViewModel=\(authScreenViewModel != nil) hasVerifEmail=\(verificationEmail != nil) signInStep=\(viewModel.step)"
+            )
+        return Group {
             if let verificationEmail {
                 SignInVerificationScreen(
                     email: verificationEmail,
@@ -38,18 +41,26 @@ struct SignInScreen: View {
                     },
                     onE2ESignIn: e2eSignInHandler
                 )
+                .onAppear { NSLog("🟢 SignInScreen.branch: AuthScreen appeared") }
             } else {
-                ProgressView()
-                    .accessibilityIdentifier("auth.signIn.loading")
+                AuthBackgroundContainer {
+                    ProgressView()
+                        .accessibilityIdentifier("auth.signIn.loading")
+                        .onAppear {
+                            NSLog("🟢 SignInScreen.branch: loading-ProgressView appeared (authScreenViewModel=nil)")
+                        }
+                }
             }
         }
         .onAppear {
+            NSLog("🟢 SignInScreen.onAppear: hasViewModel=\(authScreenViewModel != nil)")
             initializeAuthScreenViewModelIfNeeded()
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("auth.signIn.root")
-        .navigationTitle("Sign In")
-        .toolbar(.hidden, for: .navigationBar)
+        // .navigationTitle/.toolbar removed with NavigationStack — they were generating
+        // expensive preference traffic that contributed to AttributeGraph stack overflow
+        // on iOS 18 real devices. (See AuthFlowView for full context.)
     }
 
     func makeAuthScreenViewModel(auth: ClerkAuth) -> AuthScreenViewModel {
@@ -96,9 +107,12 @@ struct SignInScreen: View {
 
     private func initializeAuthScreenViewModelIfNeeded() {
         guard authScreenViewModel == nil else {
+            NSLog("🟢 SignInScreen.init: already had viewModel; skip")
             return
         }
+        NSLog("🟢 SignInScreen.init: creating AuthScreenViewModel")
         authScreenViewModel = makeAuthScreenViewModel(auth: appEnvironment.clerkAuth)
+        NSLog("🟢 SignInScreen.init: AuthScreenViewModel assigned (now non-nil)")
     }
 
     private var e2eSignInHandler: (() -> Void)? {
@@ -168,8 +182,7 @@ private struct SignInVerificationScreen: View {
 
     var body: some View {
         ZStack {
-            LSPaperMap(overlayStyle: .contours)
-                .ignoresSafeArea()
+            AuthMapBackdrop()
 
             VStack(alignment: .leading, spacing: theme.space.lg) {
                 VStack(alignment: .leading, spacing: theme.space.sm) {
@@ -212,6 +225,7 @@ private struct SignInVerificationScreen: View {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("auth.signIn.verification.root")
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func submitVerification() async {
@@ -235,41 +249,5 @@ private struct SignInVerificationScreen: View {
         }
 
         isSubmitting = false
-    }
-}
-
-struct AuthBackgroundContainer<Content: View>: View {
-    enum ImageSource: Equatable {
-        case authBackground
-        case fallback
-    }
-
-    @Environment(\.theme) private var theme
-    @ViewBuilder let content: Content
-
-    var body: some View {
-        ZStack {
-            authBackgroundImage
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-                .opacity(theme.opacity.values["40"] ?? theme.opacity.disabled)
-
-            content
-        }
-    }
-
-    private var authBackgroundImage: Image {
-        let imageSource = Self.resolveImageSource(imageLoader: { UIImage(named: $0) })
-        let authBackground = UIImage(named: "AuthBackground")
-        if imageSource == .authBackground, let image = authBackground {
-            return Image(uiImage: image)
-        } else {
-            return Image(systemName: "mountain.2.fill")
-        }
-    }
-
-    static func resolveImageSource(imageLoader: (String) -> UIImage?) -> ImageSource {
-        imageLoader("AuthBackground") == nil ? .fallback : .authBackground
     }
 }

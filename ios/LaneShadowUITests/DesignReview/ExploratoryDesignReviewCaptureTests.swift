@@ -145,7 +145,11 @@ final class ExploratoryDesignReviewCaptureTests: ExploratoryDesignReviewCaptureT
 final class ExploratoryIdleScreenCaptureTests: ExploratoryDesignReviewCaptureTestsBase {
     func test_idleScreen_chatFocused_light() async throws {
         try await authenticateAndReachIdleScreen()
-        let chatInput = element("idlescreen-chatinput")
+        // LSChatInput's own root id `lschatinput` is the proven-findable
+        // sentinel; the outer `idlescreen-chatinput` wrapper id is collapsed
+        // by SwiftUI's accessibility tree when XCUITest queries via
+        // `.firstMatch`. Tap the chat input via its root id.
+        let chatInput = element("lschatinput")
         XCTAssertTrue(chatInput.waitForExistence(timeout: 5))
         chatInput.tap()
         try await Task.sleep(for: .milliseconds(500))
@@ -162,7 +166,11 @@ final class ExploratoryIdleScreenCaptureTests: ExploratoryDesignReviewCaptureTes
     func test_idleScreen_chatFocused_dark() async throws {
         DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: "dark")
         try await authenticateAndReachIdleScreen()
-        let chatInput = element("idlescreen-chatinput")
+        // LSChatInput's own root id `lschatinput` is the proven-findable
+        // sentinel; the outer `idlescreen-chatinput` wrapper id is collapsed
+        // by SwiftUI's accessibility tree when XCUITest queries via
+        // `.firstMatch`. Tap the chat input via its root id.
+        let chatInput = element("lschatinput")
         XCTAssertTrue(chatInput.waitForExistence(timeout: 5))
         chatInput.tap()
         try await Task.sleep(for: .milliseconds(500))

@@ -41,7 +41,6 @@
 		67E4FE6F8B713FEF68326B97 /* LSTabItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1261D8D753487C4CE27B783 /* LSTabItemTests.swift */; };
 		6BB3BD5F5C744CD42F5DF5C6 /* LSChatInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3123362FBC613B11809CE348 /* LSChatInputTests.swift */; };
 		6D0C6A870476786F7228EA13 /* LSPhaseIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D0D2BB3D9A32CB9A700EFC /* LSPhaseIndicator.swift */; };
-		713845C65B102A6F3B324AF0 /* LSPaperMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CB7F6034D1229777B67DCE5 /* LSPaperMap.swift */; };
 		7428AF73F12DDBD3824E9BDE /* LSBadgeStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C14284F7C5546B178E7CA7 /* LSBadgeStories.swift */; };
 		762FB79AB5AE6050179BB785 /* LSScrimStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F281656D06513E78E57D10D /* LSScrimStories.swift */; };
 		796603EE7DD1C76F8E2D5C00 /* LSSurfaceStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A48CAA6BB2E860CDDF3E18 /* LSSurfaceStories.swift */; };
@@ -137,7 +136,6 @@
 		612E0B9004A2B36BFE5778E1 /* LSIconStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSIconStories.swift; sourceTree = "<group>"; };
 		68571E06FBCE8232271D1DB2 /* LSEmptyStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSEmptyStateTests.swift; sourceTree = "<group>"; };
 		690C1B6B480FD345A05807B0 /* LSModalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSModalTests.swift; sourceTree = "<group>"; };
-		6CB7F6034D1229777B67DCE5 /* LSPaperMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSPaperMap.swift; sourceTree = "<group>"; };
 		6E0D7B9F463A28F5B5936751 /* LSFormField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFormField.swift; sourceTree = "<group>"; };
 		70071A35653D217D4EB4A4B8 /* LSRouteAttachmentCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSRouteAttachmentCard.swift; sourceTree = "<group>"; };
 		76A48CAA6BB2E860CDDF3E18 /* LSSurfaceStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSSurfaceStories.swift; sourceTree = "<group>"; };
@@ -183,7 +181,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		58099F917373377216261552 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		58099F917373377216261552 /* Exceptions for "Atoms" folder in "LaneShadow" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Button.swift,
@@ -195,323 +193,164 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0AB6BCC041176229C63DBB62 /* Layout */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Layout;
 			path = Layout;
 			sourceTree = "<group>";
 		};
 		0B23304A78B886F9A286C5E4 /* Sandbox */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Sandbox;
 			path = Sandbox;
 			sourceTree = "<group>";
 		};
 		0E516A6442C2AA10AA5009F5 /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		10EF6247464B14DE9D738910 /* Views */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Views;
 			path = Views;
 			sourceTree = "<group>";
 		};
 		244E36879200004067F64629 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		3A78900A9AF373F5042A6135 /* Features */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Features;
 			path = Features;
 			sourceTree = "<group>";
 		};
 		3BC11B009ED26B33FC7A0333 /* Entry */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Entry;
 			path = Entry;
 			sourceTree = "<group>";
 		};
 		3CE2AE4772ABC9D4A3699741 /* MockProviders */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = MockProviders;
 			path = MockProviders;
 			sourceTree = "<group>";
 		};
 		4C8A8E02554AE3D5AC4FAC51 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		537AF6CF40C4418539754A5D /* Services */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Services;
 			path = Services;
 			sourceTree = "<group>";
 		};
 		5B8A253F72C6B3D6A21D5422 /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Atoms;
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		5D43661EA5776DD985956D8D /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		5EE6142BB2A44D9196BC822D /* Services */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Services;
 			path = Services;
 			sourceTree = "<group>";
 		};
 		688955BA957298D0AAE2948E /* AppFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = AppFlow;
 			path = AppFlow;
 			sourceTree = "<group>";
 		};
 		7290175E358A1C93D4A90231 /* Molecules */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Molecules;
 			path = Molecules;
 			sourceTree = "<group>";
 		};
 		755D85BE7B8692E8CCE9B7D0 /* Integration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Integration;
 			path = Integration;
 			sourceTree = "<group>";
 		};
 		7658177809845BD7EAFD2B5F /* Environment */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Environment;
 			path = Environment;
 			sourceTree = "<group>";
 		};
 		803C67E4953872CB5CCA0FA9 /* DesignSystem */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = DesignSystem;
 			path = DesignSystem;
 			sourceTree = "<group>";
 		};
 		8460D5ABD7FFE129DB373103 /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Models;
 			path = Models;
 			sourceTree = "<group>";
 		};
 		8E620526502629F2690FBBAE /* Utilities */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Utilities;
 			path = Utilities;
 			sourceTree = "<group>";
 		};
 		8F5AC0DC38D5B1239FAA340F /* AuthFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = AuthFlow;
 			path = AuthFlow;
 			sourceTree = "<group>";
 		};
 		8FD0535A05FA37574620A6CA /* Helpers */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Helpers;
 			path = Helpers;
 			sourceTree = "<group>";
 		};
 		9B1969E887592C82E1672459 /* Launch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Launch;
 			path = Launch;
 			sourceTree = "<group>";
 		};
 		A1DA24033B9915EAB116ED62 /* Generated */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Generated;
 			path = Generated;
 			sourceTree = "<group>";
 		};
 		A8E49074235FCF05900AA173 /* LaneShadowUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
 			path = LaneShadowUITests;
 			sourceTree = "<group>";
 		};
 		B6F7522A945FCE6E9220905B /* Features */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Features;
 			path = Features;
 			sourceTree = "<group>";
 		};
 		B92913E9843A5845817A3DBD /* Controls */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Controls;
 			path = Controls;
 			sourceTree = "<group>";
 		};
 		C1C1554F3F09845975235612 /* Utilities */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Utilities;
 			path = Utilities;
 			sourceTree = "<group>";
 		};
 		CE8B4DF54243DD52953C7CFE /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				58099F917373377216261552 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+				58099F917373377216261552 /* Exceptions for "Atoms" folder in "LaneShadow" target */,
 			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Atoms;
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		CF77ECAB776F34B039A160CA /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		D026D3B873FDE7B7153F206F /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		E5E2F792F8318B064762B018 /* Theme */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Theme;
 			path = Theme;
 			sourceTree = "<group>";
 		};
@@ -627,7 +466,6 @@
 				EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */,
 				94AB21A076699921AC328EE9 /* LSModal.swift */,
 				4F137157E747643E3C5CB9F7 /* LSNavHeader.swift */,
-				6CB7F6034D1229777B67DCE5 /* LSPaperMap.swift */,
 				C7D0D2BB3D9A32CB9A700EFC /* LSPhaseIndicator.swift */,
 				70071A35653D217D4EB4A4B8 /* LSRouteAttachmentCard.swift */,
 				B0E16C5B6F4121EB1CA3D72D /* LSScenicDotStrip.swift */,
@@ -771,27 +609,27 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				688955BA957298D0AAE2948E /* AppFlow */,
-				CE8B4DF54243DD52953C7CFE /* Atoms */,
-				8F5AC0DC38D5B1239FAA340F /* AuthFlow */,
-				B92913E9843A5845817A3DBD /* Controls */,
-				803C67E4953872CB5CCA0FA9 /* DesignSystem */,
-				3BC11B009ED26B33FC7A0333 /* Entry */,
-				7658177809845BD7EAFD2B5F /* Environment */,
-				B6F7522A945FCE6E9220905B /* Features */,
-				A1DA24033B9915EAB116ED62 /* Generated */,
-				9B1969E887592C82E1672459 /* Launch */,
 				0AB6BCC041176229C63DBB62 /* Layout */,
+				0E516A6442C2AA10AA5009F5 /* Templates */,
+				3BC11B009ED26B33FC7A0333 /* Entry */,
 				3CE2AE4772ABC9D4A3699741 /* MockProviders */,
-				8460D5ABD7FFE129DB373103 /* Models */,
-				7290175E358A1C93D4A90231 /* Molecules */,
-				D026D3B873FDE7B7153F206F /* Organisms */,
 				4C8A8E02554AE3D5AC4FAC51 /* Organisms */,
 				537AF6CF40C4418539754A5D /* Services */,
-				CF77ECAB776F34B039A160CA /* Templates */,
-				0E516A6442C2AA10AA5009F5 /* Templates */,
-				E5E2F792F8318B064762B018 /* Theme */,
+				688955BA957298D0AAE2948E /* AppFlow */,
+				7290175E358A1C93D4A90231 /* Molecules */,
+				7658177809845BD7EAFD2B5F /* Environment */,
+				803C67E4953872CB5CCA0FA9 /* DesignSystem */,
+				8460D5ABD7FFE129DB373103 /* Models */,
 				8E620526502629F2690FBBAE /* Utilities */,
+				8F5AC0DC38D5B1239FAA340F /* AuthFlow */,
+				9B1969E887592C82E1672459 /* Launch */,
+				A1DA24033B9915EAB116ED62 /* Generated */,
+				B6F7522A945FCE6E9220905B /* Features */,
+				B92913E9843A5845817A3DBD /* Controls */,
+				CE8B4DF54243DD52953C7CFE /* Atoms */,
+				CF77ECAB776F34B039A160CA /* Templates */,
+				D026D3B873FDE7B7153F206F /* Organisms */,
+				E5E2F792F8318B064762B018 /* Theme */,
 			);
 			name = LaneShadow;
 			packageProductDependencies = (
@@ -841,16 +679,16 @@
 				8941639FFAFA7D11ED5FFFCC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				5B8A253F72C6B3D6A21D5422 /* Atoms */,
-				3A78900A9AF373F5042A6135 /* Features */,
-				8FD0535A05FA37574620A6CA /* Helpers */,
-				755D85BE7B8692E8CCE9B7D0 /* Integration */,
-				244E36879200004067F64629 /* Organisms */,
 				0B23304A78B886F9A286C5E4 /* Sandbox */,
-				5EE6142BB2A44D9196BC822D /* Services */,
-				5D43661EA5776DD985956D8D /* Templates */,
-				C1C1554F3F09845975235612 /* Utilities */,
 				10EF6247464B14DE9D738910 /* Views */,
+				244E36879200004067F64629 /* Organisms */,
+				3A78900A9AF373F5042A6135 /* Features */,
+				5B8A253F72C6B3D6A21D5422 /* Atoms */,
+				5D43661EA5776DD985956D8D /* Templates */,
+				5EE6142BB2A44D9196BC822D /* Services */,
+				755D85BE7B8692E8CCE9B7D0 /* Integration */,
+				8FD0535A05FA37574620A6CA /* Helpers */,
+				C1C1554F3F09845975235612 /* Utilities */,
 			);
 			name = LaneShadowTests;
 			packageProductDependencies = (
@@ -1015,7 +853,6 @@
 				95572DAE37FCF32B9BDE4BC4 /* LSMapStories.swift in Sources */,
 				F994D017357EA5F2EAA9D72F /* LSModal.swift in Sources */,
 				B4F9EB30336D5595D5388973 /* LSNavHeader.swift in Sources */,
-				713845C65B102A6F3B324AF0 /* LSPaperMap.swift in Sources */,
 				1EF50AB42CA36C6BAE6B79F2 /* LSPhaseDotStories.swift in Sources */,
 				6D0C6A870476786F7228EA13 /* LSPhaseIndicator.swift in Sources */,
 				91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */,
@@ -1124,7 +961,10 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LaneShadow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app;
 				SDKROOT = iphoneos;
@@ -1169,7 +1009,10 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LaneShadow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app;
 				SDKROOT = iphoneos;

@@ -60,7 +60,7 @@ object LSNavigatorMessageStory {
             tier = ComponentTier.Organism,
             component = "LSNavigatorMessage",
             name = "Dark Mode",
-            summary = "Glass tint + text re-resolves against dark paper map. Border copper tint remains visible.",
+            summary = "Glass tint + text re-resolves against the dark live map. Border copper tint remains visible.",
             content = { DarkModeStory() },
         ),
     )

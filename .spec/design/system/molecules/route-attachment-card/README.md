@@ -8,7 +8,7 @@ LaneShadow V2 Copper · Molecule · Authority: uc-mol-08-location-route.html
 
 LSRouteAttachmentCard is the Navigator's route result surface — used both in chat message threads and in the catalog route-list view. A **3px leading color stripe** encodes the route variant (`--route-best` copper / `--route-alt1` sage / `--route-alt2` slate) at a glance, even before the user reads the title. The card composes the best-badge, weather-badge, scenic-dots meter, difficulty pills, and an optional accept-action row.
 
-A map thumbnail (SVG polyline on a `--map-paper` surface with topo contour decorations) provides spatial orientation. In production this slot is filled by the `ls-map` atom (UC-ATM-11/12); the inline SVG in this preview is a visual placeholder only.
+A map thumbnail provides spatial orientation through the `ls-map` atom (UC-ATM-11/12) and the platform live map surface.
 
 ---
 
@@ -16,7 +16,7 @@ A map thumbnail (SVG polyline on a `--map-paper` surface with topo contour decor
 
 ```
 ┌─╎──────────────────────────────────────────────────────────┐
-│ ╎  [Map thumbnail — polyline on topo surface]   [wx badge] │
+│ ╎  [Live map thumbnail]   [wx badge] │
 │ ╎  ─────────────────────────────────────────────────────── │
 │ ╎  [best badge?] [Title]                                    │
 │ ╎  [via subtitle]                                           │
@@ -32,7 +32,7 @@ A map thumbnail (SVG polyline on a `--map-paper` surface with topo contour decor
 |---|---|---|
 | Root | `.mol-route-attachment-card` | position: relative; overflow: hidden |
 | Leading stripe | `::before` pseudo | 2px wide (approx. `--space-1`); positioned left edge |
-| Thumbnail | `.mol-rac__thumbnail` | 88px height (full) / 60px (compact); SVG polyline preview |
+| Thumbnail | `.mol-rac__thumbnail` | 88px height (full) / 60px (compact); live map surface |
 | Weather badge | `.mol-rac__weather` | Absolute top-right; wx-clear / wx-wind / wx-rain |
 | Card body | `.mol-rac__body` | Column flex; gap `--space-2` |
 | Head row | `.mol-rac__head` | flex-start; best-badge + title |
@@ -87,7 +87,7 @@ A map thumbnail (SVG polyline on a `--map-paper` surface with topo contour decor
 | `ls-badge-weather` | Modeled as `.mol-rac__weather`; same wx-* color palette and border-tint convention |
 | `ls-pill` | Structural basis for `.mol-rac__pill` difficulty chips |
 | `ls-btn--accept` / `ls-btn--ghost` | Composed unchanged in `.mol-rac__action` row |
-| `ls-map` (UC-ATM-11/12) | Thumbnail slot owner in production; SVG placeholder used in this preview |
+| `ls-map` (UC-ATM-11/12) | Thumbnail slot owner across production and design artifacts |
 
 ---
 
@@ -111,8 +111,6 @@ A map thumbnail (SVG polyline on a `--map-paper` surface with topo contour decor
 | Thumbnail height (full) | `88px` |
 | Thumbnail height (compact) | `60px` |
 | Thumbnail bg | `--map-paper` |
-| Contour stroke (faint) | `--map-contour-faint` |
-| Contour stroke | `--map-contour` |
 | Thumbnail border | `--border-subtle` (`--stroke-sm`) |
 | Best-badge bg | `--signal-default` |
 | Best-badge shadow | `color-mix(in srgb, --signal-default 40%, transparent)` |
@@ -159,10 +157,10 @@ A map thumbnail (SVG polyline on a `--map-paper` surface with topo contour decor
 
 ## Notes
 
-- Map thumbnail: the `<svg>` polyline in this preview is a **visual decoration only**. In production, replace `.mol-rac__thumbnail` content with the `ls-map` atom (UC-ATM-11 iOS / UC-ATM-12 Android) locked to a non-interactive static snapshot.
+- Map thumbnail: `.mol-rac__thumbnail` is owned by the `ls-map` atom (UC-ATM-11 iOS / UC-ATM-12 Android) and must render as a live map surface.
 - Polyline `stroke` must always use `var(--route-best)`, `var(--route-alt1)`, or `var(--route-alt2)` — never raw hex.
 - The card `max-width: 340px` constraint keeps the layout coherent in the Navigator chat column. In a full-bleed list view, remove the max-width constraint.
 - The leading stripe uses `::before` positioned absolute so it does not affect flex layout. Left padding `--space-5` (16px) provides clearance.
 - The compact variant omits the `via` subtitle row in addition to reducing padding and thumbnail height — implement as `isCompact` prop toggling the `.is-compact` class and conditionally rendering the subtitle.
 - Weather badge absolute positioning requires the card root `position: relative; overflow: hidden`.
-- In React Native: the map thumbnail → `<LSMap static />`. The accept action → rendered conditionally based on `showAcceptAction` prop.
+- In React Native: the map thumbnail renders `<LSMap live />`. The accept action renders conditionally based on `showAcceptAction` prop.

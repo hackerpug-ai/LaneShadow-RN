@@ -75,7 +75,7 @@ PlanningScreen is the inside of the Navigator's head — shown immediately after
 | Spinner track color | `var(--border-default)` | Muted track ring |
 | Sketch polyline stroke | `var(--route-best)` | Copper orange (same as `--signal-default`) |
 | Route best / alt1 / alt2 | `var(--route-best)` / `var(--route-alt1)` / `var(--route-alt2)` | Scoring variant (S04) |
-| Map paper | `var(--map-paper)` | Warm paper substrate |
+| Map surface | `var(--map-paper)` | Warm live map surface |
 | Map contour | `var(--map-contour)` / `var(--map-contour-faint)` | Topographic lines |
 | Phase label active | `var(--content-primary)` | |
 | Phase label done | `var(--content-secondary)` | Line-through |

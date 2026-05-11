@@ -409,7 +409,7 @@
   overflow: hidden;
 }
 
-/* Faux map background */
+/* Live map background */
 .mol-chat-input-preview-frame__map {
   position: absolute;
   inset: var(--space-0);
@@ -2033,10 +2033,7 @@
 /* Variant: alt2 (slate) */
 .mol-route-attachment-card.v-alt2::before  { background: var(--route-alt2); }
 
-/* ── Map thumbnail (preview decoration — not ls-map atom) ──────── */
-/* NOTE: This is an inline SVG preview helper. Production uses ls-map atom
-   (UC-ATM-11/12). The thumbnail is a 88×60px surface-map rectangle with
-   faint topo-contour lines and a centered polyline in the variant color. */
+/* Map thumbnail is a live LSMap mount in product surfaces. */
 .mol-rac__thumbnail {
   width: 100%;
   height: 88px;
@@ -2047,11 +2044,6 @@
   flex-shrink: 0;
   position: relative;
   margin-bottom: var(--space-1);
-}
-
-.mol-rac__thumbnail svg {
-  width: 100%;
-  height: 100%;
 }
 
 /* ── Card body (below thumbnail) ───────────────────────────────── */

@@ -51,8 +51,8 @@
 .ls-scrim--heavy   { opacity: 0.76; }
 .ls-scrim--opaque  { opacity: 0.95; }
 
-/* ── Map mock backgrounds ─────────────────────────────────────── */
-.map-mock {
+/* ── Live map backing surfaces ─────────────────────────────────── */
+.map-reference {
   position: relative;
   overflow: hidden;
   background: var(--surface-map);
@@ -64,7 +64,7 @@
   border: 1px solid var(--border-default);
 }
 
-.map-mock::before {
+.map-reference::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -75,15 +75,15 @@
   z-index: 0;
 }
 
-/* Dark variant map mock */
-.map-mock.mode-dark {
+/* Dark variant live map slot */
+.map-reference.mode-dark {
   background-image:
     linear-gradient(var(--map-contour-faint) 1px, transparent 1px),
     linear-gradient(90deg, var(--map-contour-faint) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
-.map-mock.mode-dark::before {
+.map-reference.mode-dark::before {
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cpath d='M -20 60 C 40 40%2C 90 80%2C 140 60 S 200 80%2C 240 50' stroke='rgba(242%2C238%2C232%2C0.08)' stroke-width='0.9' fill='none'/%3E%3Cpath d='M -20 100 C 40 80%2C 90 120%2C 140 100 S 200 120%2C 240 90' stroke='rgba(242%2C238%2C232%2C0.08)' stroke-width='0.9' fill='none'/%3E%3Cpath d='M -20 140 C 40 120%2C 90 160%2C 140 140 S 200 160%2C 240 130' stroke='rgba(242%2C238%2C232%2C0.05)' stroke-width='0.7' fill='none'/%3E%3C/svg%3E");
 }
@@ -375,7 +375,7 @@
       <div class="variant-cell" style="align-items: flex-start; padding: 0 0 var(--space-3) 0;">
         <span class="label">Light mode — opacity 0.50 blocking</span>
       </div>
-      <div class="map-mock demo-stage" id="demoStageLight">
+      <div class="map-reference demo-stage" id="demoStageLight">
         <!-- Map content (behind scrim) -->
         <div class="map-content">
           <div class="map-label">Map canvas<br>paper · topo contours</div>
@@ -415,7 +415,7 @@
       <div class="variant-cell" style="align-items: flex-start; padding: 0 0 var(--space-3) 0;">
         <span class="label" style="color: var(--content-tertiary);">Dark mode — opacity 0.50 blocking</span>
       </div>
-      <div class="map-mock demo-stage mode-dark" id="demoStageDark">
+      <div class="map-reference demo-stage mode-dark" id="demoStageDark">
         <!-- Map content (behind scrim) -->
         <div class="map-content">
           <div class="map-label">Map canvas<br>ink · faint topo</div>
@@ -459,7 +459,7 @@
   <div class="swatch-grid">
 
     <div class="swatch-cell">
-      <div class="map-mock swatch-map">
+      <div class="map-reference swatch-map">
         <div class="map-content"><div class="map-label">MAP</div></div>
         <div class="ls-scrim ls-scrim--hint"></div>
         <div class="swatch-overlay-label">0.12</div>
@@ -470,7 +470,7 @@
     </div>
 
     <div class="swatch-cell">
-      <div class="map-mock swatch-map">
+      <div class="map-reference swatch-map">
         <div class="map-content"><div class="map-label">MAP</div></div>
         <div class="ls-scrim ls-scrim--default"></div>
         <div class="swatch-overlay-label">0.35 default</div>
@@ -481,7 +481,7 @@
     </div>
 
     <div class="swatch-cell">
-      <div class="map-mock swatch-map">
+      <div class="map-reference swatch-map">
         <div class="map-content"><div class="map-label">MAP</div></div>
         <div class="ls-scrim ls-scrim--medium"></div>
         <div class="swatch-overlay-label">0.50</div>
@@ -492,7 +492,7 @@
     </div>
 
     <div class="swatch-cell">
-      <div class="map-mock swatch-map">
+      <div class="map-reference swatch-map">
         <div class="map-content"><div class="map-label">MAP</div></div>
         <div class="ls-scrim ls-scrim--strong"></div>
         <div class="swatch-overlay-label">0.60</div>
@@ -503,7 +503,7 @@
     </div>
 
     <div class="swatch-cell">
-      <div class="map-mock swatch-map">
+      <div class="map-reference swatch-map">
         <div class="ls-scrim ls-scrim--heavy"></div>
         <div class="swatch-overlay-label">0.76</div>
       </div>
@@ -513,7 +513,7 @@
     </div>
 
     <div class="swatch-cell">
-      <div class="map-mock swatch-map">
+      <div class="map-reference swatch-map">
         <div class="ls-scrim ls-scrim--opaque"></div>
         <div class="swatch-overlay-label">0.95</div>
       </div>
@@ -531,7 +531,7 @@
   <div class="swatch-grid">
 
     <div class="swatch-cell">
-      <div class="map-mock swatch-map mode-dark">
+      <div class="map-reference swatch-map mode-dark">
         <div class="map-content"><div class="map-label">MAP</div></div>
         <div class="ls-scrim ls-scrim--hint"></div>
         <div class="swatch-overlay-label">0.12</div>
@@ -542,7 +542,7 @@
     </div>
 
     <div class="swatch-cell">
-      <div class="map-mock swatch-map mode-dark">
+      <div class="map-reference swatch-map mode-dark">
         <div class="map-content"><div class="map-label">MAP</div></div>
         <div class="ls-scrim ls-scrim--default"></div>
         <div class="swatch-overlay-label">0.35 default</div>
@@ -553,7 +553,7 @@
     </div>
 
     <div class="swatch-cell">
-      <div class="map-mock swatch-map mode-dark">
+      <div class="map-reference swatch-map mode-dark">
         <div class="map-content"><div class="map-label">MAP</div></div>
         <div class="ls-scrim ls-scrim--medium"></div>
         <div class="swatch-overlay-label">0.50</div>
@@ -564,7 +564,7 @@
     </div>
 
     <div class="swatch-cell">
-      <div class="map-mock swatch-map mode-dark">
+      <div class="map-reference swatch-map mode-dark">
         <div class="ls-scrim ls-scrim--strong"></div>
         <div class="swatch-overlay-label">0.60</div>
       </div>
@@ -574,7 +574,7 @@
     </div>
 
     <div class="swatch-cell">
-      <div class="map-mock swatch-map mode-dark">
+      <div class="map-reference swatch-map mode-dark">
         <div class="ls-scrim ls-scrim--heavy"></div>
         <div class="swatch-overlay-label">0.76</div>
       </div>
@@ -584,7 +584,7 @@
     </div>
 
     <div class="swatch-cell">
-      <div class="map-mock swatch-map mode-dark">
+      <div class="map-reference swatch-map mode-dark">
         <div class="ls-scrim ls-scrim--opaque"></div>
         <div class="swatch-overlay-label">0.95</div>
       </div>
@@ -644,7 +644,7 @@
 
         <!-- SessionsDrawer: 0.35 non-blocking -->
         <div class="use-site-cell">
-          <div class="map-mock use-site-map">
+          <div class="map-reference use-site-map">
             <svg style="position:absolute;inset:0;z-index:1;width:100%;height:100%;pointer-events:none;" viewBox="0 0 200 340" preserveAspectRatio="xMidYMid slice">
               <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
                 <path d="M -10 60 C 40 40, 90 80, 140 60 S 200 80, 230 50"/>
@@ -665,7 +665,7 @@
 
         <!-- BottomSheet: 0.50 blocking -->
         <div class="use-site-cell">
-          <div class="map-mock use-site-map">
+          <div class="map-reference use-site-map">
             <svg style="position:absolute;inset:0;z-index:1;width:100%;height:100%;pointer-events:none;" viewBox="0 0 200 340" preserveAspectRatio="xMidYMid slice">
               <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
                 <path d="M -10 60 C 40 40, 90 80, 140 60"/>
@@ -685,7 +685,7 @@
 
         <!-- Modal: 0.60 blocking -->
         <div class="use-site-cell">
-          <div class="map-mock use-site-map">
+          <div class="map-reference use-site-map">
             <svg style="position:absolute;inset:0;z-index:1;width:100%;height:100%;pointer-events:none;" viewBox="0 0 200 340" preserveAspectRatio="xMidYMid slice">
               <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
                 <path d="M -10 80 C 40 60, 90 100, 140 80"/>
@@ -715,7 +715,7 @@
 
         <!-- SessionsDrawer dark: 0.35 non-blocking -->
         <div class="use-site-cell">
-          <div class="map-mock use-site-map mode-dark">
+          <div class="map-reference use-site-map mode-dark">
             <svg style="position:absolute;inset:0;z-index:1;width:100%;height:100%;pointer-events:none;" viewBox="0 0 200 340" preserveAspectRatio="xMidYMid slice">
               <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
                 <path d="M -10 60 C 40 40, 90 80, 140 60 S 200 80, 230 50"/>
@@ -735,7 +735,7 @@
 
         <!-- BottomSheet dark: 0.50 blocking -->
         <div class="use-site-cell">
-          <div class="map-mock use-site-map mode-dark">
+          <div class="map-reference use-site-map mode-dark">
             <svg style="position:absolute;inset:0;z-index:1;width:100%;height:100%;pointer-events:none;" viewBox="0 0 200 340" preserveAspectRatio="xMidYMid slice">
               <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
                 <path d="M -10 60 C 40 40, 90 80, 140 60"/>
@@ -755,7 +755,7 @@
 
         <!-- Modal dark: 0.60 blocking -->
         <div class="use-site-cell">
-          <div class="map-mock use-site-map mode-dark">
+          <div class="map-reference use-site-map mode-dark">
             <svg style="position:absolute;inset:0;z-index:1;width:100%;height:100%;pointer-events:none;" viewBox="0 0 200 340" preserveAspectRatio="xMidYMid slice">
               <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
                 <path d="M -10 80 C 40 60, 90 100, 140 80"/>

@@ -233,7 +233,7 @@
   pointer-events: none;
 }
 
-.view-route-results-screen__map-svg {
+.view-route-results-screen__live-map {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -729,23 +729,9 @@
   <div class="view-route-results-screen__phone" role="img" aria-label="RouteResultsScreen phone preview — S01 Default Best Selected Light">
     <div class="view-route-results-screen__di"></div>
 
-    <!-- Paper map -->
+    <!-- Live map -->
     <div class="view-route-results-screen__map-slot">
-      <svg class="view-route-results-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 190 C 80 165, 165 230, 240 190 S 340 210, 420 165"/>
-          <path d="M -20 290 C 80 260, 165 325, 240 290 S 340 310, 420 270"/>
-          <path d="M -20 410 C 65 380, 155 450, 240 410 S 340 440, 420 395"/>
-          <path d="M -20 545 C 65 510, 155 580, 240 545 S 340 570, 420 525"/>
-          <path d="M -20 680 C 80 645, 165 710, 240 680 S 340 698, 420 655"/>
-        </g>
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 240 C 80 220, 165 285, 240 240 S 340 265, 420 225"/>
-          <path d="M -20 475 C 80 450, 165 515, 240 475 S 340 500, 420 460"/>
-        </g>
-        <path d="M 310 -10 C 275 80, 320 195, 300 320 S 288 510, 338 660"
-              stroke="color-mix(in srgb, var(--wx-rain) 30%, transparent)" stroke-width="0.8" fill="none"/>
-      </svg>
+      <div class="view-route-results-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
 
       <!-- Route polylines -->
       <svg class="view-route-results-screen__routes-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
@@ -936,16 +922,7 @@
     <div class="view-route-results-screen__di"></div>
 
     <div class="view-route-results-screen__map-slot">
-      <svg class="view-route-results-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 190 C 80 165, 165 230, 240 190 S 340 210, 420 165"/>
-          <path d="M -20 290 C 80 260, 165 325, 240 290 S 340 310, 420 270"/>
-          <path d="M -20 410 C 65 380, 155 450, 240 410 S 340 440, 420 395"/>
-          <path d="M -20 545 C 65 510, 155 580, 240 545 S 340 570, 420 525"/>
-        </g>
-        <path d="M 310 -10 C 275 80, 320 195, 300 320 S 288 510, 338 660"
-              stroke="color-mix(in srgb, var(--wx-rain) 30%, transparent)" stroke-width="0.8" fill="none"/>
-      </svg>
+      <div class="view-route-results-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
 
       <!-- Routes — alt2 dimmed, best ghosted, alt1 promoted solid -->
       <svg class="view-route-results-screen__routes-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
@@ -1117,15 +1094,7 @@
     <div class="view-route-results-screen__di"></div>
 
     <div class="view-route-results-screen__map-slot" style="background:var(--ink-800);">
-      <svg class="view-route-results-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 190 C 80 165, 165 230, 240 190 S 340 210, 420 165"/>
-          <path d="M -20 290 C 80 260, 165 325, 240 290 S 340 310, 420 270"/>
-          <path d="M -20 410 C 65 380, 155 450, 240 410 S 340 440, 420 395"/>
-          <path d="M -20 545 C 65 510, 155 580, 240 545 S 340 570, 420 525"/>
-          <path d="M -20 680 C 80 645, 165 710, 240 680 S 340 698, 420 655"/>
-        </g>
-      </svg>
+      <div class="view-route-results-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
 
       <svg class="view-route-results-screen__routes-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <path class="view-route-results-screen__route-alt2" d="M 85 520 C 130 600, 210 625, 260 600 S 330 555, 370 510"/>
@@ -1279,13 +1248,7 @@
     <div class="view-route-results-screen__di"></div>
 
     <div class="view-route-results-screen__map-slot">
-      <svg class="view-route-results-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
-          <path d="M -20 190 C 80 165, 165 230, 240 190 S 340 210, 420 165"/>
-          <path d="M -20 410 C 65 380, 155 450, 240 410 S 340 440, 420 395"/>
-          <path d="M -20 680 C 80 645, 165 710, 240 680 S 340 698, 420 655"/>
-        </g>
-      </svg>
+      <div class="view-route-results-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
 
       <!-- Routes dimmed -->
       <svg class="view-route-results-screen__routes-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" style="opacity:0.4;">
@@ -1379,12 +1342,7 @@
     <div class="view-route-results-screen__di"></div>
 
     <div class="view-route-results-screen__map-slot">
-      <svg class="view-route-results-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 290 C 80 260, 165 325, 240 290 S 340 310, 420 270"/>
-          <path d="M -20 545 C 65 510, 155 580, 240 545 S 340 570, 420 525"/>
-        </g>
-      </svg>
+      <div class="view-route-results-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
 
       <!-- Only two route polylines -->
       <svg class="view-route-results-screen__routes-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
@@ -1515,22 +1473,7 @@
     <div class="view-route-results-screen__di"></div>
 
     <div class="view-route-results-screen__map-slot">
-      <svg class="view-route-results-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 190 C 80 165, 165 230, 240 190 S 340 210, 420 165"/>
-          <path d="M -20 410 C 65 380, 155 450, 240 410 S 340 440, 420 395"/>
-          <path d="M -20 680 C 80 645, 165 710, 240 680 S 340 698, 420 655"/>
-        </g>
-        <!-- Storm hatching on left quadrant -->
-        <g stroke="var(--wx-storm)" stroke-width="0.5" opacity="0.35">
-          <line x1="30" y1="30" x2="25" y2="52"/>
-          <line x1="80" y1="15" x2="75" y2="37"/>
-          <line x1="140" y1="45" x2="135" y2="67"/>
-          <line x1="60" y1="190" x2="55" y2="212"/>
-          <line x1="120" y1="270" x2="115" y2="292"/>
-          <line x1="185" y1="380" x2="180" y2="402"/>
-        </g>
-      </svg>
+      <div class="view-route-results-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
 
       <svg class="view-route-results-screen__routes-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <path class="view-route-results-screen__route-alt2" d="M 85 520 C 130 600, 210 625, 260 600 S 330 555, 370 510" style="opacity:0.45;"/>
@@ -1681,15 +1624,7 @@
     <div class="view-route-results-screen__di"></div>
 
     <div class="view-route-results-screen__map-slot">
-      <svg class="view-route-results-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 190 C 80 165, 165 230, 240 190 S 340 210, 420 165"/>
-          <path d="M -20 290 C 80 260, 165 325, 240 290 S 340 310, 420 270"/>
-          <path d="M -20 410 C 65 380, 155 450, 240 410 S 340 440, 420 395"/>
-          <path d="M -20 545 C 65 510, 155 580, 240 545 S 340 570, 420 525"/>
-          <path d="M -20 680 C 80 645, 165 710, 240 680 S 340 698, 420 655"/>
-        </g>
-      </svg>
+      <div class="view-route-results-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
 
       <svg class="view-route-results-screen__routes-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <path class="view-route-results-screen__route-alt2" d="M 85 520 C 130 600, 210 625, 260 600 S 330 555, 370 510"/>

@@ -206,7 +206,49 @@ struct IdleScreenTemplateTests {
 
         _ = try inspected.find(text: "Where are we riding today?")
         _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-title")
+        _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-meta")
+        _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-headline")
         #expect((try? inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")) == nil)
+    }
+
+    @Test
+    func idle_view_model_exposes_location_aware_chat_context() {
+        let viewModel = IdleViewModel(
+            chatStore: ChatStore(),
+            sessionStore: SessionStore(),
+            convexClient: StubLaneShadowConvexClient()
+        )
+        viewModel.locationLabel = "Santa Cruz, CA"
+        viewModel.isLocationEnabled = true
+
+        #expect(viewModel.locationBadge == LocationContext(label: "Santa Cruz, CA", mode: .auto))
+        #expect(viewModel.chatPlaceholder == "Plan a ride from Santa Cruz, CA…")
+    }
+
+    @Test
+    func idle_view_model_exposes_meta_and_styled_headline_for_topbar() {
+        let viewModel = IdleViewModel(
+            chatStore: ChatStore(),
+            sessionStore: SessionStore(),
+            convexClient: StubLaneShadowConvexClient()
+        )
+        viewModel.locationLabel = "Santa Cruz, CA"
+        viewModel.isLocationEnabled = true
+        viewModel.metaRow = "WED · 72°F · SUNNY"
+        viewModel.favoriteLocations = [FavoriteLocation(id: "1", lat: 36.97, lon: -122.03, label: "Local Loop")]
+        viewModel.recentSessions = [Session(
+            id: "1",
+            title: "Morning Ride",
+            preview: "Scenic loop",
+            meta: "3 routes",
+            when: "Today",
+            active: false,
+            routeIds: [],
+            createdAt: "2026-05-10T00:00:00Z"
+        )]
+
+        #expect(viewModel.topBarMetaText == "WED · 72°F · SUNNY")
+        #expect(String(viewModel.topBarHeadline.characters) == "Where are we riding today, rider?")
     }
 }
 

@@ -186,6 +186,45 @@ enum LSMapTokenPrefix: String, Equatable {
 let lsMapFavoritePinColorTokenPath = "color.signal.default"
 let lsMapFavoritePinBorderColorTokenPath = "color.surface.card"
 
+enum LSMapPresentationDefaults {
+    static let santaCruzCamera = CameraPosition(
+        center: LatLng(lat: 36.97, lon: -122.03),
+        zoom: 12
+    )
+
+    static let authCamera = CameraPosition(
+        center: LatLng(lat: 37.04, lon: -122.02),
+        zoom: 10.8,
+        pitch: 0,
+        bearing: -8
+    )
+
+    static let errorCamera = CameraPosition(
+        center: LatLng(lat: 36.98, lon: -121.92),
+        zoom: 10.6,
+        pitch: 0,
+        bearing: 0
+    )
+
+    static let idleFavoriteLocations: [FavoriteLocation] = [
+        FavoriteLocation(id: "idle-favorite-1", lat: 36.9741, lon: -122.0308, label: "Westside"),
+        FavoriteLocation(id: "idle-favorite-2", lat: 37.0513, lon: -121.9905, label: "Scotts Valley"),
+        FavoriteLocation(id: "idle-favorite-3", lat: 36.9868, lon: -121.8113, label: "Corralitos"),
+    ]
+
+    static let errorPolyline = PolylineData(
+        coordinates: [
+            LatLng(lat: 36.96, lon: -122.05),
+            LatLng(lat: 37.01, lon: -121.98),
+            LatLng(lat: 37.04, lon: -121.91),
+            LatLng(lat: 36.99, lon: -121.84),
+        ],
+        variant: .best,
+        strokeWidth: .lg,
+        lineDasharray: [1.6, 1.2]
+    )
+}
+
 @MainActor
 public func LSMap(
     mode: MapMode,

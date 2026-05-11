@@ -69,7 +69,10 @@ final class AuthRegistrationE2ETests: XCTestCase {
     }
 
     private func loadConfig() throws -> RegistrationConfig {
-        let environment = ProcessInfo.processInfo.environment
+        // Use AppLauncher.mergedEnvironment() so bare `xcodebuild test`
+        // invocations (which do not patch the test runner's ProcessInfo)
+        // still pick up keys from .env.local.
+        let environment = AppLauncher.mergedEnvironment()
         let password = environment["IOS_E2E_SIGNUP_PASSWORD"]
             ?? environment["E2E_SIGNUP_PASSWORD"]
             ?? Self.generatedPassword()
@@ -121,7 +124,11 @@ final class AuthRegistrationE2ETests: XCTestCase {
             if element("auth.signUp.verification.root").exists {
                 return .verificationRequired
             }
-            if element("idlescreen-current-user-greeting").exists || element("auth.landing.logout").exists {
+            // Post-auth sentinel: LSTopBar is the only stable id on the
+            // authenticated landing today. The prior greeting/logout ids were
+            // retired with the LSTopBar migration; no logout button exists in
+            // the authenticated UI as of 2026-05-11.
+            if element(LSIds.topBar).exists {
                 return .signedIn
             }
 
@@ -133,12 +140,8 @@ final class AuthRegistrationE2ETests: XCTestCase {
 
     private func assertAuthenticatedLanding(message: String) {
         XCTAssertTrue(
-            element("idlescreen-current-user-greeting").waitForExistence(timeout: 90),
+            element(LSIds.topBar).waitForExistence(timeout: 90),
             message
-        )
-        XCTAssertTrue(
-            element("auth.landing.logout").waitForExistence(timeout: 15),
-            "Expected authenticated landing page to expose a logout button."
         )
     }
 

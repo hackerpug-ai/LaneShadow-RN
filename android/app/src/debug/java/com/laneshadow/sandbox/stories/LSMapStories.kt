@@ -27,7 +27,7 @@ object LSMapStories {
             tier = ComponentTier.Atom,
             component = "LSMap",
             name = "Preview Mode",
-            summary = "Static map view with gestures disabled, showing a single best route.",
+            summary = "Live preview map with gestures disabled, showing a single best route.",
             content = { PreviewModeStory() },
         ),
         Story(

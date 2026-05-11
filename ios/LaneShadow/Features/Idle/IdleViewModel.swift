@@ -58,6 +58,46 @@ final class IdleViewModel {
         return "Where are we riding \(scopeWord), \(greetingDisplayName)?"
     }
 
+    var topBarHeadline: AttributedString {
+        switch capsuleState {
+        case let .idle(headline, _):
+            headline
+        case let .planning(headline):
+            AttributedString(headline)
+        case let .route(name, _):
+            name
+        }
+    }
+
+    var topBarMetaText: String? {
+        switch capsuleState {
+        case let .idle(_, metaItems):
+            metaItems.isEmpty ? nil : metaItems.joined(separator: " · ")
+        case .planning, .route:
+            nil
+        }
+    }
+
+    var locationBadge: LocationContext? {
+        if let selectedPlace {
+            return LocationContext(label: selectedPlace.label, mode: .manual)
+        }
+
+        guard let locationLabel, !locationUnavailable else {
+            return nil
+        }
+
+        return LocationContext(label: locationLabel, mode: isLocationEnabled ? .auto : .manual)
+    }
+
+    var chatPlaceholder: String {
+        guard let locationLabel = locationBadge?.label, !locationLabel.isEmpty else {
+            return "Plan a ride…"
+        }
+
+        return "Plan a ride from \(locationLabel)…"
+    }
+
     var capsuleState: LSContextCapsule.CapsuleState {
         // Check if weather advisory (warning case)
         if weatherAdvisory != nil {

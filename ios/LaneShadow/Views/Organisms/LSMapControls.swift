@@ -68,6 +68,9 @@ public struct LSMapControls: View {
             isSavedRoute: isSavedRoute,
             onZoomIn: onZoomIn,
             onZoomOut: onZoomOut,
+            onRecenter: onRecenter,
+            onLayers: onLayers,
+            onToggleView: onToggleView,
             in: theme
         )
 
@@ -78,18 +81,22 @@ public struct LSMapControls: View {
                     zoomClusterChip
 
                 case .recenter:
-                    sfSymbolControlChip(
-                        sfSymbol: "location.circle",
-                        accessibilityLabel: "Recenter map",
-                        action: onRecenter
-                    )
+                    if let onRecenter {
+                        sfSymbolControlChip(
+                            sfSymbol: "location.circle",
+                            accessibilityLabel: "Recenter map",
+                            action: onRecenter
+                        )
+                    }
 
                 case .layers:
-                    controlChip(
-                        icon: .layers,
-                        accessibilityLabel: "Toggle layers",
-                        action: onLayers
-                    )
+                    if let onLayers {
+                        controlChip(
+                            icon: .layers,
+                            accessibilityLabel: "Toggle layers",
+                            action: onLayers
+                        )
+                    }
 
                 case let .save(isSaved):
                     if isSaved {
@@ -99,11 +106,13 @@ public struct LSMapControls: View {
                     }
 
                 case .modeToggle:
-                    controlChip(
-                        icon: mode == .map ? .send : .map,
-                        accessibilityLabel: appearance.modeToggleAccessibilityLabel,
-                        action: onToggleView
-                    )
+                    if let onToggleView {
+                        controlChip(
+                            icon: mode == .map ? .send : .map,
+                            accessibilityLabel: appearance.modeToggleAccessibilityLabel,
+                            action: onToggleView
+                        )
+                    }
                 }
             }
         }
@@ -251,7 +260,7 @@ public struct LSMapControls: View {
     // MARK: - Tokens
 
     private var chipSize: CGFloat {
-        max(theme.touchTarget.minTouchTarget, theme.space.xxl + theme.space.lg + theme.space.sm)
+        max(theme.touchTarget.minTouchTarget, theme.space.xxl + theme.space.md)
     }
 
     /// Icon size for chips (matching theme.iconSize.medium)

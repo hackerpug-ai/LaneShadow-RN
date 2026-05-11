@@ -17,7 +17,8 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertTrue(source?.contains("Continue with Email") == true)
         XCTAssertTrue(source?.contains("Terms") == true)
         XCTAssertTrue(source?.contains("Privacy Policy") == true)
-        XCTAssertTrue(source?.contains("LSPaperMap") == true)
+        XCTAssertTrue(source?.contains("AuthMapBackdrop") == true)
+        XCTAssertFalse(source?.contains("LSPaper" + "Map") == true)
         XCTAssertTrue(source?.contains("LSAuthProviderButton") == true)
         XCTAssertTrue(source?.contains("LSFormField") == true)
         XCTAssertTrue(source?.contains("LSSpinner") == true)
@@ -314,18 +315,36 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertNil(appState.authRoute)
     }
 
-    func testAuthBackgroundContainerPrefersAssetWhenAvailable() {
-        let source = AuthBackgroundContainer<EmptyView>.resolveImageSource { name in
-            name == "AuthBackground" ? UIImage() : nil
-        }
+    func testOAuthCallbackCompletionAwaitsCallbackUserBeforeRoutingHome() async throws {
+        let client = AuthScreensFakeClient(
+            callbackCompletionUser: ClerkAuthUser(id: "delayed-oauth-user", email: "rider@example.com"),
+            callbackDelayNanoseconds: 50_000_000
+        )
+        let auth = ClerkAuth(client: client)
+        let appState = AppState(isAuthenticated: false)
+        let callbackURL = try XCTUnwrap(URL(string: "laneshadow://oauth-callback?token=delayed123"))
 
-        XCTAssertEqual(source, .authBackground)
+        let result = await OAuthCallbackCompletion.complete(
+            callbackURL: callbackURL,
+            appState: appState,
+            auth: auth,
+            convexClient: makeConvexClient(currentUser: .jamie)
+        )
+
+        XCTAssertEqual(result, .success)
+        XCTAssertEqual(auth.currentUser?.id, "delayed-oauth-user")
+        XCTAssertTrue(appState.isAuthenticated)
+        XCTAssertEqual(appState.appRoute, .home)
+        XCTAssertNil(appState.authRoute)
     }
 
-    func testAuthBackgroundContainerFallsBackWhenAssetMissing() {
-        let source = AuthBackgroundContainer<EmptyView>.resolveImageSource { _ in nil }
+    func testAuthBackgroundContainerUsesLiveMapBackdrop() throws {
+        let source = try authSource(named: "AuthMapBackground.swift")
 
-        XCTAssertEqual(source, .fallback)
+        XCTAssertTrue(source.contains("LSMap("))
+        XCTAssertTrue(source.contains("LSMapPresentationDefaults.authCamera"))
+        XCTAssertFalse(source.contains("UIImage"))
+        XCTAssertFalse(source.contains("Image("))
     }
 
     func testSignUpViewModelSubmitsAndTransitionsToSignedIn() async {
@@ -395,6 +414,27 @@ final class AuthScreensTests: XCTestCase {
         XCTAssertEqual(auth.currentUser?.id, "apple-user")
     }
 
+    func testAuthScreenProviderSignInCanRouteAuthenticatedAppHome() async throws {
+        let auth = ClerkAuth(client: AuthScreensFakeClient())
+        let viewModel = AuthScreenViewModel(
+            auth: auth,
+            emailResolver: AuthScreenViewModel.neutralPreviewEmailResolver
+        )
+        let appState = AppState(isAuthenticated: false)
+
+        try await viewModel.signInWithGoogle()
+        await appState.completeAuthentication(
+            clerkAuth: auth,
+            convexClient: makeConvexClient(currentUser: .jamie)
+        )
+
+        XCTAssertEqual(viewModel.mode, .signedIn)
+        XCTAssertEqual(auth.currentUser?.id, "google-user")
+        XCTAssertTrue(appState.isAuthenticated)
+        XCTAssertEqual(appState.appRoute, .home)
+        XCTAssertNil(appState.authRoute)
+    }
+
     private func makeAuthScreenViewModel(
         mode: AuthScreenMode = .emailEntry,
         email: String = "",
@@ -457,13 +497,16 @@ actor AuthScreensFakeClient: ClerkAuthClient {
     private(set) var receivedCallbackTokens: [String] = []
     private let callbackCompletionUser: ClerkAuthUser?
     private let signUpResult: ClerkSignUpResult?
+    private let callbackDelayNanoseconds: UInt64
 
     init(
         callbackCompletionUser: ClerkAuthUser? = ClerkAuthUser(id: "callback-user", email: "callback@example.com"),
-        signUpResult: ClerkSignUpResult? = nil
+        signUpResult: ClerkSignUpResult? = nil,
+        callbackDelayNanoseconds: UInt64 = 0
     ) {
         self.callbackCompletionUser = callbackCompletionUser
         self.signUpResult = signUpResult
+        self.callbackDelayNanoseconds = callbackDelayNanoseconds
     }
 
     func signIn(email: String, password: String) async throws -> ClerkSignInResult {
@@ -502,6 +545,9 @@ actor AuthScreensFakeClient: ClerkAuthClient {
 
     func completeOAuthCallback(token: String) async throws -> ClerkAuthUser? {
         receivedCallbackTokens.append(token)
+        if callbackDelayNanoseconds > 0 {
+            try await Task.sleep(nanoseconds: callbackDelayNanoseconds)
+        }
         return callbackCompletionUser
     }
 }

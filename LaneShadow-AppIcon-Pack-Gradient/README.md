@@ -1,6 +1,6 @@
 # LaneShadow App Icon Pack — Gradient Version
 
-This package preserves the copper-to-deep-ink gradient in the route/shadow mark. The primary app icon uses the warm paper-map background, no grid overlay, and the gradient route + companion-shadow symbol.
+This package preserves the copper-to-deep-ink gradient in the route/shadow mark. The primary app icon uses the warm paper-toned background, no grid overlay, and the gradient route + companion-shadow symbol.
 
 ## Recommended Expo config
 

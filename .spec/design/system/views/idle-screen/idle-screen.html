@@ -207,7 +207,7 @@
   pointer-events: none;
 }
 
-.view-idle-screen__map-svg {
+.view-idle-screen__live-map {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -266,11 +266,20 @@
   max-width: none;
 }
 
-/* Compact capsule typography for inline use */
+/* Compact capsule — re-skinned to match org-topbar__chip surface so
+   the header reads as a single chip family (menu · status · NEW).
+   View-local only; canonical .mol-context-capsule unchanged. */
 .view-idle-screen__header .mol-context-capsule {
   padding: var(--space-2) var(--space-3);
   gap: 0;
   min-width: 0;
+  height: var(--space-9);                          /* 40pt — chip baseline */
+  background: var(--surface-overlay);              /* match chip (was --surface-glass) */
+  border-radius: var(--radius-md);                 /* match chip (was --radius-lg) */
+  box-shadow: var(--elev-chrome);                  /* match chip (was --elev-overlay) */
+  backdrop-filter: blur(8px);                      /* match chip (was blur(14px) saturate(1.2)) */
+  -webkit-backdrop-filter: blur(8px);
+  justify-content: center;
 }
 .view-idle-screen__header .mol-context-capsule__meta {
   font-size: 9px;
@@ -506,7 +515,7 @@
 <section class="view-idle-screen__story" aria-label="S01 Default Light" data-screen="idle-screen" data-state="default" data-theme="light">
   <div class="view-idle-screen__caption">
     <div class="view-idle-screen__caption-id t-instr-sm">S01 · Default · Light</div>
-    <div class="view-idle-screen__caption-title t-opinion-lg">Paper map &amp; the <em>today</em> question</div>
+    <div class="view-idle-screen__caption-title t-opinion-lg">Live map &amp; the <em>today</em> question</div>
     <p class="view-idle-screen__caption-desc t-body-sm">
       The dormant state. Newsreader greeting; four suggestion chips; "MANUAL" tag — location resolved without GPS handshake. Copper pins mark saved favorites.
     </p>
@@ -516,31 +525,9 @@
     <!-- Dynamic island -->
     <div class="view-idle-screen__di"></div>
 
-    <!-- Paper map slot -->
+    <!-- Live map slot -->
     <div class="view-idle-screen__map-slot">
-      <svg class="view-idle-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <!-- Contour lines (primary) -->
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
-          <path d="M -20 270 C 80 245, 165 310, 240 270 S 340 290, 420 250"/>
-          <path d="M -20 355 C 65 330, 155 400, 240 355 S 340 385, 420 340"/>
-          <path d="M -20 460 C 65 435, 155 510, 240 460 S 340 490, 420 445"/>
-          <path d="M -20 565 C 80 535, 160 600, 240 565 S 340 585, 420 545"/>
-          <path d="M -20 680 C 80 650, 165 715, 240 680 S 340 700, 420 655"/>
-        </g>
-        <!-- Contour lines (faint) -->
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 235 C 80 215, 165 278, 240 235 S 340 255, 420 215"/>
-          <path d="M -20 390 C 80 365, 165 432, 240 390 S 340 420, 420 380"/>
-          <path d="M -20 500 C 80 475, 160 545, 240 500 S 340 535, 420 490"/>
-          <path d="M -20 615 C 80 590, 165 655, 240 615 S 340 640, 420 600"/>
-        </g>
-        <!-- Coastline hint -->
-        <path d="M 310 -10 C 275 80, 320 195, 300 320 S 288 510, 338 650 L 420 650 L 420 -10 Z"
-              fill="color-mix(in srgb, var(--wx-rain) 6%, transparent)"/>
-        <path d="M 310 -10 C 275 80, 320 195, 300 320 S 288 510, 338 650"
-              stroke="color-mix(in srgb, var(--wx-rain) 35%, transparent)" stroke-width="0.8" fill="none"/>
-      </svg>
+      <div class="view-idle-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <!-- Favorite pins -->
       <div class="view-idle-screen__fav-pin" style="left:31%;top:37%;"></div>
       <div class="view-idle-screen__fav-pin view-idle-screen__fav-pin--sm" style="left:57%;top:51%;"></div>
@@ -653,22 +640,7 @@
     <div class="view-idle-screen__di"></div>
 
     <div class="view-idle-screen__map-slot">
-      <svg class="view-idle-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
-          <path d="M -20 285 C 80 260, 165 325, 240 285 S 340 305, 420 265"/>
-          <path d="M -20 390 C 65 365, 155 430, 240 390 S 340 415, 420 375"/>
-          <path d="M -20 510 C 65 480, 155 550, 240 510 S 340 540, 420 500"/>
-          <path d="M -20 640 C 80 605, 160 675, 240 640 S 340 665, 420 620"/>
-        </g>
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 240 C 80 218, 165 285, 240 240 S 340 265, 420 225"/>
-          <path d="M -20 440 C 80 415, 165 480, 240 440 S 340 468, 420 425"/>
-          <path d="M -20 575 C 80 545, 165 610, 240 575 S 340 600, 420 560"/>
-        </g>
-        <path d="M 310 -10 C 275 80, 320 195, 300 320 S 288 510, 338 650"
-              stroke="color-mix(in srgb, var(--wx-rain) 35%, transparent)" stroke-width="0.8" fill="none"/>
-      </svg>
+      <div class="view-idle-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <div class="view-idle-screen__fav-pin" style="left:31%;top:37%;"></div>
       <div class="view-idle-screen__fav-pin view-idle-screen__fav-pin--sm" style="left:57%;top:51%;"></div>
       <div class="view-idle-screen__fav-pin view-idle-screen__fav-pin--sm" style="left:43%;top:63%;"></div>
@@ -770,24 +742,7 @@
     <div class="view-idle-screen__di"></div>
 
     <div class="view-idle-screen__map-slot" style="background:var(--ink-900);">
-      <svg class="view-idle-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
-          <path d="M -20 270 C 80 245, 165 310, 240 270 S 340 290, 420 250"/>
-          <path d="M -20 355 C 65 330, 155 400, 240 355 S 340 385, 420 340"/>
-          <path d="M -20 460 C 65 435, 155 510, 240 460 S 340 490, 420 445"/>
-          <path d="M -20 565 C 80 535, 160 600, 240 565 S 340 585, 420 545"/>
-          <path d="M -20 680 C 80 650, 165 715, 240 680 S 340 700, 420 655"/>
-        </g>
-        <g stroke="var(--map-contour-faint)" stroke-width="0.7" fill="none">
-          <path d="M -20 235 C 80 215, 165 278, 240 235 S 340 255, 420 215"/>
-          <path d="M -20 390 C 80 365, 165 432, 240 390 S 340 420, 420 380"/>
-          <path d="M -20 500 C 80 475, 160 545, 240 500 S 340 535, 420 490"/>
-          <path d="M -20 615 C 80 590, 165 655, 240 615 S 340 640, 420 600"/>
-        </g>
-        <path d="M 310 -10 C 275 80, 320 195, 300 320 S 288 510, 338 650"
-              stroke="color-mix(in srgb, var(--wx-rain) 40%, transparent)" stroke-width="0.8" fill="none"/>
-      </svg>
+      <div class="view-idle-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <div class="view-idle-screen__fav-pin" style="left:31%;top:37%;"></div>
       <div class="view-idle-screen__fav-pin view-idle-screen__fav-pin--sm" style="left:57%;top:51%;"></div>
       <div class="view-idle-screen__fav-pin view-idle-screen__fav-pin--sm" style="left:43%;top:63%;"></div>
@@ -890,13 +845,7 @@
 
     <!-- Map (faint — sheet is dominant) -->
     <div class="view-idle-screen__map-slot">
-      <svg class="view-idle-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
-          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
-          <path d="M -20 285 C 80 260, 165 325, 240 285 S 340 305, 420 265"/>
-          <path d="M -20 390 C 65 365, 155 430, 240 390 S 340 415, 420 375"/>
-        </g>
-      </svg>
+      <div class="view-idle-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
     </div>
 
     <!-- Scrim -->
@@ -980,13 +929,7 @@
     <div class="view-idle-screen__di"></div>
 
     <div class="view-idle-screen__map-slot">
-      <svg class="view-idle-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
-          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
-          <path d="M -20 355 C 65 330, 155 400, 240 355 S 340 385, 420 340"/>
-          <path d="M -20 565 C 80 535, 160 600, 240 565 S 340 585, 420 545"/>
-        </g>
-      </svg>
+      <div class="view-idle-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
     </div>
 
     <header class="view-idle-screen__header" aria-label="App header">
@@ -1083,14 +1026,7 @@
     <div class="view-idle-screen__di"></div>
 
     <div class="view-idle-screen__map-slot">
-      <svg class="view-idle-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour)" stroke-width="0.9" fill="none">
-          <path d="M -20 210 C 80 185, 165 250, 240 210 S 340 228, 420 185"/>
-          <path d="M -20 365 C 65 340, 155 410, 240 365 S 340 395, 420 350"/>
-          <path d="M -20 525 C 65 495, 155 565, 240 525 S 340 555, 420 510"/>
-          <path d="M -20 680 C 80 650, 165 715, 240 680 S 340 700, 420 655"/>
-        </g>
-      </svg>
+      <div class="view-idle-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
       <!-- No favorite pins on first-ride variant -->
     </div>
 
@@ -1191,21 +1127,7 @@
     <div class="view-idle-screen__di"></div>
 
     <div class="view-idle-screen__map-slot">
-      <svg class="view-idle-screen__map-svg" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="var(--map-contour-faint)" stroke-width="0.9" fill="none">
-          <path d="M -20 200 C 80 175, 165 240, 240 200 S 340 218, 420 175"/>
-          <path d="M -20 355 C 65 330, 155 400, 240 355 S 340 385, 420 340"/>
-          <path d="M -20 565 C 80 535, 160 600, 240 565 S 340 585, 420 545"/>
-        </g>
-        <!-- Rain slashes overlay -->
-        <g stroke="var(--wx-rain)" stroke-width="0.6" opacity="0.45">
-          <line x1="40" y1="40" x2="35" y2="58"/><line x1="110" y1="28" x2="105" y2="46"/>
-          <line x1="195" y1="55" x2="190" y2="73"/><line x1="275" y1="35" x2="270" y2="53"/>
-          <line x1="80" y1="150" x2="75" y2="168"/><line x1="235" y1="155" x2="230" y2="173"/>
-          <line x1="135" y1="295" x2="130" y2="313"/><line x1="305" y1="265" x2="300" y2="283"/>
-          <line x1="55" y1="420" x2="50" y2="438"/><line x1="280" y1="465" x2="275" y2="483"/>
-        </g>
-      </svg>
+      <div class="view-idle-screen__live-map" data-map-surface="live-mapbox" aria-hidden="true"></div>
     </div>
 
     <header class="view-idle-screen__header" aria-label="App header">

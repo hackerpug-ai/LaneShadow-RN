@@ -204,7 +204,6 @@ targets:
       - path: LaneShadow/Views/Molecules/LSContextCapsule.swift
       - path: LaneShadow/Views/Molecules/LSContextCapsule+ResolvedValues.swift
       - path: LaneShadow/Views/Molecules/LSTagPill.swift
-      - path: LaneShadow/Views/Molecules/LSPaperMap.swift
       - path: LaneShadow/Views/Molecules/LSFavoritePinDot.swift
       # Sprint 05 organisms
       - path: LaneShadow/Views/Organisms

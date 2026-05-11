@@ -1,4 +1,9 @@
 # PLAN-S08-REM-IOS-T03 - iOS chat suggestion spacing remediation
+> Status: ✅ Completed
+> Cycle: 3
+> Commit: 5f427b373edd12086a9ce2b8ecd52ca2f37860a9
+> Reviewer: swift-reviewer
+> Updated: 2026-05-08T20:37:07.119Z
 
 > Status: Backlog
 > Cycle: 0
@@ -128,16 +133,126 @@ This remediation keeps the existing `LSChatInput` API and visual language, but g
 <!--
 {
   "requirements": [
-    {"id":"AC-1","type":"acceptance_criterion","description":"GIVEN LSChatInput with suggestions WHEN body lays out THEN suggestion row and input bar are separated by a dedicated theme-token gap","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Molecules/LSChatInputTests/test_suggestions_have_dedicated_gap_above_input","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-2","type":"acceptance_criterion","description":"GIVEN LSChatInput with location badge, suggestions, and autocomplete WHEN rendered THEN order is location, suggestions, input, autocomplete","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Molecules/LSChatInputTests/test_location_suggestions_input_order_is_stable","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-3","type":"acceptance_criterion","description":"GIVEN long suggestion labels WHEN laid out THEN suggestions scroll horizontally without compressing or overlapping the input bar","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Molecules/LSChatInputTests/test_long_suggestions_scroll_without_input_overlap","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-4","type":"acceptance_criterion","description":"GIVEN idle screens with suggestions WHEN inspected THEN they rely on shared LSChatInput spacing and add no custom negative offsets","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Templates/IdleScreenTests/test_idle_chat_suggestions_use_shared_spacing","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-5","type":"acceptance_criterion","description":"GIVEN touched Swift files WHEN native compliance and iOS build run THEN both exit 0","verify":"scripts/tokens/enforce-native-compliance.sh && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"TC-1","type":"test_criterion","description":"LSChatInput separates suggestion chips from input bar with a dedicated theme-token gap","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Molecules/LSChatInputTests/test_suggestions_have_dedicated_gap_above_input","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-1"},
-    {"id":"TC-2","type":"test_criterion","description":"LSChatInput order is location badge, suggestions, input bar, autocomplete dropdown","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Molecules/LSChatInputTests/test_location_suggestions_input_order_is_stable","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-2"},
-    {"id":"TC-3","type":"test_criterion","description":"Long suggestion labels scroll horizontally without compressing or overlapping input bar","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Molecules/LSChatInputTests/test_long_suggestions_scroll_without_input_overlap","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-3"},
-    {"id":"TC-4","type":"test_criterion","description":"Idle screens rely on shared LSChatInput spacing and add no custom negative offsets","verify":"xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Templates/IdleScreenTests/test_idle_chat_suggestions_use_shared_spacing","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-4"},
-    {"id":"TC-5","type":"test_criterion","description":"Native token compliance and iOS build both exit 0","verify":"scripts/tokens/enforce-native-compliance.sh && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-5"}
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "description": "GIVEN LSChatInput with suggestions WHEN body lays out THEN suggestion row and input bar are separated by a dedicated theme-token gap",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Molecules/LSChatInputTests/test_suggestions_have_dedicated_gap_above_input",
+      "satisfied": true,
+      "evidence": "ios/LaneShadow/Views/Molecules/LSChatInput.swift:95-116 adds a dedicated `suggestionInputGap` via `.padding(.bottom, suggestionInputGap)` with `theme.space.sm`; `.tmp/PLAN-S08-REM-IOS-T03/ac-1-output.txt` shows `-[LaneShadowTests.LSChatInputTests test_suggestions_have_dedicated_gap_above_input]` passed.",
+      "remediation": null,
+      "last_evaluated_cycle": 3,
+      "last_evaluated_commit": "5f427b373edd12086a9ce2b8ecd52ca2f37860a9",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "description": "GIVEN LSChatInput with location badge, suggestions, and autocomplete WHEN rendered THEN order is location, suggestions, input, autocomplete",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Molecules/LSChatInputTests/test_location_suggestions_input_order_is_stable",
+      "satisfied": true,
+      "evidence": "ios/LaneShadow/Views/Molecules/LSChatInput.swift:58-75 preserves render order as location badge, suggestions, input bar, autocomplete; `.tmp/PLAN-S08-REM-IOS-T03/ac-2-output.txt` shows `-[LaneShadowTests.LSChatInputTests test_location_suggestions_input_order_is_stable]` passed.",
+      "remediation": null,
+      "last_evaluated_cycle": 3,
+      "last_evaluated_commit": "5f427b373edd12086a9ce2b8ecd52ca2f37860a9",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "description": "GIVEN long suggestion labels WHEN laid out THEN suggestions scroll horizontally without compressing or overlapping the input bar",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Molecules/LSChatInputTests/test_long_suggestions_scroll_without_input_overlap",
+      "satisfied": true,
+      "evidence": "ios/LaneShadow/Views/Molecules/LSChatInput.swift:95-116 keeps suggestions in a horizontal `ScrollView` and fixes chip intrinsic width; ios/LaneShadow/Views/Molecules/LSChatInput.swift:207-221 keeps the input bar height fixed; `.tmp/PLAN-S08-REM-IOS-T03/ac-3-output.txt` shows `-[LaneShadowTests.LSChatInputTests test_long_suggestions_scroll_without_input_overlap]` passed.",
+      "remediation": null,
+      "last_evaluated_cycle": 3,
+      "last_evaluated_commit": "5f427b373edd12086a9ce2b8ecd52ca2f37860a9",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "description": "GIVEN idle screens with suggestions WHEN inspected THEN they rely on shared LSChatInput spacing and add no custom negative offsets",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Templates/IdleScreenTests/test_idle_chat_suggestions_use_shared_spacing",
+      "satisfied": true,
+      "evidence": "ios/LaneShadowTests/Templates/IdleScreenTests.swift:167-225 asserts identical shared spacing in both idle consumers; ios/LaneShadow/Views/Templates/IdleScreen.swift:188-230 and ios/LaneShadow/Features/Idle/IdleScreenContainer.swift:140-191 consume `LSChatInput` without negative offsets; `.tmp/PLAN-S08-REM-IOS-T03/ac-4-output.txt` shows `-[LaneShadowTests.IdleScreenTests test_idle_chat_suggestions_use_shared_spacing]` passed.",
+      "remediation": null,
+      "last_evaluated_cycle": 3,
+      "last_evaluated_commit": "5f427b373edd12086a9ce2b8ecd52ca2f37860a9",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-5",
+      "type": "acceptance_criterion",
+      "description": "GIVEN touched Swift files WHEN native compliance and iOS build run THEN both exit 0",
+      "verify": "scripts/tokens/enforce-native-compliance.sh && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'",
+      "satisfied": true,
+      "evidence": "`.tmp/PLAN-S08-REM-IOS-T03/ac-5-output.txt` ends with `** BUILD SUCCEEDED **`; reviewer reran `scripts/tokens/enforce-native-compliance.sh && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` successfully.",
+      "remediation": null,
+      "last_evaluated_cycle": 3,
+      "last_evaluated_commit": "5f427b373edd12086a9ce2b8ecd52ca2f37860a9",
+      "maps_to_ac": null
+    },
+    {
+      "id": "TC-1",
+      "type": "test_criterion",
+      "description": "LSChatInput separates suggestion chips from input bar with a dedicated theme-token gap",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Molecules/LSChatInputTests/test_suggestions_have_dedicated_gap_above_input",
+      "satisfied": true,
+      "evidence": "ios/LaneShadowTests/Molecules/LSChatInputTests.swift:105-128 verifies the dedicated bottom padding on `lschatinput-suggestions`; `.tmp/PLAN-S08-REM-IOS-T03/ac-1-output.txt` executed 1 test and passed.",
+      "remediation": null,
+      "last_evaluated_cycle": 3,
+      "last_evaluated_commit": "5f427b373edd12086a9ce2b8ecd52ca2f37860a9",
+      "maps_to_ac": "AC-1"
+    },
+    {
+      "id": "TC-2",
+      "type": "test_criterion",
+      "description": "LSChatInput order is location badge, suggestions, input bar, autocomplete dropdown",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Molecules/LSChatInputTests/test_location_suggestions_input_order_is_stable",
+      "satisfied": true,
+      "evidence": "ios/LaneShadowTests/Molecules/LSChatInputTests.swift:130-147 verifies runtime order in the root `VStack`; `.tmp/PLAN-S08-REM-IOS-T03/ac-2-output.txt` executed 1 test and passed.",
+      "remediation": null,
+      "last_evaluated_cycle": 3,
+      "last_evaluated_commit": "5f427b373edd12086a9ce2b8ecd52ca2f37860a9",
+      "maps_to_ac": "AC-2"
+    },
+    {
+      "id": "TC-3",
+      "type": "test_criterion",
+      "description": "Long suggestion labels scroll horizontally without compressing or overlapping input bar",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Molecules/LSChatInputTests/test_long_suggestions_scroll_without_input_overlap",
+      "satisfied": true,
+      "evidence": "ios/LaneShadowTests/Molecules/LSChatInputTests.swift:149-174 verifies horizontal scrolling, chip fixed sizing, and stable input height; `.tmp/PLAN-S08-REM-IOS-T03/ac-3-output.txt` executed 1 test and passed.",
+      "remediation": null,
+      "last_evaluated_cycle": 3,
+      "last_evaluated_commit": "5f427b373edd12086a9ce2b8ecd52ca2f37860a9",
+      "maps_to_ac": "AC-3"
+    },
+    {
+      "id": "TC-4",
+      "type": "test_criterion",
+      "description": "Idle screens rely on shared LSChatInput spacing and add no custom negative offsets",
+      "verify": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Templates/IdleScreenTests/test_idle_chat_suggestions_use_shared_spacing",
+      "satisfied": true,
+      "evidence": "ios/LaneShadowTests/Templates/IdleScreenTests.swift:167-225 verifies both idle consumers inherit identical shared spacing; `.tmp/PLAN-S08-REM-IOS-T03/ac-4-output.txt` executed 1 test and passed.",
+      "remediation": null,
+      "last_evaluated_cycle": 3,
+      "last_evaluated_commit": "5f427b373edd12086a9ce2b8ecd52ca2f37860a9",
+      "maps_to_ac": "AC-4"
+    },
+    {
+      "id": "TC-5",
+      "type": "test_criterion",
+      "description": "Native token compliance and iOS build both exit 0",
+      "verify": "scripts/tokens/enforce-native-compliance.sh && xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'",
+      "satisfied": true,
+      "evidence": "`.tmp/PLAN-S08-REM-IOS-T03/ac-5-output.txt` completed with token compliance followed by `** BUILD SUCCEEDED **`; reviewer rerun also succeeded.",
+      "remediation": null,
+      "last_evaluated_cycle": 3,
+      "last_evaluated_commit": "5f427b373edd12086a9ce2b8ecd52ca2f37860a9",
+      "maps_to_ac": "AC-5"
+    }
   ]
 }
 -->

@@ -13,7 +13,7 @@ Map-first, data-second. A rider scanning a catalog can immediately see whether a
 ```html
 <div class="ls-card org-route-card">
   <div class="org-route-card__map">
-    <svg class="org-route-card__map-svg">…polyline path…</svg>
+    <div class="org-route-card__live-map" data-map-surface="live-mapbox"></div>
     <span class="org-route-card__marker org-route-card__marker--start"></span>
     <span class="org-route-card__marker org-route-card__marker--end"></span>
   </div>

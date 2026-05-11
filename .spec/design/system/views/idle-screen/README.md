@@ -82,6 +82,11 @@ View-level properties applied via `.view-idle-screen*` selectors only:
 | Favorite pin border | `var(--surface-card)` | White ring on pin |
 | Greeting overlay headline `<em>` color | `var(--signal-default)` | Italic "today" / "tonight" copper tint |
 | Greeting meta row color | `var(--signal-default)` | Copper label text |
+| Status-card (header inline) background | `var(--surface-overlay)` | View-local re-skin so the middle status card matches `org-topbar__chip` surface — header reads as one chip family (menu · status · NEW) |
+| Status-card (header inline) corner radius | `var(--radius-md)` | Matches chip radius (canonical capsule uses `--radius-lg` elsewhere) |
+| Status-card (header inline) elevation | `var(--elev-chrome)` | Matches chip shadow (canonical capsule uses `--elev-overlay` elsewhere) |
+| Status-card (header inline) backdrop blur | `blur(8px)` | Matches chip blur (canonical capsule uses `blur(14px) saturate(1.2)` elsewhere) |
+| Status-card (header inline) height | `var(--space-9)` | 40pt — chip baseline so menu · status · NEW align on the same row |
 | Advisory card background | `var(--wx-rain-tint)` | Rain-tint variant only |
 | Advisory card accent border | `var(--wx-rain)` | Left 3px stripe |
 | Home indicator bar | `rgba(0,0,0,0.38)` light / `rgba(255,255,255,0.30)` dark | Phone chrome — unavoidable raw value; documented below |
@@ -125,6 +130,7 @@ View-level properties applied via `.view-idle-screen*` selectors only:
 | Phone frame `border-radius` | `var(--radius-xl)` | Intentionally uses token; no additional literal needed |
 | `backdrop-filter: blur(16px)` on greeting overlay glass | `16px` | Visual-effect blur radius — not a spacing token; consistent with navigator-callouts organism |
 | `backdrop-filter: blur(8px)` on TopBar chips | `8px` | Lighter organism-level blur; matches `org-topbar` spec |
+| `backdrop-filter: blur(8px)` on header status-card (`view-idle-screen__header .mol-context-capsule`) | `8px` | Re-skin override so the middle capsule matches the surrounding `org-topbar__chip` blur instead of the canonical capsule's `blur(14px) saturate(1.2)` — header reads as one chip family |
 | Home indicator color (light) | `rgba(0,0,0,0.38)` | Device chrome simulation — no semantic equivalent; raw value is intentional |
 | Home indicator color (dark) | `rgba(255,255,255,0.30)` | Device chrome simulation — same rationale |
 | SVG `stroke-width` values | `0.7` / `0.8` / `0.9` on contour SVG | SVG geometry — not CSS spacing tokens |

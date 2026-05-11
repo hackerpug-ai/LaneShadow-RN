@@ -68,7 +68,7 @@ View-level properties applied via `.view-auth-screen*` selectors only:
 | Phone frame border | `var(--border-default)` | 1px via `var(--stroke-sm)` |
 | Phone frame corner radius | `var(--radius-xl)` | 16px — consistent with all other views |
 | Phone frame shadow | `var(--elev-overlay)` | Drops the frame from the section background |
-| Background canvas | `var(--map-paper)` | Same paper substrate as idle-screen |
+| Background canvas | `var(--map-paper)` | Same live map surface as idle-screen |
 | Contour SVG strokes | `var(--map-contour-faint)` | Lighter than idle to keep auth card forward |
 | Background scrim | `var(--surface-overlay)` → `var(--surface-glass)` | Top-to-bottom gradient veil over the canvas |
 | Back-button chip background | `var(--surface-glass)` | Frosted glass with `backdrop-filter: blur(8px)` |
