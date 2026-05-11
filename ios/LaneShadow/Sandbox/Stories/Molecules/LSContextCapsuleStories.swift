@@ -84,7 +84,33 @@ enum LSContextCapsuleStories {
                 emphasized: "Mountain Pass Sunrise"
             ),
             metrics: ["62 mi", "3h 02m", "arr 9:18a"]
-        ), isSaved: true)
+        ), isSaved: true),
+        makeStory(
+            id: "molecules.context-capsule.idle-chip-light",
+            name: "Idle Chip / Light",
+            scheme: .light,
+            state: .idle(
+                headline: storyHeadline(
+                    fullText: "Where are we riding today, Justin?",
+                    emphasized: "today"
+                ),
+                metaItems: ["Friday", "68°F", "Clear"]
+            ),
+            appearance: .chip
+        ),
+        makeStory(
+            id: "molecules.context-capsule.idle-chip-dark",
+            name: "Idle Chip / Dark",
+            scheme: .dark,
+            state: .idle(
+                headline: storyHeadline(
+                    fullText: "Where are we riding today, Justin?",
+                    emphasized: "today"
+                ),
+                metaItems: ["Friday", "68°F", "Clear"]
+            ),
+            appearance: .chip
+        )
     ]
 
     private static func makeStory(
@@ -93,7 +119,8 @@ enum LSContextCapsuleStories {
         scheme: ColorScheme,
         state: LSContextCapsule.CapsuleState,
         isWarning: Bool = false,
-        isSaved: Bool = false
+        isSaved: Bool = false,
+        appearance: LSContextCapsule.Appearance = .glass
     ) -> Story {
         Story(
             id: id,
@@ -106,7 +133,8 @@ enum LSContextCapsuleStories {
                 LSContextCapsule(
                     state: state,
                     isWarning: isWarning,
-                    isSaved: isSaved
+                    isSaved: isSaved,
+                    appearance: appearance
                 )
             }
             .preferredColorScheme(scheme)

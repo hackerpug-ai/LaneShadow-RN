@@ -73,8 +73,7 @@ public struct IdleScreen: View {
                 ],
                 topBar: {
                     LSTopBar(
-                        metaText: topBarMetaText,
-                        headline: topBarHeadline,
+                        capsule: topBarCapsuleState,
                         trailing: .newChip(action: onNewTap),
                         onMenuTap: onMenuTap,
                         onNewTap: onNewTap
@@ -122,12 +121,14 @@ public struct IdleScreen: View {
 
     // MARK: - Helper Methods
 
-    private var topBarTitle: String {
-        String(topBarHeadline.characters)
-    }
+    private var topBarCapsuleState: LSContextCapsule.CapsuleState {
+        let headline = topBarHeadline
+        // Parse meta string (e.g., "FRIDAY · 68°F · CLEAR") into individual components
+        let metaItems = state.greeting.meta.split(separator: "·")
+            .map { String($0).trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
 
-    private var topBarMetaText: String? {
-        state.greeting.meta.isEmpty ? nil : state.greeting.meta
+        return .idle(headline: headline, metaItems: metaItems)
     }
 
     private var topBarHeadline: AttributedString {

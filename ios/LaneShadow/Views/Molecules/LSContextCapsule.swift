@@ -10,6 +10,11 @@ public struct LSContextCapsule: View {
         case route(name: AttributedString, metrics: [String])
     }
 
+    public enum Appearance: Hashable, Sendable {
+        case glass
+        case chip
+    }
+
     @Environment(\.theme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -20,31 +25,34 @@ public struct LSContextCapsule: View {
     public let state: CapsuleState
     public let isWarning: Bool
     public let isSaved: Bool
+    public let appearance: Appearance
 
     public init(
         state: CapsuleState,
         isWarning: Bool = false,
-        isSaved: Bool = false
+        isSaved: Bool = false,
+        appearance: Appearance = .glass
     ) {
         self.state = state
         self.isWarning = isWarning
         self.isSaved = isSaved
+        self.appearance = appearance
     }
 
     public var body: some View {
-        let appearance = Self.resolvedAppearance(
+        let appearanceValues = Self.resolvedAppearance(
             for: state,
             isWarning: isWarning,
             isSaved: isSaved,
             in: theme
         )
         let shape = RoundedRectangle(
-            cornerRadius: appearance.cornerRadius,
+            cornerRadius: appearanceValues.cornerRadius,
             style: .continuous
         )
         let elevation = theme.elevation.level8
 
-        Group {
+        let content = Group {
             switch state {
             case let .idle(headline, metaItems):
                 idleRouteLayout(
@@ -53,7 +61,7 @@ public struct LSContextCapsule: View {
                         baseColor: LaneShadowTheme.color.content.primary,
                         emphasisColor: LaneShadowTheme.color.signal.default
                     ),
-                    headlineLabel: appearance.headlineText,
+                    headlineLabel: appearanceValues.headlineText,
                     metaItems: metaItems,
                     metaFont: theme.type.label.sm.font,
                     metaColor: resolvedMetaColor(for: .idle)
@@ -67,37 +75,52 @@ public struct LSContextCapsule: View {
                         baseColor: LaneShadowTheme.color.content.primary,
                         emphasisColor: LaneShadowTheme.color.content.primary
                     ),
-                    headlineLabel: appearance.headlineText,
+                    headlineLabel: appearanceValues.headlineText,
                     metaItems: metrics,
                     metaFont: LaneShadowTheme.typography.instrumentSm.font,
                     metaColor: LaneShadowTheme.color.content.tertiary
                 )
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, theme.space.sm)
-        .padding(.horizontal, theme.space.md)
-        .background(LaneShadowTheme.color.surface.glass)
-        .background(.ultraThinMaterial)
-        .clipShape(shape)
-        .overlay {
-            shape
-                .stroke(LaneShadowTheme.color.border.default, lineWidth: theme.borderWidth.thin)
-        }
-        .overlay {
-            if isSaved, case .route = state {
-                shape
-                    .stroke(LaneShadowTheme.color.signal.default, lineWidth: theme.borderWidth.thin)
+
+        if appearance == .chip {
+            // .chip appearance delegates to LSGlassPanel with chrome variant
+            // Chrome resolution: surface.glass + radius.md + elevation.level8 (CSS spec uses elev-chrome)
+            LSGlassPanel(variant: .chrome, padding: .spacing3, cornerRadius: .md) {
+                content
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .frame(height: 40)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("lscontextcapsule")
+        } else {
+            // .glass appearance keeps original frosted-glass treatment
+            content
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, theme.space.sm)
+                .padding(.horizontal, theme.space.md)
+                .background(LaneShadowTheme.color.surface.glass)
+                .background(.ultraThinMaterial)
+                .clipShape(shape)
+                .overlay {
+                    shape
+                        .stroke(LaneShadowTheme.color.border.default, lineWidth: theme.borderWidth.thin)
+                }
+                .overlay {
+                    if isSaved, case .route = state {
+                        shape
+                            .stroke(LaneShadowTheme.color.signal.default, lineWidth: theme.borderWidth.thin)
+                    }
+                }
+                .shadow(
+                    color: elevation.shadowColor.opacity(elevation.opacity),
+                    radius: elevation.radius,
+                    x: elevation.offsetX,
+                    y: elevation.offsetY
+                )
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("lscontextcapsule")
         }
-        .shadow(
-            color: elevation.shadowColor.opacity(elevation.opacity),
-            radius: elevation.radius,
-            x: elevation.offsetX,
-            y: elevation.offsetY
-        )
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("lscontextcapsule")
     }
 
     private func idleRouteLayout(

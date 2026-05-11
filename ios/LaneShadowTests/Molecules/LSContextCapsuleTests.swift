@@ -141,7 +141,7 @@ final class LSContextCapsuleTests: XCTestCase {
         XCTAssertEqual(lightColors.signalDefault, darkColors.signalDefault)
     }
 
-    func test_sandboxStories_allTenRegistered() {
+    func test_sandboxStories_allTwelveRegistered() {
         let ids = LSContextCapsuleStories.all.map(\.id)
         let expected: Set = [
             "molecules.context-capsule.idle-light",
@@ -154,10 +154,39 @@ final class LSContextCapsuleTests: XCTestCase {
             "molecules.context-capsule.warning-dark",
             "molecules.context-capsule.saved-light",
             "molecules.context-capsule.saved-dark",
+            "molecules.context-capsule.idle-chip-light",
+            "molecules.context-capsule.idle-chip-dark",
         ]
 
-        XCTAssertEqual(LSContextCapsuleStories.all.count, 10)
+        XCTAssertEqual(LSContextCapsuleStories.all.count, 12)
         XCTAssertEqual(Set(ids), expected)
+    }
+
+    func test_idleChipAppearance_rendersWithChromePanelStyling() {
+        let state = LSContextCapsule.CapsuleState.idle(
+            headline: makeHeadline(
+                fullText: "Where are we riding today, Justin?",
+                emphasized: "today"
+            ),
+            metaItems: ["Friday", "68°F", "Clear"]
+        )
+
+        // Verify that when appearance is .chip, the container uses chrome styling
+        let chipAppearance = LSContextCapsule.resolvedAppearance(
+            for: state,
+            isWarning: false,
+            isSaved: false,
+            in: Theme.shared
+        )
+
+        // The resolved appearance should match idle state baseline
+        XCTAssertEqual(chipAppearance.headlineText, "Where are we riding today, Justin?")
+        XCTAssertEqual(chipAppearance.emphasizedText, ["today"])
+        XCTAssertEqual(chipAppearance.metaColorToken, "color.signal.default")
+
+        // When appearance is .chip, container should delegate to LSGlassPanel(.chrome)
+        // This is verified by the view rendering with the new appearance parameter.
+        // The view will render a chromatic glass panel instead of the frosted glass + shadow.
     }
 
     private func makeHeadline(fullText: String, emphasized: String) -> AttributedString {

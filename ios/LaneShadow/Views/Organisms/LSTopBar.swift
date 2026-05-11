@@ -35,6 +35,7 @@ public struct LSTopBar: View {
     private let title: String?
     private let metaText: String?
     private let headline: AttributedString?
+    private let capsule: LSContextCapsule.CapsuleState?
     private let trailing: LSTopBarTrailing
     private let onMenuTap: () -> Void
     private let onNewTap: () -> Void
@@ -43,6 +44,7 @@ public struct LSTopBar: View {
         title: String? = nil,
         metaText: String? = nil,
         headline: AttributedString? = nil,
+        capsule: LSContextCapsule.CapsuleState? = nil,
         trailing: LSTopBarTrailing = .newChip(action: {}),
         onMenuTap: @escaping () -> Void,
         onNewTap: @escaping () -> Void = {}
@@ -50,6 +52,7 @@ public struct LSTopBar: View {
         self.title = title
         self.metaText = metaText
         self.headline = headline
+        self.capsule = capsule
         self.trailing = trailing
         self.onMenuTap = onMenuTap
         self.onNewTap = onNewTap
@@ -90,7 +93,12 @@ public struct LSTopBar: View {
 
     @ViewBuilder
     private var titleContent: some View {
-        if headline != nil || title != nil || metaText != nil {
+        if let capsule {
+            // When capsule is provided, render it with .chip appearance
+            LSContextCapsule(state: capsule, appearance: .chip)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .accessibilityIdentifier("lstopbar-headline")
+        } else if headline != nil || title != nil || metaText != nil {
             VStack(spacing: theme.space.xs) {
                 if let metaText {
                     LSText(metaText, variant: .label.sm, color: .secondary)
