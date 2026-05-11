@@ -110,7 +110,7 @@ enum LSContextCapsuleStories {
                 metaItems: ["Friday", "68°F", "Clear"]
             ),
             appearance: .chip
-        )
+        ),
     ]
 
     private static func makeStory(
