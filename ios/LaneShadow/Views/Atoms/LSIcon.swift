@@ -141,6 +141,8 @@ public struct LSIcon: View {
             stroke(pinPath, in: &context, strokeWidth: strokeWidth, foreground: foreground)
         case .plus:
             stroke(plusPath, in: &context, strokeWidth: strokeWidth, foreground: foreground)
+        case .minus:
+            stroke(minusPath, in: &context, strokeWidth: strokeWidth, foreground: foreground)
         case .rain:
             stroke(rainPath, in: &context, strokeWidth: strokeWidth, foreground: foreground)
         case .route:
@@ -439,6 +441,12 @@ public struct LSIcon: View {
     private var plusPath: Path {
         var path = Path()
         addLine(&path, CGPoint(x: 12, y: 5), CGPoint(x: 12, y: 19))
+        addLine(&path, CGPoint(x: 5, y: 12), CGPoint(x: 19, y: 12))
+        return path
+    }
+
+    private var minusPath: Path {
+        var path = Path()
         addLine(&path, CGPoint(x: 5, y: 12), CGPoint(x: 19, y: 12))
         return path
     }

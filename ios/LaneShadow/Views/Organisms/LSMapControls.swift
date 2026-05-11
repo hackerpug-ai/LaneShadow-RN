@@ -125,9 +125,9 @@ public struct LSMapControls: View {
     /// Zoom cluster: two large buttons separated by a hairline divider in a single rounded card
     private var zoomClusterChip: some View {
         VStack(spacing: 0) {
-            // Zoom in button
+            // Zoom in button (using SF Symbol for parity with zoom out)
             Button(action: onZoomIn ?? {}) {
-                LSIcon(name: .plus, size: .md, color: .primary)
+                LSIconSymbolIOS(name: "plus", size: chipIconSize, color: .primary)
             }
             .frame(width: chipSize, height: chipSize)
             .contentShape(Rectangle())
@@ -138,7 +138,7 @@ public struct LSMapControls: View {
             Divider()
                 .frame(height: theme.borderWidth.thin)
 
-            // Zoom out button (using SF Symbol since custom icons don't have minus)
+            // Zoom out button (SF Symbol, same system as zoom in for icon parity)
             Button(action: onZoomOut ?? {}) {
                 LSIconSymbolIOS(name: "minus", size: chipIconSize, color: .primary)
             }

@@ -30,7 +30,8 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         context.coordinator.mapView = mapView
         configureMapEventLogging(on: mapView, coordinator: context.coordinator)
         configureGestures(on: mapView)
-        applyStyleAndCamera(to: mapView, coordinator: context.coordinator)
+        configureLocationComponent(on: mapView)
+        applyStyleAndCamera(to: mapView, coordinator: context.coordinator, firstMount: true)
 
         if mode == .interactive, onTap != nil {
             let tapGesture = UITapGestureRecognizer(
@@ -48,7 +49,8 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         context.coordinator.mapView = mapView
         configureMapEventLogging(on: mapView, coordinator: context.coordinator)
         configureGestures(on: mapView)
-        applyStyleAndCamera(to: mapView, coordinator: context.coordinator)
+        configureLocationComponent(on: mapView)
+        applyStyleAndCamera(to: mapView, coordinator: context.coordinator, firstMount: false)
         renderPolylines(polylines, on: mapView, coordinator: context.coordinator)
         applyCameraFitIfNeeded(to: mapView, polylines: polylines)
         renderFavoritePins(favoriteLocations, on: mapView, coordinator: context.coordinator)
@@ -89,13 +91,58 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         mapView.gestures.options.quickZoomEnabled = renderModel.interaction.gesturesEnabled
     }
 
-    private func applyStyleAndCamera(to mapView: MapView, coordinator: Coordinator) {
+    private func configureLocationComponent(on mapView: MapView) {
+        // Only enable location component in interactive mode (not in preview/snapshot mode)
+        // to keep preview stories deterministic.
+        guard renderModel.interaction.gesturesEnabled else {
+            return
+        }
+
+        // Resolve copper fill + white ring via the +ResolvedValues helper so
+        // the token→UIColor conversion sits in an allowed path.
+        let topImage = makePuckTopImage(
+            fillColor: LSMapResolvedValues.puckFillUIColor,
+            ringColor: LSMapResolvedValues.puckRingUIColor
+        )
+
+        var locationOptions = mapView.location.options
+        locationOptions.puckType = .puck2D(Puck2DConfiguration(topImage: topImage))
+        mapView.location.options = locationOptions
+    }
+
+    private func makePuckTopImage(fillColor: UIColor, ringColor: UIColor) -> UIImage {
+        let size: CGFloat = 24
+        let ringWidth: CGFloat = 2
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
+        return renderer.image { _ in
+            // White ring (outer disc)
+            ringColor.setFill()
+            UIBezierPath(ovalIn: CGRect(x: 0, y: 0, width: size, height: size)).fill()
+
+            // Copper fill (inner disc)
+            fillColor.setFill()
+            let inset = ringWidth
+            let dotRect = CGRect(x: inset, y: inset, width: size - inset * 2, height: size - inset * 2)
+            UIBezierPath(ovalIn: dotRect).fill()
+        }
+    }
+
+    private func applyStyleAndCamera(to mapView: MapView, coordinator: Coordinator, firstMount: Bool) {
+        // Load style if needed
         if let styleURIString = renderModel.styleURI,
            coordinator.currentStyleURI != styleURIString,
            let styleURI = StyleURI(rawValue: styleURIString)
         {
             mapView.mapboxMap.loadStyle(styleURI)
             coordinator.currentStyleURI = styleURIString
+        }
+
+        // Only apply initial camera on first mount.
+        // On subsequent updates, let the camera controller drive changes via applyCameraControllerCommands.
+        // This prevents the zoom race where applyStyleAndCamera would re-apply the initial zoom
+        // before applyCameraControllerCommands had a chance to apply the user's tap (+/-).
+        guard firstMount else {
+            return
         }
 
         let resolvedCenter = coordinator.lastAppliedCenter ?? CLLocationCoordinate2D(
@@ -284,6 +331,10 @@ struct LSMapUIViewRepresentable: UIViewRepresentable {
         weak var mapView: MapView?
         var currentStyleURI: String?
         var lastAppliedCenter: CLLocationCoordinate2D?
+        /// Tracks the last applied zoom level to prevent the zoom race.
+        /// On first mount (applyStyleAndCamera with firstMount=true), this is set to the initial zoom.
+        /// On subsequent updates, applyStyleAndCamera skips camera application, and only
+        /// applyCameraControllerCommands updates this value based on user tap actions.
         var lastAppliedZoomLevel: Double?
         var lastHandledRecenterRequestCount = 0
         var polylineAnnotationManagers: [String: PolylineAnnotationManager] = [:]

@@ -12,6 +12,7 @@ enum LSMapStories {
         startEndMarkersStory,
         autoFitStory,
         darkStyleStory,
+        interactiveWithPuckStory,
         errorNoTokenStory,
         errorNoNetworkStory,
     ]
@@ -271,6 +272,31 @@ enum LSMapStories {
                     zoom: 12.0
                 ),
                 cameraFit: .static
+            )
+            .frame(height: 400)
+        }
+    }
+
+    private static var interactiveWithPuckStory: Story {
+        Story(
+            id: "atoms.map.interactive-with-puck",
+            tier: .atom,
+            component: "LSMap",
+            name: "Interactive with User Puck",
+            summary: "Interactive map with user location puck (copper with white ring) and recenter controls enabled.",
+            argTypes: [],
+            initialArgs: ArgValues([:])
+        ) { _ in
+            LSMap(
+                mode: .interactive,
+                camera: CameraPosition(
+                    center: LatLng(lat: 37.7749, lon: -122.4194),
+                    zoom: 12.0
+                ),
+                cameraFit: .static,
+                onTap: { coordinate in
+                    print("Tapped map at: \(coordinate.lat), \(coordinate.lon)")
+                }
             )
             .frame(height: 400)
         }
