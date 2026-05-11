@@ -188,6 +188,9 @@ private val IconName.pathSpecs: List<IconPathSpec>
                 IconPathSpec("M12 5 L12 19", fill = false, stroke = true),
                 IconPathSpec("M5 12 L19 12", fill = false, stroke = true),
             )
+            IconName.Minus -> listOf(
+                IconPathSpec("M5 12 L19 12", fill = false, stroke = true),
+            )
             IconName.Rain -> listOf(
                 IconPathSpec("M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25", fill = false, stroke = true),
                 IconPathSpec("M8 19 L8 21", fill = false, stroke = true),

@@ -30,6 +30,7 @@ import com.laneshadow.sandbox.mockproviders.LocationContext as MockLocationConte
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.atoms.CameraPosition
 import com.laneshadow.ui.atoms.LSMap
+import com.laneshadow.ui.atoms.LSMapCameraController
 import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.ui.atoms.MapMode
 import com.laneshadow.ui.molecules.LSChatInput
@@ -44,6 +45,7 @@ import com.laneshadow.ui.organisms.GlassOverlaySlot
 import com.laneshadow.ui.organisms.LSMapLayer
 import com.laneshadow.ui.organisms.LSTopBar
 import com.laneshadow.ui.organisms.LSMapControls
+import com.laneshadow.ui.organisms.MapControlsHandlers
 import com.laneshadow.ui.organisms.MapControlsMode
 
 /**
@@ -87,6 +89,7 @@ fun IdleScreen(
     isAutocompleteLoading: Boolean = false,
     onAutocompleteRecommendationTap: (AutocompleteRecommendation) -> Unit = {},
     onLocationModeChange: (String) -> Unit = {},
+    mapCameraController: LSMapCameraController = remember { LSMapCameraController(initialZoom = 10.8) },
     mapContent: @Composable (IdleScreenState) -> Unit = { screenState ->
         LSMap(
             mode = MapMode.Interactive,
@@ -95,6 +98,7 @@ fun IdleScreen(
                 zoom = 10.8,
             ),
             favoriteLocations = screenState.favoriteLocations,
+            cameraController = mapCameraController,
             modifier = Modifier
                 .fillMaxSize()
                 .testTag("idlescreen-map"),
@@ -147,6 +151,11 @@ fun IdleScreen(
                         ) {
                             LSMapControls(
                                 mode = MapControlsMode.Map,
+                                handlers = MapControlsHandlers(
+                                    onZoomIn = { mapCameraController.zoomIn() },
+                                    onZoomOut = { mapCameraController.zoomOut() },
+                                    onRecenter = { mapCameraController.recenterToUserLocation() },
+                                ),
                                 modifier = Modifier.testTag("idle-map-controls"),
                             )
                         }

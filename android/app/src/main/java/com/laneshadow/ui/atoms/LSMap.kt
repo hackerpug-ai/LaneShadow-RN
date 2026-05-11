@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -50,7 +49,11 @@ import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
+import com.mapbox.maps.ImageHolder
+import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
+import com.mapbox.maps.plugin.locationcomponent.location
 
 /**
  * LSMap — LaneShadow map composable using Mapbox Maps SDK.
@@ -68,6 +71,7 @@ fun LSMap(
     showFavorites: Boolean = false,
     favoriteLocations: List<FavoriteLocation> = emptyList(),
     onTap: ((LatLng) -> Unit)? = null,
+    cameraController: LSMapCameraController? = null,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -115,6 +119,11 @@ fun LSMap(
         else -> {
             // Remember annotation manager to avoid recreating on every update
             var annotationManager by remember { mutableStateOf<PointAnnotationManager?>(null) }
+            // Track the MapView so camera-controller LaunchedEffects can drive it imperatively.
+            var trackedMapView by remember { mutableStateOf<MapView?>(null) }
+            // Cache the most recently observed user-location coordinate from the
+            // LocationComponentPlugin's indicator. recenterToUserLocation uses this.
+            val latestUserPoint = remember { mutableStateOf<Point?>(null) }
 
             Box(modifier = hostModifier.background(mapPaperColor(renderModel.styleUri))) {
                 AndroidView(
@@ -133,6 +142,16 @@ fun LSMap(
                             val manager = mapView.annotations.createPointAnnotationManager()
                             annotationManager = manager
                             applyFavoritePinAnnotations(mapContext, manager, favoriteLocations, isDarkTheme)
+                            // Listen for indicator position so recenterToUserLocation has a coordinate.
+                            // Only attached when the location component is active (interactive mode).
+                            if (renderModel.interaction.gesturesEnabled) {
+                                mapView.location.addOnIndicatorPositionChangedListener(
+                                    OnIndicatorPositionChangedListener { point ->
+                                        latestUserPoint.value = point
+                                    },
+                                )
+                            }
+                            trackedMapView = mapView
                         }
                     },
                     update = { mapView ->
@@ -145,6 +164,54 @@ fun LSMap(
                     val manager = annotationManager
                     if (manager != null) {
                         applyFavoritePinAnnotations(context, manager, favoriteLocations, isDarkTheme)
+                    }
+                }
+
+                // Camera controller wiring: zoom — drive setCamera whenever the
+                // controller's zoomLevel changes.
+                if (cameraController != null) {
+                    LaunchedEffect(cameraController, cameraController.zoomLevel) {
+                        val mv = trackedMapView ?: return@LaunchedEffect
+                        val current = mv.mapboxMap.cameraState
+                        val target = cameraController.zoomLevel
+                        if (current.zoom != target) {
+                            val previous = current.zoom
+                            mv.mapboxMap.setCamera(
+                                CameraOptions.Builder()
+                                    .center(current.center)
+                                    .zoom(target)
+                                    .bearing(current.bearing)
+                                    .pitch(current.pitch)
+                                    .build(),
+                            )
+                            cameraController.recordAppliedZoomDelta(target - previous)
+                        }
+                    }
+
+                    // Camera controller wiring: recenter — when the request count
+                    // ticks up, animate to the cached user point (or mark unavailable).
+                    LaunchedEffect(cameraController, cameraController.recenterRequestCount) {
+                        if (cameraController.handledRecenterRequestCount >= cameraController.recenterRequestCount) {
+                            return@LaunchedEffect
+                        }
+                        val mv = trackedMapView ?: return@LaunchedEffect
+                        val userPoint = latestUserPoint.value
+                        if (userPoint != null) {
+                            val current = mv.mapboxMap.cameraState
+                            mv.mapboxMap.setCamera(
+                                CameraOptions.Builder()
+                                    .center(userPoint)
+                                    .zoom(current.zoom)
+                                    .bearing(current.bearing)
+                                    .pitch(current.pitch)
+                                    .build(),
+                            )
+                            cameraController.consumePendingRecenterRequest(RecenterOutcome.Applied)
+                        } else {
+                            cameraController.consumePendingRecenterRequest(
+                                RecenterOutcome.UnavailableNoUserLocation,
+                            )
+                        }
                     }
                 }
 
@@ -231,19 +298,39 @@ private fun configureMapView(
     onTap: ((LatLng) -> Unit)?,
 ) {
     val styleUri = renderModel.styleUri ?: return
+    val isFirstConfigure = mapView.tag == null
     if (mapView.tag != styleUri) {
         mapView.mapboxMap.loadStyle(styleUri)
         mapView.tag = styleUri
     }
 
-    mapView.mapboxMap.setCamera(
-        CameraOptions.Builder()
-            .center(Point.fromLngLat(renderModel.camera.center.lon, renderModel.camera.center.lat))
-            .zoom(renderModel.camera.zoom)
-            .bearing(renderModel.camera.bearing ?: 0.0)
-            .pitch(renderModel.camera.pitch ?: 0.0)
-            .build(),
-    )
+    // Enable location component in interactive mode only.
+    // Idempotent: updateSettings on every recompose is safe per Mapbox docs.
+    if (renderModel.interaction.gesturesEnabled) {
+        val context = mapView.context
+        val puckBitmap = createUserLocationPuckBitmap(context)
+        mapView.location.updateSettings {
+            enabled = true
+            puckBearingEnabled = false
+            locationPuck = LocationPuck2D(
+                topImage = ImageHolder.from(puckBitmap),
+            )
+        }
+    }
+
+    // Apply initial camera only on first configure. After that the
+    // LSMapCameraController (or user gestures) drives the camera; reapplying
+    // the initial camera on every recompose would clobber zoom/recenter.
+    if (isFirstConfigure) {
+        mapView.mapboxMap.setCamera(
+            CameraOptions.Builder()
+                .center(Point.fromLngLat(renderModel.camera.center.lon, renderModel.camera.center.lat))
+                .zoom(renderModel.camera.zoom)
+                .bearing(renderModel.camera.bearing ?: 0.0)
+                .pitch(renderModel.camera.pitch ?: 0.0)
+                .build(),
+        )
+    }
 
     // Honor `mode` parameter so MapMode.Preview actually disables user gestures
     // (parity with iOS resolveLSMapInteraction). Without this the `mode` arg
@@ -303,6 +390,34 @@ private fun createFavoritePinBitmap(
     }
     val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = pinSpec.fillColor.toArgb()
+        style = Paint.Style.FILL
+    }
+
+    return Bitmap.createBitmap(outerDiameterPx, outerDiameterPx, Bitmap.Config.ARGB_8888).also { bitmap ->
+        val canvas = AndroidCanvas(bitmap)
+        canvas.drawCircle(center, center, center, ringPaint)
+        canvas.drawCircle(center, center, fillRadiusPx, fillPaint)
+    }
+}
+
+/**
+ * Creates a user-location puck bitmap: solid copper dot with white ring.
+ * Uses the same sizing and pattern as favorite pins but with fixed copper + white colors.
+ */
+private fun createUserLocationPuckBitmap(context: Context): Bitmap {
+    val density = context.resources.displayMetrics.density
+    val outerDiameterPx = (GeneratedTokens.sizing.stroke.lg.value * 8f * density).toInt()
+    val ringWidthPx = GeneratedTokens.sizing.stroke.md.value * density
+    val fillRadiusPx = (outerDiameterPx / 2f) - ringWidthPx
+    val center = outerDiameterPx / 2f
+
+    // Copper fill (Signal.default) with white ring (Surface.card)
+    val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = GeneratedTokens.color.Surface.card.toArgb()
+        style = Paint.Style.FILL
+    }
+    val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = GeneratedTokens.color.Signal.default.toArgb()
         style = Paint.Style.FILL
     }
 

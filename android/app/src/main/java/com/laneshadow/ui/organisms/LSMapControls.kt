@@ -1,7 +1,6 @@
 package com.laneshadow.ui.organisms
 
 import android.os.Build
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,10 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlurEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
@@ -275,9 +272,12 @@ fun LSMapControls(
                             contentDescription = "Zoom out",
                             onClick = handlers.onZoomOut,
                         ) {
-                            MinusIcon(
-                                color = theme.colors.onSurface.default,
-                                strokeWidth = theme.icon.stroke.width,
+                            LSIcon(
+                                name = IconName.Minus,
+                                size = IconSize.Md,
+                                color = IconColor.Content(
+                                    com.laneshadow.ui.atoms.ContentColor.Primary
+                                ),
                             )
                         }
                     }
@@ -360,24 +360,3 @@ private fun MapControlChip(
     }
 }
 
-/**
- * Custom minus icon (horizontal line) for zoom-out control.
- * Drawn inline with Canvas since Minus is not in the icon catalog.
- */
-@Composable
-private fun MinusIcon(
-    color: Color,
-    strokeWidth: Dp,
-    modifier: Modifier = Modifier,
-) {
-    Canvas(modifier = modifier.size(18.dp)) {
-        val strokePx = strokeWidth.toPx()
-        drawLine(
-            color = color,
-            start = Offset(2f, size.height / 2),
-            end = Offset(size.width - 2f, size.height / 2),
-            strokeWidth = strokePx,
-            cap = StrokeCap.Round,
-        )
-    }
-}
