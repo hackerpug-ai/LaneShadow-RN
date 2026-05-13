@@ -151,17 +151,14 @@ public struct LSTopBar: View {
     private func newChip(action: @escaping () -> Void) -> some View {
         Button(action: action) {
             LSGlassPanel(variant: .chrome, padding: .spacing3, cornerRadius: .md) {
-                HStack(spacing: theme.space.xs) {
-                    LSIcon(name: .plus, size: .sm, color: .primary)
-                    LSText("NEW", variant: .label.md, color: .primary)
-                }
+                LSIcon(name: .plus, size: .sm, color: .primary)
             }
             .fixedSize(horizontal: true, vertical: false)
-            .frame(minWidth: chipMinWidth, minHeight: chipSize)
+            .frame(width: tapTargetSize, height: tapTargetSize)
         }
         .buttonStyle(PlainButtonStyle())
         .contentShape(Rectangle())
-        .accessibilityLabel("New")
+        .accessibilityLabel("New ride")
         .accessibilityIdentifier("lstopbar-new")
     }
 

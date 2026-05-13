@@ -201,39 +201,37 @@ private fun HamburgerChip(
 }
 
 /**
- * NEW action chip - rounded glass chrome chip with plus icon and "NEW" label.
+ * NEW action chip - 40x40 square glass chrome chip with plus icon only.
+ *
+ * Matches the hamburger chip footprint so the header reads as one chip family:
+ * [ menu ] [ status-card ] [ plus ]. The "New ride" label is exposed only via
+ * `contentDescription` for screen readers.
  */
 @Composable
 private fun NewChip(
     onTap: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val theme = LocalLaneShadowTheme.current
-
-    LSGlassPanel(
-        variant = GlassVariant.Chrome,
-        cornerRadius = GlassCornerRadius.Md,
+    Box(
         modifier = modifier
-            .height(chipHeight)
+            .minimumInteractiveComponentSize()
+            .size(chipHeight)
+            .clickable(onClick = onTap)
             .semantics {
                 lsTopBarGlassVariant = GlassVariant.Chrome
-            }
-            .clickable(onClick = onTap),
+                contentDescription = "New ride"
+            },
+        contentAlignment = Alignment.Center,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(theme.space.xs),
+        LSGlassPanel(
+            variant = GlassVariant.Chrome,
+            cornerRadius = GlassCornerRadius.Md,
+            modifier = Modifier.size(chipHeight),
         ) {
             LSIcon(
                 name = IconName.Plus,
                 size = IconSize.Sm,
                 color = IconColor.Content(ContentColor.Primary),
-            )
-
-            LSText(
-                text = "NEW",
-                variant = TypographyVariant.Ui.Label.Md,
-                color = ContentColor.Primary,
             )
         }
     }

@@ -43,8 +43,7 @@ struct IdleScreenContainer: View {
                 ) : nil,
                 topBar: {
                     LSTopBar(
-                        metaText: viewModel.topBarMetaText,
-                        headline: viewModel.topBarHeadline,
+                        capsule: viewModel.capsuleState,
                         trailing: .newChip(action: handleNewTap),
                         onMenuTap: toggleMenu,
                         onNewTap: handleNewTap

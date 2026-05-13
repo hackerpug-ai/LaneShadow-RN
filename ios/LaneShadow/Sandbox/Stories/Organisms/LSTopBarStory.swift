@@ -10,7 +10,7 @@ enum LSTopBarStory {
             tier: .organism,
             component: "TopBar",
             name: "Default",
-            summary: "Hamburger leading + NEW trailing. Unified rounded-rect chips (radius.md), 90% surface alpha over map.",
+            summary: "Hamburger leading + plus trailing. Both square chips at chipSize (radius.md, chrome surface) — no text labels.",
             previewMode: .fullScreen
         ) { _ in
             LSTopBar(

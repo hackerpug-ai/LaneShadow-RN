@@ -31,9 +31,8 @@ IdleScreen is the dormant-Navigator home — the first thing a rider sees when o
 | organism | `org-map-layer__bottom-overlay` | ChatInput anchor slot — positioned bottom of canvas |
 | organism | `org-map-layer__bottom-sheet` | Filter sheet slot — presented on sliders tap |
 | organism | `org-topbar` | LSTopBar — hamburger chip + NEW chip |
-| organism | `org-topbar__chip` | Individual glass chips (circular hamburger, pill NEW) |
-| organism | `org-topbar__chip--square` | Hamburger (40×40pt) |
-| organism | `org-topbar__chip--with-label` | NEW pill (label + icon) |
+| organism | `org-topbar__chip` | Individual glass chips (hamburger + plus NEW), all square 40×40pt |
+| organism | `org-topbar__chip--square` | Hamburger and NEW chips (40×40pt, plus / hamburger SVG only — no label) |
 | molecule | `mol-chat-input` | LSChatInput — full bottom-anchored conversational stack |
 | molecule | `mol-chat-input__location-bar` | Row holding location pill + mode label |
 | molecule | `mol-chat-input__location-pill` | "Near Santa Cruz, CA" frosted glass pill |
@@ -56,12 +55,52 @@ IdleScreen is the dormant-Navigator home — the first thing a rider sees when o
 | atom | `ls-glass-panel` | Greeting overlay surface (view-local inline variant) |
 | atom | `ls-pill` | Base pill primitive (composed by suggestion-chip and tag-pill molecules) |
 | atom | `ls-btn--chat-send` | Copper-filled send button (visible when `is-active`) |
-| typography | `.t-label-md` | Greeting meta row ("FRIDAY · 68°F · CLEAR"); NEW chip label |
+| typography | `.t-label-md` | (Greeting meta row uses `.t-label-sm` inside the status card — see status-card token recipe below.) |
 | typography | `.t-opinion-xl` | Greeting headline ("Where are we riding today?") |
 | typography | `.t-body-lg` | Chat input field text |
 | typography | `.t-body-sm` | Story caption text in preview |
 | typography | `.t-label-sm` | Mode label ("MANUAL", "AUTO") |
 | typography | `.t-instr-sm` | Story ID labels in preview header band |
+
+---
+
+## Status Card Content (required)
+
+The header status-card (`.view-idle-screen__status-card .mol-context-capsule--idle`) renders **two stacked rows** in every variant. Both are required; an empty card is not a valid IdleScreen state.
+
+| Row | Class | Content | Notes |
+|-----|-------|---------|-------|
+| Meta | `.mol-context-capsule__meta` (`.t-label-sm`) | `[Day · Temp · Conditions]` separated by `.mol-context-capsule__meta-dot` | Copper (`var(--signal-default)`) by default; warning tint via `--status-card--warning` modifier (V03) |
+| Headline | `.mol-context-capsule__headline` (`.t-opinion-md`) | Newsreader italic emphasis word inside `<em>` | Italic word colored `var(--signal-default)`; full copy varies by variant (e.g. "today" / "tonight" / "starting" / "ask" / "prettiest") |
+
+### Variant copy table
+
+| Variant | Meta | Headline |
+|---------|------|----------|
+| S01 Default Light | Friday · 68°F · Clear | Where we riding *today?* |
+| S02 Typing Send Light | Friday · 68°F · Clear | Where we riding *today?* |
+| S03 Default Dark | Friday · 68°F · Clear | Where we riding *tonight?* |
+| S04 Filter Sheet Light | Friday · 68°F · Clear | Refine the *ask* |
+| V01 No Location | Friday · 68°F · Clear | Where are we *starting* from? |
+| V02 First Ride | Friday · 68°F · Clear | First ride? *Ask* me. |
+| V03 Weather Advisory | Friday · 68°F · Rain (warning) | Not the *prettiest* day. |
+
+### Native parity requirement
+
+iOS (`LSContextCapsule(state: .idle(headline:metaItems:), appearance: .chip)`) and Android (`LSContextCapsule(state = Idle(headline, metaItems), appearance = Chip)`) must populate the same headline + metaItems values in every story id under `templates.idle-screen.*`. The italic emphasis word in the headline must use `AttributedString` (iOS, `inlinePresentationIntent.emphasized`) or `AnnotatedString` (Android, `SpanStyle(fontStyle = Italic)`) so the renderer colors it as `signal.default`. Empty `metaItems` or plain-string headline is a parity violation and will be flagged by `pnpm design:review`.
+
+---
+
+## TopBar Chip Paradigm (required)
+
+The header is exactly three slots, all square `40×40pt` glass chips on the same row:
+
+```
+[ hamburger ] [ status-card ] [ plus ]
+   square       flexes 1fr       square
+```
+
+The hamburger and plus chips share dimensions, surface (`var(--surface-overlay)` + `blur(8px)` + `var(--elev-chrome)`), and SVG `stroke-width="1.6"`. The plus chip has **no text label** (a11y label only). This applies to design HTML, iOS `LSTopBar.newChip`, and Android `LSTopBar.NewChip` — keep all three in lockstep.
 
 ---
 
