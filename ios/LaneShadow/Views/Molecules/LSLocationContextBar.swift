@@ -51,7 +51,10 @@ public struct LSLocationContextBar: View {
         LSPill(size: .md) {
             HStack(spacing: theme.space.xs) {
                 LSIcon(name: .pin, size: .sm, resolvedColorOverride: ContentColor.primary.resolved(in: theme))
+                    .fixedSize()
                 LSText(location, variant: .body.sm, color: .primary)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
             }
         }
         .background(
