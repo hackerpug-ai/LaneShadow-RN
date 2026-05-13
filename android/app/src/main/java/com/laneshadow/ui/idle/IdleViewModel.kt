@@ -466,6 +466,21 @@ class IdleViewModel private constructor(
         val proximity = lastKnownLocation?.toAutocompleteProximity()
         val sessionToken = ensureAutocompleteSessionToken()
 
+        if (proximity == null) {
+            // Block place-suggest until FusedLocationProvider returns a real fix;
+            // surface a locating affordance via the loading flag + placeholder message
+            // so the chat input renders "Locating you…" instead of a global query.
+            _state.update { current ->
+                current.copy(
+                    showStaticSuggestions = false,
+                    placeSuggestions = emptyList(),
+                    autocompleteError = "Locating you…",
+                    isAutocompleteLoading = true,
+                )
+            }
+            return
+        }
+
         _state.update { current ->
             current.copy(
                 showStaticSuggestions = false,

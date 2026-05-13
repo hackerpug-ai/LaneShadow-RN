@@ -7,11 +7,6 @@ import Observation
 @MainActor
 @Observable
 final class IdleViewModel {
-    private static let fallbackAutocompleteProximity = LaneShadowPlaceSearchProximity(
-        lat: 36.97,
-        lng: -122.03
-    )
-
     var greetingDisplayName: String = "rider"
     var greetingScope: GreetingScope = .today
     var metaRow: String = ""
@@ -443,10 +438,25 @@ final class IdleViewModel {
             return
         }
 
+        guard let proximity = currentAutocompleteProximity else {
+            // Block place-suggest until CoreLocation returns a real fix. Surface
+            // a locating affordance via the existing loading flag + a placeholder
+            // error message so LSChatInput renders "Locating you…" instead of
+            // either nothing or a stale global result.
+            beginAutocompleteSessionIfNeeded()
+            _ = nextAutocompleteRequestRevision()
+            isAutocompleteQueryActive = true
+            isPlaceAutocompleteLoading = true
+            placeAutocompleteErrorMessage = "Locating you…"
+            placeAutocompleteSuggestions = []
+            autocompleteTask?.cancel()
+            autocompleteTask = nil
+            return
+        }
+
         beginAutocompleteSessionIfNeeded()
         let revision = nextAutocompleteRequestRevision()
         let sessionToken = autocompleteSessionToken
-        let proximity = currentAutocompleteProximity
         let convexClient = convexClient
 
         isAutocompleteQueryActive = true
@@ -538,15 +548,18 @@ final class IdleViewModel {
             .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
     }
 
-    private var currentAutocompleteProximity: LaneShadowPlaceSearchProximity {
-        if let location = locationService.currentLocation {
-            return LaneShadowPlaceSearchProximity(
-                lat: location.coordinate.latitude,
-                lng: location.coordinate.longitude
-            )
+    private var currentAutocompleteProximity: LaneShadowPlaceSearchProximity? {
+        guard let location = locationService.currentLocation else {
+            // Without a real user fix we deliberately do NOT bias autocomplete; an
+            // earlier hardcoded Santa-Cruz fallback produced "global"-feeling results
+            // for users outside the Bay Area on cold start.
+            return nil
         }
 
-        return Self.fallbackAutocompleteProximity
+        return LaneShadowPlaceSearchProximity(
+            lat: location.coordinate.latitude,
+            lng: location.coordinate.longitude
+        )
     }
 
     private func beginAutocompleteSessionIfNeeded() {
