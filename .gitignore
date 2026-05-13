@@ -135,6 +135,7 @@ keys
 .cache/
 staging/
 tmp/
+data/curvature/*.jsonl
 
 # Pipeline state DB (local SQLite, not committed)
 .pipeline-state/
@@ -167,4 +168,3 @@ build/xcresults/
 
 # Superpowers brainstorming session artifacts (local-only)
 .superpowers/
-
