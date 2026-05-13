@@ -2,6 +2,7 @@ package com.laneshadow.ui.molecules
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -22,6 +24,7 @@ import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.theme.generated.LaneShadowTheme.IconName
 import com.laneshadow.ui.atoms.ButtonState
 import com.laneshadow.ui.atoms.ButtonVariant
+import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.atoms.GlassVariant
 import com.laneshadow.ui.atoms.LSButton
 import com.laneshadow.ui.atoms.LSDivider
@@ -30,7 +33,6 @@ import com.laneshadow.ui.atoms.LSSpinner
 import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.LSTextField
 import com.laneshadow.ui.atoms.SpinnerSize
-import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.atoms.TypographyVariant
 import com.laneshadow.ui.organisms.LSInlineErrorCallout
 
@@ -50,6 +52,7 @@ import com.laneshadow.ui.organisms.LSInlineErrorCallout
  * @param suggestions Optional list of suggestion chips
  * @param onSuggestionTap Callback when a suggestion chip is tapped
  * @param locationBadge Optional location context badge
+ * @param isAutocompleteLoading Whether place autocomplete suggestions are loading
  * @param isThinking Whether the input is in a thinking/loading state
  * @param isEnabled Whether the input is enabled
  * @param modifier Modifier for the chat input container
@@ -65,6 +68,7 @@ fun LSChatInput(
     suggestions: List<SuggestionChip>? = null,
     autocompleteRecommendations: List<AutocompleteRecommendation> = emptyList(),
     autocompleteError: String? = null,
+    isAutocompleteLoading: Boolean = false,
     onAutocompleteRecommendationTap: (AutocompleteRecommendation) -> Unit = {},
     onSuggestionTap: (SuggestionChip) -> Unit = {},
     locationBadge: LocationContext? = null,
@@ -116,20 +120,53 @@ fun LSChatInput(
             }
         }
 
-        autocompleteError?.takeIf { it.isNotBlank() }?.let { errorMessage ->
-            LSInlineErrorCallout(
-                body = "Autocomplete is unavailable right now.",
-                detail = errorMessage,
-                suggestions = emptyList(),
-                onSuggestionTap = {},
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-
-        if (autocompleteRecommendations.isNotEmpty()) {
+        if (isAutocompleteLoading) {
             LSGlassPanel(
                 variant = GlassVariant.Chrome,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(AUTOCOMPLETE_PANEL_TAG),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(AUTOCOMPLETE_LOADING_TAG)
+                        .semantics { contentDescription = "Searching places" }
+                        .padding(
+                            horizontal = theme.space.md,
+                            vertical = theme.space.sm,
+                        ),
+                    horizontalArrangement = Arrangement.spacedBy(theme.space.sm),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    LSSpinner(size = SpinnerSize.Md)
+                    LSText(
+                        text = "Searching places...",
+                        variant = TypographyVariant.Ui.Body.Sm,
+                        color = ContentColor.Secondary,
+                    )
+                }
+            }
+        } else if (autocompleteError?.isNotBlank() == true) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(AUTOCOMPLETE_PANEL_TAG),
+            ) {
+                LSInlineErrorCallout(
+                    body = "Autocomplete is unavailable right now.",
+                    detail = autocompleteError,
+                    suggestions = emptyList(),
+                    onSuggestionTap = {},
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        } else if (autocompleteRecommendations.isNotEmpty()) {
+            LSGlassPanel(
+                variant = GlassVariant.Chrome,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(AUTOCOMPLETE_PANEL_TAG),
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     autocompleteRecommendations.take(3).forEachIndexed { index, recommendation ->
@@ -180,7 +217,8 @@ fun LSChatInput(
             variant = GlassVariant.Chrome,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(inputHeight),
+                .height(inputHeight)
+                .testTag(CHAT_INPUT_BAR_TAG),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

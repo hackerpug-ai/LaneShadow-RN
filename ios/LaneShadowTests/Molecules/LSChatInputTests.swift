@@ -75,7 +75,7 @@ final class LSChatInputTests: XCTestCase {
     func test_suggestion_chips_render_and_ontap_fires() {
         let suggestions = [
             SuggestionChip(label: "Twisty back roads"),
-            SuggestionChip(label: "Coastal route")
+            SuggestionChip(label: "Coastal route"),
         ]
         var tappedChip: SuggestionChip?
         let chatInput = LSChatInput(
@@ -106,7 +106,7 @@ final class LSChatInputTests: XCTestCase {
         let inspected = try makeChatInput(
             suggestions: [
                 SuggestionChip(label: "Twisty back roads"),
-                SuggestionChip(label: "Coastal route")
+                SuggestionChip(label: "Coastal route"),
             ]
         )
         .laneShadowTheme()
@@ -137,7 +137,7 @@ final class LSChatInputTests: XCTestCase {
         .inspect()
         let rootStack = try inspected.find(ViewType.VStack.self)
         let suggestions = try rootStack.scrollView(1)
-        let autocomplete = try rootStack.vStack(3)
+        let autocomplete = try rootStack.vStack(2)
 
         XCTAssertEqual(rootStack.count, 4)
         XCTAssertNoThrow(try rootStack.view(LSLocationContextBar.self, 0))
@@ -146,11 +146,52 @@ final class LSChatInputTests: XCTestCase {
         XCTAssertEqual(try autocomplete.accessibilityIdentifier(), "lschatinput-autocomplete")
     }
 
+    func test_autocomplete_renders_immediately_above_input_bar() throws {
+        let inspected = try makeChatInput(
+            suggestions: [SuggestionChip(label: "Twisty back roads")],
+            autocompleteSuggestions: [makeBigSurAutocompleteSuggestion()],
+            locationBadge: santaCruzLocation
+        )
+        .laneShadowTheme()
+        .inspect()
+        let rootStack = try inspected.find(ViewType.VStack.self)
+        let autocomplete = try rootStack.vStack(2)
+
+        XCTAssertEqual(rootStack.count, 4)
+        XCTAssertEqual(try autocomplete.accessibilityIdentifier(), "lschatinput-autocomplete")
+        XCTAssertNoThrow(try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-bar"))
+    }
+
+    func test_autocomplete_loading_and_error_render_above_input_bar() throws {
+        for state in [
+            makeChatInput(
+                suggestions: [SuggestionChip(label: "Twisty back roads")],
+                isAutocompleteLoading: true,
+                locationBadge: santaCruzLocation
+            ),
+            makeChatInput(
+                suggestions: [SuggestionChip(label: "Twisty back roads")],
+                autocompleteErrorMessage: "Autocomplete unavailable",
+                locationBadge: santaCruzLocation
+            ),
+        ] {
+            let inspected = try state
+                .laneShadowTheme()
+                .inspect()
+            let rootStack = try inspected.find(ViewType.VStack.self)
+            let autocomplete = try rootStack.vStack(2)
+
+            XCTAssertEqual(rootStack.count, 4)
+            XCTAssertEqual(try autocomplete.accessibilityIdentifier(), "lschatinput-autocomplete")
+            XCTAssertNoThrow(try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-bar"))
+        }
+    }
+
     func test_long_suggestions_scroll_without_input_overlap() throws {
         let inspected = try makeChatInput(
             suggestions: [
                 SuggestionChip(label: "Twisty back roads"),
-                SuggestionChip(label: longSuggestionLabel)
+                SuggestionChip(label: longSuggestionLabel),
             ]
         )
         .laneShadowTheme()
@@ -223,7 +264,7 @@ final class LSChatInputTests: XCTestCase {
             ),
             makeChatInput(isThinking: true),
             makeChatInput(value: "test", isEnabled: false),
-            makeChatInput(placeholder: refiningPromptPlaceholder)
+            makeChatInput(placeholder: refiningPromptPlaceholder),
         ]
 
         XCTAssertEqual(stories.count, 6)
@@ -279,6 +320,8 @@ private func makeChatInput(
     placeholder: String = defaultPlaceholder,
     suggestions: [SuggestionChip] = [],
     autocompleteSuggestions: [LSChatAutocompleteSuggestion] = [],
+    isAutocompleteLoading: Bool = false,
+    autocompleteErrorMessage: String? = nil,
     locationBadge: LocationContext? = nil,
     isThinking: Bool = false,
     isEnabled: Bool = true
@@ -291,6 +334,8 @@ private func makeChatInput(
         onFilter: {},
         suggestions: suggestions,
         autocompleteSuggestions: autocompleteSuggestions,
+        isAutocompleteLoading: isAutocompleteLoading,
+        autocompleteErrorMessage: autocompleteErrorMessage,
         locationBadge: locationBadge,
         isThinking: isThinking,
         isEnabled: isEnabled

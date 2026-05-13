@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -36,10 +39,13 @@ import com.laneshadow.services.PlaceSuggestionResult
 import com.laneshadow.services.SelectedPlaceResult
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.atoms.LatLng
+import com.laneshadow.ui.molecules.AUTOCOMPLETE_LOADING_TAG
+import com.laneshadow.ui.molecules.AUTOCOMPLETE_PANEL_TAG
 import com.laneshadow.ui.molecules.AUTOCOMPLETE_RECOMMENDATION_ROW_TAG
 import com.laneshadow.ui.molecules.AutocompleteRecommendation
-import com.laneshadow.ui.templates.IdleScreen
+import com.laneshadow.ui.molecules.CHAT_INPUT_BAR_TAG
 import com.laneshadow.ui.organisms.LS_INLINE_ERROR_CALLOUT_TAG
+import com.laneshadow.ui.templates.IdleScreen
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
@@ -195,6 +201,95 @@ class IdlePlaceAutocompleteTest {
         composeRule.onNodeWithContentDescription("Big Sur, CA").fetchSemanticsNode()
         composeRule.onNodeWithContentDescription("Big Basin Redwoods State Park").fetchSemanticsNode()
         composeRule.onNodeWithContentDescription("Big Creek, CA").fetchSemanticsNode()
+    }
+
+    @Test
+    fun autocompletePanel_rendersAboveChatInputBar() {
+        val uiState = IdleUiState(
+            inputValue = "Big",
+            isLocationEnabled = true,
+            showStaticSuggestions = false,
+            placeSuggestions = listOf(
+                createUiSuggestion("1", "Big Sur", "Big Sur, CA"),
+                createUiSuggestion("2", "Big Basin", "Big Basin Redwoods State Park"),
+                createUiSuggestion("3", "Big Creek", "Big Creek, CA"),
+                createUiSuggestion("4", "Big Bear", "Big Bear Lake, CA"),
+                createUiSuggestion("5", "Big Pine", "Big Pine, CA"),
+            ),
+        )
+
+        composeRule.setContent {
+            LaneShadowTheme {
+                IdleScreen(
+                    state = uiState.toMockState(),
+                    inputValue = uiState.inputValue,
+                    onMenuTap = {},
+                    onSuggestionTap = {},
+                    onSend = {},
+                    onCollapse = {},
+                    onFilter = {},
+                    onValueChange = {},
+                    autocompleteRecommendations = uiState.placeSuggestions.map { suggestion ->
+                        AutocompleteRecommendation(
+                            id = suggestion.id,
+                            title = suggestion.name,
+                            supportingText = suggestion.label,
+                            contentDescription = suggestion.label,
+                        )
+                    },
+                    onAutocompleteRecommendationTap = {},
+                    mapContent = {
+                        Box(modifier = Modifier.testTag("mock-map"))
+                    },
+                )
+            }
+        }
+
+        val panelBounds = composeRule.onNodeWithTag(AUTOCOMPLETE_PANEL_TAG, useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .boundsInRoot
+        val inputBarBounds = composeRule.onNodeWithTag(CHAT_INPUT_BAR_TAG, useUnmergedTree = true)
+            .fetchSemanticsNode()
+            .boundsInRoot
+
+        assertThat(panelBounds.bottom).isAtMost(inputBarBounds.top)
+    }
+
+    @Test
+    fun autocompleteLoading_keepsChatInputUsableWithoutThinkingState() {
+        val uiState = IdleUiState(
+            inputValue = "Big",
+            isLocationEnabled = true,
+            showStaticSuggestions = false,
+            isAutocompleteLoading = true,
+        )
+
+        composeRule.setContent {
+            LaneShadowTheme {
+                IdleScreen(
+                    state = uiState.toMockState(),
+                    inputValue = uiState.inputValue,
+                    onMenuTap = {},
+                    onSuggestionTap = {},
+                    onSend = {},
+                    onCollapse = {},
+                    onFilter = {},
+                    onValueChange = {},
+                    isAutocompleteLoading = uiState.isAutocompleteLoading,
+                    mapContent = {
+                        Box(modifier = Modifier.testTag("mock-map"))
+                    },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag(AUTOCOMPLETE_PANEL_TAG).assertExists()
+        composeRule.onNodeWithTag(AUTOCOMPLETE_LOADING_TAG, useUnmergedTree = true).assertExists()
+
+        val inputField = composeRule.onNodeWithContentDescription("Where should we ride?")
+        inputField.assertIsEnabled()
+        assertThat(inputField.fetchSemanticsNode().config.getOrNull(SemanticsProperties.StateDescription))
+            .isEqualTo("Default")
     }
 
     @Test

@@ -22,7 +22,10 @@ data class AutocompleteRecommendation(
     val contentDescription: String,
 )
 
+const val AUTOCOMPLETE_PANEL_TAG = "lschatinput-autocomplete"
+const val AUTOCOMPLETE_LOADING_TAG = "lschatinput-autocomplete-loading"
 const val AUTOCOMPLETE_RECOMMENDATION_ROW_TAG = "autocomplete-recommendation-row"
+const val CHAT_INPUT_BAR_TAG = "lschatinput-bar"
 
 /**
  * Location context for chat input location badge

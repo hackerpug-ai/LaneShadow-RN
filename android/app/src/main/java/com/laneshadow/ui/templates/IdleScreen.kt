@@ -188,7 +188,7 @@ fun IdleScreen(
                         onLocationModeChange = { mode ->
                             onLocationModeChange(mode.name.lowercase())
                         },
-                        isThinking = isAutocompleteLoading,
+                        isAutocompleteLoading = isAutocompleteLoading,
                         isEnabled = !state.isNoLocation,  // V01: disable chat input in no-location variant
                         modifier = Modifier.testTag("chat-input"),
                     )

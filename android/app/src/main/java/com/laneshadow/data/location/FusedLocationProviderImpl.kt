@@ -1,6 +1,7 @@
 package com.laneshadow.data.location
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
@@ -15,31 +16,43 @@ import javax.inject.Inject
  * Implementation of FusedLocationProvider using Google Play Services
  */
 class FusedLocationProviderImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) : FusedLocationProvider {
 
     private val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
 
     override suspend fun getCurrentLocation(): LocationCoordinate? {
-        // Check for location permission
-        if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Permission denied - return null to trigger fallback
+        if (!hasLocationPermission()) {
             return null
         }
 
-        // Try to get last known location
         return try {
-            val lastLocation = fusedLocationClient.lastLocation.await()
+            val lastLocation = getLastKnownLocation()
             lastLocation?.toLocationCoordinate()
-        } catch (e: Exception) {
-            // Error getting location - return null to trigger fallback
+        } catch (_: SecurityException) {
+            null
+        } catch (_: Exception) {
             null
         }
+    }
+
+    private fun hasLocationPermission(): Boolean {
+        val hasFineLocation = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+        val hasCoarseLocation = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+
+        return hasFineLocation || hasCoarseLocation
+    }
+
+    @SuppressLint("MissingPermission")
+    private suspend fun getLastKnownLocation(): Location? {
+        return fusedLocationClient.lastLocation.await()
     }
 
     private fun Location.toLocationCoordinate(): LocationCoordinate {

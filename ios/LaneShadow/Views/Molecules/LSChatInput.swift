@@ -67,12 +67,12 @@ public struct LSChatInput: View {
                 suggestionChipsView
             }
 
-            // Input bar
-            inputBarView
-
             if showsAutocompleteDropdown {
                 autocompleteDropdownView
             }
+
+            // Input bar
+            inputBarView
         }
         .opacity(isEnabled ? 1 : theme.opacity.disabled)
         .accessibilityElement(children: .contain)

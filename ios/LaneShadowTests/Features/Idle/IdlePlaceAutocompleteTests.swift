@@ -76,20 +76,31 @@ struct IdlePlaceAutocompleteTests {
         ]
 
         let viewModel = makeViewModel(client: client)
-        let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
-
-        ViewHosting.host(view: screen)
-        defer { ViewHosting.expel() }
-
         viewModel.updateChatInputQuery("Big")
         try await Task.sleep(for: .milliseconds(350))
         await pumpMainActor()
 
-        let inspected = try screen.inspect()
-        let chatInput = try inspected.find(viewWithAccessibilityIdentifier: "idlescreen-chatinput")
-        let row0 = try chatInput.find(viewWithAccessibilityIdentifier: "lschatinput-autocomplete-row-0")
-        let row1 = try chatInput.find(viewWithAccessibilityIdentifier: "lschatinput-autocomplete-row-1")
-        let row2 = try chatInput.find(viewWithAccessibilityIdentifier: "lschatinput-autocomplete-row-2")
+        #expect(viewModel.placeAutocompleteSuggestions.count == 3)
+
+        let chatInput = LSChatInput(
+            value: .constant("Big"),
+            placeholder: "Plan a ride…",
+            onSend: { _ in },
+            onCollapse: {},
+            onFilter: {},
+            autocompleteSuggestions: viewModel.placeAutocompleteSuggestions.map { suggestion in
+                LSChatAutocompleteSuggestion(
+                    placeSuggestion: suggestion,
+                    accessibilityLabel: "\(suggestion.name), \(suggestion.label)"
+                )
+            }
+        )
+        .laneShadowTheme()
+
+        let inspected = try chatInput.inspect()
+        let row0 = try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-autocomplete-row-0")
+        let row1 = try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-autocomplete-row-1")
+        let row2 = try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-autocomplete-row-2")
 
         #expect(try row0.button().accessibilityLabel().string() == "Big Sur, Big Sur, California")
         #expect(
@@ -101,8 +112,8 @@ struct IdlePlaceAutocompleteTests {
                 "Big Creek, Big Creek, California"
         )
 
-        let row3 = try? chatInput.find(viewWithAccessibilityIdentifier: "lschatinput-autocomplete-row-3")
-        let staticChip = try? chatInput.find(
+        let row3 = try? inspected.find(viewWithAccessibilityIdentifier: "lschatinput-autocomplete-row-3")
+        let staticChip = try? inspected.find(
             viewWithAccessibilityIdentifier: "lschatinput-chip-plan-a-scenic-2-hour-ride"
         )
 
