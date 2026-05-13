@@ -25,6 +25,10 @@ final class IdleViewModel {
     var locationLabel: String?
     var isLocationEnabled = false
     var locationUnavailable = false
+    /// Monotonically increments each time CoreLocation yields a real fix (independent
+    /// of reverseGeocode outcome). Idle view observes this to recenter the map once
+    /// when the count transitions from 0 → 1 on cold start.
+    var locationFixCount: Int = 0
     var placeAutocompleteSuggestions: [LaneShadowPlaceSuggestion] = []
     var placeAutocompleteErrorMessage: String?
     var isPlaceAutocompleteLoading = false
@@ -296,6 +300,10 @@ final class IdleViewModel {
 
                 guard let location else {
                     continue
+                }
+
+                await MainActor.run {
+                    locationFixCount += 1
                 }
 
                 // Reverse geocode the location

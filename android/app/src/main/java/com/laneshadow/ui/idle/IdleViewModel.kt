@@ -116,6 +116,14 @@ class IdleViewModel private constructor(
     private var latestAutocompleteRequestId: Long = 0L
     private var lastKnownLocation: LocationCoordinate? = null
 
+    /**
+     * Emits each time FusedLocationProvider yields a real fix. IdleRoute observes
+     * this so it can recenter the map once when the value transitions from
+     * null → non-null on cold start.
+     */
+    private val _lastKnownLocationFlow = MutableStateFlow<LocationCoordinate?>(null)
+    val lastKnownLocationFlow: StateFlow<LocationCoordinate?> = _lastKnownLocationFlow.asStateFlow()
+
     init {
         observeCurrentUser()
         observeSessions()
@@ -394,6 +402,7 @@ class IdleViewModel private constructor(
 
             val location: LocationCoordinate = locationResult.getOrThrow()
             lastKnownLocation = location
+            _lastKnownLocationFlow.value = location
             val geocodeResult = convexClientProvider.reverseGeocode(
                 location.latitude,
                 location.longitude,

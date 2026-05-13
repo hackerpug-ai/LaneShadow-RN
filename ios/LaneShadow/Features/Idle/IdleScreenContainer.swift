@@ -83,6 +83,14 @@ struct IdleScreenContainer: View {
                 await viewModel.observe()
             #endif
         }
+        .onChange(of: viewModel.locationFixCount, initial: false) { oldValue, newValue in
+            // First-fix auto-recenter: when CoreLocation yields its first real
+            // location, animate the map from the Santa-Cruz fallback camera to
+            // the user puck. Subsequent fixes don't recenter (user may have panned).
+            if oldValue == 0, newValue > 0 {
+                mapCameraController.recenterToUserLocation()
+            }
+        }
         .onChange(of: chatInputValue, initial: false) { _, newValue in
             viewModel.updateChatInputQuery(newValue)
         }

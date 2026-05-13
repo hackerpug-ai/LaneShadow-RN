@@ -3,6 +3,7 @@ package com.laneshadow.ui.idle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -16,6 +17,7 @@ import com.laneshadow.navigation.planningRoute
 import com.laneshadow.sandbox.mockproviders.IdleScreenState
 import com.laneshadow.sandbox.mockproviders.LocationContext
 import com.laneshadow.sandbox.mockproviders.SuggestionChip as MockSuggestionChip
+import com.laneshadow.ui.atoms.LSMapCameraController
 import com.laneshadow.ui.molecules.AutocompleteRecommendation
 import com.laneshadow.ui.templates.IdleScreen
 
@@ -26,11 +28,22 @@ fun IdleRoute(
     val viewModel: IdleViewModel = hiltViewModel()
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val capsuleState by viewModel.capsuleState.collectAsStateWithLifecycle()
+    val lastKnownLocation by viewModel.lastKnownLocationFlow.collectAsStateWithLifecycle()
+    val mapCameraController = remember { LSMapCameraController(initialZoom = 10.8) }
+
+    // First-fix auto-recenter: when FusedLocationProvider yields its first real
+    // fix, animate the map from the Bay Area fallback camera to the user puck.
+    LaunchedEffect(lastKnownLocation) {
+        if (lastKnownLocation != null) {
+            mapCameraController.recenterToUserLocation()
+        }
+    }
 
     IdleScreen(
         state = uiState.toMockState(),
         capsuleState = capsuleState,
         inputValue = uiState.inputValue,
+        mapCameraController = mapCameraController,
         // Menu chip now opens an in-place leading drawer (parity with iOS).
         // The standalone Sessions route remains available via the chat-input
         // filter chip (`onFilter`) below until product decides whether to
