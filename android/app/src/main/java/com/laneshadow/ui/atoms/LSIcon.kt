@@ -181,8 +181,12 @@ private val IconName.pathSpecs: List<IconPathSpec>
                 IconPathSpec("M3 18 L21 18", fill = false, stroke = true),
             )
             IconName.Pin -> listOf(
-                IconPathSpec("M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z", fill = false, stroke = true),
-                IconPathSpec("M9 10 A3 3 0 1 0 15 10 A3 3 0 1 0 9 10", fill = false, stroke = true),
+                // Lucide map-pin inset 1 unit on each side of the 24-unit viewBox so
+                // the stroke fits inside the canvas at small (16dp) sizes — original
+                // path occupied x:3-21 y:1-23 (no stroke margin) and clipped at the
+                // tip and crown, making the pin look "collapsed" at small sizes.
+                IconPathSpec("M20 10C20 16.3 12 22 12 22C12 22 4 16.3 4 10A8 8 0 0 1 20 10Z", fill = false, stroke = true),
+                IconPathSpec("M9.5 10 A2.5 2.5 0 1 0 14.5 10 A2.5 2.5 0 1 0 9.5 10", fill = false, stroke = true),
             )
             IconName.Plus -> listOf(
                 IconPathSpec("M12 5 L12 19", fill = false, stroke = true),

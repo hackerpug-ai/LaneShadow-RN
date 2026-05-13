@@ -417,24 +417,28 @@ public struct LSIcon: View {
     }
 
     private var pinPath: Path {
+        // Lucide map-pin, inset by 1 unit on all sides of the 24-unit viewbox so the
+        // stroke (≈1.5pt, scaled up at sm=16pt) doesn't clip at the canvas edges and
+        // squash the visual into a "collapsed" teardrop. Original lucide coords
+        // were x:3-21 y:1-23 (filling 18×22 in a 24 box, no stroke margin).
         var path = Path()
-        path.move(to: CGPoint(x: 21, y: 10))
+        path.move(to: CGPoint(x: 20, y: 10))
         path.addCurve(
-            to: CGPoint(x: 12, y: 23),
-            control1: CGPoint(x: 21, y: 17),
-            control2: CGPoint(x: 12, y: 23)
+            to: CGPoint(x: 12, y: 22),
+            control1: CGPoint(x: 20, y: 16.3),
+            control2: CGPoint(x: 12, y: 22)
         )
         path.addCurve(
-            to: CGPoint(x: 3, y: 10),
-            control1: CGPoint(x: 12, y: 23),
-            control2: CGPoint(x: 3, y: 17)
+            to: CGPoint(x: 4, y: 10),
+            control1: CGPoint(x: 12, y: 22),
+            control2: CGPoint(x: 4, y: 16.3)
         )
         path.addCurve(
-            to: CGPoint(x: 21, y: 10),
-            control1: CGPoint(x: 3, y: 5.03),
-            control2: CGPoint(x: 7.03, y: 1)
+            to: CGPoint(x: 20, y: 10),
+            control1: CGPoint(x: 4, y: 5.58),
+            control2: CGPoint(x: 7.58, y: 2)
         )
-        addCircle(&path, center: CGPoint(x: 12, y: 10), radius: 3)
+        addCircle(&path, center: CGPoint(x: 12, y: 10), radius: 2.5)
         return path
     }
 
