@@ -38,8 +38,6 @@ import com.laneshadow.ui.molecules.AutocompleteRecommendation
 import com.laneshadow.ui.molecules.LocationContext as UILocationContext
 import com.laneshadow.ui.molecules.LocationMode
 import com.laneshadow.ui.molecules.SuggestionChip as UISuggestionChip
-import com.laneshadow.ui.molecules.LSContextCapsule
-import com.laneshadow.ui.molecules.CapsuleAppearance
 import com.laneshadow.ui.molecules.CapsuleState
 import com.laneshadow.ui.organisms.GlassOverlaySlot
 import com.laneshadow.ui.organisms.LSMapLayer
@@ -125,25 +123,15 @@ fun IdleScreen(
         },
         topOverlays = listOf(
             com.laneshadow.ui.organisms.GlassOverlaySlot(
-                id = "capsule-and-controls",
+                id = "map-controls",
                 content = {
+                    // Map Controls — right-edge vertically-centered.
+                    // (Context capsule moved into LSTopBar's center slot so the header
+                    // reads as one chip family — hamburger · status-card · plus — matching
+                    // iOS and the design HTML spec.)
                     Box(
                         modifier = Modifier.fillMaxSize(),
                     ) {
-                        // Context Capsule — top-center
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.TopCenter)
-                                .padding(top = theme.space.md),
-                        ) {
-                            LSContextCapsule(
-                                state = capsuleState,
-                                appearance = CapsuleAppearance.Chip,
-                                modifier = Modifier.testTag("idle-context-capsule"),
-                            )
-                        }
-
-                        // Map Controls — right-edge vertically-centered
                         Box(
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)
@@ -221,6 +209,7 @@ fun IdleScreen(
         scrim = if (isMenuOpen) com.laneshadow.ui.organisms.ScrimSpec(opacity = 0.35f) else null,
         topBar = {
             LSTopBar(
+                capsule = capsuleState,
                 trailing = TopBarTrailing.New(onTap = handleNewTap),
                 onMenuTap = handleMenuTap,
                 modifier = Modifier.testTag("ls-topbar"),

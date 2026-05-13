@@ -48,6 +48,9 @@ import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.StatusColor
 import com.laneshadow.ui.atoms.TextColor
 import com.laneshadow.ui.atoms.TypographyVariant
+import com.laneshadow.ui.molecules.CapsuleAppearance
+import com.laneshadow.ui.molecules.CapsuleState
+import com.laneshadow.ui.molecules.LSContextCapsule
 
 // Test tags
 const val LSTOPBAR_TAG = "ls-topbar"
@@ -83,7 +86,10 @@ sealed interface TopBarTrailing {
 /**
  * LSTopBar organism - glass chrome top bar for Navigator screens.
  *
- * @param title Optional centered title text
+ * @param title Optional centered title text (ignored when [capsule] is provided)
+ * @param capsule Optional CapsuleState — when non-null, renders [LSContextCapsule] with
+ *   `CapsuleAppearance.Chip` in the center slot, matching iOS + the design HTML header
+ *   pattern: `[ hamburger ] [ status-card ] [ plus ]`.
  * @param trailing Trailing slot variant (None, New chip, or RecordHighlight)
  * @param onMenuTap Callback when hamburger chip is tapped
  * @param modifier Modifier for the root composable
@@ -91,6 +97,7 @@ sealed interface TopBarTrailing {
 @Composable
 fun LSTopBar(
     title: String? = null,
+    capsule: CapsuleState? = null,
     trailing: TopBarTrailing = TopBarTrailing.None,
     onMenuTap: () -> Unit,
     modifier: Modifier = Modifier,
@@ -102,6 +109,7 @@ fun LSTopBar(
             .fillMaxWidth()
             .statusBarsPadding(),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(theme.space.sm),
     ) {
         // Leading hamburger chip
         HamburgerChip(
@@ -109,22 +117,34 @@ fun LSTopBar(
             modifier = Modifier.testTag(LSTOPBAR_HAMBURGER_CHIP_TAG),
         )
 
-        // Optional centered title
-        if (title != null) {
-            Spacer(modifier = Modifier.weight(1f))
+        // Center slot — capsule takes priority, falls back to title, falls back to spacer
+        when {
+            capsule != null -> {
+                LSContextCapsule(
+                    state = capsule,
+                    appearance = CapsuleAppearance.Chip,
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag(LSTOPBAR_TITLE_TAG),
+                )
+            }
+            title != null -> {
+                Spacer(modifier = Modifier.weight(1f))
 
-            LSText(
-                text = title,
-                variant = TypographyVariant.Ui.Title.Md,
-                color = ContentColor.Primary,
-                modifier = Modifier
-                    .testTag(LSTOPBAR_TITLE_TAG)
-                    .semantics { contentDescription = "Top bar title: $title" },
-            )
+                LSText(
+                    text = title,
+                    variant = TypographyVariant.Ui.Title.Md,
+                    color = ContentColor.Primary,
+                    modifier = Modifier
+                        .testTag(LSTOPBAR_TITLE_TAG)
+                        .semantics { contentDescription = "Top bar title: $title" },
+                )
 
-            Spacer(modifier = Modifier.weight(1f))
-        } else {
-            Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(1f))
+            }
+            else -> {
+                Spacer(modifier = Modifier.weight(1f))
+            }
         }
 
         // Trailing slot — pinned to opposite edge by Spacer(weight)
