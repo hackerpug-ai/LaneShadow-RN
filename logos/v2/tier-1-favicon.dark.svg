@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- background: deep warm ink -->
+  <g id="background">
+    <rect x="0" y="0" width="512" height="512" fill="#1F1A14"/>
+  </g>
+
+  <!-- sun: canonical Tier-1 size, copper stays copper (destination in every mode) -->
+  <g id="sun">
+    <circle cx="256" cy="288" r="75" fill="#D9742A"/>
+  </g>
+
+  <!-- horizon: hand-wobbled line, paper/cream -->
+  <g id="horizon">
+    <path
+      d="M 40 320
+         C 120 319, 200 321, 256 320
+         C 320 319.5, 392 321, 472 320"
+      fill="none"
+      stroke="#FDFBF8"
+      stroke-width="6"
+      stroke-linecap="round"/>
+  </g>
+
+  <!-- road: filled wedge, paper/cream, ink-trap at convergence, right edge heavier -->
+  <g id="road">
+    <path
+      d="M 160 512
+         Q 198 430, 252 322
+         L 253 318
+         L 259 318
+         L 260 322
+         Q 318 430, 352 512
+         Z"
+      fill="#FDFBF8"/>
+  </g>
+</svg>

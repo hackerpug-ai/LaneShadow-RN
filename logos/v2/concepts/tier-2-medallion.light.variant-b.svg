@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- background -->
+  <g id="background">
+    <rect x="0" y="0" width="512" height="512" fill="#FDFBF8"/>
+  </g>
+
+  <!-- hills: 5 low rolling peaks (max ~40px above horizon), open-prairie feel -->
+  <g id="hills">
+    <path
+      d="M 40 320
+         C 60 318, 80 300, 102 287
+         C 124 274, 144 308, 160 311
+         C 170 313, 174 295, 178 283
+         C 184 268, 210 304, 222 309
+         C 240 316, 250 290, 262 280
+         C 276 268, 296 308, 310 312
+         C 326 316, 340 296, 348 285
+         C 362 266, 386 306, 400 310
+         C 414 314, 424 300, 438 288
+         C 454 273, 462 308, 472 320
+         L 40 320 Z"
+      fill="#1F1A14"
+      opacity="0.88"/>
+  </g>
+
+  <!-- sun: geometrically perfect, copper, in front of hills -->
+  <g id="sun">
+    <circle cx="256" cy="288" r="75" fill="#D9742A"/>
+  </g>
+
+  <!-- horizon: hand-wobbled bezier, 1-2px deviation -->
+  <g id="horizon">
+    <path
+      d="M 40 320
+         C 78 319.5, 108 320.6, 138 320.4
+         C 170 320.2, 196 319.2, 222 319.4
+         C 252 319.6, 278 320.8, 302 320.6
+         C 332 320.4, 358 319.5, 384 319.7
+         C 414 319.9, 442 320.6, 472 320"
+      stroke="#1F1A14"
+      stroke-width="6"
+      stroke-linecap="round"
+      fill="none"/>
+  </g>
+
+  <!-- road: narrower base (170 to 342), very gentle inward bow, right edge ~1.5px heavier, ink-trap at apex -->
+  <g id="road">
+    <path
+      d="M 170 512
+         Q 218 425, 254.5 322
+         L 257.5 322
+         Q 296 425, 342 512
+         Z"
+      fill="#1F1A14"/>
+    <!-- ink-trap: tiny triangular bulge at convergence where road meets horizon -->
+    <path
+      d="M 252.5 322
+         L 256 316
+         L 259.5 322
+         Z"
+      fill="#1F1A14"/>
+  </g>
+</svg>

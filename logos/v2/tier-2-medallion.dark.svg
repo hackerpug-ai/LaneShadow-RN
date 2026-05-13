@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- background: deep ink -->
+  <g id="background">
+    <rect x="0" y="0" width="512" height="512" fill="#1F1A14"/>
+  </g>
+
+  <!-- hills: paper-on-ink, faded for atmospheric haze -->
+  <g id="hills">
+    <path
+      d="M 40 320
+         L 40 297
+         C 58 292, 74 281, 90 265
+         C 104 274, 122 286, 138 295
+         C 150 290, 158 285, 165 280
+         C 176 289, 192 298, 208 305
+         C 218 296, 230 282, 240 270
+         C 252 281, 264 292, 278 301
+         C 294 296, 308 285, 320 275
+         C 332 286, 348 296, 362 304
+         C 374 296, 386 285, 395 265
+         C 410 277, 426 290, 442 301
+         C 452 296, 460 290, 460 282
+         C 466 290, 470 298, 472 307
+         L 472 320
+         Z"
+      fill="#FDFBF8"
+      opacity="0.88"/>
+  </g>
+
+  <!-- sun: copper destination stays in every mode -->
+  <g id="sun">
+    <circle cx="256" cy="288" r="88" fill="#D9742A"/>
+  </g>
+
+  <!-- horizon: paper stroke -->
+  <g id="horizon">
+    <path
+      d="M 40 320
+         C 120 319, 200 321, 256 320
+         C 320 319.5, 392 321, 472 320"
+      fill="none"
+      stroke="#FDFBF8"
+      stroke-width="6"
+      stroke-linecap="round"/>
+  </g>
+
+  <!-- road: paper wedge -->
+  <g id="road">
+    <path
+      d="M 160 512
+         Q 198 430, 252 322
+         L 253 318
+         L 259 318
+         L 260 322
+         Q 318 430, 352 512
+         Z"
+      fill="#FDFBF8"/>
+  </g>
+</svg>

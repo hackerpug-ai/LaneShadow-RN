@@ -165,3 +165,6 @@ android/app/src/androidTest/screenshots/**/_failure_*.png
 .design-review/
 build/xcresults/
 
+# Superpowers brainstorming session artifacts (local-only)
+.superpowers/
+
