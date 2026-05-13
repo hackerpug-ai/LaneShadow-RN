@@ -35,7 +35,7 @@ import java.io.File
  * AC-5: Light/dark token re-resolution
  * AC-6: No data-fetching logic
  *
- * Note: Full UI testing is done via the sandbox stories (templates.idle.default).
+ * Note: Full UI testing is done via the sandbox stories (templates.idle-screen.default).
  * These unit tests verify code structure, imports, and callback wiring.
  */
 @RunWith(RobolectricTestRunner::class)

@@ -12,7 +12,7 @@ import com.nativesandbox.model.Story
 /**
  * IdleScreen story for the LaneShadow sandbox.
  *
- * Story ID: templates.idle.default
+ * Story ID: templates.idle-screen.default
  * Tier: Template
  *
  * Renders the dormant Navigator IdleScreen with map, greeting overlay,
@@ -21,7 +21,7 @@ import com.nativesandbox.model.Story
 object IdleScreenStory {
     val all: List<Story> = listOf(
         Story(
-            id = "templates.idle.default",
+            id = "templates.idle-screen.default",
             tier = ComponentTier.Template,
             component = "IdleScreen",
             name = "Idle Screen (Default)",
@@ -48,7 +48,7 @@ object IdleScreenStory {
             },
         ),
         Story(
-            id = "templates.idle.empty",
+            id = "templates.idle-screen.empty",
             tier = ComponentTier.Template,
             component = "IdleScreen",
             name = "Idle Screen (Empty Suggestions)",
@@ -71,7 +71,7 @@ object IdleScreenStory {
             },
         ),
         Story(
-            id = "templates.idle.overflow",
+            id = "templates.idle-screen.overflow",
             tier = ComponentTier.Template,
             component = "IdleScreen",
             name = "Idle Screen (Overflow Chips)",
@@ -94,7 +94,7 @@ object IdleScreenStory {
             },
         ),
         Story(
-            id = "templates.idle.long-copy",
+            id = "templates.idle-screen.long-copy",
             tier = ComponentTier.Template,
             component = "IdleScreen",
             name = "Idle Screen (Long Copy)",

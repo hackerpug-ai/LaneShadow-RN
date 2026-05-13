@@ -104,8 +104,8 @@ struct StoryCoverageTests {
     @Test("AC-9: All required story IDs are registered")
     func requiredStoryIdsExist() {
         let requiredIds: Set = [
-            // IdleScreen (7) - templates.idle.default is the original, plus 6 variants
-            "templates.idle.default",
+            // IdleScreen (7) - templates.idle-screen.default is the canonical id, plus 6 variants
+            "templates.idle-screen.default",
             "templates.idle-screen.s02-typing-send",
             "templates.idle-screen.s03-dark",
             "templates.idle-screen.s04-filter-sheet",

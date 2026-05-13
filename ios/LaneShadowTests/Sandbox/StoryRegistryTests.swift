@@ -108,7 +108,7 @@ struct StoryRegistryTests {
         #expect(json?["android_only"] != nil, "Parity manifest must have 'android_only' key")
 
         let requiredScreenIds = [
-            "templates.idle.default",
+            "templates.idle-screen.default",
             "templates.planning.default",
             "templates.routeResults.default",
             "templates.routeDetails.default",
