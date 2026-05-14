@@ -2,21 +2,23 @@
 roadmap: 2
 project: LaneShadow Native Integration (V3)
 generated: 2026-05-04T12:00:00-07:00
-revised: 2026-05-04T18:00:00-07:00
+revised: 2026-05-14T20:25:23Z
 prd: .spec/prds/v3-integration/README.md
-sprint_count: 10
+sprint_count: 11
 ---
 
 # Sprint Roadmap: LaneShadow Native Integration (V3)
 
 ## Overview
 
-**Sprints:** 10 (Sprints 6+ reshaped 2026-05-04 to ship one map view at a time)
-**Current Sprint:** Sprint 05 — Design Review Pipeline (in flight; do not retouch)
+**Sprints:** 11 (Sprints 6+ reshaped 2026-05-04 view-at-a-time; Sprint 07 component-delivery inserted 2026-05-14)
+**Currently in flight:** Sprint 06 (idle parity carry-forward — IDLE-SYNC-iOS / IDLE-SYNC-Android / IDLE-SYNC-Pipeline / CHIP-T03) + Sprint 08 (planning state remediation + STUB-FIX wave); Sprint 07 (Context Capsule / Map Controls) closed 2026-05-13
 
 This roadmap sequences the 25 use cases in `.spec/prds/v3-integration/` so that **all 105 acceptance criteria of UC-FID-01 (Design Fidelity) land in Sprints 1-2 BEFORE any integration work begins.** This honors HUMAN SIGNAL #1's framing — sandbox views are "distorted" because of UI fidelity gaps; live-data wiring on top of distorted UI compounds the problem. By restoring V2 design-system fidelity first, every subsequent integration sprint binds real Convex/Clerk/Mapbox data into a sandbox that already matches the authoritative `.spec/design/system/` mockups.
 
-**Reshape on 2026-05-04 (this revision):** Per user direction *"each sprint is super overscoped, we need to slow down and take each map view one at a time"*, the previously bundled Sprints 06 (Saved Routes / Sessions / Settings) and 07 (Map / Offline / Error / Ship Gate) were retired and replaced with **five view-at-a-time sprints (06–10): IdleScreen → PlanningScreen → RouteResultsScreen → RouteDetails Bottom Sheet → SessionsScreen.** Each new sprint integrates exactly one screen against real Convex/Clerk/Mapbox data with the Sprint 05 design-review pipeline serving as the per-screen quality gate. The prior bundled scope is preserved at [`ROADMAP-ICEBOX.md`](./ROADMAP-ICEBOX.md) for future re-pickup of deferred surfaces (saved-routes browsing list, settings, offline regions, error recovery, ship-gate hardening, manual PlanRideSheet).
+**Reshape on 2026-05-04 (revision 2):** Per user direction *"each sprint is super overscoped, we need to slow down and take each map view one at a time"*, the previously bundled Sprints 06 (Saved Routes / Sessions / Settings) and 07 (Map / Offline / Error / Ship Gate) were retired and replaced with **five view-at-a-time sprints (06–10): IdleScreen → PlanningScreen → RouteResultsScreen → RouteDetails Bottom Sheet → SessionsScreen.** Each new sprint integrates exactly one screen against real Convex/Clerk/Mapbox data with the Sprint 05 design-review pipeline serving as the per-screen quality gate. The prior bundled scope is preserved at [`ROADMAP-ICEBOX.md`](./ROADMAP-ICEBOX.md) for future re-pickup of deferred surfaces (saved-routes browsing list, settings, offline regions, error recovery, ship-gate hardening, manual PlanRideSheet).
+
+**Insertion on 2026-05-14 (this revision):** Between 2026-05-06 and 2026-05-07, the design system shipped new `mol-context-capsule` + `org-map-controls` components plus a Container Principle that invalidated the Sprint 06 idle implementation against the new design references. A dedicated component-delivery sprint — **Sprint 07: Context Capsule, Map Controls + Autocomplete Carry-Forward** — was inserted between the idle state (Sprint 06) and what was previously Sprint 07 (PlanningScreen, now Sprint 08). Downstream sprints shifted +1: PlanningScreen → Sprint 08, RouteResultsScreen → Sprint 09, RouteDetails → Sprint 10, SessionsScreen → Sprint 11. Total sprint count: 10 → 11. The view-at-a-time progression remains intact; one component-delivery sprint sits between the idle and planning states because every downstream view sprint reuses `LSContextCapsule` + `LSMapControls`.
 
 **Sprint sequence rationale:**
 
@@ -25,13 +27,14 @@ This roadmap sequences the 25 use cases in `.spec/prds/v3-integration/` so that 
 - **Sprint 03** wires auth + Convex foundation (the substrate every other UC depends on).
 - **Sprint 04** wires the conversational planning loop end-to-end — the single biggest integration surface, touching all 6 V2 screens.
 - **Sprint 05** ships the **Design Review pipeline** (iOS XCUITest captures → vision LLM eval against `.spec/design/system/` references → fix-oriented JSON → Claude code skill agent → re-eval loop), retiring the sandbox snapshot tests + parity infrastructure in the process. The in-app sandbox catalog UI is preserved for dev exploration.
-- **Sprint 06** delivers a production-grade **IdleScreen** — real map, real location, real greeting, real suggestion chips — that passes the design-review pipeline.
-- **Sprint 07** delivers a production-grade **PlanningScreen** — real sketch animation, real phase indicator driven by Convex stream, real cancel — that passes the design-review pipeline.
-- **Sprint 08** delivers a production-grade **RouteResultsScreen** — three real polylines, real Navigator message, real route attachment cards, real refine + alt-select interactions — that passes the design-review pipeline.
-- **Sprint 09** delivers a production-grade **RouteDetails bottom sheet** — real metrics, real weather timeline, real save / ride actions — that passes the design-review pipeline.
-- **Sprint 10** delivers a production-grade **SessionsScreen drawer** — real session list, real grouping, real switch-with-camera-restore — that passes the design-review pipeline.
+- **Sprint 06** delivers a production-grade **idle state of the map view** — real map, real location, real greeting, real suggestion chips. Status: T01–T10 Done; T11 + IDLE-SYNC-* carry-forward in flight to close the post-2026-05-06 design-review re-baseline.
+- **Sprint 07** *(inserted 2026-05-14, Done 2026-05-13)* delivers two new design-system components — `LSContextCapsule` (5 state variants) and `LSMapControls` (right-edge vertical workbar) — and retrofits the idle state to match the 2026-05-06 redesign (Container Principle); carries autocomplete proximity-gating forward. Every downstream view sprint reuses these components.
+- **Sprint 08** delivers a production-grade **planning state of the canonical map view** — copper sketch animation on the persistent map host, `LSContextCapsule(--planning)`, real phase indicator driven by Convex stream, real cancel — that passes the design-review pipeline.
+- **Sprint 09** delivers a production-grade **RouteResultsScreen** — three real polylines, real Navigator message, real route attachment cards, real refine + alt-select interactions — that passes the design-review pipeline.
+- **Sprint 10** delivers a production-grade **RouteDetails bottom sheet** — real metrics, real weather timeline, real save / ride actions — that passes the design-review pipeline.
+- **Sprint 11** delivers a production-grade **SessionsScreen drawer** — real session list, real grouping, real switch-with-camera-restore — that passes the design-review pipeline.
 
-Saved-routes browsing list, Settings, Offline Regions, Error Recovery wiring, manual PlanRideSheet, and ship-gate hardening are explicitly **deferred** to a post-Sprint-10 follow-on plan (see ICEBOX for the prior bundled detail).
+Saved-routes browsing list, Settings, Offline Regions, Error Recovery wiring, manual PlanRideSheet, and ship-gate hardening are explicitly **deferred** to a post-Sprint-11 follow-on plan (see ICEBOX for the prior bundled detail).
 
 **Human testing policy:** Human tests for non-sandbox code must include real-device E2E steps. Simulator/emulator checks may remain as supporting evidence, but any gate that exercises live app flows, auth, Convex, Mapbox, persistence, location, or external services must include a real-device E2E path with recorded evidence. For iOS, use the native XCUITest pattern documented in `docs/REAL_DEVICE_E2E.md`; for Android, use physical-device evidence or mark the step MANUAL/BLOCKED until an equivalent Android device harness exists. Sandbox-only visual/component gates may continue to use simulator/emulator snapshot tooling — but as of Sprint 05, parity-snapshot tests are removed in favor of design-review evaluation.
 
@@ -45,11 +48,12 @@ Saved-routes browsing list, Settings, Offline Regions, Error Recovery wiring, ma
 | 3R | [Sprint 03 Remediation: Auth Design Fidelity, Component Gaps, and Real E2E](./tasks/sprint-03-auth-design-e2e-remediation/SPRINT.md) | Auth UI matches `auth-screen.html`, missing primitives are implemented, and real human-step auth evidence replaces render-only tests | Planned |
 | 4 | [Sprint 04: Conversational Planning Loop](#sprint-04-conversational-planning-loop) | Rider can plan a real route end-to-end via chat and see three live polylines on RouteResults | In Progress |
 | 5 | [Sprint 05: Design Review Pipeline](#sprint-05-design-review-pipeline) | A reviewer can run `pnpm design:review` and receive a calibrated, fix-oriented JSON report of per-component design issues consumable from a `design-review` Claude skill | **In Progress (do not retouch)** |
-| 6 | [Sprint 06: IdleScreen](#sprint-06-idlescreen) | A real IdleScreen on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens idle-screen` with zero `high`-severity issues | In Progress |
-| 7 | [Sprint 07: PlanningScreen](#sprint-07-planningscreen) | A real PlanningScreen on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens planning-screen` with zero `high`-severity issues | Planned |
-| 8 | [Sprint 08: RouteResultsScreen](#sprint-08-routeresultsscreen) | A real RouteResultsScreen on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens route-results-screen` with zero `high`-severity issues | Planned |
-| 9 | [Sprint 09: RouteDetails Bottom Sheet](#sprint-09-routedetails-bottom-sheet) | A real RouteDetails bottom sheet on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens route-details-screen` with zero `high`-severity issues | Planned |
-| 10 | [Sprint 10: SessionsScreen](#sprint-10-sessionsscreen) | A real Sessions drawer on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens sessions-screen` with zero `high`-severity issues | Planned |
+| 6 | [Sprint 06: Map View — Idle State](#sprint-06-map-view--idle-state) | A real idle map view on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens idle-screen` with zero `high`-severity issues | In Progress (T01–T10 Done; T11 + IDLE-SYNC carry-forward) |
+| 7 | [Sprint 07: Context Capsule, Map Controls + Autocomplete](#sprint-07-context-capsule-map-controls--autocomplete-carry-forward) | New `LSContextCapsule` + right-edge `LSMapControls` ship on iOS + Android; idle state retrofitted to the 2026-05-06 design-system update; autocomplete proximity-gated | **Done** |
+| 8 | [Sprint 08: Map View — Planning State](#sprint-08-map-view--planning-state) | From the idle map view, a rider taps a suggestion chip and the same map host transitions to the planning state — copper sketch polyline, `LSContextCapsule(--planning)`, `LSPhaseIndicator` driven by Convex `sessionMessages`, locked chat input, working cancel — passing `pnpm design:review --screens planning-screen` with zero `high`-severity issues | In Progress |
+| 9 | [Sprint 09: RouteResultsScreen](#sprint-09-routeresultsscreen) | A real RouteResultsScreen on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens route-results-screen` with zero `high`-severity issues | Planned |
+| 10 | [Sprint 10: RouteDetails Bottom Sheet](#sprint-10-routedetails-bottom-sheet) | A real RouteDetails bottom sheet on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens route-details-screen` with zero `high`-severity issues | Planned |
+| 11 | [Sprint 11: SessionsScreen](#sprint-11-sessionsscreen) | A real Sessions drawer on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens sessions-screen` with zero `high`-severity issues | Planned |
 
 ---
 
@@ -398,11 +402,11 @@ Generated by /kb-sprint-tasks-plan on 2026-05-04 using convex-planner (×9 tasks
 
 ---
 
-### Sprint 06: IdleScreen
+### Sprint 06: Map View — Idle State
 
 **Sequence:** 6
-**Status:** In Progress (task files JIT-expanded 2026-05-04 via `/kb-sprint-tasks-plan`; sprint folder: [`tasks/sprint-06-idlescreen/`](./tasks/sprint-06-idlescreen/))
-**Design Reference:** [`.spec/design/system/views/idle-screen/README.md`](../../design/system/views/idle-screen/README.md) · [`idle-screen.html`](../../design/system/views/idle-screen/idle-screen.html)
+**Status:** In Progress (T01–T10 Done 2026-05-04; T11 Sprint Gate carry-forward post-S07 component retrofit; IDLE-SYNC-iOS / IDLE-SYNC-Android / IDLE-SYNC-Pipeline / CHIP-T03 active 2026-05-13; sprint folder: [`tasks/sprint-06-idlescreen/`](./tasks/sprint-06-idlescreen/SPRINT.md))
+**Design Reference:** [`.spec/design/system/views/idle-screen/README.md`](../../design/system/views/idle-screen/README.md) · [`idle-screen.html`](../../design/system/views/idle-screen/idle-screen.html) (updated 2026-05-06)
 
 #### Next Sprint Tasks
 
@@ -446,11 +450,13 @@ The planner MUST include explicit tasks for items 1–3 in the Sprint 06 task ta
 
 #### Scope
 
-This sprint integrates **only IdleScreen.** The suggestion-chip → planning transition may stub to a placeholder (live planning loop is exercised in Sprint 07). Saved-routes browsing, Settings, Sessions drawer, Offline Regions, and Error recovery are **explicitly out of scope** (deferred to post-Sprint-10 follow-on plans — see ICEBOX). The hamburger menu may open a placeholder sheet.
+This sprint integrates **only the idle state of the map view.** The suggestion-chip → planning transition may stub to a placeholder (live planning loop is exercised in Sprint 08). Saved-routes browsing, Settings, Sessions drawer, Offline Regions, and Error recovery are **explicitly out of scope** (deferred to post-Sprint-11 follow-on plans — see ICEBOX). The hamburger menu may open a placeholder sheet.
+
+**Carry-forward note (2026-05-13):** The 2026-05-06 design-system update (new `LSContextCapsule` + `LSMapControls`, Container Principle) shipped as a separate component-delivery sprint (Sprint 07). The Sprint 06 design:review re-baseline and Android pipeline integration carry forward into IDLE-SYNC-iOS / IDLE-SYNC-Android / IDLE-SYNC-Pipeline / CHIP-T03 — tracked on the active task list, not in the original Sprint 06 task table.
 
 #### Dependencies
 
-- Blocks: Sprint 07
+- Blocks: Sprint 07 (component-delivery retrofits this sprint's idle surface) → Sprint 08 (planning state reuses the same map host)
 - Dependent on: Sprint 05 (design-review pipeline gates this and every subsequent view sprint)
 
 #### PRD Coverage
@@ -462,10 +468,80 @@ This sprint integrates **only IdleScreen.** The suggestion-chip → planning tra
 
 ---
 
-### Sprint 07: PlanningScreen
+### Sprint 07: Context Capsule, Map Controls + Autocomplete Carry-Forward
 
 **Sequence:** 7
-**Status:** Planned
+**Status:** Done (component delivery completed 2026-05-13; design/snapshot review tasks deleted from scope on 2026-05-07; sprint folder: [`tasks/sprint-07-context-capsule-map-controls/`](./tasks/sprint-07-context-capsule-map-controls/SPRINT.md))
+**Design Reference:** Design-system update 2026-05-06 — [`mol-context-capsule`](../../design/system/molecules/context-capsule/context-capsule.html) (5 state variants) · [`org-map-controls`](../../design/system/organisms/map-controls/map-controls.html) · [`idle-screen.html`](../../design/system/views/idle-screen/idle-screen.html) (updated 2026-05-06)
+
+#### Why this sprint exists (inserted post-2026-05-06)
+
+On 2026-05-06 the design system shipped four coupled changes (the *map-view redesign*):
+
+1. A new `mol-context-capsule` molecule that replaces the legacy floating greeting headline + standalone advisory card with a single state-driven glass container exposing five state variants (`--idle`, `--planning`, `--route`, `--warning`, `--saved`).
+2. A new `org-map-controls` organism — a right-edge **vertically-centered** vertical workbar (zoom +/-, recenter, layers, save, mode-toggle) — codifying the React Native production controls into the design system, anchored at the midline of the map canvas (NOT under the topbar).
+3. A new "Container Principle" rule: every textual UI element overlapping the map must sit in a token-driven glass container. No "floating" typography directly on the map.
+4. A Mapbox-styled SVG vocabulary (water polygons, parks, streets, neighborhood labels) painted on every view's design reference, replacing the prior topo-curves-only mock.
+
+Sprint 06 production was implemented against the **prior** design contract, so as of 2026-05-06 the captures no longer matched the design references. Sprint 07 closes the implementation gap by shipping the new components on iOS + Android, retrofitting the idle state, fixing iOS layer/map-token regressions found during gate work, and carrying forward autocomplete evidence. The Sprint 06 map host (`LSMapView` / `LSMapHost`) is reused as-is; this sprint only adds new components and updates the idle-state overlay surface.
+
+The original strict design-review + snapshot tasks were deleted from this sprint's scope on 2026-05-07 and are tracked as Sprint 06 carry-forward (IDLE-SYNC-iOS, IDLE-SYNC-Android, IDLE-SYNC-Pipeline, CHIP-T03) rather than gating Sprint 07 closure.
+
+#### Human Testing Gate
+
+**Gate:** A signed-in rider on iOS + Android opens the app cold and arrives at the idle state of the map view, where (a) the new `LSContextCapsule` glass container sits centered below the topbar showing the `--idle` state with greeting headline + meta row, (b) the new `LSMapControls` workbar sits at the **vertical middle of the right edge** of the map canvas with zoom cluster + recenter + layers + chat-mode toggle chips, (c) the legacy floating greeting headline and standalone advisory card are gone, and (d) the carried-forward autocomplete flow shows at most 3 place recommendations and does not enter planning/routing until Send.
+
+**Test Steps:**
+1. Sign in via real Clerk auth on iOS Simulator + Android Emulator; confirm cold-start lands on the idle state of the map view with the new `LSContextCapsule` centered below the topbar — NOT the legacy `t-opinion-xl` floating Newsreader headline
+2. Confirm the capsule shows "Where are we riding *today*, {firstName}?" in `t-opinion-md` Newsreader (italic em on the time-of-day scope-word, copper signal color) with a meta dot row below in `t-label-sm` showing `{Day} · {Temp} · {Condition}`
+3. Confirm the new `LSMapControls` workbar is at the **vertical middle of the right edge** showing (top to bottom): zoom +/- cluster, recenter chip, layers chip, and chat-mode toggle chip — each 40×40pt with `var(--space-2)` gaps
+4. Toggle dark mode; confirm both `LSContextCapsule` and `LSMapControls` re-resolve to dark glass with no shape changes; scope-word swaps "today" → "tonight"
+5. Trigger the weather-advisory variant (V03); confirm the capsule applies `--warning` modifier with `--status-warning` meta-row tint and the legacy standalone advisory card is no longer present
+6. Tap a suggestion chip; confirm the chat input transitions to `is-active` and the capsule remains in `--idle` state (it does NOT switch to `--planning` until Sprint 08 wires the planning loop)
+7. Type `Big Sur` in the redesigned idle input; confirm at most 3 Mapbox place recommendations, selection fills the input, and the app does not enter planning/routing until explicit Send
+
+#### Tasks
+
+| ID | Title | Agent | Estimate |
+|----|-------|-------|----------|
+| CAPS-S07-T01 | iOS LSContextCapsule molecule (5 state variants, glass surface, sandbox stories) | swift-implementer | 240 min |
+| CAPS-S07-T02 | Android LSContextCapsule molecule (Compose parity, sandbox stories) | kotlin-implementer | 240 min |
+| CAPS-S07-T03 | iOS LSMapControls organism (vertical workbar, sandbox stories) | swift-implementer | 180 min |
+| CAPS-S07-T04 | Android LSMapControls organism (Compose parity, sandbox stories) | kotlin-implementer | 180 min |
+| CAPS-S07-T05 | iOS IdleScreen retrofit (replace legacy greeting + advisory) | swift-implementer | 180 min |
+| CAPS-S07-T06 | Android IdleScreen retrofit (Compose parity) | kotlin-implementer | 180 min |
+| CAPS-S07-T10 | Mapbox Search Box autocomplete backend contract carry-forward | convex-implementer | 0 min (done) |
+| CAPS-S07-T11 | iOS idle autocomplete carry-forward | swift-implementer | 60 min |
+| CAPS-S07-T12 | Android idle autocomplete carry-forward | kotlin-implementer | 60 min |
+| CAPS-S07-T13 | Autocomplete gate — evidence archival | qa-engineer | 120 min |
+| CAPS-S07-T14 | iOS LSMapLayer overlay-slot positioning fix | swift-implementer | 60 min |
+| CAPS-S07-T15 | iOS Mapbox tile rendering fix | swift-implementer | 45 min |
+| CAPS-S07-T16 | Android LSMapLayer parity audit | kotlin-implementer | 30 min |
+
+#### Scope
+
+This sprint delivers **components + idle-state retrofit only.** Per-state live-data wiring (planning, route-results, details, sessions) happens in downstream sprints; this sprint adds new components and updates the idle overlay surface. Re-implementing the map host is an anti-pattern.
+
+The strict `pnpm design:review --screens idle-screen` re-baseline and snapshot re-validation were deliberately removed from this sprint's gate on 2026-05-07 and carry forward into Sprint 06 IDLE-SYNC-* tasks.
+
+#### Dependencies
+
+- Blocks: Sprint 08 (PlanningScreen reuses `LSContextCapsule(--planning)` and `LSMapControls`); blocks Sprints 09–11 (every downstream view sprint reuses these components)
+- Dependent on: Sprint 06 (idle state baseline + map host)
+
+#### PRD Coverage
+
+- UC-FID-01 (idle-screen subset — re-validation against the 2026-05-06 redesigned design references)
+- UC-MAP-01 (right-edge map controls codified)
+- UC-CHAT-01 (autocomplete proximity-gating carry-forward)
+- New design-system components: `mol-context-capsule`, `org-map-controls`; Container Principle rule
+
+---
+
+### Sprint 08: Map View — Planning State
+
+**Sequence:** 8
+**Status:** In Progress (planning expanded 2026-05-07; remediation tasks added 2026-05-08; STUB-FIX wave landed 2026-05-13; sprint folder: [`tasks/sprint-08-planning-state/`](./tasks/sprint-08-planning-state/SPRINT.md))
 **Design Reference:** [`.spec/design/system/views/planning-screen/README.md`](../../design/system/views/planning-screen/README.md) · [`planning-screen.html`](../../design/system/views/planning-screen/planning-screen.html)
 
 #### Human Testing Gate
@@ -483,23 +559,23 @@ This sprint integrates **only IdleScreen.** The suggestion-chip → planning tra
 
 #### Design Review Gate
 
-Sprint 07 MUST expand the design-review pipeline to cover `planning-screen`. Required deliverables:
+Sprint 08 MUST expand the design-review pipeline to cover `planning-screen`. Required deliverables:
 
 1. **Reference assets** — `.spec/design/system/views/planning-screen/` must contain PNGs + annotations for all 7 planning-screen variants (S01 Scouting Light, S02 Drawing Light, S03 Weather Light, S04 Scoring Dark, V01 Slow Planning, V02 Cancel Prompt, V03 Single Candidate). Run `pnpm design:references` to generate.
 2. **XCUITest capture tests** — add `DesignReviewCaptureTests` test methods for every `(planning-screen, state, theme)` tuple.
 3. **Pipeline pass** — `pnpm design:review --screens planning-screen` must produce a report with **zero `high`-severity issues** before the human testing gate can pass.
-4. **Coverage expansion** — after Sprint 07, `pnpm design:review --screens auth-screen,idle-screen,planning-screen` must work end-to-end.
+4. **Coverage expansion** — after Sprint 08, `pnpm design:review --screens auth-screen,idle-screen,planning-screen` must work end-to-end.
 
-The planner MUST include explicit tasks for items 1–3 in the Sprint 07 task table. These are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
+The planner MUST include explicit tasks for items 1–3 in the Sprint 08 task table. These are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
 
 #### Scope
 
-This sprint integrates **only PlanningScreen.** When planning completes, the screen may transition to a temporary placeholder; full RouteResults wiring lands in Sprint 08. RouteDetails, Sessions, and Settings remain out of scope.
+This sprint integrates **only the planning state of the canonical map view** — *not* a standalone screen. The Sprint 06 map host + Sprint 07 `LSContextCapsule` and `LSMapControls` are reused as-is; this sprint only swaps capsule state to `--planning`, adds the copper sketch polyline, drives `LSPhaseIndicator` from real `db.sessionMessages` updates, locks `LSChatInput`, and wires the cancel-confirm sheet. When planning completes, the screen may transition to a temporary placeholder; full RouteResults wiring lands in Sprint 09. RouteDetails, Sessions, and Settings remain out of scope.
 
 #### Dependencies
 
-- Blocks: Sprint 08
-- Dependent on: Sprint 06
+- Blocks: Sprint 09
+- Dependent on: Sprint 07 (`LSContextCapsule` + `LSMapControls` components required)
 
 #### PRD Coverage
 
@@ -511,15 +587,15 @@ This sprint integrates **only PlanningScreen.** When planning completes, the scr
 
 ---
 
-### Sprint 08: RouteResultsScreen
+### Sprint 09: RouteResultsScreen
 
-**Sequence:** 8
+**Sequence:** 9
 **Status:** Planned
 **Design Reference:** [`route-results-screen.html`](../../design/system/views/route-results-screen/route-results-screen.html) · [`README.md`](../../design/system/views/route-results-screen/README.md)
 
 #### Human Testing Gate
 
-**Gate:** When PlanningScreen completes (Sprint 07), the rider arrives on a real RouteResultsScreen — three live polylines (best/alt1/alt2) sourced from `db.routePlans.getPlanById`, pinned LSNavigatorMessage with three attached LSRouteAttachmentCard molecules, working alt-selection promotion, working chat-refine, working dismiss/recall — that matches the `route-results-screen` design references via `pnpm design:review --screens route-results-screen` with **zero `high`-severity issues** across every reachable variant.
+**Gate:** When PlanningScreen completes (Sprint 08), the rider arrives on a real RouteResultsScreen — three live polylines (best/alt1/alt2) sourced from `db.routePlans.getPlanById`, pinned LSNavigatorMessage with three attached LSRouteAttachmentCard molecules, working alt-selection promotion, working chat-refine, working dismiss/recall — that matches the `route-results-screen` design references via `pnpm design:review --screens route-results-screen` with **zero `high`-severity issues** across every reachable variant.
 
 **Test Steps:**
 1. Run a real planning prompt end-to-end (IdleScreen → PlanningScreen → RouteResultsScreen) and confirm three real polylines render on the paper map with correct colors — best (copper, solid 3.5px), alt1 (sage, dashed), alt2 (slate, dashed)
@@ -532,23 +608,23 @@ This sprint integrates **only PlanningScreen.** When planning completes, the scr
 
 #### Design Review Gate
 
-Sprint 08 MUST expand the design-review pipeline to cover `route-results-screen`. Required deliverables:
+Sprint 09 MUST expand the design-review pipeline to cover `route-results-screen`. Required deliverables:
 
 1. **Reference assets** — `.spec/design/system/views/route-results-screen/` must contain PNGs + annotations for all 7 route-results variants (S01 default light, S02 alt-selected, S03 dark, S04 refining-scrim, V01 fewer-than-3, V02 single-candidate, V03 recall-chip). Run `pnpm design:references` to generate.
 2. **XCUITest capture tests** — add `DesignReviewCaptureTests` test methods for every `(route-results-screen, state, theme)` tuple.
 3. **Pipeline pass** — `pnpm design:review --screens route-results-screen` must produce a report with **zero `high`-severity issues** before the human testing gate can pass.
-4. **Coverage expansion** — after Sprint 08, `pnpm design:review --screens auth-screen,idle-screen,planning-screen,route-results-screen` must work end-to-end.
+4. **Coverage expansion** — after Sprint 09, `pnpm design:review --screens auth-screen,idle-screen,planning-screen,route-results-screen` must work end-to-end.
 
-The planner MUST include explicit tasks for items 1–3 in the Sprint 08 task table. These are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
+The planner MUST include explicit tasks for items 1–3 in the Sprint 09 task table. These are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
 
 #### Scope
 
-This sprint integrates **only RouteResultsScreen.** Tapping the BEST card may transition to a temporary placeholder; full RouteDetails bottom sheet lands in Sprint 09. SaveFavoriteSheet entry, Sessions, and Settings remain out of scope.
+This sprint integrates **only RouteResultsScreen.** Tapping the BEST card may transition to a temporary placeholder; full RouteDetails bottom sheet lands in Sprint 10. SaveFavoriteSheet entry, Sessions, and Settings remain out of scope.
 
 #### Dependencies
 
-- Blocks: Sprint 09
-- Dependent on: Sprint 07
+- Blocks: Sprint 10
+- Dependent on: Sprint 08
 
 #### PRD Coverage
 
@@ -559,15 +635,15 @@ This sprint integrates **only RouteResultsScreen.** Tapping the BEST card may tr
 
 ---
 
-### Sprint 09: RouteDetails Bottom Sheet
+### Sprint 10: RouteDetails Bottom Sheet
 
-**Sequence:** 9
+**Sequence:** 10
 **Status:** Planned
 **Design Reference:** [`.spec/design/system/views/route-details-screen/README.md`](../../design/system/views/route-details-screen/README.md) · [`route-details-screen.html`](../../design/system/views/route-details-screen/route-details-screen.html)
 
 #### Human Testing Gate
 
-**Gate:** From RouteResultsScreen (Sprint 08), the rider can tap a route card and arrive on a real RouteDetailsScreen — single polyline framed against paper canvas, LSRouteSheet at large detent with copper "BEST FOR TODAY" badge, Newsreader-serif title, real 4-column LSInstrumentReadout (DIST / TIME / CLIMB / SCENIC), real 6-cell LSWeatherTimeline from `db.routeEnrichments.list`, sticky outline `Save` + copper primary `Ride this` action row — that matches the `route-details-screen` design references via `pnpm design:review --screens route-details-screen` with **zero `high`-severity issues** across every reachable variant.
+**Gate:** From RouteResultsScreen (Sprint 09), the rider can tap a route card and arrive on a real RouteDetailsScreen — single polyline framed against paper canvas, LSRouteSheet at large detent with copper "BEST FOR TODAY" badge, Newsreader-serif title, real 4-column LSInstrumentReadout (DIST / TIME / CLIMB / SCENIC), real 6-cell LSWeatherTimeline from `db.routeEnrichments.list`, sticky outline `Save` + copper primary `Ride this` action row — that matches the `route-details-screen` design references via `pnpm design:review --screens route-details-screen` with **zero `high`-severity issues** across every reachable variant.
 
 **Test Steps:**
 1. Tap the BEST card on RouteResultsScreen; confirm the screen transitions to RouteDetailsScreen with the map reduced to that single polyline (copper, solid 3.5px) and the LSRouteSheet anchored at large detent (~62% of phone frame)
@@ -581,14 +657,14 @@ This sprint integrates **only RouteResultsScreen.** Tapping the BEST card may tr
 
 #### Design Review Gate
 
-Sprint 09 MUST expand the design-review pipeline to cover `route-details-screen`. Required deliverables:
+Sprint 10 MUST expand the design-review pipeline to cover `route-details-screen`. Required deliverables:
 
 1. **Reference assets** — `.spec/design/system/views/route-details-screen/` must contain PNGs + annotations for all 6 route-details variants (S01 default large light, S02 mixed-weather, S03 dark, S04 medium detent, S05 dismissing, V01 saved-state). Run `pnpm design:references` to generate.
 2. **XCUITest capture tests** — add `DesignReviewCaptureTests` test methods for every `(route-details-screen, state, theme)` tuple.
 3. **Pipeline pass** — `pnpm design:review --screens route-details-screen` must produce a report with **zero `high`-severity issues** before the human testing gate can pass.
-4. **Coverage expansion** — after Sprint 09, `pnpm design:review --screens auth-screen,idle-screen,planning-screen,route-results-screen,route-details-screen` must work end-to-end.
+4. **Coverage expansion** — after Sprint 10, `pnpm design:review --screens auth-screen,idle-screen,planning-screen,route-results-screen,route-details-screen` must work end-to-end.
 
-The planner MUST include explicit tasks for items 1–3 in the Sprint 09 task table. These are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
+The planner MUST include explicit tasks for items 1–3 in the Sprint 10 task table. These are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
 
 #### Scope
 
@@ -596,8 +672,8 @@ This sprint integrates **only RouteDetails bottom sheet** plus the Save → Save
 
 #### Dependencies
 
-- Blocks: Sprint 10
-- Dependent on: Sprint 08
+- Blocks: Sprint 11
+- Dependent on: Sprint 09
 
 #### PRD Coverage
 
@@ -609,9 +685,9 @@ This sprint integrates **only RouteDetails bottom sheet** plus the Save → Save
 
 ---
 
-### Sprint 10: SessionsScreen
+### Sprint 11: SessionsScreen
 
-**Sequence:** 10
+**Sequence:** 11
 **Status:** Planned
 **Design Reference:** [`sessions-screen.html`](../../design/system/views/sessions-screen/sessions-screen.html) · [`README.md`](../../design/system/views/sessions-screen/README.md)
 
@@ -636,9 +712,9 @@ Sprint 10 MUST expand the design-review pipeline to cover `sessions-screen`. Req
 1. **Reference assets** — `.spec/design/system/views/sessions-screen/` must contain PNGs + annotations for all 5 sessions variants (S01 default light, S02 dark, S03 empty-state, S04 long-list scrolled, S05 new-confirm dialog). Run `pnpm design:references` to generate.
 2. **XCUITest capture tests** — add `DesignReviewCaptureTests` test methods for every `(sessions-screen, state, theme)` tuple.
 3. **Pipeline pass** — `pnpm design:review --screens sessions-screen` must produce a report with **zero `high`-severity issues** before the human testing gate can pass.
-4. **Coverage expansion** — after Sprint 10, `pnpm design:review --screens auth-screen,idle-screen,planning-screen,route-results-screen,route-details-screen,sessions-screen` must work end-to-end. At this point the pipeline covers **all six V3 views**.
+4. **Coverage expansion** — after Sprint 11, `pnpm design:review --screens auth-screen,idle-screen,planning-screen,route-results-screen,route-details-screen,sessions-screen` must work end-to-end. At this point the pipeline covers **all six V3 views**.
 
-The planner MUST include explicit tasks for items 1–3 in the Sprint 10 task table. These are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
+The planner MUST include explicit tasks for items 1–3 in the Sprint 11 task table. These are gate blockers. See `RULES.md` §"Design Review Pipeline — View Snapshot Testing" for the full planner contract.
 
 #### Scope
 
@@ -646,8 +722,8 @@ This sprint integrates **only the Sessions drawer + per-session camera-restore p
 
 #### Dependencies
 
-- Blocks: Post-Sprint-10 follow-on plan (Saved Routes browsing, Settings, Offline Regions, Error Recovery, manual PlanRideSheet, ship-gate hardening — all deferred surfaces preserved at [`ROADMAP-ICEBOX.md`](./ROADMAP-ICEBOX.md))
-- Dependent on: Sprint 09
+- Blocks: Post-Sprint-11 follow-on plan (Saved Routes browsing, Settings, Offline Regions, Error Recovery, manual PlanRideSheet, ship-gate hardening — all deferred surfaces preserved at [`ROADMAP-ICEBOX.md`](./ROADMAP-ICEBOX.md))
+- Dependent on: Sprint 10
 
 #### PRD Coverage
 
@@ -674,20 +750,21 @@ Per HUMAN SIGNAL #4 (`if cross platform testing is too burdensome then we might 
 
 - This roadmap was originally synthesized directly by the orchestrator (PRD author) on 2026-04-27 based on the v1.2.0 PRD and the user's explicit "UI-first sequencing" directive, without dispatching parallel implementation_planner / design_planner agents. The simplified path was chosen for efficiency given full PRD context.
 - Updated 2026-05-04 (revision 1): **Sprint 05 (Design Review Pipeline)** inserted between the conversational planning loop (Sprint 04) and the saved-routes/sessions/settings work (then Sprint 06, now archived). Source of that sprint: `~/.claude/plans/plan-a-design-review-logical-clock.md` and the design-review strategy article. Folder `tasks/sprint-05-saved-routes-sessions-settings/` was renamed to `tasks/sprint-06-saved-routes-sessions-settings/`.
-- Updated 2026-05-04 (revision 2 — this version): **Sprints 6+ reshaped to view-at-a-time.** The previously bundled Sprint 06 (Saved Routes / Sessions / Settings, 10 tasks across 4 surfaces) and Sprint 07 (Map / Offline / Error / Ship Gate, 10 tasks across 5 surfaces) were retired and replaced with five focused view-at-a-time sprints (06–10): IdleScreen → PlanningScreen → RouteResultsScreen → RouteDetails Bottom Sheet → SessionsScreen. Per user direction: *"each sprint is super overscoped, we need to slow down and take each map view one at a time."* The prior bundled scope is preserved at [`ROADMAP-ICEBOX.md`](./ROADMAP-ICEBOX.md). Saved-routes browsing list, Settings, Offline Regions, Error Recovery, manual PlanRideSheet, and ship-gate hardening are explicitly **deferred** to a post-Sprint-10 follow-on plan. Per-task tables for sprints 06–10 are intentionally **not** authored in this ROADMAP — they will expand JIT via `/kb-sprint-tasks-plan` when each sprint becomes active.
+- Updated 2026-05-04 (revision 2): **Sprints 6+ reshaped to view-at-a-time.** The previously bundled Sprint 06 (Saved Routes / Sessions / Settings, 10 tasks across 4 surfaces) and Sprint 07 (Map / Offline / Error / Ship Gate, 10 tasks across 5 surfaces) were retired and replaced with five focused view-at-a-time sprints (06–10): IdleScreen → PlanningScreen → RouteResultsScreen → RouteDetails Bottom Sheet → SessionsScreen. Per user direction: *"each sprint is super overscoped, we need to slow down and take each map view one at a time."* The prior bundled scope is preserved at [`ROADMAP-ICEBOX.md`](./ROADMAP-ICEBOX.md). Saved-routes browsing list, Settings, Offline Regions, Error Recovery, manual PlanRideSheet, and ship-gate hardening are explicitly **deferred** to a post-Sprint-10 follow-on plan. Per-task tables for sprints 06–10 are intentionally **not** authored in this ROADMAP — they will expand JIT via `/kb-sprint-tasks-plan` when each sprint becomes active.
+- Updated 2026-05-14 (revision 3 — this version): **Sprint 07 inserted between IdleScreen (Sprint 06) and PlanningScreen (now Sprint 08)** to deliver the new `mol-context-capsule` molecule + `org-map-controls` organism + autocomplete carry-forward (design-system update 2026-05-06). Downstream sprints shifted +1: PlanningScreen → Sprint 08, RouteResultsScreen → Sprint 09, RouteDetails → Sprint 10, SessionsScreen → Sprint 11. Total sprint count: 10 → 11. Sprint 06 status updated to reflect post-S07 IDLE-SYNC-* carry-forward (idle state re-baseline now tracked on the active task list, not in the Sprint 06 task table). Sprint 08 status updated to reflect active stub-fix wave (2026-05-08–05-13). Sprint 08 reuses `LSContextCapsule(--planning)` and `LSMapControls` rather than re-implementing the map host. No future-sprint scope was changed — only numbering. Folder `tasks/sprint-08-planning-state/` is already on disk under the new numbering; later view sprints (RouteResults, RouteDetails, Sessions) will be created JIT via `/kb-sprint-tasks-plan` at their new numbers (09–11). The earlier "5 view-at-a-time" framing is preserved; this revision adds one component-delivery sprint between the idle and planning states because every downstream view sprint reuses the capsule + controls.
 - Task IDs follow the pattern `{GROUP}-S{NN}-T{NN}` for unambiguous referencing. The `kb-sprint-tasks-plan` skill expands each into per-task markdown files when the sprint becomes active.
 - Per-platform paired tasks (iOS + Android) are kept separate per project RULES.md "Platform ownership rule for sprint execution" — `swift-*` agents own iOS implementation; `kotlin-*` agents own Android. The Sprint 05 design-review pipeline is iOS-only by user directive.
 
 ## Next Steps
 
 ```bash
-# Continue executing Sprint 05 (Design Review Pipeline) — DO NOT RETOUCH
-# (run Sprint 05 to completion before expanding Sprint 06 tasks)
-/kb-run-sprint sprint-05-design-review-pipeline
+# Sprint 08 (Map View — Planning State) is the actively executing sprint.
+# Sprint 06 idle parity carry-forward (IDLE-SYNC-iOS / Android / Pipeline, CHIP-T03) runs in parallel.
+/kb-run-sprint sprint-08-planning-state
 
-# After Sprint 05 closes, expand Sprint 06 (IdleScreen) tasks JIT
+# When Sprint 08 closes, expand Sprint 09 (RouteResultsScreen) JIT
 /kb-sprint-tasks-plan .spec/prds/v3-integration/ROADMAP.md
 
-# Re-plan after PRD edits
+# Re-plan after PRD edits (delta-replan preserves unchanged sprint sections)
 /kb-sprint-plan .spec/prds/v3-integration/README.md --delta-replan
 ```
