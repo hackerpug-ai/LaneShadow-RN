@@ -22,9 +22,7 @@ struct PlanningScreenContainer: View {
         PlanningScreen(
             liveState: liveState,
             onCollapse: {
-                Task {
-                    await viewModel.cancelPlanning()
-                }
+                viewModel.requestCancelConfirmation()
             },
             onSend: { message in
                 Task {

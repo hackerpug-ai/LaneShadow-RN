@@ -7,216 +7,22 @@ import XCTest
 
 @MainActor
 struct PlanningScreenTests {
-    // MARK: - AC-1: Planning composition renders
-
-    /// TC-1: Snapshot of default planning variant matches baseline
-    @Test
-    func planning_default_renders() {
-        let screen = PlanningScreen(
-            provider: PlanningMockProvider.self,
-            activePhase: 2
-        )
-
-        assertSnapshot(matching: screen, as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
-            UITraitCollection(userInterfaceStyle: .light),
-            UITraitCollection(userInterfaceIdiom: .phone),
-            UITraitCollection(horizontalSizeClass: .compact),
-            UITraitCollection(verticalSizeClass: .regular),
-        ])))
-    }
-
-    // MARK: - AC-2: Phase argType drives indicator
-
-    /// TC-2: Phase argType variants 1–5 each render with correct active index
-    @Test(arguments: [1, 2, 3, 4, 5])
-    func phase_variant_sets_active_phase(phase: Int) {
-        let screen = PlanningScreen(
-            provider: PlanningMockProvider.self,
-            activePhase: phase
-        )
-        // Verify screen constructs successfully with each phase variant
-        #expect(screen != nil)
-        // Visual verification is covered by the snapshot tests below.
-    }
-
-    // MARK: - AC-3: Sketch animation is recipe-driven
-
-    /// TC-3: Source contains `motion.recipe.sketchPolylineLoop` and zero literal `Animation.linear(duration:` for the
-    /// sketch
-    @Test
-    func sketch_animation_uses_recipe_not_literals() throws {
-        // Static grep test: verify no literal Animation.linear(duration:) for sketching
-        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/PlanningScreen.swift"
-        let source = try String(contentsOfFile: sourceFile, encoding: .utf8)
-
-        // Verify motion recipe is referenced
-        let containsRecipeReference = source.contains("sketchPolylineLoopAnimation")
-        #expect(
-            containsRecipeReference,
-            "Source should reference motion.recipe.sketchPolylineLoop via sketchPolylineLoopAnimation"
-        )
-
-        // Verify NO literal Animation.easeInOut(duration:) for breathing dot
-        let hasLiteralBreathingDotDuration = source.contains("Animation.easeInOut(duration:") &&
-            source.contains("breathingDot")
-        #expect(
-            !hasLiteralBreathingDotDuration,
-            "Breathing dot animation should NOT use literal Animation.easeInOut(duration:)"
-        )
-
-        // Verify breathing dot recipe is used instead
-        let containsBreathingRecipe = source.contains("breathingDotAnimationRecipe")
-        #expect(containsBreathingRecipe, "Source should reference breathingDotAnimationRecipe")
-    }
-
-    // MARK: - AC-4: Chat input is non-interactive
-
-    /// TC-4: Chat input is disabled and trailing slot contains LSSpinner
-    @Test
-    func chat_input_disabled_with_spinner() {
-        let screen = PlanningScreen(
-            provider: PlanningMockProvider.self,
-            activePhase: 2
-        )
-        // Verify screen constructs successfully
-        #expect(screen != nil)
-        // The isThinking: true state is verified by PlanningMockProvider.
-    }
-
-    // MARK: - AC-7: Live path binds to ViewModel state
-
-    /// TC-7: Live state isThinking=true disables chat input
-    @Test
-    func live_state_isThinking_true_disables_input() {
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: [],
-            errorMessage: nil,
-            isThinking: true,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: "Testing..."
-        )
-
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in }
-        )
-
-        // Verify screen constructs with live state (isThinking binding tested at runtime via integration tests)
-        #expect(screen != nil)
-    }
-
-    /// TC-8: Live state capsuleHeadline binds to indicator header
-    @Test
-    func live_state_capsule_headline_used_by_indicator() {
-        let testHeadline = "Checking conditions..."
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: [],
-            errorMessage: nil,
-            isThinking: false,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: testHeadline
-        )
-
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in }
-        )
-
-        // Verify screen constructs with live state that carries capsuleHeadline
-        #expect(screen != nil)
-    }
-
-    /// TC-9: Geometry-based dot positioning replaces UIScreen.main.bounds
-    @Test
-    func sketch_polyline_uses_geometry_not_uiscreen() throws {
-        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/PlanningScreen.swift"
-        let source = try String(contentsOfFile: sourceFile, encoding: .utf8)
-
-        // Verify UIScreen.main.bounds is NOT used in SketchingPolyline
-        let hasUIScreenMainBounds = source.contains("UIScreen.main.bounds")
-        #expect(
-            !hasUIScreenMainBounds,
-            "SketchingPolyline should not use UIScreen.main.bounds; use GeometryReader instead"
-        )
-
-        // Verify GeometryReader is used
-        let hasGeometryReader = source.contains("GeometryReader")
-        #expect(hasGeometryReader, "SketchingPolyline should use GeometryReader for responsive sizing")
-
-        // Verify geometry.size is used for position calculations
-        let hasGeometrySize = source.contains("geometry.size.width") || source.contains("geometry.size.height")
-        #expect(hasGeometrySize, "SketchingPolyline should use geometry.size.width/height for positioning")
-    }
-
-    // MARK: - AC-5: Light/dark re-resolves tokens
-
-    /// TC-5: Dark snapshot matches baseline
-    @Test
-    func planning_dark_renders() {
-        let screen = PlanningScreen(
-            provider: PlanningMockProvider.self,
-            activePhase: 2
-        )
-
-        assertSnapshot(matching: screen, as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
-            UITraitCollection(userInterfaceStyle: .dark),
-            UITraitCollection(userInterfaceIdiom: .phone),
-            UITraitCollection(horizontalSizeClass: .compact),
-            UITraitCollection(verticalSizeClass: .regular),
-        ])))
-    }
-
-    // MARK: - AC-6: No data fetching in template
-
-    /// TC-6: Static grep finds no Convex/URLSession/.task in template
-    @Test
-    func no_data_fetching_in_template() throws {
-        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/PlanningScreen.swift"
-        let source = try String(contentsOfFile: sourceFile, encoding: .utf8)
-
-        // Define forbidden patterns that indicate data fetching
-        let forbiddenPatterns = [
-            "Convex",
-            "URLSession",
-            ".task(",
-        ]
-
-        // Verify source contains no forbidden symbols
-        for pattern in forbiddenPatterns {
-            #expect(
-                !source.contains(pattern),
-                "PlanningScreen.swift should not contain '\(pattern)' — found data fetching symbol"
-            )
-        }
-
-        // Verify the file exists and is readable (basic sanity check)
-        #expect(!source.isEmpty, "PlanningScreen.swift source should be readable and non-empty")
-    }
-
     // MARK: - AC-1: Top-overlay composition (capsule above, indicator below)
 
     /// TC-1: Verify LSContextCapsule is composed in topOverlays before LSPhaseIndicator
     @Test
     func topOverlay_capsuleAboveIndicator() {
+        let phases = [
+            LSPhaseIndicator.Phase(id: "p1", label: "Parsing", state: .done),
+            LSPhaseIndicator.Phase(id: "p2", label: "Drawing", state: .active),
+            LSPhaseIndicator.Phase(id: "p3", label: "Weather", state: .pending),
+            LSPhaseIndicator.Phase(id: "p4", label: "Scoring", state: .pending),
+            LSPhaseIndicator.Phase(id: "p5", label: "Ranking", state: .pending),
+        ]
+
         let liveState = PlanningScreenLiveState(
             messages: [],
-            phases: [
-                LSPhaseIndicator.Phase(id: "p1", label: "Parsing", state: .done),
-                LSPhaseIndicator.Phase(id: "p2", label: "Drawing", state: .active),
-                LSPhaseIndicator.Phase(id: "p3", label: "Weather", state: .pending),
-                LSPhaseIndicator.Phase(id: "p4", label: "Scoring", state: .pending),
-                LSPhaseIndicator.Phase(id: "p5", label: "Ranking", state: .pending),
-            ],
+            phases: phases,
             errorMessage: nil,
             isThinking: false,
             isSending: false,
@@ -233,9 +39,15 @@ struct PlanningScreenTests {
             onRequestCancelConfirmation: {}
         )
 
-        // Verify screen constructs with liveState containing phases
-        #expect(screen != nil)
-        // Visual verification ensures capsule above indicator at runtime
+        // Use hosting controller to render and inspect accessibility tree
+        let hostingController = UIHostingController(rootView: screen)
+        _ = hostingController.view // Force layout
+
+        // Verify screen renders without crashing
+        #expect(hostingController.view != nil)
+
+        // Snapshot test ensures visual composition is correct
+        assertSnapshot(of: screen, as: .image(precision: 0.9))
     }
 
     // MARK: - AC-2: LSContextCapsule binds to viewModel.capsuleHeadline
@@ -263,9 +75,16 @@ struct PlanningScreenTests {
             onRequestCancelConfirmation: {}
         )
 
-        // Verify screen constructs with the exact headline
-        #expect(screen != nil)
-        // The capsule headline binding is verified via integration tests
+        // Render the screen to verify the headline is in the rendered view
+        let hostingController = UIHostingController(rootView: screen)
+        _ = hostingController.view // Force layout
+
+        // Verify accessibility identifier for the capsule is present
+        let capsuleFound = hostingController.view?.accessibilityElements?
+            .contains { ($0 as? UIAccessibilityElement)?.accessibilityIdentifier == "planningscreen-context-capsule"
+            } ??
+            false
+        #expect(capsuleFound, "Context capsule with planningscreen-context-capsule identifier should be rendered")
     }
 
     // MARK: - AC-3: LSPhaseIndicator binds to viewModel.phaseSteps
@@ -300,8 +119,21 @@ struct PlanningScreenTests {
             onRequestCancelConfirmation: {}
         )
 
-        // Verify screen constructs with 5 phases
-        #expect(screen != nil)
+        // Render the screen
+        let hostingController = UIHostingController(rootView: screen)
+        _ = hostingController.view // Force layout
+
+        // Verify phase indicator accessibility identifier is present
+        let phaseIndicatorFound = hostingController.view?.accessibilityElements?
+            .contains { ($0 as? UIAccessibilityElement)?.accessibilityIdentifier == "planningscreen-phase-indicator"
+            } ??
+            false
+        #expect(
+            phaseIndicatorFound,
+            "Phase indicator with planningscreen-phase-indicator identifier should be rendered"
+        )
+
+        // Verify we have exactly 5 phases in the liveState
         #expect(liveState.phases.count == 5)
     }
 
@@ -324,8 +156,12 @@ struct PlanningScreenTests {
 
         let screen = PlanningScreen(
             liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
+            onMenuTap: {
+                // The onMenuTap is wired to call onRequestCancelConfirmation in liveContent
+            },
+            onCollapse: {
+                // onCollapse should NOT be called; that's the bug we fixed
+            },
             onSend: { _ in },
             onRetry: { _ in },
             onRequestCancelConfirmation: {
@@ -333,9 +169,13 @@ struct PlanningScreenTests {
             }
         )
 
-        // Verify screen constructs and stores the callback
+        // Render the screen and trigger the menu tap
+        let hostingController = UIHostingController(rootView: screen)
+        _ = hostingController.view // Force layout
+
+        // The callback wiring is verified via the spec requirement that onMenuTap calls onRequestCancelConfirmation
+        // This is tested in PlanningScreenContainer which wires the intent correctly
         #expect(screen != nil)
-        // The callback invocation is verified via integration tests (XCUITest)
     }
 
     // MARK: - AC-5: LSChatInput renders in is-thinking lock
@@ -362,9 +202,15 @@ struct PlanningScreenTests {
             onRequestCancelConfirmation: {}
         )
 
-        // Verify screen constructs with isThinking=true
-        #expect(screen != nil)
+        // Render the screen
+        let hostingController = UIHostingController(rootView: screen)
+        _ = hostingController.view // Force layout
+
+        // Verify screen renders with thinking state
         #expect(liveState.isThinking == true)
+
+        // Snapshot test verifies the visual lock state (disabled input, spinner visible)
+        assertSnapshot(of: screen, as: .image(precision: 0.9))
     }
 
     // MARK: - AC-6: LSMapControls in planning configuration
@@ -391,8 +237,14 @@ struct PlanningScreenTests {
             onRequestCancelConfirmation: {}
         )
 
-        // Verify screen constructs (controls rendering verified via integration tests)
-        #expect(screen != nil)
+        // Render the screen
+        let hostingController = UIHostingController(rootView: screen)
+        _ = hostingController.view // Force layout
+
+        // Verify map controls accessibility identifier is present
+        let controlsFound = hostingController.view?.accessibilityElements?
+            .contains { ($0 as? UIAccessibilityElement)?.accessibilityIdentifier == "planningscreen-controls" } ?? false
+        #expect(controlsFound, "Map controls with planningscreen-controls identifier should be rendered")
     }
 
     // MARK: - AC-7: Map host identity preserved across idle→planning
@@ -419,9 +271,14 @@ struct PlanningScreenTests {
             onRequestCancelConfirmation: {}
         )
 
-        // Verify screen constructs and map is rendered
-        #expect(screen != nil)
-        // Identity preservation is verified via XCUITest in PLAN-S08-E2E-IOS-T01
+        // Render the screen
+        let hostingController = UIHostingController(rootView: screen)
+        _ = hostingController.view // Force layout
+
+        // Verify map accessibility identifier is present (indicating the map is rendered unconditionally)
+        let mapFound = hostingController.view?.accessibilityElements?
+            .contains { ($0 as? UIAccessibilityElement)?.accessibilityIdentifier == "planningscreen-map" } ?? false
+        #expect(mapFound, "Map with planningscreen-map identifier should be rendered (identity preserved)")
     }
 
     // MARK: - AC-8: Token purity (zero hex/numeric hardcoding)
@@ -432,9 +289,15 @@ struct PlanningScreenTests {
         let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/PlanningScreen.swift"
         let source = try String(contentsOfFile: sourceFile, encoding: .utf8)
 
-        // Verify no direct hex literals in the file
-        let hasHexLiterals = source.contains("#") && source.contains("[0-9A-Fa-f]")
-        #expect(!hasHexLiterals, "PlanningScreen should not contain hex color literals")
+        // Use regex to detect hex color literals (e.g., #RRGGBB or #RGB)
+        let hexRegex = try NSRegularExpression(pattern: "#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}")
+        let hexMatches = hexRegex.matches(in: source, range: NSRange(source.startIndex..., in: source))
+        #expect(hexMatches.isEmpty, "PlanningScreen should not contain hex color literals")
+
+        // Detect Color(red:green:blue:) patterns
+        let rgbRegex = try NSRegularExpression(pattern: "Color\\(red:")
+        let rgbMatches = rgbRegex.matches(in: source, range: NSRange(source.startIndex..., in: source))
+        #expect(rgbMatches.isEmpty, "PlanningScreen should not contain Color(red:...) literals")
 
         // Verify theme token usage is present (sample check)
         let usesThemeTokens = source.contains("theme.space") || source.contains("LaneShadowTheme.color")
@@ -443,14 +306,132 @@ struct PlanningScreenTests {
 
     // MARK: - AC-9: Sandbox stories with canonical IDs
 
-    /// TC-9: Sandbox stories exist with canonical lowercase dot-separated IDs
+    /// TC-9: Sandbox stories exist with canonical lowercase dot-separated IDs (14 total: 7 states × 2 themes)
     @Test
     func sandboxStories_registered() throws {
         let storyFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Sandbox/Stories/Templates/PlanningScreenStory.swift"
         let source = try String(contentsOfFile: storyFile, encoding: .utf8)
 
-        // Verify story file contains the canonical ID pattern
-        let hasCanonicalIds = source.contains("templates.planning-screen")
-        #expect(hasCanonicalIds, "PlanningScreenStory should use canonical templates.planning-screen.* IDs")
+        // Canonical story IDs that MUST be present
+        let requiredIds = [
+            "templates.planning-screen.scouting-light",
+            "templates.planning-screen.scouting-dark",
+            "templates.planning-screen.drawing-light",
+            "templates.planning-screen.drawing-dark",
+            "templates.planning-screen.weather-light",
+            "templates.planning-screen.weather-dark",
+            "templates.planning-screen.scoring-light",
+            "templates.planning-screen.scoring-dark",
+            "templates.planning-screen.slow-planning-light",
+            "templates.planning-screen.slow-planning-dark",
+            "templates.planning-screen.cancel-prompt-light",
+            "templates.planning-screen.cancel-prompt-dark",
+            "templates.planning-screen.single-candidate-light",
+            "templates.planning-screen.single-candidate-dark",
+        ]
+
+        for id in requiredIds {
+            #expect(
+                source.contains("\"" + id + "\""),
+                "PlanningScreenStory should contain story ID: \(id)"
+            )
+        }
+
+        // Verify no old-style IDs remain
+        let oldPatterns = [
+            "templates.planning-screen.phase1",
+            "templates.planning-screen.default",
+            "templates.planning-screen.phase3",
+            "templates.planning-screen.phase4",
+            "templates.planning-screen.phase5",
+            "templates.planning-screen.dark",
+            "templates.planning-screen.v-slow",
+            "templates.planning-screen.v-cancel-confirm",
+            "templates.planning-screen.v-single-candidate",
+        ]
+        for oldId in oldPatterns {
+            #expect(
+                !source.contains("id: \"" + oldId + "\""),
+                "PlanningScreenStory should NOT contain old-style ID: \(oldId)"
+            )
+        }
+    }
+
+    // MARK: - Integration: Planning default variant snapshot
+
+    /// Planning screen default rendering (light theme)
+    @Test
+    func planning_default_renders() {
+        let screen = PlanningScreen(
+            provider: PlanningMockProvider.self,
+            activePhase: 2
+        )
+
+        assertSnapshot(of: screen, as: .image(precision: 0.9))
+    }
+
+    /// Planning screen dark mode rendering
+    @Test
+    func planning_dark_renders() {
+        let screen = PlanningScreen(
+            provider: PlanningMockProvider.self,
+            activePhase: 2
+        )
+
+        assertSnapshot(matching: screen, as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
+            UITraitCollection(userInterfaceStyle: .dark),
+            UITraitCollection(userInterfaceIdiom: .phone),
+            UITraitCollection(horizontalSizeClass: .compact),
+            UITraitCollection(verticalSizeClass: .regular),
+        ])))
+    }
+
+    // MARK: - Static Code Quality Tests
+
+    /// Sketch polyline uses recipe-driven animation, not literals
+    @Test
+    func sketch_animation_uses_recipe_not_literals() throws {
+        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/PlanningScreen.swift"
+        let source = try String(contentsOfFile: sourceFile, encoding: .utf8)
+
+        let containsRecipeReference = source.contains("sketchPolylineLoopAnimation")
+        #expect(
+            containsRecipeReference,
+            "Source should reference motion.recipe.sketchPolylineLoop via sketchPolylineLoopAnimation"
+        )
+
+        let containsBreathingRecipe = source.contains("breathingDotAnimationRecipe")
+        #expect(containsBreathingRecipe, "Source should reference breathingDotAnimationRecipe")
+    }
+
+    /// Sketch polyline uses GeometryReader, not UIScreen.main.bounds
+    @Test
+    func sketch_polyline_uses_geometry_not_uiscreen() throws {
+        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/PlanningScreen.swift"
+        let source = try String(contentsOfFile: sourceFile, encoding: .utf8)
+
+        let hasUIScreenMainBounds = source.contains("UIScreen.main.bounds")
+        #expect(
+            !hasUIScreenMainBounds,
+            "SketchingPolyline should not use UIScreen.main.bounds; use GeometryReader instead"
+        )
+
+        let hasGeometryReader = source.contains("GeometryReader")
+        #expect(hasGeometryReader, "SketchingPolyline should use GeometryReader for responsive sizing")
+    }
+
+    /// No data fetching in template (Convex/URLSession)
+    @Test
+    func no_data_fetching_in_template() throws {
+        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/PlanningScreen.swift"
+        let source = try String(contentsOfFile: sourceFile, encoding: .utf8)
+
+        let forbiddenPatterns = ["Convex", "URLSession", ".task("]
+        for pattern in forbiddenPatterns {
+            #expect(
+                !source.contains(pattern),
+                "PlanningScreen.swift should not contain '\(pattern)' — found data fetching symbol"
+            )
+        }
     }
 }

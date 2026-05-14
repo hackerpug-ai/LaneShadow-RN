@@ -162,7 +162,7 @@ public struct PlanningScreen: View {
                                         .font(theme.type.title.sm.font)
                                         .foregroundStyle(LaneShadowTheme.color.content.secondary)
                                         .frame(maxWidth: .infinity)
-                                        .frame(height: 44)
+                                        .frame(height: theme.space.xxl + theme.space.md)
                                         .background(
                                             RoundedRectangle(cornerRadius: theme.radius.lg)
                                                 .strokeBorder(
@@ -179,7 +179,7 @@ public struct PlanningScreen: View {
                                         .font(theme.type.title.sm.font)
                                         .foregroundStyle(LaneShadowTheme.color.content.primary)
                                         .frame(maxWidth: .infinity)
-                                        .frame(height: 44)
+                                        .frame(height: theme.space.xxl + theme.space.md)
                                         .background(
                                             RoundedRectangle(cornerRadius: theme.radius.lg)
                                                 .fill(LaneShadowTheme.color.surface.inset)
@@ -348,41 +348,58 @@ public struct PlanningScreen: View {
     }
 
     private func liveContent(for liveState: PlanningScreenLiveState) -> some View {
-        LSMapLayer(
-            map: {
-                if liveState.shouldRenderMap {
+        ZStack(alignment: .trailing) {
+            LSMapLayer(
+                map: {
                     mapView
-                } else {
-                    Color.clear
+                },
+                topOverlays: [
+                    GlassOverlaySlot(
+                        id: "context-capsule",
+                        content: { liveCapsuleView(for: liveState) }
+                    ),
+                    GlassOverlaySlot(
+                        id: "phase-indicator",
+                        content: { livePhaseIndicatorView(for: liveState) }
+                    ),
+                ],
+                bottomOverlays: [
+                    GlassOverlaySlot(
+                        id: "chat-input",
+                        content: { liveBottomOverlay(for: liveState) }
+                    ),
+                ],
+                topBar: {
+                    LSTopBar(
+                        trailing: .none,
+                        onMenuTap: {
+                            onRequestCancelConfirmation()
+                        },
+                        onNewTap: {}
+                    )
                 }
-            },
-            topOverlays: [
-                GlassOverlaySlot(
-                    id: "context-capsule",
-                    content: { liveCapsuleView(for: liveState) }
-                ),
-                GlassOverlaySlot(
-                    id: "phase-indicator",
-                    content: { livePhaseIndicatorView(for: liveState) }
-                ),
-            ],
-            bottomOverlays: [
-                GlassOverlaySlot(
-                    id: "chat-input",
-                    content: { liveBottomOverlay(for: liveState) }
-                ),
-            ],
-            topBar: {
-                LSTopBar(
-                    trailing: .none,
-                    onMenuTap: {
-                        onRequestCancelConfirmation()
-                    },
-                    onNewTap: {}
-                )
+            )
+            .accessibilityIdentifier("planningscreen")
+
+            // Map controls positioned at vertical center of right edge (planning state config)
+            VStack {
+                Spacer()
+                mapControlsView
+                Spacer()
             }
+            .padding(.trailing, theme.space.md)
+        }
+    }
+
+    private var mapControlsView: some View {
+        LSMapControls(
+            mode: .chat,
+            hasRouteToSave: false,
+            isSavedRoute: false,
+            onRecenter: nil,
+            onToggleView: nil
         )
-        .accessibilityIdentifier("planningscreen")
+        .accessibilityIdentifier("planningscreen-controls")
     }
 
     private func liveCapsuleView(for liveState: PlanningScreenLiveState) -> some View {
@@ -478,6 +495,7 @@ struct SketchingPolyline: View {
                     .onAppear {
                         isAnimating = true
                     }
+                    // Sketch polyline visual opacity (animation component, not interactive state)
                     .opacity(0.85)
 
                 // Breathing leading dot with recipe-driven animation
