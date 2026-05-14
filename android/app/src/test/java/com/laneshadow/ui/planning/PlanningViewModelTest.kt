@@ -15,6 +15,7 @@ import com.laneshadow.services.PlannedRouteOptions
 import com.laneshadow.services.RouteOption
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -184,6 +185,74 @@ class PlanningViewModelTest {
     }
 
     @Test
+    fun cancel_failure_does_not_emit_cancelled_when_plan_disappears() = runTest {
+        val cancelError = IOException("cancel offline")
+        val routeRepository = FakeRouteRepository(
+            activePlans = listOf(
+                RoutePlan(
+                    id = "plan_abc",
+                    status = "running",
+                ),
+            ),
+        )
+        routeRepository.cancelPlanResult = Result.failure(cancelError)
+        routeRepository.onCancel = {
+            routeRepository.emitPlans(emptyList())
+        }
+
+        val viewModel = createViewModel(routeRepository = routeRepository)
+        advanceUntilIdle()
+
+        viewModel.cancel()
+        advanceUntilIdle()
+
+        assertThat(routeRepository.cancelPlanCalls.get()).isEqualTo(1)
+        assertThat(viewModel.state.value.transition).isEqualTo(
+            PlanningTransition.Failure(
+                error = LaneShadowError.NetworkTimeout(cancelError),
+                message = "cancel offline",
+            ),
+        )
+        assertThat(viewModel.state.value.subscriptionError).isEqualTo("cancel offline")
+        assertThat(viewModel.state.value.transition).isNotEqualTo(PlanningTransition.Cancelled)
+    }
+
+    @Test
+    fun cancel_success_emits_cancelled_when_status_was_observed_before_result_returns() = runTest {
+        val cancelResult = CompletableDeferred<Result<Unit>>()
+        val routeRepository = FakeRouteRepository(
+            activePlans = listOf(
+                RoutePlan(
+                    id = "plan_abc",
+                    status = "running",
+                ),
+            ),
+        )
+        routeRepository.cancelPlanResultDeferred = cancelResult
+        routeRepository.onCancel = {
+            routeRepository.emitPlans(
+                listOf(
+                    RoutePlan(
+                        id = "plan_abc",
+                        status = "cancelled",
+                    ),
+                ),
+            )
+            cancelResult.complete(Result.success(Unit))
+        }
+
+        val viewModel = createViewModel(routeRepository = routeRepository)
+        advanceUntilIdle()
+
+        viewModel.cancel()
+        advanceUntilIdle()
+
+        assertThat(routeRepository.cancelPlanCalls.get()).isEqualTo(1)
+        assertThat(viewModel.state.value.transition).isEqualTo(PlanningTransition.Cancelled)
+        assertThat(viewModel.state.value.isThinking).isFalse()
+    }
+
+    @Test
     fun cancel_with_null_planId_is_noop() = runTest {
         val routeRepository = FakeRouteRepository()
         val viewModel = createViewModel(routeRepository = routeRepository)
@@ -334,6 +403,8 @@ class PlanningViewModelTest {
         val cancelPlanCalls = AtomicInteger(0)
         var lastCancelledPlanId: String? = null
         var onCancel: (() -> Unit)? = null
+        var cancelPlanResult: Result<Unit> = Result.success(Unit)
+        var cancelPlanResultDeferred: CompletableDeferred<Result<Unit>>? = null
 
         fun emitPlans(plans: List<RoutePlan>) {
             activePlansFlow.value = plans
@@ -346,7 +417,7 @@ class PlanningViewModelTest {
             cancelPlanCalls.incrementAndGet()
             lastCancelledPlanId = routePlanId
             onCancel?.invoke()
-            return Result.success(Unit)
+            return cancelPlanResultDeferred?.await() ?: cancelPlanResult
         }
     }
 

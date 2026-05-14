@@ -42,6 +42,7 @@ class PlanningViewModel @AssistedInject constructor(
     private var lastCompletedPlanId: String? = null
     private var lastFailedPlanId: String? = null
     private var pendingCancelledPlanId: String? = null
+    private var observedPlanStatuses: Map<String, String> = emptyMap()
 
     init {
         observeSessions()
@@ -52,8 +53,15 @@ class PlanningViewModel @AssistedInject constructor(
     fun cancel() {
         val planId = _state.value.activePlanId ?: return
         viewModelScope.launch {
-            pendingCancelledPlanId = planId
             routeRepository.cancelPlan(planId)
+                .onSuccess {
+                    pendingCancelledPlanId = planId
+                    emitCancelledTransitionIfObserved(planId)
+                }
+                .onFailure { error ->
+                    pendingCancelledPlanId = null
+                    reportCancelFailure(error)
+                }
         }
     }
 
@@ -121,29 +129,28 @@ class PlanningViewModel @AssistedInject constructor(
                     )
                 }
                 .collect { plans ->
+                    observedPlanStatuses = plans.associate { plan ->
+                        plan.id to plan.status
+                    }
                     val activePlan = plans.firstOrNull()
                     val completedPlan = plans.firstOrNull { it.status.equals("completed", ignoreCase = true) }
                     val failedPlan = plans.firstOrNull { it.status.equals("failed", ignoreCase = true) }
                     val cancelledPlanId = pendingCancelledPlanId
-                    val hasPendingCancellation = cancelledPlanId != null
                     val cancelledPlan = cancelledPlanId?.let { pendingId ->
                         plans.firstOrNull { plan ->
                             plan.id == pendingId && plan.status.equals("cancelled", ignoreCase = true)
                         }
-                    }
-                    val cancellationResolved = hasPendingCancellation && plans.none { plan ->
-                        plan.id == cancelledPlanId
                     }
                     _state.update { current ->
                         current.copy(
                             activePlanId = activePlan?.id,
                             isThinking = plans.any { plan ->
                                 plan.status.equals("pending", true) || plan.status.equals("running", true)
-                            } && !cancellationResolved,
+                            },
                         )
                     }
 
-                    if (cancelledPlan != null || cancellationResolved) {
+                    if (cancelledPlan != null) {
                         pendingCancelledPlanId = null
                         _state.update { current ->
                             current.copy(
@@ -176,11 +183,40 @@ class PlanningViewModel @AssistedInject constructor(
                             )
                         }
                     }
-                }
+            }
+        }
+    }
+
+    private fun emitCancelledTransitionIfObserved(planId: String) {
+        if (!observedPlanStatuses[planId].equals("cancelled", ignoreCase = true)) {
+            return
+        }
+
+        pendingCancelledPlanId = null
+        _state.update { current ->
+            current.copy(
+                activePlanId = null,
+                isThinking = false,
+                transition = PlanningTransition.Cancelled,
+            )
         }
     }
 
     private fun reportSubscriptionFailure(
+        error: Throwable,
+        fallbackMessage: String,
+    ) {
+        reportOperationFailure(error, fallbackMessage)
+    }
+
+    private fun reportCancelFailure(error: Throwable) {
+        reportOperationFailure(
+            error = error,
+            fallbackMessage = "Unable to cancel active plan.",
+        )
+    }
+
+    private fun reportOperationFailure(
         error: Throwable,
         fallbackMessage: String,
     ) {
