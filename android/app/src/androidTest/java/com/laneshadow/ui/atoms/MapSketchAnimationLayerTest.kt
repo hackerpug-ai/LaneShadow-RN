@@ -3,6 +3,7 @@ package com.laneshadow.ui.atoms
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
+import com.laneshadow.theme.generated.LaneShadowTheme as GeneratedTokens
 import org.junit.Rule
 import org.junit.Test
 
@@ -137,24 +138,24 @@ class MapSketchAnimationLayerTest {
     @Test
     fun ac3_reduced_motion_keeps_path_progress_static_at_one() {
         composeTestRule.mainClock.autoAdvance = false
-        var observedPathProgress = 0f
+        var observedPathProgress = -1f
+        var observedHeadDotAlpha = -1f
 
-        // Note: In production, Settings.Global.ANIMATOR_DURATION_SCALE would be 0f.
-        // For unit testing, we verify the composable checks this setting.
-        // A full integration test would mock ContentResolver to return 0f,
-        // but for instrumented tests, we verify the source code pattern is correct.
         composeTestRule.setContent {
             MapSketchAnimationLayer(
                 path = listOf(LatLng(0.0, 0.0), LatLng(1.0, 1.0)),
-                onProgressUpdate = { observedPathProgress = it }
+                reducedMotionOverride = true,  // FORCE reduced-motion branch
+                onProgressUpdate = { observedPathProgress = it },
+                onHeadDotAlphaUpdate = { observedHeadDotAlpha = it },
             )
         }
 
-        // Verify composable reads Settings.Global (see MapSketchAnimationLayer.kt)
-        // Initial progress should start at 0 in animation state
-        composeTestRule.mainClock.advanceTimeBy(100L)
-        // Without reduced-motion override in unit test, normal animation proceeds
-        // The pattern is verified via source inspection in AC-3 structural test below
+        // Advance beyond one full animation cycle (1400ms)
+        composeTestRule.mainClock.advanceTimeBy(2000L)
+
+        // With reduced-motion forced, both values should remain static at 1.0f
+        assertThat(observedPathProgress).isWithin(0.001f).of(1.0f)
+        assertThat(observedHeadDotAlpha).isWithin(0.001f).of(1.0f)
     }
 
     /**
@@ -162,20 +163,25 @@ class MapSketchAnimationLayerTest {
      *
      * GIVEN MapSketchAnimationLayer with empty path
      * WHEN composable runs
-     * THEN no Canvas draw call is made; composable does not throw
+     * THEN no Canvas draw call is made; composable does not throw; callbacks are never invoked
      */
     @Test
     fun ac4_empty_path_renders_nothing_without_crash() {
+        composeTestRule.mainClock.autoAdvance = false
+        var progressCallCount = 0
+
         composeTestRule.setContent {
             MapSketchAnimationLayer(
                 path = emptyList(),
-                onProgressUpdate = { /* no-op */ }
+                onProgressUpdate = { progressCallCount += 1 }
             )
         }
 
-        // If we reach here without exception, the test passes
-        // Early return guard prevents any Canvas or animation setup
-        assertThat(true).isTrue()
+        // Advance clock beyond one full animation cycle
+        composeTestRule.mainClock.advanceTimeBy(1500L)
+
+        // With empty path, early return prevents callbacks from ever being invoked
+        assertThat(progressCallCount).isEqualTo(0)
     }
 
     /**
@@ -183,7 +189,7 @@ class MapSketchAnimationLayerTest {
      *
      * GIVEN MapSketchAnimationLayer runs in light theme
      * WHEN stroke color callback fires
-     * THEN resolved color is captured (implies GeneratedTokens resolution, not hex literal)
+     * THEN resolved color equals GeneratedTokens.color.Route.best (not a hex literal)
      */
     @Test
     fun ac5_stroke_color_resolved_via_callback() {
@@ -199,7 +205,7 @@ class MapSketchAnimationLayerTest {
 
         composeTestRule.mainClock.advanceTimeBy(1L)
 
-        // Color is resolved (not null) implies it came from theme tokens
-        assertThat(resolvedStrokeColor).isNotNull()
+        // Verify resolved color matches the expected token (light theme uses Route.best)
+        assertThat(resolvedStrokeColor).isEqualTo(GeneratedTokens.color.Route.best)
     }
 }

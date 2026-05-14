@@ -1,6 +1,5 @@
 package com.laneshadow.ui.atoms
 
-import android.graphics.PathMeasure
 import android.provider.Settings
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
@@ -48,6 +47,7 @@ import kotlin.math.min
  * @param onProgressUpdate Optional callback for path-draw progress (for testing); emits 0f to 1f
  * @param onHeadDotAlphaUpdate Optional callback for head-dot alpha (for testing); emits 0f to 1f
  * @param onStrokeColorResolved Optional callback for resolved stroke color (for testing)
+ * @param reducedMotionOverride Optional test seam to force reduced-motion behavior (null = read system setting)
  */
 @Composable
 fun MapSketchAnimationLayer(
@@ -56,6 +56,7 @@ fun MapSketchAnimationLayer(
     onProgressUpdate: ((Float) -> Unit)? = null,
     onHeadDotAlphaUpdate: ((Float) -> Unit)? = null,
     onStrokeColorResolved: ((Color) -> Unit)? = null,
+    reducedMotionOverride: Boolean? = null,
 ) {
     // Resolve theme tokens
     val theme = LocalLaneShadowTheme.current
@@ -79,14 +80,16 @@ fun MapSketchAnimationLayer(
         return
     }
 
-    // Read system reduced-motion setting
+    // Read system reduced-motion setting (or use test override)
     val context = LocalContext.current
-    val reducedMotionEnabled = remember(context) {
-        Settings.Global.getFloat(
-            context.contentResolver,
-            Settings.Global.ANIMATOR_DURATION_SCALE,
-            1f
-        ) == 0f
+    val reducedMotionEnabled = remember(context, reducedMotionOverride) {
+        reducedMotionOverride ?: run {
+            Settings.Global.getFloat(
+                context.contentResolver,
+                Settings.Global.ANIMATOR_DURATION_SCALE,
+                1f
+            ) == 0f
+        }
     }
 
     // Animation setup
@@ -164,10 +167,19 @@ fun MapSketchAnimationLayer(
 }
 
 /**
- * Renders the sketch polyline using Compose Canvas.
+ * SketchPolylineCanvas — animated path-draw renderer.
  *
  * Path is drawn with a stroke, clipped based on pathProgress (0 = no path, 1 = full path).
- * Uses PathMeasure to draw only the portion of the path corresponding to pathProgress.
+ *
+ * Implementation: walks the `path` waypoints, computes how many full segments
+ * (ceil(path.size × pathProgress)) plus a sub-segment interpolation for fractional
+ * progress, and draws the resulting partial path. Bounding-box normalization
+ * maps LatLng coordinates to canvas pixel space.
+ *
+ * Stroke width (3.dp) and head-dot radius (6.dp) are hardcoded because
+ * LaneShadowTheme does not currently expose `route.strokeWidth` or
+ * `polyline.headDot.radius` tokens. Update to use tokens when they land
+ * in the design system. Tracked under TOKEN-FOLLOWUP-T03.
  *
  * @param path Coordinates to draw
  * @param strokeColor Color of the stroke (token-resolved)
@@ -204,9 +216,6 @@ private fun SketchPolylineCanvas(
 
         val lonRange = maxLon - minLon
         val latRange = maxLat - minLat
-
-        // Prevent division by zero for degenerate paths
-        val safeRange = max(lonRange, latRange).coerceAtLeast(0.001f)
 
         // Map normalized coordinates to canvas pixel space
         val canvasSize = size
@@ -299,8 +308,6 @@ private fun SketchHeadDot(
 
             val lonRange = maxLon - minLon
             val latRange = maxLat - minLat
-
-            val safeRange = max(lonRange, latRange).coerceAtLeast(0.001f)
 
             // Map normalized coordinates to canvas pixel space
             val canvasSize = size
