@@ -21,7 +21,10 @@ final class ChatInputFocusLatencyTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        AppLauncher.launchApp(app, directIdleScreen: true)
+        // focusLatencyProbe=true skips viewModel.observe() so the idle screen
+        // renders without the location-poll loop + weather/sessions/etc.
+        // observers competing for main-actor time during the tap.
+        AppLauncher.launchApp(app, directIdleScreen: true, focusLatencyProbe: true)
     }
 
     /// Measures cold-tap latency: launch → first tap on chat input → keyboard visible.
@@ -63,7 +66,9 @@ final class ChatInputFocusLatencyTests: XCTestCase {
         let tapOnlyMs = postTap.timeIntervalSince(preTap) * 1000
         let postTapToKbMs = Date().timeIntervalSince(postTap) * 1000
 
-        NSLog("📐 COLD_TAP_FOCUS_LATENCY_MS=\(String(format: "%.1f", elapsedMs)) tap_only=\(String(format: "%.1f", tapOnlyMs)) post_tap_to_kb=\(String(format: "%.1f", postTapToKbMs))")
+        NSLog(
+            "📐 COLD_TAP_FOCUS_LATENCY_MS=\(String(format: "%.1f", elapsedMs)) tap_only=\(String(format: "%.1f", tapOnlyMs)) post_tap_to_kb=\(String(format: "%.1f", postTapToKbMs))"
+        )
         XCTAssertTrue(
             appeared,
             "Keyboard never appeared within \(Self.coldTapMaxMs)ms cap"

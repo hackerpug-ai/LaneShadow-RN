@@ -76,7 +76,8 @@ struct IdleScreenContainer: View {
             // Skip observation during direct UI testing (variant state is pre-configured)
             #if DEBUG
                 let isDirectTest = ProcessInfo.processInfo.arguments.contains("-DirectIdleScreenUITest")
-                if !isDirectTest {
+                let isFocusLatencyProbe = ProcessInfo.processInfo.arguments.contains("-IdleFocusLatencyProbe")
+                if !isDirectTest, !isFocusLatencyProbe {
                     await viewModel.observe()
                 }
             #else
