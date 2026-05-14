@@ -1,5 +1,6 @@
 package com.laneshadow.ui.atoms
 
+import android.content.res.Configuration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -15,6 +16,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 /**
@@ -264,7 +266,7 @@ class MapSketchAnimationLayerBehaviorTest {
     /**
      * AC-5 variant: Stroke color resolves in dark theme
      *
-     * GIVEN MapSketchAnimationLayer runs with dark theme forced
+     * GIVEN MapSketchAnimationLayer runs with dark theme forced via Robolectric Configuration
      * WHEN stroke color callback fires
      * THEN resolved color equals GeneratedTokens.color.Route.dark.best
      */
@@ -273,28 +275,31 @@ class MapSketchAnimationLayerBehaviorTest {
         composeTestRule.mainClock.autoAdvance = false
         var resolvedStrokeColor: Color? = null
 
-        composeTestRule.setContent {
-            ThemeContent {
-                // Note: In a real app, we'd wrap with Material theme in dark mode.
-                // For this test, we rely on the production code's isSystemInDarkTheme() logic
-                // being testable via composition. In Robolectric, we can mock system properties
-                // or accept that the token resolution will use the appropriate color based on
-                // how the test environment reports dark mode.
-                // For completeness, this test verifies that BOTH color branches exist in the code.
-                MapSketchAnimationLayer(
-                    path = listOf(LatLng(0.0, 0.0), LatLng(1.0, 1.0)),
-                    onStrokeColorResolved = { resolvedStrokeColor = it }
-                )
+        // Force dark mode in Robolectric BEFORE setContent
+        val config = RuntimeEnvironment.getApplication().resources.configuration
+        val originalUiMode = config.uiMode
+        config.uiMode = (config.uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or
+                        Configuration.UI_MODE_NIGHT_YES
+        RuntimeEnvironment.getApplication().onConfigurationChanged(config)
+
+        try {
+            composeTestRule.setContent {
+                ThemeContent {
+                    MapSketchAnimationLayer(
+                        path = listOf(LatLng(0.0, 0.0), LatLng(1.0, 1.0)),
+                        onStrokeColorResolved = { resolvedStrokeColor = it },
+                    )
+                }
             }
+
+            composeTestRule.mainClock.advanceTimeBy(100L)
+
+            // EXCLUSIVE assertion — must equal the DARK token
+            assertThat(resolvedStrokeColor).isEqualTo(GeneratedTokens.color.Route.dark.best)
+        } finally {
+            // Restore so other tests don't inherit dark mode
+            config.uiMode = originalUiMode
+            RuntimeEnvironment.getApplication().onConfigurationChanged(config)
         }
-
-        composeTestRule.mainClock.advanceTimeBy(1L)
-
-        // Resolve color; in Robolectric it will be either light or dark depending on system config
-        // The important check is that the value matches one of the token values (not a hex literal)
-        assertThat(resolvedStrokeColor).isNotNull()
-        val isDarkTheme = resolvedStrokeColor == GeneratedTokens.color.Route.dark.best
-        val isLightTheme = resolvedStrokeColor == GeneratedTokens.color.Route.best
-        assertThat(isDarkTheme || isLightTheme).isTrue()
     }
 }
