@@ -1,0 +1,136 @@
+import LaneShadowTheme
+import os
+import SwiftUI
+
+// MARK: - Live Content Rendering (planning state with real view model)
+
+extension PlanningScreen {
+    /// Renders the planning state composition with capsule + indicator overlay + map controls
+    func liveContent(for liveState: PlanningScreenLiveState) -> some View {
+        ZStack(alignment: .trailing) {
+            LSMapLayer(
+                map: {
+                    mapView
+                },
+                topOverlays: [
+                    GlassOverlaySlot(
+                        id: "context-capsule",
+                        content: { liveCapsuleView(for: liveState) }
+                    ),
+                    GlassOverlaySlot(
+                        id: "phase-indicator",
+                        content: { livePhaseIndicatorView(for: liveState) }
+                    ),
+                ],
+                bottomOverlays: [
+                    GlassOverlaySlot(
+                        id: "chat-input",
+                        content: { liveBottomOverlay(for: liveState) }
+                    ),
+                ],
+                topBar: {
+                    LSTopBar(
+                        trailing: .none,
+                        onMenuTap: {
+                            onRequestCancelConfirmation()
+                        },
+                        onNewTap: {}
+                    )
+                }
+            )
+            .accessibilityIdentifier("planningscreen")
+
+            // Map controls positioned at vertical center of right edge (planning state config)
+            VStack {
+                Spacer()
+                mapControlsView
+                Spacer()
+            }
+            .padding(.trailing, theme.space.md)
+        }
+    }
+
+    /// Map controls workbar for planning state (recenter + mode toggle)
+    var mapControlsView: some View {
+        LSMapControls(
+            mode: .map,
+            hasRouteToSave: false,
+            isSavedRoute: false,
+            onRecenter: {
+                Logger().info("[PLAN-S08-IOS-T02] Recenter in planning mode — wiring to camera controller deferred to PLAN-S08-IOS-T04")
+            },
+            onToggleView: {
+                Logger().info("[PLAN-S08-IOS-T02] Toggle mode (planning→idle) — wiring deferred to PLAN-S08-IOS-T04")
+            }
+        )
+        .accessibilityIdentifier("planningscreen-controls")
+    }
+
+    /// Context capsule showing planning state headline
+    func liveCapsuleView(for liveState: PlanningScreenLiveState) -> some View {
+        LSContextCapsule(
+            state: .planning(headline: liveState.capsuleHeadline)
+        )
+        .accessibilityIdentifier("planningscreen-context-capsule")
+    }
+
+    /// Phase indicator with optional error banner below
+    func livePhaseIndicatorView(for liveState: PlanningScreenLiveState) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            LSPhaseIndicator(
+                phases: liveState.phases,
+                header: liveState.capsuleHeadline,
+                showWarningChrome: liveState.errorMessage != nil
+            )
+            .accessibilityIdentifier("planningscreen-phase-indicator")
+
+            if let errorMessage = liveState.errorMessage {
+                liveErrorBanner(errorMessage)
+            }
+        }
+    }
+
+    /// Bottom overlay: chat transcript + chat input (locked when thinking)
+    func liveBottomOverlay(for liveState: PlanningScreenLiveState) -> some View {
+        VStack(alignment: .leading, spacing: theme.space.md) {
+            LSChatTranscript(
+                messages: liveState.messages,
+                isTyping: liveState.isThinking || liveState.isSending,
+                onRetry: onRetry
+            )
+            .accessibilityIdentifier("planningscreen-transcript")
+
+            LSChatInput(
+                value: $chatInputValue,
+                placeholder: "Refine your ride…",
+                onSend: onSend,
+                onCollapse: onCollapse,
+                onFilter: {},
+                isThinking: liveState.isThinking,
+                isEnabled: !liveState.isThinking
+            )
+            .accessibilityIdentifier("planningscreen-chat-input")
+        }
+        .padding(.horizontal, theme.space.md)
+        .padding(.bottom, theme.space.md)
+    }
+
+    /// Inline error banner (red border card)
+    func liveErrorBanner(_ message: String) -> some View {
+        Text(message)
+            .font(theme.type.body.sm.font)
+            .foregroundStyle(LaneShadowTheme.color.content.primary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(theme.space.md)
+            .background(LaneShadowTheme.color.surface.card)
+            .overlay(
+                RoundedRectangle(cornerRadius: theme.radius.lg)
+                    .stroke(
+                        LaneShadowTheme.color.status.warning.default,
+                        lineWidth: theme.borderWidth.thin
+                    )
+            )
+            .padding(.bottom, theme.space.sm)
+            .accessibilityIdentifier("planningscreen-inline-error")
+    }
+}

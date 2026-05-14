@@ -37,19 +37,19 @@ extension Animation {
 /// Composes `LSMapLayer`, `LSTopBar`, `LSPhaseIndicator`, parsing polyline animation,
 /// and `LSChatInput` (disabled, with spinner) sourced from `PlanningMockProvider`.
 public struct PlanningScreen: View {
-    @Environment(\.theme) private var theme
+    @Environment(\.theme) var theme
 
     private let provider: PlanningMockProvider.Type
     private let activePhase: Int
     private let state: PlanningScreenState
-    private let liveState: PlanningScreenLiveState?
+    let liveState: PlanningScreenLiveState?
 
-    @State private var chatInputValue: String = ""
+    @State var chatInputValue: String = ""
     private let onMenuTap: () -> Void
-    private let onCollapse: () -> Void
-    private let onSend: (String) -> Void
-    private let onRetry: (String) -> Void
-    private let onRequestCancelConfirmation: () -> Void
+    let onCollapse: () -> Void
+    let onSend: (String) -> Void
+    let onRetry: (String) -> Void
+    let onRequestCancelConfirmation: () -> Void
 
     public init(
         provider: PlanningMockProvider.Type = PlanningMockProvider.self,
@@ -101,13 +101,13 @@ public struct PlanningScreen: View {
                         GlassOverlaySlot(
                             id: "phase-indicator",
                             content: { phaseIndicatorView }
-                        ),
+                        )
                     ],
                     bottomOverlays: [
                         GlassOverlaySlot(
                             id: "chat-input",
                             content: { chatInputView }
-                        ),
+                        )
                     ],
                     topBar: {
                         LSTopBar(
@@ -203,7 +203,7 @@ public struct PlanningScreen: View {
 
     // MARK: - Map
 
-    private var mapView: some View {
+    var mapView: some View {
         ZStack {
             LSMap(
                 mode: .preview,
@@ -231,23 +231,9 @@ public struct PlanningScreen: View {
             .accessibilityIdentifier("planningscreen-sketch-polyline")
     }
 
-    // MARK: - Theme Tokens for Parsing Polyline
-
-    private var parsingLineWidth: CGFloat {
-        // Use border thick token for parsing line width
-        theme.borderWidth.thick
-    }
-
-    private var parsingDashPattern: [CGFloat] {
-        // Dash pattern: [dash length, gap length]
-        // Use space tokens for semantic dash pattern
-        [theme.space.sm, theme.space.md]
-    }
-
-    private var breathingDotSize: CGFloat {
-        // Use label small font size as semantic dimension for dot
-        theme.type.label.sm.fontSize
-    }
+    private var parsingLineWidth: CGFloat { theme.borderWidth.thick }
+    private var parsingDashPattern: [CGFloat] { [theme.space.sm, theme.space.md] }
+    private var breathingDotSize: CGFloat { theme.type.label.sm.fontSize }
 
     // MARK: - Phase Indicator
 
@@ -336,129 +322,6 @@ public struct PlanningScreen: View {
             isEnabled: !state.isThinking
         )
         .accessibilityIdentifier("planningscreen-chat-input")
-    }
-
-    private func liveContent(for liveState: PlanningScreenLiveState) -> some View {
-        ZStack(alignment: .trailing) {
-            LSMapLayer(
-                map: {
-                    mapView
-                },
-                topOverlays: [
-                    GlassOverlaySlot(
-                        id: "context-capsule",
-                        content: { liveCapsuleView(for: liveState) }
-                    ),
-                    GlassOverlaySlot(
-                        id: "phase-indicator",
-                        content: { livePhaseIndicatorView(for: liveState) }
-                    ),
-                ],
-                bottomOverlays: [
-                    GlassOverlaySlot(
-                        id: "chat-input",
-                        content: { liveBottomOverlay(for: liveState) }
-                    ),
-                ],
-                topBar: {
-                    LSTopBar(
-                        trailing: .none,
-                        onMenuTap: {
-                            onRequestCancelConfirmation()
-                        },
-                        onNewTap: {}
-                    )
-                }
-            )
-            .accessibilityIdentifier("planningscreen")
-
-            // Map controls positioned at vertical center of right edge (planning state config)
-            VStack {
-                Spacer()
-                mapControlsView
-                Spacer()
-            }
-            .padding(.trailing, theme.space.md)
-        }
-    }
-
-    private var mapControlsView: some View {
-        LSMapControls(
-            mode: .map,
-            hasRouteToSave: false,
-            isSavedRoute: false,
-            onRecenter: {
-                Logger().info("[PLAN-S08-IOS-T02] Recenter in planning mode — wiring to camera controller deferred to PLAN-S08-IOS-T04")
-            },
-            onToggleView: {
-                Logger().info("[PLAN-S08-IOS-T02] Toggle mode (planning→idle) — wiring deferred to PLAN-S08-IOS-T04")
-            }
-        )
-        .accessibilityIdentifier("planningscreen-controls")
-    }
-
-    private func liveCapsuleView(for liveState: PlanningScreenLiveState) -> some View {
-        LSContextCapsule(
-            state: .planning(headline: liveState.capsuleHeadline)
-        )
-        .accessibilityIdentifier("planningscreen-context-capsule")
-    }
-
-    private func livePhaseIndicatorView(for liveState: PlanningScreenLiveState) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            LSPhaseIndicator(
-                phases: liveState.phases,
-                header: liveState.capsuleHeadline,
-                showWarningChrome: liveState.errorMessage != nil
-            )
-            .accessibilityIdentifier("planningscreen-phase-indicator")
-
-            if let errorMessage = liveState.errorMessage {
-                liveErrorBanner(errorMessage)
-            }
-        }
-    }
-
-    private func liveBottomOverlay(for liveState: PlanningScreenLiveState) -> some View {
-        VStack(alignment: .leading, spacing: theme.space.md) {
-            LSChatTranscript(
-                messages: liveState.messages,
-                isTyping: liveState.isThinking || liveState.isSending,
-                onRetry: onRetry
-            )
-            .accessibilityIdentifier("planningscreen-transcript")
-
-            LSChatInput(
-                value: $chatInputValue,
-                placeholder: "Refine your ride…",
-                onSend: onSend,
-                onCollapse: onCollapse,
-                onFilter: {},
-                isThinking: liveState.isThinking,
-                isEnabled: !liveState.isThinking
-            )
-            .accessibilityIdentifier("planningscreen-chat-input")
-        }
-        .padding(.horizontal, theme.space.md)
-        .padding(.bottom, theme.space.md)
-    }
-
-    private func liveErrorBanner(_ message: String) -> some View {
-        Text(message)
-            .font(theme.type.body.sm.font)
-            .foregroundStyle(LaneShadowTheme.color.content.primary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(theme.space.md)
-            .background(LaneShadowTheme.color.surface.card)
-            .overlay(
-                RoundedRectangle(cornerRadius: theme.radius.lg)
-                    .stroke(
-                        LaneShadowTheme.color.status.warning.default,
-                        lineWidth: theme.borderWidth.thin
-                    )
-            )
-            .padding(.bottom, theme.space.sm)
-            .accessibilityIdentifier("planningscreen-inline-error")
     }
 }
 
