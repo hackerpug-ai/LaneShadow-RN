@@ -101,13 +101,13 @@ public struct PlanningScreen: View {
                         GlassOverlaySlot(
                             id: "phase-indicator",
                             content: { phaseIndicatorView }
-                        ),
+                        )
                     ],
                     bottomOverlays: [
                         GlassOverlaySlot(
                             id: "chat-input",
                             content: { chatInputView }
-                        ),
+                        )
                     ],
                     topBar: {
                         LSTopBar(
