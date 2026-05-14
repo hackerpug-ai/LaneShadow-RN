@@ -10,6 +10,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -34,6 +36,8 @@ import com.laneshadow.ui.atoms.TypographyVariant
  * @param onCancel Callback when cancel button is tapped
  * @param onDismiss Callback when dialog is dismissed without action
  * @param modifier Modifier for the dialog content
+ * @param keepButtonModifier Optional modifier for the keep button (for testTags, etc.)
+ * @param cancelButtonModifier Optional modifier for the cancel button (for testTags, etc.)
  */
 @Composable
 fun LSCancelConfirmSheet(
@@ -45,6 +49,8 @@ fun LSCancelConfirmSheet(
     onCancel: () -> Unit,
     onDismiss: () -> Unit = {},
     modifier: Modifier = Modifier,
+    keepButtonModifier: Modifier = Modifier,
+    cancelButtonModifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
 
@@ -72,7 +78,10 @@ fun LSCancelConfirmSheet(
                         color = theme.colors.surface.default,
                         shape = RoundedCornerShape(theme.radius.xl),
                     )
-                    .padding(theme.space.lg),
+                    .padding(theme.space.lg)
+                    .semantics(mergeDescendants = false) {
+                        contentDescription = "Confirmation dialog"
+                    },
                 verticalArrangement = Arrangement.spacedBy(theme.space.md),
             ) {
                 // Title
@@ -101,7 +110,9 @@ fun LSCancelConfirmSheet(
                         label = keepLabel,
                         variant = ButtonVariant.Tertiary,
                         onClick = onKeep,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .then(keepButtonModifier),
                     )
 
                     // Cancel button (signal - primary filled with signal color)
@@ -109,7 +120,9 @@ fun LSCancelConfirmSheet(
                         label = cancelLabel,
                         variant = ButtonVariant.Primary,
                         onClick = onCancel,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .then(cancelButtonModifier),
                     )
                 }
             }

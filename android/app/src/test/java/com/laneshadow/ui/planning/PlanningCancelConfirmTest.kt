@@ -58,7 +58,8 @@ class PlanningCancelConfirmTest {
      * GIVEN the planning composition is rendered with isThinking = true
      * WHEN the user invokes the back gesture (taps onCollapse)
      * THEN PlanningCancelConfirmSheet opens (V02 variant) with proper semantics;
-     * the sheet is conditionally rendered when showCancelConfirm is true
+     * the sheet is conditionally rendered when showCancelConfirm is true;
+     * buttons are reachable via testTag
      *
      * Verify: PlanningScreen conditionally renders PlanningCancelConfirmSheet
      */
@@ -86,6 +87,24 @@ class PlanningCancelConfirmTest {
         assertTrue(
             "PlanningCancelConfirmSheet must have onDismiss callback",
             source.contains("onDismiss = onDismissCancelConfirm")
+        )
+
+        // Verify button testTags are attached
+        val sheetSource = File("src/main/java/com/laneshadow/ui/planning/PlanningCancelConfirmSheet.kt").readText()
+        assertTrue(
+            "PlanningCancelConfirmSheet must have cancel-button testTag",
+            sheetSource.contains("planning.cancel-confirm.cancel-button")
+        )
+
+        assertTrue(
+            "PlanningCancelConfirmSheet must have keep-button testTag",
+            sheetSource.contains("planning.cancel-confirm.keep-button")
+        )
+
+        // Verify dialog semantics
+        assertTrue(
+            "PlanningCancelConfirmSheet must have contentDescription for dialog",
+            sheetSource.contains("contentDescription = \"Cancel planning confirmation\"")
         )
     }
 
@@ -138,28 +157,62 @@ class PlanningCancelConfirmTest {
      * WHEN PlanningScreenContainer observes the transition
      * THEN the navigation callback is invoked to return to idle
      *
-     * Verify: ViewModel emits PlanningTransition.Cancelled and has consumeTransition()
+     * Verify: PlanningScreenContainer observes transition and calls onReturnToIdle
      */
     @Test
     fun cancelled_transition_triggers_return_to_idle_without_remount() {
-        val viewModelSource = File("src/main/java/com/laneshadow/ui/planning/PlanningViewModel.kt").readText()
+        val containerSource = File("src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt").readText()
 
-        // Must emit PlanningTransition.Cancelled on cancel success
+        // Must observe PlanningTransition.Cancelled in LaunchedEffect
         assertTrue(
-            "PlanningViewModel must emit PlanningTransition.Cancelled on cancel success",
-            viewModelSource.contains("PlanningTransition.Cancelled")
+            "PlanningScreenContainer must observe transition in LaunchedEffect",
+            containerSource.contains("LaunchedEffect(uiState.transition)") &&
+                containerSource.contains("PlanningTransition.Cancelled")
         )
 
-        // Must have consumeTransition() function to clear the transition
+        // Must invoke onReturnToIdle when Cancelled transition observed
         assertTrue(
-            "PlanningViewModel must have consumeTransition() function",
-            viewModelSource.contains("fun consumeTransition()")
+            "Container must call onReturnToIdle when Cancelled transition observed",
+            containerSource.contains("onReturnToIdle()")
         )
 
-        // Must set transition = null in consumeTransition
+        // Must call consumeTransition() to clear the transition
         assertTrue(
-            "consumeTransition must set transition = null",
-            viewModelSource.contains("transition = null")
+            "Container must call viewModel.consumeTransition()",
+            containerSource.contains("viewModel.consumeTransition()")
+        )
+    }
+
+    /**
+     * AC-5b — BackHandler intercepts system back gesture
+     *
+     * GIVEN the planning screen is showing with cancel-confirm sheet visible
+     * WHEN the user triggers system back gesture
+     * THEN BackHandler dismisses the sheet without navigating away
+     *
+     * Verify: PlanningScreenContainer has BackHandler wired
+     */
+    @Test
+    fun back_handler_intercepts_system_back() {
+        val containerSource = File("src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt").readText()
+
+        // Must have BackHandler import
+        assertTrue(
+            "PlanningScreenContainer must import BackHandler",
+            containerSource.contains("BackHandler")
+        )
+
+        // Must check showCancelConfirm to decide whether to dismiss or request cancel
+        assertTrue(
+            "BackHandler must check showCancelConfirm state",
+            containerSource.contains("if (uiState.showCancelConfirm)") &&
+                containerSource.contains("viewModel.dismissCancelConfirm()")
+        )
+
+        // Must call requestCancel if sheet not showing
+        assertTrue(
+            "BackHandler must call requestCancel when sheet not showing",
+            containerSource.contains("viewModel.requestCancel()")
         )
     }
 
@@ -199,6 +252,24 @@ class PlanningCancelConfirmTest {
         assertTrue(
             "PlanningScreenContainer must use theme tokens, not hardcoded colors",
             !containerSource.contains("Color(0x")
+        )
+
+        // Verify LSCancelConfirmSheet has button modifier support
+        val sheetSource = File("src/main/java/com/laneshadow/ui/molecules/LSCancelConfirmSheet.kt").readText()
+        assertTrue(
+            "LSCancelConfirmSheet must have keepButtonModifier parameter",
+            sheetSource.contains("keepButtonModifier: Modifier")
+        )
+
+        assertTrue(
+            "LSCancelConfirmSheet must have cancelButtonModifier parameter",
+            sheetSource.contains("cancelButtonModifier: Modifier")
+        )
+
+        // Verify dialog semantics are set
+        assertTrue(
+            "LSCancelConfirmSheet must have contentDescription semantic",
+            sheetSource.contains("contentDescription = \"Confirmation dialog\"")
         )
     }
 }

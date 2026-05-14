@@ -1,5 +1,6 @@
 package com.laneshadow.ui.planning
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,6 +47,16 @@ fun PlanningScreenContainer(
 
     // AC-5: Collect state as state with lifecycle
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+
+    // AC-5: Handle system back gesture — if cancel sheet is showing, dismiss it;
+    // otherwise request cancel (which opens the sheet)
+    BackHandler {
+        if (uiState.showCancelConfirm) {
+            viewModel.dismissCancelConfirm()
+        } else {
+            viewModel.requestCancel()
+        }
+    }
 
     // AC-5: Observe transition and invoke onReturnToIdle when cancelled
     LaunchedEffect(uiState.transition) {

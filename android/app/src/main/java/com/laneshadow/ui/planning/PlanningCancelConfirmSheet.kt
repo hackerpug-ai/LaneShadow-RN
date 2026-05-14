@@ -31,8 +31,7 @@ fun PlanningCancelConfirmSheet(
     modifier: Modifier = Modifier,
 ) {
     // Delegate to LSCancelConfirmSheet with planning-specific text and testTags
-    // LSCancelConfirmSheet doesn't support testTags on buttons, so we layer them here
-    // via semantics for accessibility and testing
+    // Pass button-specific testTags via keepButtonModifier and cancelButtonModifier
     LSCancelConfirmSheet(
         title = "Cancel this plan?",
         body = "I've drawn one route already. You can back out now — but I'll toss what I have.",
@@ -43,8 +42,10 @@ fun PlanningCancelConfirmSheet(
         onDismiss = onDismiss,
         modifier = modifier
             .testTag("planning.cancel-confirm")
-            .semantics {
+            .semantics(mergeDescendants = false) {
                 contentDescription = "Cancel planning confirmation"
             },
+        keepButtonModifier = Modifier.testTag("planning.cancel-confirm.keep-button"),
+        cancelButtonModifier = Modifier.testTag("planning.cancel-confirm.cancel-button"),
     )
 }
