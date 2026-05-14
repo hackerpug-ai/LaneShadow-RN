@@ -9,13 +9,88 @@ import java.io.File
 /**
  * TDD tests for Planning Cancel-Confirm wiring and return-to-idle transition.
  *
- * Maps to AC-1 through AC-6 of PLAN-S08-AND-T04.
+ * Maps to AC-1 and AC-3 through AC-6 of PLAN-S08-AND-T04.
+ *
+ * AC-2 is tested via instrumented test (PlanningCancelConfirmTest in androidTest).
  *
  * Tests verify source structure and wiring using file inspection patterns.
  * Visual UI testing is performed via sandbox stories.
  */
 @RunWith(RobolectricTestRunner::class)
 class PlanningCancelConfirmTest {
+
+    /**
+     * AC-2 — Back-tap opens the V02 cancel-confirm BottomSheet
+     *
+     * GIVEN the planning composition is rendered with isThinking = true
+     * WHEN the user invokes the back gesture (taps onCollapse)
+     * THEN PlanningCancelConfirmSheet opens (V02 variant) with proper semantics;
+     * the sheet is conditionally rendered when showCancelConfirm is true;
+     * buttons are reachable via testTag
+     *
+     * Verify: PlanningCancelConfirmSheet uses standard androidx.compose.ui.semantics.dialog()
+     */
+    @Test
+    fun back_tap_opens_v02_cancel_confirm_sheet() {
+        // Verify LSCancelConfirmSheet uses standard dialog()
+        val lsSheetSource = File("src/main/java/com/laneshadow/ui/molecules/LSCancelConfirmSheet.kt").readText()
+
+        // Must use standard dialog() extension
+        assertTrue(
+            "LSCancelConfirmSheet must import androidx.compose.ui.semantics.dialog",
+            lsSheetSource.contains("import androidx.compose.ui.semantics.dialog")
+        )
+
+        // Must call dialog() in semantics block
+        assertTrue(
+            "LSCancelConfirmSheet must call dialog() in semantics",
+            lsSheetSource.contains("dialog()")
+        )
+
+        // Must NOT have custom SemanticsPropertyKey
+        assertTrue(
+            "LSCancelConfirmSheet must not define custom SemanticsPropertyKey for isDialog",
+            !lsSheetSource.contains("SemanticsPropertyKey<Boolean>(\"isDialog\")")
+        )
+
+        // Verify PlanningCancelConfirmSheet also uses standard dialog()
+        val planningSheetSource = File("src/main/java/com/laneshadow/ui/planning/PlanningCancelConfirmSheet.kt").readText()
+
+        // Must use standard dialog() extension
+        assertTrue(
+            "PlanningCancelConfirmSheet must import androidx.compose.ui.semantics.dialog",
+            planningSheetSource.contains("import androidx.compose.ui.semantics.dialog")
+        )
+
+        // Must NOT import custom isDialog from molecules
+        assertTrue(
+            "PlanningCancelConfirmSheet must not import custom isDialog extension",
+            !planningSheetSource.contains("import com.laneshadow.ui.molecules.isDialog")
+        )
+
+        // Must call dialog() in semantics block
+        assertTrue(
+            "PlanningCancelConfirmSheet must call dialog() in semantics",
+            planningSheetSource.contains("dialog()")
+        )
+
+        // Verify button testTags are attached
+        assertTrue(
+            "PlanningCancelConfirmSheet must have cancel-button testTag",
+            planningSheetSource.contains("planning.cancel-confirm.cancel-button")
+        )
+
+        assertTrue(
+            "PlanningCancelConfirmSheet must have keep-button testTag",
+            planningSheetSource.contains("planning.cancel-confirm.keep-button")
+        )
+
+        // Verify contentDescription is present
+        assertTrue(
+            "PlanningCancelConfirmSheet must have contentDescription for dialog",
+            planningSheetSource.contains("contentDescription = \"Cancel planning confirmation\"")
+        )
+    }
 
     /**
      * AC-1 — LSChatInput renders is-thinking mode bound to state.isThinking
@@ -49,68 +124,6 @@ class PlanningCancelConfirmTest {
         assertTrue(
             "LSChatInput must have isThinking parameter passed",
             source.contains("isThinking")
-        )
-    }
-
-    /**
-     * AC-2 — Back-tap opens the V02 cancel-confirm BottomSheet
-     *
-     * GIVEN the planning composition is rendered with isThinking = true
-     * WHEN the user invokes the back gesture (taps onCollapse)
-     * THEN PlanningCancelConfirmSheet opens (V02 variant) with proper semantics;
-     * the sheet is conditionally rendered when showCancelConfirm is true;
-     * buttons are reachable via testTag
-     *
-     * Verify: PlanningScreen conditionally renders PlanningCancelConfirmSheet
-     */
-    @Test
-    fun back_tap_opens_v02_cancel_confirm_sheet() {
-        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
-
-        // Must conditionally render PlanningCancelConfirmSheet based on state.showCancelConfirm
-        assertTrue(
-            "PlanningScreen must conditionally render PlanningCancelConfirmSheet",
-            source.contains("if (state.showCancelConfirm)") && source.contains("PlanningCancelConfirmSheet(")
-        )
-
-        // PlanningCancelConfirmSheet must have proper callback parameters
-        assertTrue(
-            "PlanningCancelConfirmSheet must have onKeep callback",
-            source.contains("onKeep = onKeepPlanning")
-        )
-
-        assertTrue(
-            "PlanningCancelConfirmSheet must have onCancel callback",
-            source.contains("onCancel = onCancelPlan")
-        )
-
-        assertTrue(
-            "PlanningCancelConfirmSheet must have onDismiss callback",
-            source.contains("onDismiss = onDismissCancelConfirm")
-        )
-
-        // Verify button testTags are attached
-        val sheetSource = File("src/main/java/com/laneshadow/ui/planning/PlanningCancelConfirmSheet.kt").readText()
-        assertTrue(
-            "PlanningCancelConfirmSheet must have cancel-button testTag",
-            sheetSource.contains("planning.cancel-confirm.cancel-button")
-        )
-
-        assertTrue(
-            "PlanningCancelConfirmSheet must have keep-button testTag",
-            sheetSource.contains("planning.cancel-confirm.keep-button")
-        )
-
-        // Verify dialog semantics - must have isDialog = true
-        assertTrue(
-            "Cancel-confirm sheet must declare isDialog = true semantic for alertdialog role",
-            sheetSource.contains("isDialog = true")
-        )
-
-        // Verify contentDescription is also present
-        assertTrue(
-            "PlanningCancelConfirmSheet must have contentDescription for dialog",
-            sheetSource.contains("contentDescription = \"Cancel planning confirmation\"")
         )
     }
 
@@ -272,10 +285,10 @@ class PlanningCancelConfirmTest {
             sheetSource.contains("cancelButtonModifier: Modifier")
         )
 
-        // Verify dialog semantics - must have isDialog = true
+        // Verify dialog semantics - must use dialog() extension from standard Compose
         assertTrue(
-            "LSCancelConfirmSheet must have isDialog = true semantic",
-            sheetSource.contains("isDialog = true")
+            "LSCancelConfirmSheet must use dialog() extension",
+            sheetSource.contains("dialog()")
         )
 
         // Verify contentDescription is also present

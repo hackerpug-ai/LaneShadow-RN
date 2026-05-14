@@ -11,9 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.SemanticsPropertyKey
-import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -24,10 +23,6 @@ import com.laneshadow.ui.atoms.LSButton
 import com.laneshadow.ui.atoms.LSScrim
 import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.TypographyVariant
-
-val LSCancelConfirmSheetIsDialogKey = SemanticsPropertyKey<Boolean>("isDialog")
-
-var SemanticsPropertyReceiver.isDialog by LSCancelConfirmSheetIsDialogKey
 
 /**
  * LSCancelConfirmSheet — A centered confirmation sheet for Planning V02.
@@ -89,7 +84,7 @@ fun LSCancelConfirmSheet(
                         )
                         .padding(theme.space.lg)
                         .semantics(mergeDescendants = false) {
-                            isDialog = true
+                            dialog()
                             contentDescription = "Confirmation dialog"
                         },
                     verticalArrangement = Arrangement.spacedBy(theme.space.md),

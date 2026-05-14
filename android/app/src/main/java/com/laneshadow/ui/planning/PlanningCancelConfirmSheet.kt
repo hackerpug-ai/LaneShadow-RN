@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import com.laneshadow.ui.molecules.LSCancelConfirmSheet
-import com.laneshadow.ui.molecules.isDialog
 
 /**
  * PlanningCancelConfirmSheet — Planning-specific cancel-confirm dialog.
@@ -44,7 +44,7 @@ fun PlanningCancelConfirmSheet(
         modifier = modifier
             .testTag("planning.cancel-confirm")
             .semantics(mergeDescendants = false) {
-                isDialog = true
+                dialog()
                 contentDescription = "Cancel planning confirmation"
             },
         keepButtonModifier = Modifier.testTag("planning.cancel-confirm.keep-button"),
