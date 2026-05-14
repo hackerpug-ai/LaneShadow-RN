@@ -22,7 +22,7 @@ final class LSMapControlsTests: XCTestCase {
             .recenter,
             .layers,
             .modeToggle,
-            .zoomCluster,
+            .zoomCluster
         ]
 
         XCTAssertEqual(appearance.chipsInOrder, expectedChips)
@@ -51,7 +51,7 @@ final class LSMapControlsTests: XCTestCase {
             .layers,
             .save(isSaved: false),
             .modeToggle,
-            .zoomCluster,
+            .zoomCluster
         ]
 
         XCTAssertEqual(appearance.chipsInOrder, expectedChips)
@@ -90,31 +90,14 @@ final class LSMapControlsTests: XCTestCase {
         XCTAssertTrue(source.contains(".frame(height: theme.borderWidth.thin)"))
     }
 
-    func test_zoom_callbacks_and_identifiers_remain_stable() throws {
-        var zoomInCount = 0
-        var zoomOutCount = 0
-
-        let appearance = LSMapControls.resolvedAppearance(
-            mode: .map,
-            hasRouteToSave: false,
-            isSavedRoute: false,
-            onZoomIn: { zoomInCount += 1 },
-            onZoomOut: { zoomOutCount += 1 },
-            onRecenter: {},
-            onLayers: {},
-            onToggleView: {},
-            in: Theme.shared
-        )
-
-        XCTAssertTrue(appearance.zoomCallbacksBound)
-        XCTAssertEqual(appearance.chipsInOrder.last, .zoomCluster)
-
+    func test_zoomCallbacks_emitPlusMinusOne() throws {
+        var zoomDeltas: [Int] = []
         let view = LSMapControls(
             mode: .map,
             hasRouteToSave: false,
             isSavedRoute: false,
-            onZoomIn: { zoomInCount += 1 },
-            onZoomOut: { zoomOutCount += 1 },
+            onZoomIn: { zoomDeltas.append(1) },
+            onZoomOut: { zoomDeltas.append(-1) },
             onRecenter: {},
             onLayers: {},
             onSaveRoute: {},
@@ -134,8 +117,7 @@ final class LSMapControlsTests: XCTestCase {
         try zoomInButton.button().tap()
         try zoomOutButton.button().tap()
 
-        XCTAssertEqual(zoomInCount, 1)
-        XCTAssertEqual(zoomOutCount, 1)
+        XCTAssertEqual(zoomDeltas, [1, -1])
     }
 
     func test_isSavedRoute_flipsToCopperSignal() {
@@ -198,7 +180,7 @@ final class LSMapControlsTests: XCTestCase {
             .layers,
             .save(isSaved: false),
             .modeToggle,
-            .zoomCluster,
+            .zoomCluster
         ]
 
         XCTAssertEqual(appearanceMapMode.chipsInOrder, expectedMapMode)
