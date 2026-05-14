@@ -24,6 +24,7 @@
 		293E7CA38C0EA35CD1365886 /* LSTagPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D7D85AC834967019608CDE /* LSTagPill.swift */; };
 		295E91B36BDF57D6B421C1B3 /* LSConfirmDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AD9FE3FF6AC9085BE220085 /* LSConfirmDialog.swift */; };
 		2A685A9BE84EC13D3483B8C8 /* TemplateStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FCE935E865EBECBA195F949 /* TemplateStories.swift */; };
+		31C95D7865710E6D53B0329F /* PlanningScreenTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF4750A20E6C2CE2DD198938 /* PlanningScreenTokenTests.swift */; };
 		323F22288BE45E90ACCC8B5C /* InfrastructureControlsStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = F70ECDFAA1C996A2AF6FEA1C /* InfrastructureControlsStories.swift */; };
 		329EEE4B089D016554E2F75B /* LSToastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7996DA2EBA1763B4956D788D /* LSToastTests.swift */; };
 		3607457D8D985DC783EDA889 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = E4B9E7FB06EF17E9BD9B418A /* SnapshotTesting */; };
@@ -156,6 +157,7 @@
 		A770CE2595F52C1DC3532F8A /* LSMapStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSMapStories.swift; sourceTree = "<group>"; };
 		A8FC588254B2DE58F4742ED7 /* LSFavoritePinDot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFavoritePinDot.swift; sourceTree = "<group>"; };
 		A9EDF4218751AC8200085830 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		AF4750A20E6C2CE2DD198938 /* PlanningScreenTokenTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlanningScreenTokenTests.swift; path = LaneShadowTests/Templates/PlanningScreenTokenTests.swift; sourceTree = "<group>"; };
 		B0E16C5B6F4121EB1CA3D72D /* LSScenicDotStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScenicDotStrip.swift; sourceTree = "<group>"; };
 		BC2DAF3B551095E08EBE0C10 /* InfrastructureStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfrastructureStories.swift; sourceTree = "<group>"; };
 		BD7360EC93AFB89C2E49D267 /* LSBottomSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSBottomSheetTests.swift; sourceTree = "<group>"; };
@@ -193,141 +195,197 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0AB6BCC041176229C63DBB62 /* Layout */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Layout;
 			sourceTree = "<group>";
 		};
 		0B23304A78B886F9A286C5E4 /* Sandbox */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Sandbox;
 			sourceTree = "<group>";
 		};
 		0E516A6442C2AA10AA5009F5 /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		10EF6247464B14DE9D738910 /* Views */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Views;
 			sourceTree = "<group>";
 		};
 		244E36879200004067F64629 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		3A78900A9AF373F5042A6135 /* Features */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Features;
 			sourceTree = "<group>";
 		};
 		3BC11B009ED26B33FC7A0333 /* Entry */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Entry;
 			sourceTree = "<group>";
 		};
 		3CE2AE4772ABC9D4A3699741 /* MockProviders */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = MockProviders;
 			sourceTree = "<group>";
 		};
 		4C8A8E02554AE3D5AC4FAC51 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		537AF6CF40C4418539754A5D /* Services */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Services;
 			sourceTree = "<group>";
 		};
 		5B8A253F72C6B3D6A21D5422 /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		5D43661EA5776DD985956D8D /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		5EE6142BB2A44D9196BC822D /* Services */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Services;
 			sourceTree = "<group>";
 		};
 		688955BA957298D0AAE2948E /* AppFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = AppFlow;
 			sourceTree = "<group>";
 		};
 		7290175E358A1C93D4A90231 /* Molecules */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Molecules;
 			sourceTree = "<group>";
 		};
 		755D85BE7B8692E8CCE9B7D0 /* Integration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Integration;
 			sourceTree = "<group>";
 		};
 		7658177809845BD7EAFD2B5F /* Environment */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Environment;
 			sourceTree = "<group>";
 		};
 		803C67E4953872CB5CCA0FA9 /* DesignSystem */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = DesignSystem;
 			sourceTree = "<group>";
 		};
 		8460D5ABD7FFE129DB373103 /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Models;
 			sourceTree = "<group>";
 		};
 		8E620526502629F2690FBBAE /* Utilities */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Utilities;
 			sourceTree = "<group>";
 		};
 		8F5AC0DC38D5B1239FAA340F /* AuthFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = AuthFlow;
 			sourceTree = "<group>";
 		};
 		8FD0535A05FA37574620A6CA /* Helpers */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Helpers;
 			sourceTree = "<group>";
 		};
 		9B1969E887592C82E1672459 /* Launch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Launch;
 			sourceTree = "<group>";
 		};
 		A1DA24033B9915EAB116ED62 /* Generated */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Generated;
 			sourceTree = "<group>";
 		};
 		A8E49074235FCF05900AA173 /* LaneShadowUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = LaneShadowUITests;
 			sourceTree = "<group>";
 		};
 		B6F7522A945FCE6E9220905B /* Features */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Features;
 			sourceTree = "<group>";
 		};
 		B92913E9843A5845817A3DBD /* Controls */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Controls;
 			sourceTree = "<group>";
 		};
 		C1C1554F3F09845975235612 /* Utilities */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Utilities;
 			sourceTree = "<group>";
 		};
@@ -341,16 +399,22 @@
 		};
 		CF77ECAB776F34B039A160CA /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		D026D3B873FDE7B7153F206F /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		E5E2F792F8318B064762B018 /* Theme */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = Theme;
 			sourceTree = "<group>";
 		};
@@ -383,6 +447,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0C5301E90BCB38E5B00236B3 /* LaneShadowTests */ = {
+			isa = PBXGroup;
+			children = (
+				AF4750A20E6C2CE2DD198938 /* PlanningScreenTokenTests.swift */,
+			);
+			name = LaneShadowTests;
+			sourceTree = "<group>";
+		};
 		1F10FC2E199EFDF6EFDFEDA8 /* Sandbox */ = {
 			isa = PBXGroup;
 			children = (
@@ -498,6 +570,7 @@
 				0A5A63FC5750EC47FC36E0DC /* Assets.xcassets */,
 				F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */,
 				93E2A5636744C52173464018 /* RootView.swift */,
+				0C5301E90BCB38E5B00236B3 /* LaneShadowTests */,
 			);
 			path = LaneShadow;
 			sourceTree = "<group>";
@@ -659,8 +732,6 @@
 				A8E49074235FCF05900AA173 /* LaneShadowUITests */,
 			);
 			name = LaneShadowUITests;
-			packageProductDependencies = (
-			);
 			productName = LaneShadowUITests;
 			productReference = EF4B1C18D8FD1069B42CB70D /* LaneShadowUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -737,8 +808,8 @@
 				B661C63E1ACC8A649A046360 /* XCRemoteSwiftPackageReference "mapbox-maps-ios" */,
 				15EF0D9EB05071BCFDAB5F3D /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
 				E60D5EE87AD2B6F3ECB752C9 /* XCRemoteSwiftPackageReference "ViewInspector" */,
-				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */,
-				587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */,
+				47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "swift" */,
+				587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A409E156DCE522478E497BB1 /* Products */;
@@ -906,6 +977,7 @@
 				A35AB3F139C3CDEBBED3C838 /* MotionTests.swift in Sources */,
 				21D966799A18DF7B8AF9A057 /* RouteResultsDetailsVariantTests.swift in Sources */,
 				DB7CE61E13E9E0BCC6BF9B2D /* SessionsErrorVariantTests.swift in Sources */,
+				31C95D7865710E6D53B0329F /* PlanningScreenTokenTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1229,11 +1301,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "../tokens/platforms/swift" */ = {
+		47209CE6204C4DADCDF34113 /* XCLocalSwiftPackageReference "swift" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../tokens/platforms/swift;
 		};
-		587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "/Users/justinrich/Projects/native-sandbox/ios" */ = {
+		587371FD07BE144F164B83FF /* XCLocalSwiftPackageReference "ios" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = "/Users/justinrich/Projects/native-sandbox/ios";
 		};

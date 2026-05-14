@@ -297,7 +297,7 @@ struct PlanningScreenCompositionTests {
         #expect(hostingController.view != nil)
 
         // Capture reference to the initial map view hierarchy element
-        let initialViewCount = hostingController.view.allSubviews().count
+        let initialViewCount = hostingController.view.allSubviews.count
 
         // Update state to shouldRenderMap=false (transition)
         // The map must remain in the view hierarchy (invisible, not removed)
@@ -323,7 +323,7 @@ struct PlanningScreenCompositionTests {
 
         // After state transition, the map element should still be in the hierarchy
         // (not conditionally removed via: if shouldRenderMap { mapView } else { Color.clear })
-        let afterViewCount = hostingController.view.allSubviews().count
+        let afterViewCount = hostingController.view.allSubviews.count
 
         // If the view hierarchy stays largely the same (within ~10% variance due to layout),
         // the map was preserved (hidden via opacity), not remounted (which would change count).
@@ -332,8 +332,7 @@ struct PlanningScreenCompositionTests {
 
         #expect(
             countVariance <= maxAcceptableVariance,
-            "Map element must be preserved across shouldRenderMap transition (identity preserved); "
-            + "view count variance: \(countVariance) (initial: \(initialViewCount), after: \(afterViewCount))"
+            "Map element must be preserved (view count variance: \(countVariance))"
         )
     }
 
