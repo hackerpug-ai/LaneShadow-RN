@@ -35,11 +35,13 @@ struct SketchingPolyline: View {
 
                 // Breathing leading dot with recipe-driven animation
                 let breathingRecipe = breathingDotAnimationRecipe(in: theme)
+                let shadowOpacitySoft = theme.opacity.values["25"] ?? 0.25
+                let shadowOpacityMedium = theme.opacity.values["40"] ?? 0.4
                 Circle()
                     .fill(theme.colors.primary.default)
                     .frame(width: theme.type.label.sm.fontSize, height: theme.type.label.sm.fontSize)
-                    .shadow(color: theme.colors.primary.default.opacity(0.25), radius: theme.space.sm)
-                    .shadow(color: theme.colors.primary.default.opacity(0.4), radius: theme.space.md)
+                    .shadow(color: theme.colors.primary.default.opacity(shadowOpacitySoft), radius: theme.space.sm)
+                    .shadow(color: theme.colors.primary.default.opacity(shadowOpacityMedium), radius: theme.space.md)
                     .opacity(isAnimating ? breathingRecipe.endOpacity : breathingRecipe.startOpacity)
                     .animation(Animation.breathingHeadDot(theme: theme), value: isAnimating)
                     .position(
@@ -63,6 +65,7 @@ struct SketchingPolyline: View {
         let recipe = theme.motion.recipes["breathingHeadDot"]
         let duration = recipe?.duration ?? 1400
         let easing = recipe?.easing ?? [0.4, 0, 0.2, 1]
+        let endOpacity = theme.opacity.values["55"] ?? 0.55
 
         return BreathingDotRecipe(
             name: "motion.recipe.breathingHeadDot",
@@ -70,7 +73,7 @@ struct SketchingPolyline: View {
             easing: easing,
             scaleRange: 1.0 ... 1.0, // No scale change, only opacity
             startOpacity: 1.0,
-            endOpacity: 0.55, // Breaths from 1.0 to 0.55
+            endOpacity: endOpacity, // Breaths from 1.0 to configured opacity
             repeats: true,
             autoreverses: true
         )

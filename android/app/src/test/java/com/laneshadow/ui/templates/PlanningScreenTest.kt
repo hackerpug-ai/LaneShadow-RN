@@ -652,4 +652,69 @@ class PlanningScreenTest {
             source.contains("handlers = MapControlsHandlers(")
         )
     }
+
+    /**
+     * PLAN-S08-AND-T03 Cycle 2 Integration Test
+     *
+     * Verifies that MapSketchAnimationLayer is wired into PlanningScreen
+     * and the Bay Area hardcoded fallback has been eliminated.
+     *
+     * GIVEN: PlanningScreen after PLAN-S08-AND-T03 cycle 2
+     * WHEN: Source is inspected
+     * THEN: MapSketchAnimationLayer is composed, state.sketchRoute is used for camera center,
+     *       and no hardcoded Bay Area LatLng fallback remains
+     */
+    @Test
+    fun sketch_polyline_uses_map_sketch_animation_layer() {
+        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
+
+        // Must import MapSketchAnimationLayer
+        assertTrue(
+            "PlanningScreen must import MapSketchAnimationLayer from ui.atoms",
+            source.contains("import com.laneshadow.ui.atoms.MapSketchAnimationLayer")
+        )
+
+        // Must compose MapSketchAnimationLayer as the animation overlay
+        assertTrue(
+            "PlanningScreen must compose MapSketchAnimationLayer",
+            source.contains("MapSketchAnimationLayer(")
+        )
+
+        // Must wire state.sketchRoute to the animation layer
+        assertTrue(
+            "PlanningScreen must wire state.sketchRoute to MapSketchAnimationLayer path parameter",
+            source.contains("state.sketchRoute")
+        )
+
+        // Must use state.sketchRoute for camera center (not hardcoded fallback)
+        assertTrue(
+            "PlanningScreen must compute camera center from state.sketchRoute.firstOrNull()",
+            source.contains("state.sketchRoute?.firstOrNull()")
+        )
+
+        // Must NOT have hardcoded Bay Area LatLng fallback (37.8104, -122.4752, etc.)
+        assertFalse(
+            "PlanningScreen must NOT have hardcoded Bay Area LatLng(37.81..., -122.47...)",
+            source.contains("LatLng(37.81") || source.contains("LatLng(37.8104")
+        )
+
+        // Must NOT have the old inline sketchingPolyline PolylineData definition
+        assertFalse(
+            "PlanningScreen must NOT have old inline 'val sketchingPolyline = PolylineData(...)' definition",
+            source.contains("val sketchingPolyline")
+        )
+
+        // Must NOT pass polylines parameter to LSMap (animation layer handles it)
+        val lsMapBlock = source.substringAfter("LSMap(").substringBefore(")").substringBefore("modifier")
+        assertFalse(
+            "LSMap must NOT receive polylines parameter (MapSketchAnimationLayer handles animation)",
+            lsMapBlock.contains("polylines")
+        )
+
+        // Must have testTag for the animation layer
+        assertTrue(
+            "MapSketchAnimationLayer must have testTag for verification",
+            source.contains("testTag(\"planning.sketch-animation-layer\")")
+        )
+    }
 }

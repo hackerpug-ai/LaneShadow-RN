@@ -2,11 +2,6 @@ package com.laneshadow.ui.templates
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.Easing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,16 +18,14 @@ import com.laneshadow.ui.atoms.CameraPosition
 import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.ui.atoms.LSMap
 import com.laneshadow.ui.atoms.MapMode
+import com.laneshadow.ui.atoms.MapSketchAnimationLayer
 import com.laneshadow.ui.atoms.PhaseDotState
-import com.laneshadow.ui.atoms.PolylineData
-import com.laneshadow.ui.atoms.RouteVariant
 import com.laneshadow.ui.molecules.LSChatInput
 import com.laneshadow.ui.planning.PlanningCancelConfirmSheet
 import com.laneshadow.ui.molecules.LSContextCapsule
 import com.laneshadow.ui.molecules.LSPhaseIndicator
 import com.laneshadow.ui.molecules.PlanningPhase
 import com.laneshadow.ui.molecules.CapsuleState
-import com.laneshadow.theme.LSMotion
 import com.laneshadow.ui.organisms.GlassOverlaySlot
 import com.laneshadow.ui.organisms.LSMapLayer
 import com.laneshadow.ui.organisms.LSMapControls
@@ -43,6 +36,7 @@ import com.laneshadow.ui.organisms.MapControlsMode
 /**
  * Data class representing a sketch polyline animation recipe based on motion tokens.
  *
+ * Used by MapSketchAnimationLayer to drive the animated sketch polyline.
  * Reads from `LaneShadowTheme.motion.recipe.sketchPolylineLoop` which specifies:
  * - duration: motion.duration.verySlow (1400ms)
  * - easing: motion.easing.linear
@@ -62,6 +56,7 @@ internal data class SketchPolylineRecipe(
  * - motion.easing["linear"]
  *
  * Fails hard if tokens are unavailable (no fallback to hardcoded values).
+ * Shared by PlanningScreen and MapSketchAnimationLayer.
  */
 internal fun sketchPolylineRecipe(theme: LaneShadowThemeValues): SketchPolylineRecipe {
     // Must use verySlow (1400ms) for sketch polyline loop animation
@@ -126,45 +121,29 @@ fun PlanningScreen(
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
-    val sketchRecipe = sketchPolylineRecipe(theme)
 
-    // Animate polyline path-draw progress using LSMotion helper
-    val infiniteTransition = rememberInfiniteTransition(label = "sketch_polyline_loop")
-    val pathProgress by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = LSMotion.sketchPolylineLoop(
-            durationMillis = sketchRecipe.durationMillis,
-            easing = sketchRecipe.easing
-        ),
-        label = "sketch_polyline_progress",
-    )
-
-    // Create sketching polyline from state or use sample fallback
-    // In production, coordinates come from the route data via state.sketchRoute
-    // (populated by PLAN-S08-AND-T03 once route is available)
-    val sketchingPolyline = PolylineData(
-        coordinates = state.sketchRoute ?: listOf(
-            LatLng(37.8104, -122.4752),
-            LatLng(37.8120, -122.4760),
-            LatLng(37.8150, -122.4800),
-            LatLng(37.8180, -122.4850),
-        ),
-        variant = RouteVariant.Best,
-        drawProgress = pathProgress,
-    )
+    // Compute camera center from sketch route, or default to equator/prime meridian
+    // if no route is available yet (should not happen in production)
+    val cameraCenter = state.sketchRoute?.firstOrNull() ?: LatLng(0.0, 0.0)
 
     LSMapLayer(
         map = {
             LSMap(
                 mode = MapMode.Preview,
                 camera = CameraPosition(
-                    center = LatLng(37.8104, -122.4752),
+                    center = cameraCenter,
                     zoom = 11.0,
                 ),
-                polylines = listOf(sketchingPolyline),
                 modifier = Modifier.testTag("planning.map-host-instance"),
             )
+            // MapSketchAnimationLayer: overlay composable for animated sketch polyline
+            // Driven by state.sketchRoute; animates path-draw progress from 0→1 (1400ms loop)
+            if (state.sketchRoute != null) {
+                MapSketchAnimationLayer(
+                    path = state.sketchRoute,
+                    modifier = Modifier.testTag("planning.sketch-animation-layer"),
+                )
+            }
         },
         topOverlays = listOf(
             GlassOverlaySlot(
