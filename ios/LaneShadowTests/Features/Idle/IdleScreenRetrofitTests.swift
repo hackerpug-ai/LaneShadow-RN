@@ -1,6 +1,7 @@
 import LaneShadowTheme
 import SwiftUI
 import Testing
+import UIKit
 import ViewInspector
 import XCTest
 @testable import LaneShadow
@@ -33,9 +34,48 @@ private func assertLiveIdleHeaderUsesSingleTopbarContainer() throws {
     } catch {}
 }
 
+@MainActor
+private func assertIdleMapControlsVerticallyCentered() throws {
+    let viewModel = IdleViewModel(
+        chatStore: ChatStore(),
+        sessionStore: SessionStore(),
+        convexClient: StubLaneShadowConvexClient()
+    )
+    let frameStore = FrameStore()
+    let screen = IdleScreenContainer(
+        viewModel: viewModel,
+        debugFrameObserver: { identifier, frame in
+            frameStore.record(frame, for: identifier)
+        }
+    )
+    .laneShadowTheme()
+    let harness = hostIdleScreen(screen)
+    _ = harness.window
+
+    let inspected = try screen.inspect()
+    _ = try inspected.find(viewWithAccessibilityIdentifier: "idle-map-controls")
+
+    guard let mapCanvasFrame = waitForReportedFrame("idlescreen-map-canvas", in: frameStore) else {
+        XCTFail("Expected to locate a live rendered frame for the map canvas")
+        return
+    }
+
+    guard let controlsFrame = waitForReportedFrame("idle-map-controls", in: frameStore) else {
+        XCTFail("Expected to locate a live rendered frame for idle-map-controls")
+        return
+    }
+
+    let verticalDelta = abs(mapCanvasFrame.midY - controlsFrame.midY)
+    XCTAssertLessThanOrEqual(
+        verticalDelta,
+        20,
+        "Map controls midpoint should stay within 20pt of the map canvas midpoint"
+    )
+}
+
 @Suite("Idle Screen Retrofit Tests")
 @MainActor
-struct IdleScreenRetrofitSpecTests {
+struct IdleScreenRetrofitSwiftTestingSpec {
     @Test("Default idle state renders topbar prompt with greeting copy")
     func idleDefault_rendersTopBarPromptWithGreeting() async throws {
         let viewModel = IdleViewModel(
@@ -48,9 +88,11 @@ struct IdleScreenRetrofitSpecTests {
         viewModel.locationLabel = "Santa Cruz, CA"
         viewModel.metaRow = "FRIDAY · 68°F · CLEAR"
         viewModel.weatherAdvisory = nil
+        // swiftlint:disable trailing_comma
         viewModel.favoriteLocations = [
             FavoriteLocation(id: "fav-1", lat: 36.97, lon: -122.03, label: "Santa Cruz, CA"),
         ]
+        // swiftlint:enable trailing_comma
 
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let inspected = try screen.inspect()
@@ -62,22 +104,7 @@ struct IdleScreenRetrofitSpecTests {
 
     @Test("Map controls render at vertical center of right edge")
     func idle_rendersMapControlsVerticallyCentered() async throws {
-        let viewModel = IdleViewModel(
-            chatStore: ChatStore(),
-            sessionStore: SessionStore(),
-            convexClient: StubLaneShadowConvexClient()
-        )
-
-        let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
-        let inspected = try screen.inspect()
-
-        // Verify map controls are present with correct accessibility ID
-        let mapControls = try inspected.find(viewWithAccessibilityIdentifier: "idle-map-controls")
-        #expect(mapControls != nil)
-
-        // Verify the controls container exists
-        let controlsElement = try inspected.find(viewWithAccessibilityIdentifier: "lsmapcontrols")
-        #expect(controlsElement != nil)
+        try assertIdleMapControlsVerticallyCentered()
     }
 
     @Test("Advisory severity renders warning topbar prompt without legacy card")
@@ -125,8 +152,7 @@ struct IdleScreenRetrofitSpecTests {
         _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-title")
 
         // Verify controls exist in light mode
-        let controlsLight = try inspected.find(viewWithAccessibilityIdentifier: "idle-map-controls")
-        #expect(controlsLight != nil)
+        _ = try inspected.find(viewWithAccessibilityIdentifier: "idle-map-controls")
 
         // Simulate dark mode by applying colorScheme modifier
         let screenDark = screen.preferredColorScheme(.dark)
@@ -135,8 +161,7 @@ struct IdleScreenRetrofitSpecTests {
         let inspectedDark = try screenDark.inspect()
         _ = try inspectedDark.find(viewWithAccessibilityIdentifier: "lstopbar-title")
 
-        let controlsDark = try inspectedDark.find(viewWithAccessibilityIdentifier: "idle-map-controls")
-        #expect(controlsDark != nil)
+        _ = try inspectedDark.find(viewWithAccessibilityIdentifier: "idle-map-controls")
     }
 
     @Test("Location unavailable shows 'starting' headline variant")
@@ -219,6 +244,13 @@ struct IdleScreenRetrofitSpecTests {
 }
 
 @MainActor
+final class IdleScreenRetrofitSpecTests: XCTestCase {
+    func test_idle_rendersMapControlsVerticallyCentered() throws {
+        try assertIdleMapControlsVerticallyCentered()
+    }
+}
+
+@MainActor
 final class IdleScreenRetrofitTests: XCTestCase {
     func test_live_idle_header_uses_single_topbar_container() throws {
         try assertLiveIdleHeaderUsesSingleTopbarContainer()
@@ -232,6 +264,7 @@ final class IdleScreenRetrofitTests: XCTestCase {
         )
         viewModel.errorMessage = "stale error"
         viewModel.isSubmitting = true
+        // swiftlint:disable trailing_comma
         viewModel.placeAutocompleteSuggestions = [
             LaneShadowPlaceSuggestion(
                 id: "pid-1",
@@ -242,6 +275,7 @@ final class IdleScreenRetrofitTests: XCTestCase {
                 distanceMeters: nil
             ),
         ]
+        // swiftlint:enable trailing_comma
         viewModel.placeAutocompleteErrorMessage = "stale autocomplete error"
         viewModel.isPlaceAutocompleteLoading = true
         viewModel.isAutocompleteQueryActive = true
@@ -346,4 +380,55 @@ final class IdleScreenRetrofitTests: XCTestCase {
 
         return try String(contentsOf: fileURL, encoding: .utf8)
     }
+}
+
+@MainActor
+private func hostIdleScreen(_ rootView: some View) -> HostedHarness {
+    let controller = UIHostingController(rootView: AnyView(rootView))
+    controller.loadViewIfNeeded()
+    controller.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
+    let window = UIWindow(frame: controller.view.frame)
+    window.rootViewController = controller
+    window.makeKeyAndVisible()
+    controller.view.setNeedsLayout()
+    controller.view.layoutIfNeeded()
+    window.layoutIfNeeded()
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.01))
+    return HostedHarness(window: window, controller: controller)
+}
+
+@MainActor
+private func waitForReportedFrame(
+    _ identifier: String,
+    in frameStore: FrameStore,
+    timeout: TimeInterval = 1.0
+) -> CGRect? {
+    let deadline = Date().addingTimeInterval(timeout)
+
+    while Date() < deadline {
+        if let frame = frameStore.frame(for: identifier) {
+            return frame
+        }
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.01))
+    }
+
+    return nil
+}
+
+@MainActor
+private final class FrameStore {
+    private var frames: [String: CGRect] = [:]
+
+    func record(_ frame: CGRect, for identifier: String) {
+        frames[identifier] = frame
+    }
+
+    func frame(for identifier: String) -> CGRect? {
+        frames[identifier]
+    }
+}
+
+private struct HostedHarness {
+    let window: UIWindow
+    let controller: UIHostingController<AnyView>
 }

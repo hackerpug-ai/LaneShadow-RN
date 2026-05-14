@@ -6,13 +6,16 @@ struct IdleScreenContainer: View {
     @Bindable private var viewModel: IdleViewModel
     @State private var mapCameraController = LSMapCameraController()
     @State private var isMenuOpen: Bool = false
+    private let debugFrameObserver: ((String, CGRect) -> Void)?
 
     init(
         viewModel: IdleViewModel,
-        mapCameraController: LSMapCameraController = LSMapCameraController()
+        mapCameraController: LSMapCameraController = LSMapCameraController(),
+        debugFrameObserver: ((String, CGRect) -> Void)? = nil
     ) {
         self.viewModel = viewModel
         _mapCameraController = State(initialValue: mapCameraController)
+        self.debugFrameObserver = debugFrameObserver
     }
 
     var body: some View {
@@ -31,12 +34,14 @@ struct IdleScreenContainer: View {
                     .accessibilityValue(mapCameraController.debugAccessibilityValue)
                 },
                 topOverlays: [],
+                // swiftlint:disable trailing_comma
                 bottomOverlays: [
                     GlassOverlaySlot(
                         id: "chatinput",
                         content: { chatInputView }
                     ),
                 ],
+                // swiftlint:enable trailing_comma
                 leadingDrawer: isMenuOpen ? DrawerSpec(
                     content: { menuDrawerContent },
                     onDismiss: { Task { @MainActor in closeMenu() } }
@@ -51,6 +56,7 @@ struct IdleScreenContainer: View {
             )
             .accessibilityIdentifier("idlescreen")
             .accessibilityValue(mapCameraController.debugAccessibilityValue)
+            .reportFrame(as: "idlescreen-map-canvas", to: debugFrameObserver)
 
             // Scrim with tap-to-dismiss when menu drawer is open
             if isMenuOpen {
@@ -178,6 +184,7 @@ struct IdleScreenContainer: View {
             onToggleView: nil
         )
         .accessibilityIdentifier("idle-map-controls")
+        .reportFrame(as: "idle-map-controls", to: debugFrameObserver)
     }
 
     // MARK: - Chat Input
@@ -258,5 +265,38 @@ struct IdleScreenContainer: View {
                 accessibilityLabel: "\(suggestion.name), \(suggestion.label)"
             )
         }
+    }
+}
+
+private struct FrameReportingModifier: ViewModifier {
+    let identifier: String
+    let observer: ((String, CGRect) -> Void)?
+
+    func body(content: Content) -> some View {
+        content.background {
+            GeometryReader { proxy in
+                Color.clear
+                    .onAppear {
+                        report(proxy.frame(in: .global))
+                    }
+                    .onChange(of: proxy.frame(in: .global), initial: true) { _, newFrame in
+                        report(newFrame)
+                    }
+            }
+        }
+    }
+
+    private func report(_ frame: CGRect) {
+        guard frame != .zero else {
+            return
+        }
+
+        observer?(identifier, frame)
+    }
+}
+
+private extension View {
+    func reportFrame(as identifier: String, to observer: ((String, CGRect) -> Void)?) -> some View {
+        modifier(FrameReportingModifier(identifier: identifier, observer: observer))
     }
 }
