@@ -27,8 +27,8 @@ final class ChatInputFocusLatencyTests: XCTestCase {
     /// Measures cold-tap latency: launch → first tap on chat input → keyboard visible.
     /// This is the worst-case the user experiences when they first interact with
     /// the idle screen after launch.
-    func testColdTapLatency_chatInputFocus() throws {
-        let idleScreen = app.otherElements[LSIds.idleScreen]
+    func testColdTapLatency_chatInputFocus() {
+        let idleScreen = app.otherElements.matching(identifier: LSIds.idleScreen).firstMatch
         XCTAssertTrue(
             idleScreen.waitForExistence(timeout: 15),
             "Idle screen must mount before we can measure focus latency"
@@ -43,10 +43,15 @@ final class ChatInputFocusLatencyTests: XCTestCase {
         wait(for: 1.0)
 
         let keyboard = app.keyboards.firstMatch
-        let tapTarget = bottomCenterTapTarget(of: idleScreen)
+        let textField = chatTextField()
+        XCTAssertTrue(
+            textField.waitForExistence(timeout: 5),
+            "Chat text field must exist; found \(app.textFields.count) text fields total"
+        )
+        NSLog("📐 CHAT_FIELD_FRAME=\(textField.frame)")
 
         let start = Date()
-        tapTarget.tap()
+        textField.tap()
         let appeared = keyboard.waitForExistence(timeout: Self.coldTapMaxMs / 1000 + 0.5)
         let elapsedMs = Date().timeIntervalSince(start) * 1000
 
@@ -59,14 +64,14 @@ final class ChatInputFocusLatencyTests: XCTestCase {
             elapsedMs,
             Self.coldTapMaxMs,
             "Cold-tap focus latency \(elapsedMs)ms exceeded cap (\(Self.coldTapMaxMs)ms). " +
-            "If this fires, the user-reported delay is real and large."
+                "If this fires, the user-reported delay is real and large."
         )
     }
 
     /// Measures warm-tap latency: dismiss keyboard, then tap again. Removes
     /// first-tap noise (gesture-system warmup, lazy view materialization).
-    func testWarmTapLatency_chatInputFocus_percentiles() throws {
-        let idleScreen = app.otherElements[LSIds.idleScreen]
+    func testWarmTapLatency_chatInputFocus_percentiles() {
+        let idleScreen = app.otherElements.matching(identifier: LSIds.idleScreen).firstMatch
         XCTAssertTrue(idleScreen.waitForExistence(timeout: 15))
 
         // The chat input region's identifier appears multiple times in the SwiftUI
@@ -76,11 +81,12 @@ final class ChatInputFocusLatencyTests: XCTestCase {
         wait(for: 1.0)
 
         let keyboard = app.keyboards.firstMatch
-        let tapTarget = bottomCenterTapTarget(of: idleScreen)
+        let textField = chatTextField()
+        XCTAssertTrue(textField.waitForExistence(timeout: 5))
         var measurements: [Double] = []
 
         // Warmup tap so the first measurement isn't first-launch jitter
-        tapTarget.tap()
+        textField.tap()
         _ = keyboard.waitForExistence(timeout: 3)
         dismissKeyboard()
 
@@ -88,7 +94,7 @@ final class ChatInputFocusLatencyTests: XCTestCase {
             wait(for: 0.5)
 
             let start = Date()
-            tapTarget.tap()
+            textField.tap()
             let appeared = keyboard.waitForExistence(timeout: Self.warmTapMaxMs / 1000 + 0.5)
             let elapsedMs = Date().timeIntervalSince(start) * 1000
 
@@ -104,31 +110,39 @@ final class ChatInputFocusLatencyTests: XCTestCase {
         let p95 = sorted[min(sorted.count - 1, Int(Double(sorted.count) * 0.95))]
         let mean = measurements.reduce(0, +) / Double(measurements.count)
 
-        NSLog("📐 WARM_TAP_FOCUS_LATENCY_SUMMARY n=\(measurements.count) mean=\(String(format: "%.1f", mean))ms p50=\(String(format: "%.1f", p50))ms p95=\(String(format: "%.1f", p95))ms")
+        NSLog(
+            "📐 WARM_TAP_FOCUS_LATENCY_SUMMARY n=\(measurements.count) mean=\(String(format: "%.1f", mean))ms p50=\(String(format: "%.1f", p50))ms p95=\(String(format: "%.1f", p95))ms"
+        )
 
         XCTAssertLessThan(
             p95,
             Self.warmTapMaxMs,
             "Warm-tap p95 \(p95)ms exceeded cap (\(Self.warmTapMaxMs)ms). " +
-            "Measurements (ms): \(measurements.map { String(format: "%.0f", $0) }.joined(separator: ", "))"
+                "Measurements (ms): \(measurements.map { String(format: "%.0f", $0) }.joined(separator: ", "))"
         )
     }
 
     // MARK: - Helpers
 
-    /// Coordinate-based tap target near the bottom-center of the idle screen,
-    /// where LSChatInput's text field visually sits. Bypasses identifier
-    /// resolution problems with deeply-nested SwiftUI accessibility trees.
+    /// Find the first TextField in the app — there's only one on the idle screen.
+    /// More reliable than coordinate-based tapping for actually focusing the
+    /// input vs. hitting the wrong element.
+    private func chatTextField() -> XCUIElement {
+        app.textFields.firstMatch
+    }
+
+    /// Coordinate-based fallback: tap near the bottom-center of the idle screen,
+    /// where LSChatInput's text field visually sits.
     private func bottomCenterTapTarget(of element: XCUIElement) -> XCUICoordinate {
-        // Target ~6% above the bottom edge, horizontally centered. The chat
-        // bar sits in the bottom overlay slot with theme.space.md padding.
-        return element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.94))
+        element.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.94))
     }
 
     private func dismissKeyboard() {
         if app.keyboards.firstMatch.exists {
             // Tap near the top of the map (above any overlays) to dismiss the keyboard
-            let dismissTarget = app.otherElements[LSIds.idleScreen]
+            let dismissTarget = app.otherElements
+                .matching(identifier: LSIds.idleScreen)
+                .firstMatch
                 .coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25))
             dismissTarget.tap()
         }
