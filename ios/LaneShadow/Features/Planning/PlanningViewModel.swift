@@ -48,7 +48,8 @@ final class PlanningViewModel {
             errorMessage: errorMessage,
             isThinking: isThinking,
             isSending: isSending,
-            shouldRenderMap: shouldRenderMap
+            shouldRenderMap: shouldRenderMap,
+            capsuleHeadline: capsuleHeadline
         )
     }
 

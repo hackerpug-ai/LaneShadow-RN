@@ -20,6 +20,7 @@ data class PlanningUiState(
     val transition: PlanningTransition? = null,
     val subscriptionError: String? = null,
     val phaseHeaders: Map<String, String> = phaseHeaders(),
+    val showCancelConfirm: Boolean = false,
 )
 
 sealed interface PlanningTransition {

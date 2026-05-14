@@ -7,4 +7,5 @@ struct PlanningScreenLiveState {
     var isThinking: Bool
     var isSending: Bool
     var shouldRenderMap: Bool
+    var capsuleHeadline: String = "Reading your prompt..."
 }

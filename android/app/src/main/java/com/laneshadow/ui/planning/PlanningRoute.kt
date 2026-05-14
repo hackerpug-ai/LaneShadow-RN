@@ -31,14 +31,18 @@ fun PlanningRoute(
     PlanningScreen(
         state = uiState.toMockState(),
         onMenuTap = { navController.navigate(Route.Sessions) },
-        onCollapse = viewModel::cancel,
+        onCollapse = viewModel::requestCancel,
         onFilter = { navController.navigate(Route.Sessions) },
+        onDismissCancelConfirm = viewModel::dismissCancelConfirm,
+        onKeepPlanning = viewModel::dismissCancelConfirm,
+        onCancelPlan = viewModel::confirmCancel,
     )
 
     LaunchedEffect(uiState.transition) {
         when (val transition = uiState.transition) {
             PlanningTransition.Cancelled -> {
                 viewModel.consumeTransition()
+                navController.popBackStack()
             }
             is PlanningTransition.Success -> {
                 mainNavViewModel.clearPlanningRetry()
@@ -94,7 +98,7 @@ internal fun PlanningUiState.toMockState(): PlanningScreenState {
         },
         message = message,
         isThinking = isThinking,
-        showCancelConfirm = false,
+        showCancelConfirm = showCancelConfirm,
         phaseHeaders = phaseHeaders,
     )
 }

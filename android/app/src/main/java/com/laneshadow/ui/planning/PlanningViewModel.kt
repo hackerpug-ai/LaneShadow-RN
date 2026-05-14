@@ -50,7 +50,19 @@ class PlanningViewModel @AssistedInject constructor(
         observeActivePlans()
     }
 
-    fun cancel() {
+    fun requestCancel() {
+        _state.update { current ->
+            current.copy(showCancelConfirm = true)
+        }
+    }
+
+    fun dismissCancelConfirm() {
+        _state.update { current ->
+            current.copy(showCancelConfirm = false)
+        }
+    }
+
+    fun confirmCancel() {
         val planId = _state.value.activePlanId ?: return
         viewModelScope.launch {
             routeRepository.cancelPlan(planId)

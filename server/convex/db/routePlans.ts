@@ -229,6 +229,27 @@ export const updatePlanStatusHandler = async (
   await ctx.db.patch(args.routePlanId, patch)
 }
 
+/**
+ * Cancel a route plan and mark any in-flight planning messages as failed.
+ *
+ * Handles two pathways for planning message lookup:
+ *
+ * 1. Agent-initiated plans (have planningSessionId):
+ *    - Uses indexed query by_sessionId for efficiency
+ *    - Messages are directly linked via session
+ *
+ * 2. Rider-initiated plans (no planningSessionId):
+ *    - Performs full table scan of session_messages (no index on attachments)
+ *    - Looks for messages with attachments[].routePlanId === this plan
+ *    - Only executed if doc.planningSessionId is absent (optimization)
+ *
+ * In both cases, in-flight planning messages (status='streaming' | 'running') are patched to 'failed'.
+ *
+ * @param ctx - Database and scheduler context
+ * @param args.routePlanId - The plan to cancel
+ * @param clerkUserId - The user executing the cancellation (for ownership validation)
+ * @throws ConvexError(PLAN_NOT_FOUND) if plan does not exist or is owned by a different user
+ */
 export const cancelPlanHandler = async (
   ctx: CancelPlanCtx,
   args: { routePlanId: Id<'route_plans'> },
@@ -246,6 +267,7 @@ export const cancelPlanHandler = async (
     await ctx.scheduler.cancel(doc.scheduledActionId)
   }
 
+  // Patch planning messages linked via planningSessionId (agent-initiated plans)
   if (doc.planningSessionId) {
     const planningMessages = await ctx.db
       .query('session_messages')
@@ -257,6 +279,25 @@ export const cancelPlanHandler = async (
       if (message.kind !== 'planning') continue
       if (message.status === 'complete' || message.status === 'failed') continue
       await ctx.db.patch(message._id, { status: 'failed' })
+    }
+  } else {
+    // Patch planning messages attached to this plan (rider-initiated plans without planningSessionId)
+    // Messages can reference a plan via attachments[].routePlanId.
+    // This requires a full table scan since there's no index on attachments.
+    const attachedMessages = await ctx.db
+      .query('session_messages')
+      .filter((q: any) => q.eq(true, true))
+      .collect()
+
+    for (const message of attachedMessages) {
+      if (message.kind !== 'planning') continue
+      if (message.status === 'complete' || message.status === 'failed') continue
+
+      const attachments = (message.attachments as any[]) ?? []
+      const hasThisPlan = attachments.some((att: any) => att.routePlanId === args.routePlanId)
+      if (hasThisPlan) {
+        await ctx.db.patch(message._id, { status: 'failed' })
+      }
     }
   }
 

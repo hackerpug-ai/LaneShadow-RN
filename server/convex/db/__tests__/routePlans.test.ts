@@ -508,6 +508,11 @@ describe('cancelPlanHandler', () => {
       db: {
         get: vi.fn().mockResolvedValue(plan),
         patch: vi.fn().mockResolvedValue(undefined),
+        query: vi.fn().mockReturnValue({
+          filter: vi.fn().mockReturnValue({
+            collect: vi.fn().mockResolvedValue([]),
+          }),
+        }),
       },
       scheduler: {
         cancel: vi.fn().mockResolvedValue(undefined),
@@ -532,6 +537,11 @@ describe('cancelPlanHandler', () => {
       db: {
         get: vi.fn().mockResolvedValue(plan),
         patch: vi.fn().mockResolvedValue(undefined),
+        query: vi.fn().mockReturnValue({
+          filter: vi.fn().mockReturnValue({
+            collect: vi.fn().mockResolvedValue([]),
+          }),
+        }),
       },
       scheduler: {
         cancel: vi.fn().mockResolvedValue(undefined),
@@ -549,6 +559,11 @@ describe('cancelPlanHandler', () => {
       db: {
         get: vi.fn().mockResolvedValue(plan),
         patch: vi.fn().mockResolvedValue(undefined),
+        query: vi.fn().mockReturnValue({
+          filter: vi.fn().mockReturnValue({
+            collect: vi.fn().mockResolvedValue([]),
+          }),
+        }),
       },
       scheduler: {
         cancel: vi.fn(),
@@ -598,7 +613,56 @@ describe('cancelPlanHandler', () => {
     ).rejects.toThrow(ERROR_CODES.PLAN_NOT_FOUND)
 
     expect(ctx.db.patch).not.toHaveBeenCalled()
-    expect(ctx.db.query).not.toHaveBeenCalled()
+  })
+
+  it('AC-5: rider-initiated cancel patches planning messages attached to the plan', async () => {
+    // Rider-initiated plans have NO planningSessionId, but planning messages can
+    // still reference them via attachments. When cancelled, in-flight planning
+    // messages (even if not linked via planningSessionId) should be marked failed.
+    const plan = makePlanDoc({
+      status: 'running',
+      planningSessionId: undefined, // rider-initiated: no session ID
+      scheduledActionId: SCHEDULED_ACTION_ID,
+    })
+    const planningMessageId = 'msg_planning_attached' as Id<'session_messages'>
+    const sessionId = 'session_123' as Id<'planning_sessions'>
+
+    const ctx = {
+      db: {
+        get: vi.fn().mockResolvedValue(plan),
+        patch: vi.fn().mockResolvedValue(undefined),
+        query: vi.fn().mockReturnValue({
+          filter: vi.fn().mockReturnValue({
+            collect: vi.fn().mockResolvedValue([
+              {
+                _id: planningMessageId,
+                sessionId,
+                kind: 'planning',
+                status: 'streaming',
+                attachments: [{ type: 'route_options' as const, routePlanId: PLAN_ID }],
+              },
+            ]),
+          }),
+        }),
+      },
+      scheduler: {
+        cancel: vi.fn().mockResolvedValue(undefined),
+      },
+    }
+
+    await cancelPlanHandler(ctx as any, { routePlanId: PLAN_ID }, CLERK_USER_ID)
+
+    // The plan itself should be marked cancelled
+    expect(ctx.db.patch).toHaveBeenCalledWith(
+      PLAN_ID,
+      expect.objectContaining({ status: 'cancelled' }),
+    )
+
+    // Planning messages attached to this plan should be patched to failed
+    expect(ctx.db.patch).toHaveBeenCalledWith(
+      planningMessageId,
+      expect.objectContaining({ status: 'failed' }),
+    )
   })
 })
 

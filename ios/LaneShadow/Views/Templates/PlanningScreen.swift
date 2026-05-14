@@ -379,7 +379,7 @@ public struct PlanningScreen: View {
         VStack(alignment: .leading, spacing: 0) {
             LSPhaseIndicator(
                 phases: liveState.phases,
-                header: "Planning your ride…",
+                header: liveState.capsuleHeadline,
                 showWarningChrome: liveState.errorMessage != nil
             )
             .accessibilityIdentifier("planningscreen-phase-indicator")
@@ -405,8 +405,8 @@ public struct PlanningScreen: View {
                 onSend: onSend,
                 onCollapse: onCollapse,
                 onFilter: {},
-                isThinking: false,
-                isEnabled: true
+                isThinking: liveState.isThinking,
+                isEnabled: !liveState.isThinking
             )
             .accessibilityIdentifier("planningscreen-chat-input")
         }
@@ -440,43 +440,45 @@ struct SketchingPolyline: View {
     @State private var isAnimating = false
 
     var body: some View {
-        ZStack {
-            // Animated dashed polyline
-            PolylineShape()
-                .stroke(
-                    theme.colors.primary.default,
-                    style: StrokeStyle(
-                        lineWidth: theme.borderWidth.thick,
-                        lineCap: .round,
-                        lineJoin: .round,
-                        dash: [theme.space.sm, theme.space.md],
-                        dashPhase: isAnimating ? CGFloat(theme.space.xl) : 0
+        GeometryReader { geometry in
+            ZStack {
+                // Animated dashed polyline
+                PolylineShape()
+                    .stroke(
+                        theme.colors.primary.default,
+                        style: StrokeStyle(
+                            lineWidth: theme.borderWidth.thick,
+                            lineCap: .round,
+                            lineJoin: .round,
+                            dash: [theme.space.sm, theme.space.md],
+                            dashPhase: isAnimating ? CGFloat(theme.space.xl) : 0
+                        )
                     )
-                )
-                .animation(
-                    sketchPolylineLoopAnimation(in: theme),
-                    value: isAnimating
-                )
-                .onAppear {
-                    isAnimating = true
-                }
-                .opacity(0.85)
+                    .animation(
+                        sketchPolylineLoopAnimation(in: theme),
+                        value: isAnimating
+                    )
+                    .onAppear {
+                        isAnimating = true
+                    }
+                    .opacity(0.85)
 
-            // Breathing leading dot with recipe-driven animation
-            let breathingRecipe = breathingDotAnimationRecipe(in: theme)
-            Circle()
-                .fill(theme.colors.primary.default)
-                .frame(width: theme.type.label.sm.fontSize, height: theme.type.label.sm.fontSize)
-                .shadow(color: theme.colors.primary.default.opacity(0.25), radius: theme.space.sm)
-                .shadow(color: theme.colors.primary.default.opacity(0.4), radius: theme.space.md)
-                .opacity(isAnimating ? breathingRecipe.endOpacity : breathingRecipe.startOpacity)
-                .animation(Animation.breathingHeadDot(theme: theme), value: isAnimating)
-                .position(
-                    x: UIScreen.main.bounds.width / 2 - theme.space.xl * 2,
-                    y: UIScreen.main.bounds.height / 2 - theme.space.md
-                ) // Positioned along the polyline using theme tokens
+                // Breathing leading dot with recipe-driven animation
+                let breathingRecipe = breathingDotAnimationRecipe(in: theme)
+                Circle()
+                    .fill(theme.colors.primary.default)
+                    .frame(width: theme.type.label.sm.fontSize, height: theme.type.label.sm.fontSize)
+                    .shadow(color: theme.colors.primary.default.opacity(0.25), radius: theme.space.sm)
+                    .shadow(color: theme.colors.primary.default.opacity(0.4), radius: theme.space.md)
+                    .opacity(isAnimating ? breathingRecipe.endOpacity : breathingRecipe.startOpacity)
+                    .animation(Animation.breathingHeadDot(theme: theme), value: isAnimating)
+                    .position(
+                        x: geometry.size.width / 2 - theme.space.xl * 2,
+                        y: geometry.size.height / 2 - theme.space.md
+                    ) // Positioned along the polyline using geometry proxy + theme tokens
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Motion Recipes
