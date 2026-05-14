@@ -221,6 +221,8 @@ targets:
         type: syncedFolder
       - path: LaneShadow/Views/AppFlow
         type: syncedFolder
+      - path: LaneShadow/AppFlow
+        type: syncedFolder
       - path: LaneShadow/Features
         type: syncedFolder
       - path: LaneShadow/DesignSystem
@@ -304,6 +306,8 @@ targets:
       - path: LaneShadowTests/Utilities
         type: syncedFolder
       - path: LaneShadowTests/Views
+        type: syncedFolder
+      - path: LaneShadowTests/AppFlow
         type: syncedFolder
       # Legacy molecule tests are intentionally outside the managed folder
       # until the molecule implementation layer is migrated.
