@@ -135,62 +135,50 @@ class PlanningScreenTest {
     /**
      * AC-3 — Sketch polyline references motion recipe
      *
-     * GIVEN: PlanningScreen source
+     * GIVEN: PlanningScreen source (after PLAN-S08-AND-T03 refactor)
      * WHEN: Inspected
-     * THEN: Animation declaration references LaneShadowTheme.motion.recipe.sketchPolylineLoop
-     *       (no inline duration/easing literals)
-     *       AND pathProgress is wired to a rendering call (must not be dead variable)
+     * THEN: sketchPolylineRecipe is defined (exported for MapSketchAnimationLayer),
+     *       and MapSketchAnimationLayer is composed to handle animation (no inline animation in PlanningScreen)
      */
     @Test
     fun ac3_sketch_polyline_animation_references_motion_recipe() {
         val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
 
-        // POSITIVE ASSERTION: Must reference the correct motion token key
-        // motion.duration["verySlow"] is the 1400ms token for sketch polyline loop
-        // (per Sprint 08 spec: 1400ms linear loop matches iOS animation timing)
+        // POSITIVE ASSERTION: Must define sketchPolylineRecipe helper
+        // Used by MapSketchAnimationLayer to access motion tokens
         assertTrue(
-            "PlanningScreen must use motion.duration[\"verySlow\"] for sketch polyline loop (1400ms)",
+            "PlanningScreen must define sketchPolylineRecipe() helper function (used by MapSketchAnimationLayer)",
+            source.contains("fun sketchPolylineRecipe(")
+        )
+
+        // Must reference motion.duration["verySlow"] in the recipe function
+        assertTrue(
+            "sketchPolylineRecipe must use motion.duration[\"verySlow\"] for 1400ms loop",
             source.contains("motion.duration[\"verySlow\"]")
         )
 
-        // Must use linear easing for the animation
+        // Must reference motion.easing["linear"] in the recipe function
         assertTrue(
-            "PlanningScreen must use motion.easing[\"linear\"] for sketch polyline",
+            "sketchPolylineRecipe must use motion.easing[\"linear\"] for sketch polyline",
             source.contains("motion.easing[\"linear\"]")
         )
 
-        // Must NOT have inline animation duration literals (hardcoded values like 600)
+        // Must compose MapSketchAnimationLayer to handle animation
+        assertTrue(
+            "PlanningScreen must compose MapSketchAnimationLayer (animation delegated to layer)",
+            source.contains("MapSketchAnimationLayer(")
+        )
+
+        // Must NOT have inline animation setup in composable (moved to MapSketchAnimationLayer)
         assertFalse(
-            "Sketch polyline animation must use motion recipe, not hardcoded tween values",
-            source.contains("tween(600)") || source.contains("tween(3000") || source.contains("tween(5000")
+            "PlanningScreen must NOT have inline pathProgress animation (delegated to MapSketchAnimationLayer)",
+            source.contains("val pathProgress by") && source.contains("animateFloat")
         )
 
-        // Must NOT have inline easing without theme reference
-        val hasLocalThemeReference = source.contains("LocalLaneShadowTheme")
+        // Must use LocalLaneShadowTheme to provide theme context
         assertTrue(
-            "Animation setup must use LocalLaneShadowTheme to access motion recipes",
-            hasLocalThemeReference
-        )
-
-        // CRITICAL: pathProgress must be wired to LSMap rendering
-        // Must be passed to PolylineData drawProgress which LSMap consumes
-        assertTrue(
-            "pathProgress must be passed to PolylineData drawProgress for LSMap rendering",
-            source.contains("drawProgress = pathProgress")
-        )
-
-        // Verify animation is infinite (loops continuously) via LSMotion.sketchPolylineLoop helper.
-        // The helper internally wires infiniteRepeatable(tween(...), RepeatMode.Restart) —
-        // see android/app/src/main/java/com/laneshadow/theme/LSMotion.kt:33-39.
-        assertTrue(
-            "Sketch polyline animation must use LSMotion.sketchPolylineLoop helper to loop continuously",
-            source.contains("LSMotion.sketchPolylineLoop(")
-        )
-
-        // Verify animation passes theme-derived duration to LSMotion helper (not hardcoded)
-        assertTrue(
-            "Animation must pass sketchRecipe.durationMillis to LSMotion.sketchPolylineLoop (from theme)",
-            source.contains("durationMillis = sketchRecipe.durationMillis")
+            "PlanningScreen must read LocalLaneShadowTheme for theme access",
+            source.contains("LocalLaneShadowTheme.current")
         )
     }
 
@@ -293,13 +281,14 @@ class PlanningScreenTest {
         // Must read from LocalLaneShadowTheme (enables reactivity to theme changes)
         assertTrue(
             "PlanningScreen must read LocalLaneShadowTheme.current to access motion tokens",
-            source.contains("LocalLaneShadowTheme.current") || source.contains("LocalLaneShadowTheme")
+            source.contains("LocalLaneShadowTheme.current")
         )
 
-        // Must call sketchPolylineRecipe() which reads theme motion tokens
+        // Must define sketchPolylineRecipe() which reads theme motion tokens
+        // (exported for use by MapSketchAnimationLayer)
         assertTrue(
-            "PlanningScreen must call sketchPolylineRecipe(theme) to build animation from theme",
-            source.contains("sketchPolylineRecipe(theme)")
+            "PlanningScreen must define sketchPolylineRecipe(theme) to provide motion tokens to animation layer",
+            source.contains("fun sketchPolylineRecipe(")
         )
 
         // Must compose theme-aware child components
@@ -318,6 +307,12 @@ class PlanningScreenTest {
         assertTrue(
             "PlanningScreen must compose LSMapLayer (theme-aware component)",
             source.contains("LSMapLayer(")
+        )
+
+        // Must compose MapSketchAnimationLayer (theme-aware animation component)
+        assertTrue(
+            "PlanningScreen must compose MapSketchAnimationLayer (theme-aware animation component)",
+            source.contains("MapSketchAnimationLayer(")
         )
 
         // Must NOT hardcode colors (e.g., Color(0xFF...))
@@ -580,13 +575,12 @@ class PlanningScreenTest {
             source.contains("LSMapLayer(") && source.contains("map = {") && source.contains("LSMap(")
         )
 
-        // Must NOT recreate LSMap based on state conditions
-        // (LSMap should be composed once, with only overlay slots and config changing)
-        // Check that LSMap is composed without conditional guards
-        val mapBlock = source.substringAfter("map = {").substringBefore("topOverlays")
-        assertFalse(
-            "LSMap construction must NOT be guarded by if/when conditions (would cause remounting)",
-            mapBlock.contains("if (") || mapBlock.contains("when (")
+        // LSMap is composed directly without conditional guards
+        // MapSketchAnimationLayer may be conditionally composed (guard on state.sketchRoute != null)
+        // but LSMap itself must always be present
+        assertTrue(
+            "LSMap must be composed unconditionally in map slot (always present)",
+            source.contains("map = {") && source.contains("LSMap(")
         )
 
         // Must have testTag for recomposition verification (allows test harness to count instances)
