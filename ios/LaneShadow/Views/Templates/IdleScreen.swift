@@ -56,9 +56,21 @@ public struct IdleScreen: View {
         self.onNewTap = onNewTap
         self.onSuggestionTap = onSuggestionTap
         self.onSend = onSend
-        self.onZoomIn = onZoomIn ?? { Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen").warning("[STUB] zoom-in default invoked — IdleScreenContainer must provide a real closure") }
-        self.onZoomOut = onZoomOut ?? { Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen").warning("[STUB] zoom-out default invoked — IdleScreenContainer must provide a real closure") }
-        self.onRecenter = onRecenter ?? { Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen").warning("[STUB] recenter default invoked — IdleScreenContainer must provide a real closure") }
+        self
+            .onZoomIn = onZoomIn ?? {
+                Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen")
+                    .warning("[STUB] zoom-in default invoked — IdleScreenContainer must provide a real closure")
+            }
+        self
+            .onZoomOut = onZoomOut ?? {
+                Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen")
+                    .warning("[STUB] zoom-out default invoked — IdleScreenContainer must provide a real closure")
+            }
+        self
+            .onRecenter = onRecenter ?? {
+                Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen")
+                    .warning("[STUB] recenter default invoked — IdleScreenContainer must provide a real closure")
+            }
         self.onLayers = onLayers
         self.onToggleView = onToggleView
     }
@@ -117,8 +129,14 @@ public struct IdleScreen: View {
             onZoomIn: onZoomIn,
             onZoomOut: onZoomOut,
             onRecenter: onRecenter,
-            onLayers: onLayers ?? { Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen").info("[STUB] Layers toggle — Sprint 09 wiring pending") },
-            onToggleView: onToggleView ?? { Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen").info("[STUB] Mode toggle — Sprint 08 wiring pending") }
+            onLayers: onLayers ?? {
+                Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen")
+                    .info("[STUB] Layers toggle — Sprint 09 wiring pending")
+            },
+            onToggleView: onToggleView ?? {
+                Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen")
+                    .info("[STUB] Mode toggle — Sprint 08 wiring pending")
+            }
         )
         .accessibilityIdentifier("idle-map-controls")
     }
