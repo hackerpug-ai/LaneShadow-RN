@@ -173,7 +173,10 @@ struct PlanningScreenTests {
         #expect(hostingController.view != nil)
 
         // Verify callback should NOT be called until tap (tests correct wiring)
-        #expect(!wasRequestCancelConfirmationCalled, "requestCancelConfirmation should not be called until back chip is tapped")
+        #expect(
+            !wasRequestCancelConfirmationCalled,
+            "requestCancelConfirmation should not be called until back chip is tapped"
+        )
         #expect(!wasCancelPlanningCalled, "cancelPlanning should never be called from this view")
     }
 

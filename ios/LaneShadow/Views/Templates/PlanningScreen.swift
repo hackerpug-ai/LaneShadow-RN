@@ -101,13 +101,13 @@ public struct PlanningScreen: View {
                         GlassOverlaySlot(
                             id: "phase-indicator",
                             content: { phaseIndicatorView }
-                        )
+                        ),
                     ],
                     bottomOverlays: [
                         GlassOverlaySlot(
                             id: "chat-input",
                             content: { chatInputView }
-                        )
+                        ),
                     ],
                     topBar: {
                         LSTopBar(
@@ -231,9 +231,17 @@ public struct PlanningScreen: View {
             .accessibilityIdentifier("planningscreen-sketch-polyline")
     }
 
-    private var parsingLineWidth: CGFloat { theme.borderWidth.thick }
-    private var parsingDashPattern: [CGFloat] { [theme.space.sm, theme.space.md] }
-    private var breathingDotSize: CGFloat { theme.type.label.sm.fontSize }
+    private var parsingLineWidth: CGFloat {
+        theme.borderWidth.thick
+    }
+
+    private var parsingDashPattern: [CGFloat] {
+        [theme.space.sm, theme.space.md]
+    }
+
+    private var breathingDotSize: CGFloat {
+        theme.type.label.sm.fontSize
+    }
 
     // MARK: - Phase Indicator
 
@@ -324,4 +332,3 @@ public struct PlanningScreen: View {
         .accessibilityIdentifier("planningscreen-chat-input")
     }
 }
-

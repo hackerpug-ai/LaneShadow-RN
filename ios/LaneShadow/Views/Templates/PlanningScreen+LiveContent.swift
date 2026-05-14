@@ -57,7 +57,10 @@ extension PlanningScreen {
             hasRouteToSave: false,
             isSavedRoute: false,
             onRecenter: {
-                Logger().info("[PLAN-S08-IOS-T02] Recenter in planning mode — wiring to camera controller deferred to PLAN-S08-IOS-T04")
+                Logger()
+                    .info(
+                        "[PLAN-S08-IOS-T02] Recenter in planning mode — wiring to camera controller deferred to PLAN-S08-IOS-T04"
+                    )
             },
             onToggleView: {
                 Logger().info("[PLAN-S08-IOS-T02] Toggle mode (planning→idle) — wiring deferred to PLAN-S08-IOS-T04")
