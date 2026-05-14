@@ -39,7 +39,6 @@
 		616DD39EE36B30266B875E68 /* PlaceholderInfrastructureStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4AF39CEF8D705CF349C8B30 /* PlaceholderInfrastructureStories.swift */; };
 		65B25E1FD1EB3DA2BCF92572 /* LSLocationContextBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */; };
 		67E4FE6F8B713FEF68326B97 /* LSTabItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1261D8D753487C4CE27B783 /* LSTabItemTests.swift */; };
-		6B98ABE81135DC6AFEC491BD /* PlanningCancelConfirmSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C8D20701F92899F196F6A33 /* PlanningCancelConfirmSheet.swift */; };
 		6BB3BD5F5C744CD42F5DF5C6 /* LSChatInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3123362FBC613B11809CE348 /* LSChatInputTests.swift */; };
 		6D0C6A870476786F7228EA13 /* LSPhaseIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D0D2BB3D9A32CB9A700EFC /* LSPhaseIndicator.swift */; };
 		7428AF73F12DDBD3824E9BDE /* LSBadgeStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4C14284F7C5546B178E7CA7 /* LSBadgeStories.swift */; };
@@ -143,7 +142,6 @@
 		7996DA2EBA1763B4956D788D /* LSToastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToastTests.swift; sourceTree = "<group>"; };
 		85A9AD606174CC52A565ACA2 /* LaneShadowStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaneShadowStories.swift; sourceTree = "<group>"; };
 		890F8AE171354CCC932518BC /* LSContentCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSContentCard.swift; sourceTree = "<group>"; };
-		8C8D20701F92899F196F6A33 /* PlanningCancelConfirmSheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlanningCancelConfirmSheet.swift; path = Features/Planning/PlanningCancelConfirmSheet.swift; sourceTree = "<group>"; };
 		8F281656D06513E78E57D10D /* LSScrimStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSScrimStories.swift; sourceTree = "<group>"; };
 		8FD1EBB47E72009E6BF67513 /* LSContextCapsuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSContextCapsuleTests.swift; sourceTree = "<group>"; };
 		93E2A5636744C52173464018 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -570,7 +568,6 @@
 				F57D4881CFC9C4FA4D11B5BC /* ConvexStore.swift */,
 				93E2A5636744C52173464018 /* RootView.swift */,
 				0C5301E90BCB38E5B00236B3 /* LaneShadowTests */,
-				8C8D20701F92899F196F6A33 /* PlanningCancelConfirmSheet.swift */,
 			);
 			path = LaneShadow;
 			sourceTree = "<group>";
@@ -948,7 +945,6 @@
 				616DD39EE36B30266B875E68 /* PlaceholderInfrastructureStories.swift in Sources */,
 				8454A1BC9D540D4875749ED1 /* RootView.swift in Sources */,
 				2A685A9BE84EC13D3483B8C8 /* TemplateStories.swift in Sources */,
-				6B98ABE81135DC6AFEC491BD /* PlanningCancelConfirmSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

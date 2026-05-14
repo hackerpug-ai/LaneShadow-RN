@@ -14,9 +14,17 @@ public struct PlanningCancelConfirmSheet: View {
     private let sheetTitle: String
     private let sheetBody: String
 
+    // MARK: - Static Constants for Testing
+
+    public static let accessibilityID = "planning-cancel-confirm-sheet"
+    public static let defaultTitle = "Cancel this plan?"
+    public static let defaultBody = "I've drawn one route already. You can back out now — but I'll toss what I have."
+
+    // MARK: - Init
+
     public init(
-        title: String = "Cancel this plan?",
-        body: String = "I've drawn one route already. You can back out now — but I'll toss what I have.",
+        title: String = Self.defaultTitle,
+        body: String = Self.defaultBody,
         onConfirm: @escaping () -> Void,
         onDismiss: @escaping () -> Void
     ) {
@@ -90,7 +98,7 @@ public struct PlanningCancelConfirmSheet: View {
                 y: theme.elevation.level1.offsetY
             )
             .padding(.horizontal, theme.space.md)
-            .accessibilityIdentifier("planning-cancel-confirm-sheet")
+            .accessibilityIdentifier(Self.accessibilityID)
 
             Spacer()
                 .frame(height: theme.space.xl * 2) // Position from bottom
