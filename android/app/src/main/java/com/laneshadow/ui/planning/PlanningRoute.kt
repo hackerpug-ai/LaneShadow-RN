@@ -11,9 +11,7 @@ import com.laneshadow.navigation.MainNavViewModel
 import com.laneshadow.data.chat.SessionMessage
 import com.laneshadow.ui.error.errorRoute
 import com.laneshadow.sandbox.mockproviders.NavigatorMessage
-import com.laneshadow.sandbox.mockproviders.PlanningPhase
 import com.laneshadow.sandbox.mockproviders.PlanningScreenState
-import com.laneshadow.ui.atoms.PhaseDotState
 import com.laneshadow.ui.templates.PlanningScreen
 import java.time.Instant
 import java.time.ZoneOffset
@@ -39,6 +37,9 @@ fun PlanningRoute(
 
     LaunchedEffect(uiState.transition) {
         when (val transition = uiState.transition) {
+            PlanningTransition.Cancelled -> {
+                viewModel.consumeTransition()
+            }
             is PlanningTransition.Success -> {
                 mainNavViewModel.clearPlanningRetry()
                 navController.navigate(Route.RouteResults(sessionId))
@@ -80,37 +81,22 @@ internal fun PlanningUiState.toMockState(): PlanningScreenState {
     )
 
     return PlanningScreenState(
-        phases = planningPhases(activePhaseIndex),
+        phases = phaseSteps.map { step ->
+            com.laneshadow.sandbox.mockproviders.PlanningPhase(
+                id = step.id,
+                label = step.label,
+                status = when (step.state) {
+                    com.laneshadow.ui.atoms.PhaseDotState.Pending -> "pending"
+                    com.laneshadow.ui.atoms.PhaseDotState.Active -> "active"
+                    com.laneshadow.ui.atoms.PhaseDotState.Done -> "done"
+                },
+            )
+        },
         message = message,
         isThinking = isThinking,
         showCancelConfirm = false,
         phaseHeaders = phaseHeaders,
     )
-}
-
-private fun planningPhases(activePhaseIndex: Int): List<PlanningPhase> {
-    // Canonical phase labels per SPRINT.md step 2
-    val labels = listOf(
-        "Parsing your request",
-        "Searching for routes",
-        "Drafting options",
-        "Enriching details",
-        "Finalizing plan",
-    )
-
-    return labels.mapIndexed { index, label ->
-        val ordinal = index + 1
-        val status = when {
-            ordinal < activePhaseIndex -> "done"
-            ordinal == activePhaseIndex -> "active"
-            else -> "pending"
-        }
-        PlanningPhase(
-            id = label.lowercase().replace(" ", "-"),
-            label = label,
-            status = status,
-        )
-    }
 }
 
 private fun isoTimestamp(epochMillis: Long): String =

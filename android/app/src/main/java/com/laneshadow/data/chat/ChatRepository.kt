@@ -13,7 +13,17 @@ data class SessionMessage(
     val content: String = "",
     val status: String? = null,
     val kind: String? = null,
+    val phase: String? = null,
+    val thinkingSteps: List<SessionThinkingStep>? = null,
     val createdAt: Long = 0L,
+)
+
+data class SessionThinkingStep(
+    val type: String,
+    val toolName: String? = null,
+    val summary: String,
+    val detail: String? = null,
+    val timestamp: Long,
 )
 
 interface ChatRepository {

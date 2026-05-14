@@ -12,36 +12,21 @@ data class PlanningUiState(
     val recentSessions: List<PlanningSession> = emptyList(),
     val currentPhase: Phase = Phase.Parsing,
     val activePhaseIndex: Int = 0,
-    val headerLabel: String = phaseHeaderForIndex(0),
+    val capsuleHeadline: String = planningPhaseDefinition(Phase.Parsing).capsuleHeadline,
+    val phaseSteps: List<PlanningPhaseStep> = phaseStepsFor(Phase.Parsing),
+    val headerLabel: String = planningPhaseDefinition(Phase.Parsing).capsuleHeadline,
     val activePlanId: String? = null,
     val isThinking: Boolean = true,
     val transition: PlanningTransition? = null,
     val subscriptionError: String? = null,
-    val phaseHeaders: Map<String, String> = defaultPhaseHeaders(),
+    val phaseHeaders: Map<String, String> = phaseHeaders(),
 )
 
 sealed interface PlanningTransition {
+    data object Cancelled : PlanningTransition
     data class Success(val routeOptions: PlannedRouteOptions) : PlanningTransition
     data class Failure(
         val error: LaneShadowError,
         val message: String? = null,
     ) : PlanningTransition
 }
-
-internal fun phaseHeaderForIndex(index: Int): String =
-    when (index) {
-        1 -> "Three loops are forming…"
-        2 -> "Sun on one leg, wind on another…"
-        3 -> "Ranking by scenic + twist…"
-        4 -> "Picking the best three"
-        else -> "Let me think on that…"
-    }
-
-internal fun defaultPhaseHeaders(): Map<String, String> =
-    linkedMapOf(
-        "parsing" to phaseHeaderForIndex(0),
-        "searching" to phaseHeaderForIndex(1),
-        "drafting" to phaseHeaderForIndex(2),
-        "enriching" to phaseHeaderForIndex(3),
-        "finalizing" to phaseHeaderForIndex(4),
-    )

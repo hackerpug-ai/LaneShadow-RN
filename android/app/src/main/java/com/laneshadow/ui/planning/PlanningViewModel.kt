@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laneshadow.data.chat.ChatRepository
 import com.laneshadow.data.chat.SessionMessage
+import com.laneshadow.data.chat.SessionThinkingStep
 import com.laneshadow.data.route.RouteRepository
 import com.laneshadow.data.route.RoutePlan
 import com.laneshadow.data.session.PlanningSession
@@ -23,6 +24,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 @HiltViewModel(assistedFactory = PlanningViewModel.Factory::class)
 class PlanningViewModel @AssistedInject constructor(
@@ -36,6 +41,7 @@ class PlanningViewModel @AssistedInject constructor(
 
     private var lastCompletedPlanId: String? = null
     private var lastFailedPlanId: String? = null
+    private var pendingCancelledPlanId: String? = null
 
     init {
         observeSessions()
@@ -46,6 +52,7 @@ class PlanningViewModel @AssistedInject constructor(
     fun cancel() {
         val planId = _state.value.activePlanId ?: return
         viewModelScope.launch {
+            pendingCancelledPlanId = planId
             routeRepository.cancelPlan(planId)
         }
     }
@@ -86,15 +93,18 @@ class PlanningViewModel @AssistedInject constructor(
                 }
                 .collect { messages ->
                     val latestAgentMessage = messages.latestAgentMessage()
-                    val phase = Phase.fromLabel(latestAgentMessage?.status) ?: Phase.Parsing
-                    val phaseIndex = Phase.entries.indexOf(phase)
+                    val phase = latestAgentMessage.toPlanningPhase()
+                    val definition = planningPhaseDefinition(phase)
+                    val phaseIndex = Phase.entries.indexOf(phase).coerceAtLeast(0)
                     _state.update { current ->
                         current.copy(
                             messages = messages,
                             currentPhase = phase,
                             activePhaseIndex = phaseIndex,
-                            headerLabel = phaseHeaderForIndex(phaseIndex),
-                            phaseHeaders = defaultPhaseHeaders(),
+                            capsuleHeadline = definition.capsuleHeadline,
+                            phaseSteps = phaseStepsFor(phase),
+                            headerLabel = definition.capsuleHeadline,
+                            phaseHeaders = phaseHeaders(),
                         )
                     }
                 }
@@ -114,14 +124,35 @@ class PlanningViewModel @AssistedInject constructor(
                     val activePlan = plans.firstOrNull()
                     val completedPlan = plans.firstOrNull { it.status.equals("completed", ignoreCase = true) }
                     val failedPlan = plans.firstOrNull { it.status.equals("failed", ignoreCase = true) }
+                    val cancelledPlanId = pendingCancelledPlanId
+                    val hasPendingCancellation = cancelledPlanId != null
+                    val cancelledPlan = cancelledPlanId?.let { pendingId ->
+                        plans.firstOrNull { plan ->
+                            plan.id == pendingId && plan.status.equals("cancelled", ignoreCase = true)
+                        }
+                    }
+                    val cancellationResolved = hasPendingCancellation && plans.none { plan ->
+                        plan.id == cancelledPlanId
+                    }
                     _state.update { current ->
                         current.copy(
-                            activePlanId = activePlan?.id ?: current.activePlanId,
-                            isThinking = plans.any { plan -> plan.status.equals("pending", true) || plan.status.equals("running", true) },
+                            activePlanId = activePlan?.id,
+                            isThinking = plans.any { plan ->
+                                plan.status.equals("pending", true) || plan.status.equals("running", true)
+                            } && !cancellationResolved,
                         )
                     }
 
-                    if (completedPlan != null && completedPlan.id != lastCompletedPlanId) {
+                    if (cancelledPlan != null || cancellationResolved) {
+                        pendingCancelledPlanId = null
+                        _state.update { current ->
+                            current.copy(
+                                activePlanId = null,
+                                isThinking = false,
+                                transition = PlanningTransition.Cancelled,
+                            )
+                        }
+                    } else if (completedPlan != null && completedPlan.id != lastCompletedPlanId) {
                         lastCompletedPlanId = completedPlan.id
                         _state.update { current ->
                             current.copy(
@@ -185,6 +216,84 @@ private fun List<SessionMessage>.latestAgentMessage(): SessionMessage? =
         message.role.equals("agent", ignoreCase = true) ||
             message.role.equals("system", ignoreCase = true)
     } ?: lastOrNull()
+
+private fun SessionMessage?.toPlanningPhase(): Phase {
+    this ?: return Phase.Parsing
+    if (!kind.equals("planning", ignoreCase = true)) {
+        return toStatusPhase()
+    }
+
+    if (status.equals("complete", ignoreCase = true) || status.equals("failed", ignoreCase = true)) {
+        return Phase.Finalizing
+    }
+
+    thinkingSteps.toPlanningPhaseFromThinkingSteps()?.let { return it }
+    content.toPlanningPhaseFromStructuredContent()?.let { return it }
+    phase.toCanonicalPlanningPhase()?.let { return it }
+
+    return toStatusPhase()
+}
+
+private fun SessionMessage.toStatusPhase(): Phase {
+    val currentStatus = status
+    return when {
+        currentStatus.equals("complete", ignoreCase = true) -> Phase.Finalizing
+        currentStatus.equals("failed", ignoreCase = true) -> Phase.Finalizing
+        else -> Phase.fromLabel(currentStatus) ?: Phase.Parsing
+    }
+}
+
+private fun List<SessionThinkingStep>?.toPlanningPhaseFromThinkingSteps(): Phase? {
+    var lastKnownPhase: Phase? = null
+    for (step in this.orEmpty()) {
+        if (step.type.equals("tool_finish", ignoreCase = true) &&
+            step.toolName.equals("routing_agent", ignoreCase = true)
+        ) {
+            lastKnownPhase = Phase.Finalizing
+            continue
+        }
+
+        val nextPhase = step.toolName.toPlanningPhaseFromToolName()
+        if (nextPhase != null) {
+            lastKnownPhase = nextPhase
+        }
+    }
+    return lastKnownPhase
+}
+
+private fun String.toPlanningPhaseFromStructuredContent(): Phase? {
+    if (!trim().startsWith("{")) {
+        return null
+    }
+
+    val parsed = runCatching { Json.parseToJsonElement(this) }.getOrNull() ?: return null
+    var lastKnownPhase: Phase? = null
+
+    for (event in parsed.jsonObject["events"]?.jsonArray.orEmpty()) {
+        val eventObject = event.jsonObject
+        when (eventObject["type"]?.jsonPrimitive?.content) {
+            "agent_complete" -> lastKnownPhase = Phase.Finalizing
+            else -> {
+                val nextPhase = eventObject["tool"]?.jsonPrimitive?.content
+                    .toPlanningPhaseFromToolName()
+                if (nextPhase != null) {
+                    lastKnownPhase = nextPhase
+                }
+            }
+        }
+    }
+
+    return lastKnownPhase
+}
+
+private fun String?.toCanonicalPlanningPhase(): Phase? = Phase.fromLabel(this)
+
+private fun String?.toPlanningPhaseFromToolName(): Phase? = when (this) {
+    "geocode", "search_agent", "webSearch" -> Phase.Searching
+    "createRouteSketch", "compileSketch", "planRoute", "routing_agent" -> Phase.Drafting
+    "searchNearby", "fetchWeather", "webSearchResults", "enrichment_agent" -> Phase.Enriching
+    else -> null
+}
 
 private fun RoutePlan.toFailureTransition(): PlanningTransition.Failure {
     val message = errorMessage?.takeIf { it.isNotBlank() }

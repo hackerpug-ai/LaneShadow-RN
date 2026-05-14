@@ -3,20 +3,22 @@ package com.laneshadow.ui.planning
 import com.google.common.truth.Truth.assertThat
 import com.laneshadow.data.chat.ChatRepository
 import com.laneshadow.data.chat.SessionMessage
+import com.laneshadow.data.chat.SessionThinkingStep
 import com.laneshadow.data.route.RoutePlan
 import com.laneshadow.data.route.RouteRepository
 import com.laneshadow.data.session.PlanningSession
 import com.laneshadow.data.session.SessionRepository
-import com.laneshadow.services.MainDispatcherRule
 import com.laneshadow.services.LaneShadowError
+import com.laneshadow.services.MainDispatcherRule
 import com.laneshadow.services.Phase
 import com.laneshadow.services.PlannedRouteOptions
 import com.laneshadow.services.RouteOption
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -27,33 +29,84 @@ class PlanningViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun state_mapsLatestAgentMessageStatusToCurrentPhase() = runTest {
-        val viewModel = PlanningViewModel(
-            sessionId = "sess-1",
-            chatRepository = FakeChatRepository(
-                messages = listOf(
-                    SessionMessage(
-                        role = "agent",
-                        status = "drafting",
-                    ),
+    fun derives_drafting_phase_from_status() = runTest {
+        val chatRepository = FakeChatRepository()
+        val viewModel = createViewModel(chatRepository = chatRepository)
+
+        chatRepository.emit(
+            listOf(
+                SessionMessage(
+                    role = "agent",
+                    status = "drafting",
                 ),
             ),
-            routeRepository = FakeRouteRepository(),
-            sessionRepository = FakeSessionRepository(),
         )
-
         advanceUntilIdle()
 
         assertThat(viewModel.state.value.currentPhase).isEqualTo(Phase.Drafting)
-        assertThat(viewModel.state.value.headerLabel).isEqualTo("Sun on one leg, wind on another…")
+        assertThat(viewModel.state.value.activePhaseIndex).isEqualTo(2)
+        assertThat(viewModel.state.value.phaseSteps.map { it.state }).containsExactly(
+            com.laneshadow.ui.atoms.PhaseDotState.Done,
+            com.laneshadow.ui.atoms.PhaseDotState.Done,
+            com.laneshadow.ui.atoms.PhaseDotState.Active,
+            com.laneshadow.ui.atoms.PhaseDotState.Pending,
+            com.laneshadow.ui.atoms.PhaseDotState.Pending,
+        ).inOrder()
+    }
+
+    @Test
+    fun capsule_headline_per_phase() = runTest {
+        val chatRepository = FakeChatRepository()
+        val viewModel = createViewModel(chatRepository = chatRepository)
+
+        val expectedHeadlines = listOf(
+            Phase.Parsing to "Sketching…",
+            Phase.Searching to "Asking…",
+            Phase.Drafting to "Refining…",
+            Phase.Enriching to "Scoring…",
+            Phase.Finalizing to "Finalizing…",
+        )
+
+        expectedHeadlines.forEach { (phase, headline) ->
+            chatRepository.emit(
+                listOf(
+                    SessionMessage(
+                        role = "agent",
+                        status = phase.name.lowercase(),
+                    ),
+                ),
+            )
+            advanceUntilIdle()
+
+            assertThat(viewModel.state.value.currentPhase).isEqualTo(phase)
+            assertThat(viewModel.state.value.capsuleHeadline).isEqualTo(headline)
+        }
+    }
+
+    @Test
+    fun initial_phase_steps_have_5_stable_ids() = runTest {
+        val viewModel = createViewModel()
+
+        assertThat(viewModel.state.value.phaseSteps.map { it.id }).containsExactly(
+            "parsing",
+            "searching",
+            "drafting",
+            "enriching",
+            "finalizing",
+        ).inOrder()
+        assertThat(viewModel.state.value.phaseSteps.map { it.state }).containsExactly(
+            com.laneshadow.ui.atoms.PhaseDotState.Active,
+            com.laneshadow.ui.atoms.PhaseDotState.Pending,
+            com.laneshadow.ui.atoms.PhaseDotState.Pending,
+            com.laneshadow.ui.atoms.PhaseDotState.Pending,
+            com.laneshadow.ui.atoms.PhaseDotState.Pending,
+        ).inOrder()
     }
 
     @Test
     fun state_emitsSuccessTransitionWhenActivePlanCompletes() = runTest {
         val routeOptions = plannedRouteOptions()
-        val viewModel = PlanningViewModel(
-            sessionId = "sess-1",
-            chatRepository = FakeChatRepository(),
+        val viewModel = createViewModel(
             routeRepository = FakeRouteRepository(
                 activePlans = listOf(
                     RoutePlan(
@@ -63,13 +116,11 @@ class PlanningViewModelTest {
                     ),
                 ),
             ),
-            sessionRepository = FakeSessionRepository(),
         )
 
         advanceUntilIdle()
 
-        val transition = viewModel.state.value.transition
-        assertThat(transition).isEqualTo(PlanningTransition.Success(routeOptions))
+        assertThat(viewModel.state.value.transition).isEqualTo(PlanningTransition.Success(routeOptions))
     }
 
     @Test
@@ -85,12 +136,7 @@ class PlanningViewModelTest {
                 ),
             ),
         )
-        val viewModel = PlanningViewModel(
-            sessionId = "sess-1",
-            chatRepository = FakeChatRepository(),
-            routeRepository = routeRepository,
-            sessionRepository = FakeSessionRepository(),
-        )
+        val viewModel = createViewModel(routeRepository = routeRepository)
 
         advanceUntilIdle()
 
@@ -105,38 +151,55 @@ class PlanningViewModelTest {
     }
 
     @Test
-    fun cancel_invokesCancelPlanWithActivePlanId() = runTest {
+    fun cancel_invokes_repository_and_emits_cancelled_transition() = runTest {
         val routeRepository = FakeRouteRepository(
             activePlans = listOf(
                 RoutePlan(
-                    id = "plan-7",
+                    id = "plan_abc",
                     status = "running",
                 ),
             ),
         )
-        val viewModel = PlanningViewModel(
-            sessionId = "sess-1",
-            chatRepository = FakeChatRepository(),
-            routeRepository = routeRepository,
-            sessionRepository = FakeSessionRepository(),
-        )
-
+        val viewModel = createViewModel(routeRepository = routeRepository)
         advanceUntilIdle()
+
+        routeRepository.onCancel = {
+            routeRepository.emitPlans(
+                listOf(
+                    RoutePlan(
+                        id = "plan_abc",
+                        status = "cancelled",
+                    ),
+                ),
+            )
+        }
+
         viewModel.cancel()
         advanceUntilIdle()
 
         assertThat(routeRepository.cancelPlanCalls.get()).isEqualTo(1)
-        assertThat(routeRepository.lastCancelledPlanId).isEqualTo("plan-7")
+        assertThat(routeRepository.lastCancelledPlanId).isEqualTo("plan_abc")
+        assertThat(viewModel.state.value.transition).isEqualTo(PlanningTransition.Cancelled)
+        assertThat(viewModel.state.value.isThinking).isFalse()
+    }
+
+    @Test
+    fun cancel_with_null_planId_is_noop() = runTest {
+        val routeRepository = FakeRouteRepository()
+        val viewModel = createViewModel(routeRepository = routeRepository)
+
+        viewModel.cancel()
+        advanceUntilIdle()
+
+        assertThat(routeRepository.cancelPlanCalls.get()).isEqualTo(0)
+        assertThat(viewModel.state.value.transition).isNull()
     }
 
     @Test
     fun state_emitsFailureTransitionWhenSubscriptionsFail() = runTest {
         val ioException = IOException("offline")
-        val viewModel = PlanningViewModel(
-            sessionId = "sess-1",
+        val viewModel = createViewModel(
             chatRepository = FailingChatRepository(ioException),
-            routeRepository = FakeRouteRepository(),
-            sessionRepository = FakeSessionRepository(),
         )
 
         advanceUntilIdle()
@@ -151,11 +214,96 @@ class PlanningViewModelTest {
         assertThat(viewModel.state.value.isThinking).isFalse()
     }
 
-    private class FakeChatRepository(
-        private val messages: List<SessionMessage> = emptyList(),
-    ) : ChatRepository {
-        override fun subscribeToMessages(sessionId: String): Flow<List<SessionMessage>> =
-            flowOf(messages)
+    @Test
+    fun route_subscription_failure_surfaces_error_state() = runTest {
+        val viewModel = createViewModel(
+            routeRepository = FailingRouteRepository(IOException("route offline")),
+        )
+
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.subscriptionError).isEqualTo("route offline")
+        assertThat(viewModel.state.value.isThinking).isFalse()
+    }
+
+    @Test
+    fun structured_phase_metadata_is_used_before_status_fallback() = runTest {
+        val chatRepository = FakeChatRepository()
+        val viewModel = createViewModel(chatRepository = chatRepository)
+
+        chatRepository.emit(
+            listOf(
+                SessionMessage(
+                    role = "system",
+                    kind = "planning",
+                    status = "running",
+                    phase = "searching",
+                    thinkingSteps = listOf(
+                        SessionThinkingStep(
+                            type = "tool_start",
+                            toolName = "fetchWeather",
+                            summary = "Enriching with weather context",
+                            timestamp = 1L,
+                        ),
+                    ),
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.currentPhase).isEqualTo(Phase.Enriching)
+        assertThat(viewModel.state.value.activePhaseIndex).isEqualTo(3)
+        assertThat(viewModel.state.value.phaseSteps.map { it.state }).containsExactly(
+            com.laneshadow.ui.atoms.PhaseDotState.Done,
+            com.laneshadow.ui.atoms.PhaseDotState.Done,
+            com.laneshadow.ui.atoms.PhaseDotState.Done,
+            com.laneshadow.ui.atoms.PhaseDotState.Active,
+            com.laneshadow.ui.atoms.PhaseDotState.Pending,
+        ).inOrder()
+    }
+
+    @Test
+    fun planning_content_events_are_used_before_phase_fallback() = runTest {
+        val chatRepository = FakeChatRepository()
+        val viewModel = createViewModel(chatRepository = chatRepository)
+
+        chatRepository.emit(
+            listOf(
+                SessionMessage(
+                    role = "system",
+                    kind = "planning",
+                    status = "running",
+                    phase = "parsing",
+                    content = """{"events":[{"type":"tool_pending","tool":"planRoute"}]}""",
+                ),
+            ),
+        )
+        advanceUntilIdle()
+
+        assertThat(viewModel.state.value.currentPhase).isEqualTo(Phase.Drafting)
+        assertThat(viewModel.state.value.activePhaseIndex).isEqualTo(2)
+    }
+
+    private fun createViewModel(
+        chatRepository: ChatRepository = FakeChatRepository(),
+        routeRepository: RouteRepository = FakeRouteRepository(),
+        sessionRepository: SessionRepository = FakeSessionRepository(),
+    ): PlanningViewModel =
+        PlanningViewModel(
+            sessionId = "sess-1",
+            chatRepository = chatRepository,
+            routeRepository = routeRepository,
+            sessionRepository = sessionRepository,
+        )
+
+    private class FakeChatRepository : ChatRepository {
+        private val messagesFlow = MutableStateFlow<List<SessionMessage>>(emptyList())
+
+        fun emit(messages: List<SessionMessage>) {
+            messagesFlow.value = messages
+        }
+
+        override fun subscribeToMessages(sessionId: String): Flow<List<SessionMessage>> = messagesFlow
 
         override suspend fun sendMessage(
             sessionId: String,
@@ -179,23 +327,42 @@ class PlanningViewModelTest {
     }
 
     private class FakeRouteRepository(
-        private val activePlans: List<RoutePlan> = emptyList(),
+        activePlans: List<RoutePlan> = emptyList(),
     ) : RouteRepository {
+        private val activePlansFlow = MutableStateFlow(activePlans)
+
         val cancelPlanCalls = AtomicInteger(0)
         var lastCancelledPlanId: String? = null
+        var onCancel: (() -> Unit)? = null
+
+        fun emitPlans(plans: List<RoutePlan>) {
+            activePlansFlow.value = plans
+        }
 
         override fun subscribeToActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>> =
-            flowOf(activePlans)
+            activePlansFlow
 
         override suspend fun cancelPlan(routePlanId: String): Result<Unit> {
             cancelPlanCalls.incrementAndGet()
             lastCancelledPlanId = routePlanId
+            onCancel?.invoke()
             return Result.success(Unit)
         }
     }
 
+    private class FailingRouteRepository(
+        private val error: Throwable,
+    ) : RouteRepository {
+        override fun subscribeToActiveRoutePlans(sessionId: String): Flow<List<RoutePlan>> = flow {
+            throw error
+        }
+
+        override suspend fun cancelPlan(routePlanId: String): Result<Unit> = Result.success(Unit)
+    }
+
     private class FakeSessionRepository : SessionRepository {
         override fun subscribeToSessions(): Flow<List<PlanningSession>> = flowOf(emptyList())
+
         override suspend fun createSession(firstMessage: String): Result<String> =
             Result.success("sess-42")
     }

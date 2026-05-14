@@ -12,3 +12,9 @@ tasks.register("detekt") {
     description = "Compatibility wrapper for Android lint validation in kb-run lanes."
     dependsOn(":app:lint", ":theme:lint")
 }
+
+tasks.register("ktlintCheck") {
+    group = "verification"
+    description = "Compatibility wrapper for Android lint validation in sprint task contracts."
+    dependsOn("detekt")
+}
