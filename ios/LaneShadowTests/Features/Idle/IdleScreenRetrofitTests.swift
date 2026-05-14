@@ -5,6 +5,34 @@ import ViewInspector
 import XCTest
 @testable import LaneShadow
 
+@MainActor
+private func makeIdleRetrofitScreen() -> some View {
+    IdleScreenContainer(
+        viewModel: IdleViewModel(
+            chatStore: ChatStore(),
+            sessionStore: SessionStore(),
+            convexClient: StubLaneShadowConvexClient()
+        )
+    )
+    .laneShadowTheme()
+}
+
+@MainActor
+private func assertLiveIdleHeaderUsesSingleTopbarContainer() throws {
+    let inspected = try makeIdleRetrofitScreen().inspect()
+    let topBar = try inspected.find(viewWithAccessibilityIdentifier: "maplayer.topBar")
+    let capsule = try topBar.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
+    let newChip = try topBar.find(viewWithAccessibilityIdentifier: "lstopbar-new")
+
+    #expect(capsule != nil)
+    #expect(newChip != nil)
+
+    do {
+        _ = try inspected.find(viewWithAccessibilityIdentifier: "maplayer.topOverlay.context-capsule")
+        XCTFail("Idle context capsule must not remain in topOverlays once top bar center content is used")
+    } catch {}
+}
+
 @Suite("Idle Screen Retrofit Tests")
 @MainActor
 struct IdleScreenRetrofitSpecTests {
@@ -27,9 +55,9 @@ struct IdleScreenRetrofitSpecTests {
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let inspected = try screen.inspect()
 
-        _ = try inspected.find(text: "Where are we riding today, Marcus?")
-        _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-title")
-        #expect((try? inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")) == nil)
+        let topBar = try inspected.find(viewWithAccessibilityIdentifier: "maplayer.topBar")
+        _ = try topBar.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
+        _ = try topBar.find(viewWithAccessibilityIdentifier: "lstopbar-new")
     }
 
     @Test("Map controls render at vertical center of right edge")
@@ -68,8 +96,8 @@ struct IdleScreenRetrofitSpecTests {
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let inspected = try screen.inspect()
 
-        _ = try inspected.find(text: "Not the prettiest day for it.")
-        #expect((try? inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")) == nil)
+        let topBar = try inspected.find(viewWithAccessibilityIdentifier: "maplayer.topBar")
+        _ = try topBar.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
 
         // Verify legacy advisory card is NOT present (it was in greetingOverlay before)
         do {
@@ -174,7 +202,13 @@ struct IdleScreenRetrofitSpecTests {
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let inspected = try screen.inspect()
 
-        _ = try inspected.find(text: "First ride? Ask me anything.")
+        let topBar = try inspected.find(viewWithAccessibilityIdentifier: "maplayer.topBar")
+        _ = try topBar.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
+    }
+
+    @Test("test_live_idle_header_uses_single_topbar_container")
+    func live_idle_header_uses_single_topbar_container() throws {
+        try assertLiveIdleHeaderUsesSingleTopbarContainer()
     }
 
     private func pumpMainActor(iterations: Int = 10) async {
@@ -186,6 +220,10 @@ struct IdleScreenRetrofitSpecTests {
 
 @MainActor
 final class IdleScreenRetrofitTests: XCTestCase {
+    func test_live_idle_header_uses_single_topbar_container() throws {
+        try assertLiveIdleHeaderUsesSingleTopbarContainer()
+    }
+
     func test_startNewSession_resetsAutocompleteAndPlaceState() async throws {
         let viewModel = IdleViewModel(
             chatStore: ChatStore(),

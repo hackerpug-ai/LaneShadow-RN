@@ -2,25 +2,33 @@ import Foundation
 import LaneShadowTheme
 import SwiftUI
 import Testing
+import XCTest
 @testable import LaneShadow
 
+private func loadLSMapLayerSource(from filePath: StaticString = #filePath) throws -> String {
+    let testFile = URL(fileURLWithPath: "\(filePath)")
+    let iosRoot = testFile
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+    let sourceURL = iosRoot
+        .appendingPathComponent("LaneShadow")
+        .appendingPathComponent("Views")
+        .appendingPathComponent("Organisms")
+        .appendingPathComponent("LSMapLayer.swift")
+
+    return try String(contentsOf: sourceURL, encoding: .utf8)
+}
+
+private func assertTopBarSlotFillsHeightWithTopAlignment() throws {
+    let source = try loadLSMapLayerSource()
+    #expect(source.contains("if let topBar {"))
+    #expect(source.contains(".accessibilityIdentifier(\"maplayer.topBar\")"))
+    #expect(source.contains(".frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)"))
+}
+
 @MainActor
-struct LSMapLayerTests {
-    private func mapLayerSource() throws -> String {
-        let testFile = URL(fileURLWithPath: #filePath)
-        let iosRoot = testFile
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-            .deletingLastPathComponent()
-        let sourceURL = iosRoot
-            .appendingPathComponent("LaneShadow")
-            .appendingPathComponent("Views")
-            .appendingPathComponent("Organisms")
-            .appendingPathComponent("LSMapLayer.swift")
-
-        return try String(contentsOf: sourceURL, encoding: .utf8)
-    }
-
+struct LSMapLayerSpecTests {
     @Test("test_map_plus_topbar_z_order_and_safe_area")
     func map_plus_topbar_z_order_and_safe_area() {
         // GIVEN: developer renders LSMapLayer with map and topBar
@@ -116,7 +124,7 @@ struct LSMapLayerTests {
 
     @Test("test_bottom_overlay_slot_fills_height_before_bottom_alignment")
     func bottom_overlay_slot_fills_height_before_bottom_alignment() throws {
-        let source = try mapLayerSource()
+        let source = try loadLSMapLayerSource()
 
         #expect(
             source.contains(".frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)"),
@@ -130,7 +138,7 @@ struct LSMapLayerTests {
 
     @Test("test_map_bleeds_under_safe_area_without_forcing_topbar_under_status_bar")
     func map_bleeds_under_safe_area_without_forcing_topbar_under_status_bar() throws {
-        let source = try mapLayerSource()
+        let source = try loadLSMapLayerSource()
 
         #expect(
             source.contains(".ignoresSafeArea(edges: .all)"),
@@ -145,6 +153,11 @@ struct LSMapLayerTests {
             source.contains(".padding(.top, theme.space.md + Self.topBarReservedHeight)"),
             "Top overlay gutter must use theme spacing AND clear the reserved topBar height so chips never overlap the capsule"
         )
+    }
+
+    @Test("test_topbar_slot_fills_height_with_top_alignment")
+    func topbar_slot_fills_height_with_top_alignment() throws {
+        try assertTopBarSlotFillsHeightWithTopAlignment()
     }
 
     @Test("test_scrim_renders_above_map_below_overlays")
@@ -321,5 +334,12 @@ struct LSMapLayerTests {
         // Verify content closures produce views
         #expect(drawerContent is AnyView, "Drawer content should produce AnyView")
         #expect(sheetContent is AnyView, "Sheet content should produce AnyView")
+    }
+}
+
+@MainActor
+final class LSMapLayerTests: XCTestCase {
+    func test_topbar_slot_fills_height_with_top_alignment() throws {
+        try assertTopBarSlotFillsHeightWithTopAlignment()
     }
 }

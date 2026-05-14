@@ -36,16 +36,16 @@ public struct LSTopBar: View {
     private let metaText: String?
     private let headline: AttributedString?
     private let capsule: LSContextCapsule.CapsuleState?
+    private let centerContent: AnyView?
     private let trailing: LSTopBarTrailing
     private let onMenuTap: () -> Void
-    private let onNewTap: () -> Void
 
     public init(
         title: String? = nil,
         metaText: String? = nil,
         headline: AttributedString? = nil,
         capsule: LSContextCapsule.CapsuleState? = nil,
-        trailing: LSTopBarTrailing = .newChip(action: {}),
+        trailing: LSTopBarTrailing? = nil,
         onMenuTap: @escaping () -> Void,
         onNewTap: @escaping () -> Void = {}
     ) {
@@ -53,19 +53,39 @@ public struct LSTopBar: View {
         self.metaText = metaText
         self.headline = headline
         self.capsule = capsule
-        self.trailing = trailing
+        centerContent = nil
+        self.trailing = trailing ?? .newChip(action: onNewTap)
         self.onMenuTap = onMenuTap
-        self.onNewTap = onNewTap
+    }
+
+    public init(
+        trailing: LSTopBarTrailing? = nil,
+        onMenuTap: @escaping () -> Void,
+        onNewTap: @escaping () -> Void = {},
+        @ViewBuilder centerContent: () -> some View
+    ) {
+        title = nil
+        metaText = nil
+        headline = nil
+        capsule = nil
+        self.centerContent = AnyView(centerContent())
+        self.trailing = trailing ?? .newChip(action: onNewTap)
+        self.onMenuTap = onMenuTap
     }
 
     public var body: some View {
-        HStack(spacing: theme.space.sm) {
-            hamburgerChip
+        ZStack(alignment: .center) {
+            HStack(spacing: theme.space.sm) {
+                hamburgerChip
+                Spacer(minLength: theme.space.sm)
+                trailingContent
+            }
+            .frame(maxWidth: .infinity)
 
             titleContent
                 .frame(maxWidth: .infinity, minHeight: tapTargetSize, alignment: .center)
-
-            trailingContent
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("lstopbar-center")
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, theme.space.md)
@@ -73,7 +93,6 @@ public struct LSTopBar: View {
         .safeAreaInset(edge: .top, spacing: 0) {
             Color.clear.frame(height: 0)
         }
-        .accessibilityElement(children: .contain)
         .accessibilityIdentifier("lstopbar")
     }
 
@@ -93,7 +112,9 @@ public struct LSTopBar: View {
 
     @ViewBuilder
     private var titleContent: some View {
-        if let capsule {
+        if let centerContent {
+            centerContent
+        } else if let capsule {
             // When capsule is provided, render it with .chip appearance
             LSContextCapsule(state: capsule, appearance: .chip)
                 .frame(maxWidth: .infinity, alignment: .center)
