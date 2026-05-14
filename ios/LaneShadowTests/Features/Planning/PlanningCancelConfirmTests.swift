@@ -12,7 +12,7 @@ struct PlanningCancelConfirmTests {
         "AC-1: LSChatInput renders with isThinking=true, isEnabled=false when viewModel.isThinking",
         .tags(.acceptance)
     )
-    func test_chatInput_lockedBinding() async throws {
+    func chatInput_lockedBinding() {
         let context = makeContext()
 
         // Simulate thinking state
@@ -41,7 +41,7 @@ struct PlanningCancelConfirmTests {
         "AC-2: PlanningCancelConfirmSheet is a standalone public View with onConfirm/onDismiss params + accessibility id",
         .tags(.acceptance)
     )
-    func test_sheet_publicViewSurface() {
+    func sheet_publicViewSurface() {
         // Verify sheet can be instantiated with required parameters
         var confirmCalled = false
         var dismissCalled = false
@@ -66,7 +66,7 @@ struct PlanningCancelConfirmTests {
         "AC-3: Sheet + scrim visibility binds to cancelConfirmationVisible (false → absent, true → present)",
         .tags(.acceptance)
     )
-    func test_sheetVisibility_binding() async throws {
+    func sheetVisibility_binding() {
         let context = makeContext()
 
         // Initially hidden
@@ -89,7 +89,7 @@ struct PlanningCancelConfirmTests {
         "AC-4: \"Cancel plan\" button tap fires confirmCancellation exactly once; dismissCancelConfirmation NOT called",
         .tags(.acceptance)
     )
-    func test_cancelButton_callsConfirmCancellation() async throws {
+    func cancelButton_callsConfirmCancellation() async {
         let context = makeContext()
 
         context.viewModel.cancelConfirmationVisible = true
@@ -111,7 +111,7 @@ struct PlanningCancelConfirmTests {
         "AC-5: \"Keep thinking\" tap fires dismissCancelConfirmation; no mutation, no confirm",
         .tags(.acceptance)
     )
-    func test_keepButton_callsDismiss() async throws {
+    func keepButton_callsDismiss() {
         let context = makeContext()
 
         context.viewModel.requestCancelConfirmation()
@@ -132,7 +132,7 @@ struct PlanningCancelConfirmTests {
         "AC-6: End-to-end return-to-idle after confirm: sheet visible → cancel tapped → mutation called → state reset",
         .tags(.acceptance)
     )
-    func test_endToEnd_returnToIdle() async throws {
+    func endToEnd_returnToIdle() async {
         let context = makeContext()
 
         // Simulate planning state
@@ -161,7 +161,7 @@ struct PlanningCancelConfirmTests {
         "AC-7: V02 copy verbatim — title \"Cancel this plan?\" + body \"I've drawn one route already. You can back out now — but I'll toss what I have.\"",
         .tags(.acceptance)
     )
-    func test_v02_copyMatchesDesign() {
+    func v02_copyMatchesDesign() {
         let expectedTitle = "Cancel this plan?"
         let expectedBody = "I've drawn one route already. You can back out now — but I'll toss what I have."
 
@@ -188,7 +188,7 @@ struct PlanningCancelConfirmTests {
         "AC-8: Token compliance shell shows zero violations in modified files",
         .tags(.acceptance)
     )
-    func test_tokenCompliance() {
+    func tokenCompliance() {
         // This test is primarily verified via shell script:
         // scripts/tokens/enforce-native-compliance.sh
         // The test here is a placeholder to document the requirement

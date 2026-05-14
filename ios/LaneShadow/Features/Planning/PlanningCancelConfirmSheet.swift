@@ -20,8 +20,8 @@ public struct PlanningCancelConfirmSheet: View {
         onConfirm: @escaping () -> Void,
         onDismiss: @escaping () -> Void
     ) {
-        self.sheetTitle = title
-        self.sheetBody = body
+        sheetTitle = title
+        sheetBody = body
         self.onConfirm = onConfirm
         self.onDismiss = onDismiss
     }

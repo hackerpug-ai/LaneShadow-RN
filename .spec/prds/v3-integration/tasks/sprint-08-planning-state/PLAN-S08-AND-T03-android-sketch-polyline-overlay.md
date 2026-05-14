@@ -1,8 +1,8 @@
 # PLAN-S08-AND-T03 — Android sketch-polyline overlay (1400ms linear loop + 1400ms ease-in-out breathing head dot, reduced-motion aware)
 
-> Status: 🔴 NEEDS_FIXES (Cycle 5 Review)
-> Cycle: 5
-> Updated: 2026-05-14T23:30:00.000Z
+> Status: ✅ APPROVED (Cycle 6 Review)
+> Cycle: 6
+> Updated: 2026-05-14T23:55:00.000Z
 
 > **Task ID:** PLAN-S08-AND-T03
 > **Sprint:** [Sprint 08 — Map View · Planning State](./SPRINT.md)
@@ -238,11 +238,11 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
       "type": "acceptance_criterion",
       "description": "GIVEN composable runs light then dark theme WHEN stroke color captured THEN equals LaneShadowTheme.semantic.route.best per theme; zero hex literals in source",
       "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.stroke_color_resolves_to_route_best_token'",
-      "satisfied": "PARTIAL",
-      "evidence": "Cycle 5: Light-theme test (ac5_stroke_color_resolved_via_callback) is real \u2014 asserts resolvedStrokeColor == GeneratedTokens.color.Route.best, PASSES. Dark-theme test (ac5_stroke_color_resolved_via_callback_dark_theme, BehaviorTest.kt:272-299) is TEST THEATRE: does not force dark theme via Configuration.UI_MODE_NIGHT_YES or MaterialTheme(darkColorScheme()); accepts isDarkTheme||isLightTheme (line 298) \u2014 the test always resolves light-theme in Robolectric environment (isSystemInDarkTheme()=false), making the dark-branch assertion vacuously true. This does NOT verify the dark code path in MapSketchAnimationLayer.kt:67-68. Production dark-branch exists but is untested.",
-      "remediation": "Force dark theme in test: wrap setContent with Configuration.UI_MODE_NIGHT_YES override (e.g., RuntimeEnvironment.getApplication().resources.configuration.uiMode = Configuration.UI_MODE_NIGHT_YES or use darkColorScheme MaterialTheme wrapper) so isSystemInDarkTheme() returns true inside the composable. Then assert resolvedStrokeColor == GeneratedTokens.color.Route.dark.best (not the OR-check).",
-      "last_evaluated_cycle": 5,
-      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
+      "satisfied": "PASS",
+      "evidence": "Cycle 6: Dark-theme forced via RuntimeEnvironment.getApplication().onConfigurationChanged(config) with UI_MODE_NIGHT_YES BEFORE setContent (BehaviorTest.kt:279-283). Exclusive assertion isEqualTo(GeneratedTokens.color.Route.dark.best) at line 298 (no OR escape hatch). try/finally at lines 299-303 restores original uiMode for test isolation. Test run: BUILD SUCCESSFUL, 0 failures, 0 errors, 0 skipped (XML: MapSketchAnimationLayerBehaviorTest.xml tests=8). Both ac5 variants run together BUILD SUCCESSFUL with no interference.",
+      "remediation": null,
+      "last_evaluated_cycle": 6,
+      "last_evaluated_commit": "73fdbeb87161f3c1650b7ba51ee57298b3c79976",
       "maps_to_ac": null
     },
     {
@@ -310,11 +310,11 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
       "type": "test_criterion",
       "description": "stroke color resolves to LaneShadowTheme.semantic.route.best in both themes",
       "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.stroke_color_resolves_to_route_best_token'",
-      "satisfied": "PARTIAL",
-      "evidence": "Cycle 5: Light-theme test PASSES with == comparison. Dark-theme test is test theatre \u2014 passes vacuously because it accepts isDarkTheme||isLightTheme without forcing dark mode.",
-      "remediation": "Same as AC-5: force dark mode in Robolectric test so isSystemInDarkTheme() returns true; assert == GeneratedTokens.color.Route.dark.best exclusively.",
-      "last_evaluated_cycle": 5,
-      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
+      "satisfied": "PASS",
+      "evidence": "Cycle 6: Dark-theme test now forces UI_MODE_NIGHT_YES before setContent and asserts exclusively isEqualTo(GeneratedTokens.color.Route.dark.best). try/finally restores config. Both ac5_* variants pass BUILD SUCCESSFUL with 0 failures.",
+      "remediation": null,
+      "last_evaluated_cycle": 6,
+      "last_evaluated_commit": "73fdbeb87161f3c1650b7ba51ee57298b3c79976",
       "maps_to_ac": "AC-5"
     },
     {
