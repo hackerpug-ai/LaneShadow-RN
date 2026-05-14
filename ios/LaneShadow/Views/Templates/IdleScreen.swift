@@ -1,4 +1,5 @@
 import LaneShadowTheme
+import OSLog
 import SwiftUI
 
 /// IdleScreen — the dormant Navigator welcome screen.
@@ -23,6 +24,8 @@ public struct IdleScreen: View {
     private let onZoomIn: () -> Void
     private let onZoomOut: () -> Void
     private let onRecenter: () -> Void
+    private let onLayers: (() -> Void)?
+    private let onToggleView: (() -> Void)?
 
     public init(
         provider: IdleMockProvider.Type = IdleMockProvider.self,
@@ -53,9 +56,11 @@ public struct IdleScreen: View {
         self.onNewTap = onNewTap
         self.onSuggestionTap = onSuggestionTap
         self.onSend = onSend
-        self.onZoomIn = onZoomIn ?? {}
-        self.onZoomOut = onZoomOut ?? {}
-        self.onRecenter = onRecenter ?? {}
+        self.onZoomIn = onZoomIn ?? { Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen").warning("[STUB] zoom-in default invoked — IdleScreenContainer must provide a real closure") }
+        self.onZoomOut = onZoomOut ?? { Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen").warning("[STUB] zoom-out default invoked — IdleScreenContainer must provide a real closure") }
+        self.onRecenter = onRecenter ?? { Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen").warning("[STUB] recenter default invoked — IdleScreenContainer must provide a real closure") }
+        self.onLayers = onLayers
+        self.onToggleView = onToggleView
     }
 
     public var body: some View {
@@ -112,8 +117,8 @@ public struct IdleScreen: View {
             onZoomIn: onZoomIn,
             onZoomOut: onZoomOut,
             onRecenter: onRecenter,
-            onLayers: nil,
-            onToggleView: nil
+            onLayers: onLayers ?? { Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen").info("[STUB] Layers toggle — Sprint 09 wiring pending") },
+            onToggleView: onToggleView ?? { Logger(subsystem: "com.laneshadow.ios", category: "IdleScreen").info("[STUB] Mode toggle — Sprint 08 wiring pending") }
         )
         .accessibilityIdentifier("idle-map-controls")
     }

@@ -144,7 +144,10 @@ struct PlanningScreenTests {
 
         // Verify UIScreen.main.bounds is NOT used in SketchingPolyline
         let hasUIScreenMainBounds = source.contains("UIScreen.main.bounds")
-        #expect(!hasUIScreenMainBounds, "SketchingPolyline should not use UIScreen.main.bounds; use GeometryReader instead")
+        #expect(
+            !hasUIScreenMainBounds,
+            "SketchingPolyline should not use UIScreen.main.bounds; use GeometryReader instead"
+        )
 
         // Verify GeometryReader is used
         let hasGeometryReader = source.contains("GeometryReader")

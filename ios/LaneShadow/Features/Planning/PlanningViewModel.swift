@@ -109,7 +109,7 @@ final class PlanningViewModel {
                         updateRoutePlans(routePlans)
                     }
                 }
-            }
+            },
         ]
     }
 

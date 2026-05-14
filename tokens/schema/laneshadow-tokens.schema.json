@@ -354,6 +354,7 @@
             "normal": { "$ref": "#/$defs/intToken" },
             "slow": { "$ref": "#/$defs/intToken" },
             "slower": { "$ref": "#/$defs/intToken" },
+            "verySlow": { "$ref": "#/$defs/intToken" },
             "deliberate": { "$ref": "#/$defs/intToken" },
             "fade": { "$ref": "#/$defs/intToken" },
             "highlight": { "$ref": "#/$defs/intToken" }

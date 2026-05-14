@@ -1232,6 +1232,14 @@
           "$type": "dimension",
           "$value": 600
         },
+        "verySlow": {
+          "$type": "dimension",
+          "$value": 1400
+        },
+        "deliberate": {
+          "$type": "dimension",
+          "$value": 600
+        },
         "fade": {
           "$type": "dimension",
           "$value": 300
