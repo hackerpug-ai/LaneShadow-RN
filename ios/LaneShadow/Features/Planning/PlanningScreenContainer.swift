@@ -15,7 +15,8 @@ struct PlanningScreenContainer: View {
             errorMessage: viewModel.errorMessage,
             isThinking: viewModel.isThinking,
             isSending: viewModel.isSending,
-            shouldRenderMap: viewModel.shouldRenderMap
+            shouldRenderMap: viewModel.shouldRenderMap,
+            capsuleHeadline: viewModel.capsuleHeadline
         )
 
         PlanningScreen(

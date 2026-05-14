@@ -24,4 +24,17 @@ enum LSIds {
     static let idleScreenChatInput = "idlescreen-chatinput"
     static let idleScreenInlineError = "idlescreen-inline-error"
     static let idleMapControls = "idle-map-controls"
+
+    // PlanningScreen (ios/LaneShadow/Views/Templates/PlanningScreen.swift)
+    static let planningScreen = "planningscreen"
+    static let planningScreenMap = "planningscreen-map"
+    static let planningScreenPhaseIndicator = "planningscreen-phase-indicator"
+    static let planningScreenSketchPolyline = "planningscreen-sketch-polyline"
+    static let planningScreenChatInput = "planningscreen-chat-input"
+    static let planningScreenTranscript = "planningscreen-transcript"
+    static let planningScreenInlineError = "planningscreen-inline-error"
+
+    // LSChatInput collapse + spinner (used by the planning state's locked input)
+    static let chatInputCollapse = "lschatinput-collapse"
+    static let chatInputSpinner = "lschatinput-spinner"
 }
