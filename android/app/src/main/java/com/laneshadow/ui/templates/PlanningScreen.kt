@@ -140,10 +140,11 @@ fun PlanningScreen(
         label = "sketch_polyline_progress",
     )
 
-    // Create a sample sketching polyline (for demonstration)
-    // In production, this would come from the route data
+    // Create sketching polyline from state or use sample fallback
+    // In production, coordinates come from the route data via state.sketchRoute
+    // (populated by PLAN-S08-AND-T03 once route is available)
     val sketchingPolyline = PolylineData(
-        coordinates = listOf(
+        coordinates = state.sketchRoute ?: listOf(
             LatLng(37.8104, -122.4752),
             LatLng(37.8120, -122.4760),
             LatLng(37.8150, -122.4800),

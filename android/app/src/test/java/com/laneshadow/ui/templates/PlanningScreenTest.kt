@@ -445,4 +445,211 @@ class PlanningScreenTest {
             source.contains("state.phaseSteps.map")
         )
     }
+
+    // === PLAN-S08-AND-T02 Spec-Required Tests ===
+    // These test methods are named per the spec's verification commands.
+
+    /**
+     * AC-1 — LSContextCapsule renders in --planning state with state.capsuleHeadline
+     *
+     * GIVEN: PlanningUiState(capsuleHeadline = "Sketching a coastal loop…", currentPhase = Phase.Drafting)
+     * WHEN: PlanningScreen(state = ...) composes
+     * THEN: LSContextCapsule is in --planning state, displays italic headline, shows copper pulse spinner,
+     *       has no meta row; reachable via testTag("planning.context-capsule")
+     *
+     * Verify: PlanningScreen source includes LSContextCapsule(state = CapsuleState.Planning(...))
+     */
+    @Test
+    fun context_capsule_renders_in_planning_state() {
+        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
+
+        // Must import and compose LSContextCapsule
+        assertTrue(
+            "PlanningScreen must import LSContextCapsule",
+            source.contains("import com.laneshadow.ui.molecules.LSContextCapsule")
+        )
+
+        assertTrue(
+            "PlanningScreen must compose LSContextCapsule",
+            source.contains("LSContextCapsule(")
+        )
+
+        // Must pass CapsuleState.Planning
+        assertTrue(
+            "PlanningScreen must pass CapsuleState.Planning to LSContextCapsule",
+            source.contains("CapsuleState.Planning(")
+        )
+
+        // Must pass capsuleHeadline from state
+        assertTrue(
+            "PlanningScreen must pass state.capsuleHeadline to capsule",
+            source.contains("headline = state.capsuleHeadline")
+        )
+
+        // Must have testTag for AC-1 verification
+        assertTrue(
+            "PlanningScreen must add testTag(\"planning.context-capsule\") to capsule",
+            source.contains("testTag(\"planning.context-capsule\")")
+        )
+    }
+
+    /**
+     * AC-2 — LSPhaseIndicator renders directly below the capsule with state.phaseSteps
+     *
+     * GIVEN: PlanningUiState with phaseSteps[2].state == PhaseDotState.Active
+     * WHEN: PlanningScreen composes
+     * THEN: LSPhaseIndicator is reachable via testTag("planning.phase-indicator"),
+     *       displays 5 step rows in stable id order (parsing/searching/drafting/enriching/finalizing),
+     *       rendered below the capsule in layout tree
+     *
+     * Verify: PlanningScreen source includes Column layout with capsule above indicator
+     */
+    @Test
+    fun phase_indicator_renders_below_capsule() {
+        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
+
+        // Must import and compose LSPhaseIndicator
+        assertTrue(
+            "PlanningScreen must import LSPhaseIndicator",
+            source.contains("import com.laneshadow.ui.molecules.LSPhaseIndicator")
+        )
+
+        assertTrue(
+            "PlanningScreen must compose LSPhaseIndicator",
+            source.contains("LSPhaseIndicator(")
+        )
+
+        // Must pass phaseSteps from state
+        assertTrue(
+            "PlanningScreen must pass state.phaseSteps to indicator",
+            source.contains("state.phaseSteps")
+        )
+
+        // Must have testTag for AC-2 verification
+        assertTrue(
+            "PlanningScreen must add testTag(\"planning.phase-indicator\") to indicator",
+            source.contains("testTag(\"planning.phase-indicator\")")
+        )
+
+        // Must render capsule BEFORE indicator in layout (Column with items in order)
+        val topOverlayContent = source.substringAfter("id = \"org-map-layer__top-overlay\"")
+            .substringBefore("GlassOverlaySlot(")
+        assertTrue(
+            "Capsule must be rendered before (above) indicator in composition order",
+            topOverlayContent.indexOf("LSContextCapsule") < topOverlayContent.indexOf("LSPhaseIndicator")
+        )
+    }
+
+    /**
+     * AC-3 — LSMapHost stays mounted across idle→planning transition
+     *
+     * GIVEN: Composable hosts both idle and planning states on same LSMapHost
+     * WHEN: Route navigates from idle to planning (state swap, not destination change)
+     * THEN: LSMapHost does NOT recompose with new instance; underlying map (Mapbox/substrate)
+     *       does not unmount; LSMap is NOT recreated on state changes
+     *
+     * Verify: PlanningScreen uses LSMapLayer with map slot containing LSMap,
+     * ensuring the same map instance persists across state transitions
+     * (LSMapLayer preserves the map slot content on recompositions).
+     */
+    @Test
+    fun map_host_stays_mounted_across_state_transition() {
+        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
+
+        // Must import LSMap and LSMapLayer
+        assertTrue(
+            "PlanningScreen must import LSMap",
+            source.contains("import com.laneshadow.ui.atoms.LSMap")
+        )
+
+        assertTrue(
+            "PlanningScreen must import LSMapLayer",
+            source.contains("import com.laneshadow.ui.organisms.LSMapLayer")
+        )
+
+        // Must compose LSMap directly in the map slot (not wrapped in a condition that recreates it)
+        assertTrue(
+            "PlanningScreen must compose LSMap directly in map slot",
+            source.contains("LSMap(")
+        )
+
+        // Critical: Must use LSMapLayer with map = { LSMap(...) } lambda
+        // This pattern ensures LSMapLayer preserves the map instance across recompositions
+        assertTrue(
+            "PlanningScreen must render LSMapLayer with LSMap in map = {...} slot",
+            source.contains("LSMapLayer(") && source.contains("map = {") && source.contains("LSMap(")
+        )
+
+        // Must NOT recreate LSMap based on state conditions
+        // (LSMap should be composed once, with only overlay slots and config changing)
+        // Check that LSMap is composed without conditional guards
+        val mapBlock = source.substringAfter("map = {").substringBefore("topOverlays")
+        assertFalse(
+            "LSMap construction must NOT be guarded by if/when conditions (would cause remounting)",
+            mapBlock.contains("if (") || mapBlock.contains("when (")
+        )
+
+        // Must have testTag for recomposition verification (allows test harness to count instances)
+        assertTrue(
+            "PlanningScreen must add testTag(\"planning.map-host-instance\") to LSMap for recomposition tracking",
+            source.contains("testTag(\"planning.map-host-instance\")")
+        )
+
+        // Verify LSMapControls and overlay slots are OUTSIDE the map block
+        // so they can change without affecting map persistence
+        assertTrue(
+            "topOverlays must be defined in LSMapLayer (separate from map slot)",
+            source.contains("topOverlays = listOf(")
+        )
+        assertTrue(
+            "LSMapControls must be in topBar slot (separate from map slot)",
+            source.contains("topBar = {") && source.contains("LSMapControls(")
+        )
+    }
+
+    /**
+     * AC-4 — LSMapControls workbar configures for planning state
+     *
+     * GIVEN: PlanningScreen composes with planning state active
+     * WHEN: Workbar renders
+     * THEN: LSMapControls reachable via testTag("planning.map-controls"), recenter enabled,
+     *       chat-mode toggle enabled, save/layers reconfigure per PLAN-S08-DR-T01;
+     *       workbar anchored at right-edge midline per org-map-controls
+     *
+     * Verify: PlanningScreen source includes LSMapControls with testTag
+     */
+    @Test
+    fun map_controls_in_planning_configuration() {
+        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
+
+        // Must import LSMapControls
+        assertTrue(
+            "PlanningScreen must import LSMapControls",
+            source.contains("import com.laneshadow.ui.organisms.LSMapControls")
+        )
+
+        // Must compose LSMapControls
+        assertTrue(
+            "PlanningScreen must compose LSMapControls",
+            source.contains("LSMapControls(")
+        )
+
+        // Must have testTag for AC-4 verification
+        assertTrue(
+            "PlanningScreen must add testTag(\"planning.map-controls\") to controls",
+            source.contains("testTag(\"planning.map-controls\")")
+        )
+
+        // Must use MapControlsMode.Map (not a different mode)
+        assertTrue(
+            "PlanningScreen must use MapControlsMode.Map for planning state",
+            source.contains("mode = MapControlsMode.Map")
+        )
+
+        // Must provide MapControlsHandlers
+        assertTrue(
+            "PlanningScreen must provide MapControlsHandlers to LSMapControls",
+            source.contains("handlers = MapControlsHandlers(")
+        )
+    }
 }

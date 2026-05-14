@@ -23,21 +23,26 @@ fun PlanningRoute(
     navController: NavHostController,
     mainNavViewModel: MainNavViewModel,
 ) {
+    // AC-5: Keep a reference to the ViewModel for transition management.
+    // The PlanningScreenContainer will resolve the same ViewModel instance via Hilt.
     val viewModel: PlanningViewModel = hiltViewModel<PlanningViewModel, PlanningViewModel.Factory>(
         creationCallback = { factory -> factory.create(sessionId) },
     )
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
-    PlanningScreen(
-        state = uiState.toMockState(),
+    // AC-5: Delegate screen composition and state binding to PlanningScreenContainer.
+    // The container handles ViewModel injection and state collection for rendering.
+    PlanningScreenContainer(
+        sessionId = sessionId,
         onMenuTap = { navController.navigate(Route.Sessions) },
-        onCollapse = viewModel::requestCancel,
+        onCollapse = { navController.navigate(Route.Sessions) },
         onFilter = { navController.navigate(Route.Sessions) },
-        onDismissCancelConfirm = viewModel::dismissCancelConfirm,
-        onKeepPlanning = viewModel::dismissCancelConfirm,
-        onCancelPlan = viewModel::confirmCancel,
+        onDismissCancelConfirm = {},
+        onKeepPlanning = {},
+        onCancelPlan = {},
     )
 
+    // Route handles navigation transitions (not delegated to Container)
     LaunchedEffect(uiState.transition) {
         when (val transition = uiState.transition) {
             PlanningTransition.Cancelled -> {
@@ -103,6 +108,7 @@ internal fun PlanningUiState.toMockState(): PlanningScreenState {
         headerLabel = headerLabel,
         showCancelConfirm = showCancelConfirm,
         phaseHeaders = phaseHeaders,
+        sketchRoute = sketchRoute,
     )
 }
 

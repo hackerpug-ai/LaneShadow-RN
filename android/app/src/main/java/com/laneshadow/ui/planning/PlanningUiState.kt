@@ -5,6 +5,7 @@ import com.laneshadow.data.session.PlanningSession
 import com.laneshadow.services.LaneShadowError
 import com.laneshadow.services.Phase
 import com.laneshadow.services.PlannedRouteOptions
+import com.laneshadow.ui.atoms.LatLng
 
 data class PlanningUiState(
     val sessionId: String,
@@ -21,6 +22,7 @@ data class PlanningUiState(
     val subscriptionError: String? = null,
     val phaseHeaders: Map<String, String> = phaseHeaders(),
     val showCancelConfirm: Boolean = false,
+    val sketchRoute: List<LatLng>? = null,
 )
 
 sealed interface PlanningTransition {

@@ -173,6 +173,7 @@ data class PlanningScreenState(
     val showCancelConfirm: Boolean = false,         // V02: show cancel confirmation modal
     val warningBorder: Boolean = false,             // V03: show warning border on phase indicator
     val phaseHeaders: Map<String, String>? = null,  // V03: phase header strings (phase ID -> header text)
+    val sketchRoute: List<com.laneshadow.ui.atoms.LatLng>? = null,  // PLAN-S08-AND-T02: sketch route coordinates for polyline animation (populated by PLAN-S08-AND-T03)
 )
 
 /**
