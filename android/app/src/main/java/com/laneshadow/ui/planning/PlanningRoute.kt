@@ -98,6 +98,9 @@ internal fun PlanningUiState.toMockState(): PlanningScreenState {
         },
         message = message,
         isThinking = isThinking,
+        capsuleHeadline = capsuleHeadline,
+        phaseSteps = phaseSteps,
+        headerLabel = headerLabel,
         showCancelConfirm = showCancelConfirm,
         phaseHeaders = phaseHeaders,
     )

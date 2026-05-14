@@ -7,9 +7,13 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.laneshadow.sandbox.mockproviders.PlanningScreenState
@@ -24,12 +28,17 @@ import com.laneshadow.ui.atoms.PolylineData
 import com.laneshadow.ui.atoms.RouteVariant
 import com.laneshadow.ui.molecules.LSCancelConfirmSheet
 import com.laneshadow.ui.molecules.LSChatInput
+import com.laneshadow.ui.molecules.LSContextCapsule
 import com.laneshadow.ui.molecules.LSPhaseIndicator
 import com.laneshadow.ui.molecules.PlanningPhase
+import com.laneshadow.ui.molecules.CapsuleState
 import com.laneshadow.theme.LSMotion
 import com.laneshadow.ui.organisms.GlassOverlaySlot
 import com.laneshadow.ui.organisms.LSMapLayer
+import com.laneshadow.ui.organisms.LSMapControls
 import com.laneshadow.ui.organisms.LSTopBar
+import com.laneshadow.ui.organisms.MapControlsHandlers
+import com.laneshadow.ui.organisms.MapControlsMode
 
 /**
  * Data class representing a sketch polyline animation recipe based on motion tokens.
@@ -82,24 +91,27 @@ internal fun sketchPolylineRecipe(theme: LaneShadowThemeValues): SketchPolylineR
 }
 
 /**
- * PlanningScreen template — continuous sketching polyline + phase indicator + thinking chat.
+ * PlanningScreen template — persistent map host with planning overlay composition.
  *
- * Renders the Navigator PlanningScreen with map, sketching polyline animation,
- * phase indicator with pulsing active step, top bar, and disabled chat input
- * showing the rider's prompt with spinner in trailing slot.
+ * Renders the planning state of the canonical map view with:
+ * - Persistent LSMapHost (same instance across idle → planning transitions)
+ * - Top overlay with LSContextCapsule(--planning) above LSPhaseIndicator
+ * - LSMapControls configured for planning state
+ * - Bottom overlay with disabled LSChatInput (input locked by T04)
  *
  * The sketching polyline animation is driven by `motion.recipe.sketchPolylineLoop`
  * which continuously animates the path-draw progress from 0 to 1 in an infinite loop.
  *
- * Driven entirely by mock data from PlanningMockProvider — no live data fetching.
+ * CRITICAL: LSMapHost must NOT be remounted between idle and planning states — only
+ * the overlay composition and map source configuration change.
  *
- * @param state Screen state from PlanningMockProvider
+ * @param state UiState from PlanningViewModel (PLAN-S08-AND-T01)
  * @param onMenuTap Callback when hamburger menu is tapped
- * @param onCollapse Callback when collapse button is tapped
+ * @param onCollapse Callback when collapse button is tapped (requestCancel)
  * @param onFilter Callback when filter button is tapped
- * @param onDismissCancelConfirm Callback when cancel confirm dialog is dismissed (V02)
- * @param onKeepPlanning Callback when "Keep thinking" is tapped (V02)
- * @param onCancelPlan Callback when "Cancel plan" is tapped (V02)
+ * @param onDismissCancelConfirm Callback when cancel confirm dialog is dismissed
+ * @param onKeepPlanning Callback when "Keep thinking" is tapped
+ * @param onCancelPlan Callback when "Cancel plan" is tapped (confirmCancel)
  * @param modifier Modifier for the root composable
  */
 @Composable
@@ -150,26 +162,43 @@ fun PlanningScreen(
                     zoom = 11.0,
                 ),
                 polylines = listOf(sketchingPolyline),
+                modifier = Modifier.testTag("planning.map-host-instance"),
             )
         },
         topOverlays = listOf(
             GlassOverlaySlot(
-                id = "phase-indicator",
+                id = "org-map-layer__top-overlay",
                 content = {
-                    LSPhaseIndicator(
-                        phases = state.phases.map { phase ->
-                            PlanningPhase(
-                                label = phase.label,
-                                state = when (phase.status) {
-                                    "pending" -> PhaseDotState.Pending
-                                    "active" -> PhaseDotState.Active
-                                    "done" -> PhaseDotState.Done
-                                    else -> PhaseDotState.Pending
-                                }
+                    // AC-1 & AC-2: Capsule above indicator composition
+                    // Both molecules visible simultaneously per 2026-05-07 layout decision
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Column(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            verticalArrangement = Arrangement.spacedBy(theme.space.md),
+                        ) {
+                            // AC-1: LSContextCapsule in planning state with capsule headline
+                            LSContextCapsule(
+                                state = CapsuleState.Planning(
+                                    headline = state.capsuleHeadline,
+                                ),
+                                modifier = Modifier.testTag("planning.context-capsule"),
                             )
-                        },
-                        modifier = Modifier.testTag("phase-indicator"),
-                    )
+
+                            // AC-2: LSPhaseIndicator directly below capsule
+                            LSPhaseIndicator(
+                                phases = state.phaseSteps.map { step ->
+                                    PlanningPhase(
+                                        label = step.label,
+                                        state = step.state,
+                                    )
+                                },
+                                header = state.headerLabel,
+                                modifier = Modifier.testTag("planning.phase-indicator"),
+                            )
+                        }
+                    }
                 }
             )
         ),
@@ -192,10 +221,28 @@ fun PlanningScreen(
             )
         ),
         topBar = {
-            LSTopBar(
-                onMenuTap = onMenuTap,
-                modifier = Modifier.testTag("ls-topbar"),
-            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                Box(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                ) {
+                    // AC-4: LSMapControls in planning configuration
+                    LSMapControls(
+                        mode = MapControlsMode.Map,
+                        handlers = MapControlsHandlers(
+                            onZoomIn = { /* Handled by map controller */ },
+                            onZoomOut = { /* Handled by map controller */ },
+                            onRecenter = { /* Recenter remains active */ },
+                        ),
+                        modifier = Modifier.testTag("planning.map-controls"),
+                    )
+                }
+                LSTopBar(
+                    onMenuTap = onMenuTap,
+                    modifier = Modifier.testTag("ls-topbar"),
+                )
+            }
         },
         modifier = modifier.fillMaxSize(),
     )

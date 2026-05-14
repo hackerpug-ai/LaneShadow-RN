@@ -419,35 +419,30 @@ class PlanningScreenTest {
 
     /**
      * Verify phase status is properly mapped to PhaseDotState enum
+     *
+     * PLAN-S08-AND-T02: Updated — phaseSteps already contain PhaseDotState from ViewModel,
+     * so direct mapping is no longer needed in the view layer.
      */
     @Test
     fun planning_phases_map_status_to_phase_dot_state() {
         val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
 
-        // Must map "pending", "active", "done" to PhaseDotState
+        // Must consume PhaseDotState enum
         assertTrue(
             "PlanningScreen must import PhaseDotState enum",
             source.contains("PhaseDotState")
         )
 
-        // Must read phase.status from mock provider state
+        // PLAN-S08-AND-T02: Must read state.phaseSteps (which already have PhaseDotState.Active, etc.)
         assertTrue(
-            "PlanningScreen must read phase.status when mapping to PhaseDotState",
-            source.contains("phase.status")
+            "PlanningScreen must read state.phaseSteps from ViewModel",
+            source.contains("state.phaseSteps")
         )
 
-        // Must have mapping logic for all three states
+        // Must render phaseSteps with their state
         assertTrue(
-            "PlanningScreen must map 'pending' status to PhaseDotState.Pending",
-            source.contains("\"pending\"") && source.contains("PhaseDotState.Pending")
-        )
-        assertTrue(
-            "PlanningScreen must map 'active' status to PhaseDotState.Active",
-            source.contains("\"active\"") && source.contains("PhaseDotState.Active")
-        )
-        assertTrue(
-            "PlanningScreen must map 'done' status to PhaseDotState.Done",
-            source.contains("\"done\"") && source.contains("PhaseDotState.Done")
+            "PlanningScreen must pass phaseSteps to LSPhaseIndicator",
+            source.contains("state.phaseSteps.map")
         )
     }
 }

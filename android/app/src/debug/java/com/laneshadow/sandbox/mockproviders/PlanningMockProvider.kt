@@ -1,10 +1,16 @@
 package com.laneshadow.sandbox.mockproviders
 
+import com.laneshadow.ui.atoms.PhaseDotState
+import com.laneshadow.ui.planning.PlanningPhaseStep
+
 /**
  * Mock provider for Planning screen data.
  *
  * Provides planning phases, navigator message, and thinking state
  * for the Planning/route-building screen.
+ *
+ * PLAN-S08-AND-T02: Updated to provide capsuleHeadline, phaseSteps, and headerLabel
+ * to support the PlanningScreen composition with LSContextCapsule and LSPhaseIndicator.
  */
 object PlanningMockProvider : MockProvider<PlanningScreenState> {
 
@@ -44,7 +50,16 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
                 detail = null,
                 pinned = false
             ),
-            isThinking = true
+            isThinking = true,
+            capsuleHeadline = "Refining…",
+            phaseSteps = listOf(
+                PlanningPhaseStep(id = "parsing", label = "Parsing your request", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "searching", label = "Searching for routes", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "drafting", label = "Drafting options", state = PhaseDotState.Active),
+                PlanningPhaseStep(id = "enriching", label = "Enriching details", state = PhaseDotState.Pending),
+                PlanningPhaseStep(id = "finalizing", label = "Finalizing plan", state = PhaseDotState.Pending)
+            ),
+            headerLabel = "Let me think on that…"
         )
     }
 
@@ -61,7 +76,10 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
                 detail = null,
                 pinned = false
             ),
-            isThinking = false
+            isThinking = false,
+            capsuleHeadline = "Sketching…",
+            phaseSteps = emptyList(),
+            headerLabel = "Let me think on that…"
         )
     }
 
@@ -84,7 +102,16 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
                 detail = null,
                 pinned = false
             ),
-            isThinking = true
+            isThinking = true,
+            capsuleHeadline = "Scoring…",
+            phaseSteps = listOf(
+                PlanningPhaseStep(id = "parsing", label = "Parsing your request", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "searching", label = "Searching for routes", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "drafting", label = "Drafting options", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "enriching", label = "Enriching details", state = PhaseDotState.Active),
+                PlanningPhaseStep(id = "finalizing", label = "Finalizing plan", state = PhaseDotState.Pending)
+            ),
+            headerLabel = "Let me think on that…"
         )
     }
 
@@ -127,7 +154,16 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
                 detail = null,
                 pinned = false
             ),
-            isThinking = true
+            isThinking = true,
+            capsuleHeadline = "Refining…",
+            phaseSteps = listOf(
+                PlanningPhaseStep(id = "parsing", label = "Parsing your ride request and understanding your preferences", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "searching", label = "Searching for potential road routes through the Santa Cruz Mountains", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "drafting", label = "Drafting route options and checking that all segments connect properly", state = PhaseDotState.Active),
+                PlanningPhaseStep(id = "enriching", label = "Enriching with weather conditions and scenic details", state = PhaseDotState.Pending),
+                PlanningPhaseStep(id = "finalizing", label = "Finalizing plan based on scenery, difficulty, and weather", state = PhaseDotState.Pending)
+            ),
+            headerLabel = "Let me think on that…"
         )
     }
 
@@ -155,6 +191,15 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
                 pinned = false
             ),
             isThinking = true,
+            capsuleHeadline = "Asking…",
+            phaseSteps = listOf(
+                PlanningPhaseStep(id = "parsing", label = "Parsing your request", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "searching", label = "Searching for routes", state = PhaseDotState.Active),
+                PlanningPhaseStep(id = "drafting", label = "Drafting options", state = PhaseDotState.Pending),
+                PlanningPhaseStep(id = "enriching", label = "Enriching details", state = PhaseDotState.Pending),
+                PlanningPhaseStep(id = "finalizing", label = "Finalizing plan", state = PhaseDotState.Pending)
+            ),
+            headerLabel = "Let me think on that…",
             slowApology = "Taking a moment to think"
         )
     }
@@ -183,6 +228,15 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
                 pinned = false
             ),
             isThinking = true,
+            capsuleHeadline = "Refining…",
+            phaseSteps = listOf(
+                PlanningPhaseStep(id = "parsing", label = "Parsing your request", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "searching", label = "Searching for routes", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "drafting", label = "Drafting options", state = PhaseDotState.Active),
+                PlanningPhaseStep(id = "enriching", label = "Enriching details", state = PhaseDotState.Pending),
+                PlanningPhaseStep(id = "finalizing", label = "Finalizing plan", state = PhaseDotState.Pending)
+            ),
+            headerLabel = "Let me think on that…",
             showCancelConfirm = true
         )
     }
@@ -209,6 +263,13 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
                 pinned = false
             ),
             isThinking = true,
+            capsuleHeadline = "Refining…",
+            phaseSteps = listOf(
+                PlanningPhaseStep(id = "parsing", label = "Parsing your request", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "searching", label = "Searching for routes", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "drafting", label = "Drafting options", state = PhaseDotState.Active)
+            ),
+            headerLabel = "Let me think on that…",
             warningBorder = true,
             phaseHeaders = mapOf(
                 "parsing" to "Checking your preferences",

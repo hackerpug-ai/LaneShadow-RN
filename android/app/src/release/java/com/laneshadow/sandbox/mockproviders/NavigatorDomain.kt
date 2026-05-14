@@ -158,11 +158,17 @@ data class Greeting(
 
 /**
  * Planning screen state
+ *
+ * PLAN-S08-AND-T02: Updated to include capsuleHeadline, phaseSteps, and headerLabel
+ * for binding to PlanningViewModel state (PLAN-S08-AND-T01).
  */
 data class PlanningScreenState(
     val phases: List<PlanningPhase>,
     val message: NavigatorMessage,
     val isThinking: Boolean,
+    val capsuleHeadline: String = "Sketching a coastal loop…",  // PLAN-S08-AND-T02: capsule headline
+    val phaseSteps: List<com.laneshadow.ui.planning.PlanningPhaseStep> = emptyList(),  // PLAN-S08-AND-T02: phase steps from ViewModel
+    val headerLabel: String = "Let me think on that…",  // PLAN-S08-AND-T02: phase indicator header
     val slowApology: String? = null,                // V01: italic apology message
     val showCancelConfirm: Boolean = false,         // V02: show cancel confirmation modal
     val warningBorder: Boolean = false,             // V03: show warning border on phase indicator
