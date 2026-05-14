@@ -35,6 +35,9 @@ struct PlanningScreenContainer: View {
                 Task {
                     await viewModel.retryPending(id: messageId)
                 }
+            },
+            onRequestCancelConfirmation: {
+                viewModel.requestCancelConfirmation()
             }
         )
         .task {

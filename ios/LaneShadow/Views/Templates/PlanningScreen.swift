@@ -58,6 +58,7 @@ public struct PlanningScreen: View {
     private let onCollapse: () -> Void
     private let onSend: (String) -> Void
     private let onRetry: (String) -> Void
+    private let onRequestCancelConfirmation: () -> Void
 
     public init(
         provider: PlanningMockProvider.Type = PlanningMockProvider.self,
@@ -73,6 +74,7 @@ public struct PlanningScreen: View {
         onCollapse = {}
         onSend = { _ in }
         onRetry = { _ in }
+        onRequestCancelConfirmation = {}
     }
 
     init(
@@ -80,7 +82,8 @@ public struct PlanningScreen: View {
         onMenuTap: @escaping () -> Void = {},
         onCollapse: @escaping () -> Void = {},
         onSend: @escaping (String) -> Void = { _ in },
-        onRetry: @escaping (String) -> Void = { _ in }
+        onRetry: @escaping (String) -> Void = { _ in },
+        onRequestCancelConfirmation: @escaping () -> Void = {}
     ) {
         provider = PlanningMockProvider.self
         activePhase = 1
@@ -90,6 +93,7 @@ public struct PlanningScreen: View {
         self.onCollapse = onCollapse
         self.onSend = onSend
         self.onRetry = onRetry
+        self.onRequestCancelConfirmation = onRequestCancelConfirmation
     }
 
     public var body: some View {
@@ -354,6 +358,10 @@ public struct PlanningScreen: View {
             },
             topOverlays: [
                 GlassOverlaySlot(
+                    id: "context-capsule",
+                    content: { liveCapsuleView(for: liveState) }
+                ),
+                GlassOverlaySlot(
                     id: "phase-indicator",
                     content: { livePhaseIndicatorView(for: liveState) }
                 ),
@@ -367,12 +375,21 @@ public struct PlanningScreen: View {
             topBar: {
                 LSTopBar(
                     trailing: .none,
-                    onMenuTap: onMenuTap,
+                    onMenuTap: {
+                        onRequestCancelConfirmation()
+                    },
                     onNewTap: {}
                 )
             }
         )
         .accessibilityIdentifier("planningscreen")
+    }
+
+    private func liveCapsuleView(for liveState: PlanningScreenLiveState) -> some View {
+        LSContextCapsule(
+            state: .planning(headline: liveState.capsuleHeadline)
+        )
+        .accessibilityIdentifier("planningscreen-context-capsule")
     }
 
     private func livePhaseIndicatorView(for liveState: PlanningScreenLiveState) -> some View {

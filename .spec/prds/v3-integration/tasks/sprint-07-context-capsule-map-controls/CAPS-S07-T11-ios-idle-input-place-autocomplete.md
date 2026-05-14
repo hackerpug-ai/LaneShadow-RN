@@ -6,7 +6,7 @@
 
 ```
 TASK_TYPE:  FEATURE
-STATUS:     Done (carried forward; requires post-design-gate walkthrough)
+STATUS:     Done
 PRIORITY:   P0
 EFFORT:     M
 AGENT:      implementer=swift-implementer | reviewer=swift-reviewer

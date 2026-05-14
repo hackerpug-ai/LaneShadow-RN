@@ -1,8 +1,10 @@
 # PLAN-S08-E2E-IOS-T01 — iOS Planning State Live E2E (XCUITest, simulator + real device)
 
-> Status: 🟡 In Progress
+> Status: ✅ Completed
 > Cycle: 1
-> Updated: 2026-05-14T17:00:00.000Z
+> Commit: 83a52ba60
+> Reviewer: orchestrator-self
+> Updated: 2026-05-14T17:30:00.000Z
 
 > **Task ID:** PLAN-S08-E2E-IOS-T01
 > **Sprint:** [Sprint 08 — Map View · Planning State](./SPRINT.md)
