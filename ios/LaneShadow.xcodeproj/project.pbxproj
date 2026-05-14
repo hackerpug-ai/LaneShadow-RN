@@ -48,7 +48,6 @@
 		7D4F7230A93BF39451BC7BB6 /* LSModalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 690C1B6B480FD345A05807B0 /* LSModalTests.swift */; };
 		7E8799D5CE1C5FFCE3D09066 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324B26FB2DE3F759B489CB7B /* App.swift */; };
 		7F07F9ABF0C419E0E2BA5CEA /* LSWeatherBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478C8C03ABF1E0F4AFEF0836 /* LSWeatherBadge.swift */; };
-		80DFD9CBB0C2F9A6B6A82EE9 /* PlanningCancelConfirmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0088A7F5FC680506ED7126D /* PlanningCancelConfirmTests.swift */; };
 		8454A1BC9D540D4875749ED1 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E2A5636744C52173464018 /* RootView.swift */; };
 		8DD1E5F229561147AA644B21 /* LSFormField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E0D7B9F463A28F5B5936751 /* LSFormField.swift */; };
 		91C89DFA7917A4D7A0446E88 /* LSPillStories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220BC64128EB0A24188F4C65 /* LSPillStories.swift */; };
@@ -170,7 +169,6 @@
 		D5107D4267204A230D572AB9 /* MarkdownTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownTextTests.swift; sourceTree = "<group>"; };
 		D626BCB1C43EEDBE2F380761 /* LSContextCapsule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSContextCapsule.swift; sourceTree = "<group>"; };
 		DA1BDF769396CF5EB37B55B9 /* LSFormFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSFormFieldTests.swift; sourceTree = "<group>"; };
-		E0088A7F5FC680506ED7126D /* PlanningCancelConfirmTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PlanningCancelConfirmTests.swift; path = Features/Planning/PlanningCancelConfirmTests.swift; sourceTree = "<group>"; };
 		E0747C3C833D0EA3BAF7F3D2 /* MoleculesStories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoleculesStories.swift; sourceTree = "<group>"; };
 		E444532E22B318AA5B8E61E2 /* LSToolbarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSToolbarTests.swift; sourceTree = "<group>"; };
 		EB7BCD31481DCBA4084C48DD /* LSLocationContextBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSLocationContextBar.swift; sourceTree = "<group>"; };
@@ -452,8 +450,7 @@
 		0C5301E90BCB38E5B00236B3 /* LaneShadowTests */ = {
 			isa = PBXGroup;
 			children = (
-				E0088A7F5FC680506ED7126D /* PlanningCancelConfirmTests.swift */,
-			);
+				);
 			name = LaneShadowTests;
 			sourceTree = "<group>";
 		};
@@ -981,8 +978,7 @@
 				A35AB3F139C3CDEBBED3C838 /* MotionTests.swift in Sources */,
 				21D966799A18DF7B8AF9A057 /* RouteResultsDetailsVariantTests.swift in Sources */,
 				DB7CE61E13E9E0BCC6BF9B2D /* SessionsErrorVariantTests.swift in Sources */,
-				80DFD9CBB0C2F9A6B6A82EE9 /* PlanningCancelConfirmTests.swift in Sources */,
-			);
+				);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
