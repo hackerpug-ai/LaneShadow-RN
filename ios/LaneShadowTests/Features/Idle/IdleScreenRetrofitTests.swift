@@ -88,9 +88,11 @@ struct IdleScreenRetrofitSwiftTestingSpec {
         viewModel.locationLabel = "Santa Cruz, CA"
         viewModel.metaRow = "FRIDAY · 68°F · CLEAR"
         viewModel.weatherAdvisory = nil
+        // swiftlint:disable trailing_comma
         viewModel.favoriteLocations = [
-            FavoriteLocation(id: "fav-1", lat: 36.97, lon: -122.03, label: "Santa Cruz, CA")
+            FavoriteLocation(id: "fav-1", lat: 36.97, lon: -122.03, label: "Santa Cruz, CA"),
         ]
+        // swiftlint:enable trailing_comma
 
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
         let inspected = try screen.inspect()
@@ -262,6 +264,7 @@ final class IdleScreenRetrofitTests: XCTestCase {
         )
         viewModel.errorMessage = "stale error"
         viewModel.isSubmitting = true
+        // swiftlint:disable trailing_comma
         viewModel.placeAutocompleteSuggestions = [
             LaneShadowPlaceSuggestion(
                 id: "pid-1",
@@ -270,8 +273,9 @@ final class IdleScreenRetrofitTests: XCTestCase {
                 secondaryText: nil,
                 featureType: "place",
                 distanceMeters: nil
-            )
+            ),
         ]
+        // swiftlint:enable trailing_comma
         viewModel.placeAutocompleteErrorMessage = "stale autocomplete error"
         viewModel.isPlaceAutocompleteLoading = true
         viewModel.isAutocompleteQueryActive = true

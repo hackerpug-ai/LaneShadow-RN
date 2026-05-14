@@ -34,12 +34,14 @@ struct IdleScreenContainer: View {
                     .accessibilityValue(mapCameraController.debugAccessibilityValue)
                 },
                 topOverlays: [],
+                // swiftlint:disable trailing_comma
                 bottomOverlays: [
                     GlassOverlaySlot(
                         id: "chatinput",
                         content: { chatInputView }
-                    )
+                    ),
                 ],
+                // swiftlint:enable trailing_comma
                 leadingDrawer: isMenuOpen ? DrawerSpec(
                     content: { menuDrawerContent },
                     onDismiss: { Task { @MainActor in closeMenu() } }

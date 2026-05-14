@@ -18,12 +18,14 @@ final class LSMapControlsTests: XCTestCase {
             in: Theme.shared
         )
 
+        // swiftlint:disable trailing_comma
         let expectedChips: [LSMapControlsChipKind] = [
             .recenter,
             .layers,
             .modeToggle,
-            .zoomCluster
+            .zoomCluster,
         ]
+        // swiftlint:enable trailing_comma
 
         XCTAssertEqual(appearance.chipsInOrder, expectedChips)
         XCTAssertEqual(appearance.chipBackgroundToken, "color.surface.overlay")
@@ -46,13 +48,15 @@ final class LSMapControlsTests: XCTestCase {
             in: Theme.shared
         )
 
+        // swiftlint:disable trailing_comma
         let expectedChips: [LSMapControlsChipKind] = [
             .recenter,
             .layers,
             .save(isSaved: false),
             .modeToggle,
-            .zoomCluster
+            .zoomCluster,
         ]
+        // swiftlint:enable trailing_comma
 
         XCTAssertEqual(appearance.chipsInOrder, expectedChips)
         XCTAssertTrue(appearance.isSaveChipVisible)
@@ -175,13 +179,15 @@ final class LSMapControlsTests: XCTestCase {
             in: Theme.shared
         )
 
+        // swiftlint:disable trailing_comma
         let expectedMapMode: [LSMapControlsChipKind] = [
             .recenter,
             .layers,
             .save(isSaved: false),
             .modeToggle,
-            .zoomCluster
+            .zoomCluster,
         ]
+        // swiftlint:enable trailing_comma
 
         XCTAssertEqual(appearanceMapMode.chipsInOrder, expectedMapMode)
         XCTAssertEqual(appearanceChatMode.chipsInOrder, [.modeToggle])
