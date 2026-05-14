@@ -50,12 +50,20 @@ final class ChatInputFocusLatencyTests: XCTestCase {
         )
         NSLog("📐 CHAT_FIELD_FRAME=\(textField.frame)")
 
-        let start = Date()
+        // Measure two ways to separate XCUITest overhead from real focus delay:
+        //   - tap_only_ms = time inside XCUIElement.tap() (includes XCUITest
+        //     touch synthesis + accessibility tree refresh)
+        //   - tap_to_keyboard_ms = total elapsed wall clock (the user-perceived
+        //     delay)
+        let preTap = Date()
         textField.tap()
+        let postTap = Date()
         let appeared = keyboard.waitForExistence(timeout: Self.coldTapMaxMs / 1000 + 0.5)
-        let elapsedMs = Date().timeIntervalSince(start) * 1000
+        let elapsedMs = Date().timeIntervalSince(preTap) * 1000
+        let tapOnlyMs = postTap.timeIntervalSince(preTap) * 1000
+        let postTapToKbMs = Date().timeIntervalSince(postTap) * 1000
 
-        NSLog("📐 COLD_TAP_FOCUS_LATENCY_MS=\(String(format: "%.1f", elapsedMs))")
+        NSLog("📐 COLD_TAP_FOCUS_LATENCY_MS=\(String(format: "%.1f", elapsedMs)) tap_only=\(String(format: "%.1f", tapOnlyMs)) post_tap_to_kb=\(String(format: "%.1f", postTapToKbMs))")
         XCTAssertTrue(
             appeared,
             "Keyboard never appeared within \(Self.coldTapMaxMs)ms cap"
