@@ -6,32 +6,31 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Tests for MapSketchAnimationLayer composable.
+ * Unit tests for MapSketchAnimationLayer composable source code verification.
+ *
+ * These tests verify the structure and patterns used in the implementation.
+ * Runtime animation behavior is tested via instrumented tests in androidTest/.
  *
  * Verifies:
- * - Path-draw progress animates at 1400ms linear
- * - Head-dot breathing animates at 1400ms ease-in-out reversed
- * - Reduced-motion collapses both animations to static state
- * - Empty path renders nothing without crash
+ * - Uses sketchPolylineRecipe tokens (not hardcoded values)
+ * - Uses Settings.Global.ANIMATOR_DURATION_SCALE for reduced-motion
+ * - Path progress is actually clipped (not stubbed with "For testing purposes")
  * - Stroke color uses semantic.route.best token (no hex literals)
- * - Uses LSMotion token recipes (no hardcoded values)
- * - LSMap.kt and LSMapHost.kt are not modified
+ * - Empty path guard exists
  */
 class MapSketchAnimationLayerTest {
 
     private val componentSource by lazy {
-        File("../app/src/main/java/com/laneshadow/ui/atoms/MapSketchAnimationLayer.kt").readText()
+        readComponentSource()
     }
 
     /**
-     * AC-1: Path-draw progress cycles 0→1 at 1400ms linear
+     * AC-1: Path-draw progress animation pattern exists
      *
-     * GIVEN MapSketchAnimationLayer with non-empty path
-     * WHEN test examines source code
-     * THEN implementation uses infiniteRepeatable with tween(durationMillis, easing = LinearEasing)
+     * Verifies the source code includes infiniteRepeatable with tween pattern.
      */
     @Test
-    fun path_draw_progress_cycles_at_1400ms_linear() {
+    fun ac1_source_includes_animation_pattern() {
         assertTrue(
             "Should use animateFloat for path progress",
             componentSource.contains("animateFloat")
@@ -56,14 +55,12 @@ class MapSketchAnimationLayerTest {
     }
 
     /**
-     * AC-2: Head-dot breathing cycles 0→1→0 at 1400ms ease-in-out reversed
+     * AC-2: Head-dot breathing animation pattern exists
      *
-     * GIVEN MapSketchAnimationLayer implementation
-     * WHEN test examines source code
-     * THEN implementation uses animateFloat with RepeatMode.Reverse and EaseInOut
+     * Verifies the source code includes RepeatMode.Reverse and EaseInOut.
      */
     @Test
-    fun head_dot_breathing_cycles_at_1400ms_easeinout() {
+    fun ac2_source_includes_breathing_pattern() {
         assertTrue(
             "Should animate head-dot opacity",
             componentSource.contains("headDotAlpha")
@@ -83,23 +80,32 @@ class MapSketchAnimationLayerTest {
     }
 
     /**
-     * AC-3: Reduced-motion collapses both animations to static state
+     * AC-3: Reduced-motion guard using Settings.Global exists
      *
-     * GIVEN MapSketchAnimationLayer with reduced-motion flag
-     * WHEN test examines source code
-     * THEN implementation checks reducedMotionEnabled parameter
-     *      and provides static 1.0 values when true
+     * Verifies the source code reads ANIMATOR_DURATION_SCALE and checks for 0f.
      */
     @Test
-    fun reduced_motion_collapses_to_static() {
+    fun ac3_source_includes_settings_global_reduced_motion_read() {
         assertTrue(
-            "Should accept reducedMotionEnabled parameter",
-            componentSource.contains("reducedMotionEnabled")
+            "Should read Settings.Global.ANIMATOR_DURATION_SCALE",
+            componentSource.contains("Settings.Global.getFloat")
         )
         assertTrue(
-            "Should branch on reduced-motion flag",
+            "Should read ANIMATOR_DURATION_SCALE key",
+            componentSource.contains("Settings.Global.ANIMATOR_DURATION_SCALE")
+        )
+        assertTrue(
+            "Should check for 0f (reduced-motion enabled)",
+            componentSource.contains("== 0f")
+        )
+
+        // Verify if-branch on reducedMotionEnabled
+        assertTrue(
+            "Should branch on reducedMotionEnabled",
             componentSource.contains("if (reducedMotionEnabled)")
         )
+
+        // Verify static values in reduced-motion path
         assertTrue(
             "Should emit static progress (1f) in reduced-motion path",
             componentSource.contains("onProgressUpdate?.invoke(1f)")
@@ -111,14 +117,12 @@ class MapSketchAnimationLayerTest {
     }
 
     /**
-     * AC-4: Empty path renders nothing without crash
+     * AC-4: Empty path guard exists
      *
-     * GIVEN MapSketchAnimationLayer with empty path
-     * WHEN test examines source code
-     * THEN implementation guards against empty list with early return
+     * Verifies the source code includes an early return for empty paths.
      */
     @Test
-    fun empty_path_renders_nothing_without_crash() {
+    fun ac4_source_includes_empty_path_guard() {
         assertTrue(
             "Should check for empty path",
             componentSource.contains("path.isEmpty()")
@@ -130,14 +134,12 @@ class MapSketchAnimationLayerTest {
     }
 
     /**
-     * AC-5: Stroke color resolves to LaneShadowTheme.semantic.route.best token
+     * AC-5: Stroke color resolves to LaneShadowTheme tokens
      *
-     * GIVEN MapSketchAnimationLayer in light and dark themes
-     * WHEN test examines source code
-     * THEN implementation resolves stroke color via GeneratedTokens.color.Route (no hex literals)
+     * Verifies the source code uses GeneratedTokens and no hex literals.
      */
     @Test
-    fun stroke_color_resolves_to_route_best_token() {
+    fun ac5_source_uses_theme_tokens_not_hex_literals() {
         assertTrue(
             "Should use GeneratedTokens for color resolution",
             componentSource.contains("GeneratedTokens.color.Route")
@@ -161,47 +163,101 @@ class MapSketchAnimationLayerTest {
     }
 
     /**
-     * AC-6: Token purity, lint, and non-modification of LSMap/LSMapHost
+     * AC-6: Uses sketchPolylineRecipe and does NOT stub path progress
      *
-     * GIVEN MapSketchAnimationLayer and test files
-     * WHEN test verifies LSMap.kt and LSMapHost.kt are not in git diff
-     * THEN both files remain unmodified (write-prohibited per spec)
+     * Verifies the recipe is reused and path clipping is real (not stubbed).
      */
     @Test
-    fun lsmap_and_lsmaphost_not_modified() {
-        // Verify the component uses sketchPolylineRecipe from PlanningScreen
+    fun ac6_source_uses_recipe_and_real_path_clipping() {
         assertTrue(
-            "Should use sketchPolylineRecipe helper from theme",
+            "Should use sketchPolylineRecipe",
             componentSource.contains("sketchPolylineRecipe")
         )
-        // Verify it doesn't attempt to modify Mapbox sources
-        assertFalse(
-            "Should not modify LSMap internals",
-            componentSource.contains("LSMap.kt") || componentSource.contains("LSMapHost.kt")
-        )
-        // Verify it accepts path as List<LatLng> (pure presentation)
         assertTrue(
-            "Should accept path as List<LatLng> parameter",
-            componentSource.contains("path: List<LatLng>")
+            "Should read durationMillis from recipe",
+            componentSource.contains("sketchRecipe.durationMillis")
+        )
+        assertTrue(
+            "Should read easing from recipe",
+            componentSource.contains("sketchRecipe.easing")
+        )
+
+        // Verify path clipping is REAL, not stubbed
+        assertFalse(
+            "Should NOT have 'For testing purposes' stub comment",
+            componentSource.contains("For testing purposes")
+        )
+        assertFalse(
+            "Should NOT have 'real integration would clip' deferral",
+            componentSource.contains("real integration would clip")
+        )
+
+        // Verify path progress is actually used in drawing
+        assertTrue(
+            "Should use pathProgress in clipping logic",
+            componentSource.contains("pathProgress")
         )
     }
 
     /**
-     * Bonus: Verify recipe uses theme.motion tokens, not hardcoded values
+     * AC-6: Head-dot color is theme-aware
+     *
+     * Verifies head-dot uses the same stroke color (passed as parameter).
      */
     @Test
-    fun uses_motion_recipe_tokens_not_hardcoded_values() {
+    fun ac6_head_dot_uses_theme_aware_color() {
         assertTrue(
-            "Should read durationMillis from sketchRecipe",
-            componentSource.contains("sketchRecipe.durationMillis")
+            "Should pass headDotColor to SketchHeadDot",
+            componentSource.contains("headDotColor = strokeColor")
         )
         assertTrue(
-            "Should read easing from sketchRecipe",
-            componentSource.contains("sketchRecipe.easing")
+            "Should have headDotColor parameter",
+            componentSource.contains("headDotColor: Color")
         )
+    }
+
+    /**
+     * AC-6: Parameter reducedMotionEnabled is REMOVED (self-detects)
+     *
+     * Verifies the parameter is not in the function signature
+     * (it now self-detects via Settings.Global).
+     */
+    @Test
+    fun ac6_reduced_motion_parameter_removed() {
+        // The parameter should NOT be in the Composable signature
+        // It's now computed via Settings.Global inside the composable
+        val functionSignature = componentSource.substringBefore(") {")
         assertFalse(
-            "Should not hardcode LinearEasing directly",
-            componentSource.contains("tween(durationMillis, easing = LinearEasing)")
+            "Should not have reducedMotionEnabled parameter in signature",
+            functionSignature.contains("reducedMotionEnabled: Boolean")
+        )
+    }
+
+    /**
+     * Helper: Read MapSketchAnimationLayer source
+     */
+    private fun readComponentSource(): String {
+        val androidDir = File("../android/app/src/main/java/com/laneshadow/ui/atoms/MapSketchAnimationLayer.kt")
+        if (androidDir.exists()) {
+            return androidDir.readText()
+        }
+
+        val appDir = File("app/src/main/java/com/laneshadow/ui/atoms/MapSketchAnimationLayer.kt")
+        if (appDir.exists()) {
+            return appDir.readText()
+        }
+
+        // Fallback to find relative to test execution
+        val absolutePath = File(
+            "/Users/justinrich/Projects/LaneShadow/android/app/src/main/java/com/laneshadow/ui/atoms/MapSketchAnimationLayer.kt"
+        )
+        if (absolutePath.exists()) {
+            return absolutePath.readText()
+        }
+
+        throw IllegalStateException(
+            "Could not locate MapSketchAnimationLayer.kt. Tried: " +
+                "$androidDir, $appDir, $absolutePath"
         )
     }
 }

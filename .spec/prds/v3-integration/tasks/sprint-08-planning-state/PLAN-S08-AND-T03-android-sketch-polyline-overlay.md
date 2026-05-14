@@ -1,8 +1,8 @@
 # PLAN-S08-AND-T03 — Android sketch-polyline overlay (1400ms linear loop + 1400ms ease-in-out breathing head dot, reduced-motion aware)
 
-> Status: 🟡 In Progress
-> Cycle: 1
-> Updated: 2026-05-07T19:05:00.000Z
+> Status: 🔴 NEEDS_FIXES (Cycle 2 Review)
+> Cycle: 2
+> Updated: 2026-05-14T00:00:00.000Z
 
 > **Task ID:** PLAN-S08-AND-T03
 > **Sprint:** [Sprint 08 — Map View · Planning State](./SPRINT.md)
@@ -185,18 +185,150 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
 <!--
 {
   "requirements": [
-    {"id":"AC-1","type":"acceptance_criterion","description":"GIVEN MapSketchAnimationLayer with non-empty path WHEN test clock advances 1400ms THEN pathDrawProgress cycles 0→1 linear with midpoint at 700ms ≈ 0.5","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.path_draw_progress_cycles_at_1400ms_linear'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-2","type":"acceptance_criterion","description":"GIVEN composable mounted WHEN test clock advances 2800ms THEN headDotAlpha cycles 0→1→0 ease-in-out reversed with peak at 1400ms","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.head_dot_breathing_cycles_at_1400ms_easeinout'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-3","type":"acceptance_criterion","description":"GIVEN reduced-motion enabled WHEN composable runs THEN pathDrawProgress=1.0 + headDotAlpha=1.0 static; no infiniteRepeatable launched","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.reduced_motion_collapses_to_static'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-4","type":"acceptance_criterion","description":"GIVEN empty path WHEN composable runs THEN no Canvas draw + no crash + no head-dot rendered","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.empty_path_renders_nothing_without_crash'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-5","type":"acceptance_criterion","description":"GIVEN composable runs light then dark theme WHEN stroke color captured THEN equals LaneShadowTheme.semantic.route.best per theme; zero hex literals in source","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.stroke_color_resolves_to_route_best_token'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-6","type":"acceptance_criterion","description":"GIVEN new files WHEN enforce-native-compliance.sh + ktlintCheck run + git diff inspected THEN gates exit 0 and LSMap.kt / LSMapHost.kt not modified","verify":"scripts/tokens/enforce-native-compliance.sh && cd android && ./gradlew ktlintCheck","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"TC-1","type":"test_criterion","description":"path-draw progress cycles 0→1 over 1400ms linear with midpoint ≈ 0.5","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.path_draw_progress_cycles_at_1400ms_linear'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-1"},
-    {"id":"TC-2","type":"test_criterion","description":"head-dot alpha cycles 0→1→0 over 2800ms ease-in-out reversed","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.head_dot_breathing_cycles_at_1400ms_easeinout'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-2"},
-    {"id":"TC-3","type":"test_criterion","description":"reduced-motion path collapses both animations to static state","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.reduced_motion_collapses_to_static'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-3"},
-    {"id":"TC-4","type":"test_criterion","description":"empty path renders nothing + no crash","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.empty_path_renders_nothing_without_crash'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-4"},
-    {"id":"TC-5","type":"test_criterion","description":"stroke color resolves to LaneShadowTheme.semantic.route.best in both themes","verify":"cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.stroke_color_resolves_to_route_best_token'","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-5"},
-    {"id":"TC-6","type":"test_criterion","description":"enforce-native-compliance.sh + ktlintCheck both exit 0; consumed components not modified","verify":"scripts/tokens/enforce-native-compliance.sh && cd android && ./gradlew ktlintCheck","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-6"}
+    {
+      "id": "AC-1",
+      "type": "acceptance_criterion",
+      "description": "GIVEN MapSketchAnimationLayer with non-empty path WHEN test clock advances 1400ms THEN pathDrawProgress cycles 0→1 linear with midpoint at 700ms ≈ 0.5",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.path_draw_progress_cycles_at_1400ms_linear'",
+      "satisfied": "PARTIAL",
+      "evidence": "MapSketchAnimationLayer.kt:106-114 — infiniteRepeatable+tween+RepeatMode.Restart present. BUT test (MapSketchAnimationLayerTest.kt:34-56) is pure source-text inspection: asserts componentSource.contains('animateFloat') etc. No Compose test rule, no mainClock.autoAdvance=false, no actual clock-advance to 700ms midpoint verification. Test is Category 4 Test Theatre.",
+      "remediation": "Replace source-text assertions with a ComposeTestRule + mainClock.autoAdvance=false test that actually advances the clock 700ms and reads pathDrawProgress from a SemanticsPropertyKey or callback, verifying ≈0.5f midpoint.",
+      "last_evaluated_cycle": 2,
+      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-2",
+      "type": "acceptance_criterion",
+      "description": "GIVEN composable mounted WHEN test clock advances 2800ms THEN headDotAlpha cycles 0→1→0 ease-in-out reversed with peak at 1400ms",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.head_dot_breathing_cycles_at_1400ms_easeinout'",
+      "satisfied": "PARTIAL",
+      "evidence": "MapSketchAnimationLayer.kt:117-128 — animateFloat with RepeatMode.Reverse + EaseInOut present. Same test-theatre problem: MapSketchAnimationLayerTest.kt:66-83 only reads source text, never exercises the animation clock to verify 2800ms full cycle or 1400ms peak alpha=1.0.",
+      "remediation": "Compose test rule advancing 1400ms → assert headDotAlpha == 1.0f; advance another 1400ms → assert headDotAlpha ≈ 0.0f.",
+      "last_evaluated_cycle": 2,
+      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-3",
+      "type": "acceptance_criterion",
+      "description": "GIVEN reduced-motion enabled WHEN composable runs THEN pathDrawProgress=1.0 + headDotAlpha=1.0 static; no infiniteRepeatable launched",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.reduced_motion_collapses_to_static'",
+      "satisfied": "FAIL",
+      "evidence": "MapSketchAnimationLayer.kt:54 exposes reducedMotionEnabled: Boolean = false as a parameter — caller (PlanningScreen.kt:142-145) NEVER passes reducedMotionEnabled; default is false always. No Settings.Global.ANIMATOR_DURATION_SCALE read, no LocalAccessibilityManager check inside the composable. Reduced-motion is always disabled in production. LSPhaseDot (the stated reference pattern) does not do this either — LSContextCapsule.kt:421-426 IS the project pattern for reading ANIMATOR_DURATION_SCALE, and MapSketchAnimationLayer does not use it.",
+      "remediation": "Remove the boolean parameter. Inside the composable, read Settings.Global.getFloat(LocalContext.current.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f and branch on the result. PlanningScreen must not need to pass anything — the composable self-detects. Update test to override via a test-parameter or by mocking the ContentResolver value.",
+      "last_evaluated_cycle": 2,
+      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "description": "GIVEN empty path WHEN composable runs THEN no Canvas draw + no crash + no head-dot rendered",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.empty_path_renders_nothing_without_crash'",
+      "satisfied": "PASS",
+      "evidence": "MapSketchAnimationLayer.kt:77-79 — if (path.isEmpty()) return before any animation or Canvas call. SketchPolylineCanvas:168-170 and SketchHeadDot:219-221 also guard. Test MapSketchAnimationLayerTest.kt:121-130 verifies path.isEmpty() guard exists in source.",
+      "remediation": null,
+      "last_evaluated_cycle": 2,
+      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-5",
+      "type": "acceptance_criterion",
+      "description": "GIVEN composable runs light then dark theme WHEN stroke color captured THEN equals LaneShadowTheme.semantic.route.best per theme; zero hex literals in source",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.stroke_color_resolves_to_route_best_token'",
+      "satisfied": "PARTIAL",
+      "evidence": "MapSketchAnimationLayer.kt:65-69 — GeneratedTokens.color.Route.best (light) and GeneratedTokens.color.Route.dark.best (dark); no Color(0x) literals. But stroke width at line 201 is hardcoded 3.dp (not a token). Head-dot draw at line 240 hardcodes 6.dp radius. Additionally the head dot at line 239 uses GeneratedTokens.color.Route.best unconditionally (not dark-theme-aware), while the polyline correctly switches. This is an inconsistency in the token resolution path for the dot in dark mode. Test is source-text inspection only; no actual theme-context rendering to compare returned Color values.",
+      "remediation": "Fix head-dot to use theme-aware color same as polyline (isDarkTheme branch). Stroke width 3.dp and dot radius 6.dp should resolve from theme tokens (e.g. theme.borderWidth.route / a size token) if the design system exposes them; if not, document explicitly why literals are acceptable.",
+      "last_evaluated_cycle": 2,
+      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "maps_to_ac": null
+    },
+    {
+      "id": "AC-6",
+      "type": "acceptance_criterion",
+      "description": "GIVEN new files WHEN enforce-native-compliance.sh + ktlintCheck run + git diff inspected THEN gates exit 0 and LSMap.kt / LSMapHost.kt not modified",
+      "verify": "scripts/tokens/enforce-native-compliance.sh && cd android && ./gradlew ktlintCheck",
+      "satisfied": "PARTIAL",
+      "evidence": "enforce-native-compliance.sh exit 0, ktlintCheck exit 0, detekt exit 0, assembleDebug BUILD SUCCESSFUL. LSMap.kt/LSMapHost.kt not in diff. BUT MapSketchAnimationLayer.kt:179,180,226,227 contain hardcoded Bay Area-flavored coordinate offsets (lon + 122.5, 37.9 - latlng.lat) with 'Arbitrary scale for demo' comments. These are not hex color literals (so enforcement script passes) but they ARE semantic stubs in the coordinate-projection logic. Lines 196-197 carry explicit 'For testing purposes, draw the entire path (real integration would clip based on progress)' — confirming pathProgress is computed but NOT used to clip the drawn path.",
+      "remediation": "The pathProgress value must actually clip the drawn path (e.g. PathMeasure / drawWithContent clipping or proportional segment drawing). The Bay Area offset constants must be replaced with canvas-normalized coordinates derived from path bounding box, since Mapbox projection APIs are unavailable in unit tests.",
+      "last_evaluated_cycle": 2,
+      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "maps_to_ac": null
+    },
+    {
+      "id": "TC-1",
+      "type": "test_criterion",
+      "description": "path-draw progress cycles 0→1 over 1400ms linear with midpoint ≈ 0.5",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.path_draw_progress_cycles_at_1400ms_linear'",
+      "satisfied": "FAIL",
+      "evidence": "MapSketchAnimationLayerTest.kt:34-56 — source-text inspection only. Not a Compose animation test.",
+      "remediation": null,
+      "last_evaluated_cycle": 2,
+      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "maps_to_ac": "AC-1"
+    },
+    {
+      "id": "TC-2",
+      "type": "test_criterion",
+      "description": "head-dot alpha cycles 0→1→0 over 2800ms ease-in-out reversed",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.head_dot_breathing_cycles_at_1400ms_easeinout'",
+      "satisfied": "FAIL",
+      "evidence": "MapSketchAnimationLayerTest.kt:66-83 — source-text inspection only.",
+      "remediation": null,
+      "last_evaluated_cycle": 2,
+      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "maps_to_ac": "AC-2"
+    },
+    {
+      "id": "TC-3",
+      "type": "test_criterion",
+      "description": "reduced-motion path collapses both animations to static state",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.reduced_motion_collapses_to_static'",
+      "satisfied": "FAIL",
+      "evidence": "MapSketchAnimationLayerTest.kt:94-111 — asserts reducedMotionEnabled parameter exists in source; does not test actual runtime behavior when reduced-motion is active. Additionally, AC-3 implementation is broken (param never passed by caller).",
+      "remediation": null,
+      "last_evaluated_cycle": 2,
+      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "maps_to_ac": "AC-3"
+    },
+    {
+      "id": "TC-4",
+      "type": "test_criterion",
+      "description": "empty path renders nothing + no crash",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.empty_path_renders_nothing_without_crash'",
+      "satisfied": "PASS",
+      "evidence": "MapSketchAnimationLayerTest.kt:121-130 — source check valid for this AC (empty-path guard is structural, not behavioral).",
+      "remediation": null,
+      "last_evaluated_cycle": 2,
+      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "maps_to_ac": "AC-4"
+    },
+    {
+      "id": "TC-5",
+      "type": "test_criterion",
+      "description": "stroke color resolves to LaneShadowTheme.semantic.route.best in both themes",
+      "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.stroke_color_resolves_to_route_best_token'",
+      "satisfied": "PARTIAL",
+      "evidence": "MapSketchAnimationLayerTest.kt:140-161 — source checks valid for no-hex-literal rule; does not exercise theme-context rendering.",
+      "remediation": null,
+      "last_evaluated_cycle": 2,
+      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "maps_to_ac": "AC-5"
+    },
+    {
+      "id": "TC-6",
+      "type": "test_criterion",
+      "description": "enforce-native-compliance.sh + ktlintCheck both exit 0; consumed components not modified",
+      "verify": "scripts/tokens/enforce-native-compliance.sh && cd android && ./gradlew ktlintCheck",
+      "satisfied": "PARTIAL",
+      "evidence": "Gates pass but pathProgress clipping is a stub comment in source (line 196-197); Bay Area offsets remain.",
+      "remediation": null,
+      "last_evaluated_cycle": 2,
+      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "maps_to_ac": "AC-6"
+    }
   ]
 }
 -->
