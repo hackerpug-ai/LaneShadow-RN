@@ -40,15 +40,12 @@ fun PlanningRoute(
         onDismissCancelConfirm = {},
         onKeepPlanning = {},
         onCancelPlan = {},
+        onReturnToIdle = { navController.popBackStack() },
     )
 
-    // Route handles navigation transitions (not delegated to Container)
+    // Route handles Success and Failure transitions (Cancelled is handled by Container)
     LaunchedEffect(uiState.transition) {
         when (val transition = uiState.transition) {
-            PlanningTransition.Cancelled -> {
-                viewModel.consumeTransition()
-                navController.popBackStack()
-            }
             is PlanningTransition.Success -> {
                 mainNavViewModel.clearPlanningRetry()
                 navController.navigate(Route.RouteResults(sessionId))
@@ -67,7 +64,7 @@ fun PlanningRoute(
                 )
                 viewModel.consumeTransition()
             }
-            null -> Unit
+            PlanningTransition.Cancelled, null -> Unit
         }
     }
 }

@@ -26,8 +26,8 @@ import com.laneshadow.ui.atoms.MapMode
 import com.laneshadow.ui.atoms.PhaseDotState
 import com.laneshadow.ui.atoms.PolylineData
 import com.laneshadow.ui.atoms.RouteVariant
-import com.laneshadow.ui.molecules.LSCancelConfirmSheet
 import com.laneshadow.ui.molecules.LSChatInput
+import com.laneshadow.ui.planning.PlanningCancelConfirmSheet
 import com.laneshadow.ui.molecules.LSContextCapsule
 import com.laneshadow.ui.molecules.LSPhaseIndicator
 import com.laneshadow.ui.molecules.PlanningPhase
@@ -248,13 +248,9 @@ fun PlanningScreen(
         modifier = modifier.fillMaxSize(),
     )
 
-    // V02: cancel-confirm sheet
+    // V02: cancel-confirm sheet (planning-specific wrapper with testTags for cross-platform parity)
     if (state.showCancelConfirm) {
-        LSCancelConfirmSheet(
-            title = "Cancel this plan?",
-            body = "I've drawn one route already. You can back out now — but I'll toss what I have.",
-            keepLabel = "Keep thinking",
-            cancelLabel = "Cancel plan",
+        PlanningCancelConfirmSheet(
             onKeep = onKeepPlanning,
             onCancel = onCancelPlan,
             onDismiss = onDismissCancelConfirm,

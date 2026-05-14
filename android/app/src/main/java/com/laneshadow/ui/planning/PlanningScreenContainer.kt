@@ -1,6 +1,7 @@
 package com.laneshadow.ui.planning
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -13,6 +14,7 @@ import com.laneshadow.ui.templates.PlanningScreen
  * AC-5: Resolves PlanningViewModel via assisted Hilt injection and binds:
  * - uiState to the stateless PlanningScreen composable
  * - intent callbacks (onCancel, etc.) to ViewModel methods
+ * - transition observations (PlanningTransition.Cancelled) to invoke onReturnToIdle
  *
  * The persistent LSMapHost and overlay composition are managed by PlanningScreen;
  * this container only handles ViewModel injection and state flow collection.
@@ -24,6 +26,7 @@ import com.laneshadow.ui.templates.PlanningScreen
  * @param onDismissCancelConfirm Callback when cancel confirm dialog is dismissed
  * @param onKeepPlanning Callback when "Keep thinking" is tapped
  * @param onCancelPlan Callback when "Cancel plan" is tapped (confirmCancel)
+ * @param onReturnToIdle Callback when PlanningTransition.Cancelled is observed
  */
 @Composable
 fun PlanningScreenContainer(
@@ -34,6 +37,7 @@ fun PlanningScreenContainer(
     onDismissCancelConfirm: () -> Unit = {},
     onKeepPlanning: () -> Unit = {},
     onCancelPlan: () -> Unit = {},
+    onReturnToIdle: () -> Unit = {},
 ) {
     // AC-5: Resolve ViewModel via assisted Hilt injection
     val viewModel: PlanningViewModel = hiltViewModel<PlanningViewModel, PlanningViewModel.Factory>(
@@ -42,6 +46,17 @@ fun PlanningScreenContainer(
 
     // AC-5: Collect state as state with lifecycle
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+
+    // AC-5: Observe transition and invoke onReturnToIdle when cancelled
+    LaunchedEffect(uiState.transition) {
+        when (uiState.transition) {
+            PlanningTransition.Cancelled -> {
+                viewModel.consumeTransition()
+                onReturnToIdle()
+            }
+            else -> Unit
+        }
+    }
 
     // Convert ViewModel state to mock state for PlanningScreen
     val mockState = uiState.toMockState()
