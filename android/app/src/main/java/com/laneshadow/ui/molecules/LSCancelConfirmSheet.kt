@@ -2,25 +2,32 @@ package com.laneshadow.ui.molecules
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.atoms.ButtonVariant
 import com.laneshadow.ui.atoms.ContentColor
 import com.laneshadow.ui.atoms.LSButton
+import com.laneshadow.ui.atoms.LSScrim
 import com.laneshadow.ui.atoms.LSText
 import com.laneshadow.ui.atoms.TypographyVariant
+
+val LSCancelConfirmSheetIsDialogKey = SemanticsPropertyKey<Boolean>("isDialog")
+
+var SemanticsPropertyReceiver.isDialog by LSCancelConfirmSheetIsDialogKey
 
 /**
  * LSCancelConfirmSheet — A centered confirmation sheet for Planning V02.
@@ -62,68 +69,72 @@ fun LSCancelConfirmSheet(
             usePlatformDefaultWidth = false,
         ),
     ) {
-        // Scrim backdrop - use surface.scrim token (semi-transparent black)
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Black.copy(alpha = 0.4f))
-                .padding(theme.space.md),
-            horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            // Dialog body - surface.default background
+        // Scrim backdrop with content overlay
+        Box(modifier = Modifier.fillMaxSize()) {
+            LSScrim(blocking = false)
+
             Column(
-                modifier = modifier
-                    .background(
-                        color = theme.colors.surface.default,
-                        shape = RoundedCornerShape(theme.radius.xl),
-                    )
-                    .padding(theme.space.lg)
-                    .semantics(mergeDescendants = false) {
-                        contentDescription = "Confirmation dialog"
-                    },
-                verticalArrangement = Arrangement.spacedBy(theme.space.md),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(theme.space.md),
+                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
             ) {
-                // Title
-                LSText(
-                    text = title,
-                    variant = TypographyVariant.Opinion.Lg,
-                    color = ContentColor.Primary,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                // Body (italic, secondary color)
-                LSText(
-                    text = body,
-                    variant = TypographyVariant.Opinion.Sm,
-                    color = ContentColor.Secondary,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                // Actions row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(theme.space.md),
+                // Dialog body - surface.default background with dialog semantics
+                Column(
+                    modifier = modifier
+                        .background(
+                            color = theme.colors.surface.default,
+                            shape = RoundedCornerShape(theme.radius.xl),
+                        )
+                        .padding(theme.space.lg)
+                        .semantics(mergeDescendants = false) {
+                            isDialog = true
+                            contentDescription = "Confirmation dialog"
+                        },
+                    verticalArrangement = Arrangement.spacedBy(theme.space.md),
                 ) {
-                    // Keep button (tertiary - outlined)
-                    LSButton(
-                        label = keepLabel,
-                        variant = ButtonVariant.Tertiary,
-                        onClick = onKeep,
-                        modifier = Modifier
-                            .weight(1f)
-                            .then(keepButtonModifier),
+                    // Title
+                    LSText(
+                        text = title,
+                        variant = TypographyVariant.Opinion.Lg,
+                        color = ContentColor.Primary,
+                        modifier = Modifier.fillMaxWidth(),
                     )
 
-                    // Cancel button (signal - primary filled with signal color)
-                    LSButton(
-                        label = cancelLabel,
-                        variant = ButtonVariant.Primary,
-                        onClick = onCancel,
-                        modifier = Modifier
-                            .weight(1f)
-                            .then(cancelButtonModifier),
+                    // Body (italic, secondary color)
+                    LSText(
+                        text = body,
+                        variant = TypographyVariant.Opinion.Sm,
+                        color = ContentColor.Secondary,
+                        modifier = Modifier.fillMaxWidth(),
                     )
+
+                    // Actions row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(theme.space.md),
+                    ) {
+                        // Keep button (tertiary - outlined)
+                        LSButton(
+                            label = keepLabel,
+                            variant = ButtonVariant.Tertiary,
+                            onClick = onKeep,
+                            modifier = Modifier
+                                .weight(1f)
+                                .then(keepButtonModifier),
+                        )
+
+                        // Cancel button (signal - primary filled with signal color)
+                        LSButton(
+                            label = cancelLabel,
+                            variant = ButtonVariant.Primary,
+                            onClick = onCancel,
+                            modifier = Modifier
+                                .weight(1f)
+                                .then(cancelButtonModifier),
+                        )
+                    }
                 }
             }
         }

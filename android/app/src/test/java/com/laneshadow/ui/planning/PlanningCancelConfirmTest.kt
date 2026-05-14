@@ -101,7 +101,13 @@ class PlanningCancelConfirmTest {
             sheetSource.contains("planning.cancel-confirm.keep-button")
         )
 
-        // Verify dialog semantics
+        // Verify dialog semantics - must have isDialog = true
+        assertTrue(
+            "Cancel-confirm sheet must declare isDialog = true semantic for alertdialog role",
+            sheetSource.contains("isDialog = true")
+        )
+
+        // Verify contentDescription is also present
         assertTrue(
             "PlanningCancelConfirmSheet must have contentDescription for dialog",
             sheetSource.contains("contentDescription = \"Cancel planning confirmation\"")
@@ -266,10 +272,28 @@ class PlanningCancelConfirmTest {
             sheetSource.contains("cancelButtonModifier: Modifier")
         )
 
-        // Verify dialog semantics are set
+        // Verify dialog semantics - must have isDialog = true
+        assertTrue(
+            "LSCancelConfirmSheet must have isDialog = true semantic",
+            sheetSource.contains("isDialog = true")
+        )
+
+        // Verify contentDescription is also present
         assertTrue(
             "LSCancelConfirmSheet must have contentDescription semantic",
             sheetSource.contains("contentDescription = \"Confirmation dialog\"")
+        )
+
+        // Verify no hardcoded scrim color - should use LSScrim
+        assertTrue(
+            "LSCancelConfirmSheet must not use hardcoded Color.Black for scrim",
+            !sheetSource.contains("Color.Black") && !sheetSource.contains("Color(0xFF")
+        )
+
+        // Verify LSScrim is used
+        assertTrue(
+            "LSCancelConfirmSheet must use LSScrim token for backdrop",
+            sheetSource.contains("LSScrim(")
         )
     }
 }
