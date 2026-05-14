@@ -1,7 +1,7 @@
 # PLAN-S08-AND-T04 — Android locked chat input + cancel-confirm BottomSheet wiring db.routePlans.cancelPlan + return-to-idle restoration
 
-> Status: 🟡 In Progress
-> Cycle: 1
+> Status: 🔴 NEEDS_FIXES
+> Cycle: 4
 > Updated: 2026-05-07T19:05:00.000Z
 
 > **Task ID:** PLAN-S08-AND-T04
@@ -63,7 +63,7 @@ This task wires three things together: (1) bind `LSChatInput.isThinking` modifie
 **GIVEN** the planning composition is rendered with `isThinking = true`
 **WHEN** the user invokes the back gesture (or taps the back chip)
 **THEN** `PlanningCancelConfirmSheet` opens (V02 variant) with the scrim rising over the dimmed planning composition; the sheet has `role="alertdialog"` semantics; "Cancel ride" + "Keep planning" actions are reachable by `testTag("planning.cancel-confirm.cancel-button")` and `testTag("planning.cancel-confirm.keep-button")`
-**Verify:** `cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.planning.PlanningCancelConfirmTest.back_tap_opens_v02_cancel_confirm_sheet'`
+**Verify:** `cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.planning.PlanningCancelConfirmTest.back_tap_opens_v02_cancel_confirm_sheet'` ← FAIL: Spec-required test method `back_tap_opens_v02_cancel_confirm_sheet` was removed from PlanningCancelConfirmTest and renamed to `back_tap_opens_v02_cancel_confirm_sheet_with_standard_dialog_semantics` in a new file. Gradle verify command exits BUILD FAILED — 'No tests found'. (evidence: PlanningCancelConfirmSemanticsTest.kt:33)
 
 ### AC-3 — "Cancel ride" tap invokes viewModel.cancel() exactly once
 
