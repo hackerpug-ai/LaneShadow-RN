@@ -55,7 +55,7 @@ struct PlanningScreenTokenTests {
             "templates.planning-screen.cancel-prompt-light",
             "templates.planning-screen.cancel-prompt-dark",
             "templates.planning-screen.single-candidate-light",
-            "templates.planning-screen.single-candidate-dark"
+            "templates.planning-screen.single-candidate-dark",
         ]
 
         for id in requiredIds {
@@ -75,7 +75,7 @@ struct PlanningScreenTokenTests {
             "templates.planning-screen.dark",
             "templates.planning-screen.v-slow",
             "templates.planning-screen.v-cancel-confirm",
-            "templates.planning-screen.v-single-candidate"
+            "templates.planning-screen.v-single-candidate",
         ]
         for oldId in oldPatterns {
             #expect(

@@ -2,6 +2,7 @@ import LaneShadowTheme
 import SwiftUI
 
 struct PlanningScreenContainer: View {
+    @Environment(\.theme) private var theme
     @Bindable private var viewModel: PlanningViewModel
 
     init(viewModel: PlanningViewModel) {
@@ -19,25 +20,47 @@ struct PlanningScreenContainer: View {
             capsuleHeadline: viewModel.capsuleHeadline
         )
 
-        PlanningScreen(
-            liveState: liveState,
-            onCollapse: {
-                viewModel.requestCancelConfirmation()
-            },
-            onSend: { message in
-                Task {
-                    await viewModel.submitRefinement(message)
+        ZStack {
+            PlanningScreen(
+                liveState: liveState,
+                onCollapse: {
+                    viewModel.requestCancelConfirmation()
+                },
+                onSend: { message in
+                    Task {
+                        await viewModel.submitRefinement(message)
+                    }
+                },
+                onRetry: { messageId in
+                    Task {
+                        await viewModel.retryPending(id: messageId)
+                    }
+                },
+                onRequestCancelConfirmation: {
+                    viewModel.requestCancelConfirmation()
                 }
-            },
-            onRetry: { messageId in
-                Task {
-                    await viewModel.retryPending(id: messageId)
+            )
+
+            // Cancel confirm overlay (scrim + sheet)
+            if viewModel.cancelConfirmationVisible {
+                ZStack {
+                    LSScrim(blocking: true)
+                        .ignoresSafeArea()
+                        .accessibilityIdentifier("planningscreen-scrim")
+
+                    PlanningCancelConfirmSheet(
+                        onConfirm: {
+                            Task {
+                                await viewModel.confirmCancellation()
+                            }
+                        },
+                        onDismiss: {
+                            viewModel.dismissCancelConfirmation()
+                        }
+                    )
                 }
-            },
-            onRequestCancelConfirmation: {
-                viewModel.requestCancelConfirmation()
             }
-        )
+        }
         .task {
             await viewModel.observe()
         }

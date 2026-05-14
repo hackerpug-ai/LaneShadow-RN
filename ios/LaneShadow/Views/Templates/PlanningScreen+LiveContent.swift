@@ -20,13 +20,13 @@ extension PlanningScreen {
                     GlassOverlaySlot(
                         id: "phase-indicator",
                         content: { livePhaseIndicatorView(for: liveState) }
-                    )
+                    ),
                 ],
                 bottomOverlays: [
                     GlassOverlaySlot(
                         id: "chat-input",
                         content: { liveBottomOverlay(for: liveState) }
-                    )
+                    ),
                 ],
                 topBar: {
                     LSTopBar(

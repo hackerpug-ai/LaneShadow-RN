@@ -1,8 +1,8 @@
 # PLAN-S08-AND-T03 — Android sketch-polyline overlay (1400ms linear loop + 1400ms ease-in-out breathing head dot, reduced-motion aware)
 
-> Status: 🔴 NEEDS_FIXES (Cycle 3 Review)
-> Cycle: 3
-> Updated: 2026-05-14T00:00:00.000Z
+> Status: 🔴 NEEDS_FIXES (Cycle 5 Review)
+> Cycle: 5
+> Updated: 2026-05-14T23:30:00.000Z
 
 > **Task ID:** PLAN-S08-AND-T03
 > **Sprint:** [Sprint 08 — Map View · Planning State](./SPRINT.md)
@@ -188,25 +188,25 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
     {
       "id": "AC-1",
       "type": "acceptance_criterion",
-      "description": "GIVEN MapSketchAnimationLayer with non-empty path WHEN test clock advances 1400ms THEN pathDrawProgress cycles 0→1 linear with midpoint at 700ms ≈ 0.5",
+      "description": "GIVEN MapSketchAnimationLayer with non-empty path WHEN test clock advances 1400ms THEN pathDrawProgress cycles 0\u21921 linear with midpoint at 700ms \u2248 0.5",
       "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.path_draw_progress_cycles_at_1400ms_linear'",
-      "satisfied": "PARTIAL",
-      "evidence": "MapSketchAnimationLayer.kt:106-114 — infiniteRepeatable+tween+RepeatMode.Restart present. BUT test (MapSketchAnimationLayerTest.kt:34-56) is pure source-text inspection: asserts componentSource.contains('animateFloat') etc. No Compose test rule, no mainClock.autoAdvance=false, no actual clock-advance to 700ms midpoint verification. Test is Category 4 Test Theatre.",
-      "remediation": "Replace source-text assertions with a ComposeTestRule + mainClock.autoAdvance=false test that actually advances the clock 700ms and reads pathDrawProgress from a SemanticsPropertyKey or callback, verifying ≈0.5f midpoint.",
-      "last_evaluated_cycle": 2,
-      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "satisfied": "PASS",
+      "evidence": "Cycle 5: MapSketchAnimationLayerBehaviorTest.kt (src/test/) annotated @RunWith(RobolectricTestRunner) + @Config(manifest=Config.NONE, sdk=[34]) runs via testDebugUnitTest. ac1_path_draw_progress_at_700ms_is_approximately_half: mainClock.autoAdvance=false, advanceTimeBy(700L), assertThat(observedPathProgress).isWithin(0.05f).of(0.5f) \u2014 PASSES. ac1_path_draw_progress_at_1400ms_completes_full_cycle: advanceTimeBy(1400L), assertThat(observedPathProgress).isAtLeast(0.95f) \u2014 PASSES. XML: TEST-com.laneshadow.ui.atoms.MapSketchAnimationLayerBehaviorTest.xml tests=8 failures=0 errors=0. Robolectric dep at build.gradle.kts:213.",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
       "maps_to_ac": null
     },
     {
       "id": "AC-2",
       "type": "acceptance_criterion",
-      "description": "GIVEN composable mounted WHEN test clock advances 2800ms THEN headDotAlpha cycles 0→1→0 ease-in-out reversed with peak at 1400ms",
+      "description": "GIVEN composable mounted WHEN test clock advances 2800ms THEN headDotAlpha cycles 0\u21921\u21920 ease-in-out reversed with peak at 1400ms",
       "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.head_dot_breathing_cycles_at_1400ms_easeinout'",
-      "satisfied": "PARTIAL",
-      "evidence": "MapSketchAnimationLayer.kt:117-128 — animateFloat with RepeatMode.Reverse + EaseInOut present. Same test-theatre problem: MapSketchAnimationLayerTest.kt:66-83 only reads source text, never exercises the animation clock to verify 2800ms full cycle or 1400ms peak alpha=1.0.",
-      "remediation": "Compose test rule advancing 1400ms → assert headDotAlpha == 1.0f; advance another 1400ms → assert headDotAlpha ≈ 0.0f.",
-      "last_evaluated_cycle": 2,
-      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "satisfied": "PASS",
+      "evidence": "Cycle 5: ac2_head_dot_alpha_at_1400ms_reaches_peak: advanceTimeBy(1400L), assertThat(observedHeadDotAlpha).isWithin(0.05f).of(1.0f) \u2014 PASSES. ac2_head_dot_alpha_at_2800ms_returns_to_zero: advanceTimeBy(2800L), assertThat(observedHeadDotAlpha).isWithin(0.05f).of(0.0f) \u2014 PASSES. Both in MapSketchAnimationLayerBehaviorTest.kt (src/test/) running via testDebugUnitTest with Robolectric. XML: 0 failures.",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
       "maps_to_ac": null
     },
     {
@@ -214,11 +214,11 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
       "type": "acceptance_criterion",
       "description": "GIVEN reduced-motion enabled WHEN composable runs THEN pathDrawProgress=1.0 + headDotAlpha=1.0 static; no infiniteRepeatable launched",
       "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.reduced_motion_collapses_to_static'",
-      "satisfied": "FAIL",
-      "evidence": "MapSketchAnimationLayer.kt:54 exposes reducedMotionEnabled: Boolean = false as a parameter — caller (PlanningScreen.kt:142-145) NEVER passes reducedMotionEnabled; default is false always. No Settings.Global.ANIMATOR_DURATION_SCALE read, no LocalAccessibilityManager check inside the composable. Reduced-motion is always disabled in production. LSPhaseDot (the stated reference pattern) does not do this either — LSContextCapsule.kt:421-426 IS the project pattern for reading ANIMATOR_DURATION_SCALE, and MapSketchAnimationLayer does not use it.",
-      "remediation": "Remove the boolean parameter. Inside the composable, read Settings.Global.getFloat(LocalContext.current.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f and branch on the result. PlanningScreen must not need to pass anything — the composable self-detects. Update test to override via a test-parameter or by mocking the ContentResolver value.",
-      "last_evaluated_cycle": 2,
-      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "satisfied": "PASS",
+      "evidence": "Cycle 5: ac3_reduced_motion_keeps_path_progress_static_at_one in MapSketchAnimationLayerBehaviorTest.kt: reducedMotionOverride=true, advanceTimeBy(2000L), assertThat(observedPathProgress).isWithin(0.001f).of(1.0f) and assertThat(observedHeadDotAlpha).isWithin(0.001f).of(1.0f) \u2014 PASSES via testDebugUnitTest (Robolectric). XML: 0 failures.",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
       "maps_to_ac": null
     },
     {
@@ -227,10 +227,10 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
       "description": "GIVEN empty path WHEN composable runs THEN no Canvas draw + no crash + no head-dot rendered",
       "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.empty_path_renders_nothing_without_crash'",
       "satisfied": "PASS",
-      "evidence": "MapSketchAnimationLayer.kt:77-79 — if (path.isEmpty()) return before any animation or Canvas call. SketchPolylineCanvas:168-170 and SketchHeadDot:219-221 also guard. Test MapSketchAnimationLayerTest.kt:121-130 verifies path.isEmpty() guard exists in source.",
+      "evidence": "Cycle 4: MapSketchAnimationLayer.kt:79 \u2014 if (path.isEmpty()) return. Instrumented test ac4_empty_path_renders_nothing_without_crash (androidTest:169-185) advances clock 1500ms and asserts progressCallCount == 0 (callback-count assertion, not tautology). Source-text test also verifies the structural guard. Both pass.",
       "remediation": null,
-      "last_evaluated_cycle": 2,
-      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
       "maps_to_ac": null
     },
     {
@@ -239,10 +239,10 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
       "description": "GIVEN composable runs light then dark theme WHEN stroke color captured THEN equals LaneShadowTheme.semantic.route.best per theme; zero hex literals in source",
       "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.stroke_color_resolves_to_route_best_token'",
       "satisfied": "PARTIAL",
-      "evidence": "MapSketchAnimationLayer.kt:65-69 — GeneratedTokens.color.Route.best (light) and GeneratedTokens.color.Route.dark.best (dark); no Color(0x) literals. But stroke width at line 201 is hardcoded 3.dp (not a token). Head-dot draw at line 240 hardcodes 6.dp radius. Additionally the head dot at line 239 uses GeneratedTokens.color.Route.best unconditionally (not dark-theme-aware), while the polyline correctly switches. This is an inconsistency in the token resolution path for the dot in dark mode. Test is source-text inspection only; no actual theme-context rendering to compare returned Color values.",
-      "remediation": "Fix head-dot to use theme-aware color same as polyline (isDarkTheme branch). Stroke width 3.dp and dot radius 6.dp should resolve from theme tokens (e.g. theme.borderWidth.route / a size token) if the design system exposes them; if not, document explicitly why literals are acceptable.",
-      "last_evaluated_cycle": 2,
-      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "evidence": "Cycle 5: Light-theme test (ac5_stroke_color_resolved_via_callback) is real \u2014 asserts resolvedStrokeColor == GeneratedTokens.color.Route.best, PASSES. Dark-theme test (ac5_stroke_color_resolved_via_callback_dark_theme, BehaviorTest.kt:272-299) is TEST THEATRE: does not force dark theme via Configuration.UI_MODE_NIGHT_YES or MaterialTheme(darkColorScheme()); accepts isDarkTheme||isLightTheme (line 298) \u2014 the test always resolves light-theme in Robolectric environment (isSystemInDarkTheme()=false), making the dark-branch assertion vacuously true. This does NOT verify the dark code path in MapSketchAnimationLayer.kt:67-68. Production dark-branch exists but is untested.",
+      "remediation": "Force dark theme in test: wrap setContent with Configuration.UI_MODE_NIGHT_YES override (e.g., RuntimeEnvironment.getApplication().resources.configuration.uiMode = Configuration.UI_MODE_NIGHT_YES or use darkColorScheme MaterialTheme wrapper) so isSystemInDarkTheme() returns true inside the composable. Then assert resolvedStrokeColor == GeneratedTokens.color.Route.dark.best (not the OR-check).",
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
       "maps_to_ac": null
     },
     {
@@ -250,35 +250,35 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
       "type": "acceptance_criterion",
       "description": "GIVEN new files WHEN enforce-native-compliance.sh + ktlintCheck run + git diff inspected THEN gates exit 0 and LSMap.kt / LSMapHost.kt not modified",
       "verify": "scripts/tokens/enforce-native-compliance.sh && cd android && ./gradlew ktlintCheck",
-      "satisfied": "PARTIAL",
-      "evidence": "enforce-native-compliance.sh exit 0, ktlintCheck exit 0, detekt exit 0, assembleDebug BUILD SUCCESSFUL. LSMap.kt/LSMapHost.kt not in diff. BUT MapSketchAnimationLayer.kt:179,180,226,227 contain hardcoded Bay Area-flavored coordinate offsets (lon + 122.5, 37.9 - latlng.lat) with 'Arbitrary scale for demo' comments. These are not hex color literals (so enforcement script passes) but they ARE semantic stubs in the coordinate-projection logic. Lines 196-197 carry explicit 'For testing purposes, draw the entire path (real integration would clip based on progress)' — confirming pathProgress is computed but NOT used to clip the drawn path.",
-      "remediation": "The pathProgress value must actually clip the drawn path (e.g. PathMeasure / drawWithContent clipping or proportional segment drawing). The Bay Area offset constants must be replaced with canvas-normalized coordinates derived from path bounding box, since Mapbox projection APIs are unavailable in unit tests.",
-      "last_evaluated_cycle": 2,
-      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "satisfied": "PASS",
+      "evidence": "Cycle 4: ktlintCheck exit 0, detekt exit 0, assembleDebug BUILD SUCCESSFUL. compileDebugAndroidTestKotlin exit 0 (Truth dependency resolved correctly \u2014 com.google.truth:truth:1.4.4 publishes com.google.common.truth.Truth class, so both package coords and import are correct). LSMap.kt/LSMapHost.kt not in diff. No stub comments (For testing purposes, Bay Area offsets, real integration would clip) found in source. pathProgress genuinely clips via ceil(normalizedCoordinates.size * pathProgress) at line 240-243 with sub-segment interpolation at lines 251-257.",
+      "remediation": null,
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
       "maps_to_ac": null
     },
     {
       "id": "TC-1",
       "type": "test_criterion",
-      "description": "path-draw progress cycles 0→1 over 1400ms linear with midpoint ≈ 0.5",
+      "description": "path-draw progress cycles 0\u21921 over 1400ms linear with midpoint \u2248 0.5",
       "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.path_draw_progress_cycles_at_1400ms_linear'",
-      "satisfied": "FAIL",
-      "evidence": "MapSketchAnimationLayerTest.kt:34-56 — source-text inspection only. Not a Compose animation test.",
+      "satisfied": "PASS",
+      "evidence": "Cycle 5: Behavior tests migrated to src/test/ via Robolectric. Both ac1_* tests pass via testDebugUnitTest. XML confirms 0 failures.",
       "remediation": null,
-      "last_evaluated_cycle": 2,
-      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
       "maps_to_ac": "AC-1"
     },
     {
       "id": "TC-2",
       "type": "test_criterion",
-      "description": "head-dot alpha cycles 0→1→0 over 2800ms ease-in-out reversed",
+      "description": "head-dot alpha cycles 0\u21921\u21920 over 2800ms ease-in-out reversed",
       "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.head_dot_breathing_cycles_at_1400ms_easeinout'",
-      "satisfied": "FAIL",
-      "evidence": "MapSketchAnimationLayerTest.kt:66-83 — source-text inspection only.",
+      "satisfied": "PASS",
+      "evidence": "Cycle 5: Both ac2_* tests pass via testDebugUnitTest (Robolectric). XML confirms 0 failures.",
       "remediation": null,
-      "last_evaluated_cycle": 2,
-      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
       "maps_to_ac": "AC-2"
     },
     {
@@ -286,11 +286,11 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
       "type": "test_criterion",
       "description": "reduced-motion path collapses both animations to static state",
       "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.reduced_motion_collapses_to_static'",
-      "satisfied": "FAIL",
-      "evidence": "MapSketchAnimationLayerTest.kt:94-111 — asserts reducedMotionEnabled parameter exists in source; does not test actual runtime behavior when reduced-motion is active. Additionally, AC-3 implementation is broken (param never passed by caller).",
+      "satisfied": "PASS",
+      "evidence": "Cycle 5: ac3_reduced_motion_keeps_path_progress_static_at_one passes via testDebugUnitTest (Robolectric). isWithin(0.001f).of(1.0f) assertions pass. XML confirms 0 failures.",
       "remediation": null,
-      "last_evaluated_cycle": 2,
-      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
       "maps_to_ac": "AC-3"
     },
     {
@@ -299,10 +299,10 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
       "description": "empty path renders nothing + no crash",
       "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.empty_path_renders_nothing_without_crash'",
       "satisfied": "PASS",
-      "evidence": "MapSketchAnimationLayerTest.kt:121-130 — source check valid for this AC (empty-path guard is structural, not behavioral).",
+      "evidence": "Cycle 4: Callback-count assertion (progressCallCount == 0) in androidTest/ passes. Source-text guard check also passes.",
       "remediation": null,
-      "last_evaluated_cycle": 2,
-      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
       "maps_to_ac": "AC-4"
     },
     {
@@ -311,10 +311,10 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
       "description": "stroke color resolves to LaneShadowTheme.semantic.route.best in both themes",
       "verify": "cd android && ./gradlew :app:testDebugUnitTest --tests 'com.laneshadow.ui.atoms.MapSketchAnimationLayerTest.stroke_color_resolves_to_route_best_token'",
       "satisfied": "PARTIAL",
-      "evidence": "MapSketchAnimationLayerTest.kt:140-161 — source checks valid for no-hex-literal rule; does not exercise theme-context rendering.",
-      "remediation": null,
-      "last_evaluated_cycle": 2,
-      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "evidence": "Cycle 5: Light-theme test PASSES with == comparison. Dark-theme test is test theatre \u2014 passes vacuously because it accepts isDarkTheme||isLightTheme without forcing dark mode.",
+      "remediation": "Same as AC-5: force dark mode in Robolectric test so isSystemInDarkTheme() returns true; assert == GeneratedTokens.color.Route.dark.best exclusively.",
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
       "maps_to_ac": "AC-5"
     },
     {
@@ -322,11 +322,11 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
       "type": "test_criterion",
       "description": "enforce-native-compliance.sh + ktlintCheck both exit 0; consumed components not modified",
       "verify": "scripts/tokens/enforce-native-compliance.sh && cd android && ./gradlew ktlintCheck",
-      "satisfied": "PARTIAL",
-      "evidence": "Gates pass but pathProgress clipping is a stub comment in source (line 196-197); Bay Area offsets remain.",
+      "satisfied": "PASS",
+      "evidence": "Cycle 4: All gates exit 0. No stub comments, no fake offsets, no hex literals. pathProgress genuinely clips path.",
       "remediation": null,
-      "last_evaluated_cycle": 2,
-      "last_evaluated_commit": "c9054b68339ec53d991112705f799de52d00fc0e",
+      "last_evaluated_cycle": 5,
+      "last_evaluated_commit": "703efc9f3c3728799820fb243b897852771f3c6e",
       "maps_to_ac": "AC-6"
     }
   ]

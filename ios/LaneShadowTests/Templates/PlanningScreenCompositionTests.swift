@@ -31,7 +31,7 @@ struct PlanningScreenCompositionTests {
             LSPhaseIndicator.Phase(id: "p2", label: "Drawing", state: .active),
             LSPhaseIndicator.Phase(id: "p3", label: "Weather", state: .pending),
             LSPhaseIndicator.Phase(id: "p4", label: "Scoring", state: .pending),
-            LSPhaseIndicator.Phase(id: "p5", label: "Ranking", state: .pending)
+            LSPhaseIndicator.Phase(id: "p5", label: "Ranking", state: .pending),
         ]
 
         let liveState = PlanningScreenLiveState(
@@ -111,7 +111,7 @@ struct PlanningScreenCompositionTests {
             LSPhaseIndicator.Phase(id: "p2", label: "Drawing", state: .done),
             LSPhaseIndicator.Phase(id: "p3", label: "Weather", state: .active),
             LSPhaseIndicator.Phase(id: "p4", label: "Scoring", state: .pending),
-            LSPhaseIndicator.Phase(id: "p5", label: "Ranking", state: .pending)
+            LSPhaseIndicator.Phase(id: "p5", label: "Ranking", state: .pending),
         ]
 
         let liveState = PlanningScreenLiveState(
@@ -288,7 +288,7 @@ struct PlanningScreenCompositionTests {
         // that would break SwiftUI identity preservation.
         let mapLiteralCount = source.components(separatedBy: "LSMap(").count - 1
         #expect(mapLiteralCount == 1,
-            "Expected exactly 1 LSMap(...) instantiation in PlanningScreen.swift; found \(mapLiteralCount)")
+                "Expected exactly 1 LSMap(...) instantiation in PlanningScreen.swift; found \(mapLiteralCount)")
     }
 
     // MARK: - Integration: Planning default variant snapshot
@@ -316,7 +316,7 @@ struct PlanningScreenCompositionTests {
             UITraitCollection(userInterfaceStyle: .dark),
             UITraitCollection(userInterfaceIdiom: .phone),
             UITraitCollection(horizontalSizeClass: .compact),
-            UITraitCollection(verticalSizeClass: .regular)
+            UITraitCollection(verticalSizeClass: .regular),
         ])))
     }
 }
