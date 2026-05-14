@@ -73,10 +73,9 @@ public struct IdleScreen: View {
                 ],
                 topBar: {
                     LSTopBar(
-                        capsule: topBarCapsuleState,
-                        trailing: .newChip(action: onNewTap),
                         onMenuTap: onMenuTap,
-                        onNewTap: onNewTap
+                        onNewTap: onNewTap,
+                        centerContent: { capsuleView }
                     )
                 }
             )
@@ -117,6 +116,20 @@ public struct IdleScreen: View {
             onToggleView: nil
         )
         .accessibilityIdentifier("idle-map-controls")
+    }
+
+    private var capsuleView: some View {
+        LSContextCapsule(
+            state: topBarCapsuleState,
+            isWarning: state.weatherAdvisory != nil,
+            isSaved: false,
+            appearance: .chip
+        )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Idle context capsule")
+        .accessibilityIdentifier("idle-context-capsule")
+        .padding(.horizontal, theme.space.md)
+        .padding(.vertical, theme.space.md)
     }
 
     // MARK: - Helper Methods

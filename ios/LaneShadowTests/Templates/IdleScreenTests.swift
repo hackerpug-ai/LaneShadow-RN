@@ -7,6 +7,25 @@ import XCTest
 @testable import LaneShadow
 
 @MainActor
+private func assertSandboxIdleHeaderUsesSingleTopbarContainer() throws {
+    let inspected = try IdleScreen(provider: IdleMockProvider.self)
+        .laneShadowTheme()
+        .inspect()
+
+    let topBar = try inspected.find(viewWithAccessibilityIdentifier: "maplayer.topBar")
+    let capsule = try topBar.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
+    let newChip = try topBar.find(viewWithAccessibilityIdentifier: "lstopbar-new")
+
+    #expect(capsule != nil)
+    #expect(newChip != nil)
+
+    do {
+        _ = try inspected.find(viewWithAccessibilityIdentifier: "maplayer.topOverlay.context-capsule")
+        XCTFail("Sandbox idle context capsule must not remain in topOverlays once top bar center content is used")
+    } catch {}
+}
+
+@MainActor
 struct IdleScreenTemplateTests {
     /// AC-1: Idle composition renders all six slot elements (snapshot + manual verification)
     @Test
@@ -204,11 +223,9 @@ struct IdleScreenTemplateTests {
             .laneShadowTheme()
             .inspect()
 
-        _ = try inspected.find(text: "Where are we riding today?")
-        _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-title")
-        _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-meta")
-        _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-headline")
-        #expect((try? inspected.find(viewWithAccessibilityIdentifier: "idle-context-capsule")) == nil)
+        let topBar = try inspected.find(viewWithAccessibilityIdentifier: "maplayer.topBar")
+        _ = try topBar.find(viewWithAccessibilityIdentifier: "idle-context-capsule")
+        _ = try topBar.find(viewWithAccessibilityIdentifier: "lstopbar-new")
     }
 
     @Test
@@ -250,10 +267,19 @@ struct IdleScreenTemplateTests {
         #expect(viewModel.topBarMetaText == "WED · 72°F · SUNNY")
         #expect(String(viewModel.topBarHeadline.characters) == "Where are we riding today, rider?")
     }
+
+    @Test("test_sandbox_idle_header_uses_single_topbar_container")
+    func sandbox_idle_header_uses_single_topbar_container() throws {
+        try assertSandboxIdleHeaderUsesSingleTopbarContainer()
+    }
 }
 
 @MainActor
 final class IdleScreenTests: XCTestCase {
+    func test_sandbox_idle_header_uses_single_topbar_container() throws {
+        try assertSandboxIdleHeaderUsesSingleTopbarContainer()
+    }
+
     func test_idle_chat_suggestions_use_shared_spacing() throws {
         let templateSuggestions = try IdleScreen(provider: IdleMockProvider.self)
             .laneShadowTheme()

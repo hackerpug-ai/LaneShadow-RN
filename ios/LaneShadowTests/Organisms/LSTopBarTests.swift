@@ -1,10 +1,34 @@
 import LaneShadowTheme
 import SwiftUI
 import Testing
+import XCTest
 @testable import LaneShadow
 
+private func loadLSTopBarSource(from filePath: StaticString = #filePath) throws -> String {
+    let testFile = URL(fileURLWithPath: "\(filePath)")
+    let iosRoot = testFile
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+    let sourceURL = iosRoot
+        .appendingPathComponent("LaneShadow")
+        .appendingPathComponent("Views")
+        .appendingPathComponent("Organisms")
+        .appendingPathComponent("LSTopBar.swift")
+
+    return try String(contentsOf: sourceURL, encoding: .utf8)
+}
+
+private func assertCenterContentSlotKeepsMenuAndNewAligned() throws {
+    let source = try loadLSTopBarSource()
+    #expect(source.contains("ZStack(alignment: .center)"))
+    #expect(source.contains(".accessibilityIdentifier(\"lstopbar-center\")"))
+    #expect(source.contains("self.trailing = trailing ?? .newChip(action: onNewTap)"))
+    #expect(source.contains(".accessibilityIdentifier(\"lstopbar-new\")"))
+}
+
 @MainActor
-struct LSTopBarTests {
+struct LSTopBarSpecTests {
     @Test("test_default_renders_glass_hamburger_and_new_chip")
     func default_renders_glass_hamburger_and_new_chip() {
         // GIVEN: developer renders LSTopBar with onMenuTap and onNewTap callbacks
@@ -88,6 +112,11 @@ struct LSTopBarTests {
         // Structural verification: body resolves without crashing
     }
 
+    @Test("test_center_content_slot_keeps_menu_and_new_aligned")
+    func center_content_slot_keeps_menu_and_new_aligned() throws {
+        try assertCenterContentSlotKeepsMenuAndNewAligned()
+    }
+
     @Test("test_topbar_and_navbar_stories_registered")
     func topbar_and_navbar_stories_registered() {
         // GIVEN: developer opens the sandbox
@@ -106,5 +135,12 @@ struct LSTopBarTests {
             "Record Highlight TopBar story should be registered"
         )
         #expect(storyIds.contains("organisms.navbar.default"), "Default NavBar story should be registered")
+    }
+}
+
+@MainActor
+final class LSTopBarTests: XCTestCase {
+    func test_center_content_slot_keeps_menu_and_new_aligned() throws {
+        try assertCenterContentSlotKeepsMenuAndNewAligned()
     }
 }
