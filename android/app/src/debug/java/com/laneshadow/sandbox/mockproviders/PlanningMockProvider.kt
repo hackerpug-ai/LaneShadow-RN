@@ -16,6 +16,7 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
 
     override val variants: List<String> = listOf(
         "default", "empty", "overflow", "long-copy",
+        "scouting", "drawing", "weather", "scoring",
         "v-slow", "v-cancel-confirm", "v-single-candidate"
     )
 
@@ -24,6 +25,10 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
             "empty" -> emptyState()
             "overflow" -> overflowState()
             "long-copy" -> longCopyState()
+            "scouting" -> scoutingState()
+            "drawing" -> drawingState()
+            "weather" -> weatherState()
+            "scoring" -> scoringState()
             "v-slow" -> slowState()
             "v-cancel-confirm" -> cancelConfirmState()
             "v-single-candidate" -> singleCandidateState()
@@ -162,6 +167,151 @@ object PlanningMockProvider : MockProvider<PlanningScreenState> {
                 PlanningPhaseStep(id = "drafting", label = "Drafting route options and checking that all segments connect properly", state = PhaseDotState.Active),
                 PlanningPhaseStep(id = "enriching", label = "Enriching with weather conditions and scenic details", state = PhaseDotState.Pending),
                 PlanningPhaseStep(id = "finalizing", label = "Finalizing plan based on scenery, difficulty, and weather", state = PhaseDotState.Pending)
+            ),
+            headerLabel = "Let me think on that…"
+        )
+    }
+
+    /**
+     * S01: Scouting
+     * Phase 1 (Scouting) active with pulsing ring; phases 2-5 pending
+     */
+    private fun scoutingState(): PlanningScreenState {
+        return PlanningScreenState(
+            phases = listOf(
+                PlanningPhase(id = "parsing", label = "Scouting trails near you…", status = "active"),
+                PlanningPhase(id = "searching", label = "Searching for routes", status = "pending"),
+                PlanningPhase(id = "drafting", label = "Drafting options", status = "pending"),
+                PlanningPhase(id = "enriching", label = "Enriching details", status = "pending"),
+                PlanningPhase(id = "finalizing", label = "Finalizing plan", status = "pending")
+            ),
+            message = NavigatorMessage(
+                id = "msg-planning-scouting",
+                sessionId = "session-scouting",
+                body = "Scenic 2-hour ride, avoid highways",
+                timestamp = "2026-04-25T10:30:00Z",
+                kind = "prompt",
+                attachments = null,
+                detail = null,
+                pinned = false
+            ),
+            isThinking = true,
+            capsuleHeadline = "Scouting trails near you…",
+            phaseSteps = listOf(
+                PlanningPhaseStep(id = "parsing", label = "Scouting trails near you…", state = PhaseDotState.Active),
+                PlanningPhaseStep(id = "searching", label = "Searching for routes", state = PhaseDotState.Pending),
+                PlanningPhaseStep(id = "drafting", label = "Drafting options", state = PhaseDotState.Pending),
+                PlanningPhaseStep(id = "enriching", label = "Enriching details", state = PhaseDotState.Pending),
+                PlanningPhaseStep(id = "finalizing", label = "Finalizing plan", state = PhaseDotState.Pending)
+            ),
+            headerLabel = "Let me think on that…"
+        )
+    }
+
+    /**
+     * S02: Drawing
+     * Phase 1 done (check); phase 2 (Drawing) active; phases 3-5 pending
+     */
+    private fun drawingState(): PlanningScreenState {
+        return PlanningScreenState(
+            phases = listOf(
+                PlanningPhase(id = "parsing", label = "Parsing your request", status = "done"),
+                PlanningPhase(id = "searching", label = "Drawing the route…", status = "active"),
+                PlanningPhase(id = "drafting", label = "Drafting options", status = "pending"),
+                PlanningPhase(id = "enriching", label = "Enriching details", status = "pending"),
+                PlanningPhase(id = "finalizing", label = "Finalizing plan", status = "pending")
+            ),
+            message = NavigatorMessage(
+                id = "msg-planning-drawing",
+                sessionId = "session-drawing",
+                body = "Scenic 2-hour ride, avoid highways",
+                timestamp = "2026-04-25T10:30:00Z",
+                kind = "prompt",
+                attachments = null,
+                detail = null,
+                pinned = false
+            ),
+            isThinking = true,
+            capsuleHeadline = "Drawing the route…",
+            phaseSteps = listOf(
+                PlanningPhaseStep(id = "parsing", label = "Parsing your request", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "searching", label = "Drawing the route…", state = PhaseDotState.Active),
+                PlanningPhaseStep(id = "drafting", label = "Drafting options", state = PhaseDotState.Pending),
+                PlanningPhaseStep(id = "enriching", label = "Enriching details", state = PhaseDotState.Pending),
+                PlanningPhaseStep(id = "finalizing", label = "Finalizing plan", state = PhaseDotState.Pending)
+            ),
+            headerLabel = "Let me think on that…"
+        )
+    }
+
+    /**
+     * S03: Weather
+     * Phases 1-2 done; phase 3 (Weather) active; phases 4-5 pending
+     */
+    private fun weatherState(): PlanningScreenState {
+        return PlanningScreenState(
+            phases = listOf(
+                PlanningPhase(id = "parsing", label = "Parsing your request", status = "done"),
+                PlanningPhase(id = "searching", label = "Searching for routes", status = "done"),
+                PlanningPhase(id = "drafting", label = "Checking weather…", status = "active"),
+                PlanningPhase(id = "enriching", label = "Enriching details", status = "pending"),
+                PlanningPhase(id = "finalizing", label = "Finalizing plan", status = "pending")
+            ),
+            message = NavigatorMessage(
+                id = "msg-planning-weather",
+                sessionId = "session-weather",
+                body = "Scenic 2-hour ride, avoid highways",
+                timestamp = "2026-04-25T10:30:00Z",
+                kind = "prompt",
+                attachments = null,
+                detail = null,
+                pinned = false
+            ),
+            isThinking = true,
+            capsuleHeadline = "Checking weather…",
+            phaseSteps = listOf(
+                PlanningPhaseStep(id = "parsing", label = "Parsing your request", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "searching", label = "Searching for routes", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "drafting", label = "Checking weather…", state = PhaseDotState.Active),
+                PlanningPhaseStep(id = "enriching", label = "Enriching details", state = PhaseDotState.Pending),
+                PlanningPhaseStep(id = "finalizing", label = "Finalizing plan", state = PhaseDotState.Pending)
+            ),
+            headerLabel = "Let me think on that…"
+        )
+    }
+
+    /**
+     * S04: Scoring
+     * Phases 1-3 done; phase 4 (Scoring) active; phase 5 pending
+     * Note: The "overflow" variant currently represents this state; reusing it here
+     */
+    private fun scoringState(): PlanningScreenState {
+        return PlanningScreenState(
+            phases = listOf(
+                PlanningPhase(id = "parsing", label = "Parsing your request", status = "done"),
+                PlanningPhase(id = "searching", label = "Searching for routes", status = "done"),
+                PlanningPhase(id = "drafting", label = "Drafting options", status = "done"),
+                PlanningPhase(id = "enriching", label = "Scoring candidates…", status = "active"),
+                PlanningPhase(id = "finalizing", label = "Finalizing plan", status = "pending")
+            ),
+            message = NavigatorMessage(
+                id = "msg-planning-scoring",
+                sessionId = "session-scoring",
+                body = "Scenic 2-hour ride, avoid highways, include stops at viewpoints and coffee shops",
+                timestamp = "2026-04-25T10:30:00Z",
+                kind = "prompt",
+                attachments = null,
+                detail = null,
+                pinned = false
+            ),
+            isThinking = true,
+            capsuleHeadline = "Scoring candidates…",
+            phaseSteps = listOf(
+                PlanningPhaseStep(id = "parsing", label = "Parsing your request", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "searching", label = "Searching for routes", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "drafting", label = "Drafting options", state = PhaseDotState.Done),
+                PlanningPhaseStep(id = "enriching", label = "Scoring candidates…", state = PhaseDotState.Active),
+                PlanningPhaseStep(id = "finalizing", label = "Finalizing plan", state = PhaseDotState.Pending)
             ),
             headerLabel = "Let me think on that…"
         )

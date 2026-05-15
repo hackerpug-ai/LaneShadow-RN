@@ -1,7 +1,6 @@
 package com.laneshadow.ui.sandbox.stories
 
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.isSystemInDarkTheme
 import com.laneshadow.sandbox.mockproviders.PlanningMockProvider
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.sandbox.model.SandboxStory
@@ -38,7 +37,7 @@ object Sprint04PlanningStories {
             name = "S01 · Scouting · Light",
             summary = "Region scan — parsing stub growing, phase 1 active pulsing, light theme",
         ) {
-            val state = PlanningMockProvider.value("default")
+            val state = PlanningMockProvider.value("scouting")
             LaneShadowTheme(darkTheme = false) {
                 PlanningScreen(
                     state = state,
@@ -59,7 +58,7 @@ object Sprint04PlanningStories {
             name = "S01 · Scouting · Dark",
             summary = "Region scan — parsing stub growing, phase 1 active pulsing, dark theme",
         ) {
-            val state = PlanningMockProvider.value("default")
+            val state = PlanningMockProvider.value("scouting")
             LaneShadowTheme(darkTheme = true) {
                 PlanningScreen(
                     state = state,
@@ -81,7 +80,7 @@ object Sprint04PlanningStories {
             name = "S02 · Drawing · Light",
             summary = "Candidate routes — searching extended, phase 2 active, phases 1 done, light theme",
         ) {
-            val state = PlanningMockProvider.value("default")
+            val state = PlanningMockProvider.value("drawing")
             LaneShadowTheme(darkTheme = false) {
                 PlanningScreen(
                     state = state,
@@ -102,7 +101,7 @@ object Sprint04PlanningStories {
             name = "S02 · Drawing · Dark",
             summary = "Candidate routes — searching extended, phase 2 active, phases 1 done, dark theme",
         ) {
-            val state = PlanningMockProvider.value("default")
+            val state = PlanningMockProvider.value("drawing")
             LaneShadowTheme(darkTheme = true) {
                 PlanningScreen(
                     state = state,
@@ -124,7 +123,7 @@ object Sprint04PlanningStories {
             name = "S03 · Weather · Light",
             summary = "Weather overlay — route drafting with conditions, phase 3 active, light theme",
         ) {
-            val state = PlanningMockProvider.value("default")
+            val state = PlanningMockProvider.value("weather")
             LaneShadowTheme(darkTheme = false) {
                 PlanningScreen(
                     state = state,
@@ -145,7 +144,7 @@ object Sprint04PlanningStories {
             name = "S03 · Weather · Dark",
             summary = "Weather overlay — route drafting with conditions, phase 3 active, dark theme",
         ) {
-            val state = PlanningMockProvider.value("default")
+            val state = PlanningMockProvider.value("weather")
             LaneShadowTheme(darkTheme = true) {
                 PlanningScreen(
                     state = state,
@@ -167,7 +166,7 @@ object Sprint04PlanningStories {
             name = "S04 · Scoring · Light",
             summary = "Route scoring — three candidates visible, phase 4 active, light theme",
         ) {
-            val state = PlanningMockProvider.value("default")
+            val state = PlanningMockProvider.value("scoring")
             LaneShadowTheme(darkTheme = false) {
                 PlanningScreen(
                     state = state,
@@ -188,7 +187,7 @@ object Sprint04PlanningStories {
             name = "S04 · Scoring · Dark",
             summary = "Route scoring — three candidates visible, phase 4 active, dark theme",
         ) {
-            val state = PlanningMockProvider.value("default")
+            val state = PlanningMockProvider.value("scoring")
             LaneShadowTheme(darkTheme = true) {
                 PlanningScreen(
                     state = state,
