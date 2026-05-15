@@ -188,6 +188,44 @@
 			);
 			target = 99475776B313D476E98630D0 /* LaneShadow */;
 		};
+		7E44F89F8450061538E56AF9 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				__Snapshots__/ErrorScreenTests,
+				__Snapshots__/ErrorScreenTests/dark_mode_snapshot.1.png,
+				__Snapshots__/ErrorScreenTests/default_renders_all_slots.1.png,
+				__Snapshots__/IdleScreenTests,
+				__Snapshots__/IdleScreenTests/idle_dark_mode.1.png,
+				__Snapshots__/IdleScreenTests/idle_default_renders.1.png,
+				__Snapshots__/PlanningScreenCompositionTests,
+				__Snapshots__/PlanningScreenCompositionTests/capsule_bindsViewModelHeadline.1.png,
+				__Snapshots__/PlanningScreenCompositionTests/chatInput_lockedWhenThinking.1.png,
+				__Snapshots__/PlanningScreenCompositionTests/indicator_bindsViewModelPhaseSteps.1.png,
+				__Snapshots__/PlanningScreenCompositionTests/mapControls_planningConfiguration.1.png,
+				__Snapshots__/PlanningScreenCompositionTests/planning_dark_renders.1.png,
+				__Snapshots__/PlanningScreenCompositionTests/planning_default_renders.1.png,
+				__Snapshots__/PlanningScreenCompositionTests/topOverlay_capsuleAboveIndicator.1.png,
+				__Snapshots__/PlanningScreenTests,
+				__Snapshots__/PlanningScreenTests/capsule_bindsViewModelHeadline.1.png,
+				__Snapshots__/PlanningScreenTests/chatInput_lockedWhenThinking.1.png,
+				__Snapshots__/PlanningScreenTests/indicator_bindsViewModelPhaseSteps.1.png,
+				__Snapshots__/PlanningScreenTests/mapControls_planningConfiguration.1.png,
+				__Snapshots__/PlanningScreenTests/planning_dark_renders.1.png,
+				__Snapshots__/PlanningScreenTests/planning_default_renders.1.png,
+				__Snapshots__/PlanningScreenTests/topOverlay_capsuleAboveIndicator.1.png,
+				__Snapshots__/RouteDetailsScreenTests,
+				__Snapshots__/RouteDetailsScreenTests/darkSnapshotMatchesBaseline.1.png,
+				__Snapshots__/RouteDetailsScreenTests/defaultSnapshotMatchesBaseline.1.png,
+				__Snapshots__/RouteResultsScreenTests,
+				__Snapshots__/RouteResultsScreenTests/routeResults_dark_mode.1.png,
+				__Snapshots__/RouteResultsScreenTests/routeResults_default_renders.1.png,
+				__Snapshots__/SessionsScreenTests,
+				__Snapshots__/SessionsScreenTests/sessions_dark_mode.1.png,
+				__Snapshots__/SessionsScreenTests/sessions_default_renders.1.png,
+				__Snapshots__/SessionsScreenTests/sticky_header_on_scroll.1.png,
+			);
+			target = F62DED441A0EC9B332FC3293 /* LaneShadowTests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -303,6 +341,9 @@
 		};
 		5D43661EA5776DD985956D8D /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7E44F89F8450061538E56AF9 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
 			explicitFileTypes = {
 			};
 			explicitFolders = (

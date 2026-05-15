@@ -293,6 +293,8 @@ targets:
       # Sprint 06 template tests
       - path: LaneShadowTests/Templates
         type: syncedFolder
+        excludes:
+          - __Snapshots__
       - path: LaneShadowTests/Services
         type: syncedFolder
       - path: LaneShadowTests/Integration
