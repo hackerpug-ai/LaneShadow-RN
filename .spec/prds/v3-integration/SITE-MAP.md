@@ -109,8 +109,9 @@ LaneShadow App
     ├── State: RouteResults  .spec/design/system/views/route-results-screen/
     │   │   Owner: Sprint 09 (Map View · Route Results State, in flight — Phase D retrofit shipped 3f2800033)
     │   │   Behavior: three real polylines + navigator message + route attachment cards + refine + recall
-    │   ├── default-best-pre-selected        .../route-results-screen/default-best-pre-selected/
-    │   ├── alt1-tapped-sage-promoted        .../route-results-screen/alt1-tapped-sage-promoted/
+    │   ├── default--best-pre-selected       .../route-results-screen/default--best-pre-selected/  (double-dash preserved from original design source)
+    │   ├── default--dark                     .../route-results-screen/default--dark/  (dark theme of default)
+    │   ├── alt1-tapped--sage-promoted       .../route-results-screen/alt1-tapped--sage-promoted/
     │   ├── two-candidates                   .../route-results-screen/two-candidates/
     │   ├── refining                         .../route-results-screen/refining/
     │   ├── weather-divergent                .../route-results-screen/weather-divergent/

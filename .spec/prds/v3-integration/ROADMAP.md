@@ -662,8 +662,9 @@ This sprint delivers `MapAppState.routeResults` per [`SITE-MAP.md` § 2](./SITE-
 
 Design system state folders touched (after Phase 1 reorganization 2026-05-15):
 
-- [`views/route-results-screen/default-best-pre-selected/`](../../design/system/views/route-results-screen/default-best-pre-selected/) — light + dark
-- [`views/route-results-screen/alt1-tapped-sage-promoted/`](../../design/system/views/route-results-screen/alt1-tapped-sage-promoted/)
+- [`views/route-results-screen/default--best-pre-selected/`](../../design/system/views/route-results-screen/default--best-pre-selected/) (double-dash preserved from original design source)
+- [`views/route-results-screen/default--dark/`](../../design/system/views/route-results-screen/default--dark/) (dark theme of default)
+- [`views/route-results-screen/alt1-tapped--sage-promoted/`](../../design/system/views/route-results-screen/alt1-tapped--sage-promoted/)
 - [`views/route-results-screen/two-candidates/`](../../design/system/views/route-results-screen/two-candidates/)
 - [`views/route-results-screen/refining/`](../../design/system/views/route-results-screen/refining/)
 - [`views/route-results-screen/weather-divergent/`](../../design/system/views/route-results-screen/weather-divergent/)
