@@ -149,7 +149,7 @@ Android parity for RR-S09-IOS-T03. Render three real polylines on `LSMapHost`'s 
 **References:**
 - `.spec/design/system/views/route-results-screen/route-results-screen.html`
 - `.spec/design/system/views/route-results-screen/README.md`
-- `.spec/design/system/refs/route-results-screen/alt1-tapped--sage-promoted.light.png` (S02 visual)
+- `.spec/design/system/views/route-results-screen/alt1-tapped--sage-promoted/alt1-tapped--sage-promoted.light.png` (S02 visual)
 - Sprint 08 PLAN-S08-AND-T03
 - `android/app/src/main/java/com/laneshadow/ui/mapapp/MapApp.kt`
 

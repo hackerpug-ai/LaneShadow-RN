@@ -111,7 +111,7 @@ Android parity for RR-S09-IOS-T05. Add instrumented capture tests under `android
 |---|---|---|
 | `android/app/src/androidTest/java/com/laneshadow/sandbox/snapshots/SandboxSnapshotTestBase.kt` | all | [PRIMARY PATTERN] Existing dropshots/capture base class from prior sprints |
 | `.spec/prds/v3-integration/tasks/sprint-09-route-results-screen/VARIANTS.md` | all | Canonical variant matrix + `templates.map-app.route-results-*` story ID convention |
-| `.spec/design/system/refs/route-results-screen/` | all | Reference PNGs — capture filenames must match |
+| `.spec/design/system/views/route-results-screen/` | all | Reference PNGs — capture filenames must match |
 | `scripts/design-review/` | all | Pipeline scripts; manifest generator |
 | `.spec/prds/v3-integration/tasks/sprint-08-planning-state/PLAN-S08-AND-T05-android-instrumented-design-review-capture.md` | all | Sprint 08 sibling — same architecture; targets `templates.map-app.planning-*` stories per the doctrine |
 | `android/app/src/debug/java/com/laneshadow/sandbox/stories/templates/MapAppRouteResultsStories.kt` | all (NEW from RR-S09-AND-T02) | Sandbox stories the capture tests drive |
@@ -123,7 +123,7 @@ Android parity for RR-S09-IOS-T05. Add instrumented capture tests under `android
 - `.design-review/manifest.json` (via manifest generator only)
 
 **Write-Prohibited:**
-- `.spec/design/system/refs/route-results-screen/**` — RR-S09-DR-T01 ownership
+- `.spec/design/system/views/route-results-screen/**` — RR-S09-DR-T01 ownership
 - `scripts/design-review/**` — Sprint 05 ownership
 - `android/app/src/main/**` — non-test code paths
 - `ios/**`, `server/**` — out of scope
@@ -132,7 +132,7 @@ Android parity for RR-S09-IOS-T05. Add instrumented capture tests under `android
 
 **References:**
 - `.spec/prds/v3-integration/tasks/sprint-09-route-results-screen/VARIANTS.md`
-- `.spec/design/system/refs/route-results-screen/*.png`
+- `.spec/design/system/views/route-results-screen/*/*.png`
 - Sprint 08 PLAN-S08-AND-T05
 
 **Interaction Notes:** Each variant requires specific instrumented test interactions to reach the captured state. Same interaction model as iOS T05 — semantics-based testTag clicks against accessibility identifiers established in RR-S09-AND-T02 / T04 under the `mapapp-routeresults-*` namespace.

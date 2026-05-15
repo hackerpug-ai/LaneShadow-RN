@@ -133,7 +133,6 @@ async function main(): Promise<void> {
   const config = parseManifest()
   const designSystemRoot = join(process.cwd(), '.spec', 'design', 'system')
   const viewsDir = join(designSystemRoot, 'views')
-  const refsDir = join(designSystemRoot, 'refs')
 
   console.log(`Chrome path: ${config.chrome_path}`)
   console.log(`Viewport: ${VIEWPORT_WIDTH}×${VIEWPORT_HEIGHT} (iPhone 15 Pro Max scale)\n`)
@@ -154,11 +153,6 @@ async function main(): Promise<void> {
 
     for (const view of viewDirs) {
       const htmlPath = join(viewsDir, view, `${view}.html`)
-      const viewRefsDir = join(refsDir, view)
-
-      if (!existsSync(viewRefsDir)) {
-        mkdirSync(viewRefsDir, { recursive: true })
-      }
 
       const mapNote = MAP_PLACEHOLDER_SCREENS.has(view)
         ? ' (Mapbox copper-paper visual mock — eval ignores street geometry, evaluates tint+theme)'
@@ -168,7 +162,14 @@ async function main(): Promise<void> {
       const sections = extractSectionsFromHtml(htmlPath)
 
       for (const section of sections) {
-        const outputPath = join(viewRefsDir, `${section.state}.${section.theme}.png`)
+        // Per the 2026-05-15 reorganization, reference PNGs live at
+        // `.spec/design/system/views/<view>/<state>/<state>.<theme>.png`
+        // (one subfolder per state). See `.spec/prds/v3-integration/VIEW-MAP.md`.
+        const stateDir = join(viewsDir, view, section.state)
+        if (!existsSync(stateDir)) {
+          mkdirSync(stateDir, { recursive: true })
+        }
+        const outputPath = join(stateDir, `${section.state}.${section.theme}.png`)
         await renderSection(browser, htmlPath, section, outputPath)
         totalRendered++
       }
@@ -176,7 +177,7 @@ async function main(): Promise<void> {
       console.log('')
     }
 
-    console.log(`✨ Rendered ${totalRendered} PNGs to ${refsDir}`)
+    console.log(`✨ Rendered ${totalRendered} PNGs to ${viewsDir}/<view>/<state>/`)
   } finally {
     await browser.close()
   }

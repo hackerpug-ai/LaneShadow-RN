@@ -177,7 +177,7 @@ The legacy `ios/LaneShadow/Views/Templates/RouteResultsScreen.swift` (259 lines,
 - `.spec/design/system/views/route-results-screen/route-results-screen.html`
 - `.spec/design/system/views/route-results-screen/README.md`
 - `.spec/design/system/molecules/context-capsule/README.md`
-- `.spec/design/system/refs/route-results-screen/default--best-pre-selected.light.png` (S01)
+- `.spec/design/system/views/route-results-screen/default--best-pre-selected/default--best-pre-selected.light.png` (S01)
 - `.spec/prds/v3-integration/tasks/sprint-09-route-results-screen/VARIANTS.md` (RR-S09-DR-T01 output)
 - `ios/LaneShadow/Views/Templates/MapApp.swift` + `ios/LaneShadow/Features/MapApp/MapAppState.swift` (foundation)
 

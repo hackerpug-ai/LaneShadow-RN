@@ -156,8 +156,8 @@ Polylines are configured by feeding `mapAppViewModel.polylines` (RR-S09-IOS-T01)
 **References:**
 - `.spec/design/system/views/route-results-screen/route-results-screen.html` (polyline strokes, start/end dots, S02 ghosted-best treatment)
 - `.spec/design/system/views/route-results-screen/README.md` (token recipe + view-local constants)
-- `.spec/design/system/refs/route-results-screen/default--best-pre-selected.light.png` (S01)
-- `.spec/design/system/refs/route-results-screen/alt1-tapped--sage-promoted.light.png` (S02)
+- `.spec/design/system/views/route-results-screen/default--best-pre-selected/default--best-pre-selected.light.png` (S01)
+- `.spec/design/system/views/route-results-screen/alt1-tapped--sage-promoted/alt1-tapped--sage-promoted.light.png` (S02)
 - Sprint 08 PLAN-S08-IOS-T03 (sketch polyline architecture pattern)
 - `ios/LaneShadow/Views/Templates/MapApp.swift` + `ios/LaneShadow/Features/MapApp/MapAppState.swift`
 

@@ -16,7 +16,10 @@ const __dirname = dirname(__filename)
 
 const ROOT_DIR = join(__dirname, '../..')
 const CAPTURES_DIR = join(ROOT_DIR, '.design-review/captures')
-const REFS_DIR = join(ROOT_DIR, '.spec/design/system/refs')
+// Reference PNGs and annotations live under `.spec/design/system/views/<screen>/<state>/`
+// per the 2026-05-15 reorganization (see `.spec/prds/v3-integration/VIEW-MAP.md`).
+// The legacy flat `.spec/design/system/refs/<screen>/<state>.<theme>.png` path is deprecated.
+const VIEWS_DIR = join(ROOT_DIR, '.spec/design/system/views')
 const MANIFEST_PATH = join(ROOT_DIR, '.design-review/manifest.json')
 
 export interface ManifestEntry {
@@ -50,6 +53,9 @@ function requestedScreensFromEnv(): Set<string> | null {
 }
 
 // Build manifest by joining captures + references + annotations
+// `refsDir` parameter name is preserved for backward compatibility with tests, but it now
+// expects the views/ root (`.spec/design/system/views/`) and uses the per-state subfolder
+// layout `<refsDir>/<screen>/<state>/<state>.<theme>.png` per the 2026-05-15 reorganization.
 export async function buildManifest(options: {
   capturesDir: string
   refsDir: string
@@ -88,9 +94,11 @@ export async function buildManifest(options: {
         continue
       }
 
-      // Build reference path
-      const referencePath = join(refsDir, screen, `${state}.${theme}.png`)
-      const annotationsPath = join(refsDir, screen, `${state}.annotations.json`)
+      // Build reference path per the 2026-05-15 per-state subfolder layout:
+      //   .spec/design/system/views/<screen>/<state>/<state>.<theme>.png
+      //   .spec/design/system/views/<screen>/<state>/<state>.annotations.json
+      const referencePath = join(refsDir, screen, state, `${state}.${theme}.png`)
+      const annotationsPath = join(refsDir, screen, state, `${state}.annotations.json`)
 
       // Check if reference exists
       if (!existsSync(referencePath)) {
@@ -151,7 +159,7 @@ async function main() {
   try {
     const manifest = await buildManifest({
       capturesDir: CAPTURES_DIR,
-      refsDir: REFS_DIR,
+      refsDir: VIEWS_DIR,
       outputPath: MANIFEST_PATH,
     })
 
