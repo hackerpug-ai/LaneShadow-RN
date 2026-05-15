@@ -101,6 +101,35 @@ Platform ownership rule for sprint execution:
 
 For UI/UX design rules, component patterns, and theme usage, see [`styles/RULES.md`](styles/RULES.md).
 
+### One View, Many States — Never One Screen Per Variant
+
+**Rule:** When a view has multiple mocks/variants, those are STATES of one screen, not separate screens.
+
+**Why:** Mounting a different SwiftUI/Compose template per variant unmounts shared infrastructure (map atom, camera, tile cache, polylines, animation timers), breaks the persistent-map-host contract (Sprint 06), produces visual jank during transitions (overlays from different templates briefly co-exist, NavigationStack auto-titles leak), and forces duplicate composition code that drifts apart over time.
+
+**How to apply (planning):**
+
+- When a PRD or design spec defines multiple variants of a view (e.g., "S01 Scouting / S02 Drawing / V01 Slow Planning / V02 Cancel Prompt"), the implementation MUST be **one screen + a state enum** — not one template per variant.
+- When `/kb-sprint-tasks-plan` generates tasks from a PRD, do NOT create a `<Variant>Screen.swift` per variant. Generate one `<View>Screen.swift` (or `<View>App.swift` if it's a root) with a `<View>State` enum and overlay composition that derives from state.
+- Planner agents (`swift-planner`, `kotlin-planner`, `design-planner`, `mobile-planner`) MUST refuse to produce per-variant screen plans. Their output must show ONE screen + state-driven overlays + view-model derivation of state.
+- Capture/snapshot tests (`DesignReviewCaptureTests`, `*SnapshotTest.kt`) target the unified screen with state injected via sandbox stories — not separate screen templates.
+
+**How to apply (implementation):**
+
+- Transitions between variants are **state mutations**, never `NavigationLink` / `NavigationStack` push / `navController.navigate(...)`.
+- The map atom (`LSMap` / Compose `LSMap`) stays mounted across all variant transitions. Camera, tile cache, and polylines are preserved.
+- View models can stay separate per concern (`IdleViewModel` + `PlanningViewModel`), but they OWN STATE, not VIEW INSTANTIATION. The unified screen reads from whichever view model is active.
+- Components reused across states (`LSTopBar`, `LSContextCapsule`, `LSMapControls`, `LSChatInput`) are mounted ONCE; their input bindings change by state.
+
+**Anti-patterns to reject in reviews:**
+
+- A new `<Variant>Screen.swift` / `<Variant>Screen.kt` whose only difference from another screen is the overlay set or chat-input lock state.
+- An `AppFlowView` / router that swaps between sibling templates which each own their own `LSMapLayer` / `LSMap`.
+- A `NavigationLink` between two states of the same conceptual screen.
+- Snapshot tests that compare per-template captures instead of per-state captures of one template.
+
+**Sprint 08 post-mortem:** This rule was added 2026-05-14 after the user observed planning-state visual jank caused by `AppFlowView` swapping `IdleScreenContainer` ↔ `PlanningScreenContainer` as separate views — each instantiating its own `LSMapLayer + LSMap`. The fix (task `MAPAPP-UNIFY`) collapses both into one `MapApp` screen with state-driven overlays.
+
 ---
 
 ## Pre-Commit Checks

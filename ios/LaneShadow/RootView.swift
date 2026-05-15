@@ -113,8 +113,11 @@ struct RootView: View {
             case let .session(id):
                 AppFlowView(route: .session(id: id), appState: appState)
             case .home, .none:
-                AuthenticatedLandingView(
-                    environment: appEnvironment,
+                // Cycle 1: MapApp unified screen (idle composition only)
+                let idleViewModel = IdleViewModel(
+                    chatStore: appEnvironment.chatStore,
+                    sessionStore: appEnvironment.sessionStore,
+                    convexClient: appEnvironment.convexClient,
                     appState: appState,
                     onSessionStarted: { sessionID in
                         Task { @MainActor in
@@ -122,6 +125,8 @@ struct RootView: View {
                         }
                     }
                 )
+                let mapAppViewModel = MapAppViewModel(idleViewModel: idleViewModel)
+                MapApp(viewModel: mapAppViewModel)
             }
         } else {
             ProgressView("Loading rider profile")
