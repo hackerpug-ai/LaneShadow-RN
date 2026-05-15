@@ -2,12 +2,25 @@ import LaneShadowTheme
 import SwiftUI
 
 /// MapSketchAnimationLayer — animated sketch polyline with breathing head dot
+///
+/// Renders a copper sketch polyline with continuous dashed-animation loop and a breathing head dot
+/// at the path's final point. Both animations honor accessibility reduce-motion settings.
+///
+/// - Parameters:
+///   - pathPoints: Array of CGPoint coordinates defining the polyline geometry (data-driven, not screen-space)
+///
+/// - Environment requirements:
+///   - `\.theme` — LaneShadowTheme for token lookups (colors, spacing, motion recipes)
+///   - `\.accessibilityReduceMotion` — when true, collapses both animations to static rendering
 public struct MapSketchAnimationLayer: View {
-    @Environment(\.theme) var theme
-    @Environment(\.accessibilityReduceMotion) var reduceMotionEnabled
+    @Environment(\.theme) private var theme
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let pathPoints: [CGPoint]
+
+    @State private var dashPhase: CGFloat = 0
     @State private var headDotOpacity: Double = 1.0
+    @State private var isAnimating = false
 
     public init(pathPoints: [CGPoint]) {
         self.pathPoints = pathPoints
@@ -16,15 +29,36 @@ public struct MapSketchAnimationLayer: View {
     public var body: some View {
         ZStack {
             if !pathPoints.isEmpty {
-                buildPath()
-                    .stroke(LaneShadowTheme.color.signal.default, lineWidth: 2)
-            }
-            if let lastPoint = pathPoints.last {
-                Circle()
-                    .fill(LaneShadowTheme.color.signal.default)
-                    .frame(width: 8, height: 8)
-                    .position(lastPoint)
-                    .opacity(reduceMotionEnabled ? 1.0 : headDotOpacity)
+                // Animated polyline
+                buildPolylinePath()
+                    .stroke(
+                        LaneShadowTheme.color.signal.default,
+                        style: polylineStrokeStyle()
+                    )
+                    .if(!reduceMotion) { view in
+                        view.animation(
+                            Animation.sketchPolylineLoop(theme: theme),
+                            value: isAnimating
+                        )
+                    }
+
+                // Breathing head dot at final point
+                if let lastPoint = pathPoints.last {
+                    Circle()
+                        .fill(LaneShadowTheme.color.signal.default)
+                        .frame(
+                            width: theme.type.label.sm.fontSize,
+                            height: theme.type.label.sm.fontSize
+                        )
+                        .opacity(headDotOpacity)
+                        .if(!reduceMotion) { view in
+                            view.animation(
+                                Animation.breathingHeadDot(theme: theme),
+                                value: isAnimating
+                            )
+                        }
+                        .position(lastPoint)
+                }
             }
         }
         .onAppear {
@@ -32,24 +66,50 @@ public struct MapSketchAnimationLayer: View {
         }
     }
 
-    private func buildPath() -> Path {
+    private func buildPolylinePath() -> Path {
         var path = Path()
         guard !pathPoints.isEmpty else { return path }
         path.move(to: pathPoints[0])
-        for point in pathPoints.dropFirst() {
-            path.addLine(to: point)
+        for i in 1 ..< pathPoints.count {
+            path.addLine(to: pathPoints[i])
         }
         return path
     }
 
+    private func polylineStrokeStyle() -> StrokeStyle {
+        let dashLength = theme.space.sm + theme.space.md
+        return StrokeStyle(
+            lineWidth: theme.borderWidth.thick,
+            lineCap: .round,
+            lineJoin: .round,
+            dash: [theme.space.sm, theme.space.md],
+            dashPhase: reduceMotion ? 0 : dashPhase
+        )
+    }
+
     private func startAnimations() {
-        guard !reduceMotionEnabled else { return }
-        // Breathing animation for head dot
-        let recipe = theme.motion.recipes["breathingHeadDot"]
-        let duration = TimeInterval(recipe?.duration ?? 1400) / 1000
-        let anim = Animation.easeInOut(duration: duration).repeatForever(autoreverses: true)
-        withAnimation(anim) {
-            headDotOpacity = 0.55
+        guard !reduceMotion else { return }
+
+        // Drive polyline dash animation
+        withAnimation(
+            Animation.sketchPolylineLoop(theme: theme).repeatForever(autoreverses: false)
+        ) {
+            let dashLength = theme.space.sm + theme.space.md
+            dashPhase = -(dashLength * 8)
         }
+
+        // Drive breathing head dot animation
+        let recipe = theme.motion.recipes["breathingHeadDot"]
+        let endOpacity = theme.opacity.values["55"] ?? 0.55
+
+        withAnimation(
+            Animation.breathingHeadDot(theme: theme).repeatForever(autoreverses: true)
+        ) {
+            headDotOpacity = endOpacity
+        }
+
+        isAnimating = true
     }
 }
+
+// View.if(_:transform:) helper is provided by ChatTranscript.swift (module-internal extension View).

@@ -153,21 +153,16 @@ public struct PlanningScreen: View {
     // MARK: - Parsing Polyline
 
     private var parsingPolyline: some View {
-        SketchingPolyline()
+        // Mock 4-point geometry for Sprint 08 (real path data from agent route comes in Sprint 09)
+        let mockPathPoints: [CGPoint] = [
+            CGPoint(x: 100, y: 200),
+            CGPoint(x: 150, y: 180),
+            CGPoint(x: 200, y: 220),
+            CGPoint(x: 250, y: 190),
+        ]
+        return MapSketchAnimationLayer(pathPoints: mockPathPoints)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityIdentifier("planningscreen-sketch-polyline")
-    }
-
-    private var parsingLineWidth: CGFloat {
-        theme.borderWidth.thick
-    }
-
-    private var parsingDashPattern: [CGFloat] {
-        [theme.space.sm, theme.space.md]
-    }
-
-    private var breathingDotSize: CGFloat {
-        theme.type.label.sm.fontSize
     }
 
     // MARK: - Phase Indicator
