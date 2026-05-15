@@ -12,7 +12,7 @@ struct PlanningCancelConfirmTests {
         "AC-1: LSChatInput renders with isThinking=true, isEnabled=false when viewModel.isThinking",
         .tags(.acceptance)
     )
-    func chatInput_lockedBinding() {
+    func chatInput_lockedBinding() throws {
         let context = makeContext()
 
         // Simulate thinking state
@@ -38,6 +38,12 @@ struct PlanningCancelConfirmTests {
         )
         #expect(planningScreenSource.contains("isEnabled: !state.isThinking"))
 
+        // Verify the production binding is wired in PlanningScreen+LiveContent.swift
+        let liveContentPath = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/"
+            + "PlanningScreen+LiveContent.swift"
+        let liveContentSource = try String(contentsOfFile: liveContentPath, encoding: .utf8)
+        #expect(liveContentSource.contains("isEnabled: !liveState.isThinking"))
+
         context.tearDown()
     }
 
@@ -49,7 +55,7 @@ struct PlanningCancelConfirmTests {
     )
     func sheet_publicViewSurface() {
         // Verify sheet can be instantiated with required parameters
-        let sheet = PlanningCancelConfirmSheet(
+        _ = PlanningCancelConfirmSheet(
             onConfirm: {},
             onDismiss: {}
         )
@@ -176,7 +182,7 @@ struct PlanningCancelConfirmTests {
         #expect(PlanningCancelConfirmSheet.defaultBody == expectedBody)
 
         // Verify the sheet defaults use these constants by instantiating without params
-        let defaultSheet = PlanningCancelConfirmSheet(
+        _ = PlanningCancelConfirmSheet(
             onConfirm: {},
             onDismiss: {}
         )
