@@ -22,6 +22,7 @@ fun PlanningRoute(
     sessionId: String,
     navController: NavHostController,
     mainNavViewModel: MainNavViewModel,
+    skipMapRendering: Boolean = false,
 ) {
     // AC-5: Keep a reference to the ViewModel for transition management.
     // The PlanningScreenContainer will resolve the same ViewModel instance via Hilt.
@@ -41,6 +42,7 @@ fun PlanningRoute(
         onKeepPlanning = {},
         onCancelPlan = {},
         onReturnToIdle = { navController.popBackStack() },
+        skipMapRendering = skipMapRendering,
     )
 
     // Route handles Success and Failure transitions (Cancelled is handled by Container)

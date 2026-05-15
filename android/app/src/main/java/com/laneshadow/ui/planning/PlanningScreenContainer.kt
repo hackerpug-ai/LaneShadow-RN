@@ -4,6 +4,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.laneshadow.sandbox.mockproviders.PlanningScreenState as MockPlanningScreenState
@@ -39,6 +41,7 @@ fun PlanningScreenContainer(
     onKeepPlanning: () -> Unit = {},
     onCancelPlan: () -> Unit = {},
     onReturnToIdle: () -> Unit = {},
+    skipMapRendering: Boolean = false,
 ) {
     // AC-5: Resolve ViewModel via assisted Hilt injection
     val viewModel: PlanningViewModel = hiltViewModel<PlanningViewModel, PlanningViewModel.Factory>(
@@ -93,5 +96,23 @@ fun PlanningScreenContainer(
             onCancelPlan()
             viewModel.confirmCancel()
         },
+        mapContent = if (skipMapRendering) { { } } else { { planningState ->
+            com.laneshadow.ui.atoms.LSMap(
+                mode = com.laneshadow.ui.atoms.MapMode.Preview,
+                camera = com.laneshadow.ui.atoms.CameraPosition(
+                    center = planningState.sketchRoute?.firstOrNull() ?: com.laneshadow.ui.atoms.LatLng(0.0, 0.0),
+                    zoom = 11.0,
+                ),
+                modifier = Modifier.testTag("planning.map-host-instance"),
+            )
+            // MapSketchAnimationLayer: overlay composable for animated sketch polyline
+            // Driven by state.sketchRoute; animates path-draw progress from 0→1 (1400ms loop)
+            if (planningState.sketchRoute != null) {
+                com.laneshadow.ui.atoms.MapSketchAnimationLayer(
+                    path = planningState.sketchRoute,
+                    modifier = Modifier.testTag("planning.sketch-animation-layer"),
+                )
+            }
+        } },
     )
 }
