@@ -25,7 +25,7 @@ CAPS-S07-T05 will mount `LSContextCapsule` and `LSMapControls` into these same s
 
 **MUST:**
 - Add `maxHeight: .infinity` to the `bottomOverlays` slot's `.frame(...)` modifier in `ios/LaneShadow/Views/Organisms/LSMapLayer.swift` (currently line 62) so the slot fills the available height and `alignment: .bottom` pins content to the bottom safe area. The exact form must mirror the topOverlays pattern on line 53 (`maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom`).
-- Replace the bare argument-less `.padding(.top)` on line 52 and `.padding(.bottom)` on line 61 with tokenized values (`theme.space.md` or whichever spacing token corresponds to the design reference's overlay gutter — verify against `.spec/design/system/views/idle-screen/idle-screen.html` `org-map-layer__top-overlay` and `__bottom-overlay` padding declarations).
+- Replace the bare argument-less `.padding(.top)` on line 52 and `.padding(.bottom)` on line 61 with tokenized values (`theme.space.md` or whichever spacing token corresponds to the design reference's overlay gutter — verify against `.spec/design/system/views/mapapp/idle/idle-screen.html` `org-map-layer__top-overlay` and `__bottom-overlay` padding declarations).
 - Replace the global `.ignoresSafeArea(edges: .all)` on line 92 with `.ignoresSafeArea(edges: .bottom)` plus a `.safeAreaInset(edge: .top)` (or equivalent SwiftUI mechanism) so that the topbar respects the top safe area while the map canvas continues to bleed under the status bar. The exact pattern is at the implementer's discretion as long as: (a) the map canvas still extends edge-to-edge under the status bar, (b) `LSTopBar` is fully visible below the status bar, (c) the bottom safe area still inset-protects the chat input.
 - Preserve the existing z-order and accessibilityIdentifier surface (`maplayer.map`, `maplayer.scrim`, `maplayer.topOverlay.<id>`, `maplayer.bottomOverlay.<id>`, `maplayer.bottomSheet`, `maplayer.drawer`, `maplayer.topBar`).
 - Add unit/snapshot tests under `ios/LaneShadowTests/Views/Organisms/LSMapLayerTests.swift` (NEW or extended) that pin the new positioning behavior. AC-2 and AC-3 below are required; the implementer may add additional helper tests.
@@ -117,8 +117,8 @@ CAPS-S07-T05 will mount `LSContextCapsule` and `LSMapControls` into these same s
 |---|---|---|
 | `ios/LaneShadow/Views/Organisms/LSMapLayer.swift` | 1-117 | Current implementation; lines 49-64 are the slot blocks; line 92 is the global `.ignoresSafeArea` |
 | `ios/LaneShadow/Features/Idle/IdleScreenContainer.swift` | 12-66 | Shows the slot consumer pattern (`topOverlays`, `bottomOverlays`, `topBar`) — used as the pre-retrofit reference for AC-5 |
-| `.spec/design/system/views/idle-screen/idle-screen.html` | all | Authoritative overlay positions: top zone at `top: 44px`; chat anchor at `bottom: var(--space-5)`; map controls right-edge vertically centered |
-| `.spec/design/system/views/idle-screen/README.md` | all | Container Principle + glass surface contract for overlays |
+| `.spec/design/system/views/mapapp/idle/idle-screen.html` | all | Authoritative overlay positions: top zone at `top: 44px`; chat anchor at `bottom: var(--space-5)`; map controls right-edge vertically centered |
+| `.spec/design/system/views/mapapp/idle/README.md` | all | Container Principle + glass surface contract for overlays |
 | `.spec/design/system/tokens/tokens.css` | all | Spacing token names (`--space-2`/`--space-3`/`--space-4`/`--space-5`); confirm which corresponds to `theme.space.md` in iOS |
 | `ios/LaneShadow/Views/Organisms/` | (peer files) | SwiftUI safe-area patterns elsewhere — borrow whichever pattern is already proven |
 
@@ -140,8 +140,8 @@ CAPS-S07-T05 will mount `LSContextCapsule` and `LSMapControls` into these same s
 ## Design
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html` — overlay positioning contract (top 44px; bottom `var(--space-5)`)
-- `.spec/design/system/views/idle-screen/README.md` — Container Principle
+- `.spec/design/system/views/mapapp/idle/idle-screen.html` — overlay positioning contract (top 44px; bottom `var(--space-5)`)
+- `.spec/design/system/views/mapapp/idle/README.md` — Container Principle
 
 **Interaction Notes:** None — this is a layout primitive fix, no interaction surface change.
 

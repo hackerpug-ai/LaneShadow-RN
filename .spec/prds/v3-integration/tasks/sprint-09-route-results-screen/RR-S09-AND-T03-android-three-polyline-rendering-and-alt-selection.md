@@ -124,8 +124,8 @@ Android parity for RR-S09-IOS-T03. Render three real polylines on `LSMapHost`'s 
 | `android/app/src/main/java/com/laneshadow/ui/mapapp/MapApp.kt` | all (extended by RR-S09-AND-T02) | Persistent host — understand where polyline configuration plugs in for the RouteResults branch |
 | `android/app/src/main/java/com/laneshadow/data/PolylineDecoder.kt` (or equivalent) | all | Polyline decoder (read-only) |
 | `.spec/prds/v3-integration/tasks/sprint-08-planning-state/PLAN-S08-AND-T03-android-sketch-polyline-overlay.md` | all | Sprint 08 sibling — polyline overlay architecture; also targets MapApp's LSMapHost |
-| `.spec/design/system/views/route-results-screen/route-results-screen.html` | polyline section | Strokes, dash arrays, dot dimensions, S02 ghosted-best |
-| `.spec/design/system/views/route-results-screen/README.md` | view-local constants | Stroke widths + token map |
+| `.spec/design/system/views/mapapp/route-results/route-results.html` | polyline section | Strokes, dash arrays, dot dimensions, S02 ghosted-best |
+| `.spec/design/system/views/mapapp/route-results/README.md` | view-local constants | Stroke widths + token map |
 | `RULES.md` | "Design Rules › One View, Many States", "Real Map Surfaces" | Doctrine + map rules |
 
 ## Guardrails
@@ -147,9 +147,9 @@ Android parity for RR-S09-IOS-T03. Render three real polylines on `LSMapHost`'s 
 ## Design
 
 **References:**
-- `.spec/design/system/views/route-results-screen/route-results-screen.html`
-- `.spec/design/system/views/route-results-screen/README.md`
-- `.spec/design/system/views/route-results-screen/alt1-tapped--sage-promoted/alt1-tapped--sage-promoted.light.png` (S02 visual)
+- `.spec/design/system/views/mapapp/route-results/route-results.html`
+- `.spec/design/system/views/mapapp/route-results/README.md`
+- `.spec/design/system/views/mapapp/route-results/alt1-tapped--sage-promoted/alt1-tapped--sage-promoted.light.png` (S02 visual)
 - Sprint 08 PLAN-S08-AND-T03
 - `android/app/src/main/java/com/laneshadow/ui/mapapp/MapApp.kt`
 

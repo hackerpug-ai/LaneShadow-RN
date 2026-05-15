@@ -71,7 +71,7 @@ VERIFY: `pnpm snapshots:check`
 ## Reading List
 
 - `.spec/design/system/molecules/social-button/README.md`
-- `.spec/design/system/views/auth-screen/README.md`
+- `.spec/design/system/views/auth/README.md`
 - `ios/LaneShadow/Views/Atoms/LSTextField.swift`
 - `ios/LaneShadow/Views/Molecules/LSFormField.swift`
 - `ios/LaneShadow/DesignSystem/Molecules/LSAuthProviderButton.swift`
@@ -94,7 +94,7 @@ write_prohibited:
 
 references:
 - `.spec/design/system/molecules/social-button/README.md`
-- `.spec/design/system/views/auth-screen/auth-screen.html`
+- `.spec/design/system/views/auth/auth-screen.html`
 
 pattern: existing iOS atom/molecule stories with canonical IDs such as `atoms.textfield.default` and `molecules.formfield.default`.
 pattern_source: `ios/LaneShadow/Sandbox/Stories`

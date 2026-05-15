@@ -155,7 +155,7 @@ For each AC: RED → GREEN → REFACTOR. Use Compose testing (`createComposeRule
 2. `android/app/src/main/java/com/laneshadow/ui/organisms/LSMapLayer.kt` — host with overlay slot
 3. `android/app/src/main/java/com/laneshadow/ui/molecules/LSFavoritePinDot.kt` — copper dot recipe + halo
 4. `android/app/src/main/java/com/laneshadow/ui/templates/IdleScreen.kt` — overlay composition site
-5. `.spec/design/system/views/idle-screen/idle-screen.html` — visual ground truth: warm-paper tile, copper pin, glass overlay
+5. `.spec/design/system/views/mapapp/idle/idle-screen.html` — visual ground truth: warm-paper tile, copper pin, glass overlay
 
 ---
 
@@ -207,8 +207,8 @@ For each AC: RED → GREEN → REFACTOR. Use Compose testing (`createComposeRule
 ## DESIGN
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html`
-- `.spec/design/system/views/idle-screen/README.md` — warm-paper substrate, copper pin halo, glass overlay tokens
+- `.spec/design/system/views/mapapp/idle/idle-screen.html`
+- `.spec/design/system/views/mapapp/idle/README.md` — warm-paper substrate, copper pin halo, glass overlay tokens
 
 **Pattern:** Persistent map host owns Mapbox SDK lifecycle via `AndroidView` + `DisposableEffect`; consumers receive `overlay: @Composable () -> Unit` slot. State changes mutate overlay content, not the map's identity.
 

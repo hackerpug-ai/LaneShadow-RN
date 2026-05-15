@@ -2,7 +2,7 @@
 
 Generated: 2026-04-29
 
-This document is the authoritative native auth gap inventory for Sprint 03 remediation. It treats `.spec/design/system/views/auth-screen/auth-screen.html` as the source of truth, then maps each design class and state to the current iOS and Android files, the required shared sandbox story IDs, and the evidence obligations for AUTH-S03-R02 through AUTH-S03-R08.
+This document is the authoritative native auth gap inventory for Sprint 03 remediation. It treats `.spec/design/system/views/auth/auth-screen.html` as the source of truth, then maps each design class and state to the current iOS and Android files, the required shared sandbox story IDs, and the evidence obligations for AUTH-S03-R02 through AUTH-S03-R08.
 
 ## Progress Tracking
 
@@ -16,8 +16,8 @@ This document is the authoritative native auth gap inventory for Sprint 03 remed
 ## Authoritative Inputs
 
 **Design source**
-- `.spec/design/system/views/auth-screen/auth-screen.html`
-- `.spec/design/system/views/auth-screen/README.md`
+- `.spec/design/system/views/auth/auth-screen.html`
+- `.spec/design/system/views/auth/README.md`
 - `.spec/design/system/molecules/social-button/README.md`
 
 **Project rules**
@@ -102,13 +102,13 @@ These IDs are the auth parity contract. Both iOS and Android must register the e
 
 | Task | Scope locked by this contract | Design references | Expected evidence / output |
 |---|---|---|---|
-| R02 | iOS auth primitives only | `.spec/design/system/molecules/social-button/README.md`, `.spec/design/system/views/auth-screen/README.md`, `ios-principles.md`, `performance-optimization.md` | New or updated iOS atom/molecule stories for the auth IDs above, snapshot baselines, no screen-shell work |
-| R03 | Android auth primitives only | `.spec/design/system/molecules/social-button/README.md`, `.spec/design/system/views/auth-screen/README.md` | New or updated Android atom/molecule stories for the auth IDs above, snapshot baselines, no screen-shell work |
-| R04 | iOS full AuthScreen fidelity | `.spec/design/system/views/auth-screen/auth-screen.html`, `.spec/design/system/views/auth-screen/README.md`, `ios-principles.md`, `testing-strategy.md`, `performance-optimization.md` | One SwiftUI AuthScreen recipe that renders all six template IDs and uses shared primitives instead of screen-local substitutes |
-| R05 | Android full AuthScreen fidelity | `.spec/design/system/views/auth-screen/auth-screen.html`, `.spec/design/system/views/auth-screen/README.md` | One Compose AuthScreen recipe that renders all six template IDs and uses shared primitives instead of screen-local substitutes |
-| R06 | iOS Clerk + Convex integration | `.spec/prds/v3-integration/04-uc-auth.md`, `.spec/design/system/views/auth-screen/auth-screen.html`, `testing-strategy.md` | Auth success updates shared app auth state, Convex JWT binding, current-user wait, restore, sign-out, `UNAUTHENTICATED` redirect |
-| R07 | Android Clerk + Convex integration | `.spec/prds/v3-integration/04-uc-auth.md`, `.spec/design/system/views/auth-screen/auth-screen.html` | Same proof as R06 on Android, using shared auth/navigation state rather than local screen state |
-| R08 | Human-step evidence gate | `RULES.md`, `docs/REAL_DEVICE_E2E.md`, `.spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/SPRINT.md`, `.spec/design/system/views/auth-screen/auth-screen.html` | Machine-readable evidence covering every remediation step, screenshot/source dumps, honest PASS/FAIL/BLOCKED/MANUAL statuses |
+| R02 | iOS auth primitives only | `.spec/design/system/molecules/social-button/README.md`, `.spec/design/system/views/auth/README.md`, `ios-principles.md`, `performance-optimization.md` | New or updated iOS atom/molecule stories for the auth IDs above, snapshot baselines, no screen-shell work |
+| R03 | Android auth primitives only | `.spec/design/system/molecules/social-button/README.md`, `.spec/design/system/views/auth/README.md` | New or updated Android atom/molecule stories for the auth IDs above, snapshot baselines, no screen-shell work |
+| R04 | iOS full AuthScreen fidelity | `.spec/design/system/views/auth/auth-screen.html`, `.spec/design/system/views/auth/README.md`, `ios-principles.md`, `testing-strategy.md`, `performance-optimization.md` | One SwiftUI AuthScreen recipe that renders all six template IDs and uses shared primitives instead of screen-local substitutes |
+| R05 | Android full AuthScreen fidelity | `.spec/design/system/views/auth/auth-screen.html`, `.spec/design/system/views/auth/README.md` | One Compose AuthScreen recipe that renders all six template IDs and uses shared primitives instead of screen-local substitutes |
+| R06 | iOS Clerk + Convex integration | `.spec/prds/v3-integration/04-uc-auth.md`, `.spec/design/system/views/auth/auth-screen.html`, `testing-strategy.md` | Auth success updates shared app auth state, Convex JWT binding, current-user wait, restore, sign-out, `UNAUTHENTICATED` redirect |
+| R07 | Android Clerk + Convex integration | `.spec/prds/v3-integration/04-uc-auth.md`, `.spec/design/system/views/auth/auth-screen.html` | Same proof as R06 on Android, using shared auth/navigation state rather than local screen state |
+| R08 | Human-step evidence gate | `RULES.md`, `docs/REAL_DEVICE_E2E.md`, `.spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/SPRINT.md`, `.spec/design/system/views/auth/auth-screen.html` | Machine-readable evidence covering every remediation step, screenshot/source dumps, honest PASS/FAIL/BLOCKED/MANUAL statuses |
 
 ## Existing Weak Tests And Evidence Gaps
 
@@ -124,7 +124,7 @@ These IDs are the auth parity contract. Both iOS and Android must register the e
 2. iOS PASS states for auth flow require WDA-backed device evidence per `docs/REAL_DEVICE_E2E.md`.
 3. Android steps may be PASS only from emulator/device or instrumentation artifacts. Otherwise they must be `MANUAL` or `BLOCKED` with exact instructions.
 4. Visual fidelity PASS states must cite:
-   - `.spec/design/system/views/auth-screen/auth-screen.html`
+   - `.spec/design/system/views/auth/auth-screen.html`
    - the canonical story IDs from this contract
    - the produced native screenshots or snapshot PNGs
 5. External-system proof that automation cannot see directly must stay explicit:
@@ -151,7 +151,7 @@ These IDs are the auth parity contract. Both iOS and Android must register the e
 - `test -f .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md`
 - `rg "LSIcon|LSDivider|LSSpinner|LSAuthProviderButton|AuthScreen" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md`
 - `rg "molecules.auth-provider-button.apple|templates.auth-screen.email-entry|templates.auth-screen.dark" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md`
-- `rg ".spec/design/system/views/auth-screen/auth-screen.html|molecules/social-button/README.md" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md`
+- `rg ".spec/design/system/views/auth/auth-screen.html|molecules/social-button/README.md" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md`
 - `rg "support-only|WDA|human test" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md`
 - `pnpm snapshots:check`
 - `pnpm snapshots:parity-coverage`

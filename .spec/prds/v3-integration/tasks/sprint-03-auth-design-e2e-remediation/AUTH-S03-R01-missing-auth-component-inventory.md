@@ -14,7 +14,7 @@ Produce the authoritative native auth component gap inventory and story ID contr
 
 ## Critical Constraints
 
-- MUST treat `.spec/design/system/views/auth-screen/auth-screen.html` as the visual source of truth.
+- MUST treat `.spec/design/system/views/auth/auth-screen.html` as the visual source of truth.
 - MUST identify atom, molecule, and template gaps separately for iOS and Android.
 - MUST define the same sandbox story IDs for both platforms.
 - NEVER accept a platform-only story unless `tokens/sandbox/parity-exemptions.json` explains it.
@@ -44,7 +44,7 @@ AC-3: Design references are threaded
 GIVEN AuthScreen has authoritative HTML and README files
 WHEN the inventory maps work to tasks
 THEN each R02-R08 task has a design source reference and expected screenshot/evidence source.
-VERIFY: `rg ".spec/design/system/views/auth-screen/auth-screen.html|molecules/social-button/README.md" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md`
+VERIFY: `rg ".spec/design/system/views/auth/auth-screen.html|molecules/social-button/README.md" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md`
 
 AC-4: Existing weak tests are called out
 GIVEN current iOS tests render view models but do not perform the human gate
@@ -63,8 +63,8 @@ VERIFY: `rg "support-only|WDA|human test" .spec/prds/v3-integration/tasks/sprint
 
 ## Reading List
 
-- `.spec/design/system/views/auth-screen/auth-screen.html` - authoritative view.
-- `.spec/design/system/views/auth-screen/README.md` - variants, anatomy, accessibility.
+- `.spec/design/system/views/auth/auth-screen.html` - authoritative view.
+- `.spec/design/system/views/auth/README.md` - variants, anatomy, accessibility.
 - `.spec/design/system/molecules/social-button/README.md` - OAuth button recipe.
 - `RULES.md` - component parity and real-device E2E policy.
 
@@ -81,12 +81,12 @@ write_prohibited:
 ## Design
 
 references:
-- `.spec/design/system/views/auth-screen/auth-screen.html`
-- `.spec/design/system/views/auth-screen/README.md`
+- `.spec/design/system/views/auth/auth-screen.html`
+- `.spec/design/system/views/auth/README.md`
 - `.spec/design/system/molecules/social-button/README.md`
 
 pattern: Treat the HTML component list as the contract, then map each class to native atom/molecule/template files and sandbox story IDs.
-pattern_source: `.spec/design/system/views/auth-screen/README.md`
+pattern_source: `.spec/design/system/views/auth/README.md`
 anti_pattern: Planning from the existing native SignInScreen appearance instead of the design source.
 
 ## Verification Gates
@@ -114,7 +114,7 @@ blocks: [AUTH-S03-R02, AUTH-S03-R03, AUTH-S03-R04, AUTH-S03-R05, AUTH-S03-R08]
 {"requirements":[
 {"id":"AC-1","type":"acceptance_criterion","description":"GIVEN the design composes auth atoms and molecules WHEN the inventory is written THEN it lists each native iOS and Android implementation gap by file path and state.","verify":"test -f .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md && rg \"LSIcon|LSDivider|LSSpinner|LSAuthProviderButton|AuthScreen\" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md"},
 {"id":"AC-2","type":"acceptance_criterion","description":"GIVEN component parity rules WHEN the story contract is written THEN every auth variant has a shared iOS and Android story ID.","verify":"rg \"molecules.auth-provider-button.apple|templates.auth-screen.email-entry|templates.auth-screen.dark\" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md"},
-{"id":"AC-3","type":"acceptance_criterion","description":"GIVEN AuthScreen design sources WHEN the inventory maps work to tasks THEN each remediation task has a design source reference.","verify":"rg \".spec/design/system/views/auth-screen/auth-screen.html|molecules/social-button/README.md\" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md"},
+{"id":"AC-3","type":"acceptance_criterion","description":"GIVEN AuthScreen design sources WHEN the inventory maps work to tasks THEN each remediation task has a design source reference.","verify":"rg \".spec/design/system/views/auth/auth-screen.html|molecules/social-button/README.md\" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md"},
 {"id":"AC-4","type":"acceptance_criterion","description":"GIVEN current weak tests WHEN evidence gaps are documented THEN support-only tests and missing WDA/device steps are identified.","verify":"rg \"support-only|WDA|human test\" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md"},
 {"id":"TC-1","type":"test_criterion","description":"The component contract names every AuthScreen atom and molecule from the design source.","maps_to_ac":"AC-1","verify":"rg \"ls-btn|ls-input|ls-divider|ls-icon|ls-spinner|mol-social-btn\" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md"},
 {"id":"TC-2","type":"test_criterion","description":"The component contract defines shared iOS and Android story IDs.","maps_to_ac":"AC-2","verify":"rg \"templates.auth-screen\" .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/AUTH-S03-R01-component-contract.md"},

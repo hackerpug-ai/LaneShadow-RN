@@ -16,11 +16,31 @@ const __dirname = dirname(__filename)
 
 const ROOT_DIR = join(__dirname, '../..')
 const CAPTURES_DIR = join(ROOT_DIR, '.design-review/captures')
-// Reference PNGs and annotations live under `.spec/design/system/views/<screen>/<state>/`
-// per the 2026-05-15 reorganization (see `.spec/prds/v3-integration/VIEW-MAP.md`).
-// The legacy flat `.spec/design/system/refs/<screen>/<state>.<theme>.png` path is deprecated.
+// Reference PNGs and annotations live under
+// `.spec/design/system/views/<folder>/<state>/` where <folder> resolves
+// through SCREEN_TO_FOLDER below, per the 2026-05-15 VIEW-MAP-aligned
+// reorganization (auth/ as a sibling of mapapp/; six MapApp states nested
+// under mapapp/<view>/). The legacy flat `refs/<screen>/<state>.<theme>.png`
+// path is deprecated. See `.spec/prds/v3-integration/VIEW-MAP.md`.
 const VIEWS_DIR = join(ROOT_DIR, '.spec/design/system/views')
 const MANIFEST_PATH = join(ROOT_DIR, '.design-review/manifest.json')
+
+// Bridge `data-screen` capture identifiers (legacy `-screen` slugs, kept
+// stable for sandbox story id compatibility) to the new IA-aligned folder
+// path under views/. Must be kept in sync with render-references.ts.
+const SCREEN_TO_FOLDER: Record<string, string> = {
+  'auth-screen': 'auth',
+  'idle-screen': 'mapapp/idle',
+  'planning-screen': 'mapapp/planning',
+  'route-results-screen': 'mapapp/route-results',
+  'route-details-screen': 'mapapp/route-details',
+  'sessions-screen': 'mapapp/sessions-drawer',
+  'error-screen': 'mapapp/error',
+}
+
+function resolveViewFolder(screen: string): string {
+  return SCREEN_TO_FOLDER[screen] ?? screen
+}
 
 export interface ManifestEntry {
   id: string
@@ -94,11 +114,13 @@ export async function buildManifest(options: {
         continue
       }
 
-      // Build reference path per the 2026-05-15 per-state subfolder layout:
-      //   .spec/design/system/views/<screen>/<state>/<state>.<theme>.png
-      //   .spec/design/system/views/<screen>/<state>/<state>.annotations.json
-      const referencePath = join(refsDir, screen, state, `${state}.${theme}.png`)
-      const annotationsPath = join(refsDir, screen, state, `${state}.annotations.json`)
+      // Build reference path per the 2026-05-15 VIEW-MAP-aligned layout:
+      //   .spec/design/system/views/<folder>/<state>/<state>.<theme>.png
+      //   .spec/design/system/views/<folder>/<state>/<state>.annotations.json
+      // where <folder> resolves to either `auth/` or `mapapp/<view>/`.
+      const viewFolder = resolveViewFolder(screen)
+      const referencePath = join(refsDir, viewFolder, state, `${state}.${theme}.png`)
+      const annotationsPath = join(refsDir, viewFolder, state, `${state}.annotations.json`)
 
       // Check if reference exists
       if (!existsSync(referencePath)) {

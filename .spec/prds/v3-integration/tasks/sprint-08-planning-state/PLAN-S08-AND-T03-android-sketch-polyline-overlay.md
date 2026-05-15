@@ -17,7 +17,7 @@
 
 ## Background
 
-The planning state's signature visual is a copper sketch-polyline that draws and loops continuously across the map (representing the Navigator's pen moving across the paper), with a leading head-dot breathing in sync. Per the design contract at `.spec/design/system/views/planning-screen/planning-screen.html` § sketch-polyline animation, the loop runs at **1400ms linear** for the path-draw progress and **1400ms ease-in-out** for the head-dot breathing. The animation is decorative chrome — when the user has system animation scale set to 0 or has enabled reduce-motion, the loop MUST collapse to a static stroke + static dot (per accessibility contract).
+The planning state's signature visual is a copper sketch-polyline that draws and loops continuously across the map (representing the Navigator's pen moving across the paper), with a leading head-dot breathing in sync. Per the design contract at `.spec/design/system/views/mapapp/planning/planning-screen.html` § sketch-polyline animation, the loop runs at **1400ms linear** for the path-draw progress and **1400ms ease-in-out** for the head-dot breathing. The animation is decorative chrome — when the user has system animation scale set to 0 or has enabled reduce-motion, the loop MUST collapse to a static stroke + static dot (per accessibility contract).
 
 This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` — either a Mapbox annotation animation OR a Compose `Canvas` over the map (whichever the existing `LSMap.kt` integration supports cleanly). The polyline geometry is supplied by `PlanningViewModel` (a stub or evolving path while planning is in progress). The token used for the stroke color is `LaneShadowTheme.semantic.route.best` (copper). The animation respects `AccessibilityManager.isHighTextContrastEnabled` / system animator-duration-scale.
 
@@ -111,7 +111,7 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
 |---|---|---|
 | `android/app/src/main/java/com/laneshadow/ui/atoms/LSMap.kt` | all | Sprint 06 host — read-only; understand the layer/source contract for sibling overlays |
 | `android/app/src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt` | 30-150 | Existing `sketchPolylineRecipe(theme)` helper that already reads `motion.duration["verySlow"]` (1400ms) + `motion.easing["linear"]`; reuse this builder |
-| `.spec/design/system/views/planning-screen/planning-screen.html` | sketch-polyline animation section | Visual contract — copper polyline draws and loops continuously, leading head-dot breathes in sync, both at 1400ms |
+| `.spec/design/system/views/mapapp/planning/planning-screen.html` | sketch-polyline animation section | Visual contract — copper polyline draws and loops continuously, leading head-dot breathes in sync, both at 1400ms |
 | `.spec/design/system/molecules/phase-indicator/README.md` | motion section | Motion-timing parallel — same 1400ms cadence rationale; ensures cross-component cadence consistency |
 | `android/app/src/main/java/com/laneshadow/theme/LSMotion.kt` | all | Motion token API — `LaneShadowTheme.motion.recipe.sketchPolylineLoop`, `motion.duration["verySlow"]`, `motion.easing["linear"]` accessors |
 | `android/app/src/main/java/com/laneshadow/ui/atoms/LSPhaseDot.kt` | all | Reference — existing pulse animation respecting reduced-motion; pattern for `LocalAccessibilityManager` checks |
@@ -137,8 +137,8 @@ This task adds a sibling overlay layer to the existing Sprint 06 `LSMapHost` —
 ## Design
 
 **References:**
-- `.spec/design/system/views/planning-screen/planning-screen.html` (sketch-polyline animation section + token recipe)
-- `.spec/design/system/views/planning-screen/README.md` (sketch animation duration constant 1400ms; head-dot breathe duration 1400ms)
+- `.spec/design/system/views/mapapp/planning/planning-screen.html` (sketch-polyline animation section + token recipe)
+- `.spec/design/system/views/mapapp/planning/README.md` (sketch animation duration constant 1400ms; head-dot breathe duration 1400ms)
 - `LaneShadowTheme.motion.recipe.sketchPolylineLoop` (token contract)
 
 **Interaction Notes:** This is non-interactive presentation chrome — the animation has no tap target, no focus traversal, and no SR announcement (the polyline is `aria-hidden="true"` decorative). Reduced-motion handling is mandatory per accessibility contract: when system animator-duration-scale is 0, the loop collapses to a static stroke at full opacity + a static head-dot at full opacity (the rider still sees the polyline, just without movement). Path geometry is owned by `PlanningViewModel` (or a sibling stub generator) — this composable is pure presentation.

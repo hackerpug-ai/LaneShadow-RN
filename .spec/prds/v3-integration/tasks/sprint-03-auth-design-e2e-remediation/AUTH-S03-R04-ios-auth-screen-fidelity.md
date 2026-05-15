@@ -14,7 +14,7 @@ Replace the generic iOS SignIn/SignUp presentation with the designed email-first
 
 ## Critical Constraints
 
-- MUST match `.spec/design/system/views/auth-screen/auth-screen.html`, not the current native SignInScreen.
+- MUST match `.spec/design/system/views/auth/auth-screen.html`, not the current native SignInScreen.
 - MUST implement one email-first branching AuthScreen rather than separate visually unrelated sign-in and sign-up screens.
 - MUST preserve production auth routing while adding sandbox-only variants.
 - NEVER satisfy the task with render-only tests that do not assert design anatomy.
@@ -70,8 +70,8 @@ VERIFY: `pnpm snapshots:check && rg "auth-screen.html|templates.auth-screen" .sp
 
 ## Reading List
 
-- `.spec/design/system/views/auth-screen/auth-screen.html`
-- `.spec/design/system/views/auth-screen/README.md`
+- `.spec/design/system/views/auth/auth-screen.html`
+- `.spec/design/system/views/auth/README.md`
 - `ios/LaneShadow/Features/Auth/SignInScreen.swift`
 - `ios/LaneShadow/Features/Auth/SignUpScreen.swift`
 - `ios/LaneShadow/Sandbox/Stories/Templates/IdleScreenStory.swift`
@@ -93,8 +93,8 @@ write_prohibited:
 ## Design
 
 references:
-- `.spec/design/system/views/auth-screen/auth-screen.html`
-- `.spec/design/system/views/auth-screen/README.md`
+- `.spec/design/system/views/auth/auth-screen.html`
+- `.spec/design/system/views/auth/README.md`
 
 pattern: native template story registration with canonical ID and theme-aware snapshots.
 pattern_source: `ios/LaneShadow/Sandbox/Stories/Templates`

@@ -161,7 +161,7 @@ Reviewer approves only when the evidence folder is self-contained enough for a f
 
 ## DESIGN
 
-**References:** `.spec/design/system/views/idle-screen/README.md`, `.spec/design/system/refs/idle-screen/`
+**References:** `.spec/design/system/views/mapapp/idle/README.md`, `.spec/design/system/refs/idle-screen/`
 
 **Pattern:** Gate evidence is immutable sprint closure data, not a generated scratch directory.
 

@@ -145,9 +145,9 @@ DELIVERABLE
 READING LIST
 --------------------------------------------------------------------------------
 
-1. .spec/design/system/views/sessions-screen/sessions-screen.html [PRIMARY REFERENCE]
+1. .spec/design/system/views/mapapp/sessions-drawer/sessions-screen.html [PRIMARY REFERENCE]
    - Sections: S04 grouped, S05 new-confirm
-2. .spec/design/system/views/error-screen/error-screen.html [PRIMARY REFERENCE]
+2. .spec/design/system/views/mapapp/error/error-screen.html [PRIMARY REFERENCE]
    - Sections: S04 recovered, V01 offline
 3. .spec/prds/v3-integration/remediations/03-views-sessions-error.md
    - Sections: Gap A1-10 (date grouping), G1-07 (S05 confirm), G2-04 (S04 recovered), B2-05 (V01 offline), H2-06 (chip wrap)

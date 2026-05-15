@@ -14,7 +14,7 @@ Replace the generic Android auth presentation with the designed email-first Auth
 
 ## Critical Constraints
 
-- MUST match `.spec/design/system/views/auth-screen/auth-screen.html`, not the current native SignInScreen.
+- MUST match `.spec/design/system/views/auth/auth-screen.html`, not the current native SignInScreen.
 - MUST implement one email-first branching AuthScreen rather than separate visually unrelated sign-in and sign-up screens.
 - MUST preserve production auth navigation while adding sandbox-only variants.
 - NEVER use Compose Material defaults where LaneShadow atoms or tokens exist.
@@ -70,8 +70,8 @@ VERIFY: `pnpm snapshots:check && rg "auth-screen.html|templates.auth-screen" .sp
 
 ## Reading List
 
-- `.spec/design/system/views/auth-screen/auth-screen.html`
-- `.spec/design/system/views/auth-screen/README.md`
+- `.spec/design/system/views/auth/auth-screen.html`
+- `.spec/design/system/views/auth/README.md`
 - `android/app/src/main/java/com/laneshadow/ui/auth/SignInScreen.kt`
 - `android/app/src/main/java/com/laneshadow/ui/auth/SignUpScreen.kt`
 - `android/app/src/debug/java/com/laneshadow/sandbox/stories/templates/IdleScreenStory.kt`
@@ -92,8 +92,8 @@ write_prohibited:
 ## Design
 
 references:
-- `.spec/design/system/views/auth-screen/auth-screen.html`
-- `.spec/design/system/views/auth-screen/README.md`
+- `.spec/design/system/views/auth/auth-screen.html`
+- `.spec/design/system/views/auth/README.md`
 
 pattern: Android template story registration with canonical ID and light/dark snapshots.
 pattern_source: `android/app/src/debug/java/com/laneshadow/sandbox/stories/templates`

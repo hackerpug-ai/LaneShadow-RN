@@ -141,8 +141,8 @@ The legacy `ios/LaneShadow/Views/Templates/RouteResultsScreen.swift` (259 lines,
 | `ios/LaneShadow/Views/Atoms/LSMap.swift` | 1-100 | Map atom — `LSMap(mode:camera:polylines:annotations:)` shape, identity preservation contract |
 | `ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift` | all | Navigator message organism — pinned-message composition with attached cards |
 | `ios/LaneShadow/Views/Molecules/LSRouteAttachmentCard.swift` | all (or path equivalent) | Route attachment card molecule API |
-| `.spec/design/system/views/route-results-screen/route-results-screen.html` | all | Visual contract — composition layout |
-| `.spec/design/system/views/route-results-screen/README.md` | all | Variant matrix |
+| `.spec/design/system/views/mapapp/route-results/route-results.html` | all | Visual contract — composition layout |
+| `.spec/design/system/views/mapapp/route-results/README.md` | all | Variant matrix |
 | `.spec/prds/v3-integration/tasks/sprint-09-route-results-screen/VARIANTS.md` | all | RR-S09-DR-T01 output — canonical 7-variant matrix |
 | `ios/LaneShadow/Sandbox/Stories/Templates/` | all | Existing story registration patterns; the new `MapAppRouteResultsStories.swift` lives here |
 | `RULES.md` | "Design Rules › One View, Many States" | The doctrine this task implements |
@@ -174,10 +174,10 @@ The legacy `ios/LaneShadow/Views/Templates/RouteResultsScreen.swift` (259 lines,
 ## Design
 
 **References:**
-- `.spec/design/system/views/route-results-screen/route-results-screen.html`
-- `.spec/design/system/views/route-results-screen/README.md`
+- `.spec/design/system/views/mapapp/route-results/route-results.html`
+- `.spec/design/system/views/mapapp/route-results/README.md`
 - `.spec/design/system/molecules/context-capsule/README.md`
-- `.spec/design/system/views/route-results-screen/default--best-pre-selected/default--best-pre-selected.light.png` (S01)
+- `.spec/design/system/views/mapapp/route-results/default--best-pre-selected/default--best-pre-selected.light.png` (S01)
 - `.spec/prds/v3-integration/tasks/sprint-09-route-results-screen/VARIANTS.md` (RR-S09-DR-T01 output)
 - `ios/LaneShadow/Views/Templates/MapApp.swift` + `ios/LaneShadow/Features/MapApp/MapAppState.swift` (foundation)
 

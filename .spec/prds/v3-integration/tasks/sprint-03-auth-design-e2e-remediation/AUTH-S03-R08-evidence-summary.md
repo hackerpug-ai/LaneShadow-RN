@@ -18,7 +18,7 @@ LANESHADOW_BUNDLE_ID=com.laneshadow.app node ios/E2E/sprint-03-auth-remediation.
 The report covers `AUTH-R.1` through `AUTH-R.8` from `SPRINT.md`.
 
 - `AUTH-R.1` links iOS and Android snapshot PNGs for `molecules.auth-provider-button.apple`, `molecules.auth-provider-button.google`, and all `templates.auth-screen.*` light/dark baselines.
-- `AUTH-R.2` links `.spec/design/system/views/auth-screen/auth-screen.html` and writes a visual review checklist; it remains `MANUAL` until a reviewer compares the PNGs against the HTML design.
+- `AUTH-R.2` links `.spec/design/system/views/auth/auth-screen.html` and writes a visual review checklist; it remains `MANUAL` until a reviewer compares the PNGs against the HTML design.
 - `AUTH-R.3` through `AUTH-R.6` use iOS WDA with accessibility identifiers `auth.signIn.root`, `idle.greeting`, `settings.signOut`, and `auth.signOut.confirm`. If WDA or real-device auth is unavailable, the report records `BLOCKED` with setup commands and diagnostics paths.
 - `AUTH-R.7` records Android as `MANUAL` unless `connectedDebugAndroidTest` or physical device artifact paths are produced. Do not mark Android `PASS` from iOS WDA evidence.
 - `AUTH-R.8` lists Clerk dashboard revocation actions, Convex commands, `db.users.getCurrentUser`, and expected `UNAUTHENTICATED` redirect evidence.

@@ -133,7 +133,7 @@ The existing `LSChatInput.swift` already supports `isThinking: Bool` + `isEnable
 | `ios/LaneShadow/Views/Molecules/LSCancelConfirmSheet.swift` | 1-100 | Existing molecule (4146 bytes) — evaluate if this API can be reused for the V02 layout; if yes, prefer reuse over re-implementation |
 | `ios/LaneShadow/Features/Planning/PlanningViewModel.swift` | all | View-model contract from PLAN-S08-IOS-T01 — `cancelConfirmationVisible`, `requestCancelConfirmation()`, `confirmCancellation()`, `dismissCancelConfirmation()` |
 | `ios/LaneShadow/Features/Planning/PlanningScreenContainer.swift` | 1-46 | Container — extension point for sheet conditional rendering above the screen |
-| `.spec/design/system/views/planning-screen/planning-screen.html` | V02 cancel-confirm variant | Design contract for sheet layout, copy, token recipe |
+| `.spec/design/system/views/mapapp/planning/planning-screen.html` | V02 cancel-confirm variant | Design contract for sheet layout, copy, token recipe |
 | `.spec/design/system/molecules/chat-input/` | all | LSChatInput design — confirms `is-thinking` modifier visual contract |
 | `server/convex/db/routePlans.ts` | 220-339 | `cancelPlan` API — confirms the mutation signature (`routePlanId`); ownership guard; no parameters beyond plan id |
 
@@ -161,7 +161,7 @@ The existing `LSChatInput.swift` already supports `isThinking: Bool` + `isEnable
 ## Design
 
 **References:**
-- `.spec/design/system/views/planning-screen/planning-screen.html` (V02 cancel-confirm variant)
+- `.spec/design/system/views/mapapp/planning/planning-screen.html` (V02 cancel-confirm variant)
 - `.spec/design/system/molecules/chat-input/` (locked / `is-thinking` modifier visual contract)
 
 **Interaction Notes:** Sheet is composed as a `ZStack` overlay over the persistent map host (NOT a SwiftUI `.sheet()` modifier — sheet lifecycle would unmount the map). Tapping the scrim is a no-op by default — explicit button press required to dismiss or confirm. Sheet entry/exit animation is the standard slide-up (handled inside the sheet view via `transition(.move(edge: .bottom))` if used, or matched to the design's `chatOverlayEnter` recipe).

@@ -121,8 +121,8 @@ This task replaces the legacy `PlanningScreen.kt` composition (which currently r
 | `android/app/src/main/java/com/laneshadow/ui/molecules/LSPhaseIndicator.kt` | all | Existing molecule — read-only consumer; `phases: List<PlanningPhase>` + `header: String` input contract |
 | `android/app/src/main/java/com/laneshadow/ui/atoms/LSMap.kt` | all | Sprint 06 host — read-only; understand persistent-host contract + slot model (org-map-layer + top/bottom overlay) |
 | `android/app/src/main/java/com/laneshadow/ui/idle/IdleRoute.kt` | all | Pattern reference — Hilt-injected container that resolves the ViewModel and passes a stateless screen down |
-| `.spec/design/system/views/planning-screen/planning-screen.html` | all | Visual contract — capsule above + indicator below in top-overlay slot; org-map-controls planning-state configuration |
-| `.spec/design/system/views/planning-screen/README.md` | all | Composes table + responsive + token recipe; note 2026-05-07 layout decision (capsule + indicator both visible) |
+| `.spec/design/system/views/mapapp/planning/planning-screen.html` | all | Visual contract — capsule above + indicator below in top-overlay slot; org-map-controls planning-state configuration |
+| `.spec/design/system/views/mapapp/planning/README.md` | all | Composes table + responsive + token recipe; note 2026-05-07 layout decision (capsule + indicator both visible) |
 | `.spec/prds/v3-integration/tasks/sprint-07-context-capsule-map-controls/CAPS-S07-T06-android-idle-screen-retrofit.md` | all | Pattern source — Android idle retrofit; this task is the planning-state twin of that retrofit |
 
 ## Guardrails
@@ -146,8 +146,8 @@ This task replaces the legacy `PlanningScreen.kt` composition (which currently r
 ## Design
 
 **References:**
-- `.spec/design/system/views/planning-screen/planning-screen.html` (post-PLAN-S08-DR-T01 update — composed capsule + indicator layout)
-- `.spec/design/system/views/planning-screen/README.md` (Composes table + token recipe)
+- `.spec/design/system/views/mapapp/planning/planning-screen.html` (post-PLAN-S08-DR-T01 update — composed capsule + indicator layout)
+- `.spec/design/system/views/mapapp/planning/README.md` (Composes table + token recipe)
 - `.spec/design/system/molecules/context-capsule/README.md` (--planning state contract)
 - `.spec/design/system/molecules/phase-indicator/README.md` (5-step pipeline)
 

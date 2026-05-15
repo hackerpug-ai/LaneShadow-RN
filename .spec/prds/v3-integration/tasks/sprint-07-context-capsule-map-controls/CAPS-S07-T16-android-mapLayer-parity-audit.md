@@ -121,7 +121,7 @@ This is a **defensive** task — no broken Android symptom has been visually con
 | `.spec/prds/v3-integration/tasks/sprint-07-context-capsule-map-controls/CAPS-S07-T14-ios-mapLayer-overlay-slot-positioning-fix.md` | all | iOS twin of this task; bug description + acceptance criteria language to mirror |
 | `android/app/src/main/java/com/laneshadow/ui/templates/` | (search) | Likely location of the Compose layer primitive |
 | `android/app/src/main/java/com/laneshadow/ui/idle/IdleRoute.kt` | all | Layer consumer pattern (mirrors `IdleScreenContainer.swift`) |
-| `.spec/design/system/views/idle-screen/idle-screen.html` | all | Authoritative overlay positions |
+| `.spec/design/system/views/mapapp/idle/idle-screen.html` | all | Authoritative overlay positions |
 
 ## Guardrails
 
@@ -139,7 +139,7 @@ This is a **defensive** task — no broken Android symptom has been visually con
 ## Design
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html` — overlay positioning contract
+- `.spec/design/system/views/mapapp/idle/idle-screen.html` — overlay positioning contract
 - iOS T14 spec — twin task for parity
 
 **Pattern:** Compose `Box(modifier = Modifier.fillMaxSize()) { ... }` with children using `Modifier.align(Alignment.BottomCenter)` is the standard absolute-positioning idiom. The fix (if needed) wraps the bottom-overlay child in a `Modifier.fillMaxHeight()` chain or applies `wrapContentHeight(Alignment.Bottom)`.

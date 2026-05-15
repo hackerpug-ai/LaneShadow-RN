@@ -131,7 +131,7 @@ The legacy `android/app/src/main/java/com/laneshadow/ui/routeresults/RouteResult
 | `android/app/src/main/java/com/laneshadow/ui/components/organisms/LSMapControls.kt` | all | Sprint 07 controls workbar API |
 | `android/app/src/main/java/com/laneshadow/ui/components/organisms/LSNavigatorMessage.kt` | all | Navigator message organism with attached cards |
 | `.spec/prds/v3-integration/tasks/sprint-08-planning-state/PLAN-S08-AND-T02-android-planning-state-overlay-composition.md` | all | Sprint 08 sibling task — composition pattern inside MapApp.kt |
-| `.spec/design/system/views/route-results-screen/route-results-screen.html` | all | Visual contract |
+| `.spec/design/system/views/mapapp/route-results/route-results.html` | all | Visual contract |
 | `.spec/prds/v3-integration/tasks/sprint-09-route-results-screen/VARIANTS.md` | all | Canonical variant matrix + `templates.map-app.route-results-*` story ID convention |
 | `RULES.md` | "Design Rules › One View, Many States" | The doctrine this task implements |
 
@@ -154,8 +154,8 @@ The legacy `android/app/src/main/java/com/laneshadow/ui/routeresults/RouteResult
 ## Design
 
 **References:**
-- `.spec/design/system/views/route-results-screen/route-results-screen.html`
-- `.spec/design/system/views/route-results-screen/README.md`
+- `.spec/design/system/views/mapapp/route-results/route-results.html`
+- `.spec/design/system/views/mapapp/route-results/README.md`
 - `.spec/prds/v3-integration/tasks/sprint-09-route-results-screen/VARIANTS.md`
 - Sprint 08 PLAN-S08-AND-T02 (composition pattern inside MapApp.kt)
 - `android/app/src/main/java/com/laneshadow/ui/mapapp/MapApp.kt` (foundation)

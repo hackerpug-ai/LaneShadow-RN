@@ -40,7 +40,7 @@ Neither platform covers S02, S03, S04, V01, V02, V03.
 
 #### Gap A-01: Six of seven design variants absent from iOS sandbox
 - **Severity**: HIGH
-- **Designed reference**: `.spec/design/system/views/idle-screen/README.md` Variants table (all 7 rows)
+- **Designed reference**: `.spec/design/system/views/mapapp/idle/README.md` Variants table (all 7 rows)
 - **iOS file**: `ios/LaneShadow/Sandbox/Stories/Templates/IdleScreenStory.swift` lines 7–19
 - **Android file**: `android/.../sandbox/stories/templates/IdleScreenStory.kt` lines 22–119 — has 4 variants but they're stress tests not designed states
 - **Observation**: Design defines 7 distinct visual states (S01–V03). iOS exposes 1. Android exposes 4 stress tests (empty/overflow/long-copy) instead of designed state variants. Snapshot regression cannot detect bugs in 6/7 designed states.

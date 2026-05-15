@@ -143,8 +143,8 @@ This task composes the new overlay layout in `PlanningScreen.swift` and `Plannin
 | `ios/LaneShadow/Views/Organisms/LSMapControls.swift` | all | Sprint 07 workbar API — planning-state configuration parameters, slot pattern (read-only — do NOT modify) |
 | `ios/LaneShadow/Views/Organisms/LSMapLayer.swift` | 1-116 | Map layer organism — `topOverlays:bottomOverlays:topBar:` slot shape, `GlassOverlaySlot` usage |
 | `ios/LaneShadow/Views/Atoms/LSMap.swift` | 1-100 | Map atom — `LSMap(mode:camera:polylines:annotations:)` shape; identity preservation across state transitions |
-| `.spec/design/system/views/planning-screen/planning-screen.html` | all | Visual contract — capsule-above-indicator layout, controls placement, chat-input lock state |
-| `.spec/design/system/views/planning-screen/README.md` | all | State variant matrix (S01 Scouting, S02 Drawing, S03 Weather, S04 Scoring, V01 Slow, V02 Cancel-Prompt, V03 Single-Candidate) — drives sandbox story IDs |
+| `.spec/design/system/views/mapapp/planning/planning-screen.html` | all | Visual contract — capsule-above-indicator layout, controls placement, chat-input lock state |
+| `.spec/design/system/views/mapapp/planning/README.md` | all | State variant matrix (S01 Scouting, S02 Drawing, S03 Weather, S04 Scoring, V01 Slow, V02 Cancel-Prompt, V03 Single-Candidate) — drives sandbox story IDs |
 | `ios/LaneShadow/Sandbox/Stories/Templates/PlanningScreenStory.swift` | all | Existing story registration — extend with canonical IDs |
 
 ## Guardrails
@@ -172,8 +172,8 @@ This task composes the new overlay layout in `PlanningScreen.swift` and `Plannin
 ## Design
 
 **References:**
-- `.spec/design/system/views/planning-screen/planning-screen.html` (post-PLAN-S08-DR-T01 update)
-- `.spec/design/system/views/planning-screen/README.md`
+- `.spec/design/system/views/mapapp/planning/planning-screen.html` (post-PLAN-S08-DR-T01 update)
+- `.spec/design/system/views/mapapp/planning/README.md`
 - `.spec/design/system/molecules/context-capsule/README.md`
 - `.spec/design/system/molecules/phase-indicator/README.md`
 

@@ -184,7 +184,7 @@ READING LIST
    - Section: render block
    - Focus: chrome_path, viewport, trim_pass config
 
-2. /Users/justinrich/Projects/LaneShadow/.spec/design/system/views/auth-screen/README.md [PRIMARY PATTERN]
+2. /Users/justinrich/Projects/LaneShadow/.spec/design/system/views/auth/README.md [PRIMARY PATTERN]
    - Sections: Variants + Token Recipe
    - Focus: canonical state names + token enrichment data
 
@@ -192,7 +192,7 @@ READING LIST
    - Section: Phase 1 + article §2.2
    - Focus: annotations.json schema
 
-4. /Users/justinrich/Projects/LaneShadow/.spec/design/system/views/auth-screen/auth-screen.html
+4. /Users/justinrich/Projects/LaneShadow/.spec/design/system/views/auth/auth-screen.html
    - Lines: phone-frame outer + section markup
    - Focus: phone-frame selector identification
 

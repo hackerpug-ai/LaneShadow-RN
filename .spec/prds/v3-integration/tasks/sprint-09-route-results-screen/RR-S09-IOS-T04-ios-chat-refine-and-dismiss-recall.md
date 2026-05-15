@@ -127,9 +127,9 @@ Wire the unlocked `LSChatInput` (rendered by MapApp's `.routeResults` overlay br
 | `ios/LaneShadow/Views/Molecules/LSChatInput.swift` | all | Public API surface — `placeholder`, `isThinking`, `isEnabled`, `onSubmit` |
 | `ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift` | all | Public API — dismiss chevron callback, slide-out animation |
 | `ios/LaneShadow/Views/Atoms/LSChromeChip.swift` (or equivalent) | all | Recall chip atom |
-| `.spec/design/system/views/route-results-screen/route-results-screen.html` | S04 Refining + V03 Message Dismissed sections | Refine placeholder, Recall chip placement, motion recipes |
-| `.spec/design/system/views/route-results-screen/refining/refining.light.png` | full | S04 visual reference (per-state folder per 2026-05-15 reorg) |
-| `.spec/design/system/views/route-results-screen/message-dismissed/message-dismissed.light.png` | full | V03 visual reference (per-state folder per 2026-05-15 reorg) |
+| `.spec/design/system/views/mapapp/route-results/route-results.html` | S04 Refining + V03 Message Dismissed sections | Refine placeholder, Recall chip placement, motion recipes |
+| `.spec/design/system/views/mapapp/route-results/refining/refining.light.png` | full | S04 visual reference (per-state folder per 2026-05-15 reorg) |
+| `.spec/design/system/views/mapapp/route-results/message-dismissed/message-dismissed.light.png` | full | V03 visual reference (per-state folder per 2026-05-15 reorg) |
 | `.spec/prds/v3-integration/tasks/sprint-08-planning-state/PLAN-S08-IOS-T04-ios-locked-chat-input-and-cancel-confirm.md` | all | Sprint 08 sibling task — chat input state binding pattern (different state, same architecture); Sprint 08 also wires LSChatInput into MapApp's `.planning` branch |
 
 ## Guardrails
@@ -156,14 +156,14 @@ Wire the unlocked `LSChatInput` (rendered by MapApp's `.routeResults` overlay br
 ## Design
 
 **References:**
-- `.spec/design/system/views/route-results-screen/route-results-screen.html` (S04 Refining + V03 Message Dismissed)
-- `.spec/design/system/views/route-results-screen/README.md` (refine primer + Recall chip composition)
-- `.spec/design/system/views/route-results-screen/refining/refining.light.png`
-- `.spec/design/system/views/route-results-screen/message-dismissed/message-dismissed.light.png`
+- `.spec/design/system/views/mapapp/route-results/route-results.html` (S04 Refining + V03 Message Dismissed)
+- `.spec/design/system/views/mapapp/route-results/README.md` (refine primer + Recall chip composition)
+- `.spec/design/system/views/mapapp/route-results/refining/refining.light.png`
+- `.spec/design/system/views/mapapp/route-results/message-dismissed/message-dismissed.light.png`
 - Sprint 08 PLAN-S08-IOS-T04 (chat input state binding pattern; LSChatInput inside MapApp's `.planning` branch)
 - `ios/LaneShadow/Views/Templates/MapApp.swift`
 
-**Interaction Notes:** REQUIRED READING: `.spec/design/system/views/route-results-screen/route-results-screen.html` § Refining + Message Dismissed. Three new user interactions: (1) refine submit via chat input → mutates `MapAppState` back to `.planning`, (2) dismiss chevron → hides message + shows Recall chip via MapApp's `bottomOverlays`, (3) Recall chip tap → re-pins message. Dismiss/Recall is pure client state on `MapAppViewModel` — no Convex calls. NO NavigationStack pushes anywhere in this task.
+**Interaction Notes:** REQUIRED READING: `.spec/design/system/views/mapapp/route-results/route-results.html` § Refining + Message Dismissed. Three new user interactions: (1) refine submit via chat input → mutates `MapAppState` back to `.planning`, (2) dismiss chevron → hides message + shows Recall chip via MapApp's `bottomOverlays`, (3) Recall chip tap → re-pins message. Dismiss/Recall is pure client state on `MapAppViewModel` — no Convex calls. NO NavigationStack pushes anywhere in this task.
 
 **Pattern:** Sprint 08 PLAN-S08-IOS-T04 — chat input state binding via the view-model's published properties; the view doesn't own the state, the view-model does. Mirror the same approach for refine submit on MapApp's `.routeResults` branch. For Recall chip, follow the standard atom-composition pattern: a thin SwiftUI view wraps `LSChromeChip` with copper styling and binds to the view-model's intent method, registered in MapApp's `bottomOverlays` array for the `.routeResults` branch.
 

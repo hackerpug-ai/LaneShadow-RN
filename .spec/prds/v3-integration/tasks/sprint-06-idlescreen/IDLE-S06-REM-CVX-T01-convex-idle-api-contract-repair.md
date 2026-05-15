@@ -167,7 +167,7 @@ Reviewer must verify the public endpoint names, return validators, and mobile DT
 
 ## DESIGN
 
-**References:** `.spec/design/system/views/idle-screen/README.md`, `SPRINT.md`
+**References:** `.spec/design/system/views/mapapp/idle/README.md`, `SPRINT.md`
 
 **Pattern:** Backend actions expose small mobile DTOs so view models do not parse provider-specific response shapes.
 

@@ -128,7 +128,7 @@ The legacy `PlanningScreen.swift` already includes a placeholder `SketchingPolyl
 |---|---|---|
 | `ios/LaneShadow/Views/Templates/PlanningScreen.swift` | 1-571 | Existing legacy `SketchingPolyline` + `Animation.sketchPolylineLoop(theme:)` + `Animation.breathingHeadDot(theme:)` extensions + `BreathingDotRecipe` struct + `PolylineShape` — pattern source; the helpers move to the new file or are imported from a shared motion module |
 | `ios/LaneShadow/Views/Atoms/LSMap.swift` | 1-100 | Map atom shape — confirm the layer composes ABOVE the map (ZStack) without modifying the atom |
-| `.spec/design/system/views/planning-screen/planning-screen.html` | sketch-polyline section | Animation contract — 1400ms linear loop, 1400ms ease-in-out breathing dot, copper color, reduce-motion fallback |
+| `.spec/design/system/views/mapapp/planning/planning-screen.html` | sketch-polyline section | Animation contract — 1400ms linear loop, 1400ms ease-in-out breathing dot, copper color, reduce-motion fallback |
 | `.spec/design/system/molecules/phase-indicator/README.md` | Animation Notes | Motion timing parallel — confirms 1400ms cadence is the Navigator's "thinking pulse" tempo |
 | `ios/LaneShadow/Features/Planning/PlanningViewModel.swift` | all | View-model — extension point for `sketchPathPoints` published property (sibling concept to `phaseSteps` from PLAN-S08-IOS-T01) |
 | `ios/LaneShadowTests/Templates/PlanningScreenTests.swift` (if exists) | all | Pattern source for SwiftUI snapshot/inspection tests |
@@ -156,7 +156,7 @@ The legacy `PlanningScreen.swift` already includes a placeholder `SketchingPolyl
 ## Design
 
 **References:**
-- `.spec/design/system/views/planning-screen/planning-screen.html` (sketch-polyline animation section)
+- `.spec/design/system/views/mapapp/planning/planning-screen.html` (sketch-polyline animation section)
 - `.spec/design/system/molecules/phase-indicator/README.md` (motion timing parallel — the Navigator's "thinking pulse" cadence)
 - `tokens/motion.recipes.json` (or equivalent motion recipe source)
 

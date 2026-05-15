@@ -188,7 +188,7 @@ Reviewer approves only when evidence proves the new idle autocomplete behavior o
 
 ## DESIGN
 
-**References:** `.spec/design/system/views/idle-screen/README.md`, `.spec/design/system/views/idle-screen/idle-screen.html`
+**References:** `.spec/design/system/views/mapapp/idle/README.md`, `.spec/design/system/views/mapapp/idle/idle-screen.html`
 
 **Pattern:** Gate evidence is durable sprint closure data under the sprint folder.
 

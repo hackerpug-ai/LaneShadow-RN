@@ -96,7 +96,7 @@ Android parity to CAPS-S07-T05 (iOS). After T02 ships `LSContextCapsule` and T04
 | `android/app/src/main/java/com/laneshadow/ui/idle/IdleViewModel.kt` | 1-220 | Existing `observe*` / `_state.update` + Flow.combine pattern — replicate for `capsuleState` derivation |
 | `android/app/src/main/java/com/laneshadow/ui/organisms/LSMapLayer.kt` | 1-200 | Slot architecture — confirm whether `topOverlays` carries alignment hints OR introduce one |
 | `android/app/src/main/java/com/laneshadow/ui/idle/Greeting.kt` | 1-30 | AnnotatedString construction with italic SpanStyle on scope word — replicate inside `deriveCapsuleState()` |
-| `.spec/design/system/views/idle-screen/idle-screen.html` | 1-200 | Visual ground truth: capsule top-centered + controls right-edge vertically-centered; advisory folds into capsule `--warning` |
+| `.spec/design/system/views/mapapp/idle/idle-screen.html` | 1-200 | Visual ground truth: capsule top-centered + controls right-edge vertically-centered; advisory folds into capsule `--warning` |
 
 ## Guardrails
 

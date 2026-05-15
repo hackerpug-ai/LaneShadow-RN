@@ -204,7 +204,7 @@ READING LIST (max 5 files — canonical pattern first)
    - Lines: all
    - Focus: Current "Rides" header typography (likely using title.lg)
 
-4. .spec/design/system/views/idle-screen/idle-screen.html
+4. .spec/design/system/views/mapapp/idle/idle-screen.html
    - Sections: greeting headline, meta row
    - Focus: Newsreader serif reference for opinion-xl
 

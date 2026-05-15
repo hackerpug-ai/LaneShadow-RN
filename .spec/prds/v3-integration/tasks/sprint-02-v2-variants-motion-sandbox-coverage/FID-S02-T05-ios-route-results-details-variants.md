@@ -163,9 +163,9 @@ DELIVERABLE
 READING LIST
 --------------------------------------------------------------------------------
 
-1. .spec/design/system/views/route-results-screen/route-results-screen.html [PRIMARY REFERENCE]
+1. .spec/design/system/views/mapapp/route-results/route-results-screen.html [PRIMARY REFERENCE]
    - Sections: S02 alt-selected, S04 refining, V03 dismissed (Recall chip)
-2. .spec/design/system/views/route-details-screen/route-details-screen.html [PRIMARY REFERENCE]
+2. .spec/design/system/views/mapapp/route-details/route-details-screen.html [PRIMARY REFERENCE]
    - Sections: S03 dark, S04 medium detent, S05 dismissing, V01 saved
 3. .spec/prds/v3-integration/remediations/02-views-route.md
    - Sections: Gap A1-01..A1-04, A1-05, A2-02, A2-03, A2-04, F2-05, H2-06, H1-07

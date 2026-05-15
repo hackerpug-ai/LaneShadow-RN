@@ -103,7 +103,7 @@ After T01 ships `LSContextCapsule` and T03 ships `LSMapControls`, this task retr
 
 | Path | Lines | Focus |
 |---|---|---|
-| `.spec/design/system/views/idle-screen/idle-screen.html` | all | Updated 2026-05-06 — gold-standard pattern: capsule top-centered + map controls right-edge vertically-centered (`top: 50%; transform: translateY(-50%)`); advisory card consolidated into capsule --warning |
+| `.spec/design/system/views/mapapp/idle/idle-screen.html` | all | Updated 2026-05-06 — gold-standard pattern: capsule top-centered + map controls right-edge vertically-centered (`top: 50%; transform: translateY(-50%)`); advisory card consolidated into capsule --warning |
 | `ios/LaneShadow/Views/Templates/IdleScreen.swift` | 1-241 | Current implementation — `greetingOverlay` (lines 87-164) is the block to remove; `LSMapLayer` slots are the integration site |
 | `ios/LaneShadow/Features/Idle/IdleViewModel.swift` | 1-277 | Source state — `greetingScope`, `greetingDisplayName`, `metaRow`, `weatherAdvisory`, `locationLabel`; add `capsuleState` computed property |
 | `.spec/prds/v3-integration/tasks/sprint-06-idlescreen/IDLE-S06-IOS-T01-idle-viewmodel-evolution.md` | all | Greeting.scope state machine contract; baseline VM tests that must keep passing |
@@ -129,7 +129,7 @@ After T01 ships `LSContextCapsule` and T03 ships `LSMapControls`, this task retr
 ## Design
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html`
+- `.spec/design/system/views/mapapp/idle/idle-screen.html`
 - `.spec/design/system/molecules/context-capsule/context-capsule.html` + README
 - `.spec/design/system/organisms/map-controls/map-controls.html` + README
 

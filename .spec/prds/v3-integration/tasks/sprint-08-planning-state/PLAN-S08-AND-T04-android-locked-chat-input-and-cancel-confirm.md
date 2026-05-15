@@ -25,7 +25,7 @@ This task wires three things together: (1) bind `LSChatInput.isThinking` modifie
 
 **MUST:**
 - Bind `LSChatInput`'s `is-thinking` mode (locked + spinner) to `PlanningViewModel.state.isThinking` from inside the planning composition (PLAN-S08-AND-T02 owns the screen composition; this task wires the chat input modifier and back-tap handler)
-- Build a new `PlanningCancelConfirmSheet` composable at `android/app/src/main/java/com/laneshadow/ui/planning/PlanningCancelConfirmSheet.kt` matching the V02 cancel-confirm variant from `.spec/design/system/views/planning-screen/planning-screen.html` — `role="alertdialog"` + `aria-modal="true"` semantics; "Cancel ride" + "Keep planning" actions; copper-tinted "Cancel ride" CTA
+- Build a new `PlanningCancelConfirmSheet` composable at `android/app/src/main/java/com/laneshadow/ui/planning/PlanningCancelConfirmSheet.kt` matching the V02 cancel-confirm variant from `.spec/design/system/views/mapapp/planning/planning-screen.html` — `role="alertdialog"` + `aria-modal="true"` semantics; "Cancel ride" + "Keep planning" actions; copper-tinted "Cancel ride" CTA
 - On "Cancel ride" tap: invoke `viewModel.cancel()` (PLAN-S08-AND-T01 contract) which fires `routeRepository.cancelPlan(activePlanId)`; on success, `viewModel.state.transition == PlanningTransition.Cancelled` triggers navigation back to the idle state on the same `LSMapHost`
 - Return-to-idle restoration: the map view returns to its idle state with capsule swapping back to `--idle`, indicator unmounting, chat input unlocking, and the session preserved (marked `archived` if applicable per backend contract); `LSMapHost` instance MUST stay mounted across the cancel→idle transition
 - Update `PlanningScreenContainer` to react to `state.transition` and call `onReturnToIdle` callback (provided by the navigation graph) when `PlanningTransition.Cancelled` is observed; consume the transition via `viewModel.consumeTransition()`
@@ -111,7 +111,7 @@ This task wires three things together: (1) bind `LSChatInput.isThinking` modifie
 | `android/app/src/main/java/com/laneshadow/ui/molecules/LSChatInput.kt` | all | Read-only consumer; understand `isThinking` parameter contract + `has-value` rendering + spinner-in-trailing-slot semantics |
 | `android/app/src/main/java/com/laneshadow/ui/molecules/LSCancelConfirmSheet.kt` | all | Existing cancel-confirm molecule — assess if reusable for V02 variant; otherwise this task wraps it |
 | `android/app/src/main/java/com/laneshadow/ui/molecules/LSBottomSheet.kt` | all | Bottom-sheet primitive used by the cancel-confirm composable |
-| `.spec/design/system/views/planning-screen/planning-screen.html` | V02 cancel-confirm variant | Visual contract — scrim rises, planning composition dims to 38%, sheet presents with copper Cancel CTA + ghost Keep CTA |
+| `.spec/design/system/views/mapapp/planning/planning-screen.html` | V02 cancel-confirm variant | Visual contract — scrim rises, planning composition dims to 38%, sheet presents with copper Cancel CTA + ghost Keep CTA |
 | `.spec/design/system/molecules/chat-input/README.md` | is-thinking section | Locked-state contract: `has-value` filled prompt, dimmed leading icon, copper spinner replacing send |
 | `.spec/design/system/molecules/chat-input/chat-input.html` | is-thinking class | Visual contract for the locked state |
 | `server/convex/db/routePlans.ts` | 231-340 | `cancelPlan` mutation handler signature consumed via `routeRepository.cancelPlan(planId)` |
@@ -136,7 +136,7 @@ This task wires three things together: (1) bind `LSChatInput.isThinking` modifie
 ## Design
 
 **References:**
-- `.spec/design/system/views/planning-screen/planning-screen.html` (V02 cancel-confirm variant — scrim, dimmed planning composition, copper Cancel CTA, ghost Keep CTA)
+- `.spec/design/system/views/mapapp/planning/planning-screen.html` (V02 cancel-confirm variant — scrim, dimmed planning composition, copper Cancel CTA, ghost Keep CTA)
 - `.spec/design/system/molecules/chat-input/README.md` (`is-thinking` locked-state contract)
 - `.spec/design/system/molecules/chat-input/chat-input.html` (visual reference)
 

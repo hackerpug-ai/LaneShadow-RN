@@ -175,7 +175,7 @@ Reviewer must verify that `suggestPlaces` and `retrievePlace` use Mapbox Search 
 
 ## DESIGN
 
-**References:** `.spec/design/system/views/idle-screen/README.md`, `SPRINT.md`, `https://docs.mapbox.com/api/search/search-box/`
+**References:** `.spec/design/system/views/mapapp/idle/README.md`, `SPRINT.md`, `https://docs.mapbox.com/api/search/search-box/`
 
 **Pattern:** Small Convex action DTOs isolate native clients from provider-specific JSON.
 

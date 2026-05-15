@@ -62,7 +62,7 @@ RUNTIME_COMMANDS:
 - **VERIFY:** `xcodebuild test -only-testing:LaneShadowUITests/DesignReviewCaptureTests` and inspect `.xcresult` attachment names match the schema
 
 ### AC-3: Reference assets generated for every variant
-- **GIVEN** `pnpm design:references` runs against `.spec/design/system/views/idle-screen/idle-screen.html`
+- **GIVEN** `pnpm design:references` runs against `.spec/design/system/views/mapapp/idle/idle-screen.html`
 - **WHEN** the script completes
 - **THEN** `.spec/design/system/refs/idle-screen/` contains a PNG + an `annotations.json` for every variant (S01.light/dark, S02.light/dark, S04.light/dark, V01, V02, V03)
 - **VERIFY:** `ls .spec/design/system/refs/idle-screen/*.png | wc -l` ≥ 14
@@ -142,8 +142,8 @@ For each AC: drive the production app through real flows, do NOT introduce mock 
 
 1. `ios/LaneShadowUITests/DesignReview/DesignReviewCaptureTests.swift:279-450` **[PRIMARY PATTERN]** — final implementation; idle-screen capture method shape
 2. `ios/LaneShadowUITests/DesignReview/DesignReviewHelpers.swift` — capture, attachment naming, determinism helpers
-3. `.spec/design/system/views/idle-screen/idle-screen.html` — visual ground truth for all variants
-4. `.spec/design/system/views/idle-screen/README.md` — variant catalogue (S01–V03) with token recipes
+3. `.spec/design/system/views/mapapp/idle/idle-screen.html` — visual ground truth for all variants
+4. `.spec/design/system/views/mapapp/idle/README.md` — variant catalogue (S01–V03) with token recipes
 5. `scripts/design-review/manifest.ts` — auto-discovery rules for capture attachments
 
 ---
@@ -195,8 +195,8 @@ For each AC: drive the production app through real flows, do NOT introduce mock 
 ## DESIGN
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html`
-- `.spec/design/system/views/idle-screen/README.md` — variant catalogue (S01 default, S02 typing/send, S03 default dark, S04 filter sheet, V01 no-location, V02 first-ride, V03 weather-advisory)
+- `.spec/design/system/views/mapapp/idle/idle-screen.html`
+- `.spec/design/system/views/mapapp/idle/README.md` — variant catalogue (S01 default, S02 typing/send, S03 default dark, S04 filter sheet, V01 no-location, V02 first-ride, V03 weather-advisory)
 
 **Pattern:** XCUITest capture → `DesignReviewHelpers.captureScreen(...)` → `.xcresult` attachment with deterministic name → manifest discovery → vision-LLM eval against PNG/annotations references → `report.json` issues array with severity.
 

@@ -163,7 +163,7 @@ Reviewer must inspect exported attachment names and `.design-review/manifest.jso
 
 ## DESIGN
 
-**References:** `.spec/design/system/views/idle-screen/README.md`, `.spec/design/system/refs/idle-screen/`
+**References:** `.spec/design/system/views/mapapp/idle/README.md`, `.spec/design/system/refs/idle-screen/`
 
 **Pattern:** Deterministic UITest state setup produces the same canonical screenshot names as reference assets.
 

@@ -178,9 +178,9 @@ The view-model is the **single bridge** between Convex subscription data and the
 ## Design
 
 **References:**
-- `.spec/design/system/views/route-results-screen/route-results-screen.html` (visual contract — polyline strokes, card composition)
-- `.spec/design/system/views/route-results-screen/README.md` (variant matrix)
-- `.spec/design/system/views/route-results-screen/default--best-pre-selected/default--best-pre-selected.light.png` (S01 reference)
+- `.spec/design/system/views/mapapp/route-results/route-results.html` (visual contract — polyline strokes, card composition)
+- `.spec/design/system/views/mapapp/route-results/README.md` (variant matrix)
+- `.spec/design/system/views/mapapp/route-results/default--best-pre-selected/default--best-pre-selected.light.png` (S01 reference)
 - `.spec/prds/v3-integration/architecture/ios-architecture.md` §5.3 RouteResultsScreen (read as historical context — canonical home is now `MapAppViewModel`)
 - `.spec/prds/v3-integration/05-uc-chat.md` UC-CHAT-03 + UC-CHAT-04
 - `ios/LaneShadow/Features/MapApp/MapAppViewModel.swift` + `MapAppState.swift` as the architectural foundation

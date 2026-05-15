@@ -7,7 +7,7 @@
 
 ## Overview
 
-This remediation sprint covers the missing work found after Sprint 03: the auth UI did not match the authoritative design at `.spec/design/system/views/auth-screen/auth-screen.html`, the iOS tests mostly rendered views without exercising the human test steps, and Clerk/Convex login success was not proven end to end.
+This remediation sprint covers the missing work found after Sprint 03: the auth UI did not match the authoritative design at `.spec/design/system/views/auth/auth-screen.html`, the iOS tests mostly rendered views without exercising the human test steps, and Clerk/Convex login success was not proven end to end.
 
 The work is deliberately split into native component primitives, full view fidelity, auth integration, and evidence automation. Sprint 04 remains blocked until these tasks are complete because every downstream planning flow depends on an authenticated rider and a visually correct auth gate.
 
@@ -23,13 +23,13 @@ The native auth flow is missing or under-specifies these component and behavior 
 
 ## Human Testing Gate
 
-**Gate:** A reviewer can run the remediation evidence suite and see both native platforms render AuthScreen variants matching `.spec/design/system/views/auth-screen/auth-screen.html`, then complete a real Clerk-backed login that binds Convex auth and lands on IdleScreen with the rider name from `db.users.getCurrentUser`.
+**Gate:** A reviewer can run the remediation evidence suite and see both native platforms render AuthScreen variants matching `.spec/design/system/views/auth/auth-screen.html`, then complete a real Clerk-backed login that binds Convex auth and lands on IdleScreen with the rider name from `db.users.getCurrentUser`.
 
 ## Human Test Deliverable
 
 **Test Steps:**
 1. Open the iOS and Android sandbox catalogs and confirm these story IDs exist with light/dark PNG baselines: `molecules.auth-provider-button.apple`, `molecules.auth-provider-button.google`, `templates.auth-screen.email-entry`, `templates.auth-screen.existing-user`, `templates.auth-screen.new-user`, `templates.auth-screen.invalid-email`, `templates.auth-screen.submitting`, and `templates.auth-screen.dark`.
-2. Compare native AuthScreen screenshots against `.spec/design/system/views/auth-screen/auth-screen.html` and confirm the paper contour background, scrim, back glass chip, brand mark, Newsreader headline, social buttons, divider, field rows, primary CTA, legal footer, error state, and loading spinner all match the design.
+2. Compare native AuthScreen screenshots against `.spec/design/system/views/auth/auth-screen.html` and confirm the paper contour background, scrim, back glass chip, brand mark, Newsreader headline, social buttons, divider, field rows, primary CTA, legal footer, error state, and loading spinner all match the design.
 3. On a real iOS device through native XCUITest, launch with a clean auth state and sign in with a Clerk test email/password account.
 4. Confirm the iOS app routes to IdleScreen only after Convex auth is bound and `db.users.getCurrentUser` returns the rider's real display name.
 5. Kill and relaunch the iOS app; confirm the session restores from secure storage and the IdleScreen greeting still includes the Convex user name.
@@ -54,8 +54,8 @@ The native auth flow is missing or under-specifies these component and behavior 
 
 ## Source Coverage
 
-- `.spec/design/system/views/auth-screen/auth-screen.html`
-- `.spec/design/system/views/auth-screen/README.md`
+- `.spec/design/system/views/auth/auth-screen.html`
+- `.spec/design/system/views/auth/README.md`
 - `.spec/design/system/molecules/social-button/README.md`
 - `.spec/prds/v3-integration/04-uc-auth.md`
 - `.spec/prds/v3-integration/tasks/sprint-03-auth-convex-foundation/SPRINT.md`

@@ -157,7 +157,7 @@ For each AC: RED → GREEN → REFACTOR. Use a fake `LaneShadowPlanningDataProvi
 2. `ios/LaneShadow/Features/Idle/IdleWeatherTypes.swift` — DTOs and `GreetingScope.from(hour:)`
 3. `ios/LaneShadow/Sandbox/MockProviders/IdleMockProvider.swift` — sandbox state shape (S01–V03 variants)
 4. `ios/LaneShadow/Views/Templates/IdleScreen.swift` — view consumer; verify it reads ViewModel fields, never mock data
-5. `.spec/design/system/views/idle-screen/idle-screen.html` — visual ground truth for italic scope word + meta row + advisory card
+5. `.spec/design/system/views/mapapp/idle/idle-screen.html` — visual ground truth for italic scope word + meta row + advisory card
 
 ---
 
@@ -209,8 +209,8 @@ For each AC: RED → GREEN → REFACTOR. Use a fake `LaneShadowPlanningDataProvi
 ## DESIGN
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html`
-- `.spec/design/system/views/idle-screen/README.md` — `Greeting.scope` rules; meta-row token recipe; advisory card variant
+- `.spec/design/system/views/mapapp/idle/idle-screen.html`
+- `.spec/design/system/views/mapapp/idle/README.md` — `Greeting.scope` rules; meta-row token recipe; advisory card variant
 
 **Pattern:** Per-flow `observeX(convexClient:) -> Task<Void, Never>` returned from `startObserving()`; each flow `for await` consumes the Convex async sequence and updates published `@Observable` state on the main actor.
 

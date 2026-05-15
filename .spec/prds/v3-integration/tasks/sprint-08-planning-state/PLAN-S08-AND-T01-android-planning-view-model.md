@@ -148,7 +148,7 @@ This task is the Android twin of PLAN-S08-IOS-T01. The contract MUST match the i
 **References:**
 - `.spec/design/system/molecules/context-capsule/README.md` (--planning state contract)
 - `.spec/design/system/molecules/phase-indicator/README.md` (5-step pipeline + state semantics)
-- `.spec/design/system/views/planning-screen/README.md` (composed layout: capsule above + indicator below)
+- `.spec/design/system/views/mapapp/planning/README.md` (composed layout: capsule above + indicator below)
 
 **Interaction Notes:** This is a logic-only task — no UI surface changes. The ViewModel is the single source of truth for both the capsule's italic single-line headline and the indicator's 5 step states. Phase progression is driven by Convex `sessionMessages.status`; the cancel intent fires the `routePlans.cancelPlan` mutation and emits `PlanningTransition.Cancelled` which PLAN-S08-AND-T02/T04 read to return the map view to its idle state on the same map host.
 

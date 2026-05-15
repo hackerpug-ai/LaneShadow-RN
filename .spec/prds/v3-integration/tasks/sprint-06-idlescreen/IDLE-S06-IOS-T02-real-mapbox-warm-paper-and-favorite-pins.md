@@ -147,8 +147,8 @@ For each AC: RED → GREEN → REFACTOR. Use `ViewInspector` (or `XCTAssert` aga
 1. `ios/LaneShadow/Views/Atoms/LSMap.swift` **[PRIMARY PATTERN]** — final implementation; warm-paper styling + overlay slot signature
 2. `ios/LaneShadow/Views/Molecules/LSFavoritePinDot.swift` — copper dot recipe + halo
 3. `ios/LaneShadow/Views/Templates/IdleScreen.swift` — overlay composition site
-4. `.spec/design/system/views/idle-screen/idle-screen.html` — visual ground truth: warm-paper tile, copper pin, glass overlay
-5. `.spec/design/system/views/idle-screen/README.md` — pin recipe + token mapping (`signal.default`, `--map-warm-paper`)
+4. `.spec/design/system/views/mapapp/idle/idle-screen.html` — visual ground truth: warm-paper tile, copper pin, glass overlay
+5. `.spec/design/system/views/mapapp/idle/README.md` — pin recipe + token mapping (`signal.default`, `--map-warm-paper`)
 
 ---
 
@@ -200,8 +200,8 @@ For each AC: RED → GREEN → REFACTOR. Use `ViewInspector` (or `XCTAssert` aga
 ## DESIGN
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html`
-- `.spec/design/system/views/idle-screen/README.md` — warm-paper substrate, copper pin halo, glass overlay tokens
+- `.spec/design/system/views/mapapp/idle/idle-screen.html`
+- `.spec/design/system/views/mapapp/idle/README.md` — warm-paper substrate, copper pin halo, glass overlay tokens
 
 **Pattern:** Persistent map host owns the Mapbox SDK lifetime; SwiftUI consumers receive an `@ViewBuilder overlay:` slot. State changes mutate overlay content, not the map's identity.
 

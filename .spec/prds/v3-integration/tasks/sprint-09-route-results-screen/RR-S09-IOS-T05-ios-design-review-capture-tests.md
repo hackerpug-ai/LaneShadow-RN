@@ -17,16 +17,16 @@
 
 ## Background
 
-**Doctrine:** Per `RULES.md` § Design Rules › One View, Many States, capture tests target `MapApp` with `MapAppState == .routeResults(...)` injected via sandbox stories, NOT a sibling `RouteResultsScreen` template. Capture filenames remain anchored to the canonical reference set in `.spec/design/system/views/route-results-screen/` (a sunk-cost folder name), but the sandbox story IDs that drive the captures are namespaced under `templates.map-app.route-results-{variant}-{theme}`.
+**Doctrine:** Per `RULES.md` § Design Rules › One View, Many States, capture tests target `MapApp` with `MapAppState == .routeResults(...)` injected via sandbox stories, NOT a sibling `RouteResultsScreen` template. Capture filenames remain anchored to the canonical reference set in `.spec/design/system/views/mapapp/route-results/` (a sunk-cost folder name), but the sandbox story IDs that drive the captures are namespaced under `templates.map-app.route-results-{variant}-{theme}`.
 
-Add XCUITest capture methods to `ios/LaneShadowUITests/DesignReview/DesignReviewCaptureTests.swift` that drive `MapApp` to each of the 7 canonical route-results variants (from RR-S09-DR-T01's `VARIANTS.md`) by opening the corresponding sandbox story and capture a PNG per `(variant, theme)` tuple. Each capture is fed into the `pnpm design:review` pipeline for vision-LLM evaluation against the reference assets in `.spec/design/system/views/route-results-screen/`. The capture pipeline must produce 7 captures matching the canonical filenames.
+Add XCUITest capture methods to `ios/LaneShadowUITests/DesignReview/DesignReviewCaptureTests.swift` that drive `MapApp` to each of the 7 canonical route-results variants (from RR-S09-DR-T01's `VARIANTS.md`) by opening the corresponding sandbox story and capture a PNG per `(variant, theme)` tuple. Each capture is fed into the `pnpm design:review` pipeline for vision-LLM evaluation against the reference assets in `.spec/design/system/views/mapapp/route-results/`. The capture pipeline must produce 7 captures matching the canonical filenames.
 
 ## Critical Constraints
 
 **MUST:**
 - MUST add 7 new test methods to `ios/LaneShadowUITests/DesignReview/DesignReviewCaptureTests.swift`: `test_mapApp_routeResults_default_best_pre_selected_light`, `test_mapApp_routeResults_alt1_tapped_sage_promoted_light`, `test_mapApp_routeResults_default_dark`, `test_mapApp_routeResults_refining_light`, `test_mapApp_routeResults_two_candidates_light`, `test_mapApp_routeResults_weather_divergent_light`, `test_mapApp_routeResults_message_dismissed_light`
 - MUST drive each test by opening the canonical sandbox story `templates.map-app.route-results-{variant}-{theme}` registered in RR-S09-IOS-T02
-- MUST capture each PNG with the canonical filename matching `.spec/design/system/views/route-results-screen/{canonical-stem}.{light|dark}.png`
+- MUST capture each PNG with the canonical filename matching `.spec/design/system/views/mapapp/route-results/{canonical-stem}.{light|dark}.png`
 - MUST write captures to `ios/build/design-review/captures/route-results-screen/` (the existing capture output directory keyed on the design-system folder name)
 - MUST register the new captures in `.design-review/manifest.json` (or trigger the existing manifest generator)
 - MUST verify `pnpm design:review --screens route-results-screen` runs end-to-end against the new captures and produces a `report.json` entry per variant
@@ -70,7 +70,7 @@ Add XCUITest capture methods to `ios/LaneShadowUITests/DesignReview/DesignReview
 **GIVEN** the `test_mapApp_routeResults_alt1_tapped_sage_promoted_light` test method
 **WHEN** the test executes
 **THEN** the test taps `mapapp-routeresults-card-1` BEFORE capturing the PNG; the captured PNG shows the sage polyline as solid-bold on MapApp's LSMap and the alt1 card with sage stripe + compass chip
-**Verify:** Visual diff `ios/build/design-review/captures/route-results-screen/alt1-tapped--sage-promoted.light.png` vs `.spec/design/system/views/route-results-screen/alt1-tapped--sage-promoted/alt1-tapped--sage-promoted.light.png` ≤ pipeline threshold; verified via `pnpm design:review --screens route-results-screen` returning `severity == 'low' OR 'medium'` for this variant (no `high`)
+**Verify:** Visual diff `ios/build/design-review/captures/route-results-screen/alt1-tapped--sage-promoted.light.png` vs `.spec/design/system/views/mapapp/route-results/alt1-tapped--sage-promoted/alt1-tapped--sage-promoted.light.png` ≤ pipeline threshold; verified via `pnpm design:review --screens route-results-screen` returning `severity == 'low' OR 'medium'` for this variant (no `high`)
 
 ### AC-4 — Refining variant captures unlocked chat input + scrim
 
@@ -111,7 +111,7 @@ Add XCUITest capture methods to `ios/LaneShadowUITests/DesignReview/DesignReview
 |---|---|---|
 | `ios/LaneShadowUITests/DesignReview/DesignReviewCaptureTests.swift` | all | [PRIMARY PATTERN] Existing capture-test architecture from Sprint 05 / 06 / 07 / 08 |
 | `.spec/prds/v3-integration/tasks/sprint-09-route-results-screen/VARIANTS.md` | all | Canonical 7-variant matrix from RR-S09-DR-T01 + canonical `templates.map-app.route-results-*` story ID convention |
-| `.spec/design/system/views/route-results-screen/` | all | Reference PNG set; capture filenames must match these stems |
+| `.spec/design/system/views/mapapp/route-results/` | all | Reference PNG set; capture filenames must match these stems |
 | `scripts/design-review/` | all | `pnpm design:review` pipeline; manifest generator |
 | `.spec/prds/v3-integration/tasks/sprint-08-planning-state/PLAN-S08-IOS-T05-ios-design-review-capture-tests.md` | all | Sprint 08 sibling — same architecture, different content; Sprint 08 also targets `templates.map-app.planning-*` stories per the doctrine |
 | `ios/LaneShadow/Sandbox/Stories/Templates/MapAppRouteResultsStories.swift` | all (NEW from RR-S09-IOS-T02) | Sandbox stories the capture tests drive |
@@ -124,7 +124,7 @@ Add XCUITest capture methods to `ios/LaneShadowUITests/DesignReview/DesignReview
 - `ios/project.yml` (MODIFY only if file additions require regeneration)
 
 **Write-Prohibited:**
-- `.spec/design/system/views/route-results-screen/**` — reference assets owned by RR-S09-DR-T01
+- `.spec/design/system/views/mapapp/route-results/**` — reference assets owned by RR-S09-DR-T01
 - `scripts/design-review/**` — pipeline scripts owned by Sprint 05
 - `ios/LaneShadow/**` — non-test code paths
 - `android/**`, `server/**` — out of scope
@@ -134,7 +134,7 @@ Add XCUITest capture methods to `ios/LaneShadowUITests/DesignReview/DesignReview
 
 **References:**
 - `.spec/prds/v3-integration/tasks/sprint-09-route-results-screen/VARIANTS.md` (canonical 7-variant matrix + `templates.map-app.route-results-*` story ID convention)
-- `.spec/design/system/views/route-results-screen/*/*.png` (reference assets — visual diff target)
+- `.spec/design/system/views/mapapp/route-results/*/*.png` (reference assets — visual diff target)
 - Sprint 08 PLAN-S08-IOS-T05 (capture architecture)
 - `scripts/design-review/prompts/visual-eval.md` (vision LLM eval prompt)
 

@@ -149,8 +149,8 @@ For each AC: RED → GREEN → REFACTOR. Use the Convex test harness; for HTTP-d
 1. `server/convex/actions/weather.ts:1-160` **[PRIMARY PATTERN]** — final implementation; helpers + main action
 2. `server/convex/actions/agent/lib/reliability.ts:1-80` — `retryOnce`, `withTimeout`, `markRetryable` recipe
 3. `server/convex/actions/places.ts:1-200` — sibling action; same retry/validator pattern
-4. `.spec/design/system/views/idle-screen/idle-screen.html` — meta row "FRIDAY · 68°F · CLEAR"; advisory card behaviour
-5. `.spec/design/system/views/idle-screen/README.md` — `wx-rain-tint`, `wx-rain`, advisory pill recipe
+4. `.spec/design/system/views/mapapp/idle/idle-screen.html` — meta row "FRIDAY · 68°F · CLEAR"; advisory card behaviour
+5. `.spec/design/system/views/mapapp/idle/README.md` — `wx-rain-tint`, `wx-rain`, advisory pill recipe
 
 ---
 
@@ -201,8 +201,8 @@ For each AC: RED → GREEN → REFACTOR. Use the Convex test harness; for HTTP-d
 ## DESIGN
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html` — meta row spec, advisory pill recipe
-- `.spec/design/system/views/idle-screen/README.md` — `wx-rain-tint`, `wx-storm`, copper signal token usage
+- `.spec/design/system/views/mapapp/idle/idle-screen.html` — meta row spec, advisory pill recipe
+- `.spec/design/system/views/mapapp/idle/README.md` — `wx-rain-tint`, `wx-storm`, copper signal token usage
 
 **Pattern:** Validator-first proxy action with HTTP reliability wrapper (`retryOnce(withTimeout(...))`) and pure helper functions for mapping/normalisation that are independently unit-testable.
 

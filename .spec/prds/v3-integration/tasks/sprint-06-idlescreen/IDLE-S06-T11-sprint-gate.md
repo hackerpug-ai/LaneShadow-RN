@@ -219,8 +219,8 @@ Sprint 06 closes when (1) `pnpm design:review --screens idle-screen` produces a 
 ## DESIGN
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html`
-- `.spec/design/system/views/idle-screen/README.md`
+- `.spec/design/system/views/mapapp/idle/idle-screen.html`
+- `.spec/design/system/views/mapapp/idle/README.md`
 - `.spec/prds/v3-integration/tasks/sprint-05-design-review-pipeline/SPRINT.md` (pipeline operations)
 
 **Pattern:** Sprint-gate task acts as a deterministic closure check — pipeline output + real-device evidence + signed manual run-book are the only inputs to the status flip. Aggregate verdict is mechanical, not judgmental.

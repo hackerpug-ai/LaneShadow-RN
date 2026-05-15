@@ -142,9 +142,9 @@ DELIVERABLE
 READING LIST
 --------------------------------------------------------------------------------
 
-1. .spec/design/system/views/idle-screen/idle-screen.html [PRIMARY REFERENCE]
+1. .spec/design/system/views/mapapp/idle/idle-screen.html [PRIMARY REFERENCE]
    - Sections: V01, V02, V03
-2. .spec/design/system/views/planning-screen/planning-screen.html [PRIMARY REFERENCE]
+2. .spec/design/system/views/mapapp/planning/planning-screen.html [PRIMARY REFERENCE]
    - Sections: V01, V02, V03
 3. .spec/prds/v3-integration/remediations/01-views-idle-planning.md
    - Sections: Gap B-04..B-06 (Idle V01-V03), Gap A-03 (Planning V01-V03), Gap G-02 (LSPhaseIndicator header)

@@ -135,7 +135,7 @@ Run ACs in order. First lock down endpoint strings and DTO decoding, then repair
 2. `ios/LaneShadow/Features/Idle/IdleViewModel.swift` - weather, favorites, location, suggestion behavior
 3. `ios/LaneShadow/Features/Idle/IdleScreenContainer.swift` - production idle UI
 4. `ios/LaneShadowTests/Features/Idle/IdleScreenWiringTests.swift` - existing idle tests and fakes
-5. `.spec/design/system/views/idle-screen/idle-screen.html` - canonical greeting and chat active design
+5. `.spec/design/system/views/mapapp/idle/idle-screen.html` - canonical greeting and chat active design
 
 ---
 
@@ -166,7 +166,7 @@ Reviewer must verify the production `IdleScreenContainer`, not only sandbox `Idl
 
 ## DESIGN
 
-**References:** `.spec/design/system/views/idle-screen/idle-screen.html`, `.spec/design/system/views/idle-screen/README.md`
+**References:** `.spec/design/system/views/mapapp/idle/idle-screen.html`, `.spec/design/system/views/mapapp/idle/README.md`
 
 **Pattern:** View model owns live data and state transitions; production container renders the canonical map-view idle overlay.
 

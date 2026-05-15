@@ -196,8 +196,8 @@ For each AC: write the instrumented test first, watch it fail (RED requires emul
 ## DESIGN
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html`
-- `.spec/design/system/views/idle-screen/README.md` — variant catalogue used by tests
+- `.spec/design/system/views/mapapp/idle/idle-screen.html`
+- `.spec/design/system/views/mapapp/idle/README.md` — variant catalogue used by tests
 
 **Pattern:** Compose instrumented test driving production composable with state factory injection from debug `MockProviders`; stable tags as the parity contract for cross-platform tooling.
 

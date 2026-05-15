@@ -72,8 +72,8 @@ Autocomplete was moved into Sprint 07 on 2026-05-07. Backend, iOS, and Android a
 |------|------------------|
 | CAPS-S07-T01, T02 | `.spec/design/system/molecules/context-capsule/context-capsule.html` + `README.md` |
 | CAPS-S07-T03, T04 | `.spec/design/system/organisms/map-controls/map-controls.html` + `README.md` |
-| CAPS-S07-T05, T06 | `.spec/design/system/views/idle-screen/idle-screen.html` (updated 2026-05-06) + `README.md` |
-| CAPS-S07-T10-T13 | `.spec/design/system/views/idle-screen/idle-screen.html` + `gate-evidence/autocomplete/**` |
+| CAPS-S07-T05, T06 | `.spec/design/system/views/mapapp/idle/idle-screen.html` (updated 2026-05-06) + `README.md` |
+| CAPS-S07-T10-T13 | `.spec/design/system/views/mapapp/idle/idle-screen.html` + `gate-evidence/autocomplete/**` |
 | CAPS-S07-T14-T16 | `LSMapLayer` platform primitives + `gate-evidence/CAPS-S07-T15/**` + `gate-evidence/CAPS-S07-T16/**` |
 
 ---

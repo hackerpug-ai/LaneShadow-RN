@@ -96,7 +96,7 @@ write_prohibited:
 ## Design
 
 references:
-- `.spec/design/system/views/auth-screen/auth-screen.html`
+- `.spec/design/system/views/auth/auth-screen.html`
 - `.spec/prds/v3-integration/04-uc-auth.md`
 
 pattern: RootView observes one shared app environment; auth completion updates that shared state and Convex uses the same Clerk JWT provider.

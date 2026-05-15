@@ -97,7 +97,7 @@ These are intentional per design — they are NOT candidates for the shared toke
 
 ## New Molecule Added During Sprint 06 (auth-screen)
 
-- **social-button** (mol-social-btn) — provider-branded OAuth button. Apple + Google variants. Composes `ls-btn` and adds brand-correct surface, label color, hairline border, and a brand-mark slot. Used by `views/auth-screen` (UC-SCR-07). See `molecules/social-button/`.
+- **social-button** (mol-social-btn) — provider-branded OAuth button. Apple + Google variants. Composes `ls-btn` and adds brand-correct surface, label color, hairline border, and a brand-mark slot. Used by `views/auth` (UC-SCR-07). See `molecules/social-button/`.
 
 ### New icons added during Sprint 06
 

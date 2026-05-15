@@ -153,8 +153,8 @@ For each AC: RED → GREEN → REFACTOR. Test the service by triggering its dele
 1. `ios/LaneShadow/Services/LocationService.swift:1-60` **[PRIMARY PATTERN]** — final implementation; delegate hops to main actor
 2. `ios/LaneShadow/Features/Idle/IdleViewModel.swift` (search `observeLocation`) — flow consumer
 3. `ios/LaneShadow/Views/Molecules/LSChatInput.swift` — `is-active` variant + suggestion-chip handler
-4. `.spec/design/system/views/idle-screen/idle-screen.html` — chat input states (idle / is-active / focused)
-5. `.spec/design/system/views/idle-screen/README.md` — copper send-button recipe + primer phrase mapping
+4. `.spec/design/system/views/mapapp/idle/idle-screen.html` — chat input states (idle / is-active / focused)
+5. `.spec/design/system/views/mapapp/idle/README.md` — copper send-button recipe + primer phrase mapping
 
 ---
 
@@ -206,8 +206,8 @@ For each AC: RED → GREEN → REFACTOR. Test the service by triggering its dele
 ## DESIGN
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html` — location pill + chat input states
-- `.spec/design/system/views/idle-screen/README.md` — `signal.default` for "Near {city}" pill copy
+- `.spec/design/system/views/mapapp/idle/idle-screen.html` — location pill + chat input states
+- `.spec/design/system/views/mapapp/idle/README.md` — `signal.default` for "Near {city}" pill copy
 
 **Pattern:** `@Observable` service + delegate adapter; ViewModel owns the observation `Task` consuming the service property.
 

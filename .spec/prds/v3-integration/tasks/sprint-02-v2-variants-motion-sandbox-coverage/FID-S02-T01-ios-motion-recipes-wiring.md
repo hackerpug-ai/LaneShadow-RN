@@ -192,7 +192,7 @@ READING LIST (max 5 files — canonical pattern first)
 3. ios/LaneShadow/Views/Screens/PlanningScreen.swift
    - Focus: Current 600ms cubic-bezier sketch animation that must be replaced
 
-4. .spec/design/system/views/planning-screen/planning-screen.html
+4. .spec/design/system/views/mapapp/planning/planning-screen.html
    - Focus: Designed animation timings + sketch polyline + breathing head dot reference behavior
 
 5. .spec/prds/v3-integration/remediations/01-views-idle-planning.md

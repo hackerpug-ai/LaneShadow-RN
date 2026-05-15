@@ -140,11 +140,11 @@ DELIVERABLE
 READING LIST
 --------------------------------------------------------------------------------
 
-1. .spec/design/system/views/idle-screen/idle-screen.html [PRIMARY REFERENCE]
+1. .spec/design/system/views/mapapp/idle/idle-screen.html [PRIMARY REFERENCE]
    - Sections: V01 no-location, V02 first-ride, V03 weather-advisory
    - Focus: Designed pixel + interaction reference
 
-2. .spec/design/system/views/planning-screen/planning-screen.html [PRIMARY REFERENCE]
+2. .spec/design/system/views/mapapp/planning/planning-screen.html [PRIMARY REFERENCE]
    - Sections: V01 slow, V02 cancel-confirm, V03 single-candidate
    - Focus: Designed pixel + interaction reference
 

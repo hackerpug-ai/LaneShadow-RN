@@ -428,18 +428,18 @@ Build all six Navigator screen templates — Idle, Planning, RouteResults, Route
 
 | Task | Design Reference |
 |------|-----------------|
-| UC-SCR-01-ios | [`design/system/views/idle-screen/`](../../design/system/views/idle-screen/) |
-| UC-SCR-01-android | [`design/system/views/idle-screen/`](../../design/system/views/idle-screen/) |
-| UC-SCR-02-ios | [`design/system/views/planning-screen/`](../../design/system/views/planning-screen/) |
-| UC-SCR-02-android | [`design/system/views/planning-screen/`](../../design/system/views/planning-screen/) |
-| UC-SCR-03-ios | [`design/system/views/route-results-screen/`](../../design/system/views/route-results-screen/) |
-| UC-SCR-03-android | [`design/system/views/route-results-screen/`](../../design/system/views/route-results-screen/) |
-| UC-SCR-04-ios | [`design/system/views/route-details-screen/`](../../design/system/views/route-details-screen/) |
-| UC-SCR-04-android | [`design/system/views/route-details-screen/`](../../design/system/views/route-details-screen/) |
-| UC-SCR-05-ios | [`design/system/views/sessions-screen/`](../../design/system/views/sessions-screen/) |
-| UC-SCR-05-android | [`design/system/views/sessions-screen/`](../../design/system/views/sessions-screen/) |
-| UC-SCR-06-ios | [`design/system/views/error-screen/`](../../design/system/views/error-screen/) |
-| UC-SCR-06-android | [`design/system/views/error-screen/`](../../design/system/views/error-screen/) |
+| UC-SCR-01-ios | [`design/system/views/mapapp/idle/`](../../design/system/views/mapapp/idle/) |
+| UC-SCR-01-android | [`design/system/views/mapapp/idle/`](../../design/system/views/mapapp/idle/) |
+| UC-SCR-02-ios | [`design/system/views/mapapp/planning/`](../../design/system/views/mapapp/planning/) |
+| UC-SCR-02-android | [`design/system/views/mapapp/planning/`](../../design/system/views/mapapp/planning/) |
+| UC-SCR-03-ios | [`design/system/views/mapapp/route-results/`](../../design/system/views/mapapp/route-results/) |
+| UC-SCR-03-android | [`design/system/views/mapapp/route-results/`](../../design/system/views/mapapp/route-results/) |
+| UC-SCR-04-ios | [`design/system/views/mapapp/route-details/`](../../design/system/views/mapapp/route-details/) |
+| UC-SCR-04-android | [`design/system/views/mapapp/route-details/`](../../design/system/views/mapapp/route-details/) |
+| UC-SCR-05-ios | [`design/system/views/mapapp/sessions-drawer/`](../../design/system/views/mapapp/sessions-drawer/) |
+| UC-SCR-05-android | [`design/system/views/mapapp/sessions-drawer/`](../../design/system/views/mapapp/sessions-drawer/) |
+| UC-SCR-06-ios | [`design/system/views/mapapp/error/`](../../design/system/views/mapapp/error/) |
+| UC-SCR-06-android | [`design/system/views/mapapp/error/`](../../design/system/views/mapapp/error/) |
 
 ---
 

@@ -71,7 +71,7 @@ VERIFY: `pnpm snapshots:check`
 ## Reading List
 
 - `.spec/design/system/molecules/social-button/README.md`
-- `.spec/design/system/views/auth-screen/README.md`
+- `.spec/design/system/views/auth/README.md`
 - `android/app/src/main/java/com/laneshadow/ui/atoms/LSTextField.kt`
 - `android/app/src/main/java/com/laneshadow/ui/molecules/LSFormField.kt`
 - `android/app/src/main/java/com/laneshadow/ui/components/LSAuthProviderButton.kt`
@@ -94,7 +94,7 @@ write_prohibited:
 
 references:
 - `.spec/design/system/molecules/social-button/README.md`
-- `.spec/design/system/views/auth-screen/auth-screen.html`
+- `.spec/design/system/views/auth/auth-screen.html`
 
 pattern: existing Android atom/molecule sandbox stories with canonical IDs.
 pattern_source: `android/app/src/debug/java/com/laneshadow/sandbox/stories`

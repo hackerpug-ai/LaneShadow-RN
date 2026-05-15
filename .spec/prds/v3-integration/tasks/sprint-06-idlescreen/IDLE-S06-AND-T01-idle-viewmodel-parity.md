@@ -165,7 +165,7 @@ For each AC: RED → GREEN → REFACTOR. Use fake repository implementations in 
 2. `android/app/src/main/java/com/laneshadow/ui/idle/IdleUiState.kt:1-43` — current state shape + `buildGreeting`, `timeOfDayLabel` (extend, do not replace)
 3. `android/app/src/main/java/com/laneshadow/ui/idle/IdleRoute.kt:47-64` — `toMockState()` adapter; build AnnotatedString from `greetingScope + firstName` here
 4. `android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt:35-170` — `ConvexGateway` interface; `observeAuthenticatedFlow()` pattern for new weather + favorites
-5. `.spec/design/system/views/idle-screen/idle-screen.html` — visual ground truth for italic scope word + copper meta row + advisory card
+5. `.spec/design/system/views/mapapp/idle/idle-screen.html` — visual ground truth for italic scope word + copper meta row + advisory card
 
 ---
 
@@ -217,8 +217,8 @@ For each AC: RED → GREEN → REFACTOR. Use fake repository implementations in 
 ## DESIGN
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html`
-- `.spec/design/system/views/idle-screen/README.md` — `var(--signal-default)` for meta row, advisory card `wx-rain-tint` + `wx-rain` tokens, `Greeting.scope` definition
+- `.spec/design/system/views/mapapp/idle/idle-screen.html`
+- `.spec/design/system/views/mapapp/idle/README.md` — `var(--signal-default)` for meta row, advisory card `wx-rain-tint` + `wx-rain` tokens, `Greeting.scope` definition
 
 **Pattern:** Flow-based VM state composition: each new data source gets its own private `observeX()` fun launched in `viewModelScope`; updates `_state` via `.update { current -> current.copy(...) }` to mirror `IdleViewModel.observeCurrentUser():99-143`.
 

@@ -23,7 +23,7 @@ roadmap: ../../ROADMAP.md
 
 This sprint ships the **idle state** of the canonical map view — *not* a standalone `IdleScreen`. Because Sprint 06 is the first state-at-a-time sprint, it ALSO establishes the long-lived map component that every later state inherits: the Mapbox warm-paper substrate, the camera store, the location source, the favorite-pin layer, theme + dark-mode wiring, and the per-state overlay slot. Every subsequent map-state sprint (07–10) reuses this component and only swaps overlays + polyline/pin/camera configuration. Implementers architect the map as a persistent host (`LSMapView`/`LSMapHost` on iOS, `LSMap`/`LSMapLayer` on Android), not as a screen that gets re-mounted per state.
 
-**Design Reference:** [`.spec/design/system/views/idle-screen/README.md`](../../../../design/system/views/idle-screen/README.md) · [`idle-screen.html`](../../../../design/system/views/idle-screen/idle-screen.html)
+**Design Reference:** [`.spec/design/system/views/mapapp/idle/README.md`](../../../../design/system/views/mapapp/idle/README.md) · [`idle-screen.html`](../../../../design/system/views/mapapp/idle/idle-screen.html)
 
 ---
 
@@ -63,7 +63,7 @@ Sprint 06 wires the map view's **idle state** end-to-end against real Convex / C
 
 Sprint 06 expands the design-review pipeline (Sprint 05) to cover `idle-screen`. Required deliverables:
 
-1. **Reference assets** — `.spec/design/system/views/idle-screen/` contains PNGs + annotations for all 7 idle-screen variants (S01 default light, S02 typing/send, S03 default dark, S04 filter sheet, V01 no-location, V02 first-ride, V03 weather-advisory). Generated via `pnpm design:references`.
+1. **Reference assets** — `.spec/design/system/views/mapapp/idle/` contains PNGs + annotations for all 7 idle-screen variants (S01 default light, S02 typing/send, S03 default dark, S04 filter sheet, V01 no-location, V02 first-ride, V03 weather-advisory). Generated via `pnpm design:references`.
 2. **XCUITest capture tests** — `LaneShadowUITests/DesignReview/DesignReviewCaptureTests.swift` adds `test_idleScreen_*` methods for every `(idle-screen, state, theme)` tuple. These drive `xcodebuild test` to capture live screenshots against the iOS Simulator build.
 3. **Pipeline pass** — `pnpm design:review --screens idle-screen` produces a report with **zero `high`-severity issues** before the human testing gate can pass. Report attached as gate evidence.
 4. **Coverage expansion** — after Sprint 06, `pnpm design:review --screens auth-screen,idle-screen` works end-to-end, with both views appearing in `report.json` and `report.html`.

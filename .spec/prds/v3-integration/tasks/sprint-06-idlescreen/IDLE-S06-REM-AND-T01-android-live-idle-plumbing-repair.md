@@ -185,7 +185,7 @@ Reviewer must inspect the rendered path, not just ViewModel fields. A pass requi
 
 ## DESIGN
 
-**References:** `.spec/design/system/views/idle-screen/idle-screen.html`, `.spec/design/system/views/idle-screen/README.md`
+**References:** `.spec/design/system/views/mapapp/idle/idle-screen.html`, `.spec/design/system/views/mapapp/idle/README.md`
 
 **Pattern:** `IdleUiState` is the source of truth; template state is a lossless projection for the idle design component.
 

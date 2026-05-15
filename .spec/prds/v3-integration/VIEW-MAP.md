@@ -57,9 +57,9 @@ LaneShadow App
 │   │   no persistent map host. Sign-in / sign-up / verification are states
 │   │   of ONE Auth screen (OneAuth pattern per Sprint 03).
 │   │
-│   ├── default               .spec/design/system/views/auth-screen/default/
-│   ├── email-entry           .spec/design/system/views/auth-screen/email-entry/
-│   ├── existing-user-sign-in .spec/design/system/views/auth-screen/existing-user-sign-in/
+│   ├── default               .spec/design/system/views/auth/default/
+│   ├── email-entry           .spec/design/system/views/auth/email-entry/
+│   ├── existing-user-sign-in .spec/design/system/views/auth/existing-user-sign-in/
 │   ├── new-user-create-account
 │   ├── invalid-email-error
 │   └── submitting-loading
@@ -77,59 +77,59 @@ LaneShadow App
     │     case routeDetails(routePlanId)   ← currently bottom-sheet overlay on routeResults
     │     case error(ErrorContext)         ← future; replaces overlays without remounting LSMap
     │
-    ├── State: Idle  .spec/design/system/views/idle-screen/
+    ├── State: Idle  .spec/design/system/views/mapapp/idle/
     │   │   Owner: Sprint 06 (IdleScreen, shipped) + IDLE-SYNC carry-forward
-    │   ├── default              .../idle-screen/default/
-    │   ├── first-ride           .../idle-screen/first-ride/
-    │   ├── typing-send          .../idle-screen/typing-send/
-    │   ├── no-location          .../idle-screen/no-location/
-    │   ├── weather-advisory     .../idle-screen/weather-advisory/
-    │   ├── filter-sheet         .../idle-screen/filter-sheet/         (modal overlay)
+    │   ├── default              .../mapapp/idle/default/
+    │   ├── first-ride           .../mapapp/idle/first-ride/
+    │   ├── typing-send          .../mapapp/idle/typing-send/
+    │   ├── no-location          .../mapapp/idle/no-location/
+    │   ├── weather-advisory     .../mapapp/idle/weather-advisory/
+    │   ├── filter-sheet         .../mapapp/idle/filter-sheet/         (modal overlay)
     │   │
     │   ├── Modal: Menu Drawer       (slides over Idle)
     │   │   Owned by Idle; never a separate route.
     │   │
-    │   └── Modal: Sessions Drawer   (slides over Idle)  .spec/design/system/views/sessions-screen/
+    │   └── Modal: Sessions Drawer   (slides over Idle)  .spec/design/system/views/mapapp/sessions-drawer/
     │       Owner: future sprint (currently Sprint 11 in ROADMAP — renaming to "Map View · Sessions Drawer")
     │       Variants:
     │         default / empty / scrolled / new-confirm
     │       NOT a separate route. Composed via LSMapLayer.leadingDrawer slot.
     │
-    ├── State: Planning  .spec/design/system/views/planning-screen/
+    ├── State: Planning  .spec/design/system/views/mapapp/planning/
     │   │   Owner: Sprint 08 (Map View · Planning State, in flight)
     │   │   Behavior: sketch polyline overlay + locked chat + phase indicator + breathing dot
-    │   ├── scouting             .../planning-screen/scouting/         (phase 1 active)
-    │   ├── drawing              .../planning-screen/drawing/          (phase 2 active)
-    │   ├── weather              .../planning-screen/weather/          (phase 3 active)
-    │   ├── scoring              .../planning-screen/scoring/          (phase 4 active)
-    │   ├── slow-planning        .../planning-screen/slow-planning/
-    │   ├── single-candidate     .../planning-screen/single-candidate/
+    │   ├── scouting             .../mapapp/planning/scouting/         (phase 1 active)
+    │   ├── drawing              .../mapapp/planning/drawing/          (phase 2 active)
+    │   ├── weather              .../mapapp/planning/weather/          (phase 3 active)
+    │   ├── scoring              .../mapapp/planning/scoring/          (phase 4 active)
+    │   ├── slow-planning        .../mapapp/planning/slow-planning/
+    │   ├── single-candidate     .../mapapp/planning/single-candidate/
     │   │
-    │   └── Modal: Cancel-Prompt Sheet  .../planning-screen/cancel-prompt/
+    │   └── Modal: Cancel-Prompt Sheet  .../mapapp/planning/cancel-prompt/
     │       Owned by Planning; not a separate route. Composed as an overlay above MapApp.
     │
-    ├── State: RouteResults  .spec/design/system/views/route-results-screen/
+    ├── State: RouteResults  .spec/design/system/views/mapapp/route-results/
     │   │   Owner: Sprint 09 (Map View · Route Results State, in flight — Phase D retrofit shipped 3f2800033)
     │   │   Behavior: three real polylines + navigator message + route attachment cards + refine + recall
-    │   ├── default--best-pre-selected       .../route-results-screen/default--best-pre-selected/  (double-dash preserved from original design source)
-    │   ├── default--dark                     .../route-results-screen/default--dark/  (dark theme of default)
-    │   ├── alt1-tapped--sage-promoted       .../route-results-screen/alt1-tapped--sage-promoted/
-    │   ├── two-candidates                   .../route-results-screen/two-candidates/
-    │   ├── refining                         .../route-results-screen/refining/
-    │   ├── weather-divergent                .../route-results-screen/weather-divergent/
-    │   ├── message-dismissed                .../route-results-screen/message-dismissed/
+    │   ├── default--best-pre-selected       .../mapapp/route-results/default--best-pre-selected/  (double-dash preserved from original design source)
+    │   ├── default--dark                     .../mapapp/route-results/default--dark/  (dark theme of default)
+    │   ├── alt1-tapped--sage-promoted       .../mapapp/route-results/alt1-tapped--sage-promoted/
+    │   ├── two-candidates                   .../mapapp/route-results/two-candidates/
+    │   ├── refining                         .../mapapp/route-results/refining/
+    │   ├── weather-divergent                .../mapapp/route-results/weather-divergent/
+    │   ├── message-dismissed                .../mapapp/route-results/message-dismissed/
     │   │
-    │   └── State: RouteDetails  .spec/design/system/views/route-details-screen/
+    │   └── State: RouteDetails  .spec/design/system/views/mapapp/route-details/
     │       │   Owner: Sprint 10 (Map View · Route Details State, planned)
     │       │   Behavior: bottom-sheet overlay over RouteResults — metrics, weather timeline, save/ride
     │       │   Composition: LSMapLayer.bottomOverlays or LSBottomSheet over MapApp body
-    │       ├── default                      .../route-details-screen/default/
-    │       ├── mixed-weather                .../route-details-screen/mixed-weather/
-    │       ├── saved-state                  .../route-details-screen/saved-state/
-    │       ├── medium-detent                .../route-details-screen/medium-detent/         (detent variant)
-    │       └── dismissing                   .../route-details-screen/dismissing/            (transition)
+    │       ├── default                      .../mapapp/route-details/default/
+    │       ├── mixed-weather                .../mapapp/route-details/mixed-weather/
+    │       ├── saved-state                  .../mapapp/route-details/saved-state/
+    │       ├── medium-detent                .../mapapp/route-details/medium-detent/         (detent variant)
+    │       └── dismissing                   .../mapapp/route-details/dismissing/            (transition)
     │
-    ├── State: Error  .spec/design/system/views/error-screen/
+    ├── State: Error  .spec/design/system/views/mapapp/error/
     │   │   Owner: future sprint (currently in ROADMAP-ICEBOX as deferred)
     │   │   Composition: replaces topOverlays + bottomOverlays of MapApp — LSMap stays mounted
     │   │   The Error state is NOT a separate route. Recovery returns to whichever

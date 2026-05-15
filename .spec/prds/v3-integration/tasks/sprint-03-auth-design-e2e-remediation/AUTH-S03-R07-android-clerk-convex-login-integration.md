@@ -94,7 +94,7 @@ write_prohibited:
 ## Design
 
 references:
-- `.spec/design/system/views/auth-screen/auth-screen.html`
+- `.spec/design/system/views/auth/auth-screen.html`
 - `.spec/prds/v3-integration/04-uc-auth.md`
 
 pattern: Navigation observes repository state Flow; Convex client auth provider reads the same Clerk token source.

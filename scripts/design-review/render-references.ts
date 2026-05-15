@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { chromium } from 'playwright'
@@ -34,6 +34,36 @@ const MAP_PLACEHOLDER_SCREENS = new Set([
   'sessions-screen',
   'error-screen',
 ])
+
+// 2026-05-15 reorganization: design folders nest under VIEW-MAP IA.
+// `data-screen` attributes in HTML still use legacy `-screen` slugs to
+// preserve sandbox story id stability (`templates.<screen>.*` consumed by
+// iOS/Android DesignReview capture tests). This map bridges the screen slug
+// to its physical folder under `.spec/design/system/views/`.
+// Auth flow is a sibling of MapApp; everything else is a MapApp state/modal.
+// See `.spec/prds/v3-integration/VIEW-MAP.md`.
+const SCREEN_TO_FOLDER: Record<string, string> = {
+  'auth-screen': 'auth',
+  'idle-screen': 'mapapp/idle',
+  'planning-screen': 'mapapp/planning',
+  'route-results-screen': 'mapapp/route-results',
+  'route-details-screen': 'mapapp/route-details',
+  'sessions-screen': 'mapapp/sessions-drawer',
+  'error-screen': 'mapapp/error',
+}
+
+// Master HTML filename within each view folder (no longer `<screen>.html`;
+// the rename dropped the `-screen` suffix and remapped sessions-screen to
+// sessions-drawer per the VIEW-MAP rename).
+const SCREEN_TO_HTML_BASENAME: Record<string, string> = {
+  'auth-screen': 'auth',
+  'idle-screen': 'idle',
+  'planning-screen': 'planning',
+  'route-results-screen': 'route-results',
+  'route-details-screen': 'route-details',
+  'sessions-screen': 'sessions-drawer',
+  'error-screen': 'error',
+}
 
 function parseManifest(): RenderConfig {
   const manifestPath = join(process.cwd(), '.spec', 'design', 'system', 'manifest.json')
@@ -137,11 +167,11 @@ async function main(): Promise<void> {
   console.log(`Chrome path: ${config.chrome_path}`)
   console.log(`Viewport: ${VIEWPORT_WIDTH}×${VIEWPORT_HEIGHT} (iPhone 15 Pro Max scale)\n`)
 
-  const viewDirs = readdirSync(viewsDir, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory() && !dirent.name.startsWith('.'))
-    .map((dirent) => dirent.name)
-
-  console.log(`Found ${viewDirs.length} views to render\n`)
+  // Iterate the canonical screen list (driven by data-screen attribute, which
+  // stays stable for sandbox story id compatibility). Each entry resolves to
+  // a folder in the new VIEW-MAP-aligned IA.
+  const screens = Object.keys(SCREEN_TO_FOLDER)
+  console.log(`Found ${screens.length} screens to render\n`)
 
   const browser = await chromium.launch({
     headless: true,
@@ -151,21 +181,30 @@ async function main(): Promise<void> {
   try {
     let totalRendered = 0
 
-    for (const view of viewDirs) {
-      const htmlPath = join(viewsDir, view, `${view}.html`)
+    for (const screen of screens) {
+      const folder = SCREEN_TO_FOLDER[screen]
+      const htmlBasename = SCREEN_TO_HTML_BASENAME[screen]
+      const viewFolderAbs = join(viewsDir, folder)
+      const htmlPath = join(viewFolderAbs, `${htmlBasename}.html`)
 
-      const mapNote = MAP_PLACEHOLDER_SCREENS.has(view)
+      if (!existsSync(htmlPath)) {
+        console.warn(`  ⚠ skipping ${screen}: missing ${htmlPath}`)
+        continue
+      }
+
+      const mapNote = MAP_PLACEHOLDER_SCREENS.has(screen)
         ? ' (Mapbox copper-paper visual mock — eval ignores street geometry, evaluates tint+theme)'
         : ''
-      console.log(`${view}${mapNote}:`)
+      console.log(`${screen} → ${folder}${mapNote}:`)
 
       const sections = extractSectionsFromHtml(htmlPath)
 
       for (const section of sections) {
         // Per the 2026-05-15 reorganization, reference PNGs live at
-        // `.spec/design/system/views/<view>/<state>/<state>.<theme>.png`
-        // (one subfolder per state). See `.spec/prds/v3-integration/VIEW-MAP.md`.
-        const stateDir = join(viewsDir, view, section.state)
+        // `.spec/design/system/views/<folder>/<state>/<state>.<theme>.png`
+        // where <folder> resolves through SCREEN_TO_FOLDER (auth/ or mapapp/<view>/).
+        // See `.spec/prds/v3-integration/VIEW-MAP.md`.
+        const stateDir = join(viewFolderAbs, section.state)
         if (!existsSync(stateDir)) {
           mkdirSync(stateDir, { recursive: true })
         }
@@ -177,7 +216,7 @@ async function main(): Promise<void> {
       console.log('')
     }
 
-    console.log(`✨ Rendered ${totalRendered} PNGs to ${viewsDir}/<view>/<state>/`)
+    console.log(`✨ Rendered ${totalRendered} PNGs under ${viewsDir}/`)
   } finally {
     await browser.close()
   }

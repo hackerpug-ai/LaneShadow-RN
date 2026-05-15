@@ -150,7 +150,7 @@ READING LIST
 2. ios/LaneShadow/Views/Screens/IdleScreen.swift
    - Focus: Current LinearGradient placeholder implementation
 
-3. .spec/design/system/views/idle-screen/idle-screen.html
+3. .spec/design/system/views/mapapp/idle/idle-screen.html
    - Sections: map slot, favorite pins
    - Focus: Visual reference for paper map with pins
 

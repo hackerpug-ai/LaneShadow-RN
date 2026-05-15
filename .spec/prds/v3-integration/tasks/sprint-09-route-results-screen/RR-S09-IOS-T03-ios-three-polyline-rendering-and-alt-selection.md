@@ -29,7 +29,7 @@ Polylines are configured by feeding `mapAppViewModel.polylines` (RR-S09-IOS-T01)
 - MUST resolve polyline color via `LaneShadowTheme.colors.route.{best,alt1,alt2}` tokens
 - MUST render the leading/trailing dot annotations (start 14px filled, end 18px outer + 6px inner) at the first/last coordinates of each polyline using `LSMap.annotations`
 - MUST bind alt-card tap (callback exposed by `MapApp.swift`'s composition from RR-S09-IOS-T02) to `mapAppViewModel.selectAlt(_:)` (from RR-S09-IOS-T01)
-- MUST update the SELECTED polyline's stroke style: selected ⇒ solid-bold (best-variant stroke-width 3.5px even when an alt is selected; alts get 2.5px bold solid when selected); UNSELECTED polylines render with their default dashed style (alts) or with a "ghosted" copper outline (best, when an alt is selected) per `route-results-screen.html` S02 variant
+- MUST update the SELECTED polyline's stroke style: selected ⇒ solid-bold (best-variant stroke-width 3.5px even when an alt is selected; alts get 2.5px bold solid when selected); UNSELECTED polylines render with their default dashed style (alts) or with a "ghosted" copper outline (best, when an alt is selected) per `route-results.html` S02 variant
 - MUST re-tint the SELECTED card's leading 3px stripe AND the LSNavigatorMessage compass chip to match the selected variant's color token (the card stripe + chip re-tint is composed inside `MapApp.swift`'s `.routeResults` overlay branch driven by `mapAppViewModel.selectedRouteId`)
 - MUST honor `UIAccessibility.isReduceMotionEnabled`: collapse the stroke-width tween to an instantaneous swap when reduced motion is enabled
 - MUST add tests in `ios/LaneShadowTests/Templates/MapAppRouteResultsPolylineTests.swift` covering: 3 polylines render with correct strokes; alt-tap promotes the alt and demotes prior selection; card stripe + compass chip re-tint on selection change; reduced-motion path is instantaneous
@@ -127,8 +127,8 @@ Polylines are configured by feeding `mapAppViewModel.polylines` (RR-S09-IOS-T01)
 | `ios/LaneShadow/Features/MapApp/MapAppViewModel.swift` | extended by RR-S09-IOS-T01 | View-model published properties — `polylines`, `selectedRouteId`, `selectAlt(_:)` |
 | `ios/LaneShadow/Convex/Polyline.swift` (or equivalent) | all | Polyline decoder (read-only) |
 | `.spec/prds/v3-integration/tasks/sprint-08-planning-state/PLAN-S08-IOS-T03-ios-sketch-polyline-overlay.md` | all | Sprint 08 sibling task — polyline overlay layer architecture (different content, same architecture); the sketch polyline layer also targets MapApp's LSMap |
-| `.spec/design/system/views/route-results-screen/route-results-screen.html` | polyline section | Stroke widths, dash arrays, start/end dot dimensions; S02 alt-selected variant for ghosted-best treatment |
-| `.spec/design/system/views/route-results-screen/README.md` | "View-local constants" + "Token recipe" | Stroke-width literals + token mappings |
+| `.spec/design/system/views/mapapp/route-results/route-results.html` | polyline section | Stroke widths, dash arrays, start/end dot dimensions; S02 alt-selected variant for ghosted-best treatment |
+| `.spec/design/system/views/mapapp/route-results/README.md` | "View-local constants" + "Token recipe" | Stroke-width literals + token mappings |
 | `RULES.md` | "Design Rules › One View, Many States", "Real Map Surfaces" | Doctrine + map-rendering rules |
 
 ## Guardrails
@@ -154,14 +154,14 @@ Polylines are configured by feeding `mapAppViewModel.polylines` (RR-S09-IOS-T01)
 ## Design
 
 **References:**
-- `.spec/design/system/views/route-results-screen/route-results-screen.html` (polyline strokes, start/end dots, S02 ghosted-best treatment)
-- `.spec/design/system/views/route-results-screen/README.md` (token recipe + view-local constants)
-- `.spec/design/system/views/route-results-screen/default--best-pre-selected/default--best-pre-selected.light.png` (S01)
-- `.spec/design/system/views/route-results-screen/alt1-tapped--sage-promoted/alt1-tapped--sage-promoted.light.png` (S02)
+- `.spec/design/system/views/mapapp/route-results/route-results.html` (polyline strokes, start/end dots, S02 ghosted-best treatment)
+- `.spec/design/system/views/mapapp/route-results/README.md` (token recipe + view-local constants)
+- `.spec/design/system/views/mapapp/route-results/default--best-pre-selected/default--best-pre-selected.light.png` (S01)
+- `.spec/design/system/views/mapapp/route-results/alt1-tapped--sage-promoted/alt1-tapped--sage-promoted.light.png` (S02)
 - Sprint 08 PLAN-S08-IOS-T03 (sketch polyline architecture pattern)
 - `ios/LaneShadow/Views/Templates/MapApp.swift` + `ios/LaneShadow/Features/MapApp/MapAppState.swift`
 
-**Interaction Notes:** REQUIRED READING: `.spec/design/system/views/route-results-screen/route-results-screen.html`. Card-tap is the only user interaction in this task; the polyline rendering reacts to `mapAppViewModel.selectedRouteId` changes via SwiftUI's reactive observation on the `@Observable` view-model. The compass chip + card stripe re-tint is a function of selection, composed inside MapApp's overlay branch (RR-S09-IOS-T02 ownership), not a separate gesture.
+**Interaction Notes:** REQUIRED READING: `.spec/design/system/views/mapapp/route-results/route-results.html`. Card-tap is the only user interaction in this task; the polyline rendering reacts to `mapAppViewModel.selectedRouteId` changes via SwiftUI's reactive observation on the `@Observable` view-model. The compass chip + card stripe re-tint is a function of selection, composed inside MapApp's overlay branch (RR-S09-IOS-T02 ownership), not a separate gesture.
 
 **Pattern:** Sprint 08 `MapSketchAnimationLayer.swift` (PLAN-S08-IOS-T03) — layer architecture: a Swift file owns the Mapbox configuration; the parent view (`MapApp.swift`) passes data + callbacks; reduce-motion handling is gated at the animation block. Mirror the architecture, swap the content (3 real polylines vs 1 looping sketch polyline). Both layers target the SAME `LSMap` instance owned by `MapApp`.
 

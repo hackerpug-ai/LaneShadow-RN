@@ -159,7 +159,7 @@ For each AC: RED → GREEN → REFACTOR. Use the Convex test harness (`convex-te
 2. `server/convex/actions/agent/lib/reliability.ts:1-80` — `retryOnce`, `withTimeout`, `markRetryable` pattern
 3. `server/convex/guards.ts` — `requireIdentity()` shape; throws `UNAUTHENTICATED` when no identity
 4. `server/convex/db/favorites.ts:1-60` — `listFavoriteLocationsHandler` extracted for testing without Convex runtime
-5. `.spec/design/system/views/idle-screen/idle-screen.html` — visual ground truth for "Near {city}, {state}" pill copy
+5. `.spec/design/system/views/mapapp/idle/idle-screen.html` — visual ground truth for "Near {city}, {state}" pill copy
 
 ---
 
@@ -211,8 +211,8 @@ For each AC: RED → GREEN → REFACTOR. Use the Convex test harness (`convex-te
 ## DESIGN
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html` — pill: "Near {city}, {state}" copy + tag chip
-- `.spec/design/system/views/idle-screen/README.md` — favorite pin recipe (copper dot, glass halo)
+- `.spec/design/system/views/mapapp/idle/idle-screen.html` — pill: "Near {city}, {state}" copy + tag chip
+- `.spec/design/system/views/mapapp/idle/README.md` — favorite pin recipe (copper dot, glass halo)
 
 **Pattern:** Validator-first Convex actions wrapping external HTTP with `retryOnce(withTimeout(...))`; per-function `args`/`returns` validators; `requireIdentity` gate at function head.
 

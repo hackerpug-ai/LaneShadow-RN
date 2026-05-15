@@ -162,7 +162,7 @@ Sprint 09 extends `MapAppViewModel` to (a) match the iOS view-model's intent sur
 ## Design
 
 **References:**
-- `.spec/design/system/views/route-results-screen/README.md`
+- `.spec/design/system/views/mapapp/route-results/README.md`
 - `.spec/prds/v3-integration/architecture/android-architecture.md` §6.3
 - RR-S09-IOS-T01 (parity twin)
 - `android/app/src/main/java/com/laneshadow/ui/mapapp/MapAppViewModel.kt` + `MapAppState.kt` (foundation)

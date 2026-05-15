@@ -125,9 +125,9 @@ Android parity for RR-S09-IOS-T04. Unlock `LSChatInput` (rendered by MapApp's `R
 | `android/app/src/main/java/com/laneshadow/ui/components/molecules/LSChatInput.kt` | all | Public API — placeholder, enabled, onSubmit |
 | `android/app/src/main/java/com/laneshadow/ui/components/organisms/LSNavigatorMessage.kt` | all | Dismiss chevron callback |
 | `android/app/src/main/java/com/laneshadow/ui/components/atoms/LSChromeChip.kt` (or equivalent) | all | Chrome chip atom |
-| `.spec/design/system/views/route-results-screen/route-results-screen.html` | S04 + V03 | Refine + Message Dismissed variants |
-| `.spec/design/system/views/route-results-screen/refining/refining.light.png` | full | S04 reference |
-| `.spec/design/system/views/route-results-screen/message-dismissed/message-dismissed.light.png` | full | V03 reference |
+| `.spec/design/system/views/mapapp/route-results/route-results.html` | S04 + V03 | Refine + Message Dismissed variants |
+| `.spec/design/system/views/mapapp/route-results/refining/refining.light.png` | full | S04 reference |
+| `.spec/design/system/views/mapapp/route-results/message-dismissed/message-dismissed.light.png` | full | V03 reference |
 | `.spec/prds/v3-integration/tasks/sprint-08-planning-state/PLAN-S08-AND-T04-android-locked-chat-input-and-cancel-confirm.md` | all | Sprint 08 sibling — chat input state pattern inside MapApp |
 
 ## Guardrails
@@ -149,13 +149,13 @@ Android parity for RR-S09-IOS-T04. Unlock `LSChatInput` (rendered by MapApp's `R
 ## Design
 
 **References:**
-- `.spec/design/system/views/route-results-screen/route-results-screen.html` (S04 Refining + V03 Message Dismissed)
-- `.spec/design/system/views/route-results-screen/refining/refining.light.png`
-- `.spec/design/system/views/route-results-screen/message-dismissed/message-dismissed.light.png`
+- `.spec/design/system/views/mapapp/route-results/route-results.html` (S04 Refining + V03 Message Dismissed)
+- `.spec/design/system/views/mapapp/route-results/refining/refining.light.png`
+- `.spec/design/system/views/mapapp/route-results/message-dismissed/message-dismissed.light.png`
 - Sprint 08 PLAN-S08-AND-T04
 - `android/app/src/main/java/com/laneshadow/ui/mapapp/MapApp.kt`
 
-**Interaction Notes:** REQUIRED READING: `.spec/design/system/views/route-results-screen/route-results-screen.html` § Refining + Message Dismissed. Three new gestures: refine submit (chat input → `MapAppState` mutates to `Planning` reusing sessionId); dismiss chevron (hides message, shows Recall chip via MapApp's `bottomOverlays`); Recall tap (re-pins message, hides chip). All dismiss/recall is client-side state on `MapAppViewModel`. NO Jetpack Navigation events.
+**Interaction Notes:** REQUIRED READING: `.spec/design/system/views/mapapp/route-results/route-results.html` § Refining + Message Dismissed. Three new gestures: refine submit (chat input → `MapAppState` mutates to `Planning` reusing sessionId); dismiss chevron (hides message, shows Recall chip via MapApp's `bottomOverlays`); Recall tap (re-pins message, hides chip). All dismiss/recall is client-side state on `MapAppViewModel`. NO Jetpack Navigation events.
 
 **Pattern:** Sprint 08 PLAN-S08-AND-T04 chat input state binding inside MapApp's `Planning` branch. Mirror for refine submit on the `RouteResults` branch. Recall chip is a thin Composable wrapping `LSChromeChip` with copper styling, registered in MapApp's `bottomOverlays` array for the `RouteResults` branch.
 

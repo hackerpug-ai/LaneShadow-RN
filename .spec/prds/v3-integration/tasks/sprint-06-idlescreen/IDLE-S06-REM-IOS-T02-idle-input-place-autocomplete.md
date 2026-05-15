@@ -158,7 +158,7 @@ For each AC, write the failing Swift Testing or XCTest assertion first. Use a fa
 3. `ios/LaneShadow/Views/Molecules/LSChatInput.swift` - static chip row and trailing send/filter affordance
 4. `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift` - action enum, DTO, and protocol patterns
 5. `ios/LaneShadowTests/Features/Idle/IdleScreenWiringTests.swift` - current no-immediate-planning test pattern
-6. `.spec/design/system/views/idle-screen/idle-screen.html` - idle input visual reference
+6. `.spec/design/system/views/mapapp/idle/idle-screen.html` - idle input visual reference
 
 ---
 
@@ -191,7 +191,7 @@ Reviewer must verify the production `IdleScreenContainer` path, not only sandbox
 
 ## DESIGN
 
-**References:** `.spec/design/system/views/idle-screen/README.md`, `.spec/design/system/views/idle-screen/idle-screen.html`
+**References:** `.spec/design/system/views/mapapp/idle/README.md`, `.spec/design/system/views/mapapp/idle/idle-screen.html`
 
 **Pattern:** Production idle ViewModel owns external data; `LSChatInput` remains a reusable molecule with explicit state inputs.
 

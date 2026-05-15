@@ -49,7 +49,7 @@ VERIFY: `rg "Android|MANUAL|BLOCKED|connectedDebugAndroidTest|physical device" i
 AC-4: Visual parity evidence references snapshots and design source
 GIVEN AuthScreen fidelity was the reported failure
 WHEN visual steps are evaluated
-THEN the report links native AuthScreen screenshots, canonical story IDs, and `.spec/design/system/views/auth-screen/auth-screen.html`.
+THEN the report links native AuthScreen screenshots, canonical story IDs, and `.spec/design/system/views/auth/auth-screen.html`.
 VERIFY: `pnpm snapshots:check && rg "auth-screen.html|templates.auth-screen.email-entry|templates.auth-screen.dark" ios/E2E android/app/src/androidTest .spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation`
 
 AC-5: Convex and Clerk integration evidence is not faked
@@ -73,7 +73,7 @@ VERIFY: `rg "db.users.getCurrentUser|Clerk|UNAUTHENTICATED|pnpm server:codegen|c
 - `docs/REAL_DEVICE_E2E.md`
 - `.spec/prds/v3-integration/tasks/sprint-03-auth-design-e2e-remediation/SPRINT.md`
 - `.spec/prds/v3-integration/tasks/sprint-03-auth-convex-foundation/AUTH-S03-T11-real-device-wda-e2e.md`
-- `.spec/design/system/views/auth-screen/auth-screen.html`
+- `.spec/design/system/views/auth/auth-screen.html`
 - `RULES.md` Real Device E2E Testing
 
 ## Guardrails
@@ -93,8 +93,8 @@ write_prohibited:
 ## Design
 
 references:
-- `.spec/design/system/views/auth-screen/auth-screen.html`
-- `.spec/design/system/views/auth-screen/README.md`
+- `.spec/design/system/views/auth/auth-screen.html`
+- `.spec/design/system/views/auth/README.md`
 
 pattern: WDA result artifacts with PASS/FAIL/BLOCKED/MANUAL semantics and per-step screenshots/source dumps.
 pattern_source: `docs/REAL_DEVICE_E2E.md`
@@ -127,7 +127,7 @@ Review notes:
 - AC-1 satisfied: the report contains `AUTH-R.1` through `AUTH-R.8` with status, platform, evidence paths, blockers, reviewer notes, commands, fixture data, and expected outputs.
 - AC-2 satisfied as an evidence gate: the iOS WDA script launches through WebDriverAgent when available and targets auth, IdleScreen restore, sign-out, and unauthenticated redirect identifiers. The actual run remained `BLOCKED` because WDA/device access returned `fetch failed`.
 - AC-3 satisfied: Android evidence is recorded as `MANUAL` with `connectedDebugAndroidTest` and physical-device witness instructions; no Android-only step is marked `PASS` without artifacts.
-- AC-4 satisfied for artifact linkage: the report links snapshot PNG baselines, canonical AuthScreen story IDs, and `.spec/design/system/views/auth-screen/auth-screen.html`. Visual judgment remains `MANUAL` by design.
+- AC-4 satisfied for artifact linkage: the report links snapshot PNG baselines, canonical AuthScreen story IDs, and `.spec/design/system/views/auth/auth-screen.html`. Visual judgment remains `MANUAL` by design.
 - AC-5 satisfied: Clerk and Convex steps list dashboard actions, fixture expectations, `db.users.getCurrentUser`, and expected `UNAUTHENTICATED` evidence instead of faking external-system proof.
 
 Verification run:

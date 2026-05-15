@@ -170,7 +170,7 @@ For each AC: RED → GREEN → REFACTOR. Use a `Fake` `FusedLocationProvider` (r
 2. `android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt` (search `reverseGeocode`) — `Result<>` wrapping pattern
 3. `android/app/src/main/java/com/laneshadow/ui/idle/IdleViewModel.kt` (search `observeLocation`) — flow consumer + state mutation
 4. `android/app/src/main/java/com/laneshadow/ui/molecules/LSChatInput.kt` — IsActive variant
-5. `.spec/design/system/views/idle-screen/idle-screen.html` — chat input states + location pill copy
+5. `.spec/design/system/views/mapapp/idle/idle-screen.html` — chat input states + location pill copy
 6. `.spec/prds/v3-integration/tasks/sprint-06-idlescreen/android-learnings.md:1-55` — AND-T03 learnings (Robolectric limits, FusedLocationProvider mocking)
 
 ---
@@ -224,8 +224,8 @@ For each AC: RED → GREEN → REFACTOR. Use a `Fake` `FusedLocationProvider` (r
 ## DESIGN
 
 **References:**
-- `.spec/design/system/views/idle-screen/idle-screen.html` — location pill, chat input states
-- `.spec/design/system/views/idle-screen/README.md` — `signal.default` for "Near {city}" pill copy
+- `.spec/design/system/views/mapapp/idle/idle-screen.html` — location pill, chat input states
+- `.spec/design/system/views/mapapp/idle/README.md` — `signal.default` for "Near {city}" pill copy
 
 **Pattern:** Repository hides platform SDK behind a domain model; `Result<>` carries Convex outcomes upstream; ViewModel reflects state into UI without throwing.
 

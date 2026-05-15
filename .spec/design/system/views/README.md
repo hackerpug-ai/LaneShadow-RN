@@ -1,6 +1,6 @@
 # Views — LaneShadow V2 Copper
 
-> **Reorganized 2026-05-15** — each view folder now contains per-state subfolders. The master HTML mockup + master PNG/PDF remain at the view-folder root for reference. Per-state PNGs and annotations now live at `<view>/<state>/`. See `.spec/prds/v3-integration/VIEW-MAP.md` for the target IA.
+> **Reorganized 2026-05-15** — folders now mirror VIEW-MAP IA: `auth/` is a sibling of `mapapp/`, and the six MapApp screens nest under `mapapp/<view>/`. Master HTML mockup + master PNG/PDF remain at each view-folder root; per-state PNGs and annotations live at `<view>/<state>/`. Master HTML files are now `<view>.html` (no longer `<view>-screen.html`). See `.spec/prds/v3-integration/VIEW-MAP.md` for the target IA.
 
 Full-page templates — each composes organisms (primarily) and lower-layer molecules / atoms from the system. Views are **data-agnostic**: they receive mock data via fixture providers and never fetch it.
 
@@ -8,15 +8,17 @@ Full-page templates — each composes organisms (primarily) and lower-layer mole
 
 ## Inventory
 
-| # | View | Folder | Authority | Stories | Description |
+| # | VIEW-MAP node | Folder | Authority | Stories | Description |
 |---|------|--------|-----------|---------|-------------|
-| 1 | idle-screen | `idle-screen/` | UC-SCR-01 | 7 | Dormant-Navigator home — map + greeting overlay + LSChatInput with suggestion chips |
-| 2 | planning-screen | `planning-screen/` | UC-SCR-02 | 7 | Navigator thinking — sketching polyline + LSPhaseIndicator + locked chat w/ spinner |
-| 3 | route-results-screen | `route-results-screen/` | UC-SCR-03 | 7 | Three candidate polylines + pinned LSNavigatorMessage w/ 3 attached route cards + refine chat |
-| 4 | route-details-screen | `route-details-screen/` | UC-SCR-04 | 6 | Single best-variant polyline + LSRouteSheet w/ best badge, instrument readout, weather timeline, Save/Ride |
-| 5 | sessions-screen | `sessions-screen/` | UC-SCR-05 | 5 | Scrimmed map + LSSessionsDrawer leading (no top bar — drawer owns chrome) |
-| 6 | error-screen | `error-screen/` | UC-SCR-06 | 6 | LSInlineErrorCallout (warn stripe) + suggestion chips + recovery LSChatInput |
-| 7 | auth-screen | `auth-screen/` | UC-SCR-07 | 6 | Sign-in / create-account — Apple + Google + smart email-first branching (existing user → password; new user → display-name + create-password) |
+| 1 | Auth Flow | `auth/` | UC-SCR-07 | 6 | Sign-in / create-account — Apple + Google + smart email-first branching (existing user → password; new user → display-name + create-password) |
+| 2 | MapApp · Idle | `mapapp/idle/` | UC-SCR-01 | 7 | Dormant-Navigator home — map + greeting overlay + LSChatInput with suggestion chips |
+| 3 | MapApp · Planning | `mapapp/planning/` | UC-SCR-02 | 7 | Navigator thinking — sketching polyline + LSPhaseIndicator + locked chat w/ spinner |
+| 4 | MapApp · Route Results | `mapapp/route-results/` | UC-SCR-03 | 7 | Three candidate polylines + pinned LSNavigatorMessage w/ 3 attached route cards + refine chat |
+| 5 | MapApp · Route Details (bottom-sheet overlay) | `mapapp/route-details/` | UC-SCR-04 | 6 | Single best-variant polyline + LSRouteSheet w/ best badge, instrument readout, weather timeline, Save/Ride |
+| 6 | MapApp · Sessions Drawer (modal overlay of Idle) | `mapapp/sessions-drawer/` | UC-SCR-05 | 5 | Scrimmed map + LSSessionsDrawer leading (no top bar — drawer owns chrome) |
+| 7 | MapApp · Error (state, replaces overlays) | `mapapp/error/` | UC-SCR-06 | 6 | LSInlineErrorCallout (warn stripe) + suggestion chips + recovery LSChatInput |
+
+> **Doctrine note (One View, Many States):** rows 2–7 are STATES (and one modal overlay) of the single persistent `MapApp` view, not sibling routes. Row 1 (Auth) is the only screen that lives outside MapApp because it precedes authentication and is conceptually distinct. See `.spec/prds/v3-integration/VIEW-MAP.md`.
 
 ## Composition Matrix
 
@@ -24,13 +26,13 @@ Structural organism / molecule composition each view consumes. Atoms referenced 
 
 | View | Organisms | Molecules |
 |------|-----------|-----------|
-| idle-screen | `org-map-layer` · `org-topbar` | `mol-chat-input` · `mol-suggestion-chip` · `mol-location-context-bar` · `mol-bottom-sheet` (S04 filter) · `mol-filter-chip` |
-| planning-screen | `org-map-layer` · `org-topbar` | `mol-phase-indicator` · `mol-chat-input` |
-| route-results-screen | `org-map-layer` · `org-topbar` · `org-navigator-callouts` | `mol-route-attachment-card` · `mol-chat-input` |
-| route-details-screen | `org-map-layer` · `org-topbar` · `org-route-sheet` | `mol-instrument-readout` · `mol-weather-timeline` · `mol-bottom-sheet` (shell) |
-| sessions-screen | `org-map-layer` · `org-sessions-drawer` | — (atoms-only composition inside drawer: `ls-btn`, `ls-avatar`, `ls-divider`) |
-| error-screen | `org-map-layer` · `org-topbar` · `org-navigator-callouts` | `mol-suggestion-chip` · `mol-chat-input` |
-| auth-screen | `org-map-layer` (canvas) · `org-topbar` (back chevron only) | `mol-form-field` · `mol-social-btn` (NEW) · `ls-divider.with-label` · `ls-btn--primary` · `ls-spinner` |
+| mapapp/idle | `org-map-layer` · `org-topbar` | `mol-chat-input` · `mol-suggestion-chip` · `mol-location-context-bar` · `mol-bottom-sheet` (S04 filter) · `mol-filter-chip` |
+| mapapp/planning | `org-map-layer` · `org-topbar` | `mol-phase-indicator` · `mol-chat-input` |
+| mapapp/route-results | `org-map-layer` · `org-topbar` · `org-navigator-callouts` | `mol-route-attachment-card` · `mol-chat-input` |
+| mapapp/route-details | `org-map-layer` · `org-topbar` · `org-route-sheet` | `mol-instrument-readout` · `mol-weather-timeline` · `mol-bottom-sheet` (shell) |
+| mapapp/sessions-drawer | `org-map-layer` · `org-sessions-drawer` | — (atoms-only composition inside drawer: `ls-btn`, `ls-avatar`, `ls-divider`) |
+| mapapp/error | `org-map-layer` · `org-topbar` · `org-navigator-callouts` | `mol-suggestion-chip` · `mol-chat-input` |
+| auth | `org-map-layer` (canvas) · `org-topbar` (back chevron only) | `mol-form-field` · `mol-social-btn` (NEW) · `ls-divider.with-label` · `ls-btn--primary` · `ls-spinner` |
 
 All six views share `org-map-layer` as their canvas — z-order, slot stacking, and safe-area are solved once at the organism layer and views pass pre-assembled overlays / chrome into its named slots (`map` · `topBar` · `topOverlay` · `bottomOverlay` · `bottomSheet` · `scrim` · `leadingDrawer`).
 

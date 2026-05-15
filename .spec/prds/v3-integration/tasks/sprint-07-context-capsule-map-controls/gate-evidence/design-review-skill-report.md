@@ -6,13 +6,13 @@
 
 ## Verdict
 
-The retrofitted iOS and Android `IdleScreen` templates compose the new `LSContextCapsule` and `LSMapControls` components and wire them through the documented production overlay pattern (`LSMapLayer.topOverlays`, ZStack right-edge for controls; `LSMapLayer` slots and `Modifier.align(Alignment.CenterEnd)` on Android). Component-level fidelity to `.spec/design/system/views/idle-screen/idle-screen.html` is high. **However** the strict gate cannot pass because of one unresolved P0 finding outside Sprint 07 component scope: the iOS sandbox preview path (`LaneShadowSandboxStoryDetail` in `ios/LaneShadow/Sandbox/LaneShadowSandboxEntry.swift`) inlines the full-screen `IdleScreen` template into a `minHeight: 200` rounded card, breaking the `LSMapLayer` overlay geometry and making `idle-context-capsule` and `idle-map-controls` unreachable in the XCUITest accessibility hierarchy. This blocks the entire `pnpm design:review --screens idle-screen` pipeline. See P0-001 below.
+The retrofitted iOS and Android `IdleScreen` templates compose the new `LSContextCapsule` and `LSMapControls` components and wire them through the documented production overlay pattern (`LSMapLayer.topOverlays`, ZStack right-edge for controls; `LSMapLayer` slots and `Modifier.align(Alignment.CenterEnd)` on Android). Component-level fidelity to `.spec/design/system/views/mapapp/idle/idle-screen.html` is high. **However** the strict gate cannot pass because of one unresolved P0 finding outside Sprint 07 component scope: the iOS sandbox preview path (`LaneShadowSandboxStoryDetail` in `ios/LaneShadow/Sandbox/LaneShadowSandboxEntry.swift`) inlines the full-screen `IdleScreen` template into a `minHeight: 200` rounded card, breaking the `LSMapLayer` overlay geometry and making `idle-context-capsule` and `idle-map-controls` unreachable in the XCUITest accessibility hierarchy. This blocks the entire `pnpm design:review --screens idle-screen` pipeline. See P0-001 below.
 
 ## Inputs Inspected
 
 | Type | Path/Source | Notes |
 |---|---|---|
-| Design reference HTML | `.spec/design/system/views/idle-screen/idle-screen.html` | 1303 LOC; defines 7 variants (`default`, `default-dark`, `typing-send`, `filter-sheet`, `no-location`, `first-ride`, `weather-advisory`); uses `.mol-context-capsule` + `.org-map-controls` per the 2026-05-06 redesign |
+| Design reference HTML | `.spec/design/system/views/mapapp/idle/idle-screen.html` | 1303 LOC; defines 7 variants (`default`, `default-dark`, `typing-send`, `filter-sheet`, `no-location`, `first-ride`, `weather-advisory`); uses `.mol-context-capsule` + `.org-map-controls` per the 2026-05-06 redesign |
 | Reference PNGs | `.spec/design/system/refs/idle-screen/*.png` | Regenerated 2026-05-07 via `pnpm design:references`; 7 PNGs present (high confidence — verified) |
 | iOS template | `ios/LaneShadow/Views/Templates/IdleScreen.swift` | Composes `LSMapLayer` topOverlays for capsule + ZStack right-edge for controls (lines 47-83) |
 | iOS feature container | `ios/LaneShadow/Features/Idle/IdleScreenContainer.swift` | Production wiring (lines 82-89) — `LSContextCapsule` w/ `accessibilityIdentifier("idle-context-capsule")` |

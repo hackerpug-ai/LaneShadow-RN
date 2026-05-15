@@ -170,7 +170,7 @@ For each AC, write the failing Kotlin test first. Use fake `ConvexGateway` / `Co
 4. `android/app/src/main/java/com/laneshadow/ui/molecules/LSChatInput.kt` - chip row and input bar rendering
 5. `android/app/src/main/java/com/laneshadow/services/ConvexClientProvider.kt` - Convex action wrapper and fake-gateway seam
 6. `android/app/src/test/java/com/laneshadow/ui/idle/IdleViewModelTest.kt` - current ViewModel testing pattern
-7. `.spec/design/system/views/idle-screen/idle-screen.html` - idle input visual reference
+7. `.spec/design/system/views/mapapp/idle/idle-screen.html` - idle input visual reference
 
 ---
 
@@ -203,7 +203,7 @@ Reviewer must verify the production `IdleRoute` -> `IdleScreen` -> `LSChatInput`
 
 ## DESIGN
 
-**References:** `.spec/design/system/views/idle-screen/README.md`, `.spec/design/system/views/idle-screen/idle-screen.html`
+**References:** `.spec/design/system/views/mapapp/idle/README.md`, `.spec/design/system/views/mapapp/idle/idle-screen.html`
 
 **Pattern:** `IdleUiState` is the source of truth and the template projection must be lossless for visible idle behavior.
 

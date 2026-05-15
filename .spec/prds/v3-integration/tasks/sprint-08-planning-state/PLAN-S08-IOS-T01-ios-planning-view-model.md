@@ -160,7 +160,7 @@ This task evolves `PlanningViewModel` to expose the data the new overlay layout 
 **References:**
 - `.spec/design/system/molecules/phase-indicator/README.md`
 - `.spec/design/system/molecules/context-capsule/README.md`
-- `.spec/design/system/views/planning-screen/planning-screen.html` (post-PLAN-S08-DR-T01 update)
+- `.spec/design/system/views/mapapp/planning/planning-screen.html` (post-PLAN-S08-DR-T01 update)
 
 **Interaction Notes:** View-model only — no SwiftUI rendering. The new properties are read by `PlanningScreen.swift` in PLAN-S08-IOS-T02; the cancel-confirm sheet in PLAN-S08-IOS-T04 binds `cancelConfirmationVisible` and calls `confirmCancellation()` / `dismissCancelConfirmation()`.
 
