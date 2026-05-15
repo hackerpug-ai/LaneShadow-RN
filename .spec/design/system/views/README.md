@@ -1,5 +1,7 @@
 # Views — LaneShadow V2 Copper
 
+> **Reorganized 2026-05-15** — each view folder now contains per-state subfolders. The master HTML mockup + master PNG/PDF remain at the view-folder root for reference. Per-state PNGs and annotations now live at `<view>/<state>/`. See `.spec/prds/v3-integration/SITE-MAP.md` for the target IA.
+
 Full-page templates — each composes organisms (primarily) and lower-layer molecules / atoms from the system. Views are **data-agnostic**: they receive mock data via fixture providers and never fetch it.
 
 **Authority:** `.spec/prds/v2/concepts/uc-scr-01..06.html` · `.spec/prds/v2/08-uc-scr.md`
