@@ -30,7 +30,13 @@ struct PlanningCancelConfirmTests {
 
         // Verify chat input receives correct bindings
         #expect(liveState.isThinking == true)
-        #expect(!liveState.isThinking == false) // !isThinking for isEnabled
+
+        // Verify the LSChatInput isEnabled binding is wired in PlanningScreen.swift
+        let planningScreenSource = try String(
+            contentsOfFile: "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/PlanningScreen.swift",
+            encoding: .utf8
+        )
+        #expect(planningScreenSource.contains("isEnabled: !state.isThinking"))
 
         context.tearDown()
     }
@@ -47,10 +53,6 @@ struct PlanningCancelConfirmTests {
             onConfirm: {},
             onDismiss: {}
         )
-
-        // Verify it's a View
-        let view = AnyView(sheet)
-        #expect(view != nil)
 
         // Verify accessibility identifier is defined as a static constant on the sheet
         #expect(PlanningCancelConfirmSheet.accessibilityID == "planning-cancel-confirm-sheet")
@@ -195,11 +197,6 @@ struct PlanningCancelConfirmTests {
         // This test documents the requirement that the modified files must pass token compliance checks.
         // Build verification ensures the production code uses semantic tokens (verified indirectly
         // by the fact that the app builds and compiles successfully with LaneShadowTheme imports).
-
-        // Verify the sheet imports and uses the theme
-        let sheet = PlanningCancelConfirmSheet(onConfirm: {}, onDismiss: {})
-        let view = AnyView(sheet)
-        #expect(view != nil)
 
         // Static token constants are defined on the sheet (constants extracted instead of inline)
         let expectedID = "planning-cancel-confirm-sheet"
