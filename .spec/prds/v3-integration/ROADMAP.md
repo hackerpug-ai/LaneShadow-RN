@@ -4,18 +4,18 @@ project: LaneShadow Native Integration (V3)
 generated: 2026-05-04T12:00:00-07:00
 revised: 2026-05-15T08:00:00Z
 prd: .spec/prds/v3-integration/README.md
-site_map: .spec/prds/v3-integration/SITE-MAP.md
+view_map: .spec/prds/v3-integration/VIEW-MAP.md
 doctrine: RULES.md § Design Rules › One View, Many States
 sprint_count: 11
 ---
 
 # Sprint Roadmap: LaneShadow Native Integration (V3)
 
-> **Doctrine note (2026-05-15):** Sprints 08–11 each deliver a **state of the unified `MapApp` screen**, not a sibling screen template. The "One View, Many States" rule lives in [`RULES.md § Design Rules › One View, Many States`](../../../RULES.md) and the target IA is canonical at [`SITE-MAP.md`](./SITE-MAP.md). Every sprint planner consuming this roadmap MUST cite the site map and reject any task that adds a sibling route for what should be a state of MapApp.
+> **Doctrine note (2026-05-15):** Sprints 08–11 each deliver a **state of the unified `MapApp` screen**, not a sibling screen template. The "One View, Many States" rule lives in [`RULES.md § Design Rules › One View, Many States`](../../../RULES.md) and the target IA is canonical at [`VIEW-MAP.md`](./VIEW-MAP.md). Every sprint planner consuming this roadmap MUST cite the view map and reject any task that adds a sibling route for what should be a state of MapApp.
 
 ## Overview
 
-**Sprints:** 11 (Sprints 6+ reshaped 2026-05-04 view-at-a-time; Sprint 07 component-delivery inserted 2026-05-14; Sprints 08–11 retitled to "Map View · State" naming 2026-05-15 to align with the One View, Many States doctrine and `SITE-MAP.md`)
+**Sprints:** 11 (Sprints 6+ reshaped 2026-05-04 view-at-a-time; Sprint 07 component-delivery inserted 2026-05-14; Sprints 08–11 retitled to "Map View · State" naming 2026-05-15 to align with the One View, Many States doctrine and `VIEW-MAP.md`)
 **Currently in flight:** Sprint 06 (idle parity carry-forward — IDLE-SYNC-iOS / IDLE-SYNC-Android / IDLE-SYNC-Pipeline / CHIP-T03) + Sprint 08 (planning state remediation + STUB-FIX wave); Sprint 07 (Context Capsule / Map Controls) closed 2026-05-13
 
 This roadmap sequences the 25 use cases in `.spec/prds/v3-integration/` so that **all 105 acceptance criteria of UC-FID-01 (Design Fidelity) land in Sprints 1-2 BEFORE any integration work begins.** This honors HUMAN SIGNAL #1's framing — sandbox views are "distorted" because of UI fidelity gaps; live-data wiring on top of distorted UI compounds the problem. By restoring V2 design-system fidelity first, every subsequent integration sprint binds real Convex/Clerk/Mapbox data into a sandbox that already matches the authoritative `.spec/design/system/` mockups.
@@ -55,9 +55,9 @@ Saved-routes browsing list, Settings, Offline Regions, Error Recovery wiring, ma
 | 6 | [Sprint 06: Map View — Idle State](#sprint-06-map-view--idle-state) | A real idle map view on iOS + Android matches the design reference end-to-end and passes `pnpm design:review --screens idle-screen` with zero `high`-severity issues | In Progress (T01–T10 Done; T11 + IDLE-SYNC carry-forward) |
 | 7 | [Sprint 07: Context Capsule, Map Controls + Autocomplete](#sprint-07-context-capsule-map-controls--autocomplete-carry-forward) | New `LSContextCapsule` + right-edge `LSMapControls` ship on iOS + Android; idle state retrofitted to the 2026-05-06 design-system update; autocomplete proximity-gated | **Done** |
 | 8 | [Sprint 08: Map View — Planning State](#sprint-08-map-view--planning-state) | From the idle map view, a rider taps a suggestion chip and the same map host transitions to the planning state — copper sketch polyline, `LSContextCapsule(--planning)`, `LSPhaseIndicator` driven by Convex `sessionMessages`, locked chat input, working cancel — passing `pnpm design:review --screens planning-screen` with zero `high`-severity issues | In Progress |
-| 9 | [Sprint 09: Map View · Route Results State](#sprint-09-map-view--route-results-state) | From the planning state, `MapApp` transitions to a new route-results state — three live polylines, navigator message, route attachment cards, refine + alt-select interactions — passing `pnpm design:review --screens route-results-screen` with zero `high`-severity issues. No sibling RouteResultsScreen template is created; this is a `MapAppState.routeResults` state addition per `SITE-MAP.md`. | In Progress |
-| 10 | [Sprint 10: Map View · Route Details State (bottom-sheet overlay)](#sprint-10-map-view--route-details-state-bottom-sheet-overlay) | From the route-results state, the rider taps a route card and `MapApp` composes a route-details bottom sheet over the same map host — single polyline, instrument readout, weather timeline, save / ride — passing `pnpm design:review --screens route-details-screen` with zero `high`-severity issues. Sub-state overlay over `MapAppState.routeResults`, never a separate route per `SITE-MAP.md`. | Planned |
-| 11 | [Sprint 11: Map View · Sessions Drawer (modal overlay of Idle)](#sprint-11-map-view--sessions-drawer-modal-overlay-of-idle) | From the idle state, the rider taps the hamburger and `MapApp` composes a leading-drawer modal listing sessions over the same map host — tap-to-switch with camera restore — passing `pnpm design:review --screens sessions-screen` with zero `high`-severity issues. Modal overlay over `MapAppState.idle`, never a separate route per `SITE-MAP.md`. | Planned |
+| 9 | [Sprint 09: Map View · Route Results State](#sprint-09-map-view--route-results-state) | From the planning state, `MapApp` transitions to a new route-results state — three live polylines, navigator message, route attachment cards, refine + alt-select interactions — passing `pnpm design:review --screens route-results-screen` with zero `high`-severity issues. No sibling RouteResultsScreen template is created; this is a `MapAppState.routeResults` state addition per `VIEW-MAP.md`. | In Progress |
+| 10 | [Sprint 10: Map View · Route Details State (bottom-sheet overlay)](#sprint-10-map-view--route-details-state-bottom-sheet-overlay) | From the route-results state, the rider taps a route card and `MapApp` composes a route-details bottom sheet over the same map host — single polyline, instrument readout, weather timeline, save / ride — passing `pnpm design:review --screens route-details-screen` with zero `high`-severity issues. Sub-state overlay over `MapAppState.routeResults`, never a separate route per `VIEW-MAP.md`. | Planned |
+| 11 | [Sprint 11: Map View · Sessions Drawer (modal overlay of Idle)](#sprint-11-map-view--sessions-drawer-modal-overlay-of-idle) | From the idle state, the rider taps the hamburger and `MapApp` composes a leading-drawer modal listing sessions over the same map host — tap-to-switch with camera restore — passing `pnpm design:review --screens sessions-screen` with zero `high`-severity issues. Modal overlay over `MapAppState.idle`, never a separate route per `VIEW-MAP.md`. | Planned |
 
 ---
 
@@ -589,9 +589,9 @@ This sprint integrates **only the planning state of the canonical map view** —
 - UC-FID-01 (planning-screen subset — all 6 variants)
 - `architecture/ios-architecture.md` § PlanningScreen, `architecture/android-architecture.md` § PlanningViewModel
 
-#### Site Map Coverage
+#### View Map Coverage
 
-This sprint delivers `MapAppState.planning` per [`SITE-MAP.md` § 2](./SITE-MAP.md#2-target-ia-tree).
+This sprint delivers `MapAppState.planning` per [`VIEW-MAP.md` § 2](./VIEW-MAP.md#2-target-ia-tree).
 
 Design system state folders touched (after Phase 1 reorganization 2026-05-15):
 
@@ -614,7 +614,7 @@ Implementation files: `ios/LaneShadow/Views/Templates/MapApp.swift` + `MapAppSta
 **Sequence:** 9
 **Status:** In Progress (planning expanded 2026-05-14; MAPAPP-DOCTRINE Phase D retrofit shipped 2026-05-14 at `3f2800033`; sprint folder: [`tasks/sprint-09-route-results-screen/`](./tasks/sprint-09-route-results-screen/SPRINT.md))
 **Design Reference:** [`route-results-screen.html`](../../design/system/views/route-results-screen/route-results-screen.html) · [`README.md`](../../design/system/views/route-results-screen/README.md)
-**Site Map Reference:** [`SITE-MAP.md` § 2 — `MapAppState.RouteResults`](./SITE-MAP.md#2-target-ia-tree)
+**View Map Reference:** [`VIEW-MAP.md` § 2 — `MapAppState.RouteResults`](./VIEW-MAP.md#2-target-ia-tree)
 
 #### Human Testing Gate
 
@@ -656,9 +656,9 @@ This sprint integrates **only RouteResultsScreen.** Tapping the BEST card may tr
 - UC-FID-01 (route-results subset — all 7 variants)
 - `architecture/ios-architecture.md` § RouteResultsScreen, `architecture/android-architecture.md` § RouteResultsViewModel
 
-#### Site Map Coverage
+#### View Map Coverage
 
-This sprint delivers `MapAppState.routeResults` per [`SITE-MAP.md` § 2](./SITE-MAP.md#2-target-ia-tree). The MAPAPP-DOCTRINE Phase D retrofit (`3f2800033`) already retargeted Sprint 09's per-task `write_allowed` paths from `RouteResultsScreen.swift` / `RouteResultsRoute.kt` to `MapApp.swift` / `MapApp.kt` extensions.
+This sprint delivers `MapAppState.routeResults` per [`VIEW-MAP.md` § 2](./VIEW-MAP.md#2-target-ia-tree). The MAPAPP-DOCTRINE Phase D retrofit (`3f2800033`) already retargeted Sprint 09's per-task `write_allowed` paths from `RouteResultsScreen.swift` / `RouteResultsRoute.kt` to `MapApp.swift` / `MapApp.kt` extensions.
 
 Design system state folders touched (after Phase 1 reorganization 2026-05-15):
 
@@ -670,7 +670,7 @@ Design system state folders touched (after Phase 1 reorganization 2026-05-15):
 - [`views/route-results-screen/weather-divergent/`](../../design/system/views/route-results-screen/weather-divergent/)
 - [`views/route-results-screen/message-dismissed/`](../../design/system/views/route-results-screen/message-dismissed/)
 
-Implementation: extends the iOS/Android `MapApp` state machine (see Sprint 08's Site Map Coverage) with a new `routeResults` case; overlay providers compose three polylines, navigator message, attachment cards, recall chip as state-derived `LSMapLayer.topOverlays` / `bottomOverlays`. **Never a sibling `RouteResultsScreen.swift`/`.kt` template.**
+Implementation: extends the iOS/Android `MapApp` state machine (see Sprint 08's View Map Coverage) with a new `routeResults` case; overlay providers compose three polylines, navigator message, attachment cards, recall chip as state-derived `LSMapLayer.topOverlays` / `bottomOverlays`. **Never a sibling `RouteResultsScreen.swift`/`.kt` template.**
 
 #### Next Sprint Tasks
 
@@ -700,7 +700,7 @@ Generated by /kb-sprint-tasks-plan on 2026-05-14
 **Sequence:** 10
 **Status:** Planned
 **Design Reference:** [`.spec/design/system/views/route-details-screen/README.md`](../../design/system/views/route-details-screen/README.md) · [`route-details-screen.html`](../../design/system/views/route-details-screen/route-details-screen.html)
-**Site Map Reference:** [`SITE-MAP.md` § 2 — `MapAppState.RouteDetails` (sub-state of RouteResults)](./SITE-MAP.md#2-target-ia-tree)
+**View Map Reference:** [`VIEW-MAP.md` § 2 — `MapAppState.RouteDetails` (sub-state of RouteResults)](./VIEW-MAP.md#2-target-ia-tree)
 
 #### Human Testing Gate
 
@@ -744,9 +744,9 @@ This sprint integrates **only RouteDetails bottom sheet** plus the Save → Save
 - UC-FID-01 (route-details subset — all 6 variants)
 - `architecture/ios-architecture.md` § RouteDetailsScreen, `architecture/android-architecture.md` § RouteDetailsViewModel
 
-#### Site Map Coverage
+#### View Map Coverage
 
-This sprint delivers a route-details bottom-sheet overlay as a **sub-state of `MapAppState.routeResults`** per [`SITE-MAP.md` § 2 — Sub-state](./SITE-MAP.md#3-modal-vs-state--decision-rules). Implementation extends MapApp's `routeResults` overlay set with a bottom-sheet at large/medium detents; LSMap stays mounted.
+This sprint delivers a route-details bottom-sheet overlay as a **sub-state of `MapAppState.routeResults`** per [`VIEW-MAP.md` § 2 — Sub-state](./VIEW-MAP.md#3-modal-vs-state--decision-rules). Implementation extends MapApp's `routeResults` overlay set with a bottom-sheet at large/medium detents; LSMap stays mounted.
 
 Design system state folders touched (after Phase 1 reorganization 2026-05-15):
 
@@ -767,7 +767,7 @@ Design system state folders touched (after Phase 1 reorganization 2026-05-15):
 **Sequence:** 11
 **Status:** Planned
 **Design Reference:** [`sessions-screen.html`](../../design/system/views/sessions-screen/sessions-screen.html) · [`README.md`](../../design/system/views/sessions-screen/README.md)
-**Site Map Reference:** [`SITE-MAP.md` § 2 — Sessions Drawer modal over `MapAppState.Idle`](./SITE-MAP.md#2-target-ia-tree)
+**View Map Reference:** [`VIEW-MAP.md` § 2 — Sessions Drawer modal over `MapAppState.Idle`](./VIEW-MAP.md#2-target-ia-tree)
 
 #### Human Testing Gate
 
@@ -809,9 +809,9 @@ This sprint integrates **only the Sessions drawer + per-session camera-restore p
 - UC-FID-01 (sessions-screen subset — all 5 variants)
 - `architecture/ios-architecture.md` § SessionsScreen + CameraStore, `architecture/android-architecture.md` § Sessions wiring + DataStore camera persistence
 
-#### Site Map Coverage
+#### View Map Coverage
 
-This sprint delivers the Sessions drawer as a **modal overlay over `MapAppState.idle`** per [`SITE-MAP.md` § 2 — Modal overlay](./SITE-MAP.md#3-modal-vs-state--decision-rules). The drawer is composed via `LSMapLayer.leadingDrawer` slot; LSMap stays mounted; the underlying state (Idle / Planning / RouteResults) is preserved when the drawer dismisses.
+This sprint delivers the Sessions drawer as a **modal overlay over `MapAppState.idle`** per [`VIEW-MAP.md` § 2 — Modal overlay](./VIEW-MAP.md#3-modal-vs-state--decision-rules). The drawer is composed via `LSMapLayer.leadingDrawer` slot; LSMap stays mounted; the underlying state (Idle / Planning / RouteResults) is preserved when the drawer dismisses.
 
 Design system state folders touched (after Phase 1 reorganization 2026-05-15):
 
@@ -820,7 +820,7 @@ Design system state folders touched (after Phase 1 reorganization 2026-05-15):
 - [`views/sessions-screen/scrolled/`](../../design/system/views/sessions-screen/scrolled/)
 - [`views/sessions-screen/new-confirm/`](../../design/system/views/sessions-screen/new-confirm/)
 
-**Never a sibling `SessionsScreen.swift`/`Route.Sessions` Compose destination.** The existing iOS `SessionsScreen.swift` and Android `Route.Sessions` are doctrine violations awaiting migration to leading-drawer modals (folded into MapApp's overlay system per `SITE-MAP.md` § 4). Tap-to-switch session transitions update `MapAppViewModel`'s active session id, restore camera via `LSMapCameraController`, and dismiss the drawer — no navigation push.
+**Never a sibling `SessionsScreen.swift`/`Route.Sessions` Compose destination.** The existing iOS `SessionsScreen.swift` and Android `Route.Sessions` are doctrine violations awaiting migration to leading-drawer modals (folded into MapApp's overlay system per `VIEW-MAP.md` § 4). Tap-to-switch session transitions update `MapAppViewModel`'s active session id, restore camera via `LSMapCameraController`, and dismiss the drawer — no navigation push.
 
 ---
 

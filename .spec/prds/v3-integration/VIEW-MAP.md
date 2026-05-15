@@ -1,17 +1,19 @@
 ---
-site_map: 1
+view_map: 1
 project: LaneShadow Native Integration (V3)
 generated: 2026-05-15T08:00:00Z
+revised: 2026-05-15T18:00:00Z
 prd: .spec/prds/v3-integration/README.md
 doctrine_source: RULES.md § Design Rules › One View, Many States
-authoritative_for: ".spec/prds/v3-integration/ROADMAP.md sprint titling, kb-sprint-plan + kb-sprint-tasks-plan view inventory, swift-planner + kotlin-planner + mobile-planner agent prompts"
+authoritative_for: ".spec/prds/v3-integration/ROADMAP.md sprint titling, kb-sprint-plan + kb-sprint-tasks-plan view inventory, swift-planner + kotlin-planner + mobile-planner agent prompts, .spec/design/system/views/<screen>/<state>/ folder structure"
+note: "Previously titled SITE-MAP.md; renamed to VIEW-MAP.md 2026-05-15 because LaneShadow is a mobile app, not a website."
 ---
 
-# Target Site Map — LaneShadow V3
+# Target View Map — LaneShadow V3
 
-This document defines the **target information architecture** of the LaneShadow app under the V3 integration plan. It is the canonical reference for:
+This document defines the **target information architecture (view map)** of the LaneShadow app under the V3 integration plan. ("View map" not "site map" because LaneShadow is a mobile app, not a website.) It is the canonical reference for:
 
-- What conceptual screens exist
+- What conceptual views exist
 - How they nest (states + modals + overlays vs. sibling routes)
 - The doctrine that decides when a new variant becomes a STATE vs. a SCREEN
 - Cross-references from each state to its design system folder + sprint owner
@@ -241,12 +243,12 @@ Every state in the tree above maps to a `.spec/design/system/views/<screen>/<sta
 
 ---
 
-## 6. Validation — How to verify a planned variant respects this site map
+## 6. Validation — How to verify a planned variant respects this view map
 
 Before adding any new variant to a sprint:
 
 1. **Find the variant on this tree** — is it already listed as a state, sub-state, or modal? If yes, plan against that classification.
-2. **If not present**, run the Decision Flow in § 3 to classify it. Update this site map in the same commit that introduces the variant.
+2. **If not present**, run the Decision Flow in § 3 to classify it. Update this view map in the same commit that introduces the variant.
 3. **Check the route migration table** in § 4 — if the variant would require a new sibling route, justify why none of the existing MapApp states or modals can host it. Default answer: no, fold it in.
 4. **Cross-reference the design system folder** — does the variant have a `.spec/design/system/views/<screen>/<state>/` folder? If not, design needs to ship first.
 5. **Sprint owner** — every state, sub-state, and modal in this tree has exactly one owning sprint. If the variant has no owner, it's deferred (icebox) until a sprint claims it.
@@ -255,7 +257,7 @@ Before adding any new variant to a sprint:
 
 ## 7. Versioning
 
-This site map evolves with the product. When a new state, sub-state, or modal is approved:
+This view map evolves with the product. When a new state, sub-state, or modal is approved:
 
 1. Edit this file in the same PR that introduces the design + sprint plan
 2. Bump `site_map: N` in frontmatter

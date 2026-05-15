@@ -2,7 +2,7 @@
 
 **View:** route-results-screen
 **State:** message-dismissed
-**Site map node:** [SITE-MAP.md](../../../../../prds/v3-integration/SITE-MAP.md)
+**View map node:** [VIEW-MAP.md](../../../../../prds/v3-integration/VIEW-MAP.md)
 **Master mockup:** [../route-results-screen.html](../route-results-screen.html)
 
 ## Purpose
@@ -21,4 +21,4 @@ _(TBD — fill in: when the user sees this state, what's the design intent, prim
 
 ## Owning sprint
 
-_(See .spec/prds/v3-integration/ROADMAP.md and SITE-MAP.md for the sprint that delivers this state.)_
+_(See .spec/prds/v3-integration/ROADMAP.md and VIEW-MAP.md for the sprint that delivers this state.)_
