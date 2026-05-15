@@ -100,7 +100,9 @@ public struct MapSketchAnimationLayer: View {
 
         // Drive breathing head dot animation
         let recipe = theme.motion.recipes["breathingHeadDot"]
-        let endOpacity = theme.opacity.values["55"] ?? 0.55
+        guard let endOpacity = theme.opacity.values["55"] else {
+            preconditionFailure("theme.opacity.values[\"55\"] must be defined in semantic tokens")
+        }
 
         withAnimation(
             Animation.breathingHeadDot(theme: theme).repeatForever(autoreverses: true)
