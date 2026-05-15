@@ -65,7 +65,7 @@ struct SketchingPolyline: View {
         let recipe = theme.motion.recipes["breathingHeadDot"]
         let duration = recipe?.duration ?? 1400
         let easing = recipe?.easing ?? [0.4, 0, 0.2, 1]
-        let endOpacity = theme.opacity.values["55"] ?? 0.55
+        let endOpacity = theme.opacity.values["50"] ?? 0.5
 
         return BreathingDotRecipe(
             name: "motion.recipe.breathingHeadDot",
