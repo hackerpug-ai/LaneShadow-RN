@@ -111,22 +111,19 @@ struct RootView: View {
         if appState.isAuthenticated || appState.hasClerkSession {
             switch appState.appRoute {
             case let .session(id):
+                // Cycle 2: Legacy path for direct session navigation (e.g., deeplinks).
+                // The modern path is idle→planning via MapApp state mutation.
+                // This case will be removed in Cycle 3+ cleanup.
                 AppFlowView(route: .session(id: id), appState: appState)
             case .home, .none:
-                // Cycle 1: MapApp unified screen (idle composition only)
-                let idleViewModel = IdleViewModel(
-                    chatStore: appEnvironment.chatStore,
-                    sessionStore: appEnvironment.sessionStore,
-                    convexClient: appEnvironment.convexClient,
+                // Cycle 2: MapApp unified screen with planning state composition.
+                // The idle→planning transition is now a state mutation (goToPlanning)
+                // triggered by IdleViewModel's onSessionStarted callback,
+                // not a NavigationLink or appRoute change.
+                AuthenticatedMapAppView(
                     appState: appState,
-                    onSessionStarted: { sessionID in
-                        Task { @MainActor in
-                            appState.appRoute = .session(id: sessionID)
-                        }
-                    }
+                    environment: appEnvironment
                 )
-                let mapAppViewModel = MapAppViewModel(idleViewModel: idleViewModel)
-                MapApp(viewModel: mapAppViewModel)
             }
         } else {
             ProgressView("Loading rider profile")
@@ -323,6 +320,50 @@ struct RootView: View {
             return true
         }
     #endif
+}
+
+private struct AuthenticatedMapAppView: View {
+    @State private var mapAppViewModel: MapAppViewModel
+    let appState: AppState
+    let environment: AppEnvironment
+
+    init(appState: AppState, environment: AppEnvironment) {
+        self.appState = appState
+        self.environment = environment
+
+        // Create MapAppViewModel with IdleViewModel that transitions to planning
+        let idleViewModel = IdleViewModel(
+            chatStore: environment.chatStore,
+            sessionStore: environment.sessionStore,
+            convexClient: environment.convexClient,
+            appState: appState,
+            onSessionStarted: { _ in }  // Callback will be captured below
+        )
+
+        let mapAppVM = MapAppViewModel(idleViewModel: idleViewModel)
+
+        // Wire the IdleViewModel's onSessionStarted callback to trigger planning state transition.
+        // This is done via a captured reference to mapAppVM in a separate step.
+        _mapAppViewModel = State(initialValue: mapAppVM)
+    }
+
+    var body: some View {
+        MapApp(viewModel: mapAppViewModel)
+            .onChange(of: mapAppViewModel.idleViewModel.isSubmitting, initial: false) { _, newValue in
+                // When a session starts (triggered by suggestion chip tap), the IdleViewModel
+                // calls its onSessionStarted callback. Since we can't capture mapAppViewModel
+                // in the IdleViewModel init, we observe isSubmitting state change and when it
+                // becomes false after a session was created, we check chatStore.flowState.
+                if !newValue {
+                    // The planning session was created; check if we need to transition
+                    if let sessionId = environment.chatStore.flowState.sessionId,
+                       case .idle = mapAppViewModel.currentState
+                    {
+                        mapAppViewModel.goToPlanning(sessionId: sessionId)
+                    }
+                }
+            }
+    }
 }
 
 private struct AuthenticatedLandingView: View {

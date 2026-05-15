@@ -154,11 +154,11 @@ final class IdleViewModel {
         return .idle(headline: headline, metaItems: metaItems)
     }
 
-    @ObservationIgnored private let chatStore: ChatStore
-    @ObservationIgnored private let sessionStore: SessionStore
-    @ObservationIgnored private let convexClient: any LaneShadowPlanningDataProviding
+    @ObservationIgnored let chatStore: ChatStore
+    @ObservationIgnored let sessionStore: SessionStore
+    @ObservationIgnored let convexClient: any LaneShadowPlanningDataProviding
     @ObservationIgnored private let locationService: LocationService
-    @ObservationIgnored private let appState: AppState?
+    @ObservationIgnored let appState: AppState?
     @ObservationIgnored private let onSessionStarted: @MainActor @Sendable (String) -> Void
     @ObservationIgnored private var observationTasks: [Task<Void, Never>] = []
     @ObservationIgnored private var autocompleteTask: Task<Void, Never>?
