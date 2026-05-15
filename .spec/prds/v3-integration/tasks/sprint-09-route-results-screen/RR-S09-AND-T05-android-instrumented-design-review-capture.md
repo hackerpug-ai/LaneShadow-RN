@@ -70,7 +70,7 @@ Android parity for RR-S09-IOS-T05. Add instrumented capture tests under `android
 **GIVEN** the `mapApp_routeResults_alt1_tapped_sage_promoted_light` test
 **WHEN** the test executes
 **THEN** the test calls `onNodeWithTag("mapapp-routeresults-card-1").performClick()` BEFORE capturing; the resulting PNG shows alt1 polyline solid-bold sage on MapApp's LSMapHost with alt1 card sage-tinted
-**Verify:** Diff `android/app/src/androidTest/screenshots/MapAppRouteResultsCaptureTests/alt1-tapped--sage-promoted.light.png` vs `.spec/design/system/refs/route-results-screen/alt1-tapped--sage-promoted.light.png` returns severity != "high" via design:review
+**Verify:** Diff `android/app/src/androidTest/screenshots/MapAppRouteResultsCaptureTests/alt1-tapped--sage-promoted.light.png` vs `.spec/design/system/views/route-results-screen/alt1-tapped--sage-promoted/alt1-tapped--sage-promoted.light.png` returns severity != "high" via design:review
 
 ### AC-4 — Refining variant captures unlocked chat input state
 

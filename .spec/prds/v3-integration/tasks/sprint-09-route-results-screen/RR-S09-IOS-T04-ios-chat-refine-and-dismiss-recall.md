@@ -128,8 +128,8 @@ Wire the unlocked `LSChatInput` (rendered by MapApp's `.routeResults` overlay br
 | `ios/LaneShadow/Views/Organisms/LSNavigatorMessage.swift` | all | Public API — dismiss chevron callback, slide-out animation |
 | `ios/LaneShadow/Views/Atoms/LSChromeChip.swift` (or equivalent) | all | Recall chip atom |
 | `.spec/design/system/views/route-results-screen/route-results-screen.html` | S04 Refining + V03 Message Dismissed sections | Refine placeholder, Recall chip placement, motion recipes |
-| `.spec/design/system/refs/route-results-screen/refining.light.png` | full | S04 visual reference |
-| `.spec/design/system/refs/route-results-screen/message-dismissed.light.png` | full | V03 visual reference |
+| `.spec/design/system/views/route-results-screen/refining/refining.light.png` | full | S04 visual reference (per-state folder per 2026-05-15 reorg) |
+| `.spec/design/system/views/route-results-screen/message-dismissed/message-dismissed.light.png` | full | V03 visual reference (per-state folder per 2026-05-15 reorg) |
 | `.spec/prds/v3-integration/tasks/sprint-08-planning-state/PLAN-S08-IOS-T04-ios-locked-chat-input-and-cancel-confirm.md` | all | Sprint 08 sibling task — chat input state binding pattern (different state, same architecture); Sprint 08 also wires LSChatInput into MapApp's `.planning` branch |
 
 ## Guardrails
@@ -158,8 +158,8 @@ Wire the unlocked `LSChatInput` (rendered by MapApp's `.routeResults` overlay br
 **References:**
 - `.spec/design/system/views/route-results-screen/route-results-screen.html` (S04 Refining + V03 Message Dismissed)
 - `.spec/design/system/views/route-results-screen/README.md` (refine primer + Recall chip composition)
-- `.spec/design/system/refs/route-results-screen/refining.light.png`
-- `.spec/design/system/refs/route-results-screen/message-dismissed.light.png`
+- `.spec/design/system/views/route-results-screen/refining/refining.light.png`
+- `.spec/design/system/views/route-results-screen/message-dismissed/message-dismissed.light.png`
 - Sprint 08 PLAN-S08-IOS-T04 (chat input state binding pattern; LSChatInput inside MapApp's `.planning` branch)
 - `ios/LaneShadow/Views/Templates/MapApp.swift`
 
