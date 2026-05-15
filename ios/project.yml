@@ -307,8 +307,7 @@ targets:
         type: syncedFolder
       - path: LaneShadowTests/Views
         type: syncedFolder
-      - path: LaneShadowTests/AppFlow
-        type: syncedFolder
+      - path: LaneShadowTests/Features/MapView/MapSketchAnimationLayerTests.swift
       # Legacy molecule tests are intentionally outside the managed folder
       # until the molecule implementation layer is migrated.
     dependencies:
