@@ -21,8 +21,6 @@ object LSContextCapsuleStory {
             capsuleStory("molecules.context-capsule.warning-dark", idleWarningState(), darkTheme = true),
             capsuleStory("molecules.context-capsule.saved-light", savedRouteState()),
             capsuleStory("molecules.context-capsule.saved-dark", savedRouteState(), darkTheme = true),
-            capsuleChipStory("molecules.context-capsule.idle-chip-light", idleState()),
-            capsuleChipStory("molecules.context-capsule.idle-chip-dark", idleState(), darkTheme = true),
         )
 }
 
