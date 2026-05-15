@@ -9,6 +9,7 @@ sealed interface Route {
     @Serializable data object OAuthCallback : Route
     @Serializable data object Verify : Route
     @Serializable data object Home : Route
+    @Serializable data object MapApp : Route
     @Serializable data object Sessions : Route
     @Serializable data class RouteResults(
         val sessionId: String,
