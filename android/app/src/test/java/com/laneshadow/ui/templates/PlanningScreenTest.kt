@@ -18,7 +18,7 @@ import java.io.File
  * AC-5: Light/dark token re-resolution
  * AC-6: No data-fetching logic
  *
- * Note: Full UI testing is done via the sandbox stories (templates.planning.default).
+ * Note: Full UI testing is done via the sandbox stories (templates.planning-screen.scouting-light, etc.).
  * These unit tests verify code structure, imports, and animation recipe usage.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -27,7 +27,7 @@ class PlanningScreenTest {
     /**
      * AC-1 — Planning screen composition renders
      *
-     * GIVEN: Sandbox is launched on Android with templates.planning.default selected
+     * GIVEN: Sandbox is launched on Android with templates.planning-screen.scouting-light selected
      * WHEN: The story mounts
      * THEN: Top bar visible, LSPhaseIndicator shows 5 labeled steps with one active (pulsing ring),
      *       map shows sketching polyline animation, chat input bottom-anchored with filled prompt
@@ -379,36 +379,39 @@ class PlanningScreenTest {
     }
 
     /**
-     * Verify PlanningScreenStory registers at correct tier and ID
+     * Verify Sprint04PlanningStories registers with correct tier and canonical IDs
      */
     @Test
     fun planning_screen_story_is_registered_at_correct_tier_and_id() {
-        val source = File("src/debug/java/com/laneshadow/sandbox/stories/templates/PlanningScreenStory.kt").readText()
+        val source = File("src/main/java/com/laneshadow/ui/sandbox/stories/Sprint04PlanningStories.kt").readText()
 
-        // Must register with ComponentTier.Template
+        // Must register with SandboxTier.Template
         assertTrue(
-            "PlanningScreenStory must register with ComponentTier.Template",
-            source.contains("ComponentTier.Template")
+            "Sprint04PlanningStories must register with SandboxTier.Template",
+            source.contains("SandboxTier.Template")
         )
 
-        // Must have ID starting with templates.planning
+        // Must have IDs starting with templates.planning-screen (canonical)
         assertTrue(
-            "PlanningScreenStory must have story ID starting with 'templates.planning'",
-            source.contains("templates.planning")
+            "Sprint04PlanningStories must have story IDs starting with 'templates.planning-screen'",
+            source.contains("templates.planning-screen")
         )
 
-        // Must have at least one story registered
+        // Must have 14 stories (7 variants × 2 themes: light/dark)
+        val storyCount = source.split("id = \"templates.planning-screen.").size - 1
         assertTrue(
-            "PlanningScreenStory must define Story list",
-            source.contains("val all: List<Story>")
+            "Sprint04PlanningStories must define exactly 14 stories (7 variants × 2 themes), found $storyCount",
+            storyCount == 14
         )
 
-        // Must register in TemplateStories
-        val templatesSource = File("src/debug/java/com/laneshadow/sandbox/stories/templates/TemplateStories.kt").readText()
+        // Must have both light and dark theme variants
         assertTrue(
-            "TemplateStories must include PlanningScreenStory",
-            templatesSource.contains("PlanningScreenStory") ||
-            templatesSource.contains("templates.planning")
+            "Stories must include light theme variants",
+            source.contains("darkTheme = false")
+        )
+        assertTrue(
+            "Stories must include dark theme variants",
+            source.contains("darkTheme = true")
         )
     }
 

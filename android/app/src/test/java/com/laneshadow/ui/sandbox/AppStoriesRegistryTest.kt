@@ -43,14 +43,14 @@ class AppStoriesRegistryTest {
     }
 
     @Test
-    fun `AppStories all returns at least 35 sprint-04 template stories`() {
+    fun `AppStories all returns at least 40 sprint-04 template stories`() {
         val allStories = AppStories.all
 
         // Filter to only template tier stories
         val templateStories = allStories.filter { it.tier == SandboxTier.Template }
 
-        // Should have at least 35 sprint-04 template stories
-        assertThat(templateStories.size).isAtLeast(35)
+        // Should have at least 40 sprint-04 template stories (planning stories expanded from 9 to 14)
+        assertThat(templateStories.size).isAtLeast(40)
     }
 
     @Test
@@ -74,24 +74,27 @@ class AppStoriesRegistryTest {
     }
 
     @Test
-    fun `Planning screen has 9 canonical variants`() {
+    fun `Planning screen has 14 canonical variants (7 screens x 2 themes)`() {
         val planningStories = Sprint04PlanningStories.all
 
-        assertThat(planningStories.size).isEqualTo(9)
+        assertThat(planningStories.size).isEqualTo(14)
 
         val ids = planningStories.map { story -> story.id }.toSet()
-        assertThat(ids).containsAtLeastElementsIn(
-            listOf(
-                "templates.planning-screen.default",
-                "templates.planning-screen.dark",
-                "templates.planning-screen.phase1",
-                "templates.planning-screen.phase3",
-                "templates.planning-screen.phase4",
-                "templates.planning-screen.phase5",
-                "templates.planning-screen.v-cancel-confirm",
-                "templates.planning-screen.v-single-candidate",
-                "templates.planning-screen.v-slow"
-            )
+        assertThat(ids).containsExactly(
+            "templates.planning-screen.scouting-light",
+            "templates.planning-screen.scouting-dark",
+            "templates.planning-screen.drawing-light",
+            "templates.planning-screen.drawing-dark",
+            "templates.planning-screen.weather-light",
+            "templates.planning-screen.weather-dark",
+            "templates.planning-screen.scoring-light",
+            "templates.planning-screen.scoring-dark",
+            "templates.planning-screen.slow-planning-light",
+            "templates.planning-screen.slow-planning-dark",
+            "templates.planning-screen.cancel-prompt-light",
+            "templates.planning-screen.cancel-prompt-dark",
+            "templates.planning-screen.single-candidate-light",
+            "templates.planning-screen.single-candidate-dark"
         )
     }
 

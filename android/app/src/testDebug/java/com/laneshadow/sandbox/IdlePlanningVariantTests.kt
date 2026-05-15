@@ -83,7 +83,7 @@ class IdlePlanningVariantTests {
 
     @Test
     fun testPlanningV01Slow() {
-        // GIVEN: Android sandbox story templates.planning-screen.v-slow is rendered
+        // GIVEN: Android sandbox story templates.planning-screen.slow-planning-light (or -dark) is rendered
         val state = PlanningMockProvider.value("v-slow")
 
         // THEN: Slow apology message is present
@@ -103,7 +103,7 @@ class IdlePlanningVariantTests {
 
     @Test
     fun testPlanningV02CancelConfirm() {
-        // GIVEN: Android sandbox story templates.planning-screen.v-cancel-confirm is rendered
+        // GIVEN: Android sandbox story templates.planning-screen.cancel-prompt-light (or -dark) is rendered
         val state = PlanningMockProvider.value("v-cancel-confirm")
 
         // THEN: Show cancel confirm flag is true
@@ -122,7 +122,7 @@ class IdlePlanningVariantTests {
 
     @Test
     fun testPlanningV03SingleCandidateAndHeader() {
-        // GIVEN: Android sandbox story templates.planning-screen.v-single-candidate is rendered
+        // GIVEN: Android sandbox story templates.planning-screen.single-candidate-light (or -dark) is rendered
         val state = PlanningMockProvider.value("v-single-candidate")
 
         // THEN: Warning border flag is true
