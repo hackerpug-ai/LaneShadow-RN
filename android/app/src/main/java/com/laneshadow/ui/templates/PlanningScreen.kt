@@ -118,32 +118,31 @@ fun PlanningScreen(
     onDismissCancelConfirm: () -> Unit = {},
     onKeepPlanning: () -> Unit = {},
     onCancelPlan: () -> Unit = {},
+    mapContent: @Composable (PlanningScreenState) -> Unit = { planningState ->
+        LSMap(
+            mode = MapMode.Preview,
+            camera = CameraPosition(
+                center = planningState.sketchRoute?.firstOrNull() ?: LatLng(0.0, 0.0),
+                zoom = 11.0,
+            ),
+            modifier = Modifier.testTag("planning.map-host-instance"),
+        )
+        // MapSketchAnimationLayer: overlay composable for animated sketch polyline
+        // Driven by state.sketchRoute; animates path-draw progress from 0→1 (1400ms loop)
+        if (planningState.sketchRoute != null) {
+            MapSketchAnimationLayer(
+                path = planningState.sketchRoute,
+                modifier = Modifier.testTag("planning.sketch-animation-layer"),
+            )
+        }
+    },
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
 
-    // Compute camera center from sketch route, or default to equator/prime meridian
-    // if no route is available yet (should not happen in production)
-    val cameraCenter = state.sketchRoute?.firstOrNull() ?: LatLng(0.0, 0.0)
-
     LSMapLayer(
         map = {
-            LSMap(
-                mode = MapMode.Preview,
-                camera = CameraPosition(
-                    center = cameraCenter,
-                    zoom = 11.0,
-                ),
-                modifier = Modifier.testTag("planning.map-host-instance"),
-            )
-            // MapSketchAnimationLayer: overlay composable for animated sketch polyline
-            // Driven by state.sketchRoute; animates path-draw progress from 0→1 (1400ms loop)
-            if (state.sketchRoute != null) {
-                MapSketchAnimationLayer(
-                    path = state.sketchRoute,
-                    modifier = Modifier.testTag("planning.sketch-animation-layer"),
-                )
-            }
+            mapContent(state)
         },
         topOverlays = listOf(
             GlassOverlaySlot(

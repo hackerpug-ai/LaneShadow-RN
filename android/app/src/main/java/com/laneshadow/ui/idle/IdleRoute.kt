@@ -1,9 +1,12 @@
 package com.laneshadow.ui.idle
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -24,18 +27,20 @@ import com.laneshadow.ui.templates.IdleScreen
 @Composable
 fun IdleRoute(
     navController: NavHostController,
+    mapCameraController: LSMapCameraController? = null,
+    skipMapRendering: Boolean = false,
 ) {
     val viewModel: IdleViewModel = hiltViewModel()
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val capsuleState by viewModel.capsuleState.collectAsStateWithLifecycle()
     val lastKnownLocation by viewModel.lastKnownLocationFlow.collectAsStateWithLifecycle()
-    val mapCameraController = remember { LSMapCameraController(initialZoom = 10.8) }
+    val localMapCameraController = mapCameraController ?: remember { LSMapCameraController(initialZoom = 10.8) }
 
     // First-fix auto-recenter: when FusedLocationProvider yields its first real
     // fix, animate the map from the Bay Area fallback camera to the user puck.
     LaunchedEffect(lastKnownLocation) {
         if (lastKnownLocation != null) {
-            mapCameraController.recenterToUserLocation()
+            localMapCameraController.recenterToUserLocation()
         }
     }
 
@@ -43,7 +48,7 @@ fun IdleRoute(
         state = uiState.toMockState(),
         capsuleState = capsuleState,
         inputValue = uiState.inputValue,
-        mapCameraController = mapCameraController,
+        mapCameraController = localMapCameraController,
         // Menu chip now opens an in-place leading drawer (parity with iOS).
         // The standalone Sessions route remains available via the chat-input
         // filter chip (`onFilter`) below until product decides whether to
@@ -73,6 +78,21 @@ fun IdleRoute(
                 ?.let(viewModel::onAutocompleteSuggestionTap)
         },
         onLocationModeChange = viewModel::onLocationModeChange,
+        // When skipMapRendering is true, pass empty mapContent to suppress internal LSMap
+        mapContent = if (skipMapRendering) { { } } else { { screenState ->
+            com.laneshadow.ui.atoms.LSMap(
+                mode = com.laneshadow.ui.atoms.MapMode.Interactive,
+                camera = com.laneshadow.ui.atoms.CameraPosition(
+                    center = com.laneshadow.ui.atoms.LatLng(37.8104, -122.4752),
+                    zoom = 10.8,
+                ),
+                favoriteLocations = screenState.favoriteLocations,
+                cameraController = localMapCameraController,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag("idlescreen-map"),
+            )
+        } },
     )
 
     LaunchedEffect(uiState.navigateTo) {
