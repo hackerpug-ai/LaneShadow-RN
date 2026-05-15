@@ -75,44 +75,67 @@ fun PlanningScreenContainer(
     // Convert ViewModel state to mock state for PlanningScreen
     val mockState = uiState.toMockState()
 
-    // Render the stateless PlanningScreen with ViewModel state and callbacks
-    PlanningScreen(
-        state = mockState,
-        onMenuTap = onMenuTap,
-        onCollapse = {
-            onCollapse()
-            viewModel.requestCancel()
-        },
-        onFilter = onFilter,
-        onDismissCancelConfirm = {
-            onDismissCancelConfirm()
-            viewModel.dismissCancelConfirm()
-        },
-        onKeepPlanning = {
-            onKeepPlanning()
-            viewModel.dismissCancelConfirm()
-        },
-        onCancelPlan = {
-            onCancelPlan()
-            viewModel.confirmCancel()
-        },
-        mapContent = if (skipMapRendering) { { } } else { { planningState ->
-            com.laneshadow.ui.atoms.LSMap(
-                mode = com.laneshadow.ui.atoms.MapMode.Preview,
-                camera = com.laneshadow.ui.atoms.CameraPosition(
-                    center = planningState.sketchRoute?.firstOrNull() ?: com.laneshadow.ui.atoms.LatLng(0.0, 0.0),
-                    zoom = 11.0,
-                ),
-                modifier = Modifier.testTag("planning.map-host-instance"),
+    // When skipMapRendering is true (e.g., when called from MapApp), render only
+    // the overlay content without mounting LSMapLayer. MapApp mounts the persistent
+    // LSMapLayer + LSMap once.
+    if (skipMapRendering) {
+        // Overlay-only rendering: render planning overlays (cancel sheet) directly
+        if (uiState.showCancelConfirm) {
+            PlanningCancelConfirmSheet(
+                onKeep = {
+                    onKeepPlanning()
+                    viewModel.dismissCancelConfirm()
+                },
+                onCancel = {
+                    onCancelPlan()
+                    viewModel.confirmCancel()
+                },
+                onDismiss = {
+                    onDismissCancelConfirm()
+                    viewModel.dismissCancelConfirm()
+                },
             )
-            // MapSketchAnimationLayer: overlay composable for animated sketch polyline
-            // Driven by state.sketchRoute; animates path-draw progress from 0→1 (1400ms loop)
-            if (planningState.sketchRoute != null) {
-                com.laneshadow.ui.atoms.MapSketchAnimationLayer(
-                    path = planningState.sketchRoute,
-                    modifier = Modifier.testTag("planning.sketch-animation-layer"),
+        }
+    } else {
+        // Full-screen rendering: PlanningScreen with map, overlays, controls
+        PlanningScreen(
+            state = mockState,
+            onMenuTap = onMenuTap,
+            onCollapse = {
+                onCollapse()
+                viewModel.requestCancel()
+            },
+            onFilter = onFilter,
+            onDismissCancelConfirm = {
+                onDismissCancelConfirm()
+                viewModel.dismissCancelConfirm()
+            },
+            onKeepPlanning = {
+                onKeepPlanning()
+                viewModel.dismissCancelConfirm()
+            },
+            onCancelPlan = {
+                onCancelPlan()
+                viewModel.confirmCancel()
+            },
+            mapContent = { planningState: MockPlanningScreenState ->
+                com.laneshadow.ui.atoms.LSMap(
+                    mode = com.laneshadow.ui.atoms.MapMode.Preview,
+                    camera = com.laneshadow.ui.atoms.CameraPosition(
+                        center = planningState.sketchRoute?.firstOrNull() ?: com.laneshadow.ui.atoms.LatLng(0.0, 0.0),
+                        zoom = 11.0,
+                    ),
+                    modifier = Modifier.testTag("planning.map-host-instance"),
                 )
-            }
-        } },
-    )
+                // MapSketchAnimationLayer: overlay composable for animated sketch polyline
+                // Driven by state.sketchRoute; animates path-draw progress from 0→1 (1400ms loop)
+                if (planningState.sketchRoute != null) {
+                    com.laneshadow.ui.atoms.MapSketchAnimationLayer(
+                        path = planningState.sketchRoute,
+                        modifier = Modifier.testTag("planning.sketch-animation-layer"),
+                    )
+                }
+            },
+        )
+    }
 }
