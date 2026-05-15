@@ -29,7 +29,7 @@ final class MapSketchAnimationLayerTests {
     func test_pathPoints_renderedInOrder() throws {
         let src = try source()
         #expect(src.contains("path.move(to: pathPoints[0])"), "Path must start at first point")
-        let regex = #"for i in 1\s*\.\.<\s*pathPoints\.count"#
+        let regex = #"for index in 1\s*\.\.<\s*pathPoints\.count"#
         #expect(src.range(of: regex, options: .regularExpression) != nil,
                 "Path must traverse remaining points in order")
         let hasPositioning = src.contains("position(lastPoint)")

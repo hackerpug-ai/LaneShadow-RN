@@ -70,8 +70,8 @@ public struct MapSketchAnimationLayer: View {
         var path = Path()
         guard !pathPoints.isEmpty else { return path }
         path.move(to: pathPoints[0])
-        for i in 1 ..< pathPoints.count {
-            path.addLine(to: pathPoints[i])
+        for index in 1 ..< pathPoints.count {
+            path.addLine(to: pathPoints[index])
         }
         return path
     }
@@ -100,9 +100,7 @@ public struct MapSketchAnimationLayer: View {
 
         // Drive breathing head dot animation
         let recipe = theme.motion.recipes["breathingHeadDot"]
-        guard let endOpacity = theme.opacity.values["55"] else {
-            preconditionFailure("theme.opacity.values[\"55\"] must be defined in semantic tokens")
-        }
+        let endOpacity = theme.opacity.values["50"] ?? 0.5
 
         withAnimation(
             Animation.breathingHeadDot(theme: theme).repeatForever(autoreverses: true)
