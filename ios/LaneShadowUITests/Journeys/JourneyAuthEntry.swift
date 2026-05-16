@@ -60,20 +60,23 @@ final class JourneyAuthEntry: XCTestCase {
         // Tap Create Account to enter sign-up flow
         try tapElement("auth.signUp.entry")
 
-        // Assert sign-up form fields appear: email, password, name
+        // Wait for sign-up screen to load (may have loading state on first render)
+        // After tapping "Create Account", we navigate to SignUpScreen which creates
+        // a new AuthScreenViewModel. Wait for the signup email field to appear.
         XCTAssertTrue(
             element("auth.signUp.email").waitForExistence(timeout: 15),
-            "Expected sign-up email field to appear."
+            "Expected sign-up email field to appear after navigating to sign-up screen."
+        )
+
+        // The name and password fields should appear alongside the email field in newUser mode
+        XCTAssertTrue(
+            element("auth.signUp.name").waitForExistence(timeout: 5),
+            "Expected sign-up name field to appear."
         )
 
         XCTAssertTrue(
             element("auth.signUp.password").waitForExistence(timeout: 5),
             "Expected sign-up password field to appear."
-        )
-
-        XCTAssertTrue(
-            element("auth.signUp.name").waitForExistence(timeout: 5),
-            "Expected sign-up name field to appear."
         )
 
         attachScreenshot(named: "auth-02-signup-form")
