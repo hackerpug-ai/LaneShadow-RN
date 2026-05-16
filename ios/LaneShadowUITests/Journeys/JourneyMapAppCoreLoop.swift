@@ -46,7 +46,7 @@ final class JourneyMapAppCoreLoop: XCTestCase {
 
     // MARK: - Main Journey Test (steps 01-12 sequential)
 
-    func testMapAppCoreLoopJourney() throws {
+    func testMapAppCoreLoopJourney() {
         var mapIdentityAtStart: String?
 
         // MARK: Step 01 — Launch and capture map identity
@@ -78,6 +78,7 @@ final class JourneyMapAppCoreLoop: XCTestCase {
         var currentIdentity: String?
 
         // MARK: Step 02 — REMOVED (Convex JWT bridge rejects bypass tokens)
+
         // Per user instruction: incomplete tests are removed, not skipped.
         // When Convex JWT bridge is fixed, reinstate step 02:
         // - Assert LSTopBar headline (greeting) non-empty
@@ -119,10 +120,12 @@ final class JourneyMapAppCoreLoop: XCTestCase {
         add(screen03)
 
         // MARK: Step 04 — REMOVED (depends on Convex-provided suggestion chips from Step 02)
+
         // If step 02 suggestion chips are present after Convex JWT fix,
         // tap first chip and assert LSChatInput field is populated with chip label.
 
         // MARK: Steps 05-12 — REMOVED (Convex JWT bridge prevents chat input from appearing)
+
         // Steps 02, 04, 05 depend on Convex-provided greeting/suggestions/planning flow.
         // The Convex JWT bridge issue blocks this entire downstream path.
         // When the Convex JWT bridge is fixed to accept bypass tokens:
@@ -145,6 +148,7 @@ final class JourneyMapAppCoreLoop: XCTestCase {
         )
 
         // MARK: Steps 06-12 — REMOVED (depend on Steps 05+, which are blocked)
+
         // These steps require the planning state (Step 05), which fails due to Convex JWT bridge issue.
         // When the Convex JWT bridge is fixed and Step 05 completes:
         // - Steps 06-08: Test route results state and Mapbox polyline selection (Sprint 09)
