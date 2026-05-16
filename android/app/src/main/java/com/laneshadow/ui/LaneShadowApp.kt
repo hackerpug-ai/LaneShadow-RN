@@ -108,10 +108,15 @@ class AuthViewModel @Inject constructor(
      */
     fun e2eBypassWithCredentials() {
         viewModelScope.launch {
-            authRepository.e2eBypassWithCredentials(
-                email = com.laneshadow.BuildConfig.CLERK_TEST_EMAIL,
-                password = com.laneshadow.BuildConfig.CLERK_TEST_PASSWORD,
-            )
+            try {
+                authRepository.e2eBypassWithCredentials(
+                    email = com.laneshadow.BuildConfig.CLERK_TEST_EMAIL,
+                    password = com.laneshadow.BuildConfig.CLERK_TEST_PASSWORD,
+                )
+            } catch (error: Exception) {
+                // Log the exception; it will be reflected in the authState
+                android.util.Log.e(TAG, "E2E bypass failed", error)
+            }
         }
     }
 }
@@ -173,3 +178,5 @@ fun SplashScreen() {
         )
     }
 }
+
+private const val TAG = "AuthViewModel"

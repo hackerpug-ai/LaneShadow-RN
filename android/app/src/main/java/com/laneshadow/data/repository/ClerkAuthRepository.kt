@@ -153,9 +153,14 @@ class ClerkAuthRepository @Inject constructor(
             authState.value = AuthState.Error(error.message ?: "E2E credentials unavailable")
             return Result.failure(error)
         }
-        restoreJob.join()
-        authState.value = AuthState.Loading
-        return handlePrimaryResult(clerkGateway.signIn(email, password))
+        try {
+            restoreJob.join()
+            authState.value = AuthState.Loading
+            return handlePrimaryResult(clerkGateway.signIn(email, password))
+        } catch (error: Exception) {
+            authState.value = AuthState.Error(error.message ?: "E2E bypass failed")
+            return Result.failure(error)
+        }
     }
 
     override fun observeAuthState(): StateFlow<AuthState> = authState.asStateFlow()
