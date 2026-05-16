@@ -42,8 +42,12 @@ class E2EBypassAuthTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val tokenStore = EncryptedTokenStore(context)
 
+        // NOTE: do NOT add FLAG_ACTIVITY_NEW_TASK / FLAG_ACTIVITY_CLEAR_TASK here.
+        // ActivityScenario manages its own task; those flags conflict with that
+        // contract and cause the instrumentation harness to report the activity
+        // as crashed even though the app itself launches cleanly via `adb shell
+        // am start` with the same extras. Verified 2026-05-16.
         val intent = Intent(context, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             putExtra(EXTRA_RESET_AUTH, true)
             putExtra(EXTRA_E2E_BYPASS_AUTH, true)
         }
