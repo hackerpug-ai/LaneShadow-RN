@@ -568,11 +568,8 @@ final class LaneShadowConvexClient: @unchecked Sendable {
     }
 
     func setAuth(clerkJWTProvider: any LaneShadowClerkJWTProviding) async {
-        NSLog("🟪 LaneShadowConvexClient.setAuth(clerkJWTProvider:): installing token provider")
         await authProvider.setAuthTokenProvider { @MainActor in
-            NSLog("🟪 LaneShadowConvexClient: tokenProvider invoked → calling convexJWT")
             let token = try await clerkJWTProvider.convexJWT()
-            NSLog("🟪 LaneShadowConvexClient: tokenProvider got \(token != nil ? "<token>" : "nil")")
             return token
         }
         // Replacing the token provider on the auth box doesn't make
