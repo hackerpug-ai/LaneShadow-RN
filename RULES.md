@@ -175,9 +175,11 @@ Agents and reviewers must run all applicable checks for the platform they are wo
 
 Human testing gates for **non-sandbox code** must include real-device E2E steps. This applies to live app flows such as auth, Convex subscriptions/mutations, Mapbox rendering, persistence, location, offline data, and external-service integration. Simulator/emulator checks can support the gate, but they do not replace real-device evidence for non-sandbox behavior.
 
-LaneShadow's iOS real-device automation pattern is native XCUITest through `xcodebuild test` on a physical iPhone. The canonical automated iOS PASS path is email/password auth using `CLERK_TEST_EMAIL` and `CLERK_TEST_PASSWORD` from `.env.local`; XCTest `.xcresult`, attached screenshots, and xcodebuild logs under `ios/build/` are the evidence. See [`docs/REAL_DEVICE_E2E.md`](docs/REAL_DEVICE_E2E.md) for setup, result artifacts, and expectations.
+LaneShadow's iOS real-device automation pattern is native XCUITest through `xcodebuild test` on a physical iPhone. The canonical automated iOS PASS path is `JourneyAuthEntry/step01_authScreenRendersWithEntryPoints` (auth surface verification) plus `E2EBypassAuthTests/testE2EBypassAuthReachesMapApp` (bypass-to-MapApp landing); both use `CLERK_TEST_EMAIL` and `CLERK_TEST_PASSWORD` from `.env.local`. XCTest `.xcresult`, attached screenshots, and xcodebuild logs under `ios/build/` are the evidence. See [`docs/REAL_DEVICE_E2E.md`](docs/REAL_DEVICE_E2E.md) for the full journey suite, launch argument schema, and current scope (incl. steps deferred behind Sprint 09/10/11 and the Convex JWT bridge).
 
-Until Android has an equivalent physical-device automation harness, Android-only real-device observations must be recorded as MANUAL or BLOCKED with exact evidence instructions. Do not mark Android-only steps PASS from iOS evidence.
+Tests follow the **"remove don't skip" protocol** — incomplete or flaky steps are removed from the suite, not marked `XCTSkip` / `@Ignore`. Legacy `AuthRegistrationE2ETests` and `AuthSignInE2ETests` remain in place pending fold-in to `JourneyAuthEntry`.
+
+Until Android has an equivalent physical-device automation harness, Android-only real-device observations must be recorded as MANUAL or BLOCKED with exact evidence instructions. Do not mark Android-only steps PASS from iOS evidence. Android's bypass code (`ClerkAuthRepository.e2eBypassWithCredentials`, `EXTRA_E2E_BYPASS_AUTH` intent extra) is shipped and verified via manual `adb shell am start`; the corresponding automated `E2EBypassAuthTest` was removed as flaky on the current emulator harness.
 
 ---
 
