@@ -17,29 +17,28 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Verifies that EXTRA_E2E_BYPASS_AUTH produces a real Convex JWT via silent auth:
+ * Phase 0 proof-of-correctness: EXTRA_E2E_BYPASS_AUTH must establish a real
+ * Clerk session (no UI dance) and land the user at MapApp's idle screen.
  *
- * - When MainActivity is launched with EXTRA_E2E_BYPASS_AUTH=true AND
- *   BuildConfig.DEBUG, the app performs Clerk silent-auth using
- *   CLERK_TEST_EMAIL and CLERK_TEST_PASSWORD from BuildConfig.
+ * Asserts:
+ * - MapApp idle screen renders (testTag "idlescreen")
+ * - TokenStore JWT is NOT the stub "ui-test-jwt" (proves e2e path taken,
+ *   not the bypassForTesting() sandbox path)
+ * - TokenStore JWT is non-null/blank (real JWT present)
  *
- * - After successful authentication, authState transitions to SignedIn with
- *   a real user (not synthetic), and MapApp renders with testTag "idlescreen".
- *
- * - The JWT saved to TokenStore is a real Convex-signed token, NOT the stub
- *   "ui-test-jwt" used by bypassForTesting().
- *
- * - This proves that Convex queries will succeed (no 401 from stub token).
- *   The test waits for a Convex-driven greeting element to render as proof.
+ * Out of scope (intentionally):
+ * - Convex queries succeeding with the JWT (J2 MapApp Core Loop will assert
+ *   Convex-driven content separately)
+ * - Auth UI flow itself (owned by Clerk)
  */
 @RunWith(AndroidJUnit4::class)
-class E2EBypassConvexJwtTest {
+class E2EBypassAuthTest {
 
     @get:Rule
     val composeRule = createEmptyComposeRule()
 
     @Test
-    fun e2eBypassAuthProducesRealConvexJwt() {
+    fun e2eBypassAuthReachesMapApp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val tokenStore = EncryptedTokenStore(context)
 
@@ -50,31 +49,21 @@ class E2EBypassConvexJwtTest {
         }
 
         ActivityScenario.launch<MainActivity>(intent).use {
-            // Wait for MapApp to render with idlescreen tag
+            // Wait for MapApp idle screen — proves bypass landed authenticated.
             composeRule.waitUntil(timeoutMillis = 60_000) {
                 composeRule.onAllNodes(hasTestTag("idlescreen"), useUnmergedTree = true)
                     .fetchSemanticsNodes()
                     .isNotEmpty()
             }
 
-            // Verify JWT is NOT the stub token (this would mean bypassForTesting() was used)
+            // Prove the e2e bypass path was taken (not the sandbox stub path).
             val jwt = runBlocking { tokenStore.readJwt() }
             check(jwt != "ui-test-jwt") {
-                "Expected real Convex JWT, but got stub token 'ui-test-jwt'. " +
+                "Expected real Clerk JWT, but got stub token 'ui-test-jwt'. " +
                     "E2E bypass must use Clerk silent-auth, not bypassForTesting()."
             }
-
-            // Verify JWT is not null/blank (real JWT exists)
             check(!jwt.isNullOrBlank()) {
                 "Expected real JWT after e2e bypass, but TokenStore returned null/blank"
-            }
-
-            // Wait for Convex-driven greeting element to render as proof that
-            // queries succeeded with the real JWT (no 401 errors)
-            composeRule.waitUntil(timeoutMillis = 30_000) {
-                composeRule.onAllNodes(hasTestTag("idlescreen-current-user-greeting"), useUnmergedTree = true)
-                    .fetchSemanticsNodes()
-                    .isNotEmpty()
             }
         }
     }
