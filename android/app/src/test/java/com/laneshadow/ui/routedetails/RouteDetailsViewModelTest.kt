@@ -352,6 +352,8 @@ class RouteDetailsViewModelTest {
 
         override suspend fun bypassForTesting(): Result<ClerkUser> = unsupported()
 
+        override suspend fun e2eBypassWithCredentials(email: String, password: String): Result<ClerkUser> = unsupported()
+
         override fun observeAuthState(): kotlinx.coroutines.flow.StateFlow<AuthState> = authState
 
         private fun <T> unsupported(): Result<T> =

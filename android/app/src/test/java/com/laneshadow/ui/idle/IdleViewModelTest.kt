@@ -764,6 +764,8 @@ class IdleViewModelTest {
             override suspend fun getJwtForConvex(): String = "test-jwt"
             override suspend fun bypassForTesting(): Result<com.laneshadow.data.model.ClerkUser> =
                 Result.failure(UnsupportedOperationException())
+            override suspend fun e2eBypassWithCredentials(email: String, password: String): Result<com.laneshadow.data.model.ClerkUser> =
+                Result.failure(UnsupportedOperationException())
             override fun observeAuthState(): kotlinx.coroutines.flow.StateFlow<com.laneshadow.data.model.AuthState> =
                 kotlinx.coroutines.flow.MutableStateFlow(com.laneshadow.data.model.AuthState.SignedIn(
                     com.laneshadow.data.model.ClerkUser("id", "test@example.com", "Test", "token")
