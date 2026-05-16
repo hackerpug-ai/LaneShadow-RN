@@ -96,22 +96,54 @@ class AuthViewModel @Inject constructor(
             authRepository.bypassForTesting()
         }
     }
+
+    /**
+     * E2E-test-only silent auth using real Clerk credentials from BuildConfig.
+     * Produces a real Convex JWT suitable for E2E testing that exercises the
+     * full auth flow and Convex integration.
+     *
+     * Caller is responsible for gating this on [BuildConfig.DEBUG] and the
+     * EXTRA_E2E_BYPASS_AUTH intent extra; the repository will additionally
+     * refuse to do anything in release builds.
+     */
+    fun e2eBypassWithCredentials() {
+        viewModelScope.launch {
+            try {
+                authRepository.e2eBypassWithCredentials(
+                    email = com.laneshadow.BuildConfig.CLERK_TEST_EMAIL,
+                    password = com.laneshadow.BuildConfig.CLERK_TEST_PASSWORD,
+                )
+            } catch (error: Exception) {
+                // Log the exception; it will be reflected in the authState
+                android.util.Log.e(TAG, "E2E bypass failed", error)
+            }
+        }
+    }
 }
 
 @Composable
 fun LaneShadowApp(
     resetAuthOnLaunch: Boolean = false,
     uiTestBypassEnabled: Boolean = false,
+    e2eBypassEnabled: Boolean = false,
     authViewModel: AuthViewModel = hiltViewModel(),
 ) {
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val navController = rememberNavController()
     var didResetAuth by remember(resetAuthOnLaunch) { mutableStateOf(false) }
+    var didE2EBypass by remember(e2eBypassEnabled) { mutableStateOf(false) }
 
     LaunchedEffect(resetAuthOnLaunch) {
         if (resetAuthOnLaunch && !didResetAuth) {
             didResetAuth = true
             authViewModel.signOut()
+        }
+    }
+
+    LaunchedEffect(e2eBypassEnabled) {
+        if (e2eBypassEnabled && !didE2EBypass) {
+            didE2EBypass = true
+            authViewModel.e2eBypassWithCredentials()
         }
     }
 
@@ -146,3 +178,5 @@ fun SplashScreen() {
         )
     }
 }
+
+private const val TAG = "AuthViewModel"

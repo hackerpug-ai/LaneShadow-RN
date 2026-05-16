@@ -252,6 +252,9 @@ private class FakeAuthRepository : AuthRepository {
     override suspend fun bypassForTesting(): Result<ClerkUser> =
         Result.failure(UnsupportedOperationException("not needed in this test"))
 
+    override suspend fun e2eBypassWithCredentials(email: String, password: String): Result<ClerkUser> =
+        Result.failure(UnsupportedOperationException("not needed in this test"))
+
     override fun observeAuthState(): StateFlow<AuthState> = authStateFlow
 }
 

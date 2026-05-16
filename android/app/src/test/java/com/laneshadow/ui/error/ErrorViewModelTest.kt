@@ -204,6 +204,9 @@ class ErrorViewModelTest {
         override suspend fun bypassForTesting(): Result<ClerkUser> =
             Result.failure(UnsupportedOperationException())
 
+        override suspend fun e2eBypassWithCredentials(email: String, password: String): Result<ClerkUser> =
+            Result.failure(UnsupportedOperationException())
+
         override fun observeAuthState(): StateFlow<AuthState> = authState
     }
 

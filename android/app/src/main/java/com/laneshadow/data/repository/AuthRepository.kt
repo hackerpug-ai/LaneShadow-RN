@@ -23,5 +23,18 @@ interface AuthRepository {
      */
     suspend fun bypassForTesting(): Result<ClerkUser>
 
+    /**
+     * Performs real silent authentication with Clerk using provided credentials,
+     * returning a real Convex JWT suitable for E2E testing that exercises full
+     * auth flow and Convex integration (no stub token, no synthetic user).
+     *
+     * Implementations must refuse to operate in release builds.
+     * If credentials are blank or unavailable, throws IllegalStateException.
+     *
+     * @param email Test account email (from BuildConfig.CLERK_TEST_EMAIL)
+     * @param password Test account password (from BuildConfig.CLERK_TEST_PASSWORD)
+     */
+    suspend fun e2eBypassWithCredentials(email: String, password: String): Result<ClerkUser>
+
     fun observeAuthState(): StateFlow<AuthState>
 }
