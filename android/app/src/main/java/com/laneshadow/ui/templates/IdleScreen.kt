@@ -117,11 +117,16 @@ fun IdleScreen(
         onNewTap()
     }
 
-    LSMapLayer(
-        map = {
-            mapContent(state)
-        },
-        topOverlays = listOf(
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag("idlescreen"),
+    ) {
+        LSMapLayer(
+            map = {
+                mapContent(state)
+            },
+            topOverlays = listOf(
             com.laneshadow.ui.organisms.GlassOverlaySlot(
                 id = "map-controls",
                 content = {
@@ -217,6 +222,7 @@ fun IdleScreen(
         },
         modifier = modifier.fillMaxSize(),
     )
+    }
 }
 
 /**
