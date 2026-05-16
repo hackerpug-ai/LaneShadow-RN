@@ -1,3 +1,4 @@
+import Clerk
 import Foundation
 
 /// DEBUG-only handler for E2E testing: performs silent sign-in using test credentials
