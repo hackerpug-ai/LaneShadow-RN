@@ -26,14 +26,19 @@ enum E2EBypassHandler {
         convexClient: LaneShadowConvexClient,
         appState: AppState
     ) async throws {
+        NSLog("🔵 E2EBypass.performSilentSignIn: enter")
         let environment = ProcessInfo.processInfo.environment
         let testEmail = environment["CLERK_TEST_EMAIL"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let testPassword = environment["CLERK_TEST_PASSWORD"]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
+        NSLog("🔵 E2EBypass: email present=\(!testEmail.isEmpty) password present=\(!testPassword.isEmpty)")
+
         guard !testEmail.isEmpty else {
+            NSLog("❌ E2EBypass: missing CLERK_TEST_EMAIL")
             throw E2EBypassError.missingTestEmail
         }
         guard !testPassword.isEmpty else {
+            NSLog("❌ E2EBypass: missing CLERK_TEST_PASSWORD")
             throw E2EBypassError.missingTestPassword
         }
 
