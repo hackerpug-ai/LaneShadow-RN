@@ -15,6 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 const val EXTRA_RESET_AUTH = "com.laneshadow.extra.RESET_AUTH"
 const val EXTRA_BYPASS_AUTH = "com.laneshadow.extra.BYPASS_AUTH"
+const val EXTRA_E2E_BYPASS_AUTH = "com.laneshadow.extra.E2E_BYPASS_AUTH"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
                     LaneShadowApp(
                         resetAuthOnLaunch = shouldResetAuthForTesting(currentIntent),
                         uiTestBypassEnabled = shouldBypassAuthForTesting(currentIntent),
+                        e2eBypassEnabled = shouldE2EBypassAuthForTesting(currentIntent),
                     )
                 }
             }
@@ -65,4 +67,7 @@ class MainActivity : ComponentActivity() {
 
     private fun shouldBypassAuthForTesting(intent: Intent?): Boolean =
         BuildConfig.DEBUG && intent?.getBooleanExtra(EXTRA_BYPASS_AUTH, false) == true
+
+    private fun shouldE2EBypassAuthForTesting(intent: Intent?): Boolean =
+        BuildConfig.DEBUG && intent?.getBooleanExtra(EXTRA_E2E_BYPASS_AUTH, false) == true
 }

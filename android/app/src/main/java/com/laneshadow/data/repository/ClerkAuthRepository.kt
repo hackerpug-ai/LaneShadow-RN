@@ -141,6 +141,23 @@ class ClerkAuthRepository @Inject constructor(
         return Result.success(syntheticUser)
     }
 
+    override suspend fun e2eBypassWithCredentials(email: String, password: String): Result<ClerkUser> {
+        if (!BuildConfig.DEBUG) {
+            return Result.failure(IllegalStateException("e2eBypassWithCredentials is debug-only"))
+        }
+        if (email.isBlank() || password.isBlank()) {
+            val error = IllegalStateException(
+                "E2E bypass requires CLERK_TEST_EMAIL and CLERK_TEST_PASSWORD in BuildConfig. " +
+                    "Set these via gradle.properties or environment variables."
+            )
+            authState.value = AuthState.Error(error.message ?: "E2E credentials unavailable")
+            return Result.failure(error)
+        }
+        restoreJob.join()
+        authState.value = AuthState.Loading
+        return handlePrimaryResult(clerkGateway.signIn(email, password))
+    }
+
     override fun observeAuthState(): StateFlow<AuthState> = authState.asStateFlow()
 
     private suspend fun restorePersistedSession() {

@@ -127,6 +127,8 @@ android {
         buildConfigField("String", "CLERK_PUBLISHABLE_KEY", "\"${asBuildConfigString(readEnvValue("CLERK_PUBLISHABLE_KEY", "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"))}\"")
         buildConfigField("String", "CLERK_OAUTH_START_URL", "\"${asBuildConfigString(readEnvValue("CLERK_OAUTH_START_URL"))}\"")
         buildConfigField("String", "CLERK_OAUTH_REDIRECT_URI", "\"laneshadow://oauth-callback\"")
+        buildConfigField("String", "CLERK_TEST_EMAIL", "\"${asBuildConfigString(readEnvValue("CLERK_TEST_EMAIL"))}\"")
+        buildConfigField("String", "CLERK_TEST_PASSWORD", "\"${asBuildConfigString(readEnvValue("CLERK_TEST_PASSWORD"))}\"")
     }
 
     buildTypes {

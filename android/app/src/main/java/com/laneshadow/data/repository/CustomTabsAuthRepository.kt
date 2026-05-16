@@ -117,6 +117,9 @@ class CustomTabsAuthRepository @Inject constructor(
         return Result.success(syntheticUser)
     }
 
+    override suspend fun e2eBypassWithCredentials(email: String, password: String): Result<ClerkUser> =
+        Result.failure(IllegalStateException("E2E bypass is handled by ClerkAuthRepository"))
+
     override fun observeAuthState(): StateFlow<AuthState> = authState.asStateFlow()
 
     private suspend fun launchOAuth(provider: String): Result<ClerkUser> {
