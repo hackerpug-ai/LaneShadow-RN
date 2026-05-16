@@ -82,6 +82,12 @@ struct RootView: View {
                     convexClient: appEnvironment.convexClient
                 )
                 NSLog("🟣 RootView.task: resetAuth didRun=\(didReset)")
+                let didBypass = await e2eBypassAuthIfNeeded(
+                    clerkAuth: appEnvironment.clerkAuth,
+                    convexClient: appEnvironment.convexClient,
+                    appState: appState
+                )
+                NSLog("🟣 RootView.task: e2eBypass didRun=\(didBypass)")
             #endif
             await synchronizeAuthentication()
             NSLog("🟣 RootView.task: synchronizeAuthentication done; hasClerkSession=\(appState.hasClerkSession)")
@@ -185,6 +191,10 @@ struct RootView: View {
 
         static func shouldEnableE2ESignInForUITesting(arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
             arguments.contains("-LaneShadowUITestE2E")
+        }
+
+        static func shouldRunE2EBypassAuth(arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
+            arguments.contains("-LaneShadowE2EBypassAuth")
         }
 
         private func createDirectIdleViewModel() -> IdleViewModel {
@@ -318,6 +328,32 @@ struct RootView: View {
             // If no session exists, no need to sign out — Clerk is already in
             // signed-out state and ready for a fresh sign-in.
             return true
+        }
+
+        func e2eBypassAuthIfNeeded(
+            clerkAuth: ClerkAuth,
+            convexClient: LaneShadowConvexClient,
+            appState: AppState
+        ) async -> Bool {
+            let args = ProcessInfo.processInfo.arguments
+            let shouldBypass = Self.shouldRunE2EBypassAuth(arguments: args)
+            NSLog("🟣 RootView.e2eBypassAuthIfNeeded: shouldBypass=\(shouldBypass) args=\(args)")
+
+            guard shouldBypass else {
+                return false
+            }
+
+            do {
+                try await E2EBypassHandler.performSilentSignIn(
+                    clerkAuth: clerkAuth,
+                    convexClient: convexClient,
+                    appState: appState
+                )
+                NSLog("🟣 RootView.e2eBypass: silent sign-in succeeded")
+                return true
+            } catch {
+                fatalError("E2E bypass auth failed (DEBUG-only path): \(error.localizedDescription)")
+            }
         }
     #endif
 }

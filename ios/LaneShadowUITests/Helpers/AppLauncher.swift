@@ -9,6 +9,7 @@ enum AppLauncher {
         resetAuth: Bool = false,
         bypassAuth: Bool = false,
         e2eSignIn: Bool = false,
+        e2eBypassAuth: Bool = false,
         directIdleScreen: Bool = false,
         idleVariant: String? = nil,
         focusLatencyProbe: Bool = false
@@ -31,6 +32,9 @@ enum AppLauncher {
         }
         if e2eSignIn {
             arguments.append("-LaneShadowUITestE2E")
+        }
+        if e2eBypassAuth {
+            arguments.append("-LaneShadowE2EBypassAuth")
         }
         if directIdleScreen {
             arguments.append("-DirectIdleScreenUITest")
