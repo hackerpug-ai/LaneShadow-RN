@@ -29,6 +29,15 @@ final class MapAppViewModel {
         idleViewModel: IdleViewModel
     ) {
         self.idleViewModel = idleViewModel
+
+        #if DEBUG
+            // DEBUG-only: Check for launch-argument state injection
+            let injectedState = Self.injectedInitialState()
+            if let injectedState {
+                currentState = injectedState
+            }
+        #endif
+
         setupIdleTransitionObserver()
     }
 
@@ -102,4 +111,59 @@ final class MapAppViewModel {
         // we instead observe state changes and wire the transition automatically
         // via the change observer in MapApp itself.
     }
+
+    // MARK: - DEBUG: Launch Argument State Injection
+
+    #if DEBUG
+        /// Parse launch arguments for MapAppState injection parameters.
+        /// Returns a MapAppState to apply on init, or nil if no injection args are present.
+        ///
+        /// Expected arguments:
+        /// - `.idle`: `-MapAppState=idle`
+        /// - `.planning(sessionId)`: `-MapAppState=planning -SessionId=<sessionId>`
+        /// - `.routeResults(sessionId, routePlanId)`: `-MapAppState=routeResults -SessionId=<sessionId>
+        /// -RoutePlanId=<routePlanId>`
+        ///
+        /// Used exclusively for UITests that need to land at non-idle states
+        /// without traversing the full planning flow. Only active when `-MapAppState` arg is present.
+        static func injectedInitialState(from args: [String] = ProcessInfo.processInfo.arguments) -> MapAppState? {
+            guard let stateArg = args.first(where: { $0.hasPrefix("-MapAppState=") }) else {
+                return nil
+            }
+
+            let stateValue = stateArg.replacingOccurrences(of: "-MapAppState=", with: "")
+
+            switch stateValue {
+            case "idle":
+                return .idle
+            case "planning":
+                guard let sessionId = args.first(where: { $0.hasPrefix("-SessionId=") })
+                    .map({ $0.replacingOccurrences(of: "-SessionId=", with: "") })
+                else {
+                    NSLog("🔴 MapAppViewModel.injectedInitialState: planning state requested but SessionId arg missing")
+                    return nil
+                }
+                NSLog("🟢 MapAppViewModel.injectedInitialState: planning state injected with sessionId=\(sessionId)")
+                return .planning(sessionId: sessionId)
+            case "routeResults":
+                guard let sessionId = args.first(where: { $0.hasPrefix("-SessionId=") })
+                    .map({ $0.replacingOccurrences(of: "-SessionId=", with: "") }),
+                    let routePlanId = args.first(where: { $0.hasPrefix("-RoutePlanId=") })
+                    .map({ $0.replacingOccurrences(of: "-RoutePlanId=", with: "") })
+                else {
+                    NSLog(
+                        "🔴 MapAppViewModel.injectedInitialState: routeResults state requested but SessionId or RoutePlanId arg missing"
+                    )
+                    return nil
+                }
+                NSLog(
+                    "🟢 MapAppViewModel.injectedInitialState: routeResults state injected with sessionId=\(sessionId) routePlanId=\(routePlanId)"
+                )
+                return .routeResults(sessionId: sessionId, routePlanId: routePlanId)
+            default:
+                NSLog("🔴 MapAppViewModel.injectedInitialState: unknown MapAppState value: \(stateValue)")
+                return nil
+            }
+        }
+    #endif
 }
