@@ -373,7 +373,7 @@ private struct AuthenticatedMapAppView: View {
             sessionStore: environment.sessionStore,
             convexClient: environment.convexClient,
             appState: appState,
-            onSessionStarted: { _ in }  // Callback will be captured below
+            onSessionStarted: { _ in } // Callback will be captured below
         )
 
         let mapAppVM = MapAppViewModel(idleViewModel: idleViewModel)
