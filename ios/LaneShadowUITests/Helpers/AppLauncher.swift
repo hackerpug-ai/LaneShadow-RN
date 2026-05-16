@@ -12,7 +12,8 @@ enum AppLauncher {
         e2eBypassAuth: Bool = false,
         directIdleScreen: Bool = false,
         idleVariant: String? = nil,
-        focusLatencyProbe: Bool = false
+        focusLatencyProbe: Bool = false,
+        mapAppState: MapAppStateInjectionParam? = nil
     ) {
         let shouldLaunchSandbox = sandbox || sandboxStoryId != nil
         app.launchEnvironment["LANESHADOW_LAUNCH_SANDBOX"] = shouldLaunchSandbox ? "1" : "0"
@@ -44,6 +45,9 @@ enum AppLauncher {
         }
         if focusLatencyProbe {
             arguments.append("-IdleFocusLatencyProbe")
+        }
+        if let mapAppState {
+            arguments.append(contentsOf: mapAppState.launchArguments)
         }
         app.launchArguments = arguments
         app.launch()
