@@ -116,7 +116,7 @@
 		22CF47A809462A646D139202 /* MotionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionTests.swift; sourceTree = "<group>"; };
 		2A8A1A8718DD88DF992F0D2D /* SessionsErrorVariantTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionsErrorVariantTests.swift; sourceTree = "<group>"; };
 		2AD9FE3FF6AC9085BE220085 /* LSConfirmDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSConfirmDialog.swift; sourceTree = "<group>"; };
-		307F61C56AD06224E9F93B51 /* LaneShadow.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LaneShadow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		307F61C56AD06224E9F93B51 /* LaneShadow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LaneShadow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3123362FBC613B11809CE348 /* LSChatInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LSChatInputTests.swift; sourceTree = "<group>"; };
 		324B26FB2DE3F759B489CB7B /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		3B4E8EF6472F1ABEBBC33DFB /* ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ios; path = "../../native-sandbox/ios"; sourceTree = SOURCE_ROOT; };
@@ -181,23 +181,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		58099F917373377216261552 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		58099F917373377216261552 /* Exceptions for "Atoms" folder in "LaneShadow" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Button.swift,
 			);
 			target = 99475776B313D476E98630D0 /* LaneShadow */;
 		};
-		7E44F89F8450061538E56AF9 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		7E44F89F8450061538E56AF9 /* Exceptions for "Templates" folder in "LaneShadowTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				__Snapshots__/ErrorScreenTests,
 				__Snapshots__/ErrorScreenTests/dark_mode_snapshot.1.png,
 				__Snapshots__/ErrorScreenTests/default_renders_all_slots.1.png,
-				__Snapshots__/IdleScreenTests,
 				__Snapshots__/IdleScreenTests/idle_dark_mode.1.png,
 				__Snapshots__/IdleScreenTests/idle_default_renders.1.png,
-				__Snapshots__/PlanningScreenCompositionTests,
 				__Snapshots__/PlanningScreenCompositionTests/capsule_bindsViewModelHeadline.1.png,
 				__Snapshots__/PlanningScreenCompositionTests/chatInput_lockedWhenThinking.1.png,
 				__Snapshots__/PlanningScreenCompositionTests/indicator_bindsViewModelPhaseSteps.1.png,
@@ -205,7 +202,6 @@
 				__Snapshots__/PlanningScreenCompositionTests/planning_dark_renders.1.png,
 				__Snapshots__/PlanningScreenCompositionTests/planning_default_renders.1.png,
 				__Snapshots__/PlanningScreenCompositionTests/topOverlay_capsuleAboveIndicator.1.png,
-				__Snapshots__/PlanningScreenTests,
 				__Snapshots__/PlanningScreenTests/capsule_bindsViewModelHeadline.1.png,
 				__Snapshots__/PlanningScreenTests/chatInput_lockedWhenThinking.1.png,
 				__Snapshots__/PlanningScreenTests/indicator_bindsViewModelPhaseSteps.1.png,
@@ -213,13 +209,10 @@
 				__Snapshots__/PlanningScreenTests/planning_dark_renders.1.png,
 				__Snapshots__/PlanningScreenTests/planning_default_renders.1.png,
 				__Snapshots__/PlanningScreenTests/topOverlay_capsuleAboveIndicator.1.png,
-				__Snapshots__/RouteDetailsScreenTests,
 				__Snapshots__/RouteDetailsScreenTests/darkSnapshotMatchesBaseline.1.png,
 				__Snapshots__/RouteDetailsScreenTests/defaultSnapshotMatchesBaseline.1.png,
-				__Snapshots__/RouteResultsScreenTests,
 				__Snapshots__/RouteResultsScreenTests/routeResults_dark_mode.1.png,
 				__Snapshots__/RouteResultsScreenTests/routeResults_default_renders.1.png,
-				__Snapshots__/SessionsScreenTests,
 				__Snapshots__/SessionsScreenTests/sessions_dark_mode.1.png,
 				__Snapshots__/SessionsScreenTests/sessions_default_renders.1.png,
 				__Snapshots__/SessionsScreenTests/sticky_header_on_scroll.1.png,
@@ -231,336 +224,172 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		0AB6BCC041176229C63DBB62 /* Layout */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Layout;
 			path = Layout;
 			sourceTree = "<group>";
 		};
 		0B23304A78B886F9A286C5E4 /* Sandbox */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Sandbox;
 			path = Sandbox;
 			sourceTree = "<group>";
 		};
 		0E516A6442C2AA10AA5009F5 /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		10EF6247464B14DE9D738910 /* Views */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Views;
 			path = Views;
 			sourceTree = "<group>";
 		};
 		244E36879200004067F64629 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		3A78900A9AF373F5042A6135 /* Features */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Features;
 			path = Features;
 			sourceTree = "<group>";
 		};
 		3BC11B009ED26B33FC7A0333 /* Entry */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Entry;
 			path = Entry;
 			sourceTree = "<group>";
 		};
 		3CE2AE4772ABC9D4A3699741 /* MockProviders */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = MockProviders;
 			path = MockProviders;
 			sourceTree = "<group>";
 		};
 		4C8A8E02554AE3D5AC4FAC51 /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		537AF6CF40C4418539754A5D /* Services */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Services;
 			path = Services;
 			sourceTree = "<group>";
 		};
 		5B8A253F72C6B3D6A21D5422 /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Atoms;
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		5D43661EA5776DD985956D8D /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				7E44F89F8450061538E56AF9 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+				7E44F89F8450061538E56AF9 /* Exceptions for "Templates" folder in "LaneShadowTests" target */,
 			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		5EE6142BB2A44D9196BC822D /* Services */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Services;
 			path = Services;
 			sourceTree = "<group>";
 		};
 		688955BA957298D0AAE2948E /* AppFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = AppFlow;
 			path = AppFlow;
 			sourceTree = "<group>";
 		};
 		7290175E358A1C93D4A90231 /* Molecules */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Molecules;
 			path = Molecules;
 			sourceTree = "<group>";
 		};
 		755D85BE7B8692E8CCE9B7D0 /* Integration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Integration;
 			path = Integration;
 			sourceTree = "<group>";
 		};
 		7658177809845BD7EAFD2B5F /* Environment */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Environment;
 			path = Environment;
 			sourceTree = "<group>";
 		};
 		803C67E4953872CB5CCA0FA9 /* DesignSystem */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = DesignSystem;
 			path = DesignSystem;
 			sourceTree = "<group>";
 		};
 		8460D5ABD7FFE129DB373103 /* Models */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Models;
 			path = Models;
 			sourceTree = "<group>";
 		};
 		8C84A31BC52A60468625E45D /* AppFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = AppFlow;
 			path = AppFlow;
 			sourceTree = "<group>";
 		};
 		8E620526502629F2690FBBAE /* Utilities */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Utilities;
 			path = Utilities;
 			sourceTree = "<group>";
 		};
 		8F5AC0DC38D5B1239FAA340F /* AuthFlow */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = AuthFlow;
 			path = AuthFlow;
 			sourceTree = "<group>";
 		};
 		8FD0535A05FA37574620A6CA /* Helpers */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Helpers;
 			path = Helpers;
 			sourceTree = "<group>";
 		};
 		9B1969E887592C82E1672459 /* Launch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Launch;
 			path = Launch;
 			sourceTree = "<group>";
 		};
 		A1DA24033B9915EAB116ED62 /* Generated */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Generated;
 			path = Generated;
 			sourceTree = "<group>";
 		};
 		A8E49074235FCF05900AA173 /* LaneShadowUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
 			path = LaneShadowUITests;
 			sourceTree = "<group>";
 		};
 		B6F7522A945FCE6E9220905B /* Features */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Features;
 			path = Features;
 			sourceTree = "<group>";
 		};
 		B92913E9843A5845817A3DBD /* Controls */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Controls;
 			path = Controls;
 			sourceTree = "<group>";
 		};
 		C1C1554F3F09845975235612 /* Utilities */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Utilities;
 			path = Utilities;
 			sourceTree = "<group>";
 		};
 		CE8B4DF54243DD52953C7CFE /* Atoms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				58099F917373377216261552 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+				58099F917373377216261552 /* Exceptions for "Atoms" folder in "LaneShadow" target */,
 			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Atoms;
 			path = Atoms;
 			sourceTree = "<group>";
 		};
 		CF77ECAB776F34B039A160CA /* Templates */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Templates;
 			path = Templates;
 			sourceTree = "<group>";
 		};
 		D026D3B873FDE7B7153F206F /* Organisms */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Organisms;
 			path = Organisms;
 			sourceTree = "<group>";
 		};
 		E5E2F792F8318B064762B018 /* Theme */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			name = Theme;
 			path = Theme;
 			sourceTree = "<group>";
 		};
@@ -820,28 +649,28 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				688955BA957298D0AAE2948E /* AppFlow */,
-				8C84A31BC52A60468625E45D /* AppFlow */,
-				CE8B4DF54243DD52953C7CFE /* Atoms */,
-				8F5AC0DC38D5B1239FAA340F /* AuthFlow */,
-				B92913E9843A5845817A3DBD /* Controls */,
-				803C67E4953872CB5CCA0FA9 /* DesignSystem */,
-				3BC11B009ED26B33FC7A0333 /* Entry */,
-				7658177809845BD7EAFD2B5F /* Environment */,
-				B6F7522A945FCE6E9220905B /* Features */,
-				A1DA24033B9915EAB116ED62 /* Generated */,
-				9B1969E887592C82E1672459 /* Launch */,
 				0AB6BCC041176229C63DBB62 /* Layout */,
+				0E516A6442C2AA10AA5009F5 /* Templates */,
+				3BC11B009ED26B33FC7A0333 /* Entry */,
 				3CE2AE4772ABC9D4A3699741 /* MockProviders */,
-				8460D5ABD7FFE129DB373103 /* Models */,
-				7290175E358A1C93D4A90231 /* Molecules */,
-				D026D3B873FDE7B7153F206F /* Organisms */,
 				4C8A8E02554AE3D5AC4FAC51 /* Organisms */,
 				537AF6CF40C4418539754A5D /* Services */,
-				CF77ECAB776F34B039A160CA /* Templates */,
-				0E516A6442C2AA10AA5009F5 /* Templates */,
-				E5E2F792F8318B064762B018 /* Theme */,
+				688955BA957298D0AAE2948E /* AppFlow */,
+				7290175E358A1C93D4A90231 /* Molecules */,
+				7658177809845BD7EAFD2B5F /* Environment */,
+				803C67E4953872CB5CCA0FA9 /* DesignSystem */,
+				8460D5ABD7FFE129DB373103 /* Models */,
+				8C84A31BC52A60468625E45D /* AppFlow */,
 				8E620526502629F2690FBBAE /* Utilities */,
+				8F5AC0DC38D5B1239FAA340F /* AuthFlow */,
+				9B1969E887592C82E1672459 /* Launch */,
+				A1DA24033B9915EAB116ED62 /* Generated */,
+				B6F7522A945FCE6E9220905B /* Features */,
+				B92913E9843A5845817A3DBD /* Controls */,
+				CE8B4DF54243DD52953C7CFE /* Atoms */,
+				CF77ECAB776F34B039A160CA /* Templates */,
+				D026D3B873FDE7B7153F206F /* Organisms */,
+				E5E2F792F8318B064762B018 /* Theme */,
 			);
 			name = LaneShadow;
 			packageProductDependencies = (
@@ -891,16 +720,16 @@
 				8941639FFAFA7D11ED5FFFCC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				5B8A253F72C6B3D6A21D5422 /* Atoms */,
-				3A78900A9AF373F5042A6135 /* Features */,
-				8FD0535A05FA37574620A6CA /* Helpers */,
-				755D85BE7B8692E8CCE9B7D0 /* Integration */,
-				244E36879200004067F64629 /* Organisms */,
 				0B23304A78B886F9A286C5E4 /* Sandbox */,
-				5EE6142BB2A44D9196BC822D /* Services */,
-				5D43661EA5776DD985956D8D /* Templates */,
-				C1C1554F3F09845975235612 /* Utilities */,
 				10EF6247464B14DE9D738910 /* Views */,
+				244E36879200004067F64629 /* Organisms */,
+				3A78900A9AF373F5042A6135 /* Features */,
+				5B8A253F72C6B3D6A21D5422 /* Atoms */,
+				5D43661EA5776DD985956D8D /* Templates */,
+				5EE6142BB2A44D9196BC822D /* Services */,
+				755D85BE7B8692E8CCE9B7D0 /* Integration */,
+				8FD0535A05FA37574620A6CA /* Helpers */,
+				C1C1554F3F09845975235612 /* Utilities */,
 			);
 			name = LaneShadowTests;
 			packageProductDependencies = (
@@ -922,7 +751,6 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					99475776B313D476E98630D0 = {
-						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 					EBACC6C6C5C2526D42D8718B = {
@@ -1169,11 +997,14 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 37KW26GSN4;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LaneShadow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app;
 				SDKROOT = iphoneos;
@@ -1214,11 +1045,14 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 37KW26GSN4;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LaneShadow/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.laneshadow.app;
 				SDKROOT = iphoneos;

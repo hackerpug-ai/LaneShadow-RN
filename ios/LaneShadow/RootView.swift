@@ -9,7 +9,7 @@ struct RootView: View {
 
     @Bindable var convexStore: ConvexStore
     @State private var appState: AppState
-    @State private var hasBootstrappedAuth = true
+    @State private var hasBootstrappedAuth = false
     @Environment(\.appEnvironment) private var appEnvironment
     #if DEBUG
         @State private var didHandleUITestResetAuth = false
@@ -74,8 +74,6 @@ struct RootView: View {
                 clerkAuth: appEnvironment.clerkAuth,
                 convexClient: appEnvironment.convexClient
             )
-            hasBootstrappedAuth = true
-            NSLog("🟣 RootView.task: hasBootstrappedAuth set to true before auth restore")
             #if DEBUG
                 let didReset = await resetAuthForUITestingIfNeeded(
                     clerkAuth: appEnvironment.clerkAuth,
@@ -90,7 +88,11 @@ struct RootView: View {
                 NSLog("🟣 RootView.task: e2eBypass didRun=\(didBypass)")
             #endif
             await synchronizeAuthentication()
-            NSLog("🟣 RootView.task: synchronizeAuthentication done; hasClerkSession=\(appState.hasClerkSession)")
+            // Flip ONLY after auth is fully resolved so the route branch
+            // doesn't render AuthFlowView while hasClerkSession is still
+            // catching up. Eliminates the "auth screen flash" on launch.
+            hasBootstrappedAuth = true
+            NSLog("🟣 RootView.task: bootstrap complete; hasClerkSession=\(appState.hasClerkSession)")
         }
         .onChange(of: hasBootstrappedAuth) { _, newValue in
             NSLog("🟣 RootView.onChange: hasBootstrappedAuth=\(newValue)")
@@ -101,11 +103,7 @@ struct RootView: View {
     }
 
     private var authBootstrapPlaceholder: some View {
-        ZStack {
-            Color(.systemBackground).ignoresSafeArea()
-            ProgressView()
-        }
-        .accessibilityIdentifier("auth.bootstrap.loading")
+        BootstrapSplashView()
     }
 
     var activeFlow: ActiveFlow {

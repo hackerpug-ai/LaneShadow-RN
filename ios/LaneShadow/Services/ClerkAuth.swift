@@ -283,10 +283,28 @@ final class LiveClerkSDKClient: ClerkSDKClient {
 
     func restoreSession() async throws -> ClerkAuthUser? {
         try await clerk.load()
-        guard let user = clerk.user else {
-            return nil
+
+        // Race: clerk.load() can complete while clerk.user is briefly nil even
+        // though clerk.session exists. Poll for the user to populate before
+        // declaring no session (mirrors waitForCurrentUserAfterOAuthCallback).
+        for attempt in 0 ..< 12 {
+            if let user = clerk.user {
+                return ClerkAuthUser(id: user.id, email: user.primaryEmailAddress?.emailAddress)
+            }
+            if attempt < 11 {
+                try await Task.sleep(nanoseconds: 150_000_000)
+            }
         }
-        return ClerkAuthUser(id: user.id, email: user.primaryEmailAddress?.emailAddress)
+
+        // Orphaned session: load() succeeded, polling exhausted, but clerk.user
+        // never populated. If clerk.session is non-nil, the SDK thinks we're
+        // signed in but has no user data — and a subsequent sign-up will fail
+        // with "you're already signed in" without creating an account. Sign out
+        // to clean the state so the auth screen renders cleanly.
+        if clerk.session != nil {
+            try? await clerk.signOut()
+        }
+        return nil
     }
 
     func completeOAuthCallback(token: String) async throws -> ClerkAuthUser? {
