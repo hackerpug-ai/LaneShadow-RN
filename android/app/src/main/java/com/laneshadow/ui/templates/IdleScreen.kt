@@ -213,11 +213,12 @@ fun IdleScreen(
         },
         scrim = if (isMenuOpen) com.laneshadow.ui.organisms.ScrimSpec(opacity = 0.35f) else null,
         topBar = {
-            LSTopBar(
-                capsule = capsuleState,
-                trailing = TopBarTrailing.New(onTap = handleNewTap),
+            // LSIdleHeader sets its own testTag (LS_IDLE_HEADER_TAG = "ls-idle-header").
+            // Don't double-tag here or we'll match 2 nodes.
+            com.laneshadow.ui.molecules.LSIdleHeader(
+                capsuleState = capsuleState,
                 onMenuTap = handleMenuTap,
-                modifier = Modifier.testTag("ls-topbar"),
+                onNewTap = handleNewTap,
             )
         },
         modifier = modifier.fillMaxSize(),

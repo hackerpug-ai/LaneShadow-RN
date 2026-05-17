@@ -30,9 +30,10 @@ IdleScreen is the dormant-Navigator home — the first thing a rider sees when o
 | organism | `org-map-layer__top-overlay` | Greeting overlay slot — label row + opinion-serif headline |
 | organism | `org-map-layer__bottom-overlay` | ChatInput anchor slot — positioned bottom of canvas |
 | organism | `org-map-layer__bottom-sheet` | Filter sheet slot — presented on sliders tap |
-| organism | `org-topbar` | LSTopBar — hamburger chip + NEW chip |
-| organism | `org-topbar__chip` | Individual glass chips (hamburger + plus NEW), all square 40×40pt |
-| organism | `org-topbar__chip--square` | Hamburger and NEW chips (40×40pt, plus / hamburger SVG only — no label) |
+| molecule | `view-idle-screen__header-chip` | Single unified glass chip — wraps menu + greeting + new in one floating element (replaces the old `org-topbar` trio for idle) |
+| molecule | `view-idle-screen__header-action` | Transparent 40pt touch target inside the unified chip (menu, new) |
+| molecule | `view-idle-screen__header-capsule` | Greeting headline + meta column inside the unified chip — flexes to fill middle space |
+| molecule | `view-idle-screen__header-chip--warning` | Warning modifier — meta row tinted with `--status-warning` instead of `--signal-default` |
 | molecule | `mol-chat-input` | LSChatInput — full bottom-anchored conversational stack |
 | molecule | `mol-chat-input__location-bar` | Row holding location pill + mode label |
 | molecule | `mol-chat-input__location-pill` | "Near Santa Cruz, CA" frosted glass pill |
@@ -91,16 +92,28 @@ iOS (`LSContextCapsule(state: .idle(headline:metaItems:), appearance: .chip)`) a
 
 ---
 
-## TopBar Chip Paradigm (required)
+## Header Paradigm — Unified Floating Chip (required)
 
-The header is exactly three slots, all square `40×40pt` glass chips on the same row:
+The idle screen header is a **single glass chip** containing three elements:
 
 ```
-[ hamburger ] [ status-card ] [ plus ]
-   square       flexes 1fr       square
+┌──────────────────────────────────────────────────────────┐
+│  [ menu ]   greeting headline + meta row       [ new ]   │
+└──────────────────────────────────────────────────────────┘
+         flex: 1                                40pt action
 ```
 
-The hamburger and plus chips share dimensions, surface (`var(--surface-overlay)` + `blur(8px)` + `var(--elev-chrome)`), and SVG `stroke-width="1.6"`. The plus chip has **no text label** (a11y label only). This applies to design HTML, iOS `LSTopBar.newChip`, and Android `LSTopBar.NewChip` — keep all three in lockstep.
+The chip's surface, blur, radius, and elevation use the same tokens previously assigned to the three separate chips:
+`var(--surface-overlay)` + `blur(8px)` + `var(--radius-md)` + `var(--elev-chrome)`. Menu and new actions are transparent 40pt touch targets *inside* the chip (no nested glass surface), with SVG `stroke-width="1.6"`. The new action has **no text label** (a11y label only).
+
+This applies in lockstep to:
+- Design HTML — `.view-idle-screen__header-chip` wraps `.view-idle-screen__header-action` + `.view-idle-screen__header-capsule` + `.view-idle-screen__header-action`.
+- iOS — `LSIdleHeader` (`ios/LaneShadow/Views/Molecules/LSIdleHeader.swift`).
+- Android — `LSIdleHeader` (`android/app/src/main/java/com/laneshadow/ui/molecules/LSIdleHeader.kt`).
+
+Other screens (planning, route-results, route-details, error) continue to use the canonical three-chip `org-topbar` / `LSTopBar` pattern. Replacing those is out of scope for the idle-screen unification.
+
+> **History.** Earlier versions of this spec rendered three separate chips that re-skinned to "read as one chip family." That pattern was structurally fragile — the middle status capsule could overlap the side chips when the center flex frame filled the row. The unified single-chip approach removes that failure mode while keeping the same visual treatment.
 
 ---
 
@@ -121,11 +134,11 @@ View-level properties applied via `.view-idle-screen*` selectors only:
 | Favorite pin border | `var(--surface-card)` | White ring on pin |
 | Greeting overlay headline `<em>` color | `var(--signal-default)` | Italic "today" / "tonight" copper tint |
 | Greeting meta row color | `var(--signal-default)` | Copper label text |
-| Status-card (header inline) background | `var(--surface-overlay)` | View-local re-skin so the middle status card matches `org-topbar__chip` surface — header reads as one chip family (menu · status · NEW) |
-| Status-card (header inline) corner radius | `var(--radius-md)` | Matches chip radius (canonical capsule uses `--radius-lg` elsewhere) |
-| Status-card (header inline) elevation | `var(--elev-chrome)` | Matches chip shadow (canonical capsule uses `--elev-overlay` elsewhere) |
-| Status-card (header inline) backdrop blur | `blur(8px)` | Matches chip blur (canonical capsule uses `blur(14px) saturate(1.2)` elsewhere) |
-| Status-card (header inline) height | `var(--space-9)` | 40pt — chip baseline so menu · status · NEW align on the same row |
+| Unified header chip background | `var(--surface-overlay)` | Single chip wrapping menu + greeting + new on idle (was three separate chips re-skinned to match) |
+| Unified header chip corner radius | `var(--radius-md)` | Matches the chip radius used by canonical `org-topbar__chip` on other screens |
+| Unified header chip elevation | `var(--elev-chrome)` | Matches `org-topbar__chip` elevation on other screens |
+| Unified header chip backdrop blur | `blur(8px)` | Matches `org-topbar__chip` blur on other screens (canonical capsule elsewhere uses `blur(14px) saturate(1.2)`) |
+| Unified header chip height | `var(--space-9)` | 40pt — chip baseline so menu · greeting · new align on the same row |
 | Advisory card background | `var(--wx-rain-tint)` | Rain-tint variant only |
 | Advisory card accent border | `var(--wx-rain)` | Left 3px stripe |
 | Home indicator bar | `rgba(0,0,0,0.38)` light / `rgba(255,255,255,0.30)` dark | Phone chrome — unavoidable raw value; documented below |
@@ -168,10 +181,32 @@ View-level properties applied via `.view-idle-screen*` selectors only:
 | Phone frame `max-width` | `390px` | Canonical iPhone viewport width — not a spacing token |
 | Phone frame `border-radius` | `var(--radius-xl)` | Intentionally uses token; no additional literal needed |
 | `backdrop-filter: blur(16px)` on greeting overlay glass | `16px` | Visual-effect blur radius — not a spacing token; consistent with navigator-callouts organism |
-| `backdrop-filter: blur(8px)` on TopBar chips | `8px` | Lighter organism-level blur; matches `org-topbar` spec |
-| `backdrop-filter: blur(8px)` on header status-card (`view-idle-screen__header .mol-context-capsule`) | `8px` | Re-skin override so the middle capsule matches the surrounding `org-topbar__chip` blur instead of the canonical capsule's `blur(14px) saturate(1.2)` — header reads as one chip family |
+| `backdrop-filter: blur(8px)` on TopBar chips | `8px` | Lighter organism-level blur; matches `org-topbar` spec on non-idle screens |
+| `backdrop-filter: blur(8px)` on unified header chip (`view-idle-screen__header-chip`) | `8px` | Matches the per-chip blur used elsewhere — keeps the unified chip visually consistent with `org-topbar__chip` on other screens |
 | Home indicator color (light) | `rgba(0,0,0,0.38)` | Device chrome simulation — no semantic equivalent; raw value is intentional |
 | Home indicator color (dark) | `rgba(255,255,255,0.30)` | Device chrome simulation — same rationale |
 | SVG `stroke-width` values | `0.7` / `0.8` / `0.9` on contour SVG | SVG geometry — not CSS spacing tokens |
 | Advisory card `border-left` width | `var(--stroke-lg)` (2px) | Uses token; no literal needed |
 | `@media (max-width: 375px)` / `@media (max-width: 900px)` | Pixel literals in `@media` | Structural breakpoint constraints — allowed per spec |
+
+---
+
+## Reference Asset Regen Workflow
+
+The PNG references that `pnpm design:review` compares iOS / Android captures against are produced from this view's HTML (`idle.html`). Any change to the HTML or to the visual structure (e.g. swapping `LSTopBar` for `LSIdleHeader`) MUST be followed by:
+
+```bash
+# 1. Regenerate per-state reference PNGs + annotations from the updated HTML
+pnpm design:references --screens=mapapp/idle
+
+# 2. Commit the resulting changes under .spec/design/system/views/mapapp/idle/
+#    (default/, no-location/, first-ride/, weather-advisory/, typing-send/,
+#     filter-sheet/ — each has a {state}.{light,dark}.png + .annotations.json)
+
+# 3. Regenerate platform snapshot baselines if iOS / Android changed:
+#    iOS:     xcodebuild test ... -only-testing:LaneShadowTests/IdleScreenTests
+#             (record mode — Xcode writes new __Snapshots__ images)
+#    Android: ./gradlew :app:recordPaparazziDebug (or equivalent)
+```
+
+If reference PNGs are skipped, `design:review` will surface every iOS / Android capture as a regression against the stale references on the very next run.

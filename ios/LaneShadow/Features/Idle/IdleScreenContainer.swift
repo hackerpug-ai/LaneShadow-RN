@@ -49,11 +49,13 @@ struct IdleScreenContainer: View {
                     onDismiss: { Task { @MainActor in closeMenu() } }
                 ) : nil,
                 topBar: {
-                    LSTopBar(
+                    LSIdleHeader(
+                        capsuleState: viewModel.capsuleState,
+                        isWarning: viewModel.weatherAdvisory != nil,
                         onMenuTap: toggleMenu,
-                        onNewTap: handleNewTap,
-                        centerContent: { capsuleView }
+                        onNewTap: handleNewTap
                     )
+                    .padding(.horizontal, theme.space.md)
                     .opacity(isKeyboardVisible ? 0 : 1)
                     .allowsHitTesting(!isKeyboardVisible)
                     .animation(.easeInOut(duration: 0.22), value: isKeyboardVisible)
@@ -176,20 +178,6 @@ struct IdleScreenContainer: View {
             }
         )
         .accessibilityIdentifier("idlescreen-menu-drawer")
-    }
-
-    private var capsuleView: some View {
-        LSContextCapsule(
-            state: viewModel.capsuleState,
-            isWarning: viewModel.weatherAdvisory != nil,
-            isSaved: false,
-            appearance: .chip
-        )
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Idle context capsule")
-        .accessibilityIdentifier("idle-context-capsule")
-        .padding(.horizontal, theme.space.md)
-        .padding(.vertical, theme.space.md)
     }
 
     // MARK: - Map Controls View

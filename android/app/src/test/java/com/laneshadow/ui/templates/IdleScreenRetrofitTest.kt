@@ -172,7 +172,9 @@ class IdleScreenRetrofitTest {
         // WHEN: Compose tree inspected
         // THEN: Existing testTags are present
         composeTestRule.onNodeWithTag("chat-input").assertExists()
-        composeTestRule.onNodeWithTag("ls-topbar").assertExists()
+        // ls-topbar was replaced by ls-idle-header (unified floating header — see
+        // .spec/design/system/views/mapapp/idle/README.md "TopBar Chip Paradigm").
+        composeTestRule.onNodeWithTag("ls-idle-header").assertExists()
         composeTestRule.onNodeWithTag("idlescreen-map").assertExists()
     }
 }

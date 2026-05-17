@@ -52,13 +52,7 @@ struct MapApp: View {
                     content: { menuDrawerContent },
                     onDismiss: { Task { @MainActor in closeMenu() } }
                 ) : nil,
-                topBar: {
-                    LSTopBar(
-                        onMenuTap: toggleMenu,
-                        onNewTap: handleNewTap,
-                        centerContent: { topBarContent }
-                    )
-                }
+                topBar: { topBarView }
             )
             .accessibilityIdentifier(mapAppScreenIdentifier)
             .accessibilityValue(mapCameraController.debugAccessibilityValue)
@@ -223,7 +217,27 @@ struct MapApp: View {
         return overlays
     }
 
-    // MARK: - Top Bar Content (State-Driven)
+    // MARK: - Top Bar (State-Driven)
+
+    @ViewBuilder
+    private var topBarView: some View {
+        switch viewModel.currentState {
+        case .idle:
+            LSIdleHeader(
+                capsuleState: viewModel.idleViewModel.capsuleState,
+                isWarning: viewModel.idleViewModel.weatherAdvisory != nil,
+                onMenuTap: toggleMenu,
+                onNewTap: handleNewTap
+            )
+            .padding(.horizontal, theme.space.md)
+        case .planning, .routeResults:
+            LSTopBar(
+                onMenuTap: toggleMenu,
+                onNewTap: handleNewTap,
+                centerContent: { topBarContent }
+            )
+        }
+    }
 
     @ViewBuilder
     private var topBarContent: some View {
@@ -233,7 +247,7 @@ struct MapApp: View {
         case .planning:
             planningCapsuleView
         case .routeResults:
-            planningCapsuleView  // Will be updated in Cycle 3+
+            planningCapsuleView // Will be updated in Cycle 3+
         }
     }
 
