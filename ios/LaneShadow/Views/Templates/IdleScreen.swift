@@ -216,7 +216,6 @@ public struct IdleScreen: View {
             value: $chatInputValue,
             placeholder: isLocationNeeded ? "Set a start point to begin…" : "Plan a ride…",
             onSend: onSend,
-            onCollapse: {},
             onFilter: {},
             suggestions: suggestions,
             onSuggestionTap: { chip in

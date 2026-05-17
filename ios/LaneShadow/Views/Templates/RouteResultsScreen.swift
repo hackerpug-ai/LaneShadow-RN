@@ -326,7 +326,6 @@ public struct RouteResultsScreen: View {
             value: $chatInputValue,
             placeholder: "Refine — 'make it shorter' / 'avoid Hwy 1'",
             onSend: { _ in },
-            onCollapse: {},
             onFilter: {}
         )
         .padding(.horizontal, theme.space.md)

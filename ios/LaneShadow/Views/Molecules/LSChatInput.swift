@@ -1,14 +1,14 @@
+import Combine
 import LaneShadowTheme
 import SwiftUI
 
 public struct LSChatInput: View {
     @Environment(\.theme) private var theme
-    @FocusState private var isFocused: Bool
 
     @Binding private var value: String
     private let placeholder: String
     private let onSend: (String) -> Void
-    private let onCollapse: () -> Void
+    private let onCollapse: (() -> Void)?
     private let onFilter: () -> Void
     private let suggestions: [SuggestionChip]
     private let onSuggestionTap: (SuggestionChip) -> Void
@@ -21,11 +21,13 @@ public struct LSChatInput: View {
     private let isThinking: Bool
     private let isEnabled: Bool
 
+    @State private var isKeyboardVisible: Bool = false
+
     public init(
         value: Binding<String>,
         placeholder: String,
         onSend: @escaping (String) -> Void,
-        onCollapse: @escaping () -> Void,
+        onCollapse: (() -> Void)? = nil,
         onFilter: @escaping () -> Void,
         suggestions: [SuggestionChip] = [],
         onSuggestionTap: @escaping (SuggestionChip) -> Void = { _ in },
@@ -57,14 +59,16 @@ public struct LSChatInput: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: theme.space.xs) {
-            // Location context bar (optional)
-            if let locationBadge {
+            // Location context bar — hidden while typing so the input owns the space
+            if let locationBadge, !isKeyboardVisible {
                 locationBarView(for: locationBadge)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
             }
 
-            // Suggestion chip row (optional)
-            if !suggestions.isEmpty {
+            // Suggestion chip row — hidden while typing
+            if !suggestions.isEmpty, !isKeyboardVisible {
                 suggestionChipsView
+                    .transition(.opacity.combined(with: .move(edge: .top)))
             }
 
             if showsAutocompleteDropdown {
@@ -75,9 +79,23 @@ public struct LSChatInput: View {
             inputBarView
         }
         .opacity(isEnabled ? 1 : theme.opacity.disabled)
+        .animation(.easeInOut(duration: 0.22), value: isKeyboardVisible)
+        .onReceive(Self.keyboardVisibilityPublisher) { visible in
+            isKeyboardVisible = visible
+        }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("lschatinput")
     }
+
+    private static let keyboardVisibilityPublisher: AnyPublisher<Bool, Never> = {
+        let show = NotificationCenter.default
+            .publisher(for: UIResponder.keyboardWillShowNotification)
+            .map { _ in true }
+        let hide = NotificationCenter.default
+            .publisher(for: UIResponder.keyboardWillHideNotification)
+            .map { _ in false }
+        return Publishers.Merge(show, hide).eraseToAnyPublisher()
+    }()
 
     // MARK: - Location Bar
 
@@ -207,8 +225,10 @@ public struct LSChatInput: View {
     private var inputBarView: some View {
         LSGlassPanel(variant: .chrome, padding: .spacing4) {
             HStack(spacing: theme.space.sm) {
-                // Leading collapse button
-                leadingButton
+                // Leading collapse button — rendered only when a handler is wired
+                if onCollapse != nil {
+                    leadingButton
+                }
 
                 // Text field
                 textField
@@ -322,7 +342,7 @@ public struct LSChatInput: View {
 
     private func handleCollapse() {
         guard isEnabled else { return }
-        onCollapse()
+        onCollapse?()
     }
 
     private func handleFilter() {

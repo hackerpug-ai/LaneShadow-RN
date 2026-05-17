@@ -1,3 +1,4 @@
+import Combine
 import LaneShadowTheme
 import SwiftUI
 
@@ -6,6 +7,7 @@ struct IdleScreenContainer: View {
     @Bindable private var viewModel: IdleViewModel
     @State private var mapCameraController = LSMapCameraController()
     @State private var isMenuOpen: Bool = false
+    @State private var isKeyboardVisible: Bool = false
     private let debugFrameObserver: ((String, CGRect) -> Void)?
 
     init(
@@ -52,6 +54,9 @@ struct IdleScreenContainer: View {
                         onNewTap: handleNewTap,
                         centerContent: { capsuleView }
                     )
+                    .opacity(isKeyboardVisible ? 0 : 1)
+                    .allowsHitTesting(!isKeyboardVisible)
+                    .animation(.easeInOut(duration: 0.22), value: isKeyboardVisible)
                 }
             )
             .accessibilityIdentifier("idlescreen")
@@ -69,13 +74,20 @@ struct IdleScreenContainer: View {
                 .transition(.opacity)
             }
 
-            // Map controls positioned at vertical center of right edge
+            // Map controls positioned at vertical center of right edge —
+            // suppressed while typing so the input owns the screen
             VStack {
                 Spacer()
                 mapControlsView
                 Spacer()
             }
             .padding(.trailing, theme.space.md)
+            .opacity(isKeyboardVisible ? 0 : 1)
+            .allowsHitTesting(!isKeyboardVisible)
+            .animation(.easeInOut(duration: 0.22), value: isKeyboardVisible)
+        }
+        .onReceive(Self.keyboardVisibilityPublisher) { visible in
+            isKeyboardVisible = visible
         }
         .task {
             // Skip observation during direct UI testing (variant state is pre-configured)
@@ -114,6 +126,16 @@ struct IdleScreenContainer: View {
     }
 
     private static let defaultCamera = LSMapPresentationDefaults.santaCruzCamera
+
+    private static let keyboardVisibilityPublisher: AnyPublisher<Bool, Never> = {
+        let show = NotificationCenter.default
+            .publisher(for: UIResponder.keyboardWillShowNotification)
+            .map { _ in true }
+        let hide = NotificationCenter.default
+            .publisher(for: UIResponder.keyboardWillHideNotification)
+            .map { _ in false }
+        return Publishers.Merge(show, hide).eraseToAnyPublisher()
+    }()
 
     // MARK: - Menu Drawer
 
@@ -202,7 +224,6 @@ struct IdleScreenContainer: View {
             onSend: { message in
                 Task { await viewModel.submitSuggestion(message) }
             },
-            onCollapse: {},
             onFilter: {},
             suggestions: suggestions,
             onSuggestionTap: { chip in

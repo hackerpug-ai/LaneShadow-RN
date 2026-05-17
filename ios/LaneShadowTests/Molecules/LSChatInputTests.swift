@@ -70,6 +70,39 @@ final class LSChatInputTests: XCTestCase {
         XCTAssertEqual(collapseCount, 0) // Initially not called
     }
 
+    // MARK: - AC-4b: leading collapse button is suppressed when onCollapse is nil
+
+    func test_leading_button_absent_when_oncollapse_nil() throws {
+        let inspected = try LSChatInput(
+            value: .constant(""),
+            placeholder: "Plan a ride…",
+            onSend: { _ in },
+            onFilter: {}
+        )
+        .laneShadowTheme()
+        .inspect()
+
+        XCTAssertNoThrow(try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-bar"))
+        XCTAssertThrowsError(
+            try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-collapse"),
+            "Leading collapse button should not be rendered when onCollapse is nil"
+        )
+    }
+
+    func test_leading_button_present_when_oncollapse_provided() throws {
+        let inspected = try LSChatInput(
+            value: .constant(""),
+            placeholder: "Plan a ride…",
+            onSend: { _ in },
+            onCollapse: {},
+            onFilter: {}
+        )
+        .laneShadowTheme()
+        .inspect()
+
+        XCTAssertNoThrow(try inspected.find(viewWithAccessibilityIdentifier: "lschatinput-collapse"))
+    }
+
     // MARK: - AC-5: Suggestion chip row renders and onSuggestionTap fires
 
     func test_suggestion_chips_render_and_ontap_fires() {

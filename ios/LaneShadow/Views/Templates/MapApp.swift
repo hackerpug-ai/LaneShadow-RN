@@ -357,7 +357,6 @@ struct MapApp: View {
             onSend: { message in
                 Task { await viewModel.idleViewModel.submitSuggestion(message) }
             },
-            onCollapse: {},
             onFilter: {},
             suggestions: suggestions,
             onSuggestionTap: { chip in

@@ -32,6 +32,8 @@ public enum LSTopBarTrailing {
 public struct LSTopBar: View {
     @Environment(\.theme) private var theme
 
+    @State private var safeAreaTop: CGFloat = 0
+
     private let title: String?
     private let metaText: String?
     private let headline: AttributedString?
@@ -89,10 +91,19 @@ public struct LSTopBar: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, theme.space.md)
-        .padding(.top, theme.space.xs)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            Color.clear.frame(height: 0)
-        }
+        // Respect the safe area top (Dynamic Island, notch, status bar) plus
+        // a small breathing-room baseline. GeometryReader reports the inset
+        // even when the topBar is overlaid above a map that ignores it.
+        .padding(.top, max(safeAreaTop, theme.space.xs))
+        .background(
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear { safeAreaTop = geometry.safeAreaInsets.top }
+                    .onChange(of: geometry.safeAreaInsets.top) { _, newValue in
+                        safeAreaTop = newValue
+                    }
+            }
+        )
         .accessibilityIdentifier("lstopbar")
     }
 
