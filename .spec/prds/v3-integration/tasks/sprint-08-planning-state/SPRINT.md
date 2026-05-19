@@ -86,6 +86,17 @@ Re-implementing the map host, the LSContextCapsule, or the LSMapControls is a pl
 | FIX-S07-AND-T01 | **REMEDIAl** Android LSMapControls: fix saved-route token from accent.default → signal.default — red-hat H-2 | kotlin-implementer | 30 min |
 | FIX-S07-IOS-T02 | **REMEDIAl** iOS: strengthen map controls vertical-centering + zoom-delta test verification (test-theatre → real assertions) — red-hat H-3, H-4 | swift-implementer | 60 min |
 | FIX-S07-IOS-T03 | **REMEDIAl** iOS: add logging to mode-toggle stub per SPRINT.md spec — red-hat H-5 | swift-implementer | 15 min |
+| FIX-S08-CVX-T01 | **REMEDIAl** Convex: explicit intermediate phase writes on tool events + fix `fetchWeather`→`getRouteWeather` mapping — red-hat 2026-05-19 F1/F2/F3/F4 (primary bug) | convex-implementer | 90 min |
+| FIX-S08-CVX-T02 | **REMEDIAl** Convex: skip planning-row creation for conversational replies (lazy init) — red-hat 2026-05-19 F11 | convex-implementer | 60 min |
+| FIX-S08-CVX-T03 | **REMEDIAl** Convex: add warn-log to empty failed-variant loop in planRideOrchestrator — red-hat 2026-05-19 F13 | convex-implementer | 15 min |
+| FIX-S08-IOS-T01 | **REMEDIAl** iOS: simplify `PlanningPhase.derive` to trust `message.phase`; remove dead thinkingSteps path; remove unreachable `fetchWeather` mapping — red-hat 2026-05-19 F1/F4 | swift-implementer | 60 min |
+| FIX-S08-IOS-T02 | **REMEDIAl** iOS: wire `currentLocation` through `sendPlanningMessage` (stop discarding) — red-hat 2026-05-19 F7 | swift-implementer | 30 min |
+| FIX-S08-IOS-T03 | **REMEDIAl** iOS: fix `observe()` session-ID race in PlanningViewModel — red-hat 2026-05-19 F8 | swift-implementer | 60 min |
+| FIX-S08-IOS-T04 | **REMEDIAl** iOS: wire candidate polylines from `routePlan.routeOptions` to LSMap during planning (S04 visual) — red-hat 2026-05-19 F9 | swift-implementer | 120 min |
+| FIX-S08-IOS-T05 | **REMEDIAl** iOS: fix V03 single-candidate semantic + advisory block — red-hat 2026-05-19 F12 | swift-implementer | 120 min |
+| FIX-S08-IOS-T06 | **REMEDIAl** iOS: collapse `screenState` to single source of truth (delete dead computed) — red-hat 2026-05-19 F10 | swift-implementer | 30 min |
+| IMPL-S08-IOS-T01 | **NEW** iOS: S03 weather icon overlay during `.enriching` phase — red-hat 2026-05-19 F5 (S03 missing) | swift-implementer | 120 min |
+| IMPL-S08-IOS-T02 | **NEW** iOS: V01 slow planning stall timer (4s threshold) + apology copy — red-hat 2026-05-19 F5 (V01 missing) | swift-implementer | 90 min |
 
 ---
 
@@ -172,3 +183,31 @@ Remedial tasks added 2026-05-08 (from red-hat review):
 - [FIX-S07-AND-T01-android-saved-route-signal-token-fix.md](./FIX-S07-AND-T01-android-saved-route-signal-token-fix.md)
 - [FIX-S07-IOS-T02-ios-map-controls-position-test.md](./FIX-S07-IOS-T02-ios-map-controls-position-test.md)
 - [FIX-S07-IOS-T03-ios-mode-toggle-logging-stub.md](./FIX-S07-IOS-T03-ios-mode-toggle-logging-stub.md)
+
+Remedial tasks added 2026-05-19 (from red-hat review `.spec/reviews/red-hat-20260519T024631Z-planning-state.md`):
+
+- [FIX-S08-CVX-T01-explicit-intermediate-phase-writes.md](./FIX-S08-CVX-T01-explicit-intermediate-phase-writes.md) — Convex: backend writes intermediate phase values + `getRouteWeather` mapping (primary bug fix)
+- [FIX-S08-CVX-T02-lazy-planning-row-creation.md](./FIX-S08-CVX-T02-lazy-planning-row-creation.md) — Convex: skip planning row for conversational replies
+- [FIX-S08-CVX-T03-failed-variant-warn-log.md](./FIX-S08-CVX-T03-failed-variant-warn-log.md) — Convex: warn-log failed variants
+- [FIX-S08-IOS-T01-simplify-planning-phase-derivation.md](./FIX-S08-IOS-T01-simplify-planning-phase-derivation.md) — iOS: simplify `PlanningPhase.derive`; trust `message.phase`
+- [FIX-S08-IOS-T02-current-location-wiring.md](./FIX-S08-IOS-T02-current-location-wiring.md) — iOS: wire `currentLocation` through `sendPlanningMessage`
+- [FIX-S08-IOS-T03-observe-session-id-race.md](./FIX-S08-IOS-T03-observe-session-id-race.md) — iOS: fix `observe()` session-ID race
+- [FIX-S08-IOS-T04-candidate-polylines-during-planning.md](./FIX-S08-IOS-T04-candidate-polylines-during-planning.md) — iOS: candidate polylines from routePlan (S04 visual)
+- [FIX-S08-IOS-T05-v03-single-candidate-fix.md](./FIX-S08-IOS-T05-v03-single-candidate-fix.md) — iOS: V03 single-candidate semantic + advisory
+- [FIX-S08-IOS-T06-delete-dead-screenstate.md](./FIX-S08-IOS-T06-delete-dead-screenstate.md) — iOS: collapse `screenState` to single source
+- [IMPL-S08-IOS-T01-s03-weather-overlay.md](./IMPL-S08-IOS-T01-s03-weather-overlay.md) — iOS: S03 weather icon overlay (new variant impl)
+- [IMPL-S08-IOS-T02-v01-slow-planning-stall-timer.md](./IMPL-S08-IOS-T02-v01-slow-planning-stall-timer.md) — iOS: V01 slow planning stall timer (new variant impl)
+
+### Sprint 08 Remedial Execution Order (2026-05-19)
+
+1. **FIX-S08-CVX-T01** (backend explicit phase writes) — primary fix, unblocks everything iOS-side
+2. **FIX-S08-IOS-T01** (iOS phase derivation simplification) — depends on T01
+3. **FIX-S08-IOS-T02, FIX-S08-IOS-T03** (currentLocation, observe race) — independent, can run in parallel
+4. **FIX-S08-IOS-T04** (polylines / S04 visual) — depends on IOS-T01
+5. **FIX-S08-IOS-T05** (V03 single-candidate fix) — depends on IOS-T01
+6. **FIX-S08-IOS-T06** (collapse screenState) — depends on IOS-T04 + IOS-T05
+7. **FIX-S08-CVX-T02, FIX-S08-CVX-T03** — independent backend cleanups
+8. **IMPL-S08-IOS-T01** (S03 weather) — depends on CVX-T01 + IOS-T01; verify backend data exposure first (AC-6)
+9. **IMPL-S08-IOS-T02** (V01 slow planning) — depends on IOS-T01
+
+**Android parity tasks NOT included** — file after iOS lands and proves the approach end-to-end.
