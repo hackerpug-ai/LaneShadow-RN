@@ -152,6 +152,7 @@ internal fun PlanningScreenContent(
             requestCancel()
         },
         onFilter = onFilter,
+        planningSessionKey = uiState.sessionId,
         onDismissCancelConfirm = onDismissCancelConfirm,
         onKeepPlanning = onKeepPlanning,
         onCancelPlan = onCancelPlan,

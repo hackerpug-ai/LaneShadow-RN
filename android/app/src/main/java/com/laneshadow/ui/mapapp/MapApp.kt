@@ -3,6 +3,7 @@ package com.laneshadow.ui.mapapp
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -126,6 +127,11 @@ internal fun MapAppContent(
     val cameraController = remember { LSMapCameraController(initialZoom = 10.8) }
     var isMenuOpen by remember { mutableStateOf(false) }
     var controlsMode by remember { mutableStateOf(MapControlsMode.Map) }
+    val planningSessionKey = (state as? MapAppState.Planning)?.sessionId.orEmpty()
+
+    LaunchedEffect(planningSessionKey) {
+        controlsMode = MapControlsMode.Map
+    }
 
     val mapControlsModel = when (state) {
         MapAppState.Idle -> MapControlsModel(

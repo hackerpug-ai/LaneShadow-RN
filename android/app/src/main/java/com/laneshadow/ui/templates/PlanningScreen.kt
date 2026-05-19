@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -123,6 +124,7 @@ fun PlanningScreen(
     onMenuTap: () -> Unit,
     onCollapse: () -> Unit,
     onFilter: () -> Unit,
+    planningSessionKey: String = "",
     mapCameraController: LSMapCameraController = remember { LSMapCameraController(initialZoom = 11.0) },
     onResetMapState: (() -> Unit)? = null,
     onDismissCancelConfirm: () -> Unit = {},
@@ -150,6 +152,12 @@ fun PlanningScreen(
     modifier: Modifier = Modifier,
 ) {
     var controlsMode by remember { mutableStateOf(MapControlsMode.Map) }
+
+    LaunchedEffect(planningSessionKey) {
+        if (planningSessionKey.isNotEmpty()) {
+            controlsMode = MapControlsMode.Map
+        }
+    }
 
     val mapControlsModel = planningMapControlsModel(
         onZoomIn = {

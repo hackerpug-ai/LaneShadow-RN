@@ -643,6 +643,7 @@ class PlanningScreenTest {
      */
     @Test
     fun map_controls_in_planning_configuration() {
+        val appState = mutableStateOf<MapAppState>(MapAppState.Planning("planning-session"))
         val uiState = mutableStateOf(
             PlanningUiState(
                 sessionId = "planning-session",
@@ -655,7 +656,7 @@ class PlanningScreenTest {
                 val navController = rememberNavController()
 
                 MapAppContent(
-                    state = MapAppState.Planning(uiState.value.sessionId),
+                    state = appState.value,
                     navController = navController,
                     onPlanningReturnToIdle = {},
                     mapContent = { _, _ ->
@@ -702,6 +703,23 @@ class PlanningScreenTest {
 
         composeTestRule.onNodeWithContentDescription("Back to map").assertExists()
         composeTestRule.onNodeWithTag("ls-map-controls-zoom-cluster").assertDoesNotExist()
+
+        composeTestRule.runOnUiThread {
+            appState.value = MapAppState.Idle
+        }
+
+        composeTestRule.runOnUiThread {
+            uiState.value = uiState.value.copy(sessionId = "planning-session-reentry")
+            appState.value = MapAppState.Planning("planning-session-reentry")
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag("planning.map-controls").assertExists()
+        composeTestRule.onNodeWithContentDescription("Recenter map").assertExists()
+        composeTestRule.onNodeWithContentDescription("Open chat").assertExists()
+        composeTestRule.onNodeWithTag("ls-map-controls-zoom-cluster").assertExists()
+        composeTestRule.onNodeWithContentDescription("Back to map").assertDoesNotExist()
     }
 
     /**
