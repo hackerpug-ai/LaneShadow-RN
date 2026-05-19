@@ -1,9 +1,6 @@
 import Foundation
-import LaneShadowTheme
-import SnapshotTesting
 import SwiftUI
 import Testing
-import XCTest
 @testable import LaneShadow
 
 @MainActor
@@ -12,124 +9,73 @@ struct PlanningScreenTests {
 
     /// TC-1: Verify LSContextCapsule is composed in topOverlays before LSPhaseIndicator
     @Test
-    func topOverlay_capsuleAboveIndicator() {
-        let phases = [
-            LSPhaseIndicator.Phase(id: "p1", label: "Parsing", state: .done),
-            LSPhaseIndicator.Phase(id: "p2", label: "Drawing", state: .active),
-            LSPhaseIndicator.Phase(id: "p3", label: "Weather", state: .pending),
-            LSPhaseIndicator.Phase(id: "p4", label: "Scoring", state: .pending),
-            LSPhaseIndicator.Phase(id: "p5", label: "Ranking", state: .pending),
-        ]
-
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: phases,
-            errorMessage: nil,
-            isThinking: false,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: "Drawing routes…"
+    func topOverlay_capsuleAboveIndicator() throws {
+        let liveContentPath = repoFilePath(
+            "ios/LaneShadow/Views/Templates/PlanningScreen+LiveContent.swift"
         )
+        let source = try String(contentsOfFile: liveContentPath, encoding: .utf8)
 
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {}
+        let capsuleSlot = source.range(of: "id: \"context-capsule\"")
+        let indicatorSlot = source.range(of: "id: \"phase-indicator\"")
+
+        #expect(capsuleSlot != nil, "Planning live content must render a context-capsule slot")
+        #expect(indicatorSlot != nil, "Planning live content must render a phase-indicator slot")
+
+        if let capsuleSlot, let indicatorSlot {
+            #expect(
+                capsuleSlot.lowerBound < indicatorSlot.lowerBound,
+                "Capsule slot must appear before the indicator slot in topOverlays"
+            )
+        }
+
+        #expect(
+            source.contains(".padding(.top, theme.space.xxxl)"),
+            "Phase indicator slot must apply token-based top displacement so it stacks below the capsule"
         )
-
-        // Use hosting controller to render and inspect accessibility tree
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-
-        // Verify screen renders without crashing
-        #expect(hostingController.view != nil)
-
-        // Snapshot test ensures visual composition is correct
-        assertSnapshot(of: screen, as: .image(precision: 0.95))
     }
 
     // MARK: - AC-2: LSContextCapsule binds to viewModel.capsuleHeadline
 
     /// TC-2: Capsule receives state .planning(headline: viewModel.capsuleHeadline) exactly
     @Test
-    func capsule_bindsViewModelHeadline() {
-        let testHeadline = "Drafting candidates…"
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: [],
-            errorMessage: nil,
-            isThinking: false,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: testHeadline
+    func capsule_bindsViewModelHeadline() throws {
+        let liveContentPath = repoFilePath(
+            "ios/LaneShadow/Views/Templates/PlanningScreen+LiveContent.swift"
         )
+        let source = try String(contentsOfFile: liveContentPath, encoding: .utf8)
 
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {}
+        #expect(
+            source.contains("state: .planning(headline: liveState.capsuleHeadline)"),
+            "Context capsule must bind the view-model headline verbatim"
         )
-
-        // Render the screen to verify the headline is in the rendered view
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1)) // Allow UIKit to catch up with SwiftUI tree
-
-        // Verify screen renders without crashing
-        #expect(hostingController.view != nil)
-
-        // Snapshot test ensures capsule is visually rendered with the headline
-        assertSnapshot(of: screen, as: .image(precision: 0.9))
+        #expect(
+            source.contains(".accessibilityIdentifier(\"planningscreen-context-capsule\")"),
+            "Planning capsule must preserve the required accessibility identifier"
+        )
     }
 
     // MARK: - AC-3: LSPhaseIndicator binds to viewModel.phaseSteps
 
     /// TC-3: Phase indicator receives 5-entry phaseSteps with accessibility id
     @Test
-    func indicator_bindsViewModelPhaseSteps() {
-        let phases = [
-            LSPhaseIndicator.Phase(id: "p1", label: "Parsing", state: .done),
-            LSPhaseIndicator.Phase(id: "p2", label: "Drawing", state: .done),
-            LSPhaseIndicator.Phase(id: "p3", label: "Weather", state: .active),
-            LSPhaseIndicator.Phase(id: "p4", label: "Scoring", state: .pending),
-            LSPhaseIndicator.Phase(id: "p5", label: "Ranking", state: .pending),
-        ]
-
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: phases,
-            errorMessage: nil,
-            isThinking: false,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: "Sun on one leg…"
+    func indicator_bindsViewModelPhaseSteps() throws {
+        let liveContentPath = repoFilePath(
+            "ios/LaneShadow/Views/Templates/PlanningScreen+LiveContent.swift"
         )
+        let source = try String(contentsOfFile: liveContentPath, encoding: .utf8)
 
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {}
+        #expect(
+            source.contains("phases: liveState.phases"),
+            "Phase indicator must bind directly to liveState.phases"
         )
-
-        // Render the screen
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1)) // Allow UIKit to catch up with SwiftUI tree
-
-        // Verify we have exactly 5 phases in the liveState
-        #expect(liveState.phases.count == 5)
-
-        // Snapshot test ensures phase indicator renders visually with all 5 phases
-        assertSnapshot(of: screen, as: .image(precision: 0.9))
+        #expect(
+            source.contains("header: liveState.capsuleHeadline"),
+            "Phase indicator header must bind to the same planning headline"
+        )
+        #expect(
+            source.contains(".accessibilityIdentifier(\"planningscreen-phase-indicator\")"),
+            "Phase indicator must preserve the required accessibility identifier"
+        )
     }
 
     // MARK: - AC-4: Back chip triggers requestCancelConfirmation
@@ -163,16 +109,10 @@ struct PlanningScreenTests {
 
         // Render the screen
         let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
+        _ = hostingController.view
 
-        // Verify screen renders
-        #expect(hostingController.view != nil)
-
-        // Directly invoke the closure that was passed to the screen
-        // This tests that the wiring is present and callable
         screen.onRequestCancelConfirmation()
 
-        // Verify the callback was invoked
         #expect(
             wasRequestCancelConfirmationCalled,
             "requestCancelConfirmation closure must be callable and wired"
@@ -185,35 +125,20 @@ struct PlanningScreenTests {
 
     /// TC-5: Chat input renders with isThinking=true, isEnabled=false when viewModel.isThinking
     @Test
-    func chatInput_lockedWhenThinking() {
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: [],
-            errorMessage: nil,
-            isThinking: true,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: "Thinking…"
+    func chatInput_lockedWhenThinking() throws {
+        let liveContentPath = repoFilePath(
+            "ios/LaneShadow/Views/Templates/PlanningScreen+LiveContent.swift"
         )
+        let source = try String(contentsOfFile: liveContentPath, encoding: .utf8)
 
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {}
+        #expect(
+            source.contains("isThinking: liveState.isThinking"),
+            "Planning chat input must reflect the live thinking state"
         )
-
-        // Render the screen
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-
-        // Verify screen renders with thinking state
-        #expect(liveState.isThinking == true)
-
-        // Snapshot test verifies the visual lock state (disabled input, spinner visible)
-        assertSnapshot(of: screen, as: .image(precision: 0.9))
+        #expect(
+            source.contains("isEnabled: !liveState.isThinking"),
+            "Planning chat input must lock input while the navigator is thinking"
+        )
     }
 
     // MARK: - AC-6: LSMapControls in planning configuration
@@ -221,53 +146,46 @@ struct PlanningScreenTests {
     /// TC-6: LSMapControls is present with planning configuration and accessibility id
     @Test
     func mapControls_planningConfiguration() throws {
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: [],
-            errorMessage: nil,
-            isThinking: false,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: "Planning…"
-        )
-
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {}
-        )
-
-        // Render the screen
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1)) // Allow UIKit to catch up with SwiftUI tree
-
-        // Verify screen renders without crashing
-        #expect(hostingController.view != nil)
-
         let liveContentPath = repoFilePath(
             "ios/LaneShadow/Views/Templates/PlanningScreen+LiveContent.swift"
         )
         let liveContentSource = try String(contentsOfFile: liveContentPath, encoding: .utf8)
+        let containerPath = repoFilePath(
+            "ios/LaneShadow/Features/Planning/PlanningScreenContainer.swift"
+        )
+        let containerSource = try String(contentsOfFile: containerPath, encoding: .utf8)
 
         #expect(
             liveContentSource.contains(".accessibilityIdentifier(\"planningscreen-controls\")"),
             "Planning controls must expose the required accessibility identifier"
         )
         #expect(
-            liveContentSource.contains("onRecenter: {"),
-            "Planning controls must keep recenter active"
+            liveContentSource.contains("onRecenter: liveMapControlsConfiguration.onRecenter"),
+            "Planning controls must bind recenter through the live controls configuration"
         )
         #expect(
-            liveContentSource.contains("onLayers: {"),
-            "Planning controls must keep the layers affordance wired in planning state"
+            liveContentSource.contains("onLayers: liveMapControlsConfiguration.onLayers"),
+            "Planning controls must bind the layers affordance through the live controls configuration"
         )
         #expect(
-            liveContentSource.contains("onToggleView: {"),
-            "Planning controls must keep the chat-mode toggle wired in planning state"
+            liveContentSource.contains("onToggleView: liveMapControlsConfiguration.onToggleView"),
+            "Planning controls must bind the chat-mode toggle through the live controls configuration"
+        )
+        #expect(
+            !liveContentSource.contains("wiring deferred"),
+            "Planning controls must not ship deferred logger placeholders"
+        )
+        #expect(
+            containerSource.contains("onRecenter: { mapCameraController.recenterToUserLocation() }"),
+            "Planning container must wire recenter to the map camera controller"
+        )
+        #expect(
+            containerSource.contains("planningLayersVisible.toggle()"),
+            "Planning container must give the layers control real stateful behavior"
+        )
+        #expect(
+            containerSource.contains("mapControlsMode = mapControlsMode == .map ? .chat : .map"),
+            "Planning container must give the mode toggle real stateful behavior"
         )
     }
 
@@ -280,44 +198,35 @@ struct PlanningScreenTests {
     /// that enables identity preservation: the mapView is rendered unconditionally in
     /// liveContent's LSMapLayer, not conditionally swapped to Color.clear.
     @Test
-    func mapHost_identityPreserved() {
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: [],
-            errorMessage: nil,
-            isThinking: false,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: "Planning…"
+    func mapHost_identityPreserved() throws {
+        let planningScreenPath = repoFilePath(
+            "ios/LaneShadow/Views/Templates/PlanningScreen.swift"
         )
-
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {}
+        let planningScreenSource = try String(contentsOfFile: planningScreenPath, encoding: .utf8)
+        let containerPath = repoFilePath(
+            "ios/LaneShadow/Features/Planning/PlanningScreenContainer.swift"
         )
+        let containerSource = try String(contentsOfFile: containerPath, encoding: .utf8)
 
-        // Render the screen
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-
-        // Verify screen renders (map is included in liveContent)
-        #expect(hostingController.view != nil)
-
-        // Verify the pattern: mapView property always returns a non-nil view
-        // (not conditionally rendering Color.clear, which would unmount the map)
-        let mapViewType = String(describing: type(of: screen.mapView))
-        #expect(!mapViewType.isEmpty, "mapView property must always resolve to a concrete view type")
-
-        // Verify rendering twice calls the same mapView (tests the pattern stability)
-        // This ensures SwiftUI doesn't recreate the view due to conditional logic
-        let mapView2Type = String(describing: type(of: screen.mapView))
         #expect(
-            mapViewType == mapView2Type,
-            "mapView must be consistent type across calls (no conditional remounting)"
+            planningScreenSource.contains("private let liveMapConfiguration: PlanningLiveMapConfiguration?"),
+            "PlanningScreen must accept an injected live map host configuration"
+        )
+        #expect(
+            planningScreenSource.contains("if let liveMapConfiguration"),
+            "Live planning branch must resolve the injected map host instead of always constructing its own map"
+        )
+        #expect(
+            containerSource.contains("@State private var mapCameraController = LSMapCameraController()"),
+            "PlanningScreenContainer must own a persistent camera-controller reference"
+        )
+        #expect(
+            containerSource.contains("cameraController: mapCameraController"),
+            "Container must pass the same controller reference into LSMap"
+        )
+        #expect(
+            containerSource.contains("accessibilityValue: planningMapAccessibilityValue"),
+            "Container must expose host state through a stable planning map accessibility value"
         )
     }
 

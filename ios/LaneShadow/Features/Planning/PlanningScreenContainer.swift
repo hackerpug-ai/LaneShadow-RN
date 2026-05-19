@@ -2,6 +2,9 @@ import SwiftUI
 
 struct PlanningScreenContainer: View {
     @Bindable private var viewModel: PlanningViewModel
+    @State private var mapCameraController = LSMapCameraController()
+    @State private var mapControlsMode: LSMapControlsMode = .map
+    @State private var planningLayersVisible = true
 
     init(viewModel: PlanningViewModel) {
         self.viewModel = viewModel
@@ -21,6 +24,27 @@ struct PlanningScreenContainer: View {
 
         PlanningScreen(
             liveState: liveState,
+            liveMapConfiguration: PlanningLiveMapConfiguration(
+                accessibilityValue: planningMapAccessibilityValue
+            ) {
+                LSMap(
+                    mode: .interactive,
+                    camera: PlanningScreen.defaultCamera,
+                    cameraController: mapCameraController
+                )
+            },
+            liveMapControlsConfiguration: PlanningMapControlsConfiguration(
+                mode: mapControlsMode,
+                onZoomIn: { mapCameraController.zoomIn() },
+                onZoomOut: { mapCameraController.zoomOut() },
+                onRecenter: { mapCameraController.recenterToUserLocation() },
+                onLayers: {
+                    planningLayersVisible.toggle()
+                },
+                onToggleView: {
+                    mapControlsMode = mapControlsMode == .map ? .chat : .map
+                }
+            ),
             onCollapse: {
                 viewModel.requestCancelConfirmation()
             },
@@ -44,5 +68,11 @@ struct PlanningScreenContainer: View {
         .onDisappear {
             viewModel.stopObserving()
         }
+    }
+
+    private var planningMapAccessibilityValue: String {
+        let modeValue = mapControlsMode == .map ? "map" : "chat"
+        let layersValue = planningLayersVisible ? "visible" : "hidden"
+        return "\(mapCameraController.debugAccessibilityValue);mode=\(modeValue);layers=\(layersValue)"
     }
 }

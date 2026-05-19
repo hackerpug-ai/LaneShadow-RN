@@ -43,6 +43,8 @@ public struct PlanningScreen: View {
     private let activePhase: Int
     private let state: PlanningScreenState
     let liveState: PlanningScreenLiveState?
+    let liveMapConfiguration: PlanningLiveMapConfiguration?
+    let liveMapControlsConfiguration: PlanningMapControlsConfiguration
 
     @State var chatInputValue: String = ""
     private let onMenuTap: () -> Void
@@ -61,6 +63,8 @@ public struct PlanningScreen: View {
         self.activePhase = activePhase
         state = provider.value(variant: variant)
         liveState = nil
+        liveMapConfiguration = nil
+        liveMapControlsConfiguration = .disabled
         self.onMenuTap = onMenuTap
         onCollapse = {}
         onSend = { _ in }
@@ -70,6 +74,8 @@ public struct PlanningScreen: View {
 
     init(
         liveState: PlanningScreenLiveState,
+        liveMapConfiguration: PlanningLiveMapConfiguration? = nil,
+        liveMapControlsConfiguration: PlanningMapControlsConfiguration = .disabled,
         onMenuTap: @escaping () -> Void = {},
         onCollapse: @escaping () -> Void = {},
         onSend: @escaping (String) -> Void = { _ in },
@@ -80,6 +86,8 @@ public struct PlanningScreen: View {
         activePhase = 1
         state = PlanningMockProvider.value(variant: "default")
         self.liveState = liveState
+        self.liveMapConfiguration = liveMapConfiguration
+        self.liveMapControlsConfiguration = liveMapControlsConfiguration
         self.onMenuTap = onMenuTap
         self.onCollapse = onCollapse
         self.onSend = onSend
@@ -111,7 +119,7 @@ public struct PlanningScreen: View {
                     ],
                     topBar: {
                         LSTopBar(
-                            trailing: .none,
+                            trailing: LSTopBarTrailing.none,
                             onMenuTap: onMenuTap,
                             onNewTap: {}
                         )
@@ -145,10 +153,22 @@ public struct PlanningScreen: View {
         .accessibilityIdentifier("planningscreen-map")
     }
 
-    private static let defaultCamera = CameraPosition(
+    static let defaultCamera = CameraPosition(
         center: LatLng(lat: 37.7749, lon: -122.4194),
         zoom: 12
     )
+
+    @ViewBuilder
+    var resolvedLiveMapView: some View {
+        if let liveMapConfiguration {
+            liveMapConfiguration.content
+                .accessibilityIdentifier("planningscreen-map")
+                .accessibilityLabel("Planning map camera state")
+                .accessibilityValue(liveMapConfiguration.accessibilityValue)
+        } else {
+            mapView
+        }
+    }
 
     // MARK: - Parsing Polyline
 
@@ -253,4 +273,37 @@ public struct PlanningScreen: View {
         )
         .accessibilityIdentifier("planningscreen-chat-input")
     }
+}
+
+@MainActor
+struct PlanningLiveMapConfiguration {
+    let content: AnyView
+    let accessibilityValue: String
+
+    init<Content: View>(
+        accessibilityValue: String,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.content = AnyView(content())
+        self.accessibilityValue = accessibilityValue
+    }
+}
+
+@MainActor
+struct PlanningMapControlsConfiguration {
+    let mode: LSMapControlsMode
+    let onZoomIn: (() -> Void)?
+    let onZoomOut: (() -> Void)?
+    let onRecenter: (() -> Void)?
+    let onLayers: (() -> Void)?
+    let onToggleView: (() -> Void)?
+
+    static let disabled = PlanningMapControlsConfiguration(
+        mode: .map,
+        onZoomIn: nil,
+        onZoomOut: nil,
+        onRecenter: nil,
+        onLayers: nil,
+        onToggleView: nil
+    )
 }

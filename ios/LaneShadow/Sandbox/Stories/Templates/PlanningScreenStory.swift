@@ -14,7 +14,7 @@ enum PlanningScreenStory {
             name: "S01 · Scouting · Light",
             summary: "Region scan — parsing stub growing, phase 1 active pulsing, light theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
                 activePhase: 1
@@ -29,7 +29,7 @@ enum PlanningScreenStory {
             name: "S01 · Scouting · Dark",
             summary: "Region scan — parsing stub growing, phase 1 active pulsing, dark theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
                 activePhase: 1
@@ -45,7 +45,7 @@ enum PlanningScreenStory {
             name: "S02 · Drawing · Light",
             summary: "Candidate routes — searching extended, phase 2 active, phases 1 done, light theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
                 activePhase: 2
@@ -60,7 +60,7 @@ enum PlanningScreenStory {
             name: "S02 · Drawing · Dark",
             summary: "Candidate routes — searching extended, phase 2 active, phases 1 done, dark theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
                 activePhase: 2
@@ -76,7 +76,7 @@ enum PlanningScreenStory {
             name: "S03 · Weather · Light",
             summary: "Weather overlay — route drafting with conditions, phase 3 active, light theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
                 activePhase: 3
@@ -91,7 +91,7 @@ enum PlanningScreenStory {
             name: "S03 · Weather · Dark",
             summary: "Weather overlay — route drafting with conditions, phase 3 active, dark theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
                 activePhase: 3
@@ -107,7 +107,7 @@ enum PlanningScreenStory {
             name: "S04 · Scoring · Light",
             summary: "Route scoring — three candidates visible, phase 4 active, light theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
                 activePhase: 4
@@ -122,7 +122,7 @@ enum PlanningScreenStory {
             name: "S04 · Scoring · Dark",
             summary: "Route scoring — three candidates visible, phase 4 active, dark theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(
                 provider: PlanningMockProvider.self,
                 activePhase: 4
@@ -138,7 +138,7 @@ enum PlanningScreenStory {
             name: "V01 · Slow Planning · Light",
             summary: "Slow planning delay — italic apology with dashed border, phase 2 active, light theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(provider: PlanningMockProvider.self, variant: "v-slow", activePhase: 2)
         },
 
@@ -150,7 +150,7 @@ enum PlanningScreenStory {
             name: "V01 · Slow Planning · Dark",
             summary: "Slow planning delay — italic apology with dashed border, phase 2 active, dark theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(provider: PlanningMockProvider.self, variant: "v-slow", activePhase: 2)
                 .preferredColorScheme(.dark)
         },
@@ -163,7 +163,7 @@ enum PlanningScreenStory {
             name: "V02 · Cancel Prompt · Light",
             summary: "Cancel prompt — dimmed phase card, scrim overlay, confirm sheet, light theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(provider: PlanningMockProvider.self, variant: "v-cancel-confirm", activePhase: 2)
         },
 
@@ -175,7 +175,7 @@ enum PlanningScreenStory {
             name: "V02 · Cancel Prompt · Dark",
             summary: "Cancel prompt — dimmed phase card, scrim overlay, confirm sheet, dark theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(provider: PlanningMockProvider.self, variant: "v-cancel-confirm", activePhase: 2)
                 .preferredColorScheme(.dark)
         },
@@ -188,7 +188,7 @@ enum PlanningScreenStory {
             name: "V03 · Single Candidate · Light",
             summary: "Single candidate — warning chrome, over-constraint advisory, phase 5 active, light theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(provider: PlanningMockProvider.self, variant: "v-single-candidate", activePhase: 5)
         },
 
@@ -200,7 +200,7 @@ enum PlanningScreenStory {
             name: "V03 · Single Candidate · Dark",
             summary: "Single candidate — warning chrome, over-constraint advisory, phase 5 active, dark theme",
             previewMode: .fullScreen
-        ) { args in
+        ) { _ in
             PlanningScreen(provider: PlanningMockProvider.self, variant: "v-single-candidate", activePhase: 5)
                 .preferredColorScheme(.dark)
         },
