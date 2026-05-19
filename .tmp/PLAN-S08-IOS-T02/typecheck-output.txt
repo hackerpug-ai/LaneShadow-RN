@@ -1,0 +1,8 @@
+
+> laneshadow@1.0.0 type-check:native /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02
+> tsgo --noEmit -p server/tsconfig.json && tsgo --noEmit -p react-native/tsconfig.json
+
+sh: tsgo: command not found
+ ELIFECYCLE  Command failed.
+ WARN   Local package.json exists, but node_modules missing, did you mean to install?
+TYPECHECK_EXIT:1

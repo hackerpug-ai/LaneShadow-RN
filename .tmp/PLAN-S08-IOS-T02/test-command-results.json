@@ -1,0 +1,42 @@
+[
+  {
+    "file": "ac-1-output.txt",
+    "command": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Templates/PlanningScreenTests/test_topOverlay_capsuleAboveIndicator",
+    "exit_code": 0
+  },
+  {
+    "file": "ac-2-output.txt",
+    "command": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Templates/PlanningScreenTests/test_capsule_bindsViewModelHeadline",
+    "exit_code": 0
+  },
+  {
+    "file": "ac-3-output.txt",
+    "command": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Templates/PlanningScreenTests/test_indicator_bindsViewModelPhaseSteps",
+    "exit_code": 0
+  },
+  {
+    "file": "ac-4-output.txt",
+    "command": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Templates/PlanningScreenTests/test_backChip_callsRequestCancelConfirmation",
+    "exit_code": 0
+  },
+  {
+    "file": "ac-5-output.txt",
+    "command": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Templates/PlanningScreenTests/test_chatInput_lockedWhenThinking",
+    "exit_code": 0
+  },
+  {
+    "file": "ac-6-output.txt",
+    "command": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Templates/PlanningScreenTests/test_mapControls_planningConfiguration",
+    "exit_code": 0
+  },
+  {
+    "file": "ac-7-output.txt",
+    "command": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Templates/PlanningScreenTests/test_mapHost_identityPreserved",
+    "exit_code": 0
+  },
+  {
+    "file": "ac-9-output.txt",
+    "command": "xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/Templates/PlanningScreenTests/test_sandboxStories_registered",
+    "exit_code": 0
+  }
+]

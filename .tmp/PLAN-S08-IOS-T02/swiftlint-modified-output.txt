@@ -1,0 +1,6 @@
+Linting Swift files at paths ios/LaneShadow/Views/Templates/MapApp.swift, ios/LaneShadowTests/Templates/PlanningScreenTests.swift
+Linting 'MapApp.swift' (1/2)
+Linting 'PlanningScreenTests.swift' (2/2)
+/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadow/Views/Templates/MapApp.swift:556:1: warning: File Length Violation: File should contain 400 lines or less: currently contains 556 (file_length)
+/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadow/Views/Templates/MapApp.swift:87:13: warning: Opening Brace Spacing Violation: Opening braces should be preceded by a single space and on the same line as the declaration (opening_brace)
+Done linting! Found 2 violations, 0 serious in 2 files.

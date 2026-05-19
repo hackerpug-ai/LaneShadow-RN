@@ -113,6 +113,56 @@ final class PlanningScreenTests: XCTestCase {
         XCTAssertEqual(try chatInput.accessibilityValue().string(), "thinking=true;enabled=false")
     }
 
+    func test_launchArgumentPlanningState_initializesPlanningViewModelAndRendersPlanningOverlays() throws {
+        let harness = makeInjectedPlanningHarness()
+        let screen = harness.screen.laneShadowTheme()
+
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        pumpMainActor()
+
+        XCTAssertEqual(harness.mapAppViewModel.currentState, .planning(sessionId: harness.sessionId))
+        XCTAssertNotNil(harness.mapAppViewModel.planningViewModel)
+
+        let inspected = try screen.inspect()
+        let overlayIDs = try inspected.findAll { view in
+            guard let identifier = try? view.accessibilityIdentifier() else {
+                return false
+            }
+            return identifier.hasPrefix("maplayer.topOverlay.")
+        }.compactMap { try? $0.accessibilityIdentifier() }
+
+        XCTAssertEqual(
+            overlayIDs,
+            [
+                "maplayer.topOverlay.planning-context-capsule",
+                "maplayer.topOverlay.planning-phase-indicator",
+            ]
+        )
+
+        let capsule = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-context-capsule")
+        XCTAssertEqual(try capsule.find(text: "Reading your prompt...").string(), "Reading your prompt...")
+
+        let indicator = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-phase-indicator")
+        let phaseRows = try indicator.findAll { view in
+            guard let identifier = try? view.accessibilityIdentifier() else {
+                return false
+            }
+            return identifier.hasPrefix("lsphaseindicator-phase-")
+        }
+        XCTAssertEqual(phaseRows.count, 5)
+
+        let chatInput = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-chat-input")
+        XCTAssertEqual(try chatInput.accessibilityValue().string(), "thinking=false;enabled=true")
+
+        let backChip = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-hamburger")
+        try backChip.button().tap()
+        pumpMainActor()
+
+        XCTAssertTrue(harness.planningViewModel.cancelConfirmationVisible)
+        XCTAssertEqual(harness.client.cancelRoutePlanCalls, [])
+    }
+
     func test_mapControls_planningConfiguration() throws {
         let harness = makePlanningContainerHarness()
         var screen = harness.screen.laneShadowTheme()
@@ -253,7 +303,13 @@ final class PlanningScreenTests: XCTestCase {
         )
     }
 
-    private func makeIdleHarness() -> MapAppHarness {
+    private func makeInjectedPlanningHarness() -> MapAppHarness {
+        makeIdleHarness(
+            injectedArguments: ["-MapAppState=planning", "-SessionId=session-123"]
+        )
+    }
+
+    private func makeIdleHarness(injectedArguments: [String]? = nil) -> MapAppHarness {
         let client = StubLaneShadowConvexClient()
         let idleViewModel = IdleViewModel(
             chatStore: ChatStore(),
@@ -262,7 +318,9 @@ final class PlanningScreenTests: XCTestCase {
             appState: AppState(),
             onSessionStarted: { _ in }
         )
-        let mapAppViewModel = MapAppViewModel(idleViewModel: idleViewModel)
+        let mapAppViewModel = injectedArguments.map {
+            MapAppViewModel(idleViewModel: idleViewModel, injectedArguments: $0)
+        } ?? MapAppViewModel(idleViewModel: idleViewModel)
         let screen = MapApp(viewModel: mapAppViewModel)
         let sessionId = "session-123"
         return MapAppHarness(

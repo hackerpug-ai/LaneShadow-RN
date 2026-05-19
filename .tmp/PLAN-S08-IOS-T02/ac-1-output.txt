@@ -1,0 +1,948 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination "platform=iOS Simulator,name=iPhone 16" "-only-testing:LaneShadowTests/PlanningScreenTests/test_topOverlay_capsuleAboveIndicator"
+
+Resolve Package Graph
+Conflicting identity for nativetheme: dependency '/users/justinrich/projects/native-theme/platforms/nativetheme' and dependency '/users/justinrich/projects/laneshadow/.kb-run-sprint/worktrees/native-theme/platforms/nativetheme' both point to the same package identity 'nativetheme'. This will be escalated to an error in future versions of SwiftPM.
+
+Resolved source packages:
+  MapboxCommon: https://github.com/mapbox/mapbox-common-ios.git @ 24.22.0
+  xctest-dynamic-overlay: https://github.com/pointfreeco/xctest-dynamic-overlay @ 1.9.0
+  NativeSandbox: /Users/justinrich/Projects/native-sandbox/ios @ local
+  swift-snapshot-testing: https://github.com/pointfreeco/swift-snapshot-testing @ 1.19.2
+  ViewInspector: https://github.com/nalexn/ViewInspector @ 0.10.3
+  Get: https://github.com/kean/Get @ 2.2.1
+  Kingfisher: https://github.com/onevcat/Kingfisher.git @ 8.8.1
+  Clerk: https://github.com/clerk/clerk-ios @ 0.71.4
+  SimpleKeychain: https://github.com/auth0/SimpleKeychain @ 1.3.0
+  LaneShadowTheme: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/tokens/platforms/swift
+  PhoneNumberKit: https://github.com/marmelroy/PhoneNumberKit @ 4.2.11
+  NativeTheme: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/native-theme/platforms/NativeTheme @ local
+  swift-custom-dump: https://github.com/pointfreeco/swift-custom-dump @ 1.5.0
+  MapboxCoreMaps: https://github.com/mapbox/mapbox-core-maps-ios.git @ 11.22.0
+  swift-syntax: https://github.com/swiftlang/swift-syntax @ 603.0.1
+  MapboxMaps: https://github.com/mapbox/mapbox-maps-ios @ 11.22.0
+  ConvexMobile: https://github.com/get-convex/convex-swift @ 0.8.1
+  Turf: https://github.com/mapbox/turf-swift.git @ 4.0.0
+  Factory: https://github.com/hmlongco/Factory @ 2.5.3
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (42 targets)
+    Target 'LaneShadowUITests' in project 'LaneShadow'
+        ➜ Explicit dependency on target 'LaneShadow' in project 'LaneShadow'
+    Target 'LaneShadowTests' in project 'LaneShadow'
+        ➜ Explicit dependency on target 'LaneShadow' in project 'LaneShadow'
+        ➜ Explicit dependency on target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'SnapshotTesting' in project 'swift-snapshot-testing'
+        ➜ Explicit dependency on target 'ViewInspector' in project 'ViewInspector'
+    Target 'ViewInspector' in project 'ViewInspector'
+        ➜ Explicit dependency on target 'ViewInspector' in project 'ViewInspector'
+    Target 'ViewInspector' in project 'ViewInspector' (no dependencies)
+    Target 'SnapshotTesting' in project 'swift-snapshot-testing'
+        ➜ Explicit dependency on target 'SnapshotTesting' in project 'swift-snapshot-testing'
+    Target 'SnapshotTesting' in project 'swift-snapshot-testing' (no dependencies)
+    Target 'LaneShadow' in project 'LaneShadow'
+        ➜ Explicit dependency on target 'ConvexMobile' in project 'ConvexMobile'
+        ➜ Explicit dependency on target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'Clerk' in project 'Clerk'
+    Target 'Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'Clerk_Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'Get' in project 'Get'
+        ➜ Explicit dependency on target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'SimpleKeychain' in project 'SimpleKeychain'
+    Target 'Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'Clerk_Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'Get' in project 'Get'
+        ➜ Explicit dependency on target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'SimpleKeychain' in project 'SimpleKeychain'
+    Target 'SimpleKeychain' in project 'SimpleKeychain'
+        ➜ Explicit dependency on target 'SimpleKeychain' in project 'SimpleKeychain'
+    Target 'SimpleKeychain' in project 'SimpleKeychain' (no dependencies)
+    Target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'PhoneNumberKit_PhoneNumberKit' in project 'PhoneNumberKit'
+    Target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'PhoneNumberKit_PhoneNumberKit' in project 'PhoneNumberKit'
+    Target 'PhoneNumberKit_PhoneNumberKit' in project 'PhoneNumberKit' (no dependencies)
+    Target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Kingfisher_Kingfisher' in project 'Kingfisher'
+    Target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Kingfisher_Kingfisher' in project 'Kingfisher'
+    Target 'Kingfisher_Kingfisher' in project 'Kingfisher' (no dependencies)
+    Target 'Get' in project 'Get'
+        ➜ Explicit dependency on target 'Get' in project 'Get'
+    Target 'Get' in project 'Get' (no dependencies)
+    Target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'Factory_FactoryKit' in project 'Factory'
+    Target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'Factory_FactoryKit' in project 'Factory'
+    Target 'Factory_FactoryKit' in project 'Factory' (no dependencies)
+    Target 'Clerk_Clerk' in project 'Clerk' (no dependencies)
+    Target 'MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'MapboxMaps_MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'Turf' in project 'Turf'
+        ➜ Explicit dependency on target 'MapboxCommon' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'MapboxCoreMaps' in project 'MapboxCoreMaps'
+    Target 'MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'MapboxMaps_MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'Turf' in project 'Turf'
+        ➜ Explicit dependency on target 'MapboxCommon' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'MapboxCoreMaps' in project 'MapboxCoreMaps'
+    Target 'MapboxCoreMaps' in project 'MapboxCoreMaps'
+        ➜ Explicit dependency on target 'MapboxCoreMapsWrapper' in project 'MapboxCoreMaps'
+        ➜ Explicit dependency on target 'MapboxCommon' in project 'MapboxCommon'
+    Target 'MapboxCoreMapsWrapper' in project 'MapboxCoreMaps'
+        ➜ Explicit dependency on target 'MapboxCommon' in project 'MapboxCommon'
+    Target 'MapboxCommon' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'MapboxCommonWrapper' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'Turf' in project 'Turf'
+    Target 'MapboxCommonWrapper' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'Turf' in project 'Turf'
+    Target 'Turf' in project 'Turf' (no dependencies)
+    Target 'MapboxMaps_MapboxMaps' in project 'MapboxMaps' (no dependencies)
+    Target 'NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeSandbox_NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeSandbox_NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'NativeSandbox_NativeSandbox' in project 'NativeSandbox' (no dependencies)
+    Target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'LaneShadowTheme_LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'LaneShadowTheme_LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'NativeTheme' in project 'NativeTheme'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'NativeTheme' in project 'NativeTheme' (no dependencies)
+    Target 'LaneShadowTheme_LaneShadowTheme' in project 'LaneShadowTheme' (no dependencies)
+    Target 'ConvexMobile' in project 'ConvexMobile'
+        ➜ Explicit dependency on target 'ConvexMobile' in project 'ConvexMobile'
+        ➜ Explicit dependency on target 'UniFFI' in project 'ConvexMobile'
+    Target 'ConvexMobile' in project 'ConvexMobile'
+        ➜ Explicit dependency on target 'UniFFI' in project 'ConvexMobile'
+    Target 'UniFFI' in project 'ConvexMobile' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --dry-run --output-directory /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios/Sources/Clerk/ClerkUI/Resources/Localizable.xcstrings
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadow/Assets.xcassets
+
+ReadFileContents /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/docc/features.json
+
+Build description signature: bdaa5ff6b8df972d443980c6e5ddebcf
+Build description path: /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/XCBuildData/bdaa5ff6b8df972d443980c6e5ddebcf.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk /Users/justinrich/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.5-23F73-688ef53f1462e2c8f657fdc38a81448f6cfe768891a92b912361537c460fe42b.sdkstatcache
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadow.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -o /Users/justinrich/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.5-23F73-688ef53f1462e2c8f657fdc38a81448f6cfe768891a92b912361537c460fe42b.sdkstatcache
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowTheme_LaneShadowTheme.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadowTheme.build/Debug-iphonesimulator/LaneShadowTheme_LaneShadowTheme.build/empty-LaneShadowTheme_LaneShadowTheme.plist (in target 'LaneShadowTheme_LaneShadowTheme' from project 'LaneShadowTheme')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/tokens/platforms/swift
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadowTheme.build/Debug-iphonesimulator/LaneShadowTheme_LaneShadowTheme.build/empty-LaneShadowTheme_LaneShadowTheme.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowTheme_LaneShadowTheme.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PackageFrameworks/NativeTheme_-34DE91214F09EA9B_PackageProduct.framework/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/NativeTheme.build/Debug-iphonesimulator/NativeTheme\ product.build/empty-NativeTheme_-34DE91214F09EA9B_PackageProduct.plist (in target 'NativeTheme' from project 'NativeTheme')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/native-theme/platforms/NativeTheme
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/NativeTheme.build/Debug-iphonesimulator/NativeTheme\ product.build/empty-NativeTheme_-34DE91214F09EA9B_PackageProduct.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PackageFrameworks/NativeTheme_-34DE91214F09EA9B_PackageProduct.framework/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/PhoneNumberKit.build/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.build/empty-PhoneNumberKit_PhoneNumberKit.plist (in target 'PhoneNumberKit_PhoneNumberKit' from project 'PhoneNumberKit')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/PhoneNumberKit
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/PhoneNumberKit.build/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.build/empty-PhoneNumberKit_PhoneNumberKit.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PackageFrameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadowTheme.build/Debug-iphonesimulator/LaneShadowTheme\ product.build/empty-LaneShadowTheme_48925DD14627D0E8_PackageProduct.plist (in target 'LaneShadowTheme' from project 'LaneShadowTheme')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/tokens/platforms/swift
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadowTheme.build/Debug-iphonesimulator/LaneShadowTheme\ product.build/empty-LaneShadowTheme_48925DD14627D0E8_PackageProduct.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PackageFrameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/NativeSandbox_NativeSandbox.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/NativeSandbox.build/Debug-iphonesimulator/NativeSandbox_NativeSandbox.build/empty-NativeSandbox_NativeSandbox.plist (in target 'NativeSandbox_NativeSandbox' from project 'NativeSandbox')
+    cd /Users/justinrich/Projects/native-sandbox/ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/NativeSandbox.build/Debug-iphonesimulator/NativeSandbox_NativeSandbox.build/empty-NativeSandbox_NativeSandbox.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/NativeSandbox_NativeSandbox.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Factory_FactoryKit.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Factory.build/Debug-iphonesimulator/Factory_FactoryKit.build/empty-Factory_FactoryKit.plist (in target 'Factory_FactoryKit' from project 'Factory')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/Factory
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Factory.build/Debug-iphonesimulator/Factory_FactoryKit.build/empty-Factory_FactoryKit.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Factory_FactoryKit.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Kingfisher_Kingfisher.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Kingfisher.build/Debug-iphonesimulator/Kingfisher_Kingfisher.build/empty-Kingfisher_Kingfisher.plist (in target 'Kingfisher_Kingfisher' from project 'Kingfisher')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/Kingfisher
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Kingfisher.build/Debug-iphonesimulator/Kingfisher_Kingfisher.build/empty-Kingfisher_Kingfisher.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Kingfisher_Kingfisher.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/MapboxMaps_MapboxMaps.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/MapboxMaps.build/Debug-iphonesimulator/MapboxMaps_MapboxMaps.build/empty-MapboxMaps_MapboxMaps.plist (in target 'MapboxMaps_MapboxMaps' from project 'MapboxMaps')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/mapbox-maps-ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/MapboxMaps.build/Debug-iphonesimulator/MapboxMaps_MapboxMaps.build/empty-MapboxMaps_MapboxMaps.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/MapboxMaps.build/Debug-iphonesimulator/MapboxMaps_MapboxMaps.build/assetcatalog_generated_info.plist -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/MapboxMaps_MapboxMaps.bundle/Info.plist
+
+CompileXCStrings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios/Sources/Clerk/ClerkUI/Resources/Localizable.xcstrings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --output-directory /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios/Sources/Clerk/ClerkUI/Resources/Localizable.xcstrings
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/empty-Clerk_Clerk.plist (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/empty-Clerk_Clerk.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/assetcatalog_generated_info.plist -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/Info.plist
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/it.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/it.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/it.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/it.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/it.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ko.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ko.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ko.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ko.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ko.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/hi.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/hi.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/hi.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/hi.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/hi.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/fr.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/fr.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/fr.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/fr.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/fr.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/en.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/en.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/en.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/en.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/en.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/zh-Hans.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/zh-Hans.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/zh-Hans.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/zh-Hans.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/zh-Hans.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/el.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/el.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/el.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/el.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/el.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/de.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/de.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/de.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/de.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/de.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ja.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ja.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ja.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ja.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ja.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ar.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ar.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ar.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ar.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ar.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/es.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/es.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/es.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/es.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/es.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+Copy /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Clerk_Clerk.bundle /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Info.plist /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadow/Info.plist (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-infoPlistUtility /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadow/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadow.build/assetcatalog_generated_info.plist -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Clerk_Clerk.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Factory_FactoryKit.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/MapboxCommon.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/MapboxCoreMaps.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/NativeTheme_-34DE91214F09EA9B_PackageProduct.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/Turf.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Kingfisher_Kingfisher.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/LaneShadowTheme_LaneShadowTheme.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/MapboxMaps_MapboxMaps.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/NativeSandbox_NativeSandbox.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PhoneNumberKit_PhoneNumberKit.bundle -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Info.plist
+
+CopySwiftLibs /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/LaneShadow.debug.dylib --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/SystemExtensions --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Extensions --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PackageFrameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework --scan-folder /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/System/Library/Frameworks/Foundation.framework --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.42.0.Elhwei/Metal.xctoolchain --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadow.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadowTests/Sandbox/MotionTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadowTests/Sandbox/RouteResultsDetailsVariantTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadowTests/Sandbox/SessionsErrorVariantTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+Copy /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Clerk_Clerk.bundle /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/empty-LaneShadowTests.plist (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/empty-LaneShadowTests.plist -producttype com.apple.product-type.bundle.unit-test -expandbuildsettings -format binary -platform iphonesimulator -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Clerk_Clerk.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Factory_FactoryKit.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Kingfisher_Kingfisher.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/LaneShadowTheme_LaneShadowTheme.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/MapboxMaps_MapboxMaps.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/NativeSandbox_NativeSandbox.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/PhoneNumberKit_PhoneNumberKit.bundle -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Info.plist
+
+CopySwiftLibs /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/LaneShadowTests --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Frameworks --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/PlugIns --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/SystemExtensions --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Extensions --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PackageFrameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.42.0.Elhwei/Metal.xctoolchain --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+CodeSign /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/LaneShadow.debug.dylib (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/LaneShadow.debug.dylib
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/LaneShadow.debug.dylib: replacing existing signature
+
+CodeSign /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/__preview.dylib (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/__preview.dylib
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/__preview.dylib: replacing existing signature
+
+CodeSign /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app: replacing existing signature
+
+Validate /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-validationUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app -shallow-bundle -infoplist-subpath Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowUITests.build/empty-LaneShadowUITests.plist (in target 'LaneShadowUITests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowUITests.build/empty-LaneShadowUITests.plist -producttype com.apple.product-type.bundle.ui-testing -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowUITests.build/ProductTypeInfoPlistAdditions.plist -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/Info.plist
+
+CopySwiftLibs /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest (in target 'LaneShadowUITests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/LaneShadowUITests --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/Frameworks --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/PlugIns --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/SystemExtensions --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/Extensions --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.42.0.Elhwei/Metal.xctoolchain --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowUITests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+2026-05-19 07:20:41.747691-0700 LaneShadow[1970:52247108] [common] [Info, common]: Using Mapbox Common SDK v24.22.0(cb16ef14a038f95e5311abe5f2a78afb48e8090b)
+2026-05-19 07:20:41.748185-0700 LaneShadow[1970:52247108] [maps-core] [Info, maps-core]: Using Mapbox Core Maps SDK v11.22.0(cb16ef14a03)
+2026-05-19 07:20:42.032839-0700 LaneShadow[1970:52247108] 🟣 App.init: Clerk.shared.configure() with key prefix=pk_test_
+2026-05-19 07:20:42.140383-0700 LaneShadow[1970:52247108] 🟣 RootView.branch: authBootstrapPlaceholder appeared
+2026-05-19 07:20:42.140467-0700 LaneShadow[1970:52247108] 🟣 RootView.task: bootstrap start
+IOSurfaceClientSetSurfaceNotify failed e00002c7
+2026-05-19 07:20:42.228311-0700 LaneShadow[1970:52247108] 🟣 RootView.task: resetAuth didRun=false
+2026-05-19 07:20:42.228406-0700 LaneShadow[1970:52247108] 🟣 RootView.e2eBypassAuthIfNeeded: shouldBypass=false args=["/Users/justinrich/Library/Developer/CoreSimulator/Devices/9D638581-8DDF-4B33-AA52-87E59A0C718E/data/Containers/Bundle/Application/C7660219-5812-4035-BF28-2D70AD012FA3/LaneShadow.app/LaneShadow"]
+2026-05-19 07:20:42.228446-0700 LaneShadow[1970:52247108] 🟣 RootView.task: e2eBypass didRun=false
+Test Suite 'Selected tests' started at 2026-05-19 07:20:42.312.
+Test Suite 'LaneShadowTests.xctest' started at 2026-05-19 07:20:42.313.
+Test Suite 'PlanningScreenTests' started at 2026-05-19 07:20:42.313.
+Test Case '-[LaneShadowTests.PlanningScreenTests test_topOverlay_capsuleAboveIndicator]' started.
+2026-05-19 07:20:42.382823-0700 LaneShadow[1970:52247108] [LSMap] Mapbox token prefix: pk
+2026-05-19 07:20:42.383086-0700 LaneShadow[1970:52248335] [cpu_monitor] [Info, cpu_monitor]: Updating CPU monitor configuration: CPU threshold: 0%, Interval duration: 100 ms,
+2026-05-19 07:20:42.399129-0700 LaneShadow[1970:52247108] [maps-core] [Error, maps-core]: Invalid size is used for setting the map view, fall back to the default size {64, 64}
+2026-05-19 07:20:42.399187-0700 LaneShadow[1970:52247108] [maps-core] [Error, maps-core]: Invalid size is used for setting the map view, fall back to the default size {64, 64}
+2026-05-19 07:20:42.399233-0700 LaneShadow[1970:52247108] [maps-core/setup] [Info, maps-core/setup]: DefaultFileSourceManager: registering default file source factories
+2026-05-19 07:20:42.399265-0700 LaneShadow[1970:52247108] [maps-core/setup] [Info, maps-core/setup]: FileSourceManager: registering ResourceLoader source type factory
+2026-05-19 07:20:42.399299-0700 LaneShadow[1970:52247108] [maps-core/setup] [Info, maps-core/setup]: FileSourceManager: registering Asset source type factory
+2026-05-19 07:20:42.399332-0700 LaneShadow[1970:52247108] [maps-core/setup] [Info, maps-core/setup]: FileSourceManager: registering Database source type factory
+2026-05-19 07:20:42.399365-0700 LaneShadow[1970:52247108] [maps-core/setup] [Info, maps-core/setup]: FileSourceManager: registering FileSystem source type factory
+2026-05-19 07:20:42.399392-0700 LaneShadow[1970:52247108] [maps-core/setup] [Info, maps-core/setup]: FileSourceManager: registering Network source type factory
+2026-05-19 07:20:42.402261-0700 LaneShadow[1970:52248339] [tile_store] [Info, tile_store]: Loading existing database with size 4096 from /Users/justinrich/Library/Developer/CoreSimulator/Devices/9D638581-8DDF-4B33-AA52-87E59A0C718E/data/Containers/Data/Application/C948E4DD-548D-4249-907D-25865EA8824E/Library/Application Support/.mapbox/tile_store/metadata.db
+2026-05-19 07:20:42.404223-0700 LaneShadow[1970:52247108] [maps-core] [Info, maps-core]: Using Metal render backend
+2026-05-19 07:20:42.407770-0700 LaneShadow[1970:52248339] [tile_store] [Info, tile_store]: Database has 0 bytes recorded in 0 tiles and 0 resources. Disk space left: 2701685075968
+2026-05-19 07:20:42.407861-0700 LaneShadow[1970:52248339] [tile_store] [Info, tile_store]: Loading existing database with size 4096 from /Users/justinrich/Library/Developer/CoreSimulator/Devices/9D638581-8DDF-4B33-AA52-87E59A0C718E/data/Containers/Data/Application/C948E4DD-548D-4249-907D-25865EA8824E/Library/Application Support/.mapbox/tile_store/metadata.db
+2026-05-19 07:20:42.408415-0700 LaneShadow[1970:52248339] [tile_store] [Info, tile_store]: Database has 0 bytes recorded in 0 tiles and 0 resources. Disk space left: 2701685071872
+2026-05-19 07:20:42.476409-0700 LaneShadow[1970:52248257] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C3] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:20:42.476464-0700 LaneShadow[1970:52248257] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C3] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:20:42.476498-0700 LaneShadow[1970:52248257] [connection] nw_connection_copy_connected_local_endpoint_block_invoke [C3] Client called nw_connection_copy_connected_local_endpoint on unconnected nw_connection
+2026-05-19 07:20:42.476518-0700 LaneShadow[1970:52248257] [connection] nw_connection_copy_connected_remote_endpoint_block_invoke [C3] Client called nw_connection_copy_connected_remote_endpoint on unconnected nw_connection
+2026-05-19 07:20:42.563110-0700 LaneShadow[1970:52247108] [maps-ios/Location] [Error, maps-ios/Location]: MapboxMaps.AppleLocationProvider did fail with error: Error Domain=kCLErrorDomain Code=1 "(null)"
+2026-05-19 07:20:42.571083-0700 LaneShadow[1970:52247108] [LSMap] Mapbox style loaded: success styleURI=mapbox://styles/mapbox/light-v11
+2026-05-19 07:20:42.669824-0700 LaneShadow[1970:52247108] [LSMap] Recenter requested, but no user location is available
+2026-05-19 07:20:42.712485-0700 LaneShadow[1970:52247710] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C8] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:20:42.712539-0700 LaneShadow[1970:52247710] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C8] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:20:42.712571-0700 LaneShadow[1970:52247710] [connection] nw_connection_copy_connected_local_endpoint_block_invoke [C8] Client called nw_connection_copy_connected_local_endpoint on unconnected nw_connection
+2026-05-19 07:20:42.712599-0700 LaneShadow[1970:52247710] [connection] nw_connection_copy_connected_remote_endpoint_block_invoke [C8] Client called nw_connection_copy_connected_remote_endpoint on unconnected nw_connection
+2026-05-19 07:20:42.712918-0700 LaneShadow[1970:52247710] [] nw_protocol_instance_set_output_handler Not calling remove_input_handler on 0x11a53be00:socket
+2026-05-19 07:20:42.713201-0700 LaneShadow[1970:52247710] [connection] nw_connection_copy_connected_local_endpoint_block_invoke [C4] Connection has no local endpoint
+2026-05-19 07:20:42.713295-0700 LaneShadow[1970:52247710] [connection] nw_connection_copy_connected_local_endpoint_block_invoke [C4] Connection has no local endpoint
+2026-05-19 07:20:42.832159-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:42.866421-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:42.884451-0700 LaneShadow[1970:52247751] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C7] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:20:42.884494-0700 LaneShadow[1970:52247751] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C7] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:20:42.884564-0700 LaneShadow[1970:52247751] [connection] nw_connection_copy_connected_local_endpoint_block_invoke [C7] Client called nw_connection_copy_connected_local_endpoint on unconnected nw_connection
+2026-05-19 07:20:42.884589-0700 LaneShadow[1970:52247751] [connection] nw_connection_copy_connected_remote_endpoint_block_invoke [C7] Client called nw_connection_copy_connected_remote_endpoint on unconnected nw_connection
+2026-05-19 07:20:42.884834-0700 LaneShadow[1970:52247751] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C9] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:20:42.884876-0700 LaneShadow[1970:52247751] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C9] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:20:42.884895-0700 LaneShadow[1970:52247751] [connection] nw_connection_copy_connected_local_endpoint_block_invoke [C9] Client called nw_connection_copy_connected_local_endpoint on unconnected nw_connection
+2026-05-19 07:20:42.884925-0700 LaneShadow[1970:52247751] [connection] nw_connection_copy_connected_remote_endpoint_block_invoke [C9] Client called nw_connection_copy_connected_remote_endpoint on unconnected nw_connection
+2026-05-19 07:20:42.885199-0700 LaneShadow[1970:52247751] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C10] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:20:42.885237-0700 LaneShadow[1970:52247751] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C10] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:20:42.885286-0700 LaneShadow[1970:52247751] [connection] nw_connection_copy_connected_local_endpoint_block_invoke [C10] Client called nw_connection_copy_connected_local_endpoint on unconnected nw_connection
+2026-05-19 07:20:42.885390-0700 LaneShadow[1970:52247751] [connection] nw_connection_copy_connected_remote_endpoint_block_invoke [C10] Client called nw_connection_copy_connected_remote_endpoint on unconnected nw_connection
+2026-05-19 07:20:42.957988-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<ColorScheme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:42.964793-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<ColorScheme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:42.981740-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:42.982029-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.013723-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.014004-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.014243-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.014442-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.014666-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.014856-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Bool>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.015040-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.015228-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.029340-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.029600-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.029787-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.029973-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.030156-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.030336-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Bool>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.030519-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.030706-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.040060-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.040342-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.040572-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.040703-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.069158-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.069453-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.069849-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.070089-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.161072-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.161381-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.161585-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.173327-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.173670-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.174018-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.174283-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.174491-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.174653-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.174834-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.175004-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.175150-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.192116-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.192437-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.192760-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.193021-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.193214-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.193367-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.193493-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.193647-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.193792-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.224754-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.225033-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.225328-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.233289-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.233521-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.233799-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.242807-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.243049-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.243318-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.250321-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.250582-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.250848-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.271471-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.271707-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.279704-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.279956-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.289527-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.306348-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.306681-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.306882-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.307021-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.307144-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.316442-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.316772-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.317025-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.317161-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.317284-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.338242-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.338536-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.338931-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.339080-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.339504-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.340120-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.340306-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.340491-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.340608-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.340718-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.340984-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.341168-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.341340-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.341463-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.341570-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.342452-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.342616-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.343032-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.343213-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.343629-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.344222-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.344373-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.344514-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.344657-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.344799-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.344952-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.345118-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.345287-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.345405-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.345568-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.345882-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.346038-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.346231-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.346386-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.346537-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.346691-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.346864-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.347033-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.347150-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.347261-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.366447-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.366699-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.367005-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.367146-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.367609-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.368283-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.368489-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.368678-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.368804-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.368919-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.369231-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.369475-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.369667-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.369787-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.369899-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.371033-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.371220-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.371518-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.371705-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.372165-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.372889-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.373094-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.373276-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.373395-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.373520-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.373798-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.374015-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.374248-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.374428-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.374581-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.375597-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.375806-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.376093-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.376221-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.377675-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.377855-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.399595-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.399908-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.400058-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.434971-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.435275-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.435508-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.435750-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.435936-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.436108-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.436278-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.436451-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.436622-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.436842-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.437018-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.437187-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.437352-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.437517-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.437686-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.437855-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.438037-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.438178-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.438322-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.438466-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.453194-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.453506-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.453729-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.453926-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.454100-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.454277-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.454452-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.454639-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.454889-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.455126-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.455369-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.455555-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.455733-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.455913-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.456093-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.456266-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.456461-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.456602-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.456740-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.456881-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.480565-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.480816-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.480974-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.481105-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.498018-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.498273-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.498421-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.498558-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.528067-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.528350-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.528663-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.528917-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.529052-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.529171-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.541134-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.541384-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.541641-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing FocusState's value outside of the body of a View. This will result in a constant Binding of the initial value and will not update.
+2026-05-19 07:20:43.546327-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.546573-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.546814-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing FocusState's value outside of the body of a View. This will result in a constant Binding of the initial value and will not update.
+2026-05-19 07:20:43.629239-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.629490-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.629678-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.629965-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.630099-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.630219-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.664791-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.665150-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.665405-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.665599-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.665773-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.665953-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.666124-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.666299-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.666520-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.666738-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.666918-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.667099-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.667274-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.667440-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.667670-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.667850-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.668078-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.668288-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.668469-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.668607-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.668747-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.668883-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.669019-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.669133-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.687809-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.688172-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.688421-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.688615-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.688808-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.688991-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.689172-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.689393-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.689617-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.689827-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.690006-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.690173-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.690341-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.690506-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.690673-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.690841-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.691008-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.691176-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.691340-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.691532-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.691677-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.691815-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.691951-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.692071-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.730279-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.730521-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.730677-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.730804-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.749341-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.749611-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.749795-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.749927-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.751239-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.751453-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.751645-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.751975-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.752114-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.752232-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.854020-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.862179-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.868490-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.868754-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.868914-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.869047-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.869169-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.869289-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.869417-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.869531-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.869659-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.869827-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.869963-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.870081-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.870194-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.870309-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.870430-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.870545-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.922516-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.944727-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.967005-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.967279-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.967468-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.967600-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.967729-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.967856-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.968000-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.968120-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.968242-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.968357-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.968466-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.968582-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.968763-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:43.968898-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.002059-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.002347-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.002550-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.002905-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.003051-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.003180-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.005473-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.005673-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.005843-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.005966-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.006080-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.006191-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.006308-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.006426-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.006544-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.006653-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.006766-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.006879-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.006992-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.007139-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.010205-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.010394-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.010618-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.010848-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.010965-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.011081-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.013432-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.013645-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.013822-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.013998-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.014145-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.014284-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.014428-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.014573-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.014734-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.014882-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.015026-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.015176-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.015315-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.015501-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.015656-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.015801-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.015940-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.016080-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.016194-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.016304-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.016414-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.016525-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.016646-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.016764-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.016887-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.017001-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.017120-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.017235-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.017346-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.017494-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.017612-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.017767-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.049661-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.050144-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.057329-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.057791-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.064340-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.065223-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.068304-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<ColorScheme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.068657-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<ColorScheme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.069429-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.069683-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.069888-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.070115-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.070323-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.070542-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.070731-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.070915-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.071114-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.071324-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.071515-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.071689-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.071868-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.072066-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.072265-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.072525-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.072716-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.072908-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.073109-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.073265-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.073471-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.073626-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.073764-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.073875-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.074424-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.074625-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.074808-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.075031-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.075211-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.075382-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.075594-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.075771-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.075971-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.076205-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.076406-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.076575-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.076750-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.076918-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.077122-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.077309-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.077487-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.077677-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.077847-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.077992-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.078181-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.078324-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.078489-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.078661-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.079413-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.079713-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.080109-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.080232-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.080728-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.080860-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.080973-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.081421-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.081540-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.081978-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.082148-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.082272-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.084222-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.084415-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.084573-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.084787-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.084988-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.085159-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Bool>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.085329-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.085507-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.086265-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.087052-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.089879-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<ColorScheme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.090198-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<ColorScheme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.090873-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.091102-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.091297-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.091482-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.091671-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.091932-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.092114-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.092290-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.092471-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.092668-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.092839-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.093017-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.093192-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.093366-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.093536-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.093699-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.093910-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.094079-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.094245-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.094446-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.094635-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.094782-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.094921-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.095083-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.095657-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.095865-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.096085-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.096276-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.096493-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.096667-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.096843-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.097019-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.097229-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.097426-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.097607-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.097839-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.098017-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.098190-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.098400-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.098586-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.098791-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.098996-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.099156-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.099333-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.099487-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.099658-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.099782-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.099926-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.100770-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.101103-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.101468-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.101635-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.102197-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.102409-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.102533-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.103218-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.103371-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.103869-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.104026-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.104141-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.105990-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.106192-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.106353-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.106538-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.106742-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.106954-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Bool>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.107134-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.107308-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.107729-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.107875-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.108058-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.108235-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.108405-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.108567-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Bool>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.108780-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.108951-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.109421-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.109569-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.109796-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.110003-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.110239-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.110413-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.110585-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.110733-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:20:44.110910-0700 LaneShadow[1970:52247108] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+Test Case '-[LaneShadowTests.PlanningScreenTests test_topOverlay_capsuleAboveIndicator]' passed (1.825 seconds).
+Test Suite 'PlanningScreenTests' passed at 2026-05-19 07:20:44.139.
+	 Executed 1 test, with 0 failures (0 unexpected) in 1.825 (1.826) seconds
+Test Suite 'LaneShadowTests.xctest' passed at 2026-05-19 07:20:44.139.
+	 Executed 1 test, with 0 failures (0 unexpected) in 1.825 (1.826) seconds
+Test Suite 'Selected tests' passed at 2026-05-19 07:20:44.139.
+	 Executed 1 test, with 0 failures (0 unexpected) in 1.825 (1.827) seconds
+2026-05-19 07:20:44.177816-0700 LaneShadow[1970:52247108] 🟠 AppState.completeAuth: enter clerkUserId=user_3D5KiruNogpF0CQN2Jy5xPwQ0QZ
+2026-05-19 07:20:44.177896-0700 LaneShadow[1970:52247108] 🟠 AppState.updateAuthState: hasClerkSession false → true
+2026-05-19 07:20:44.177938-0700 LaneShadow[1970:52247108] 🟠 AppState.completeAuth: setAuth start
+2026-05-19 07:20:44.178028-0700 LaneShadow[1970:52247108] 🔶 ClerkAuth.convexJWT: enter
+2026-05-19 07:20:44.178073-0700 LaneShadow[1970:52247108] 🔶 ClerkAuth.getJWT: enter
+2026-05-19 07:20:51.363 xcodebuild[1883:52246191] [MT] IDETestOperationsObserverDebug: 11.267 elapsed -- Testing started completed.
+2026-05-19 07:20:51.363 xcodebuild[1883:52246191] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-05-19 07:20:51.363 xcodebuild[1883:52246191] [MT] IDETestOperationsObserverDebug: 11.267 sec, +11.267 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Logs/Test/Test-LaneShadow-2026.05.19_07-20-36--0700.xcresult
+
+** TEST SUCCEEDED **
+
+Testing started

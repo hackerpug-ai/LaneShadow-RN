@@ -1,0 +1,509 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination "platform=iOS Simulator,name=iPhone 16" "-only-testing:LaneShadowTests/PlanningScreenTests/test_capsule_bindsViewModelHeadline"
+
+Resolve Package Graph
+Conflicting identity for nativetheme: dependency '/users/justinrich/projects/native-theme/platforms/nativetheme' and dependency '/users/justinrich/projects/laneshadow/.kb-run-sprint/worktrees/native-theme/platforms/nativetheme' both point to the same package identity 'nativetheme'. This will be escalated to an error in future versions of SwiftPM.
+
+Resolved source packages:
+  Factory: https://github.com/hmlongco/Factory @ 2.5.3
+  Turf: https://github.com/mapbox/turf-swift.git @ 4.0.0
+  MapboxMaps: https://github.com/mapbox/mapbox-maps-ios @ 11.22.0
+  PhoneNumberKit: https://github.com/marmelroy/PhoneNumberKit @ 4.2.11
+  NativeSandbox: /Users/justinrich/Projects/native-sandbox/ios @ local
+  MapboxCommon: https://github.com/mapbox/mapbox-common-ios.git @ 24.22.0
+  LaneShadowTheme: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/tokens/platforms/swift
+  ViewInspector: https://github.com/nalexn/ViewInspector @ 0.10.3
+  swift-custom-dump: https://github.com/pointfreeco/swift-custom-dump @ 1.5.0
+  Kingfisher: https://github.com/onevcat/Kingfisher.git @ 8.8.1
+  xctest-dynamic-overlay: https://github.com/pointfreeco/xctest-dynamic-overlay @ 1.9.0
+  swift-syntax: https://github.com/swiftlang/swift-syntax @ 603.0.1
+  swift-snapshot-testing: https://github.com/pointfreeco/swift-snapshot-testing @ 1.19.2
+  Clerk: https://github.com/clerk/clerk-ios @ 0.71.4
+  SimpleKeychain: https://github.com/auth0/SimpleKeychain @ 1.3.0
+  ConvexMobile: https://github.com/get-convex/convex-swift @ 0.8.1
+  NativeTheme: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/native-theme/platforms/NativeTheme @ local
+  Get: https://github.com/kean/Get @ 2.2.1
+  MapboxCoreMaps: https://github.com/mapbox/mapbox-core-maps-ios.git @ 11.22.0
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (42 targets)
+    Target 'LaneShadowUITests' in project 'LaneShadow'
+        ➜ Explicit dependency on target 'LaneShadow' in project 'LaneShadow'
+    Target 'LaneShadowTests' in project 'LaneShadow'
+        ➜ Explicit dependency on target 'LaneShadow' in project 'LaneShadow'
+        ➜ Explicit dependency on target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'SnapshotTesting' in project 'swift-snapshot-testing'
+        ➜ Explicit dependency on target 'ViewInspector' in project 'ViewInspector'
+    Target 'ViewInspector' in project 'ViewInspector'
+        ➜ Explicit dependency on target 'ViewInspector' in project 'ViewInspector'
+    Target 'ViewInspector' in project 'ViewInspector' (no dependencies)
+    Target 'SnapshotTesting' in project 'swift-snapshot-testing'
+        ➜ Explicit dependency on target 'SnapshotTesting' in project 'swift-snapshot-testing'
+    Target 'SnapshotTesting' in project 'swift-snapshot-testing' (no dependencies)
+    Target 'LaneShadow' in project 'LaneShadow'
+        ➜ Explicit dependency on target 'ConvexMobile' in project 'ConvexMobile'
+        ➜ Explicit dependency on target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'Clerk' in project 'Clerk'
+    Target 'Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'Clerk_Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'Get' in project 'Get'
+        ➜ Explicit dependency on target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'SimpleKeychain' in project 'SimpleKeychain'
+    Target 'Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'Clerk_Clerk' in project 'Clerk'
+        ➜ Explicit dependency on target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'Get' in project 'Get'
+        ➜ Explicit dependency on target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'SimpleKeychain' in project 'SimpleKeychain'
+    Target 'SimpleKeychain' in project 'SimpleKeychain'
+        ➜ Explicit dependency on target 'SimpleKeychain' in project 'SimpleKeychain'
+    Target 'SimpleKeychain' in project 'SimpleKeychain' (no dependencies)
+    Target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'PhoneNumberKit_PhoneNumberKit' in project 'PhoneNumberKit'
+    Target 'PhoneNumberKit' in project 'PhoneNumberKit'
+        ➜ Explicit dependency on target 'PhoneNumberKit_PhoneNumberKit' in project 'PhoneNumberKit'
+    Target 'PhoneNumberKit_PhoneNumberKit' in project 'PhoneNumberKit' (no dependencies)
+    Target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Kingfisher_Kingfisher' in project 'Kingfisher'
+    Target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Kingfisher_Kingfisher' in project 'Kingfisher'
+    Target 'Kingfisher_Kingfisher' in project 'Kingfisher' (no dependencies)
+    Target 'Get' in project 'Get'
+        ➜ Explicit dependency on target 'Get' in project 'Get'
+    Target 'Get' in project 'Get' (no dependencies)
+    Target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'Factory_FactoryKit' in project 'Factory'
+    Target 'FactoryKit' in project 'Factory'
+        ➜ Explicit dependency on target 'Factory_FactoryKit' in project 'Factory'
+    Target 'Factory_FactoryKit' in project 'Factory' (no dependencies)
+    Target 'Clerk_Clerk' in project 'Clerk' (no dependencies)
+    Target 'MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'MapboxMaps_MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'Turf' in project 'Turf'
+        ➜ Explicit dependency on target 'MapboxCommon' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'MapboxCoreMaps' in project 'MapboxCoreMaps'
+    Target 'MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'MapboxMaps_MapboxMaps' in project 'MapboxMaps'
+        ➜ Explicit dependency on target 'Turf' in project 'Turf'
+        ➜ Explicit dependency on target 'MapboxCommon' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'MapboxCoreMaps' in project 'MapboxCoreMaps'
+    Target 'MapboxCoreMaps' in project 'MapboxCoreMaps'
+        ➜ Explicit dependency on target 'MapboxCoreMapsWrapper' in project 'MapboxCoreMaps'
+        ➜ Explicit dependency on target 'MapboxCommon' in project 'MapboxCommon'
+    Target 'MapboxCoreMapsWrapper' in project 'MapboxCoreMaps'
+        ➜ Explicit dependency on target 'MapboxCommon' in project 'MapboxCommon'
+    Target 'MapboxCommon' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'MapboxCommonWrapper' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'Turf' in project 'Turf'
+    Target 'MapboxCommonWrapper' in project 'MapboxCommon'
+        ➜ Explicit dependency on target 'Turf' in project 'Turf'
+    Target 'Turf' in project 'Turf' (no dependencies)
+    Target 'MapboxMaps_MapboxMaps' in project 'MapboxMaps' (no dependencies)
+    Target 'NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeSandbox_NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeSandbox_NativeSandbox' in project 'NativeSandbox'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'NativeSandbox_NativeSandbox' in project 'NativeSandbox' (no dependencies)
+    Target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'LaneShadowTheme_LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'LaneShadowTheme_LaneShadowTheme' in project 'LaneShadowTheme'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'NativeTheme' in project 'NativeTheme'
+        ➜ Explicit dependency on target 'NativeTheme' in project 'NativeTheme'
+    Target 'NativeTheme' in project 'NativeTheme' (no dependencies)
+    Target 'LaneShadowTheme_LaneShadowTheme' in project 'LaneShadowTheme' (no dependencies)
+    Target 'ConvexMobile' in project 'ConvexMobile'
+        ➜ Explicit dependency on target 'ConvexMobile' in project 'ConvexMobile'
+        ➜ Explicit dependency on target 'UniFFI' in project 'ConvexMobile'
+    Target 'ConvexMobile' in project 'ConvexMobile'
+        ➜ Explicit dependency on target 'UniFFI' in project 'ConvexMobile'
+    Target 'UniFFI' in project 'ConvexMobile' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --dry-run --output-directory /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios/Sources/Clerk/ClerkUI/Resources/Localizable.xcstrings
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadow/Assets.xcassets
+
+ReadFileContents /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/docc/features.json
+
+Build description signature: 1130cc3040efc2e497e76518416d3bdd
+Build description path: /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/XCBuildData/1130cc3040efc2e497e76518416d3bdd.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk /Users/justinrich/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.5-23F73-688ef53f1462e2c8f657fdc38a81448f6cfe768891a92b912361537c460fe42b.sdkstatcache
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadow.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk -o /Users/justinrich/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator26.5-23F73-688ef53f1462e2c8f657fdc38a81448f6cfe768891a92b912361537c460fe42b.sdkstatcache
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/NativeSandbox_NativeSandbox.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/NativeSandbox.build/Debug-iphonesimulator/NativeSandbox_NativeSandbox.build/empty-NativeSandbox_NativeSandbox.plist (in target 'NativeSandbox_NativeSandbox' from project 'NativeSandbox')
+    cd /Users/justinrich/Projects/native-sandbox/ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/NativeSandbox.build/Debug-iphonesimulator/NativeSandbox_NativeSandbox.build/empty-NativeSandbox_NativeSandbox.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/NativeSandbox_NativeSandbox.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PackageFrameworks/NativeTheme_-34DE91214F09EA9B_PackageProduct.framework/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/NativeTheme.build/Debug-iphonesimulator/NativeTheme\ product.build/empty-NativeTheme_-34DE91214F09EA9B_PackageProduct.plist (in target 'NativeTheme' from project 'NativeTheme')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/native-theme/platforms/NativeTheme
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/NativeTheme.build/Debug-iphonesimulator/NativeTheme\ product.build/empty-NativeTheme_-34DE91214F09EA9B_PackageProduct.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PackageFrameworks/NativeTheme_-34DE91214F09EA9B_PackageProduct.framework/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/PhoneNumberKit.build/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.build/empty-PhoneNumberKit_PhoneNumberKit.plist (in target 'PhoneNumberKit_PhoneNumberKit' from project 'PhoneNumberKit')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/PhoneNumberKit
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/PhoneNumberKit.build/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.build/empty-PhoneNumberKit_PhoneNumberKit.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PhoneNumberKit_PhoneNumberKit.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowTheme_LaneShadowTheme.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadowTheme.build/Debug-iphonesimulator/LaneShadowTheme_LaneShadowTheme.build/empty-LaneShadowTheme_LaneShadowTheme.plist (in target 'LaneShadowTheme_LaneShadowTheme' from project 'LaneShadowTheme')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/tokens/platforms/swift
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadowTheme.build/Debug-iphonesimulator/LaneShadowTheme_LaneShadowTheme.build/empty-LaneShadowTheme_LaneShadowTheme.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowTheme_LaneShadowTheme.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Factory_FactoryKit.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Factory.build/Debug-iphonesimulator/Factory_FactoryKit.build/empty-Factory_FactoryKit.plist (in target 'Factory_FactoryKit' from project 'Factory')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/Factory
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Factory.build/Debug-iphonesimulator/Factory_FactoryKit.build/empty-Factory_FactoryKit.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Factory_FactoryKit.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Kingfisher_Kingfisher.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Kingfisher.build/Debug-iphonesimulator/Kingfisher_Kingfisher.build/empty-Kingfisher_Kingfisher.plist (in target 'Kingfisher_Kingfisher' from project 'Kingfisher')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/Kingfisher
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Kingfisher.build/Debug-iphonesimulator/Kingfisher_Kingfisher.build/empty-Kingfisher_Kingfisher.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Kingfisher_Kingfisher.bundle/Info.plist
+
+CompileXCStrings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios/Sources/Clerk/ClerkUI/Resources/Localizable.xcstrings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --output-directory /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios/Sources/Clerk/ClerkUI/Resources/Localizable.xcstrings
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/MapboxMaps_MapboxMaps.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/MapboxMaps.build/Debug-iphonesimulator/MapboxMaps_MapboxMaps.build/empty-MapboxMaps_MapboxMaps.plist (in target 'MapboxMaps_MapboxMaps' from project 'MapboxMaps')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/mapbox-maps-ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/MapboxMaps.build/Debug-iphonesimulator/MapboxMaps_MapboxMaps.build/empty-MapboxMaps_MapboxMaps.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/MapboxMaps.build/Debug-iphonesimulator/MapboxMaps_MapboxMaps.build/assetcatalog_generated_info.plist -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/MapboxMaps_MapboxMaps.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/empty-Clerk_Clerk.plist (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/empty-Clerk_Clerk.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/assetcatalog_generated_info.plist -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PackageFrameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadowTheme.build/Debug-iphonesimulator/LaneShadowTheme\ product.build/empty-LaneShadowTheme_48925DD14627D0E8_PackageProduct.plist (in target 'LaneShadowTheme' from project 'LaneShadowTheme')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/tokens/platforms/swift
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadowTheme.build/Debug-iphonesimulator/LaneShadowTheme\ product.build/empty-LaneShadowTheme_48925DD14627D0E8_PackageProduct.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphonesimulator -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PackageFrameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework/Info.plist
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/zh-Hans.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/zh-Hans.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/zh-Hans.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/zh-Hans.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/zh-Hans.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ja.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ja.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ja.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ja.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ja.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/hi.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/hi.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/hi.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/hi.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/hi.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ko.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ko.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ko.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ko.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ko.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/el.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/el.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/el.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/el.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/el.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ar.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ar.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/ar.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ar.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/ar.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/it.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/it.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/it.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/it.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/it.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/de.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/de.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/de.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/de.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/de.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/es.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/es.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/es.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/es.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/es.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/fr.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/fr.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/fr.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/fr.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/fr.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+CopyStringsFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/en.lproj/Localizable.strings /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/en.lproj/Localizable.strings (in target 'Clerk_Clerk' from project 'Clerk')
+    cd /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/SourcePackages/checkouts/clerk-ios
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle/en.lproj -- /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/en.lproj/Localizable.strings
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/Clerk.build/Debug-iphonesimulator/Clerk_Clerk.build/en.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'Clerk_Clerk' from project 'Clerk')
+
+Copy /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Clerk_Clerk.bundle /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Info.plist /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadow/Info.plist (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-infoPlistUtility /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadow/Info.plist -producttype com.apple.product-type.application -genpkginfo /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadow.build/assetcatalog_generated_info.plist -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Clerk_Clerk.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Factory_FactoryKit.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/MapboxCommon.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/MapboxCoreMaps.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/NativeTheme_-34DE91214F09EA9B_PackageProduct.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks/Turf.framework -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Kingfisher_Kingfisher.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/LaneShadowTheme_LaneShadowTheme.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/MapboxMaps_MapboxMaps.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/NativeSandbox_NativeSandbox.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PhoneNumberKit_PhoneNumberKit.bundle -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Info.plist
+
+CopySwiftLibs /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/LaneShadow.debug.dylib --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/SystemExtensions --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Extensions --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PackageFrameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework --scan-folder /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator26.5.sdk/System/Library/Frameworks/Foundation.framework --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.42.0.Elhwei/Metal.xctoolchain --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadow.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadowTests/Sandbox/MotionTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadowTests/Sandbox/RouteResultsDetailsVariantTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadowTests/Sandbox/SessionsErrorVariantTests.swift (in target 'LaneShadowTests' from project 'LaneShadow')
+Copy /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Clerk_Clerk.bundle /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/Clerk_Clerk.bundle /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/empty-LaneShadowTests.plist (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/empty-LaneShadowTests.plist -producttype com.apple.product-type.bundle.unit-test -expandbuildsettings -format binary -platform iphonesimulator -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Clerk_Clerk.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Factory_FactoryKit.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Kingfisher_Kingfisher.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/LaneShadowTheme_LaneShadowTheme.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/MapboxMaps_MapboxMaps.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/NativeSandbox_NativeSandbox.bundle -scanforprivacyfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/PhoneNumberKit_PhoneNumberKit.bundle -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Info.plist
+
+CopySwiftLibs /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest (in target 'LaneShadowTests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/LaneShadowTests --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Frameworks --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/PlugIns --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/SystemExtensions --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Extensions --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/PackageFrameworks/LaneShadowTheme_48925DD14627D0E8_PackageProduct.framework --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.42.0.Elhwei/Metal.xctoolchain --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/PlugIns/LaneShadowTests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowTests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+CodeSign /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/LaneShadow.debug.dylib (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/LaneShadow.debug.dylib
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/LaneShadow.debug.dylib: replacing existing signature
+
+CodeSign /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/__preview.dylib (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/__preview.dylib
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app/__preview.dylib: replacing existing signature
+
+CodeSign /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app
+/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app: replacing existing signature
+
+Validate /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app (in target 'LaneShadow' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-validationUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadow.app -shallow-bundle -infoplist-subpath Info.plist
+
+ProcessInfoPlistFile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/Info.plist /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowUITests.build/empty-LaneShadowUITests.plist (in target 'LaneShadowUITests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-infoPlistUtility /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowUITests.build/empty-LaneShadowUITests.plist -producttype com.apple.product-type.bundle.ui-testing -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowUITests.build/ProductTypeInfoPlistAdditions.plist -o /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/Info.plist
+
+CopySwiftLibs /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest (in target 'LaneShadowUITests' from project 'LaneShadow')
+    cd /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/LaneShadowUITests --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/Frameworks --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/PlugIns --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/SystemExtensions --scan-folder /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/Extensions --platform iphonesimulator --toolchain /var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.42.0.Elhwei/Metal.xctoolchain --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Products/Debug-iphonesimulator/LaneShadowUITests-Runner.app/PlugIns/LaneShadowUITests.xctest/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Build/Intermediates.noindex/LaneShadow.build/Debug-iphonesimulator/LaneShadowUITests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+2026-05-19 07:20:59.174674-0700 LaneShadow[2806:52258597] [common] [Info, common]: Using Mapbox Common SDK v24.22.0(cb16ef14a038f95e5311abe5f2a78afb48e8090b)
+2026-05-19 07:20:59.175229-0700 LaneShadow[2806:52258597] [maps-core] [Info, maps-core]: Using Mapbox Core Maps SDK v11.22.0(cb16ef14a03)
+2026-05-19 07:20:59.456273-0700 LaneShadow[2806:52258597] 🟣 App.init: Clerk.shared.configure() with key prefix=pk_test_
+2026-05-19 07:20:59.549267-0700 LaneShadow[2806:52258597] 🟣 RootView.branch: authBootstrapPlaceholder appeared
+2026-05-19 07:20:59.549378-0700 LaneShadow[2806:52258597] 🟣 RootView.task: bootstrap start
+IOSurfaceClientSetSurfaceNotify failed e00002c7
+2026-05-19 07:20:59.624324-0700 LaneShadow[2806:52258597] 🟣 RootView.task: resetAuth didRun=false
+2026-05-19 07:20:59.624413-0700 LaneShadow[2806:52258597] 🟣 RootView.e2eBypassAuthIfNeeded: shouldBypass=false args=["/Users/justinrich/Library/Developer/CoreSimulator/Devices/9D638581-8DDF-4B33-AA52-87E59A0C718E/data/Containers/Bundle/Application/E9172E3B-DD47-4CCB-816E-8FE79FCCA810/LaneShadow.app/LaneShadow"]
+2026-05-19 07:20:59.624460-0700 LaneShadow[2806:52258597] 🟣 RootView.task: e2eBypass didRun=false
+Test Suite 'Selected tests' started at 2026-05-19 07:20:59.700.
+Test Suite 'LaneShadowTests.xctest' started at 2026-05-19 07:20:59.701.
+Test Suite 'PlanningScreenTests' started at 2026-05-19 07:20:59.701.
+Test Case '-[LaneShadowTests.PlanningScreenTests test_capsule_bindsViewModelHeadline]' started.
+2026-05-19 07:20:59.770100-0700 LaneShadow[2806:52258597] [LSMap] Mapbox token prefix: pk
+2026-05-19 07:20:59.770274-0700 LaneShadow[2806:52258768] [cpu_monitor] [Info, cpu_monitor]: Updating CPU monitor configuration: CPU threshold: 0%, Interval duration: 100 ms,
+2026-05-19 07:20:59.788265-0700 LaneShadow[2806:52258597] [maps-core] [Error, maps-core]: Invalid size is used for setting the map view, fall back to the default size {64, 64}
+2026-05-19 07:20:59.788333-0700 LaneShadow[2806:52258597] [maps-core] [Error, maps-core]: Invalid size is used for setting the map view, fall back to the default size {64, 64}
+2026-05-19 07:20:59.788387-0700 LaneShadow[2806:52258597] [maps-core/setup] [Info, maps-core/setup]: DefaultFileSourceManager: registering default file source factories
+2026-05-19 07:20:59.788433-0700 LaneShadow[2806:52258597] [maps-core/setup] [Info, maps-core/setup]: FileSourceManager: registering ResourceLoader source type factory
+2026-05-19 07:20:59.788472-0700 LaneShadow[2806:52258597] [maps-core/setup] [Info, maps-core/setup]: FileSourceManager: registering Asset source type factory
+2026-05-19 07:20:59.788506-0700 LaneShadow[2806:52258597] [maps-core/setup] [Info, maps-core/setup]: FileSourceManager: registering Database source type factory
+2026-05-19 07:20:59.788538-0700 LaneShadow[2806:52258597] [maps-core/setup] [Info, maps-core/setup]: FileSourceManager: registering FileSystem source type factory
+2026-05-19 07:20:59.788563-0700 LaneShadow[2806:52258597] [maps-core/setup] [Info, maps-core/setup]: FileSourceManager: registering Network source type factory
+2026-05-19 07:20:59.789244-0700 LaneShadow[2806:52258772] [tile_store] [Info, tile_store]: Loading existing database with size 4096 from /Users/justinrich/Library/Developer/CoreSimulator/Devices/9D638581-8DDF-4B33-AA52-87E59A0C718E/data/Containers/Data/Application/D7442867-74B6-4A59-87B5-89A01D2AD279/Library/Application Support/.mapbox/tile_store/metadata.db
+2026-05-19 07:20:59.791177-0700 LaneShadow[2806:52258597] [maps-core] [Info, maps-core]: Using Metal render backend
+2026-05-19 07:20:59.794883-0700 LaneShadow[2806:52258772] [tile_store] [Info, tile_store]: Database has 0 bytes recorded in 0 tiles and 0 resources. Disk space left: 2701506162688
+2026-05-19 07:20:59.794980-0700 LaneShadow[2806:52258772] [tile_store] [Info, tile_store]: Loading existing database with size 4096 from /Users/justinrich/Library/Developer/CoreSimulator/Devices/9D638581-8DDF-4B33-AA52-87E59A0C718E/data/Containers/Data/Application/D7442867-74B6-4A59-87B5-89A01D2AD279/Library/Application Support/.mapbox/tile_store/metadata.db
+2026-05-19 07:20:59.795503-0700 LaneShadow[2806:52258772] [tile_store] [Info, tile_store]: Database has 0 bytes recorded in 0 tiles and 0 resources. Disk space left: 2701506158592
+2026-05-19 07:20:59.857019-0700 LaneShadow[2806:52258715] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C3] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:20:59.857111-0700 LaneShadow[2806:52258715] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C3] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:20:59.857160-0700 LaneShadow[2806:52258715] [connection] nw_connection_copy_connected_local_endpoint_block_invoke [C3] Client called nw_connection_copy_connected_local_endpoint on unconnected nw_connection
+2026-05-19 07:20:59.857198-0700 LaneShadow[2806:52258715] [connection] nw_connection_copy_connected_remote_endpoint_block_invoke [C3] Client called nw_connection_copy_connected_remote_endpoint on unconnected nw_connection
+2026-05-19 07:20:59.944510-0700 LaneShadow[2806:52258597] [maps-ios/Location] [Error, maps-ios/Location]: MapboxMaps.AppleLocationProvider did fail with error: Error Domain=kCLErrorDomain Code=1 "(null)"
+2026-05-19 07:20:59.964873-0700 LaneShadow[2806:52258597] 🟠 AppState.completeAuth: enter clerkUserId=user_3D5KiruNogpF0CQN2Jy5xPwQ0QZ
+2026-05-19 07:20:59.964948-0700 LaneShadow[2806:52258597] 🟠 AppState.updateAuthState: hasClerkSession false → true
+2026-05-19 07:20:59.964994-0700 LaneShadow[2806:52258597] 🟠 AppState.completeAuth: setAuth start
+2026-05-19 07:20:59.966304-0700 LaneShadow[2806:52258597] 🔶 ClerkAuth.convexJWT: enter
+2026-05-19 07:20:59.966370-0700 LaneShadow[2806:52258597] 🔶 ClerkAuth.getJWT: enter
+2026-05-19 07:20:59.973631-0700 LaneShadow[2806:52258597] [LSMap] Mapbox style loaded: success styleURI=mapbox://styles/mapbox/light-v11
+2026-05-19 07:21:00.010854-0700 LaneShadow[2806:52258760] [] nw_protocol_instance_set_output_handler Not calling remove_input_handler on 0x11ee0c200:socket
+2026-05-19 07:21:00.011170-0700 LaneShadow[2806:52258760] [connection] nw_connection_copy_connected_local_endpoint_block_invoke [C4] Connection has no local endpoint
+2026-05-19 07:21:00.011277-0700 LaneShadow[2806:52258760] [connection] nw_connection_copy_connected_local_endpoint_block_invoke [C4] Connection has no local endpoint
+2026-05-19 07:21:00.069882-0700 LaneShadow[2806:52258597] [LSMap] Recenter requested, but no user location is available
+2026-05-19 07:21:00.086170-0700 LaneShadow[2806:52258597] 🔷 ClerkSDK.getJWT: session.id=sess_3DolHKe1M7jSzLiqXHJ8NeX7KaF jwt=<1272 chars>
+2026-05-19 07:21:00.086250-0700 LaneShadow[2806:52258597] 🔶 ClerkAuth.getJWT: returning <token>
+2026-05-19 07:21:00.089754-0700 LaneShadow[2806:52258756] 🟪 ConvexTransport.triggerAuthRefresh: loginFromCache success
+2026-05-19 07:21:00.089838-0700 LaneShadow[2806:52258597] 🟠 AppState.completeAuth: setAuth done; routeAuthenticatedWithoutHydratedProfile
+2026-05-19 07:21:00.089877-0700 LaneShadow[2806:52258597] 🟠 AppState.routeAuthenticatedWithoutHydratedProfile: hasClerkSession→true isAuthenticated→true
+2026-05-19 07:21:00.221837-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.226099-0700 LaneShadow[2806:52258715] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C7] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:21:00.226150-0700 LaneShadow[2806:52258715] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C7] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:21:00.226187-0700 LaneShadow[2806:52258715] [connection] nw_connection_copy_connected_local_endpoint_block_invoke [C7] Client called nw_connection_copy_connected_local_endpoint on unconnected nw_connection
+2026-05-19 07:21:00.226214-0700 LaneShadow[2806:52258715] [connection] nw_connection_copy_connected_remote_endpoint_block_invoke [C7] Client called nw_connection_copy_connected_remote_endpoint on unconnected nw_connection
+2026-05-19 07:21:00.226502-0700 LaneShadow[2806:52258715] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C8] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:21:00.226542-0700 LaneShadow[2806:52258715] [connection] nw_connection_copy_protocol_metadata_internal_block_invoke [C8] Client called nw_connection_copy_protocol_metadata_internal on unconnected nw_connection
+2026-05-19 07:21:00.226568-0700 LaneShadow[2806:52258715] [connection] nw_connection_copy_connected_local_endpoint_block_invoke [C8] Client called nw_connection_copy_connected_local_endpoint on unconnected nw_connection
+2026-05-19 07:21:00.226604-0700 LaneShadow[2806:52258715] [connection] nw_connection_copy_connected_remote_endpoint_block_invoke [C8] Client called nw_connection_copy_connected_remote_endpoint on unconnected nw_connection
+2026-05-19 07:21:00.259745-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.400213-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<ColorScheme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.407618-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<ColorScheme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.450507-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.451019-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.451283-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.451487-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.451741-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.451962-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.452161-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.452390-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.452625-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.452864-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.453056-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.453234-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.453479-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.453671-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.453898-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.454119-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.454304-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.454493-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.454674-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.454819-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.454963-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.455106-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.455240-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.455358-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.474304-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.474630-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.474849-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.475113-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.475322-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.475522-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.475772-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.475972-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.476163-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.476391-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.476579-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.476821-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.476996-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.477168-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.477344-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.477518-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.477699-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.477869-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.478032-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.478177-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.478320-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.478461-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.478638-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.478766-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.487456-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.495668-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.500481-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.500723-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.523250-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.523483-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.523679-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.532370-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.532640-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.538964-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.539254-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.539401-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.603250-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.603554-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.603832-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.604084-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.604281-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.604473-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Bool>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.604704-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.604890-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.620689-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.620907-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.621087-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.621277-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.621496-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.621686-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Bool>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.621877-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.622111-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.622507-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.622660-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.622820-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.622997-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.623224-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.623416-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Bool>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.623629-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.623837-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.634096-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.634371-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.634528-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.634689-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.668543-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.668790-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.668987-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+2026-05-19 07:21:00.669126-0700 LaneShadow[2806:52258597] [SwiftUI] Accessing Environment<Theme>'s value outside of being installed on a View. This will always read the default value and will not update.
+Test Case '-[LaneShadowTests.PlanningScreenTests test_capsule_bindsViewModelHeadline]' passed (1.062 seconds).
+Test Suite 'PlanningScreenTests' passed at 2026-05-19 07:21:00.763.
+	 Executed 1 test, with 0 failures (0 unexpected) in 1.062 (1.062) seconds
+Test Suite 'LaneShadowTests.xctest' passed at 2026-05-19 07:21:00.763.
+	 Executed 1 test, with 0 failures (0 unexpected) in 1.062 (1.062) seconds
+Test Suite 'Selected tests' passed at 2026-05-19 07:21:00.763.
+	 Executed 1 test, with 0 failures (0 unexpected) in 1.062 (1.063) seconds
+2026-05-19 07:21:00.774897-0700 LaneShadow[2806:52258597] 🟠 AppState.completeAuth: hydrated ok; isAuthenticated=true
+2026-05-19 07:21:00.774981-0700 LaneShadow[2806:52258597] 🟠 AppState.completeAuth: exit hasClerkSession=true isAuthenticated=true
+2026-05-19 07:21:00.775063-0700 LaneShadow[2806:52258597] 🟣 RootView.task: bootstrap complete; hasClerkSession=true
+2026-05-19 07:21:00.785296-0700 LaneShadow[2806:52258597] [LSMap] Mapbox token prefix: pk
+2026-05-19 07:21:00.787611-0700 LaneShadow[2806:52258597] [maps-core] [Error, maps-core]: Invalid size is used for setting the map view, fall back to the default size {64, 64}
+2026-05-19 07:21:00.787674-0700 LaneShadow[2806:52258597] [maps-core] [Error, maps-core]: Invalid size is used for setting the map view, fall back to the default size {64, 64}
+2026-05-19 07:21:00.787958-0700 LaneShadow[2806:52258597] [maps-core] [Info, maps-core]: Using Metal render backend
+2026-05-19 07:21:00.836823-0700 LaneShadow[2806:52258597] 🟣 RootView.onChange: hasBootstrappedAuth=true
+2026-05-19 07:21:00.836943-0700 LaneShadow[2806:52258597] 🟣 RootView.branch: authenticatedFlow appeared
+2026-05-19 07:21:00.842275-0700 LaneShadow[2806:52258597] [maps-ios/Location] [Error, maps-ios/Location]: MapboxMaps.AppleLocationProvider did fail with error: Error Domain=kCLErrorDomain Code=1 "(null)"
+2026-05-19 07:21:08.092 xcodebuild[2679:52257669] [MT] IDETestOperationsObserverDebug: 10.668 elapsed -- Testing started completed.
+2026-05-19 07:21:08.092 xcodebuild[2679:52257669] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-05-19 07:21:08.092 xcodebuild[2679:52257669] [MT] IDETestOperationsObserverDebug: 10.668 sec, +10.668 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/justinrich/Library/Developer/Xcode/DerivedData/LaneShadow-gieycsinojelykfbkhhupwgzpawv/Logs/Test/Test-LaneShadow-2026.05.19_07-20-54--0700.xcresult
+
+** TEST SUCCEEDED **
+
+Testing started
