@@ -68,7 +68,7 @@ export class PlanningEventEmitter {
   }
 
   /**
-   * Create the planning row immediately. Call this right after construction.
+   * Create the planning row on the first real planning event.
    */
   async init(): Promise<void> {
     const result = await this.opts.runMutation(
@@ -81,7 +81,6 @@ export class PlanningEventEmitter {
     this.messageId = result.messageId
   }
 
-  /** @deprecated kept for internal consistency — just checks init happened */
   private async ensureInit(): Promise<void> {
     if (this.messageId !== null) return
     await this.init()
@@ -111,9 +110,9 @@ export class PlanningEventEmitter {
    * The statusLine shows a brief preview in the compact card.
    */
   async updateThinking(delta: string): Promise<void> {
-    await this.ensureInit()
-
     this.thinkingBuffer += delta
+
+    if (this.messageId === null) return
 
     const now = Date.now()
     if (now - this.lastThinkingFlush < PlanningEventEmitter.THINKING_THROTTLE_MS) return

@@ -217,3 +217,92 @@ describe('orchestrator executeOrchestratorTool — planning callback forwarding'
     expect(tools.map((t: { name: string }) => t.name)).toContain('enrichment_agent')
   })
 })
+
+// ---------------------------------------------------------------------------
+// Lazy planning row initialization
+// ---------------------------------------------------------------------------
+
+describe('lazy planning row initialization', () => {
+  const createRunMutation = () =>
+    vi.fn(async (fn: { __ref?: string }, args: Record<string, unknown>) => {
+      if (fn.__ref === 'createPendingAssistantMessage') {
+        return { messageId: 'planning-1' as Id<'session_messages'> }
+      }
+      return { fn: fn.__ref, args }
+    })
+
+  it('no planning row for conversational reply', async () => {
+    const { PlanningEventEmitter } = await import('../lib/planningEvents.js')
+    const runMutation = createRunMutation()
+    const emitter = new PlanningEventEmitter({
+      runMutation,
+      sessionId: 'sess1' as Id<'planning_sessions'>,
+    })
+
+    await emitter.updateThinking('Just answering conversationally')
+    await emitter.done()
+
+    expect(runMutation).not.toHaveBeenCalled()
+  })
+
+  it('planning row created on tool call', async () => {
+    const { PlanningEventEmitter } = await import('../lib/planningEvents.js')
+    const runMutation = createRunMutation()
+    const emitter = new PlanningEventEmitter({
+      runMutation,
+      sessionId: 'sess1' as Id<'planning_sessions'>,
+    })
+
+    await emitter.updateThinking('Checking the route options')
+    await emitter.toolPending('routing_agent', 'orchestrator')
+    await emitter.toolComplete('routing_agent', 'orchestrator', 'Route ready', 120)
+    await emitter.done()
+
+    const createCalls = runMutation.mock.calls.filter(
+      (call: [{ __ref?: string }, Record<string, unknown>]) =>
+        call[0].__ref === 'createPendingAssistantMessage',
+    )
+    const finalizeCalls = runMutation.mock.calls.filter(
+      (call: [{ __ref?: string }, Record<string, unknown>]) =>
+        call[0].__ref === 'finalizeAssistantMessage',
+    )
+
+    expect(createCalls).toHaveLength(1)
+    expect(finalizeCalls).toHaveLength(1)
+
+    const [, finalizeArgs] = finalizeCalls[0] as [
+      { __ref?: string },
+      { content: string; status: string },
+    ]
+    const finalizedContent = JSON.parse(finalizeArgs.content) as {
+      events: Array<{ type: string }>
+    }
+
+    expect(finalizeArgs.status).toBe('complete')
+    expect(finalizedContent.events.length).toBeGreaterThan(0)
+  })
+
+  it('lazy init handles error before first tool', async () => {
+    const { PlanningEventEmitter } = await import('../lib/planningEvents.js')
+    const runMutation = createRunMutation()
+    const emitter = new PlanningEventEmitter({
+      runMutation,
+      sessionId: 'sess1' as Id<'planning_sessions'>,
+    })
+
+    await emitter.updateThinking('Thinking before a failure')
+    await emitter.done()
+
+    const createCalls = runMutation.mock.calls.filter(
+      (call: [{ __ref?: string }, Record<string, unknown>]) =>
+        call[0].__ref === 'createPendingAssistantMessage',
+    )
+    const finalizeCalls = runMutation.mock.calls.filter(
+      (call: [{ __ref?: string }, Record<string, unknown>]) =>
+        call[0].__ref === 'finalizeAssistantMessage',
+    )
+
+    expect(createCalls).toHaveLength(0)
+    expect(finalizeCalls).toHaveLength(0)
+  })
+})

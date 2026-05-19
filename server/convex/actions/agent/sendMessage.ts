@@ -447,12 +447,13 @@ export const sendMessage = action({
       ctx.runMutation.bind(ctx),
     )
 
-    // Create the planning emitter — always create the row immediately
+    // Create the planning emitter. The planning row is created lazily on the
+    // first actual planning event so conversational replies do not flicker a
+    // planning card.
     const planningEmitter = new PlanningEventEmitter({
       runMutation: ctx.runMutation.bind(ctx),
       sessionId: args.sessionId,
     })
-    await planningEmitter.init()
 
     // Track the final assistant message for piMessage persistence
     let finalAssistantMessage: AssistantMessage | undefined
