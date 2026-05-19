@@ -15,6 +15,8 @@ import SwiftUI
 final class MapAppViewModel {
     /// Current state of the MapApp unified screen
     var currentState: MapAppState = .idle
+    var planningMapControlsMode: LSMapControlsMode = .map
+    var planningLayersVisible = true
 
     /// Always-alive IdleViewModel for idle state composition and re-entry
     private(set) var idleViewModel: IdleViewModel
@@ -49,6 +51,8 @@ final class MapAppViewModel {
             planningViewModel.stopObserving()
         }
         planningViewModel = nil
+        planningMapControlsMode = .map
+        planningLayersVisible = true
         currentState = .idle
     }
 
@@ -67,6 +71,8 @@ final class MapAppViewModel {
             planningViewModel = newViewModel
         }
 
+        planningMapControlsMode = .map
+        planningLayersVisible = true
         currentState = .planning(sessionId: sessionId)
 
         // Begin observation for the planning session
@@ -88,6 +94,14 @@ final class MapAppViewModel {
     /// Request cancellation of the planning flow, showing confirmation sheet
     func requestCancelPlanning() {
         planningViewModel?.requestCancelConfirmation()
+    }
+
+    func togglePlanningLayers() {
+        planningLayersVisible.toggle()
+    }
+
+    func togglePlanningControlsMode() {
+        planningMapControlsMode = planningMapControlsMode == .map ? .chat : .map
     }
 
     /// Confirm cancellation and return to idle

@@ -18,7 +18,11 @@ struct MapApp: View {
     @Bindable var viewModel: MapAppViewModel
     @State private var mapCameraController = LSMapCameraController()
     @State private var isMenuOpen: Bool = false
+    @State private var persistentMapHostID = UUID().uuidString
+    @State private var chatInputValue: String = ""
+    @FocusState private var isIdleChatInputFocused: Bool
     private let debugFrameObserver: ((String, CGRect) -> Void)?
+    private static let defaultCamera = LSMapPresentationDefaults.santaCruzCamera
 
     init(
         viewModel: MapAppViewModel,
@@ -44,7 +48,7 @@ struct MapApp: View {
                     .accessibilityElement(children: .ignore)
                     .accessibilityIdentifier(mapAppMapIdentifier)
                     .accessibilityLabel("MapApp map camera state")
-                    .accessibilityValue(mapCameraController.debugAccessibilityValue)
+                    .accessibilityValue(mapAppMapAccessibilityValue)
                 },
                 topOverlays: topOverlays,
                 bottomOverlays: bottomOverlays,
@@ -55,7 +59,7 @@ struct MapApp: View {
                 topBar: { topBarView }
             )
             .accessibilityIdentifier(mapAppScreenIdentifier)
-            .accessibilityValue(mapCameraController.debugAccessibilityValue)
+            .accessibilityValue(mapAppScreenAccessibilityValue)
             .reportFrame(as: "mapapp-map-canvas", to: debugFrameObserver)
 
             // Scrim with tap-to-dismiss when menu drawer is open (idle state only)
@@ -134,36 +138,57 @@ struct MapApp: View {
             viewModel.idleViewModel.stopObserving()
         }
     }
+}
 
-    private static let defaultCamera = LSMapPresentationDefaults.santaCruzCamera
-
-    // MARK: - Accessibility Identifiers (State-Driven)
-
-    private var mapAppScreenIdentifier: String {
+private extension MapApp {
+    var mapAppScreenIdentifier: String {
         switch viewModel.currentState {
         case .idle:
             "idlescreen"
         case .planning:
             "planningscreen"
         case .routeResults:
-            "planningscreen" // Will be updated in Cycle 3+
+            "planningscreen"
         }
     }
 
-    private var mapAppMapIdentifier: String {
+    var mapAppMapIdentifier: String {
         switch viewModel.currentState {
         case .idle:
             "idlescreen-map"
         case .planning:
             "planningscreen-map"
         case .routeResults:
-            "planningscreen-map" // Will be updated in Cycle 3+
+            "planningscreen-map"
         }
     }
 
-    // MARK: - State-Driven Overlays
+    var mapAppMapAccessibilityValue: String {
+        "host=\(persistentMapHostID);\(mapAppScreenAccessibilityValue)"
+    }
 
-    private var topOverlays: [GlassOverlaySlot] {
+    var mapAppScreenAccessibilityValue: String {
+        var values = [mapCameraController.debugAccessibilityValue]
+
+        if viewModel.currentState.isPlanning {
+            values.append("mode=\(planningControlsModeValue)")
+            values.append("layers=\(planningLayersValue)")
+        }
+
+        return values.joined(separator: ";")
+    }
+
+    var planningControlsModeValue: String {
+        viewModel.planningMapControlsMode == .map ? "map" : "chat"
+    }
+
+    var planningLayersValue: String {
+        viewModel.planningLayersVisible ? "visible" : "hidden"
+    }
+}
+
+private extension MapApp {
+    var topOverlays: [GlassOverlaySlot] {
         switch viewModel.currentState {
         case .idle:
             return []
@@ -172,55 +197,42 @@ struct MapApp: View {
                 return []
             }
             return [
-                GlassOverlaySlot(
-                    id: "planningphase",
-                    content: {
-                        AnyView(
-                            LSPhaseIndicator(
-                                phases: planningViewModel.phases,
-                                header: planningViewModel.capsuleHeadline
-                            )
-                            .accessibilityIdentifier("planningscreen-phase-indicator")
-                        )
-                    }
-                ),
+                GlassOverlaySlot(id: "planning-context-capsule") {
+                    planningContextCapsuleView(for: planningViewModel)
+                },
+                GlassOverlaySlot(id: "planning-phase-indicator") {
+                    planningPhaseIndicatorView(for: planningViewModel)
+                },
             ]
         case .routeResults:
-            return [] // Sprint 09 wires route-results overlays
+            return []
         }
     }
 
-    private var bottomOverlays: [GlassOverlaySlot] {
-        var overlays: [GlassOverlaySlot] = [
-            GlassOverlaySlot(
-                id: "chatinput",
-                content: { AnyView(chatInputView) }
-            ),
+    var bottomOverlays: [GlassOverlaySlot] {
+        var overlays = [
+            GlassOverlaySlot(id: "chatinput") {
+                chatInputView
+            },
         ]
 
-        // Add sketch polyline animation when in planning state
         if viewModel.currentState.isPlanning {
             overlays.insert(
-                GlassOverlaySlot(
-                    id: "sketch",
-                    content: {
-                        AnyView(
-                            MapSketchAnimationLayer(pathPoints: [])
-                                .accessibilityIdentifier("planningscreen-sketch-polyline")
-                        )
-                    }
-                ),
+                GlassOverlaySlot(id: "sketch") {
+                    MapSketchAnimationLayer(pathPoints: [])
+                        .accessibilityIdentifier("planningscreen-sketch-polyline")
+                },
                 at: 0
             )
         }
 
         return overlays
     }
+}
 
-    // MARK: - Top Bar (State-Driven)
-
+private extension MapApp {
     @ViewBuilder
-    private var topBarView: some View {
+    var topBarView: some View {
         switch viewModel.currentState {
         case .idle:
             LSIdleHeader(
@@ -231,43 +243,25 @@ struct MapApp: View {
             )
             .padding(.horizontal, theme.space.md)
         case .planning, .routeResults:
-            LSTopBar(
-                onMenuTap: toggleMenu,
-                onNewTap: handleNewTap,
-                centerContent: { topBarContent }
-            )
+            planningTopBarView
         }
     }
 
-    @ViewBuilder
-    private var topBarContent: some View {
-        switch viewModel.currentState {
-        case .idle:
-            idleCapsuleView
-        case .planning:
-            planningCapsuleView
-        case .routeResults:
-            planningCapsuleView // Will be updated in Cycle 3+
-        }
-    }
-
-    // MARK: - Menu Drawer
-
-    private func toggleMenu() {
+    func toggleMenu() {
         isMenuOpen.toggle()
     }
 
-    private func closeMenu() {
+    func closeMenu() {
         isMenuOpen = false
     }
 
-    private func handleNewTap() {
+    func handleNewTap() {
         viewModel.idleViewModel.startNewSession()
         chatInputValue = ""
         closeMenu()
     }
 
-    private var menuDrawerContent: some View {
+    var menuDrawerContent: some View {
         LSSessionsDrawer(
             sessions: viewModel.idleViewModel.recentSessions,
             activeSessionId: nil,
@@ -291,48 +285,52 @@ struct MapApp: View {
         )
         .accessibilityIdentifier("idlescreen-menu-drawer")
     }
+}
 
-    // MARK: - Idle State Components
+private extension MapApp {
+    var planningTopBarView: some View {
+        LSTopBar(
+            trailing: LSTopBarTrailing.none,
+            onMenuTap: { viewModel.requestCancelPlanning() },
+            onNewTap: {}
+        )
+    }
 
-    private var idleCapsuleView: some View {
+    func planningContextCapsuleView(for planningViewModel: PlanningViewModel) -> some View {
         LSContextCapsule(
-            state: viewModel.idleViewModel.capsuleState,
-            isWarning: viewModel.idleViewModel.weatherAdvisory != nil,
+            state: .planning(headline: planningViewModel.capsuleHeadline),
+            isWarning: false,
             isSaved: false,
             appearance: .chip
         )
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Idle context capsule")
-        .accessibilityIdentifier("idle-context-capsule")
-        .padding(.horizontal, theme.space.md)
-        .padding(.vertical, theme.space.md)
+        .accessibilityLabel("Planning context capsule")
+        .accessibilityIdentifier("planningscreen-context-capsule")
     }
 
-    // MARK: - Planning State Components
-
-    private var planningCapsuleView: some View {
-        guard let planningViewModel = viewModel.planningViewModel else {
-            return AnyView(EmptyView())
-        }
-
-        return AnyView(
-            LSContextCapsule(
-                state: .planning(headline: planningViewModel.capsuleHeadline),
-                isWarning: false,
-                isSaved: false,
-                appearance: .chip
-            )
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Planning context capsule")
-            .accessibilityIdentifier("planningscreen-context-capsule")
-            .padding(.horizontal, theme.space.md)
-            .padding(.vertical, theme.space.md)
+    func planningPhaseIndicatorView(for planningViewModel: PlanningViewModel) -> some View {
+        LSPhaseIndicator(
+            phases: planningViewModel.phaseSteps,
+            header: planningViewModel.capsuleHeadline
         )
+        .padding(.top, theme.space.xxxl)
+        .accessibilityIdentifier("planningscreen-phase-indicator")
     }
 
-    // MARK: - Map Controls View
+    var mapControlsView: some View {
+        Group {
+            switch viewModel.currentState {
+            case .idle:
+                idleMapControlsView
+            case .planning:
+                planningMapControlsView
+            case .routeResults:
+                routeResultsMapControlsView
+            }
+        }
+    }
 
-    private var mapControlsView: some View {
+    var idleMapControlsView: some View {
         LSMapControls(
             mode: .map,
             hasRouteToSave: false,
@@ -347,12 +345,40 @@ struct MapApp: View {
         .reportFrame(as: "idle-map-controls", to: debugFrameObserver)
     }
 
-    // MARK: - Chat Input
+    var planningMapControlsView: some View {
+        LSMapControls(
+            mode: viewModel.planningMapControlsMode,
+            hasRouteToSave: false,
+            isSavedRoute: false,
+            onZoomIn: { mapCameraController.zoomIn() },
+            onZoomOut: { mapCameraController.zoomOut() },
+            onRecenter: { mapCameraController.recenterToUserLocation() },
+            onLayers: { viewModel.togglePlanningLayers() },
+            onToggleView: { viewModel.togglePlanningControlsMode() }
+        )
+        .accessibilityIdentifier("planningscreen-controls")
+        .accessibilityValue("mode=\(planningControlsModeValue);layers=\(planningLayersValue)")
+        .reportFrame(as: "planningscreen-controls", to: debugFrameObserver)
+    }
 
-    @State private var chatInputValue: String = ""
-    @FocusState private var isIdleChatInputFocused: Bool
+    var routeResultsMapControlsView: some View {
+        LSMapControls(
+            mode: .map,
+            hasRouteToSave: false,
+            isSavedRoute: false,
+            onZoomIn: { mapCameraController.zoomIn() },
+            onZoomOut: { mapCameraController.zoomOut() },
+            onRecenter: { mapCameraController.recenterToUserLocation() },
+            onLayers: nil,
+            onToggleView: nil
+        )
+        .accessibilityIdentifier("routeresultsscreen-controls")
+        .reportFrame(as: "routeresultsscreen-controls", to: debugFrameObserver)
+    }
+}
 
-    private var chatInputView: some View {
+private extension MapApp {
+    var chatInputView: some View {
         switch viewModel.currentState {
         case .idle:
             AnyView(idleChatInputView)
@@ -361,7 +387,7 @@ struct MapApp: View {
         }
     }
 
-    private var idleChatInputView: some View {
+    var idleChatInputView: some View {
         let suggestions = viewModel.idleViewModel.showsStaticRideSuggestions
             ? viewModel.idleViewModel.suggestionLabels.map { SuggestionChip(label: $0) }
             : []
@@ -375,8 +401,6 @@ struct MapApp: View {
             onFilter: {},
             suggestions: suggestions,
             onSuggestionTap: { chip in
-                // Chip tap fills the input and focuses the keyboard so the
-                // user can edit before sending. No auto-submit.
                 chatInputValue = chip.label
                 isIdleChatInputFocused = true
             },
@@ -403,29 +427,17 @@ struct MapApp: View {
         .padding(.horizontal, theme.space.md)
         .overlay(alignment: .bottomLeading) {
             if let errorMessage = viewModel.idleViewModel.errorMessage {
-                Text(errorMessage)
-                    .font(theme.type.body.sm.font)
-                    .foregroundStyle(LaneShadowTheme.color.content.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(theme.space.md)
-                    .background(LaneShadowTheme.color.surface.card)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: theme.radius.lg)
-                            .stroke(
-                                LaneShadowTheme.color.status.warning.default,
-                                lineWidth: theme.borderWidth.thin
-                            )
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))
-                    .padding(.top, theme.space.sm)
-                    .accessibilityIdentifier("idlescreen-inline-error")
+                inlineErrorView(
+                    message: errorMessage,
+                    identifier: "idlescreen-inline-error"
+                )
             }
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("idlescreen-chatinput")
     }
 
-    private var planningChatInputView: some View {
+    var planningChatInputView: some View {
         guard let planningViewModel = viewModel.planningViewModel else {
             return AnyView(EmptyView())
         }
@@ -458,36 +470,46 @@ struct MapApp: View {
             .padding(.horizontal, theme.space.md)
             .overlay(alignment: .bottomLeading) {
                 if let errorMessage = planningViewModel.errorMessage {
-                    Text(errorMessage)
-                        .font(theme.type.body.sm.font)
-                        .foregroundStyle(LaneShadowTheme.color.content.primary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(theme.space.md)
-                        .background(LaneShadowTheme.color.surface.card)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: theme.radius.lg)
-                                .stroke(
-                                    LaneShadowTheme.color.status.warning.default,
-                                    lineWidth: theme.borderWidth.thin
-                                )
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))
-                        .padding(.top, theme.space.sm)
-                        .accessibilityIdentifier("planningscreen-inline-error")
+                    inlineErrorView(
+                        message: errorMessage,
+                        identifier: "planningscreen-inline-error"
+                    )
                 }
             }
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("planningscreen-chat-input")
+            .accessibilityValue(
+                "thinking=\(String(planningViewModel.isThinking));enabled=\(String(!planningViewModel.isThinking))"
+            )
         )
     }
 
-    private var autocompleteSuggestions: [LSChatAutocompleteSuggestion] {
+    var autocompleteSuggestions: [LSChatAutocompleteSuggestion] {
         viewModel.idleViewModel.placeAutocompleteSuggestions.map { suggestion in
             LSChatAutocompleteSuggestion(
                 placeSuggestion: suggestion,
                 accessibilityLabel: "\(suggestion.name), \(suggestion.label)"
             )
         }
+    }
+
+    func inlineErrorView(message: String, identifier: String) -> some View {
+        Text(message)
+            .font(theme.type.body.sm.font)
+            .foregroundStyle(LaneShadowTheme.color.content.primary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(theme.space.md)
+            .background(LaneShadowTheme.color.surface.card)
+            .overlay(
+                RoundedRectangle(cornerRadius: theme.radius.lg)
+                    .stroke(
+                        LaneShadowTheme.color.status.warning.default,
+                        lineWidth: theme.borderWidth.thin
+                    )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: theme.radius.lg))
+            .padding(.top, theme.space.sm)
+            .accessibilityIdentifier(identifier)
     }
 }
 
