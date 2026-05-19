@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -23,6 +26,7 @@ import com.laneshadow.ui.atoms.LSMap
 import com.laneshadow.ui.atoms.MapMode
 import com.laneshadow.ui.atoms.MapSketchAnimationLayer
 import com.laneshadow.ui.atoms.PhaseDotState
+import com.laneshadow.ui.mapapp.planningMapControlsModel
 import com.laneshadow.ui.molecules.LSChatInput
 import com.laneshadow.ui.planning.PlanningCancelConfirmSheet
 import com.laneshadow.ui.molecules.LSContextCapsule
@@ -34,7 +38,6 @@ import com.laneshadow.ui.organisms.LSMapLayerTopBarReservedHeight
 import com.laneshadow.ui.organisms.LSMapLayer
 import com.laneshadow.ui.organisms.LSMapControls
 import com.laneshadow.ui.organisms.LSTopBar
-import com.laneshadow.ui.organisms.MapControlsHandlers
 import com.laneshadow.ui.organisms.MapControlsMode
 
 /**
@@ -143,6 +146,20 @@ fun PlanningScreen(
     modifier: Modifier = Modifier,
 ) {
     val theme = LocalLaneShadowTheme.current
+    var controlsMode by remember { mutableStateOf(MapControlsMode.Map) }
+
+    val mapControlsModel = planningMapControlsModel(
+        onZoomIn = { /* Handled by map controller */ },
+        onZoomOut = { /* Handled by map controller */ },
+        onRecenter = { /* Recenter remains active */ },
+        onClear = { controlsMode = MapControlsMode.Map },
+        onToggleView = {
+            controlsMode = when (controlsMode) {
+                MapControlsMode.Map -> MapControlsMode.Chat
+                MapControlsMode.Chat -> MapControlsMode.Map
+            }
+        },
+    ).copy(mode = controlsMode)
 
     LSMapLayer(
         map = {
@@ -176,17 +193,18 @@ fun PlanningScreen(
                 modifier = Modifier.fillMaxSize(),
             ) {
                 Box(
-                    modifier = Modifier.align(Alignment.CenterEnd),
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .fillMaxSize(),
                 ) {
-                    // AC-4: LSMapControls in planning configuration
                     LSMapControls(
-                        mode = MapControlsMode.Map,
-                        handlers = MapControlsHandlers(
-                            onZoomIn = { /* Handled by map controller */ },
-                            onZoomOut = { /* Handled by map controller */ },
-                            onRecenter = { /* Recenter remains active */ },
-                        ),
-                        modifier = Modifier.testTag("planning.map-controls"),
+                        mode = mapControlsModel.mode,
+                        handlers = mapControlsModel.handlers,
+                        hasRouteToSave = mapControlsModel.hasRouteToSave,
+                        isSavedRoute = mapControlsModel.isSavedRoute,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .testTag(mapControlsModel.testTag),
                     )
                 }
                 LSTopBar(

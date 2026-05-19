@@ -1,10 +1,18 @@
 package com.laneshadow.ui.templates
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import com.laneshadow.sandbox.mockproviders.PlanningMockProvider
+import com.laneshadow.theme.LaneShadowTheme
 import com.google.common.truth.Truth.assertThat
-import com.laneshadow.ui.mapapp.planningMapControlsModel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -25,6 +33,8 @@ import java.io.File
  */
 @RunWith(RobolectricTestRunner::class)
 class PlanningScreenTest {
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
     /**
      * AC-1 — Planning screen composition renders
@@ -615,28 +625,35 @@ class PlanningScreenTest {
      *       chat-mode toggle enabled, save/layers reconfigure per PLAN-S08-DR-T01;
      *       workbar anchored at right-edge midline per org-map-controls
      *
-     * Verify: The live planning path configures the planning workbar model with
-     * the planning testTag plus non-null recenter/layers/toggle handlers.
+     * Verify: PlanningScreen renders the planning workbar on the direct contract
+     * surface, including layers/reset and chat toggle behavior.
      */
     @Test
     fun map_controls_in_planning_configuration() {
-        val model = planningMapControlsModel(
-            onZoomIn = {},
-            onZoomOut = {},
-            onRecenter = {},
-            onClear = {},
-            onToggleView = {},
-        )
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                PlanningScreen(
+                    state = PlanningMockProvider.value("drawing"),
+                    onMenuTap = {},
+                    onCollapse = {},
+                    onFilter = {},
+                    mapContent = {
+                        Box(modifier = Modifier)
+                    },
+                )
+            }
+        }
 
-        assertThat(model.testTag).isEqualTo("planning.map-controls")
-        assertThat(model.hasRouteToSave).isFalse()
-        assertThat(model.isSavedRoute).isFalse()
-        assertThat(model.handlers.onZoomIn).isNotNull()
-        assertThat(model.handlers.onZoomOut).isNotNull()
-        assertThat(model.handlers.onRecenter).isNotNull()
-        assertThat(model.handlers.onClear).isNotNull()
-        assertThat(model.handlers.onToggleView).isNotNull()
-        assertThat(model.handlers.onSaveRoute).isNull()
+        composeTestRule.onNodeWithTag("planning.map-controls").assertExists()
+        composeTestRule.onNodeWithContentDescription("Recenter map").assertExists()
+        composeTestRule.onNodeWithContentDescription("Reset map state").assertExists()
+        composeTestRule.onNodeWithContentDescription("Open chat").assertExists()
+        composeTestRule.onNodeWithTag("ls-map-controls-zoom-cluster").assertExists()
+
+        composeTestRule.onNodeWithContentDescription("Open chat").performClick()
+
+        composeTestRule.onNodeWithContentDescription("Back to map").assertExists()
+        composeTestRule.onNodeWithTag("ls-map-controls-zoom-cluster").assertDoesNotExist()
     }
 
     /**
