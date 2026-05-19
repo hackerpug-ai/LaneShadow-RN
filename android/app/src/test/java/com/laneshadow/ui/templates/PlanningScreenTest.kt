@@ -1,8 +1,31 @@
 package com.laneshadow.ui.templates
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.navigation.compose.rememberNavController
+import com.laneshadow.sandbox.mockproviders.PlanningMockProvider
+import com.laneshadow.theme.LaneShadowTheme
+import com.laneshadow.ui.atoms.LSMapCameraController
+import com.laneshadow.ui.mapapp.MapAppContent
+import com.laneshadow.ui.mapapp.MapAppState
+import com.laneshadow.ui.planning.PlanningScreenContent
+import com.laneshadow.ui.planning.PlanningScreenOverlays
+import com.laneshadow.ui.planning.PlanningUiState
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -23,6 +46,8 @@ import java.io.File
  */
 @RunWith(RobolectricTestRunner::class)
 class PlanningScreenTest {
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
     /**
      * AC-1 — Planning screen composition renders
@@ -613,41 +638,88 @@ class PlanningScreenTest {
      *       chat-mode toggle enabled, save/layers reconfigure per PLAN-S08-DR-T01;
      *       workbar anchored at right-edge midline per org-map-controls
      *
-     * Verify: PlanningScreen source includes LSMapControls with testTag
+     * Verify: PlanningScreen renders the planning workbar on the direct contract
+     * surface, including layers/reset and chat toggle behavior.
      */
     @Test
     fun map_controls_in_planning_configuration() {
-        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
-
-        // Must import LSMapControls
-        assertTrue(
-            "PlanningScreen must import LSMapControls",
-            source.contains("import com.laneshadow.ui.organisms.LSMapControls")
+        val appState = mutableStateOf<MapAppState>(MapAppState.Planning("planning-session"))
+        val uiState = mutableStateOf(
+            PlanningUiState(
+                sessionId = "planning-session",
+                isThinking = true,
+            ),
         )
 
-        // Must compose LSMapControls
-        assertTrue(
-            "PlanningScreen must compose LSMapControls",
-            source.contains("LSMapControls(")
-        )
+        composeTestRule.setContent {
+            LaneShadowTheme {
+                val navController = rememberNavController()
 
-        // Must have testTag for AC-4 verification
-        assertTrue(
-            "PlanningScreen must add testTag(\"planning.map-controls\") to controls",
-            source.contains("testTag(\"planning.map-controls\")")
-        )
+                MapAppContent(
+                    state = appState.value,
+                    navController = navController,
+                    onPlanningReturnToIdle = {},
+                    mapContent = { _, _ ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .testTag("mapapp-map"),
+                        )
+                    },
+                    planningOverlays = { sessionId, routeReturnToIdle ->
+                        PlanningScreenOverlays(
+                            sessionId = sessionId,
+                            navController = navController,
+                            onReturnToIdle = routeReturnToIdle,
+                            container = { containerReturnToIdle ->
+                                PlanningScreenContent(
+                                    uiState = uiState.value,
+                                    onMenuTap = {},
+                                    onCollapse = {},
+                                    onFilter = {},
+                                    onDismissCancelConfirm = {},
+                                    onKeepPlanning = {},
+                                    onCancelPlan = {},
+                                    onReturnToIdle = containerReturnToIdle,
+                                    consumeTransition = {},
+                                    requestCancel = {},
+                                    skipMapRendering = true,
+                                )
+                            },
+                        )
+                    },
+                )
+            }
+        }
 
-        // Must use MapControlsMode.Map (not a different mode)
-        assertTrue(
-            "PlanningScreen must use MapControlsMode.Map for planning state",
-            source.contains("mode = MapControlsMode.Map")
-        )
+        composeTestRule.onNodeWithTag("planning.map-controls").assertExists()
+        composeTestRule.onNodeWithContentDescription("Recenter map").assertExists()
+        composeTestRule.onAllNodesWithContentDescription("Reset map state").assertCountEquals(0)
+        composeTestRule.onNodeWithContentDescription("Open chat").assertExists()
+        composeTestRule.onNodeWithTag("ls-map-controls-zoom-cluster").assertExists()
 
-        // Must provide MapControlsHandlers
-        assertTrue(
-            "PlanningScreen must provide MapControlsHandlers to LSMapControls",
-            source.contains("handlers = MapControlsHandlers(")
-        )
+        composeTestRule.onNodeWithContentDescription("Recenter map").performClick()
+        composeTestRule.onNodeWithContentDescription("Open chat").performClick()
+
+        composeTestRule.onNodeWithContentDescription("Back to map").assertExists()
+        composeTestRule.onNodeWithTag("ls-map-controls-zoom-cluster").assertDoesNotExist()
+
+        composeTestRule.runOnUiThread {
+            appState.value = MapAppState.Idle
+        }
+
+        composeTestRule.runOnUiThread {
+            uiState.value = uiState.value.copy(sessionId = "planning-session-reentry")
+            appState.value = MapAppState.Planning("planning-session-reentry")
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithTag("planning.map-controls").assertExists()
+        composeTestRule.onNodeWithContentDescription("Recenter map").assertExists()
+        composeTestRule.onNodeWithContentDescription("Open chat").assertExists()
+        composeTestRule.onNodeWithTag("ls-map-controls-zoom-cluster").assertExists()
+        composeTestRule.onNodeWithContentDescription("Back to map").assertDoesNotExist()
     }
 
     /**

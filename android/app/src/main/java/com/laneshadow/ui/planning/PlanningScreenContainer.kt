@@ -87,13 +87,14 @@ internal fun PlanningScreenContent(
     consumeTransition: () -> Unit,
     requestCancel: () -> Unit,
     skipMapRendering: Boolean,
-    mapContent: @Composable (MockPlanningScreenState) -> Unit = { planningState ->
+    mapContent: @Composable (MockPlanningScreenState, com.laneshadow.ui.atoms.LSMapCameraController) -> Unit = { planningState, cameraController ->
         com.laneshadow.ui.atoms.LSMap(
             mode = com.laneshadow.ui.atoms.MapMode.Preview,
             camera = com.laneshadow.ui.atoms.CameraPosition(
                 center = planningState.sketchRoute?.firstOrNull() ?: com.laneshadow.ui.atoms.LatLng(0.0, 0.0),
                 zoom = 11.0,
             ),
+            cameraController = cameraController,
             modifier = Modifier.testTag("planning.map-host-instance"),
         )
         if (planningState.sketchRoute != null) {
@@ -151,6 +152,7 @@ internal fun PlanningScreenContent(
             requestCancel()
         },
         onFilter = onFilter,
+        planningSessionKey = uiState.sessionId,
         onDismissCancelConfirm = onDismissCancelConfirm,
         onKeepPlanning = onKeepPlanning,
         onCancelPlan = onCancelPlan,
