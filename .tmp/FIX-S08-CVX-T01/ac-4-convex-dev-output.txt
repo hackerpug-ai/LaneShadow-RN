@@ -1,0 +1,8 @@
+
+> @laneshadow/server@0.0.0 convex:dev /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01/server
+> sh -c 'if [ ! -d convex ]; then echo "Missing server/convex. Establish backend code in a downstream restructure task before running Convex commands."; exit 1; fi; if [ "${1:-}" = "--" ]; then shift; fi; npx convex dev "$@"' -- "--" "--once"
+
+npm warn Unknown env config "dir". This will stop working in the next major version of npm.
+✖ Cannot prompt for input in non-interactive terminals. (What would you like to configure?)
+ ELIFECYCLE  Command failed with exit code 1.
+ WARN   Local package.json exists, but node_modules missing, did you mean to install?
