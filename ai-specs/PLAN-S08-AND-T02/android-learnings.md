@@ -10,6 +10,7 @@
 ## API Contract Notes
 - No backend or repository contract changes were required for this remediation.
 - Planning-state controls currently expose recenter, layers/reset, zoom, and chat toggle on the live path; save remains hidden until a route-save condition is available.
+- The direct `PlanningScreen` contract now needs a camera-controller-backed `mapContent` signature so zoom/recenter behavior can be exercised on the template surface, not just in `MapApp`.
 
 ## UI Decisions
 - `PlanningScreen` now reuses the existing planning workbar model so the direct template surface and the host-driven planning surface stay aligned on recenter, reset/layers, and chat-toggle behavior.
@@ -20,5 +21,6 @@
 - Tests that only inspect template source are not enough for shared-host flows; verify rendered controls on the actual composable surface that stories or routes mount.
 
 ## Files Created/Modified
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt` — threaded the camera controller through the container’s default planning map content so the direct planning template and container path share the same live map contract.
 - `android/app/src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt` — wired the direct planning workbar to the full planning-state control model with local map/chat toggle state.
 - `android/app/src/test/java/com/laneshadow/ui/templates/PlanningScreenTest.kt` — replaced TC-4 helper-only assertions with rendered `PlanningScreen` workbar assertions.

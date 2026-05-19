@@ -23,6 +23,7 @@ import com.laneshadow.theme.LocalLaneShadowTheme
 import com.laneshadow.ui.atoms.CameraPosition
 import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.ui.atoms.LSMap
+import com.laneshadow.ui.atoms.LSMapCameraController
 import com.laneshadow.ui.atoms.MapMode
 import com.laneshadow.ui.atoms.MapSketchAnimationLayer
 import com.laneshadow.ui.atoms.PhaseDotState
@@ -122,16 +123,19 @@ fun PlanningScreen(
     onMenuTap: () -> Unit,
     onCollapse: () -> Unit,
     onFilter: () -> Unit,
+    mapCameraController: LSMapCameraController = remember { LSMapCameraController(initialZoom = 11.0) },
+    onResetMapState: () -> Unit = {},
     onDismissCancelConfirm: () -> Unit = {},
     onKeepPlanning: () -> Unit = {},
     onCancelPlan: () -> Unit = {},
-    mapContent: @Composable (PlanningScreenState) -> Unit = { planningState ->
+    mapContent: @Composable (PlanningScreenState, LSMapCameraController) -> Unit = { planningState, cameraController ->
         LSMap(
             mode = MapMode.Preview,
             camera = CameraPosition(
                 center = planningState.sketchRoute?.firstOrNull() ?: LatLng(0.0, 0.0),
                 zoom = 11.0,
             ),
+            cameraController = cameraController,
             modifier = Modifier.testTag("planning.map-host-instance"),
         )
         // MapSketchAnimationLayer: overlay composable for animated sketch polyline
@@ -145,14 +149,24 @@ fun PlanningScreen(
     },
     modifier: Modifier = Modifier,
 ) {
-    val theme = LocalLaneShadowTheme.current
     var controlsMode by remember { mutableStateOf(MapControlsMode.Map) }
 
     val mapControlsModel = planningMapControlsModel(
-        onZoomIn = { /* Handled by map controller */ },
-        onZoomOut = { /* Handled by map controller */ },
-        onRecenter = { /* Recenter remains active */ },
-        onClear = { controlsMode = MapControlsMode.Map },
+        onZoomIn = {
+            mapCameraController.zoomIn()
+            mapCameraController.recordAppliedZoomDelta(1.0)
+        },
+        onZoomOut = {
+            mapCameraController.zoomOut()
+            mapCameraController.recordAppliedZoomDelta(-1.0)
+        },
+        onRecenter = {
+            mapCameraController.recenterToUserLocation()
+        },
+        onClear = {
+            controlsMode = MapControlsMode.Map
+            onResetMapState()
+        },
         onToggleView = {
             controlsMode = when (controlsMode) {
                 MapControlsMode.Map -> MapControlsMode.Chat
@@ -163,7 +177,7 @@ fun PlanningScreen(
 
     LSMapLayer(
         map = {
-            mapContent(state)
+            mapContent(state, mapCameraController)
         },
         topOverlays = listOf(
             GlassOverlaySlot(

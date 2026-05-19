@@ -1,6 +1,7 @@
 package com.laneshadow.ui.templates
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -8,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.laneshadow.sandbox.mockproviders.PlanningMockProvider
 import com.laneshadow.theme.LaneShadowTheme
+import com.laneshadow.ui.atoms.LSMapCameraController
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -630,14 +632,22 @@ class PlanningScreenTest {
      */
     @Test
     fun map_controls_in_planning_configuration() {
+        var controller: LSMapCameraController? = null
+        var resetCount = 0
+
         composeTestRule.setContent {
             LaneShadowTheme {
+                val localController = remember { LSMapCameraController(initialZoom = 10.0) }
+                controller = localController
+
                 PlanningScreen(
                     state = PlanningMockProvider.value("drawing"),
                     onMenuTap = {},
                     onCollapse = {},
                     onFilter = {},
-                    mapContent = {
+                    mapCameraController = localController,
+                    onResetMapState = { resetCount += 1 },
+                    mapContent = { _, _ ->
                         Box(modifier = Modifier)
                     },
                 )
@@ -650,8 +660,16 @@ class PlanningScreenTest {
         composeTestRule.onNodeWithContentDescription("Open chat").assertExists()
         composeTestRule.onNodeWithTag("ls-map-controls-zoom-cluster").assertExists()
 
+        composeTestRule.onNodeWithContentDescription("Zoom in").performClick()
+        composeTestRule.onNodeWithContentDescription("Zoom out").performClick()
+        composeTestRule.onNodeWithContentDescription("Recenter map").performClick()
+        composeTestRule.onNodeWithContentDescription("Reset map state").performClick()
         composeTestRule.onNodeWithContentDescription("Open chat").performClick()
 
+        assertThat(controller?.appliedZoomDeltas).containsExactly(1.0, -1.0).inOrder()
+        assertEquals(10.0, controller?.zoomLevel)
+        assertEquals(1, controller?.recenterRequestCount)
+        assertEquals(1, resetCount)
         composeTestRule.onNodeWithContentDescription("Back to map").assertExists()
         composeTestRule.onNodeWithTag("ls-map-controls-zoom-cluster").assertDoesNotExist()
     }
