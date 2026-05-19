@@ -233,6 +233,7 @@ private extension MapApp {
                     MapSketchAnimationLayer(
                         pathPoints: viewModel.planningViewModel?.sketchPathPoints ?? []
                     )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .accessibilityIdentifier("planningscreen-sketch-polyline")
                 },
                 at: 0
