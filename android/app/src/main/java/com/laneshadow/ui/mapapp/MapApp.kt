@@ -26,6 +26,33 @@ import com.laneshadow.ui.organisms.MapControlsMode
 import com.laneshadow.ui.planning.IdleScreenOverlays
 import com.laneshadow.ui.planning.PlanningScreenOverlays
 
+internal data class MapControlsModel(
+    val testTag: String,
+    val mode: MapControlsMode,
+    val handlers: MapControlsHandlers,
+    val hasRouteToSave: Boolean = false,
+    val isSavedRoute: Boolean = false,
+)
+
+internal fun planningMapControlsModel(
+    onZoomIn: () -> Unit,
+    onZoomOut: () -> Unit,
+    onRecenter: () -> Unit,
+    onClear: () -> Unit,
+    onToggleView: () -> Unit,
+): MapControlsModel =
+    MapControlsModel(
+        testTag = "planning.map-controls",
+        mode = MapControlsMode.Map,
+        handlers = MapControlsHandlers(
+            onZoomIn = onZoomIn,
+            onZoomOut = onZoomOut,
+            onRecenter = onRecenter,
+            onClear = onClear,
+            onToggleView = onToggleView,
+        ),
+    )
+
 /**
  * MapApp composable — unified map host with state-driven overlay composition.
  *
@@ -98,6 +125,40 @@ internal fun MapAppContent(
 ) {
     val cameraController = remember { LSMapCameraController(initialZoom = 10.8) }
     var isMenuOpen by remember { mutableStateOf(false) }
+    var controlsMode by remember { mutableStateOf(MapControlsMode.Map) }
+
+    val mapControlsModel = when (state) {
+        MapAppState.Idle -> MapControlsModel(
+            testTag = "mapapp-controls",
+            mode = MapControlsMode.Map,
+            handlers = MapControlsHandlers(
+                onZoomIn = { cameraController.zoomIn() },
+                onZoomOut = { cameraController.zoomOut() },
+                onRecenter = { cameraController.recenterToUserLocation() },
+            ),
+        )
+        is MapAppState.Planning -> planningMapControlsModel(
+            onZoomIn = { cameraController.zoomIn() },
+            onZoomOut = { cameraController.zoomOut() },
+            onRecenter = { cameraController.recenterToUserLocation() },
+            onClear = { controlsMode = MapControlsMode.Map },
+            onToggleView = {
+                controlsMode = when (controlsMode) {
+                    MapControlsMode.Map -> MapControlsMode.Chat
+                    MapControlsMode.Chat -> MapControlsMode.Map
+                }
+            },
+        ).copy(mode = controlsMode)
+        is MapAppState.RouteResults -> MapControlsModel(
+            testTag = "mapapp-controls",
+            mode = MapControlsMode.Map,
+            handlers = MapControlsHandlers(
+                onZoomIn = { cameraController.zoomIn() },
+                onZoomOut = { cameraController.zoomOut() },
+                onRecenter = { cameraController.recenterToUserLocation() },
+            ),
+        )
+    }
 
     Box(
         modifier = modifier
@@ -132,19 +193,13 @@ internal fun MapAppContent(
                             .fillMaxSize(),
                     ) {
                         LSMapControls(
-                            mode = when (state) {
-                                MapAppState.Idle -> MapControlsMode.Map
-                                is MapAppState.Planning -> MapControlsMode.Map
-                                is MapAppState.RouteResults -> MapControlsMode.Map
-                            },
-                            handlers = MapControlsHandlers(
-                                onZoomIn = { cameraController.zoomIn() },
-                                onZoomOut = { cameraController.zoomOut() },
-                                onRecenter = { cameraController.recenterToUserLocation() },
-                            ),
+                            mode = mapControlsModel.mode,
+                            handlers = mapControlsModel.handlers,
+                            hasRouteToSave = mapControlsModel.hasRouteToSave,
+                            isSavedRoute = mapControlsModel.isSavedRoute,
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)
-                                .testTag("mapapp-controls"),
+                                .testTag(mapControlsModel.testTag),
                         )
                     }
                 }

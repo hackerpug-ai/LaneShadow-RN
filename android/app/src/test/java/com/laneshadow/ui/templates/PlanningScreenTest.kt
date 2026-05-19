@@ -1,5 +1,7 @@
 package com.laneshadow.ui.templates
 
+import com.google.common.truth.Truth.assertThat
+import com.laneshadow.ui.mapapp.planningMapControlsModel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -613,41 +615,28 @@ class PlanningScreenTest {
      *       chat-mode toggle enabled, save/layers reconfigure per PLAN-S08-DR-T01;
      *       workbar anchored at right-edge midline per org-map-controls
      *
-     * Verify: PlanningScreen source includes LSMapControls with testTag
+     * Verify: The live planning path configures the planning workbar model with
+     * the planning testTag plus non-null recenter/layers/toggle handlers.
      */
     @Test
     fun map_controls_in_planning_configuration() {
-        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
-
-        // Must import LSMapControls
-        assertTrue(
-            "PlanningScreen must import LSMapControls",
-            source.contains("import com.laneshadow.ui.organisms.LSMapControls")
+        val model = planningMapControlsModel(
+            onZoomIn = {},
+            onZoomOut = {},
+            onRecenter = {},
+            onClear = {},
+            onToggleView = {},
         )
 
-        // Must compose LSMapControls
-        assertTrue(
-            "PlanningScreen must compose LSMapControls",
-            source.contains("LSMapControls(")
-        )
-
-        // Must have testTag for AC-4 verification
-        assertTrue(
-            "PlanningScreen must add testTag(\"planning.map-controls\") to controls",
-            source.contains("testTag(\"planning.map-controls\")")
-        )
-
-        // Must use MapControlsMode.Map (not a different mode)
-        assertTrue(
-            "PlanningScreen must use MapControlsMode.Map for planning state",
-            source.contains("mode = MapControlsMode.Map")
-        )
-
-        // Must provide MapControlsHandlers
-        assertTrue(
-            "PlanningScreen must provide MapControlsHandlers to LSMapControls",
-            source.contains("handlers = MapControlsHandlers(")
-        )
+        assertThat(model.testTag).isEqualTo("planning.map-controls")
+        assertThat(model.hasRouteToSave).isFalse()
+        assertThat(model.isSavedRoute).isFalse()
+        assertThat(model.handlers.onZoomIn).isNotNull()
+        assertThat(model.handlers.onZoomOut).isNotNull()
+        assertThat(model.handlers.onRecenter).isNotNull()
+        assertThat(model.handlers.onClear).isNotNull()
+        assertThat(model.handlers.onToggleView).isNotNull()
+        assertThat(model.handlers.onSaveRoute).isNull()
     }
 
     /**
