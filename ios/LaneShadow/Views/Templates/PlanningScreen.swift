@@ -2,36 +2,6 @@ import LaneShadowTheme
 import os
 import SwiftUI
 
-// MARK: - Animation Motion Extensions
-
-extension Animation {
-    /// Sketch polyline loop animation: reads from motion.recipe.sketchPolylineLoop token
-    /// - Duration: 1400ms (from token)
-    /// - Easing: linear (from token)
-    /// - Repeat: forever (from token)
-    static func sketchPolylineLoop(theme: Theme) -> Animation {
-        let duration = TimeInterval(theme.motion.recipes["sketchPolylineLoop"]?.duration ?? 1400) / 1000
-        return Animation.linear(duration: duration).repeatForever(autoreverses: false)
-    }
-
-    /// Breathing head dot animation: reads from motion.recipe.breathingHeadDot token
-    /// - Duration: 1400ms (from token)
-    /// - Easing: ease-in-out (from token)
-    /// - Repeat: forever with autoreverse (from token)
-    static func breathingHeadDot(theme: Theme) -> Animation {
-        let recipe = theme.motion.recipes["breathingHeadDot"]
-        let duration = TimeInterval(recipe?.duration ?? 1400) / 1000
-        let easing = safeCubicBezierEasing(recipe?.easing ?? [])
-        return Animation.timingCurve(
-            easing[0],
-            easing[1],
-            easing[2],
-            easing[3],
-            duration: duration
-        ).repeatForever(autoreverses: true)
-    }
-}
-
 /// PlanningScreen — the thinking-state Navigator screen.
 ///
 /// Composes `LSMapLayer`, `LSTopBar`, `LSPhaseIndicator`, parsing polyline animation,
@@ -173,14 +143,7 @@ public struct PlanningScreen: View {
     // MARK: - Parsing Polyline
 
     private var parsingPolyline: some View {
-        // Mock 4-point geometry for Sprint 08 (real path data from agent route comes in Sprint 09)
-        let mockPathPoints: [CGPoint] = [
-            CGPoint(x: 100, y: 200),
-            CGPoint(x: 150, y: 180),
-            CGPoint(x: 200, y: 220),
-            CGPoint(x: 250, y: 190),
-        ]
-        return MapSketchAnimationLayer(pathPoints: mockPathPoints)
+        MapSketchAnimationLayer(pathPoints: PlanningViewModel.defaultSketchPathPoints)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityIdentifier("planningscreen-sketch-polyline")
     }

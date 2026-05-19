@@ -45,6 +45,7 @@ struct PlanningScreenContainer: View {
             isSending: viewModel.isSending,
             shouldRenderMap: viewModel.shouldRenderMap,
             capsuleHeadline: viewModel.capsuleHeadline,
+            sketchPathPoints: viewModel.sketchPathPoints,
             cancelConfirmationVisible: viewModel.cancelConfirmationVisible
         )
 

@@ -131,7 +131,8 @@ extension PlanningScreen {
     }
 
     var liveSketchOverlay: some View {
-        MapSketchAnimationLayer(pathPoints: [])
+        MapSketchAnimationLayer(pathPoints: liveState?.sketchPathPoints ?? [])
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityIdentifier("planningscreen-sketch-polyline")
     }
 

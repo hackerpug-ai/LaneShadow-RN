@@ -230,7 +230,10 @@ private extension MapApp {
         if shouldRenderPlanningSketchOverlay {
             overlays.insert(
                 GlassOverlaySlot(id: "sketch") {
-                    MapSketchAnimationLayer(pathPoints: [])
+                    MapSketchAnimationLayer(
+                        pathPoints: viewModel.planningViewModel?.sketchPathPoints ?? []
+                    )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .accessibilityIdentifier("planningscreen-sketch-polyline")
                 },
                 at: 0

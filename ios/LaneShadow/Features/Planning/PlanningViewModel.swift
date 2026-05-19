@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import CoreGraphics
 
 @MainActor
 @Observable
@@ -11,6 +12,7 @@ final class PlanningViewModel {
     var isThinking = false
     var isSending = false
     var shouldRenderMap = true
+    var sketchPathPoints: [CGPoint]
 
     let chatStore: ChatStore
     @ObservationIgnored let sessionStore: SessionStore
@@ -36,6 +38,7 @@ final class PlanningViewModel {
         self.convexClient = convexClient
         self.fallbackSessionId = fallbackSessionId
         self.appState = appState
+        sketchPathPoints = PlanningViewModel.defaultSketchPathPoints
         let initialPhase = PlanningPhase.parsing
         phaseSteps = PlanningPhase.indicatorSteps(activePhase: initialPhase)
         capsuleHeadline = initialPhase.capsuleHeadline
@@ -49,7 +52,8 @@ final class PlanningViewModel {
             isThinking: isThinking,
             isSending: isSending,
             shouldRenderMap: shouldRenderMap,
-            capsuleHeadline: capsuleHeadline
+            capsuleHeadline: capsuleHeadline,
+            sketchPathPoints: sketchPathPoints
         )
     }
 
@@ -268,6 +272,13 @@ final class PlanningViewModel {
     var resolvedSessionId: String? {
         chatStore.flowState.sessionId ?? sessionStore.activeSessionId ?? fallbackSessionId
     }
+
+    static let defaultSketchPathPoints = [
+        CGPoint(x: 0, y: 50),
+        CGPoint(x: 50, y: 30),
+        CGPoint(x: 100, y: 60),
+        CGPoint(x: 150, y: 40),
+    ]
 }
 
 extension PlanningViewModel {

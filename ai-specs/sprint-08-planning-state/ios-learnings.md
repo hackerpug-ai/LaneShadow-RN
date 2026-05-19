@@ -23,3 +23,36 @@
 - `ios/LaneShadow/Features/Planning/PlanningPhase.swift` — add persisted-phase fallback in the backend-aligned derivation order
 - `ios/LaneShadowTests/Features/Planning/PlanningViewModelTests.swift` — add regression coverage for a phase-only planning message
 - `ai-specs/sprint-08-planning-state/ios-learnings.md` — remediation notes and verification learnings
+
+---
+
+# iOS Learnings: PLAN-S08-IOS-T03 Sketch Polyline Overlay
+
+## Implementation Date
+2026-05-19
+
+## Edge Cases Discovered
+1. `MapSketchAnimationLayer` was easier to verify by exposing a resolved view state seam than by introspecting SwiftUI animation modifiers directly. That kept the production layer token-driven while still giving deterministic tests for reduce-motion and timing behavior.
+2. `PlanningViewModel` cannot reference `Self.defaultSketchPathPoints` from another stored-property initializer. The default sketch geometry had to move through the initializer path to avoid the Swift compile-time self-use restriction.
+
+## API Contract Notes
+- Sprint 08 only needs mock sketch geometry, but the layer contract is already path-data-driven through `pathPoints`, so Sprint 09 can replace the points source without rewriting the overlay.
+- The motion contract is carried by `theme.motion.recipes["sketchPolylineLoop"]` and `theme.motion.recipes["breathingHeadDot"]`; the file stays free of direct duration literals.
+
+## UI Decisions
+- The head dot is anchored to the last point in the input path rather than inferred from animated dash phase. That matches the design intent while avoiding frame-driven layout churn.
+- Reduce-motion is handled as a full motion-collapse branch in resolved state, not by partially preserving repeat animations with altered values.
+
+## Platform-Specific Notes
+- Keeping `safeCubicBezierEasing` alongside the new map sketch layer avoided duplicating easing fallback logic and preserved existing call sites that were still using the helper from legacy planning UI code.
+- The worktree needed a local `node_modules` symlink to reflect the main checkout dependency install before repo-level `pnpm` checks could report meaningful results.
+
+## Files Created/Modified
+- `ios/LaneShadow/AppFlow/MapView/MapSketchAnimationLayer.swift` — token-driven sketch polyline overlay with reduce-motion collapse and resolved-state testing seam
+- `ios/LaneShadow/Features/Planning/PlanningViewModel.swift` — add default sketch path points for Sprint 08 mock geometry
+- `ios/LaneShadow/Features/Planning/PlanningScreenLiveState.swift` — carry sketch path points through live planning state
+- `ios/LaneShadow/Features/Planning/PlanningScreenContainer.swift` — pass sketch geometry from view model into screen composition
+- `ios/LaneShadow/Views/Templates/PlanningScreen+LiveContent.swift` — feed live sketch geometry into the map overlay
+- `ios/LaneShadow/Views/Templates/PlanningScreen.swift` — remove duplicated sketch motion helpers and use shared default points
+- `ios/LaneShadow/Views/Templates/MapApp.swift` — keep overlay composition wired to planning sketch points
+- `ios/LaneShadowTests/Features/AppFlow/MapView/MapSketchAnimationLayerTests.swift` — path, token, timing, and reduce-motion coverage
