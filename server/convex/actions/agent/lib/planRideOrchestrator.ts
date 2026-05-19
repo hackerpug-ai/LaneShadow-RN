@@ -76,7 +76,22 @@ export const planRideOrchestrator = async (params: {
 
   // Log failures so we can debug NO_ROUTES_GENERATED
   const failed = compiled.filter((r) => r.status === 'rejected') as PromiseRejectedResult[]
-  for (const _f of failed) {
+  let failedVariantIndex = 0
+  for (const failedVariant of failed) {
+    // biome-ignore lint/suspicious/noConsole: warn lines are the required production signal for failed variants
+    console.warn('[planRideOrchestrator] route variant failed', {
+      failedVariantIndex: failedVariantIndex++,
+      errorCode:
+        failedVariant.reason &&
+        typeof failedVariant.reason === 'object' &&
+        'code' in failedVariant.reason
+          ? failedVariant.reason.code
+          : undefined,
+      errorMessage:
+        failedVariant.reason instanceof Error
+          ? failedVariant.reason.message
+          : String(failedVariant.reason),
+    })
   }
 
   if (successful.length === 0) {
