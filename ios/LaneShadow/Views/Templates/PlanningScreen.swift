@@ -292,6 +292,7 @@ struct PlanningLiveMapConfiguration {
 @MainActor
 struct PlanningMapControlsConfiguration {
     let mode: LSMapControlsMode
+    let layersVisible: Bool
     let onZoomIn: (() -> Void)?
     let onZoomOut: (() -> Void)?
     let onRecenter: (() -> Void)?
@@ -300,6 +301,7 @@ struct PlanningMapControlsConfiguration {
 
     static let disabled = PlanningMapControlsConfiguration(
         mode: .map,
+        layersVisible: true,
         onZoomIn: nil,
         onZoomOut: nil,
         onRecenter: nil,

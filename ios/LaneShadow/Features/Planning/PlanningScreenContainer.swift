@@ -1,13 +1,39 @@
 import SwiftUI
 
+@MainActor
+@Observable
+final class PlanningLiveControlsState {
+    var mapControlsMode: LSMapControlsMode
+    var layersVisible: Bool
+
+    init(
+        mapControlsMode: LSMapControlsMode = .map,
+        layersVisible: Bool = true
+    ) {
+        self.mapControlsMode = mapControlsMode
+        self.layersVisible = layersVisible
+    }
+
+    func toggleLayers() {
+        layersVisible.toggle()
+    }
+
+    func toggleViewMode() {
+        mapControlsMode = mapControlsMode == .map ? .chat : .map
+    }
+}
+
 struct PlanningScreenContainer: View {
     @Bindable private var viewModel: PlanningViewModel
     @State private var mapCameraController = LSMapCameraController()
-    @State private var mapControlsMode: LSMapControlsMode = .map
-    @State private var planningLayersVisible = true
+    @State private var controlsState: PlanningLiveControlsState
 
-    init(viewModel: PlanningViewModel) {
+    init(
+        viewModel: PlanningViewModel,
+        controlsState: PlanningLiveControlsState = PlanningLiveControlsState()
+    ) {
         self.viewModel = viewModel
+        _controlsState = State(initialValue: controlsState)
     }
 
     var body: some View {
@@ -34,15 +60,16 @@ struct PlanningScreenContainer: View {
                 )
             },
             liveMapControlsConfiguration: PlanningMapControlsConfiguration(
-                mode: mapControlsMode,
+                mode: controlsState.mapControlsMode,
+                layersVisible: controlsState.layersVisible,
                 onZoomIn: { mapCameraController.zoomIn() },
                 onZoomOut: { mapCameraController.zoomOut() },
                 onRecenter: { mapCameraController.recenterToUserLocation() },
                 onLayers: {
-                    planningLayersVisible.toggle()
+                    controlsState.toggleLayers()
                 },
                 onToggleView: {
-                    mapControlsMode = mapControlsMode == .map ? .chat : .map
+                    controlsState.toggleViewMode()
                 }
             ),
             onCollapse: {
@@ -71,8 +98,8 @@ struct PlanningScreenContainer: View {
     }
 
     private var planningMapAccessibilityValue: String {
-        let modeValue = mapControlsMode == .map ? "map" : "chat"
-        let layersValue = planningLayersVisible ? "visible" : "hidden"
+        let modeValue = controlsState.mapControlsMode == .map ? "map" : "chat"
+        let layersValue = controlsState.layersVisible ? "visible" : "hidden"
         return "\(mapCameraController.debugAccessibilityValue);mode=\(modeValue);layers=\(layersValue)"
     }
 }

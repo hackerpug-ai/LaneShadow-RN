@@ -21,12 +21,7 @@ extension PlanningScreen {
                         content: { livePhaseIndicatorView(for: liveState) }
                     ),
                 ],
-                bottomOverlays: [
-                    GlassOverlaySlot(
-                        id: "chat-input",
-                        content: { liveBottomOverlay(for: liveState) }
-                    ),
-                ],
+                bottomOverlays: liveBottomOverlays(for: liveState),
                 topBar: {
                     LSTopBar(
                         trailing: LSTopBarTrailing.none,
@@ -62,6 +57,27 @@ extension PlanningScreen {
             onToggleView: liveMapControlsConfiguration.onToggleView
         )
         .accessibilityIdentifier("planningscreen-controls")
+    }
+
+    func liveBottomOverlays(for liveState: PlanningScreenLiveState) -> [GlassOverlaySlot] {
+        var overlays = [
+            GlassOverlaySlot(
+                id: "chat-input",
+                content: { liveBottomOverlay(for: liveState) }
+            ),
+        ]
+
+        if liveMapControlsConfiguration.layersVisible {
+            overlays.insert(
+                GlassOverlaySlot(
+                    id: "sketch",
+                    content: { liveSketchOverlay }
+                ),
+                at: 0
+            )
+        }
+
+        return overlays
     }
 
     /// Context capsule showing planning state headline
@@ -112,6 +128,11 @@ extension PlanningScreen {
         }
         .padding(.horizontal, theme.space.md)
         .padding(.bottom, theme.space.md)
+    }
+
+    var liveSketchOverlay: some View {
+        MapSketchAnimationLayer(pathPoints: [])
+            .accessibilityIdentifier("planningscreen-sketch-polyline")
     }
 
     /// Inline error banner (red border card)

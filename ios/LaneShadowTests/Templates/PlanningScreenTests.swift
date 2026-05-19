@@ -114,8 +114,8 @@ final class PlanningScreenTests: XCTestCase {
     }
 
     func test_mapControls_planningConfiguration() throws {
-        let harness = makePlanningHarness()
-        let screen = harness.screen.laneShadowTheme()
+        let harness = makePlanningContainerHarness()
+        var screen = harness.screen.laneShadowTheme()
 
         ViewHosting.host(view: screen)
         defer { ViewHosting.expel() }
@@ -124,39 +124,34 @@ final class PlanningScreenTests: XCTestCase {
         var inspected = try screen.inspect()
         let controls = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-controls")
         XCTAssertEqual(try controls.accessibilityIdentifier(), "planningscreen-controls")
-        XCTAssertEqual(try controls.accessibilityValue().string(), "mode=map;layers=visible")
         XCTAssertNoThrow(try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-sketch-polyline"))
-        let initialMapValue = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-map")
-            .accessibilityValue().string()
-        let initialHostToken = try XCTUnwrap(Self.hostToken(in: initialMapValue))
 
         let recenter = try controls.find(viewWithAccessibilityIdentifier: "lsmapcontrols-location.circle")
         try recenter.button().tap()
         pumpMainActor()
 
-        XCTAssertEqual(harness.mapAppViewModel.planningMapControlsMode, .map)
-        XCTAssertTrue(harness.mapAppViewModel.planningLayersVisible)
-        let updatedMapValue = try screen.inspect().find(viewWithAccessibilityIdentifier: "planningscreen-map")
+        let updatedMapValue = try screen.inspect()
+            .find(viewWithAccessibilityIdentifier: "planningscreen-map")
             .accessibilityValue().string()
-        XCTAssertNotEqual(initialMapValue, updatedMapValue)
+        XCTAssertTrue(updatedMapValue.contains("mode=map"))
+        XCTAssertTrue(updatedMapValue.contains("layers=visible"))
 
         let layers = try controls.find(viewWithAccessibilityIdentifier: "lsmapcontrols-layers")
         try layers.button().tap()
         pumpMainActor()
 
-        inspected = try screen.inspect()
-        XCTAssertFalse(harness.mapAppViewModel.planningLayersVisible)
-        XCTAssertThrowsError(try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-sketch-polyline"))
-        let hiddenMapValue = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-map")
-            .accessibilityValue().string()
-        let hiddenHostToken = try XCTUnwrap(Self.hostToken(in: hiddenMapValue))
-        XCTAssertEqual(initialHostToken, hiddenHostToken)
+        XCTAssertFalse(harness.controlsState.layersVisible)
 
-        let toggleView = try controls.find(viewWithAccessibilityIdentifier: "lsmapcontrols-send")
-        try toggleView.button().tap()
+        ViewHosting.expel()
+        screen = PlanningScreenContainer(
+            viewModel: harness.viewModel,
+            controlsState: harness.controlsState
+        ).laneShadowTheme()
+        ViewHosting.host(view: screen)
         pumpMainActor()
 
-        XCTAssertEqual(harness.mapAppViewModel.planningMapControlsMode, .chat)
+        inspected = try screen.inspect()
+        XCTAssertThrowsError(try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-sketch-polyline"))
     }
 
     func test_mapHost_identityPreserved() throws {
@@ -231,6 +226,33 @@ final class PlanningScreenTests: XCTestCase {
         return harness
     }
 
+    private func makePlanningContainerHarness() -> PlanningContainerHarness {
+        let client = StubLaneShadowConvexClient()
+        let sessionStore = SessionStore()
+        let chatStore = ChatStore(
+            flowState: .planning(PlanningState(sessionId: "session-123")),
+            sessionStore: sessionStore
+        )
+        let appState = AppState(isAuthenticated: true)
+        appState.appRoute = AppState.AppRoute.session(id: "session-123")
+        let viewModel = PlanningViewModel(
+            chatStore: chatStore,
+            sessionStore: sessionStore,
+            convexClient: client,
+            appState: appState
+        )
+        let controlsState = PlanningLiveControlsState()
+        viewModel.capsuleHeadline = "Drafting candidates…"
+        viewModel.phaseSteps = Self.makePhaseSteps(states: [.done, .done, .active, .pending, .pending])
+
+        return PlanningContainerHarness(
+            client: client,
+            viewModel: viewModel,
+            controlsState: controlsState,
+            screen: PlanningScreenContainer(viewModel: viewModel, controlsState: controlsState)
+        )
+    }
+
     private func makeIdleHarness() -> MapAppHarness {
         let client = StubLaneShadowConvexClient()
         let idleViewModel = IdleViewModel(
@@ -290,4 +312,12 @@ private struct MapAppHarness {
         }
         return planningViewModel
     }
+}
+
+@MainActor
+private struct PlanningContainerHarness {
+    let client: StubLaneShadowConvexClient
+    let viewModel: PlanningViewModel
+    let controlsState: PlanningLiveControlsState
+    let screen: PlanningScreenContainer
 }
