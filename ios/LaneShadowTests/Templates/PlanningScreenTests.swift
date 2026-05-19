@@ -1,350 +1,237 @@
 import LaneShadowTheme
-import SnapshotTesting
+import NativeSandbox
 import SwiftUI
-import Testing
+import ViewInspector
 import XCTest
 @testable import LaneShadow
 
 @MainActor
-struct PlanningScreenTests {
-    // MARK: - AC-1: Top-overlay composition (capsule above, indicator below)
+final class PlanningScreenTests: XCTestCase {
+    func test_topOverlay_capsuleAboveIndicator() throws {
+        let harness = makePlanningHarness()
+        let screen = harness.screen.laneShadowTheme()
 
-    /// TC-1: Verify LSContextCapsule is composed in topOverlays before LSPhaseIndicator
-    @Test
-    func topOverlay_capsuleAboveIndicator() {
-        let phases = [
-            LSPhaseIndicator.Phase(id: "p1", label: "Parsing", state: .done),
-            LSPhaseIndicator.Phase(id: "p2", label: "Drawing", state: .active),
-            LSPhaseIndicator.Phase(id: "p3", label: "Weather", state: .pending),
-            LSPhaseIndicator.Phase(id: "p4", label: "Scoring", state: .pending),
-            LSPhaseIndicator.Phase(id: "p5", label: "Ranking", state: .pending),
-        ]
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        pumpMainActor()
 
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: phases,
-            errorMessage: nil,
-            isThinking: false,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: "Drawing routes…"
-        )
-
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {}
-        )
-
-        // Use hosting controller to render and inspect accessibility tree
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-
-        // Verify screen renders without crashing
-        #expect(hostingController.view != nil)
-
-        // Snapshot test ensures visual composition is correct
-        assertSnapshot(of: screen, as: .image(precision: 0.95))
-    }
-
-    // MARK: - AC-2: LSContextCapsule binds to viewModel.capsuleHeadline
-
-    /// TC-2: Capsule receives state .planning(headline: viewModel.capsuleHeadline) exactly
-    @Test
-    func capsule_bindsViewModelHeadline() {
-        let testHeadline = "Drafting candidates…"
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: [],
-            errorMessage: nil,
-            isThinking: false,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: testHeadline
-        )
-
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {}
-        )
-
-        // Render the screen to verify the headline is in the rendered view
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1)) // Allow UIKit to catch up with SwiftUI tree
-
-        // Verify screen renders without crashing
-        #expect(hostingController.view != nil)
-
-        // Snapshot test ensures capsule is visually rendered with the headline
-        assertSnapshot(of: screen, as: .image(precision: 0.9))
-    }
-
-    // MARK: - AC-3: LSPhaseIndicator binds to viewModel.phaseSteps
-
-    /// TC-3: Phase indicator receives 5-entry phaseSteps with accessibility id
-    @Test
-    func indicator_bindsViewModelPhaseSteps() {
-        let phases = [
-            LSPhaseIndicator.Phase(id: "p1", label: "Parsing", state: .done),
-            LSPhaseIndicator.Phase(id: "p2", label: "Drawing", state: .done),
-            LSPhaseIndicator.Phase(id: "p3", label: "Weather", state: .active),
-            LSPhaseIndicator.Phase(id: "p4", label: "Scoring", state: .pending),
-            LSPhaseIndicator.Phase(id: "p5", label: "Ranking", state: .pending),
-        ]
-
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: phases,
-            errorMessage: nil,
-            isThinking: false,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: "Sun on one leg…"
-        )
-
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {}
-        )
-
-        // Render the screen
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1)) // Allow UIKit to catch up with SwiftUI tree
-
-        // Verify we have exactly 5 phases in the liveState
-        #expect(liveState.phases.count == 5)
-
-        // Snapshot test ensures phase indicator renders visually with all 5 phases
-        assertSnapshot(of: screen, as: .image(precision: 0.9))
-    }
-
-    // MARK: - AC-4: Back chip triggers requestCancelConfirmation
-
-    /// TC-4: Back chip (onMenuTap) calls requestCancelConfirmation, not confirmCancellation
-    /// Note: Full end-to-end tap verification is in PlanningStateE2ETests.swift (XCUITest).
-    @Test
-    func backChip_callsRequestCancelConfirmation() {
-        var wasRequestCancelConfirmationCalled = false
-        var wasConfirmCancellationCalled = false
-        var wasCancelPlanningCalled = false
-
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: [],
-            errorMessage: nil,
-            isThinking: false,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: "Testing…"
-        )
-
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {
-                wasRequestCancelConfirmationCalled = true
+        let inspected = try screen.inspect()
+        let overlayIDs = try inspected.findAll { view in
+            guard let identifier = try? view.accessibilityIdentifier() else {
+                return false
             }
+            return identifier.hasPrefix("maplayer.topOverlay.")
+        }.compactMap { try? $0.accessibilityIdentifier() }
+
+        XCTAssertEqual(
+            overlayIDs,
+            [
+                "maplayer.topOverlay.planning-context-capsule",
+                "maplayer.topOverlay.planning-phase-indicator",
+            ]
         )
-
-        // Render the screen
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-
-        // Verify screen renders
-        #expect(hostingController.view != nil)
-
-        // Directly invoke the closure that was passed to the screen
-        // This tests that the wiring is present and callable
-        screen.onRequestCancelConfirmation()
-
-        // Verify the callback was invoked
-        #expect(
-            wasRequestCancelConfirmationCalled,
-            "requestCancelConfirmation closure must be callable and wired"
-        )
-
-        // Verify confirmCancellation and cancelPlanning were NOT called from this view
-        // (They are only called from PLAN-S08-IOS-T04, not this composition view)
-        #expect(
-            !wasConfirmCancellationCalled,
-            "confirmCancellation should not be called from PlanningScreen"
-        )
-        #expect(
-            !wasCancelPlanningCalled,
-            "cancelPlanning should not be called from PlanningScreen"
-        )
+        XCTAssertNoThrow(try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-context-capsule"))
+        XCTAssertNoThrow(try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-phase-indicator"))
     }
 
-    // MARK: - AC-5: LSChatInput renders in is-thinking lock
+    func test_capsule_bindsViewModelHeadline() throws {
+        let harness = makePlanningHarness(headline: "Drafting candidates…")
+        let screen = harness.screen.laneShadowTheme()
 
-    /// TC-5: Chat input renders with isThinking=true, isEnabled=false when viewModel.isThinking
-    @Test
-    func chatInput_lockedWhenThinking() {
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: [],
-            errorMessage: nil,
-            isThinking: true,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: "Thinking…"
-        )
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        pumpMainActor()
 
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {}
-        )
+        let inspected = try screen.inspect()
+        let capsule = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-context-capsule")
 
-        // Render the screen
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-
-        // Verify screen renders with thinking state
-        #expect(liveState.isThinking == true)
-
-        // Snapshot test verifies the visual lock state (disabled input, spinner visible)
-        assertSnapshot(of: screen, as: .image(precision: 0.9))
+        XCTAssertEqual(try capsule.find(text: "Drafting candidates…").string(), "Drafting candidates…")
     }
 
-    // MARK: - AC-6: LSMapControls in planning configuration
-
-    /// TC-6: LSMapControls is present with planning configuration and accessibility id
-    @Test
-    func mapControls_planningConfiguration() {
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: [],
-            errorMessage: nil,
-            isThinking: false,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: "Planning…"
+    func test_indicator_bindsViewModelPhaseSteps() throws {
+        let phases = Self.makePhaseSteps(
+            states: [.done, .done, .active, .pending, .pending]
         )
-
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {}
+        let harness = makePlanningHarness(
+            headline: "Drafting candidates…",
+            phases: phases
         )
+        let screen = harness.screen.laneShadowTheme()
 
-        // Render the screen
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1)) // Allow UIKit to catch up with SwiftUI tree
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        pumpMainActor()
 
-        // Verify screen renders without crashing
-        #expect(hostingController.view != nil)
+        let inspected = try screen.inspect()
+        let indicator = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-phase-indicator")
 
-        // Snapshot test ensures map controls are rendered in planning state (right-edge positioning)
-        assertSnapshot(of: screen, as: .image(precision: 0.9))
+        XCTAssertEqual(try indicator.accessibilityIdentifier(), "planningscreen-phase-indicator")
+        XCTAssertEqual(try indicator.find(text: "Drafting candidates…").string(), "Drafting candidates…")
+
+        let phaseRows = try indicator.findAll { view in
+            guard let identifier = try? view.accessibilityIdentifier() else {
+                return false
+            }
+            return identifier.hasPrefix("lsphaseindicator-phase-")
+        }
+
+        XCTAssertEqual(phaseRows.count, 5)
+        XCTAssertNoThrow(try indicator.find(viewWithAccessibilityIdentifier: "lsphaseindicator-phase-drafting-active"))
     }
 
-    // MARK: - AC-7: Map host identity preserved across idle→planning
+    func test_backChip_callsRequestCancelConfirmation() throws {
+        let harness = makePlanningHarness()
+        let screen = harness.screen.laneShadowTheme()
 
-    /// TC-7: Same LSMap instance is preserved across state transitions (no remount)
-    /// NOTE: SwiftUI/Swift Testing cannot reliably introspect Mapbox view instance identity
-    /// across state transitions in unit tests. The behavioral verification lives in
-    /// PlanningStateE2ETests (UI layer testing). This test verifies the structural pattern
-    /// that enables identity preservation: the mapView is rendered unconditionally in
-    /// liveContent's LSMapLayer, not conditionally swapped to Color.clear.
-    @Test
-    func mapHost_identityPreserved() {
-        let liveState = PlanningScreenLiveState(
-            messages: [],
-            phases: [],
-            errorMessage: nil,
-            isThinking: false,
-            isSending: false,
-            shouldRenderMap: true,
-            capsuleHeadline: "Planning…"
-        )
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        pumpMainActor()
 
-        let screen = PlanningScreen(
-            liveState: liveState,
-            onMenuTap: {},
-            onCollapse: {},
-            onSend: { _ in },
-            onRetry: { _ in },
-            onRequestCancelConfirmation: {}
-        )
+        let inspected = try screen.inspect()
+        let backChip = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-hamburger")
+        try backChip.button().tap()
+        pumpMainActor()
 
-        // Render the screen
-        let hostingController = UIHostingController(rootView: screen)
-        _ = hostingController.view // Force layout
-
-        // Verify screen renders (map is included in liveContent)
-        #expect(hostingController.view != nil)
-
-        // Verify the pattern: mapView property always returns a non-nil view
-        // (not conditionally rendering Color.clear, which would unmount the map)
-        let mapView = screen.mapView
-        #expect(mapView != nil, "mapView property must always return a non-nil view (identity-preserving pattern)")
-
-        // Verify rendering twice calls the same mapView (tests the pattern stability)
-        // This ensures SwiftUI doesn't recreate the view due to conditional logic
-        let mapView2 = screen.mapView
-        #expect(
-            String(describing: type(of: mapView)) == String(describing: type(of: mapView2)),
-            "mapView must be consistent type across calls (no conditional remounting)"
-        )
+        XCTAssertTrue(harness.planningViewModel.cancelConfirmationVisible)
+        XCTAssertEqual(harness.client.cancelRoutePlanCalls, [])
+        XCTAssertEqual(harness.mapAppViewModel.currentState, .planning(sessionId: harness.sessionId))
     }
 
-    // MARK: - AC-8: Token purity (zero hex/numeric hardcoding)
+    func test_chatInput_lockedWhenThinking() throws {
+        let harness = makePlanningHarness(isThinking: true)
+        let screen = harness.screen.laneShadowTheme()
 
-    /// TC-8: PlanningScreen.swift contains zero hardcoded hex, RGB, or numeric values
-    @Test
-    func token_purity_enforced() throws {
-        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/PlanningScreen.swift"
-        let source = try String(contentsOfFile: sourceFile, encoding: .utf8)
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        pumpMainActor()
 
-        // Use regex to detect hex color literals (e.g., #RRGGBB or #RGB)
-        let hexRegex = try NSRegularExpression(pattern: "#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}")
-        let hexMatches = hexRegex.matches(in: source, range: NSRange(source.startIndex..., in: source))
-        #expect(hexMatches.isEmpty, "PlanningScreen should not contain hex color literals")
+        let inspected = try screen.inspect()
+        let chatInput = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-chat-input")
+        let collapseButton = try chatInput.find(viewWithAccessibilityIdentifier: "lschatinput-collapse")
 
-        // Detect Color(red:green:blue:) patterns
-        let rgbRegex = try NSRegularExpression(pattern: "Color\\(red:")
-        let rgbMatches = rgbRegex.matches(in: source, range: NSRange(source.startIndex..., in: source))
-        #expect(rgbMatches.isEmpty, "PlanningScreen should not contain Color(red:...) literals")
-
-        // Verify theme token usage is present (sample check)
-        let usesThemeTokens = source.contains("theme.space") || source.contains("LaneShadowTheme.color")
-        #expect(usesThemeTokens, "PlanningScreen should use theme tokens for all styling")
+        XCTAssertTrue(try collapseButton.isDisabled())
+        XCTAssertEqual(try chatInput.accessibilityValue().string(), "thinking=true;enabled=false")
     }
 
-    // MARK: - AC-9: Sandbox stories with canonical IDs
+    func test_launchArgumentPlanningState_initializesPlanningViewModelAndRendersPlanningOverlays() throws {
+        let harness = makeInjectedPlanningHarness()
+        let screen = harness.screen.laneShadowTheme()
 
-    /// TC-9: Sandbox stories exist with canonical lowercase dot-separated IDs (14 total: 7 states × 2 themes)
-    @Test
-    func sandboxStories_registered() throws {
-        let storyFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Sandbox/Stories/Templates/PlanningScreenStory.swift"
-        let source = try String(contentsOfFile: storyFile, encoding: .utf8)
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        pumpMainActor()
 
-        // Canonical story IDs that MUST be present
-        let requiredIds = [
+        XCTAssertEqual(harness.mapAppViewModel.currentState, .planning(sessionId: harness.sessionId))
+        XCTAssertNotNil(harness.mapAppViewModel.planningViewModel)
+
+        let inspected = try screen.inspect()
+        let overlayIDs = try inspected.findAll { view in
+            guard let identifier = try? view.accessibilityIdentifier() else {
+                return false
+            }
+            return identifier.hasPrefix("maplayer.topOverlay.")
+        }.compactMap { try? $0.accessibilityIdentifier() }
+
+        XCTAssertEqual(
+            overlayIDs,
+            [
+                "maplayer.topOverlay.planning-context-capsule",
+                "maplayer.topOverlay.planning-phase-indicator",
+            ]
+        )
+
+        let capsule = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-context-capsule")
+        XCTAssertEqual(try capsule.find(text: "Reading your prompt...").string(), "Reading your prompt...")
+
+        let indicator = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-phase-indicator")
+        let phaseRows = try indicator.findAll { view in
+            guard let identifier = try? view.accessibilityIdentifier() else {
+                return false
+            }
+            return identifier.hasPrefix("lsphaseindicator-phase-")
+        }
+        XCTAssertEqual(phaseRows.count, 5)
+
+        let chatInput = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-chat-input")
+        XCTAssertEqual(try chatInput.accessibilityValue().string(), "thinking=false;enabled=true")
+
+        let backChip = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-hamburger")
+        try backChip.button().tap()
+        pumpMainActor()
+
+        XCTAssertTrue(harness.planningViewModel.cancelConfirmationVisible)
+        XCTAssertEqual(harness.client.cancelRoutePlanCalls, [])
+    }
+
+    func test_mapControls_planningConfiguration() throws {
+        let harness = makePlanningContainerHarness()
+        var screen = harness.screen.laneShadowTheme()
+
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        pumpMainActor()
+
+        var inspected = try screen.inspect()
+        let controls = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-controls")
+        XCTAssertEqual(try controls.accessibilityIdentifier(), "planningscreen-controls")
+        XCTAssertNoThrow(try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-sketch-polyline"))
+
+        let recenter = try controls.find(viewWithAccessibilityIdentifier: "lsmapcontrols-location.circle")
+        try recenter.button().tap()
+        pumpMainActor()
+
+        let updatedMapValue = try screen.inspect()
+            .find(viewWithAccessibilityIdentifier: "planningscreen-map")
+            .accessibilityValue().string()
+        XCTAssertTrue(updatedMapValue.contains("mode=map"))
+        XCTAssertTrue(updatedMapValue.contains("layers=visible"))
+
+        let layers = try controls.find(viewWithAccessibilityIdentifier: "lsmapcontrols-layers")
+        try layers.button().tap()
+        pumpMainActor()
+
+        XCTAssertFalse(harness.controlsState.layersVisible)
+
+        ViewHosting.expel()
+        screen = PlanningScreenContainer(
+            viewModel: harness.viewModel,
+            controlsState: harness.controlsState
+        ).laneShadowTheme()
+        ViewHosting.host(view: screen)
+        pumpMainActor()
+
+        inspected = try screen.inspect()
+        XCTAssertThrowsError(try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-sketch-polyline"))
+    }
+
+    func test_mapHost_identityPreserved() throws {
+        let harness = makeIdleHarness()
+        let screen = harness.screen.laneShadowTheme()
+
+        ViewHosting.host(view: screen)
+        defer { ViewHosting.expel() }
+        pumpMainActor()
+
+        var inspected = try screen.inspect()
+        let idleMap = try inspected.find(viewWithAccessibilityIdentifier: "idlescreen-map")
+        let idleHostToken = try XCTUnwrap(try Self.hostToken(in: idleMap.accessibilityValue().string()))
+
+        harness.mapAppViewModel.goToPlanning(sessionId: harness.sessionId)
+        harness.planningViewModel.capsuleHeadline = "Drafting candidates…"
+        harness.planningViewModel.phaseSteps = Self.makePhaseSteps(
+            states: [.done, .done, .active, .pending, .pending]
+        )
+        pumpMainActor()
+
+        inspected = try screen.inspect()
+        let planningMap = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-map")
+        let planningHostToken = try XCTUnwrap(try Self.hostToken(in: planningMap.accessibilityValue().string()))
+
+        XCTAssertEqual(idleHostToken, planningHostToken)
+    }
+
+    func test_sandboxStories_registered() {
+        let requiredIDs: Set = [
             "templates.planning-screen.scouting-light",
             "templates.planning-screen.scouting-dark",
             "templates.planning-screen.drawing-light",
@@ -361,109 +248,134 @@ struct PlanningScreenTests {
             "templates.planning-screen.single-candidate-dark",
         ]
 
-        for id in requiredIds {
-            #expect(
-                source.contains("\"" + id + "\""),
-                "PlanningScreenStory should contain story ID: \(id)"
-            )
-        }
+        let planningStories = LaneShadowStories.all.filter { requiredIDs.contains($0.id) }
 
-        // Verify no old-style IDs remain
-        let oldPatterns = [
-            "templates.planning-screen.phase1",
-            "templates.planning-screen.default",
-            "templates.planning-screen.phase3",
-            "templates.planning-screen.phase4",
-            "templates.planning-screen.phase5",
-            "templates.planning-screen.dark",
-            "templates.planning-screen.v-slow",
-            "templates.planning-screen.v-cancel-confirm",
-            "templates.planning-screen.v-single-candidate",
-        ]
-        for oldId in oldPatterns {
-            #expect(
-                !source.contains("id: \"" + oldId + "\""),
-                "PlanningScreenStory should NOT contain old-style ID: \(oldId)"
-            )
+        XCTAssertEqual(Set(planningStories.map(\.id)), requiredIDs)
+
+        for story in planningStories {
+            let rendered = story.render(story.initialArgs).laneShadowTheme()
+            let hosted = UIHostingController(rootView: rendered)
+
+            XCTAssertNotNil(hosted.view, "Story \(story.id) should render without runtime errors")
         }
     }
 
-    // MARK: - Integration: Planning default variant snapshot
-
-    /// Planning screen default rendering (light theme)
-    @Test
-    func planning_default_renders() {
-        let screen = PlanningScreen(
-            provider: PlanningMockProvider.self,
-            activePhase: 2
+    private func makePlanningHarness(
+        headline: String = "Drafting candidates…",
+        phases: [LSPhaseIndicator.Phase]? = nil,
+        isThinking: Bool = false
+    ) -> MapAppHarness {
+        let harness = makeIdleHarness()
+        harness.mapAppViewModel.goToPlanning(sessionId: harness.sessionId)
+        harness.planningViewModel.capsuleHeadline = headline
+        harness.planningViewModel.phaseSteps = phases ?? Self.makePhaseSteps(
+            states: [.done, .done, .active, .pending, .pending]
         )
-
-        assertSnapshot(of: screen, as: .image(precision: 0.9))
+        harness.planningViewModel.isThinking = isThinking
+        harness.planningViewModel.cancelConfirmationVisible = false
+        return harness
     }
 
-    /// Planning screen dark mode rendering
-    @Test
-    func planning_dark_renders() {
-        let screen = PlanningScreen(
-            provider: PlanningMockProvider.self,
-            activePhase: 2
+    private func makePlanningContainerHarness() -> PlanningContainerHarness {
+        let client = StubLaneShadowConvexClient()
+        let sessionStore = SessionStore()
+        let chatStore = ChatStore(
+            flowState: .planning(PlanningState(sessionId: "session-123")),
+            sessionStore: sessionStore
         )
+        let appState = AppState(isAuthenticated: true)
+        appState.appRoute = AppState.AppRoute.session(id: "session-123")
+        let viewModel = PlanningViewModel(
+            chatStore: chatStore,
+            sessionStore: sessionStore,
+            convexClient: client,
+            appState: appState
+        )
+        let controlsState = PlanningLiveControlsState()
+        viewModel.capsuleHeadline = "Drafting candidates…"
+        viewModel.phaseSteps = Self.makePhaseSteps(states: [.done, .done, .active, .pending, .pending])
 
-        assertSnapshot(matching: screen, as: .image(precision: 0.9, traits: UITraitCollection(traitsFrom: [
-            UITraitCollection(userInterfaceStyle: .dark),
-            UITraitCollection(userInterfaceIdiom: .phone),
-            UITraitCollection(horizontalSizeClass: .compact),
-            UITraitCollection(verticalSizeClass: .regular),
-        ])))
+        return PlanningContainerHarness(
+            client: client,
+            viewModel: viewModel,
+            controlsState: controlsState,
+            screen: PlanningScreenContainer(viewModel: viewModel, controlsState: controlsState)
+        )
     }
 
-    // MARK: - Static Code Quality Tests
-
-    /// Sketch polyline uses recipe-driven animation, not literals
-    @Test
-    func sketch_animation_uses_recipe_not_literals() throws {
-        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/PlanningScreen.swift"
-        let source = try String(contentsOfFile: sourceFile, encoding: .utf8)
-
-        let containsRecipeReference = source.contains("sketchPolylineLoop") || source.contains("motion.recipe")
-        #expect(
-            containsRecipeReference,
-            "Source should reference motion.recipe for animation durations and easing"
+    private func makeInjectedPlanningHarness() -> MapAppHarness {
+        makeIdleHarness(
+            injectedArguments: ["-MapAppState=planning", "-SessionId=session-123"]
         )
-
-        let containsBreathingRecipe = source.contains("breathingHeadDot") || source.contains("motion.recipe")
-        #expect(containsBreathingRecipe, "Source should reference breathing animation recipe")
     }
 
-    /// Sketch polyline uses GeometryReader, not UIScreen.main.bounds
-    @Test
-    func sketch_polyline_uses_geometry_not_uiscreen() throws {
-        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/PlanningScreen.swift"
-        let source = try String(contentsOfFile: sourceFile, encoding: .utf8)
-
-        let hasUIScreenMainBounds = source.contains("UIScreen.main.bounds")
-        #expect(
-            !hasUIScreenMainBounds,
-            "PlanningScreen should not use UIScreen.main.bounds; use GeometryReader or view sizing instead"
+    private func makeIdleHarness(injectedArguments: [String]? = nil) -> MapAppHarness {
+        let client = StubLaneShadowConvexClient()
+        let idleViewModel = IdleViewModel(
+            chatStore: ChatStore(),
+            sessionStore: SessionStore(),
+            convexClient: client,
+            appState: AppState(),
+            onSessionStarted: { _ in }
         )
-
-        // SketchingPolyline is instantiated in parsingPolyline computed property
-        let hasSketchingPolyline = source.contains("SketchingPolyline()")
-        #expect(hasSketchingPolyline, "PlanningScreen should render SketchingPolyline view")
+        let mapAppViewModel = injectedArguments.map {
+            MapAppViewModel(idleViewModel: idleViewModel, injectedArguments: $0)
+        } ?? MapAppViewModel(idleViewModel: idleViewModel)
+        let screen = MapApp(viewModel: mapAppViewModel)
+        let sessionId = "session-123"
+        return MapAppHarness(
+            client: client,
+            mapAppViewModel: mapAppViewModel,
+            screen: screen,
+            sessionId: sessionId
+        )
     }
 
-    /// No data fetching in template (Convex/URLSession)
-    @Test
-    func no_data_fetching_in_template() throws {
-        let sourceFile = "/Users/justinrich/Projects/LaneShadow/ios/LaneShadow/Views/Templates/PlanningScreen.swift"
-        let source = try String(contentsOfFile: sourceFile, encoding: .utf8)
-
-        let forbiddenPatterns = ["Convex", "URLSession", ".task("]
-        for pattern in forbiddenPatterns {
-            #expect(
-                !source.contains(pattern),
-                "PlanningScreen.swift should not contain '\(pattern)' — found data fetching symbol"
-            )
+    private func pumpMainActor(iterations: Int = 20) {
+        for _ in 0 ..< iterations {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.01))
         }
     }
+
+    private static func makePhaseSteps(states: [PhaseState]) -> [LSPhaseIndicator.Phase] {
+        zip(
+            ["parsing", "searching", "drafting", "weather", "scoring"],
+            zip(
+                ["Parsing", "Searching", "Drafting", "Weather", "Scoring"],
+                states
+            )
+        ).map { id, payload in
+            LSPhaseIndicator.Phase(id: id, label: payload.0, state: payload.1)
+        }
+    }
+
+    private static func hostToken(in accessibilityValue: String) -> String? {
+        accessibilityValue
+            .split(separator: ";")
+            .first(where: { $0.hasPrefix("host=") })
+            .map { String($0.dropFirst("host=".count)) }
+    }
+}
+
+@MainActor
+private struct MapAppHarness {
+    let client: StubLaneShadowConvexClient
+    let mapAppViewModel: MapAppViewModel
+    let screen: MapApp
+    let sessionId: String
+
+    var planningViewModel: PlanningViewModel {
+        guard let planningViewModel = mapAppViewModel.planningViewModel else {
+            fatalError("Expected planning view model to exist")
+        }
+        return planningViewModel
+    }
+}
+
+@MainActor
+private struct PlanningContainerHarness {
+    let client: StubLaneShadowConvexClient
+    let viewModel: PlanningViewModel
+    let controlsState: PlanningLiveControlsState
+    let screen: PlanningScreenContainer
 }

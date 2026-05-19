@@ -8,4 +8,5 @@ struct PlanningScreenLiveState {
     var isSending: Bool
     var shouldRenderMap: Bool
     var capsuleHeadline: String = "Reading your prompt..."
+    var cancelConfirmationVisible = false
 }

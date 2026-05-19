@@ -15,6 +15,8 @@ import SwiftUI
 final class MapAppViewModel {
     /// Current state of the MapApp unified screen
     var currentState: MapAppState = .idle
+    var planningMapControlsMode: LSMapControlsMode = .map
+    var planningLayersVisible = true
 
     /// Always-alive IdleViewModel for idle state composition and re-entry
     private(set) var idleViewModel: IdleViewModel
@@ -34,12 +36,25 @@ final class MapAppViewModel {
             // DEBUG-only: Check for launch-argument state injection
             let injectedState = Self.injectedInitialState()
             if let injectedState {
-                currentState = injectedState
+                applyInjectedInitialState(injectedState)
             }
         #endif
 
         setupIdleTransitionObserver()
     }
+
+    #if DEBUG
+        convenience init(
+            idleViewModel: IdleViewModel,
+            injectedArguments: [String]
+        ) {
+            self.init(idleViewModel: idleViewModel)
+
+            if let injectedState = Self.injectedInitialState(from: injectedArguments) {
+                applyInjectedInitialState(injectedState)
+            }
+        }
+    #endif
 
     // MARK: - State Transitions
 
@@ -49,6 +64,8 @@ final class MapAppViewModel {
             planningViewModel.stopObserving()
         }
         planningViewModel = nil
+        planningMapControlsMode = .map
+        planningLayersVisible = true
         currentState = .idle
     }
 
@@ -67,6 +84,8 @@ final class MapAppViewModel {
             planningViewModel = newViewModel
         }
 
+        planningMapControlsMode = .map
+        planningLayersVisible = true
         currentState = .planning(sessionId: sessionId)
 
         // Begin observation for the planning session
@@ -88,6 +107,14 @@ final class MapAppViewModel {
     /// Request cancellation of the planning flow, showing confirmation sheet
     func requestCancelPlanning() {
         planningViewModel?.requestCancelConfirmation()
+    }
+
+    func togglePlanningLayers() {
+        planningLayersVisible.toggle()
+    }
+
+    func togglePlanningControlsMode() {
+        planningMapControlsMode = planningMapControlsMode == .map ? .chat : .map
     }
 
     /// Confirm cancellation and return to idle
@@ -115,6 +142,17 @@ final class MapAppViewModel {
     // MARK: - DEBUG: Launch Argument State Injection
 
     #if DEBUG
+        private func applyInjectedInitialState(_ injectedState: MapAppState) {
+            switch injectedState {
+            case .idle:
+                currentState = .idle
+            case let .planning(sessionId):
+                goToPlanning(sessionId: sessionId)
+            case let .routeResults(sessionId, routePlanId):
+                currentState = .routeResults(sessionId: sessionId, routePlanId: routePlanId)
+            }
+        }
+
         /// Parse launch arguments for MapAppState injection parameters.
         /// Returns a MapAppState to apply on init, or nil if no injection args are present.
         ///
@@ -152,12 +190,18 @@ final class MapAppViewModel {
                     .map({ $0.replacingOccurrences(of: "-RoutePlanId=", with: "") })
                 else {
                     NSLog(
-                        "🔴 MapAppViewModel.injectedInitialState: routeResults state requested but SessionId or RoutePlanId arg missing"
+                        """
+                        🔴 MapAppViewModel.injectedInitialState: routeResults state requested \
+                        but SessionId or RoutePlanId arg missing
+                        """
                     )
                     return nil
                 }
                 NSLog(
-                    "🟢 MapAppViewModel.injectedInitialState: routeResults state injected with sessionId=\(sessionId) routePlanId=\(routePlanId)"
+                    """
+                    🟢 MapAppViewModel.injectedInitialState: routeResults state injected \
+                    with sessionId=\(sessionId) routePlanId=\(routePlanId)
+                    """
                 )
                 return .routeResults(sessionId: sessionId, routePlanId: routePlanId)
             default:

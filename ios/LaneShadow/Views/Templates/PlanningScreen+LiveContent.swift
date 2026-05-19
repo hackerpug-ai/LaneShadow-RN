@@ -1,5 +1,4 @@
 import LaneShadowTheme
-import os
 import SwiftUI
 
 // MARK: - Live Content Rendering (planning state with real view model)
@@ -10,7 +9,7 @@ extension PlanningScreen {
         ZStack(alignment: .trailing) {
             LSMapLayer(
                 map: {
-                    mapView
+                    resolvedLiveMapView
                 },
                 topOverlays: [
                     GlassOverlaySlot(
@@ -22,15 +21,10 @@ extension PlanningScreen {
                         content: { livePhaseIndicatorView(for: liveState) }
                     ),
                 ],
-                bottomOverlays: [
-                    GlassOverlaySlot(
-                        id: "chat-input",
-                        content: { liveBottomOverlay(for: liveState) }
-                    ),
-                ],
+                bottomOverlays: liveBottomOverlays(for: liveState),
                 topBar: {
                     LSTopBar(
-                        trailing: .none,
+                        trailing: LSTopBarTrailing.none,
                         onMenuTap: {
                             onRequestCancelConfirmation()
                         },
@@ -53,23 +47,37 @@ extension PlanningScreen {
     /// Map controls workbar for planning state (recenter + mode toggle)
     var mapControlsView: some View {
         LSMapControls(
-            mode: .map,
+            mode: liveMapControlsConfiguration.mode,
             hasRouteToSave: false,
             isSavedRoute: false,
-            onRecenter: {
-                let msg =
-                    "[PLAN-S08-IOS-T02] Recenter in planning mode — " +
-                    "wiring to camera controller deferred to PLAN-S08-IOS-T04"
-                Logger().info("\(msg)")
-            },
-            onToggleView: {
-                let msg =
-                    "[PLAN-S08-IOS-T02] Toggle mode (planning→idle) — " +
-                    "wiring deferred to PLAN-S08-IOS-T04"
-                Logger().info("\(msg)")
-            }
+            onZoomIn: liveMapControlsConfiguration.onZoomIn,
+            onZoomOut: liveMapControlsConfiguration.onZoomOut,
+            onRecenter: liveMapControlsConfiguration.onRecenter,
+            onLayers: liveMapControlsConfiguration.onLayers,
+            onToggleView: liveMapControlsConfiguration.onToggleView
         )
         .accessibilityIdentifier("planningscreen-controls")
+    }
+
+    func liveBottomOverlays(for liveState: PlanningScreenLiveState) -> [GlassOverlaySlot] {
+        var overlays = [
+            GlassOverlaySlot(
+                id: "chat-input",
+                content: { liveBottomOverlay(for: liveState) }
+            ),
+        ]
+
+        if liveMapControlsConfiguration.layersVisible {
+            overlays.insert(
+                GlassOverlaySlot(
+                    id: "sketch",
+                    content: { liveSketchOverlay }
+                ),
+                at: 0
+            )
+        }
+
+        return overlays
     }
 
     /// Context capsule showing planning state headline
@@ -94,6 +102,7 @@ extension PlanningScreen {
                 liveErrorBanner(errorMessage)
             }
         }
+        .padding(.top, theme.space.xxxl)
     }
 
     /// Bottom overlay: chat transcript + chat input (locked when thinking)
@@ -119,6 +128,11 @@ extension PlanningScreen {
         }
         .padding(.horizontal, theme.space.md)
         .padding(.bottom, theme.space.md)
+    }
+
+    var liveSketchOverlay: some View {
+        MapSketchAnimationLayer(pathPoints: [])
+            .accessibilityIdentifier("planningscreen-sketch-polyline")
     }
 
     /// Inline error banner (red border card)

@@ -1,0 +1,5 @@
+Linting Swift files at paths ios/LaneShadow/Views/Templates/PlanningScreen.swift, ios/LaneShadow/Features/Planning/PlanningScreenContainer.swift, ios/LaneShadow/Sandbox/Stories/Templates/PlanningScreenStory.swift
+Linting 'PlanningScreen.swift' (1/3)
+Linting 'PlanningScreenContainer.swift' (2/3)
+Linting 'PlanningScreenStory.swift' (3/3)
+Done linting! Found 0 violations, 0 serious in 3 files.
