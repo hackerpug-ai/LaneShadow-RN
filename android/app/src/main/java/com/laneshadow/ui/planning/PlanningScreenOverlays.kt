@@ -33,7 +33,7 @@ fun PlanningScreenOverlays(
     PlanningScreenContainer(
         sessionId = sessionId,
         onMenuTap = { navController.navigate(com.laneshadow.navigation.Route.Sessions) },
-        onCollapse = { navController.navigate(com.laneshadow.navigation.Route.Sessions) },
+        onCollapse = {},
         onFilter = { navController.navigate(com.laneshadow.navigation.Route.Sessions) },
         onDismissCancelConfirm = {},
         onKeepPlanning = {},

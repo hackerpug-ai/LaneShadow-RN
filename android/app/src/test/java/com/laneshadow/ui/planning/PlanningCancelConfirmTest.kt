@@ -88,7 +88,17 @@ class PlanningCancelConfirmTest {
         // Verify contentDescription is present
         assertTrue(
             "PlanningCancelConfirmSheet must have contentDescription for dialog",
-            planningSheetSource.contains("contentDescription = \"Cancel planning confirmation\"")
+            planningSheetSource.contains("contentDescription = \"Cancel ride confirmation\"")
+        )
+
+        assertTrue(
+            "PlanningCancelConfirmSheet must expose the Keep planning label",
+            planningSheetSource.contains("keepLabel = \"Keep planning\"")
+        )
+
+        assertTrue(
+            "PlanningCancelConfirmSheet must expose the Cancel ride label",
+            planningSheetSource.contains("cancelLabel = \"Cancel ride\"")
         )
     }
 
@@ -132,18 +142,24 @@ class PlanningCancelConfirmTest {
      *
      * GIVEN the cancel-confirm sheet is open
      * WHEN the user taps "Cancel ride"
-     * THEN viewModel.confirmCancel() is invoked exactly once; the sheet dismisses
+     * THEN viewModel.cancel() is invoked exactly once; the sheet dismisses
      *
-     * Verify: PlanningScreenContainer wires onCancelPlan to viewModel.confirmCancel()
+     * Verify: PlanningScreenContainer wires onCancelPlan to viewModel.cancel()
      */
     @Test
     fun cancel_button_invokes_view_model_cancel() {
-        val source = File("src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt").readText()
+        val containerSource = File("src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt").readText()
+        val viewModelSource = File("src/main/java/com/laneshadow/ui/planning/PlanningViewModel.kt").readText()
 
-        // Must have onCancelPlan callback wired to viewModel.confirmCancel()
+        // Must have onCancelPlan callback wired to viewModel.cancel()
         assertTrue(
-            "PlanningScreenContainer must wire onCancelPlan to viewModel.confirmCancel()",
-            source.contains("onCancelPlan = {") && source.contains("viewModel.confirmCancel()")
+            "PlanningScreenContainer must wire onCancelPlan to viewModel.cancel()",
+            containerSource.contains("onCancelPlan = {") && containerSource.contains("viewModel.cancel()")
+        )
+
+        assertTrue(
+            "PlanningViewModel.cancel() must dismiss the sheet before cancelling",
+            viewModelSource.contains("fun cancel()") && viewModelSource.contains("dismissCancelConfirm()")
         )
     }
 
@@ -165,6 +181,13 @@ class PlanningCancelConfirmTest {
         assertTrue(
             "PlanningScreenContainer must wire onKeepPlanning to viewModel.dismissCancelConfirm()",
             source.contains("onKeepPlanning = {") && source.contains("viewModel.dismissCancelConfirm()")
+        )
+
+        assertTrue(
+            "PlanningCancelConfirmSheet must expose the Keep planning label",
+            File("src/main/java/com/laneshadow/ui/planning/PlanningCancelConfirmSheet.kt")
+                .readText()
+                .contains("keepLabel = \"Keep planning\"")
         )
     }
 

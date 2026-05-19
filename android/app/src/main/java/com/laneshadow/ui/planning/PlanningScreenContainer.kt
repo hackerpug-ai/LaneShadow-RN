@@ -27,8 +27,8 @@ import com.laneshadow.ui.templates.PlanningScreen
  * @param onCollapse Callback when collapse button is tapped (requestCancel)
  * @param onFilter Callback when filter button is tapped
  * @param onDismissCancelConfirm Callback when cancel confirm dialog is dismissed
- * @param onKeepPlanning Callback when "Keep thinking" is tapped
- * @param onCancelPlan Callback when "Cancel plan" is tapped (confirmCancel)
+ * @param onKeepPlanning Callback when "Keep planning" is tapped
+ * @param onCancelPlan Callback when "Cancel ride" is tapped
  * @param onReturnToIdle Callback when PlanningTransition.Cancelled is observed
  */
 @Composable
@@ -88,7 +88,7 @@ fun PlanningScreenContainer(
                 },
                 onCancel = {
                     onCancelPlan()
-                    viewModel.confirmCancel()
+                    viewModel.cancel()
                 },
                 onDismiss = {
                     onDismissCancelConfirm()
@@ -102,7 +102,6 @@ fun PlanningScreenContainer(
             state = mockState,
             onMenuTap = onMenuTap,
             onCollapse = {
-                onCollapse()
                 viewModel.requestCancel()
             },
             onFilter = onFilter,
@@ -116,7 +115,7 @@ fun PlanningScreenContainer(
             },
             onCancelPlan = {
                 onCancelPlan()
-                viewModel.confirmCancel()
+                viewModel.cancel()
             },
             mapContent = { planningState: MockPlanningScreenState ->
                 com.laneshadow.ui.atoms.LSMap(

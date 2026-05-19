@@ -252,7 +252,7 @@ class PlanningScreenCompositionTest {
         // Must wire intents to ViewModel
         assertTrue(
             "PlanningScreenContainer must wire intents to viewModel methods",
-            source.contains("viewModel.requestCancel()") || source.contains("viewModel.dismissCancelConfirm()") || source.contains("viewModel.confirmCancel()")
+            source.contains("viewModel.requestCancel()") || source.contains("viewModel.dismissCancelConfirm()") || source.contains("viewModel.cancel()")
         )
     }
 

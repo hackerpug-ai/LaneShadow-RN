@@ -16,11 +16,11 @@ import com.laneshadow.ui.molecules.LSCancelConfirmSheet
  *
  * Renders a modal dialog asking the user to confirm cancellation of the planning
  * operation. Presents two actions:
- * - "Keep thinking" (secondary) — dismisses without invoking cancel
- * - "Cancel plan" (primary, copper-tinted) — invokes cancel to cancel the route plan
+ * - "Keep planning" (secondary) — dismisses without invoking cancel
+ * - "Cancel ride" (primary, copper-tinted) — invokes cancel to cancel the route plan
  *
  * @param onKeep Callback when "Keep planning" button is tapped
- * @param onCancel Callback when "Cancel plan" button is tapped
+ * @param onCancel Callback when "Cancel ride" button is tapped
  * @param onDismiss Callback when dialog is dismissed without action
  * @param modifier Modifier for the dialog content
  */
@@ -36,8 +36,8 @@ fun PlanningCancelConfirmSheet(
     LSCancelConfirmSheet(
         title = "Cancel this plan?",
         body = "I've drawn one route already. You can back out now — but I'll toss what I have.",
-        keepLabel = "Keep thinking",
-        cancelLabel = "Cancel plan",
+        keepLabel = "Keep planning",
+        cancelLabel = "Cancel ride",
         onKeep = onKeep,
         onCancel = onCancel,
         onDismiss = onDismiss,
@@ -45,7 +45,7 @@ fun PlanningCancelConfirmSheet(
             .testTag("planning.cancel-confirm")
             .semantics(mergeDescendants = false) {
                 dialog()
-                contentDescription = "Cancel planning confirmation"
+                contentDescription = "Cancel ride confirmation"
             },
         keepButtonModifier = Modifier.testTag("planning.cancel-confirm.keep-button"),
         cancelButtonModifier = Modifier.testTag("planning.cancel-confirm.cancel-button"),

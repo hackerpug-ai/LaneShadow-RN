@@ -36,7 +36,7 @@ fun PlanningRoute(
     PlanningScreenContainer(
         sessionId = sessionId,
         onMenuTap = { navController.navigate(Route.Sessions) },
-        onCollapse = { navController.navigate(Route.Sessions) },
+        onCollapse = {},
         onFilter = { navController.navigate(Route.Sessions) },
         onDismissCancelConfirm = {},
         onKeepPlanning = {},
@@ -72,7 +72,11 @@ fun PlanningRoute(
 }
 
 internal fun PlanningUiState.toMockState(): PlanningScreenState {
-    val latestMessage = messages.lastOrNull()
+    val latestPrompt = messages.lastOrNull { message ->
+        message.role.equals("rider", ignoreCase = true) ||
+            message.role.equals("user", ignoreCase = true)
+    }
+    val latestMessage = messages.latestAgentMessage() ?: latestPrompt ?: messages.lastOrNull()
     val message = NavigatorMessage(
         id = latestMessage?.id?.takeIf { it.isNotBlank() } ?: "planning-message-$sessionId",
         sessionId = sessionId,

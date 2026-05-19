@@ -24,7 +24,7 @@ class PlanningScreenContainerTest {
      *       onCancel callback wires to viewModel.requestCancel
      *
      * Verify: Container source references hiltViewModel, collectAsStateWithLifecycle,
-     * and viewModel.requestCancel / viewModel.dismissCancelConfirm / viewModel.confirmCancel
+     * and viewModel.requestCancel / viewModel.dismissCancelConfirm / viewModel.cancel
      */
     @Test
     fun container_injects_view_model_and_binds_state() {
@@ -60,10 +60,10 @@ class PlanningScreenContainerTest {
             source.contains("viewModel.dismissCancelConfirm()")
         )
 
-        // AC-5: Must wire confirmCancel
+        // AC-5: Must wire cancel
         assertTrue(
-            "PlanningScreenContainer must wire confirmCancel to viewModel.confirmCancel",
-            source.contains("viewModel.confirmCancel()")
+            "PlanningScreenContainer must wire cancel to viewModel.cancel",
+            source.contains("viewModel.cancel()")
         )
 
         // AC-5: Must pass state to PlanningScreen
