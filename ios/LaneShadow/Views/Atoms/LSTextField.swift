@@ -23,7 +23,7 @@ public struct LSTextField: View {
     }
 
     @Environment(\.theme) private var theme
-    @FocusState private var isFocused: Bool
+    @FocusState private var internalFocus: Bool
 
     @Binding private var value: String
     private let placeholder: String?
@@ -35,6 +35,11 @@ public struct LSTextField: View {
     private let trailingSymbolName: String?
     private let helperText: String?
     private let inputAccessibilityIdentifier: String?
+    /// Optional external focus driver. When supplied, callers can read or
+    /// programmatically request focus on this field (e.g. focus the input
+    /// after tapping a suggestion chip). When nil, the field uses its
+    /// internal `@FocusState` and behaves identically to the legacy API.
+    private let externalFocus: FocusState<Bool>.Binding?
 
     public init(
         value: Binding<String>,
@@ -46,7 +51,8 @@ public struct LSTextField: View {
         leadingSymbolName: String? = nil,
         trailingSymbolName: String? = nil,
         helperText: String? = nil,
-        inputAccessibilityIdentifier: String? = nil
+        inputAccessibilityIdentifier: String? = nil,
+        externalFocus: FocusState<Bool>.Binding? = nil
     ) {
         _value = value
         self.placeholder = placeholder
@@ -58,6 +64,11 @@ public struct LSTextField: View {
         self.trailingSymbolName = trailingSymbolName
         self.helperText = helperText
         self.inputAccessibilityIdentifier = inputAccessibilityIdentifier
+        self.externalFocus = externalFocus
+    }
+
+    private var isFocused: Bool {
+        externalFocus?.wrappedValue ?? internalFocus
     }
 
     public var body: some View {
@@ -228,14 +239,14 @@ public struct LSTextField: View {
             SecureField("", text: editableBinding, prompt: prompt(tokens: tokens))
                 .font(tokens.textStyle.font)
                 .foregroundStyle(tokens.textColor)
-                .focused($isFocused)
+                .focused(externalFocus ?? $internalFocus)
                 .disabled(state == .disabled)
                 .optionalAccessibilityIdentifier(inputAccessibilityIdentifier)
         } else {
             TextField("", text: editableBinding, prompt: prompt(tokens: tokens))
                 .font(tokens.textStyle.font)
                 .foregroundStyle(tokens.textColor)
-                .focused($isFocused)
+                .focused(externalFocus ?? $internalFocus)
                 .disabled(state == .disabled)
                 .optionalAccessibilityIdentifier(inputAccessibilityIdentifier)
         }

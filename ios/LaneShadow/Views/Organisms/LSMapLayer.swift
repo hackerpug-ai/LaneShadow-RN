@@ -9,7 +9,9 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
     /// Reserved vertical space for the topBar (chip tap-target height + breathing room).
     /// Top overlays (capsule, etc.) are pushed below this height so they never sit
     /// underneath the menu/NEW chips.
-    private static var topBarReservedHeight: CGFloat { 64 }
+    private static var topBarReservedHeight: CGFloat {
+        64
+    }
 
     private let map: MapContent
     private let scrim: ScrimSpec?
@@ -45,10 +47,17 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
                 .ignoresSafeArea(edges: .all)
                 .accessibilityIdentifier("maplayer.map")
 
-            // z-index 1: Scrim (above map, below overlays)
-            if let scrim {
-                LSScrim(opacity: scrim.opacity)
-                    .accessibilityIdentifier("maplayer.scrim")
+            // z-index 1: Scrim (above map, below overlays + drawer).
+            // When a `leadingDrawer` is present and no explicit scrim was
+            // passed, auto-derive one that dismisses the drawer on tap so
+            // the drawer always sits ABOVE its dimming surface.
+            if let resolvedScrim = scrim ?? Self.defaultScrim(forDrawer: leadingDrawer) {
+                LSScrim(
+                    opacity: resolvedScrim.opacity,
+                    blocking: resolvedScrim.onTap != nil,
+                    onTap: resolvedScrim.onTap.map { handler in { handler() } }
+                )
+                .accessibilityIdentifier("maplayer.scrim")
             }
 
             // z-index 2: Top overlays (below topBar — clearance reserves topBar height)
@@ -81,10 +90,13 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
                 .accessibilityIdentifier("maplayer.bottomSheet")
             }
 
-            // z-index 4: Leading drawer (above sheet and overlays)
+            // z-index 4: Leading drawer (above sheet, overlays, and scrim).
+            // The drawer chrome extends top-to-bottom; content inside owns
+            // its own safe-area padding (see LSSessionsDrawer).
             if let leadingDrawer {
                 leadingDrawer.content()
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                    .ignoresSafeArea(edges: [.top, .bottom])
                     .accessibilityIdentifier("maplayer.drawer")
             }
 
@@ -96,6 +108,14 @@ public struct LSMapLayer<MapContent: View, TopBarContent: View>: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private extension LSMapLayer {
+    @MainActor
+    static func defaultScrim(forDrawer drawer: DrawerSpec?) -> ScrimSpec? {
+        guard let drawer else { return nil }
+        return ScrimSpec(opacity: 0.35, onTap: drawer.onDismiss)
     }
 }
 

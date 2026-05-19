@@ -8,6 +8,9 @@ struct IdleScreenContainer: View {
     @State private var mapCameraController = LSMapCameraController()
     @State private var isMenuOpen: Bool = false
     @State private var isKeyboardVisible: Bool = false
+    /// Drives the chat input's focus state from the parent so tapping a
+    /// suggestion chip can pop the keyboard for refinement.
+    @FocusState private var isChatInputFocused: Bool
     private let debugFrameObserver: ((String, CGRect) -> Void)?
 
     init(
@@ -65,16 +68,9 @@ struct IdleScreenContainer: View {
             .accessibilityValue(mapCameraController.debugAccessibilityValue)
             .reportFrame(as: "idlescreen-map-canvas", to: debugFrameObserver)
 
-            // Scrim with tap-to-dismiss when menu drawer is open
-            if isMenuOpen {
-                LSScrim(
-                    opacity: 0.35,
-                    blocking: true,
-                    onTap: closeMenu
-                )
-                .accessibilityIdentifier("idlescreen-menu-scrim")
-                .transition(.opacity)
-            }
+            // Menu scrim is now owned by LSMapLayer (auto-derived from the
+            // leadingDrawer's onDismiss), which keeps the dimming surface
+            // BELOW the drawer in z-order. See LSMapLayer.defaultScrim(forDrawer:).
 
             // Map controls positioned at vertical center of right edge —
             // suppressed while typing so the input owns the screen
@@ -215,10 +211,11 @@ struct IdleScreenContainer: View {
             onFilter: {},
             suggestions: suggestions,
             onSuggestionTap: { chip in
-                // Tap-to-submit per idle-screen design spec — chip tap
-                // transitions to PlanningScreen, not just text priming.
+                // Chip tap fills the input as a draft and pops the keyboard
+                // so the user can refine before sending. The tap is no
+                // longer a one-shot commit — they explicitly hit send.
                 chatInputValue = chip.label
-                Task { await viewModel.submitSuggestion(chip.label) }
+                isChatInputFocused = true
             },
             autocompleteSuggestions: autocompleteSuggestions,
             onAutocompleteSuggestionTap: { suggestion in
@@ -236,7 +233,8 @@ struct IdleScreenContainer: View {
             locationBadge: viewModel.locationBadge,
             showsSendAction: viewModel.selectedPlace != nil,
             isThinking: viewModel.isSubmitting,
-            isEnabled: !viewModel.isSubmitting
+            isEnabled: !viewModel.isSubmitting,
+            externalFocus: $isChatInputFocused
         )
         .opacity(viewModel.isSubmitting ? theme.opacity.disabled : 1.0)
         .padding(.horizontal, theme.space.md)

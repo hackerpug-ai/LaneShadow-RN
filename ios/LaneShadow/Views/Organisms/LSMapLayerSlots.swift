@@ -14,13 +14,20 @@ public struct GlassOverlaySlot: Identifiable {
     }
 }
 
-/// Scrim overlay specification with opacity control.
+/// Scrim overlay specification with opacity control and an optional
+/// tap-to-dismiss callback. When `onTap` is non-nil, LSScrim renders as
+/// blocking and routes taps through this closure.
 public struct ScrimSpec: Sendable {
     public let opacity: Double
+    public let onTap: (@Sendable () -> Void)?
 
     @MainActor
-    public init(opacity: Double = LSScrim.defaultOpacity) {
+    public init(
+        opacity: Double = LSScrim.defaultOpacity,
+        onTap: (@Sendable () -> Void)? = nil
+    ) {
         self.opacity = opacity
+        self.onTap = onTap
     }
 }
 

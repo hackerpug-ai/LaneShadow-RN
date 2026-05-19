@@ -17,6 +17,7 @@ public struct IdleScreen: View {
     private let isSubmitting: Bool
 
     @State private var chatInputValue: String = ""
+    @FocusState private var isChatInputFocused: Bool
     private let onMenuTap: () -> Void
     private let onNewTap: () -> Void
     private let onSuggestionTap: (MockSuggestionChip) -> Void
@@ -207,17 +208,20 @@ public struct IdleScreen: View {
             onFilter: {},
             suggestions: suggestions,
             onSuggestionTap: { chip in
+                // Chip tap fills the input and pops the keyboard — does NOT
+                // auto-submit. The parent callback still fires so analytics /
+                // mock providers see the chip identity, but the actual submit
+                // is gated on the user tapping send.
                 chatInputValue = chip.label
-                // Preserve sandbox chip identity when available, but keep the
-                // live label-backed submit path working even when the label is
-                // not present in the mock provider suggestions.
+                isChatInputFocused = true
                 let mockChip = state.suggestions.first(where: { $0.label == chip.label })
                     ?? MockSuggestionChip(id: chip.label, label: chip.label)
                 onSuggestionTap(mockChip)
             },
             locationBadge: locationContext,
             isThinking: isSubmitting,
-            isEnabled: !isLocationNeeded && !isSubmitting
+            isEnabled: !isLocationNeeded && !isSubmitting,
+            externalFocus: $isChatInputFocused
         )
         .opacity(isLocationNeeded || isSubmitting ? theme.opacity.disabled : 1.0)
         .padding(.horizontal, theme.space.md)

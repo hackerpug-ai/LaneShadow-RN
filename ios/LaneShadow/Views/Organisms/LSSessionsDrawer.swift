@@ -7,6 +7,9 @@ import SwiftUI
 public struct LSSessionsDrawer<Session: Identifiable & Sendable>: View where Session.ID == String {
     @Environment(\.theme) private var theme
 
+    @State private var safeAreaTop: CGFloat = 0
+    @State private var safeAreaBottom: CGFloat = 0
+
     private let drawerWidth: CGFloat = 312
     private let sessionRowHeight: CGFloat = 72
 
@@ -51,38 +54,59 @@ public struct LSSessionsDrawer<Session: Identifiable & Sendable>: View where Ses
     }
 
     public var body: some View {
+        // The outer VStack fills the full vertical space the host grants it
+        // (LSMapLayer applies `.ignoresSafeArea(edges: [.top, .bottom])` to
+        // the drawer slot). The chrome (card background + trailing border +
+        // shadow) extends top-to-bottom edge-to-edge; CONTENT inside owns
+        // its own safe-area padding via the GeometryReader background.
         VStack(spacing: 0) {
-            VStack(spacing: 0) {
-                // Sticky header
-                header
+            // Sticky header — sits below the status bar / Dynamic Island
+            header
+                .padding(.top, safeAreaTop)
 
-                // Scrollable session rows grouped by sections
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(sections, id: \.label) { section in
-                            SectionGroup(
-                                section: section,
-                                activeSessionId: activeSessionId,
-                                onSelect: onSelect
-                            )
-                        }
+            // Scrollable session rows grouped by sections
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(sections, id: \.label) { section in
+                        SectionGroup(
+                            section: section,
+                            activeSessionId: activeSessionId,
+                            onSelect: onSelect
+                        )
                     }
                 }
+                .padding(.bottom, safeAreaBottom)
             }
-            .frame(width: drawerWidth)
-            .background(LaneShadowTheme.color.surface.card)
-            .overlay(alignment: .trailing) {
-                Rectangle()
-                    .fill(LaneShadowTheme.color.border.default)
-                    .frame(width: theme.strokeWidth.thin)
-            }
-            .shadow(
-                color: theme.elevation.level4.shadowColor.opacity(theme.opacity.values["10"]!),
-                radius: 16,
-                x: 2,
-                y: 0
-            )
         }
+        .frame(width: drawerWidth)
+        .frame(maxHeight: .infinity, alignment: .top)
+        .background(LaneShadowTheme.color.surface.card)
+        .background(
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear {
+                        safeAreaTop = geometry.safeAreaInsets.top
+                        safeAreaBottom = geometry.safeAreaInsets.bottom
+                    }
+                    .onChange(of: geometry.safeAreaInsets.top) { _, newValue in
+                        safeAreaTop = newValue
+                    }
+                    .onChange(of: geometry.safeAreaInsets.bottom) { _, newValue in
+                        safeAreaBottom = newValue
+                    }
+            }
+        )
+        .overlay(alignment: .trailing) {
+            Rectangle()
+                .fill(LaneShadowTheme.color.border.default)
+                .frame(width: theme.strokeWidth.thin)
+        }
+        .shadow(
+            color: theme.elevation.level4.shadowColor.opacity(theme.opacity.values["10"]!),
+            radius: 16,
+            x: 2,
+            y: 0
+        )
     }
 
     private var header: some View {

@@ -20,6 +20,11 @@ public struct LSChatInput: View {
     private let showsSendAction: Bool
     private let isThinking: Bool
     private let isEnabled: Bool
+    /// Optional caller-owned focus state for the underlying text field.
+    /// Lets parents (e.g. IdleScreenContainer) programmatically focus the
+    /// input after a chip tap so the keyboard pops and the user can refine
+    /// the prefilled draft before sending.
+    private let externalFocus: FocusState<Bool>.Binding?
 
     @State private var isKeyboardVisible: Bool = false
 
@@ -38,7 +43,8 @@ public struct LSChatInput: View {
         locationBadge: LocationContext? = nil,
         showsSendAction: Bool = false,
         isThinking: Bool = false,
-        isEnabled: Bool = true
+        isEnabled: Bool = true,
+        externalFocus: FocusState<Bool>.Binding? = nil
     ) {
         _value = value
         self.placeholder = placeholder
@@ -55,6 +61,7 @@ public struct LSChatInput: View {
         self.showsSendAction = showsSendAction
         self.isThinking = isThinking
         self.isEnabled = isEnabled
+        self.externalFocus = externalFocus
     }
 
     public var body: some View {
@@ -65,8 +72,11 @@ public struct LSChatInput: View {
                     .transition(.opacity.combined(with: .move(edge: .top)))
             }
 
-            // Suggestion chip row — hidden while typing
-            if !suggestions.isEmpty, !isKeyboardVisible {
+            // Suggestion chip row — visible only when the input has no text
+            // AND the keyboard isn't up. Chips are draft helpers, not commits;
+            // once the user is typing, the chip row would only compete for
+            // attention with what they're writing.
+            if !suggestions.isEmpty, !isKeyboardVisible, value.isEmpty {
                 suggestionChipsView
                     .transition(.opacity.combined(with: .move(edge: .top)))
             }
@@ -262,7 +272,8 @@ public struct LSChatInput: View {
         LSTextField(
             value: $value,
             placeholder: isThinking ? "Planning your ride…" : placeholder,
-            state: isThinking || !isEnabled ? .disabled : .default
+            state: isThinking || !isEnabled ? .disabled : .default,
+            externalFocus: externalFocus
         )
         .frame(maxWidth: .infinity)
         .accessibilityIdentifier("lschatinput-field")

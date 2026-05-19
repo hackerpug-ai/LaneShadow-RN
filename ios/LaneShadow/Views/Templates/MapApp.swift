@@ -59,7 +59,7 @@ struct MapApp: View {
             .reportFrame(as: "mapapp-map-canvas", to: debugFrameObserver)
 
             // Scrim with tap-to-dismiss when menu drawer is open (idle state only)
-            if isMenuOpen && viewModel.currentState == .idle {
+            if isMenuOpen, viewModel.currentState == .idle {
                 LSScrim(
                     opacity: 0.35,
                     blocking: true,
@@ -146,7 +146,7 @@ struct MapApp: View {
         case .planning:
             "planningscreen"
         case .routeResults:
-            "planningscreen"  // Will be updated in Cycle 3+
+            "planningscreen" // Will be updated in Cycle 3+
         }
     }
 
@@ -157,7 +157,7 @@ struct MapApp: View {
         case .planning:
             "planningscreen-map"
         case .routeResults:
-            "planningscreen-map"  // Will be updated in Cycle 3+
+            "planningscreen-map" // Will be updated in Cycle 3+
         }
     }
 
@@ -186,7 +186,7 @@ struct MapApp: View {
                 ),
             ]
         case .routeResults:
-            return []  // Sprint 09 wires route-results overlays
+            return [] // Sprint 09 wires route-results overlays
         }
     }
 
@@ -350,13 +350,14 @@ struct MapApp: View {
     // MARK: - Chat Input
 
     @State private var chatInputValue: String = ""
+    @FocusState private var isIdleChatInputFocused: Bool
 
     private var chatInputView: some View {
         switch viewModel.currentState {
         case .idle:
-            return AnyView(idleChatInputView)
+            AnyView(idleChatInputView)
         case .planning, .routeResults:
-            return AnyView(planningChatInputView)
+            AnyView(planningChatInputView)
         }
     }
 
@@ -374,8 +375,10 @@ struct MapApp: View {
             onFilter: {},
             suggestions: suggestions,
             onSuggestionTap: { chip in
+                // Chip tap fills the input and focuses the keyboard so the
+                // user can edit before sending. No auto-submit.
                 chatInputValue = chip.label
-                Task { await viewModel.idleViewModel.submitSuggestion(chip.label) }
+                isIdleChatInputFocused = true
             },
             autocompleteSuggestions: autocompleteSuggestions,
             onAutocompleteSuggestionTap: { suggestion in
@@ -393,7 +396,8 @@ struct MapApp: View {
             locationBadge: viewModel.idleViewModel.locationBadge,
             showsSendAction: viewModel.idleViewModel.selectedPlace != nil,
             isThinking: viewModel.idleViewModel.isSubmitting,
-            isEnabled: !viewModel.idleViewModel.isSubmitting
+            isEnabled: !viewModel.idleViewModel.isSubmitting,
+            externalFocus: $isIdleChatInputFocused
         )
         .opacity(viewModel.idleViewModel.isSubmitting ? theme.opacity.disabled : 1.0)
         .padding(.horizontal, theme.space.md)
