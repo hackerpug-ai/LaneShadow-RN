@@ -7,6 +7,7 @@
 1. `RootView` drives planning through `MapApp`, so fixing only `PlanningScreen+LiveContent` leaves the runtime path broken; the remediation had to move overlay composition, back-chip intent, and controls into the persistent `MapApp` host.
 2. `LSMapLayer` top overlays share one top alignment gutter, so the phase indicator still needs its own token offset (`theme.space.xxxl`) to sit below the planning capsule without changing the shared map-layer contract.
 3. `xcodebuild -only-testing` selectors now execute correctly only after converting `PlanningScreenTests` to `XCTestCase`; the previous Swift Testing/source-grep approach reported green while running zero tests.
+4. The planning layers control needs to drive visible host composition, not just metadata; tying it to both the sketch overlay slot and the map's favorite-pin inputs makes the same persistent `LSMap` host visibly simplify without a remount.
 
 ## API Contract Notes
 - `MapApp` should bind `LSContextCapsule` with `.planning(headline: planningViewModel.capsuleHeadline)` and `LSPhaseIndicator` with `planningViewModel.phaseSteps`; using the computed `phases` alias is functionally equivalent but less explicit for the contract.
@@ -17,6 +18,7 @@
 - The planning top bar now renders with `LSTopBarTrailing.none`; the planning capsule lives in `LSMapLayer.topOverlays`, not in the top-bar center slot.
 - `MapApp` exposes planning controls with `planningscreen-controls` plus an accessibility value that reflects `mode` and `layers` state, which made the runtime host verifiable without touching `LSMapControls.swift`.
 - The persistent map host exposes a stable `host=` token in its accessibility value so idle→planning tests can prove the same mounted host survives state changes.
+- When the planning layers chip is toggled off, `MapApp` now removes the sketch overlay and clears planning-time favorite pins from the live `LSMap` inputs instead of only flipping a private boolean.
 
 ## Platform-Specific Notes
 - Repo-wide `pnpm type-check:native` is not usable in this worktree without additional JS tooling bootstrap (`tsgo` missing), but the native pre-commit path for staged Swift files is still governed by `swiftformat`, token compliance, and `xcodebuild` from `ios/`.
@@ -25,5 +27,5 @@
 
 ## Files Created/Modified
 - `ios/LaneShadow/Features/MapApp/MapAppViewModel.swift` - now owns planning controls state and helper mutators for runtime verification.
-- `ios/LaneShadow/Views/Templates/MapApp.swift` - ports planning overlay composition, back-chip intent, live controls wiring, chat-input lock accessibility, and persistent host identity to the authenticated runtime host.
-- `ios/LaneShadowTests/Templates/PlanningScreenTests.swift` - replaced source-grep checks with executable `XCTest` host/registry tests that the task selectors actually run.
+- `ios/LaneShadow/Views/Templates/MapApp.swift` - ports planning overlay composition, back-chip intent, live controls wiring, real planning-layer toggling, chat-input lock accessibility, and persistent host identity to the authenticated runtime host.
+- `ios/LaneShadowTests/Templates/PlanningScreenTests.swift` - replaced source-grep checks with executable `XCTest` host/registry tests that the task selectors actually run, including the real planning-layer toggle assertion.

@@ -125,8 +125,10 @@ final class PlanningScreenTests: XCTestCase {
         let controls = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-controls")
         XCTAssertEqual(try controls.accessibilityIdentifier(), "planningscreen-controls")
         XCTAssertEqual(try controls.accessibilityValue().string(), "mode=map;layers=visible")
+        XCTAssertNoThrow(try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-sketch-polyline"))
         let initialMapValue = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-map")
             .accessibilityValue().string()
+        let initialHostToken = try XCTUnwrap(Self.hostToken(in: initialMapValue))
 
         let recenter = try controls.find(viewWithAccessibilityIdentifier: "lsmapcontrols-location.circle")
         try recenter.button().tap()
@@ -142,7 +144,13 @@ final class PlanningScreenTests: XCTestCase {
         try layers.button().tap()
         pumpMainActor()
 
+        inspected = try screen.inspect()
         XCTAssertFalse(harness.mapAppViewModel.planningLayersVisible)
+        XCTAssertThrowsError(try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-sketch-polyline"))
+        let hiddenMapValue = try inspected.find(viewWithAccessibilityIdentifier: "planningscreen-map")
+            .accessibilityValue().string()
+        let hiddenHostToken = try XCTUnwrap(Self.hostToken(in: hiddenMapValue))
+        XCTAssertEqual(initialHostToken, hiddenHostToken)
 
         let toggleView = try controls.find(viewWithAccessibilityIdentifier: "lsmapcontrols-send")
         try toggleView.button().tap()

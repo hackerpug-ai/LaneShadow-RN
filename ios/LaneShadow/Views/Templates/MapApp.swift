@@ -42,7 +42,7 @@ struct MapApp: View {
                     LSMap(
                         mode: .interactive,
                         camera: Self.defaultCamera,
-                        favoriteLocations: viewModel.idleViewModel.favoriteLocations,
+                        favoriteLocations: mapFavoriteLocations,
                         cameraController: mapCameraController
                     )
                     .accessibilityElement(children: .ignore)
@@ -83,8 +83,7 @@ struct MapApp: View {
 
             // Planning cancel-confirm sheet overlay
             if viewModel.currentState.isPlanning, let planningViewModel = viewModel.planningViewModel,
-               planningViewModel.cancelConfirmationVisible
-            {
+               planningViewModel.cancelConfirmationVisible {
                 ZStack {
                     LSScrim(blocking: true)
                         .ignoresSafeArea()
@@ -185,6 +184,18 @@ private extension MapApp {
     var planningLayersValue: String {
         viewModel.planningLayersVisible ? "visible" : "hidden"
     }
+
+    var mapFavoriteLocations: [FavoriteLocation] {
+        guard viewModel.currentState.isPlanning else {
+            return viewModel.idleViewModel.favoriteLocations
+        }
+
+        return viewModel.planningLayersVisible ? viewModel.idleViewModel.favoriteLocations : []
+    }
+
+    var shouldRenderPlanningSketchOverlay: Bool {
+        viewModel.currentState.isPlanning && viewModel.planningLayersVisible
+    }
 }
 
 private extension MapApp {
@@ -216,7 +227,7 @@ private extension MapApp {
             },
         ]
 
-        if viewModel.currentState.isPlanning {
+        if shouldRenderPlanningSketchOverlay {
             overlays.insert(
                 GlassOverlaySlot(id: "sketch") {
                     MapSketchAnimationLayer(pathPoints: [])
