@@ -894,7 +894,12 @@ final class LaneShadowConvexClient: @unchecked Sendable {
             "sessionId": sessionId,
             "content": content,
         ]
-        _ = currentLocation
+        if let currentLocation {
+            args["currentLocation"] = [
+                "lat": currentLocation.lat,
+                "lng": currentLocation.lng,
+            ] as [String: ConvexEncodable?]
+        }
 
         return try await action(
             .sendMessage,
