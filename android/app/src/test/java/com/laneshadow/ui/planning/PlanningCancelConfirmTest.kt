@@ -1,18 +1,29 @@
 package com.laneshadow.ui.planning
 
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.navigation.compose.rememberNavController
 import com.google.common.truth.Truth.assertThat
 import com.laneshadow.data.chat.SessionMessage
 import com.laneshadow.theme.LaneShadowTheme
+import com.laneshadow.ui.mapapp.MapAppContent
+import com.laneshadow.ui.mapapp.MapAppState
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,49 +32,34 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class PlanningCancelConfirmTest {
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun chat_input_renders_in_thinking_mode() {
-        val uiState = PlanningUiState(
-            sessionId = "session-1",
-            isThinking = true,
-            messages = listOf(
-                SessionMessage(
-                    id = "rider-message",
-                    sessionId = "session-1",
-                    role = "rider",
-                    content = "Plan a scenic 2-hour ride",
-                    createdAt = 1L,
-                ),
-                SessionMessage(
-                    id = "agent-message",
-                    sessionId = "session-1",
-                    role = "assistant",
-                    content = "I found a route already.",
-                    createdAt = 2L,
+        val uiState = mutableStateOf(
+            PlanningUiState(
+                sessionId = "session-1",
+                isThinking = true,
+                messages = listOf(
+                    SessionMessage(
+                        id = "rider-message",
+                        sessionId = "session-1",
+                        role = "rider",
+                        content = "Plan a scenic 2-hour ride",
+                        createdAt = 1L,
+                    ),
+                    SessionMessage(
+                        id = "agent-message",
+                        sessionId = "session-1",
+                        role = "assistant",
+                        content = "I found a route already.",
+                        createdAt = 2L,
+                    ),
                 ),
             ),
         )
 
-        composeRule.setContent {
-            LaneShadowTheme {
-                PlanningScreenContent(
-                    uiState = uiState,
-                    onMenuTap = {},
-                    onCollapse = {},
-                    onFilter = {},
-                    onDismissCancelConfirm = {},
-                    onKeepPlanning = {},
-                    onCancelPlan = {},
-                    onReturnToIdle = {},
-                    consumeTransition = {},
-                    requestCancel = {},
-                    skipMapRendering = false,
-                    mapContent = { Box {} },
-                )
-            }
-        }
+        setPlanningRouteContent(uiState = uiState)
 
         val textFieldNode = composeRule.onNodeWithContentDescription(
             "Awaiting response...",
@@ -78,13 +74,17 @@ class PlanningCancelConfirmTest {
 
     @Test
     fun back_tap_opens_v02_cancel_confirm_sheet() {
-        composeRule.setContent {
-            LaneShadowTheme {
-                PlanningCancelConfirmSheet(
-                    onKeep = {},
-                    onCancel = {},
-                )
-            }
+        val uiState = mutableStateOf(
+            PlanningUiState(
+                sessionId = "session-1",
+                isThinking = true,
+            ),
+        )
+
+        setPlanningRouteContent(uiState = uiState)
+
+        composeRule.runOnIdle {
+            composeRule.activity.onBackPressedDispatcher.onBackPressed()
         }
 
         composeRule.onNodeWithContentDescription("Cancel ride confirmation").assertExists()
@@ -94,48 +94,34 @@ class PlanningCancelConfirmTest {
 
     @Test
     fun cancel_button_invokes_view_model_cancel() {
-        var uiState by mutableStateOf(
+        val uiState = mutableStateOf(
             PlanningUiState(
                 sessionId = "session-1",
                 isThinking = true,
                 showCancelConfirm = true,
             ),
         )
-        var cancelCount by mutableIntStateOf(0)
+        var cancelCount = 0
 
-        composeRule.setContent {
-            LaneShadowTheme {
-                PlanningScreenContent(
-                    uiState = uiState,
-                    onMenuTap = {},
-                    onCollapse = {},
-                    onFilter = {},
-                    onDismissCancelConfirm = { uiState = uiState.copy(showCancelConfirm = false) },
-                    onKeepPlanning = { uiState = uiState.copy(showCancelConfirm = false) },
-                    onCancelPlan = {
-                        cancelCount += 1
-                        uiState = uiState.copy(showCancelConfirm = false)
-                    },
-                    onReturnToIdle = {},
-                    consumeTransition = {},
-                    requestCancel = { uiState = uiState.copy(showCancelConfirm = true) },
-                    skipMapRendering = false,
-                    mapContent = { Box {} },
-                )
-            }
-        }
+        setPlanningRouteContent(
+            uiState = uiState,
+            onCancelPlan = {
+                cancelCount += 1
+                uiState.value = uiState.value.copy(showCancelConfirm = false)
+            },
+        )
 
         composeRule.onNodeWithTag("planning.cancel-confirm.cancel-button").performClick()
 
         composeRule.runOnIdle {
-            assertThat(cancelCount).isEqualTo(1)
-            assertThat(uiState.showCancelConfirm).isFalse()
+            assertEquals(1, cancelCount)
+            assertThat(uiState.value.showCancelConfirm).isFalse()
         }
     }
 
     @Test
     fun keep_planning_dismisses_without_invoking_cancel() {
-        var uiState by mutableStateOf(
+        val uiState = mutableStateOf(
             PlanningUiState(
                 sessionId = "session-1",
                 isThinking = true,
@@ -151,78 +137,45 @@ class PlanningCancelConfirmTest {
                 ),
             ),
         )
-        var cancelCount by mutableIntStateOf(0)
+        var cancelCount = 0
 
-        composeRule.setContent {
-            LaneShadowTheme {
-                PlanningScreenContent(
-                    uiState = uiState,
-                    onMenuTap = {},
-                    onCollapse = {},
-                    onFilter = {},
-                    onDismissCancelConfirm = { uiState = uiState.copy(showCancelConfirm = false) },
-                    onKeepPlanning = { uiState = uiState.copy(showCancelConfirm = false) },
-                    onCancelPlan = { cancelCount += 1 },
-                    onReturnToIdle = {},
-                    consumeTransition = {},
-                    requestCancel = { uiState = uiState.copy(showCancelConfirm = true) },
-                    skipMapRendering = false,
-                    mapContent = { Box {} },
-                )
-            }
-        }
+        setPlanningRouteContent(
+            uiState = uiState,
+            onCancelPlan = { cancelCount += 1 },
+        )
 
         composeRule.onNodeWithTag("planning.cancel-confirm.keep-button").performClick()
 
         composeRule.runOnIdle {
-            assertThat(cancelCount).isEqualTo(0)
-            assertThat(uiState.showCancelConfirm).isFalse()
-            assertThat(uiState.isThinking).isTrue()
+            assertEquals(0, cancelCount)
+            assertThat(uiState.value.showCancelConfirm).isFalse()
+            assertThat(uiState.value.isThinking).isTrue()
         }
         composeRule.onNodeWithTag("ls-spinner").assertExists()
     }
 
     @Test
     fun cancelled_transition_triggers_return_to_idle_without_remount() {
-        var uiState by mutableStateOf(
+        val uiState = mutableStateOf(
             PlanningUiState(
                 sessionId = "session-1",
                 isThinking = true,
             ),
         )
-        var returnToIdleCount by mutableIntStateOf(0)
-        var consumeTransitionCount by mutableIntStateOf(0)
-        var mapHostMountCount by mutableIntStateOf(0)
+        var returnToIdleCount = 0
+        var consumeTransitionCount = 0
 
-        composeRule.setContent {
-            LaneShadowTheme {
-                PlanningScreenContent(
-                    uiState = uiState,
-                    onMenuTap = {},
-                    onCollapse = {},
-                    onFilter = {},
-                    onDismissCancelConfirm = {},
-                    onKeepPlanning = {},
-                    onCancelPlan = {},
-                    onReturnToIdle = { returnToIdleCount += 1 },
-                    consumeTransition = {
-                        consumeTransitionCount += 1
-                        uiState = uiState.copy(transition = null)
-                    },
-                    requestCancel = {},
-                    skipMapRendering = false,
-                    mapContent = {
-                        DisposableEffect(Unit) {
-                            mapHostMountCount += 1
-                            onDispose { }
-                        }
-                    },
-                )
-            }
-        }
+        setPlanningRouteContent(
+            uiState = uiState,
+            onReturnToIdle = { returnToIdleCount += 1 },
+            consumeTransition = {
+                consumeTransitionCount += 1
+                uiState.value = uiState.value.copy(transition = null)
+            },
+        )
 
         composeRule.runOnIdle {
-            uiState = uiState.copy(
+            uiState.value = uiState.value.copy(
                 isThinking = false,
                 transition = PlanningTransition.Cancelled,
             )
@@ -231,10 +184,63 @@ class PlanningCancelConfirmTest {
         composeRule.waitForIdle()
 
         composeRule.runOnIdle {
-            assertThat(returnToIdleCount).isEqualTo(1)
-            assertThat(consumeTransitionCount).isEqualTo(1)
-            assertThat(mapHostMountCount).isEqualTo(1)
-            assertThat(uiState.transition).isNull()
+            assertEquals(1, returnToIdleCount)
+            assertEquals(1, consumeTransitionCount)
+            assertThat(uiState.value.transition).isNull()
+        }
+        composeRule.onAllNodesWithTag("mapapp-map").assertCountEquals(1)
+    }
+
+    private fun setPlanningRouteContent(
+        uiState: MutableState<PlanningUiState>,
+        onCancelPlan: () -> Unit = {},
+        onReturnToIdle: () -> Unit = {},
+        consumeTransition: () -> Unit = {},
+    ) {
+        composeRule.setContent {
+            LaneShadowTheme {
+                val navController = rememberNavController()
+                MapAppContent(
+                    state = MapAppState.Planning(uiState.value.sessionId),
+                    navController = navController,
+                    onPlanningReturnToIdle = onReturnToIdle,
+                    mapContent = { _, _ ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .testTag("mapapp-map"),
+                        )
+                    },
+                    planningOverlays = { sessionId, routeReturnToIdle ->
+                        PlanningScreenOverlays(
+                            sessionId = sessionId,
+                            navController = navController,
+                            onReturnToIdle = routeReturnToIdle,
+                            container = { containerReturnToIdle ->
+                                PlanningScreenContent(
+                                    uiState = uiState.value,
+                                    onMenuTap = {},
+                                    onCollapse = {},
+                                    onFilter = {},
+                                    onDismissCancelConfirm = {
+                                        uiState.value = uiState.value.copy(showCancelConfirm = false)
+                                    },
+                                    onKeepPlanning = {
+                                        uiState.value = uiState.value.copy(showCancelConfirm = false)
+                                    },
+                                    onCancelPlan = onCancelPlan,
+                                    onReturnToIdle = containerReturnToIdle,
+                                    consumeTransition = consumeTransition,
+                                    requestCancel = {
+                                        uiState.value = uiState.value.copy(showCancelConfirm = true)
+                                    },
+                                    skipMapRendering = true,
+                                )
+                            },
+                        )
+                    },
+                )
+            }
         }
     }
 }

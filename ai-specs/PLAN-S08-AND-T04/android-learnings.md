@@ -4,26 +4,26 @@
 2026-05-19
 
 ## Edge Cases Discovered
-1. `PlanningUiState.toMockState()` must prefer the latest rider/user message over the latest agent message or the locked chat input shows the wrong text while planning is active.
-2. Runtime Compose tests for planning need a fake `mapContent` slot because the default `LSMap` path loads Mapbox native code under Robolectric.
+1. The persistent `MapApp` planning path uses `skipMapRendering = true`, so overlay-only branches must still compose the planning chrome; otherwise the locked chat input and phase UI disappear on the shipped route even though isolated template tests pass.
+2. Route-level Robolectric tests cannot mount the production `LSMap` implementation because it loads native Mapbox code; a test-only map slot seam is required to verify the real `MapApp -> PlanningScreenOverlays` composition without stubbing overlay behavior.
 
 ## API Contract Notes
-- `PlanningTransition.Cancelled` is the signal that must restore the screen to idle; consuming the transition before the idle callback prevents duplicate restoration.
-- The planning cancellation path already goes through `viewModel.cancel()`; the missing contract was route restoration on the same mounted map host.
+- `PlanningTransition.Cancelled` remains the single signal for returning the planning route to idle; `consumeTransition()` must run before or alongside the idle callback to avoid duplicate restoration.
+- The cancel-confirm flow continues to go through `viewModel.cancel()` only. The view layer never calls `routePlans.cancelPlan` directly.
 
 ## UI Decisions
-- `PlanningRoute` now drives the existing `MapApp` persistent-host path and restores idle by switching `MapAppViewModel` state, not by popping navigation.
-- `PlanningScreenContainer` now delegates to an internal `PlanningScreenContent` composable so runtime behavior can be tested without Hilt wiring.
+- The `skipMapRendering` branch now renders the planning overlay chrome over the persistent `MapApp` host instead of returning after only the cancel sheet.
+- `PlanningScreen` now shares its top/bottom planning overlay composition with the persistent-host path so the locked chat input, capsule, and phase indicator stay visually consistent.
+- `PlanningScreenOverlays` and `MapAppContent` expose narrow composition seams for route-level tests; production behavior still uses the same default wiring.
 
 ## Gotchas for iOS Implementer
-- If the locked planning input is derived from a mixed rider/agent message list, explicitly bias toward the rider prompt for the visible filled value.
-- Shared-host cancel restoration should be modeled as a state swap on the unified map screen, not as navigation back to a different idle screen instance.
+- When the planning state is hosted over a persistent map surface, treat "overlay-only" as a full overlay composition problem, not just a modal-sheet problem.
+- If route-level tests need to avoid native map dependencies, swap only the map body. Keep the real overlay container path intact so BackHandler and transition behavior stay covered.
 
 ## Files Created/Modified
-- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningRoute.kt` — switched cancel restoration to the persistent `MapApp` host and fixed prompt selection.
-- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt` — extracted testable content layer around the planning UI behavior.
-- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningScreenOverlays.kt` — parameterized return-to-idle callback for shared-host restoration.
-- `android/app/src/main/java/com/laneshadow/ui/mapapp/MapApp.kt` — forwarded planning cancel restoration into `MapAppViewModel`.
-- `android/app/src/test/java/com/laneshadow/ui/planning/PlanningCancelConfirmTest.kt` — replaced source inspection with Compose behavior tests.
-- `android/app/src/test/java/com/laneshadow/ui/planning/PlanningScreenContainerTest.kt` — updated source contract expectations for the new content layer.
-- `android/app/src/test/java/com/laneshadow/navigation/AuthRootNavigationContractTest.kt` — updated route contract expectations for `MapApp`-based planning restoration.
+- `android/app/src/main/java/com/laneshadow/ui/mapapp/MapApp.kt` — extracted `MapAppContent` and added a test-only map slot seam.
+- `android/app/src/main/java/com/laneshadow/ui/organisms/LSMapLayer.kt` — exposed the top-bar reserved height for shared overlay positioning.
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt` — rendered planning overlay chrome in the `skipMapRendering` branch.
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningScreenOverlays.kt` — added an injectable container seam for route-level tests.
+- `android/app/src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt` — extracted shared planning overlay chrome used by both the full template and persistent-host path.
+- `android/app/src/test/java/com/laneshadow/ui/planning/PlanningCancelConfirmTest.kt` — moved the acceptance tests onto the real `MapApp -> PlanningScreenOverlays` route.

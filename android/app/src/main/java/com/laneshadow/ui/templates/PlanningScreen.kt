@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,6 +30,7 @@ import com.laneshadow.ui.molecules.LSPhaseIndicator
 import com.laneshadow.ui.molecules.PlanningPhase
 import com.laneshadow.ui.molecules.CapsuleState
 import com.laneshadow.ui.organisms.GlassOverlaySlot
+import com.laneshadow.ui.organisms.LSMapLayerTopBarReservedHeight
 import com.laneshadow.ui.organisms.LSMapLayer
 import com.laneshadow.ui.organisms.LSMapControls
 import com.laneshadow.ui.organisms.LSTopBar
@@ -148,36 +152,10 @@ fun PlanningScreen(
             GlassOverlaySlot(
                 id = "org-map-layer__top-overlay",
                 content = {
-                    // AC-1 & AC-2: Capsule above indicator composition
-                    // Both molecules visible simultaneously per 2026-05-07 layout decision
-                    Box(
+                    PlanningTopOverlay(
+                        state = state,
                         modifier = Modifier.fillMaxSize(),
-                    ) {
-                        Column(
-                            modifier = Modifier.align(Alignment.TopCenter),
-                            verticalArrangement = Arrangement.spacedBy(theme.space.md),
-                        ) {
-                            // AC-1: LSContextCapsule in planning state with capsule headline
-                            LSContextCapsule(
-                                state = CapsuleState.Planning(
-                                    headline = state.capsuleHeadline,
-                                ),
-                                modifier = Modifier.testTag("planning.context-capsule"),
-                            )
-
-                            // AC-2: LSPhaseIndicator directly below capsule
-                            LSPhaseIndicator(
-                                phases = state.phaseSteps.map { step ->
-                                    PlanningPhase(
-                                        label = step.label,
-                                        state = step.state,
-                                    )
-                                },
-                                header = state.headerLabel,
-                                modifier = Modifier.testTag("planning.phase-indicator"),
-                            )
-                        }
-                    }
+                    )
                 }
             )
         ),
@@ -185,16 +163,10 @@ fun PlanningScreen(
             GlassOverlaySlot(
                 id = "chat-input",
                 content = {
-                    LSChatInput(
-                        value = state.message.body,
-                        onValueChange = { /* No-op: input is disabled */ },
-                        placeholder = "Awaiting response...",
-                        onSend = { /* No-op: input is disabled */ },
+                    PlanningBottomOverlay(
+                        state = state,
                         onCollapse = onCollapse,
                         onFilter = onFilter,
-                        isThinking = state.isThinking,
-                        isEnabled = false,
-                        modifier = Modifier.testTag("chat-input"),
                     )
                 }
             )
@@ -236,3 +208,81 @@ fun PlanningScreen(
     }
 }
 
+@Composable
+internal fun PlanningOverlayChrome(
+    state: PlanningScreenState,
+    onCollapse: () -> Unit,
+    onFilter: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        PlanningTopOverlay(
+            state = state,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .statusBarsPadding()
+                .padding(top = LSMapLayerTopBarReservedHeight),
+        )
+        PlanningBottomOverlay(
+            state = state,
+            onCollapse = onCollapse,
+            onFilter = onFilter,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding(),
+        )
+    }
+}
+
+@Composable
+private fun PlanningTopOverlay(
+    state: PlanningScreenState,
+    modifier: Modifier = Modifier,
+) {
+    val theme = LocalLaneShadowTheme.current
+
+    Box(modifier = modifier) {
+        Column(
+            modifier = Modifier.align(Alignment.TopCenter),
+            verticalArrangement = Arrangement.spacedBy(theme.space.md),
+        ) {
+            LSContextCapsule(
+                state = CapsuleState.Planning(
+                    headline = state.capsuleHeadline,
+                ),
+                modifier = Modifier.testTag("planning.context-capsule"),
+            )
+
+            LSPhaseIndicator(
+                phases = state.phaseSteps.map { step ->
+                    PlanningPhase(
+                        label = step.label,
+                        state = step.state,
+                    )
+                },
+                header = state.headerLabel,
+                modifier = Modifier.testTag("planning.phase-indicator"),
+            )
+        }
+    }
+}
+
+@Composable
+private fun PlanningBottomOverlay(
+    state: PlanningScreenState,
+    onCollapse: () -> Unit,
+    onFilter: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    LSChatInput(
+        value = state.message.body,
+        onValueChange = { /* No-op: input is disabled */ },
+        placeholder = "Awaiting response...",
+        onSend = { /* No-op: input is disabled */ },
+        onCollapse = onCollapse,
+        onFilter = onFilter,
+        isThinking = state.isThinking,
+        isEnabled = false,
+        modifier = modifier.testTag("chat-input"),
+    )
+}

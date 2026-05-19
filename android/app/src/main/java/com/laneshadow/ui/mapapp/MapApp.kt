@@ -10,10 +10,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.laneshadow.navigation.MainNavViewModel
 import com.laneshadow.ui.atoms.CameraPosition
 import com.laneshadow.ui.atoms.LatLng
 import com.laneshadow.ui.atoms.LSMap
@@ -53,12 +51,51 @@ import com.laneshadow.ui.planning.PlanningScreenOverlays
 @Composable
 fun MapApp(
     navController: NavHostController,
-    viewModel: MapAppViewModel = hiltViewModel(),
+    viewModel: MapAppViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
     onPlanningReturnToIdle: () -> Unit = viewModel::goToIdle,
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val mainNavViewModel: MainNavViewModel = hiltViewModel()
+
+    MapAppContent(
+        state = state,
+        navController = navController,
+        onPlanningReturnToIdle = onPlanningReturnToIdle,
+        modifier = modifier,
+    )
+}
+
+@Composable
+internal fun MapAppContent(
+    state: MapAppState,
+    navController: NavHostController,
+    onPlanningReturnToIdle: () -> Unit,
+    modifier: Modifier = Modifier,
+    mapContent: @Composable (state: MapAppState, cameraController: LSMapCameraController) -> Unit = { currentState, currentCameraController ->
+        LSMap(
+            mode = when (currentState) {
+                MapAppState.Idle -> MapMode.Interactive
+                is MapAppState.Planning -> MapMode.Preview
+                is MapAppState.RouteResults -> MapMode.Preview
+            },
+            camera = CameraPosition(
+                center = LatLng(37.8104, -122.4752),
+                zoom = 10.8,
+            ),
+            cameraController = currentCameraController,
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag("mapapp-map"),
+        )
+    },
+    planningOverlays: @Composable (sessionId: String, onReturnToIdle: () -> Unit) -> Unit = { sessionId, returnToIdle ->
+        PlanningScreenOverlays(
+            sessionId = sessionId,
+            navController = navController,
+            onReturnToIdle = returnToIdle,
+        )
+    },
+) {
     val cameraController = remember { LSMapCameraController(initialZoom = 10.8) }
     var isMenuOpen by remember { mutableStateOf(false) }
 
@@ -77,24 +114,10 @@ fun MapApp(
         // Map content stays constant; overlays swap based on state.
         LSMapLayer(
             map = {
-                LSMap(
-                    mode = when (state) {
-                        MapAppState.Idle -> MapMode.Interactive
-                        is MapAppState.Planning -> MapMode.Preview
-                        is MapAppState.RouteResults -> MapMode.Preview
-                    },
-                    camera = CameraPosition(
-                        center = LatLng(37.8104, -122.4752),
-                        zoom = 10.8,
-                    ),
-                    cameraController = cameraController,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .testTag("mapapp-map"),
-                )
+                mapContent(state, cameraController)
             },
             topOverlays = emptyList(),
-            bottomOverlays = bottomOverlaysFor(state, navController, mainNavViewModel),
+            bottomOverlays = bottomOverlaysFor(state, navController),
             topBar = {
                 Box(modifier = Modifier.fillMaxSize()) {
                     LSTopBar(
@@ -131,12 +154,7 @@ fun MapApp(
 
         // Planning screen overlays (including cancel-confirm sheet) when in planning state
         if (state is MapAppState.Planning) {
-            PlanningScreenOverlays(
-                sessionId = (state as MapAppState.Planning).sessionId,
-                navController = navController,
-                mainNavViewModel = mainNavViewModel,
-                onReturnToIdle = onPlanningReturnToIdle,
-            )
+            planningOverlays((state as MapAppState.Planning).sessionId, onPlanningReturnToIdle)
         }
     }
 }
@@ -151,7 +169,6 @@ fun MapApp(
 private fun bottomOverlaysFor(
     state: MapAppState,
     navController: NavHostController,
-    mainNavViewModel: MainNavViewModel,
 ): List<GlassOverlaySlot> {
     return when (state) {
         MapAppState.Idle -> {

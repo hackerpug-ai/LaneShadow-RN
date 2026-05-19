@@ -1,6 +1,7 @@
 package com.laneshadow.ui.planning
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -9,6 +10,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.laneshadow.sandbox.mockproviders.PlanningScreenState as MockPlanningScreenState
+import com.laneshadow.ui.templates.PlanningOverlayChrome
 import com.laneshadow.ui.templates.PlanningScreen
 
 /**
@@ -120,6 +122,17 @@ internal fun PlanningScreenContent(
     val mockState = uiState.toMockState()
 
     if (skipMapRendering) {
+        PlanningOverlayChrome(
+            state = mockState,
+            onCollapse = {
+                onCollapse()
+                requestCancel()
+            },
+            onFilter = onFilter,
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag("planning.overlay-chrome"),
+        )
         if (uiState.showCancelConfirm) {
             PlanningCancelConfirmSheet(
                 onKeep = onKeepPlanning,

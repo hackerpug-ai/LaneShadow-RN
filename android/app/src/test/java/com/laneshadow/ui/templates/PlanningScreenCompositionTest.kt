@@ -117,9 +117,9 @@ class PlanningScreenCompositionTest {
             source.contains("testTag(\"planning.phase-indicator\")")
         )
 
-        // Must render capsule BEFORE indicator in layout (Column with items in order)
-        val topOverlayContent = source.substringAfter("id = \"org-map-layer__top-overlay\"")
-            .substringBefore("GlassOverlaySlot(")
+        // Must render capsule BEFORE indicator in the shared top overlay composition.
+        val topOverlayContent = source.substringAfter("private fun PlanningTopOverlay(")
+            .substringBefore("@Composable\nprivate fun PlanningBottomOverlay(")
         assertTrue(
             "Capsule must be rendered before (above) indicator in composition order",
             topOverlayContent.indexOf("LSContextCapsule") < topOverlayContent.indexOf("LSPhaseIndicator")
