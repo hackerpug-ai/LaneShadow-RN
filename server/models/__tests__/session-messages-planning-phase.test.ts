@@ -33,4 +33,16 @@ describe('session-messages planning phase contract', () => {
 
     expect(phase).toBe('finalizing')
   })
+
+  it('derives enriching phase from getRouteWeather planning events', () => {
+    const phase = derivePlanningPhase(
+      baseMessage({
+        content: JSON.stringify({
+          events: [{ type: 'tool_pending', tool: 'getRouteWeather' }],
+        }),
+      }),
+    )
+
+    expect(phase).toBe('enriching')
+  })
 })

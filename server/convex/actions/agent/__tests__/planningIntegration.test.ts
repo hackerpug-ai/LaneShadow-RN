@@ -194,6 +194,36 @@ describe('sendMessage PlanningEventEmitter integration', () => {
   })
 })
 
+describe('PlanningEventEmitter explicit phase writes', () => {
+  it('writes explicit phase patches for routing tool and agent events', async () => {
+    const { PlanningEventEmitter } = await import('../lib/planningEvents.js')
+    const sessionId = 'sess1' as Id<'planning_sessions'>
+    const messageId = 'msg1' as Id<'session_messages'>
+    const runMutation = vi.fn(async (fn: unknown, args: Record<string, unknown>) => {
+      if ((fn as { __ref?: string }).__ref === 'createPendingAssistantMessage') {
+        return { messageId }
+      }
+      return null
+    })
+
+    const emitter = new PlanningEventEmitter({ runMutation, sessionId })
+
+    await emitter.toolPending('geocode', 'routing')
+    await emitter.toolPending('createRouteSketch', 'routing')
+    await emitter.agentComplete('routing', 'Route ready', 42)
+
+    const updateCalls = runMutation.mock.calls.filter(
+      ([fn]) => (fn as { __ref?: string }).__ref === 'updatePlanningContent',
+    )
+
+    expect(updateCalls.map(([, args]) => (args as { phase?: string }).phase)).toEqual([
+      'searching',
+      'drafting',
+      'finalizing',
+    ])
+  })
+})
+
 // ---------------------------------------------------------------------------
 // AC-4: orchestrator forwards planning callbacks to sub-agents
 // ---------------------------------------------------------------------------

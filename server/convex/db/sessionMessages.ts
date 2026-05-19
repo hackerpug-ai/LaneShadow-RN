@@ -1,6 +1,7 @@
 import { ConvexError, v } from 'convex/values'
 import {
   derivePlanningPhase,
+  mergePlanningPhase,
   PLANNING_PHASE,
   type PlanningPhase,
   planningPhaseValidator,
@@ -389,6 +390,7 @@ export const updatePlanningContentHandler = async (
   args: {
     messageId: Id<'session_messages'>
     content: string
+    phase?: PlanningPhase
   },
 ): Promise<null> => {
   const message = await ctx.db.get(args.messageId)
@@ -401,9 +403,14 @@ export const updatePlanningContentHandler = async (
     kind: 'planning' as const,
     phase: undefined,
   }
+  const derivedPhase = derivePlanningPhase(nextMessage as any) ?? PLANNING_PHASE.PARSING
+  const nextPhase = mergePlanningPhase(
+    message.phase as PlanningPhase | undefined,
+    mergePlanningPhase(derivedPhase, args.phase),
+  )
   await ctx.db.patch(args.messageId, {
     content: args.content,
-    phase: derivePlanningPhase(nextMessage as any) ?? PLANNING_PHASE.PARSING,
+    phase: nextPhase ?? PLANNING_PHASE.PARSING,
   })
   return null
 }
@@ -512,6 +519,7 @@ export const updatePlanningContent = internalMutation({
   args: {
     messageId: v.id('session_messages'),
     content: v.string(),
+    phase: v.optional(planningPhaseValidator),
   },
   returns: v.null(),
   handler: async (ctx, args) => {

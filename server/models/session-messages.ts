@@ -104,17 +104,36 @@ const DRAFTING_TOOL_NAMES = new Set([
 ])
 const ENRICHING_TOOL_NAMES = new Set([
   'searchNearby',
-  'fetchWeather',
+  'getRouteWeather',
   'webSearchResults',
   'enrichment_agent',
 ])
 
-const derivePlanningPhaseFromToolName = (toolName?: string): PlanningPhase | null => {
+const PLANNING_PHASE_ORDER: Record<PlanningPhase, number> = {
+  [PLANNING_PHASE.PARSING]: 0,
+  [PLANNING_PHASE.SEARCHING]: 1,
+  [PLANNING_PHASE.DRAFTING]: 2,
+  [PLANNING_PHASE.ENRICHING]: 3,
+  [PLANNING_PHASE.FINALIZING]: 4,
+}
+
+export const derivePlanningPhaseFromToolName = (toolName?: string): PlanningPhase | null => {
   if (!toolName) return null
   if (SEARCHING_TOOL_NAMES.has(toolName)) return PLANNING_PHASE.SEARCHING
   if (DRAFTING_TOOL_NAMES.has(toolName)) return PLANNING_PHASE.DRAFTING
   if (ENRICHING_TOOL_NAMES.has(toolName)) return PLANNING_PHASE.ENRICHING
   return null
+}
+
+export const mergePlanningPhase = (
+  currentPhase: PlanningPhase | null | undefined,
+  nextPhase: PlanningPhase | null | undefined,
+): PlanningPhase | null => {
+  if (currentPhase === undefined || currentPhase === null) return nextPhase ?? null
+  if (nextPhase === undefined || nextPhase === null) return currentPhase
+  return PLANNING_PHASE_ORDER[nextPhase] > PLANNING_PHASE_ORDER[currentPhase]
+    ? nextPhase
+    : currentPhase
 }
 
 const parsePlanningContent = (content: string): PlanningEventContent | null => {
@@ -132,12 +151,12 @@ const derivePlanningPhaseFromThinkingSteps = (
   let lastKnownPhase: PlanningPhase | null = null
   for (const step of thinkingSteps ?? []) {
     if (step.type === 'tool_finish' && step.toolName === 'routing_agent') {
-      lastKnownPhase = PLANNING_PHASE.FINALIZING
+      lastKnownPhase = mergePlanningPhase(lastKnownPhase, PLANNING_PHASE.FINALIZING)
       continue
     }
     const nextPhase = derivePlanningPhaseFromToolName(step.toolName)
     if (nextPhase !== null) {
-      lastKnownPhase = nextPhase
+      lastKnownPhase = mergePlanningPhase(lastKnownPhase, nextPhase)
     }
   }
   return lastKnownPhase
@@ -149,12 +168,12 @@ const derivePlanningPhaseFromPlanningContent = (content: string): PlanningPhase 
 
   for (const event of parsed?.events ?? []) {
     if (event.type === 'agent_complete') {
-      lastKnownPhase = PLANNING_PHASE.FINALIZING
+      lastKnownPhase = mergePlanningPhase(lastKnownPhase, PLANNING_PHASE.FINALIZING)
       continue
     }
     const nextPhase = derivePlanningPhaseFromToolName(event.tool)
     if (nextPhase !== null) {
-      lastKnownPhase = nextPhase
+      lastKnownPhase = mergePlanningPhase(lastKnownPhase, nextPhase)
     }
   }
 
