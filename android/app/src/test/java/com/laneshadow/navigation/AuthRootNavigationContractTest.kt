@@ -25,9 +25,9 @@ class AuthRootNavigationContractTest {
         assertThat(idleRouteSource).contains("viewModel.onInputChange(\"\")")
         assertThat(idleRouteSource).contains("navController.navigate(Route.Sessions)")
 
-        assertThat(planningRouteSource).doesNotContain("onFilter = {}")
-        assertThat(planningRouteSource).contains("onCollapse = viewModel::cancel")
-        assertThat(planningRouteSource).contains("navController.navigate(Route.Sessions)")
+        assertThat(planningRouteSource).contains("mapAppViewModel.goToPlanning(sessionId)")
+        assertThat(planningRouteSource).contains("MapApp(")
+        assertThat(planningRouteSource).contains("onPlanningReturnToIdle = mapAppViewModel::goToIdle")
     }
 
     @Test

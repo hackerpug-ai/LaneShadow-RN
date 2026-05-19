@@ -43,98 +43,104 @@ fun PlanningScreenContainer(
     onReturnToIdle: () -> Unit = {},
     skipMapRendering: Boolean = false,
 ) {
-    // AC-5: Resolve ViewModel via assisted Hilt injection
     val viewModel: PlanningViewModel = hiltViewModel<PlanningViewModel, PlanningViewModel.Factory>(
         creationCallback = { factory -> factory.create(sessionId) },
     )
-
-    // AC-5: Collect state as state with lifecycle
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
-    // AC-5: Handle system back gesture — if cancel sheet is showing, dismiss it;
-    // otherwise request cancel (which opens the sheet)
-    BackHandler {
-        if (uiState.showCancelConfirm) {
+    PlanningScreenContent(
+        uiState = uiState,
+        onMenuTap = onMenuTap,
+        onCollapse = onCollapse,
+        onFilter = onFilter,
+        onDismissCancelConfirm = {
+            onDismissCancelConfirm()
             viewModel.dismissCancelConfirm()
-        } else {
-            viewModel.requestCancel()
-        }
-    }
+        },
+        onKeepPlanning = {
+            onKeepPlanning()
+            viewModel.dismissCancelConfirm()
+        },
+        onCancelPlan = {
+            onCancelPlan()
+            viewModel.cancel()
+        },
+        onReturnToIdle = onReturnToIdle,
+        consumeTransition = viewModel::consumeTransition,
+        requestCancel = viewModel::requestCancel,
+        skipMapRendering = skipMapRendering,
+    )
+}
 
-    // AC-5: Observe transition and invoke onReturnToIdle when cancelled
-    LaunchedEffect(uiState.transition) {
-        when (uiState.transition) {
-            PlanningTransition.Cancelled -> {
-                viewModel.consumeTransition()
-                onReturnToIdle()
-            }
-            else -> Unit
-        }
-    }
-
-    // Convert ViewModel state to mock state for PlanningScreen
-    val mockState = uiState.toMockState()
-
-    // When skipMapRendering is true (e.g., when called from MapApp), render only
-    // the overlay content without mounting LSMapLayer. MapApp mounts the persistent
-    // LSMapLayer + LSMap once.
-    if (skipMapRendering) {
-        // Overlay-only rendering: render planning overlays (cancel sheet) directly
-        if (uiState.showCancelConfirm) {
-            PlanningCancelConfirmSheet(
-                onKeep = {
-                    onKeepPlanning()
-                    viewModel.dismissCancelConfirm()
-                },
-                onCancel = {
-                    onCancelPlan()
-                    viewModel.cancel()
-                },
-                onDismiss = {
-                    onDismissCancelConfirm()
-                    viewModel.dismissCancelConfirm()
-                },
+@Composable
+internal fun PlanningScreenContent(
+    uiState: PlanningUiState,
+    onMenuTap: () -> Unit,
+    onCollapse: () -> Unit,
+    onFilter: () -> Unit,
+    onDismissCancelConfirm: () -> Unit,
+    onKeepPlanning: () -> Unit,
+    onCancelPlan: () -> Unit,
+    onReturnToIdle: () -> Unit,
+    consumeTransition: () -> Unit,
+    requestCancel: () -> Unit,
+    skipMapRendering: Boolean,
+    mapContent: @Composable (MockPlanningScreenState) -> Unit = { planningState ->
+        com.laneshadow.ui.atoms.LSMap(
+            mode = com.laneshadow.ui.atoms.MapMode.Preview,
+            camera = com.laneshadow.ui.atoms.CameraPosition(
+                center = planningState.sketchRoute?.firstOrNull() ?: com.laneshadow.ui.atoms.LatLng(0.0, 0.0),
+                zoom = 11.0,
+            ),
+            modifier = Modifier.testTag("planning.map-host-instance"),
+        )
+        if (planningState.sketchRoute != null) {
+            com.laneshadow.ui.atoms.MapSketchAnimationLayer(
+                path = planningState.sketchRoute,
+                modifier = Modifier.testTag("planning.sketch-animation-layer"),
             )
         }
-    } else {
-        // Full-screen rendering: PlanningScreen with map, overlays, controls
-        PlanningScreen(
-            state = mockState,
-            onMenuTap = onMenuTap,
-            onCollapse = {
-                viewModel.requestCancel()
-            },
-            onFilter = onFilter,
-            onDismissCancelConfirm = {
-                onDismissCancelConfirm()
-                viewModel.dismissCancelConfirm()
-            },
-            onKeepPlanning = {
-                onKeepPlanning()
-                viewModel.dismissCancelConfirm()
-            },
-            onCancelPlan = {
-                onCancelPlan()
-                viewModel.cancel()
-            },
-            mapContent = { planningState: MockPlanningScreenState ->
-                com.laneshadow.ui.atoms.LSMap(
-                    mode = com.laneshadow.ui.atoms.MapMode.Preview,
-                    camera = com.laneshadow.ui.atoms.CameraPosition(
-                        center = planningState.sketchRoute?.firstOrNull() ?: com.laneshadow.ui.atoms.LatLng(0.0, 0.0),
-                        zoom = 11.0,
-                    ),
-                    modifier = Modifier.testTag("planning.map-host-instance"),
-                )
-                // MapSketchAnimationLayer: overlay composable for animated sketch polyline
-                // Driven by state.sketchRoute; animates path-draw progress from 0→1 (1400ms loop)
-                if (planningState.sketchRoute != null) {
-                    com.laneshadow.ui.atoms.MapSketchAnimationLayer(
-                        path = planningState.sketchRoute,
-                        modifier = Modifier.testTag("planning.sketch-animation-layer"),
-                    )
-                }
-            },
-        )
+    },
+) {
+    BackHandler {
+        if (uiState.showCancelConfirm) {
+            onDismissCancelConfirm()
+        } else {
+            requestCancel()
+        }
     }
+
+    LaunchedEffect(uiState.transition) {
+        if (uiState.transition == PlanningTransition.Cancelled) {
+            consumeTransition()
+            onReturnToIdle()
+        }
+    }
+
+    val mockState = uiState.toMockState()
+
+    if (skipMapRendering) {
+        if (uiState.showCancelConfirm) {
+            PlanningCancelConfirmSheet(
+                onKeep = onKeepPlanning,
+                onCancel = onCancelPlan,
+                onDismiss = onDismissCancelConfirm,
+            )
+        }
+        return
+    }
+
+    PlanningScreen(
+        state = mockState,
+        onMenuTap = onMenuTap,
+        onCollapse = {
+            onCollapse()
+            requestCancel()
+        },
+        onFilter = onFilter,
+        onDismissCancelConfirm = onDismissCancelConfirm,
+        onKeepPlanning = onKeepPlanning,
+        onCancelPlan = onCancelPlan,
+        mapContent = mapContent,
+    )
 }

@@ -51,7 +51,7 @@ class PlanningScreenContainerTest {
         // AC-5: Must wire onCollapse to requestCancel
         assertTrue(
             "PlanningScreenContainer must wire onCollapse to viewModel.requestCancel",
-            source.contains("viewModel.requestCancel()")
+            source.contains("requestCancel = viewModel::requestCancel")
         )
 
         // AC-5: Must wire dismissCancelConfirm
@@ -63,19 +63,19 @@ class PlanningScreenContainerTest {
         // AC-5: Must wire cancel
         assertTrue(
             "PlanningScreenContainer must wire cancel to viewModel.cancel",
-            source.contains("viewModel.cancel()")
+            source.contains("viewModel.cancel()") && source.contains("onCancelPlan = {")
         )
 
-        // AC-5: Must pass state to PlanningScreen
+        // AC-5: Must delegate to testable content layer with the collected UI state
         assertTrue(
-            "PlanningScreenContainer must pass state to PlanningScreen",
-            source.contains("PlanningScreen(") && source.contains("state = mockState")
+            "PlanningScreenContainer must pass uiState into PlanningScreenContent",
+            source.contains("PlanningScreenContent(") && source.contains("uiState = uiState")
         )
 
-        // AC-5: Must compose PlanningScreen (not directly call LSMapLayer)
+        // AC-5: Must compose PlanningScreenContent (not directly call LSMapLayer)
         assertTrue(
-            "PlanningScreenContainer must compose PlanningScreen (not LSMapLayer directly)",
-            source.contains("PlanningScreen(")
+            "PlanningScreenContainer must compose PlanningScreenContent (not LSMapLayer directly)",
+            source.contains("PlanningScreenContent(")
         )
 
         // AC-5: Must NOT import LSMapHost or LSMap directly

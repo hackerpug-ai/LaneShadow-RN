@@ -26,6 +26,7 @@ fun PlanningScreenOverlays(
     sessionId: String,
     navController: NavHostController,
     mainNavViewModel: MainNavViewModel,
+    onReturnToIdle: () -> Unit = { navController.popBackStack() },
 ) {
     // PlanningScreenContainer is wired as an overlay provider.
     // It handles ViewModel injection, state binding, and transition observation.
@@ -38,7 +39,7 @@ fun PlanningScreenOverlays(
         onDismissCancelConfirm = {},
         onKeepPlanning = {},
         onCancelPlan = {},
-        onReturnToIdle = { navController.popBackStack() },
+        onReturnToIdle = onReturnToIdle,
         skipMapRendering = true, // Map is already mounted in MapApp
     )
 }

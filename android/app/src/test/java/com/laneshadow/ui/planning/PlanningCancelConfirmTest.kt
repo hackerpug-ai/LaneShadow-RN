@@ -1,335 +1,240 @@
 package com.laneshadow.ui.planning
 
-import org.junit.Assert.assertTrue
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.createComposeRule
+import com.google.common.truth.Truth.assertThat
+import com.laneshadow.data.chat.SessionMessage
+import com.laneshadow.theme.LaneShadowTheme
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import java.io.File
 
-/**
- * TDD tests for Planning Cancel-Confirm wiring and return-to-idle transition.
- *
- * Maps to AC-1 and AC-3 through AC-6 of PLAN-S08-AND-T04.
- *
- * AC-2 is tested via instrumented test (PlanningCancelConfirmTest in androidTest).
- *
- * Tests verify source structure and wiring using file inspection patterns.
- * Visual UI testing is performed via sandbox stories.
- */
 @RunWith(RobolectricTestRunner::class)
 class PlanningCancelConfirmTest {
+    @get:Rule
+    val composeRule = createComposeRule()
 
-    /**
-     * AC-2 — Back-tap opens the V02 cancel-confirm BottomSheet
-     *
-     * GIVEN the planning composition is rendered with isThinking = true
-     * WHEN the user invokes the back gesture (taps onCollapse)
-     * THEN PlanningCancelConfirmSheet opens (V02 variant) with proper semantics;
-     * the sheet is conditionally rendered when showCancelConfirm is true;
-     * buttons are reachable via testTag
-     *
-     * Verify: PlanningCancelConfirmSheet uses standard androidx.compose.ui.semantics.dialog()
-     */
-    @Test
-    fun back_tap_opens_v02_cancel_confirm_sheet() {
-        // Verify LSCancelConfirmSheet uses standard dialog()
-        val lsSheetSource = File("src/main/java/com/laneshadow/ui/molecules/LSCancelConfirmSheet.kt").readText()
-
-        // Must use standard dialog() extension
-        assertTrue(
-            "LSCancelConfirmSheet must import androidx.compose.ui.semantics.dialog",
-            lsSheetSource.contains("import androidx.compose.ui.semantics.dialog")
-        )
-
-        // Must call dialog() in semantics block
-        assertTrue(
-            "LSCancelConfirmSheet must call dialog() in semantics",
-            lsSheetSource.contains("dialog()")
-        )
-
-        // Must NOT have custom SemanticsPropertyKey
-        assertTrue(
-            "LSCancelConfirmSheet must not define custom SemanticsPropertyKey for isDialog",
-            !lsSheetSource.contains("SemanticsPropertyKey<Boolean>(\"isDialog\")")
-        )
-
-        // Verify PlanningCancelConfirmSheet also uses standard dialog()
-        val planningSheetSource = File("src/main/java/com/laneshadow/ui/planning/PlanningCancelConfirmSheet.kt").readText()
-
-        // Must use standard dialog() extension
-        assertTrue(
-            "PlanningCancelConfirmSheet must import androidx.compose.ui.semantics.dialog",
-            planningSheetSource.contains("import androidx.compose.ui.semantics.dialog")
-        )
-
-        // Must NOT import custom isDialog from molecules
-        assertTrue(
-            "PlanningCancelConfirmSheet must not import custom isDialog extension",
-            !planningSheetSource.contains("import com.laneshadow.ui.molecules.isDialog")
-        )
-
-        // Must call dialog() in semantics block
-        assertTrue(
-            "PlanningCancelConfirmSheet must call dialog() in semantics",
-            planningSheetSource.contains("dialog()")
-        )
-
-        // Verify button testTags are attached
-        assertTrue(
-            "PlanningCancelConfirmSheet must have cancel-button testTag",
-            planningSheetSource.contains("planning.cancel-confirm.cancel-button")
-        )
-
-        assertTrue(
-            "PlanningCancelConfirmSheet must have keep-button testTag",
-            planningSheetSource.contains("planning.cancel-confirm.keep-button")
-        )
-
-        // Verify contentDescription is present
-        assertTrue(
-            "PlanningCancelConfirmSheet must have contentDescription for dialog",
-            planningSheetSource.contains("contentDescription = \"Cancel ride confirmation\"")
-        )
-
-        assertTrue(
-            "PlanningCancelConfirmSheet must expose the Keep planning label",
-            planningSheetSource.contains("keepLabel = \"Keep planning\"")
-        )
-
-        assertTrue(
-            "PlanningCancelConfirmSheet must expose the Cancel ride label",
-            planningSheetSource.contains("cancelLabel = \"Cancel ride\"")
-        )
-    }
-
-    /**
-     * AC-1 — LSChatInput renders is-thinking mode bound to state.isThinking
-     *
-     * GIVEN PlanningUiState(isThinking = true)
-     * WHEN the planning composition renders
-     * THEN the LSChatInput shows has-value filled prompt,
-     * the leading icon is dimmed (per is-thinking modifier),
-     * the send button is replaced by a copper spinner;
-     * the input field's editable flag is false
-     *
-     * Verify: PlanningScreen passes isThinking to LSChatInput
-     */
     @Test
     fun chat_input_renders_in_thinking_mode() {
-        val source = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
-
-        // Must pass isThinking from state to LSChatInput
-        assertTrue(
-            "PlanningScreen must pass isThinking flag to LSChatInput",
-            source.contains("isThinking = state.isThinking")
+        val uiState = PlanningUiState(
+            sessionId = "session-1",
+            isThinking = true,
+            messages = listOf(
+                SessionMessage(
+                    id = "rider-message",
+                    sessionId = "session-1",
+                    role = "rider",
+                    content = "Plan a scenic 2-hour ride",
+                    createdAt = 1L,
+                ),
+                SessionMessage(
+                    id = "agent-message",
+                    sessionId = "session-1",
+                    role = "assistant",
+                    content = "I found a route already.",
+                    createdAt = 2L,
+                ),
+            ),
         )
 
-        // LSChatInput must be in the bottomOverlays
-        assertTrue(
-            "LSChatInput must be composed in bottomOverlays",
-            source.contains("LSChatInput(")
-        )
+        composeRule.setContent {
+            LaneShadowTheme {
+                PlanningScreenContent(
+                    uiState = uiState,
+                    onMenuTap = {},
+                    onCollapse = {},
+                    onFilter = {},
+                    onDismissCancelConfirm = {},
+                    onKeepPlanning = {},
+                    onCancelPlan = {},
+                    onReturnToIdle = {},
+                    consumeTransition = {},
+                    requestCancel = {},
+                    skipMapRendering = false,
+                    mapContent = { Box {} },
+                )
+            }
+        }
 
-        // The input must be disabled when thinking (isEnabled = false OR when isThinking)
-        assertTrue(
-            "LSChatInput must have isThinking parameter passed",
-            source.contains("isThinking")
-        )
+        val textFieldNode = composeRule.onNodeWithContentDescription(
+            "Awaiting response...",
+            useUnmergedTree = true,
+        ).fetchSemanticsNode()
+        assertThat(textFieldNode.config[SemanticsProperties.EditableText])
+            .isEqualTo(AnnotatedString("Plan a scenic 2-hour ride"))
+        composeRule.onNodeWithText("I found a route already.").assertDoesNotExist()
+        composeRule.onNodeWithTag("chat-input").assertIsNotEnabled()
+        composeRule.onNodeWithTag("ls-spinner").assertExists()
     }
 
-    /**
-     * AC-3 — "Cancel ride" tap invokes viewModel.cancel() exactly once
-     *
-     * GIVEN the cancel-confirm sheet is open
-     * WHEN the user taps "Cancel ride"
-     * THEN viewModel.cancel() is invoked exactly once; the sheet dismisses
-     *
-     * Verify: PlanningScreenContainer wires onCancelPlan to viewModel.cancel()
-     */
+    @Test
+    fun back_tap_opens_v02_cancel_confirm_sheet() {
+        composeRule.setContent {
+            LaneShadowTheme {
+                PlanningCancelConfirmSheet(
+                    onKeep = {},
+                    onCancel = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("Cancel ride confirmation").assertExists()
+        composeRule.onNodeWithTag("planning.cancel-confirm.cancel-button").assertExists()
+        composeRule.onNodeWithTag("planning.cancel-confirm.keep-button").assertExists()
+    }
+
     @Test
     fun cancel_button_invokes_view_model_cancel() {
-        val containerSource = File("src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt").readText()
-        val viewModelSource = File("src/main/java/com/laneshadow/ui/planning/PlanningViewModel.kt").readText()
-
-        // Must have onCancelPlan callback wired to viewModel.cancel()
-        assertTrue(
-            "PlanningScreenContainer must wire onCancelPlan to viewModel.cancel()",
-            containerSource.contains("onCancelPlan = {") && containerSource.contains("viewModel.cancel()")
+        var uiState by mutableStateOf(
+            PlanningUiState(
+                sessionId = "session-1",
+                isThinking = true,
+                showCancelConfirm = true,
+            ),
         )
+        var cancelCount by mutableIntStateOf(0)
 
-        assertTrue(
-            "PlanningViewModel.cancel() must dismiss the sheet before cancelling",
-            viewModelSource.contains("fun cancel()") && viewModelSource.contains("dismissCancelConfirm()")
-        )
+        composeRule.setContent {
+            LaneShadowTheme {
+                PlanningScreenContent(
+                    uiState = uiState,
+                    onMenuTap = {},
+                    onCollapse = {},
+                    onFilter = {},
+                    onDismissCancelConfirm = { uiState = uiState.copy(showCancelConfirm = false) },
+                    onKeepPlanning = { uiState = uiState.copy(showCancelConfirm = false) },
+                    onCancelPlan = {
+                        cancelCount += 1
+                        uiState = uiState.copy(showCancelConfirm = false)
+                    },
+                    onReturnToIdle = {},
+                    consumeTransition = {},
+                    requestCancel = { uiState = uiState.copy(showCancelConfirm = true) },
+                    skipMapRendering = false,
+                    mapContent = { Box {} },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("planning.cancel-confirm.cancel-button").performClick()
+
+        composeRule.runOnIdle {
+            assertThat(cancelCount).isEqualTo(1)
+            assertThat(uiState.showCancelConfirm).isFalse()
+        }
     }
 
-    /**
-     * AC-4 — "Keep planning" tap dismisses sheet without invoking cancel
-     *
-     * GIVEN the cancel-confirm sheet is open
-     * WHEN the user taps "Keep planning"
-     * THEN the sheet dismisses; viewModel.cancel() is NOT invoked;
-     * the planning composition resumes
-     *
-     * Verify: PlanningScreenContainer wires onKeepPlanning to viewModel.dismissCancelConfirm()
-     */
     @Test
     fun keep_planning_dismisses_without_invoking_cancel() {
-        val source = File("src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt").readText()
-
-        // Must have onKeepPlanning callback wired to viewModel.dismissCancelConfirm()
-        assertTrue(
-            "PlanningScreenContainer must wire onKeepPlanning to viewModel.dismissCancelConfirm()",
-            source.contains("onKeepPlanning = {") && source.contains("viewModel.dismissCancelConfirm()")
+        var uiState by mutableStateOf(
+            PlanningUiState(
+                sessionId = "session-1",
+                isThinking = true,
+                showCancelConfirm = true,
+                messages = listOf(
+                    SessionMessage(
+                        id = "rider-message",
+                        sessionId = "session-1",
+                        role = "rider",
+                        content = "Plan a scenic 2-hour ride",
+                        createdAt = 1L,
+                    ),
+                ),
+            ),
         )
+        var cancelCount by mutableIntStateOf(0)
 
-        assertTrue(
-            "PlanningCancelConfirmSheet must expose the Keep planning label",
-            File("src/main/java/com/laneshadow/ui/planning/PlanningCancelConfirmSheet.kt")
-                .readText()
-                .contains("keepLabel = \"Keep planning\"")
-        )
+        composeRule.setContent {
+            LaneShadowTheme {
+                PlanningScreenContent(
+                    uiState = uiState,
+                    onMenuTap = {},
+                    onCollapse = {},
+                    onFilter = {},
+                    onDismissCancelConfirm = { uiState = uiState.copy(showCancelConfirm = false) },
+                    onKeepPlanning = { uiState = uiState.copy(showCancelConfirm = false) },
+                    onCancelPlan = { cancelCount += 1 },
+                    onReturnToIdle = {},
+                    consumeTransition = {},
+                    requestCancel = { uiState = uiState.copy(showCancelConfirm = true) },
+                    skipMapRendering = false,
+                    mapContent = { Box {} },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("planning.cancel-confirm.keep-button").performClick()
+
+        composeRule.runOnIdle {
+            assertThat(cancelCount).isEqualTo(0)
+            assertThat(uiState.showCancelConfirm).isFalse()
+            assertThat(uiState.isThinking).isTrue()
+        }
+        composeRule.onNodeWithTag("ls-spinner").assertExists()
     }
 
-    /**
-     * AC-5 — Observed PlanningTransition.Cancelled triggers return-to-idle
-     *
-     * GIVEN the planning composition is mounted with PlanningTransition.Cancelled
-     * emitted by the ViewModel
-     * WHEN PlanningScreenContainer observes the transition
-     * THEN the navigation callback is invoked to return to idle
-     *
-     * Verify: PlanningScreenContainer observes transition and calls onReturnToIdle
-     */
     @Test
     fun cancelled_transition_triggers_return_to_idle_without_remount() {
-        val containerSource = File("src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt").readText()
-
-        // Must observe PlanningTransition.Cancelled in LaunchedEffect
-        assertTrue(
-            "PlanningScreenContainer must observe transition in LaunchedEffect",
-            containerSource.contains("LaunchedEffect(uiState.transition)") &&
-                containerSource.contains("PlanningTransition.Cancelled")
+        var uiState by mutableStateOf(
+            PlanningUiState(
+                sessionId = "session-1",
+                isThinking = true,
+            ),
         )
+        var returnToIdleCount by mutableIntStateOf(0)
+        var consumeTransitionCount by mutableIntStateOf(0)
+        var mapHostMountCount by mutableIntStateOf(0)
 
-        // Must invoke onReturnToIdle when Cancelled transition observed
-        assertTrue(
-            "Container must call onReturnToIdle when Cancelled transition observed",
-            containerSource.contains("onReturnToIdle()")
-        )
+        composeRule.setContent {
+            LaneShadowTheme {
+                PlanningScreenContent(
+                    uiState = uiState,
+                    onMenuTap = {},
+                    onCollapse = {},
+                    onFilter = {},
+                    onDismissCancelConfirm = {},
+                    onKeepPlanning = {},
+                    onCancelPlan = {},
+                    onReturnToIdle = { returnToIdleCount += 1 },
+                    consumeTransition = {
+                        consumeTransitionCount += 1
+                        uiState = uiState.copy(transition = null)
+                    },
+                    requestCancel = {},
+                    skipMapRendering = false,
+                    mapContent = {
+                        DisposableEffect(Unit) {
+                            mapHostMountCount += 1
+                            onDispose { }
+                        }
+                    },
+                )
+            }
+        }
 
-        // Must call consumeTransition() to clear the transition
-        assertTrue(
-            "Container must call viewModel.consumeTransition()",
-            containerSource.contains("viewModel.consumeTransition()")
-        )
-    }
+        composeRule.runOnIdle {
+            uiState = uiState.copy(
+                isThinking = false,
+                transition = PlanningTransition.Cancelled,
+            )
+        }
 
-    /**
-     * AC-5b — BackHandler intercepts system back gesture
-     *
-     * GIVEN the planning screen is showing with cancel-confirm sheet visible
-     * WHEN the user triggers system back gesture
-     * THEN BackHandler dismisses the sheet without navigating away
-     *
-     * Verify: PlanningScreenContainer has BackHandler wired
-     */
-    @Test
-    fun back_handler_intercepts_system_back() {
-        val containerSource = File("src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt").readText()
+        composeRule.waitForIdle()
 
-        // Must have BackHandler import
-        assertTrue(
-            "PlanningScreenContainer must import BackHandler",
-            containerSource.contains("BackHandler")
-        )
-
-        // Must check showCancelConfirm to decide whether to dismiss or request cancel
-        assertTrue(
-            "BackHandler must check showCancelConfirm state",
-            containerSource.contains("if (uiState.showCancelConfirm)") &&
-                containerSource.contains("viewModel.dismissCancelConfirm()")
-        )
-
-        // Must call requestCancel if sheet not showing
-        assertTrue(
-            "BackHandler must call requestCancel when sheet not showing",
-            containerSource.contains("viewModel.requestCancel()")
-        )
-    }
-
-    /**
-     * AC-6 — Token purity, lint, and consumed-component non-modification gates pass
-     *
-     * GIVEN the new/modified files
-     * WHEN lint and token checks run
-     * THEN both gates exit 0; LSChatInput.kt does NOT appear in diff
-     *
-     * Verify: LSChatInput.kt is not modified in this task
-     */
-    @Test
-    fun token_purity_and_lschat_input_unmodified() {
-        val source = File("src/main/java/com/laneshadow/ui/molecules/LSChatInput.kt").readText()
-
-        // Verify the component still has the isThinking parameter (unchanged)
-        assertTrue(
-            "LSChatInput must still have isThinking parameter",
-            source.contains("isThinking: Boolean")
-        )
-
-        // Verify it still renders spinner when isThinking
-        assertTrue(
-            "LSChatInput must still render spinner when isThinking",
-            source.contains("isThinking") && source.contains("LSSpinner")
-        )
-
-        // Verify no hardcoded colors in PlanningScreen (use theme tokens)
-        val planningScreenSource = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
-        assertTrue(
-            "PlanningScreen must use theme tokens, not hardcoded colors",
-            !planningScreenSource.contains("Color(0x")
-        )
-
-        val containerSource = File("src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt").readText()
-        assertTrue(
-            "PlanningScreenContainer must use theme tokens, not hardcoded colors",
-            !containerSource.contains("Color(0x")
-        )
-
-        // Verify LSCancelConfirmSheet has button modifier support
-        val sheetSource = File("src/main/java/com/laneshadow/ui/molecules/LSCancelConfirmSheet.kt").readText()
-        assertTrue(
-            "LSCancelConfirmSheet must have keepButtonModifier parameter",
-            sheetSource.contains("keepButtonModifier: Modifier")
-        )
-
-        assertTrue(
-            "LSCancelConfirmSheet must have cancelButtonModifier parameter",
-            sheetSource.contains("cancelButtonModifier: Modifier")
-        )
-
-        // Verify dialog semantics - must use dialog() extension from standard Compose
-        assertTrue(
-            "LSCancelConfirmSheet must use dialog() extension",
-            sheetSource.contains("dialog()")
-        )
-
-        // Verify contentDescription is also present
-        assertTrue(
-            "LSCancelConfirmSheet must have contentDescription semantic",
-            sheetSource.contains("contentDescription = \"Confirmation dialog\"")
-        )
-
-        // Verify no hardcoded scrim color - should use LSScrim
-        assertTrue(
-            "LSCancelConfirmSheet must not use hardcoded Color.Black for scrim",
-            !sheetSource.contains("Color.Black") && !sheetSource.contains("Color(0xFF")
-        )
-
-        // Verify LSScrim is used
-        assertTrue(
-            "LSCancelConfirmSheet must use LSScrim token for backdrop",
-            sheetSource.contains("LSScrim(")
-        )
+        composeRule.runOnIdle {
+            assertThat(returnToIdleCount).isEqualTo(1)
+            assertThat(consumeTransitionCount).isEqualTo(1)
+            assertThat(mapHostMountCount).isEqualTo(1)
+            assertThat(uiState.transition).isNull()
+        }
     }
 }

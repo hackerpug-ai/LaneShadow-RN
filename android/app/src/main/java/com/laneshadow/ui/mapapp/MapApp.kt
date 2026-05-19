@@ -54,6 +54,7 @@ import com.laneshadow.ui.planning.PlanningScreenOverlays
 fun MapApp(
     navController: NavHostController,
     viewModel: MapAppViewModel = hiltViewModel(),
+    onPlanningReturnToIdle: () -> Unit = viewModel::goToIdle,
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -134,6 +135,7 @@ fun MapApp(
                 sessionId = (state as MapAppState.Planning).sessionId,
                 navController = navController,
                 mainNavViewModel = mainNavViewModel,
+                onReturnToIdle = onPlanningReturnToIdle,
             )
         }
     }
