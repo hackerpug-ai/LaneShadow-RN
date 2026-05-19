@@ -1,4 +1,5 @@
 import Foundation
+import CoreGraphics
 
 struct PlanningScreenLiveState {
     var messages: [LSChatMessage]
@@ -8,5 +9,6 @@ struct PlanningScreenLiveState {
     var isSending: Bool
     var shouldRenderMap: Bool
     var capsuleHeadline: String = "Reading your prompt..."
+    var sketchPathPoints: [CGPoint] = []
     var cancelConfirmationVisible = false
 }
