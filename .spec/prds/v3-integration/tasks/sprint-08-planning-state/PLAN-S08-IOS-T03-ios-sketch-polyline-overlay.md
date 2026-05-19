@@ -30,7 +30,7 @@ The legacy `PlanningScreen.swift` already includes a placeholder `SketchingPolyl
 - Honor `@Environment(\.accessibilityReduceMotion)` — when `true`, BOTH animations collapse to static rendering: polyline drawn at fixed `dashPhase: 0`, dot at fixed `opacity: 1.0`, no `Animation.repeatForever` calls active
 - Source path geometry from `PlanningViewModel.sketchPathPoints: [CGPoint]` (new `@Published` property added to `PlanningViewModel` as part of this task — the only allowed extension to T01's surface) OR accept the points via initializer parameter; mock geometry of a 4-segment curve is acceptable for Sprint 08; never use `UIScreen.main.bounds` or hardcoded screen-space coordinates
 - Read animation timing from `theme.motion.recipes["sketchPolylineLoop"]` and `theme.motion.recipes["breathingHeadDot"]` tokens (existing in `Theme`); never inline `1400` as a literal — use the recipe's `duration`
-- Add tests in `ios/LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests.swift`: token-color resolution to `signal.default`, animation timing reads from theme.motion.recipes, reduce-motion guard collapses both animations, head-dot positioned at last point of path, build clean
+- Add tests in `ios/LaneShadowTests/Features/AppFlow/MapView/MapSketchAnimationLayerTests.swift`: token-color resolution to `signal.default`, animation timing reads from theme.motion.recipes, reduce-motion guard collapses both animations, head-dot positioned at last point of path, build clean
 
 **NEVER:**
 - NEVER hardcode `1400`, `0.85`, `0.55` opacity literals — read from `theme.motion.recipes["sketchPolylineLoop"]` / `theme.motion.recipes["breathingHeadDot"]` (helpers `Animation.sketchPolylineLoop(theme:)` and `Animation.breathingHeadDot(theme:)` already exist in `PlanningScreen.swift` — move/reuse them, do NOT duplicate magic numbers)
@@ -48,7 +48,7 @@ The legacy `PlanningScreen.swift` already includes a placeholder `SketchingPolyl
 
 **Objective:** Extract a dedicated `MapSketchAnimationLayer` SwiftUI view that renders a copper sketch polyline at 1400ms linear loop + a leading head dot at 1400ms ease-in-out breathing, both reading timing from theme motion recipes, both honoring `@Environment(\.accessibilityReduceMotion)`, and both fed by data (`PlanningViewModel.sketchPathPoints` or initializer parameter) rather than hardcoded screen coordinates.
 
-**Success State:** `xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests` exits 0 with all reduce-motion + token + timing assertions passing; `xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` succeeds; `scripts/tokens/enforce-native-compliance.sh` exits 0; `swiftlint lint ios/LaneShadow/AppFlow/MapView/MapSketchAnimationLayer.swift` clean.
+**Success State:** `xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` exits 0 with the Swift Testing suite executing all reduce-motion + token + timing assertions; `xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` succeeds; `scripts/tokens/enforce-native-compliance.sh` exits 0; `swiftlint lint ios/LaneShadow/AppFlow/MapView/MapSketchAnimationLayer.swift` clean.
 
 ## Acceptance Criteria
 
@@ -57,42 +57,42 @@ The legacy `PlanningScreen.swift` already includes a placeholder `SketchingPolyl
 **GIVEN** `MapSketchAnimationLayer(pathPoints: [CGPoint(x:0,y:50), CGPoint(x:50,y:30), CGPoint(x:100,y:60), CGPoint(x:150,y:40)])`
 **WHEN** the view renders inside a 200×100 frame
 **THEN** the polyline `Path` traverses all 4 points in order AND a `Circle` head dot is positioned at the last point `(150, 40)`
-**Verify:** `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_pathPoints_renderedInOrder`
+**Verify:** `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/MapSketchAnimationLayerTests`
 
 ### AC-2 — Polyline color resolves through LaneShadowTheme.color.signal.default token
 
 **GIVEN** the layer is rendered with the active theme
 **WHEN** the polyline `StrokeStyle` color is inspected
 **THEN** the resolved color is `LaneShadowTheme.color.signal.default` (the V3 alias for `var(--route-best)`); no `Color(red:...)`, no hex string, no inline color value
-**Verify:** `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_polylineColor_resolvesSignalDefault`
+**Verify:** `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/MapSketchAnimationLayerTests`
 
 ### AC-3 — Animation timing reads from motion recipes (not hardcoded literals)
 
 **GIVEN** the layer is rendered
 **WHEN** `Animation.sketchPolylineLoop(theme:)` and `Animation.breathingHeadDot(theme:)` are constructed
 **THEN** both animations read `duration` from `theme.motion.recipes["sketchPolylineLoop"]` (1400) and `theme.motion.recipes["breathingHeadDot"]` (1400) respectively; the file `MapSketchAnimationLayer.swift` contains zero `1400` literals (only token reads); easing for the dot is `safeCubicBezierEasing(theme.motion.recipes["breathingHeadDot"]?.easing)`
-**Verify:** `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_animationTiming_readsFromMotionRecipes && grep -c '1400' ios/LaneShadow/AppFlow/MapView/MapSketchAnimationLayer.swift`
+**Verify:** `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/MapSketchAnimationLayerTests`
 
 ### AC-4 — Reduce-motion collapses polyline animation to static stroke
 
 **GIVEN** `MapSketchAnimationLayer` rendered under `\.accessibilityReduceMotion = true`
 **WHEN** the view body resolves
 **THEN** the polyline is drawn with `dashPhase: 0` (no animation), no `.animation(.repeatForever)` modifier is attached to the stroke, AND the layer is visually a static dashed line
-**Verify:** `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_reduceMotion_polylineStatic`
+**Verify:** `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/MapSketchAnimationLayerTests`
 
 ### AC-5 — Reduce-motion collapses head dot to static fill
 
 **GIVEN** `MapSketchAnimationLayer` rendered under `\.accessibilityReduceMotion = true`
 **WHEN** the view body resolves
 **THEN** the head dot is rendered with `opacity: 1.0` (no breathing animation), no `Animation.breathingHeadDot(theme:)` is attached, AND the dot is visually static
-**Verify:** `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_reduceMotion_headDotStatic`
+**Verify:** `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/MapSketchAnimationLayerTests`
 
 ### AC-6 — Animation active under default (no reduce-motion) environment
 
 **GIVEN** `MapSketchAnimationLayer` rendered under `\.accessibilityReduceMotion = false` (default)
 **WHEN** the view body resolves
 **THEN** the polyline stroke has an `.animation(Animation.sketchPolylineLoop(theme:), value: isAnimating)` modifier active AND the head dot has `.animation(Animation.breathingHeadDot(theme:), value: isAnimating)` modifier active
-**Verify:** `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_normalMotion_animationsActive`
+**Verify:** `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/MapSketchAnimationLayerTests`
 
 ### AC-7 — Geometry data-driven (not screen-space)
 
@@ -112,12 +112,12 @@ The legacy `PlanningScreen.swift` already includes a placeholder `SketchingPolyl
 
 | ID | Statement | Maps to AC | Verify | Type |
 |---|---|---|---|---|
-| TC-1 | Polyline traverses all input pathPoints in order; head dot at last point | AC-1 | `xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_pathPoints_renderedInOrder` | happy_path |
-| TC-2 | Polyline color resolves through LaneShadowTheme.color.signal.default | AC-2 | `xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_polylineColor_resolvesSignalDefault` | happy_path |
-| TC-3 | Animation timings come from theme.motion.recipes; zero `1400` literals in file | AC-3 | `xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_animationTiming_readsFromMotionRecipes` | edge |
-| TC-4 | Reduce-motion env true → polyline static, no repeatForever modifier | AC-4 | `xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_reduceMotion_polylineStatic` | edge |
-| TC-5 | Reduce-motion env true → head dot static, no breathingHeadDot animation | AC-5 | `xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_reduceMotion_headDotStatic` | edge |
-| TC-6 | Normal motion → both animations active with correct theme-driven timings | AC-6 | `xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_normalMotion_animationsActive` | happy_path |
+| TC-1 | Polyline traverses all input pathPoints in order; head dot at last point | AC-1 | `xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` | happy_path |
+| TC-2 | Polyline color resolves through LaneShadowTheme.color.signal.default | AC-2 | `xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` | happy_path |
+| TC-3 | Animation timings come from theme.motion.recipes; zero `1400` literals in file | AC-3 | `xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` | edge |
+| TC-4 | Reduce-motion env true → polyline static, no repeatForever modifier | AC-4 | `xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` | edge |
+| TC-5 | Reduce-motion env true → head dot static, no breathingHeadDot animation | AC-5 | `xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` | edge |
+| TC-6 | Normal motion → both animations active with correct theme-driven timings | AC-6 | `xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` | happy_path |
 | TC-7 | grep finds zero `UIScreen.main.bounds` references in the new file | AC-7 | `! grep -E 'UIScreen\.main\.bounds' ios/LaneShadow/AppFlow/MapView/MapSketchAnimationLayer.swift` | edge |
 | TC-8 | Token compliance shell + grep show zero violations in new file | AC-8 | `scripts/tokens/enforce-native-compliance.sh` | edge |
 | TC-9 | Build + lint pass cleanly | AC-1, AC-8 | `xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' && swiftlint lint ios/LaneShadow/AppFlow/MapView/MapSketchAnimationLayer.swift` | edge |
@@ -139,7 +139,7 @@ The legacy `PlanningScreen.swift` already includes a placeholder `SketchingPolyl
 **Write-Allowed:**
 - `ios/LaneShadow/AppFlow/MapView/MapSketchAnimationLayer.swift` (NEW — entire layer + Path shape + token-driven motion)
 - `ios/LaneShadow/Features/Planning/PlanningViewModel.swift` (MODIFY only to add `sketchPathPoints: [CGPoint]` published property if data-driven path is implemented through view-model; PLAN-S08-IOS-T01 owns the rest of this file's structure — coordinate via PR description)
-- `ios/LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests.swift` (NEW — token + reduce-motion + path-points tests)
+- `ios/LaneShadowTests/Features/AppFlow/MapView/MapSketchAnimationLayerTests.swift` (NEW — token + reduce-motion + path-points tests)
 - `ios/LaneShadow/Views/Templates/PlanningScreen.swift` (MODIFY only to remove legacy `SketchingPolyline` if PLAN-S08-IOS-T02 hasn't already; coordinate to avoid double-touch)
 - `ios/project.yml` (MODIFY only if file additions require regeneration)
 
@@ -172,12 +172,12 @@ The legacy `PlanningScreen.swift` already includes a placeholder `SketchingPolyl
 
 | AC | Command |
 |---|---|
-| AC-1 | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_pathPoints_renderedInOrder` |
-| AC-2 | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_polylineColor_resolvesSignalDefault` |
-| AC-3 | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_animationTiming_readsFromMotionRecipes` |
-| AC-4 | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_reduceMotion_polylineStatic` |
-| AC-5 | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_reduceMotion_headDotStatic` |
-| AC-6 | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_normalMotion_animationsActive` |
+| AC-1 | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` |
+| AC-2 | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` |
+| AC-3 | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` |
+| AC-4 | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` |
+| AC-5 | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` |
+| AC-6 | `xcodebuild test -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -only-testing:LaneShadowTests/MapSketchAnimationLayerTests` |
 | AC-7 | `! grep -E 'UIScreen\.main\.bounds' ios/LaneShadow/AppFlow/MapView/MapSketchAnimationLayer.swift` |
 | AC-8 | `scripts/tokens/enforce-native-compliance.sh` |
 | build | `xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16'` |
@@ -206,20 +206,20 @@ The legacy `PlanningScreen.swift` already includes a placeholder `SketchingPolyl
 <!--
 {
   "requirements": [
-    {"id":"AC-1","type":"acceptance_criterion","description":"MapSketchAnimationLayer renders polyline through input pathPoints in order with head dot at last point","verify":"xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_pathPoints_renderedInOrder","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-2","type":"acceptance_criterion","description":"Polyline color resolves through LaneShadowTheme.color.signal.default token; no hex/RGB literals","verify":"xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_polylineColor_resolvesSignalDefault","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-3","type":"acceptance_criterion","description":"Animation timings read from theme.motion.recipes (sketchPolylineLoop + breathingHeadDot); zero `1400` literals in file","verify":"xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_animationTiming_readsFromMotionRecipes","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-4","type":"acceptance_criterion","description":"Reduce-motion env true → polyline static dashPhase 0, no repeatForever modifier attached","verify":"xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_reduceMotion_polylineStatic","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-5","type":"acceptance_criterion","description":"Reduce-motion env true → head dot opacity 1.0 static, no breathingHeadDot animation attached","verify":"xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_reduceMotion_headDotStatic","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"AC-6","type":"acceptance_criterion","description":"Default motion env (reduce-motion false) → both polyline + head-dot animations active with theme-driven timings","verify":"xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_normalMotion_animationsActive","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
+    {"id":"AC-1","type":"acceptance_criterion","description":"MapSketchAnimationLayer renders polyline through input pathPoints in order with head dot at last point","verify":"xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
+    {"id":"AC-2","type":"acceptance_criterion","description":"Polyline color resolves through LaneShadowTheme.color.signal.default token; no hex/RGB literals","verify":"xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
+    {"id":"AC-3","type":"acceptance_criterion","description":"Animation timings read from theme.motion.recipes (sketchPolylineLoop + breathingHeadDot); zero `1400` literals in file","verify":"xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
+    {"id":"AC-4","type":"acceptance_criterion","description":"Reduce-motion env true → polyline static dashPhase 0, no repeatForever modifier attached","verify":"xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
+    {"id":"AC-5","type":"acceptance_criterion","description":"Reduce-motion env true → head dot opacity 1.0 static, no breathingHeadDot animation attached","verify":"xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
+    {"id":"AC-6","type":"acceptance_criterion","description":"Default motion env (reduce-motion false) → both polyline + head-dot animations active with theme-driven timings","verify":"xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
     {"id":"AC-7","type":"acceptance_criterion","description":"Geometry data-driven via pathPoints input or GeometryReader; zero UIScreen.main.bounds references","verify":"! grep -E 'UIScreen\\.main\\.bounds' ios/LaneShadow/AppFlow/MapView/MapSketchAnimationLayer.swift","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
     {"id":"AC-8","type":"acceptance_criterion","description":"Token compliance script exits 0; zero hex/RGB/duration/opacity literals in new file","verify":"scripts/tokens/enforce-native-compliance.sh","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":null},
-    {"id":"TC-1","type":"test_criterion","description":"Polyline traverses all 4 input pathPoints in order; head dot at last point","verify":"xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_pathPoints_renderedInOrder","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-1"},
-    {"id":"TC-2","type":"test_criterion","description":"Polyline color resolves through theme signal.default","verify":"xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_polylineColor_resolvesSignalDefault","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-2"},
-    {"id":"TC-3","type":"test_criterion","description":"Animation timings come from motion recipes; zero hardcoded `1400` literals","verify":"xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_animationTiming_readsFromMotionRecipes","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-3"},
-    {"id":"TC-4","type":"test_criterion","description":"Reduce-motion polyline collapses static, no repeatForever modifier","verify":"xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_reduceMotion_polylineStatic","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-4"},
-    {"id":"TC-5","type":"test_criterion","description":"Reduce-motion head dot collapses static, no breathing animation","verify":"xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_reduceMotion_headDotStatic","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-5"},
-    {"id":"TC-6","type":"test_criterion","description":"Normal motion both animations active with theme-driven timings","verify":"xcodebuild test -only-testing:LaneShadowTests/AppFlow/MapView/MapSketchAnimationLayerTests/test_normalMotion_animationsActive","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-6"},
+    {"id":"TC-1","type":"test_criterion","description":"Polyline traverses all 4 input pathPoints in order; head dot at last point","verify":"xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-1"},
+    {"id":"TC-2","type":"test_criterion","description":"Polyline color resolves through theme signal.default","verify":"xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-2"},
+    {"id":"TC-3","type":"test_criterion","description":"Animation timings come from motion recipes; zero hardcoded `1400` literals","verify":"xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-3"},
+    {"id":"TC-4","type":"test_criterion","description":"Reduce-motion polyline collapses static, no repeatForever modifier","verify":"xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-4"},
+    {"id":"TC-5","type":"test_criterion","description":"Reduce-motion head dot collapses static, no breathing animation","verify":"xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-5"},
+    {"id":"TC-6","type":"test_criterion","description":"Normal motion both animations active with theme-driven timings","verify":"xcodebuild test -only-testing:LaneShadowTests/MapSketchAnimationLayerTests","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-6"},
     {"id":"TC-7","type":"test_criterion","description":"grep finds zero UIScreen.main.bounds in new file","verify":"! grep -E 'UIScreen\\.main\\.bounds' ios/LaneShadow/AppFlow/MapView/MapSketchAnimationLayer.swift","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-7"},
     {"id":"TC-8","type":"test_criterion","description":"Token compliance shell zero violations in new file","verify":"scripts/tokens/enforce-native-compliance.sh","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-8"},
     {"id":"TC-9","type":"test_criterion","description":"Build + swiftlint clean for new file","verify":"xcodebuild build -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' && swiftlint lint ios/LaneShadow/AppFlow/MapView/MapSketchAnimationLayer.swift","satisfied":null,"evidence":null,"remediation":null,"last_evaluated_cycle":null,"last_evaluated_commit":null,"maps_to_ac":"AC-1"}

@@ -17,8 +17,10 @@
 ## Platform-Specific Notes
 - SwiftUI overlay alignment is inherited from the parent `frame(alignment:)`; child overlays inserted through `LSMapLayer.bottomOverlays` need explicit full-size expansion to avoid intrinsic-height bottom placement.
 - Swift Testing output in Xcode logs can show a suite run with `0 tests` even when the suite itself resolves; use suite-level selectors for reliable evidence when per-test selection is unsupported.
+- Remediation cycle 2 required aligning the task spec and evidence bundle to the executable Swift Testing suite selector `LaneShadowTests/MapSketchAnimationLayerTests`; per-test `-only-testing` selectors were the contract bug, not the product code.
 
 ## Files Created/Modified
 - `ios/LaneShadow/Views/Templates/PlanningScreen+LiveContent.swift` — expanded live planning sketch overlay to fill the map slot
 - `ios/LaneShadow/Views/Templates/MapApp.swift` — expanded unified map-app sketch overlay to fill the map slot
 - `ai-specs/PLAN-S08-IOS-T03/ios-learnings.md` — recorded remediation learnings and selector behavior
+- `.spec/prds/v3-integration/tasks/sprint-08-planning-state/PLAN-S08-IOS-T03-ios-sketch-polyline-overlay.md` — aligned verification commands with the executable Swift Testing suite selector
