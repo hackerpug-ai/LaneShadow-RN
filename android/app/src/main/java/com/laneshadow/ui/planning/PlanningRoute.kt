@@ -10,9 +10,10 @@ import com.laneshadow.navigation.Route
 import com.laneshadow.navigation.MainNavViewModel
 import com.laneshadow.data.chat.SessionMessage
 import com.laneshadow.ui.error.errorRoute
+import com.laneshadow.ui.mapapp.MapApp
+import com.laneshadow.ui.mapapp.MapAppViewModel
 import com.laneshadow.sandbox.mockproviders.NavigatorMessage
 import com.laneshadow.sandbox.mockproviders.PlanningScreenState
-import com.laneshadow.ui.templates.PlanningScreen
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -24,28 +25,22 @@ fun PlanningRoute(
     mainNavViewModel: MainNavViewModel,
     skipMapRendering: Boolean = false,
 ) {
-    // AC-5: Keep a reference to the ViewModel for transition management.
-    // The PlanningScreenContainer will resolve the same ViewModel instance via Hilt.
     val viewModel: PlanningViewModel = hiltViewModel<PlanningViewModel, PlanningViewModel.Factory>(
         creationCallback = { factory -> factory.create(sessionId) },
     )
+    val mapAppViewModel: MapAppViewModel = hiltViewModel()
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
-    // AC-5: Delegate screen composition and state binding to PlanningScreenContainer.
-    // The container handles ViewModel injection and state collection for rendering.
-    PlanningScreenContainer(
-        sessionId = sessionId,
-        onMenuTap = { navController.navigate(Route.Sessions) },
-        onCollapse = { navController.navigate(Route.Sessions) },
-        onFilter = { navController.navigate(Route.Sessions) },
-        onDismissCancelConfirm = {},
-        onKeepPlanning = {},
-        onCancelPlan = {},
-        onReturnToIdle = { navController.popBackStack() },
-        skipMapRendering = skipMapRendering,
+    LaunchedEffect(sessionId) {
+        mapAppViewModel.goToPlanning(sessionId)
+    }
+
+    MapApp(
+        navController = navController,
+        viewModel = mapAppViewModel,
+        onPlanningReturnToIdle = mapAppViewModel::goToIdle,
     )
 
-    // Route handles Success and Failure transitions (Cancelled is handled by Container)
     LaunchedEffect(uiState.transition) {
         when (val transition = uiState.transition) {
             is PlanningTransition.Success -> {
@@ -72,7 +67,11 @@ fun PlanningRoute(
 }
 
 internal fun PlanningUiState.toMockState(): PlanningScreenState {
-    val latestMessage = messages.lastOrNull()
+    val latestPrompt = messages.lastOrNull { message ->
+        message.role.equals("rider", ignoreCase = true) ||
+            message.role.equals("user", ignoreCase = true)
+    }
+    val latestMessage = latestPrompt ?: messages.latestAgentMessage() ?: messages.lastOrNull()
     val message = NavigatorMessage(
         id = latestMessage?.id?.takeIf { it.isNotBlank() } ?: "planning-message-$sessionId",
         sessionId = sessionId,

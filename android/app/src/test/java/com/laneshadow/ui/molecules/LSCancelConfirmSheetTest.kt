@@ -90,21 +90,21 @@ class LSCancelConfirmSheetTest {
     fun planning_screen_wires_cancel_confirm_with_real_callbacks() {
         val planningSource = File("src/main/java/com/laneshadow/ui/templates/PlanningScreen.kt").readText()
 
-        // THEN: PlanningScreen imports LSCancelConfirmSheet
-        assertTrue(planningSource.contains("import com.laneshadow.ui.molecules.LSCancelConfirmSheet"))
+        // THEN: PlanningScreen imports the planning-specific wrapper
+        assertTrue(planningSource.contains("import com.laneshadow.ui.planning.PlanningCancelConfirmSheet"))
 
         // THEN: PlanningScreen has callback parameters for cancel confirm
         assertTrue(planningSource.contains("onDismissCancelConfirm: () -> Unit"))
         assertTrue(planningSource.contains("onKeepPlanning: () -> Unit"))
         assertTrue(planningSource.contains("onCancelPlan: () -> Unit"))
 
-        // THEN: PlanningScreen wires callbacks to LSCancelConfirmSheet
+        // THEN: PlanningScreen wires callbacks to PlanningCancelConfirmSheet
         assertTrue(planningSource.contains("onKeep = onKeepPlanning"))
         assertTrue(planningSource.contains("onCancel = onCancelPlan"))
         assertTrue(planningSource.contains("onDismiss = onDismissCancelConfirm"))
 
-        // THEN: No println stubs in PlanningScreen's LSCancelConfirmSheet wiring
-        val cancelConfirmBlock = planningSource.substringAfter("LSCancelConfirmSheet(").substringBefore("}")
+        // THEN: No println stubs in PlanningScreen's PlanningCancelConfirmSheet wiring
+        val cancelConfirmBlock = planningSource.substringAfter("PlanningCancelConfirmSheet(").substringBefore("}")
         assertFalse(cancelConfirmBlock.contains("println("))
     }
 }

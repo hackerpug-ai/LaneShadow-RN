@@ -62,8 +62,9 @@ class PlanningViewModel @AssistedInject constructor(
         }
     }
 
-    fun confirmCancel() {
+    fun cancel() {
         val planId = _state.value.activePlanId ?: return
+        dismissCancelConfirm()
         viewModelScope.launch {
             routeRepository.cancelPlan(planId)
                 .onSuccess {
@@ -259,7 +260,7 @@ class PlanningViewModel @AssistedInject constructor(
     }
 }
 
-private fun List<SessionMessage>.latestAgentMessage(): SessionMessage? =
+internal fun List<SessionMessage>.latestAgentMessage(): SessionMessage? =
     lastOrNull { message ->
         message.role.equals("agent", ignoreCase = true) ||
             message.role.equals("system", ignoreCase = true)

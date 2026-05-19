@@ -529,9 +529,9 @@ class PlanningScreenTest {
             source.contains("testTag(\"planning.phase-indicator\")")
         )
 
-        // Must render capsule BEFORE indicator in layout (Column with items in order)
-        val topOverlayContent = source.substringAfter("id = \"org-map-layer__top-overlay\"")
-            .substringBefore("GlassOverlaySlot(")
+        // Must render capsule BEFORE indicator in the shared top overlay composition.
+        val topOverlayContent = source.substringAfter("private fun PlanningTopOverlay(")
+            .substringBefore("@Composable\nprivate fun PlanningBottomOverlay(")
         assertTrue(
             "Capsule must be rendered before (above) indicator in composition order",
             topOverlayContent.indexOf("LSContextCapsule") < topOverlayContent.indexOf("LSPhaseIndicator")
@@ -686,7 +686,8 @@ class PlanningScreenTest {
         // Must use state.sketchRoute for camera center (not hardcoded fallback)
         assertTrue(
             "PlanningScreen must compute camera center from state.sketchRoute.firstOrNull()",
-            source.contains("state.sketchRoute?.firstOrNull()")
+            source.contains("planningState.sketchRoute?.firstOrNull()") ||
+                source.contains("state.sketchRoute?.firstOrNull()")
         )
 
         // Must NOT have hardcoded Bay Area LatLng fallback (37.8104, -122.4752, etc.)

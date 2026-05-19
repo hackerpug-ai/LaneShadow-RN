@@ -164,3 +164,35 @@ This is a pure presentation layer. Caller (PlanningScreen) is responsible for:
 3. Verify copper color matches Android across light/dark themes
 4. Consider similar structure: separate layers for path animation + dot breathing
 5. Use CABasicAnimation with `autoreverses = true` for breathing effect (or SwiftUI equivalent)
+
+# Android Learnings: PLAN-S08-AND-T04 — Locked Chat Input + Cancel Confirm
+
+## Implementation Date
+2026-05-19
+
+## Edge Cases Discovered
+1. The planning collapse affordance was still wired to navigation in the route layer. The fix belongs in the planning container/route wiring, not in `LSChatInput`, because the screen must stay on the same map host until a confirmed cancel transition arrives.
+2. The planning chat input can show the wrong message if the adapter uses the latest agent message instead of the latest rider prompt. The planning route adapter now prefers the most recent rider/user message for the locked input text.
+3. Dismissing the confirm sheet only on transition is too late for UX and test expectations. The cancel intent now closes the sheet immediately before invoking the repository-backed cancellation flow.
+
+## API Contract Notes
+- `PlanningViewModel.cancel()` is the view-layer cancel intent. The view should not call `routeRepository.cancelPlan(...)` directly.
+- `PlanningTransition.Cancelled` remains the return-to-idle trigger. The container consumes the transition before invoking `onReturnToIdle()`.
+- `PlanningCancelConfirmSheet` still delegates to `LSCancelConfirmSheet`; only planning-specific copy, tags, and semantics were changed.
+
+## UI Decisions
+- Used the task contract strings `Keep planning` and `Cancel ride` in the Android wrapper even though older planning design docs still mention `Keep thinking` and `Cancel plan`. The sprint task is the active source of truth for this worktree.
+- Kept the persistent-map-host contract intact by removing route-level navigation from the planning collapse action. Back/collapse now opens the confirm flow instead of leaving the screen.
+
+## Gotchas for iOS Implementer
+- If the iOS twin still uses the older V02 copy, parity review will need an explicit decision because the current Android sprint task overrides the older design artifact text.
+- The locked input should display the rider prompt, not the latest navigator response. This is easy to miss when the planning state adapter only has one `message` field.
+- Immediate sheet dismissal on confirm is part of the UX contract even though return-to-idle still waits on the cancelled transition.
+
+## Files Created/Modified
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningViewModel.kt` — added `cancel()` intent and exposed latest-agent helper to the route adapter.
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningRoute.kt` — removed collapse navigation and restored rider-prompt mapping for locked input.
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningScreenContainer.kt` — rewired collapse/cancel handling to stay in-place and return to idle only on cancelled transition.
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningScreenOverlays.kt` — removed collapse navigation in overlay mode.
+- `android/app/src/main/java/com/laneshadow/ui/planning/PlanningCancelConfirmSheet.kt` — updated planning-specific labels and semantics.
+- `android/app/src/test/java/com/laneshadow/ui/planning/*.kt`, `android/app/src/test/java/com/laneshadow/ui/molecules/LSCancelConfirmSheetTest.kt`, `android/app/src/test/java/com/laneshadow/ui/templates/PlanningScreenCompositionTest.kt` — aligned test expectations with the active contract.

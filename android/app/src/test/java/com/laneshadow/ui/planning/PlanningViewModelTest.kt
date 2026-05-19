@@ -175,7 +175,7 @@ class PlanningViewModelTest {
             )
         }
 
-        viewModel.confirmCancel()
+        viewModel.cancel()
         advanceUntilIdle()
 
         assertThat(routeRepository.cancelPlanCalls.get()).isEqualTo(1)
@@ -203,7 +203,7 @@ class PlanningViewModelTest {
         val viewModel = createViewModel(routeRepository = routeRepository)
         advanceUntilIdle()
 
-        viewModel.confirmCancel()
+        viewModel.cancel()
         advanceUntilIdle()
 
         assertThat(routeRepository.cancelPlanCalls.get()).isEqualTo(1)
@@ -244,7 +244,7 @@ class PlanningViewModelTest {
         val viewModel = createViewModel(routeRepository = routeRepository)
         advanceUntilIdle()
 
-        viewModel.confirmCancel()
+        viewModel.cancel()
         advanceUntilIdle()
 
         assertThat(routeRepository.cancelPlanCalls.get()).isEqualTo(1)
@@ -257,7 +257,7 @@ class PlanningViewModelTest {
         val routeRepository = FakeRouteRepository()
         val viewModel = createViewModel(routeRepository = routeRepository)
 
-        viewModel.confirmCancel()
+        viewModel.cancel()
         advanceUntilIdle()
 
         assertThat(routeRepository.cancelPlanCalls.get()).isEqualTo(0)

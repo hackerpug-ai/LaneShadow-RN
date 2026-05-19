@@ -31,7 +31,7 @@ import com.laneshadow.ui.molecules.LSBottomSheet
  * underneath the menu / NEW chips. Mirrors `LSMapLayer.topBarReservedHeight`
  * on iOS — keep both platforms in sync.
  */
-private val LSMapLayerTopBarReservedHeight = 48.dp
+internal val LSMapLayerTopBarReservedHeight = 48.dp
 
 /**
  * LSMapLayer organism — map-primary canvas with overlay slots.

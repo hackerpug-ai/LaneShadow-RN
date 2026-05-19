@@ -87,7 +87,7 @@ class PlanningCancelConfirmSemanticsTest {
         // Verify contentDescription is present
         assertTrue(
             "PlanningCancelConfirmSheet must have contentDescription for dialog",
-            planningSheetSource.contains("contentDescription = \"Cancel planning confirmation\"")
+            planningSheetSource.contains("contentDescription = \"Cancel ride confirmation\"")
         )
     }
 }
