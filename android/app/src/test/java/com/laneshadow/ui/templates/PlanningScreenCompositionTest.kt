@@ -176,8 +176,9 @@ class PlanningScreenCompositionTest {
      *       chat-mode toggle enabled, save/layers reconfigure per PLAN-S08-DR-T01;
      *       workbar anchored at right-edge midline per org-map-controls
      *
-     * Verify: the live planning path configures the workbar with the planning tag
-     * plus non-null recenter/layers/toggle handlers.
+     * Verify: the live planning path configures the workbar with the planning tag,
+     * keeps recenter/toggle handlers active, and suppresses the reset chip until
+     * the planning flow owns real reset state.
      */
     @Test
     fun ac4_map_controls_in_planning_configuration() {
@@ -185,7 +186,6 @@ class PlanningScreenCompositionTest {
             onZoomIn = {},
             onZoomOut = {},
             onRecenter = {},
-            onClear = {},
             onToggleView = {},
         )
 
@@ -195,7 +195,7 @@ class PlanningScreenCompositionTest {
         assertThat(model.handlers.onZoomIn).isNotNull()
         assertThat(model.handlers.onZoomOut).isNotNull()
         assertThat(model.handlers.onRecenter).isNotNull()
-        assertThat(model.handlers.onClear).isNotNull()
+        assertThat(model.handlers.onClear).isNull()
         assertThat(model.handlers.onToggleView).isNotNull()
         assertThat(model.handlers.onSaveRoute).isNull()
     }

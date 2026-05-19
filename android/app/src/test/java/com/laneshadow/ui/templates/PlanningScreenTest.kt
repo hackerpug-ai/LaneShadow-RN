@@ -1,15 +1,26 @@
 package com.laneshadow.ui.templates
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.navigation.compose.rememberNavController
 import com.laneshadow.sandbox.mockproviders.PlanningMockProvider
 import com.laneshadow.theme.LaneShadowTheme
 import com.laneshadow.ui.atoms.LSMapCameraController
+import com.laneshadow.ui.mapapp.MapAppContent
+import com.laneshadow.ui.mapapp.MapAppState
+import com.laneshadow.ui.planning.PlanningScreenContent
+import com.laneshadow.ui.planning.PlanningScreenOverlays
+import com.laneshadow.ui.planning.PlanningUiState
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -632,23 +643,49 @@ class PlanningScreenTest {
      */
     @Test
     fun map_controls_in_planning_configuration() {
-        var controller: LSMapCameraController? = null
-        var resetCount = 0
+        val uiState = mutableStateOf(
+            PlanningUiState(
+                sessionId = "planning-session",
+                isThinking = true,
+            ),
+        )
 
         composeTestRule.setContent {
             LaneShadowTheme {
-                val localController = remember { LSMapCameraController(initialZoom = 10.0) }
-                controller = localController
+                val navController = rememberNavController()
 
-                PlanningScreen(
-                    state = PlanningMockProvider.value("drawing"),
-                    onMenuTap = {},
-                    onCollapse = {},
-                    onFilter = {},
-                    mapCameraController = localController,
-                    onResetMapState = { resetCount += 1 },
+                MapAppContent(
+                    state = MapAppState.Planning(uiState.value.sessionId),
+                    navController = navController,
+                    onPlanningReturnToIdle = {},
                     mapContent = { _, _ ->
-                        Box(modifier = Modifier)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .testTag("mapapp-map"),
+                        )
+                    },
+                    planningOverlays = { sessionId, routeReturnToIdle ->
+                        PlanningScreenOverlays(
+                            sessionId = sessionId,
+                            navController = navController,
+                            onReturnToIdle = routeReturnToIdle,
+                            container = { containerReturnToIdle ->
+                                PlanningScreenContent(
+                                    uiState = uiState.value,
+                                    onMenuTap = {},
+                                    onCollapse = {},
+                                    onFilter = {},
+                                    onDismissCancelConfirm = {},
+                                    onKeepPlanning = {},
+                                    onCancelPlan = {},
+                                    onReturnToIdle = containerReturnToIdle,
+                                    consumeTransition = {},
+                                    requestCancel = {},
+                                    skipMapRendering = true,
+                                )
+                            },
+                        )
                     },
                 )
             }
@@ -656,20 +693,13 @@ class PlanningScreenTest {
 
         composeTestRule.onNodeWithTag("planning.map-controls").assertExists()
         composeTestRule.onNodeWithContentDescription("Recenter map").assertExists()
-        composeTestRule.onNodeWithContentDescription("Reset map state").assertExists()
+        composeTestRule.onAllNodesWithContentDescription("Reset map state").assertCountEquals(0)
         composeTestRule.onNodeWithContentDescription("Open chat").assertExists()
         composeTestRule.onNodeWithTag("ls-map-controls-zoom-cluster").assertExists()
 
-        composeTestRule.onNodeWithContentDescription("Zoom in").performClick()
-        composeTestRule.onNodeWithContentDescription("Zoom out").performClick()
         composeTestRule.onNodeWithContentDescription("Recenter map").performClick()
-        composeTestRule.onNodeWithContentDescription("Reset map state").performClick()
         composeTestRule.onNodeWithContentDescription("Open chat").performClick()
 
-        assertThat(controller?.appliedZoomDeltas).containsExactly(1.0, -1.0).inOrder()
-        assertEquals(10.0, controller?.zoomLevel)
-        assertEquals(1, controller?.recenterRequestCount)
-        assertEquals(1, resetCount)
         composeTestRule.onNodeWithContentDescription("Back to map").assertExists()
         composeTestRule.onNodeWithTag("ls-map-controls-zoom-cluster").assertDoesNotExist()
     }

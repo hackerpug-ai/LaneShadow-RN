@@ -124,7 +124,7 @@ fun PlanningScreen(
     onCollapse: () -> Unit,
     onFilter: () -> Unit,
     mapCameraController: LSMapCameraController = remember { LSMapCameraController(initialZoom = 11.0) },
-    onResetMapState: () -> Unit = {},
+    onResetMapState: (() -> Unit)? = null,
     onDismissCancelConfirm: () -> Unit = {},
     onKeepPlanning: () -> Unit = {},
     onCancelPlan: () -> Unit = {},
@@ -163,10 +163,7 @@ fun PlanningScreen(
         onRecenter = {
             mapCameraController.recenterToUserLocation()
         },
-        onClear = {
-            controlsMode = MapControlsMode.Map
-            onResetMapState()
-        },
+        onClear = onResetMapState,
         onToggleView = {
             controlsMode = when (controlsMode) {
                 MapControlsMode.Map -> MapControlsMode.Chat

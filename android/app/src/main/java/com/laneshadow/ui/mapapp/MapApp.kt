@@ -38,7 +38,7 @@ internal fun planningMapControlsModel(
     onZoomIn: () -> Unit,
     onZoomOut: () -> Unit,
     onRecenter: () -> Unit,
-    onClear: () -> Unit,
+    onClear: (() -> Unit)? = null,
     onToggleView: () -> Unit,
 ): MapControlsModel =
     MapControlsModel(
@@ -141,7 +141,6 @@ internal fun MapAppContent(
             onZoomIn = { cameraController.zoomIn() },
             onZoomOut = { cameraController.zoomOut() },
             onRecenter = { cameraController.recenterToUserLocation() },
-            onClear = { controlsMode = MapControlsMode.Map },
             onToggleView = {
                 controlsMode = when (controlsMode) {
                     MapControlsMode.Map -> MapControlsMode.Chat
