@@ -62,6 +62,12 @@ extension PlanningScreen {
                     "wiring to camera controller deferred to PLAN-S08-IOS-T04"
                 Logger().info("\(msg)")
             },
+            onLayers: {
+                let msg =
+                    "[PLAN-S08-IOS-T02] Layers in planning mode — " +
+                    "wiring deferred until planning-state layers behavior is finalized"
+                Logger().info("\(msg)")
+            },
             onToggleView: {
                 let msg =
                     "[PLAN-S08-IOS-T02] Toggle mode (planning→idle) — " +
