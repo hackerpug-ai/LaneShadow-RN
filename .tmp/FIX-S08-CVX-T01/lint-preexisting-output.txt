@@ -1,21 +1,316 @@
+biome.json:2:14 deserialize ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-> laneshadow@1.0.0 lint /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01
-> eslint .
+  i The configuration schema version does not match the CLI version 2.4.15
+  
+    1 │ {
+  > 2 │   "$schema": "https://biomejs.dev/schemas/2.4.12/schema.json",
+      │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   "vcs": {
+    4 │     "enabled": true,
+  
+  i   Expected:                     2.4.15
+      Found:                        2.4.12
+  
+  
+  i Run the command biome migrate to migrate the configuration file.
+  
 
+react-native/app/(app)/_layout.tsx:7:11 lint/correctness/noUnusedVariables ━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Oops! Something went wrong! :(
+  ! This variable sessionId is unused.
+  
+    6 │ export const AppLayout = () => {
+  > 7 │   const { sessionId } = useAuth()
+      │           ^^^^^^^^^
+    8 │ 
+    9 │   return (
+  
+  i Unused variables are often the result of typos, incomplete refactors, or other sources of bugs.
+  
 
-ESLint: 9.39.4
+LaneShadow-AppIcon-Pack-Gradient/web/site.webmanifest format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-ESLint couldn't find an eslint.config.(js|mjs|cjs) file.
+  × Formatter would have printed the following content:
+  
+    17 17 │     "background_color": "#FDFBF8",
+    18 18 │     "display": "standalone"
+    19    │ - }
+       19 │ + }
+       20 │ + 
+  
 
-From ESLint v9.0.0, the default configuration file is now eslint.config.js.
-If you are using a .eslintrc.* file, please follow the migration guide
-to update your configuration file to the new format:
+implementer_response.json format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-https://eslint.org/docs/latest/use/configure/migration-guide
+  × Formatter would have printed the following content:
+  
+    62 62 │     "generated_project_files_changed": {
+    63 63 │       "changed": true,
+    64    │ - ····"files":·[
+    65    │ - ······"ios/LaneShadow.xcodeproj/project.pbxproj"
+    66    │ - ····]
+       64 │ + ····"files":·["ios/LaneShadow.xcodeproj/project.pbxproj"]
+    67 65 │     },
+    68 66 │     "residual_risks": [
+  
 
-If you still have problems after following the migration guide, please stop by
-https://eslint.org/chat/help to chat with the team.
+logo/web/site.webmanifest format ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
- ELIFECYCLE  Command failed with exit code 2.
+  × Formatter would have printed the following content:
+  
+    17 17 │     "background_color": "#FDFBF8",
+    18 18 │     "display": "standalone"
+    19    │ - }
+       19 │ + }
+       20 │ + 
+  
+
+logos/preview.html:137:14 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    135 │       <div style="font-size:0.8rem;font-weight:500;">1 — Bend</div>
+    136 │       <div class="favicon-row">
+  > 137 │         <div><img src="concepts/concept-1-the-bend.svg" width="64" height="64"><div class="label">64px</div></div>
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    138 │         <div><img src="concepts/concept-1-the-bend.svg" width="32" height="32"><div class="label">32px</div></div>
+    139 │         <div><img src="concepts/concept-1-the-bend.svg" width="16" height="16"><div class="label">16px</div></div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/preview.html:138:14 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    136 │       <div class="favicon-row">
+    137 │         <div><img src="concepts/concept-1-the-bend.svg" width="64" height="64"><div class="label">64px</div></div>
+  > 138 │         <div><img src="concepts/concept-1-the-bend.svg" width="32" height="32"><div class="label">32px</div></div>
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    139 │         <div><img src="concepts/concept-1-the-bend.svg" width="16" height="16"><div class="label">16px</div></div>
+    140 │       </div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/preview.html:139:14 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    137 │         <div><img src="concepts/concept-1-the-bend.svg" width="64" height="64"><div class="label">64px</div></div>
+    138 │         <div><img src="concepts/concept-1-the-bend.svg" width="32" height="32"><div class="label">32px</div></div>
+  > 139 │         <div><img src="concepts/concept-1-the-bend.svg" width="16" height="16"><div class="label">16px</div></div>
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    140 │       </div>
+    141 │     </div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/preview.html:145:14 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    143 │       <div style="font-size:0.8rem;font-weight:500;">2 — Climb</div>
+    144 │       <div class="favicon-row">
+  > 145 │         <div><img src="concepts/concept-2-the-climb.svg" width="64" height="64"><div class="label">64px</div></div>
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    146 │         <div><img src="concepts/concept-2-the-climb.svg" width="32" height="32"><div class="label">32px</div></div>
+    147 │         <div><img src="concepts/concept-2-the-climb.svg" width="16" height="16"><div class="label">16px</div></div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/preview.html:146:14 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    144 │       <div class="favicon-row">
+    145 │         <div><img src="concepts/concept-2-the-climb.svg" width="64" height="64"><div class="label">64px</div></div>
+  > 146 │         <div><img src="concepts/concept-2-the-climb.svg" width="32" height="32"><div class="label">32px</div></div>
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    147 │         <div><img src="concepts/concept-2-the-climb.svg" width="16" height="16"><div class="label">16px</div></div>
+    148 │       </div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/preview.html:147:14 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    145 │         <div><img src="concepts/concept-2-the-climb.svg" width="64" height="64"><div class="label">64px</div></div>
+    146 │         <div><img src="concepts/concept-2-the-climb.svg" width="32" height="32"><div class="label">32px</div></div>
+  > 147 │         <div><img src="concepts/concept-2-the-climb.svg" width="16" height="16"><div class="label">16px</div></div>
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    148 │       </div>
+    149 │     </div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/preview.html:153:14 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    151 │       <div style="font-size:0.8rem;font-weight:500;">3 — Convergence</div>
+    152 │       <div class="favicon-row">
+  > 153 │         <div><img src="concepts/concept-3-the-convergence.svg" width="64" height="64"><div class="label">64px</div></div>
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    154 │         <div><img src="concepts/concept-3-the-convergence.svg" width="32" height="32"><div class="label">32px</div></div>
+    155 │         <div><img src="concepts/concept-3-the-convergence.svg" width="16" height="16"><div class="label">16px</div></div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/preview.html:154:14 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    152 │       <div class="favicon-row">
+    153 │         <div><img src="concepts/concept-3-the-convergence.svg" width="64" height="64"><div class="label">64px</div></div>
+  > 154 │         <div><img src="concepts/concept-3-the-convergence.svg" width="32" height="32"><div class="label">32px</div></div>
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    155 │         <div><img src="concepts/concept-3-the-convergence.svg" width="16" height="16"><div class="label">16px</div></div>
+    156 │       </div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/preview.html:155:14 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    153 │         <div><img src="concepts/concept-3-the-convergence.svg" width="64" height="64"><div class="label">64px</div></div>
+    154 │         <div><img src="concepts/concept-3-the-convergence.svg" width="32" height="32"><div class="label">32px</div></div>
+  > 155 │         <div><img src="concepts/concept-3-the-convergence.svg" width="16" height="16"><div class="label">16px</div></div>
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    156 │       </div>
+    157 │     </div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/preview.html:161:14 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    159 │       <div style="font-size:0.8rem;font-weight:500;">4 — Contour</div>
+    160 │       <div class="favicon-row">
+  > 161 │         <div><img src="concepts/concept-4-the-contour.svg" width="64" height="64"><div class="label">64px</div></div>
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    162 │         <div><img src="concepts/concept-4-the-contour.svg" width="32" height="32"><div class="label">32px</div></div>
+    163 │         <div><img src="concepts/concept-4-the-contour.svg" width="16" height="16"><div class="label">16px</div></div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/preview.html:162:14 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    160 │       <div class="favicon-row">
+    161 │         <div><img src="concepts/concept-4-the-contour.svg" width="64" height="64"><div class="label">64px</div></div>
+  > 162 │         <div><img src="concepts/concept-4-the-contour.svg" width="32" height="32"><div class="label">32px</div></div>
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    163 │         <div><img src="concepts/concept-4-the-contour.svg" width="16" height="16"><div class="label">16px</div></div>
+    164 │       </div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/preview.html:163:14 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    161 │         <div><img src="concepts/concept-4-the-contour.svg" width="64" height="64"><div class="label">64px</div></div>
+    162 │         <div><img src="concepts/concept-4-the-contour.svg" width="32" height="32"><div class="label">32px</div></div>
+  > 163 │         <div><img src="concepts/concept-4-the-contour.svg" width="16" height="16"><div class="label">16px</div></div>
+        │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    164 │       </div>
+    165 │     </div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/v2/preview.html:126:54 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    125 │     <div class="matrix-rowhead">Tier&nbsp;1<br><span style="font-weight:400;opacity:0.6;font-size:0.75rem;">Favicon<br>16–48px</span></div>
+  > 126 │     <div class="cell"><div class="cell-img light-bg"><img src="tier-1-favicon.light.svg"></div><div class="cell-label">tier-1-favicon.light.svg</div></div>
+        │                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    127 │     <div class="cell"><div class="cell-img dark-bg"><img src="tier-1-favicon.dark.svg"></div><div class="cell-label">tier-1-favicon.dark.svg</div></div>
+    128 │     <div class="cell"><div class="cell-img light-bg"><img src="tier-1-favicon.mono.svg"></div><div class="cell-label">tier-1-favicon.mono.svg</div></div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/v2/preview.html:127:53 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    125 │     <div class="matrix-rowhead">Tier&nbsp;1<br><span style="font-weight:400;opacity:0.6;font-size:0.75rem;">Favicon<br>16–48px</span></div>
+    126 │     <div class="cell"><div class="cell-img light-bg"><img src="tier-1-favicon.light.svg"></div><div class="cell-label">tier-1-favicon.light.svg</div></div>
+  > 127 │     <div class="cell"><div class="cell-img dark-bg"><img src="tier-1-favicon.dark.svg"></div><div class="cell-label">tier-1-favicon.dark.svg</div></div>
+        │                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    128 │     <div class="cell"><div class="cell-img light-bg"><img src="tier-1-favicon.mono.svg"></div><div class="cell-label">tier-1-favicon.mono.svg</div></div>
+    129 │ 
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+logos/v2/preview.html:128:54 lint/a11y/useAltText ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Provide a text alternative through the alt, aria-label, or aria-labelledby attribute.
+  
+    126 │     <div class="cell"><div class="cell-img light-bg"><img src="tier-1-favicon.light.svg"></div><div class="cell-label">tier-1-favicon.light.svg</div></div>
+    127 │     <div class="cell"><div class="cell-img dark-bg"><img src="tier-1-favicon.dark.svg"></div><div class="cell-label">tier-1-favicon.dark.svg</div></div>
+  > 128 │     <div class="cell"><div class="cell-img light-bg"><img src="tier-1-favicon.mono.svg"></div><div class="cell-label">tier-1-favicon.mono.svg</div></div>
+        │                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    129 │ 
+    130 │     <div class="matrix-rowhead">Tier&nbsp;2<br><span style="font-weight:400;opacity:0.6;font-size:0.75rem;">Medallion<br>48–1024px</span></div>
+  
+  i Meaningful alternative text on elements helps users relying on screen readers to understand content's purpose within a page.
+  
+  i If the content is decorative, redundant, or obscured, consider hiding it from assistive technologies with the aria-hidden attribute.
+  
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 152.
+Checked 778 files in 132ms. No fixes applied.
+Found 43 errors.
+Found 128 warnings.
+Found 1 info.
+check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  × Some errors were emitted while running checks.
+  
+

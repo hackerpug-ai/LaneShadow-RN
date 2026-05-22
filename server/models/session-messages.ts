@@ -95,18 +95,27 @@ type PlanningEventContent = {
   }>
 }
 
-const SEARCHING_TOOL_NAMES = new Set(['geocode', 'search_agent', 'webSearch'])
+const SEARCHING_TOOL_NAMES = new Set([
+  'geocode',
+  'search_agent',
+  'webSearch',
+  'findScenicWaypoints',
+])
 const DRAFTING_TOOL_NAMES = new Set([
   'createRouteSketch',
   'compileSketch',
   'planRoute',
   'routing_agent',
+  'normalizeRoute',
 ])
 const ENRICHING_TOOL_NAMES = new Set([
   'searchNearby',
   'getRouteWeather',
   'webSearchResults',
   'enrichment_agent',
+  'computeRouteIndex',
+  'probeConditions',
+  'mapConditions',
 ])
 
 const PLANNING_PHASE_ORDER: Record<PlanningPhase, number> = {

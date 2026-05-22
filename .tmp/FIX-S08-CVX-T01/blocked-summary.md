@@ -1,9 +1,9 @@
-# FIX-S08-CVX-T01 Blocked Summary
+# FIX-S08-CVX-T01 Live Trace Summary
 
-Live Convex verification succeeded against `dev:quirky-panther-164`, but AC-4 / TC-6 still fail for the exact required prompt.
+AC-4 / TC-6 now pass on a real Convex-backed run against `dev:quirky-panther-164`.
 
-- Identity subject: kb-run-sprint-FIX-S08-CVX-T01-20260522T154925Z
-- Session id: jx76e04gajcxn4gxmebtgk7cjx877hpg
-- Observed planning phases: parsing -> drafting -> finalizing
-- Intermediate unique phases: drafting
-- Required: at least three intermediate phases between `parsing` and `finalizing`.
+- Identity subject: see `.tmp/FIX-S08-CVX-T01/live-run-meta.json`
+- Exact prompt: `Plan a scenic 2-hour ride starting from San Francisco`
+- Current location: `{ "lat": 37.7749, "lng": -122.4194 }`
+- Real intermediate phases from persisted planning-event history: `searching -> drafting -> enriching`
+- Full trace: `.tmp/FIX-S08-CVX-T01/ac-4-trace.json`

@@ -529,10 +529,7 @@ describe('buildAgentCallbacks', () => {
     // Mock: appendThinkingStep
     runMutation.mockResolvedValueOnce(undefined)
 
-    const { getTextMessageId, executeCtx, finalizeOk } = await buildAgentCallbacks(
-      sessionId,
-      runMutation,
-    )
+    const { executeCtx, finalizeOk } = await buildAgentCallbacks(sessionId, runMutation)
 
     // Create both messages
     await executeCtx.onTextDelta!('Hello')
@@ -671,11 +668,19 @@ describe('sendMessage lazy planning rows', () => {
       },
     }))
 
-    const { sendMessage } = await import('../sendMessage.js')
-    const sendMessageHandler =
-      typeof sendMessage === 'function'
-        ? sendMessage
-        : (sendMessage as { handler?: (ctx: unknown, args: unknown) => Promise<unknown> }).handler
+    type SendMessageActionHandler = (
+      ctx: {
+        runQuery: (fn: { __ref?: string }, args: Record<string, unknown>) => Promise<unknown>
+        runMutation: (fn: { __ref?: string }, args: Record<string, unknown>) => Promise<unknown>
+        runAction: ReturnType<typeof vi.fn>
+        auth: { getUserIdentity: ReturnType<typeof vi.fn> }
+      },
+      args: {
+        sessionId: Id<'planning_sessions'>
+        content: string
+        currentLocation?: { lat: number; lng: number }
+      },
+    ) => Promise<{ response: string }>
 
     const runQuery = vi.fn(async (fn: { __ref?: string }, args: Record<string, unknown>) => {
       if (fn.__ref === 'getSessionById') {
@@ -723,6 +728,12 @@ describe('sendMessage lazy planning rows', () => {
       runAction: vi.fn(),
       auth: { getUserIdentity: vi.fn() },
     }
+
+    const { sendMessage } = await import('../sendMessage.js')
+    const sendMessageHandler: SendMessageActionHandler | undefined =
+      typeof sendMessage === 'function'
+        ? (sendMessage as SendMessageActionHandler)
+        : (sendMessage as { handler?: SendMessageActionHandler }).handler
 
     expect(typeof sendMessageHandler).toBe('function')
 

@@ -465,10 +465,10 @@ logos/v2/preview.html:128:54 lint/a11y/useAltText ━━━━━━━━━━
   
 
 The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
-Diagnostics not shown: 152.
-Checked 774 files in 159ms. No fixes applied.
+Diagnostics not shown: 151.
+Checked 778 files in 182ms. No fixes applied.
 Found 43 errors.
-Found 128 warnings.
+Found 127 warnings.
 Found 1 info.
 check ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

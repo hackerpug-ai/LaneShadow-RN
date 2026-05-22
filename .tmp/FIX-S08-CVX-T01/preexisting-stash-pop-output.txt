@@ -1,0 +1,24 @@
+On branch kb-run-sprint/sprint-08-planning-state/FIX-S08-CVX-T01
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .tmp/FIX-S08-CVX-T01/lint-output.txt
+	modified:   .tmp/FIX-S08-CVX-T01/lint-preexisting-output.txt
+	modified:   .tmp/FIX-S08-CVX-T01/live-create-session.json
+	modified:   .tmp/FIX-S08-CVX-T01/live-observations.ndjson
+	modified:   .tmp/FIX-S08-CVX-T01/live-run-meta.json
+	modified:   .tmp/FIX-S08-CVX-T01/live-send-result.json
+	modified:   server/convex/actions/agent/__tests__/ridePlanningAgent.test.ts
+	modified:   server/convex/actions/agent/__tests__/sendMessage.test.ts
+	modified:   server/convex/actions/agent/agents/orchestrator.ts
+	modified:   server/convex/actions/agent/agents/routingAgent.ts
+	modified:   server/convex/actions/agent/lib/planRideOrchestrator.ts
+	modified:   server/models/__tests__/session-messages-planning-phase.test.ts
+	modified:   server/models/session-messages.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.spec/design/system/refs/test-screen/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (8c7ca67d798e1f5fbec7a000c7a9ad92cdc82e7b)

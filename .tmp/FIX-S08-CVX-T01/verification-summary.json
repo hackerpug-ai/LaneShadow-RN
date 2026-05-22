@@ -1,21 +1,16 @@
 {
   "task_id": "FIX-S08-CVX-T01",
-  "timestamp": "2026-05-22T15:55:54.635Z",
-  "commit_sha": "87e92c45968a7bb9a8a5e63e095218abb869ec3b",
+  "timestamp": "2026-05-22T16:20:02.646327+00:00",
+  "review_commit_source": "git rev-parse HEAD",
   "tests": {
-    "exit_code": 1,
-    "output_file": ".tmp/FIX-S08-CVX-T01/test-output.txt",
-    "note": "Repo-wide test gate still fails outside this task scope; see pre-existing-issues.md."
+    "exit_code": 1
   },
   "typecheck": {
-    "exit_code": 0,
-    "output_file": ".tmp/FIX-S08-CVX-T01/typecheck-output.txt"
+    "exit_code": 0
   },
   "lint": {
     "exit_code": 1,
-    "warnings": 0,
-    "output_file": ".tmp/FIX-S08-CVX-T01/lint-output.txt",
-    "note": "Repo-wide Biome formatting drift still exists outside this task scope; see pre-existing-issues.md."
+    "warnings": 127
   },
   "pre_existing_issues": true,
   "requirement_results": [
@@ -40,15 +35,14 @@
     {
       "id": "AC-4",
       "verify": "live trace recorded to .tmp/FIX-S08-CVX-T01/ac-4-trace.json",
-      "exit_code": 1,
-      "output_file": ".tmp/FIX-S08-CVX-T01/ac-4-trace.json",
-      "note": "Live deployment succeeded, but the exact prompt only produced phases parsing -> drafting -> finalizing; required at least three intermediate phases between parsing and finalizing."
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-CVX-T01/ac-4-trace.json"
     },
     {
       "id": "TC-1",
       "verify": "grep -E 'ENRICHING_TOOL_NAMES' -A 6 server/models/session-messages.ts",
       "exit_code": 0,
-      "output_file": ".tmp/FIX-S08-CVX-T01/ac-1-output.txt"
+      "output_file": ".tmp/FIX-S08-CVX-T01/tc-1-test-output.txt"
     },
     {
       "id": "TC-2",
@@ -77,9 +71,8 @@
     {
       "id": "TC-6",
       "verify": "live trace recorded to .tmp/FIX-S08-CVX-T01/ac-4-trace.json",
-      "exit_code": 1,
-      "output_file": ".tmp/FIX-S08-CVX-T01/ac-4-trace.json",
-      "note": "Live deployment succeeded, but the exact prompt only produced phases parsing -> drafting -> finalizing; required at least three intermediate phases between parsing and finalizing."
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-CVX-T01/ac-4-trace.json"
     }
   ],
   "red_evidence": {

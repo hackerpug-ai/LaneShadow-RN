@@ -1,14 +1,15 @@
+const ENRICHING_TOOL_NAMES = new Set([
+  'searchNearby',
+  'getRouteWeather',
+  'webSearchResults',
+  'enrichment_agent',
+  'computeRouteIndex',
+  'probeConditions',
+--
+  if (ENRICHING_TOOL_NAMES.has(toolName)) return PLANNING_PHASE.ENRICHING
+  return null
+}
 
-> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01
-> vitest "server/models/__tests__/session-messages-planning-phase.test.ts" "-t" "getRouteWeather"
-
-
- RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01
-
- ✓ server/models/__tests__/session-messages-planning-phase.test.ts (3 tests | 2 skipped) 1ms
-
- Test Files  1 passed (1)
-      Tests  1 passed | 2 skipped (3)
-   Start at  21:36:00
-   Duration  581ms (transform 66ms, setup 0ms, collect 72ms, tests 1ms, environment 0ms, prepare 101ms)
-
+export const mergePlanningPhase = (
+  currentPhase: PlanningPhase | null | undefined,
+  nextPhase: PlanningPhase | null | undefined,

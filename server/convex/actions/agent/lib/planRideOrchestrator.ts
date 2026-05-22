@@ -14,6 +14,10 @@ export type OrchestratorResult = {
   sketch: any
 }
 
+export type PlanRideProgressEvent =
+  | { type: 'start'; toolName: string }
+  | { type: 'finish'; toolName: string; summary: string; durationMs: number }
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -37,34 +41,60 @@ export type OrchestratorResult = {
 export const planRideOrchestrator = async (params: {
   planInput: PlanInput
   departureTimeMs: number
+  onProgress?: (event: PlanRideProgressEvent) => Promise<void>
 }): Promise<OrchestratorResult[]> => {
-  const { planInput, departureTimeMs } = params
+  const { planInput, departureTimeMs, onProgress } = params
+
+  const emitProgress = async (event: PlanRideProgressEvent): Promise<void> => {
+    await onProgress?.(event)
+  }
+
+  const runStep = async <T>(
+    toolName: string,
+    summary: string,
+    operation: () => Promise<T>,
+  ): Promise<T> => {
+    await emitProgress({ type: 'start', toolName })
+    const startedAt = Date.now()
+    const result = await operation()
+    await emitProgress({
+      type: 'finish',
+      toolName,
+      summary,
+      durationMs: Date.now() - startedAt,
+    })
+    return result
+  }
 
   // Step 1: Generate route variants with different routing preferences
   // No external API calls - fully deterministic
-  const variants = await findScenicWaypoints({
-    start: planInput.start,
-    end: planInput.end,
-    preferences: planInput.preferences,
-  })
+  const variants = await runStep('findScenicWaypoints', 'Found scenic route options', async () =>
+    findScenicWaypoints({
+      start: planInput.start,
+      end: planInput.end,
+      preferences: planInput.preferences,
+    }),
+  )
 
   // Step 2: Build RouteSketch + compile + normalize in parallel
   // Promise.allSettled ensures one variant failure does not block the others
-  const compiled = await Promise.allSettled(
-    variants.map(async (variant) => {
-      const sketch = buildSketchFromVariant(variant)
-      // Use variant-specific preferences for routing diversity
-      const variantPlanInput = variant.preferences
-        ? { ...planInput, preferences: variant.preferences }
-        : planInput
-      const providerRoute = await compileSketch({ planInput: variantPlanInput, sketch })
-      const routeSnapshot = await normalizeRoute({
-        providerRoute,
-        planInput: variantPlanInput,
-        sketch,
-      })
-      return { routeSnapshot, sketch }
-    }),
+  const compiled = await runStep('compileSketch', 'Drafted route candidates', async () =>
+    Promise.allSettled(
+      variants.map(async (variant) => {
+        const sketch = buildSketchFromVariant(variant)
+        // Use variant-specific preferences for routing diversity
+        const variantPlanInput = variant.preferences
+          ? { ...planInput, preferences: variant.preferences }
+          : planInput
+        const providerRoute = await compileSketch({ planInput: variantPlanInput, sketch })
+        const routeSnapshot = await normalizeRoute({
+          providerRoute,
+          planInput: variantPlanInput,
+          sketch,
+        })
+        return { routeSnapshot, sketch }
+      }),
+    ),
   )
 
   const successful = compiled
@@ -85,22 +115,48 @@ export const planRideOrchestrator = async (params: {
 
   // Step 3: Probe weather conditions — parallel, best-effort (failure not fatal per variant)
   const weatherProvider = createWeatherProvider()
+  const routeIndexes = await runStep('computeRouteIndex', 'Indexed route conditions', async () =>
+    Promise.all(
+      successful.map(async ({ routeSnapshot, sketch }) => ({
+        routeSnapshot,
+        sketch,
+        routeIndex: await computeRouteIndex(routeSnapshot),
+      })),
+    ),
+  )
 
-  const withConditions = await Promise.all(
-    successful.map(async ({ routeSnapshot, sketch }) => {
-      try {
-        const routeIndex = await computeRouteIndex(routeSnapshot)
-        const probed = await probeConditions({ routeIndex, departureTimeMs, weatherProvider })
-        const windOverlay = await mapConditions({ routeSnapshot, routeIndex, probed })
-        const updatedSnapshot: RouteSnapshot = {
-          ...routeSnapshot,
-          overlays: { ...routeSnapshot.overlays, wind: windOverlay },
+  const probedConditions = await runStep('probeConditions', 'Checked route conditions', async () =>
+    Promise.all(
+      routeIndexes.map(async ({ routeSnapshot, sketch, routeIndex }) => {
+        try {
+          const probed = await probeConditions({ routeIndex, departureTimeMs, weatherProvider })
+          return { routeSnapshot, sketch, routeIndex, probed }
+        } catch {
+          return { routeSnapshot, sketch, routeIndex, probed: null }
         }
-        return { routeSnapshot: updatedSnapshot, sketch }
-      } catch {
-        return { routeSnapshot, sketch }
-      }
-    }),
+      }),
+    ),
+  )
+
+  const withConditions = await runStep('mapConditions', 'Mapped route conditions', async () =>
+    Promise.all(
+      probedConditions.map(async ({ routeSnapshot, sketch, routeIndex, probed }) => {
+        if (!probed) {
+          return { routeSnapshot, sketch }
+        }
+
+        try {
+          const windOverlay = await mapConditions({ routeSnapshot, routeIndex, probed })
+          const updatedSnapshot: RouteSnapshot = {
+            ...routeSnapshot,
+            overlays: { ...routeSnapshot.overlays, wind: windOverlay },
+          }
+          return { routeSnapshot: updatedSnapshot, sketch }
+        } catch {
+          return { routeSnapshot, sketch }
+        }
+      }),
+    ),
   )
 
   const _conditionsCount = withConditions.filter(
