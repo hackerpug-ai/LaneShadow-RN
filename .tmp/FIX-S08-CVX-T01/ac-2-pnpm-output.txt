@@ -1,0 +1,15 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01
+> vitest "planningIntegration.test.ts" "-t" "explicit phase writes"
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01
+
+ ✓ convex/actions/agent/__tests__/planningIntegration.test.ts (19 tests | 18 skipped) 16ms
+ ✓ server/convex/actions/agent/__tests__/planningIntegration.test.ts (19 tests | 18 skipped) 16ms
+
+ Test Files  2 passed (2)
+      Tests  2 passed | 36 skipped (38)
+   Start at  21:29:03
+   Duration  206ms (transform 64ms, setup 0ms, collect 62ms, tests 32ms, environment 0ms, prepare 55ms)
+

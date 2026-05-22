@@ -1,3 +1,0 @@
-CONVEX_DEPLOYMENT=
-CONVEX_TEAM_TOKEN=
-./.env.example

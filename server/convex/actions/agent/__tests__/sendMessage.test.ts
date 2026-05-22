@@ -621,3 +621,124 @@ describe('buildAgentCallbacks', () => {
     expect(runMutation).not.toHaveBeenCalled()
   })
 })
+
+describe('sendMessage lazy planning rows', () => {
+  it('does not create a planning row before planning events fire', async () => {
+    vi.resetModules()
+
+    const executeRidePlanningAgent = vi.fn().mockResolvedValue({
+      response: 'Direct reply',
+      attachments: undefined,
+    })
+    const requireIdentity = vi.fn().mockResolvedValue({ clerkUserId: 'user123' })
+
+    vi.doMock('../ridePlanningAgent', () => ({
+      executeRidePlanningAgent,
+    }))
+    vi.doMock('../../../guards', () => ({
+      requireIdentity,
+    }))
+    vi.doMock('../../../_generated/api', () => ({
+      internal: {
+        db: {
+          sessionMessages: {
+            createPendingAssistantMessage: { __ref: 'createPendingAssistantMessage' },
+            finalizeAssistantMessage: { __ref: 'finalizeAssistantMessage' },
+            appendStreamingChunk: { __ref: 'appendStreamingChunk' },
+            addSystemMessage: { __ref: 'addSystemMessage' },
+            listWithPiMessages: { __ref: 'listWithPiMessages' },
+            createThinkingCard: { __ref: 'createThinkingCard' },
+            appendThinkingText: { __ref: 'appendThinkingText' },
+            appendThinkingStep: { __ref: 'appendThinkingStep' },
+            finalizeThinkingCard: { __ref: 'finalizeThinkingCard' },
+            updatePlanningContent: { __ref: 'updatePlanningContent' },
+          },
+          planningSessions: {
+            updateLastKnownLocation: { __ref: 'updateLastKnownLocation' },
+          },
+          performance: {
+            recordAgentRun: { __ref: 'recordAgentRun' },
+          },
+        },
+      },
+      api: {
+        db: {
+          planningSessions: { getSessionById: { __ref: 'getSessionById' } },
+          sessionMessages: {
+            send: { __ref: 'send' },
+          },
+        },
+      },
+    }))
+
+    const { sendMessage } = await import('../sendMessage.js')
+    const sendMessageHandler =
+      typeof sendMessage === 'function'
+        ? sendMessage
+        : (sendMessage as { handler?: (ctx: unknown, args: unknown) => Promise<unknown> }).handler
+
+    const runQuery = vi.fn(async (fn: { __ref?: string }, args: Record<string, unknown>) => {
+      if (fn.__ref === 'getSessionById') {
+        return mockSession
+      }
+      if (fn.__ref === 'listWithPiMessages') {
+        return [
+          ...mockMessages,
+          {
+            _id: 'msg3' as Id<'session_messages'>,
+            _creationTime: Date.now(),
+            sessionId: args.sessionId as Id<'planning_sessions'>,
+            role: 'rider' as const,
+            content: 'Plan a scenic 2-hour ride starting from San Francisco',
+            createdAt: Date.now(),
+            piMessage: {
+              role: 'user',
+              content: 'Plan a scenic 2-hour ride starting from San Francisco',
+              timestamp: Date.now(),
+            },
+          },
+        ]
+      }
+      throw new Error(`Unexpected query ref: ${fn.__ref}`)
+    })
+
+    const runMutation = vi.fn(async (fn: { __ref?: string }, args: Record<string, unknown>) => {
+      if (fn.__ref === 'updateLastKnownLocation') return null
+      if (fn.__ref === 'send') {
+        return { messageId: 'rider1' as Id<'session_messages'> }
+      }
+      if (fn.__ref === 'addSystemMessage') {
+        return { messageId: 'system1' as Id<'session_messages'> }
+      }
+      if (fn.__ref === 'recordAgentRun') return null
+      if (fn.__ref === 'appendStreamingChunk' || fn.__ref === 'finalizeAssistantMessage') {
+        return null
+      }
+      throw new Error(`Unexpected mutation ref: ${fn.__ref} kind=${String(args.kind ?? '')}`)
+    })
+
+    const ctx = {
+      runQuery,
+      runMutation,
+      runAction: vi.fn(),
+      auth: { getUserIdentity: vi.fn() },
+    }
+
+    expect(typeof sendMessageHandler).toBe('function')
+
+    const result = await sendMessageHandler!(ctx, {
+      sessionId: 'session123' as Id<'planning_sessions'>,
+      content: 'Plan a scenic 2-hour ride starting from San Francisco',
+      currentLocation: { lat: 37.7749, lng: -122.4194 },
+    })
+
+    expect(result.response).toBe('Direct reply')
+    expect(
+      runMutation.mock.calls.some(
+        ([fn, args]) =>
+          (fn as { __ref?: string }).__ref === 'createPendingAssistantMessage' &&
+          (args as { kind?: string }).kind === 'planning',
+      ),
+    ).toBe(false)
+  })
+})

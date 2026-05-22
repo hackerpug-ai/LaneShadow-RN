@@ -452,7 +452,6 @@ export const sendMessage = action({
       runMutation: ctx.runMutation.bind(ctx),
       sessionId: args.sessionId,
     })
-    await planningEmitter.init()
 
     // Track the final assistant message for piMessage persistence
     let finalAssistantMessage: AssistantMessage | undefined

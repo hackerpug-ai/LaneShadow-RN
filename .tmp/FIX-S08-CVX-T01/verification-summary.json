@@ -1,0 +1,88 @@
+{
+  "task_id": "FIX-S08-CVX-T01",
+  "timestamp": "2026-05-22T15:55:54.635Z",
+  "commit_sha": "87e92c45968a7bb9a8a5e63e095218abb869ec3b",
+  "tests": {
+    "exit_code": 1,
+    "output_file": ".tmp/FIX-S08-CVX-T01/test-output.txt",
+    "note": "Repo-wide test gate still fails outside this task scope; see pre-existing-issues.md."
+  },
+  "typecheck": {
+    "exit_code": 0,
+    "output_file": ".tmp/FIX-S08-CVX-T01/typecheck-output.txt"
+  },
+  "lint": {
+    "exit_code": 1,
+    "warnings": 0,
+    "output_file": ".tmp/FIX-S08-CVX-T01/lint-output.txt",
+    "note": "Repo-wide Biome formatting drift still exists outside this task scope; see pre-existing-issues.md."
+  },
+  "pre_existing_issues": true,
+  "requirement_results": [
+    {
+      "id": "AC-1",
+      "verify": "grep -E 'ENRICHING_TOOL_NAMES' -A 6 server/models/session-messages.ts",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-CVX-T01/ac-1-output.txt"
+    },
+    {
+      "id": "AC-2",
+      "verify": "pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t 'explicit phase writes'",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-CVX-T01/ac-2-output.txt"
+    },
+    {
+      "id": "AC-3",
+      "verify": "pnpm --filter @laneshadow/server test -- planningEvents.test.ts -t 'monotone phase'",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-CVX-T01/ac-3-output.txt"
+    },
+    {
+      "id": "AC-4",
+      "verify": "live trace recorded to .tmp/FIX-S08-CVX-T01/ac-4-trace.json",
+      "exit_code": 1,
+      "output_file": ".tmp/FIX-S08-CVX-T01/ac-4-trace.json",
+      "note": "Live deployment succeeded, but the exact prompt only produced phases parsing -> drafting -> finalizing; required at least three intermediate phases between parsing and finalizing."
+    },
+    {
+      "id": "TC-1",
+      "verify": "grep -E 'ENRICHING_TOOL_NAMES' -A 6 server/models/session-messages.ts",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-CVX-T01/ac-1-output.txt"
+    },
+    {
+      "id": "TC-2",
+      "verify": "pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t 'explicit phase writes'",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-CVX-T01/ac-2-output.txt"
+    },
+    {
+      "id": "TC-3",
+      "verify": "pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t 'explicit phase writes'",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-CVX-T01/ac-2-output.txt"
+    },
+    {
+      "id": "TC-4",
+      "verify": "pnpm --filter @laneshadow/server test -- planningIntegration.test.ts -t 'explicit phase writes'",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-CVX-T01/ac-2-output.txt"
+    },
+    {
+      "id": "TC-5",
+      "verify": "pnpm --filter @laneshadow/server test -- planningEvents.test.ts -t 'monotone phase'",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-CVX-T01/ac-3-output.txt"
+    },
+    {
+      "id": "TC-6",
+      "verify": "live trace recorded to .tmp/FIX-S08-CVX-T01/ac-4-trace.json",
+      "exit_code": 1,
+      "output_file": ".tmp/FIX-S08-CVX-T01/ac-4-trace.json",
+      "note": "Live deployment succeeded, but the exact prompt only produced phases parsing -> drafting -> finalizing; required at least three intermediate phases between parsing and finalizing."
+    }
+  ],
+  "red_evidence": {
+    "required": false
+  }
+}

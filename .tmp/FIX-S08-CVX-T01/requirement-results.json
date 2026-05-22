@@ -22,7 +22,7 @@
     "verify": "live trace recorded to .tmp/FIX-S08-CVX-T01/ac-4-trace.json",
     "exit_code": 1,
     "output_file": ".tmp/FIX-S08-CVX-T01/ac-4-trace.json",
-    "note": "Blocked by missing CONVEX_DEPLOYMENT and non-interactive Convex setup; see ac-4-convex-dev-output.txt and tc-6-convex-run-output.txt."
+    "note": "Live deployment succeeded, but the exact prompt only produced phases parsing -> drafting -> finalizing; required at least three intermediate phases between parsing and finalizing."
   },
   {
     "id": "TC-1",
@@ -59,6 +59,6 @@
     "verify": "live trace recorded to .tmp/FIX-S08-CVX-T01/ac-4-trace.json",
     "exit_code": 1,
     "output_file": ".tmp/FIX-S08-CVX-T01/ac-4-trace.json",
-    "note": "Blocked by missing CONVEX_DEPLOYMENT and non-interactive Convex setup; see ac-4-convex-dev-output.txt and tc-6-convex-run-output.txt."
+    "note": "Live deployment succeeded, but the exact prompt only produced phases parsing -> drafting -> finalizing; required at least three intermediate phases between parsing and finalizing."
   }
 ]
