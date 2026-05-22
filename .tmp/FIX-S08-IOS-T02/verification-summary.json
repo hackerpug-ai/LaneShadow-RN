@@ -1,7 +1,7 @@
 {
   "task_id": "FIX-S08-IOS-T02",
   "timestamp": "2026-05-22T17:25:17Z",
-  "commit_sha": "PENDING",
+  "review_commit_source": "git rev-parse HEAD",
   "tests": {
     "exit_code": 65,
     "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt",
