@@ -45,6 +45,29 @@ enum DesignReviewHelpers {
         return attachment
     }
 
+    /// Waits for the planning-screen scaffold to fully render, then captures it.
+    static func capturePlanningScreen(
+        app: XCUIApplication,
+        state: String,
+        theme: String
+    ) -> XCTAttachment {
+        let planningScreen = app.descendants(matching: .any)
+            .matching(identifier: LSIds.planningScreen)
+            .firstMatch
+
+        XCTAssertTrue(
+            planningScreen.waitForExistence(timeout: 10),
+            "\(LSIds.planningScreen) must be present on planning-screen \(state).\(theme)"
+        )
+
+        return captureElement(
+            screen: "planning-screen",
+            state: state,
+            action: theme,
+            element: planningScreen
+        )
+    }
+
     /// Sets up deterministic environment for design review captures.
     ///
     /// Disables animations to reduce flakiness and freezes locale/timezone

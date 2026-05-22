@@ -17,7 +17,7 @@
  */
 
 import { spawn } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -27,6 +27,7 @@ const __dirname = dirname(__filename)
 const ROOT_DIR = join(__dirname, '../..')
 const DESIGN_REVIEW_DIR = join(ROOT_DIR, '.design-review')
 const REPORT_JSON_PATH = join(ROOT_DIR, '.design-review/report.json')
+const LEGACY_REPORT_DIR = join(ROOT_DIR, '.spec/design/reports/latest')
 
 export interface DesignReviewIssue {
   issue_id: string
@@ -56,6 +57,12 @@ export interface DesignReviewSummary {
 
 export interface DesignReport {
   issues: DesignReviewIssue[]
+  summary: DesignReviewSummary
+}
+
+interface LegacyDesignReport {
+  issues: DesignReviewIssue[]
+  results: DesignReviewIssue[]
   summary: DesignReviewSummary
 }
 
@@ -155,16 +162,43 @@ export async function writeAutomationFallbackEvals(options: {
 
 export async function clearDesignReviewOutputs(rootDir: string = ROOT_DIR): Promise<void> {
   const designReviewDir = join(rootDir, '.design-review')
+  const legacyReportDir = join(rootDir, '.spec/design/reports/latest')
   const pathsToRemove = [
     join(designReviewDir, 'captures'),
     join(designReviewDir, 'evals'),
     join(designReviewDir, 'manifest.json'),
     join(designReviewDir, 'report.json'),
     join(designReviewDir, 'report.html'),
+    legacyReportDir,
   ]
 
   for (const path of pathsToRemove) {
     rmSync(path, { recursive: true, force: true })
+  }
+}
+
+function publishLegacyReportArtifacts(report: DesignReport): void {
+  mkdirSync(LEGACY_REPORT_DIR, { recursive: true })
+
+  const legacyReport: LegacyDesignReport = {
+    issues: report.issues,
+    results: report.issues,
+    summary: report.summary,
+  }
+
+  writeFileSync(
+    join(LEGACY_REPORT_DIR, 'report.json'),
+    JSON.stringify(legacyReport, null, 2),
+  )
+
+  const reportHtmlPath = join(DESIGN_REVIEW_DIR, 'report.html')
+  if (existsSync(reportHtmlPath)) {
+    cpSync(reportHtmlPath, join(LEGACY_REPORT_DIR, 'report.html'))
+  }
+
+  const capturesDir = join(DESIGN_REVIEW_DIR, 'captures')
+  if (existsSync(capturesDir)) {
+    cpSync(capturesDir, join(LEGACY_REPORT_DIR, 'captures'), { recursive: true })
   }
 }
 
@@ -235,6 +269,7 @@ export async function runDesignReview(options: RunOptions): Promise<DesignReport
 
     const reportContent = readFileSync(REPORT_JSON_PATH, 'utf-8')
     const report = JSON.parse(reportContent) as DesignReport
+    publishLegacyReportArtifacts(report)
 
     console.log('\n✅ Design review complete')
     console.log(`   Total issues: ${report.summary.total}`)
