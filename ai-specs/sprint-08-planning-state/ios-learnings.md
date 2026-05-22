@@ -56,3 +56,30 @@
 - `ios/LaneShadow/Views/Templates/PlanningScreen.swift` — remove duplicated sketch motion helpers and use shared default points
 - `ios/LaneShadow/Views/Templates/MapApp.swift` — keep overlay composition wired to planning sketch points
 - `ios/LaneShadowTests/Features/AppFlow/MapView/MapSketchAnimationLayerTests.swift` — path, token, timing, and reduce-motion coverage
+
+---
+
+# iOS Learnings: FIX-S08-IOS-T02 Current Location Wiring
+
+## Implementation Date
+2026-05-19
+
+## Edge Cases Discovered
+1. `currentLocation` must be omitted entirely when nil. Sending `null` would not match the task contract and is unnecessary because the backend already handles the absent-key case.
+2. Convex Swift nested objects must be encoded as `[String: ConvexEncodable?]` so the SDK can serialize the object shape accepted by `sendMessage`.
+
+## API Contract Notes
+- `server/convex/actions/agent/sendMessage.ts` accepts `currentLocation: { lat: number, lng: number }`.
+- Android already sends `currentLocation` only when present, using the same `lat`/`lng` shape; iOS now matches that behavior.
+
+## UI Decisions
+- No UI rendering changed. The fix is limited to Convex action argument construction.
+
+## Platform-Specific Notes
+- Focused simulator-backed `xcodebuild test` coverage passed for non-nil and nil `currentLocation` argument construction.
+- Live AC-4 requires a running Convex planning session with device location; no product code was changed outside the iOS Convex client.
+
+## Files Created/Modified
+- `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift` — include non-nil `currentLocation` in `sendMessage` action args and remove the swallow.
+- `ios/LaneShadowTests/Services/ConvexClientLaneShadowTests.swift` — add coverage for non-nil and nil `currentLocation` argument behavior.
+- `ai-specs/sprint-08-planning-state/ios-learnings.md` — captured implementation notes and environment blockers.

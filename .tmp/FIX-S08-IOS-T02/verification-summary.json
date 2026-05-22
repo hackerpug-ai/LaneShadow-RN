@@ -1,0 +1,77 @@
+{
+  "task_id": "FIX-S08-IOS-T02",
+  "timestamp": "2026-05-22T12:01:00-07:00",
+  "tests": {
+    "not_required": false,
+    "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt"
+  },
+  "typecheck": {
+    "exit_code": 1,
+    "output_file": ".tmp/FIX-S08-IOS-T02/typecheck-output.txt"
+  },
+  "lint": {
+    "exit_code": 1,
+    "warnings": 128,
+    "output_file": ".tmp/FIX-S08-IOS-T02/lint-output.txt"
+  },
+  "build": {
+    "exit_code": 0,
+    "output_file": ".tmp/FIX-S08-IOS-T02/build-output.txt",
+    "screenshot_file": ".tmp/FIX-S08-IOS-T02/simulator-screenshot.png",
+    "app_entry_regression_output_file": ".tmp/FIX-S08-IOS-T02/app-entry-regression-output.txt"
+  },
+  "pre_existing_issues": true,
+  "requirement_results": [
+    {
+      "id": "AC-1",
+      "verify": "grep -c '_ = currentLocation' ios/LaneShadow/Services/ConvexClient+LaneShadow.swift returns 0",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-1-output.txt"
+    },
+    {
+      "id": "AC-2",
+      "verify": "xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-IOS-T02/tc-class-output.txt"
+    },
+    {
+      "id": "AC-3",
+      "verify": "xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-IOS-T02/tc-class-output.txt"
+    },
+    {
+      "id": "AC-4",
+      "verify": "recorded trace .tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-4-trace.txt"
+    },
+    {
+      "id": "TC-1",
+      "verify": "grep -c '_ = currentLocation' ios/LaneShadow/Services/ConvexClient+LaneShadow.swift",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-1-output.txt"
+    },
+    {
+      "id": "TC-2",
+      "verify": "xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-IOS-T02/tc-class-output.txt"
+    },
+    {
+      "id": "TC-3",
+      "verify": "xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-IOS-T02/tc-class-output.txt"
+    },
+    {
+      "id": "TC-4",
+      "verify": "recorded trace .tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
+      "exit_code": 0,
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-4-trace.txt"
+    }
+  ],
+  "red_evidence": {
+    "required": false
+  }
+}

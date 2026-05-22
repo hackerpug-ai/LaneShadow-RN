@@ -1,0 +1,55 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination "platform=iOS Simulator,name=iPhone 16" -derivedDataPath .tmp/DerivedData-app "-only-testing:LaneShadowTests/RootViewTests/testRootViewReplacesContentViewAsAppEntry"
+
+Resolve Package Graph
+Conflicting identity for nativetheme: dependency '/users/justinrich/projects/native-theme/platforms/nativetheme' and dependency '/users/justinrich/projects/laneshadow/.kb-run-sprint/worktrees/native-theme/platforms/nativetheme' both point to the same package identity 'nativetheme'. This will be escalated to an error in future versions of SwiftPM.
+
+Resolved source packages:
+  Kingfisher: https://github.com/onevcat/Kingfisher.git @ 8.8.1
+  ConvexMobile: https://github.com/get-convex/convex-swift @ 0.8.1
+  SimpleKeychain: https://github.com/auth0/SimpleKeychain @ 1.3.0
+  Get: https://github.com/kean/Get @ 2.2.1
+  xctest-dynamic-overlay: https://github.com/pointfreeco/xctest-dynamic-overlay @ 1.9.0
+  MapboxCoreMaps: https://github.com/mapbox/mapbox-core-maps-ios.git @ 11.22.0
+  swift-custom-dump: https://github.com/pointfreeco/swift-custom-dump @ 1.5.0
+  NativeTheme: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/native-theme/platforms/NativeTheme @ local
+  Turf: https://github.com/mapbox/turf-swift.git @ 4.0.0
+  swift-snapshot-testing: https://github.com/pointfreeco/swift-snapshot-testing @ 1.19.2
+  Factory: https://github.com/hmlongco/Factory @ 2.5.3
+  NativeSandbox: /Users/justinrich/Projects/native-sandbox/ios @ local
+  PhoneNumberKit: https://github.com/marmelroy/PhoneNumberKit @ 4.2.11
+  ViewInspector: https://github.com/nalexn/ViewInspector @ 0.10.3
+  swift-syntax: https://github.com/swiftlang/swift-syntax @ 603.0.1
+  MapboxCommon: https://github.com/mapbox/mapbox-common-ios.git @ 24.22.0
+  MapboxMaps: https://github.com/mapbox/mapbox-maps-ios @ 11.22.0
+  LaneShadowTheme: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-IOS-T02/tokens/platforms/swift
+  Clerk: https://github.com/clerk/clerk-ios @ 0.71.4
+
+2026-05-22 11:57:55.819578-0700 LaneShadow[56531:27555862] [common] [Info, common]: Using Mapbox Common SDK v24.22.0(cb16ef14a038f95e5311abe5f2a78afb48e8090b)
+2026-05-22 11:57:55.822221-0700 LaneShadow[56531:27555862] [maps-core] [Info, maps-core]: Using Mapbox Core Maps SDK v11.22.0(cb16ef14a03)
+2026-05-22 11:57:56.245219-0700 LaneShadow[56531:27555862] 🟣 App.init: Clerk.shared.configure() with key prefix=pk_test_
+2026-05-22 11:57:56.384023-0700 LaneShadow[56531:27555862] 🟣 RootView.branch: authBootstrapPlaceholder appeared
+2026-05-22 11:57:56.384161-0700 LaneShadow[56531:27555862] 🟣 RootView.task: bootstrap start
+IOSurfaceClientSetSurfaceNotify failed e00002c7
+2026-05-22 11:57:56.498208-0700 LaneShadow[56531:27555862] 🟣 RootView.task: resetAuth didRun=false
+2026-05-22 11:57:56.498353-0700 LaneShadow[56531:27555862] 🟣 RootView.e2eBypassAuthIfNeeded: shouldBypass=false args=["/Users/justinrich/Library/Developer/CoreSimulator/Devices/9D638581-8DDF-4B33-AA52-87E59A0C718E/data/Containers/Bundle/Application/D0B6A604-E37B-4885-8E01-3BAB435F6A1B/LaneShadow.app/LaneShadow"]
+2026-05-22 11:57:56.498427-0700 LaneShadow[56531:27555862] 🟣 RootView.task: e2eBypass didRun=false
+Test Suite 'Selected tests' started at 2026-05-22 11:57:56.617.
+Test Suite 'LaneShadowTests.xctest' started at 2026-05-22 11:57:56.617.
+Test Suite 'RootViewTests' started at 2026-05-22 11:57:56.618.
+Test Case '-[LaneShadowTests.RootViewTests testRootViewReplacesContentViewAsAppEntry]' started.
+2026-05-22 11:57:56.619672-0700 LaneShadow[56531:27555862] 🟣 App.init: Clerk.shared.configure() with key prefix=pk_test_
+Test Case '-[LaneShadowTests.RootViewTests testRootViewReplacesContentViewAsAppEntry]' passed (0.007 seconds).
+Test Suite 'RootViewTests' passed at 2026-05-22 11:57:56.626.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.007 (0.008) seconds
+Test Suite 'LaneShadowTests.xctest' passed at 2026-05-22 11:57:56.626.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.007 (0.008) seconds
+Test Suite 'Selected tests' passed at 2026-05-22 11:57:56.626.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.007 (0.009) seconds
+
+Test session results, code coverage, and logs:
+	/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-IOS-T02/.tmp/DerivedData-app/Logs/Test/Test-LaneShadow-2026.05.22_11-57-49--0700.xcresult
+
+** TEST EXECUTE SUCCEEDED **
+
+Testing started

@@ -1,0 +1,5 @@
+✖ Failed to run function "db/planningSessions:getSessionById":
+ConvexError: [Request ID: 0ac91d02b2441517] Server Error
+Uncaught ConvexError: {"code":"UNAUTHENTICATED","message":"Authentication required"}
+    at requireIdentity (../../convex/guards.ts:18:6)
+    at async handler (../../convex/db/planningSessions.ts:240:87)

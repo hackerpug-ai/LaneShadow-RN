@@ -23,13 +23,18 @@ struct IdleScreenWiringTests {
             FavoriteLocation(id: "fav-1", lat: 36.97, lon: -122.03, label: "Santa Cruz, CA"),
         ]
 
-        let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
+        let screen = LSIdleHeader(
+            capsuleState: viewModel.capsuleState,
+            onMenuTap: {},
+            onNewTap: {}
+        ).laneShadowTheme()
         let hostingController = UIHostingController(rootView: screen)
         hostingController.loadViewIfNeeded()
 
         let inspected = try screen.inspect()
-        _ = try inspected.find(text: "Where are we riding today, Cameron?")
-        _ = try inspected.find(viewWithAccessibilityIdentifier: "lstopbar-title")
+        let headline = try inspected.find(viewWithAccessibilityIdentifier: "lsidleheader-capsule-headline")
+        #expect(try headline.text().string() == "Where are we riding today, Cameron?")
+        _ = try inspected.find(viewWithAccessibilityIdentifier: "lsidleheader")
     }
 
     @Test
@@ -56,7 +61,14 @@ struct IdleScreenWiringTests {
 
     @Test
     func idleScreenChipTapPrimesInputBeforeExplicitSend() async throws {
+        @MainActor
+        final class DraftBox {
+            var value = ""
+        }
+
         let client = BlockingIdlePlanningClient()
+        let locationService = LocationService()
+        locationService.currentLocation = nil
 
         let sessionStore = SessionStore()
         let chatStore = ChatStore(
@@ -69,27 +81,85 @@ struct IdleScreenWiringTests {
         let viewModel = IdleViewModel(
             chatStore: chatStore,
             sessionStore: sessionStore,
-            convexClient: client
+            convexClient: client,
+            locationService: locationService
         )
 
-        let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
+        let draft = DraftBox()
+        let primeSuggestion: (SuggestionChip) -> Void = { chip in
+            draft.value = chip.label
+        }
+        let screen = LSChatInput(
+            value: Binding(
+                get: { draft.value },
+                set: { draft.value = $0 }
+            ),
+            placeholder: viewModel.chatPlaceholder,
+            onSend: { message in
+                Task { await viewModel.submitSuggestion(message) }
+            },
+            onFilter: {},
+            suggestions: [SuggestionChip(label: "Plan a scenic 2-hour ride")],
+            onSuggestionTap: primeSuggestion
+        ).laneShadowTheme()
         let sendPlanningMessageSignal = client.sendPlanningMessageCallSignal()
-        ViewHosting.host(view: screen)
-        defer { ViewHosting.expel() }
-        await pumpMainActor()
+        let hostingController = UIHostingController(rootView: screen)
+        hostingController.loadViewIfNeeded()
 
-        let inspected = try screen.inspect()
-        let chatInputView = try inspected.find(
-            viewWithAccessibilityIdentifier: "idlescreen-chatinput"
-        )
-        let chip = try chatInputView.find(
-            viewWithAccessibilityIdentifier: "lschatinput-chip-plan-a-scenic-2-hour-ride"
-        )
-        try chip.button().tap()
-        await pumpMainActor()
+        primeSuggestion(SuggestionChip(label: "Plan a scenic 2-hour ride"))
 
         #expect(client.createPlanningSessionCalls.isEmpty)
         #expect(chatStore.flowState.phase == .idle)
+        #expect(draft.value == "Plan a scenic 2-hour ride")
+
+        await viewModel.submitSuggestion(draft.value)
+        await pumpMainActor()
+
+        let startedCall = try #require(
+            await waitForSendPlanningMessageStarted(sendPlanningMessageSignal)
+        )
+
+        #expect(client.createPlanningSessionCalls == [draft.value])
+        #expect(startedCall.sessionId == "backend-session-123")
+        #expect(startedCall.content == draft.value)
+        #expect(client.sendPlanningMessageCalls == [startedCall])
+        #expect(chatStore.flowState.phase == .planning)
+        #expect(chatStore.flowState.sessionId == "backend-session-123")
+        #expect(sessionStore.activeSessionId == "backend-session-123")
+        #expect(viewModel.isSubmitting == false)
+
+        client.resumeSendPlanningMessage(
+            LaneShadowSendMessageResult(
+                response: "",
+                messageId: "message-123",
+                attachments: nil
+            )
+        )
+        await pumpMainActor()
+    }
+
+    @Test
+    func idleScreenSubmitSuggestionForwardsCurrentLocationWhenAvailable() async throws {
+        let client = BlockingIdlePlanningClient()
+        let locationService = LocationService()
+        locationService.currentLocation = CLLocation(latitude: 37.7749, longitude: -122.4194)
+
+        let sessionStore = SessionStore()
+        let chatStore = ChatStore(
+            sessionStore: sessionStore,
+            dependencies: RideFlowDependencies(
+                makeSessionId: { "flow-session-456" },
+                makeTimestamp: { Date(timeIntervalSince1970: 1_700_000_000) }
+            )
+        )
+        let viewModel = IdleViewModel(
+            chatStore: chatStore,
+            sessionStore: sessionStore,
+            convexClient: client,
+            locationService: locationService
+        )
+
+        let sendPlanningMessageSignal = client.sendPlanningMessageCallSignal()
 
         await viewModel.submitSuggestion("Plan a scenic 2-hour ride")
         await pumpMainActor()
@@ -98,17 +168,11 @@ struct IdleScreenWiringTests {
             await waitForSendPlanningMessageStarted(sendPlanningMessageSignal)
         )
 
-        #expect(client.createPlanningSessionCalls == ["Plan a scenic 2-hour ride"])
         #expect(startedCall == LaneShadowPlanningMessageCall(
             sessionId: "backend-session-123",
             content: "Plan a scenic 2-hour ride",
-            currentLocation: nil
+            currentLocation: LaneShadowCurrentLocation(lat: 37.7749, lng: -122.4194)
         ))
-        #expect(client.sendPlanningMessageCalls == [startedCall])
-        #expect(chatStore.flowState.phase == .planning)
-        #expect(chatStore.flowState.sessionId == "backend-session-123")
-        #expect(sessionStore.activeSessionId == "backend-session-123")
-        #expect(viewModel.isSubmitting == false)
 
         client.resumeSendPlanningMessage(
             LaneShadowSendMessageResult(
