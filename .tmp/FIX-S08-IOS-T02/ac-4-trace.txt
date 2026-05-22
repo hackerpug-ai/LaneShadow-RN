@@ -1,41 +1,17 @@
-AC-4 live planning trace
-Timestamp: 2026-05-22T17:25:17Z
-Execution mode: xcodebuild simulator-backed iOS client flow, followed by authenticated Convex query inspection of the exact simulator-originated session.
+# AC-4 Trace
 
-Prompt
-- "Plan a scenic 2-hour ride"
-
-Client-origin evidence
-- Source log: `.tmp/FIX-S08-IOS-T02/ac-4-live-test-output.txt`
-- Simulator test path created session `jx79rzfx5wwqq7qn8wembgtp5d87689j` and received final assistant message `k17c05g92mk2c1ttfe5a7e8yw5877apc`.
-- Log lines:
-  - `AC4_LIVE_SESSION_ID=jx79rzfx5wwqq7qn8wembgtp5d87689j`
-  - `AC4_LIVE_MESSAGE_ID=k17c05g92mk2c1ttfe5a7e8yw5877apc`
-- The simulator request used non-nil `currentLocation` `{lat:37.7749,lng:-122.4194}` via the iOS client transport.
-
-Persisted session evidence
-- Source: `.tmp/FIX-S08-IOS-T02/ac-4-session.json`
-- `lastKnownLocation.lat = 37.7749`
-- `lastKnownLocation.lng = -122.4194`
-- `title = "Scenic 2-Hour Loop from SF"`
-
-Persisted message evidence
-- Source: `.tmp/FIX-S08-IOS-T02/ac-4-messages.json`
-- First rider message content is exactly `Plan a scenic 2-hour ride`.
-- First top-level `agent_turn` includes a `toolCall` named `routing_agent`.
-- First `thinkingSteps` tool event is:
-  - `type: tool_start`
-  - `toolName: planRoute`
-  - `summary: Planning route to San Francisco, CA...`
-- The subsequent `agent_turn` `planRoute` toolCall uses start/end coordinates `37.7749,-122.4194` labeled `San Francisco, CA`.
-
-Clarification check
-- Source: `.tmp/FIX-S08-IOS-T02/ac-4-raw.json`
-- Clarification texts matching /where are (you|we) starting from/i: 0
-- Final assistant text:
-  - `I've planned a 2-hour scenic ride for you — a loop south from San Francisco on winding coastal roads and Skyline Blvd, returning via redwood-lined CA-1 for a mix of ocean views and mountain curves.`
-
-Conclusion
-- PASS: the request originated from the simulator-backed iOS client flow.
-- PASS: the persisted planning session stored the forwarded `currentLocation` as `lastKnownLocation`.
-- PASS: the first agent action was a tool call (`routing_agent`, then `planRoute`), not a clarification asking where the rider starts.
+- Command: xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-review4-live '-only-testing:LaneShadowTests/RootViewTests/testLiveIdlePlanningRequestUsesCurrentLocationWithoutClarification'
+- Raw output: .tmp/FIX-S08-IOS-T02/ac-4-live-test-output.txt
+- Result: PASS
+- Prompt: Plan a scenic 2-hour ride
+- currentLocation sent: {"lat":37.7749,"lng":-122.4194}
+- Simulator-originated session id: jx72hf6nbq72peptcazzh90mbx877yzb
+- Simulator-originated message id: k177gb8snds9jcjmj0c8kce4818772cq
+- Proof points from raw xcodebuild log:
+  - createPlanningSession succeeded and logged AC4_LIVE_SESSION_ID / AC4_LIVE_MESSAGE_ID
+  - test passed: "Test Case '-[LaneShadowTests.RootViewTests testLiveIdlePlanningRequestUsesCurrentLocationWithoutClarification]' passed"
+  - suite passed and xcodebuild ended with "** TEST SUCCEEDED **"
+- In-test assertions that passed:
+  - Convex sendMessage captured non-nil currentLocation matching San Francisco coordinates
+  - sendMessage response did not match /where are (you|we) starting from/i
+  - sendMessage returned a route_options attachment, indicating tool-driven routing instead of clarification

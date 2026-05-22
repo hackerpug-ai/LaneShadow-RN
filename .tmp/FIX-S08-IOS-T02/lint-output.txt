@@ -1,4 +1,4 @@
-(node:1574) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(node:24526) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
 (Use `node --trace-deprecation ...` to show where the warning was created)
 Progress: resolved 1, reused 0, downloaded 0, added 0
 Packages: +2
@@ -313,7 +313,7 @@ logos/v2/preview.html:131:54 lint/a11y/useAltText ━━━━━━━━━━
 
 The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
 Diagnostics not shown: 152.
-Checked 773 files in 149ms. No fixes applied.
+Checked 777 files in 145ms. No fixes applied.
 Found 43 errors.
 Found 128 warnings.
 Found 1 info.

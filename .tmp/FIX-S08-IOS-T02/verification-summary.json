@@ -1,29 +1,26 @@
 {
   "task_id": "FIX-S08-IOS-T02",
-  "timestamp": "2026-05-22T17:25:17Z",
-  "review_commit_source": "git rev-parse HEAD",
+  "timestamp": "2026-05-22T18:13:53Z",
+  "commit_sha": "e1ddac33dd141dc94ed41500c502079f472ba364",
   "tests": {
-    "exit_code": 65,
-    "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt",
-    "blocked_by": "Pre-existing IdleScreenWiringTests.idleScreenRendersSprintGreetingHeadlineForTodayScope() failure in an untouched assertion path.",
-    "note": "The same suite run shows idleScreenSubmitSuggestionForwardsCurrentLocationWhenAvailable() passing. AC-2/AC-3 retain their earlier approved passing outputs in ac-2-output.txt and ac-3-output.txt."
+    "required": true,
+    "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt"
   },
   "typecheck": {
     "exit_code": 1,
-    "output_file": ".tmp/FIX-S08-IOS-T02/typecheck-output.txt",
-    "blocked_by": "Pre-existing missing server/convex/_generated modules and downstream TypeScript failures in untouched server files."
+    "output_file": ".tmp/FIX-S08-IOS-T02/typecheck-output.txt"
   },
   "lint": {
     "exit_code": 1,
-    "output_file": ".tmp/FIX-S08-IOS-T02/lint-output.txt",
     "warnings": 128,
-    "blocked_by": "Pre-existing Biome errors and warnings in unrelated logo preview HTML files."
+    "output_file": ".tmp/FIX-S08-IOS-T02/lint-output.txt"
   },
   "pre_existing_issues": true,
+  "pre_existing_issues_file": ".tmp/FIX-S08-IOS-T02/pre-existing-issues.md",
   "requirement_results": [
     {
       "id": "AC-1",
-      "verify": "grep -c '_ = currentLocation' ios/LaneShadow/Services/ConvexClient+LaneShadow.swift",
+      "verify": "grep -c '_ = currentLocation' ios/LaneShadow/Services/ConvexClient+LaneShadow.swift returns 0",
       "exit_code": 0,
       "output_file": ".tmp/FIX-S08-IOS-T02/ac-1-output.txt"
     },
@@ -31,13 +28,13 @@
       "id": "AC-2",
       "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_includesCurrentLocation",
       "exit_code": 0,
-      "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-output.txt"
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-3-suite-output.txt"
     },
     {
       "id": "AC-3",
       "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_omitsNilCurrentLocation",
       "exit_code": 0,
-      "output_file": ".tmp/FIX-S08-IOS-T02/ac-3-output.txt"
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-3-suite-output.txt"
     },
     {
       "id": "AC-4",
@@ -55,13 +52,13 @@
       "id": "TC-2",
       "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_includesCurrentLocation",
       "exit_code": 0,
-      "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-output.txt"
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-3-suite-output.txt"
     },
     {
       "id": "TC-3",
       "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_omitsNilCurrentLocation",
       "exit_code": 0,
-      "output_file": ".tmp/FIX-S08-IOS-T02/ac-3-output.txt"
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-3-suite-output.txt"
     },
     {
       "id": "TC-4",

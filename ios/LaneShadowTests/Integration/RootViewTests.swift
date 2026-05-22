@@ -1,4 +1,6 @@
 import Combine
+import Clerk
+import CoreLocation
 import ConvexMobile
 import SwiftUI
 import UIKit
@@ -319,6 +321,49 @@ final class RootViewTests: XCTestCase {
         #endif
     }
 
+    func testLiveIdlePlanningRequestUsesCurrentLocationWithoutClarification() async throws {
+        let runtime = try await makeLivePlanningRuntime()
+        defer {
+            Task {
+                try? await runtime.clerkAuth.signOut()
+            }
+        }
+
+        let currentLocation = LaneShadowCurrentLocation(
+            lat: 37.7749,
+            lng: -122.4194
+        )
+        let prompt = "Plan a scenic 2-hour ride"
+
+        let session = try await runtime.convexClient.createPlanningSession(firstMessage: prompt)
+        let result = try await runtime.convexClient.sendPlanningMessage(
+            sessionId: session.sessionId,
+            content: prompt,
+            currentLocation: currentLocation
+        )
+
+        NSLog("AC4_LIVE_SESSION_ID=\(session.sessionId)")
+        NSLog("AC4_LIVE_MESSAGE_ID=\(result.messageId)")
+
+        XCTAssertEqual(
+            runtime.transport.capturedCurrentLocation,
+            currentLocation
+        )
+
+        let clarificationRegex = try NSRegularExpression(
+            pattern: "where are (you|we) starting from",
+            options: [.caseInsensitive]
+        )
+        let responseRange = NSRange(result.response.startIndex ..< result.response.endIndex, in: result.response)
+        XCTAssertTrue(
+            clarificationRegex.firstMatch(in: result.response, options: [], range: responseRange) == nil,
+            "Expected no clarification asking where the rider starts. Response: \(result.response)"
+        )
+
+        let routeOptionsAttachment = result.attachments?.first(where: { $0.type == "route_options" })
+        XCTAssertNotNil(routeOptionsAttachment, "Expected live sendMessage to produce a route_options attachment.")
+    }
+
     private func pumpMainActor(iterations: Int = 20) async {
         for _ in 0 ..< iterations {
             await Task.yield()
@@ -368,6 +413,203 @@ final class RootViewTests: XCTestCase {
         return auth
     }
 
+    private func makeLivePlanningRuntime() async throws -> LivePlanningRuntime {
+        let credentials = try loadLivePlanningCredentials()
+        configureLiveClerkIfNeeded(publishableKey: credentials.publishableKey)
+
+        let clerkAuth = ClerkAuth()
+        let authProvider = LaneShadowAuthProvider {
+            try await clerkAuth.convexJWT()
+        }
+        let transport = RecordingLiveConvexTransport(
+            deploymentURL: credentials.convexURL,
+            authProvider: authProvider
+        )
+        let convexClient = LaneShadowConvexClient(
+            deploymentURL: credentials.convexURL,
+            tokenProvider: { try await clerkAuth.convexJWT() },
+            transport: transport
+        )
+        let appState = AppState(isAuthenticated: false)
+
+        try await clerkAuth.restoreSession()
+
+        if clerkAuth.currentUser?.email != credentials.email {
+            if clerkAuth.currentUser != nil {
+                try await clerkAuth.signOut()
+            }
+
+            let signInResult = try await clerkAuth.signIn(
+                email: credentials.email,
+                password: credentials.password
+            )
+            guard case .signedIn = signInResult else {
+                XCTFail("Live test credentials require interactive verification.")
+                throw LivePlanningTestError.verificationRequired
+            }
+        }
+
+        await transport.triggerAuthRefresh()
+        await appState.completeAuthentication(clerkAuth: clerkAuth, convexClient: convexClient)
+
+        guard appState.isAuthenticated else {
+            throw LivePlanningTestError.authenticationDidNotComplete
+        }
+
+        let environment = AppEnvironment(
+            clerkAuth: clerkAuth,
+            convexClient: convexClient,
+            sessionStore: SessionStore()
+        )
+
+        return LivePlanningRuntime(
+            clerkAuth: clerkAuth,
+            convexClient: convexClient,
+            transport: transport,
+            appState: appState,
+            environment: environment
+        )
+    }
+
+    private func waitForSessionID(in chatStore: ChatStore, timeoutNanoseconds: UInt64 = 30_000_000_000) async throws -> String {
+        let deadline = DispatchTime.now().uptimeNanoseconds + timeoutNanoseconds
+        while DispatchTime.now().uptimeNanoseconds < deadline {
+            if let sessionId = chatStore.flowState.sessionId {
+                return sessionId
+            }
+            try await Task.sleep(nanoseconds: 200_000_000)
+        }
+        throw LivePlanningTestError.sessionIDTimeout
+    }
+
+    private func waitForLiveSessionRecord(
+        sessionId: String,
+        convexClient: LaneShadowConvexClient,
+        timeoutNanoseconds: UInt64 = 45_000_000_000
+    ) async throws -> LaneShadowSessionRecord {
+        try await withThrowingTaskGroup(of: LaneShadowSessionRecord.self) { group in
+            group.addTask {
+                for await sessions in convexClient.subscribe(.listSessions, yielding: [LaneShadowSessionRecord].self) {
+                    if let record = sessions.first(where: { $0.id == sessionId }),
+                       record.lastKnownLocation != nil
+                    {
+                        return record
+                    }
+                }
+                throw LivePlanningTestError.sessionRecordTimeout(sessionId)
+            }
+
+            group.addTask {
+                try await Task.sleep(nanoseconds: timeoutNanoseconds)
+                throw LivePlanningTestError.sessionRecordTimeout(sessionId)
+            }
+
+            guard let result = try await group.next() else {
+                throw LivePlanningTestError.sessionRecordTimeout(sessionId)
+            }
+            group.cancelAll()
+            return result
+        }
+    }
+
+    private func waitForLiveSessionMessages(
+        sessionId: String,
+        convexClient: LaneShadowConvexClient,
+        timeoutNanoseconds: UInt64 = 60_000_000_000
+    ) async throws -> [LaneShadowSessionMessage] {
+        try await withThrowingTaskGroup(of: [LaneShadowSessionMessage].self) { group in
+            group.addTask {
+                for await messages in convexClient.subscribeToSessionMessages(sessionId: sessionId, limit: 50) {
+                    let hasToolStep = messages.contains { !($0.thinkingSteps ?? []).isEmpty }
+                    let hasFinalAssistantText = messages.contains {
+                        $0.role == "system" && !$0.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    }
+                    if hasToolStep && hasFinalAssistantText {
+                        return messages
+                    }
+                }
+                throw LivePlanningTestError.sessionMessagesTimeout(sessionId)
+            }
+
+            group.addTask {
+                try await Task.sleep(nanoseconds: timeoutNanoseconds)
+                throw LivePlanningTestError.sessionMessagesTimeout(sessionId)
+            }
+
+            guard let result = try await group.next() else {
+                throw LivePlanningTestError.sessionMessagesTimeout(sessionId)
+            }
+            group.cancelAll()
+            return result
+        }
+    }
+
+    private func loadLivePlanningCredentials() throws -> LivePlanningCredentials {
+        let environment = Self.loadDotEnvLocal().merging(ProcessInfo.processInfo.environment) { _, new in new }
+
+        let publishableKey = try requireValue(
+            keys: ["CLERK_PUBLISHABLE_KEY", "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY"],
+            in: environment
+        )
+        let convexURL = try requireValue(
+            keys: ["CONVEX_URL", "EXPO_PUBLIC_CONVEX_URL"],
+            in: environment
+        )
+        let email = try requireValue(keys: ["CLERK_TEST_EMAIL"], in: environment)
+        let password = try requireValue(keys: ["CLERK_TEST_PASSWORD"], in: environment)
+
+        return LivePlanningCredentials(
+            publishableKey: publishableKey,
+            convexURL: convexURL,
+            email: email,
+            password: password
+        )
+    }
+
+    private func requireValue(keys: [String], in environment: [String: String]) throws -> String {
+        for key in keys {
+            if let value = environment[key]?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty {
+                return value
+            }
+        }
+        throw LivePlanningTestError.missingEnvironment(keys.joined(separator: ","))
+    }
+
+    private func configureLiveClerkIfNeeded(publishableKey: String) {
+        Clerk.shared.configure(publishableKey: publishableKey)
+    }
+
+    private static func loadDotEnvLocal() -> [String: String] {
+        let envPath = "/Users/justinrich/Projects/LaneShadow/.env.local"
+        guard let content = try? String(contentsOfFile: envPath, encoding: .utf8) else {
+            return [:]
+        }
+
+        var result: [String: String] = [:]
+        for line in content.components(separatedBy: .newlines) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard !trimmed.isEmpty,
+                  !trimmed.hasPrefix("#"),
+                  let equalsIndex = trimmed.firstIndex(of: "=")
+            else {
+                continue
+            }
+
+            let key = String(trimmed[..<equalsIndex]).trimmingCharacters(in: .whitespaces)
+            var value = String(trimmed[trimmed.index(after: equalsIndex)...])
+                .trimmingCharacters(in: .whitespaces)
+
+            if (value.hasPrefix("\"") && value.hasSuffix("\"")) ||
+                (value.hasPrefix("'") && value.hasSuffix("'"))
+            {
+                value = String(value.dropFirst().dropLast())
+            }
+
+            result[key] = value
+        }
+        return result
+    }
+
     @MainActor
     private func host(_ rootView: some View) -> HostedHarness {
         let controller = UIHostingController(rootView: AnyView(rootView))
@@ -387,6 +629,30 @@ final class RootViewTests: XCTestCase {
 private struct HostedHarness {
     let window: UIWindow
     let controller: UIHostingController<AnyView>
+}
+
+private struct LivePlanningRuntime {
+    let clerkAuth: ClerkAuth
+    let convexClient: LaneShadowConvexClient
+    let transport: RecordingLiveConvexTransport
+    let appState: AppState
+    let environment: AppEnvironment
+}
+
+private struct LivePlanningCredentials {
+    let publishableKey: String
+    let convexURL: String
+    let email: String
+    let password: String
+}
+
+private enum LivePlanningTestError: Error {
+    case missingEnvironment(String)
+    case verificationRequired
+    case authenticationDidNotComplete
+    case sessionIDTimeout
+    case sessionRecordTimeout(String)
+    case sessionMessagesTimeout(String)
 }
 
 actor RootViewTestsAuthClient: ClerkAuthClient {
@@ -644,3 +910,77 @@ private extension LaneShadowCurrentUser {
 extension RootView: Inspectable {}
 extension AuthFlowView: Inspectable {}
 extension AppFlowView: Inspectable {}
+
+private final class RecordingLiveConvexTransport: LaneShadowConvexTransporting {
+    private let client: ConvexClientWithAuth<LaneShadowAuthSession>
+    private(set) var capturedCurrentLocation: LaneShadowCurrentLocation?
+
+    init(
+        deploymentURL: String,
+        authProvider: LaneShadowAuthProvider
+    ) {
+        client = ConvexClientWithAuth(
+            deploymentUrl: deploymentURL,
+            authProvider: authProvider
+        )
+    }
+
+    func subscribe<T: Decodable & Sendable>(
+        to endpoint: String,
+        with args: [String: ConvexEncodable?]?,
+        yielding: T.Type
+    ) -> AnyPublisher<T, ClientError> {
+        client.subscribe(to: endpoint, with: args, yielding: T.self)
+    }
+
+    func mutation<T: Decodable>(
+        _ endpoint: String,
+        with args: [String: ConvexEncodable?]?
+    ) async throws -> T {
+        try await client.mutation(endpoint, with: args)
+    }
+
+    func mutation(
+        _ endpoint: String,
+        with args: [String: ConvexEncodable?]?
+    ) async throws {
+        try await client.mutation(endpoint, with: args)
+    }
+
+    func action<T: Decodable>(
+        _ endpoint: String,
+        with args: [String: ConvexEncodable?]?
+    ) async throws -> T {
+        captureCurrentLocationIfPresent(endpoint: endpoint, args: args)
+        return try await client.action(endpoint, with: args)
+    }
+
+    func action(
+        _ endpoint: String,
+        with args: [String: ConvexEncodable?]?
+    ) async throws {
+        captureCurrentLocationIfPresent(endpoint: endpoint, args: args)
+        try await client.action(endpoint, with: args)
+    }
+
+    func triggerAuthRefresh() async {
+        _ = await client.loginFromCache()
+    }
+
+    private func captureCurrentLocationIfPresent(
+        endpoint: String,
+        args: [String: ConvexEncodable?]?
+    ) {
+        guard endpoint == LaneShadowConvexAction.sendMessage.rawValue,
+              let rawValue = args?["currentLocation"],
+              let value = rawValue,
+              let encoded = try? value.convexEncode(),
+              let data = encoded.data(using: .utf8),
+              let location = try? JSONDecoder().decode(LaneShadowCurrentLocation.self, from: data)
+        else {
+            return
+        }
+
+        capturedCurrentLocation = location
+    }
+}

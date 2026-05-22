@@ -1,7 +1,7 @@
 [
   {
     "id": "AC-1",
-    "verify": "grep -c '_ = currentLocation' ios/LaneShadow/Services/ConvexClient+LaneShadow.swift",
+    "verify": "grep -c '_ = currentLocation' ios/LaneShadow/Services/ConvexClient+LaneShadow.swift returns 0",
     "exit_code": 0,
     "output_file": ".tmp/FIX-S08-IOS-T02/ac-1-output.txt"
   },
@@ -9,22 +9,19 @@
     "id": "AC-2",
     "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_includesCurrentLocation",
     "exit_code": 0,
-    "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-output.txt",
-    "note": "Existing approved simulator test evidence; AC-2 remained unchanged during AC-4 remediation."
+    "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-3-suite-output.txt"
   },
   {
     "id": "AC-3",
     "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_omitsNilCurrentLocation",
     "exit_code": 0,
-    "output_file": ".tmp/FIX-S08-IOS-T02/ac-3-output.txt",
-    "note": "Existing approved simulator test evidence; AC-3 remained unchanged during AC-4 remediation."
+    "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-3-suite-output.txt"
   },
   {
     "id": "AC-4",
     "verify": "recorded trace .tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
     "exit_code": 0,
-    "output_file": ".tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
-    "evidence_file": ".tmp/FIX-S08-IOS-T02/ac-4-raw.json"
+    "output_file": ".tmp/FIX-S08-IOS-T02/ac-4-trace.txt"
   },
   {
     "id": "TC-1",
@@ -36,19 +33,18 @@
     "id": "TC-2",
     "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_includesCurrentLocation",
     "exit_code": 0,
-    "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-output.txt"
+    "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-3-suite-output.txt"
   },
   {
     "id": "TC-3",
     "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_omitsNilCurrentLocation",
     "exit_code": 0,
-    "output_file": ".tmp/FIX-S08-IOS-T02/ac-3-output.txt"
+    "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-3-suite-output.txt"
   },
   {
     "id": "TC-4",
     "verify": "recorded trace .tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
     "exit_code": 0,
-    "output_file": ".tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
-    "evidence_file": ".tmp/FIX-S08-IOS-T02/ac-4-raw.json"
+    "output_file": ".tmp/FIX-S08-IOS-T02/ac-4-trace.txt"
   }
 ]

@@ -28,7 +28,9 @@ struct LaneShadowApp: App {
         WindowGroup {
             Group {
                 #if DEBUG
-                    if sandboxPresentation.isPresented {
+                    if isRunningUnitTests {
+                        Color.clear
+                    } else if sandboxPresentation.isPresented {
                         LaneShadowSandboxEntry(selectedStoryId: sandboxPresentation.storyId)
                     } else {
                         RootView(convexStore: convexStore)
@@ -55,6 +57,10 @@ struct LaneShadowApp: App {
     }
 
     #if DEBUG
+        private var isRunningUnitTests: Bool {
+            ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        }
+
         /// DEBUG-only: Override color scheme for UI testing (design review captures).
         /// Set via launch argument `-LaneShadowUITestColorScheme` with values "light" or "dark".
         private var uiTestColorScheme: ColorScheme? {
