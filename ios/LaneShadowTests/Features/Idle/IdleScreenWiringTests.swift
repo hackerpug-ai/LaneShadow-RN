@@ -57,6 +57,8 @@ struct IdleScreenWiringTests {
     @Test
     func idleScreenChipTapPrimesInputBeforeExplicitSend() async throws {
         let client = BlockingIdlePlanningClient()
+        let locationService = LocationService()
+        locationService.currentLocation = nil
 
         let sessionStore = SessionStore()
         let chatStore = ChatStore(
@@ -69,7 +71,8 @@ struct IdleScreenWiringTests {
         let viewModel = IdleViewModel(
             chatStore: chatStore,
             sessionStore: sessionStore,
-            convexClient: client
+            convexClient: client,
+            locationService: locationService
         )
 
         let screen = IdleScreenContainer(viewModel: viewModel).laneShadowTheme()
@@ -99,16 +102,59 @@ struct IdleScreenWiringTests {
         )
 
         #expect(client.createPlanningSessionCalls == ["Plan a scenic 2-hour ride"])
-        #expect(startedCall == LaneShadowPlanningMessageCall(
-            sessionId: "backend-session-123",
-            content: "Plan a scenic 2-hour ride",
-            currentLocation: nil
-        ))
+        #expect(startedCall.sessionId == "backend-session-123")
+        #expect(startedCall.content == "Plan a scenic 2-hour ride")
         #expect(client.sendPlanningMessageCalls == [startedCall])
         #expect(chatStore.flowState.phase == .planning)
         #expect(chatStore.flowState.sessionId == "backend-session-123")
         #expect(sessionStore.activeSessionId == "backend-session-123")
         #expect(viewModel.isSubmitting == false)
+
+        client.resumeSendPlanningMessage(
+            LaneShadowSendMessageResult(
+                response: "",
+                messageId: "message-123",
+                attachments: nil
+            )
+        )
+        await pumpMainActor()
+    }
+
+    @Test
+    func idleScreenSubmitSuggestionForwardsCurrentLocationWhenAvailable() async throws {
+        let client = BlockingIdlePlanningClient()
+        let locationService = LocationService()
+        locationService.currentLocation = CLLocation(latitude: 37.7749, longitude: -122.4194)
+
+        let sessionStore = SessionStore()
+        let chatStore = ChatStore(
+            sessionStore: sessionStore,
+            dependencies: RideFlowDependencies(
+                makeSessionId: { "flow-session-456" },
+                makeTimestamp: { Date(timeIntervalSince1970: 1_700_000_000) }
+            )
+        )
+        let viewModel = IdleViewModel(
+            chatStore: chatStore,
+            sessionStore: sessionStore,
+            convexClient: client,
+            locationService: locationService
+        )
+
+        let sendPlanningMessageSignal = client.sendPlanningMessageCallSignal()
+
+        await viewModel.submitSuggestion("Plan a scenic 2-hour ride")
+        await pumpMainActor()
+
+        let startedCall = try #require(
+            await waitForSendPlanningMessageStarted(sendPlanningMessageSignal)
+        )
+
+        #expect(startedCall == LaneShadowPlanningMessageCall(
+            sessionId: "backend-session-123",
+            content: "Plan a scenic 2-hour ride",
+            currentLocation: LaneShadowCurrentLocation(lat: 37.7749, lng: -122.4194)
+        ))
 
         client.resumeSendPlanningMessage(
             LaneShadowSendMessageResult(

@@ -405,12 +405,18 @@ final class IdleViewModel {
 
             let sessionId = session.sessionId
             let message = trimmedMessage
+            let currentLocation = locationService.currentLocation.map {
+                LaneShadowCurrentLocation(
+                    lat: $0.coordinate.latitude,
+                    lng: $0.coordinate.longitude
+                )
+            }
             Task { [convexClient] in
                 do {
                     _ = try await convexClient.sendPlanningMessage(
                         sessionId: sessionId,
                         content: message,
-                        currentLocation: nil
+                        currentLocation: currentLocation
                     )
                 } catch {
                     let laneShadowError = LaneShadowError.map(error)

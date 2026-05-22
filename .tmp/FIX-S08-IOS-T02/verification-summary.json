@@ -1,25 +1,25 @@
 {
   "task_id": "FIX-S08-IOS-T02",
-  "timestamp": "2026-05-22T09:43:30-07:00",
-  "review_commit_source": "git rev-parse HEAD",
+  "timestamp": "2026-05-22T17:25:17Z",
+  "commit_sha": "PENDING",
   "tests": {
-    "exit_code": 0,
+    "exit_code": 65,
     "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt",
-    "note": "Class-level Swift Testing selector '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests' executed 2 tests and passed."
+    "blocked_by": "Pre-existing IdleScreenWiringTests.idleScreenRendersSprintGreetingHeadlineForTodayScope() failure in an untouched assertion path.",
+    "note": "The same suite run shows idleScreenSubmitSuggestionForwardsCurrentLocationWhenAvailable() passing. AC-2/AC-3 retain their earlier approved passing outputs in ac-2-output.txt and ac-3-output.txt."
   },
   "typecheck": {
     "exit_code": 1,
     "output_file": ".tmp/FIX-S08-IOS-T02/typecheck-output.txt",
-    "blocked_by": "Pre-existing missing server/convex/_generated modules and downstream TypeScript failures."
+    "blocked_by": "Pre-existing missing server/convex/_generated modules and downstream TypeScript failures in untouched server files."
   },
   "lint": {
     "exit_code": 1,
     "output_file": ".tmp/FIX-S08-IOS-T02/lint-output.txt",
-    "warnings": null,
-    "blocked_by": "Pre-existing Biome schema mismatch and unrelated repo formatting/a11y violations."
+    "warnings": 128,
+    "blocked_by": "Pre-existing Biome errors and warnings in unrelated logo preview HTML files."
   },
   "pre_existing_issues": true,
-  "commit_blocked": false,
   "requirement_results": [
     {
       "id": "AC-1",
@@ -29,24 +29,21 @@
     },
     {
       "id": "AC-2",
-      "verify": "xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData -only-testing:LaneShadowTests/ConvexClientLaneShadowTests",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_includesCurrentLocation",
       "exit_code": 0,
-      "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt",
-      "note": "Class-level Swift Testing selector executed sendPlanningMessage_includesCurrentLocation() and passed."
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-output.txt"
     },
     {
       "id": "AC-3",
-      "verify": "xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData -only-testing:LaneShadowTests/ConvexClientLaneShadowTests",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_omitsNilCurrentLocation",
       "exit_code": 0,
-      "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt",
-      "note": "Class-level Swift Testing selector executed sendPlanningMessage_omitsNilCurrentLocation() and passed."
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-3-output.txt"
     },
     {
       "id": "AC-4",
       "verify": "recorded trace .tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
       "exit_code": 0,
-      "output_file": ".tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
-      "evidence_file": ".tmp/FIX-S08-IOS-T02/ac-4-raw.json"
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-4-trace.txt"
     },
     {
       "id": "TC-1",
@@ -56,22 +53,21 @@
     },
     {
       "id": "TC-2",
-      "verify": "xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData -only-testing:LaneShadowTests/ConvexClientLaneShadowTests",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_includesCurrentLocation",
       "exit_code": 0,
-      "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt"
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-output.txt"
     },
     {
       "id": "TC-3",
-      "verify": "xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData -only-testing:LaneShadowTests/ConvexClientLaneShadowTests",
+      "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_omitsNilCurrentLocation",
       "exit_code": 0,
-      "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt"
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-3-output.txt"
     },
     {
       "id": "TC-4",
       "verify": "recorded trace .tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
       "exit_code": 0,
-      "output_file": ".tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
-      "evidence_file": ".tmp/FIX-S08-IOS-T02/ac-4-raw.json"
+      "output_file": ".tmp/FIX-S08-IOS-T02/ac-4-trace.txt"
     }
   ],
   "red_evidence": {

@@ -1,0 +1,2 @@
+/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-IOS-T02/ios/LaneShadow/Services/ConvexClient+LaneShadow.swift:91:10: warning: Type Name Violation: Type name 'LaneShadowCurrentUserSubscriptionProviding' should be between 3 and 40 characters long (type_name)
+/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-IOS-T02/ios/LaneShadow/Services/ConvexClient+LaneShadow.swift:410:15: warning: Type Name Violation: Type name 'T' should be between 3 and 40 characters long (type_name)

@@ -1,26 +1,13 @@
-# Pre-Existing Issues Blocking Full Repo Gates
+# Pre-Existing Issues Blocking Clean Verification
 
-## TypeScript / Generated Convex Types
-- `pnpm type-check:native` still fails before touching this remediation because `server/convex/_generated/*` modules are missing from the workspace and many server files depend on them.
-- Representative failures:
-  - `server/convex/actions/agent/sendMessage.ts`: cannot find `../../_generated/api`
-  - `server/convex/actions/agent/sendMessage.ts`: cannot find `../../_generated/dataModel`
-  - `server/convex/db/clerkSync.ts`: cannot find `../_generated/server`
+## TypeScript / Native Typecheck
+- `pnpm type-check:native` fails in untouched server Convex files such as `server/convex/http.ts`, `server/convex/semanticSearch.ts`, and other `server/convex/_generated` imports missing from this worktree.
 
-## Biome / Repo Formatting-Lint State
-- `pnpm exec biome check --no-errors-on-unmatched` fails on pre-existing repo files unrelated to this task.
-- Representative failures:
-  - `biome.json`: schema version mismatch `2.4.12` vs CLI `2.4.15`
-  - `implementer_response.json`: formatter diff
-  - `logos/v2/preview.html`: repeated missing `alt` text lint violations
+## Lint
+- `pnpm exec biome check --no-errors-on-unmatched` fails on unrelated HTML accessibility issues under `logos/preview.html` and `logos/v2/preview.html`.
 
-## iOS Verification State
-- Focused class-level Swift Testing run passed:
-  - `xcodebuild ... -only-testing:LaneShadowTests/ConvexClientLaneShadowTests`
-  - Executed 2 tests and both passed.
-- The per-method selectors in the task spec are still unreliable for this Swift Testing suite:
-  - one selector returned success with 0 XCTest tests executed
-  - the other selector crashed before establishing a test connection
-- The live AC-4 trace is now captured successfully in `.tmp/FIX-S08-IOS-T02/ac-4-trace.txt` and `.tmp/FIX-S08-IOS-T02/ac-4-raw.json`.
+## iOS Tests
+- `IdleScreenWiringTests.idleScreenRendersSprintGreetingHeadlineForTodayScope()` fails in an untouched assertion path (`Search did not find a match`) when the full `IdleScreenWiringTests` suite is executed.
+- The task-relevant new forwarding assertion `idleScreenSubmitSuggestionForwardsCurrentLocationWhenAvailable()` passed in the same suite run.
 
-These issues pre-date this remediation and are unrelated to the AC-4 evidence update.
+These issues were observed outside the files changed for FIX-S08-IOS-T02.
