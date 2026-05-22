@@ -1,6 +1,7 @@
 'use node'
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { executeRoutingTool } from '../agents/routingAgent.js'
 import {
   buildSystemPrompt,
   executeRidePlanningAgent,
@@ -87,6 +88,10 @@ vi.mock('../../../_generated/api', () => ({
         createForAgentInternal: { __fake: true },
         updatePlanStatus: { __fake: true },
         listBySession: { __fake: true },
+        getPlanByIdInternal: { __fake: true },
+      },
+      routeEnrichments: {
+        invalidateStaleEnrichments: { __fake: true },
       },
     },
   },
@@ -263,7 +268,12 @@ const makeAgentContext = () => ({
   clerkUserId: 'user_test',
   piMessages: [] as any[],
   currentLocation: { lat: 37.77, lng: -122.42 },
-  runQuery: vi.fn().mockResolvedValue({ allowed: true, remaining: 4 }),
+  runQuery: vi.fn().mockImplementation((fn: { __fake?: boolean }) => {
+    if (fn.__fake) {
+      return Promise.resolve({ allowed: true, remaining: 4, status: 'running' })
+    }
+    return Promise.resolve({ allowed: true, remaining: 4 })
+  }),
   // runPlanRoute calls runMutation three times:
   //  1. createForAgentInternal → { routePlanId }
   //  2. updatePlanStatus       → null (completed OR failed)
@@ -634,6 +644,123 @@ describe('executeRidePlanningAgent', () => {
     expect(ctx.runMutation).toHaveBeenCalledTimes(3)
     expect(result.response).toBe('Here are 3 scenic routes to Santa Cruz.')
     expect(result.attachments).toEqual([{ type: 'route_options', routePlanId: 'rp_test' }])
+  })
+
+  it('forwards real planRoute pipeline progress as sub-tool planning events', async () => {
+    planRideOrchestrator.mockImplementationOnce(
+      async ({ onProgress }: { onProgress?: (event: unknown) => Promise<void> }) => {
+        await onProgress?.({ type: 'start', toolName: 'findScenicWaypoints' })
+        await onProgress?.({
+          type: 'finish',
+          toolName: 'findScenicWaypoints',
+          summary: 'Found scenic waypoints',
+          durationMs: 10,
+        })
+        await onProgress?.({ type: 'start', toolName: 'compileSketch' })
+        await onProgress?.({
+          type: 'finish',
+          toolName: 'compileSketch',
+          summary: 'Compiled route sketch',
+          durationMs: 15,
+        })
+        await onProgress?.({ type: 'start', toolName: 'probeConditions' })
+        await onProgress?.({
+          type: 'finish',
+          toolName: 'probeConditions',
+          summary: 'Probed conditions',
+          durationMs: 20,
+        })
+
+        return []
+      },
+    )
+
+    const ctx = makeAgentContext()
+    const onSubToolPending = vi.fn().mockResolvedValue(undefined)
+    const onSubToolComplete = vi.fn().mockResolvedValue(undefined)
+
+    await executeRoutingTool(
+      ctx as any,
+      {
+        id: 'tc_plan',
+        name: 'planRoute',
+        arguments: {
+          start: { lat: 37.77, lng: -122.42, label: null },
+          end: { lat: 36.97, lng: -122.03, label: 'Santa Cruz, CA' },
+          departureTime: Date.now() + 3_600_000,
+          preferences: { scenicBias: 'high', avoidHighways: false, avoidTolls: false },
+        },
+      } as any,
+      {
+        onSubToolPending,
+        onSubToolComplete,
+      },
+    )
+
+    expect(onSubToolPending.mock.calls.map(([toolName]) => toolName)).toEqual([
+      'findScenicWaypoints',
+      'compileSketch',
+      'probeConditions',
+    ])
+    expect(onSubToolComplete.mock.calls.map(([toolName]) => toolName)).toEqual([
+      'findScenicWaypoints',
+      'compileSketch',
+      'probeConditions',
+    ])
+  })
+
+  it('passes sub-tool planning callbacks through the orchestrator into routing_agent', async () => {
+    const toolCallMsg = makeAssistantMessage(
+      [
+        {
+          type: 'toolCall',
+          id: 'tc_orchestrator',
+          name: 'routing_agent',
+          arguments: { query: 'Plan a scenic 2-hour ride starting from San Francisco' },
+        },
+      ],
+      'toolUse',
+    )
+    const textMsg = makeAssistantMessage([{ type: 'text', text: 'Route ready.' }], 'stop')
+    mockStream
+      .mockReturnValueOnce(makeSimpleStream(toolCallMsg))
+      .mockReturnValueOnce(makeSimpleStream(textMsg))
+
+    const routingAgentMod = await import('../agents/routingAgent.js')
+    const routingAgentSpy = vi
+      .spyOn(routingAgentMod, 'executeRoutingAgent')
+      .mockImplementationOnce(async ({ executeCtx }) => {
+        await executeCtx?.onSubToolPending?.('findScenicWaypoints', 'routing')
+        await executeCtx?.onSubToolComplete?.(
+          'findScenicWaypoints',
+          'routing',
+          'Found scenic route options',
+          12,
+        )
+        return {
+          status: 'route_ready',
+          routePlanId: 'rp_test',
+          summary: 'Route ready',
+        } as any
+      })
+
+    const onSubToolPending = vi.fn().mockResolvedValue(undefined)
+    const onSubToolComplete = vi.fn().mockResolvedValue(undefined)
+
+    const ctx = makeAgentContext()
+    await executeRidePlanningAgent(ctx, 'Plan a scenic 2-hour ride starting from San Francisco', {
+      onSubToolPending,
+      onSubToolComplete,
+    })
+
+    expect(routingAgentSpy).toHaveBeenCalledTimes(1)
+    expect(onSubToolPending).toHaveBeenCalledWith('findScenicWaypoints', 'routing')
+    expect(onSubToolComplete).toHaveBeenCalledWith(
+      'findScenicWaypoints',
+      'routing',
+      'Found scenic route options',
+      12,
+    )
   })
 
   it('passes planningSessionId to createForAgentInternal when planRoute tool runs', async () => {

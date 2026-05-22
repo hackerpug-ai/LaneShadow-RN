@@ -1,0 +1,1781 @@
+
+> laneshadow@1.0.0 test /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01
+> vitest
+
+
+ RUN  v3.2.4 /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01
+
+ ❯ convex/__tests__/semanticSearch.test.ts (28 tests | 28 failed) 8ms
+   × AC-1: findCandidateRoutesByEmbedding uses ctx.vectorSearch > should return routes with cosine similarity from vector search 4ms
+     → fn.handler is not a function
+   × AC-1: findCandidateRoutesByEmbedding uses ctx.vectorSearch > should filter out null routes from results 0ms
+     → fn.handler is not a function
+   × AC-2: findCandidateRoutesByEmbedding supports state filter > should apply state filter when provided 0ms
+     → fn.handler is not a function
+   × AC-2: findCandidateRoutesByEmbedding supports state filter > should not apply filter when stateFilter is not provided 0ms
+     → fn.handler is not a function
+   × AC-3: findRoutesByIdentifier matches by name, highway, and candidateIdentifiers > should match by name case-insensitively 0ms
+     → fn.handler is not a function
+   × AC-3: findRoutesByIdentifier matches by name, highway, and candidateIdentifiers > should match by highway number 0ms
+     → fn.handler is not a function
+   × AC-3: findRoutesByIdentifier matches by name, highway, and candidateIdentifiers > should match by candidateIdentifiers array 1ms
+     → fn.handler is not a function
+   × AC-3: findRoutesByIdentifier matches by name, highway, and candidateIdentifiers > should prioritize name matches over highway matches 0ms
+     → fn.handler is not a function
+   × AC-4: updateRouteEmbedding patches only the embedding fields > should update searchText and searchEmbedding fields 0ms
+     → fn.handler is not a function
+   × AC-4: updateRouteEmbedding patches only the embedding fields > should not modify other fields 0ms
+     → fn.handler is not a function
+   × AC-5: updateRouteEmbedding rejects wrong-dimension embeddings > should throw error for embedding with wrong dimensions 0ms
+     → fn.handler is not a function
+   × AC-5: updateRouteEmbedding rejects wrong-dimension embeddings > should throw error for empty embedding 0ms
+     → fn.handler is not a function
+   × AC-5: updateRouteEmbedding rejects wrong-dimension embeddings > should accept correct 1536-dimension embedding 0ms
+     → fn.handler is not a function
+   × AC-6: addRouteMatch validates input and returns the new match id > should insert route match and return id 0ms
+     → fn.handler is not a function
+   × AC-7: addRouteMatch rejects out-of-range confidence/similarity > should throw error for matchConfidence > 1 0ms
+     → fn.handler is not a function
+   × AC-7: addRouteMatch rejects out-of-range confidence/similarity > should throw error for matchConfidence < 0 0ms
+     → fn.handler is not a function
+   × AC-7: addRouteMatch rejects out-of-range confidence/similarity > should throw error for cosineSimilarity > 1 0ms
+     → fn.handler is not a function
+   × AC-7: addRouteMatch rejects out-of-range confidence/similarity > should throw error for cosineSimilarity < 0 0ms
+     → fn.handler is not a function
+   × AC-7: addRouteMatch rejects out-of-range confidence/similarity > should throw error for negative rerankCost 0ms
+     → fn.handler is not a function
+   × AC-7: addRouteMatch rejects out-of-range confidence/similarity > should accept valid boundary values 0ms
+     → fn.handler is not a function
+   × AC-8: getRouteMatchesForPost uses by_postId index > should query using by_postId index 0ms
+     → fn.handler is not a function
+   × AC-8: getRouteMatchesForPost uses by_postId index > should sort results by matchConfidence descending 0ms
+     → fn.handler is not a function
+   × AC-9: getRouteMatchesForRoute uses by_routeId_and_confidence index > should query using by_routeId_and_confidence index 0ms
+     → fn.handler is not a function
+   × AC-9: getRouteMatchesForRoute uses by_routeId_and_confidence index > should filter by minConfidence 0ms
+     → fn.handler is not a function
+   × AC-9: getRouteMatchesForRoute uses by_routeId_and_confidence index > should limit results 0ms
+     → fn.handler is not a function
+   × AC-10: getRawPostsForRoute joins route_matches and route_posts_raw > should join route_matches with route_posts_raw 0ms
+     → fn.handler is not a function
+   × AC-10: getRawPostsForRoute joins route_matches and route_posts_raw > should filter out matches with missing posts 0ms
+     → fn.handler is not a function
+   × AC-10: getRawPostsForRoute joins route_matches and route_posts_raw > should use by_postId index for post lookup 0ms
+     → fn.handler is not a function
+ ✓ react-native/components/map/route-polyline.test.tsx (31 tests) 6ms
+ ❯ server/convex/__tests__/semanticSearch.test.ts (28 tests | 28 failed) 8ms
+   × AC-1: findCandidateRoutesByEmbedding uses ctx.vectorSearch > should return routes with cosine similarity from vector search 3ms
+     → fn.handler is not a function
+   × AC-1: findCandidateRoutesByEmbedding uses ctx.vectorSearch > should filter out null routes from results 0ms
+     → fn.handler is not a function
+   × AC-2: findCandidateRoutesByEmbedding supports state filter > should apply state filter when provided 0ms
+     → fn.handler is not a function
+   × AC-2: findCandidateRoutesByEmbedding supports state filter > should not apply filter when stateFilter is not provided 0ms
+     → fn.handler is not a function
+   × AC-3: findRoutesByIdentifier matches by name, highway, and candidateIdentifiers > should match by name case-insensitively 0ms
+     → fn.handler is not a function
+   × AC-3: findRoutesByIdentifier matches by name, highway, and candidateIdentifiers > should match by highway number 0ms
+     → fn.handler is not a function
+   × AC-3: findRoutesByIdentifier matches by name, highway, and candidateIdentifiers > should match by candidateIdentifiers array 0ms
+     → fn.handler is not a function
+   × AC-3: findRoutesByIdentifier matches by name, highway, and candidateIdentifiers > should prioritize name matches over highway matches 0ms
+     → fn.handler is not a function
+   × AC-4: updateRouteEmbedding patches only the embedding fields > should update searchText and searchEmbedding fields 0ms
+     → fn.handler is not a function
+   × AC-4: updateRouteEmbedding patches only the embedding fields > should not modify other fields 0ms
+     → fn.handler is not a function
+   × AC-5: updateRouteEmbedding rejects wrong-dimension embeddings > should throw error for embedding with wrong dimensions 0ms
+     → fn.handler is not a function
+   × AC-5: updateRouteEmbedding rejects wrong-dimension embeddings > should throw error for empty embedding 0ms
+     → fn.handler is not a function
+   × AC-5: updateRouteEmbedding rejects wrong-dimension embeddings > should accept correct 1536-dimension embedding 0ms
+     → fn.handler is not a function
+   × AC-6: addRouteMatch validates input and returns the new match id > should insert route match and return id 0ms
+     → fn.handler is not a function
+   × AC-7: addRouteMatch rejects out-of-range confidence/similarity > should throw error for matchConfidence > 1 0ms
+     → fn.handler is not a function
+   × AC-7: addRouteMatch rejects out-of-range confidence/similarity > should throw error for matchConfidence < 0 0ms
+     → fn.handler is not a function
+   × AC-7: addRouteMatch rejects out-of-range confidence/similarity > should throw error for cosineSimilarity > 1 0ms
+     → fn.handler is not a function
+   × AC-7: addRouteMatch rejects out-of-range confidence/similarity > should throw error for cosineSimilarity < 0 0ms
+     → fn.handler is not a function
+   × AC-7: addRouteMatch rejects out-of-range confidence/similarity > should throw error for negative rerankCost 0ms
+     → fn.handler is not a function
+   × AC-7: addRouteMatch rejects out-of-range confidence/similarity > should accept valid boundary values 0ms
+     → fn.handler is not a function
+   × AC-8: getRouteMatchesForPost uses by_postId index > should query using by_postId index 0ms
+     → fn.handler is not a function
+   × AC-8: getRouteMatchesForPost uses by_postId index > should sort results by matchConfidence descending 0ms
+     → fn.handler is not a function
+   × AC-9: getRouteMatchesForRoute uses by_routeId_and_confidence index > should query using by_routeId_and_confidence index 0ms
+     → fn.handler is not a function
+   × AC-9: getRouteMatchesForRoute uses by_routeId_and_confidence index > should filter by minConfidence 0ms
+     → fn.handler is not a function
+   × AC-9: getRouteMatchesForRoute uses by_routeId_and_confidence index > should limit results 0ms
+     → fn.handler is not a function
+   × AC-10: getRawPostsForRoute joins route_matches and route_posts_raw > should join route_matches with route_posts_raw 0ms
+     → fn.handler is not a function
+   × AC-10: getRawPostsForRoute joins route_matches and route_posts_raw > should filter out matches with missing posts 0ms
+     → fn.handler is not a function
+   × AC-10: getRawPostsForRoute joins route_matches and route_posts_raw > should use by_postId index for post lookup 0ms
+     → fn.handler is not a function
+ ✓ convex/db/__tests__/routeEnrichments.test.ts (26 tests) 6ms
+ ✓ server/convex/db/__tests__/routeEnrichments.test.ts (26 tests) 9ms
+ ✓ server/convex/db/__tests__/routePlans.test.ts (32 tests) 10ms
+ ✓ convex/db/__tests__/routePlans.test.ts (32 tests) 9ms
+stderr | server/convex/actions/agent/__tests__/sendMessage.test.ts > sendMessage lazy planning rows > does not create a planning row before planning events fire
+Convex functions should not directly call other Convex functions. Consider calling a helper function instead. e.g. `export const foo = action(...); await foo(ctx);` is not supported. See https://docs.convex.dev/production/best-practices/#use-helper-functions-to-write-shared-code
+
+ ✓ server/convex/actions/agent/__tests__/sendMessage.test.ts (23 tests) 24ms
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC1: Route detail screen data rendering > AC-5: scenic byways detail renders provenance without new flow
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC1: Route detail screen data rendering > AC-4: Rider Magazine provenance stays in the existing detail card
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC1: Route detail screen data rendering > AC-5: Rider Magazine partial editorial data omits empty provenance rows cleanly
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC1: Route detail screen data rendering > AC-4: real save payload preserves Rider provenance into the saved-route contract
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC1: Route detail screen data rendering > AC-4: real save payload preserves Rider provenance into the saved-route contract
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC1: Route detail screen data rendering > AC-4: real save payload preserves Rider provenance into the saved-route contract
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC1: Route detail screen data rendering > AC-4: real save payload preserves Rider provenance into the saved-route contract
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC1: Route detail screen data rendering > AC-4: real save payload preserves Rider provenance into the saved-route contract
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC2: Loading state behavior > should render loading indicator when data is undefined and isLoading is true
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC4: Route not found > should render not-found state when data is null and isLoading is false
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC4: Route not found > should render back button in not-found state for navigation
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC5: Back navigation > should wire back button onPress to router.back() in not-found state
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > AC5: Back navigation > should wire back button onPress to router.back() in detail state
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > US-016 AC1: OverlayToggle renders with availability when route has overlay data > should render OverlayToggle when route has wind and rain data
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > US-016 AC1: OverlayToggle renders with availability when route has overlay data > should pass onValueChange callback to OverlayToggle
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > US-016 AC1: OverlayToggle renders with availability when route has overlay data > should call buildRoutePolylines with showRainOverlay:true when rain overlay is selected
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > US-016 AC1: OverlayToggle renders with availability when route has overlay data > should default to no overlay selected (empty string)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > US-016 AC2: Rain toggle disabled when no rain data > should show rain as unavailable when route has wind but no rain
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > US-016 AC3: Deselecting overlay reverts polyline to default > should allow deselecting overlay by calling onValueChange with empty string
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > US-016 AC4: OverlayToggle hidden when no overlay data > should not render OverlayToggle when route has no overlay data
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/saved-route/__tests__/[id].test.ts > US-016 AC4: OverlayToggle hidden when no overlay data > should not crash when rendering with no overlay data
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+ ✓ react-native/app/(app)/saved-route/__tests__/[id].test.ts (34 tests) 45ms
+stderr | convex/actions/agent/__tests__/sendMessage.test.ts > sendMessage lazy planning rows > does not create a planning row before planning events fire
+Convex functions should not directly call other Convex functions. Consider calling a helper function instead. e.g. `export const foo = action(...); await foo(ctx);` is not supported. See https://docs.convex.dev/production/best-practices/#use-helper-functions-to-write-shared-code
+
+ ✓ convex/actions/agent/__tests__/sendMessage.test.ts (23 tests) 74ms
+ ✓ server/convex/db/sessionMessages.test.ts (23 tests) 7ms
+ ✓ convex/db/sessionMessages.test.ts (23 tests) 10ms
+stderr | react-native/app/(app)/(tabs)/saved-routes.test.ts > AC-3: Empty state rendering > should pass empty data and ListEmptyComponent to FlatList when routes is empty
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/(tabs)/saved-routes.test.ts > AC-4: Card tap navigates with savedRouteId > should call router.push with correct path when card is pressed
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/(tabs)/saved-routes.test.ts > US-018: Scroll position preservation > AC-1/AC-2: FlatList stays mounted when data is loaded (no conditional unmount)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/(tabs)/saved-routes.test.ts > US-018: Scroll position preservation > AC-3: maintainVisibleContentPosition is set for data changes during navigation
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/(tabs)/saved-routes.test.ts > US-018: Scroll position preservation > AC-3: FlatList uses stable keyExtractor so existing items are not re-mounted on data change
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+
+stderr | react-native/app/(app)/(tabs)/saved-routes.test.ts > US-018: Scroll position preservation > AC-4: Component does not force scroll-to-top on re-render (no scrollToOffset call)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+ ✓ react-native/app/(app)/(tabs)/saved-routes.test.ts (19 tests) 20ms
+ ❯ convex/actions/agent/providers/__tests__/protomapsProvider.test.ts (24 tests | 2 failed) 13ms
+   ✓ Protomaps Provider > getProtomapsUrl > returns PROTOMAPS_US_URL when set 2ms
+   ✓ Protomaps Provider > getProtomapsUrl > returns fallback URL when PROTOMAPS_US_URL is not set 0ms
+   × Protomaps Provider > getProtomapsUrl > warns but returns URL when PROTOMAPS_US_URL is not a .pmtiles file 5ms
+     → expected "warn" to be called at least once
+   × Protomaps Provider > getProtomapsUrl > warns but returns URL when PROTOMAPS_US_URL is invalid 0ms
+     → expected "warn" to be called at least once
+   ✓ Protomaps Provider > getProtomapsPresignedUrl > returns direct URL when not using R2 0ms
+   ✓ Protomaps Provider > getProtomapsPresignedUrl > returns direct URL when R2 URL but missing some credentials 0ms
+   ✓ Protomaps Provider > getProtomapsPresignedUrl > returns fallback sample URL when no environment variables are set 0ms
+   ✓ Protomaps Provider > provider initialization > should initialize PMTiles connection 1ms
+   ✓ Protomaps Provider > provider initialization > should auto-initialize on first query 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should return scenic POIs within bbox 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should filter by type (viewpoint, peak, pass) 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should handle empty results 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should handle network errors 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should handle empty tiles gracefully 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should return roads within bbox 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should filter by highway class 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should include surface metadata 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should handle empty results 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should handle tiles with no matching layers 1ms
+   ✓ Protomaps Provider > queryWaysByName > should find roads by exact name match 0ms
+   ✓ Protomaps Provider > queryWaysByName > should handle partial matches (case insensitive) 0ms
+   ✓ Protomaps Provider > queryWaysByName > should handle no results 0ms
+   ✓ Protomaps Provider > tilePixelToLonLat behavior (via provider integration) > should convert tile pixel coordinates to geographic coordinates 0ms
+   ✓ Protomaps Provider > tilePixelToLonLat behavior (via provider integration) > should handle different extents (4096 vs 8192) 0ms
+ ❯ server/convex/actions/agent/providers/__tests__/protomapsProvider.test.ts (24 tests | 2 failed) 12ms
+   ✓ Protomaps Provider > getProtomapsUrl > returns PROTOMAPS_US_URL when set 2ms
+   ✓ Protomaps Provider > getProtomapsUrl > returns fallback URL when PROTOMAPS_US_URL is not set 0ms
+   × Protomaps Provider > getProtomapsUrl > warns but returns URL when PROTOMAPS_US_URL is not a .pmtiles file 4ms
+     → expected "warn" to be called at least once
+   × Protomaps Provider > getProtomapsUrl > warns but returns URL when PROTOMAPS_US_URL is invalid 1ms
+     → expected "warn" to be called at least once
+   ✓ Protomaps Provider > getProtomapsPresignedUrl > returns direct URL when not using R2 0ms
+   ✓ Protomaps Provider > getProtomapsPresignedUrl > returns direct URL when R2 URL but missing some credentials 0ms
+   ✓ Protomaps Provider > getProtomapsPresignedUrl > returns fallback sample URL when no environment variables are set 0ms
+   ✓ Protomaps Provider > provider initialization > should initialize PMTiles connection 1ms
+   ✓ Protomaps Provider > provider initialization > should auto-initialize on first query 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should return scenic POIs within bbox 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should filter by type (viewpoint, peak, pass) 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should handle empty results 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should handle network errors 0ms
+   ✓ Protomaps Provider > queryNodesInBbox > should handle empty tiles gracefully 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should return roads within bbox 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should filter by highway class 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should include surface metadata 1ms
+   ✓ Protomaps Provider > queryWaysInBbox > should handle empty results 0ms
+   ✓ Protomaps Provider > queryWaysInBbox > should handle tiles with no matching layers 0ms
+   ✓ Protomaps Provider > queryWaysByName > should find roads by exact name match 0ms
+   ✓ Protomaps Provider > queryWaysByName > should handle partial matches (case insensitive) 0ms
+   ✓ Protomaps Provider > queryWaysByName > should handle no results 0ms
+   ✓ Protomaps Provider > tilePixelToLonLat behavior (via provider integration) > should convert tile pixel coordinates to geographic coordinates 0ms
+   ✓ Protomaps Provider > tilePixelToLonLat behavior (via provider integration) > should handle different extents (4096 vs 8192) 0ms
+ ✓ server/convex/db/__tests__/session/session.messages.test.ts (15 tests) 5ms
+ ✓ convex/db/__tests__/session/session.messages.test.ts (15 tests) 6ms
+ ❯ convex/actions/agent/__tests__/ridePlanningAgent.test.ts (57 tests | 40 failed) 96ms
+   × buildSystemPrompt > includes device location and instructs the agent not to ask for origin when currentLocation is set 6ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'Use this as the default origin'
+   × buildSystemPrompt > omits device location and prompts to ask when currentLocation is undefined and no lastKnownLocation 1ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'ask where they are starting from'
+   × buildSystemPrompt > uses lastKnownLocation fallback when currentLocation is undefined but session has lastKnownLocation 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'last known location'
+   × buildSystemPrompt > includes route summary block when buildInSessionRouteBlock returns content 1ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'Routes already planned this session:'
+   ✓ buildSystemPrompt > has no extra blank lines when buildInSessionRouteBlock returns empty string 0ms
+   × buildSystemPrompt > llm-first prompt: instructs LLM to author a route sketch for all requests 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'createRouteSketch'
+   × buildSystemPrompt > avoid guidance: instructs LLM to route around avoidances in the sketch, not via avoidRoads API 1ms
+     → expected 'you are a motorcycle ride planning as…' to match /avoid.*sketch|route around.*sketch|sk…/
+   × buildSystemPrompt > fallback guidance: instructs LLM to fall back to planRoute when uncertain 1ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'planRoute'
+   × buildSystemPrompt > planRoute available: preserves planRoute as an available tool in the prompt 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'planRoute'
+   × buildSystemPrompt > llm-first prompt: includes viaNames guidance for intermediate landmarks 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'viaNames'
+   × buildSystemPrompt > llm-first prompt: includes segment retry hint 0ms
+     → expected 'you are a motorcycle ride planning as…' to match /fail|didn.t work|revise/
+   ✓ extractRouteAttachments > returns attachment with the Convex routePlanId when planRoute persisted a route_plans row 1ms
+   ✓ extractRouteAttachments > returns empty array when planRoute result has no routePlanId 0ms
+   ✓ extractRouteAttachments > returns empty array when toolName is not planRoute 0ms
+   ✓ extractRouteAttachments > returns empty array when planRoute result type is chat not routes 0ms
+   ✓ extractRouteAttachments > returns empty array for an empty input array 0ms
+   ✓ extractRouteAttachments > returns multiple attachments when multiple planRoute results are present 0ms
+   ✓ executeRidePlanningAgent > returns text response with no attachments for a single-turn chat 3ms
+   × executeRidePlanningAgent > calls planRoute tool then returns text with route attachment 2ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > passes planningSessionId to createForAgentInternal when planRoute tool runs 2ms
+     → Cannot read properties of undefined (reading '0')
+   ✓ executeRidePlanningAgent > does not call orchestrator and returns upsell message when usage limit is reached 1ms
+   × executeRidePlanningAgent > executes geocode then planRoute then text (multi-step) 1ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > caps the loop at MAX_STEPS (10) if stream keeps returning toolUse 2ms
+     → expected "spy" to be called 10 times, but got 20 times
+   ✓ executeRidePlanningAgent > throws when API key is missing 2ms
+   ✓ executeRidePlanningAgent > fires onThinkingDelta for each thinking_delta event from the stream 5ms
+   ✓ executeRidePlanningAgent > fires onToolPending for each toolcall_start event from the stream 5ms
+   × executeRidePlanningAgent > fires onStepStart once per loop iteration with (step, MAX_STEPS) 5ms
+     → expected 1st "spy" call to have been called with [ +0, 10 ]
+   ✓ executeRidePlanningAgent > fires onAgentTurn once per assistant turn that has tool calls 3ms
+   × executeRidePlanningAgent > fires onToolResultPiMessage after each tool result with correct toolCallId and ToolResultMessage 2ms
+     → expected '{"type":"error","message":"Unknown or…' to contain 'weather'
+   ✓ executeRidePlanningAgent > back-compat: runs normally with no callbacks provided (no crashes, tools execute) 1ms
+   × executeRidePlanningAgent > LoopDetector intercepts 3rd identical tool call — tool NOT executed, error result injected 1ms
+     → expected false to be true // Object.is equality
+   ✓ executeRidePlanningAgent > LoopDetector does NOT fire for calls with different args (no false positives) 1ms
+   × executeRidePlanningAgent > BudgetTracker throws after cumulative cost exceeds limit — loop aborts with AGENT_BUDGET_EXCEEDED 3ms
+     → promise resolved "{ response: 'Hello', …(2) }" instead of rejecting
+   ✓ executeRidePlanningAgent > BudgetTracker does NOT throw when cumulative cost is under limit (normal operation) 2ms
+   × executeRidePlanningAgent > US-320: two concurrent geocode calls both execute (parallel safe) 2ms
+     → expected [] to have a length of 2 but got +0
+   × executeRidePlanningAgent > US-320: geocode (safe) and planRoute (unsafe) in same turn — geocode runs parallel-safe, planRoute sequential 1ms
+     → expected "spy" to be called at least once
+   ✓ executeRidePlanningAgent > US-320: result ordering is preserved regardless of parallel execution order 1ms
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > per-segment dispatch: dispatches to compileSegments when sketch has segments 1ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > segment error feedback: returns structured failed/succeeded arrays when a segment fails 2ms
+     → expected 'Unknown orchestrator tool: compileSke…' to contain '1 of 3'
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > single-shot fallback: uses single-shot compilation when sketch has no segments 2ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > all segments failed: returns error with all in failed[], empty succeeded[], revise_failed_segments guidance 1ms
+     → expected 'Unknown orchestrator tool: compileSke…' to contain '3 of 3'
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > partial geometry: includes partial stitched route info in error hint when some segments succeed 2ms
+     → expected 'Unknown orchestrator tool: compileSke…' to contain '1 of 3'
+   × executeRidePlanningAgent > segment retry loop (US-025) > skip succeeded: only compiles segment 2 on retry when segments 0,1,3 are unchanged and already succeeded 2ms
+     → expected "spy" to be called 2 times, but got 0 times
+   × executeRidePlanningAgent > segment retry loop (US-025) > merge cached: revised segment 2 success merges with cached 0,1,3 for fully stitched 4-segment route 2ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > segment retry loop (US-025) > attempt count: error hint includes attemptsRemaining decremented per retry 1ms
+     → "undefined" is not valid JSON
+   × executeRidePlanningAgent > segment retry loop (US-025) > max retries: returns partial route with user message after 3 failed attempts on same session 2ms
+     → expected [ 'routes', 'chat' ] to include 'error'
+   × executeRidePlanningAgent > US-310: ToolResultMessage pushed to context contains summarized planRoute result (no geometry), while toolResultsTracker holds full result 2ms
+     → expected 'error' to be 'routes' // Object.is equality
+   × executeRidePlanningAgent > tool registration > all 7 new tools appear in the agent context passed to stream 4ms
+     → expected [ 'routing_agent', 'search_agent' ] to include 'lookupRoad'
+   × executeRidePlanningAgent > grounding before sketch > system prompt instructs LLM to call lookupRoad before sketch for scenic requests 3ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'lookupRoad'
+   × executeRidePlanningAgent > grounding before sketch > lookupRoad tool executes and returns road match data when called 3ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > curvature in rationale > system prompt instructs LLM to cite curvature scores in route rationale 2ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'getCurvature'
+   × executeRidePlanningAgent > curvature in rationale > getCurvature tool executes and returns score data when called 2ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > skip grounding > system prompt documents when to skip grounding tools (direct A-to-B, named roads, retries) 1ms
+     → expected 'you are a motorcycle ride planning as…' to match /skip.*grounding|when to skip/
+   × executeRidePlanningAgent > post-compile enrichment > system prompt instructs LLM to call getElevation and getRouteWeather after compileSketch 2ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'getElevation'
+   × executeRidePlanningAgent > post-compile enrichment > getElevation tool executes and returns elevation profile when called 2ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > post-compile enrichment > getRouteWeather tool executes and returns weather summary when called 2ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > post-compile enrichment > searchAlongRoute tool executes and returns nearby places when called 1ms
+     → expected "spy" to be called 1 times, but got 0 times
+ ❯ server/convex/actions/agent/__tests__/ridePlanningAgent.test.ts (57 tests | 40 failed) 99ms
+   × buildSystemPrompt > includes device location and instructs the agent not to ask for origin when currentLocation is set 7ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'Use this as the default origin'
+   × buildSystemPrompt > omits device location and prompts to ask when currentLocation is undefined and no lastKnownLocation 2ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'ask where they are starting from'
+   × buildSystemPrompt > uses lastKnownLocation fallback when currentLocation is undefined but session has lastKnownLocation 1ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'last known location'
+   × buildSystemPrompt > includes route summary block when buildInSessionRouteBlock returns content 1ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'Routes already planned this session:'
+   ✓ buildSystemPrompt > has no extra blank lines when buildInSessionRouteBlock returns empty string 0ms
+   × buildSystemPrompt > llm-first prompt: instructs LLM to author a route sketch for all requests 1ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'createRouteSketch'
+   × buildSystemPrompt > avoid guidance: instructs LLM to route around avoidances in the sketch, not via avoidRoads API 1ms
+     → expected 'you are a motorcycle ride planning as…' to match /avoid.*sketch|route around.*sketch|sk…/
+   × buildSystemPrompt > fallback guidance: instructs LLM to fall back to planRoute when uncertain 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'planRoute'
+   × buildSystemPrompt > planRoute available: preserves planRoute as an available tool in the prompt 0ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'planRoute'
+   × buildSystemPrompt > llm-first prompt: includes viaNames guidance for intermediate landmarks 1ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'viaNames'
+   × buildSystemPrompt > llm-first prompt: includes segment retry hint 0ms
+     → expected 'you are a motorcycle ride planning as…' to match /fail|didn.t work|revise/
+   ✓ extractRouteAttachments > returns attachment with the Convex routePlanId when planRoute persisted a route_plans row 0ms
+   ✓ extractRouteAttachments > returns empty array when planRoute result has no routePlanId 0ms
+   ✓ extractRouteAttachments > returns empty array when toolName is not planRoute 0ms
+   ✓ extractRouteAttachments > returns empty array when planRoute result type is chat not routes 0ms
+   ✓ extractRouteAttachments > returns empty array for an empty input array 0ms
+   ✓ extractRouteAttachments > returns multiple attachments when multiple planRoute results are present 0ms
+   ✓ executeRidePlanningAgent > returns text response with no attachments for a single-turn chat 2ms
+   × executeRidePlanningAgent > calls planRoute tool then returns text with route attachment 2ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > passes planningSessionId to createForAgentInternal when planRoute tool runs 2ms
+     → Cannot read properties of undefined (reading '0')
+   ✓ executeRidePlanningAgent > does not call orchestrator and returns upsell message when usage limit is reached 1ms
+   × executeRidePlanningAgent > executes geocode then planRoute then text (multi-step) 1ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > caps the loop at MAX_STEPS (10) if stream keeps returning toolUse 2ms
+     → expected "spy" to be called 10 times, but got 20 times
+   ✓ executeRidePlanningAgent > throws when API key is missing 2ms
+   ✓ executeRidePlanningAgent > fires onThinkingDelta for each thinking_delta event from the stream 5ms
+   ✓ executeRidePlanningAgent > fires onToolPending for each toolcall_start event from the stream 4ms
+   × executeRidePlanningAgent > fires onStepStart once per loop iteration with (step, MAX_STEPS) 3ms
+     → expected 1st "spy" call to have been called with [ +0, 10 ]
+   ✓ executeRidePlanningAgent > fires onAgentTurn once per assistant turn that has tool calls 6ms
+   × executeRidePlanningAgent > fires onToolResultPiMessage after each tool result with correct toolCallId and ToolResultMessage 2ms
+     → expected '{"type":"error","message":"Unknown or…' to contain 'weather'
+   ✓ executeRidePlanningAgent > back-compat: runs normally with no callbacks provided (no crashes, tools execute) 1ms
+   × executeRidePlanningAgent > LoopDetector intercepts 3rd identical tool call — tool NOT executed, error result injected 1ms
+     → expected false to be true // Object.is equality
+   ✓ executeRidePlanningAgent > LoopDetector does NOT fire for calls with different args (no false positives) 1ms
+   × executeRidePlanningAgent > BudgetTracker throws after cumulative cost exceeds limit — loop aborts with AGENT_BUDGET_EXCEEDED 3ms
+     → promise resolved "{ response: 'Hello', …(2) }" instead of rejecting
+   ✓ executeRidePlanningAgent > BudgetTracker does NOT throw when cumulative cost is under limit (normal operation) 2ms
+   × executeRidePlanningAgent > US-320: two concurrent geocode calls both execute (parallel safe) 1ms
+     → expected [] to have a length of 2 but got +0
+   × executeRidePlanningAgent > US-320: geocode (safe) and planRoute (unsafe) in same turn — geocode runs parallel-safe, planRoute sequential 1ms
+     → expected "spy" to be called at least once
+   ✓ executeRidePlanningAgent > US-320: result ordering is preserved regardless of parallel execution order 1ms
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > per-segment dispatch: dispatches to compileSegments when sketch has segments 5ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > segment error feedback: returns structured failed/succeeded arrays when a segment fails 2ms
+     → expected 'Unknown orchestrator tool: compileSke…' to contain '1 of 3'
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > single-shot fallback: uses single-shot compilation when sketch has no segments 2ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > all segments failed: returns error with all in failed[], empty succeeded[], revise_failed_segments guidance 1ms
+     → expected 'Unknown orchestrator tool: compileSke…' to contain '3 of 3'
+   × executeRidePlanningAgent > per-segment dispatch (US-023) > partial geometry: includes partial stitched route info in error hint when some segments succeed 2ms
+     → expected 'Unknown orchestrator tool: compileSke…' to contain '1 of 3'
+   × executeRidePlanningAgent > segment retry loop (US-025) > skip succeeded: only compiles segment 2 on retry when segments 0,1,3 are unchanged and already succeeded 1ms
+     → expected "spy" to be called 2 times, but got 0 times
+   × executeRidePlanningAgent > segment retry loop (US-025) > merge cached: revised segment 2 success merges with cached 0,1,3 for fully stitched 4-segment route 1ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > segment retry loop (US-025) > attempt count: error hint includes attemptsRemaining decremented per retry 2ms
+     → "undefined" is not valid JSON
+   × executeRidePlanningAgent > segment retry loop (US-025) > max retries: returns partial route with user message after 3 failed attempts on same session 3ms
+     → expected [ 'routes', 'chat' ] to include 'error'
+   × executeRidePlanningAgent > US-310: ToolResultMessage pushed to context contains summarized planRoute result (no geometry), while toolResultsTracker holds full result 3ms
+     → expected 'error' to be 'routes' // Object.is equality
+   × executeRidePlanningAgent > tool registration > all 7 new tools appear in the agent context passed to stream 2ms
+     → expected [ 'routing_agent', 'search_agent' ] to include 'lookupRoad'
+   × executeRidePlanningAgent > grounding before sketch > system prompt instructs LLM to call lookupRoad before sketch for scenic requests 3ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'lookupRoad'
+   × executeRidePlanningAgent > grounding before sketch > lookupRoad tool executes and returns road match data when called 3ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > curvature in rationale > system prompt instructs LLM to cite curvature scores in route rationale 2ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'getCurvature'
+   × executeRidePlanningAgent > curvature in rationale > getCurvature tool executes and returns score data when called 1ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > skip grounding > system prompt documents when to skip grounding tools (direct A-to-B, named roads, retries) 1ms
+     → expected 'you are a motorcycle ride planning as…' to match /skip.*grounding|when to skip/
+   × executeRidePlanningAgent > post-compile enrichment > system prompt instructs LLM to call getElevation and getRouteWeather after compileSketch 3ms
+     → expected 'You are a motorcycle ride planning as…' to contain 'getElevation'
+   × executeRidePlanningAgent > post-compile enrichment > getElevation tool executes and returns elevation profile when called 1ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > post-compile enrichment > getRouteWeather tool executes and returns weather summary when called 2ms
+     → expected "spy" to be called 1 times, but got 0 times
+   × executeRidePlanningAgent > post-compile enrichment > searchAlongRoute tool executes and returns nearby places when called 2ms
+     → expected "spy" to be called 1 times, but got 0 times
+ ❯ server/convex/actions/agent/tools/__tests__/compileSketch.test.ts (12 tests | 9 failed) 12ms
+   × compileSketch > returns provider response with expected fields 5ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × compileSketch > is deterministic for the provider 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × compileSegments > AC-1: compileSegments returns ok status for all segments when all anchorPoints have lat/lng 1ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × compileSegments > AC-2: compileSegments returns failed status for invalid segment while other segments succeed 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × compileSegments > AC-3: compileSegments executes all segment API calls in parallel via Promise.allSettled 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   ✓ compileSegments > AC-4: compileSegments rejects sketches with more than 10 segments before making API calls 1ms
+   × stitchSegments > AC-1: produces ProviderRouteResponse with correct leg count when all segments succeed 2ms
+     → expected 'POLY_A?p@XLY_B?pAXLY_C?' to be 'POLY_APOLY_BPOLY_C' // Object.is equality
+   × stitchSegments > AC-2: excludes failed segments and renumbers legs sequentially when partial failure occurs 0ms
+     → expected 'POLY_A?p@XLY_C?' to be 'POLY_APOLY_C' // Object.is equality
+   × stitchSegments > AC-3: stitched route passes through normalizeRoute without errors 1ms
+     → expected 'POLY_A?p@XLY_B?pAXLY_C?' to be 'POLY_APOLY_BPOLY_C' // Object.is equality
+   ✓ stitchSegments > AC-4: throws error when all segments have failed status 0ms
+   × AC-2: Planning graph receives favorites > should accept favorites parameter in compileSketch options 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   ✓ AC-5: Distant favorites ignored > should filter favorites by distance threshold 0ms
+ ❯ convex/actions/agent/tools/__tests__/compileSketch.test.ts (12 tests | 9 failed) 10ms
+   × compileSketch > returns provider response with expected fields 4ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × compileSketch > is deterministic for the provider 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × compileSegments > AC-1: compileSegments returns ok status for all segments when all anchorPoints have lat/lng 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × compileSegments > AC-2: compileSegments returns failed status for invalid segment while other segments succeed 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × compileSegments > AC-3: compileSegments executes all segment API calls in parallel via Promise.allSettled 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   ✓ compileSegments > AC-4: compileSegments rejects sketches with more than 10 segments before making API calls 1ms
+   × stitchSegments > AC-1: produces ProviderRouteResponse with correct leg count when all segments succeed 2ms
+     → expected 'POLY_A?p@XLY_B?pAXLY_C?' to be 'POLY_APOLY_BPOLY_C' // Object.is equality
+   × stitchSegments > AC-2: excludes failed segments and renumbers legs sequentially when partial failure occurs 0ms
+     → expected 'POLY_A?p@XLY_C?' to be 'POLY_APOLY_C' // Object.is equality
+   × stitchSegments > AC-3: stitched route passes through normalizeRoute without errors 0ms
+     → expected 'POLY_A?p@XLY_B?pAXLY_C?' to be 'POLY_APOLY_BPOLY_C' // Object.is equality
+   ✓ stitchSegments > AC-4: throws error when all segments have failed status 0ms
+   × AC-2: Planning graph receives favorites > should accept favorites parameter in compileSketch options 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   ✓ AC-5: Distant favorites ignored > should filter favorites by distance threshold 0ms
+ ❯ server/convex/actions/agent/__tests__/planRide.favorites.test.ts (12 tests | 1 failed) 215ms
+   ✓ planRide action - Favorites Integration > AC-5: Fetch user favorites via favoriteRoads.listByOwner when toggle enabled > should call favoriteRoads.list when includeFavorites is true 1ms
+   ✓ planRide action - Favorites Integration > AC-5: Fetch user favorites via favoriteRoads.listByOwner when toggle enabled > should NOT call favoriteRoads.list when includeFavorites is false 0ms
+   ✓ planRide action - Favorites Integration > AC-5: Fetch user favorites via favoriteRoads.listByOwner when toggle enabled > should NOT call favoriteRoads.list when includeFavorites is not provided 0ms
+   ✓ planRide action - Favorites Integration > AC-8: Pass nearby favorites to planning graph > should pass favorites to orchestrator in correct format 1ms
+   ✓ planRide action - Favorites Integration > AC-9: Return route with includedFavorites count > should return includedFavorites in response 206ms
+   ✓ planRide action - Favorites Integration > AC-10: Return excludedFavorites list with names > should return excludedFavorites with reasons 0ms
+   ✓ planRide action - Favorites Integration > AC-10: Return excludedFavorites list with names > should provide clear reason codes 0ms
+   ✓ planRide action - Favorites Integration > AC-11: Plan route normally without favorites when toggle is OFF > should not include favorites metadata when includeFavorites is false 0ms
+   × planRide action - Favorites Integration > AC-12: Graceful degradation when favorites fetch fails > should log warning and continue when favorites fetch fails 4ms
+     → expected "warn" to be called with arguments: [ …(2) ]
+
+Number of calls: 0
+
+   ✓ planRide action - Favorites Integration > AC-12: Graceful degradation when favorites fetch fails > should not throw error when favorites fetch fails 0ms
+   ✓ planRide action - Favorites Integration > buildOptionsFromResults with favorites > should aggregate includedFavorites from all route options 0ms
+   ✓ planRide action - Favorites Integration > buildOptionsFromResults with favorites > should handle results without favorites metadata 0ms
+ ❯ convex/actions/agent/__tests__/planRide.favorites.test.ts (12 tests | 1 failed) 199ms
+   ✓ planRide action - Favorites Integration > AC-5: Fetch user favorites via favoriteRoads.listByOwner when toggle enabled > should call favoriteRoads.list when includeFavorites is true 1ms
+   ✓ planRide action - Favorites Integration > AC-5: Fetch user favorites via favoriteRoads.listByOwner when toggle enabled > should NOT call favoriteRoads.list when includeFavorites is false 0ms
+   ✓ planRide action - Favorites Integration > AC-5: Fetch user favorites via favoriteRoads.listByOwner when toggle enabled > should NOT call favoriteRoads.list when includeFavorites is not provided 0ms
+   ✓ planRide action - Favorites Integration > AC-8: Pass nearby favorites to planning graph > should pass favorites to orchestrator in correct format 1ms
+   ✓ planRide action - Favorites Integration > AC-9: Return route with includedFavorites count > should return includedFavorites in response 189ms
+   ✓ planRide action - Favorites Integration > AC-10: Return excludedFavorites list with names > should return excludedFavorites with reasons 0ms
+   ✓ planRide action - Favorites Integration > AC-10: Return excludedFavorites list with names > should provide clear reason codes 0ms
+   ✓ planRide action - Favorites Integration > AC-11: Plan route normally without favorites when toggle is OFF > should not include favorites metadata when includeFavorites is false 0ms
+   × planRide action - Favorites Integration > AC-12: Graceful degradation when favorites fetch fails > should log warning and continue when favorites fetch fails 6ms
+     → expected "warn" to be called with arguments: [ …(2) ]
+
+Number of calls: 0
+
+   ✓ planRide action - Favorites Integration > AC-12: Graceful degradation when favorites fetch fails > should not throw error when favorites fetch fails 0ms
+   ✓ planRide action - Favorites Integration > buildOptionsFromResults with favorites > should aggregate includedFavorites from all route options 0ms
+   ✓ planRide action - Favorites Integration > buildOptionsFromResults with favorites > should handle results without favorites metadata 0ms
+ ✓ convex/db/__tests__/planUsage.test.ts (12 tests) 5ms
+ ✓ server/convex/db/__tests__/planUsage.test.ts (12 tests) 6ms
+ ❯ server/convex/__tests__/curationMetrics.test.ts (10 tests | 3 failed) 73ms
+   ✓ curationMetricsInternal - AC-001: Metrics return complete dashboard data > should aggregate totalRoutes, totalEnrichments, bySource, lastScrape, llmCost, and feedbackSummary 44ms
+   ✓ curationMetricsInternal - AC-001: Metrics return complete dashboard data > should return null for lastScrape when no routes exist 0ms
+   × HTTP Auth - AC-002: Bearer token validation > should reject requests without Authorization header 20ms
+     → CURATION_DEPLOY_KEY not configured
+   × HTTP Auth - AC-002: Bearer token validation > should reject requests with wrong bearer token 0ms
+     → CURATION_DEPLOY_KEY not configured
+   × HTTP Auth - AC-002: Bearer token validation > should accept requests with correct bearer token 0ms
+     → CURATION_DEPLOY_KEY not configured
+   ✓ curationMetricsInternal - AC-003: No individual user data exposed > should aggregate feedback without exposing userIds or individual route data 1ms
+   ✓ curationMetricsInternal - AC-004: Last scrape timestamp > should return the maximum extractedAt value as lastScrape 0ms
+   ✓ curationMetricsInternal - AC-004: Last scrape timestamp > should return null when no routes exist 0ms
+   ✓ curationMetricsInternal - AC-005: LLM cost estimation > should estimate LLM cost based on route count using documented formula 0ms
+   ✓ curationMetricsInternal - AC-005: LLM cost estimation > should return zero cost when no routes exist 0ms
+ ❯ convex/__tests__/curationMetrics.test.ts (10 tests | 3 failed) 90ms
+   ✓ curationMetricsInternal - AC-001: Metrics return complete dashboard data > should aggregate totalRoutes, totalEnrichments, bySource, lastScrape, llmCost, and feedbackSummary 32ms
+   ✓ curationMetricsInternal - AC-001: Metrics return complete dashboard data > should return null for lastScrape when no routes exist 4ms
+   × HTTP Auth - AC-002: Bearer token validation > should reject requests without Authorization header 39ms
+     → CURATION_DEPLOY_KEY not configured
+   × HTTP Auth - AC-002: Bearer token validation > should reject requests with wrong bearer token 2ms
+     → CURATION_DEPLOY_KEY not configured
+   × HTTP Auth - AC-002: Bearer token validation > should accept requests with correct bearer token 0ms
+     → CURATION_DEPLOY_KEY not configured
+   ✓ curationMetricsInternal - AC-003: No individual user data exposed > should aggregate feedback without exposing userIds or individual route data 7ms
+   ✓ curationMetricsInternal - AC-004: Last scrape timestamp > should return the maximum extractedAt value as lastScrape 1ms
+   ✓ curationMetricsInternal - AC-004: Last scrape timestamp > should return null when no routes exist 4ms
+   ✓ curationMetricsInternal - AC-005: LLM cost estimation > should estimate LLM cost based on route count using documented formula 0ms
+   ✓ curationMetricsInternal - AC-005: LLM cost estimation > should return zero cost when no routes exist 0ms
+ ✓ server/convex/actions/agent/lib/__tests__/planRideOrchestrator.enrichment.test.ts (5 tests) 149ms
+ ✓ convex/actions/agent/lib/__tests__/planRideOrchestrator.enrichment.test.ts (5 tests) 102ms
+ ✓ server/convex/db/__tests__/planUsage.integration.test.ts (12 tests) 74ms
+ ✓ convex/db/__tests__/planUsage.integration.test.ts (12 tests) 77ms
+ ✓ react-native/hooks/use-ride-flow.test.ts (14 tests) 6ms
+ ❯ server/convex/actions/agent/providers/__tests__/routingProvider.test.ts (17 tests | 3 failed) 20ms
+   ✓ routing provider > google provider calls Routes API with key and parses response 2ms
+   ✓ routing provider > google provider returns durationSeconds=0 when duration is malformed 0ms
+   ✓ routing provider > google provider throws on non-ok responses and includes status/body 1ms
+   ✓ routing provider > google provider throws when required fields are missing 0ms
+   ✓ routing provider > google provider is deterministic when upstream payload is deterministic 1ms
+   ✓ routing provider > uses DRIVE travel mode 0ms
+   ✓ routeSegment > AC-1: routeSegment routes a single segment using fromName/toName matched to anchorPoints 0ms
+   ✓ routeSegment > AC-1: routeSegment uses origin/destination coords from matched anchorPoints 0ms
+   × routeSegment > AC-2: routeSegment throws when anchorPoint for fromName is missing lat/lng 8ms
+     → expected [Function] to throw error matching /anchorPoint/ but got 'Could not geocode "Unknown Start". Tr…'
+   ✓ routeSegment > AC-1: routeSegment matches anchorPoints case-insensitively and trims whitespace 0ms
+   ✓ resolveViaWaypoints > AC-1: resolves a single viaName to its matching anchorPoint coordinates 0ms
+   ✓ resolveViaWaypoints > AC-2: multiple viaNames are resolved in order matching the viaNames array 0ms
+   × resolveViaWaypoints > AC-3: unresolvable viaName is skipped and does not throw 4ms
+     → expected "warn" to be called with arguments: [ StringContaining "NONEXISTENT" ]
+
+Number of calls: 0
+
+   ✓ resolveViaWaypoints > AC-4: no viaNames returns empty array (origin→destination only in request) 0ms
+   × resolveViaWaypoints > AC-5: more than 3 viaNames uses only first 3 and warns about the rest 0ms
+     → expected "warn" to be called with arguments: [ StringContaining "Delta Landmark" ]
+
+Number of calls: 0
+
+   ✓ resolveViaWaypoints > AC-1 integration: Google Maps request body includes viaName as intermediate waypoint 0ms
+   ✓ resolveViaWaypoints > AC-4 integration: no viaNames means no intermediates in Google Maps request 0ms
+ ❯ convex/actions/agent/providers/__tests__/routingProvider.test.ts (17 tests | 3 failed) 9ms
+   ✓ routing provider > google provider calls Routes API with key and parses response 2ms
+   ✓ routing provider > google provider returns durationSeconds=0 when duration is malformed 0ms
+   ✓ routing provider > google provider throws on non-ok responses and includes status/body 1ms
+   ✓ routing provider > google provider throws when required fields are missing 0ms
+   ✓ routing provider > google provider is deterministic when upstream payload is deterministic 0ms
+   ✓ routing provider > uses DRIVE travel mode 0ms
+   ✓ routeSegment > AC-1: routeSegment routes a single segment using fromName/toName matched to anchorPoints 0ms
+   ✓ routeSegment > AC-1: routeSegment uses origin/destination coords from matched anchorPoints 0ms
+   × routeSegment > AC-2: routeSegment throws when anchorPoint for fromName is missing lat/lng 4ms
+     → expected [Function] to throw error matching /anchorPoint/ but got 'Could not geocode "Unknown Start". Tr…'
+   ✓ routeSegment > AC-1: routeSegment matches anchorPoints case-insensitively and trims whitespace 0ms
+   ✓ resolveViaWaypoints > AC-1: resolves a single viaName to its matching anchorPoint coordinates 0ms
+   ✓ resolveViaWaypoints > AC-2: multiple viaNames are resolved in order matching the viaNames array 0ms
+   × resolveViaWaypoints > AC-3: unresolvable viaName is skipped and does not throw 1ms
+     → expected "warn" to be called with arguments: [ StringContaining "NONEXISTENT" ]
+
+Number of calls: 0
+
+   ✓ resolveViaWaypoints > AC-4: no viaNames returns empty array (origin→destination only in request) 0ms
+   × resolveViaWaypoints > AC-5: more than 3 viaNames uses only first 3 and warns about the rest 0ms
+     → expected "warn" to be called with arguments: [ StringContaining "Delta Landmark" ]
+
+Number of calls: 0
+
+   ✓ resolveViaWaypoints > AC-1 integration: Google Maps request body includes viaName as intermediate waypoint 0ms
+   ✓ resolveViaWaypoints > AC-4 integration: no viaNames means no intermediates in Google Maps request 0ms
+ ❯ server/convex/actions/agent/tools/__tests__/enrichRoute.test.ts (11 tests | 3 failed) 13ms
+   × enrichRoute > pi-ai integration > returns enriched labels from pi-ai tool call 8ms
+     → expected { …(3) } to deeply equal { …(4) }
+   × enrichRoute > pi-ai integration > returns fallback labels when complete() rejects 1ms
+     → expected { label: 'Route 1', …(3) } to deeply equal { label: 'Route 1', …(3) }
+   ✓ enrichRoute > pi-ai integration > returns fallback labels when OPENAI_API_KEY missing 0ms
+   ✓ enrichRoute > pi-ai integration > returns fallback labels when model skips the tool call 0ms
+   ✓ enrichRoute > prompt construction > includes waypoint names in the user message 0ms
+   ✓ enrichRoute > prompt construction > includes distance and duration stats 0ms
+   ✓ enrichRoute > tool schema > registers emit_enrichments as the only tool 0ms
+   × enrichRoute > AI_MODEL integration > forwards AI_MODEL to getModel() 2ms
+     → expected "spy" to be called with arguments: [ 'openai', Any<String> ]
+
+Received: 
+
+  1st spy call:
+
+  [
+-   "openai",
+-   Any<String>,
++   "cerebras",
++   "qwen-3-235b-a22b-instruct-2507",
+  ]
+
+
+Number of calls: 1
+
+   ✓ enrichRoute > leg labeling > generates leg labels when legContext is provided 0ms
+   ✓ enrichRoute > leg labeling > returns empty legLabels array when no legContext provided 0ms
+   ✓ enrichRoute > leg labeling > AI never generates "waypoint" in leg labels 0ms
+ ❯ convex/actions/agent/tools/__tests__/enrichRoute.test.ts (11 tests | 3 failed) 13ms
+   × enrichRoute > pi-ai integration > returns enriched labels from pi-ai tool call 7ms
+     → expected { …(3) } to deeply equal { …(4) }
+   × enrichRoute > pi-ai integration > returns fallback labels when complete() rejects 1ms
+     → expected { label: 'Route 1', …(3) } to deeply equal { label: 'Route 1', …(3) }
+   ✓ enrichRoute > pi-ai integration > returns fallback labels when OPENAI_API_KEY missing 0ms
+   ✓ enrichRoute > pi-ai integration > returns fallback labels when model skips the tool call 0ms
+   ✓ enrichRoute > prompt construction > includes waypoint names in the user message 0ms
+   ✓ enrichRoute > prompt construction > includes distance and duration stats 0ms
+   ✓ enrichRoute > tool schema > registers emit_enrichments as the only tool 0ms
+   × enrichRoute > AI_MODEL integration > forwards AI_MODEL to getModel() 2ms
+     → expected "spy" to be called with arguments: [ 'openai', Any<String> ]
+
+Received: 
+
+  1st spy call:
+
+  [
+-   "openai",
+-   Any<String>,
++   "cerebras",
++   "qwen-3-235b-a22b-instruct-2507",
+  ]
+
+
+Number of calls: 1
+
+   ✓ enrichRoute > leg labeling > generates leg labels when legContext is provided 0ms
+   ✓ enrichRoute > leg labeling > returns empty legLabels array when no legContext provided 0ms
+   ✓ enrichRoute > leg labeling > AI never generates "waypoint" in leg labels 0ms
+stdout | scripts/design-review/__tests__/precision-formula.test.ts
+✓ computes precision = TP/(TP+FP) correctly for mixed predictions
+✓ computes precision = 1.0 when FP=0 (perfect predictions)
+✓ computes precision = 0 when TP=0 (no correct predictions)
+✓ computes precision = 1.0 when TP=0, FP=0 (no predictions at all)
+
+=== Test Summary ===
+Passed: 4/4
+Failed: 0/4
+
+stdout | scripts/design-review/__tests__/recall-formula.test.ts
+✓ computes recall = TP/(TP+FN) correctly for mixed predictions
+✓ computes recall = 1.0 when FN=0 (perfect recall)
+✓ computes recall = 0 when TP=0 (no correct predictions)
+✓ computes recall = 1.0 when TP=0, FN=0 (no ground truth issues)
+
+=== Test Summary ===
+Passed: 4/4
+Failed: 0/4
+
+ ✓ server/convex/actions/agent/__tests__/sessionContext.test.ts (18 tests) 5ms
+ ❯ server/convex/__tests__/curationAdmin.test.ts (8 tests | 3 failed) 6ms
+   ✓ upsertCuratedRoutesHandler - AC-1: Happy-path routes ingest > should insert 2 new routes and return correct counts 2ms
+   ✓ upsertCuratedRoutesHandler - AC-4: Idempotent upsert > should insert on first call and update on second call 0ms
+   ✓ upsertCuratedRouteEnrichmentsHandler - AC-5: Enrichments upsert > should insert new enrichment and update existing one 0ms
+   ✓ deleteCuratedRoutesByRouteIdsHandler > should delete existing routes and report missing ones 0ms
+   × HTTP Auth - AC-2: Bearer token validation > should reject requests without Authorization header 2ms
+     → CURATION_DEPLOY_KEY not configured
+   × HTTP Auth - AC-2: Bearer token validation > should reject requests with wrong bearer token 0ms
+     → CURATION_DEPLOY_KEY not configured
+   × HTTP Auth - AC-2: Bearer token validation > should accept requests with correct bearer token 0ms
+     → CURATION_DEPLOY_KEY not configured
+   ✓ Validation - AC-3: Malformed body rejection > should reject route missing required fields 1ms
+ ❯ convex/__tests__/curationAdmin.test.ts (8 tests | 3 failed) 9ms
+   ✓ upsertCuratedRoutesHandler - AC-1: Happy-path routes ingest > should insert 2 new routes and return correct counts 4ms
+   ✓ upsertCuratedRoutesHandler - AC-4: Idempotent upsert > should insert on first call and update on second call 0ms
+   ✓ upsertCuratedRouteEnrichmentsHandler - AC-5: Enrichments upsert > should insert new enrichment and update existing one 0ms
+   ✓ deleteCuratedRoutesByRouteIdsHandler > should delete existing routes and report missing ones 0ms
+   × HTTP Auth - AC-2: Bearer token validation > should reject requests without Authorization header 2ms
+     → CURATION_DEPLOY_KEY not configured
+   × HTTP Auth - AC-2: Bearer token validation > should reject requests with wrong bearer token 0ms
+     → CURATION_DEPLOY_KEY not configured
+   × HTTP Auth - AC-2: Bearer token validation > should accept requests with correct bearer token 0ms
+     → CURATION_DEPLOY_KEY not configured
+   ✓ Validation - AC-3: Malformed body rejection > should reject route missing required fields 0ms
+ ✓ convex/db/__tests__/favoriteRoads.test.ts (9 tests) 4ms
+ ✓ server/convex/db/__tests__/favoriteRoads.test.ts (9 tests) 8ms
+ ✓ convex/actions/agent/__tests__/sessionContext.test.ts (18 tests) 5ms
+ ✓ convex/actions/agent/__tests__/summarizeForContext.test.ts (25 tests) 3ms
+ ✓ server/convex/actions/agent/__tests__/summarizeForContext.test.ts (25 tests) 3ms
+ ✓ convex/db/__tests__/thinkingCard.test.ts (12 tests) 5ms
+ ✓ server/convex/db/__tests__/thinkingCard.test.ts (12 tests) 6ms
+ ✓ react-native/lib/map/overlay-colors.test.ts (16 tests) 1ms
+ ✓ server/lib/polyline/__tests__/conversion.test.ts (36 tests) 20ms
+ ✓ convex/db/__tests__/planningSessions.test.ts (13 tests) 7ms
+ ✓ server/convex/db/__tests__/planningSessions.test.ts (13 tests) 6ms
+ ✓ server/lib/weather/timing-calculator.test.ts (17 tests) 3ms
+ ❯ server/convex/actions/agent/tools/__tests__/lookupRoad.test.ts (5 tests | 1 failed) 6ms
+   ✓ lookupRoad > AC-1: returns exists=true with highway class, surface, and geometry for a matched road 1ms
+   ✓ lookupRoad > AC-2: returns exists=false with name suggestions on miss, using broader regex fallback 0ms
+   ✓ lookupRoad > AC-3: returns unverified status without throwing on Overpass timeout 0ms
+   ✓ lookupRoad > AC-4: returns max 5 ways sorted by highway class priority 0ms
+   × lookupRoad > AC-5: records Protomaps fallback events with tool name, reason, and bbox 3ms
+     → expected "spy" to be called 1 times, but got 0 times
+ ❯ react-native/hooks/use-active-session-route.test.ts (10 tests | 10 failed) 5ms
+   × useActiveSessionRoute > loading state > returns loading result (undefined routePlan) while sessions list is loading 3ms
+     → document is not defined
+   × useActiveSessionRoute > loading state > returns loading result while messages query is loading 0ms
+     → document is not defined
+   × useActiveSessionRoute > empty/no-session state > returns undefined routePlan when messages list is empty 0ms
+     → document is not defined
+   × useActiveSessionRoute > empty/no-session state > returns null routePlan when no routing_card message exists 0ms
+     → document is not defined
+   × useActiveSessionRoute > active option selection > returns activeOption = options[0] when no selectedRouteId is set 0ms
+     → document is not defined
+   × useActiveSessionRoute > active option selection > returns the matching option when selectedRouteId matches an option 0ms
+     → document is not defined
+   × useActiveSessionRoute > active option selection > falls back to options[0] when selectedRouteId does not match any option 0ms
+     → document is not defined
+   × useActiveSessionRoute > latest routing_card selection > picks the newest routing_card when multiple exist 0ms
+     → document is not defined
+   × useActiveSessionRoute > selectedRouteId from context > respects selectedRouteId from context for option selection 0ms
+     → document is not defined
+   × useActiveSessionRoute > explicit sessionId prop > skips listSessions query when sessionId is provided 0ms
+     → document is not defined
+ ✓ server/convex/__tests__/curationArtifacts.test.ts (5 tests) 9ms
+ ✓ convex/__tests__/curationArtifacts.test.ts (5 tests) 13ms
+ ✓ server/convex/actions/agent/tools/__tests__/normalizeRoute.test.ts (4 tests) 2ms
+ ✓ convex/__tests__/routeFeedback.test.ts (19 tests) 5ms
+ ✓ server/convex/actions/agent/tools/__tests__/getCurvature.test.ts (6 tests) 3ms
+ ❯ server/convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts (5 tests | 3 failed) 7ms
+   × searchAlongRoute > basic search: returns 1-5 places with name and address for valid polyline and query 5ms
+     → expected false to be true // Object.is equality
+   × searchAlongRoute > offset search: returns places biased toward origin offset with detour time when offset provided 1ms
+     → expected false to be true // Object.is equality
+   × searchAlongRoute > no results: returns empty array for queries with no matching places 0ms
+     → expected false to be true // Object.is equality
+   ✓ searchAlongRoute > api error: returns error status without throwing on API failure 0ms
+   ✓ searchAlongRoute > api error: returns error status on network failure without throwing 0ms
+ ✓ server/convex/actions/agent/tools/__tests__/getRouteWeather.test.ts (5 tests) 5ms
+ ✓ server/convex/actions/agent/tools/__tests__/getElevation.test.ts (7 tests) 3ms
+ ❯ server/convex/actions/agent/enrichment/__tests__/runEnrichmentJob.test.ts (6 tests | 2 failed) 923ms
+   × runEnrichmentJob > AC-1: Status updates to running when job starts > should update enrichment status to running when job starts 551ms
+     → expected 'Scenic Starter Ride' to contain 'km Route'
+   ✓ runEnrichmentJob > AC-2: Job exits immediately when already cancelled > should return early if enrichment is already cancelled 0ms
+   ✓ runEnrichmentJob > AC-2: Job exits immediately when already cancelled > should return early if enrichment is not found 0ms
+   × runEnrichmentJob > AC-3: Enrichment results saved when job completes > should save enrichment results with proper structure 370ms
+     → expected 'Coastal Bluff Ride' to contain 'Scenic'
+   ✓ runEnrichmentJob > AC-4: Error saved and status failed when exception thrown > should mark enrichment as failed when route plan is not found 0ms
+   ✓ runEnrichmentJob > AC-4: Error saved and status failed when exception thrown > should handle unexpected errors and save error message 0ms
+ ✓ server/convex/actions/agent/tools/__tests__/probeConditions.test.ts (3 tests) 5ms
+ ✓ convex/__tests__/places-autocomplete.test.ts (6 tests) 65ms
+ ❯ server/convex/actions/agent/tools/__tests__/tools.integration.test.ts (1 test | 1 failed) 4ms
+   × agent tools integration > compiles, normalizes, indexes, probes, and maps wind overlay deterministically 3ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+ ✓ convex/__tests__/sessionMessageSchema.test.ts (8 tests) 25ms
+ ❯ convex/__tests__/geospatialValidation.test.ts (6 tests | 1 failed) 7ms
+   ✓ AC-4: Nearest-neighbor query returns correct results under 500ms > geospatialValidation.ts file exists 1ms
+   ✓ AC-4: Nearest-neighbor query returns correct results under 500ms > validateNearestNeighbor query is exported 0ms
+   ✓ AC-4: Nearest-neighbor query returns correct results under 500ms > validateNearestNeighbor returns correct structure 0ms
+   ✓ AC-5: Rectangular range query returns correct results under 500ms > validateRectangularRange query is exported 0ms
+   ✓ AC-5: Rectangular range query returns correct results under 500ms > validateRectangularRange returns correct structure 0ms
+   × AC-5: Rectangular range query returns correct results under 500ms > validateRectangularRange uses rectangular bounding box 5ms
+     → expected '// VALIDATION ONLY — remove before pr…' to contain 'type: "rectangle"'
+ ❯ convex/__tests__/favorites.test.ts (3 tests | 1 failed) 44ms
+   ✓ favorites contract > returns only the authenticated rider favorites in the mobile pin DTO shape 41ms
+   ✓ favorites contract > throws UNAUTHENTICATED for an unauthenticated caller 1ms
+   × favorites contract > keeps the favorite location contract aligned with the native clients 2ms
+     → ENOENT: no such file or directory, open '/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/ios/LaneShadow/Services/ConvexClient+LaneShadow.swift'
+ ❯ convex/actions/agent/enrichment/__tests__/runEnrichmentJob.test.ts (6 tests | 2 failed) 938ms
+   × runEnrichmentJob > AC-1: Status updates to running when job starts > should update enrichment status to running when job starts 549ms
+     → expected 'Scenic Bay Cruiseline' to contain 'km Route'
+   ✓ runEnrichmentJob > AC-2: Job exits immediately when already cancelled > should return early if enrichment is already cancelled 0ms
+   ✓ runEnrichmentJob > AC-2: Job exits immediately when already cancelled > should return early if enrichment is not found 0ms
+   × runEnrichmentJob > AC-3: Enrichment results saved when job completes > should save enrichment results with proper structure 387ms
+     → expected 'Coastal Cliffs Ride' to contain 'Scenic'
+   ✓ runEnrichmentJob > AC-4: Error saved and status failed when exception thrown > should mark enrichment as failed when route plan is not found 0ms
+   ✓ runEnrichmentJob > AC-4: Error saved and status failed when exception thrown > should handle unexpected errors and save error message 0ms
+ ✓ server/convex/actions/agent/tools/__tests__/manageWaypoints.test.ts (8 tests) 7ms
+ ✓ convex/__tests__/schema.inf003.test.ts (10 tests) 307ms
+ ❯ convex/__tests__/geospatialIndex.test.ts (6 tests | 3 failed) 8ms
+   ✓ AC-1: @convex-dev/geospatial installed and importable > geospatialIndex.ts file exists 1ms
+   × AC-1: @convex-dev/geospatial installed and importable > geospatialIndex.ts imports from @convex-dev/geospatial 4ms
+     → expected '// @convex-dev/geospatial version: 0.…' to contain 'import { GeospatialIndex } from "@con…'
+   × AC-1: @convex-dev/geospatial installed and importable > package.json includes @convex-dev/geospatial dependency 1ms
+     → expected { …(63) } to have property "@convex-dev/geospatial"
+   ✓ AC-2: GeospatialIndex defined on curated_routes with location field > geospatialIndex.ts exports GeospatialIndex instance 0ms
+   × AC-2: GeospatialIndex defined on curated_routes with location field > schema.ts includes location field in curated_routes 0ms
+     → ENOENT: no such file or directory, open '/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01/models/curated-routes.ts'
+   ✓ AC-2: GeospatialIndex defined on curated_routes with location field > generated API includes geospatial component 0ms
+ ✓ server/convex/actions/agent/tools/__tests__/mapConditions.test.ts (3 tests) 5ms
+ ✓ server/convex/actions/agent/tools/__tests__/getUserFavorites.test.ts (4 tests) 3ms
+ ✓ convex/__tests__/schema.curation.test.ts (3 tests) 204ms
+ ✓ convex/__tests__/guards.test.ts (7 tests) 5ms
+ ❯ convex/__tests__/seedGeospatialTest.test.ts (6 tests | 2 failed) 5ms
+   ✓ AC-3: 100 seed routes inserted with valid coordinates > seedGeospatialTest.ts file exists 1ms
+   ✓ AC-3: 100 seed routes inserted with valid coordinates > seedRoutes mutation is exported 0ms
+   ✓ AC-3: 100 seed routes inserted with valid coordinates > countSeeded query is exported 0ms
+   × AC-3: 100 seed routes inserted with valid coordinates > TEST_ROUTES array contains exactly 100 routes 3ms
+     → expected +0 to be 100 // Object.is equality
+   ✓ AC-7: Seeded routes span at least 5 distinct US states > countStates query is exported 0ms
+   × AC-7: Seeded routes span at least 5 distinct US states > TEST_ROUTES spans at least 5 distinct US states 0ms
+     → expected 0 to be greater than or equal to 5
+ ✓ server/convex/actions/agent/tools/__tests__/findScenicWaypoints.test.ts (4 tests) 5ms
+ ✓ server/convex/actions/agent/tools/__tests__/computeRouteIndex.test.ts (3 tests) 4ms
+ ❯ convex/__tests__/env.test.ts (5 tests | 1 failed) 20ms
+   ✓ PROTOMAPS_US_URL validation > validateProtomapsUrl > returns undefined when URL is not provided 1ms
+   ✓ PROTOMAPS_US_URL validation > validateProtomapsUrl > returns the URL when valid pmtiles URL 0ms
+   ✓ PROTOMAPS_US_URL validation > validateProtomapsUrl > throws error for invalid URL format 0ms
+   × PROTOMAPS_US_URL validation > validateProtomapsUrl > returns non-pmtiles URL and warns 3ms
+     → expected "warn" to be called with arguments: [ Array(1) ]
+
+Number of calls: 0
+
+   ✓ PROTOMAPS_US_URL validation > env module > exports PROTOMAPS_US_URL (optional, can be undefined) 15ms
+ ❯ convex/__tests__/places.test.ts (4 tests | 1 failed) 59ms
+   ✓ places contract > exports the documented public reverseGeocode action and returns the mobile DTO 56ms
+   ✓ places contract > retries one transient 503 from Mapbox and then succeeds 0ms
+   ✓ places contract > does not retry a non-transient 400 from Mapbox 0ms
+   × places contract > keeps the reverse geocode public endpoint aligned with the native clients 2ms
+     → ENOENT: no such file or directory, open '/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/ios/LaneShadow/Services/ConvexClient+LaneShadow.swift'
+ ✓ server/convex/actions/agent/tools/__tests__/checkSurface.test.ts (4 tests) 2ms
+ ✓ server/convex/actions/agent/lib/__tests__/planningEvents.test.ts (1 test) 76ms
+ ✓ convex/__tests__/clerk-sync.test.ts (5 tests) 4ms
+ ❯ convex/__fixtures__/auth-error-taxonomy.test.ts (1 test | 1 failed) 8ms
+   × auth-error-taxonomy fixture > AC-7: fixture JSON is valid and covers every ERROR_CODES entry with mobile_mapping_target 7ms
+     → Code GEOCODE_UPSTREAM_ERROR missing from fixture: expected false to be true // Object.is equality
+ ❯ convex/actions/agent/tools/__tests__/lookupRoad.test.ts (5 tests | 1 failed) 6ms
+   ✓ lookupRoad > AC-1: returns exists=true with highway class, surface, and geometry for a matched road 2ms
+   ✓ lookupRoad > AC-2: returns exists=false with name suggestions on miss, using broader regex fallback 0ms
+   ✓ lookupRoad > AC-3: returns unverified status without throwing on Overpass timeout 0ms
+   ✓ lookupRoad > AC-4: returns max 5 ways sorted by highway class priority 0ms
+   × lookupRoad > AC-5: records Protomaps fallback events with tool name, reason, and bbox 3ms
+     → expected "spy" to be called 1 times, but got 0 times
+stdout | scripts/design-review/__tests__/merge-report.test.ts
+Testing mergeReport function...
+✅ mergeReport function imported successfully
+
+📋 Test: report.json contains summary block
+🔍 Severity threshold: med (include med and above)
+✅ JSON report written to .design-review/report.json
+✅ HTML report written to .design-review/report.html
+
+stderr | scripts/design-review/__tests__/merge-report.test.ts
+⚠️  No code mapping for component "LSButton", using selector as fallback
+⚠️  No code mapping for component "LSText", using selector as fallback
+
+stdout | scripts/design-review/__tests__/merge-report.test.ts
+✅ report.json contains summary block
+
+stderr | scripts/design-review/__tests__/merge-report.test.ts
+❌ Expected total_entries=2, got undefined
+❌ Test failed: Error: process.exit unexpectedly called with "1"
+    at process.exit (file:///Users/justinrich/Projects/LaneShadow/node_modules/.pnpm/vitest@3.2.4_@types+node@22.18.10_@vitest+ui@3.2.4_jsdom@29.0.1_tsx@4.20.6/node_modules/vitest/dist/chunks/execute.B7h3T_Hc.js:525:9)
+    at main (/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01/scripts/design-review/__tests__/merge-report.test.ts:174:15)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+ ✓ server/convex/__tests__/routeFeedback.test.ts (19 tests) 7ms
+ ✓ convex/db/__tests__/savedRoutes.softDelete.test.ts (14 tests) 5ms
+ ✓ server/convex/db/__tests__/savedRoutes.softDelete.test.ts (14 tests) 6ms
+ ✓ server/convex/__tests__/schema.inf003.test.ts (10 tests) 77ms
+ ✓ server/convex/actions/agent/__tests__/planRide.test.ts (12 tests) 4ms
+ ✓ convex/actions/agent/__tests__/planRide.test.ts (12 tests) 6ms
+ ✓ server/lib/weather/temp-calculator.test.ts (18 tests) 2ms
+ ✓ server/convex/__tests__/places-autocomplete.test.ts (6 tests) 94ms
+ ✓ convex/actions/agent/tools/__tests__/normalizeRoute.test.ts (4 tests) 6ms
+ ✓ react-native/app/(app)/saved-route/__tests__/[id].actions.test.ts (9 tests) 4ms
+ ✓ react-native/lib/mapbox/__tests__/weather-optimization.test.ts (16 tests) 5ms
+ ❯ server/convex/actions/agent/__tests__/provider-migration.test.ts (11 tests | 1 failed) 8ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-1: Env exports removed > should not export AI_PROVIDER from env.ts 1ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-1: Env exports removed > should not export AI_MODEL from env.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-1: Env exports removed > should document CEREBRAS_API_KEY in .env.example 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-2: High-reasoning agents use getAgentModel(high) > should use getAgentModel in orchestrator.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-2: High-reasoning agents use getAgentModel(high) > should use getAgentModel in generateTripPlan.ts 0ms
+   × Provider Migration (AI-002+AI-003) > AC-3: Low-reasoning agents use getAgentModel(low) > should use getAgentModel in routingAgent.ts 4ms
+     → expected '\'use node\'\n\nimport { type Tool, t…' to contain 'from \'../lib/models\''
+   ✓ Provider Migration (AI-002+AI-003) > AC-3: Low-reasoning agents use getAgentModel(low) > should use getAgentModel in searchAgent.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-3: Low-reasoning agents use getAgentModel(low) > should use getAgentModel in enrichmentAgent.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-3: Low-reasoning agents use getAgentModel(low) > should use getAgentModel in enrichRoute.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-4: sendMessage uses getAgentModelInfo for metadata > should use getAgentModelInfo in sendMessage.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-5: No hardcoded provider strings remain > should not have hardcoded claude model names in agents 1ms
+ ✓ server/convex/db/planningSessions.test.ts (5 tests) 2ms
+ ✓ convex/db/planningSessions.test.ts (5 tests) 2ms
+ ❯ convex/actions/agent/__tests__/provider-migration.test.ts (11 tests | 1 failed) 15ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-1: Env exports removed > should not export AI_PROVIDER from env.ts 1ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-1: Env exports removed > should not export AI_MODEL from env.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-1: Env exports removed > should document CEREBRAS_API_KEY in .env.example 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-2: High-reasoning agents use getAgentModel(high) > should use getAgentModel in orchestrator.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-2: High-reasoning agents use getAgentModel(high) > should use getAgentModel in generateTripPlan.ts 0ms
+   × Provider Migration (AI-002+AI-003) > AC-3: Low-reasoning agents use getAgentModel(low) > should use getAgentModel in routingAgent.ts 11ms
+     → expected '\'use node\'\n\nimport { type Tool, t…' to contain 'from \'../lib/models\''
+   ✓ Provider Migration (AI-002+AI-003) > AC-3: Low-reasoning agents use getAgentModel(low) > should use getAgentModel in searchAgent.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-3: Low-reasoning agents use getAgentModel(low) > should use getAgentModel in enrichmentAgent.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-3: Low-reasoning agents use getAgentModel(low) > should use getAgentModel in enrichRoute.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-4: sendMessage uses getAgentModelInfo for metadata > should use getAgentModelInfo in sendMessage.ts 0ms
+   ✓ Provider Migration (AI-002+AI-003) > AC-5: No hardcoded provider strings remain > should not have hardcoded claude model names in agents 1ms
+ ❯ server/convex/actions/agent/__tests__/planningIntegration.test.ts (19 tests | 10 failed) 337ms
+   × summarizeToolResult > maps geocode with label to Geocoded message 11ms
+     → expected 'Looking up Santa Cruz' to be 'Geocoded Santa Cruz, CA' // Object.is equality
+   × summarizeToolResult > maps geocode with no results to default message 0ms
+     → expected 'Looking up location' to be 'geocode complete' // Object.is equality
+   × summarizeToolResult > maps createRouteSketch with label to Sketched message 0ms
+     → expected 'Designing route: Skyline Blvd → Hwy 9…' to be 'Sketched: Skyline Blvd → Hwy 9 → SC' // Object.is equality
+   × summarizeToolResult > maps compileSketch with options to Compiled segments message 0ms
+     → expected 'Found the best roads' to be 'Compiled 4 segments' // Object.is equality
+   × summarizeToolResult > maps planRoute to planned route message 0ms
+     → expected 'Mapping out your ride' to be 'Planned route' // Object.is equality
+   × summarizeToolResult > maps searchNearby with results to Found N nearby places 0ms
+     → expected 'Found 2 places nearby' to be 'Found 2 nearby places' // Object.is equality
+   × summarizeToolResult > maps webSearch to Searched the web 0ms
+     → expected 'Checked the latest info' to be 'Searched the web' // Object.is equality
+   × summarizeToolResult > maps routing_agent with summary to that summary 0ms
+     → expected 'Your route is ready' to be 'Route to Santa Cruz ready' // Object.is equality
+   × summarizeToolResult > maps routing_agent with no summary to Route ready 0ms
+     → expected 'Your route is ready' to be 'Route ready' // Object.is equality
+   ✓ summarizeToolResult > maps search_agent with summary to that summary 0ms
+   ✓ summarizeToolResult > maps enrichment_agent with summary to that summary 0ms
+   × summarizeToolResult > maps unknown tool to toolName complete 0ms
+     → expected 'Working on it...' to be 'someUnknownTool complete' // Object.is equality
+   ✓ PlanningEventEmitter wiring — ExecuteContext has planning callbacks > ExecuteContext type includes onSubToolPending 294ms
+   ✓ PlanningEventEmitter wiring — ExecuteContext has planning callbacks > ExecuteContext type includes onSubToolComplete 0ms
+   ✓ PlanningEventEmitter wiring — ExecuteContext has planning callbacks > ExecuteContext type includes onSubAgentComplete 0ms
+   ✓ sendMessage PlanningEventEmitter integration > buildAgentCallbacks works (merged buildCardCallbacks + buildStreamingContext) 25ms
+   ✓ PlanningEventEmitter explicit phase writes > writes explicit phase patches for routing tool and agent events 1ms
+   ✓ orchestrator executeOrchestratorTool — planning callback forwarding > determineAvailableTools returns routing_agent and search_agent when no routes 1ms
+   ✓ orchestrator executeOrchestratorTool — planning callback forwarding > determineAvailableTools includes enrichment_agent when routes exist 0ms
+stdout | scripts/design-review/__tests__/visual-issue-schema.test.ts
+Testing VisualIssueSchema...
+✅ accepts valid payload with all required fields
+✅ accepts all issue_type enum values
+✅ accepts all severity enum values
+✅ accepts confidence values at boundaries (0 and 1)
+✅ rejects out-of-range confidence (negative)
+✅ rejects out-of-range confidence (> 1)
+✅ rejects unknown issue_type enum value
+✅ rejects unknown severity enum value
+✅ rejects missing required fields
+✅ rejects non-array input
+✅ All schema tests passed
+
+ ❯ convex/actions/agent/__tests__/planningIntegration.test.ts (19 tests | 10 failed) 376ms
+   × summarizeToolResult > maps geocode with label to Geocoded message 18ms
+     → expected 'Looking up Santa Cruz' to be 'Geocoded Santa Cruz, CA' // Object.is equality
+   × summarizeToolResult > maps geocode with no results to default message 1ms
+     → expected 'Looking up location' to be 'geocode complete' // Object.is equality
+   × summarizeToolResult > maps createRouteSketch with label to Sketched message 0ms
+     → expected 'Designing route: Skyline Blvd → Hwy 9…' to be 'Sketched: Skyline Blvd → Hwy 9 → SC' // Object.is equality
+   × summarizeToolResult > maps compileSketch with options to Compiled segments message 1ms
+     → expected 'Found the best roads' to be 'Compiled 4 segments' // Object.is equality
+   × summarizeToolResult > maps planRoute to planned route message 0ms
+     → expected 'Mapping out your ride' to be 'Planned route' // Object.is equality
+   × summarizeToolResult > maps searchNearby with results to Found N nearby places 0ms
+     → expected 'Found 2 places nearby' to be 'Found 2 nearby places' // Object.is equality
+   × summarizeToolResult > maps webSearch to Searched the web 0ms
+     → expected 'Checked the latest info' to be 'Searched the web' // Object.is equality
+   × summarizeToolResult > maps routing_agent with summary to that summary 0ms
+     → expected 'Your route is ready' to be 'Route to Santa Cruz ready' // Object.is equality
+   × summarizeToolResult > maps routing_agent with no summary to Route ready 0ms
+     → expected 'Your route is ready' to be 'Route ready' // Object.is equality
+   ✓ summarizeToolResult > maps search_agent with summary to that summary 0ms
+   ✓ summarizeToolResult > maps enrichment_agent with summary to that summary 0ms
+   × summarizeToolResult > maps unknown tool to toolName complete 0ms
+     → expected 'Working on it...' to be 'someUnknownTool complete' // Object.is equality
+   ✓ PlanningEventEmitter wiring — ExecuteContext has planning callbacks > ExecuteContext type includes onSubToolPending  327ms
+   ✓ PlanningEventEmitter wiring — ExecuteContext has planning callbacks > ExecuteContext type includes onSubToolComplete 0ms
+   ✓ PlanningEventEmitter wiring — ExecuteContext has planning callbacks > ExecuteContext type includes onSubAgentComplete 0ms
+   ✓ sendMessage PlanningEventEmitter integration > buildAgentCallbacks works (merged buildCardCallbacks + buildStreamingContext) 22ms
+   ✓ PlanningEventEmitter explicit phase writes > writes explicit phase patches for routing tool and agent events 3ms
+   ✓ orchestrator executeOrchestratorTool — planning callback forwarding > determineAvailableTools returns routing_agent and search_agent when no routes 0ms
+   ✓ orchestrator executeOrchestratorTool — planning callback forwarding > determineAvailableTools includes enrichment_agent when routes exist 0ms
+stdout | scripts/design-review/__tests__/visual-eval.test.ts
+Testing visual-eval.ts...
+Test 1: Checking if visualEval function exists...
+  Looking for module at: /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01/scripts/design-review/visual-eval.ts
+✅ visual-eval.ts file exists
+Test 2: Checking model ID...
+✅ Model ID is claude-sonnet-4-6
+Test 3: Checking prompt file reference...
+✅ Prompt file visual-eval.md is referenced
+Test 4: Checking image order...
+✅ Image order appears correct (reference, captured)
+Test 5: Checking Zod schema import...
+✅ VisualIssueSchema is imported
+Test 6: Checking concurrency cap...
+✅ Concurrency cap is present
+Test 7: Checking output directory structure...
+✅ Output directory structure is correct
+✅ All visual-eval structure tests passed
+
+NOTE: Full integration test requires ANTHROPIC_API_KEY to be set.
+The test verifies the code structure and references are correct.
+Actual API calls are tested separately with mocked responses.
+
+ ✓ server/convex/actions/agent/providers/__tests__/waypointService.test.ts (10 tests) 5ms
+ ✓ convex/actions/agent/providers/__tests__/waypointService.test.ts (10 tests) 5ms
+ ❯ server/convex/actions/agent/__tests__/budgetTracker.test.ts (17 tests | 3 failed) 7ms
+   ✓ BudgetTracker > accumulation > sums usage.cost.total across multiple add() calls 1ms
+   ✓ BudgetTracker > no throw below limit > does not throw when a single add() stays under the limit 0ms
+   ✓ BudgetTracker > throw at limit > throws ConvexError with AGENT_BUDGET_EXCEEDED when cumulative reaches the limit 0ms
+   ✓ BudgetTracker > throw at limit > thrown error carries the expected code, cumulativeUSD, and limitUSD 0ms
+   ✓ BudgetTracker > throw at limit > throws exactly on the crossing call, not a cycle later 0ms
+   ✓ BudgetTracker > getCumulative and getRemainingBudget > getCumulative returns the running total after adds 0ms
+   ✓ BudgetTracker > getCumulative and getRemainingBudget > getRemainingBudget returns limitUSD minus cumulative 0ms
+   ✓ BudgetTracker > getCumulative and getRemainingBudget > getRemainingBudget can be negative after limit is crossed 0ms
+   ✓ BudgetTracker > custom limit > respects a custom $0.001 limit and throws on a tiny cost 0ms
+   ✓ BudgetTracker > custom limit > does not throw when cost is exactly below the custom limit 0ms
+   ✓ BudgetTracker > log mode > does not throw when limit exceeded in log mode 0ms
+   × BudgetTracker > log mode > calls console.warn when limit exceeded in log mode 4ms
+     → expected "warn" to be called at least once
+   × BudgetTracker > log mode > includes agentLabel in log output when provided 0ms
+     → the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+   ✓ BudgetTracker > log mode > still accumulates cumulative cost in log mode even after limit exceeded 0ms
+   ✓ BudgetTracker > gate mode (backwards compatible) > throws ConvexError in gate mode (same as no-option constructor) 0ms
+   ✓ BudgetTracker > agentLabel parameter > accepts optional agentLabel parameter without throwing (gate mode, under limit) 0ms
+   × BudgetTracker > agentLabel parameter > log message includes cost and cumulative when agentLabel provided 0ms
+     → the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ✓ react-native/components/ui/__tests__/thinkingSteps-data-flow.test.ts (6 tests) 3ms
+ ❯ convex/actions/agent/__tests__/budgetTracker.test.ts (17 tests | 3 failed) 8ms
+   ✓ BudgetTracker > accumulation > sums usage.cost.total across multiple add() calls 1ms
+   ✓ BudgetTracker > no throw below limit > does not throw when a single add() stays under the limit 0ms
+   ✓ BudgetTracker > throw at limit > throws ConvexError with AGENT_BUDGET_EXCEEDED when cumulative reaches the limit 0ms
+   ✓ BudgetTracker > throw at limit > thrown error carries the expected code, cumulativeUSD, and limitUSD 0ms
+   ✓ BudgetTracker > throw at limit > throws exactly on the crossing call, not a cycle later 0ms
+   ✓ BudgetTracker > getCumulative and getRemainingBudget > getCumulative returns the running total after adds 0ms
+   ✓ BudgetTracker > getCumulative and getRemainingBudget > getRemainingBudget returns limitUSD minus cumulative 0ms
+   ✓ BudgetTracker > getCumulative and getRemainingBudget > getRemainingBudget can be negative after limit is crossed 0ms
+   ✓ BudgetTracker > custom limit > respects a custom $0.001 limit and throws on a tiny cost 0ms
+   ✓ BudgetTracker > custom limit > does not throw when cost is exactly below the custom limit 0ms
+   ✓ BudgetTracker > log mode > does not throw when limit exceeded in log mode 0ms
+   × BudgetTracker > log mode > calls console.warn when limit exceeded in log mode 5ms
+     → expected "warn" to be called at least once
+   × BudgetTracker > log mode > includes agentLabel in log output when provided 0ms
+     → the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+   ✓ BudgetTracker > log mode > still accumulates cumulative cost in log mode even after limit exceeded 0ms
+   ✓ BudgetTracker > gate mode (backwards compatible) > throws ConvexError in gate mode (same as no-option constructor) 0ms
+   ✓ BudgetTracker > agentLabel parameter > accepts optional agentLabel parameter without throwing (gate mode, under limit) 0ms
+   × BudgetTracker > agentLabel parameter > log message includes cost and cumulative when agentLabel provided 0ms
+     → the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ❯ convex/actions/agent/tools/__tests__/searchAlongRoute.test.ts (5 tests | 3 failed) 11ms
+   × searchAlongRoute > basic search: returns 1-5 places with name and address for valid polyline and query 5ms
+     → expected false to be true // Object.is equality
+   × searchAlongRoute > offset search: returns places biased toward origin offset with detour time when offset provided 0ms
+     → expected false to be true // Object.is equality
+   × searchAlongRoute > no results: returns empty array for queries with no matching places 0ms
+     → expected false to be true // Object.is equality
+   ✓ searchAlongRoute > api error: returns error status without throwing on API failure 0ms
+   ✓ searchAlongRoute > api error: returns error status on network failure without throwing 5ms
+ ✓ convex/actions/agent/tools/__tests__/getCurvature.test.ts (6 tests) 2ms
+ ✓ server/convex/actions/agent/__tests__/executePlan.test.ts (5 tests) 5ms
+ ✓ server/convex/actions/agent/lib/__tests__/enrichmentCache.test.ts (10 tests) 6ms
+ ✓ convex/actions/agent/lib/__tests__/enrichmentCache.test.ts (10 tests) 35ms
+stdout | scripts/design-review/__tests__/validate-manifest.test.ts
+Testing manifest validation...
+✅ Test 1 passed: Valid manifest structure defined
+✅ Test 2 passed: Missing entries field would be detected
+✅ Test 3 passed: Missing entry fields would be detected
+✅ Test 4 passed: Invalid date format would be detected
+
+✅ Manifest validation tests completed
+Note: Full validation tests require actual manifest file from build-manifest
+
+ ✓ convex/actions/agent/tools/__tests__/getElevation.test.ts (7 tests) 3ms
+ ✓ convex/actions/agent/__tests__/executePlan.test.ts (5 tests) 32ms
+ ✓ react-native/components/chat/__tests__/route-attachment-card.test.ts (18 tests) 2ms
+ ✓ convex/actions/agent/tools/__tests__/getRouteWeather.test.ts (5 tests) 6ms
+ ✓ convex/actions/agent/tools/__tests__/manageWaypoints.test.ts (8 tests) 3ms
+ ✓ convex/db/__tests__/sessionMessages.validation.test.ts (8 tests) 3ms
+ ✓ server/convex/db/__tests__/sessionMessages.validation.test.ts (8 tests) 4ms
+ ✓ server/convex/__tests__/sessionMessageSchema.test.ts (8 tests) 19ms
+stdout | scripts/design-review/__tests__/report-html.test.ts
+🧪 Testing HTML report structure...
+
+🔍 Severity threshold: low (include low and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618587/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618587/report.html
+
+stdout | scripts/design-review/__tests__/report-html.test.ts
+HTML Structure Checks:
+  DOCTYPE: ✅
+  <html> tag: ✅
+  <head>: ✅
+  <body>: ✅
+  Title: ✅
+
+Self-Contained Checks:
+  Inline styles: ✅
+  Inline scripts: ✅
+
+Summary Dashboard:
+  Summary section: ✅
+
+Severity Styling:
+  High severity class: ✅
+  Med severity class: ✅
+  Low severity class: ✅
+
+Interactive Features:
+  Collapsible entries: ✅
+
+Article §5 Fields Display:
+  issue_id: ✅
+  fix_hint: ✅
+  design_token: ✅
+  code_search_hint: ✅
+  location: ✅
+
+✅ TEST PASSED: HTML report structure is valid and complete
+
+ ✓ server/convex/db/__tests__/planningSessions.cleanup.test.ts (3 tests) 2ms
+ ✓ convex/db/__tests__/planningSessions.cleanup.test.ts (3 tests) 2ms
+stdout | scripts/design-review/__tests__/summary.test.ts
+🧪 Testing summary aggregation...
+
+🔍 Severity threshold: low (include low and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618612/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618612/report.html
+
+stdout | scripts/design-review/__tests__/summary.test.ts
+📊 Summary data:
+  Total issues: 6
+  High: 2
+  Medium: 3
+  Low: 1
+  Screens passed: 0
+  Screens failed: 2
+
+✅ TEST PASSED: Summary aggregates correctly
+
+stderr | convex/actions/__tests__/protomapsProvider.test.ts > protomapsProvider > getProtomapsPresignedUrl > AC-2: production environment throws error on R2 failure (not silent fallback)
+[LOG] {"timestamp":"2026-05-22T16:16:58.624Z","level":"error","category":"protomaps.error","message":"Protomaps failure: generatePresignedUrl","data":{"operation":"generatePresignedUrl","error":"Invalid URL","context":{"hasR2Endpoint":true,"hasR2KeyId":true,"hasR2Secret":true,"hasR2Bucket":true}}}
+
+stderr | server/convex/actions/__tests__/protomapsProvider.test.ts > protomapsProvider > getProtomapsPresignedUrl > AC-2: production environment throws error on R2 failure (not silent fallback)
+[LOG] {"timestamp":"2026-05-22T16:16:58.625Z","level":"error","category":"protomaps.error","message":"Protomaps failure: generatePresignedUrl","data":{"operation":"generatePresignedUrl","error":"Invalid URL","context":{"hasR2Endpoint":true,"hasR2KeyId":true,"hasR2Secret":true,"hasR2Bucket":true}}}
+
+stdout | scripts/design-review/__tests__/code-search-hint.test.ts
+🧪 Testing code_search_hint resolution...
+
+🔍 Severity threshold: low (include low and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618613/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618613/report.html
+
+stderr | scripts/design-review/__tests__/code-search-hint.test.ts
+⚠️  No code mapping for component ".unmapped-component", using selector as fallback
+
+stdout | scripts/design-review/__tests__/code-search-hint.test.ts
+📊 code_search_hint values:
+
+Test 1: Mapped selectors resolve to symbol names
+  ✅ .mol-form-field → LSFormField
+  ✅ .mol-brand-badge → LSBrandBadge
+
+Test 2: Unmapped selectors fall back to selector string
+  ✅ .unmapped-component → .unmapped-component (fallback)
+
+Test 3: Warning logged for unmapped component
+  ⚠️  Warning not detected (may be logged elsewhere)
+
+✅ ALL TESTS PASSED: code_search_hint resolution works correctly
+
+ ✓ react-native/styles/__tests__/weather.test.ts (16 tests) 3ms
+ ✓ server/models/__tests__/session-messages-thinking.test.ts (8 tests) 10ms
+stderr | scripts/design-review/__tests__/validate-golden-set.test.ts
+❌ Reference image not found: .spec/design/system/refs/auth-screen/default.dark.png
+
+stdout | scripts/design-review/__tests__/visual-eval-retry.test.ts
+Testing one-shot retry behavior...
+Test 1: Simulating retry on schema failure...
+
+stdout | scripts/design-review/__tests__/visual-eval-retry.test.ts
+✅ Valid JSON succeeds on first attempt
+  ⚠️  Schema validation failed, retrying...
+  ❌ Schema validation failed on retry
+
+stdout | scripts/design-review/__tests__/visual-eval-retry.test.ts
+✅ Invalid JSON fails after retry (2 attempts total)
+Test 2: Verifying retry hint message...
+✅ Retry hint message is correctly formatted
+Test 3: Verifying error handling continues processing...
+  ⚠️  Schema validation failed, retrying...
+  ❌ Schema validation failed on retry
+
+stdout | scripts/design-review/__tests__/visual-eval-retry.test.ts
+✅ Error in one entry does not prevent processing of other entries
+✅ All retry tests passed
+
+stdout | scripts/design-review/__tests__/issue-shape.test.ts
+🧪 Testing issue shape with all article §5 fields...
+
+🔍 Severity threshold: low (include low and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618686/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618686/report.html
+
+stdout | scripts/design-review/__tests__/issue-shape.test.ts
+📊 Report contains 4 issues
+
+✅ auth-screen.email-entry..mol-form-field.spacing-0 — all fields present
+✅ auth-screen.email-entry..mol-brand-badge.color-1 — all fields present
+✅ auth-screen.email-entry..atom-phase-dot.typography-2 — all fields present
+✅ auth-screen.password-entry..mol-submit-button.color-0 — all fields present
+
+✅ TEST PASSED: All issues have required article §5 fields
+
+Required fields verified:
+  ✓ issue_id
+  ✓ screen
+  ✓ state
+  ✓ theme
+  ✓ component
+  ✓ issue_type
+  ✓ severity
+  ✓ confidence
+  ✓ observed
+  ✓ expected
+  ✓ location
+  ✓ location.bounding_box
+  ✓ location.bounding_box.x
+  ✓ location.bounding_box.y
+  ✓ location.bounding_box.width
+  ✓ location.bounding_box.height
+  ✓ fix_hint
+  ✓ design_token
+  ✓ code_search_hint
+
+ ✓ server/convex/actions/__tests__/monitoring.test.ts (3 tests) 4ms
+stdout | scripts/design-review/__tests__/smoke-regression.test.ts
+Running smoke regression test...
+✓ All issues have valid article §5 field shapes
+✓ Regression detected at severity >= med
+✓ Found 1 med/high severity issue(s)
+✓ 1 issue(s) reference --space-4 token
+
+✅ Smoke regression test PASSED
+
+stderr | scripts/design-review/__tests__/smoke-regression.test.ts
+
+❌ Smoke regression test FAILED
+process.exit unexpectedly called with "0"
+
+ ✓ server/convex/db/__tests__/sessionMessages.test.ts (11 tests) 3ms
+stdout | scripts/design-review/__tests__/severity-filter.test.ts
+🧪 Testing severity filtering...
+
+Test 1: Default severity (med) - include med and high
+🔍 Severity threshold: med (include med and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618791/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618791/report.html
+
+stdout | scripts/design-review/__tests__/severity-filter.test.ts
+  Issues count: 3 (expected: 3)
+  Has high: true (expected: true)
+  Has med: true (expected: true)
+  Has low: false (expected: false)
+  ✅ PASS
+
+Test 2: Low severity - include all
+🔍 Severity threshold: low (include low and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618791/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618791/report.html
+
+stdout | scripts/design-review/__tests__/severity-filter.test.ts
+  Issues count: 4 (expected: 4)
+  ✅ PASS
+
+Test 3: High severity - include only high
+🔍 Severity threshold: high (include high and above)
+✅ JSON report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618791/report.json
+✅ HTML report written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-test-1779466618791/report.html
+
+stdout | scripts/design-review/__tests__/severity-filter.test.ts
+  Issues count: 1 (expected: 1)
+  Only high: true (expected: true)
+  ✅ PASS
+
+✅ ALL TESTS PASSED: Severity filtering works correctly
+
+ ✓ react-native/components/ui/saved-route-card.test.ts (8 tests) 12ms
+ ❯ server/convex/actions/agent/providers/__tests__/geocodingProvider.test.ts (9 tests | 8 failed) 7ms
+   × geocoding provider > happy path: maps Google results to GeocodeResult[] 3ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × geocoding provider > returns [] when status is ZERO_RESULTS 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × geocoding provider > includes location and radius params when bias is provided 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × geocoding provider > omits location and radius params when no bias is provided 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × geocoding provider > URL-encodes the query string 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × geocoding provider > returns [] on network error (does not throw) 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × geocoding provider > returns [] on timeout (does not throw) 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   ✓ geocoding provider > throws when GOOGLE_MAPS_API_KEY is missing 1ms
+   × geocoding provider > caps results at 5 when more are returned 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+ ✓ convex/actions/__tests__/monitoring.test.ts (3 tests) 4ms
+ ❯ convex/actions/agent/providers/__tests__/geocodingProvider.test.ts (9 tests | 8 failed) 5ms
+   × geocoding provider > happy path: maps Google results to GeocodeResult[] 2ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × geocoding provider > returns [] when status is ZERO_RESULTS 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × geocoding provider > includes location and radius params when bias is provided 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × geocoding provider > omits location and radius params when no bias is provided 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × geocoding provider > URL-encodes the query string 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × geocoding provider > returns [] on network error (does not throw) 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   × geocoding provider > returns [] on timeout (does not throw) 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+   ✓ geocoding provider > throws when GOOGLE_MAPS_API_KEY is missing 1ms
+   × geocoding provider > caps results at 5 when more are returned 0ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+ ✓ server/convex/__tests__/weather.test.ts (6 tests) 41ms
+ ✓ server/convex/__tests__/favorites.test.ts (3 tests) 24ms
+ ❯ convex/__tests__/weather.test.ts (6 tests | 1 failed) 46ms
+   ✓ weather contract > returns the mobile weather DTO including uppercase dayOfWeek 41ms
+   ✓ weather contract > retries one transient 503 from Open-Meteo and then succeeds 1ms
+   ✓ weather contract > does not retry a non-transient 400 from Open-Meteo 1ms
+   ✓ weather contract > does not retry a 429 because only transient 5xx failures are retryable 0ms
+   ✓ weather contract > throws UNAUTHENTICATED before calling the provider 0ms
+   × weather contract > keeps the native weather action contracts aligned with the documented public endpoint 2ms
+     → ENOENT: no such file or directory, open '/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/ios/LaneShadow/Services/ConvexClient+LaneShadow.swift'
+ ❯ convex/actions/agent/tools/__tests__/tools.integration.test.ts (1 test | 1 failed) 4ms
+   × agent tools integration > compiles, normalizes, indexes, probes, and maps wind overlay deterministically 4ms
+     → Missing required environment variable: GOOGLE_MAPS_API_KEY
+ ❯ server/convex/actions/__tests__/mapData.test.ts (4 tests | 2 failed) 5ms
+   × Map Data Actions > checkFreshnessWithAlert > AC-1: stale data triggers protomaps.error log 3ms
+     → expected "error" to be called 1 times, but got 0 times
+   × Map Data Actions > checkFreshnessWithAlert > AC-2: missing data triggers protomaps.error log 0ms
+     → expected "error" to be called 1 times, but got 0 times
+   ✓ Map Data Actions > checkFreshnessWithAlert > AC-3: fresh data logs nothing (normal operation) 1ms
+   ✓ Map Data Actions > SRC-001 curated route contract widening > AC-4: scenic byways provenance survives contracts 0ms
+ ✓ convex/db/__tests__/sessionMessages.test.ts (11 tests) 2ms
+ ✓ convex/actions/agent/__tests__/loopDetector.test.ts (11 tests) 3ms
+ ✓ server/convex/actions/agent/__tests__/loopDetector.test.ts (11 tests) 4ms
+stderr | scripts/design-review/__tests__/calibrate.test.ts
+❌ Round file not found: .design-review/calibration/round-1.json
+   Run: pnpm design:calibrate
+
+ ✓ convex/actions/agent/tools/__tests__/probeConditions.test.ts (3 tests) 5ms
+ ✓ server/convex/db/savedRoutes.test.ts (5 tests) 40ms
+ ✓ convex/db/savedRoutes.test.ts (5 tests) 42ms
+ ✓ server/models/__tests__/curated-routes.test.ts (5 tests) 16ms
+ ❯ server/convex/__tests__/geospatialValidation.test.ts (6 tests | 1 failed) 6ms
+   ✓ AC-4: Nearest-neighbor query returns correct results under 500ms > geospatialValidation.ts file exists 1ms
+   ✓ AC-4: Nearest-neighbor query returns correct results under 500ms > validateNearestNeighbor query is exported 0ms
+   ✓ AC-4: Nearest-neighbor query returns correct results under 500ms > validateNearestNeighbor returns correct structure 0ms
+   ✓ AC-5: Rectangular range query returns correct results under 500ms > validateRectangularRange query is exported 0ms
+   ✓ AC-5: Rectangular range query returns correct results under 500ms > validateRectangularRange returns correct structure 0ms
+   × AC-5: Rectangular range query returns correct results under 500ms > validateRectangularRange uses rectangular bounding box 4ms
+     → expected '// VALIDATION ONLY — remove before pr…' to contain 'type: "rectangle"'
+ ❯ convex/actions/__tests__/mapData.test.ts (4 tests | 2 failed) 5ms
+   × Map Data Actions > checkFreshnessWithAlert > AC-1: stale data triggers protomaps.error log 3ms
+     → expected "error" to be called 1 times, but got 0 times
+   × Map Data Actions > checkFreshnessWithAlert > AC-2: missing data triggers protomaps.error log 0ms
+     → expected "error" to be called 1 times, but got 0 times
+   ✓ Map Data Actions > checkFreshnessWithAlert > AC-3: fresh data logs nothing (normal operation) 1ms
+   ✓ Map Data Actions > SRC-001 curated route contract widening > AC-4: scenic byways provenance survives contracts 0ms
+ ✓ server/convex/__tests__/schema.curation.test.ts (3 tests) 66ms
+stdout | scripts/design-review/__tests__/visual-eval-concurrency.test.ts
+Testing concurrency cap...
+Test 1: Verifying default concurrency...
+✅ Default concurrency is 3
+Test 2: Verifying env override...
+✅ Env override respects DESIGN_REVIEW_CONCURRENCY
+Test 3: Simulating concurrency-limited execution...
+
+ ✓ server/convex/lib/errors/__tests__/protomaps.test.ts (11 tests) 3ms
+ ✓ convex/lib/errors/__tests__/protomaps.test.ts (11 tests) 2ms
+stdout | scripts/design-review/__tests__/smoke-clean.test.ts
+Running smoke clean test...
+✓ Zero med+ issues found for auth-screen
+✓ Total low-severity issues: 1
+✓ Summary reflects clean state (screens_passed=1, screens_failed=0)
+
+✅ Smoke clean test PASSED
+
+stderr | scripts/design-review/__tests__/smoke-clean.test.ts
+
+❌ Smoke clean test FAILED
+process.exit unexpectedly called with "0"
+
+stdout | scripts/design-review/__tests__/image-order.test.ts
+Testing image order in visual-eval.ts...
+Test 1: Checking image order in code...
+✅ Reference image variable assigned before captured image (ref at line 112, capt at line 113)
+Test 2: Checking for image order documentation...
+✅ Image order is documented in code
+Test 3: Verifying API call structure...
+✅ API call uses correct image order (reference before captured)
+✅ All image order tests passed
+
+ ✓ convex/actions/agent/tools/__tests__/getUserFavorites.test.ts (4 tests) 2ms
+ ✓ convex/actions/agent/tools/__tests__/mapConditions.test.ts (3 tests) 3ms
+ ❯ server/convex/__tests__/geospatialIndex.test.ts (6 tests | 3 failed) 23ms
+   ✓ AC-1: @convex-dev/geospatial installed and importable > geospatialIndex.ts file exists 1ms
+   × AC-1: @convex-dev/geospatial installed and importable > geospatialIndex.ts imports from @convex-dev/geospatial 7ms
+     → expected '// @convex-dev/geospatial version: 0.…' to contain 'import { GeospatialIndex } from "@con…'
+   × AC-1: @convex-dev/geospatial installed and importable > package.json includes @convex-dev/geospatial dependency 4ms
+     → expected { convex: '^1.34.1' } to have property "@convex-dev/geospatial"
+   ✓ AC-2: GeospatialIndex defined on curated_routes with location field > geospatialIndex.ts exports GeospatialIndex instance 0ms
+   × AC-2: GeospatialIndex defined on curated_routes with location field > schema.ts includes location field in curated_routes 10ms
+     → expected '/**\n * Curated Routes Models\n *\n *…' to contain 'type: v.literal("Point")'
+   ✓ AC-2: GeospatialIndex defined on curated_routes with location field > generated API includes geospatial component 0ms
+ ❯ convex/actions/__tests__/protomapsProvider.test.ts (6 tests | 1 failed) 998ms
+   ✓ protomapsProvider > getProtomapsPresignedUrl > AC-1: presigned URL failures emit structured monitoring logs 222ms
+   ✓ protomapsProvider > getProtomapsPresignedUrl > AC-2: production environment throws error on R2 failure (not silent fallback) 8ms
+   × protomapsProvider > getProtomapsUrl > AC-3: URL validation checks for .pmtiles extension 4ms
+     → expected "warn" to be called at least once
+   ✓ protomapsProvider > queryNodesInBbox > AC-4: uses ProtomapsError for better error discrimination  363ms
+   ✓ protomapsProvider > queryWaysInBbox > AC-5: uses ProtomapsError for better error discrimination  370ms
+   ✓ protomapsProvider > queryWaysByName > AC-6: uses ProtomapsError for better error discrimination 31ms
+ ❯ server/convex/__tests__/seedGeospatialTest.test.ts (6 tests | 2 failed) 6ms
+   ✓ AC-3: 100 seed routes inserted with valid coordinates > seedGeospatialTest.ts file exists 1ms
+   ✓ AC-3: 100 seed routes inserted with valid coordinates > seedRoutes mutation is exported 0ms
+   ✓ AC-3: 100 seed routes inserted with valid coordinates > countSeeded query is exported 0ms
+   × AC-3: 100 seed routes inserted with valid coordinates > TEST_ROUTES array contains exactly 100 routes 3ms
+     → expected +0 to be 100 // Object.is equality
+   ✓ AC-7: Seeded routes span at least 5 distinct US states > countStates query is exported 0ms
+   × AC-7: Seeded routes span at least 5 distinct US states > TEST_ROUTES spans at least 5 distinct US states 0ms
+     → expected 0 to be greater than or equal to 5
+ ❯ server/convex/actions/__tests__/protomapsProvider.test.ts (6 tests | 1 failed) 1053ms
+   ✓ protomapsProvider > getProtomapsPresignedUrl > AC-1: presigned URL failures emit structured monitoring logs 258ms
+   ✓ protomapsProvider > getProtomapsPresignedUrl > AC-2: production environment throws error on R2 failure (not silent fallback) 6ms
+   × protomapsProvider > getProtomapsUrl > AC-3: URL validation checks for .pmtiles extension 3ms
+     → expected "warn" to be called at least once
+   ✓ protomapsProvider > queryNodesInBbox > AC-4: uses ProtomapsError for better error discrimination  432ms
+   ✓ protomapsProvider > queryWaysInBbox > AC-5: uses ProtomapsError for better error discrimination  319ms
+   ✓ protomapsProvider > queryWaysByName > AC-6: uses ProtomapsError for better error discrimination 33ms
+ ✓ server/convex/__tests__/guards.test.ts (7 tests) 5ms
+stderr | scripts/design-review/__tests__/rounds-tracking.test.ts
+❌ No round entries found in rounds.md
+   Expected at least 1, got 0
+
+ ❯ server/convex/db/__tests__/savedRoutes.rename.test.ts (6 tests | 6 failed) 5ms
+   × patchName not-found > AC-US034-1: throws ConvexError("Route not found") when doc does not exist 3ms
+     → patchName.handler is not a function
+   × patchName not-found > AC-US034-1: throws ConvexError("Route not found") when doc is owned by different user 0ms
+     → patchName.handler is not a function
+   × patchName validation > AC-1: trims whitespace from name before saving 0ms
+     → patchName.handler is not a function
+   × patchName validation > AC-2: throws ConvexError for empty string name 0ms
+     → patchName.handler is not a function
+   × patchName validation > AC-3: throws ConvexError for whitespace-only name 0ms
+     → patchName.handler is not a function
+   × patchName validation > AC-4: throws ConvexError for name exceeding 100 characters 0ms
+     → patchName.handler is not a function
+ ❯ convex/db/__tests__/savedRoutes.rename.test.ts (6 tests | 6 failed) 5ms
+   × patchName not-found > AC-US034-1: throws ConvexError("Route not found") when doc does not exist 3ms
+     → patchName.handler is not a function
+   × patchName not-found > AC-US034-1: throws ConvexError("Route not found") when doc is owned by different user 0ms
+     → patchName.handler is not a function
+   × patchName validation > AC-1: trims whitespace from name before saving 0ms
+     → patchName.handler is not a function
+   × patchName validation > AC-2: throws ConvexError for empty string name 1ms
+     → patchName.handler is not a function
+   × patchName validation > AC-3: throws ConvexError for whitespace-only name 0ms
+     → patchName.handler is not a function
+   × patchName validation > AC-4: throws ConvexError for name exceeding 100 characters 0ms
+     → patchName.handler is not a function
+ ✓ server/convex/__tests__/places.test.ts (4 tests) 43ms
+stdout | scripts/design-review/__tests__/missing-pairing.test.ts
+Testing missing-pairing error handling...
+
+stderr | scripts/design-review/__tests__/missing-pairing.test.ts
+⚠️  Skipped 2 capture(s) with missing references:
+  - Missing reference for (auth-screen, non-existent-state, light)
+  - Missing reference for (test-screen, default, light)
+
+stdout | scripts/design-review/__tests__/missing-pairing.test.ts
+Calling buildManifest with missing pair...
+✅ Manifest written to .design-review/manifest.json
+
+stderr | scripts/design-review/__tests__/missing-pairing.test.ts
+❌ buildManifest did not throw error for missing pairing
+❌ buildManifest threw wrong error: process.exit unexpectedly called with "1"
+
+stderr | scripts/design-review/__tests__/missing-pairing.test.ts
+❌ Test failed: Error: process.exit unexpectedly called with "1"
+    at process.exit (file:///Users/justinrich/Projects/LaneShadow/node_modules/.pnpm/vitest@3.2.4_@types+node@22.18.10_@vitest+ui@3.2.4_jsdom@29.0.1_tsx@4.20.6/node_modules/vitest/dist/chunks/execute.B7h3T_Hc.js:525:9)
+    at main (/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01/scripts/design-review/__tests__/missing-pairing.test.ts:91:15)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+ ✓ server/convex/actions/agent/providers/__tests__/weatherProvider.test.ts (3 tests) 27ms
+ ✓ convex/actions/agent/providers/__tests__/weatherProvider.test.ts (3 tests) 7ms
+ ✓ convex/actions/agent/tools/__tests__/findScenicWaypoints.test.ts (4 tests) 2ms
+stdout | scripts/design-review/__tests__/parse-attachment-name.test.ts
+Testing parseAttachmentName...
+✅ Test 1 passed: Valid attachment name parsed correctly
+✅ Test 2 passed: Another valid attachment name parsed correctly
+✅ Test 3 passed: Invalid format rejected correctly
+✅ Test 4 passed: Invalid format with too many parts rejected correctly
+
+✅ All parseAttachmentName tests passed
+
+stdout | scripts/design-review/__tests__/annotations-injection.test.ts
+Testing annotations injection in visual-eval.ts...
+Test 1: Checking if annotations file is loaded...
+✅ Annotations loading function exists
+Test 2: Checking if annotations are read from file...
+✅ Annotations are read from file
+Test 3: Checking if annotations are injected into user content...
+✅ Annotations are injected into user content
+Test 4: Checking if annotations components are included...
+✅ Annotations components are referenced
+Test 5: Checking if screen/state/theme context is included...
+✅ Screen/state/theme context is included
+✅ All annotations injection tests passed
+
+stdout | scripts/design-review/__tests__/theme-from-metadata.test.ts
+Testing getThemeFromMetadata...
+✅ Test 1 passed: Light theme resolved correctly
+✅ Test 2 passed: Dark theme resolved correctly
+✅ Test 3 passed: Missing deviceInfo defaults to light
+✅ Test 4 passed: Missing UIUserInterfaceStyle defaults to light
+
+✅ All getThemeFromMetadata tests passed
+
+ ✓ server/lib/enrichment/__tests__/status-tracker.test.ts (16 tests) 2ms
+ ✓ server/models/__tests__/route-plans.test.ts (4 tests) 22ms
+ ✓ convex/actions/agent/tools/__tests__/computeRouteIndex.test.ts (3 tests) 5ms
+ ✓ server/convex/db/__tests__/savedRoutes.test.ts (4 tests) 4ms
+ ✓ convex/db/__tests__/savedRoutes.test.ts (4 tests) 4ms
+ ✓ server/models/__tests__/curated-route-enrichments.test.ts (4 tests) 14ms
+ ✓ server/convex/db/__tests__/savedRoutes.dateFilter.test.ts (4 tests) 2ms
+ ✓ convex/db/__tests__/savedRoutes.dateFilter.test.ts (4 tests) 2ms
+ ❯ react-native/hooks/use-route-comparison.test.ts (3 tests | 3 failed) 15ms
+   × useRouteComparison > should return empty polylines for idle state 10ms
+     → document is not defined
+   × useRouteComparison > should return polylines for route results state 0ms
+     → document is not defined
+   × useRouteComparison > should provide selectRoute function 3ms
+     → document is not defined
+ ✓ convex/actions/agent/tools/__tests__/checkSurface.test.ts (4 tests) 11ms
+ ✓ server/models/__tests__/route-feedback.test.ts (6 tests) 11ms
+ ❯ server/convex/__tests__/env.test.ts (5 tests | 1 failed) 13ms
+   ✓ PROTOMAPS_US_URL validation > validateProtomapsUrl > returns undefined when URL is not provided 1ms
+   ✓ PROTOMAPS_US_URL validation > validateProtomapsUrl > returns the URL when valid pmtiles URL 0ms
+   ✓ PROTOMAPS_US_URL validation > validateProtomapsUrl > throws error for invalid URL format 0ms
+   × PROTOMAPS_US_URL validation > validateProtomapsUrl > returns non-pmtiles URL and warns 5ms
+     → expected "warn" to be called with arguments: [ Array(1) ]
+
+Number of calls: 0
+
+   ✓ PROTOMAPS_US_URL validation > env module > exports PROTOMAPS_US_URL (optional, can be undefined) 5ms
+stdout | scripts/design-review/__tests__/output-filename.test.ts
+Testing output filename generation in visual-eval.ts...
+Test 1: Checking if output path uses entry id...
+✅ Output filename uses entry.id
+Test 2: Checking output directory structure...
+✅ Output directory is .design-review/evals/visual
+Test 3: Checking if output file is written...
+✅ Output file is written with writeFileSync
+Test 4: Verifying complete output path pattern...
+✅ Output path pattern is correct
+Test 5: Checking OUTPUT_DIR constant...
+✅ OUTPUT_DIR constant is defined
+✅ All output filename tests passed
+
+ ✓ convex/db/users.test.ts (2 tests) 25ms
+ ✓ server/convex/db/users.test.ts (2 tests) 25ms
+stdout | scripts/design-review/__tests__/export-from-xcresult.test.ts
+Testing attachment name parsing...
+✅ Attachment name parsing works correctly
+✅ Theme resolution works correctly
+✅ Test suite passed
+
+stdout | scripts/design-review/__tests__/run-no-key-fallback.test.ts
+Testing no-key design-review fallback...
+
+stdout | scripts/design-review/__tests__/build-manifest-screen-filter.test.ts
+Testing buildManifest screen filtering...
+✅ Manifest written to /var/folders/rt/8_hh9gmj43x4763f7_l_nk3c0000gn/T/design-review-manifest-filter-OOifTM/manifest.json
+
+stderr | scripts/design-review/__tests__/build-manifest-screen-filter.test.ts
+⚠️  Skipped 1 capture(s) with missing references:
+  - Missing reference for (idle-screen, default, light)
+
+stderr | scripts/design-review/__tests__/build-manifest-screen-filter.test.ts
+❌ Expected manifest to include only idle-screen entries
+Actual screens: []
+
+ ✓ server/convex/actions/agent/lib/__tests__/models.test.ts (4 tests) 4ms
+stderr | scripts/design-review/__tests__/build-manifest-screen-filter.test.ts
+❌ Test failed: Error: process.exit unexpectedly called with "1"
+    at process.exit (file:///Users/justinrich/Projects/LaneShadow/node_modules/.pnpm/vitest@3.2.4_@types+node@22.18.10_@vitest+ui@3.2.4_jsdom@29.0.1_tsx@4.20.6/node_modules/vitest/dist/chunks/execute.B7h3T_Hc.js:525:9)
+    at main (/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01/scripts/design-review/__tests__/build-manifest-screen-filter.test.ts:45:15)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+ ✓ server/convex/__tests__/clerk-sync.test.ts (5 tests) 2ms
+ ✓ convex/actions/agent/lib/__tests__/models.test.ts (4 tests) 9ms
+stdout | scripts/design-review/__tests__/calibrate-holdout.test.ts
+✅ Held-out drift test passed
+   Held-out evaluation logic exists
+   Drift calculation implemented
+   5pp threshold enforced
+   Lock aborted when drift exceeds threshold
+
+stdout | scripts/design-review/__tests__/prompt-loading.test.ts
+Testing prompt file loading...
+✅ Prompt file exists at scripts/design-review/prompts/visual-eval.md
+✅ Prompt file contains required design review sections
+✅ Prompt file is not empty
+✅ Prompt file mentions JSON output format
+✅ All prompt loading tests passed
+
+stdout | scripts/design-review/__tests__/calibrate-lock-refusal.test.ts
+✅ Lock refusal test passed
+   Lock refusal logic exists in calibrate.ts
+   85% threshold is enforced
+   Process exits non-zero when threshold not met
+
+stdout | scripts/design-review/__tests__/run-cleanup.test.ts
+Testing stale design-review cleanup helper...
+
+stdout | scripts/design-review/__tests__/render-references.test.ts
+Checking for reference PNGs...
+Found 1 PNG files
+
+stderr | scripts/design-review/__tests__/render-references.test.ts
+❌ Expected at least 40 PNGs, but found 1
+
+stdout | main (/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01/scripts/design-review/__tests__/run-cleanup.test.ts:41:11)
+✅ clearDesignReviewOutputs removes stale captures and reports
+
+ ❯ convex/db/__tests__/savedRoutes.delete.test.ts (3 tests | 3 failed) 3ms
+   × deleteById not-found > AC-US034-2: throws ConvexError("Route not found") when doc does not exist 2ms
+     → deleteById.handler is not a function
+   × deleteById not-found > AC-US034-2: throws ConvexError("Route not found") when doc is owned by different user 0ms
+     → deleteById.handler is not a function
+   × deleteById happy path > deletes the document when owned by the viewer 0ms
+     → deleteById.handler is not a function
+ ❯ server/convex/__fixtures__/auth-error-taxonomy.test.ts (1 test | 1 failed) 5ms
+   × auth-error-taxonomy fixture > AC-7: fixture JSON is valid and covers every ERROR_CODES entry with mobile_mapping_target 4ms
+     → Code GEOCODE_UPSTREAM_ERROR missing from fixture: expected false to be true // Object.is equality
+ ❯ server/convex/db/__tests__/savedRoutes.delete.test.ts (3 tests | 3 failed) 4ms
+   × deleteById not-found > AC-US034-2: throws ConvexError("Route not found") when doc does not exist 3ms
+     → deleteById.handler is not a function
+   × deleteById not-found > AC-US034-2: throws ConvexError("Route not found") when doc is owned by different user 0ms
+     → deleteById.handler is not a function
+   × deleteById happy path > deletes the document when owned by the viewer 1ms
+     → deleteById.handler is not a function
+stdout | scripts/design-review/__tests__/locked-prompt-preference.test.ts
+✅ Locked prompt preference test passed
+   Locked prompt path referenced in calibrate.ts
+   Prompt locking logic exists
+   visual-eval.ts checks for locked prompt
+
+ ✓ convex/actions/agent/lib/__tests__/planningEvents.test.ts (1 test) 25ms
+ ✓ server/models/__tests__/session-messages-planning-phase.test.ts (3 tests) 2ms
+ ✓ server/lib/polyline.test.ts (2 tests) 2ms
+ ✓ react-native/hooks/use-place-autocomplete.test.ts (3 tests) 3ms
+ ✓ server/convex/db/__tests__/savedRoutes.search.test.ts (4 tests) 3ms
+ ✓ convex/db/__tests__/savedRoutes.search.test.ts (4 tests) 3ms
+stdout | scripts/design-review/__tests__/build-manifest.test.ts
+Testing buildManifest function...
+✅ buildManifest function imported successfully
+✅ Test suite passed
+
+ ✓ server/convex/actions/agent/tools/__tests__/mapConditions.reliability.test.ts (1 test) 2ms
+ ✓ convex/actions/agent/tools/__tests__/mapConditions.reliability.test.ts (1 test) 2ms
+stdout | scripts/design-review/__tests__/run-sequence.test.ts
+Testing runDesignReview function...
+
+ ✓ server/lib/enrichment/__tests__/toast-notifications.test.ts (8 tests) 2ms
+stdout | scripts/design-review/__tests__/run-severity.test.ts
+Testing --severity-threshold flag functionality...
+
+stdout | scripts/design-review/__tests__/run-screens-filter.test.ts
+Testing --screens flag functionality...
+
+stdout | scripts/design-review/__tests__/skill-output-shape.test.ts
+Testing output shape (article §6 schema)...
+
+ ✓ react-native/lib/convex-error.test.ts (4 tests) 2ms
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+Error: Channel closed
+ ❯ target.send node:internal/child_process:753:16
+ ❯ ProcessWorker.send ../../../node_modules/.pnpm/tinypool@1.1.1/node_modules/tinypool/dist/index.js:140:41
+ ❯ MessagePort.<anonymous> ../../../node_modules/.pnpm/tinypool@1.1.1/node_modules/tinypool/dist/index.js:149:62
+ ❯ [nodejs.internal.kHybridDispatch] node:internal/event_target:843:20
+ ❯ MessagePort.<anonymous> node:internal/per_context/messageport:23:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_IPC_CHANNEL_CLOSED' }
+
+
+
+ ELIFECYCLE  Test failed. See above for more details.

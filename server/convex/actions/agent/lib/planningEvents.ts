@@ -1,5 +1,11 @@
 'use node'
 
+import {
+  derivePlanningPhaseFromToolName,
+  mergePlanningPhase,
+  PLANNING_PHASE,
+  type PlanningPhase,
+} from '../../../../models/session-messages'
 import { internal } from '../../../_generated/api'
 import type { Id } from '../../../_generated/dataModel'
 
@@ -56,6 +62,7 @@ export class PlanningEventEmitter {
   private startTime: number
   private thinkingBuffer = ''
   private lastThinkingFlush = 0
+  private phase: PlanningPhase | null = null
   private static THINKING_THROTTLE_MS = 600 // Don't update more than ~1.7x/sec
 
   constructor(
@@ -86,7 +93,15 @@ export class PlanningEventEmitter {
     await this.init()
   }
 
-  private async persistContent(statusLine: string): Promise<void> {
+  private advancePhase(nextPhase: PlanningPhase | null): PlanningPhase | null {
+    this.phase = mergePlanningPhase(this.phase, nextPhase)
+    return this.phase
+  }
+
+  private async persistContent(
+    statusLine: string,
+    phase: PlanningPhase | null = this.phase,
+  ): Promise<void> {
     if (this.messageId === null) return
 
     const content: PlanningContent = {
@@ -95,10 +110,19 @@ export class PlanningEventEmitter {
       thinkingText: this.thinkingBuffer.trim() || undefined,
     }
 
-    await this.opts.runMutation(internal.db.sessionMessages.updatePlanningContent, {
+    const patch: {
+      messageId: Id<'session_messages'>
+      content: string
+      phase?: PlanningPhase
+    } = {
       messageId: this.messageId,
       content: JSON.stringify(content),
-    })
+    }
+    if (phase !== null) {
+      patch.phase = phase
+    }
+
+    await this.opts.runMutation(internal.db.sessionMessages.updatePlanningContent, patch)
   }
 
   /**
@@ -169,8 +193,9 @@ export class PlanningEventEmitter {
 
     // Use a brief indicator for tool activity, but keep thinking buffer intact
     const statusLine = getToolStatusLine(tool)
+    const phase = this.advancePhase(derivePlanningPhaseFromToolName(tool))
 
-    await this.persistContent(statusLine)
+    await this.persistContent(statusLine, phase)
   }
 
   async toolComplete(
@@ -192,7 +217,8 @@ export class PlanningEventEmitter {
     this.events.push(event)
 
     const statusLine = `${summary}`
-    await this.persistContent(statusLine)
+    const phase = this.advancePhase(derivePlanningPhaseFromToolName(tool))
+    await this.persistContent(statusLine, phase)
   }
 
   async agentComplete(agent: string, summary: string, durationMs: number): Promise<void> {
@@ -207,7 +233,8 @@ export class PlanningEventEmitter {
     }
     this.events.push(event)
 
-    await this.persistContent(summary)
+    const phase = this.advancePhase(PLANNING_PHASE.FINALIZING)
+    await this.persistContent(summary, phase)
   }
 
   /**

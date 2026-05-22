@@ -1,0 +1,15 @@
+const ENRICHING_TOOL_NAMES = new Set([
+  'searchNearby',
+  'getRouteWeather',
+  'webSearchResults',
+  'enrichment_agent',
+  'computeRouteIndex',
+  'probeConditions',
+--
+  if (ENRICHING_TOOL_NAMES.has(toolName)) return PLANNING_PHASE.ENRICHING
+  return null
+}
+
+export const mergePlanningPhase = (
+  currentPhase: PlanningPhase | null | undefined,
+  nextPhase: PlanningPhase | null | undefined,

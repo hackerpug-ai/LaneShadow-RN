@@ -5,7 +5,7 @@ import { internal } from '../../../_generated/api.js'
 import type { Id } from '../../../_generated/dataModel.js'
 import { getAgentModel } from '../lib/models.js'
 import { AgentToolSchemas } from '../lib/piTools.js'
-import { planRideOrchestrator } from '../lib/planRideOrchestrator.js'
+import { type PlanRideProgressEvent, planRideOrchestrator } from '../lib/planRideOrchestrator.js'
 import { buildOptionsFromResults } from '../planRide.js'
 import { createGeocodingProvider } from '../providers/geocodingProvider.js'
 import type { AgentContext, ExecuteContext } from '../ridePlanningAgent.js'
@@ -669,6 +669,7 @@ async function runPlanRoute(
       avoidTolls: boolean
     }
   },
+  executeCtx?: ExecuteContext,
 ): Promise<unknown> {
   // Rate-limit check (limit configurable via RATE_LIMIT_OVERRIDE env var; 0 = unlimited)
   const usage = await ctx.runQuery(internal.db.planUsage.checkUsageInternal, {
@@ -726,6 +727,18 @@ async function runPlanRoute(
       const results = await planRideOrchestrator({
         planInput,
         departureTimeMs: args.departureTime,
+        onProgress: async (event: PlanRideProgressEvent) => {
+          if (event.type === 'start') {
+            await executeCtx?.onSubToolPending?.(event.toolName, 'routing')
+            return
+          }
+          await executeCtx?.onSubToolComplete?.(
+            event.toolName,
+            'routing',
+            event.summary,
+            event.durationMs,
+          )
+        },
       })
 
       let built
@@ -935,7 +948,7 @@ export async function executeRoutingTool(
         result = await runCompileSketch(ctx, validated)
         break
       case 'planRoute':
-        result = await runPlanRoute(ctx, validated)
+        result = await runPlanRoute(ctx, validated, executeCtx)
         break
       case 'setSessionTitle':
         result = await runSetSessionTitle(ctx, validated)

@@ -1,0 +1,4 @@
+
+> laneshadow@1.0.0 type-check:native /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/FIX-S08-CVX-T01
+> tsgo --noEmit -p server/tsconfig.json && tsgo --noEmit -p react-native/tsconfig.json
+

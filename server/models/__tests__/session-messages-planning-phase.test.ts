@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { derivePlanningPhase, PLANNING_PHASE, type SessionMessage } from '../session-messages'
+import {
+  derivePlanningPhase,
+  derivePlanningPhaseFromToolName,
+  PLANNING_PHASE,
+  type SessionMessage,
+} from '../session-messages'
 
 const baseMessage = (overrides: Partial<SessionMessage> = {}): SessionMessage =>
   ({
@@ -32,5 +37,23 @@ describe('session-messages planning phase contract', () => {
     )
 
     expect(phase).toBe('finalizing')
+  })
+
+  it('derives enriching phase from getRouteWeather planning events', () => {
+    const phase = derivePlanningPhase(
+      baseMessage({
+        content: JSON.stringify({
+          events: [{ type: 'tool_pending', tool: 'getRouteWeather' }],
+        }),
+      }),
+    )
+
+    expect(phase).toBe('enriching')
+  })
+
+  it('maps real planRoute pipeline step names to searching, drafting, and enriching', () => {
+    expect(derivePlanningPhaseFromToolName('findScenicWaypoints')).toBe('searching')
+    expect(derivePlanningPhaseFromToolName('compileSketch')).toBe('drafting')
+    expect(derivePlanningPhaseFromToolName('probeConditions')).toBe('enriching')
   })
 })

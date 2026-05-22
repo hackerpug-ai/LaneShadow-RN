@@ -185,8 +185,10 @@ async function executeOrchestratorTool(
       // streams to the planning row (avoids technical noise + dedup)
       onToolStart: async (toolName: string, args: unknown) => {
         toolStartTimes.set(toolName, Date.now())
-        // Emit planning event for pending tool
-        await executeCtx.onSubToolPending?.(toolName, agentName)
+        // planRoute now emits its own deterministic pipeline progress.
+        if (toolName !== 'planRoute') {
+          await executeCtx.onSubToolPending?.(toolName, agentName)
+        }
         // Forward to base callback if present
         return baseCtx.onToolStart?.(toolName, args)
       },
@@ -195,8 +197,9 @@ async function executeOrchestratorTool(
         const durationMs = Date.now() - t0
         toolStartTimes.delete(toolName)
         const summary = summarizeToolResult(toolName, result)
-        // Emit planning event for completed tool
-        await executeCtx.onSubToolComplete?.(toolName, agentName, summary, durationMs)
+        if (toolName !== 'planRoute') {
+          await executeCtx.onSubToolComplete?.(toolName, agentName, summary, durationMs)
+        }
         // Forward to base callback if present
         return baseCtx.onToolFinish?.(toolCallId, toolName, messageId, result)
       },
@@ -213,6 +216,8 @@ async function executeOrchestratorTool(
         onToolFinish: executeCtx?.onToolFinish,
         onAgentTurn: executeCtx?.onAgentTurn,
         onToolResultPiMessage: executeCtx?.onToolResultPiMessage,
+        onSubToolPending: executeCtx?.onSubToolPending,
+        onSubToolComplete: executeCtx?.onSubToolComplete,
       })
       const result = await executeRoutingAgent({
         ctx,
