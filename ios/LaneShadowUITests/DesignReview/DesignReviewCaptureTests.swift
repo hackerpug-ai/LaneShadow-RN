@@ -162,8 +162,76 @@ final class DesignReviewCaptureTests: XCTestCase {
         XCTAssertEqual(attachment.name, "idle-screen.chat-focused.dark")
     }
 
+    /// Sprint-08: Captures the canonical scouting planning state (light theme).
+    func test_planningScreen_scouting_light() {
+        launchSandboxStory("templates.planning-screen.scouting-light")
+        let attachment = capturePlanningScreen(state: "scouting", theme: "light")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "planning-screen.scouting.light")
+    }
+
+    /// Sprint-08: Captures the canonical drawing planning state (light theme).
+    func test_planningScreen_drawing_light() {
+        launchSandboxStory("templates.planning-screen.drawing-light")
+        let attachment = capturePlanningScreen(state: "drawing", theme: "light")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "planning-screen.drawing.light")
+    }
+
+    /// Sprint-08: Captures the canonical weather planning state (light theme).
+    func test_planningScreen_weather_light() {
+        launchSandboxStory("templates.planning-screen.weather-light")
+        let attachment = capturePlanningScreen(state: "weather", theme: "light")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "planning-screen.weather.light")
+    }
+
+    /// Sprint-08: Captures the canonical scoring planning state (dark theme).
+    func test_planningScreen_scoring_dark() {
+        launchSandboxStory("templates.planning-screen.scoring-dark", colorScheme: "dark")
+        let attachment = capturePlanningScreen(state: "scoring", theme: "dark")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "planning-screen.scoring.dark")
+    }
+
+    /// Sprint-08: Captures the canonical slow-planning state (light theme).
+    func test_planningScreen_slowPlanning_light() {
+        launchSandboxStory("templates.planning-screen.slow-planning-light")
+        let attachment = capturePlanningScreen(state: "slow-planning", theme: "light")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "planning-screen.slow-planning.light")
+    }
+
+    /// Sprint-08: Captures the canonical cancel-prompt state (light theme).
+    func test_planningScreen_cancelPrompt_light() {
+        launchSandboxStory("templates.planning-screen.cancel-prompt-light")
+        let attachment = capturePlanningScreen(state: "cancel-prompt", theme: "light")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "planning-screen.cancel-prompt.light")
+    }
+
+    /// Sprint-08: Captures the canonical single-candidate state (light theme).
+    func test_planningScreen_singleCandidate_light() {
+        launchSandboxStory("templates.planning-screen.single-candidate-light")
+        let attachment = capturePlanningScreen(state: "single-candidate", theme: "light")
+        add(attachment)
+
+        XCTAssertEqual(attachment.name, "planning-screen.single-candidate.light")
+    }
+
     private func element(_ identifier: String) -> XCUIElement {
         app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+    }
+
+    private func launchSandboxStory(_ storyId: String, colorScheme: String? = nil) {
+        DesignReviewHelpers.setupDeterminismEnvironment(app: app, colorScheme: colorScheme)
+        AppLauncher.launchApp(app, sandbox: true, sandboxStoryId: storyId)
     }
 
     private func captureIdleScreen(state: String, theme: String) -> XCTAttachment {
@@ -183,6 +251,14 @@ final class DesignReviewCaptureTests: XCTestCase {
             state: state,
             action: theme,
             element: element(LSIds.idleScreen)
+        )
+    }
+
+    private func capturePlanningScreen(state: String, theme: String) -> XCTAttachment {
+        DesignReviewHelpers.capturePlanningScreen(
+            app: app,
+            state: state,
+            theme: theme
         )
     }
 }
