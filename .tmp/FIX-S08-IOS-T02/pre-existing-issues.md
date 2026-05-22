@@ -1,16 +1,16 @@
 # Pre-Existing Issues Blocking Commit
 
 ## TypeScript Errors
-- `server/convex/http.ts` - multiple implicit `any` errors
-- `server/convex/migrations/*` - missing `../_generated/server` imports
-- `server/convex/queries/osm.ts` - missing `../_generated/server` and implicit `any` errors
-- `server/convex/semanticSearch.ts` - missing generated Convex modules and many implicit `any` errors
-- `server/convex/types.ts`, `server/convex/users.ts`, `server/lib/storage/upload-to-convex.ts` - missing generated Convex imports
+- `server/convex/**` — missing generated Convex modules such as `../_generated/dataModel`, `../../_generated/api`, and `../_generated/server`
+- `server/convex/**` — numerous unrelated implicit `any` and stale `@ts-expect-error` diagnostics
 
-## Lint Errors
-- `logos/v2/preview.html` - multiple `lint/a11y/useAltText` errors
-- Biome summary: 43 errors, 128 warnings, 1 info in unrelated files
+## Lint Warnings / Errors
+- `biome.json` — schema version mismatch (`2.4.12` config vs `2.4.15` CLI)
+- `react-native/app/(app)/_layout.tsx:7` — unused `sessionId`
+- `.kb-run-sprint/state.json` — formatting drift outside this task
+- `logos/**/*.html` — existing accessibility diagnostics (`useAltText`)
 
-## Verification
-- `pnpm type-check:native` and `pnpm exec biome check --no-errors-on-unmatched` were re-run from this worktree after only iOS source/test changes for FIX-S08-IOS-T02.
-- The failures are outside the touched iOS files for this task and match the existing unrelated server/logo state in this worktree.
+## Test Failures
+- No pre-existing iOS failures were required to be fixed for this task.
+
+All issues were observed in repo-wide gates unrelated to the iOS files changed for `FIX-S08-IOS-T02`.

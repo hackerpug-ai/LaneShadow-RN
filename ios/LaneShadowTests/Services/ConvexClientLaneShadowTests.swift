@@ -2,11 +2,33 @@ import Combine
 import ConvexMobile
 import Foundation
 import Testing
+import XCTest
 @testable import LaneShadow
 
-struct ConvexClientLaneShadowTests {
+struct ConvexClientLaneShadowSwiftTestingSpec {
     @Test
     func sendPlanningMessage_includesCurrentLocation() async throws {
+        try await ConvexClientLaneShadowTestAssertions.assertSendPlanningMessageIncludesCurrentLocation()
+    }
+
+    @Test
+    func sendPlanningMessage_omitsNilCurrentLocation() async throws {
+        try await ConvexClientLaneShadowTestAssertions.assertSendPlanningMessageOmitsNilCurrentLocation()
+    }
+}
+
+final class ConvexClientLaneShadowTests: XCTestCase {
+    func test_sendPlanningMessage_includesCurrentLocation() async throws {
+        try await ConvexClientLaneShadowTestAssertions.assertSendPlanningMessageIncludesCurrentLocation()
+    }
+
+    func test_sendPlanningMessage_omitsNilCurrentLocation() async throws {
+        try await ConvexClientLaneShadowTestAssertions.assertSendPlanningMessageOmitsNilCurrentLocation()
+    }
+}
+
+private enum ConvexClientLaneShadowTestAssertions {
+    static func assertSendPlanningMessageIncludesCurrentLocation() async throws {
         let transport = SendMessageCaptureTransport()
         let client = LaneShadowConvexClient(
             deploymentURL: "http://localhost:3210",
@@ -20,14 +42,12 @@ struct ConvexClientLaneShadowTests {
             currentLocation: LaneShadowCurrentLocation(lat: 37.77, lng: -122.42)
         )
 
-        let capturedLocation = try transport.capturedCurrentLocation()
-        let location = try #require(capturedLocation)
-        #expect(location.lat == 37.77)
-        #expect(location.lng == -122.42)
+        let location = try XCTUnwrap(try transport.capturedCurrentLocation())
+        XCTAssertEqual(location.lat, 37.77)
+        XCTAssertEqual(location.lng, -122.42)
     }
 
-    @Test
-    func sendPlanningMessage_omitsNilCurrentLocation() async throws {
+    static func assertSendPlanningMessageOmitsNilCurrentLocation() async throws {
         let transport = SendMessageCaptureTransport()
         let client = LaneShadowConvexClient(
             deploymentURL: "http://localhost:3210",
@@ -41,7 +61,7 @@ struct ConvexClientLaneShadowTests {
             currentLocation: nil
         )
 
-        #expect(transport.capturedArgs.keys.contains("currentLocation") == false)
+        XCTAssertFalse(transport.capturedArgs.keys.contains("currentLocation"))
     }
 }
 
@@ -107,7 +127,7 @@ private final class SendMessageCaptureTransport: LaneShadowConvexTransporting {
         }
 
         let encoded = try value.convexEncode()
-        let data = try #require(encoded.data(using: .utf8))
+        let data = try XCTUnwrap(encoded.data(using: .utf8))
         return try JSONDecoder().decode(CapturedLocation.self, from: data)
     }
 }

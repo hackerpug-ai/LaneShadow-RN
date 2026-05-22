@@ -7,15 +7,15 @@
   },
   {
     "id": "AC-2",
-    "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_includesCurrentLocation",
+    "verify": "xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'",
     "exit_code": 0,
-    "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-3-suite-output.txt"
+    "output_file": ".tmp/FIX-S08-IOS-T02/tc-class-output.txt"
   },
   {
     "id": "AC-3",
-    "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_omitsNilCurrentLocation",
+    "verify": "xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'",
     "exit_code": 0,
-    "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-3-suite-output.txt"
+    "output_file": ".tmp/FIX-S08-IOS-T02/tc-class-output.txt"
   },
   {
     "id": "AC-4",
@@ -31,15 +31,15 @@
   },
   {
     "id": "TC-2",
-    "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_includesCurrentLocation",
+    "verify": "xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'",
     "exit_code": 0,
-    "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-3-suite-output.txt"
+    "output_file": ".tmp/FIX-S08-IOS-T02/tc-class-output.txt"
   },
   {
     "id": "TC-3",
-    "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_omitsNilCurrentLocation",
+    "verify": "xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'",
     "exit_code": 0,
-    "output_file": ".tmp/FIX-S08-IOS-T02/ac-2-3-suite-output.txt"
+    "output_file": ".tmp/FIX-S08-IOS-T02/tc-class-output.txt"
   },
   {
     "id": "TC-4",

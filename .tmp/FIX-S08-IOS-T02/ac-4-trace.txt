@@ -1,16 +1,16 @@
 # AC-4 Trace
 
-- Command: xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-review4-live '-only-testing:LaneShadowTests/RootViewTests/testLiveIdlePlanningRequestUsesCurrentLocationWithoutClarification'
+- Command: xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-app '-only-testing:LaneShadowTests/RootViewTests/testLiveIdlePlanningRequestUsesCurrentLocationWithoutClarification'
 - Raw output: .tmp/FIX-S08-IOS-T02/ac-4-live-test-output.txt
 - Result: PASS
 - Prompt: Plan a scenic 2-hour ride
 - currentLocation sent: {"lat":37.7749,"lng":-122.4194}
-- Simulator-originated session id: jx72hf6nbq72peptcazzh90mbx877yzb
-- Simulator-originated message id: k177gb8snds9jcjmj0c8kce4818772cq
+- Simulator-originated session id: jx77aak06x9ynk6tzh6v10mfk5876s7g
+- Simulator-originated message id: k170j9vqmp9dsswfeews5tkm8h876ea7
 - Proof points from raw xcodebuild log:
   - createPlanningSession succeeded and logged AC4_LIVE_SESSION_ID / AC4_LIVE_MESSAGE_ID
   - test passed: "Test Case '-[LaneShadowTests.RootViewTests testLiveIdlePlanningRequestUsesCurrentLocationWithoutClarification]' passed"
-  - suite passed and xcodebuild ended with "** TEST SUCCEEDED **"
+  - suite passed and xcodebuild ended with "** TEST EXECUTE SUCCEEDED **"
 - In-test assertions that passed:
   - Convex sendMessage captured non-nil currentLocation matching San Francisco coordinates
   - sendMessage response did not match /where are (you|we) starting from/i

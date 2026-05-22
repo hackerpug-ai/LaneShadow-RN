@@ -41,13 +41,13 @@ Red-hat review found that `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift
 **GIVEN** a mock Convex client and `LaneShadowCurrentLocation(lat: 37.77, lng: -122.42)`
 **WHEN** `sendPlanningMessage(sessionId:content:currentLocation:)` is called
 **THEN** the mock observes the action call with `args["currentLocation"]` equal to `["lat": 37.77, "lng": -122.42]`
-**Verify:** `xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_includesCurrentLocation`
+**Verify:** `xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'`
 
 ### AC-3 — Nil location omits the key
 **GIVEN** a mock Convex client and `currentLocation: nil`
 **WHEN** `sendPlanningMessage` is called
 **THEN** the mock observes args WITHOUT a `currentLocation` key
-**Verify:** `xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_omitsNilCurrentLocation`
+**Verify:** `xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'`
 
 ### AC-4 — Live build no longer triggers location clarification on prompts with location
 **GIVEN** a Simulator build with the FIX in place and a session that has a known device location
@@ -96,8 +96,8 @@ Red-hat review found that `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift
 | AC | Command |
 |---|---|
 | AC-1 | `grep -c "_ = currentLocation" ios/LaneShadow/Services/ConvexClient+LaneShadow.swift` |
-| AC-2 | `xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_includesCurrentLocation` |
-| AC-3 | `xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_omitsNilCurrentLocation` |
+| AC-2 | `xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'` |
+| AC-3 | `xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'` |
 | AC-4 | recorded trace `.tmp/FIX-S08-IOS-T02/ac-4-trace.txt` |
 
 ## Agent Assignment
@@ -119,12 +119,12 @@ Red-hat review found that `ios/LaneShadow/Services/ConvexClient+LaneShadow.swift
 {
   "requirements": [
     { "id": "AC-1", "type": "acceptance_criterion", "description": "_ = currentLocation removed", "verify": "grep -c '_ = currentLocation' ios/LaneShadow/Services/ConvexClient+LaneShadow.swift returns 0", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
-    { "id": "AC-2", "type": "acceptance_criterion", "description": "Non-nil location included in args", "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_includesCurrentLocation", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
-    { "id": "AC-3", "type": "acceptance_criterion", "description": "Nil location omits the key", "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_omitsNilCurrentLocation", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
+    { "id": "AC-2", "type": "acceptance_criterion", "description": "Non-nil location included in args", "verify": "xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
+    { "id": "AC-3", "type": "acceptance_criterion", "description": "Nil location omits the key", "verify": "xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
     { "id": "AC-4", "type": "acceptance_criterion", "description": "Live planning with location does not trigger clarification", "verify": "recorded trace .tmp/FIX-S08-IOS-T02/ac-4-trace.txt", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": null },
     { "id": "TC-1", "type": "test_criterion", "description": "_ = currentLocation absent from source", "verify": "grep -c '_ = currentLocation' ios/LaneShadow/Services/ConvexClient+LaneShadow.swift", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-1" },
-    { "id": "TC-2", "type": "test_criterion", "description": "Mock receives args['currentLocation'] when non-nil", "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_includesCurrentLocation", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-2" },
-    { "id": "TC-3", "type": "test_criterion", "description": "Mock receives args without currentLocation when nil", "verify": "xcodebuild test -only-testing:LaneShadowTests/Services/ConvexClientLaneShadowTests/test_sendPlanningMessage_omitsNilCurrentLocation", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-3" },
+    { "id": "TC-2", "type": "test_criterion", "description": "Mock receives args['currentLocation'] when non-nil", "verify": "xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-2" },
+    { "id": "TC-3", "type": "test_criterion", "description": "Mock receives args without currentLocation when nil", "verify": "xcodebuild test-without-building -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData-tc3 '-only-testing:LaneShadowTests/ConvexClientLaneShadowTests'", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-3" },
     { "id": "TC-4", "type": "test_criterion", "description": "Live planning skips clarification when location present", "verify": "recorded trace .tmp/FIX-S08-IOS-T02/ac-4-trace.txt", "satisfied": false, "evidence": null, "remediation": null, "last_evaluated_cycle": null, "last_evaluated_commit": null, "maps_to_ac": "AC-4" }
   ]
 }
