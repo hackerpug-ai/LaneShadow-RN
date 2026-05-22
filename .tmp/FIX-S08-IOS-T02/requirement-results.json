@@ -1,0 +1,56 @@
+[
+  {
+    "id": "AC-1",
+    "verify": "grep -c '_ = currentLocation' ios/LaneShadow/Services/ConvexClient+LaneShadow.swift",
+    "exit_code": 0,
+    "output_file": ".tmp/FIX-S08-IOS-T02/ac-1-output.txt"
+  },
+  {
+    "id": "AC-2",
+    "verify": "xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData -only-testing:LaneShadowTests/ConvexClientLaneShadowTests",
+    "exit_code": 0,
+    "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt",
+    "note": "Class-level Swift Testing selector executed sendPlanningMessage_includesCurrentLocation() and passed. The per-method selector from the task spec remains unreliable for this suite."
+  },
+  {
+    "id": "AC-3",
+    "verify": "xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData -only-testing:LaneShadowTests/ConvexClientLaneShadowTests",
+    "exit_code": 0,
+    "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt",
+    "note": "Class-level Swift Testing selector executed sendPlanningMessage_omitsNilCurrentLocation() and passed. The per-method selector from the task spec remains unreliable for this suite."
+  },
+  {
+    "id": "AC-4",
+    "verify": "recorded trace .tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
+    "exit_code": 0,
+    "output_file": ".tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
+    "evidence_file": ".tmp/FIX-S08-IOS-T02/ac-4-raw.json"
+  },
+  {
+    "id": "TC-1",
+    "verify": "grep -c '_ = currentLocation' ios/LaneShadow/Services/ConvexClient+LaneShadow.swift",
+    "exit_code": 0,
+    "output_file": ".tmp/FIX-S08-IOS-T02/ac-1-output.txt"
+  },
+  {
+    "id": "TC-2",
+    "verify": "xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData -only-testing:LaneShadowTests/ConvexClientLaneShadowTests",
+    "exit_code": 0,
+    "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt",
+    "note": "Validated by the same passing class-level Swift Testing selector used for AC-2."
+  },
+  {
+    "id": "TC-3",
+    "verify": "xcodebuild test -project ios/LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -derivedDataPath .tmp/DerivedData -only-testing:LaneShadowTests/ConvexClientLaneShadowTests",
+    "exit_code": 0,
+    "output_file": ".tmp/FIX-S08-IOS-T02/test-output.txt",
+    "note": "Validated by the same passing class-level Swift Testing selector used for AC-3."
+  },
+  {
+    "id": "TC-4",
+    "verify": "recorded trace .tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
+    "exit_code": 0,
+    "output_file": ".tmp/FIX-S08-IOS-T02/ac-4-trace.txt",
+    "evidence_file": ".tmp/FIX-S08-IOS-T02/ac-4-raw.json"
+  }
+]

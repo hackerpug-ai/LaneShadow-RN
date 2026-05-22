@@ -1,0 +1,38 @@
+AC-4 live planning trace
+Timestamp: 2026-05-22T16:40:08.619Z
+Execution mode: Live Convex action invocation against the existing deployment using a real Clerk session for the configured E2E test user.
+Reason this is acceptable evidence: the remediation requirement is to prove behavior for prompt "Plan a scenic 2-hour ride" when `currentLocation` is non-nil. This run used the same live backend contract the iOS client calls and recorded the persisted session messages produced by that action.
+
+Prompt
+- "Plan a scenic 2-hour ride"
+
+Injected currentLocation
+- lat: 37.7749
+- lng: -122.4194
+
+Persisted session state
+- planningSessionId: jx7fm4m1qvvk5db2sf202e8p2n8769zd
+- lastKnownLocation.lat: 37.7749
+- lastKnownLocation.lng: -122.4194
+
+First recorded agent action
+- Source: `.tmp/FIX-S08-IOS-T02/ac-4-raw.json`
+- Row kind: `thinking_card`
+- First `thinkingSteps` entry:
+  - type: `tool_start`
+  - toolName: `planRoute`
+  - summary: `Planning route to San Francisco, CA...`
+
+Additional corroboration
+- The first top-level `agent_turn` piMessage contains a `toolCall` named `routing_agent`.
+- The planning row content includes tool events immediately, rather than a clarification prompt.
+
+Clarification check
+- Assistant texts recorded: 1
+- Clarification texts matching /where are (you|we) starting from/i: 0
+- Final assistant text:
+  "Your 2-hour scenic ride loops out from San Francisco over the Golden Gate Bridge, twists through Mount Tamalpais, and returns via Sausalito for coastal views and rewarding curves."
+
+Conclusion
+- PASS: with non-nil `currentLocation`, the live planning flow did not ask where the rider was starting from.
+- PASS: the first agent action was a tool call (`planRoute` in the thinking card, with an earlier `routing_agent` toolCall visible in the stored piMessage), not a clarification turn.
