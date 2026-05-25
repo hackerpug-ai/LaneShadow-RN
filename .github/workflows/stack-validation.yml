@@ -1,0 +1,79 @@
+name: ts-validation (pnpm + eslint + vitest)
+
+# Pre-composed for stack: typescript + node + pnpm + eslint + vitest.
+# Source: brain/skills/_github-kanban/templates/workflows/by-stack/typescript/_composed/ts-pnpm-vitest-eslint.yml
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: ['task/**', 'sprint/**']
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: write
+
+jobs:
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm tsc --noEmit
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm eslint . --max-warnings=0
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm vitest run --reporter=default --reporter=junit --outputFile.junit=./test-report.junit.xml
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: test-report.junit.xml
+          retention-days: 7
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: |
+          if jq -e '.scripts.build' package.json > /dev/null; then
+            pnpm build
+          else
+            echo "::notice::no build script in package.json — skipping"
+          fi
