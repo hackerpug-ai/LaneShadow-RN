@@ -13,13 +13,13 @@ export const MAP_STYLES = {
    * Dark theme map style.
    * Used when the app is in dark mode (default for LaneShadow).
    */
-  dark: 'mapbox://styles/justincrich/cmnsyn5ox005z01sr8wsh3syj',
+  dark: 'mapbox://styles/justincrich/cmod48qyo000501sl53b9huo6',
 
   /**
    * Light theme map style.
    * Used when the app is in light mode.
    */
-  light: 'mapbox://styles/justincrich/cmnsyu0or006001sr5ljn6gg2',
+  light: 'mapbox://styles/justincrich/cmq5l7djw000501smcba5ceae',
 } as const
 
 /**

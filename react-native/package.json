@@ -20,6 +20,10 @@
     "storybook:ios": "EXPO_PUBLIC_STORYBOOK_ENABLED=true expo run:ios",
     "storybook:generate": "sb-rn-get-stories"
   },
-  "dependencies": {},
+  "dependencies": {
+    "expo": "~54.0.31",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
+  },
   "devDependencies": {}
 }
