@@ -6,7 +6,6 @@
  * Following react_rules.mdc: Named exports, functional components
  */
 
-import { LinearGradient } from 'expo-linear-gradient'
 import type { ReactNode } from 'react'
 import { type ColorValue, type StyleProp, StyleSheet, View, type ViewStyle } from 'react-native'
 import { Text } from 'react-native-paper'
@@ -119,11 +118,10 @@ export const MapHeaderOverlay = ({
     return <View style={[styles.placeholder, { width: iconButtonSize, height: iconButtonSize }]} />
   }
 
+  const GradientContainer = (props: any) => <View style={[props.style, { backgroundColor: semantic.color.surface.default }]}>{props.children}</View>
+
   return (
-    <LinearGradient
-      colors={gradientColors}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
+    <GradientContainer
       style={[
         styles.gradient,
         {
@@ -160,7 +158,7 @@ export const MapHeaderOverlay = ({
           {renderRightAction()}
         </View>
       </View>
-    </LinearGradient>
+    </GradientContainer>
   )
 }
 

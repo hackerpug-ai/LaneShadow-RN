@@ -5,9 +5,14 @@ const pathModule = require('path')
 const path = __dirname
 const config = getDefaultConfig(path)
 
-config.watchFolders = config.watchFolders || []
+const projectRoot = pathModule.resolve(__dirname, '..')
+config.watchFolders = [projectRoot]
 config.resolver = {
   ...config.resolver,
+  nodeModulesPaths: [
+    pathModule.join(projectRoot, 'node_modules'),
+    pathModule.join(__dirname, 'node_modules'),
+  ],
   blockList: [/\.claude\/worktrees\/.*/, /\.spec\/.*/, /\.git\/worktrees\/.*/],
   unstable_conditionNames: ['react-native', 'browser', 'require', 'default'],
 }
