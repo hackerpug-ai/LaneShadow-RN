@@ -1,7 +1,0 @@
-PT-01-feature-json:
-  - url: "https://fhwaapps.fhwa.dot.gov/bywaysp/StateMaps/Show/byway/2059"
-    file: coronado-trail.json
-  - url: "https://fhwaapps.fhwa.dot.gov/bywaysp/StateMaps/Show/byway/2282"
-    file: cherohala-skyway.json
-  - url: "https://fhwaapps.fhwa.dot.gov/bywaysp/StateMaps/Show/byway/2487"
-    file: connecticut-river-byway.json

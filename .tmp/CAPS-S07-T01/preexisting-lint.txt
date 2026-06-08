@@ -1,7 +1,0 @@
-
-> laneshadow@1.0.0 lint /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/CAPS-S07-T01
-> eslint .
-
-undefined
- ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "biome" not found
- ELIFECYCLE  Command failed with exit code 1.

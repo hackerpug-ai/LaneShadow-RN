@@ -1,7 +1,0 @@
-Test Files: 8 failed | 85 passed (93)
-Tests: 66 failed | 952 passed (1018)
-Duration: 2.23s
-
-Note: All test failures are pre-existing and unrelated to DESIGN-001 changes.
-No discovery component test failures found.
-Exit code: 1

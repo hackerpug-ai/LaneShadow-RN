@@ -1,7 +1,0 @@
-I hit an unexpected out-of-scope change: `.kb-run-sprint-codex/.state.json.sha256` is modified.
-
-Per the repository rules, I paused before committing.  
-Reply with one option and I’ll continue immediately:
-
-1. Discard that file change and proceed with commit/final JSON.
-2. Leave it unchanged and stop.

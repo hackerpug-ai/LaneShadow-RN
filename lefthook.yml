@@ -1,6 +1,3 @@
-# Lefthook config — parallel git hooks, scoped per filetype.
-# Docs: https://lefthook.dev/configuration/
-
 pre-commit:
   parallel: true
   jobs:
@@ -12,75 +9,15 @@ pre-commit:
       glob: "tokens/semantic/**/*"
       run: pnpm tokens:sync-check
 
-    - name: icons:check
-      glob: "tokens/icons/**/*"
-      run: pnpm icons:check
-
-    # TypeScript typecheck via tsgo (Go-based compiler, ~10x faster than tsc).
-    # Scope this to JS/TS/JSON-manifest changes so native-only Swift/Kotlin work
-    # is gated by ios-typecheck / android-typecheck instead of unrelated backend checks.
     - name: typecheck
       glob: "**/*.{js,jsx,ts,tsx,mjs,cjs,mts,cts,json,jsonc}"
-      run: pnpm type-check:native
+      run: pnpm type-check
 
-    # Biome: lint + format + organize imports for JS/TS/JSON only.
-    # ios/ and android/ are gitignored so they never appear in {staged_files}.
     - name: biome
       glob: "*.{js,jsx,ts,tsx,json,jsonc}"
       run: pnpm exec biome check --no-errors-on-unmatched {staged_files}
 
-    # Ruff: lint + format for Python (scripts/curation/).
-    # Install: `uv tool install ruff` or `brew install ruff`
-    # Config: scripts/curation/pyproject.toml [tool.ruff]
-    - name: ruff
-      glob: "scripts/curation/**/*.py"
-      run: ruff check --force-exclude {staged_files}
-
-    # SwiftFormat: format Swift files in ios/ only.
-    # ios/ is gitignored (Expo prebuild), so this only fires if you add custom Swift files
-    # outside ios/ or un-gitignore the folder. Config: .swiftformat
-    - name: swiftformat
-      glob: "*.swift"
-      run: swiftformat --quiet {staged_files}
-
-    # Native token compliance: reject hardcoded color literals in Swift/Kotlin
-    # outside allowed paths (tokens/platforms/, *MockProvider*, *Test*, etc.).
-    - name: tokens:native-compliance
-      glob: "*.{swift,kt}"
-      run: scripts/tokens/enforce-native-compliance.sh
-
-    # Xcode project generation: project internals are generated from ios/project.yml.
-    - name: ios-project-generated
-      glob: "ios/project.yml"
-      run: scripts/ios/check-project-generated.sh
-
-    # Detekt: Kotlin static analysis for android/ native code.
-    # android/ is gitignored (Expo prebuild). Activate when adding custom Kotlin.
-    # Install: `brew install detekt`, then uncomment.
-    # - name: detekt
-    #   glob: "*.{kt,kts}"
-    #   run: detekt --input {staged_files} --config .detekt/config.yml
-
-    # iOS typecheck: full Xcode incremental build for any Swift / project file change.
-    # Runs from ios/ root. Targets a generic Simulator destination so no device boot is needed.
-    - name: ios-typecheck
-      root: ios/
-      glob: "ios/**/*.{swift,pbxproj,xcconfig}"
-      run: xcodebuild -project LaneShadow.xcodeproj -scheme LaneShadow -destination 'platform=iOS Simulator,name=iPhone 16' -quiet ONLY_ACTIVE_ARCH=YES COMPILER_INDEX_STORE_ENABLE=NO SWIFT_COMPILATION_MODE=incremental build
-
-    # Android typecheck: gradle compileDebugKotlin transitively compiles all subprojects.
-    - name: android-typecheck
-      root: android/
-      glob: "android/**/*.{kt,kts,gradle,properties,toml}"
-      run: ./gradlew :app:compileDebugKotlin
-
 pre-push:
   jobs:
-    # Convex schema + codegen validation from backend workspace.
     - name: convex build
       run: pnpm --dir server run convex:dev -- --once
-
-    # UI screenshot diff validation (opt-in via git config).
-    # Enable with: git config lane-shadow.ui-diff.enabled true
-    - name: ui-diff
-      run: test "$(git config lane-shadow.ui-diff.enabled)" = "true" && pnpm ui:diff || true

@@ -1,5 +1,0 @@
-=== VERIFY: AI_PROVIDER and AI_MODEL removed from env.ts ===
-convex/lib/env.ts:64:export const AI_PROVIDER: 'openai' | 'google' | 'anthropic' = 'anthropic'
-convex/lib/env.ts:65:export const AI_MODEL = 'claude-sonnet-4-6'
-
-=== VERIFY: CEREBRAS_API_KEY added to .env.example ===

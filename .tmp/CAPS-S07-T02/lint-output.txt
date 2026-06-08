@@ -1,6 +1,0 @@
-$ pnpm lint
-
-> laneshadow@1.0.0 lint /Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/CAPS-S07-T02
-> node scripts/run-scoped-root-check.mjs lint
-
-Checked 2 files in 4ms. No fixes applied.

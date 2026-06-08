@@ -1,4 +1,0 @@
-
-> laneshadow@1.0.0 type-check:native /Users/justinrich/Projects/LaneShadow/.claude/worktrees/AUTH-S03-T01
-> cd server && npx tsgo --noEmit
-

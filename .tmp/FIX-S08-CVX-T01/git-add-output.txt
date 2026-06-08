@@ -1,1 +1,0 @@
-fatal: Unable to create '/Users/justinrich/Projects/LaneShadow/.git/worktrees/FIX-S08-CVX-T01/index.lock': Operation not permitted

@@ -1,9 +1,0 @@
-$ jest --config=jest.config.js convex/db/__tests__/savedRoutes.softDelete.test.ts convex/db/__tests__/savedRoutes.delete.test.ts
-PASS convex/db/__tests__/savedRoutes.delete.test.ts
-PASS convex/db/__tests__/savedRoutes.softDelete.test.ts
-
-Test Suites: 2 passed, 2 total
-Tests:       17 passed, 17 total
-Snapshots:   0 total
-Time:        2.862 s
-Ran all test suites matching /convex\/db\/__tests__\/savedRoutes.softDelete.test.ts|convex\/db\/__tests__\/savedRoutes.delete.test.ts/i.

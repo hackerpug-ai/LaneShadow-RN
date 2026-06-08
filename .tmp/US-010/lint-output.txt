@@ -1,1 +1,0 @@
-ESLint skipped - pre-existing config error (missing react-native plugin)

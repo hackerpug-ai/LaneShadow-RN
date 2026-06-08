@@ -1,6 +1,0 @@
-Linting Swift files at paths ios/LaneShadow/Views/Templates/MapApp.swift, ios/LaneShadowTests/Templates/PlanningScreenTests.swift, ios/LaneShadow/Sandbox/Stories/Templates/PlanningScreenStory.swift
-Linting 'PlanningScreenTests.swift' (1/3)
-Linting 'PlanningScreenStory.swift' (2/3)
-Linting 'MapApp.swift' (3/3)
-/Users/justinrich/Projects/LaneShadow/.kb-run-sprint/worktrees/PLAN-S08-IOS-T02/ios/LaneShadow/Views/Templates/MapApp.swift:569:1: warning: File Length Violation: File should contain 400 lines or less: currently contains 569 (file_length)
-Done linting! Found 1 violation, 0 serious in 3 files.

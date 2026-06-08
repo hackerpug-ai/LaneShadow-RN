@@ -1,4 +1,56 @@
-# Planning Notebook: LaneShadow Epic 1
+# Planning Notebook: LaneShadow RN Fork
+
+> **This is the React Native + Convex fork.**
+> Forked: 2026-06-08 from `hackerpug-ai/LaneShadow` main branch.
+> Fork repo: `hackerpug-ai/LaneShadow-RN`
+
+---
+
+## Fork Context
+
+This fork reverts to the React Native + Convex implementation. The main repo has a native iOS (Swift) + Android (Kotlin) rewrite; this fork uses the `react-native/` Expo app exclusively.
+
+## Active Plans (Fork)
+
+| Plan | Path | Status |
+|------|------|--------|
+| RN + Convex Fork Setup | `.spec/prds/rn-convex-fork/README.md` | Active |
+
+## Reusable Plans from Main Branch
+
+These plans contain backend (Convex) work that applies to both native and RN:
+
+| Plan | Path | What's Reusable |
+|------|------|-----------------|
+| v3-integration | `.spec/prds/v3-integration/` | Convex schema, actions, queries, migrations |
+| Curation | `.spec/prds/curation/` | Curation pipeline, curated routes |
+| Curation Hardening | `.spec/prds/curation-hardening/` | Curation quality improvements |
+| Waypoints Enrichment | `.spec/prds/waypoints/` | Waypoint data pipeline |
+| Complete Local Routing | `.spec/prds/complete-local-routing/` | Local routing features |
+| LLM Interaction Logging | `.spec/prds/llm-interaction-logging/` | AI chat logging |
+| On-Device AI | `.spec/prds/on-device-ai/` | Local AI features |
+
+## Historical Plans (Reference Only)
+
+| Plan | Path | Notes |
+|------|------|-------|
+| v0 | `.spec/prds/v0/` | Original RN-era PRDs |
+| v1 | `.spec/prds/v1/` | First rewrite |
+| v2 | `.spec/prds/v2/` | Second iteration |
+| Native Rewrite | `.spec/prds/native-rewrite/` | iOS/Android native — NOT applicable to fork |
+| Sprint execution | `ai-specs/` | Sprint 02-08 artifacts — Convex tasks reusable |
+
+## Convex Service Compatibility
+
+The Convex backend has been upgraded through 8 sprints since the RN era. All changes are **additive**:
+- Original tables preserved: `users`, `orgs`, `org_memberships`, `saved_routes`, `route_plans`, `planning_sessions`, `session_messages`
+- New tables added: `favorite_roads`, `plan_usage`, `osm_nodes`, `osm_ways`, `osm_import_jobs`, `trip_plans`, `route_enrichments`, `waypoints`, `curated_routes`, `curated_route_enrichments`, `route_feedback`, `route_posts_raw`, `route_matches`, `community_waypoint_mentions`, `curation_artifact_releases`, `curation_artifact_shards`, `performance`
+- No breaking changes to existing tables
+- Fork connects to the same Convex deployment
+
+---
+
+# Historical: Planning Notebook: LaneShadow Epic 1
 
 > PRD: .spec/prd/README.md
 > PRD Version: 1.0.0

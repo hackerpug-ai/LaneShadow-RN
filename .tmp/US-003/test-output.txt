@@ -1,2 +1,0 @@
-0
-No unit tests implemented. Storybook stories cover all acceptance criteria scenarios.

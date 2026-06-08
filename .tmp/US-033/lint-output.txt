@@ -1,2 +1,0 @@
-Lint skipped: ESLint has pre-existing configuration error (react-native plugin not found).
-This is not caused by US-033 changes.

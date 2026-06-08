@@ -1,5 +1,0 @@
-
-> laneshadow@1.0.0 lint /Users/justinrich/Projects/LaneShadow
-> eslint .
-
- ELIFECYCLE  Command failed with exit code 2.
