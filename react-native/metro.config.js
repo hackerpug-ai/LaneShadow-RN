@@ -1,44 +1,52 @@
 const { getDefaultConfig } = require('expo/metro-config')
 const { withStorybook } = require('@storybook/react-native/metro/withStorybook')
+const pathModule = require('path')
 
 const path = __dirname
 const config = getDefaultConfig(path)
 
-// Exclude directories that Watchman/Metro should never scan
 config.watchFolders = config.watchFolders || []
 config.resolver = {
   ...config.resolver,
   blockList: [/\.claude\/worktrees\/.*/, /\.spec\/.*/, /\.git\/worktrees\/.*/],
+  unstable_conditionNames: ['react-native', 'browser', 'require', 'default'],
 }
 
-// Exclude test files from Metro bundler
+const rnmapboxPath = pathModule.dirname(
+  require.resolve('@rnmapbox/maps/package.json', { paths: [path] })
+)
+const rnmapboxNativeIndex = pathModule.join(rnmapboxPath, 'lib/module/index.native.js')
+
 const originalResolveRequest = config.resolver?.resolveRequest
-config.resolver = {
-  ...config.resolver,
-  resolveRequest: (context, moduleName, platform) => {
-    // Let Expo handle its own virtual modules (expo/virtual/*)
-    if (moduleName.startsWith('expo/virtual/')) {
-      return originalResolveRequest
-        ? originalResolveRequest(context, moduleName, platform)
-        : context.resolveRequest(context, moduleName, platform)
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (moduleName.endsWith('.css')) {
+    return { type: 'empty' }
+  }
+  if (platform !== 'web' && moduleName === '@rnmapbox/maps') {
+    return {
+      type: 'sourceFile',
+      filePath: rnmapboxNativeIndex,
     }
-    // Exclude test files from being bundled
-    if (
-      moduleName.endsWith('.test.ts') ||
-      moduleName.endsWith('.test.tsx') ||
-      moduleName.endsWith('.spec.ts') ||
-      moduleName.endsWith('.spec.tsx') ||
-      moduleName.includes('__tests__') ||
-      moduleName.endsWith('.mock.ts') ||
-      moduleName.endsWith('.mock.tsx')
-    ) {
-      return { type: 'empty' }
-    }
-    // Use default resolution for other modules
+  }
+  if (moduleName.startsWith('expo/virtual/')) {
     return originalResolveRequest
       ? originalResolveRequest(context, moduleName, platform)
       : context.resolveRequest(context, moduleName, platform)
-  },
+  }
+  if (
+    moduleName.endsWith('.test.ts') ||
+    moduleName.endsWith('.test.tsx') ||
+    moduleName.endsWith('.spec.ts') ||
+    moduleName.endsWith('.spec.tsx') ||
+    moduleName.includes('__tests__') ||
+    moduleName.endsWith('.mock.ts') ||
+    moduleName.endsWith('.mock.tsx')
+  ) {
+    return { type: 'empty' }
+  }
+  return originalResolveRequest
+    ? originalResolveRequest(context, moduleName, platform)
+    : context.resolveRequest(context, moduleName, platform)
 }
 
 config.server = {
