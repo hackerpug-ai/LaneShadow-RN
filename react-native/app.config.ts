@@ -1,12 +1,11 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config'
+const withMapboxToken = require('./plugins/withMapboxToken')
+const withMapboxPodfileGuard = require('./plugins/withMapboxPodfileGuard')
+const withRnmapboxPod = require('./plugins/withRnmapboxPod')
 
-/**
- * Expo config wrapper so we can inject the Google Maps API key from env.
- * This keeps secrets out of static JSON and ensures both platforms receive
- * the same key for map providers.
- */
 export default ({ config }: ConfigContext): ExpoConfig => {
   const googleMapsApiKey = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
+  const mapboxToken = process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN
 
   return {
     ...config,
@@ -21,11 +20,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           RNMapboxMapsImpl: 'mapbox',
         },
       ],
+      withMapboxToken,
+      withMapboxPodfileGuard,
+      withRnmapboxPod,
     ],
     extra: {
       ...(config.extra ?? {}),
-      MAPBOX_ACCESS_TOKEN: process.env.MAPBOX_ACCESS_TOKEN,
-      EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN: process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN,
+      MAPBOX_ACCESS_TOKEN: mapboxToken,
+      EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN: mapboxToken,
     },
     ios: {
       ...config.ios,

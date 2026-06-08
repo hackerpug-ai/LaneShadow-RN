@@ -674,7 +674,7 @@ const HomeMapScreen = () => {
   }, [sheetVisible])
 
   // Query user's favorite roads
-  const favorites = useQuery(api.db.favoriteRoads.list)
+  const favorites = useQuery(api.db.favoriteRoads.list, clerkLoaded && isSignedIn ? undefined : 'skip')
   const hasFavorites = (favorites?.length ?? 0) > 0
 
   useEffect(() => {
