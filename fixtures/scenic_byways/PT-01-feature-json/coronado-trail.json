@@ -1,0 +1,18 @@
+{
+  "feature_id": "2059",
+  "name": "Coronado Trail Scenic Byway",
+  "state": "Arizona",
+  "designation": "National Scenic Byway",
+  "description": "Drive through high desert and forests, and see former Native American footpaths first used as horse paths by Conquistadors and prospectors, then as wagon trails for pioneers.",
+  "length_miles": 123.0,
+  "location": {
+    "type": "Point",
+    "coordinates": [-109.3761, 33.7427]
+  },
+  "source_label": "America's Byways",
+  "source_url": "https://fhwaapps.fhwa.dot.gov/bywaysp/StateMaps/Show/byway/2059",
+  "source_refs": [
+    "https://fhwaapps.fhwa.dot.gov/bywaysp/StateMaps/Show/byway/2059",
+    "https://fhwaapps.fhwa.dot.gov/bywaysp/byway/2059/map"
+  ]
+}

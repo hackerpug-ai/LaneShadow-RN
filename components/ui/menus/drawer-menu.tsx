@@ -1,0 +1,266 @@
+/**
+ * DrawerMenu Component
+ * Reusable slide-out drawer menu with optional left/right alignment.
+ *
+ * Following theme_rules.mdc: StyleSheet.create() + semantic tokens
+ * Following react_rules.mdc: Named exports, simple state management
+ */
+
+import { useEffect, useState } from 'react'
+import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { Text } from 'react-native-paper'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
+import { type IconName, IconSymbol } from '../icon-symbol'
+
+const DRAWER_WIDTH = 280
+
+export type DrawerMenuItem = {
+  label: string
+  icon: IconName
+  onPress: () => void
+  active?: boolean
+  disabled?: boolean
+  testID?: string
+}
+
+export type DrawerMenuSection = {
+  title?: string
+  items: DrawerMenuItem[]
+}
+
+export type DrawerMenuProps = {
+  isOpen: boolean
+  onClose: () => void
+  header?: {
+    title: string
+    testID?: string
+  }
+  sections: DrawerMenuSection[]
+  footer?: {
+    items: DrawerMenuItem[]
+  }
+  alignment?: 'left' | 'right'
+  testID?: string
+}
+
+export const DrawerMenu = ({
+  isOpen,
+  onClose,
+  header,
+  sections,
+  footer,
+  alignment = 'left',
+  testID,
+}: DrawerMenuProps) => {
+  const { semantic } = useSemanticTheme()
+  const insets = useSafeAreaInsets()
+
+  // Left alignment: starts off-screen left (-DRAWER_WIDTH), slides to 0
+  // Right alignment: starts off-screen right (DRAWER_WIDTH), slides to 0
+  const initialValue = alignment === 'left' ? -DRAWER_WIDTH : DRAWER_WIDTH
+  const [translateX] = useState(new Animated.Value(initialValue))
+
+  useEffect(() => {
+    Animated.timing(translateX, {
+      toValue: isOpen ? 0 : initialValue,
+      duration: 300,
+      useNativeDriver: true,
+    }).start()
+  }, [isOpen, translateX, initialValue])
+
+  return (
+    <>
+      {isOpen && (
+        <Pressable
+          style={styles.backdrop}
+          onPress={onClose}
+          testID={testID ? `${testID}-backdrop` : undefined}
+        />
+      )}
+
+      <Animated.View
+        testID={testID}
+        style={[
+          styles.drawer,
+          {
+            width: DRAWER_WIDTH,
+            backgroundColor: semantic.color.background.default,
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+            transform: [{ translateX }],
+            ...(alignment === 'right'
+              ? { right: 0, left: undefined }
+              : { left: 0, right: undefined }),
+          },
+        ]}
+      >
+        {header && (
+          <View
+            style={[
+              styles.header,
+              {
+                paddingVertical: semantic.space.xs,
+                paddingHorizontal: semantic.space.md,
+                borderBottomWidth: 1,
+                borderBottomColor: semantic.color.border.default,
+              },
+            ]}
+          >
+            <Text
+              testID={header.testID}
+              style={[semantic.type.heading.md, { color: semantic.color.onSurface.default }]}
+            >
+              {header.title}
+            </Text>
+          </View>
+        )}
+
+        <ScrollView style={styles.scrollContent}>
+          {sections.map((section, sectionIndex) => (
+            <View key={sectionIndex} style={[styles.section, { padding: semantic.space.lg }]}>
+              {section.title && (
+                <Text
+                  style={[
+                    semantic.type.label.sm,
+                    {
+                      color: semantic.color.onSurface.muted,
+                      marginBottom: semantic.space.sm,
+                    },
+                  ]}
+                >
+                  {section.title}
+                </Text>
+              )}
+              {section.items.map((item, itemIndex) => (
+                <Pressable
+                  key={itemIndex}
+                  onPress={() => {
+                    if (item.disabled) return
+                    item.onPress()
+                  }}
+                  disabled={item.disabled}
+                  testID={item.testID}
+                  style={({ pressed }) => [
+                    styles.menuItem,
+                    {
+                      padding: semantic.space.md,
+                      borderRadius: semantic.radius.lg,
+                      marginBottom: semantic.space.xs,
+                      backgroundColor: item.active
+                        ? `${semantic.color.primary.default}1A`
+                        : pressed
+                          ? semantic.color.surface.pressed
+                          : 'transparent',
+                      opacity: item.disabled ? 0.5 : 1,
+                    },
+                  ]}
+                >
+                  <IconSymbol
+                    name={item.icon}
+                    size={24}
+                    color={
+                      item.active
+                        ? semantic.color.primary.default
+                        : semantic.color.onSurface.default
+                    }
+                  />
+                  <Text
+                    style={[
+                      semantic.type.body.md,
+                      {
+                        color: item.active
+                          ? semantic.color.primary.default
+                          : semantic.color.onSurface.default,
+                        fontWeight: item.active ? '500' : '400',
+                      },
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          ))}
+        </ScrollView>
+
+        {footer && (
+          <View
+            style={[
+              styles.footer,
+              {
+                paddingVertical: semantic.space.sm,
+                paddingHorizontal: semantic.space.md,
+                borderTopWidth: 1,
+                borderTopColor: semantic.color.border.default,
+              },
+            ]}
+          >
+            {footer.items.map((item, index) => (
+              <Pressable
+                key={index}
+                onPress={() => {
+                  if (item.disabled) return
+                  item.onPress()
+                }}
+                disabled={item.disabled}
+                testID={item.testID}
+                style={({ pressed }) => [
+                  styles.footerItem,
+                  {
+                    paddingVertical: semantic.space.xs,
+                    paddingHorizontal: semantic.space.md,
+                    gap: semantic.space.lg,
+                    borderRadius: semantic.radius.lg,
+                    marginBottom: index < footer.items.length - 1 ? semantic.space.sm : 0,
+                    backgroundColor: pressed ? semantic.color.surface.pressed : 'transparent',
+                    opacity: item.disabled ? 0.5 : 1,
+                  },
+                ]}
+              >
+                <IconSymbol name={item.icon} size={24} color={semantic.color.onSurface.default} />
+                <Text style={[semantic.type.body.md, { color: semantic.color.onSurface.default }]}>
+                  {item.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
+      </Animated.View>
+    </>
+  )
+}
+
+const styles = StyleSheet.create({
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    zIndex: 10,
+  },
+  drawer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    zIndex: 20,
+  },
+  header: {},
+  scrollContent: {
+    flex: 1,
+  },
+  section: {},
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  footer: {},
+  footerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+})

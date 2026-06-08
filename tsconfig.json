@@ -1,4 +1,18 @@
 {
-  "compilerOptions": {},
-  "extends": "expo/tsconfig.base"
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "skipLibCheck": true
+  },
+  "extends": "expo/tsconfig.base",
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "vitest.d.ts",
+    "../server/types/**/*.ts"
+  ],
+  "exclude": ["workers/**", "scripts/**", "convex/**", "stories/**", "../server/convex/**"]
 }
