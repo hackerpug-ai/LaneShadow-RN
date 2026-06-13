@@ -1,7 +1,7 @@
 ---
 stability: TEST_SPEC
 last_validated: 2026-06-13
-prd_version: 1.0.0
+prd_version: 1.1.0
 ---
 
 # E2E / Human Testing Criteria — Discovery-MVP

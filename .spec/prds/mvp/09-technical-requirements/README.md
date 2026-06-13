@@ -1,7 +1,7 @@
 ---
 stability: CONSTITUTION
 last_validated: 2026-06-13
-prd_version: 1.0.0
+prd_version: 1.1.0
 ---
 
 # Technical Requirements
@@ -32,3 +32,4 @@ Technical constitution for the Discovery-MVP. Read-path-first over the existing 
 |---|---|---|
 | 1.0.0 | 2026-06-13 | Initial technical requirements |
 | 1.0.1 | 2026-06-13 | Split the merged UI-infrastructure file: client wiring stays in 07; design tokens / ScoreDimensionBar / detail layout extracted to 10-design-system.md |
+| 1.0.2 | 2026-06-13 | Resolved auth posture (R-DATA-9): listCuratedRoutes / getCuratedRouteDetail locked to Clerk `requireIdentity`; added auth-gate precondition to 04-api-design + 01-architecture-posture + 08-technical-risks |

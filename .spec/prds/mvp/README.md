@@ -1,6 +1,6 @@
 ---
 title: LaneShadow Discovery-MVP
-version: 1.0.0
+version: 1.1.0
 scope_posture: full
 pr_sequencing: false
 ---
@@ -15,7 +15,7 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — by making the c
 
 | Field | Value |
 |---|---|
-| Version | 1.0.0 |
+| Version | 1.1.0 |
 | Scope Posture | Full feature (default) |
 | PR Sequencing | Disabled |
 | Created | 2026-06-13 |
@@ -72,6 +72,7 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — by making the c
 | Version | Date | Changes | Trigger |
 |---|---|---|---|
 | 1.0.0 | 2026-06-13 | Initial PRD | New initiative (Discovery-MVP) |
+| 1.1.0 | 2026-06-13 | Resolved auth posture (gap #1 / R-DATA-9 / open item #74): both Discovery queries locked to Clerk `requireIdentity` (gated); added auth-gate-enforcement precondition note reflecting verified codebase state | Completeness-review gap #1 |
 
 ## Next Steps
 

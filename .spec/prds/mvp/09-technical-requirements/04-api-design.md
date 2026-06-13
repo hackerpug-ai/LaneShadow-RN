@@ -1,15 +1,23 @@
 ---
 stability: CONSTITUTION
 last_validated: 2026-06-13
-prd_version: 1.0.0
+prd_version: 1.1.0
 ---
 
 # API Design — Public Query Contracts
 
 ## Two NET-NEW public queries. Both have full `returns` validators. Scores are 0-1. `primaryArchetype` is returned as the UI enum.
 
+### Auth-gate precondition (decision locked 2026-06-13, resolves R-DATA-9 / open item #74)
+
+Both queries are **Clerk-gated** via the established `requireIdentity` posture — Discovery browse requires an authenticated session for MVP (founder confirmation: *"the app should already be gated via clerk"*). "Public query" here means the Convex function is client-callable (an exported `query`, not an `internalQuery`), **not** anonymous/no-auth access. This matches the posture of every existing **client-callable public read** in the backend (`savedRoutes.list` / `planningSessions.list` / `favoriteRoads.list` all call `requireIdentity`). Note: the curation pipeline's `leanSync` / `fetchEnrichments` are a *different* pattern — `internalQuery` functions invoked from HTTP admin routes guarded by `CURATION_DEPLOY_KEY`, not Clerk — so they are **not** the precedent here.
+
+**Verified codebase state (2026-06-13):** Clerk is wired at the root (`app/_layout.tsx` → `ClerkProvider` + `ConvexProviderWithClerk`) and identity-routing infrastructure EXISTS — the `(auth)` group gates via Convex `<Authenticated>`/`<Unauthenticated>` (`app/(auth)/_layout.tsx`: unauthenticated → sign-in stack; authenticated → `<Redirect to /(app)>`), and `signOut` → `/(auth)/sign-in`. `app/README.md` documents the intent (`(app)/` = "Authenticated screens"). **But the enforcement guard on the `(app)` group itself is missing:** `app/index.tsx` redirects unconditionally to `/(app)/(tabs)` with no `isSignedIn` check, and neither `(app)/_layout.tsx` nor `(tabs)/_layout.tsx` redirects an unauthenticated session to `/(auth)/sign-in`. So a **logged-out cold launch lands on the app home, not the login page** — queries are client-skipped (`(tabs)/index.tsx` gates queries on `clerkLoaded && isSignedIn`); the backend `requireIdentity` is the independent **server-side** enforcement that rejects an unauthenticated call regardless. The new Discovery queries inherit both layers. The founder (always signed in via cached Clerk token) never observes the gap.
+
+**Impact on the MVP:** the founder (user #1, always signed in) is unaffected — the cold-launch → Discovery arc works for him. Unsigned users would see Discovery render with no data (queries skip) — a pre-existing app-level concern, **not** introduced or required by this MVP. If the team wants a hard sign-in wall before broad release (redirect unsigned → `/(auth)/sign-in`), that is tracked separately and is out of scope for the Discovery-MVP PRD.
+
 ### api.curatedRoutes.listCuratedRoutes (UC-DATA-05)
-**Type:** query. **Auth:** follows existing Clerk `requireIdentity` posture (confirm public-vs-gated at implementation; existing curation reads are gated).
+**Type:** query. **Auth:** **Clerk-gated** via the established `requireIdentity` posture — decision locked 2026-06-13 (resolves R-DATA-9 / open item #74); see [Auth-gate precondition](#auth-gate-precondition) below. Discovery browse requires an authenticated session, consistent with every existing read in the backend.
 
 **Args**
 ```typescript

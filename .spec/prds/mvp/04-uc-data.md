@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
 last_validated: 2026-06-13
-prd_version: 1.0.0
+prd_version: 1.1.0
 functional_group: DATA
 ---
 
@@ -86,7 +86,7 @@ GATE (DATA-NORM). Live data is dirty: 9 states appear under two spellings (e.g. 
 
 ## UC-DATA-05: listCuratedRoutes public query (bbox via geospatial, state, archetype[], sort, limit)
 
-FEATURE (D2). The net-new public Convex query that powers the Discovery home. No public browse query exists today (leanSync is internalQuery + requireIdentity). Args: an optional bbox (north/south/east/west) OR an optional state OR an optional center{lat,lng}; archetypes[] (UI enums, empty = all); sort = 'best' (compositeScore desc) | 'nearest' (distance from center asc); limit (capped, default ~50). Behavior: when bbox/center is given, resolve candidate route ids via the seeded geospatial index (UC-DATA-01) using filterKeys for state/archetype and sortKey for best-sort, then load lean fields from curated_routes; when only state is given, use the by_state index with state-normalization (UC-DATA-04) over both spellings. Returns a lean ranked array of cards: {routeId, name, state(canonical), primaryArchetype(UI-mapped, UC-DATA-02), centroidLat, centroidLng, compositeScore(0-1), all 5 dimension scores(0-1, optional), lengthMiles(clamped, optional), distanceMi?(when sort=nearest), summary?}. Scores are 0-1; the UI renders them as % or bars. No enrichment is read (table empty). Returns validator is fully specified (returns on all public functions). Must be performant at 5,654 rows: bbox+limit caps result size, never a full-table filter().
+FEATURE (D2). The net-new public Convex query that powers the Discovery home. No public browse query exists today (the curation `leanSync` is an `internalQuery` invoked via an HTTP admin route guarded by `CURATION_DEPLOY_KEY`, not a Clerk-gated client-callable query). Args: an optional bbox (north/south/east/west) OR an optional state OR an optional center{lat,lng}; archetypes[] (UI enums, empty = all); sort = 'best' (compositeScore desc) | 'nearest' (distance from center asc); limit (capped, default ~50). Behavior: when bbox/center is given, resolve candidate route ids via the seeded geospatial index (UC-DATA-01) using filterKeys for state/archetype and sortKey for best-sort, then load lean fields from curated_routes; when only state is given, use the by_state index with state-normalization (UC-DATA-04) over both spellings. Returns a lean ranked array of cards: {routeId, name, state(canonical), primaryArchetype(UI-mapped, UC-DATA-02), centroidLat, centroidLng, compositeScore(0-1), all 5 dimension scores(0-1, optional), lengthMiles(clamped, optional), distanceMi?(when sort=nearest), summary?}. Scores are 0-1; the UI renders them as % or bars. No enrichment is read (table empty). Returns validator is fully specified (returns on all public functions). Must be performant at 5,654 rows: bbox+limit caps result size, never a full-table filter().
 
 **Test tier:** integration  
 **Verification service:** live Convex dev deployment

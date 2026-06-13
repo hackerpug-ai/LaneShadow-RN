@@ -1,7 +1,7 @@
 ---
 stability: CONSTITUTION
 last_validated: 2026-06-13
-prd_version: 1.0.0
+prd_version: 1.1.0
 ---
 
 # Backend System Components
@@ -14,8 +14,8 @@ prd_version: 1.0.0
 | `curated_route_enrichments` table | EXISTS, EMPTY (0 docs) | NOT read in MVP (deferred) | `server/convex/schema.ts` |
 | `@convex-dev/geospatial` component (v0.2.1) | INSTALLED + registered, points table EMPTY | Bbox / nearest spatial index, seeded from centroids | `server/convex/convex.config.ts`, `server/convex/geospatialIndex.ts` |
 | Geospatial seeding fn | NET-NEW (internal) | Populate geospatial points from `curated_routes` centroids (UC-DATA-01) | new internal mutation/action |
-| `listCuratedRoutes` | NET-NEW public query | Browse: bbox/state/archetype[]/sort/limit (UC-DATA-05) | new module (e.g. `server/convex/curatedRoutes.ts`) |
-| `getCuratedRouteDetail` | NET-NEW public query | Lean detail + scores + polyline-or-null (UC-DATA-06) | same new module |
+| `listCuratedRoutes` | NET-NEW public query (Clerk-gated, `requireIdentity`) | Browse: bbox/state/archetype[]/sort/limit (UC-DATA-05) | new module (e.g. `server/convex/curatedRoutes.ts`) |
+| `getCuratedRouteDetail` | NET-NEW public query (Clerk-gated, `requireIdentity`) | Lean detail + scores + polyline-or-null (UC-DATA-06) | same new module |
 | Archetype map (pure) | NET-NEW transform | UI<->DB archetype mapping in read path (UC-DATA-02) | pure helper, unit-tested |
 | State-normalize (pure) | NET-NEW transform | Canonicalize dirty state strings (UC-DATA-04) | pure helper, unit-tested |
 | Length-clamp (pure) | NET-NEW transform | Sanitize junk lengthMiles (UC-DATA-04) | pure helper, unit-tested |

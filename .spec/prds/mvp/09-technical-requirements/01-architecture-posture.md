@@ -1,7 +1,7 @@
 ---
 stability: CONSTITUTION
 last_validated: 2026-06-13
-prd_version: 1.0.0
+prd_version: 1.1.0
 ---
 
 # Backend Architecture Posture
@@ -25,11 +25,11 @@ Write-back normalization (cleaning the catalog at rest) is an explicit **fast-fo
 `saved_routes` requires `planInput + routeSnapshot + routeIndex` (a fully planned route with legs). Curated routes have none of these. We add an **optional** `curatedRouteRef: v.id('curated_routes')` (UC-DATA-03) so a curated save is a first-class bookmark with **no fabricated PlanInput/legs**. Additive, optional, non-destructive — existing planned saves are untouched.
 
 ### The two new public functions are the only new surface
-No public browse query exists today: `leanSync`/`fetchEnrichments`/`checkMissingEnrichments` are all `internalQuery` + `requireIdentity`. The MVP adds exactly two NET-NEW public queries — `listCuratedRoutes` (UC-DATA-05) and `getCuratedRouteDetail` (UC-DATA-06) — plus the additive `curatedRouteRef` save path that reuses the existing save mutation pattern and the existing public `recordRouteFeedback` mutation. No existing function is modified.
+No public browse query exists today: `leanSync`/`fetchEnrichments`/`checkMissingEnrichments` are all `internalQuery` functions invoked from HTTP admin routes guarded by `CURATION_DEPLOY_KEY` (not Clerk-gated client-callable queries). The MVP adds exactly two NET-NEW public queries — `listCuratedRoutes` (UC-DATA-05) and `getCuratedRouteDetail` (UC-DATA-06) — plus the additive `curatedRouteRef` save path that reuses the existing save mutation pattern and the existing public `recordRouteFeedback` mutation. No existing function is modified.
 
 ### Hard data truths every backend decision honors
 - **Scores are 0-1** (median composite 0.60, max 0.90). The API returns 0-1; the UI renders %/bars. The orphan mock screen's `score: 92` is wrong for real data.
 - **Enrichment is EMPTY** (`curated_route_enrichments` = 0 docs). Detail is LEAN-only: no photos/history/elevation/recommendedStarts.
 - **Geometry is partial** (`routePolyline` present for 55% / 3,097 of 5,654). Detail returns `routePolyline: string | null`; client falls back to a centroid marker.
 - **oneLiner/badges/designation are 0% populated.** Detail headline is derived from `summary`/`name`; no badges in MVP.
-- **Reads are auth-gated.** The existing pattern uses Clerk `requireIdentity`; the new public queries follow the established auth posture (confirm in 04-api-design whether Discovery browse is identity-gated or public-read for MVP).
+- **Reads are auth-gated.** The existing pattern uses Clerk `requireIdentity`; the two new client-callable queries (`listCuratedRoutes`, `getCuratedRouteDetail`) follow the **same `requireIdentity` posture** (decision locked 2026-06-13, resolving R-DATA-9 / open item #74). Discovery browse is identity-gated for MVP — "public" refers only to the Convex function being client-callable (vs `internalQuery`), not anonymous access.

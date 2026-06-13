@@ -1,7 +1,7 @@
 ---
 stability: CONSTITUTION
 last_validated: 2026-06-13
-prd_version: 1.0.0
+prd_version: 1.1.0
 ---
 
 # Backend Technical Risks
@@ -30,5 +30,5 @@ The component points table is a separate datastore and is currently EMPTY. **Imp
 ## R-DATA-8 — Empty enrichment misread as a bug
 `curated_route_enrichments` is EMPTY by design for MVP. **Impact:** a developer may 'fix' detail by wiring enrichment fetch and get nothing, or block on it. **Mitigation:** 04-api-design + acceptance explicitly state detail is LEAN-only and returns NO enrichment fields; enrichment is named OUT OF SCOPE.
 
-## R-DATA-9 — Auth posture ambiguity on public reads
-Existing curation reads are Clerk-gated `internalQuery`; the new queries are public. **Impact:** unclear whether anonymous browse is allowed for MVP. **Mitigation:** ratify gated-vs-public in implementation; default to the established `requireIdentity` posture unless the product explicitly wants anonymous discovery.
+## R-DATA-9 — Auth posture ambiguity on public reads — RESOLVED (2026-06-13)
+Existing **client-callable public reads** (`savedRoutes`, `planningSessions`, `favoriteRoads`) are Clerk-gated via `requireIdentity`; the two new queries are client-callable (not `internalQuery`) and follow the same `requireIdentity` posture. (The curation pipeline's `leanSync` / `fetchEnrichments` are a separate `internalQuery`-via-HTTP pattern guarded by `CURATION_DEPLOY_KEY`, not Clerk — not the precedent here.) **Decision (locked):** both `listCuratedRoutes` and `getCuratedRouteDetail` are Clerk-gated via `requireIdentity` — Discovery browse requires an authenticated session for MVP. "Public" refers only to the Convex function being client-callable, not anonymous access. **Auth-gate precondition (verified 2026-06-13):** identity-routing infrastructure EXISTS — the `(auth)` group gates via Convex `<Authenticated>`/`<Unauthenticated>` (`app/(auth)/_layout.tsx`: unauthenticated → sign-in stack, authenticated → `<Redirect to /(app)>`), and `signOut` → `/(auth)/sign-in`. **But the `(app)` group lacks the reverse guard:** `app/index.tsx` redirects unconditionally to `/(app)/(tabs)` and neither `(app)/_layout.tsx` nor `(tabs)/_layout.tsx` redirects an unauthenticated session to `/(auth)/sign-in`, so a logged-out cold launch lands on the app home (queries client-skipped, e.g. `(tabs)/index.tsx` on `isSignedIn`) rather than the login page. The founder dogfood (always signed in via cached Clerk token) never observes this. Closing the gap is one small guard (`<Authenticated>`/`<Unauthenticated>` wrapper on `(app)` that redirects to `/(auth)/sign-in`) — a pre-existing app-level concern, candidate MVP task; not introduced by this MVP.

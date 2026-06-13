@@ -1,7 +1,7 @@
 ---
 stability: CONSTITUTION
 last_validated: 2026-06-13
-prd_version: 1.0.0
+prd_version: 1.1.0
 ---
 
 # External Dependencies (Backend)
@@ -20,7 +20,7 @@ prd_version: 1.0.0
 - **Risk:** third-party availability/rate limits. Detail MUST degrade gracefully to 'conditions unavailable' (the action already surfaces a typed error).
 
 ## Convex platform + Clerk auth
-- All existing curation reads use `requireIdentity` (Clerk). The two new public queries inherit this posture; whether Discovery browse is identity-gated or public-read for MVP is an implementation decision to ratify (see 04-api-design).
+- All existing curation reads use `requireIdentity` (Clerk). The two new client-callable queries inherit this posture — both are Clerk-gated via `requireIdentity` (decision locked 2026-06-13, resolving R-DATA-9 / open item #74). "Public" describes the Convex function being client-callable (not `internalQuery`), not anonymous access. See the Auth-gate precondition in [04-api-design.md](./04-api-design.md).
 
 ## Maps deep-link (client, named for completeness)
 - 'Ride it' opens Google/Apple Maps via deep link — a **client** concern (no backend dependency). Listed so it is not silently dropped from the data layer's awareness.
