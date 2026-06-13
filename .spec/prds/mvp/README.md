@@ -34,7 +34,7 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — by making the c
 | [06-uc-dtl.md](./06-uc-dtl.md) | UC-DTL-01..04 — lean route detail | FEATURE_SPEC |
 | [07-uc-save.md](./07-uc-save.md) | UC-SAVE-01..02 — library save + maps handoff | FEATURE_SPEC |
 | [08-team-contributions.md](./08-team-contributions.md) | Authoring team, consolidation decisions, risks, OUT-of-MVP | - |
-| [09-technical-requirements/](./09-technical-requirements/README.md) | Technical constitution — folder (architecture, schema, API, deps, risks, UI infra, **routing + Route Delta**) | CONSTITUTION |
+| [09-technical-requirements/](./09-technical-requirements/README.md) | Technical constitution — folder (architecture, schema, API, deps, risks, UI infra, **routing + Route Delta**, design system) | CONSTITUTION |
 | [10-e2e-testing-criteria.md](./10-e2e-testing-criteria.md) | Per-UC test criteria (type, AC ref, setup, pass/fail) | TEST_SPEC |
 
 ## Quick Stats

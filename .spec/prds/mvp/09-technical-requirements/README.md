@@ -20,6 +20,7 @@ Technical constitution for the Discovery-MVP. Read-path-first over the existing 
 | 7 | [07-ui-infrastructure.md](./07-ui-infrastructure.md) | UI Infrastructure: Discovery Client Wiring | CONSTITUTION |
 | 8 | [08-technical-risks.md](./08-technical-risks.md) | Backend Technical Risks | CONSTITUTION |
 | 9 | [09-routing.md](./09-routing.md) | Routing & Views | CONSTITUTION |
+| 10 | [10-design-system.md](./10-design-system.md) | Design System & Visual Specifications | CONSTITUTION |
 
 ## Parent
 
@@ -30,3 +31,4 @@ Technical constitution for the Discovery-MVP. Read-path-first over the existing 
 | Version | Date | Changes |
 |---|---|---|
 | 1.0.0 | 2026-06-13 | Initial technical requirements |
+| 1.0.1 | 2026-06-13 | Split the merged UI-infrastructure file: client wiring stays in 07; design tokens / ScoreDimensionBar / detail layout extracted to 10-design-system.md |
