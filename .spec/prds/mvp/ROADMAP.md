@@ -25,7 +25,7 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — by making the c
 
 | # | Milestone | Sprint | Gate | Tasks | Dependencies | Status |
 |---|-----------|--------|------|-------|--------------|--------|
-| 1 | — | [Sprint 01: Live Discovery Home](#sprint-01-live-discovery-home) | App opens to a full-bleed Mapbox map of real ranked curated-route pins (not chat, not mocks) with working filters, sort, and state browse. | 9 | — | Planned |
+| 1 | — | [Sprint 01: Live Discovery Home](#sprint-01-live-discovery-home) | App opens to a full-bleed Mapbox map of real ranked curated-route pins (not chat, not mocks) with working filters, sort, and state browse. | 9 | — | In Progress |
 | 2 | — | [Sprint 02: Trustworthy & Legible Discovery](#sprint-02-trustworthy--legible-discovery) | Discovery tells the truth about loading/empty states and every pin/control is comfortably tappable — including with gloves. | 2 | Sprint 01 | Planned |
 | 3 | — | [Sprint 03: Route Detail + Close the Loop](#sprint-03-route-detail--close-the-loop) | Tap a pin → honest detail (headline, score bars, geometry-or-centroid, conditions) → save → reopen → Ride-It opens maps. | 9 | Sprint 01 | Planned |
 | 4 | — | [Sprint 04: On-Device D9 Capstone](#sprint-04-on-device-d9-capstone) | The founder completes the full discover-to-ride arc on real iOS **and** real Android against live Convex, with recorded evidence. | 1 | Sprint 01, 02, 03 | Planned |
@@ -40,7 +40,7 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 
 **Sequence:** 1
 **Timeline:** Phase 1
-**Status:** Planned
+**Status:** In Progress
 **Proposed by:** convex-planner + react-native-ui-planner
 **Milestone:** — (`sprint-01`)
 
@@ -72,6 +72,15 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 | DISC-001 | Make Discovery the default landing; demote chat to a "Plan a ride" drawer entry (chat internals unchanged) | react-native-ui-implementer | 180 min |
 
 **Next Sprint Tasks:** *(populated JIT when sprint becomes active by kb-sprint-tasks-plan)*
+- DATA-007-remove-stale-react-native-shadow-dir.md
+- DATA-001-seed-geospatial-points-from-centroids.md
+- DATA-002-archetype-mapping-transform.md
+- DATA-004-state-normalize-and-length-clamp.md
+- DATA-005-listCuratedRoutes-public-query.md
+- DISC-002-use-curated-discovery-hook.md
+- DISC-003-wire-route-discovery-screen-off-mocks.md
+- DISC-004-mapbox-map-convergence-pins.md
+- DISC-001-discovery-default-home-demote-chat.md
 
 #### Dependencies
 
