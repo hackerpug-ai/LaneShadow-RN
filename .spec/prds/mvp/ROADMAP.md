@@ -77,7 +77,16 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 | DISC-014 | No-route empty home state: pills present + discovery-invite placeholder copy | react-native-ui-implementer | 75 min |
 | DISC-015 | Remove the dedicated `discover.tsx`/`RouteDiscoveryScreen`, drop `DiscoveryFilterBar`/`DiscoverySortToggle`, drawer cleanup (lands last) | react-native-ui-implementer | 90 min |
 
-**Next Sprint Tasks:** *(re-expanded JIT by kb-sprint-tasks-plan — the existing `tasks/sprint-01-live-discovery-home/` files for the old dedicated-screen DISC-001/003/004 are superseded by DATA-008 + DISC-010..015 above)*
+**Next Sprint Tasks:** *(expanded by kb-sprint-tasks-plan, 2026-06-14 — full task files in `tasks/sprint-01-live-discovery-home/`; every FEATURE task passes the fakeability gate at 0 CRITICAL. Old dedicated-screen files DISC-001/003/004 superseded.)*
+- DATA-008-agent-curated-discovery-tool.md
+- DISC-010-rekey-suggestion-pill-visibility.md
+- DISC-011-curated-route-suggestion-pills.md
+- DISC-012-render-curated-route-cards.md
+- DISC-013-full-chat-footer-button.md
+- DISC-014-no-route-empty-home-state.md
+- DISC-015-remove-dedicated-discovery-path.md
+- OPS-001-guard-empty-convex-deployment-drift.md
+*(carried forward, built: DATA-001/002/004/005, DISC-002)*
 
 #### Dependencies
 
