@@ -1,6 +1,16 @@
-import { internalAction, internalMutation } from './_generated/server'
+import { v } from 'convex/values'
+import { action, internalMutation } from './_generated/server'
+import { internal } from './_generated/api'
 import { geospatial } from './geospatialIndex'
-import type { Doc } from './_generated/dataModel'
+
+interface BatchResult {
+  seeded: number
+  skipped: number
+  alreadyExisted: number
+  errors: string[]
+  continueCursor: string | null
+  isDone: boolean
+}
 
 interface SeedResult {
   totalProcessed: number
@@ -8,9 +18,77 @@ interface SeedResult {
   skipped: number
   alreadyExisted: number
   errors: string[]
+  batchesRun: number
 }
 
-export const seedGeospatialIndex = internalMutation({
+const seedGeospatialBatchInternal = internalMutation({
+  args: {
+    cursor: v.union(v.string(), v.null()),
+  },
+  handler: async (ctx, { cursor }): Promise<BatchResult> => {
+    const result: BatchResult = {
+      seeded: 0,
+      skipped: 0,
+      alreadyExisted: 0,
+      errors: [],
+      continueCursor: null,
+      isDone: false,
+    }
+
+    const page = await ctx.db
+      .query('curated_routes')
+      .paginate({ cursor: cursor ?? undefined, numItems: 200 })
+
+    for (const route of page.page) {
+      const lat = route.centroidLat
+      const lng = route.centroidLng
+
+      if (
+        lat == null ||
+        lng == null ||
+        typeof lat !== 'number' ||
+        typeof lng !== 'number' ||
+        isNaN(lat) ||
+        isNaN(lng) ||
+        lat < -90 ||
+        lat > 90 ||
+        lng < -180 ||
+        lng > 180
+      ) {
+        result.skipped++
+        result.errors.push(`Skipped ${route.routeId}: invalid centroid (${lat}, ${lng})`)
+        continue
+      }
+
+      try {
+        await geospatial.insert(
+          ctx,
+          route._id,
+          { latitude: lat, longitude: lng },
+          { state: route.state ?? 'Unknown', primaryArchetype: route.primaryArchetype ?? 'twisties' },
+          route.compositeScore ?? 0,
+        )
+        result.seeded++
+      } catch (error) {
+        const errMsg = error instanceof Error ? error.message : String(error)
+        if (errMsg.includes('already') || errMsg.includes('duplicate') || errMsg.includes('exists')) {
+          result.alreadyExisted++
+        } else {
+          result.skipped++
+          result.errors.push(`Error seeding ${route.routeId}: ${errMsg}`)
+        }
+      }
+    }
+
+    result.continueCursor = page.continueCursor ?? null
+    result.isDone = page.isDone ?? false
+    return result
+  },
+})
+
+export { seedGeospatialBatchInternal }
+
+export const seedGeospatialAll = action({
   args: {},
   handler: async (ctx): Promise<SeedResult> => {
     const result: SeedResult = {
@@ -19,76 +97,27 @@ export const seedGeospatialIndex = internalMutation({
       skipped: 0,
       alreadyExisted: 0,
       errors: [],
+      batchesRun: 0,
     }
 
-    // Process in batches using pagination
     let cursor: string | null = null
-    const batchSize = 200
 
     while (true) {
-      const page = await ctx.db
-        .query('curated_routes')
-        .paginate({ cursor: cursor ?? undefined, numItems: batchSize })
+      const batch = await ctx.runMutation(internal.geospatialSeed.seedGeospatialBatchInternal, { cursor })
 
-      for (const route of page.page) {
-        result.totalProcessed++
+      result.seeded += batch.seeded
+      result.skipped += batch.skipped
+      result.alreadyExisted += batch.alreadyExisted
+      result.errors.push(...batch.errors.slice(0, 5))
+      result.batchesRun++
 
-        const lat = route.centroidLat
-        const lng = route.centroidLng
-
-        // Skip invalid centroids
-        if (
-          lat == null ||
-          lng == null ||
-          typeof lat !== 'number' ||
-          typeof lng !== 'number' ||
-          isNaN(lat) ||
-          isNaN(lng) ||
-          lat < -90 ||
-          lat > 90 ||
-          lng < -180 ||
-          lng > 180
-        ) {
-          result.skipped++
-          result.errors.push(
-            `Skipped ${route.routeId}: invalid centroid (${lat}, ${lng})`,
-          )
-          continue
-        }
-
-        try {
-          // Insert geospatial point (upsert — re-inserting with same key replaces)
-          await geospatial.insert(
-            ctx,
-            route._id,
-            { latitude: lat, longitude: lng },
-            {
-              state: route.state ?? 'Unknown',
-              primaryArchetype: route.primaryArchetype ?? 'twisties',
-            },
-            route.compositeScore ?? 0,
-          )
-          result.seeded++
-        } catch (error) {
-          // If already exists, count as alreadyExisted
-          const errMsg = error instanceof Error ? error.message : String(error)
-          if (errMsg.includes('already') || errMsg.includes('duplicate') || errMsg.includes('exists')) {
-            result.alreadyExisted++
-          } else {
-            result.skipped++
-            result.errors.push(
-              `Error seeding ${route.routeId}: ${errMsg}`,
-            )
-          }
-        }
-      }
-
-      if (!page.continueCursor || page.isDone) {
+      if (batch.isDone || !batch.continueCursor) {
         break
       }
-      cursor = page.continueCursor
+      cursor = batch.continueCursor
     }
 
+    result.totalProcessed = result.seeded + result.skipped + result.alreadyExisted
     return result
   },
 })
