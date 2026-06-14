@@ -21,10 +21,20 @@
 
 import { useState } from 'react'
 import { Animated, Pressable, StyleSheet, View } from 'react-native'
-import { Marker } from 'react-native-maps'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { IconSymbol } from '../ui/icon-symbol'
+import { latLngToMapbox } from '../../lib/mapbox/coordinate-converter'
+import { NativeModules } from 'react-native'
+
+const mapboxAvailable = NativeModules.RNMBXModule != null
+let MarkerView: any = null
+if (mapboxAvailable) {
+  try {
+    const mod = require('@rnmapbox/maps')
+    MarkerView = mod.MarkerView
+  } catch {}
+}
 
 /**
  * Route archetype types from UC-DISC-02
@@ -93,6 +103,9 @@ export function RoutePin({
   // Animated scale value for press feedback
   const scaleAnim = useState(new Animated.Value(1))[0]
 
+  // Convert coordinate to Mapbox format [lng, lat]
+  const mapboxCoordinate = mapboxAvailable && coordinate ? latLngToMapbox(coordinate) : undefined
+
   const handlePressIn = () => {
     setPressed(true)
     Animated.spring(scaleAnim, {
@@ -120,101 +133,110 @@ export function RoutePin({
   const iconName = ARCHETYPE_ICONS[archetype]
 
   return (
-    <Marker coordinate={coordinate} testID={testID}>
-      <Pressable
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        onPress={handlePress}
-        style={styles.container}
-        testID={`${testID}-pressable`}
-      >
-        <Animated.View
-          style={[
-            styles.pinWrapper,
-            {
-              transform: [{ scale: scaleAnim }],
-            },
-          ]}
-        >
-          {/* Copper circle body with archetype icon */}
-          <View
-            style={[
-              styles.pinBody,
-              {
-                backgroundColor: semantic.color.primary.default,
-                width: 44,
-                height: 44,
-                borderRadius: 22, // full circle
-              },
-            ]}
-            testID={`${testID}-body`}
+    <>
+      {mapboxAvailable && MarkerView && mapboxCoordinate ? (
+        <MarkerView coordinate={mapboxCoordinate} testID={testID}>
+          <Pressable
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            onPress={handlePress}
+            style={styles.container}
+            testID={`${testID}-pressable`}
           >
-            <IconSymbol
-              name={iconName as any}
-              size={24}
-              color={semantic.color.onPrimary.default}
-              testID={`${testID}-icon`}
-            />
-          </View>
-
-          {/* Rank badge (top-10 Best sort) */}
-          {rank !== null && rank !== undefined && rank >= 1 && rank <= 10 && (
-            <View
+            <Animated.View
               style={[
-                styles.rankBadge,
+                styles.pinWrapper,
                 {
-                  backgroundColor: semantic.color.primary.default,
-                  top: -4,
-                  right: -4,
+                  transform: [{ scale: scaleAnim }],
                 },
               ]}
-              testID={`${testID}-rank`}
             >
-              <Text
+              {/* Copper circle body with archetype icon */}
+              <View
                 style={[
-                  semantic.type.label.sm,
+                  styles.pinBody,
                   {
-                    color: semantic.color.onPrimary.default,
-                    fontWeight: '700',
-                    fontSize: 10,
-                    lineHeight: 12,
+                    backgroundColor: semantic.color.primary.default,
+                    width: 44,
+                    height: 44,
+                    borderRadius: 22, // full circle
                   },
                 ]}
+                testID={`${testID}-body`}
               >
-                {rank}
-              </Text>
-            </View>
-          )}
+                <IconSymbol
+                  name={iconName as any}
+                  size={24}
+                  color={semantic.color.onPrimary.default}
+                  testID={`${testID}-icon`}
+                />
+              </View>
 
-          {/* Distance label (Nearest sort) */}
-          {distance !== null && (
-            <View
-              style={[
-                styles.distanceLabel,
-                {
-                  backgroundColor: `${semantic.color.surface.default}CC`, // 80% opacity
-                  marginTop: semantic.space.xs,
-                },
-              ]}
-              testID={`${testID}-distance`}
-            >
-              <Text
-                style={[
-                  semantic.type.label.sm,
-                  {
-                    color: semantic.color.onSurface.default,
-                    fontSize: 10,
-                    lineHeight: 12,
-                  },
-                ]}
-              >
-                {distance}
-              </Text>
-            </View>
-          )}
-        </Animated.View>
-      </Pressable>
-    </Marker>
+              {/* Rank badge (top-10 Best sort) */}
+              {rank !== null && rank !== undefined && rank >= 1 && rank <= 10 && (
+                <View
+                  style={[
+                    styles.rankBadge,
+                    {
+                      backgroundColor: semantic.color.primary.default,
+                      top: -4,
+                      right: -4,
+                    },
+                  ]}
+                  testID={`${testID}-rank`}
+                >
+                  <Text
+                    style={[
+                      semantic.type.label.sm,
+                      {
+                        color: semantic.color.onPrimary.default,
+                        fontWeight: '700',
+                        fontSize: 10,
+                        lineHeight: 12,
+                      },
+                    ]}
+                  >
+                    {rank}
+                  </Text>
+                </View>
+              )}
+
+              {/* Distance label (Nearest sort) */}
+              {distance !== null && (
+                <View
+                  style={[
+                    styles.distanceLabel,
+                    {
+                      backgroundColor: `${semantic.color.surface.default}CC`, // 80% opacity
+                      marginTop: semantic.space.xs,
+                    },
+                  ]}
+                  testID={`${testID}-distance`}
+                >
+                  <Text
+                    style={[
+                      semantic.type.label.sm,
+                      {
+                        color: semantic.color.onSurface.default,
+                        fontSize: 10,
+                        lineHeight: 12,
+                      },
+                    ]}
+                  >
+                    {distance}
+                  </Text>
+                </View>
+              )}
+            </Animated.View>
+          </Pressable>
+        </MarkerView>
+      ) : (
+        // Fallback for non-Mapbox environments
+        <View style={styles.container} testID={`${testID}-fallback`}>
+          <Text variant="bodySmall">Map unavailable</Text>
+        </View>
+      )}
+    </>
   )
 }
 

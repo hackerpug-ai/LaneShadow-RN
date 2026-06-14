@@ -25,7 +25,7 @@ import { Text } from 'react-native-paper'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { MenuLayout } from '../layouts/menu-layout'
-import { MapViewWrapper } from '../map/map-view'
+import { MapboxMapView, type MapboxCamera } from '../map/mapbox-map-view'
 import { DiscoveryFilterBar, type RouteArchetype } from './discovery-filter-bar'
 import { DiscoverySortToggle, type SortMode } from './discovery-sort-toggle'
 
@@ -133,7 +133,7 @@ const calculateArchetypeCounts = (
  * Uses mock data for design validation — business logic will be wired in CUR-012.
  */
 export const RouteDiscoveryScreen = (): ReactNode => {
-  const { semantic } = useSemanticTheme()
+  const { semantic, dark } = useSemanticTheme()
   const insets = useSafeAreaInsets()
 
   // Local state for UI controls (no Zustand, no Convex in this design task)
@@ -163,7 +163,7 @@ export const RouteDiscoveryScreen = (): ReactNode => {
     return sorted
   }, [filteredRoutes, sortMode])
 
-  // Convert routes to map markers
+  // Convert routes to map markers (Mapbox format uses [lng, lat] internally)
   const markers = useMemo(() => {
     return sortedRoutes.map((route) => ({
       id: route.id,
@@ -175,6 +175,14 @@ export const RouteDiscoveryScreen = (): ReactNode => {
     }))
   }, [sortedRoutes])
 
+  // Convert camera position to Mapbox format [lng, lat]
+  const cameraPosition: MapboxCamera = useMemo(() => {
+    return {
+      center: [-105.0, 39.7], // Mapbox format: [lng, lat] for Denver
+      zoom: 10,
+    }
+  }, [])
+
   return (
     <MenuLayout
       headerTitle="Route Discovery"
@@ -182,13 +190,11 @@ export const RouteDiscoveryScreen = (): ReactNode => {
       menuOpen={false}
       onMenuOpenChange={() => {}}
     >
-      <MapViewWrapper
-        style={styles.map as any}
-        cameraPosition={{
-          coordinates: { latitude: 39.7, longitude: -105.0 }, // Denver
-          zoom: 10,
-        }}
+      <MapboxMapView
+        theme={dark ? 'dark' : 'light'}
+        camera={cameraPosition}
         markers={markers}
+        style={styles.map as any}
       >
         {/* Filter Bar - positioned at top below status bar */}
         <View style={styles.filterBarContainer as any}>
@@ -270,7 +276,7 @@ export const RouteDiscoveryScreen = (): ReactNode => {
               </Text>
             </View>
           ))}
-      </MapViewWrapper>
+      </MapboxMapView>
     </MenuLayout>
   )
 }
