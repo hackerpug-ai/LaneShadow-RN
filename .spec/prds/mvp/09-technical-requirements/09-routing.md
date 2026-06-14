@@ -1,8 +1,10 @@
 ---
 stability: CONSTITUTION
-last_validated: 2026-06-13
-prd_version: 1.1.0
+last_validated: 2026-06-14
+prd_version: 2.0.0
 ---
+
+> **⚠️ DELTA-001 (v2.0.0, folded into Sprint 01):** The route map below is the **as-built Sprint 01 record**. Under the delta, [DELTA-001](../DELTA-001-unified-map-chat-discovery.md) **deletes `discover.tsx`** and re-homes discovery onto the existing **map + chat home** (`index.tsx`). See "Route Delta (v2.0.0 — folded into Sprint 01)" at the bottom of this file.
 
 # Routing & Views
 
@@ -42,3 +44,19 @@ Reasons:
 4. **Map engine isolation.** Detail renders its own Mapbox instance (polyline OR centroid-fallback). Keeping it on its own route avoids juggling two map states inside one screen.
 
 Why NOT a state: the filter/sort/archetype selections on Discover ARE states (they mutate the same list query in place and must persist across pin taps) — they correctly live as in-screen state on the Discover route. Detail is a navigation, not a filter, so it is a route.
+
+---
+
+## Route Delta (v2.0.0 — folded into Sprint 01) — DELTA-001
+
+Applied **after** Sprint 01 ships the route map above. Authoritative spec: [DELTA-001](../DELTA-001-unified-map-chat-discovery.md).
+
+| Change | Route | Type | Rationale |
+|---|---|---|---|
+| DELETED | `app/(app)/(tabs)/discover.tsx` | route removed | The dedicated Discovery screen is removed; discovery is re-homed onto the map + chat home. |
+| CHANGED (default landing) | `app/(app)/(tabs)/index.tsx` (map + chat home) | becomes the discovery home + default landing | Already the map + chat screen. Gains: curated-route **suggestion pills** keyed to "no active route on map" (re-using the existing `chat-input.tsx` idle-pill slot, content swapped from `IDLE_SUGGESTIONS` to live curated routes); curated routes surfaced by the agent as the existing `routing_card` / `RouteAttachmentCard` (which already render the latest on the map and re-render an earlier card on tap, returning to map view); a **footer "open full chat" button** to the right of the chat input (re-uses the existing `chatMode` toggle). |
+| SUPERSEDED | drawer "Plan a ride" entry | nav change | Chat is integral to the home; reached via the footer button, not a demoted drawer entry. |
+| REMOVED from discovery UX | `DiscoveryFilterBar`, `DiscoverySortToggle` | components dropped | Archetype chips + best/nearest sort are redundant with conversational refinement; dropped to keep the map clean (components may be deleted or left unmounted). |
+| UNCHANGED | `app/(app)/curated-route/[id].tsx`, `saved-route/[id].tsx`, `saved-routes.tsx` | reuse | Detail + Save + Saved flows are unaffected (detail is its own pushed route). |
+
+**Route-vs-state note (delta):** discovery is no longer a route — it is the **state of the home** (no route on map ⇒ suggestion pills; route on map ⇒ route rendered, pills hidden). This is the canonical "state of an existing view, not a new route" outcome of the route-vs-state discriminator.

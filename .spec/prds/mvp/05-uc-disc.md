@@ -1,9 +1,11 @@
 ---
 stability: FEATURE_SPEC
-last_validated: 2026-06-13
-prd_version: 1.1.0
+last_validated: 2026-06-14
+prd_version: 2.0.0
 functional_group: DISC
 ---
+
+> **⚠️ DELTA-001 (v2.0.0, folded into Sprint 01):** The use cases below are the **as-built Sprint 01 record** (a dedicated `discover.tsx` / `RouteDiscoveryScreen`). A post-start delta — [DELTA-001](./DELTA-001-unified-map-chat-discovery.md) — moves discovery onto the existing **map + chat home** (`index.tsx`): curated-route **suggestion pills** when no route is on the map, plus curated routes surfaced as the existing **chat route-cards** that render on the map (tap an earlier card → it re-renders + returns to map). New **UC-DISC-09 / 10 / 11** and the superseded set (**UC-DISC-02 / 05 / 06 / 07 / 08**) are specified in DELTA-001 and authored in full when Sprint 01 is re-expanded. **Now part of Sprint 01.**
 
 # Use Cases: Discovery Surface (DISC)
 

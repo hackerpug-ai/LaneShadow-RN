@@ -1,12 +1,14 @@
 ---
 stability: TEST_SPEC
-last_validated: 2026-06-13
-prd_version: 1.1.0
+last_validated: 2026-06-14
+prd_version: 2.0.0
 ---
 
 # E2E / Human Testing Criteria — Discovery-MVP
 
 Version 1.0.0 · 2026-06-13 · 24 criteria across 20 use cases.
+
+> **⚠️ DELTA-001 (v2.0.0, folded into Sprint 01):** The criteria below cover the as-built Sprint 01 DISC use cases (dedicated Discover screen). Criteria for the delta UCs (**UC-DISC-09/10/11** — curated-route suggestion pills + chat-driven curated discovery on the map/chat home) are authored JIT when Sprint 01 is re-expanded, against real iOS + Android + live Convex, with the NL/intent signal **fixtured at the determinism seam** (assert which curated routes are surfaced/plotted, not prose). Criteria **T-DISC-002 / 005 / 006 / 007 / 008** are re-scoped or retired when the dedicated screen is removed. See [DELTA-001](./DELTA-001-unified-map-chat-discovery.md).
 
 Per the project iron rule: integration/E2E against **real services** is the primary acceptance bar. The capstone is the on-device journey (UC-DISC-01) verified on real iOS + real Android against live Convex.
 

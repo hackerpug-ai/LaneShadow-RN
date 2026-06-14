@@ -1,10 +1,12 @@
 ---
 stability: PRODUCT_CONTEXT
-last_validated: 2026-06-13
-prd_version: 1.1.0
+last_validated: 2026-06-14
+prd_version: 2.0.0
 ---
 
 ## LaneShadow Discovery-MVP
+
+> **⚠️ DELTA-001 (v2.0.0, folded into Sprint 01):** A post-start delta refines the solution below. Instead of a **dedicated Discovery screen** with the chat agent demoted, discovery becomes the behavior of the **single map + chat home**: curated-route suggestion pills (when no route is on the map) plus curated routes surfaced as the existing chat route-cards that render on the map — natural-language discovery in scope. Sprint 01 now delivers this directly — the earlier dedicated-screen plan is superseded. See [DELTA-001](./DELTA-001-unified-map-chat-discovery.md).
 
 ### What this is
 

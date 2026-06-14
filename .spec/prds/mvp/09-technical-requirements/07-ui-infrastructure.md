@@ -1,8 +1,10 @@
 ---
 stability: CONSTITUTION
-last_validated: 2026-06-13
-prd_version: 1.1.0
+last_validated: 2026-06-14
+prd_version: 2.0.0
 ---
+
+> **⚠️ DELTA-001 (v2.0.0, folded into Sprint 01):** The wiring below is the **as-built Sprint 01 plan** for the dedicated `RouteDiscoveryScreen`. Under the delta, [DELTA-001](../DELTA-001-unified-map-chat-discovery.md) re-homes discovery onto `index.tsx`; see "§7. DELTA-001 — re-home discovery onto the map/chat machinery" at the bottom of this file for what changes.
 
 # UI Infrastructure: Discovery Client Wiring
 
@@ -69,3 +71,24 @@ Changes:
 - **Theming:** all colors via `useSemanticTheme()`; no hardcoded hex. (RoutePin currently hardcodes `#000` shadow + `#B87333` in MapboxMapView's default marker — flag for theme tokens where touched.)
 - **Platform differences:** maps deep-link scheme differs by `Platform.OS` (Apple vs Google Maps); Android keyboard/adjustResize already handled by existing sheet infra; test pin tap hit-area on both platforms.
 - **testIDs (E2E):** `route-discovery-screen`, `discovery-filter-bar` (+ `-chip-{archetype}`), `discovery-sort-toggle`, `discovery-loading-overlay`, `discovery-empty-overlay`, `route-pin-{routeId}`, `curated-detail-screen`, `curated-detail-save`, `curated-detail-ride-it`, `drawer-discover`, `drawer-plan-a-ride`, `saved-routes-list`.
+
+## 7. DELTA-001 — re-home discovery onto the map/chat machinery (folded into Sprint 01)
+
+Authoritative spec: [DELTA-001](../DELTA-001-unified-map-chat-discovery.md). Applied **after** Sprint 01. The key change vs §1–§6: discovery is **not a screen** — it rides machinery that already exists in `app/(app)/(tabs)/index.tsx`. Verified in code 2026-06-14:
+
+- **Route cards already exist** — the agent emits `routing_card` messages rendered as `RouteAttachmentCard` in the transcript (`components/chat/routing-card.tsx` → `route-attachment-card.tsx`).
+- **Map already shows the latest route** — `hooks/use-active-session-route.ts` defaults to the newest plan unless one is pinned.
+- **Tap-an-earlier-card already works** — `route-attachment-card.tsx:119` `handlePress` → `onSelect()` (`routing-card.tsx:251`: `setSelectedRouteId` + `setDisplayedRoutePlanId` + camera fit) + `onViewOnMap()` (`index.tsx:1209`: `setChatMode(false)`).
+- **The pill slot already exists** — `components/chat/chat-input.tsx:186` (`SuggestionChips`), fed `IDLE_SUGGESTIONS` (`index.tsx:68`), keyed to "empty session."
+
+Delta wiring work (small, low-risk):
+
+| # | Change | Where |
+|---|---|---|
+| 1 | **Suggestion pills → whole curated routes**, sourced from the live catalog (reuse `useCuratedDiscovery` / `listCuratedRoutes`) | `chat-input.tsx` pill content + `index.tsx` props |
+| 2 | **Re-key pill visibility** from "empty session" (`!hasMessages`) to **"no active route on the map"** (no displayed route via `useActiveSessionRoute`) | `chat-input.tsx:186` condition + `index.tsx` |
+| 3 | **Agent surfaces curated routes as `routing_card`s** so they ride the existing card→map→pin-back loop | chat-planning / agent response path |
+| 4 | **Footer "open full chat" button** to the right of the chat input (re-uses `chatMode` toggle / `cycleTranscript`) | `index.tsx` footer + `chat-input.tsx` |
+| 5 | **Delete the dedicated discovery path** (`discover.tsx`, and `RouteDiscoveryScreen`); **drop** `DiscoveryFilterBar` + `DiscoverySortToggle` (redundant with conversational refinement) | remove from `app/`; components deleted or left unmounted |
+
+`IntentSearchSheet` / `IntentSummaryPill` (previously DEFER/NL-out-of-scope in §1) are now **in scope** as a possible NL-entry affordance, or NL is handled directly through the chat input — decide at implementation. The deferred local-DB `hooks/use-route-discovery.ts` stays untouched.

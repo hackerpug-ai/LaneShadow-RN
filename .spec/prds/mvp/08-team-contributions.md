@@ -1,7 +1,7 @@
 ---
 stability: PRODUCT_CONTEXT
-last_validated: 2026-06-13
-prd_version: 1.1.0
+last_validated: 2026-06-14
+prd_version: 2.0.0
 ---
 
 # Team Contributions
@@ -88,7 +88,7 @@ _PRD authored by a project planner team and consolidated by the product-manager 
 - DESIGN OUT OF SCOPE — Animation polish: Route pin entrance animations, detail screen hero image parallax, filter bar collapse-on-scroll, skeleton shimmer upgrades. The existing 300ms debounce on the loading skeleton is the only animation in scope.
 - DESIGN OUT OF SCOPE — Photo carousel: curated_route_enrichments is empty. No photo section is designed or built for MVP. The detail screen has no image placeholder or photo-ready layout. Adding a photo rail post-MVP will require a layout change to the detail screen.
 - DESIGN OUT OF SCOPE — Rating stars / community indicators on detail: No star rating, no 'X riders saved this' count, no community badge. These belong to Phase 1 (Community). MVP detail is founder-facing only.
-- DESIGN OUT OF SCOPE — NL search / intent search sheet: The intent-search-sheet.tsx component (components/discovery/intent-search-sheet.tsx) and intent-summary-pill.tsx exist in the codebase but are not mounted in MVP. NL search is explicitly deferred (post-MVP scope per design spec §3).
+- DESIGN OUT OF SCOPE — NL search / intent search sheet: The intent-search-sheet.tsx component (components/discovery/intent-search-sheet.tsx) and intent-summary-pill.tsx exist in the codebase but are not mounted in MVP. NL search is explicitly deferred (post-MVP scope per design spec §3). **[→ DELTA-001 (2026-06-14):** NL / chat-driven curated-route discovery is MOVED INTO SCOPE in Sprint 01 — discovery rides the existing chat route-card machinery on the map/chat home (`index.tsx`). See [DELTA-001](./DELTA-001-unified-map-chat-discovery.md).**]**
 - ROUTING OPEN ITEM — Route path for curated detail: The RN planner owns routing. The frontend designer flags: the curated route detail screen needs a stable deep-link path (suggested: '/curated-route/[routeId]') separate from the saved-route detail ('/saved-route/[id]') since they have different data shapes and actions. This should be captured in the RN planner's route delta.
 - OPEN ITEM — Filter bar right-edge fade gradient: A subtle fade-out on the right edge of the chip ScrollView would hint that more chips exist off-screen. This is a post-MVP polish item (single-line change using a LinearGradient overlay). Deferred per 'ship current look' decision.
 - OPEN ITEM — 'technical' and 'sport' archetype chips show 0 count: These two UI chips have no corresponding DB archetype. For MVP they render with count=0 and trigger the empty state when selected. Post-MVP resolution: extend the curation pipeline's archetype taxonomy or remap at the query layer.

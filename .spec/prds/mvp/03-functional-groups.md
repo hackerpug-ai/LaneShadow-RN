@@ -1,10 +1,12 @@
 ---
 stability: FEATURE_SPEC
-last_validated: 2026-06-13
-prd_version: 1.1.0
+last_validated: 2026-06-14
+prd_version: 2.0.0
 ---
 
 # Functional Groups
+
+> **⚠️ DELTA-001 (v2.0.0, folded into Sprint 01):** Under the delta, the **DISC** group is re-homed off the dedicated Discover screen onto the **map + chat home** — discovery becomes curated-route **suggestion pills** (shown when no route is on the map) plus curated routes surfaced as **chat route-cards** that render on the map. The archetype filter-bar + sort-toggle are dropped (replaced by conversational refinement). See [DELTA-001](./DELTA-001-unified-map-chat-discovery.md). Now part of Sprint 01.
 
 | Group | Prefix | Description |
 |---|---|---|

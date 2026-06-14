@@ -1,6 +1,6 @@
 ---
 title: LaneShadow Discovery-MVP
-version: 1.1.0
+version: 2.0.0
 scope_posture: full
 pr_sequencing: false
 ---
@@ -11,15 +11,18 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — by making the c
 
 > **Grounding:** This PRD was authored by a project planner team (product-manager lead, convex-planner, react-native-ui-planner, frontend-designer) against the locked scope from the prior scoping workflow AND a live D0 data verification (`convex export` of the dev deployment: **5,654 curated routes**, 100% centroids, 0–1 scores, 55% geometry, empty enrichment, dirty state strings). See [08-team-contributions.md](./08-team-contributions.md).
 
+> **⚠️ DELTA-001 (v2.0.0, added 2026-06-14 — folded into Sprint 01):** All discovery moves to **one fully-interactive map + chat home**; the dedicated Discover screen (`discover.tsx` / `RouteDiscoveryScreen`) is removed, natural-language/chat-driven discovery comes **into** scope, and the full chat view opens from a **footer button to the right of the chat input**. **First approved as deferred; on 2026-06-14 it was folded into Sprint 01** (see [ROADMAP.md](./ROADMAP.md)). Full spec: [DELTA-001-unified-map-chat-discovery.md](./DELTA-001-unified-map-chat-discovery.md).
+
 ## PRD Metadata
 
 | Field | Value |
 |---|---|
-| Version | 1.1.0 |
+| Version | 2.0.0 |
 | Scope Posture | Full feature (default) |
 | PR Sequencing | Disabled |
 | Created | 2026-06-13 |
-| Last Updated | 2026-06-13 |
+| Last Updated | 2026-06-14 |
+| Active Delta | [DELTA-001](./DELTA-001-unified-map-chat-discovery.md) — unified map/chat discovery (folded into Sprint 01, 2026-06-14) |
 
 ## Document Index
 
@@ -36,6 +39,7 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — by making the c
 | [08-team-contributions.md](./08-team-contributions.md) | Authoring team, consolidation decisions, risks, OUT-of-MVP | - |
 | [09-technical-requirements/](./09-technical-requirements/README.md) | Technical constitution — folder (architecture, schema, API, deps, risks, UI infra, **routing + Route Delta**, design system) | CONSTITUTION |
 | [10-e2e-testing-criteria.md](./10-e2e-testing-criteria.md) | Per-UC test criteria (type, AC ref, setup, pass/fail) | TEST_SPEC |
+| [DELTA-001-unified-map-chat-discovery.md](./DELTA-001-unified-map-chat-discovery.md) | **Post-start delta (v2.0.0):** remove the dedicated Discover screen; all discovery via the interactive map + chat home; NL discovery in scope; full chat via footer button. **Folded into Sprint 01 (see [ROADMAP.md](./ROADMAP.md)).** | FEATURE_SPEC |
 
 ## Quick Stats
 
@@ -73,6 +77,7 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — by making the c
 |---|---|---|---|
 | 1.0.0 | 2026-06-13 | Initial PRD | New initiative (Discovery-MVP) |
 | 1.1.0 | 2026-06-13 | Resolved auth posture (gap #1 / R-DATA-9 / open item #74): both Discovery queries locked to Clerk `requireIdentity` (gated); added auth-gate-enforcement precondition note reflecting verified codebase state | Completeness-review gap #1 |
+| 2.0.0 | 2026-06-14 | **DELTA-001 (post-start):** remove the dedicated Discover screen — all discovery via one fully-interactive map + chat home; natural-language/chat-driven discovery moved INTO scope; full chat view opens from a footer button right of the chat input. First approved deferred, then **folded into Sprint 01** via `kb-sprint-plan --delta-replan` (ROADMAP: 5→3 sprints). See [DELTA-001](./DELTA-001-unified-map-chat-discovery.md). | Product-owner scope change |
 
 ## Next Steps
 

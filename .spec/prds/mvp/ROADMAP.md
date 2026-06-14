@@ -3,19 +3,22 @@ roadmap: 1
 project: LaneShadow Discovery-MVP
 generated: 2026-06-13
 prd: .spec/prds/mvp/README.md
-sprint_count: 4
+sprint_count: 3
 pr_sequencing: false
+delta: DELTA-001 (folded into Sprint 01, 2026-06-14)
 ---
 
 # Sprint Roadmap: LaneShadow Discovery-MVP
 
 ## Overview
 
-**Sprints:** 4
-**Total Tasks:** 21
-**Current Sprint:** 1 - Live Discovery Home (not yet started)
+**Sprints:** 3
+**Total Tasks:** 23 (Sprint 01: 13 · Sprint 02: 9 · Sprint 03: 1)
+**Current Sprint:** 1 - Discovery on the Map/Chat Home (In Progress)
 
-Re-anchor LaneShadow on its strategic hero — **Discovery** — by making the curated-route catalog the default home, wired end to end to live Convex data on real iOS + Android devices. The roadmap is organized around what a human can verify in the **running product** at the end of each sprint — never around a developer-facing metric. The non-observable backend gates (geospatial seed, archetype map, state/length normalization, the two public queries, the bookmark field) are folded *into* the sprints that render them, so no "foundation" sprint exists in isolation.
+Re-anchor LaneShadow on its strategic hero — **Discovery** — by making the curated-route catalog the experience of the app's single **map + chat home**, wired end to end to live Convex data on real iOS + Android devices. The roadmap is organized around what a human can verify in the **running product** at the end of each sprint — never around a developer-facing metric. The non-observable backend gates (geospatial seed, archetype map, state/length normalization, the public queries, the bookmark field) are folded *into* the sprints that render them, so no "foundation" sprint exists in isolation.
+
+> **⚠️ DELTA-001 folded into Sprint 01 (2026-06-14).** Discovery is delivered on the unified map + chat home: curated-route **suggestion pills** when no route is on the map, plus curated routes surfaced as **chat route-cards** that render on the map (tap an earlier card → it re-renders + returns to map), with the full chat view opening from a **footer button** right of the chat input. The dedicated Discover screen is removed. This **replaces** the earlier plan (a dedicated Discover screen in Sprint 01 with the delta deferred to a Sprint 05); the former Sprint 02 (legibility of the dedicated screen) and Sprint 05 (deferred delta) are **absorbed** into Sprint 01, and the capstone is **re-pointed** at the unified home. Authoritative spec: [DELTA-001](./DELTA-001-unified-map-chat-discovery.md).
 
 **Specialist authorship:** every sprint's gate, test steps, and tasks were proposed by the dispatched planning specialists (convex-planner · react-native-ui-planner · frontend-designer) and consolidated by the orchestrator. No content was authored by the orchestrator alone.
 
@@ -25,10 +28,9 @@ Re-anchor LaneShadow on its strategic hero — **Discovery** — by making the c
 
 | # | Milestone | Sprint | Gate | Tasks | Dependencies | Status |
 |---|-----------|--------|------|-------|--------------|--------|
-| 1 | — | [Sprint 01: Live Discovery Home](#sprint-01-live-discovery-home) | App opens to a full-bleed Mapbox map of real ranked curated-route pins (not chat, not mocks) with working filters, sort, and state browse. | 9 | — | In Progress |
-| 2 | — | [Sprint 02: Trustworthy & Legible Discovery](#sprint-02-trustworthy--legible-discovery) | Discovery tells the truth about loading/empty states and every pin/control is comfortably tappable — including with gloves. | 2 | Sprint 01 | Planned |
-| 3 | — | [Sprint 03: Route Detail + Close the Loop](#sprint-03-route-detail--close-the-loop) | Tap a pin → honest detail (headline, score bars, geometry-or-centroid, conditions) → save → reopen → Ride-It opens maps. | 9 | Sprint 01 | Planned |
-| 4 | — | [Sprint 04: On-Device D9 Capstone](#sprint-04-on-device-d9-capstone) | The founder completes the full discover-to-ride arc on real iOS **and** real Android against live Convex, with recorded evidence. | 1 | Sprint 01, 02, 03 | Planned |
+| 1 | — | [Sprint 01: Discovery on the Map/Chat Home](#sprint-01-discovery-on-the-mapchat-home) | App opens to the map + chat home (no dedicated Discover screen); discover curated routes via suggestion pills when no route is on the map and by chatting — routes render on the map. | 13 | — | In Progress |
+| 2 | — | [Sprint 02: Route Detail + Close the Loop](#sprint-02-route-detail--close-the-loop) | Tap a route → honest detail (headline, score bars, geometry-or-centroid, conditions) → save → reopen → Ride-It opens maps. | 9 | Sprint 01 | Planned |
+| 3 | — | [Sprint 03: On-Device D9 Capstone](#sprint-03-on-device-d9-capstone) | The founder completes the full discover-to-ride arc on the map + chat home on real iOS **and** real Android against live Convex, with recorded evidence. | 1 | Sprint 01, 02 | Planned |
 
 The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`. For these newly-planned sprints not yet pushed to GitHub, the cell is `—`; it is backfilled after Milestone creation.
 
@@ -36,141 +38,88 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 
 ## Per-Sprint Details
 
-### Sprint 01: Live Discovery Home
+### Sprint 01: Discovery on the Map/Chat Home
 
 **Sequence:** 1
 **Timeline:** Phase 1
 **Status:** In Progress
-**Proposed by:** convex-planner + react-native-ui-planner
+**Proposed by:** react-native-ui-planner + convex-planner + frontend-designer
 **Milestone:** — (`sprint-01`)
 
 #### Human Testing Gate
 
-**Gate:** On a real device, opening the app lands on a full-bleed Mapbox Discovery map of real ranked curated-route pins drawn from the live 5,654-route catalog — not the chat agent and not mock data — with archetype filters and best/nearest sort updating the live pin set, and the chat planning agent reachable only via a secondary "Plan a ride" drawer entry.
+**Gate:** On a real device the app opens to the single map + chat home (no dedicated Discover screen): with no route on the map, suggestion pills offer whole curated routes from the live catalog and tapping one plots it on the map; typing a request like "twisties near Asheville" returns curated routes as chat cards and plots the latest on the map; tapping an earlier card re-renders it and drops back to map view; and the full chat view opens from a button to the right of the chat input.
 
 **Test Steps:**
-1. Launch the app on a real device and observe it open directly to the Discovery map (not the chat planning screen).
-2. Observe real curated-route pins appear on the map (not the 8 hardcoded mock routes) drawn from the live Convex catalog.
-3. Tap an archetype chip (e.g. "Scenic") and observe the pin set update to only matching routes, with the chip's count badge reflecting live data.
-4. Toggle the sort between **Best** and **Nearest** and observe the pin ordering and the rank/distance labels update.
-5. Open the drawer and observe "Discover" is the primary entry, with a separate "Plan a ride" entry that opens the unmodified chat screen.
-6. Navigate Discover → Plan a ride → Discover and observe the drawer never points two entries at the same screen.
-7. Select a state (e.g. North Carolina) and observe pins for that state appear, including routes stored under both dirty spelling variants of the state.
+1. Launch the app on a real device and observe it open directly to the full-screen map + chat home (no separate Discover screen, no drawer-hidden chat).
+2. With no route on the map, observe suggestion pills above the chat input offering whole curated routes (e.g. a named curated road with mileage), not generic planning prompts.
+3. Tap a suggested-route pill and observe that curated route plot on the map, and observe the suggestion pills disappear once a route is shown.
+4. Type "twisties near Asheville" and observe the agent return curated route card(s) in the chat history and plot the latest curated route on the map.
+5. Scroll the chat history, tap an earlier curated-route card, and observe it re-render on the map and return you to map view.
+6. Clear or dismiss the route on the map and observe the curated suggestion pills return (keyed to no route on map).
+7. Tap the button to the right of the chat input and observe the full chat view open; close it and observe the map return.
 
 #### Tasks
 
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
 | DATA-007 | Remove stale `react-native/` shadow dir + fix workspace config so builds stay green on both platforms | planner | 60 min |
-| DATA-001 | Seed `@convex-dev/geospatial` points table from `curated_routes` centroids (idempotent, ~5,654 points) | convex-implementer | 180 min |
+| DATA-001 | Seed `@convex-dev/geospatial` points table from `curated_routes` centroids (idempotent) | convex-implementer | 180 min |
 | DATA-002 | Archetype mapping transform (UI enum ↔ DB enum) — pure, zero-I/O helper | convex-implementer | 60 min |
-| DATA-004 | State-normalize + length-clamp pure transforms applied in the read path (no write-back) | convex-implementer | 90 min |
-| DATA-005 | `listCuratedRoutes` public query (bbox via geospatial / state via `by_state` both spellings / archetype[] / sort / limit, Clerk-gated) | convex-implementer | 240 min |
-| DISC-002 | Author `useCuratedDiscovery` hook wrapping `listCuratedRoutes` ({routes, isLoading, isEmpty}; 0–1 scores carried unmodified) | react-native-ui-implementer | 120 min |
-| DISC-003 | Wire `RouteDiscoveryScreen` off `MOCK_ROUTES` to the live hook (+ state browse via `StateFilterSheet`); scores as bars/%, not 0–100 | react-native-ui-implementer | 180 min |
-| DISC-004 | Resolve map divergence: standardize Discovery pins on `MapboxMapView`; rework `RoutePin` off `react-native-maps` `Marker` | react-native-ui-implementer | 240 min |
-| DISC-001 | Make Discovery the default landing; demote chat to a "Plan a ride" drawer entry (chat internals unchanged) | react-native-ui-implementer | 180 min |
+| DATA-004 | State-normalize + length-clamp pure transforms in the read path (no write-back) | convex-implementer | 90 min |
+| DATA-005 | `listCuratedRoutes` public query (bbox/state/archetype/sort, Clerk-gated) | convex-implementer | 240 min |
+| DISC-002 | `useCuratedDiscovery` hook wrapping `listCuratedRoutes` (reused as the pill + data source) | react-native-ui-implementer | 120 min |
+| DATA-008 | Agent curated-discovery tool: translate an NL request into `listCuratedRoutes` params and surface curated routes as a `routing_card` (determinism seam: fixture the intent, assert which routes are plotted) | convex-implementer | 240 min |
+| DISC-010 | Re-key the chat-input suggestion-pill slot from "empty session" to "no active route on the map" (+ `hasActiveRoute`) | react-native-ui-implementer | 120 min |
+| DISC-011 | Swap pill content from generic prompts to whole curated routes from the live catalog (tap → plot) | react-native-ui-implementer | 150 min |
+| DISC-012 | Render curated routes as cards in the transcript + wire the existing card→map→pin-back loop (curated card variant / shaped routing_card; centroid fallback) | react-native-ui-implementer | 180 min |
+| DISC-013 | Footer "open full chat" button to the right of the chat input (reuse `chatMode`), visually distinct from send | react-native-ui-implementer | 90 min |
+| DISC-014 | No-route empty home state: pills present + discovery-invite placeholder copy | react-native-ui-implementer | 75 min |
+| DISC-015 | Remove the dedicated `discover.tsx`/`RouteDiscoveryScreen`, drop `DiscoveryFilterBar`/`DiscoverySortToggle`, drawer cleanup (lands last) | react-native-ui-implementer | 90 min |
 
-**Next Sprint Tasks:** *(populated JIT when sprint becomes active by kb-sprint-tasks-plan)*
-- DATA-007-remove-stale-react-native-shadow-dir.md
-- DATA-001-seed-geospatial-points-from-centroids.md
-- DATA-002-archetype-mapping-transform.md
-- DATA-004-state-normalize-and-length-clamp.md
-- DATA-005-listCuratedRoutes-public-query.md
-- DISC-002-use-curated-discovery-hook.md
-- DISC-003-wire-route-discovery-screen-off-mocks.md
-- DISC-004-mapbox-map-convergence-pins.md
-- DISC-001-discovery-default-home-demote-chat.md
+**Next Sprint Tasks:** *(re-expanded JIT by kb-sprint-tasks-plan — the existing `tasks/sprint-01-live-discovery-home/` files for the old dedicated-screen DISC-001/003/004 are superseded by DATA-008 + DISC-010..015 above)*
 
 #### Dependencies
 
-- Blocks: Sprint 02, Sprint 03, Sprint 04
+- Blocks: Sprint 02, Sprint 03
 - Dependent on: None
-- **Critical intra-sprint ordering:** per the no-mock-home rule, `DISC-001`'s default-landing flip must land *after* `DISC-003` wires live data — Discovery is never mounted as the home screen while still showing `MOCK_ROUTES`. Backend gates (`DATA-001/002/004`) precede `DATA-005`; the query precedes `DISC-002` (hook) precedes `DISC-003` (screen wire). `DISC-004` (Mapbox convergence) is independent and can run in parallel.
+- **Critical intra-sprint ordering:** backend gates `DATA-001/002/004` precede `DATA-005`; `DATA-005` precedes `DISC-002` (hook) and `DATA-008` (agent tool). Client: `DISC-010` (re-key) precedes `DISC-011` (pill content); `DATA-008` precedes `DISC-012` (card→map render); `DISC-015` (tear out the dedicated screen) lands LAST, after `DISC-011` + `DISC-012` prove the home discovery path — so there is never a window where discovery is unreachable. The already-built backend gates (`DATA-001/002/004/005`, `DISC-002`) carry forward unchanged.
 
 #### PRD Coverage
 
-- UC-DATA-01 (geospatial seed) → DATA-001
-- UC-DATA-02 (archetype mapping) → DATA-002
-- UC-DATA-04 (state + length normalize) → DATA-004
-- UC-DATA-05 (listCuratedRoutes) → DATA-005
-- UC-DISC-02 (default home + demote chat) → DISC-001
-- UC-DISC-03 (browse by state) → DISC-003
+- DELTA-001 (folded) → DATA-008, DISC-010..015
+- UC-DISC-09 (curated-route suggestion pills) → DISC-010, DISC-011, DISC-014
+- UC-DISC-10 (chat-driven curated discovery via the card→map loop) → DATA-008, DISC-012
+- UC-DISC-11 (unified map/chat home replaces the dedicated screen) → DISC-013, DISC-015
+- UC-DATA-01/02/04/05 (backend gates) → DATA-001/002/004/005
 - UC-DISC-04 (useCuratedDiscovery hook) → DISC-002
-- UC-DISC-05 (wire screen off mocks) → DISC-003
-- UC-DISC-06 (Mapbox convergence) → DISC-004
-- `01-scope.md` repo-cleanup bullet → DATA-007
+- Supersedes UC-DISC-02 / 05 / 06 / 07 / 08; `01-scope.md` repo-cleanup bullet → DATA-007
 
 #### Capability Coverage
 
 - SPATIAL-RESOLVE: seed the geospatial points table from centroids (DATA-001) → consumed by `listCuratedRoutes` bbox/nearest browse
-- ARCHETYPE-ALIGN: pure UI↔DB archetype mapping in the read path (DATA-002) → never mutates the DB enum, never returns a raw DB-only value to the client
-- DATA-NORM: pure state-normalize + length-clamp in the read path (DATA-004) → no write-back to the catalog
-- FEATURE(D2) listCuratedRoutes: the net-new public browse query (DATA-005) over the seeded index, no `.filter()` for geography/state
+- ARCHETYPE-ALIGN: pure UI↔DB archetype mapping in the read path (DATA-002)
+- DATA-NORM: pure state-normalize + length-clamp in the read path (DATA-004)
+- FEATURE(D2) listCuratedRoutes: the net-new public browse query (DATA-005), reused as the pill + chat data source
+- map-chat-discovery: discovery as the **state of the home** (no route ⇒ curated suggestion pills; route ⇒ rendered on the map), riding the existing `routing_card` → map → pin-back machinery; NL/chat-driven curated discovery surfaced via the agent tool (DATA-008), with the intent signal fixtured at the determinism seam (DISC-012)
 
 ---
 
-### Sprint 02: Trustworthy & Legible Discovery
+### Sprint 02: Route Detail + Close the Loop
 
 **Sequence:** 2
 **Timeline:** Phase 2
 **Status:** Planned
-**Proposed by:** react-native-ui-planner + frontend-designer
+**Proposed by:** convex-planner + react-native-ui-planner + frontend-designer
 **Milestone:** — (`sprint-02`)
 
 #### Human Testing Gate
 
-**Gate:** The Discovery surface tells the rider the truth about what is loading and what is empty — distinguishing a bare area from a filtered-out result, with a working escape hatch — and every pin and control is comfortably tappable on a phone, including with gloved hands.
+**Gate:** Tapping a route opens an honest, complete route detail — a summary/name headline, five score bars with a composite headline, a polyline-or-centroid map, and basic conditions — and from there the rider can save the route, find it again in the Saved screen, reopen it without error, and hand off to Apple/Google Maps to actually ride it.
 
 **Test Steps:**
-1. Open Discovery and pan the map to an ocean area with no routes; observe "No routes in this area" and "Try zooming out or moving the map," with the map still visible behind the message.
-2. Tap an archetype chip that has no routes in the current area; observe "No [archetype] routes in this area," then tap the **Clear filter** button and observe the filter reset and pins reappear.
-3. Observe the loading skeleton does **not** flash when routes resolve quickly (under ~300 ms), but does appear during a slow load.
-4. With a gloved hand (or wide tap), tap any visible route pin and observe it register — each pin has at least a 44×44-point tap target.
-5. Observe the filter bar + sort toggle together leave most of the screen (≥60%) as visible map on an iPhone-class portrait screen.
-6. Switch the map between light and dark styles and observe the copper pins stay legible against both.
-
-#### Tasks
-
-| ID | Title | Agent | Estimate |
-|----|-------|-------|----------|
-| DISC-005 | Wire loading/empty overlays: 300 ms debounce (no flash), bbox-empty vs filter-empty messaging, working "Clear filter" CTA | react-native-ui-implementer | 120 min |
-| DISC-006 | Verify Discovery legibility: ≥44 dp tap targets, ≤40% overlay / ≥60% map visible, active-state affordances, `formatCount` badges, pin contrast on light+dark | react-native-ui-implementer | 120 min |
-
-**Next Sprint Tasks:** *(populated JIT when sprint becomes active by kb-sprint-tasks-plan)*
-
-#### Dependencies
-
-- Blocks: Sprint 04
-- Dependent on: Sprint 01 (`DISC-005` consumes the live hook + screen wire; `DISC-006` consumes the Mapbox pins)
-
-#### PRD Coverage
-
-- UC-DISC-07 (discovery legibility) → DISC-006
-- UC-DISC-08 (empty + loading states) → DISC-005
-
-#### Capability Coverage
-
-- discovery-overlay-legibility: honest loading (300 ms debounce) + context-aware empty messaging (bbox-empty vs filter-empty) with a Clear-filter escape hatch (DISC-005)
-- discovery-legibility: 44 dp gloved-hand touch targets, ≥60% map visibility budget, live `formatCount` count badges, pin contrast across light/dark Mapbox styles (DISC-006)
-
----
-
-### Sprint 03: Route Detail + Close the Loop
-
-**Sequence:** 3
-**Timeline:** Phase 3
-**Status:** Planned
-**Proposed by:** convex-planner + react-native-ui-planner + frontend-designer
-**Milestone:** — (`sprint-03`)
-
-#### Human Testing Gate
-
-**Gate:** Tapping a discovery pin opens an honest, complete route detail — a summary/name headline, five score bars with a composite headline, a polyline-or-centroid map, and basic conditions — and from there the rider can save the route, find it again in the Saved screen, reopen it without error, and hand off to Apple/Google Maps to actually ride it.
-
-**Test Steps:**
-1. From Discovery, tap a route pin that has geometry and observe the detail open showing the route name, an archetype badge, the composite score headline (e.g. "74/100") above five score bars, and the route polyline on the map.
-2. Tap a pin for a route with **no** polyline and observe the detail show a single centroid marker on the map plus an "Approximate location" badge — and never a blank or crashed map section.
+1. From the home map, tap a route that has geometry and observe the detail open showing the route name, an archetype badge, the composite score headline (e.g. "74/100") above five score bars, and the route polyline on the map.
+2. Tap a route with **no** polyline and observe the detail show a single centroid marker on the map plus an "Approximate location" badge — and never a blank or crashed map section.
 3. Observe the detail show basic current weather conditions (or "conditions unavailable" if the weather call fails) without blocking the rest of the screen.
 4. Observe both the **Save** and **Ride It** buttons are visible without scrolling.
 5. Tap **Save** and observe a loading state, then a confirmed "Saved" state, without leaving the screen.
@@ -196,8 +145,8 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 
 #### Dependencies
 
-- Blocks: Sprint 04
-- Dependent on: Sprint 01 (`getCuratedRouteDetail` consumes the archetype-map + state/length transforms; `SAVE-001` consumes the `curatedRouteRef` field — both gates land here, rendered by the detail surface)
+- Blocks: Sprint 03
+- Dependent on: Sprint 01 (`getCuratedRouteDetail` consumes the archetype-map + state/length transforms; `SAVE-001` consumes the `curatedRouteRef` field — both gates land here, rendered by the detail surface; the detail is reached by tapping a curated route on the map/chat home)
 - **Intra-sprint ordering:** `DATA-006` + `DATA-003` precede the client hooks/mutations; `DTL-001` (route + hook) precedes `DESIGN-002` (body) and `SAVE-001`; `DESIGN-001` (ScoreDimensionBar) precedes `DESIGN-002`; `DESIGN-004` (action affordances) consumes `SAVE-001` (persistence) and `SAVE-002` (deep-link).
 
 #### PRD Coverage
@@ -222,22 +171,22 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 
 ---
 
-### Sprint 04: On-Device D9 Capstone
+### Sprint 03: On-Device D9 Capstone
 
-**Sequence:** 4
-**Timeline:** Phase 4
+**Sequence:** 3
+**Timeline:** Phase 3
 **Status:** Planned
 **Proposed by:** react-native-ui-planner
-**Milestone:** — (`sprint-04`)
+**Milestone:** — (`sprint-03`)
 
 #### Human Testing Gate
 
-**Gate:** The founder completes the entire discover-to-ride journey on a real iPhone **and** a real Android phone against live Convex — find a road near him or in a state he's curious about, understand why it's good and whether today is rideable, save it, and hand off to maps to ride it — with recorded evidence and no mocks. This is what "done" means.
+**Gate:** The founder completes the entire discover-to-ride journey on the map + chat home on a real iPhone **and** a real Android phone against live Convex — open the app, discover a road via the curated suggestion pills and/or by chatting, open it, understand why it's good and whether today is rideable, save it, and hand off to maps to ride it — with recorded evidence and no mocks. This is what "done" means.
 
 **Test Steps:**
 1. Build and run the app on a real iOS device pointed at live Convex.
-2. On the iOS device, open the app to Discovery and find 5 roads you have **never** ridden in a region you actually ride, using filter/sort to surface the best ones.
-3. On the iOS device, open one route's detail, confirm its scores/geometry/conditions, save it, reopen it from Saved, and tap **Ride It** to hand off to Apple Maps.
+2. On the iOS device, open the app to the map + chat home and find 5 roads you have **never** ridden in a region you actually ride — using the curated suggestion pills (with no route on the map) and by chatting (e.g. "twisties near Asheville").
+3. On the iOS device, tap a curated route card/pin to open its detail, confirm its scores/geometry/conditions, save it, reopen it from Saved, and tap **Ride It** to hand off to Apple Maps.
 4. Repeat the entire journey on a real Android device, confirming the Google Maps handoff and the browser fallback when Google Maps is unavailable.
 5. Record video or screenshot evidence of the complete arc on both platforms.
 6. Actually ride at least one discovered road within two weeks and note whether the surfaced ranking matched your own judgment (input to the post-MVP scoring-calibration fast-follow).
@@ -246,27 +195,29 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 
 | ID | Title | Agent | Estimate |
 |----|-------|-------|----------|
-| DISC-007 | D9 on-device capstone: verify the full discover-to-ride arc on real iOS **and** real Android against live Convex; surface and fix any platform-specific issues; record per-platform evidence; founder dogfood | react-native-ui-implementer | 240 min |
+| DISC-007 | D9 on-device capstone: verify the full discover-to-ride arc on the **map + chat home** on real iOS **and** real Android against live Convex; surface and fix any platform-specific issues; record per-platform evidence; founder dogfood | react-native-ui-implementer | 240 min |
 
 **Next Sprint Tasks:** *(populated JIT when sprint becomes active by kb-sprint-tasks-plan)*
 
 #### Dependencies
 
 - Blocks: None (terminal sprint — the MVP "done" gate)
-- Dependent on: Sprint 01, Sprint 02, Sprint 03 (stitches DATA + DISC + DTL + SAVE into the one end-to-end arc)
+- Dependent on: Sprint 01, Sprint 02 (stitches DATA + the map/chat discovery + DTL + SAVE into the one end-to-end arc)
 
 #### PRD Coverage
 
-- UC-DISC-01 (full discover-to-ride journey on a real device) → DISC-007
+- UC-DISC-01 (full discover-to-ride journey on a real device — re-pointed to the unified map/chat home) → DISC-007
 
 #### Capability Coverage
 
-- discover-to-ride-journey: the cross-cutting capstone that integrates every prior seam — default landing, live Mapbox pins, filter/sort, detail, save+reopen, maps handoff — verified on real iOS + real Android against live Convex with no mocks (DISC-007). Satisfies the project iron rule: integration/E2E against real services is the primary acceptance bar.
+- discover-to-ride-journey: the cross-cutting capstone that integrates every prior seam — map/chat home landing, curated suggestion pills, chat-driven curated discovery, card→map render, detail, save+reopen, maps handoff — verified on real iOS + real Android against live Convex with no mocks (DISC-007). Satisfies the project iron rule: integration/E2E against real services is the primary acceptance bar.
 
 ---
 
 ## Notes
 
-- **Backend gates are not standalone sprints.** The five foundational gates (geospatial seed, archetype map, state/length normalize, the two public queries, the bookmark field) are folded into the sprints that render them (Sprint 01 and Sprint 03), per the merge-forward rule. No rider-facing feature is marked complete until its underlying gate is verified against live Convex.
+- **DELTA-001 is folded into Sprint 01**, not a separate sprint. The earlier plan (dedicated Discover screen in Sprint 01 + a deferred Sprint 05) is superseded: the dedicated screen is removed, the former legibility sprint (DISC-005/006 polish of that screen) is **absorbed** (its surviving ≥44pt/no-route-state intent lives in DISC-010/012/014), and the capstone is **re-pointed** at the unified home. Spec: [DELTA-001](./DELTA-001-unified-map-chat-discovery.md).
+- **One genuinely net-new backend task (DATA-008).** Verified in code by convex-planner: the chat agent today has no path to the curated catalog (its tools route start→end trips). DATA-008 adds an agent tool that maps a natural-language request to the existing `listCuratedRoutes` and surfaces results through the existing `routing_card` contract — no schema change, no new curated query. It is the determinism seam: fixture the intent signal, assert which curated routes are plotted, never prose.
+- **Backend gates are not standalone sprints.** The foundational gates (geospatial seed, archetype map, state/length normalize, the public queries, the bookmark field) are folded into the sprints that render them (Sprint 01 + Sprint 02), per the merge-forward rule.
 - **Pure transforms are the only unit-justified work** (archetype-map, state-normalize, length-clamp, score→%): zero I/O. Everything else is integration/E2E/human-gate against live Convex + real devices + live Open-Meteo, per `10-e2e-testing-criteria.md`.
-- **Scope guardrails honored:** chat is demoted (not deleted, internals unchanged); enrichment stays out (table empty); scores render as bars/% on the 0–1 scale (never "92"); the current RN look ships (no Copper Navigator redesign); no new runtime dependency (expo-linking + expo-location already installed).
+- **Scope guardrails:** enrichment stays out (table empty); scores render as bars/% on the 0–1 scale (never "92"); the current RN look ships (no Copper Navigator redesign); no new runtime dependency (expo-linking + expo-location already installed). The earlier "chat is demoted" guardrail is **superseded** by DELTA-001 — chat is integral to the home, surfaced via the footer button.

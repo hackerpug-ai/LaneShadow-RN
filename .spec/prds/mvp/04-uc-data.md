@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
 last_validated: 2026-06-13
-prd_version: 1.1.0
+prd_version: 2.0.0
 functional_group: DATA
 ---
 
