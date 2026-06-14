@@ -1,0 +1,19 @@
+# Maestro e2e smoke flow — proves the harness can drive the LaneShadow app on the sim.
+# Handles the Expo dev-client launcher (taps the Metro server if the launcher shows).
+appId: com.hackerpug.laneshadow
+---
+- launchApp
+# Dev-client: if the recently-opened launcher appears, connect to the running Metro server.
+- runFlow:
+    when:
+      visible:
+        text: "localhost:8081"
+    commands:
+      - tapOn:
+          text: "localhost:8081"
+# Wait for the real app to bundle + render the Discovery surface.
+- extendedWaitUntil:
+    visible:
+      text: "Discovery"
+    timeout: 90000
+- takeScreenshot: discovery-loaded
