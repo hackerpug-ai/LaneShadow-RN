@@ -11,6 +11,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...config,
     name: config.name ?? 'LaneShadow',
     slug: config.slug ?? 'laneshadow',
+    newArchEnabled: false,
     plugins: [
       ...(config.plugins ?? []),
       'expo-sqlite',

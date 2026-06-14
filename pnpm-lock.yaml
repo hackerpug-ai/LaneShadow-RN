@@ -294,6 +294,9 @@ importers:
       expo:
         specifier: ~54.0.31
         version: 54.0.31(@babel/core@7.29.0)(react-native@0.81.5)(react@19.1.0)
+      expo-crypto:
+        specifier: ^56.0.4
+        version: 56.0.4(expo@54.0.31)
       expo-linear-gradient:
         specifier: ~15.0.8
         version: 15.0.8(expo@54.0.31)(react-native@0.81.5)(react@19.1.0)
@@ -9774,7 +9777,7 @@ packages:
     peerDependencies:
       expo: '*'
     dependencies:
-      expo: 54.0.31(@babel/core@7.29.0)(@expo/metro-runtime@6.1.2)(expo-router@6.0.21)(react-native@0.81.5)(react@19.1.0)
+      expo: 54.0.31(@babel/core@7.29.0)(react-native@0.81.5)(react@19.1.0)
     dev: false
 
   /expo-dev-client@6.0.20(expo@54.0.31):
