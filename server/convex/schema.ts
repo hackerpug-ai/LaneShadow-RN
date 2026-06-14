@@ -1,6 +1,7 @@
 import { defineSchema, defineTable } from 'convex/server'
 import { v } from 'convex/values'
 import { curatedRouteEnrichmentValidator } from '../models/curated-route-enrichments'
+import { curatedRouteStateCountValidator } from '../models/curated-route-state-counts'
 import {
   communityWaypointMentionValidator,
   curatedRouteValidator,
@@ -200,6 +201,16 @@ export default defineSchema({
    */
   curated_route_enrichments: defineTable(curatedRouteEnrichmentValidator).index('by_routeId', [
     'routeId',
+  ]),
+
+  /**
+   * Curated route state counts table - Denormalized summary of routes per state
+   * Used by listCuratedRouteStates to avoid reading all 5,654+ full documents
+   * and exceeding the 16MB single-execution read limit.
+   * Indexed by stateName for fast lookups.
+   */
+  curated_route_state_counts: defineTable(curatedRouteStateCountValidator).index('by_state_name', [
+    'stateName',
   ]),
 
   /**

@@ -288,19 +288,15 @@ export const listCuratedRouteStates = query({
   handler: async (ctx) => {
     await requireIdentity(ctx)
 
-    const routes = await ctx.db.query('curated_routes').take(10000)
-    const counts = new Map<string, number>()
+    // Read from denormalized state counts summary instead of reading all 5,654+ full documents
+    // This avoids exceeding the 16MB single-execution read limit
+    const stateCounts = await ctx.db.query('curated_route_state_counts').collect()
 
-    for (const route of routes) {
-      const state = normalizeState(route.state)
-      counts.set(state, (counts.get(state) ?? 0) + 1)
-    }
-
-    return [...counts.entries()]
-      .map(([name, routeCount]) => ({
-        code: stateCodeForName(name),
-        name,
-        routeCount,
+    return stateCounts
+      .map((record) => ({
+        code: stateCodeForName(record.stateName),
+        name: record.stateName,
+        routeCount: record.routeCount,
       }))
       .sort((a, b) => a.name.localeCompare(b.name))
   },

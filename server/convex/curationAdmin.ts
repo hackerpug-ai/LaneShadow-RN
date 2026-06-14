@@ -1,7 +1,8 @@
 import { v } from 'convex/values'
 import { curatedRouteEnrichmentValidator } from '../models/curated-route-enrichments'
 import { curatedRouteValidator } from '../models/curated-routes'
-import { internalMutation } from './_generated/server'
+import { internalMutation, mutation } from './_generated/server'
+import { internal } from './_generated/api'
 
 // ---------------------------------------------------------------------------
 // Handler functions for unit testing
@@ -121,18 +122,31 @@ export const deleteCuratedRoutesByRouteIdsHandler = async (
 
 export const internalUpsertCuratedRoutes = internalMutation({
   args: { routes: v.array(curatedRouteValidator) },
-  handler: upsertCuratedRoutesHandler,
+  handler: async (ctx, args) => {
+    const result = await upsertCuratedRoutesHandler(ctx, args)
+    // Rebuild state counts after upsert in internal context
+    if (result.inserted > 0 || result.updated > 0) {
+      await ctx.runMutation(internal.curatedRouteStateCounts.rebuildStateCountsInternal)
+    }
+    return result
+  },
 })
 
 // ---------------------------------------------------------------------------
 // Public mutation for embedding backfill (INF-004)
 // ---------------------------------------------------------------------------
 
-import { mutation } from './_generated/server'
-
 export const upsertCuratedRoutes = mutation({
   args: { routes: v.array(curatedRouteValidator) },
-  handler: upsertCuratedRoutesHandler,
+  handler: async (ctx, args) => {
+    const result = await upsertCuratedRoutesHandler(ctx, args)
+    // Rebuild state counts after upsert
+    // Note: In public mutations, we use scheduler to avoid blocking the response
+    if (result.inserted > 0 || result.updated > 0) {
+      await ctx.scheduler.runAfter(0, internal.curatedRouteStateCounts.rebuildStateCountsInternal)
+    }
+    return result
+  },
 })
 
 export const deleteCuratedRoutesByRouteIds = mutation({
