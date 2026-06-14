@@ -50,7 +50,7 @@ export type {
   SemanticTypography,
   ShadowStyle,
   TypographyStyle,
-} from '../../react-native/styles/types'
+} from '../../styles/types'
 export type {
   RouteSketch,
   RouteSketchAnchorPoint,
