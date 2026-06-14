@@ -76,7 +76,7 @@ export const MenuLayout = ({
             onPress: () => {
               onMenuOpenChange?.(false)
               router.push({
-                pathname: '/(app)/(tabs)',
+                pathname: '/(app)/(tabs)/index',
                 params: { sessionId: s._id, chat: '1' },
               })
             },
@@ -94,10 +94,18 @@ export const MenuLayout = ({
       title: 'Navigate',
       items: [
         {
-          label: 'Home',
-          icon: 'home-variant',
+          label: 'Discover',
+          icon: 'compass',
+          active: activeTab === 'discover',
+          onPress: () => router.push('/(app)/(tabs)/discover'),
+          testID: 'drawer-discover',
+        },
+        {
+          label: 'Plan a ride',
+          icon: 'motorbike',
           active: activeTab === 'index',
-          onPress: () => router.push('/(app)/(tabs)'),
+          onPress: () => router.push('/(app)/(tabs)/index'),
+          testID: 'drawer-plan-a-ride',
         },
         {
           label: 'Settings',

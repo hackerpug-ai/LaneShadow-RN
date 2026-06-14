@@ -33,9 +33,9 @@ const Index = () => {
       return
     }
 
-    // If user is not signed in, go to tabs (auth screen will show)
+    // If user is not signed in, go to discover (auth screen will show)
     if (!isSignedIn) {
-      setRedirectTarget('/(app)/(tabs)')
+      setRedirectTarget('/(app)/(tabs)/discover')
       return
     }
 
@@ -44,14 +44,8 @@ const Index = () => {
       return
     }
 
-    // If sessions exist, navigate to the most recent one
-    // Otherwise, navigate to tabs without sessionId (empty state)
-    if (sessions && sessions.length > 0) {
-      const mostRecent = sessions[0]
-      setRedirectTarget(`/(app)/(tabs)?sessionId=${mostRecent._id}`)
-    } else {
-      setRedirectTarget('/(app)/(tabs)')
-    }
+    // Discovery is the default landing. Sessions are accessible from the drawer.
+    setRedirectTarget('/(app)/(tabs)/discover')
   }, [clerkLoaded, isSignedIn, isLoading, sessions, redirectTarget])
 
   // While determining redirect, show nothing

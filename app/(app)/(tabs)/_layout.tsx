@@ -24,12 +24,25 @@ const TabsLayout = () => {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="discover"
         options={{
-          title: 'Home',
+          title: 'Discover',
           tabBarIcon: ({ focused }) => (
             <IconSymbol
-              name="home-variant"
+              name="compass"
+              size={22}
+              color={focused ? activeColor : inactiveColor}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Plan a ride',
+          tabBarIcon: ({ focused }) => (
+            <IconSymbol
+              name="motorbike"
               size={22}
               color={focused ? activeColor : inactiveColor}
             />
