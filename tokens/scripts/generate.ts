@@ -86,7 +86,7 @@ interface SemanticTokens {
   motion?: {
     duration?: Record<string, MotionDuration>
     easing?: Record<string, MotionEasing>
-    [key: string]: MotionRecipe | MotionDuration | MotionEasing | undefined
+    [key: string]: MotionTokenEntry
   }
   mapbox?: MapboxTokens['map']
 }
@@ -112,6 +112,14 @@ interface FontManifest {
   }>
 }
 
+type MotionTokenEntry =
+  | MotionRecipe
+  | MotionDuration
+  | MotionEasing
+  | Record<string, MotionDuration>
+  | Record<string, MotionEasing>
+  | undefined
+
 type ThemeScalar = string | number
 type ThemeGroup = Record<string, ThemeScalar>
 
@@ -124,7 +132,9 @@ interface ThemeModes {
   dark: ThemeModeFile
 }
 
-type KotlinColorNode = Record<string, KotlinColorNode | ColorToken>
+interface KotlinColorNode {
+  [key: string]: KotlinColorNode | ColorToken
+}
 
 // Paths
 const ROOT = path.resolve(__dirname, '..')

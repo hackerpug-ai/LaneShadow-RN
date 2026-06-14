@@ -1,6 +1,6 @@
 import { v } from 'convex/values'
-import { action, internalMutation } from './_generated/server'
 import { internal } from './_generated/api'
+import { action, internalMutation } from './_generated/server'
 import { geospatial } from './geospatialIndex'
 
 interface BatchResult {
@@ -35,9 +35,7 @@ const seedGeospatialBatchInternal = internalMutation({
       isDone: false,
     }
 
-    const page = await ctx.db
-      .query('curated_routes')
-      .paginate({ cursor: cursor ?? undefined, numItems: 200 })
+    const page = await ctx.db.query('curated_routes').paginate({ cursor, numItems: 200 })
 
     for (const route of page.page) {
       const lat = route.centroidLat
@@ -48,8 +46,8 @@ const seedGeospatialBatchInternal = internalMutation({
         lng == null ||
         typeof lat !== 'number' ||
         typeof lng !== 'number' ||
-        isNaN(lat) ||
-        isNaN(lng) ||
+        Number.isNaN(lat) ||
+        Number.isNaN(lng) ||
         lat < -90 ||
         lat > 90 ||
         lng < -180 ||
@@ -65,13 +63,20 @@ const seedGeospatialBatchInternal = internalMutation({
           ctx,
           route._id,
           { latitude: lat, longitude: lng },
-          { state: route.state ?? 'Unknown', primaryArchetype: route.primaryArchetype ?? 'twisties' },
+          {
+            state: route.state ?? 'Unknown',
+            primaryArchetype: route.primaryArchetype ?? 'twisties',
+          },
           route.compositeScore ?? 0,
         )
         result.seeded++
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : String(error)
-        if (errMsg.includes('already') || errMsg.includes('duplicate') || errMsg.includes('exists')) {
+        if (
+          errMsg.includes('already') ||
+          errMsg.includes('duplicate') ||
+          errMsg.includes('exists')
+        ) {
           result.alreadyExisted++
         } else {
           result.skipped++
@@ -103,7 +108,10 @@ export const seedGeospatialAll = action({
     let cursor: string | null = null
 
     while (true) {
-      const batch = await ctx.runMutation(internal.geospatialSeed.seedGeospatialBatchInternal, { cursor })
+      const batch: BatchResult = await ctx.runMutation(
+        internal.geospatialSeed.seedGeospatialBatchInternal,
+        { cursor },
+      )
 
       result.seeded += batch.seeded
       result.skipped += batch.skipped

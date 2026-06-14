@@ -21,7 +21,7 @@ import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 type AuthStep = 'start' | 'email' | 'password' | 'signUp'
 const formSchema = z.object({
   email: z.string().min(1, 'Please enter your email.').email('Enter a valid email address.'),
-  password: z.string().min(1, 'Please enter your password.'),
+  password: z.string().optional(),
   confirmPassword: z.string().optional(),
   name: z.string().optional(),
 })
@@ -60,7 +60,7 @@ export const SignInScreen = () => {
   }, [])
 
   const onAuthSuccess = () => {
-    router.replace('/(app)' as any)
+    router.replace('/(app)/(tabs)/discover' as any)
   }
 
   const googleFlow = useOAuthFlow(OAUTH_FLOW_PROVIDERS.google, {
@@ -263,7 +263,7 @@ export const SignInScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   label="Email Address"
-                  value={value}
+                  value={value ?? ''}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   placeholder="rider@laneshadow.com"
@@ -302,7 +302,7 @@ export const SignInScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   label="Password"
-                  value={value}
+                  value={value ?? ''}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   placeholder="••••••••"
@@ -341,7 +341,7 @@ export const SignInScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   label="Name"
-                  value={value}
+                  value={value ?? ''}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   placeholder="Rider Name"
@@ -362,7 +362,7 @@ export const SignInScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   label="Email Address"
-                  value={value}
+                  value={value ?? ''}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   placeholder="rider@laneshadow.com"
@@ -384,7 +384,7 @@ export const SignInScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   label="Password"
-                  value={value}
+                  value={value ?? ''}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   placeholder="••••••••"
@@ -406,7 +406,7 @@ export const SignInScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   label="Confirm Password"
-                  value={value}
+                  value={value ?? ''}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   placeholder="••••••••"

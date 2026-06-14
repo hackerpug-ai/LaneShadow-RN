@@ -10,7 +10,7 @@ export const OAuthCallbackScreen = () => {
     // On web, Clerk redirects back to this route. Give Clerk a moment, then continue.
     if (Platform.OS === 'web') {
       const timer = setTimeout(() => {
-        router.replace('/(app)' as any)
+        router.replace('/(app)/(tabs)/discover' as any)
       }, 1000)
       return () => clearTimeout(timer)
     }

@@ -1,11 +1,8 @@
-import { useAuth } from '@clerk/clerk-expo'
 import { Authenticated, Unauthenticated } from 'convex/react'
 import { Redirect, Stack } from 'expo-router'
 import { SelectedRouteProvider } from '../../contexts/selected-route'
 
 export const AppLayout = () => {
-  const { sessionId } = useAuth()
-
   return (
     <SelectedRouteProvider>
       <Unauthenticated>

@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
 import { useQuery } from 'convex/react'
+import { useMemo } from 'react'
 import { api } from '../server/convex/_generated/api'
 import { useCurrentLocation } from './use-current-location'
 
@@ -14,6 +14,7 @@ export type DiscoveryArchetype =
 export interface UseCuratedDiscoveryParams {
   center?: { lat: number; lng: number }
   bbox?: { north: number; south: number; east: number; west: number }
+  state?: string
   archetypes?: DiscoveryArchetype[]
   sort?: 'best' | 'nearest'
   limit?: number
@@ -40,27 +41,23 @@ export function useCuratedDiscovery(
 ): UseCuratedDiscoveryResult {
   const { location } = useCurrentLocation()
 
-  const derivedCenter = params.center ??
-    (location
-      ? { lat: location.lat, lng: location.lng }
-      : undefined)
+  const derivedCenter =
+    params.center ?? (location ? { lat: location.lat, lng: location.lng } : undefined)
 
   const queryArgs = useMemo(() => {
     const args: Record<string, unknown> = {}
 
     if (params.bbox) args.bbox = params.bbox
-    if (derivedCenter) args.center = derivedCenter
+    if (params.state) args.state = params.state
+    if (derivedCenter && params.sort === 'nearest') args.center = derivedCenter
     if (params.archetypes && params.archetypes.length > 0) args.archetypes = params.archetypes
     args.sort = params.sort ?? 'best'
     args.limit = params.limit ?? 50
 
     return args
-  }, [params.bbox, params.archetypes, params.sort, params.limit, derivedCenter])
+  }, [params.bbox, params.state, params.archetypes, params.sort, params.limit, derivedCenter])
 
-  const data = useQuery(
-    api.curatedRoutes.listCuratedRoutes,
-    queryArgs,
-  )
+  const data = useQuery(api.curatedRoutes.listCuratedRoutes, queryArgs)
 
   const routes = useMemo(() => {
     if (data === undefined) return undefined

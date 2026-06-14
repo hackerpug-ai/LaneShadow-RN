@@ -20,12 +20,11 @@
  */
 
 import { useState } from 'react'
-import { Animated, Pressable, StyleSheet, View } from 'react-native'
+import { Animated, NativeModules, Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
-import { IconSymbol } from '../ui/icon-symbol'
 import { latLngToMapbox } from '../../lib/mapbox/coordinate-converter'
-import { NativeModules } from 'react-native'
+import { IconSymbol } from '../ui/icon-symbol'
 
 const mapboxAvailable = NativeModules.RNMBXModule != null
 let MarkerView: any = null
@@ -41,11 +40,11 @@ if (mapboxAvailable) {
  */
 export type RouteArchetype =
   | 'twisties'
-  | 'mountain'
-  | 'coastal'
+  | 'scenic'
+  | 'technical'
+  | 'cruising'
+  | 'sport'
   | 'adventure'
-  | 'scenic_byway'
-  | 'desert'
 
 /**
  * Route pin props
@@ -75,11 +74,11 @@ export interface RoutePinProps {
  */
 const ARCHETYPE_ICONS: Record<RouteArchetype, string> = {
   twisties: 'road-variant',
-  mountain: 'image-filter-hdr', // Closest to mountain scenery
-  coastal: 'waves',
+  scenic: 'landscape',
+  technical: 'wrench',
+  cruising: 'motorbike',
+  sport: 'fire',
   adventure: 'compass',
-  scenic_byway: 'landscape',
-  desert: 'sun',
 }
 
 /**
@@ -202,7 +201,7 @@ export function RoutePin({
               )}
 
               {/* Distance label (Nearest sort) */}
-              {distance !== null && (
+              {distance != null && (
                 <View
                   style={[
                     styles.distanceLabel,

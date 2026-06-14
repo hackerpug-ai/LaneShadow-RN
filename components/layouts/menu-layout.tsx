@@ -76,7 +76,7 @@ export const MenuLayout = ({
             onPress: () => {
               onMenuOpenChange?.(false)
               router.push({
-                pathname: '/(app)/(tabs)/index',
+                pathname: '/(app)/(tabs)',
                 params: { sessionId: s._id, chat: '1' },
               })
             },
@@ -104,7 +104,7 @@ export const MenuLayout = ({
           label: 'Plan a ride',
           icon: 'motorbike',
           active: activeTab === 'index',
-          onPress: () => router.push('/(app)/(tabs)/index'),
+          onPress: () => router.push('/(app)/(tabs)'),
           testID: 'drawer-plan-a-ride',
         },
         {

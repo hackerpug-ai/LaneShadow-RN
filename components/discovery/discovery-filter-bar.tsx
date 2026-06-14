@@ -29,6 +29,7 @@ export type DiscoveryFilterBarProps = {
   selectedArchetypes: RouteArchetype[]
   onArchetypeChange: (archetypes: RouteArchetype[]) => void
   counts: Record<RouteArchetype, number>
+  includeSafeArea?: boolean
   testID?: string
 }
 
@@ -75,6 +76,7 @@ export const DiscoveryFilterBar = ({
   selectedArchetypes,
   onArchetypeChange,
   counts,
+  includeSafeArea = true,
   testID = 'discovery-filter-bar',
 }: DiscoveryFilterBarProps): ReactNode => {
   const { semantic } = useSemanticTheme()
@@ -103,7 +105,7 @@ export const DiscoveryFilterBar = ({
   const isAllSelected = selectedArchetypes.length === 0
 
   const containerStyle = {
-    paddingTop: insets.top + semantic.space.md,
+    paddingTop: (includeSafeArea ? insets.top : 0) + semantic.space.md,
     paddingBottom: semantic.space.md,
     paddingHorizontal: semantic.space.lg,
     backgroundColor: `${semantic.color.surface.default}CC`, // 80% opacity
