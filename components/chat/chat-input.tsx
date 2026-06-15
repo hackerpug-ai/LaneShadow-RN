@@ -33,13 +33,18 @@ import type { RideFlowState } from '../../hooks/use-ride-flow'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { ErrorMessage } from './error-message'
 
+export interface CuratedPill {
+  label: string
+  routeId: string
+}
+
 type ChatInputProps = {
   onSend: (message: string) => void
   onCancel: () => void
   state: RideFlowState
   /** Whether an assistant message is currently running or streaming */
   isPlanning: boolean
-  suggestions?: string[]
+  suggestions?: (string | CuratedPill)[]
   testID?: string
   /** Whether chat mode is currently active (transcript visible) */
   chatMode?: boolean
@@ -61,13 +66,14 @@ type ChatInputProps = {
 }
 
 /**
- * Suggestion chips — glass-backed pills matching UC-MOL-06 spec
+ * Suggestion chips — glass-backed pills matching UC-MOL-06 spec.
+ * Curated pills (with routeId) render as chip variants with copper accent + road-variant icon.
  */
 const SuggestionChips = ({
   suggestions,
   onSelect,
 }: {
-  suggestions: string[]
+  suggestions: (string | CuratedPill)[]
   onSelect: (suggestion: string) => void
 }) => {
   const { semantic } = useSemanticTheme()
@@ -81,34 +87,57 @@ const SuggestionChips = ({
         { gap: semantic.space.sm, paddingHorizontal: semantic.space.sm },
       ]}
     >
-      {suggestions.map((suggestion, index) => (
-        <TouchableOpacity
-          key={index}
-          onPress={() => onSelect(suggestion)}
-          style={[
-            styles.chip,
-            {
-              backgroundColor: semantic.color.surfaceVariant.default,
-              borderRadius: semantic.radius.full,
-            },
-          ]}
-          accessibilityLabel={`Suggestion: ${suggestion}`}
-          accessibilityRole="button"
-        >
-          <Text
+      {suggestions.map((suggestion, index) => {
+        const isCurated = typeof suggestion !== 'string'
+        const label = isCurated ? suggestion.label : suggestion
+        const routeId = isCurated ? suggestion.routeId : undefined
+        return (
+          <TouchableOpacity
+            key={routeId || index}
+            onPress={() => onSelect(label)}
+            testID={routeId ? `discovery-suggestion-pill-${routeId}` : undefined}
             style={[
-              semantic.type.body.sm,
-              {
-                color: semantic.color.onSurface.default,
-                fontWeight: '500',
-                fontSize: 11.5,
-              },
+              styles.chip,
+              isCurated
+                ? {
+                    borderWidth: 1,
+                    borderColor: semantic.color.border.default,
+                    borderRadius: semantic.radius.md,
+                    minHeight: 44, // §6 constitution minTouchTarget
+                    backgroundColor: 'transparent',
+                    paddingHorizontal: semantic.space.md,
+                    paddingVertical: semantic.space.sm,
+                  }
+                : {
+                    backgroundColor: semantic.color.surfaceVariant.default,
+                    borderRadius: semantic.radius.full,
+                  },
             ]}
+            accessibilityLabel={`Suggestion: ${label}`}
+            accessibilityRole="button"
           >
-            {suggestion}
-          </Text>
-        </TouchableOpacity>
-      ))}
+            {isCurated && (
+              <Icon
+                source="road-variant"
+                size={16}
+                color={semantic.color.accent?.default ?? '#EE7C2B'}
+              />
+            )}
+            <Text
+              style={[
+                semantic.type.body.sm,
+                {
+                  color: semantic.color.onSurface.default,
+                  fontWeight: '500',
+                  fontSize: 11.5,
+                },
+              ]}
+            >
+              {label}
+            </Text>
+          </TouchableOpacity>
+        )
+      })}
     </ScrollView>
   )
 }

@@ -44,6 +44,7 @@ import { useThemePreference } from '../../../contexts/theme-preference'
 import { useActiveSessionRoute } from '../../../hooks/use-active-session-route'
 import { useChatPlanning } from '../../../hooks/use-chat-planning'
 import { useCurrentLocation } from '../../../hooks/use-current-location'
+import { useCuratedDiscovery } from '../../../hooks/use-curated-discovery'
 import { useIsRouteSaved } from '../../../hooks/use-is-route-saved'
 import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { type RideFlowAction, useRideFlow } from '../../../hooks/use-ride-flow'
@@ -254,6 +255,13 @@ const HomeMapScreen = () => {
 
   // Determine if there's an active route for chat input logic
   const hasActiveRoute = !!agentActiveOption
+
+  // Curated route discovery pills (DISC-011)
+  const { routes: curatedDiscoveryRoutes } = useCuratedDiscovery({ sort: 'best', limit: 5 })
+  const curatedPills = (curatedDiscoveryRoutes ?? []).map((r) => ({
+    label: `${r.name} · ${Math.round(r.distanceMi ?? 0)}mi`,
+    routeId: r.id,
+  }))
 
   // Hydrate flowState from a restored session on app reload. When the session
   // came from the sessions[0] fallback (not active planning) and has completed
@@ -1351,7 +1359,7 @@ const HomeMapScreen = () => {
           onCancel={handleCancel}
           state={flowState}
           isPlanning={isPlanning || isManualPlanning}
-          suggestions={IDLE_SUGGESTIONS}
+          suggestions={curatedPills.length > 0 ? curatedPills : IDLE_SUGGESTIONS}
           testID="chat-input"
           chatMode={chatMode}
           onToggleChatMode={cycleTranscript}
