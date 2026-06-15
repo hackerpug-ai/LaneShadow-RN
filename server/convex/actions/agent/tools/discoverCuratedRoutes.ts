@@ -117,7 +117,7 @@ async function runDiscoverCuratedRoutes(
       label: curatedRoutes[0]?.name || 'Discovery',
     },
     departureTime: Date.now(),
-    preferences: { scenicBias: 'default', avoidHighways: false, avoidTolls: false },
+    preferences: { scenicBias: 'default' as const, avoidHighways: false, avoidTolls: false },
   }
 
   const { routePlanId } = await ctx.runMutation(internal.db.routePlans.createForAgentInternal, {
