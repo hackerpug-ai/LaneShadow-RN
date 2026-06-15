@@ -33,9 +33,9 @@ const Index = () => {
       return
     }
 
-    // If user is not signed in, go to discover (auth screen will show)
+    // If user is not signed in, go to sign-in
     if (!isSignedIn) {
-      setRedirectTarget('/(app)/(tabs)')
+      setRedirectTarget('/(auth)/sign-in')
       return
     }
 
