@@ -4,8 +4,10 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "pnpm server:dev & pnpm client:dev",
+    "dev:all": "pnpm server:dev & pnpm client:dev",
     "client:dev": "npx expo start --dev-client --ios",
     "server:dev": "cd server && pnpm dev",
+    "convex:health": "node scripts/check-convex-health.mjs",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
