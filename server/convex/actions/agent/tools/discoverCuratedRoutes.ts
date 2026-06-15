@@ -1,7 +1,7 @@
 'use node'
 
 import { v } from 'convex/values'
-import { internal } from '../../../_generated/api'
+import { api, internal } from '../../../_generated/api'
 import type { AgentContext } from '../ridePlanningAgent'
 import type { ToolCall } from '@mariozechner/pi-ai'
 import { validateToolCall } from '@mariozechner/pi-ai'
@@ -87,7 +87,7 @@ async function runDiscoverCuratedRoutes(
   }
 
   // Call the curated routes API
-  const curatedRoutes = await ctx.runQuery(internal.curatedRoutes.listCuratedRoutes, queryArgs)
+  const curatedRoutes = await ctx.runQuery(api.curatedRoutes.listCuratedRoutes, queryArgs)
 
   if (curatedRoutes.length === 0) {
     // No matches found - return conversational response
