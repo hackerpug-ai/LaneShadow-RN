@@ -349,13 +349,13 @@ export const ChatInput = ({
                 },
               ]}
               testID="chat-input-chat-view-button"
-              accessibilityLabel={chatMode ? 'Hide chat' : 'Show chat'}
+              accessibilityLabel={chatMode ? 'Return to map' : 'Open full chat'}
               accessibilityHint="Toggles the conversation transcript"
               accessibilityRole="button"
               accessibilityState={{ selected: chatMode }}
             >
               <Icon
-                source={chatMode ? 'chat' : 'chat-outline'}
+                source={chatMode ? 'map-outline' : 'chat-outline'}
                 size={iconSize + 2}
                 color={
                   chatMode
