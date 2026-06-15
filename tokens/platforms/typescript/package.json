@@ -11,7 +11,9 @@
     "react": ">=18",
     "react-native": ">=0.74"
   },
-  "dependencies": {},
+  "dependencies": {
+    "native-theme-primitives": "file:../../../../native-theme/platforms/typescript"
+  },
   "devDependencies": {
     "typescript": "~5.9.2"
   }
