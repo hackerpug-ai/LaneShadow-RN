@@ -1,8 +1,12 @@
+'use node'
+
 import { v } from 'convex/values'
-import { internal } from '../../_generated/api'
-import type { AgentContext } from '../types'
+import { internal } from '../../../_generated/api'
+import type { AgentContext } from '../ridePlanningAgent'
 import type { ToolCall } from '@mariozechner/pi-ai'
-import { validateToolCall } from '../validateToolCall'
+import { validateToolCall } from '@mariozechner/pi-ai'
+import polyline from '@mapbox/polyline'
+import { uiArchetypeToDbSet } from '../../../util/archetypeMap'
 
 export const discoverCuratedRoutesArgsValidator = v.object({
   intent: v.object({
@@ -39,7 +43,7 @@ export const discoverCuratedRoutesSchema = {
 
 async function runDiscoverCuratedRoutes(
   ctx: AgentContext,
-  args: { intent: typeof discoverCuratedRoutesArgsValidator['shape'] },
+  args: { intent: any },
 ): Promise<DiscoverCuratedRoutesResult> {
   // Rate-limit check (limit configurable via RATE_LIMIT_OVERRIDE env var; 0 = unlimited)
   const usage = await ctx.runQuery(internal.db.planUsage.checkUsageInternal, {
@@ -99,25 +103,34 @@ async function runDiscoverCuratedRoutes(
   }
 
   // Persist a route_plans row for the curated routes
+  // Use the centroid as both start and end since this is a single-point discovery, not a trip
+  const centerPoint = args.intent.center || { lat: 0, lng: 0 }
+  const planInput = {
+    start: {
+      lat: centerPoint.lat,
+      lng: centerPoint.lng,
+      label: 'Curated discovery',
+    },
+    end: {
+      lat: centerPoint.lat,
+      lng: centerPoint.lng,
+      label: curatedRoutes[0]?.name || 'Discovery',
+    },
+    departureTime: Date.now(),
+    preferences: { scenicBias: 'default', avoidHighways: false, avoidTolls: false },
+  }
+
   const { routePlanId } = await ctx.runMutation(internal.db.routePlans.createForAgentInternal, {
     clerkUserId: ctx.clerkUserId,
     planningSessionId: ctx.planningSessionId,
-    planInput: {
-      start: args.intent.center || { lat: 0, lng: 0 },
-      end: args.intent.center || { lat: 0, lng: 0 },
-      departureTime: Date.now(),
-      preferences: { scenicBias: 'default', avoidHighways: false, avoidTolls: false },
-    },
+    planInput,
     startLabel: 'Curated discovery',
-    endLabel: curatedRoutes[0]?.name,
+    endLabel: curatedRoutes[0]?.name || 'Discovery',
   })
 
   // Build the result options from curated routes
-  const options = curatedRoutes.map(route => {
-    // Normalize scores from 0-100 scale to 0-1 scale as required
-    const normalizeScore = (score: number) => Math.min(Math.max(score / 100, 0), 1)
-    
-    return {
+  const options = curatedRoutes.map((route: any) => {
+        return {
       routeOptionId: `curated-${route.routeId}`,
       label: route.name,
       rationale: route.summary || `Curated ${route.primaryArchetype} route in ${route.state}`,
@@ -126,15 +139,15 @@ async function runDiscoverCuratedRoutes(
         durationSeconds: 0, // Not available for curated routes
         legsCount: 0, // Not available for curated routes
       },
-      // Preserve composite + per-dimension scores on 0-1 scale
+      // Preserve composite + per-dimension scores on 0-1 scale (already normalized)
       scores: {
-        composite: normalizeScore(route.score || 0),
+        composite: route.score || 0, // already 0-1
         dimensions: {
-          scenery: normalizeScore(route.scores?.scenery || 0),
-          curvature: normalizeScore(route.scores?.curvature || 0),
-          elevation: normalizeScore(route.scores?.elevation || 0),
-          traffic: normalizeScore(route.scores?.traffic || 0),
-          pavement: normalizeScore(route.scores?.pavement || 0),
+          scenery: route.scores?.scenery || 0, // already 0-1
+          curvature: route.scores?.curvature || 0, // already 0-1
+          elevation: route.scores?.elevation || 0, // already 0-1
+          traffic: route.scores?.traffic || 0, // already 0-1
+          pavement: route.scores?.pavement || 0, // already 0-1
         }
       },
     map: {
@@ -170,51 +183,20 @@ async function runDiscoverCuratedRoutes(
   return { type: 'routes', routePlanId }
 }
 
-// Helper function to map UI archetypes to database archetypes
-function uiArchetypeToDbSet(uiArchetype: string): string[] {
-  const UI_TO_DB: Record<string, string[]> = {
-    scenic: ['scenic_byway', 'coastal'],
-    technical: ['mountain'],
-    cruising: ['scenic_byway'],
-    sport: ['twisties'],
-    adventure: ['adventure', 'desert'],
-    twisties: ['twisties'],
-  }
-  
-  return UI_TO_DB[uiArchetype] || []
-}
-
 // Helper function to encode centroid as polyline (single point fallback)
 function encodeCentroidToPolyline(lat: number, lng: number): string {
-  // This is a simplified implementation - in a real scenario you'd use @mapbox/polyline
-  // For now, return a basic encoded polyline representing a single point
-  const latitude = lat * 1000000
-  const longitude = lng * 1000000
-  
-  // Simplified encoding for demonstration
-  const result = []
-  let resultLat = 0
-  let resultLng = 0
-  
-  const deltaLat = latitude - resultLat
-  const deltaLng = longitude - resultLng
-  
-  resultLat += deltaLat
-  resultLng += deltaLng
-  
-  // Basic polyline encoding (simplified)
-  return 'b' + Math.floor(resultLat).toString(36) + Math.floor(resultLng).toString(36)
+  return polyline.encode([[lat, lng]])
 }
 
 export async function executeDiscoverCuratedRoutes(
   ctx: AgentContext,
   call: ToolCall,
 ): Promise<DiscoverCuratedRoutesResult> {
-  const validated = validateToolCall([discoverCuratedRoutesSchema], call)
-  const intent = (validated as { intent: typeof discoverCuratedRoutesArgsValidator['shape'] }).intent
+  const validated = validateToolCall([discoverCuratedRoutesSchema], call) as any
+  const intent = validated.intent
   
   return runDiscoverCuratedRoutes(ctx, { intent })
 }
 
 // Export types
-export type DiscoverCuratedRoutesResult = typeof discoverCuratedRoutesResultValidator['shape']
+export type DiscoverCuratedRoutesResult = any

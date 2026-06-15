@@ -16,7 +16,7 @@ import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
 import { runAgent } from '../runAgent'
 import { buildInSessionRouteBlock } from '../sessionContext'
 import { executeEnrichmentAgent } from './enrichmentAgent'
-import { executeDiscoveryAgent } from './discoveryAgent'
+import { executeDiscoverCuratedRoutes } from '../tools/discoverCuratedRoutes'
 import { executeRoutingAgent, getPendingSketchState } from './routingAgent'
 import { executeSearchAgent } from './searchAgent'
 import type { RoutingAgentResult, SearchAgentResult } from './types'
@@ -275,11 +275,22 @@ async function executeOrchestratorTool(
         onAgentTurn: executeCtx?.onAgentTurn,
         onToolResultPiMessage: executeCtx?.onToolResultPiMessage,
       })
-      const result = await executeDiscoveryAgent({
-        ctx,
-        executeCtx: executeCtx ? subCtx : undefined,
-        budgetTracker: subBudget,
-        userMessage: query,
+      const result = await executeDiscoverCuratedRoutes(ctx, {
+        type: 'toolCall',
+        id: 'discovery',
+        name: 'discoverCuratedRoutes',
+        arguments: {
+          intent: {
+            archetypes: query.toLowerCase().includes('twisties') ? ['twisties'] : 
+                       query.toLowerCase().includes('scenic') ? ['scenic'] :
+                       query.toLowerCase().includes('technical') ? ['technical'] :
+                       query.toLowerCase().includes('cruising') ? ['cruising'] :
+                       query.toLowerCase().includes('adventure') ? ['adventure'] : undefined,
+            center: ctx.currentLocation,
+            sort: 'nearest',
+            limit: 5
+          }
+        }
       })
       const summary = summarizeToolResult('discovery_agent', result)
       await executeCtx?.onSubAgentComplete?.('discovery', summary, Date.now() - agentStart)

@@ -1,39 +1,35 @@
-import { v } from 'convex/values'
-import { Tool } from '../types'
-import { discoverCuratedRoutesSchema, executeDiscoverCuratedRoutes } from '../tools/discoverCuratedRoutes'
+'use node'
+
+import { type Tool } from '@mariozechner/pi-ai'
 
 export const discoveryAgentTools = [
-  discoverCuratedRoutesSchema,
+  {
+    name: 'discoverCuratedRoutes',
+    description: 'Find curated motorcycle routes based on archetypes, location, and preferences',
+    parameters: {
+      type: 'object',
+      properties: {
+        intent: {
+          type: 'object',
+          properties: {
+            archetypes: { type: 'array', items: { type: 'string' } },
+            state: { type: 'string' },
+            center: { type: 'object', properties: { lat: { type: 'number' }, lng: { type: 'number' } }, required: ['lat', 'lng'] },
+            sort: { enum: ['best', 'nearest'] },
+            limit: { type: 'number' }
+          }
+        }
+      },
+      required: ['intent']
+    }
+  }
 ]
 
 export function getDiscoveryAgentTools(): Tool[] {
   return discoveryAgentTools as Tool[]
 }
 
-export async function executeDiscoveryAgentTool(
-  ctx: any,
-  call: any,
-  executeCtx?: any,
-): Promise<unknown> {
-  return executeDiscoverCuratedRoutes(ctx, call, executeCtx)
-}
 
-export async function executeDiscoveryAgent(
-  ctx: any,
-  executeCtx: any,
-  budgetTracker: any,
-  userMessage: string,
-): Promise<unknown> {
-  return runAgent({
-    ctx,
-    executeCtx,
-    budgetTracker,
-    agentType: 'discovery',
-    userMessage,
-    tools: discoveryAgentTools,
-    executeTool: executeDiscoveryAgentTool,
-  })
-}
 
 export const discoveryAgent = {
   name: 'discovery_agent',
