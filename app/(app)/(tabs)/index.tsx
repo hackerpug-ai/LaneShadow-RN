@@ -253,7 +253,7 @@ const HomeMapScreen = () => {
   const lastFittedPlanIdRef = useRef<string | null>(null)
 
   // Determine if there's an active route for chat input logic
-  const hasActiveRoute = !!(agentActiveOption || displayedRoutePlanId)
+  const hasActiveRoute = !!agentActiveOption
 
   // Hydrate flowState from a restored session on app reload. When the session
   // came from the sessions[0] fallback (not active planning) and has completed
@@ -1280,8 +1280,6 @@ const HomeMapScreen = () => {
             onSaveRoute={handleSaveRoutePress}
             hasRouteToSave={!chatMode && !!agentActiveOption && !!agentRoutePlan}
             isSavedRoute={useIsRouteSaved(agentActiveOption?.routeOptionId)}
-          />
-        </View>
           />
         </View>
 

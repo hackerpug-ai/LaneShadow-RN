@@ -149,6 +149,7 @@ export const ChatInput = ({
   chatMode = false,
   onToggleChatMode,
   hasMessages = false,
+  hasActiveRoute = false,
   extraBottomOffset = 0,
   dispatch,
 }: ChatInputProps) => {
