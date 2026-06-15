@@ -24,6 +24,8 @@ keys/
 .cache/
 staging/
 tmp/
+.design-review/
+/discovery-loaded.png
 .react-native/ios
 /react-native/android
 /android

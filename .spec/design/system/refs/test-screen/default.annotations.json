@@ -1,0 +1,25 @@
+{
+  "screen": "test-screen",
+  "state": "default",
+  "theme": "light",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "components": [
+    {
+      "name": "TestComponent",
+      "selector": ".test-component",
+      "bounding_box": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 100
+      },
+      "design_tokens": {
+        "background": "var(--surface-primary)",
+        "padding": "var(--space-4)"
+      }
+    }
+  ]
+}
