@@ -9,7 +9,7 @@ export const discoverCuratedRoutesArgsValidator = v.object({
     archetypes: v.optional(v.array(v.string())),
     state: v.optional(v.string()),
     center: v.optional(v.object({ lat: v.number(), lng: v.number() })),
-    sort: v.optional(v.literal('best').or(v.literal('nearest'))),
+    sort: v.optional(v.union(v.literal('best'), v.literal('nearest'))),
     limit: v.optional(v.number()),
   }),
 })
