@@ -46,6 +46,7 @@ type ChatInputProps = {
   isPlanning: boolean
   suggestions?: (string | CuratedPill)[]
   testID?: string
+  placeholder?: string
   /** Whether chat mode is currently active (transcript visible) */
   chatMode?: boolean
   /** Handler for the standalone chat-view toggle button (right of the field) */
@@ -179,6 +180,7 @@ export const ChatInput = ({
   onToggleChatMode,
   hasMessages = false,
   hasActiveRoute = false,
+  placeholder,
   extraBottomOffset = 0,
   dispatch,
 }: ChatInputProps) => {
@@ -287,7 +289,7 @@ export const ChatInput = ({
                 { color: semantic.color.onSurface.default },
                 isPlanning && styles.inputDisabled,
               ]}
-              placeholder="Plan a ride…"
+              placeholder={placeholder ?? 'Plan a ride…'}
               placeholderTextColor={semantic.color.onSurface.muted}
               value={text}
               onChangeText={setText}

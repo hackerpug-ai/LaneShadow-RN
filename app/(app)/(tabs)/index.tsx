@@ -2,7 +2,7 @@ import { useAuth } from '@clerk/clerk-expo'
 import { useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { Keyboard, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -1360,6 +1360,72 @@ const HomeMapScreen = () => {
           />
         )}
 
+        {/* DISC-014: No-route empty home state — discovery invite + glass scrim */}
+        {!hasActiveRoute && !chatMode && transcriptMessages.length === 0 && (
+          <View
+            testID="home-empty-state"
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              bottom: insets.bottom + 200,
+              left: semantic.space.lg,
+              right: semantic.space.lg,
+              opacity: 0.72,
+              backgroundColor: semantic.color.surface.default,
+              paddingVertical: semantic.space.sm,
+              paddingHorizontal: semantic.space.md,
+              borderRadius: semantic.radius.md,
+            }}
+          >
+            <Text
+              style={[
+                semantic.type.body.md,
+                {
+                  color: semantic.color.onSurface.default,
+                  opacity: 0.6,
+                  fontStyle: 'italic',
+                  textAlign: 'center',
+                },
+              ]}
+            >
+              Discover roads near you
+            </Text>
+          </View>
+        )}
+
+        {/* DISC-014: Empty-catalog message when curatedPills is empty */}
+        {!hasActiveRoute && !chatMode && curatedPills.length === 0 && transcriptMessages.length === 0 && (
+          <View
+            testID="home-empty-catalog-message"
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              bottom: insets.bottom + 160,
+              left: semantic.space.lg,
+              right: semantic.space.lg,
+              opacity: 0.72,
+              backgroundColor: semantic.color.surface.default,
+              paddingVertical: semantic.space.sm,
+              paddingHorizontal: semantic.space.md,
+              borderRadius: semantic.radius.md,
+            }}
+          >
+            <Text
+              style={[
+                semantic.type.body.md,
+                {
+                  color: semantic.color.onSurface.default,
+                  opacity: 0.6,
+                  fontStyle: 'italic',
+                  textAlign: 'center',
+                },
+              ]}
+            >
+              No curated roads available in this area
+            </Text>
+          </View>
+        )}
+
         {/* Chat input - always visible at bottom */}
         <ChatInput
           onSend={handleSendMessage}
@@ -1368,6 +1434,7 @@ const HomeMapScreen = () => {
           isPlanning={isPlanning || isManualPlanning}
           suggestions={curatedPills.length > 0 ? curatedPills : IDLE_SUGGESTIONS}
           testID="chat-input"
+          placeholder={!hasActiveRoute ? "Find a route — try 'twisties near Asheville'" : undefined}
           chatMode={chatMode}
           onToggleChatMode={cycleTranscript}
           onManualModePress={handleManualModePress}
