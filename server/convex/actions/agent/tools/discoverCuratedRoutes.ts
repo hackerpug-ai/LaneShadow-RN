@@ -1,13 +1,14 @@
 import { v } from 'convex/values'
 import { internal } from '../../_generated/api'
-import type { AgentContext, ToolCall } from '../types'
+import type { AgentContext } from '../types'
+import type { ToolCall } from '@mariozechner/pi-ai'
 import { validateToolCall } from '../validateToolCall'
 
 export const discoverCuratedRoutesArgsValidator = v.object({
   intent: v.object({
     archetypes: v.optional(v.array(v.string())),
     state: v.optional(v.string()),
-    center: v.optional(v.object({ lat: v.number(), lng: number() })),
+    center: v.optional(v.object({ lat: v.number(), lng: v.number() })),
     sort: v.optional(v.literal('best').or(v.literal('nearest'))),
     limit: v.optional(v.number()),
   }),
@@ -112,15 +113,30 @@ async function runDiscoverCuratedRoutes(
   })
 
   // Build the result options from curated routes
-  const options = curatedRoutes.map(route => ({
-    routeOptionId: `curated-${route.routeId}`,
-    label: route.name,
-    rationale: route.summary || `Curated ${route.primaryArchetype} route in ${route.state}`,
-    stats: {
-      distanceMeters: (route.distanceMi || 0) * 1609.344, // Convert miles to meters
-      durationSeconds: 0, // Not available for curated routes
-      legsCount: 0, // Not available for curated routes
-    },
+  const options = curatedRoutes.map(route => {
+    // Normalize scores from 0-100 scale to 0-1 scale as required
+    const normalizeScore = (score: number) => Math.min(Math.max(score / 100, 0), 1)
+    
+    return {
+      routeOptionId: `curated-${route.routeId}`,
+      label: route.name,
+      rationale: route.summary || `Curated ${route.primaryArchetype} route in ${route.state}`,
+      stats: {
+        distanceMeters: (route.distanceMi || 0) * 1609.344, // Convert miles to meters
+        durationSeconds: 0, // Not available for curated routes
+        legsCount: 0, // Not available for curated routes
+      },
+      // Preserve composite + per-dimension scores on 0-1 scale
+      scores: {
+        composite: normalizeScore(route.score || 0),
+        dimensions: {
+          scenery: normalizeScore(route.scores?.scenery || 0),
+          curvature: normalizeScore(route.scores?.curvature || 0),
+          elevation: normalizeScore(route.scores?.elevation || 0),
+          traffic: normalizeScore(route.scores?.traffic || 0),
+          pavement: normalizeScore(route.scores?.pavement || 0),
+        }
+      },
     map: {
       bounds: {
         north: route.centroidLat + 0.5, // Fallback bounds
@@ -132,13 +148,14 @@ async function runDiscoverCuratedRoutes(
       legs: [], // No detailed legs for curated routes
       overlays: {},
     },
-    overlaysPreview: {
-      windSummary: 'unavailable',
-      rainSummary: 'unavailable',
-      temperatureSummary: 'unavailable',
-      conditionsStatus: 'unavailable',
-    },
-  }))
+      overlaysPreview: {
+        windSummary: 'unavailable',
+        rainSummary: 'unavailable',
+        temperatureSummary: 'unavailable',
+        conditionsStatus: 'unavailable',
+      },
+    }
+  })
 
   // Update the route plan with completed status
   await ctx.runMutation(internal.db.routePlans.updatePlanStatus, {
