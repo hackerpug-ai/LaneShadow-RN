@@ -252,6 +252,9 @@ const HomeMapScreen = () => {
   // per newly resolved plan (not on every re-render).
   const lastFittedPlanIdRef = useRef<string | null>(null)
 
+  // Determine if there's an active route for chat input logic
+  const hasActiveRoute = !!(agentActiveOption || displayedRoutePlanId)
+
   // Hydrate flowState from a restored session on app reload. When the session
   // came from the sessions[0] fallback (not active planning) and has completed
   // routes, transition the flow state to ROUTE_RESULTS so route cards appear.
@@ -1279,6 +1282,8 @@ const HomeMapScreen = () => {
             isSavedRoute={useIsRouteSaved(agentActiveOption?.routeOptionId)}
           />
         </View>
+          />
+        </View>
 
         {/* Route attachment cards when showing results (map mode only, hidden while toasts are visible) */}
         {/* Show during ROUTE_RESULTS, ROUTE_DETAILS, and PLANNING (when refining existing routes) */}
@@ -1354,6 +1359,7 @@ const HomeMapScreen = () => {
           onToggleChatMode={cycleTranscript}
           onManualModePress={handleManualModePress}
           hasMessages={transcriptMessages.length > 0}
+          hasActiveRoute={hasActiveRoute}
           dispatch={(action: { type: string }) => flowDispatch(action as RideFlowAction)}
         />
 

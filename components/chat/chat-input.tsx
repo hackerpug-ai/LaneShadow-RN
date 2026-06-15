@@ -52,6 +52,8 @@ type ChatInputProps = {
   onManualModePress?: () => void
   /** Whether the session has any messages */
   hasMessages?: boolean
+  /** @deprecated Use hasActiveRoute instead - whether there's an active route plan */
+  hasActiveRoute?: boolean
   /** Extra bottom padding for temporary elements above */
   extraBottomOffset?: number
   /** Dispatch function for clearing error state */
@@ -214,6 +216,7 @@ export const ChatInput = ({
             (keyboardVisible ? 0 : insets.bottom) + semantic.space.md + extraBottomOffset,
         }}
         onPress={Keyboard.dismiss}
+        testID="chat-input-suggestion-chips"
       >
         {/* Error message */}
         {isError && errorMessage && (
@@ -222,8 +225,8 @@ export const ChatInput = ({
           </View>
         )}
 
-        {/* Suggestion chips when idle AND no messages */}
-        {isIdle && !hasMessages && suggestions.length > 0 && !isPlanning && (
+        {/* Suggestion chips when idle AND no active route */}
+        {isIdle && !hasActiveRoute && suggestions.length > 0 && !isPlanning && !chatMode && (
           <SuggestionChips suggestions={suggestions} onSelect={handleSelectSuggestion} />
         )}
 
