@@ -1,4 +1,6 @@
-# DISC-011: Swap suggestion-pill content from IDLE_SUGGESTIONS to whole curated routes from the live catalog (tap → plot on the map)
+# DISC-011: Swap suggestion-pill content from IDLE_SUGGESTIONS to whole curated routes from the live catalog (tap → plot on the map) — styled as visually distinct curated-route affordances (chip variant, copper accent, route icon)
+
+> **Delta-replan 2026-06-15:** enriched with AC-4 (visual distinction: chip variant + copper accent on the route icon + road-variant glyph) + TC-3 to absorb the ROADMAP Sprint 01 Test Step 2 enrichment ("styled as visually distinct curated-route affordances — chip variant with copper accent and a route icon per the design system, not the generic planning prompts"). Existing AC-1..AC-3 unchanged.
 
 | Field | Value |
 |---|---|
@@ -24,6 +26,7 @@ With the pill slot re-keyed by DISC-010, this task swaps the pill CONTENT from t
 - Tapping a pill must route through the EXISTING curated routing_card → useActiveSessionRoute → map-fit machinery so the plotted route causes `hasActiveRoute` (DISC-010) to flip true and the pills auto-hide — do NOT invent a parallel render path.
 - Discovery is a STATE of index.tsx — no new screen, no NavigationStack push.
 - Limit to ~5 pills, sorted best (or nearest when location available); use `useSemanticTheme()` tokens, no hardcoded hex.
+- **Curated pills render as a chip variant with copper accent on the route icon (`theme.colors.accent.default` = #EE7C2B) + a route/curves icon (MaterialCommunityIcons `name="road-variant"`) per the design system — visually distinct from the generic gray `IDLE_SUGGESTIONS` planning prompts they replace.** Each pill carries testID `discovery-suggestion-pill-{routeId}`. The copper accent lands on the ICON ONLY (not the pill border or background) to avoid overwhelming visual weight.
 
 ## Specification
 
@@ -36,6 +39,7 @@ With the pill slot re-keyed by DISC-010, this task swaps the pill CONTENT from t
 - **AC-1** (PRIMARY) — Pills show live curated routes by name + mileage. **GIVEN** A seeded curated catalog containing named routes with mileage (e.g. "Tail of the Dragon" 11mi, "Cherohala Skyway" 41mi) **WHEN** The home screen renders in map mode with no route displayed **THEN** The pills display those curated route names with mileage (not IDLE_SUGGESTIONS, not a 0–100 score). _test_tier: e2e · service: iOS Simulator + live Convex._ **Oracle:** observe pill labeled "Tail of the Dragon"; a mileage token "11mi" or "41mi"; ≤5 pills; must NOT observe "Plan a scenic ride" / "Find coffee nearby" (IDLE_SUGGESTIONS); a "92" 0–100 score badge. **Negative control:** pills still render IDLE_SUGGESTIONS (static); useCuratedDiscovery empty/not wired (empty); query mocked (mock); pill shows a 0–100 score not mileage.
 - **AC-2** — Tapping a curated pill plots that route on the map. **GIVEN** Curated-route pills are shown and a known route ("Cherohala Skyway") is among them **WHEN** The rider taps the "Cherohala Skyway" pill **THEN** That curated route plots on the map via the existing routing_card/useActiveSessionRoute path (its geometry/centroid renders). _test_tier: e2e · service: iOS Simulator + live Convex._ **Oracle:** observe 1 plotted route (testID `home-route-polyline`) OR 1 centroid marker for the selected route; on-map context resolves to "Cherohala Skyway"; must NOT observe empty home map after the tap; a push to a separate Discover screen. **Negative control:** tap sends a generic chat string not the specific route (disconnect); tap pushes a new screen (wrong path); no route renders (no-op).
 - **AC-3** — Pills auto-hide after a pill plots a route. **GIVEN** Curated-route pills are shown **WHEN** The rider taps a pill and the route plots on the map **THEN** The pills hide because hasActiveRoute (DISC-010) is now true. _test_tier: e2e · service: iOS Simulator + live Convex._ **Oracle:** observe exactly 1 plotted route on the map; no testID `chat-input-suggestion-chips`; must NOT observe pills still visible while the tapped route is on screen (start/empty signature: 0 / none present). **Negative control:** pills stay visible over the plotted route (gate disconnect); tap does not plot so hasActiveRoute never flips (no-op).
+- **AC-4** — Curated pills are styled as visually distinct curated-route affordances. **GIVEN** A seeded curated catalog with ≥5 named routes **WHEN** The home renders in map mode with no route **THEN** The suggestion pills are styled as chip variants with a copper accent (`theme.colors.accent.default` = #EE7C2B) applied to a route/curves icon (MaterialCommunityIcons `name="road-variant"`) — NOT the generic gray `IDLE_SUGGESTIONS` styling they replaced. _test_tier: e2e · service: iOS Simulator + live Convex._ **Oracle:** observe a curated-route pill (testID prefix `discovery-suggestion-pill-`) with copper accent color (#EE7C2B) on the route icon; a road-variant glyph within each pill; chip anatomy (1px `border.default` + `radius.md` 10 + `space.md`/`space.sm` padding, minHeight ≥44pt); must NOT observe a generic gray planning-prompt chip with no copper/route-icon; a pill testID matching any generic planning-prompt testID. **Negative control:** pill styled identically to IDLE_SUGGESTIONS (disconnect); no copper accent token applied to the icon (static); no route icon rendered (empty).
 
 ## Test criteria
 
@@ -43,6 +47,7 @@ With the pill slot re-keyed by DISC-010, this task swaps the pill CONTENT from t
 |---|---|---|---|
 | TC-1 | IDLE_SUGGESTIONS is no longer passed as the pill source from index.tsx | AC-1 | `! grep -nE 'suggestions=\{IDLE_SUGGESTIONS\}' 'app/(app)/(tabs)/index.tsx'` |
 | TC-2 | Type-check + lint clean | AC-1 | `pnpm type-check && pnpm lint` |
+| TC-3 | The pill component references the copper accent token (`theme.colors.accent.default`) for the route icon (not a hardcoded hex) and renders a road-variant glyph | AC-4 | `grep -nE 'accent\.(default|primary)' components/chat/chat-input.tsx && grep -nE 'road-variant' components/chat/chat-input.tsx` |
 
 ## Reading list
 
@@ -51,10 +56,11 @@ With the pill slot re-keyed by DISC-010, this task swaps the pill CONTENT from t
 - `components/chat/routing-card.tsx:228-265` — CompletedCard onSelect path (setSelectedRouteId + setDisplayedRoutePlanId + requestFitToRouteWithReset) — the existing plot-on-map machinery a pill tap should reuse.
 - `app/(app)/(tabs)/index.tsx:1346-1358` — Current `suggestions={IDLE_SUGGESTIONS}` ChatInput call site to replace.
 - `server/convex/curatedRoutes.ts:119-134` — buildRouteCard — confirms name, lengthMiles, distanceMi, compositeScore(0-1) available from the live query (read-only).
+- `tokens/semantic/semantic.tokens.json` — [VISUAL DESIGN SOURCE] `semantic.color.{light,dark}.accent.default` = #EE7C2B (the copper accent, applied to the route icon only); `semantic.color.border.default`; `semantic.radius.md` = 10; `semantic.space.md`/`sm`; `semantic.control.minTouchTarget` = 44 (pill minHeight).
 
 ## Guardrails
 
-**Write-allowed:** `app/(app)/(tabs)/index.tsx` (MODIFY: Call useCuratedDiscovery (best/nearest, limit ~5); map results to pill data {label: name + mileage, routeId}; pass curated pills + an onSelectCuratedRoute handler that routes the tap through the curated routing_card path (the DATA-008 surface) so useActiveSessionRoute plots it. Replace `suggestions={IDLE_SUGGESTIONS}` with the curated pill data.) · `components/chat/chat-input.tsx` (MODIFY: Extend the pill model to accept structured curated pills (id + label string with mileage) and an onSelect that emits the routeId, while keeping back-compat with string suggestions; render name + mileage label only (no score badge).) · `e2e/disc-011-curated-pills.e2e.ts` (NEW: e2e covering AC-1..AC-3 against seeded live Convex catalog.)
+**Write-allowed:** `app/(app)/(tabs)/index.tsx` (MODIFY: Call useCuratedDiscovery (best/nearest, limit ~5); map results to pill data {label: name + mileage, routeId}; pass curated pills + an onSelectCuratedRoute handler that routes the tap through the curated routing_card path (the DATA-008 surface) so useActiveSessionRoute plots it. Replace `suggestions={IDLE_SUGGESTIONS}` with the curated pill data.) · `components/chat/chat-input.tsx` (MODIFY: Extend the pill model to accept structured curated pills (id + label string with mileage) and an onSelect that emits the routeId, while keeping back-compat with string suggestions; render name + mileage label only (no score badge); **STYLE the pills as a chip variant with copper accent on the route icon (`theme.colors.accent.default` = #EE7C2B) + a MaterialCommunityIcons `road-variant` glyph — visually distinct from the generic IDLE_SUGGESTIONS planning prompts they replaced; keep minHeight ≥44pt per §6 constitution; testID `discovery-suggestion-pill-{routeId}`.**) · `e2e/disc-011-curated-pills.e2e.ts` (NEW: e2e covering AC-1..AC-4 against seeded live Convex catalog.)
 
 **Write-prohibited:** hooks/use-curated-discovery.ts — reuse as-is; if mileage (lengthMiles) is not surfaced in its mapped shape, ASK FIRST before extending it (see Boundaries). · server/convex/curatedRoutes.ts — backend is locked (DATA-005 carried forward); no query changes. · Any file not explicitly listed above
 
@@ -69,6 +75,14 @@ With the pill slot re-keyed by DISC-010, this task swaps the pill CONTENT from t
 ## Design / approach
 
 **Design enrichment (frontend-designer):** Pills carry name + mileage: `${name} · ${distanceMi}mi`. Extend SuggestionChips to accept {label,routeId} + onSelectRoute(routeId) that PLOTS (not chat-send). Add minHeight:44 to styles.chip (current ~37pt < 44 WCAG). Limit 3–5 routes (nearest, or best when no location). NOTE: useCuratedDiscovery currently DROPS lengthMiles from its mapped shape though listCuratedRoutes returns it — surface lengthMiles. testID discovery-suggestion-pill-{routeId}. Anti-pattern: don't send the pill label as a chat message (that hits the NL path); plot the known route directly.
+
+**Visual design spec (delta-replan 2026-06-15, frontend-designer):** The curated pill is a chip variant visually distinct from the gray IDLE_SUGGESTIONS it replaces:
+- **Chip anatomy:** 1px `theme.colors.border.default` border + `theme.radius.md` (10) radius + `theme.space.md` (12) horizontal / `theme.space.sm` (8) vertical padding + transparent background + `minHeight: theme.control.minTouchTarget` (44).
+- **Copper accent:** applied to the ROUTE ICON ONLY (not border/background) — `theme.colors.accent.default` (#EE7C2B). The border stays neutral (`border.default`) to avoid visual weight overload.
+- **Route icon:** MaterialCommunityIcons `name="road-variant"` — a winding-road glyph that reads as "curated road route" (not a generic navigation pin like `map-marker`/`navigation`).
+- **Label:** `theme.type.body.md` (fontSize 12, lineHeight 18, fontWeight 400), color `theme.colors.onSurface.default`, format `${name} · ${distanceMi}mi` with middle-dot separator, `numberOfLines={1}` truncation. No score badge.
+- **Anti-patterns:** do NOT use the gray IDLE_SUGGESTIONS styling; do NOT render a 0–100 score badge; do NOT use a navigation-pin icon; do NOT apply copper to the pill border/background (icon only); do NOT exceed 44pt minHeight.
+- Resolves correctly in both themes (`border.default` #E5DED9 light / rgba(242,238,232,0.12) dark; `accent.default` #EE7C2B both; `onSurface.default` #1E1A16 light / #F2EEE8 dark).
 
 **Interaction / implementation notes:**
 - Sort pills best by default; switch to nearest when `useCurrentLocation` resolves (useCuratedDiscovery already derives center).
@@ -89,10 +103,10 @@ With the pill slot re-keyed by DISC-010, this task swaps the pill CONTENT from t
 {
   "fixtures": {
     "seeded_curated_catalog": {
-      "description": "Live Convex curated_routes seeded with \u22655 named routes incl. mileage",
+      "description": "Live Convex curated_routes seeded with ≥5 named routes incl. mileage",
       "seed_method": "public_api",
       "records": [
-        "\"Tail of the Dragon\" lengthMiles=11 primaryArchetype=twisties compositeScore\u22480.9",
+        "\"Tail of the Dragon\" lengthMiles=11 primaryArchetype=twisties compositeScore≈0.9",
         "\"Cherohala Skyway\" lengthMiles=41 archetype=scenic",
         "\"Blue Ridge Parkway\" lengthMiles=120",
         "+2 more curated routes"
@@ -104,7 +118,7 @@ With the pill slot re-keyed by DISC-010, this task swaps the pill CONTENT from t
       "id": "AC-1",
       "type": "acceptance_criterion",
       "primary": true,
-      "description": "GIVEN a seeded curated catalog WHEN home renders with no route THEN pills show curated route names + mileage (\u22645)",
+      "description": "GIVEN a seeded curated catalog WHEN home renders with no route THEN pills show curated route names + mileage (≤5)",
       "verify": "pnpm test -- e2e/disc-011-curated-pills.e2e.ts -t pillsShowLiveCuratedRoutes",
       "maps_to_ac": null,
       "scenario": {
@@ -116,7 +130,7 @@ With the pill slot re-keyed by DISC-010, this task swaps the pill CONTENT from t
             "pills still render IDLE_SUGGESTIONS (static)",
             "useCuratedDiscovery empty/not wired (empty)",
             "query mocked (mock)",
-            "pill shows a 0\u2013100 score not mileage"
+            "pill shows a 0–100 score not mileage"
           ]
         },
         "evidence": {
@@ -129,7 +143,7 @@ With the pill slot re-keyed by DISC-010, this task swaps the pill CONTENT from t
             "action": {
               "actor": "user",
               "steps": [
-                "Seed \u22655 curated routes via real Convex seed",
+                "Seed ≥5 curated routes via real Convex seed",
                 "Open home in map mode with no route",
                 "Read pill labels"
               ]
@@ -138,11 +152,11 @@ With the pill slot re-keyed by DISC-010, this task swaps the pill CONTENT from t
               "must_observe": [
                 "pill labeled \"Tail of the Dragon\"",
                 "a mileage token \"11mi\" or \"41mi\"",
-                "\u22645 pills"
+                "≤5 pills"
               ],
               "must_not_observe": [
                 "\"Plan a scenic ride\" / \"Find coffee nearby\" (IDLE_SUGGESTIONS)",
-                "a \"92\" 0\u2013100 score badge"
+                "a \"92\" 0–100 score badge"
               ]
             }
           }
@@ -255,6 +269,61 @@ With the pill slot re-keyed by DISC-010, this task swaps the pill CONTENT from t
       "description": "Type-check + lint clean",
       "verify": "pnpm type-check && pnpm lint",
       "maps_to_ac": "AC-1"
+    },
+    {
+      "id": "AC-4",
+      "type": "acceptance_criterion",
+      "primary": false,
+      "description": "GIVEN a seeded curated catalog with >=5 named routes WHEN the home renders in map mode with no route THEN the suggestion pills are styled as visually distinct curated-route affordances (chip variant with copper accent + route icon) NOT the generic gray IDLE_SUGGESTIONS styling they replaced.",
+      "verify": "pnpm test -- e2e/disc-011-curated-pills.e2e.ts -t curatedPillsVisuallyDistinctFromGeneric",
+      "maps_to_ac": null,
+      "scenario": {
+        "test_tier": "e2e",
+        "tier": "visible",
+        "verification_service": "iOS Simulator + live Convex",
+        "negative_control": {
+          "would_fail_if": [
+            "disconnect: pill styled identically to IDLE_SUGGESTIONS (no copper accent, no route icon)",
+            "static: no copper accent token applied to the pill icon (plain unaccented chip)",
+            "empty: no route icon rendered within the pill"
+          ]
+        },
+        "evidence": {
+          "artifact_type": "screenshot",
+          "required_capture": true
+        },
+        "cases": [
+          {
+            "start_ref": "seeded_curated_catalog",
+            "action": {
+              "actor": "user",
+              "steps": [
+                "Seed >=5 curated routes via real Convex seed (incl. Tail of the Dragon)",
+                "Open home in map mode with no route displayed",
+                "Observe the suggestion pill styling above the chat input"
+              ]
+            },
+            "end_state": {
+              "must_observe": [
+                "a curated-route pill (testID prefix `discovery-suggestion-pill-`) with a copper accent color (theme.colors.accent.default = #EE7C2B) applied to the route icon",
+                "a route/curves icon (MaterialCommunityIcons name=\"road-variant\") rendered within each pill",
+                "the pill rendered as a chip variant (1px border.default + radius.md 10 + space.md/sm padding, minHeight >=44pt) distinct from a plain text affordance"
+              ],
+              "must_not_observe": [
+                "a generic gray planning-prompt chip with no copper accent and no route icon (the old IDLE_SUGGESTIONS styling)",
+                "a pill testID matching any generic planning-prompt testID the old chips used"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "TC-3",
+      "type": "test_criterion",
+      "description": "The pill component references the copper accent token (theme.colors.accent.default) for the route icon, not a hardcoded hex",
+      "verify": "grep -nE 'accent.*default' components/chat/chat-input.tsx",
+      "maps_to_ac": "AC-4"
     }
   ]
 }
