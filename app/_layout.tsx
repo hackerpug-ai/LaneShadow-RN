@@ -3,18 +3,20 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { ConvexReactClient } from 'convex/react'
 import { ConvexProviderWithClerk } from 'convex/react-clerk'
 import { Stack } from 'expo-router'
+import type React from 'react'
 import { useEffect } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Provider as PaperProvider } from 'react-native-paper'
 import Toast from 'react-native-toast-message'
-import { env } from '../server/lib/env'
-import { initLogger, logger } from '../server/lib/logger/frontend-logger'
 import { DevMenu } from '../components/dev'
 import { ErrorBoundary } from '../components/logging/error-boundary'
-import type React from 'react'
+import { env } from '../server/lib/env'
+import { initLogger, logger } from '../server/lib/logger/frontend-logger'
 
-const Gatekeeper: React.ComponentType<{ children: React.ReactNode; testID?: string }> =
-  ({ children }) => <>{children}</>
+const Gatekeeper: React.ComponentType<{ children: React.ReactNode; testID?: string }> = ({
+  children,
+}) => <>{children}</>
+
 import { SearchResultsProvider } from '../contexts/search-results'
 import { ThemePreferenceProvider, useThemePreference } from '../contexts/theme-preference'
 import { clerkTokenCache } from '../lib/clerk-token-cache'

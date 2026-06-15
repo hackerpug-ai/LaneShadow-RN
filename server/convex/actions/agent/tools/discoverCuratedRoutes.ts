@@ -1,12 +1,12 @@
 'use node'
 
-import { v } from 'convex/values'
-import { api, internal } from '../../../_generated/api'
-import type { AgentContext } from '../ridePlanningAgent'
+import polyline from '@mapbox/polyline'
 import type { ToolCall } from '@mariozechner/pi-ai'
 import { validateToolCall } from '@mariozechner/pi-ai'
-import polyline from '@mapbox/polyline'
+import { v } from 'convex/values'
+import { api, internal } from '../../../_generated/api'
 import { uiArchetypeToDbSet } from '../../../util/archetypeMap'
+import type { AgentContext } from '../ridePlanningAgent'
 
 export const discoverCuratedRoutesArgsValidator = v.object({
   intent: v.object({
@@ -92,10 +92,11 @@ async function runDiscoverCuratedRoutes(
   if (curatedRoutes.length === 0) {
     // No matches found - return conversational response
     const searchQuery = args.intent.archetypes?.join(', ') || 'routes'
-    const location = args.intent.state || args.intent.center ? 
-      `in ${args.intent.state || 'your area'}` : 
-      'near you'
-    
+    const location =
+      args.intent.state || args.intent.center
+        ? `in ${args.intent.state || 'your area'}`
+        : 'near you'
+
     return {
       type: 'chat',
       message: `I couldn't find any ${searchQuery} routes ${location}. Try a different search or broaden your criteria.`,
@@ -130,7 +131,7 @@ async function runDiscoverCuratedRoutes(
 
   // Build the result options from curated routes
   const options = curatedRoutes.map((route: any) => {
-        return {
+    return {
       routeOptionId: `curated-${route.routeId}`,
       label: route.name,
       rationale: route.summary || `Curated ${route.primaryArchetype} route in ${route.state}`,
@@ -148,19 +149,19 @@ async function runDiscoverCuratedRoutes(
           elevation: route.scores?.elevation || 0, // already 0-1
           traffic: route.scores?.traffic || 0, // already 0-1
           pavement: route.scores?.pavement || 0, // already 0-1
-        }
+        },
       },
-    map: {
-      bounds: {
-        north: route.centroidLat + 0.5, // Fallback bounds
-        south: route.centroidLat - 0.5,
-        east: route.centroidLng + 0.5,
-        west: route.centroidLng - 0.5,
+      map: {
+        bounds: {
+          north: route.centroidLat + 0.5, // Fallback bounds
+          south: route.centroidLat - 0.5,
+          east: route.centroidLng + 0.5,
+          west: route.centroidLng - 0.5,
+        },
+        overviewGeometry: encodeCentroidToPolyline(route.centroidLat, route.centroidLng),
+        legs: [], // No detailed legs for curated routes
+        overlays: {},
       },
-      overviewGeometry: encodeCentroidToPolyline(route.centroidLat, route.centroidLng),
-      legs: [], // No detailed legs for curated routes
-      overlays: {},
-    },
       overlaysPreview: {
         windSummary: 'unavailable',
         rainSummary: 'unavailable',
@@ -194,7 +195,7 @@ export async function executeDiscoverCuratedRoutes(
 ): Promise<DiscoverCuratedRoutesResult> {
   const validated = validateToolCall([discoverCuratedRoutesSchema], call) as any
   const intent = validated.intent
-  
+
   return runDiscoverCuratedRoutes(ctx, { intent })
 }
 

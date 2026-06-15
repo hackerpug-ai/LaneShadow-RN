@@ -44,8 +44,7 @@ if (mapboxAvailable) {
     ShapeSource = mod.ShapeSource
     UserLocation = mod.UserLocation
     Mapbox.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN ?? '')
-  } catch {
-  }
+  } catch {}
 }
 
 /**
@@ -588,7 +587,9 @@ export const MapboxMapView = forwardRef<MapboxMapViewHandle | null, MapboxMapVie
       return (
         <View style={[styles.map, styles.webFallback, style]}>
           <Text variant="bodyMedium">
-            {isWeb ? 'Mapbox maps are unavailable in web builds.' : 'Mapbox native module not loaded.'}
+            {isWeb
+              ? 'Mapbox maps are unavailable in web builds.'
+              : 'Mapbox native module not loaded.'}
           </Text>
         </View>
       )

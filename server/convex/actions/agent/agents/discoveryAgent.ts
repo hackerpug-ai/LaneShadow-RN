@@ -1,6 +1,6 @@
 'use node'
 
-import { type Tool } from '@mariozechner/pi-ai'
+import type { Tool } from '@mariozechner/pi-ai'
 
 export const discoveryAgentTools = [
   {
@@ -14,22 +14,24 @@ export const discoveryAgentTools = [
           properties: {
             archetypes: { type: 'array', items: { type: 'string' } },
             state: { type: 'string' },
-            center: { type: 'object', properties: { lat: { type: 'number' }, lng: { type: 'number' } }, required: ['lat', 'lng'] },
+            center: {
+              type: 'object',
+              properties: { lat: { type: 'number' }, lng: { type: 'number' } },
+              required: ['lat', 'lng'],
+            },
             sort: { enum: ['best', 'nearest'] },
-            limit: { type: 'number' }
-          }
-        }
+            limit: { type: 'number' },
+          },
+        },
       },
-      required: ['intent']
-    }
-  }
+      required: ['intent'],
+    },
+  },
 ]
 
 export function getDiscoveryAgentTools(): Tool[] {
   return discoveryAgentTools as Tool[]
 }
-
-
 
 export const discoveryAgent = {
   name: 'discovery_agent',

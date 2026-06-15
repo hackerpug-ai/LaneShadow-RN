@@ -28,11 +28,7 @@ const TabsLayout = () => {
         options={{
           title: 'Plan a ride',
           tabBarIcon: ({ focused }) => (
-            <IconSymbol
-              name="motorbike"
-              size={22}
-              color={focused ? activeColor : inactiveColor}
-            />
+            <IconSymbol name="motorbike" size={22} color={focused ? activeColor : inactiveColor} />
           ),
         }}
       />

@@ -9,7 +9,7 @@ export function normalizeState(s: string): string {
     .replace(/[-_]/g, ' ')
     .replace(/\s+/g, ' ')
     .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ')
 }
 

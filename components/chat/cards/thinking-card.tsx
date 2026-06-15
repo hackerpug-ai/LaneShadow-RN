@@ -26,9 +26,9 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
+import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import type { Id } from '../../../server/convex/_generated/dataModel'
 import type { ThinkingStep } from '../../../server/models/session-messages'
-import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { BottomSheetWrapper } from '../../sheets/bottom-sheet-wrapper'
 import type { IconName } from '../../ui/icon-symbol'
 import { IconSymbol } from '../../ui/icon-symbol'

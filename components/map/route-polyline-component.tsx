@@ -5,7 +5,9 @@ const mapboxAvailable = NativeModules.RNMBXModule != null
 let LineLayer: any = null
 let ShapeSource: any = null
 if (mapboxAvailable) {
-  try { ({ LineLayer, ShapeSource } = require('@rnmapbox/maps')) } catch {}
+  try {
+    ;({ LineLayer, ShapeSource } = require('@rnmapbox/maps'))
+  } catch {}
 }
 
 import * as Haptics from 'expo-haptics'

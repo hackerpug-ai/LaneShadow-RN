@@ -8,9 +8,18 @@
  */
 
 import { execSync } from 'node:child_process'
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
-import { dirname, join, parse } from 'node:path'
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 import { homedir } from 'node:os'
+import { dirname, join, parse } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -60,8 +69,9 @@ function resolveXcresultPath(preferredPath: string): string | null {
     return null
   }
 
-  return laneShadowBundles
-    .sort((left, right) => statSync(right).mtimeMs - statSync(left).mtimeMs)[0]
+  return laneShadowBundles.sort(
+    (left, right) => statSync(right).mtimeMs - statSync(left).mtimeMs,
+  )[0]
 }
 
 // Parse attachment name: {screen}.{state}.{action}
@@ -81,10 +91,7 @@ export function parseAttachmentName(name: string): {
   }
 }
 
-function resolveThemeFromAttachmentName(parsed: {
-  state: string
-  action: string
-}): string | null {
+function resolveThemeFromAttachmentName(parsed: { state: string; action: string }): string | null {
   if (parsed.action === 'light' || parsed.action === 'dark') {
     return parsed.action
   }

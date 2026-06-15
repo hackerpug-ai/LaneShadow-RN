@@ -8,8 +8,8 @@
 
 import { LinearGradient } from 'expo-linear-gradient'
 import { StyleSheet, View } from 'react-native'
-import type { Bounds } from '../../server/types/routes'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import type { Bounds } from '../../server/types/routes'
 
 export type RouteThumbnailProps = {
   /** Width of the thumbnail */

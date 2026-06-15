@@ -6,8 +6,8 @@
  */
 
 import { v } from 'convex/values'
-import { action, internalMutation } from './_generated/server'
 import { internal } from './_generated/api'
+import { action, internalMutation } from './_generated/server'
 import { normalizeState } from './util/dataNormalization'
 
 /**
@@ -101,7 +101,9 @@ export const rebuildStateCountsInternal = internalMutation({
  */
 export const backfillStateCountsAction = action({
   args: {},
-  handler: async (ctx): Promise<{
+  handler: async (
+    ctx,
+  ): Promise<{
     pagesProcessed: number
     statesRecorded: number
     totalRoutesCounted: number
@@ -115,10 +117,10 @@ export const backfillStateCountsAction = action({
     let pagesProcessed = 0
 
     while (true) {
-      const page = await ctx.runMutation(internal.curatedRouteStateCounts.processPageInternal, {
+      const page = (await ctx.runMutation(internal.curatedRouteStateCounts.processPageInternal, {
         cursor,
         accumulatedCounts: Object.fromEntries(stateCounts),
-      }) as {
+      })) as {
         counts: Record<string, number>
         isDone: boolean
         continueCursor: string | null

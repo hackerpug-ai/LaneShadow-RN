@@ -10,11 +10,6 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { api } from '../../../server/convex/_generated/api'
-import type { Doc, Id } from '../../../server/convex/_generated/dataModel'
-import { decodePolylineGeometry } from '../../../server/lib/polyline'
-import type { RouteProvenance } from '../../../server/models/saved-routes'
-import type { PlanInput, RouteStop } from '../../../server/types/routes'
 import { ChatInput, RouteAttachmentCard } from '../../../components/chat'
 import { MenuLayout } from '../../../components/layouts/menu-layout'
 import type { MapboxMapViewHandle } from '../../../components/map'
@@ -43,14 +38,19 @@ import { useSelectedRoute } from '../../../contexts/selected-route'
 import { useThemePreference } from '../../../contexts/theme-preference'
 import { useActiveSessionRoute } from '../../../hooks/use-active-session-route'
 import { useChatPlanning } from '../../../hooks/use-chat-planning'
-import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { useCuratedDiscovery } from '../../../hooks/use-curated-discovery'
+import { useCurrentLocation } from '../../../hooks/use-current-location'
 import { useIsRouteSaved } from '../../../hooks/use-is-route-saved'
 import { usePlanInit, usePlanRide } from '../../../hooks/use-plan-ride'
 import { type RideFlowAction, useRideFlow } from '../../../hooks/use-ride-flow'
 import { useRouteComparison } from '../../../hooks/use-route-comparison'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { useToastMessages } from '../../../hooks/use-toast-messages'
+import { api } from '../../../server/convex/_generated/api'
+import type { Doc, Id } from '../../../server/convex/_generated/dataModel'
+import { decodePolylineGeometry } from '../../../server/lib/polyline'
+import type { RouteProvenance } from '../../../server/models/saved-routes'
+import type { PlanInput, RouteStop } from '../../../server/types/routes'
 import { useChatSessionStore } from '../../../stores/chat-session-store'
 
 type CameraState = {
@@ -257,7 +257,7 @@ const HomeMapScreen = () => {
   const hasActiveRoute = !!agentActiveOption
 
   // Curated route discovery pills (DISC-011)
-  const { routes: curatedDiscoveryRoutes } = useCuratedDiscovery({ sort: 'best', limit: 5 })
+  const { routes: curatedDiscoveryRoutes } = useCuratedDiscovery({ sort: 'nearest', limit: 5 })
   const curatedPills = (curatedDiscoveryRoutes ?? []).map((r) => ({
     label: `${r.name} · ${Math.round(r.distanceMi ?? 0)}mi`,
     routeId: r.id,
@@ -380,6 +380,18 @@ const HomeMapScreen = () => {
       )
     },
     [chatMode, sendPlanningMessage, currentLocation],
+  )
+
+  // Handle selecting a curated route from suggestion pills
+  const handleSelectCuratedRoute = useCallback(
+    (routeId: string) => {
+      // Find the route name from the curated discovery routes
+      const route = curatedDiscoveryRoutes?.find((r) => r.id === routeId)
+      const routeName = route?.name || `curated route ${routeId}`
+      // Send a message that the agent can interpret
+      handleSendMessage(`Show me curated route ${routeName}`)
+    },
+    [curatedDiscoveryRoutes, handleSendMessage],
   )
 
   // Cancel handler that routes to the appropriate cancel function
@@ -1360,72 +1372,6 @@ const HomeMapScreen = () => {
           />
         )}
 
-        {/* DISC-014: No-route empty home state — discovery invite + glass scrim */}
-        {!hasActiveRoute && !chatMode && transcriptMessages.length === 0 && (
-          <View
-            testID="home-empty-state"
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              bottom: insets.bottom + 200,
-              left: semantic.space.lg,
-              right: semantic.space.lg,
-              opacity: 0.72,
-              backgroundColor: semantic.color.surface.default,
-              paddingVertical: semantic.space.sm,
-              paddingHorizontal: semantic.space.md,
-              borderRadius: semantic.radius.md,
-            }}
-          >
-            <Text
-              style={[
-                semantic.type.body.md,
-                {
-                  color: semantic.color.onSurface.default,
-                  opacity: 0.6,
-                  fontStyle: 'italic',
-                  textAlign: 'center',
-                },
-              ]}
-            >
-              Discover roads near you
-            </Text>
-          </View>
-        )}
-
-        {/* DISC-014: Empty-catalog message when curatedPills is empty */}
-        {!hasActiveRoute && !chatMode && curatedPills.length === 0 && transcriptMessages.length === 0 && (
-          <View
-            testID="home-empty-catalog-message"
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              bottom: insets.bottom + 160,
-              left: semantic.space.lg,
-              right: semantic.space.lg,
-              opacity: 0.72,
-              backgroundColor: semantic.color.surface.default,
-              paddingVertical: semantic.space.sm,
-              paddingHorizontal: semantic.space.md,
-              borderRadius: semantic.radius.md,
-            }}
-          >
-            <Text
-              style={[
-                semantic.type.body.md,
-                {
-                  color: semantic.color.onSurface.default,
-                  opacity: 0.6,
-                  fontStyle: 'italic',
-                  textAlign: 'center',
-                },
-              ]}
-            >
-              No curated roads available in this area
-            </Text>
-          </View>
-        )}
-
         {/* Chat input - always visible at bottom */}
         <ChatInput
           onSend={handleSendMessage}
@@ -1441,6 +1387,7 @@ const HomeMapScreen = () => {
           hasMessages={transcriptMessages.length > 0}
           hasActiveRoute={hasActiveRoute}
           dispatch={(action: { type: string }) => flowDispatch(action as RideFlowAction)}
+          onSelectRoute={handleSelectCuratedRoute}
         />
 
         <PlanRideSheet

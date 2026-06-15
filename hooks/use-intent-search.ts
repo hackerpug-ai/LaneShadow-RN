@@ -7,10 +7,7 @@ import {
   topHitIntents,
   writeIntentCache,
 } from '../server/lib/discovery/intent/cache'
-import {
-  CURRENT_SCHEMA_VERSION,
-  normalizeIntent,
-} from '../server/lib/discovery/intent/normalize'
+import { CURRENT_SCHEMA_VERSION, normalizeIntent } from '../server/lib/discovery/intent/normalize'
 import { runParamsQuery } from '../server/lib/discovery/intent/params-to-sql'
 import type { IntentParams, IntentSearchState } from '../server/lib/discovery/intent/types'
 import { validateEnums } from '../server/lib/discovery/intent/validate'

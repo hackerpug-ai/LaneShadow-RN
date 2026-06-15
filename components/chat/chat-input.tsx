@@ -64,6 +64,8 @@ type ChatInputProps = {
   extraBottomOffset?: number
   /** Dispatch function for clearing error state */
   dispatch?: (action: { type: string }) => void
+  /** Handler for selecting a curated route from suggestion pills */
+  onSelectRoute?: (routeId: string) => void
 }
 
 /**
@@ -73,9 +75,11 @@ type ChatInputProps = {
 const SuggestionChips = ({
   suggestions,
   onSelect,
+  onSelectRoute,
 }: {
   suggestions: (string | CuratedPill)[]
   onSelect: (suggestion: string) => void
+  onSelectRoute?: (routeId: string) => void
 }) => {
   const { semantic } = useSemanticTheme()
 
@@ -95,7 +99,9 @@ const SuggestionChips = ({
         return (
           <TouchableOpacity
             key={routeId || index}
-            onPress={() => onSelect(label)}
+            onPress={() =>
+              isCurated && routeId && onSelectRoute ? onSelectRoute(routeId) : onSelect(label)
+            }
             testID={routeId ? `discovery-suggestion-pill-${routeId}` : undefined}
             style={[
               styles.chip,
@@ -105,7 +111,7 @@ const SuggestionChips = ({
                     borderColor: semantic.color.border.default,
                     borderRadius: semantic.radius.md,
                     minHeight: 44, // §6 constitution minTouchTarget
-                    backgroundColor: 'transparent',
+                    backgroundColor: semantic.color.surface.default,
                     paddingHorizontal: semantic.space.md,
                     paddingVertical: semantic.space.sm,
                   }
@@ -183,6 +189,7 @@ export const ChatInput = ({
   placeholder,
   extraBottomOffset = 0,
   dispatch,
+  onSelectRoute,
 }: ChatInputProps) => {
   const { semantic } = useSemanticTheme()
   const insets = useSafeAreaInsets()
@@ -259,7 +266,11 @@ export const ChatInput = ({
 
         {/* Suggestion chips when idle AND no active route */}
         {isIdle && !hasActiveRoute && suggestions.length > 0 && !isPlanning && !chatMode && (
-          <SuggestionChips suggestions={suggestions} onSelect={handleSelectSuggestion} />
+          <SuggestionChips
+            suggestions={suggestions}
+            onSelect={handleSelectSuggestion}
+            onSelectRoute={onSelectRoute}
+          />
         )}
 
         {/* Input row — glass field + standalone chat-view toggle to its right */}
@@ -351,9 +362,7 @@ export const ChatInput = ({
                   source="arrow-right"
                   size={iconSize}
                   color={
-                    hasText
-                      ? semantic.color.onPrimary.default
-                      : semantic.color.onSurface.muted
+                    hasText ? semantic.color.onPrimary.default : semantic.color.onSurface.muted
                   }
                 />
               </TouchableOpacity>
@@ -388,11 +397,7 @@ export const ChatInput = ({
               <Icon
                 source={chatMode ? 'map-outline' : 'chat-outline'}
                 size={iconSize + 2}
-                color={
-                  chatMode
-                    ? semantic.color.onPrimary.default
-                    : semantic.color.onSurface.muted
-                }
+                color={chatMode ? semantic.color.onPrimary.default : semantic.color.onSurface.muted}
               />
             </TouchableOpacity>
           )}

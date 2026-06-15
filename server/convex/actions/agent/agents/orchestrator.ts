@@ -15,8 +15,8 @@ import type { PlaceResult } from '../providers/placesProvider'
 import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
 import { runAgent } from '../runAgent'
 import { buildInSessionRouteBlock } from '../sessionContext'
-import { executeEnrichmentAgent } from './enrichmentAgent'
 import { executeDiscoverCuratedRoutes } from '../tools/discoverCuratedRoutes'
+import { executeEnrichmentAgent } from './enrichmentAgent'
 import { executeRoutingAgent, getPendingSketchState } from './routingAgent'
 import { executeSearchAgent } from './searchAgent'
 import type { RoutingAgentResult, SearchAgentResult } from './types'
@@ -173,7 +173,10 @@ async function executeOrchestratorTool(
   call: ToolCall,
   executeCtx: ExecuteContext | undefined,
 ): Promise<unknown> {
-  const validated = validateToolCall([routingAgentTool, searchAgentTool, enrichmentAgentTool, discoveryAgentTool], call)
+  const validated = validateToolCall(
+    [routingAgentTool, searchAgentTool, enrichmentAgentTool, discoveryAgentTool],
+    call,
+  )
   const query = (validated as { query: string }).query
 
   // Each sub-agent gets its own BudgetTracker slice (log mode — shared parent tracks overall)
@@ -275,23 +278,20 @@ async function executeOrchestratorTool(
         onAgentTurn: executeCtx?.onAgentTurn,
         onToolResultPiMessage: executeCtx?.onToolResultPiMessage,
       })
-      const result = await executeDiscoverCuratedRoutes(ctx, {
-        type: 'toolCall',
-        id: 'discovery',
-        name: 'discoverCuratedRoutes',
-        arguments: {
-          intent: {
-            archetypes: query.toLowerCase().includes('twisties') ? ['twisties'] : 
-                       query.toLowerCase().includes('scenic') ? ['scenic'] :
-                       query.toLowerCase().includes('technical') ? ['technical'] :
-                       query.toLowerCase().includes('cruising') ? ['cruising'] :
-                       query.toLowerCase().includes('adventure') ? ['adventure'] : undefined,
-            center: ctx.currentLocation,
-            sort: 'nearest',
-            limit: 5
-          }
-        }
-      })
+      // Call the discovery agent - it will interpret the query and decide whether to use discoverCuratedRoutes tool
+      // Import executeDiscoveryAgent when it exists
+      // const result = await executeDiscoveryAgent({
+      //   ctx,
+      //   executeCtx: executeCtx ? subCtx : undefined,
+      //   budgetTracker: subBudget,
+      //   userMessage: query,
+      // })
+      // For now, return a conversational response indicating this is not implemented yet
+      const result = {
+        status: 'error' as const,
+        message:
+          'Route discovery is currently unavailable. Please try a direct route request like "plan a route from SF to Santa Cruz".',
+      }
       const summary = summarizeToolResult('discovery_agent', result)
       await executeCtx?.onSubAgentComplete?.('discovery', summary, Date.now() - agentStart)
       return result

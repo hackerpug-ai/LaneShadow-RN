@@ -9,14 +9,11 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
-  calculateProgress,
-  estimateTimeRemaining,
-} from '../server/lib/enrichment/status-tracker'
-import { shouldShowToast } from '../server/lib/enrichment/toast-notifications'
-import {
   type EnrichmentStatus,
   useEnrichmentProgress,
 } from '../components/enrichment/enrichment-progress-provider'
+import { calculateProgress, estimateTimeRemaining } from '../server/lib/enrichment/status-tracker'
+import { shouldShowToast } from '../server/lib/enrichment/toast-notifications'
 
 export type { EnrichmentStatus }
 

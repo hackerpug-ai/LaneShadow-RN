@@ -14,5 +14,11 @@
     "vitest.d.ts",
     "../server/types/**/*.ts"
   ],
-  "exclude": ["workers/**", "scripts/**", "convex/**", "stories/**", "../server/convex/**"]
+  "exclude": [
+    "workers/**",
+    "scripts/**",
+    "convex/**",
+    "stories/**",
+    "../server/convex/**"
+  ]
 }

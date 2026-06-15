@@ -28,6 +28,8 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated'
+import { useSelectedRoute } from '../../contexts/selected-route'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { api } from '../../server/convex/_generated/api'
 import type { Id } from '../../server/convex/_generated/dataModel'
 import {
@@ -36,8 +38,6 @@ import {
   type RoutePlanStatus,
 } from '../../server/models/route-plans'
 import type { PlannedRouteOptionsView } from '../../server/types/routes'
-import { useSelectedRoute } from '../../contexts/selected-route'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import { CuratedRouteCard } from './cards/curated-route-card'
 import { RouteAttachmentCard } from './route-attachment-card'
 
@@ -245,7 +245,8 @@ const CompletedCard = ({ result, semantic, routePlanId, onViewOnMap }: Completed
       accessibilityLabel="Route options ready"
     >
       {result.options.map((option) => {
-        const isCurated = (option as unknown as { scores?: { composite?: number } }).scores?.composite != null
+        const isCurated =
+          (option as unknown as { scores?: { composite?: number } }).scores?.composite != null
         if (isCurated) {
           return (
             <CuratedRouteCard
@@ -253,7 +254,9 @@ const CompletedCard = ({ result, semantic, routePlanId, onViewOnMap }: Completed
               routeOptionId={option.routeOptionId}
               label={option.label}
               rationale={option.rationale}
-              compositeScore={(option as unknown as { scores: { composite: number } }).scores.composite}
+              compositeScore={
+                (option as unknown as { scores: { composite: number } }).scores.composite
+              }
               isSelected={option.routeOptionId === defaultSelectedRouteId}
               onSelect={() => {
                 setSelectedRouteId(option.routeOptionId)

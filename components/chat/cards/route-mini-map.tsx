@@ -18,7 +18,7 @@
  */
 
 import type { FeatureCollection, LineString, Position } from 'geojson'
-import { useMemo, useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { NativeModules, Platform, StyleSheet, View } from 'react-native'
 
 let Mapbox: typeof import('@rnmapbox/maps') | null = null
@@ -27,12 +27,13 @@ try {
     Mapbox = require('@rnmapbox/maps')
   }
 } catch {}
-import type { MapLatLng } from '../../../server/lib/polyline'
-import { decodePolylineGeometry } from '../../../server/lib/polyline'
-import type { PolylineGeometry } from '../../../server/models/saved-routes'
+
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 import { convertCoordinateArray } from '../../../lib/mapbox/coordinate-converter'
 import { MAP_STYLES } from '../../../lib/mapbox/styles'
+import type { MapLatLng } from '../../../server/lib/polyline'
+import { decodePolylineGeometry } from '../../../server/lib/polyline'
+import type { PolylineGeometry } from '../../../server/models/saved-routes'
 
 // ---------------------------------------------------------------------------
 // Types

@@ -186,10 +186,7 @@ function publishLegacyReportArtifacts(report: DesignReport): void {
     summary: report.summary,
   }
 
-  writeFileSync(
-    join(LEGACY_REPORT_DIR, 'report.json'),
-    JSON.stringify(legacyReport, null, 2),
-  )
+  writeFileSync(join(LEGACY_REPORT_DIR, 'report.json'), JSON.stringify(legacyReport, null, 2))
 
   const reportHtmlPath = join(DESIGN_REVIEW_DIR, 'report.html')
   if (existsSync(reportHtmlPath)) {

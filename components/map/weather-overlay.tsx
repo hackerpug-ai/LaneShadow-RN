@@ -2,6 +2,8 @@ import { LineLayer, ShapeSource } from '@rnmapbox/maps'
 import type { FeatureCollection, LineString } from 'geojson'
 import type { FC } from 'react'
 import { useMemo } from 'react'
+import { getRainColor, getTemperatureColor, getWindColor } from '../../lib/map/overlay-colors'
+import { convertCoordinateArray } from '../../lib/mapbox/coordinate-converter'
 import {
   computeCumulativeDistances,
   decodePolylineGeometry,
@@ -18,8 +20,6 @@ import type {
   WindOverlayByLeg,
   WindOverlaySegment,
 } from '../../server/models/saved-routes'
-import { getRainColor, getTemperatureColor, getWindColor } from '../../lib/map/overlay-colors'
-import { convertCoordinateArray } from '../../lib/mapbox/coordinate-converter'
 import type { ExtendedTheme } from '../../styles/types'
 
 // ---------------------------------------------------------------------------

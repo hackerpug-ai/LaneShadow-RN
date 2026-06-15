@@ -8,8 +8,8 @@
 
 import { LinearGradient } from 'expo-linear-gradient'
 import { StyleSheet, View } from 'react-native'
-import type { RouteStop } from '../../server/types/routes'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import type { RouteStop } from '../../server/types/routes'
 
 type RouteTimelineProps = {
   startPoint?: RouteStop | null

@@ -8,9 +8,9 @@
 import { useMemo } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import type { RouteStop } from '../server/models/saved-routes'
 import { usePlaceAutocomplete } from '../hooks/use-place-autocomplete'
 import { useSemanticTheme } from '../hooks/use-semantic-theme'
+import type { RouteStop } from '../server/models/saved-routes'
 import type { IconName } from './ui/icon-symbol'
 import { Input } from './ui/input'
 

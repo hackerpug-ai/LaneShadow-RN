@@ -1,7 +1,7 @@
 'use client'
 
 import { Pressable, StyleSheet, View } from 'react-native'
-import { Text } from 'react-native-paper'
+import { Icon, Text } from 'react-native-paper'
 import { useSemanticTheme } from '../../../hooks/use-semantic-theme'
 
 interface CuratedRouteCardProps {
@@ -23,8 +23,7 @@ export const CuratedRouteCard = ({
   onSelect,
 }: CuratedRouteCardProps) => {
   const { semantic } = useSemanticTheme()
-  const scorePercent =
-    compositeScore != null ? `${Math.round(compositeScore * 100)}/100` : null
+  const scorePercent = compositeScore != null ? `${Math.round(compositeScore * 100)}/100` : null
 
   return (
     <Pressable
@@ -47,20 +46,22 @@ export const CuratedRouteCard = ({
             },
           ]}
         >
-          <View style={[styles.header, { gap: semantic.space.xs }]}>
-            <Text
-              style={[
-                semantic.type.body.md,
-                {
-                  color: semantic.color.onSurface.default,
-                  fontWeight: '600',
-                  flex: 1,
-                },
-              ]}
-              numberOfLines={1}
-            >
-              {label}
-            </Text>
+          <View style={[styles.header, { gap: semantic.space.sm }]}>
+            <View style={styles.headerLeft}>
+              <Icon source="road-variant" size={18} color={semantic.color.primary.default} />
+              <Text
+                style={[
+                  semantic.type.body.md,
+                  {
+                    color: semantic.color.onSurface.default,
+                    fontWeight: '600',
+                  },
+                ]}
+                numberOfLines={1}
+              >
+                {label}
+              </Text>
+            </View>
             {scorePercent && (
               <Text
                 style={{
@@ -104,5 +105,12 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flex: 1,
   },
 })

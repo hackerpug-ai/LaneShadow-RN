@@ -9,8 +9,8 @@
  */
 
 import { StyleSheet, View } from 'react-native'
-import type { WindSummary } from '../../server/models/saved-routes'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import type { WindSummary } from '../../server/models/saved-routes'
 import { Badge } from '../ui/badge'
 
 export type WindBadgeProps = {

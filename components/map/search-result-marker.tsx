@@ -14,7 +14,9 @@ import { NativeModules } from 'react-native'
 const mapboxAvailable = NativeModules.RNMBXModule != null
 let MarkerView: any = null
 if (mapboxAvailable) {
-  try { ({ MarkerView } = require('@rnmapbox/maps')) } catch {}
+  try {
+    ;({ MarkerView } = require('@rnmapbox/maps'))
+  } catch {}
 }
 
 import * as Haptics from 'expo-haptics'

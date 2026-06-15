@@ -12,7 +12,9 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getMapbox } from '../lib/mapbox/native'
+
 const { offlineManager } = getMapbox() || { offlineManager: null }
+
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { DownloadQueue } from '../lib/mapbox/download-queue'

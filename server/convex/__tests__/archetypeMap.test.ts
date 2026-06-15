@@ -1,5 +1,10 @@
-import { describe, it, expect, assertType } from 'vitest'
-import { uiArchetypeToDbSet, dbArchetypeToUi, UiArchetype, DbArchetype } from '../util/archetypeMap'
+import { assertType, describe, expect, it } from 'vitest'
+import {
+  type DbArchetype,
+  dbArchetypeToUi,
+  type UiArchetype,
+  uiArchetypeToDbSet,
+} from '../util/archetypeMap'
 
 describe('uiArchetypeToDbSet', () => {
   it('maps scenic UI archetype to correct DB archetypes', () => {

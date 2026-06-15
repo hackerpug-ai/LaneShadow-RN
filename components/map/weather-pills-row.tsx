@@ -13,6 +13,7 @@
 
 import { StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import {
   getMaxTemperatureFahrenheit,
   getMaxWindSpeedMph,
@@ -22,7 +23,6 @@ import {
   type RainSummary,
   type RouteOverlays,
 } from '../../server/models/saved-routes'
-import { useSemanticTheme } from '../../hooks/use-semantic-theme'
 import type { IconName } from '../ui/icon-symbol'
 import { IconSymbol } from '../ui/icon-symbol'
 

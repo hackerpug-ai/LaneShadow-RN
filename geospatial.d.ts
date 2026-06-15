@@ -86,7 +86,9 @@ declare module '@mapbox/polyline' {
     str: string,
     precision?: number,
   ): { type: 'LineString'; coordinates: number[][] }
+
   export { decode, encode, toGeoJSON }
+
   const polyline: { decode: typeof decode; encode: typeof encode; toGeoJSON: typeof toGeoJSON }
   export default polyline
 }

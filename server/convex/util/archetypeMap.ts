@@ -1,5 +1,11 @@
 export type UiArchetype = 'twisties' | 'scenic' | 'technical' | 'cruising' | 'sport' | 'adventure'
-export type DbArchetype = 'twisties' | 'mountain' | 'coastal' | 'adventure' | 'scenic_byway' | 'desert'
+export type DbArchetype =
+  | 'twisties'
+  | 'mountain'
+  | 'coastal'
+  | 'adventure'
+  | 'scenic_byway'
+  | 'desert'
 
 const UI_TO_DB: Record<UiArchetype, DbArchetype[]> = {
   scenic: ['scenic_byway', 'coastal'],

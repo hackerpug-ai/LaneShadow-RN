@@ -1,6 +1,6 @@
 #!/usr/bin/env -S pnpm tsx
 
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { buildManifest } from '../build-manifest.ts'

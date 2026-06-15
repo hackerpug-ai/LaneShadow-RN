@@ -135,7 +135,8 @@
       "type": "line",
       "source": "composite",
       "source-layer": "road",
-      "filter": ["all",
+      "filter": [
+        "all",
         ["==", ["get", "structure"], "tunnel"],
         ["in", ["get", "class"], ["literal", ["street", "street_limited"]]]
       ],
@@ -231,7 +232,8 @@
       "type": "line",
       "source": "composite",
       "source-layer": "road",
-      "filter": ["all",
+      "filter": [
+        "all",
         ["==", ["get", "structure"], "bridge"],
         ["in", ["get", "class"], ["literal", ["motorway", "trunk"]]]
       ],
@@ -269,7 +271,11 @@
       "source": "composite",
       "source-layer": "road",
       "minzoom": 12,
-      "filter": ["in", ["get", "class"], ["literal", ["motorway", "trunk", "primary", "secondary", "tertiary", "street"]]],
+      "filter": [
+        "in",
+        ["get", "class"],
+        ["literal", ["motorway", "trunk", "primary", "secondary", "tertiary", "street"]]
+      ],
       "layout": {
         "text-field": ["coalesce", ["get", "name_en"], ["get", "name"]],
         "text-font": ["DIN Offc Pro Regular", "Arial Unicode MS Regular"],
