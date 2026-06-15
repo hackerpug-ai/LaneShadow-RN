@@ -21,6 +21,12 @@ export type SearchAgentResult =
   | { status: 'answered'; data: unknown; summary: string }
   | { status: 'not_applicable'; reason: string }
 
+export type DiscoveryAgentResult =
+  | { status: 'discovered'; routePlanId: Id<'route_plans'>; summary: string }
+  | { status: 'no_routes'; message: string }
+  | { status: 'needs_clarification'; question: string }
+  | { status: 'failed'; reason: string }
+
 // -----------------------------------------------------------------------------
 // Sub-agent config (shared across all sub-agents in the orchestrator)
 // -----------------------------------------------------------------------------

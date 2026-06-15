@@ -25,6 +25,7 @@ import { executeRidePlanningAgent } from './ridePlanningAgent'
 export const TOOL_TO_CARD_KIND: Record<string, SessionMessageKind> = {
   planRoute: 'routing_card',
   compileSketch: 'routing_card',
+  discoverCuratedRoutes: 'routing_card',
 }
 
 // ---------------------------------------------------------------------------

@@ -16,6 +16,7 @@ import type { AgentContext, ExecuteContext } from '../ridePlanningAgent'
 import { runAgent } from '../runAgent'
 import { buildInSessionRouteBlock } from '../sessionContext'
 import { executeEnrichmentAgent } from './enrichmentAgent'
+import { executeDiscoveryAgent } from './discoveryAgent'
 import { executeRoutingAgent, getPendingSketchState } from './routingAgent'
 import { executeSearchAgent } from './searchAgent'
 import type { RoutingAgentResult, SearchAgentResult } from './types'
@@ -64,9 +65,9 @@ export function determineAvailableTools(hasRoutes: boolean, hasPendingSketch: bo
     return [routingAgentTool]
   }
   if (hasRoutes) {
-    return [routingAgentTool, searchAgentTool, enrichmentAgentTool]
+    return [routingAgentTool, searchAgentTool, enrichmentAgentTool, discoveryAgentTool]
   }
-  return [routingAgentTool, searchAgentTool]
+  return [routingAgentTool, searchAgentTool, discoveryAgentTool]
 }
 
 // -----------------------------------------------------------------------------
@@ -105,6 +106,13 @@ const enrichmentAgentTool: Tool = {
   parameters: subAgentQuerySchema,
 }
 
+const discoveryAgentTool: Tool = {
+  name: 'discovery_agent',
+  description:
+    'Specialist for discovering curated motorcycle routes based on rider preferences and location. Call when the rider wants to explore routes matching specific archetypes or in certain areas.',
+  parameters: subAgentQuerySchema,
+}
+
 // -----------------------------------------------------------------------------
 // Orchestrator prompt (~15 lines)
 // -----------------------------------------------------------------------------
@@ -125,6 +133,8 @@ export function buildOrchestratorPrompt(ctx: AgentContext, availableTools: strin
         return '- search_agent: nearby places, web search, general questions'
       if (name === 'enrichment_agent')
         return '- enrichment_agent: analyze the existing route (surface, weather, elevation, etc.)'
+      if (name === 'discovery_agent')
+        return '- discovery_agent: discover curated routes by archetype/location'
       return `- ${name}`
     })
     .join('\n')
@@ -140,11 +150,12 @@ ${toolLines}
 - Route requests ("take me somewhere", "plan a ride to X") → routing_agent
 - Nearby places, road closures, general knowledge → search_agent
 - Questions about an existing route (twisty? surface? weather?) → enrichment_agent
+- Route discovery ("twisties near Asheville", "scenic routes in Oregon") → discovery_agent
 - If the rider asks for multiple things, handle them one at a time — observe results before deciding the next step
 - Greetings, thanks, and off-topic messages → respond directly, no specialist needed
 
 ## IMPORTANT: Always use your tools
-When the rider asks for a route, search, or question about a route — you MUST call the appropriate specialist tool. Do NOT respond with text instead of calling a tool. Your text response comes AFTER the tool returns results.
+When the rider asks for a route, search, question about a route, or route discovery — you MUST call the appropriate specialist tool. Do NOT respond with text instead of calling a tool. Your text response comes AFTER the tool returns results.
 
 ## Thinking style
 When reasoning (in extended thinking / chain-of-thought), use plain rider-friendly language — your thinking is displayed as a planning indicator. Say "scenic coastal route via Big Sur" not "calling routing_agent with geocoded coordinates".
@@ -162,7 +173,7 @@ async function executeOrchestratorTool(
   call: ToolCall,
   executeCtx: ExecuteContext | undefined,
 ): Promise<unknown> {
-  const validated = validateToolCall([routingAgentTool, searchAgentTool, enrichmentAgentTool], call)
+  const validated = validateToolCall([routingAgentTool, searchAgentTool, enrichmentAgentTool, discoveryAgentTool], call)
   const query = (validated as { query: string }).query
 
   // Each sub-agent gets its own BudgetTracker slice (log mode — shared parent tracks overall)
@@ -257,6 +268,21 @@ async function executeOrchestratorTool(
       })
       const summary = summarizeToolResult('enrichment_agent', result)
       await executeCtx?.onSubAgentComplete?.('enrichment', summary, Date.now() - agentStart)
+      return result
+    }
+    case 'discovery_agent': {
+      const subCtx = buildSubAgentCtx('discovery', {
+        onAgentTurn: executeCtx?.onAgentTurn,
+        onToolResultPiMessage: executeCtx?.onToolResultPiMessage,
+      })
+      const result = await executeDiscoveryAgent({
+        ctx,
+        executeCtx: executeCtx ? subCtx : undefined,
+        budgetTracker: subBudget,
+        userMessage: query,
+      })
+      const summary = summarizeToolResult('discovery_agent', result)
+      await executeCtx?.onSubAgentComplete?.('discovery', summary, Date.now() - agentStart)
       return result
     }
     default:
