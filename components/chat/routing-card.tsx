@@ -38,6 +38,7 @@ import {
 import type { PlannedRouteOptionsView } from '../../server/types/routes'
 import { useSelectedRoute } from '../../contexts/selected-route'
 import { useSemanticTheme } from '../../hooks/use-semantic-theme'
+import { CuratedRouteCard } from './cards/curated-route-card'
 import { RouteAttachmentCard } from './route-attachment-card'
 
 // ---------------------------------------------------------------------------
@@ -243,23 +244,43 @@ const CompletedCard = ({ result, semantic, routePlanId, onViewOnMap }: Completed
       accessibilityLiveRegion="polite"
       accessibilityLabel="Route options ready"
     >
-      {result.options.map((option) => (
-        <RouteAttachmentCard
-          key={option.routeOptionId}
-          route={option}
-          isSelected={option.routeOptionId === defaultSelectedRouteId}
-          onSelect={() => {
-            setSelectedRouteId(option.routeOptionId)
-            setDisplayedRoutePlanId(routePlanId)
-            requestFitToRouteWithReset()
-          }}
-          onViewOnMap={() => {
-            onViewOnMap?.()
-          }}
-          variant="full"
-          testID={`routing-card-route-${option.routeOptionId}`}
-        />
-      ))}
+      {result.options.map((option) => {
+        const isCurated = (option as unknown as { scores?: { composite?: number } }).scores?.composite != null
+        if (isCurated) {
+          return (
+            <CuratedRouteCard
+              key={option.routeOptionId}
+              routeOptionId={option.routeOptionId}
+              label={option.label}
+              rationale={option.rationale}
+              compositeScore={(option as unknown as { scores: { composite: number } }).scores.composite}
+              isSelected={option.routeOptionId === defaultSelectedRouteId}
+              onSelect={() => {
+                setSelectedRouteId(option.routeOptionId)
+                setDisplayedRoutePlanId(routePlanId)
+                requestFitToRouteWithReset()
+              }}
+            />
+          )
+        }
+        return (
+          <RouteAttachmentCard
+            key={option.routeOptionId}
+            route={option}
+            isSelected={option.routeOptionId === defaultSelectedRouteId}
+            onSelect={() => {
+              setSelectedRouteId(option.routeOptionId)
+              setDisplayedRoutePlanId(routePlanId)
+              requestFitToRouteWithReset()
+            }}
+            onViewOnMap={() => {
+              onViewOnMap?.()
+            }}
+            variant="full"
+            testID={`routing-card-route-${option.routeOptionId}`}
+          />
+        )
+      })}
     </View>
   )
 }

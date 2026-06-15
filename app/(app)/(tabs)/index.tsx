@@ -496,7 +496,8 @@ const HomeMapScreen = () => {
       return
     }
     const coords = decodePolylineGeometry(agentActiveOption.map.overviewGeometry)
-    if (coords.length > 0) {
+    if (coords.length > 1) {
+      // Multi-point: fit to the polyline bounds
       // Pad enough to clear the floating header (safe area top + header ~72)
       // and the bottom input bar + suggestions (~160 + safe area bottom).
       const padTop = insets.top + 80
@@ -506,6 +507,12 @@ const HomeMapScreen = () => {
         right: 60,
         bottom: padBottom,
         left: 60,
+      })
+    } else if (coords.length === 1) {
+      // DISC-012 AC-3: centroid-only curated route — center on the single point
+      mapRef.current.setCameraPosition({
+        coordinates: coords[0],
+        zoom: 12,
       })
     }
     // Clear the flag after fitting so subsequent chat/map toggles preserve position
