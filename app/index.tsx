@@ -35,7 +35,7 @@ const Index = () => {
 
     // If user is not signed in, go to discover (auth screen will show)
     if (!isSignedIn) {
-      setRedirectTarget('/(app)/(tabs)/discover')
+      setRedirectTarget('/(app)/(tabs)')
       return
     }
 
@@ -45,7 +45,7 @@ const Index = () => {
     }
 
     // Discovery is the default landing. Sessions are accessible from the drawer.
-    setRedirectTarget('/(app)/(tabs)/discover')
+    setRedirectTarget('/(app)/(tabs)')
   }, [clerkLoaded, isSignedIn, isLoading, sessions, redirectTarget])
 
   // While determining redirect, show nothing

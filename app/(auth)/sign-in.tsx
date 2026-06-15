@@ -60,7 +60,7 @@ export const SignInScreen = () => {
   }, [])
 
   const onAuthSuccess = () => {
-    router.replace('/(app)/(tabs)/discover' as any)
+    router.replace('/(app)/(tabs)' as any)
   }
 
   const googleFlow = useOAuthFlow(OAUTH_FLOW_PROVIDERS.google, {

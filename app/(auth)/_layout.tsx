@@ -22,7 +22,7 @@ export const AuthLayout = () => {
         </Stack>
       </Unauthenticated>
       <Authenticated>
-        <Redirect href={'/(app)/(tabs)/discover' as any} />
+        <Redirect href={'/(app)/(tabs)' as any} />
       </Authenticated>
     </>
   )

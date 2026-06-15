@@ -61,7 +61,7 @@ export const ClerkTasksScreen = () => {
         variant="default"
         size="2xl"
         onPress={() => {
-          router.replace('/(app)/(tabs)/discover' as any)
+          router.replace('/(app)/(tabs)' as any)
         }}
       >
         Try continue
