@@ -1,34 +1,54 @@
 #!/usr/bin/env node
 
-import { execSync } from 'child_process'
-import { readFileSync, writeFileSync } from 'fs'
+import { execSync, spawnSync } from 'child_process'
+import { readFileSync, writeFileSync, existsSync, rmSync } from 'fs'
 import { join } from 'path'
 
 const SERVER_DIR = 'server'
 const TEMP_OUTPUT_FILE = join(SERVER_DIR, 'function-spec-temp.json')
 
+function cleanupTempFile() {
+  if (existsSync(TEMP_OUTPUT_FILE)) {
+    try {
+      rmSync(TEMP_OUTPUT_FILE)
+    } catch (error) {
+      // Best effort cleanup - don't fail the health check if cleanup fails
+    }
+  }
+}
+
 function checkConvexHealth() {
+  // Ensure temp file is clean before starting
+  cleanupTempFile()
+
   try {
-    // Save function-spec output to temp file
-    execSync('npx convex function-spec > function-spec-temp.json', {
+    // Use spawnSync instead of execSync to avoid shell redirection issues
+    const { status, stdout, stderr } = spawnSync('npx', ['convex', 'function-spec'], {
       cwd: SERVER_DIR,
       encoding: 'utf8',
       timeout: 30000,
     })
 
-    // Read and parse the JSON file
-    const stdout = readFileSync(TEMP_OUTPUT_FILE, 'utf8')
+    if (status !== 0) {
+      throw new Error(`convex function-spec failed: ${stderr || 'Unknown error'}`)
+    }
+
+    // Parse the JSON output directly
     const spec = JSON.parse(stdout)
 
     if (!spec.functions || !Array.isArray(spec.functions)) {
-      console.error('❌ Expected spec.functions to be an array')
+      console.error('❌ Invalid function-spec output: expected functions array')
+      console.error('   This indicates a malformed response from Convex')
+      console.error('   Is `convex dev` running from server/?')
       process.exit(1)
     }
 
     const functions = spec.functions
 
     if (functions.length === 0) {
-      console.error('❌ Convex deployment is empty - is `convex dev` running from server/?')
+      console.error('❌ Empty Convex deployment detected')
+      console.error('   No functions found in deployment')
+      console.error('   Please start `convex dev` from server/ directory')
       console.error('   Expected functions but got empty list')
       process.exit(1)
     }
@@ -38,9 +58,7 @@ function checkConvexHealth() {
     )
 
     if (!hasListCuratedRoutes) {
-      console.error(
-        '❌ Convex deployment missing required function: curatedRoutes.js:listCuratedRoutes',
-      )
+      console.error('❌ Convex deployment missing required function: curatedRoutes.js:listCuratedRoutes')
       console.error('   Available functions:')
       functions.slice(0, 5).forEach((fn) => {
         console.error(`   - ${fn.identifier}`)
@@ -50,6 +68,7 @@ function checkConvexHealth() {
       }
       console.error('')
       console.error('   Is `convex dev` running from server/?')
+      console.error('   If running, check that curatedRoutes.ts exports listCuratedRoutes')
       process.exit(1)
     }
 
@@ -58,9 +77,38 @@ function checkConvexHealth() {
     )
     return functions.length
   } catch (error) {
-    console.error('❌ Health check failed:', error.message)
-    process.exit(1)
+    // Clean up temp file in case of error
+    cleanupTempFile()
+
+    // Handle different error types with specific messages
+    if (error.message.includes('No CONVEX_DEPLOYMENT set')) {
+      console.error('❌ Convex deployment not configured')
+      console.error('   Please run `npx convex dev` from server/ directory to start deployment')
+      console.error('   This script requires a running Convex dev deployment')
+      process.exit(1)
+    } else if (error.message.includes('command failed')) {
+      console.error('❌ Convex command failed')
+      console.error('   Please ensure convex dev is running from server/')
+      console.error('   Error details:', error.message)
+      process.exit(1)
+    } else if (error.message.includes('timed out')) {
+      console.error('❌ Convex command timed out after 30 seconds')
+      console.error('   Please ensure convex dev is running and responsive')
+      console.error('   Check server/convex dev logs for issues')
+      process.exit(1)
+    } else {
+      console.error('❌ Health check failed:', error.message)
+      console.error('   Please ensure convex dev is running from server/')
+      process.exit(1)
+    }
   }
 }
 
-checkConvexHealth()
+// Run the check
+try {
+  checkConvexHealth()
+} catch (error) {
+  // Final cleanup and exit
+  cleanupTempFile()
+  process.exit(1)
+}
