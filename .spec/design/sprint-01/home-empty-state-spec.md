@@ -1,139 +1,152 @@
-# Home Empty State Spec
+# Home Empty State Design Spec
 
 **Task:** DESIGN-S01-003
-**Sprint:** sprint-01
-**Status:** Draft
-
-## 1. Gating Condition
-
-### Show When
-```typescript
-hasActiveRoute === false && transcriptMessages.length === 0
-```
-
-### Signal Sources
-
-| Signal | Source Location | Note |
-|--------|-----------------|------|
-| `hasActiveRoute` | `app/(app)/(tabs)/index.tsx` line 257 | Derived from `!!agentActiveOption` |
-| `transcriptMessages` | `app/(app)/(tabs)/index.tsx` | `rawTranscriptMessages` filtered array from `useQuery(api.db.sessionMessages.list, ...)` |
-
-### TestID
-- **Value:** `home-empty-state` (on the overlay View or its wrapper)
-- **Authority:** 07-ui-infrastructure.md §6 testID registry
-
-## 2. Copy Strings and Typography
-
-### Discovery Invite (Primary Copy)
-
-| Property | Value | Token Path | Resolved (Light) | Resolved (Dark) |
-|----------|-------|------------|------------------|-----------------|
-| Copy text | "Discover roads near you" | — | — | — |
-| Font size | — | `semantic.type.body.md.fontSize` | 12pt | 12pt |
-| Line height | — | `semantic.type.body.md.lineHeight` | 18pt | 18pt |
-| Font weight | — | `semantic.type.body.md.fontWeight` | 400 | 400 |
-| Font style | — | `italic` | italic | italic |
-| Color | — | `semantic.color.onSurface.muted` | #9CA3AF | #9CA3AF |
-
-### Empty Catalog (Secondary Copy)
-
-| Property | Value | Token Path | Resolved (Light) | Resolved (Dark) |
-|----------|-------|------------|------------------|-----------------|
-| Copy text | "No routes near you yet" | — | — | — |
-| Font size | — | `semantic.type.body.sm.fontSize` | 11pt | 11pt |
-| Line height | — | `semantic.type.body.sm.lineHeight` | 16pt | 16pt |
-| Font weight | — | `semantic.type.body.sm.fontWeight` | 400 | 400 |
-| Color | — | `semantic.color.onSurface.muted` | #9CA3AF | #9CA3AF |
-
-### Gating for Empty Catalog
-
-```typescript
-// Show empty catalog only when routes are empty
-useCuratedDiscovery({ isEmpty: true }) === true
-
-// Hide during loading
-useCuratedDiscovery({ isLoading: true }) === true
-
-// Hide when routes exist
-useCuratedDiscovery({ routes: [...] }).length > 0
-```
-
-**Rule:** Empty catalog line shows ONLY when `isEmpty === true`; hidden during loading and when routes exist.
-
-## 3. Layout and Visual Spec
-
-### Container Properties
-
-| Property | Token Path | Resolved (Light) | Resolved (Dark) |
-|----------|------------|------------------|-----------------|
-| Background | `semantic.color.surface.glass` | rgba(253,251,248,0.72) | rgba(45,34,24,0.72) |
-| Border Radius | `semantic.radius.lg` | 14pt | 14pt |
-| Padding Horizontal | `semantic.space.xl` | 24pt | 24pt |
-| Padding Vertical | `semantic.space.lg` | 16pt | 16pt |
-| Elevation | `semantic.elevation[2]` | shadowOpacity 0.21, shadowRadius 6, elevation 2 | shadowOpacity 0.21, shadowRadius 6, elevation 2 |
-
-### Positioning
-
-| Property | Value | Token Path | Note |
-|----------|-------|------------|------|
-| Position | `absolute` | — | Fixed position over map |
-| Bottom | ChatInput height + `semantic.space.md` margin | `semantic.space.md` = 12pt | OR use `marginBottom` from ChatInput `bottomOffset` prop |
-| Alignment | Centered horizontally | — | Via `alignSelf: 'center'` OR `left: 0, right: 0` with `alignItems: 'center'` |
-| Text Alignment | `center` | — | Center text within container |
-
-### Note: `surface.glass` vs `surface.overlay`
-
-**MUST use `surface.glass` (72% alpha), NOT `surface.overlay` (92% alpha):**
-
-| Token | Alpha | Use Case |
-|-------|-------|----------|
-| `color.surface.glass` | 72% | Glassmorphic overlays over map (this spec) |
-| `color.surface.overlay` | 92% | Modal overlays (NOT for this use case) |
-
-**Authority:** 10-design-system.md §1 glassmorphic overlay rule
-
-## 4. zIndex and Interaction Model
-
-### zIndex Value
-```typescript
-zIndex: 10
-```
-
-### Rationale
-- **ChatInput zIndex:** 20 (defined in `chat-input.tsx` StyleSheet line 417)
-- **Empty-state overlay zIndex:** 10 (must be **below** ChatInput)
-- **Why:** Empty-state must not intercept suggestion pill tap events; suggestion chips (testID `chat-input-suggestion-chips`) must remain tappable
-
-### Pointer Events
-
-```typescript
-pointerEvents="none"
-```
-
-**Rationale:**
-- Overlay is purely informational
-- Must NOT block taps on the suggestion chips area
-- Touch passes through to suggestion pills below
-
-### Interaction Flow
-
-1. **Initial state:** No route on map, no transcript messages → empty-state overlay visible
-2. **Tap suggestion pill:** Routes appear on map → `hasActiveRoute` becomes true → overlay hides
-3. **Clear route:** `hasActiveRoute` becomes false → overlay re-shows (if transcript still empty)
-4. **User types message:** `transcriptMessages.length > 0` → overlay hides
-5. **Chat mode active:** Overlay hidden per gating condition
+**Test ID:** `home-empty-state`
+**Sprint:** 01 — Discovery on the Route Plan View
 
 ---
 
-**Token Authority References:**
-- `tokens/semantic/colors.tokens.json` (lines 26-30): `color.surface.glass` (72% alpha)
-- `tokens/semantic/colors.tokens.json` (lines 21-24): `color.surface.overlay` (92% alpha) — NOT for this use case
-- `tokens/semantic/semantic.tokens.json` (lines 576-579): `semantic.radius.lg` (14pt)
-- `tokens/semantic/semantic.tokens.json` (lines 546-549): `semantic.space.xl` (24pt)
-- `tokens/semantic/semantic.tokens.json` (lines 542-545): `semantic.space.lg` (16pt)
-- `tokens/semantic/semantic.tokens.json` (lines 534-537): `semantic.space.md` (12pt)
-- `tokens/semantic/semantic.tokens.json` (lines 639-651): `semantic.type.body.md` (fontSize 12, lineHeight 18, fontWeight 400)
-- `tokens/semantic/semantic.tokens.json` (lines 632-638): `semantic.type.body.sm` (fontSize 11, lineHeight 16, fontWeight 400)
-- `tokens/semantic/semantic.tokens.json` (lines 53-57): `semantic.color.onSurface.muted`
-- `tokens/semantic/semantic.tokens.json` (lines 873-900): `semantic.elevation[2]`
-- `components/chat/chat-input.tsx` (line 417): `styles.container.zIndex: 20` — ChatInput baseline zIndex
+## Gating Condition
+
+The empty-state overlay displays ONLY when BOTH of the following conditions are true:
+
+```
+hasActiveRoute === false AND transcriptMessages.length === 0
+```
+
+### Source Definitions
+
+- **`hasActiveRoute`**: Derived from `!!agentActiveOption` in `app/(app)/(tabs)/index.tsx` line 257
+- **`transcriptMessages`**: The filtered array of session messages from `useQuery(api.db.sessionMessages.list, ...)` in `index.tsx`
+
+### Behavior
+
+- **Visible** when: No route is active AND no transcript messages exist (fresh home state)
+- **Hidden** when: A route appears on the map OR any transcript message exists
+- **Re-shows** when: Route is cleared and no messages remain
+
+---
+
+## Copy Strings and Typography
+
+### Discovery Invite Line
+
+**Copy:** `"Discover roads near you"`
+
+**Typography:**
+- Token: `semantic.type.body.md`
+- Font size: `12pt`
+- Line height: `18pt`
+- Font weight: `400`
+- Font style: `italic`
+
+**Color:**
+- Token: `semantic.color.onSurface.muted`
+
+---
+
+### Empty Catalog Line
+
+**Copy:** `"No routes near you yet"`
+
+**Gating Condition:** Shown ONLY when `useCuratedDiscovery` returns `isEmpty === true` (routes array is empty). Hidden during loading (`isLoading === true`) and hidden when routes exist.
+
+**Typography:**
+- Token: `semantic.type.body.sm`
+- Font size: `11pt`
+- Line height: `16pt`
+- Font weight: `400`
+
+**Color:**
+- Token: `semantic.color.onSurface.muted`
+
+---
+
+## Layout and Visual Spec
+
+### Container
+
+**Background:**
+- Token: `semantic.color.surface.glass`
+- Light mode: `rgba(253,251,248,0.72)` — 72% alpha
+- Dark mode: `rgba(45,34,24,0.72)` — 72% alpha
+- **NOT** `semantic.color.surface.overlay` (which is 92% alpha)
+
+**Border Radius:**
+- Token: `semantic.radius.lg`
+- Value: `14pt`
+
+**Padding:**
+- Horizontal: `semantic.space.xl` — `24pt`
+- Vertical: `semantic.space.lg` — `16pt`
+
+**Elevation:**
+- Token: `semantic.elevation[2]`
+
+### Positioning
+
+- Position: `absolute`
+- Bottom: Positioned above the ChatInput component
+- Bottom offset: ChatInput height (~90pt including suggestion chips) + `semantic.space.md` (12pt) margin
+- **Alternative:** Use ChatInput's `bottomOffset` prop via component's own marginBottom
+
+### Alignment
+
+- Horizontal: `alignSelf: 'center'` OR `left: 0, right: 0` with `alignItems: 'center'`
+- Text alignment: `center`
+
+---
+
+## zIndex and Interaction Model
+
+### zIndex Value
+
+**zIndex:** `10`
+
+### Rationale
+
+The ChatInput component uses `zIndex: 20` (defined in `components/chat/chat-input.tsx` StyleSheet line 417). The empty-state overlay MUST render below ChatInput so that suggestion pill tap events pass through to the ChatInput.
+
+**Rule:** The empty-state overlay MUST have zIndex ≤ 10 to ensure it does not intercept touch events on the suggestion chips (testID `chat-input-suggestion-chips`).
+
+### Pointer Events
+
+The overlay View should have:
+
+```tsx
+pointerEvents="none"
+```
+
+**Rationale:** The overlay is purely informational. Setting `pointerEvents="none"` ensures that taps on the suggestion chips area are NOT blocked by the empty-state overlay.
+
+### Interaction Flow
+
+1. User opens app with no route → Empty-state overlay is visible
+2. User taps a suggestion pill → Route appears → Empty-state overlay is hidden
+3. User clears the route → Empty-state overlay re-appears (if no messages exist)
+
+---
+
+## Token Reference Summary
+
+| Purpose | Token Path |
+|---------|------------|
+| Background | `semantic.color.surface.glass` |
+| Copy color | `semantic.color.onSurface.muted` |
+| Discovery typography | `semantic.type.body.md` |
+| Empty catalog typography | `semantic.type.body.sm` |
+| Border radius | `semantic.radius.lg` |
+| Padding horizontal | `semantic.space.xl` |
+| Padding vertical | `semantic.space.lg` |
+| Bottom margin | `semantic.space.md` |
+| Elevation | `semantic.elevation[2]` |
+
+---
+
+## Implementation Notes
+
+1. **testID**: The overlay View or its wrapper MUST have `testID="home-empty-state"` for automated testing
+2. **No hardcoded colors**: All colors MUST use semantic token paths via `useSemanticTheme()`
+3. **Do NOT use `surface.overlay`**: The overlay token is 92% alpha and is reserved for modals. This component uses the 72% alpha `surface.glass` token.
+4. **Two-variant copy**: The discovery invite line is always shown; the empty catalog line is conditionally shown based on `useCuratedDiscovery.isEmpty`
+5. **Font style italic**: The discovery invite line requires `fontStyle: 'italic'` — this is intentional design, not a typo
