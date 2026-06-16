@@ -2,7 +2,7 @@
 delta_id: DELTA-001
 title: Discovery as the map + chat conversation (remove the dedicated Discover screen)
 stability: FEATURE_SPEC
-status: approved — folded into Sprint 01
+status: folded into the canonical PRD body at v3.0.0 (2026-06-15)
 added: 2026-06-14
 added_after: project start / Sprint 01 already in flight
 implement_in: sprint-01 (folded in via kb-sprint-plan --delta-replan, 2026-06-14)
@@ -17,7 +17,9 @@ supersedes_at_implementation:
 
 # DELTA-001 — Discovery as the map + chat conversation
 
-> **This is a post-start delta, now folded into Sprint 01.** Added **2026-06-14**, *after* the PRD was authored and *after* Sprint 01 was already In Progress on the dedicated-screen approach. It was first approved as *deferred*; on **2026-06-14** the product owner pulled it **into Sprint 01** via `kb-sprint-plan --delta-replan` — Sprint 01 was reframed from "Live Discovery Home" to **"Discovery on the Map/Chat Home"**, the former legibility sprint and the deferred delta sprint were **absorbed**, and the capstone was **re-pointed** at the unified home. The in-flight dedicated-screen work (DISC-001/003/004) is **reworked, not kept**. The v1.1.0 use cases / routing remain the historical record of the dedicated-screen approach; the live plan is [ROADMAP.md](./ROADMAP.md) Sprint 01.
+> **✅ Folded into the canonical PRD body at v3.0.0 (2026-06-15).** This delta is now **historical record**. Its content is canonical in [01-scope.md](./01-scope.md), [03-functional-groups.md](./03-functional-groups.md), [05-uc-disc.md](./05-uc-disc.md) (UC-DISC-09/10/11), and [09-technical-requirements/09-routing.md](./09-technical-requirements/09-routing.md) (Route Delta v3.0.0). v3.0.0 went one step further than this delta: it **removes the separate discovery view entirely** and tightens discovery to **curated-route suggestion cards over the chat input + chat-driven NL discovery** — no archetype filter-bar, sort-toggle, or by-state browse picker.
+
+> **This was a post-start delta.** Added **2026-06-14**, *after* the PRD was authored and *after* Sprint 01 was already In Progress on the dedicated-screen approach. It was first approved as *deferred*; on **2026-06-14** the product owner pulled it **into Sprint 01** via `kb-sprint-plan --delta-replan` — Sprint 01 was reframed from "Live Discovery Home" to **"Discovery on the Map/Chat Home"**, the former legibility sprint and the deferred delta sprint were **absorbed**, and the capstone was **re-pointed** at the unified home. The in-flight dedicated-screen work (DISC-001/003/004) is **reworked, not kept**. The v1.1.0 use cases / routing remain the historical record of the dedicated-screen approach; the live plan is [ROADMAP.md](./ROADMAP.md) Sprint 01.
 
 ## 1. The core insight
 

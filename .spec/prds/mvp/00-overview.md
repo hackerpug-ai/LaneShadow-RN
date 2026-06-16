@@ -1,12 +1,12 @@
 ---
 stability: PRODUCT_CONTEXT
-last_validated: 2026-06-14
-prd_version: 2.0.0
+last_validated: 2026-06-15
+prd_version: 3.0.0
 ---
 
 ## LaneShadow Discovery-MVP
 
-> **⚠️ DELTA-001 (v2.0.0, folded into Sprint 01):** A post-start delta refines the solution below. Instead of a **dedicated Discovery screen** with the chat agent demoted, discovery becomes the behavior of the **single map + chat home**: curated-route suggestion pills (when no route is on the map) plus curated routes surfaced as the existing chat route-cards that render on the map — natural-language discovery in scope. Sprint 01 now delivers this directly — the earlier dedicated-screen plan is superseded. See [DELTA-001](./DELTA-001-unified-map-chat-discovery.md).
+> **✅ v3.0.0 (2026-06-15): the separate discovery view is removed.** Discovery is the behavior of the **route plan view** (the single map + chat home), not a dedicated screen: curated-route **suggestion cards** over the chat input (tap → plot) plus **chat-driven natural-language curated discovery** surfaced as the existing route-cards that render on the map. There is no dedicated Discovery screen and no structured filter/sort/state-browse UI. This folds [DELTA-001](./DELTA-001-unified-map-chat-discovery.md) into the canonical solution below.
 
 ### What this is
 
@@ -29,9 +29,9 @@ So LaneShadow has the engine (curated data) and the dashboard (discovery UI) but
 
 ### The solution: re-anchor on Discovery
 
-This MVP corrects the drift by making Discovery the default home and wiring it to the real catalog:
+This MVP corrects the drift by making discovery the behavior of the route plan view (the app's home) and wiring it to the real catalog:
 
-1. **Promote Discovery to the default home screen.** Mount the existing discovery UI, replace `MOCK_ROUTES` with live Convex data, and demote the chat planning agent to a secondary "Plan a ride" drawer entry — kept, not deleted, not modified for MVP.
+1. **Make discovery the behavior of the route plan view (no separate screen).** The map + chat home is the default landing; when no route is on the map, curated-route **suggestion cards** sit over the chat input (tap → the route plots on the map), and chatting a natural-language request returns curated routes as the existing route-cards. Replace `MOCK_ROUTES` with live Convex data via a new `useCuratedDiscovery` hook. No dedicated Discovery screen, no archetype filter-bar / sort-toggle / by-state browse picker.
 2. **Expose the catalog.** Add the two net-new public Convex queries that don't exist yet (`listCuratedRoutes` for browse, `getCuratedRouteDetail` for the detail surface) over the existing healthy tables.
 3. **Make the catalog trustworthy at the UI seam.** Five foundational backend gates fix verified data-truth problems before any feature renders: seed the spatial index, map the UI↔DB archetype enums in the query layer, add a first-class save reference for curated routes, normalize dirty state strings, and clamp junk length outliers. These are not optional polish — they are the difference between a working surface and a broken one.
 4. **Surface a lean, honest detail view.** Because rich enrichment (photos/history/elevation) is verified-empty and ~45% of routes lack geometry, the detail view renders only what real data supports: a name/summary-derived headline, score bars (rendered as % or bars, never "92"), polyline-or-centroid-fallback geometry, and basic weather conditions. No badges, no synthetic richness.

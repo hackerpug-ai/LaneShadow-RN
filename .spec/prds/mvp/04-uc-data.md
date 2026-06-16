@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
-last_validated: 2026-06-13
-prd_version: 2.0.0
+last_validated: 2026-06-15
+prd_version: 3.0.0
 functional_group: DATA
 ---
 
@@ -38,14 +38,14 @@ GATE (SPATIAL-RESOLVE). The @convex-dev/geospatial component (v0.2.1) is install
 
 ## UC-DATA-02: Archetype mapping layer (UI enum <-> DB enum)
 
-GATE (ARCHETYPE-ALIGN). The Discovery UI filter chips use archetypes twisties|scenic|technical|cruising|sport|adventure (+ 'all'); the DB primaryArchetype union is twisties|mountain|coastal|adventure|scenic_byway|desert. Only 'twisties' and 'adventure' overlap exactly. The fix is a PURE mapping layer applied inside the query layer (UI archetype filter -> set of DB archetypes for filtering; DB primaryArchetype -> UI archetype for the returned card), NOT a destructive DB migration. Mapping (locked stance): scenic -> {scenic_byway, coastal}, technical -> {mountain}, cruising -> {scenic_byway} fallback, sport -> {twisties} fallback, desert -> adventure on the way back to UI, mountain/coastal/scenic_byway -> nearest UI bucket. The exact table is finalized in 04-api-design; the principle is locked: map in the read path, leave the DB enum untouched. listCuratedRoutes accepts UI archetypes and returns UI archetypes.
+GATE (ARCHETYPE-ALIGN). The discovery UI archetype enum is twisties|scenic|technical|cruising|sport|adventure (+ 'all') — used now by the suggestion cards and chat-driven discovery (no filter chip UI in v3.0.0); the DB primaryArchetype union is twisties|mountain|coastal|adventure|scenic_byway|desert. Only 'twisties' and 'adventure' overlap exactly. The fix is a PURE mapping layer applied inside the query layer (UI archetype filter -> set of DB archetypes for filtering; DB primaryArchetype -> UI archetype for the returned card), NOT a destructive DB migration. Mapping (locked stance): scenic -> {scenic_byway, coastal}, technical -> {mountain}, cruising -> {scenic_byway} fallback, sport -> {twisties} fallback, desert -> adventure on the way back to UI, mountain/coastal/scenic_byway -> nearest UI bucket. The exact table is finalized in 04-api-design; the principle is locked: map in the read path, leave the DB enum untouched. listCuratedRoutes accepts UI archetypes and returns UI archetypes.
 
 **Test tier:** integration  
 **Verification service:** live Convex dev deployment (mapping transform itself unit-justified: pure, zero I/O)
 
 **Acceptance Criteria**
 
-- ☐ Rider can filter Discovery by the UI archetype chip 'scenic' and receive only curated_routes whose DB primaryArchetype maps to scenic (scenic_byway/coastal) from live Convex.
+- ☐ System can resolve a 'scenic' archetype request (from a suggestion card or chat-driven discovery) through listCuratedRoutes and return only curated_routes whose DB primaryArchetype maps to scenic (scenic_byway/coastal) from live Convex.
 - ☐ Rider can receive every discovery card with a primaryArchetype value that is a valid UI archetype enum (never a raw DB-only value like mountain or desert) from live Convex.
 - ☐ System can map a DB primaryArchetype with no exact UI equivalent (mountain, coastal, scenic_byway, desert) to a deterministic UI bucket so no route is dropped from results against live Convex.
 - ☐ Founder can verify the archetype mapping is a pure deterministic transform (unit-tested, zero I/O) and that no curated_routes document's primaryArchetype value was mutated by this gate.
@@ -77,7 +77,7 @@ GATE (DATA-NORM). Live data is dirty: 9 states appear under two spellings (e.g. 
 
 **Acceptance Criteria**
 
-- ☐ Rider can filter Discovery by a state (e.g. North Carolina) and receive routes stored under BOTH spelling variants of that state from live Convex.
+- ☐ System can resolve a state request (e.g. North Carolina, from chat-driven discovery) through listCuratedRoutes and return routes stored under BOTH spelling variants of that state from live Convex.
 - ☐ Rider can view a discovery card whose lengthMiles is sanitized so no route ever displays an absurd length (>1000mi outlier or 0mi) sourced from live Convex.
 - ☐ System can return a single canonical state spelling on every discovery card regardless of which raw spelling the underlying curated_routes document stored, verified against live Convex.
 - ☐ Founder can verify state-normalize and length-clamp are pure deterministic transforms (unit-tested, zero I/O) and that the gate performs no write-back to the curated_routes catalog.

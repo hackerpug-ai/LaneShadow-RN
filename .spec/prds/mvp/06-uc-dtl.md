@@ -1,7 +1,7 @@
 ---
 stability: FEATURE_SPEC
-last_validated: 2026-06-13
-prd_version: 2.0.0
+last_validated: 2026-06-15
+prd_version: 3.0.0
 functional_group: DTL
 ---
 
@@ -80,7 +80,7 @@ Approximately 45% of curated_routes have no routePolyline. The detail screen mus
 
 ## UC-DTL-04: Detail actions: Save and Ride It operate end-to-end
 
-From the detail screen a rider can save the route to their library (UC-SAVE-07 in the RN planner's domain, referenced here for UX completeness) or immediately hand off to a maps app. Both buttons must be reachable without scrolling on a standard iPhone 14 viewport. The 'Ride It' button opens Apple Maps (iOS) or Google Maps (Android) via deep link using the centroid coordinates as the destination.
+From the detail screen a rider can save the route to their library (UC-SAVE-01, referenced here for UX completeness) or immediately hand off to a maps app. Both buttons must be reachable without scrolling on a standard iPhone 14 viewport. The 'Ride It' button opens Apple Maps (iOS) or Google Maps (Android) via deep link using the centroid coordinates as the destination.
 
 **Test tier:** e2e  
 **Verification service:** real iOS device + real Android device — tap Ride It and verify the maps app opens with the correct destination

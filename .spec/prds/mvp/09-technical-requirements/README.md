@@ -1,7 +1,7 @@
 ---
 stability: CONSTITUTION
-last_validated: 2026-06-13
-prd_version: 2.0.0
+last_validated: 2026-06-15
+prd_version: 3.0.0
 ---
 
 # Technical Requirements
@@ -34,3 +34,4 @@ Technical constitution for the Discovery-MVP. Read-path-first over the existing 
 | 1.0.1 | 2026-06-13 | Split the merged UI-infrastructure file: client wiring stays in 07; design tokens / ScoreDimensionBar / detail layout extracted to 10-design-system.md |
 | 1.0.2 | 2026-06-13 | Resolved auth posture (R-DATA-9): listCuratedRoutes / getCuratedRouteDetail locked to Clerk `requireIdentity`; added auth-gate precondition to 04-api-design + 01-architecture-posture + 08-technical-risks |
 | 2.0.0 | 2026-06-14 | **DELTA-001 (post-start, folded into Sprint 01):** added Route Delta to 09-routing (delete `discover.tsx`; discovery re-homed onto the `index.tsx` map/chat home) + §7 to 07-ui-infrastructure (re-home onto existing chat route-card machinery; pills → curated routes keyed to "no route on map"; footer full-chat button; drop filter-bar/sort). See [DELTA-001](../DELTA-001-unified-map-chat-discovery.md). |
+| 3.0.0 | 2026-06-15 | **Separate discovery view removed.** 09-routing: Route Delta v3.0.0 (delete `discover.tsx` + structured-browse UI; discovery is a state of the plan view; 4 routes). 07-ui-infrastructure: rewritten canonical-first around the plan-view machinery (suggestion cards over the input + `routing_card`→map loop); dedicated-screen plan demoted to historical §7. 10-design-system: filter-bar/sort-toggle/state-sheet framing retired (archetype mapping + state normalization retained for chat-driven discovery; map-divergence fix marked moot). |

@@ -1,10 +1,12 @@
 ---
 stability: CONSTITUTION
-last_validated: 2026-06-13
-prd_version: 2.0.0
+last_validated: 2026-06-15
+prd_version: 3.0.0
 ---
 
 # Design System & Visual Specifications
+
+> **✅ v3.0.0 (2026-06-15): the separate discovery view is removed.** Discovery rides the route plan view (`index.tsx`); there is no dedicated Discovery screen, archetype **filter-bar**, best/nearest **sort-toggle**, or by-state **browse picker**. The **archetype UI↔DB mapping** (§4) and **state-string normalization** (§5) below are still required — they now serve the curated-route **suggestion cards** and **chat-driven** discovery (archetype/region intent expressed conversationally and via the `useCuratedDiscovery` params), not a filter bar or state sheet. The map-divergence fix (§3) is **moot** (discovery uses the plan view's existing Mapbox); the note is retained only for the detail-screen polyline.
 
 The visual/token side of the MVP UI that the client-wiring section ([07-ui-infrastructure.md](./07-ui-infrastructure.md)) does not own: token rules for new screens, the new `ScoreDimensionBar` component, the archetype mapping layer's UI enum, state-string display normalization, and the route-detail scroll architecture. Scope guardrail: **ship the current RN look** — no design-system rebuild; Copper Navigator is the post-MVP north star.
 
@@ -28,11 +30,11 @@ All new components (`ScoreDimensionBar`, route detail screen, curated route deta
 | Weather conditions row | Existing `WeatherPillsRow` (components/map/weather-pills-row.tsx) |
 | Archetype chip | Existing `Badge` component (components/ui/badge.tsx), variant='secondary' |
 
-All glassmorphic overlays on the discovery map use `surface.glass` (rgba at 72% alpha per colors.tokens.json) — not the raw hex + inline opacity pattern currently in route-discovery-screen.tsx. The inline `CC` hex-alpha approach in the existing components is acceptable for MVP (do not refactor as part of MVP); new components use the token.
+Glassmorphic overlays on the plan view (the curated-route **suggestion cards** over the chat input) use `surface.glass` (rgba at 72% alpha per colors.tokens.json) — not a raw hex + inline opacity pattern. The inline `CC` hex-alpha approach in existing components is acceptable for MVP (do not refactor as part of MVP); new components use the token.
 
 ## 2. ScoreDimensionBar — new reusable component
 
-**File:** `components/discovery/score-dimension-bar.tsx`
+**File:** `components/ui/score-dimension-bar.tsx` (in `components/ui/`, not the retired `components/discovery/` dir — this primitive serves the curated-route detail view)
 
 This is the only net-new UI primitive required by the MVP. It renders one dimension score as a labeled horizontal progress bar.
 
@@ -57,44 +59,39 @@ type ScoreDimensionBarProps = {
 
 **No Slider component reuse:** The existing `Slider` (components/ui/slider.tsx) uses PanResponder for interactive dragging. ScoreDimensionBar is display-only and must not inherit the interaction overhead of Slider. Build it independently.
 
-## 3. Map component divergence fix
+## 3. Map component divergence — moot under v3.0.0
 
-**Problem:** `components/discovery/route-discovery-screen.tsx` imports `MapViewWrapper` from `components/map/map-view.tsx` which uses `react-native-maps` (MapView from @PROVIDER_GOOGLE). The live home screen (`app/(app)/(tabs)/index.tsx`) and the saved-route detail (`app/(app)/saved-route/[id].tsx`) both use `MapboxMapView` from `components/map/mapbox-map-view.tsx`.
+> **Retired.** This fix targeted the dedicated `route-discovery-screen.tsx` (which rendered via `react-native-maps`/`MapViewWrapper`). With the separate discovery view removed, discovery rides the route plan view (`app/(app)/(tabs)/index.tsx`), which **already uses `MapboxMapView`** — there is no second map engine to converge. Curated routes plot through the plan view's existing route-polyline machinery.
 
-**Required fix for D5 (wire + mount Discovery):** Replace `MapViewWrapper` with `MapboxMapView` in route-discovery-screen.tsx. This is a prerequisite for pin rendering on the correct base map (Copper Navigator Mapbox style) and for polyline rendering in the detail screen.
-
-**Impact:** `MapViewWrapper` supports a `markers` prop array; `MapboxMapView` renders markers differently (see route-polyline-component.tsx for the polyline pattern). The D5 implementer must adapt the pin rendering to Mapbox's annotation API. `RoutePin` (components/discovery/route-pin.tsx) currently wraps `Marker` from `react-native-maps` — this must be replaced with a Mapbox-compatible annotation or PointAnnotation.
-
-**Out of scope for this fix:** Deleting `map-view.tsx`. It may be used elsewhere; flag for the RN planner to audit before removal.
-
-> This is the visual/UX framing of the divergence; the implementation contract (coordinate-format trap, marker render paths, camera handle parity) is in [07-ui-infrastructure.md §2](./07-ui-infrastructure.md).
+The only remaining map concern is the **curated route detail** screen (`app/(app)/curated-route/[id].tsx`), which renders its own `MapboxMapView` instance for the polyline (or a centroid-marker fallback for the ~45% of routes lacking geometry). It mirrors the saved-route detail (`app/(app)/saved-route/[id].tsx`) map pattern. No `react-native-maps` on any discovery/detail path.
 
 ## 4. Archetype UI enum — mapping layer spec
 
-The filter bar (`discovery-filter-bar.tsx`) exposes UI archetypes: `twisties | scenic | technical | cruising | sport | adventure`. The Convex `primaryArchetype` field contains: `twisties | mountain | coastal | adventure | scenic_byway | desert`.
+The archetype **UI enum** — `twisties | scenic | technical | cruising | sport | adventure` — is the vocabulary the suggestion cards and chat-driven discovery map against the Convex `primaryArchetype` field (`twisties | mountain | coastal | adventure | scenic_byway | desert`). There is no filter bar in the MVP; archetype intent is expressed conversationally or via a `useCuratedDiscovery` param.
 
 Only `twisties` and `adventure` overlap. The mapping layer lives in the `listCuratedRoutes` query (server-side) or in `useCuratedDiscovery` hook (client-side). Frontend designer recommendation: put it in the hook so the UI enum stays stable and the mapping is a single client-side transform rather than a server concern.
 
-**UI → DB mapping table (to implement in the hook):**
+**UI → DB mapping table.** The **authoritative copy lives in [04-api-design.md](./04-api-design.md) "Archetype map (UC-DATA-02)"**; reproduced here for the UI side. These MUST stay identical (and match the locked mapping in [04-uc-data.md](../04-uc-data.md) UC-DATA-02).
 
-| UI chip | DB primaryArchetype values to include |
-|---|---|
-| twisties | twisties |
-| scenic | mountain, coastal, scenic_byway |
-| technical | (empty — no direct DB match; omit from filter or map to closest) |
-| cruising | desert |
-| sport | (no DB match; omit from filter for MVP) |
-| adventure | adventure |
+| UI archetype | DB primaryArchetype set (filter) | DB → UI (return) |
+|---|---|---|
+| twisties | {twisties} | twisties → twisties |
+| scenic | {scenic_byway, coastal} | scenic_byway → scenic; coastal → scenic |
+| technical | {mountain} | mountain → technical |
+| cruising | {scenic_byway} (fallback) | — (no native DB source) |
+| sport | {twisties} (fallback) | — (no native DB source) |
+| adventure | {adventure, desert} | adventure → adventure; desert → adventure |
+| all | (no filter) | — |
 
-**MVP decision:** The `technical` and `sport` chips have no DB archetype match. For MVP, display them in the filter bar (they exist in the component) but inform the rider with a count of 0 when selected, which triggers the archetype-specific empty state. Do NOT silently remove chips — the filter bar is a scrollable horizontal list and removing chips mid-stream causes layout shift. Post-MVP: add `technical` and `sport` as valid DB archetypes when the curation pipeline is extended.
+**MVP decision:** The mapping is applied in the read path (the `listCuratedRoutes` query / `useCuratedDiscovery`, per 04-api-design); the DB enum is never mutated and a raw DB-only value is never returned to the client. `cruising` and `sport` have no native DB archetype — they map via a fallback set until the curation pipeline adds them post-MVP. (Earlier drafts of this table diverged from 04-api-design; v3.0.0 reconciles them to the locked table.)
 
 > Backend note: the canonical archetype-map implementation and its placement decision are also recorded in [04-api-design.md](./04-api-design.md) (`Archetype map`). These must stay consistent.
 
 ## 5. State-string normalization (UI impact)
 
-The DB has dirty state strings (e.g. 'North-Carolina' vs 'North Carolina'). The state filter sheet (`components/discovery/state-filter-sheet.tsx`) displays state names from the DB. The normalization MUST happen in the query/hook before display, not in the UI component. The UI component receives a clean string and renders it. This is a data-layer concern but is called out here because a dirty state name rendering in the filter sheet would look broken to the rider.
+The DB has dirty state strings (e.g. 'North-Carolina' vs 'North Carolina'). With no by-state browse picker in the MVP, state surfaces in two places: (1) the route region shown on a suggestion card or detail header, and (2) **chat-driven state discovery** ('scenic roads in North Carolina'), where the request must match routes stored under either spelling variant. The normalization MUST happen in the query/hook (DATA-NORM gate), not in a UI component — both the displayed string and the chat-match comparison rely on the cleaned value. A dirty state name rendering on a card or in the detail header would look broken to the rider.
 
-**Display rule:** Normalize by replacing hyphens with spaces and title-casing: `'North-Carolina'.replace(/-/g, ' ')`. All 50 states + multi-state variants must appear exactly once in the state list, deduplicated after normalization.
+**Display rule:** Normalize by replacing hyphens with spaces and title-casing: `'North-Carolina'.replace(/-/g, ' ')`. State values must be deduplicated after normalization so a route stored under either spelling variant is matched once by chat-driven state discovery and displayed consistently.
 
 > The authoritative normalization happens in the data layer ([03-data-schema.md](./03-data-schema.md) / DATA-NORM gate); this section governs only how the cleaned string is displayed.
 
