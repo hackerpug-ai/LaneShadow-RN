@@ -94,13 +94,6 @@ export const MenuLayout = ({
       title: 'Navigate',
       items: [
         {
-          label: 'Plan a ride',
-          icon: 'motorbike',
-          active: activeTab === 'index',
-          onPress: () => router.push('/(app)/(tabs)'),
-          testID: 'drawer-plan-a-ride',
-        },
-        {
           label: 'Settings',
           icon: 'cog',
           active: activeTab === 'settings',
