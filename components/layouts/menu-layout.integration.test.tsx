@@ -18,6 +18,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock dependencies
 // ---------------------------------------------------------------------------
 
+// Mock convex/react - must be defined before vi.mock calls
+const mockUseQuery = vi.fn()
+const mockUseMutation = vi.fn()
+
+vi.mock('convex/react', () => ({
+  useQuery: mockUseQuery,
+  useMutation: mockUseMutation,
+}))
+
 // Mock semantic theme
 const mockSemanticTheme = {
   color: {
@@ -128,12 +137,6 @@ vi.mock('../../../hooks/use-semantic-theme', () => ({
   useSemanticTheme: () => ({ semantic: mockSemanticTheme }),
 }))
 
-// Mock convex/react
-vi.mock('convex/react', () => ({
-  useQuery: vi.fn(),
-  useMutation: vi.fn(),
-}))
-
 // Mock expo-router
 vi.mock('expo-router', () => ({
   useRouter: () => ({
@@ -188,7 +191,7 @@ vi.mock('../../../components/ui/session-context-menu', () => ({
 // Import after mocks
 // ---------------------------------------------------------------------------
 
-import { MenuLayout } from '../menu-layout'
+import { MenuLayout } from './menu-layout'
 
 // ---------------------------------------------------------------------------
 // Mock data
@@ -228,8 +231,8 @@ describe('MenuLayout Integration', () => {
     vi.clearAllMocks()
     
     // Reset mocks
-    vi.mocked(useQuery).mockReturnValue(mockSessions)
-    vi.mocked(useMutation).mockReturnValue(mockDeleteSession)
+    mockUseQuery.mockReturnValue(mockSessions)
+    mockUseMutation.mockReturnValue(mockDeleteSession)
   })
 
   /**
