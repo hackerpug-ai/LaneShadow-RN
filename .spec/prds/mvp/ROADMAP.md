@@ -85,7 +85,7 @@ The `Milestone` cell links to the GitHub Milestone whose title is `sprint-{NN}`.
 | DESIGN-S01-003 | No-route empty/invite home-state spec (`home-empty-state`): discovery-invite copy + empty-catalog messaging over a `surface.glass` scrim | frontend-designer | 45 min |
 | DESIGN-S01-004 | Footer full-chat button distinction spec (icon/shape vs send; ≥44pt; active-state) | frontend-designer | 30 min |
 
-**Next Sprint Tasks:** *(expanded JIT by kb-sprint-tasks-plan when the sprint is (re)activated. Built-and-carried: DATA-001/002/004/005, DISC-002, DATA-008 (rough). New/fix work: DATA-008b, DISC-016/017/019/020/021, OPS-001 re-verify, DISC-018, and the four DESIGN-S01 specs.)*
+**Next Sprint Tasks:** Expanded by /kb-sprint-tasks-plan (2026-06-16) → [`tasks/sprint-01-discovery-on-the-route-plan-view/`](./tasks/sprint-01-discovery-on-the-route-plan-view/SPRINT.md) — 18 task files + SPRINT.md, avg quality 108/115 (min 105), every FEATURE task passes the fakeability floor (validate_scenario, 0 CRITICAL/HIGH). Built-and-carried: DATA-001/002/004/005, DISC-002, DATA-008 (verify). New/fix work: DATA-008b, DISC-016/017/018/019/020/021, OPS-001 (re-verify), and the four DESIGN-S01 specs. Run with `/kb-run-sprint tasks/sprint-01-discovery-on-the-route-plan-view`.
 
 #### Dependencies
 
