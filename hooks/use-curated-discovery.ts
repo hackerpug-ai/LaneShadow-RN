@@ -51,7 +51,7 @@ export function useCuratedDiscovery(
     if (params.state) args.state = params.state
     if (derivedCenter && params.sort === 'nearest') args.center = derivedCenter
     if (params.archetypes && params.archetypes.length > 0) args.archetypes = params.archetypes
-    args.sort = params.sort ?? 'best'
+    args.sort = params.sort === 'nearest' && !derivedCenter ? 'best' : (params.sort ?? 'best')
     args.limit = params.limit ?? 50
 
     return args
