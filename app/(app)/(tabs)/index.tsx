@@ -2,7 +2,7 @@ import { useAuth } from '@clerk/clerk-expo'
 import { useQuery } from 'convex/react'
 import { useLocalSearchParams, useRouter, useSegments } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Keyboard, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import Animated, {
   FadeInDown,
   useAnimatedStyle,
@@ -64,14 +64,6 @@ type PersistentCameraState = {
   zoom: number
   timestamp: number
 }
-
-// Suggestion chips for idle state
-const IDLE_SUGGESTIONS = [
-  'Plan a scenic ride',
-  'Ride to the coast',
-  'Find coffee nearby',
-  'Avoid highways',
-]
 
 const CHAT_TRANSITION_MS = 260
 

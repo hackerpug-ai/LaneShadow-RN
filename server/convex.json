@@ -1,0 +1,18 @@
+{
+  "$schema": "../node_modules/convex/schemas/convex.schema.json",
+  "node": {
+    "externalPackages": [
+      "@workos-inc/node",
+      "papaparse",
+      "langchain",
+      "@langchain/core",
+      "@langchain/openai",
+      "@langchain/langgraph",
+      "jose"
+    ],
+    "nodeVersion": "20"
+  },
+  "aiFiles": {
+    "enabled": false
+  }
+}
